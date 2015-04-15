@@ -1,0 +1,64 @@
+/* 
+ ********************************************************
+ Framework configuration defaults. 
+
+ These can be overridden by a service local config.js
+ ********************************************************
+*/
+
+var config = {};
+
+/*
+ Application environment.
+ */
+
+config.environment = 'development';
+
+/*
+ ***********************
+ MongoDB Configuration
+ ***********************
+ */
+config.mongodb = {}
+
+config.mongodb.default = {
+    servers: "mongodb://localhost:27017/test"
+}
+
+//config.mongodb.servers = "mongodb://localhost:27017/test";
+
+//config.mongodb.replicaSet = 'app';
+
+//config.mongodb.replicaSetTimeout = 30000;
+
+/*
+ ***********************
+ Elastic Search Configuration
+ ***********************
+ */
+config.elasticsearch = {};
+
+config.elasticsearch.default = {
+    host: ["127.0.0.1:9200"],
+    sniffOnStart: true,
+    sniffInterval: 30000,
+    sniffOnConnectionFault: true,
+    requestTimeout: 120000,
+    deadTimeout: 30000,
+    maxRetries: 3
+};
+
+/*
+ ***********************
+ StatsD Configuration
+ ***********************
+ */
+config.statsd = {};
+
+config.statsd.default = {
+    host: '127.0.0.1',
+    mock: false
+};
+
+
+module.exports = config;

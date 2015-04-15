@@ -1,0 +1,26 @@
+'use strict';
+
+var _ = require('lodash');
+
+module.exports = function(customConfig, logger) {
+    var elasticsearch = require('elasticsearch');
+
+    /* Common defaults, can be over-ridden by user provided config */
+    var config = {
+        host: ["127.0.0.1:9200"],
+        sniffOnStart: true,
+        sniffInterval: 30000,
+        sniffOnConnectionFault: true,
+        requestTimeout: 120000,
+        deadTimeout: 30000,
+        maxRetries: 3
+    };
+
+
+    _.merge(config, customConfig);
+
+    // TODO: there's no error handling here at all???
+    var client = new elasticsearch.Client(config);
+
+    return client;
+}
