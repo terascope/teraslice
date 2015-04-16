@@ -2,6 +2,7 @@
 
 var domain = require('domain');
 var primary = domain.create();
+var logger = require('./lib/logging').logger;
 
 function errorHandler(err) {
     logger.error("Worker crashed");
@@ -21,8 +22,6 @@ primary.on('error', errorHandler);
 process.on('uncaughtException', errorHandler);
 
 primary.run(function() {   
-    var logger = require('./lib/logging').logger;
-
     var sysconfig = require('./lib/sysconfig');
 
     /*
