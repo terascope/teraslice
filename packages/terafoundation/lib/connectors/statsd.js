@@ -13,6 +13,8 @@ module.exports = function(customConfig, logger) {
 
     _.merge(config, customConfig);
 
+    logger.info("Using statsd host: " + config.host);
+
     var client = new StatsD(config);
 
     return client;

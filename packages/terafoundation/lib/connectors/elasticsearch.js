@@ -19,6 +19,8 @@ module.exports = function(customConfig, logger) {
 
     _.merge(config, customConfig);
 
+    logger.info("Using elasticsearch hosts: " + config.host);
+
     // TODO: there's no error handling here at all???
     var client = new elasticsearch.Client(config);
 

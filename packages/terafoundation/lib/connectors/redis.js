@@ -9,6 +9,7 @@ module.exports = function(customConfig, logger) {
 
     _.merge(config, customConfig);
 
+    logger.info("Using redis host: " + config.ip);
 
     /*var client = redis.createClient(6379, process.env.REDIS_IP || "127.0.0.1");
 

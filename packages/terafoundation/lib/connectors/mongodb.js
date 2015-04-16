@@ -11,20 +11,22 @@ module.exports = function(customConfig, logger) {
     }
 
     _.merge(config, customConfig);
+    
+    logger.info("Using mongo connection string: " + config.servers);
 
-    var serverConfig = { 
-        server: { 
+    var serverConfig = {
+        server: {
             auto_reconnect: true,
             socketOptions: { keepAlive: 1, connectTimeoutMS: 30000 }
-        } 
+        }
     };
 
     if (config.replicaSet) {
-        serverConfig.replset = { 
+        serverConfig.replset = {
             rs_name: config.replicaSet,
-            socketOptions: { 
+            socketOptions: {
                 keepAlive: 1,
-                connectTimeoutMS : config.replicaSetTimeout 
+                connectTimeoutMS : config.replicaSetTimeout
             },
             readPreference: 'secondaryPreferred'
         };
@@ -44,5 +46,5 @@ module.exports = function(customConfig, logger) {
         logger.error('Error: mongo connection dropped. Automatically reconnected.');
     });
 
-    return mongoose;    
+    return mongoose;
 }
