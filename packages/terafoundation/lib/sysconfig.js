@@ -19,8 +19,9 @@ var config = require(configFile);
 
 // Annotate the config with some information about this instance.
 
-config._nodeName = os.hostname() 
+config._nodeName = os.hostname();
 if (cluster.worker) {
     config._nodeName += '.' + cluster.worker.id;
 }
-module.exports = config
+
+module.exports = config;
