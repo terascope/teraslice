@@ -12,7 +12,7 @@ if (fs.existsSync('/app/config/config.js')) {
 }
 
 if (! configFile) {
-    configFile = process.env.AGRISERVER_CONFIG || process.cwd() + '/config.js';
+    configFile = process.env.TERAFOUNDATION_CONFIG || process.cwd() + '/config.js';
 }
 
 var config = require(configFile);

@@ -4,7 +4,7 @@ var bunyan = require('bunyan');
 var config = require('./sysconfig');
 
 module.exports = function(name) {
-    if (! name) name = 'AgriFoundation';
+    if (! name) name = 'TeraFoundation';
 
     var log_config = {
         name: name
