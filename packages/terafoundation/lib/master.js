@@ -4,6 +4,10 @@ module.exports = function(context) {
     var cluster = context.cluster;
     var logger = context.logger;
 
+    var plugin = context.master_plugin;
+
+    if (plugin) plugin.pre();
+
     var shuttingdown = false;
 
     var workerCount = require('os').cpus().length;
@@ -40,6 +44,8 @@ module.exports = function(context) {
             process.exit();
         }            
     })
+
+    if (plugin) plugin.post();
 
     // Put a friendly message on the terminal of the server.
     logger.info("Service starting");

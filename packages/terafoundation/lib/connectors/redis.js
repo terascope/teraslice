@@ -1,22 +1,24 @@
 'use strict';
 
 var _ = require('lodash');
+var redis = require('redis');
 
 module.exports = function(customConfig, logger) {
-    logger.error("Redis hasn't been implemented yet")
-    /*var config = {
+    var config = {
+        host: '127.0.0.1',
+        port: 6379
     };
 
     _.merge(config, customConfig);
 
-    logger.info("Using redis host: " + config.ip);
+    logger.info("Using redis host: " + config.host);
 
-    /*var client = redis.createClient(6379, process.env.REDIS_IP || "127.0.0.1");
+    var client = redis.createClient(config.port, config.host);
 
     // Redis error handler
     client.on("error", function (err) {
         logger.error("Error " + err);
     });
 
-    return client*/
+    return client
 }

@@ -25,23 +25,25 @@ module.exports = function(config) {
 
     primary.run(function() {
 
-        var sysconfig = require('./lib/sysconfig');
-
         /*
          * Service configuration context
          */
         var context = {};
         context.logger = logger;
-        context.sysconfig = sysconfig;
+        context.sysconfig = require('./lib/sysconfig')(context);
+        if (! context.sysconfig) {
+            throw "No system configuration. Can not continue."
+        }
+
         context.cluster = require('cluster');
+
+        loadModule('elasticsearch', config, context);
+        loadModule('mongodb', config, context);
+        loadModule('statsd', config, context);
+        loadModule('redis', config, context);
 
         // The master shouldn't need these connections.
         if (! context.cluster.isMaster) {
-            loadModule('elasticsearch', config, context);
-            loadModule('mongodb', config, context);
-            loadModule('statsd', config, context);
-            loadModule('redis', config, context);
-
             // We have to load this here so it uses the same mongoose instance
             // This is not really where this belongs.
             if (config.baucis) {
@@ -62,6 +64,11 @@ module.exports = function(config) {
          * Use cluster to start multiple workers
          */
         if (context.cluster.isMaster) {
+            // If there's a master plugin defined, pass it on.
+            if (config.master) {
+                context.master_plugin = config.master(context);
+            }
+
             require('./lib/master')(context);
         }
         else {
