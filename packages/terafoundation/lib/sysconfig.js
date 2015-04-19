@@ -15,9 +15,14 @@ module.exports = function(context) {
         configFile = '/app/config/config.js';
     }
 
-    // This always takes precedence
+    // Environment overrides the specific check
     if (process.env.TERAFOUNDATION_CONFIG) {
         configFile = process.env.TERAFOUNDATION_CONFIG; 
+    }
+
+    // If a config file was provided on the command line it take precedence    
+    if (context.configfile) {
+        configFile = context.configfile;
     }
 
     if (! configFile) {

@@ -14,6 +14,7 @@
     "lodash": "~2.2.1",
     "mongoose": "~3.8",
     "node-statsd": "0.0.7",
-    "redis": "^0.12.1"
+    "redis": "^0.12.1",
+    "yargs": "^3.7.2"
   }
 }

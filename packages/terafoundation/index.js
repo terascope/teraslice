@@ -24,12 +24,15 @@ module.exports = function(config) {
     process.on('uncaughtException', errorHandler);
 
     primary.run(function() {
+        var argv = require('yargs')
+            .alias('c', 'configfile').argv;
 
         /*
          * Service configuration context
          */
         var context = {};
         context.logger = logger;
+        context.configfile = argv.configfile;
         context.sysconfig = require('./lib/sysconfig')(context);
         if (! context.sysconfig) {
             throw "No system configuration. Can not continue."
