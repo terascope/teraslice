@@ -70,7 +70,13 @@ module.exports = function(config) {
          **/
         if (argv.bootstrap) {
             if (config.bootstrap && typeof config.bootstrap === 'function') {
-                config.bootstrap(context)
+                config.bootstrap(context, function() {
+                    //process.exit(0);
+                });
+            }
+            else {
+                logger.error("No bootstrap function provided. Nothing to do.");
+                //process.exit(0);
             }
         }
 
