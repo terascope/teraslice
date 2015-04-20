@@ -25,7 +25,8 @@ module.exports = function(config) {
 
     primary.run(function() {
         var argv = require('yargs')
-            .alias('c', 'configfile').argv;
+            .alias('c', 'configfile')
+            .alias('b', 'bootstrap').argv;
 
         /*
          * Service configuration context
@@ -60,6 +61,16 @@ module.exports = function(config) {
             else {
                 logger.info("No worker function provided. Loading default.")
                 context.worker = require('./lib/worker');
+            }
+        }
+
+        /**
+         * If the bootstrap option is provided we run the bootstrap function to 
+         * do any initial application setup. 
+         **/
+        if (argv.bootstrap) {
+            if (config.bootstrap && typeof config.bootstrap === 'function') {
+                config.bootstrap(context)
             }
         }
 
