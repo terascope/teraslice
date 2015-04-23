@@ -4,7 +4,18 @@ module.exports = function(config) {
     var domain = require('domain');
     var primary = domain.create();
 
-    var logger = require('./lib/logging')(config.name);
+    var argv = require('yargs')
+            .alias('c', 'configfile')
+            .alias('b', 'bootstrap').argv;
+
+    var sysconfig = require('./lib/sysconfig')({
+        configfile: argv.configfile
+    });
+        
+    var logger = require('./lib/logging')({
+        name: config.name,
+        sysconfig: sysconfig
+    });
 
     function errorHandler(err) {
         logger.error("Worker crashed");
@@ -24,17 +35,14 @@ module.exports = function(config) {
     process.on('uncaughtException', errorHandler);
 
     primary.run(function() {
-        var argv = require('yargs')
-            .alias('c', 'configfile')
-            .alias('b', 'bootstrap').argv;
-
+        
         /*
          * Service configuration context
          */
         var context = {};
         context.logger = logger;
-        context.configfile = argv.configfile;
-        context.sysconfig = require('./lib/sysconfig')(context);
+        //context.configfile = argv.configfile;
+        context.sysconfig = sysconfig;
         if (! context.sysconfig) {
             throw "No system configuration. Can not continue."
         }

@@ -1,15 +1,9 @@
 'use strict';
-
 var bunyan = require('bunyan');
 
-// Use a temporary logger to bootstrap config
-var config = require('./sysconfig')({
-    logger: bunyan.createLogger({
-        name: "Bootstrap"
-    })
-});
-
-module.exports = function(name) {
+module.exports = function(context) {
+    var name = context.name;
+    var config = context.sysconfig;
     if (! config) {
         throw "No system configuration. Can not continue.";
     }
