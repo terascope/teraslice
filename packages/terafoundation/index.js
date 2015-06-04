@@ -106,7 +106,7 @@ module.exports = function(config) {
         function loadModule(module, config, context) {
             var logger = context.logger;
             var sysconfig = context.sysconfig;
-
+//console.log(config)
             if (config.hasOwnProperty(module)) {
                 logger.info("Loading module " + module)
 

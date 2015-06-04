@@ -28,7 +28,7 @@ module.exports = function(context) {
         ]
     }
     else {
-        var Elasticsearch = require('bunyan-elasticsearch');
+        /*var Elasticsearch = require('bunyan-elasticsearch');
 
         var esStream = new Elasticsearch({
           indexPattern: '[logstash-]YYYY.MM.DD',
@@ -40,7 +40,7 @@ module.exports = function(context) {
             { stream: process.stdout },
             { stream: esStream },
             file_stream            
-        ];
+        ];*/
     }
 
     var logger = bunyan.createLogger(log_config);
