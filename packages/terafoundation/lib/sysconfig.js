@@ -34,6 +34,10 @@ module.exports = function(context) {
         return;
     }
 
+    if (configFile.indexOf('.') === 0) {
+        configFile = process.cwd() + '/' + configFile;
+    }
+
     var config = require(configFile);
 
     // Annotate the config with some information about this instance.

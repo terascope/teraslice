@@ -8,9 +8,9 @@ module.exports = function(customConfig, logger) {
     /* Common defaults, can be over-ridden by user provided config */
     var config = {
         host: ["127.0.0.1:9200"],
-        sniffOnStart: true,
+        sniffOnStart: false,
         sniffInterval: 30000,
-        sniffOnConnectionFault: true,
+        sniffOnConnectionFault: false,
         requestTimeout: 120000,
         deadTimeout: 30000,
         maxRetries: 3
