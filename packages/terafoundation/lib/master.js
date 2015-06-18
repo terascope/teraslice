@@ -21,6 +21,16 @@ module.exports = function(context) {
         for (var id in cluster.workers) {              
             cluster.workers[id].send({ cmd: "stop" });                                      
         }
+
+        setInterval(function() {            
+            if (shuttingdown && _.keys(cluster.workers).length <= 1) {
+                logger.info("All workers have exited. Ending.")
+                process.exit();
+            }
+            else {
+                logger.info("Still waiting for workers to stop.");
+            }
+        }, 1000);
     }
 
     process.on('SIGTERM', shutdown);
@@ -33,16 +43,9 @@ module.exports = function(context) {
 
     cluster.on('exit', function(worker, code, signal) {
         if (! shuttingdown) {
-            logger.info("Worker died " + worker.id + ": launching a new one")
-
+            logger.info("Worker died " + worker.id + ": launching a new one");
             cluster.fork();
-        }
-        
-        // If we're shuttingdown and all the workers have exited then the master can exit.
-        if (shuttingdown && _.keys(cluster.workers).length == 0) {
-            logger.info("All workers have exited. Ending.")
-            process.exit();
-        }            
+        }   
     })
 
     if (plugin) plugin.post();
