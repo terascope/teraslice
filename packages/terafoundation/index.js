@@ -72,37 +72,41 @@ module.exports = function(config) {
             }
         }
 
-        /**
-         * If the bootstrap option is provided we run the bootstrap function to 
-         * do any initial application setup. 
-         **/
-        if (argv.bootstrap) {
-            if (config.bootstrap && typeof config.bootstrap === 'function') {
-                config.bootstrap(context, function() {
-                    //process.exit(0);
-                });
-            }
-            else {
-                logger.error("No bootstrap function provided. Nothing to do.");
-                //process.exit(0);
-            }
-        }
-
-        /**
-         * Use cluster to start multiple workers
-         */
-        if (context.cluster.isMaster) {
-            // If there's a master plugin defined, pass it on.
-            if (config.master) {
-                context.master_plugin = config.master(context);
-            }
-
-            require('./lib/master')(context);
+        if (config.script) {
+            config.script(context);
         }
         else {
-            context.worker(context);
-        }
+            /**
+             * Use cluster to start multiple workers
+             */
+            if (context.cluster.isMaster) {
+                /**
+                 * If the bootstrap option is provided we run the bootstrap function to 
+                 * do any initial application setup. 
+                 **/
+                if (argv.bootstrap) {
+                    if (config.bootstrap && typeof config.bootstrap === 'function') {
+                        config.bootstrap(context, function() {
+                            //process.exit(0);
+                        });
+                    }
+                    else {
+                        logger.error("No bootstrap function provided. Nothing to do.");
+                        //process.exit(0);
+                    }
+                }
 
+                // If there's a master plugin defined, pass it on.
+                if (config.master) {
+                    context.master_plugin = config.master(context);
+                }
+
+                require('./lib/master')(context);
+            }
+            else {
+                context.worker(context);
+            }
+        }
         function loadModule(module, config, context) {
             var logger = context.logger;
             var sysconfig = context.sysconfig;
