@@ -26,8 +26,8 @@ module.exports = function(config) {
         if (err.stack) {
             logger.error(err.stack);
         }
-
-        process.exit(-1);
+        //log saving to disk is async, using hack to give time to flush
+        setTimeout(function(){process.exit(-1);}, 600)
     }
 
     // Domain emits 'error' when it's given an unhandled error
@@ -67,7 +67,7 @@ module.exports = function(config) {
                 context.worker = config.worker;
             }
             else {
-                logger.info("No worker function provided. Loading default.")
+                logger.info("No worker function provided. Loading default.");
                 context.worker = require('./lib/worker');
             }
         }
@@ -112,7 +112,7 @@ module.exports = function(config) {
             var sysconfig = context.sysconfig;
 //console.log(config)
             if (config.hasOwnProperty(module)) {
-                logger.info("Loading module " + module)
+                logger.info("Loading module " + module);
 
                 config[module].forEach(function(env) {
                     var moduleConfig;
@@ -131,4 +131,4 @@ module.exports = function(config) {
     });
 
     return primary;
-}
+};

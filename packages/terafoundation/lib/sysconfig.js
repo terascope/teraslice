@@ -48,4 +48,4 @@ module.exports = function(context) {
     }
 
     return config;
-}
+};

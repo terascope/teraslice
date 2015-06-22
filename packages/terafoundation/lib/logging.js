@@ -12,7 +12,7 @@ module.exports = function(context) {
 
     var log_config = {
         name: name
-    }
+    };
 
     var file_stream = {
         level: 'info',
@@ -46,4 +46,4 @@ module.exports = function(context) {
     var logger = bunyan.createLogger(log_config);
 
     return logger;
-}
+};
