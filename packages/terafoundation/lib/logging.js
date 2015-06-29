@@ -25,10 +25,11 @@ module.exports = function(context) {
 
     var file_stream = {
         level: 'info',
-        path: configPath + '/' + name + '-' + worker_id + '.log',  // log INFO and above to a file
+        path: configPath + '/' + name + '.log'
+        /*path: configPath + '/' + name + '-' + worker_id + '.log',  
         type: 'rotating-file',
         period: '1d',   // daily rotation
-        count: 7        // keep 7 days history
+        count: 7        // keep 7 days history*/
     };
 
     if (config.environment === 'production') {
