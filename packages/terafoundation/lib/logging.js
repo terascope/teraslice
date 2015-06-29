@@ -5,6 +5,7 @@ var fs = require('fs');
 module.exports = function(context) {
     var name = context.name;
     var config = context.sysconfig;
+    var cluster = context.cluster;
     var stats;
 
     if (! config) {
@@ -19,12 +20,15 @@ module.exports = function(context) {
 
     var configPath = config.log_path ? config.log_path : './logs';
 
+    var worker_id = '0'; // Use worker_id 0 for the master
+    if (cluster.isWorker) worker_id = cluster.worker.id;
+
     var file_stream = {
         level: 'info',
-        path: configPath + '/' + name + '.log',  // log INFO and above to a file
+        path: configPath + '/' + name + '-' + worker_id + '.log',  // log INFO and above to a file
         type: 'rotating-file',
         period: '1d',   // daily rotation
-        count: 3        // keep 3 back copies
+        count: 7        // keep 7 days history
     };
 
     if (config.environment === 'production') {
@@ -33,7 +37,7 @@ module.exports = function(context) {
             stats = fs.lstatSync(configPath);
 
             if (stats.isDirectory()) {
-                console.log('Process starting. Logs being written to '+ configPath + '/' + name + '.log ')
+                console.log('Process ' + worker_id + ' starting. Logs being written to '+ configPath + '/' + name + '.log ')
             }
         }
         catch (e) {

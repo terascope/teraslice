@@ -3,6 +3,7 @@
 module.exports = function(config) {
     var domain = require('domain');
     var primary = domain.create();
+    var cluster = require('cluster');
 
     var argv = require('yargs')
             .alias('c', 'configfile')
@@ -14,6 +15,7 @@ module.exports = function(config) {
         
     var logger = require('./lib/logging')({
         name: config.name,
+        cluster: cluster,
         sysconfig: sysconfig
     });
 
@@ -47,7 +49,7 @@ module.exports = function(config) {
             throw "No system configuration. Can not continue."
         }
 
-        context.cluster = require('cluster');
+        context.cluster = cluster;
 
         loadModule('elasticsearch', config, context);
         loadModule('mongodb', config, context);
