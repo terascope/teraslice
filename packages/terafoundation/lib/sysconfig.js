@@ -29,13 +29,13 @@ module.exports = function(context) {
         configFile = process.cwd() + '/config.js';
     }
 
-    if (! fs.existsSync(configFile)) {
-        logger.error("Could not find a usable config.js");
-        return;
-    }
-
     if (configFile.indexOf('.') === 0) {
         configFile = process.cwd() + '/' + configFile;
+    }
+
+    if (! fs.existsSync(configFile)) {
+        console.error("Could not find a usable config.js at the path: " + configFile);
+        return;
     }
 
     var config = require(configFile);
