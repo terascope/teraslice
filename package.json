@@ -1,0 +1,23 @@
+{
+  "name": "teraslice",
+  "version": "1.0.0",
+  "description": "Slice and dice your Elasticsearch data",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/terascope/teraslice.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/terascope/teraslice/issues"
+  },
+  "homepage": "https://github.com/terascope/teraslice#readme",
+  "dependencies": {
+    "bluebird": "^2.9.34",
+    "moment": "^2.10.3"
+  }
+}
