@@ -42,16 +42,21 @@ config.mongodb.default = {
 config.teraslice = {
     source:{
         system: 'elasticsearch',
-        index: 'someName',
+        index: 'events-*',
+        size: 5000,
         auth: 'someToken',
-        chunkSize: '',
+        start:'2015-07-07',
+        end: '2015-08-17',
+        interval:'5_hours',
+        dateFieldName: '@timestamp',
 
         filter: ''
 
     },
     destination:{
         system: 'elasticsearch',
-        index: 'finalDestination',
+        index: 'bigdata',
+        type: 'events',
         auth: 'someToken'
     }
 };
