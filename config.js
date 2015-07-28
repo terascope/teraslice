@@ -15,7 +15,7 @@ var config = {};
 
 config.environment = 'development';
 
-config.log_path = '/Users/kstaken/projects/data/logs'
+config.log_path = '/Users/kstaken/projects/data/logs';
 
 /*
  ***********************
@@ -49,7 +49,6 @@ config.teraslice = {
         end: '2015-08-17',
         interval:'5_hours',
         dateFieldName: '@timestamp',
-
         filter: ''
 
     },
@@ -105,7 +104,7 @@ config.api.ssl_path = '/app/config/ssl';
 
 config.api.redis_ip = '127.0.0.1';
 
-config.api.plugins = ['teranaut', 'veracity', 'logscope', 'ui' ];
+config.api.plugins = ['teranaut'];
 
 // Location of service plugins
 config.api.plugins_path = '/app/api/plugins';
