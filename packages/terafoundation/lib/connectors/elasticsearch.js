@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 
-module.exports = function(customConfig, logger) {
+module.exports = function (customConfig, logger) {
     var elasticsearch = require('elasticsearch');
 
     /* Common defaults, can be over-ridden by user provided config */
@@ -25,4 +25,4 @@ module.exports = function(customConfig, logger) {
     var client = new elasticsearch.Client(config);
 
     return client;
-}
+};

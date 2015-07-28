@@ -6,8 +6,7 @@ var _ = require('lodash');
 var cluster = require('cluster');
 
 
-module.exports = function(context) {
-    var logger = context.logger;
+module.exports = function (context) {
 
     var configFile;
 
@@ -17,7 +16,7 @@ module.exports = function(context) {
 
     // Environment overrides the specific check
     if (process.env.TERAFOUNDATION_CONFIG) {
-        configFile = process.env.TERAFOUNDATION_CONFIG; 
+        configFile = process.env.TERAFOUNDATION_CONFIG;
     }
 
     // If a config file was provided on the command line it take precedence    
@@ -25,7 +24,7 @@ module.exports = function(context) {
         configFile = context.configfile;
     }
 
-    if (! configFile) {
+    if (!configFile) {
         configFile = process.cwd() + '/config.js';
     }
 
@@ -33,8 +32,8 @@ module.exports = function(context) {
         configFile = process.cwd() + '/' + configFile;
     }
 
-    if (! fs.existsSync(configFile)) {
-        console.error("Could not find a usable config.js at the path: " + configFile);
+    if (!fs.existsSync(configFile)) {
+        console.log("Could not find a usable config.js at the path: " + configFile);
         return;
     }
 

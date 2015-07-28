@@ -2,17 +2,17 @@
 var bunyan = require('bunyan');
 var fs = require('fs');
 
-module.exports = function(context) {
+module.exports = function (context) {
     var name = context.name;
     var config = context.sysconfig;
     var cluster = context.cluster;
     var stats;
 
-    if (! config) {
+    if (!config) {
         throw "No system configuration. Can not continue.";
     }
 
-    if (! name) name = 'TeraFoundation';
+    if (!name) name = 'TeraFoundation';
 
     var log_config = {
         name: name
@@ -27,9 +27,9 @@ module.exports = function(context) {
         level: 'info',
         path: configPath + '/' + name + '.log'
         /*path: configPath + '/' + name + '-' + worker_id + '.log',  
-        type: 'rotating-file',
-        period: '1d',   // daily rotation
-        count: 7        // keep 7 days history*/
+         type: 'rotating-file',
+         period: '1d',   // daily rotation
+         count: 7        // keep 7 days history*/
     };
 
     if (config.environment === 'production') {
@@ -38,7 +38,7 @@ module.exports = function(context) {
             stats = fs.lstatSync(configPath);
 
             if (stats.isDirectory()) {
-                console.log('Process ' + worker_id + ' starting. Logs being written to '+ configPath + '/' + name + '.log ')
+                console.log('Process ' + worker_id + ' starting. Logs being written to ' + configPath + '/' + name + '.log ')
             }
         }
         catch (e) {
@@ -52,17 +52,17 @@ module.exports = function(context) {
     else {
         /*var Elasticsearch = require('bunyan-elasticsearch');
 
-        var esStream = new Elasticsearch({
-          indexPattern: '[logstash-]YYYY.MM.DD',
-          type: 'logs',
-          host: 'localhost:9200'
-        });
+         var esStream = new Elasticsearch({
+         indexPattern: '[logstash-]YYYY.MM.DD',
+         type: 'logs',
+         host: 'localhost:9200'
+         });
 
-        log_config.streams =  [
-            { stream: process.stdout },
-            { stream: esStream },
-            file_stream            
-        ];*/
+         log_config.streams =  [
+         { stream: process.stdout },
+         { stream: esStream },
+         file_stream
+         ];*/
     }
 
     var logger = bunyan.createLogger(log_config);

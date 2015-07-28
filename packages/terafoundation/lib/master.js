@@ -1,6 +1,6 @@
 var _ = require('lodash');
 
-module.exports = function(context) {
+module.exports = function (context) {
     var cluster = context.cluster;
     var logger = context.logger;
 
@@ -12,18 +12,18 @@ module.exports = function(context) {
 
     var workerCount = require('os').cpus().length;
 
-    var shutdown = function() {
+    var shutdown = function () {
         logger.info("Shutting down.");
         shuttingdown = true;
 
         logger.info("Notifying workers to stop.");
         logger.info("Waiting for " + _.keys(cluster.workers).length + " workers to stop.");
-        for (var id in cluster.workers) {              
-            cluster.workers[id].send({ cmd: "stop" });                                      
+        for (var id in cluster.workers) {
+            cluster.workers[id].kill('SIGINT');
         }
 
-        setInterval(function() {            
-            if (shuttingdown && _.keys(cluster.workers).length <= 1) {
+        setInterval(function () {
+            if (shuttingdown && _.keys(cluster.workers).length === 0) {
                 logger.info("All workers have exited. Ending.");
                 process.exit();
             }
@@ -35,17 +35,17 @@ module.exports = function(context) {
 
     process.on('SIGTERM', shutdown);
     process.on('SIGINT', shutdown);
-    
+
     logger.info("Starting " + workerCount + " workers.");
     for (var i = 0; i < workerCount; i++) {
-        cluster.fork();   
+        cluster.fork();
     }
 
-    cluster.on('exit', function(worker, code, signal) {
-        if (! shuttingdown) {
+    cluster.on('exit', function (worker, code, signal) {
+        if (!shuttingdown) {
             logger.error("Worker died " + worker.id + ": launching a new one");
             cluster.fork();
-        }   
+        }
     });
 
     if (plugin) plugin.post();

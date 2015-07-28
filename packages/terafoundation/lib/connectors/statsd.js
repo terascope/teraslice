@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 
-module.exports = function(customConfig, logger) {
+module.exports = function (customConfig, logger) {
 
     var StatsD = require('node-statsd').StatsD;
 
@@ -18,4 +18,4 @@ module.exports = function(customConfig, logger) {
     var client = new StatsD(config);
 
     return client;
-}
+};
