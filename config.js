@@ -45,9 +45,9 @@ config.teraslice = {
         index: 'events-*',
         size: 5000,
         auth: 'someToken',
-        start:'2015-07-07',
-        end: '2015-08-17',
-        interval:'5_hours',
+        start:'2015-07-08', //'2015-07-08',//'2015-07-08',
+        end: /*'2015-08-18',*/ '2015-07-09',
+        interval:'5_mins',
         dateFieldName: '@timestamp',
         filter: ''
 
@@ -69,7 +69,10 @@ config.teraslice = {
 config.elasticsearch = {};
 
 config.elasticsearch.default = {
-    host: ["127.0.0.1:9200"]
+    host: ["127.0.0.1:9200"],
+    keepAlive: false,
+    maxRetries: 5,
+    maxSockets: 20,
 };
 
 /*
