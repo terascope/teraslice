@@ -4,6 +4,7 @@ module.exports = function (config) {
     var domain = require('domain');
     var primary = domain.create();
     var cluster = require('cluster');
+    var _ = require('lodash');
 
     var argv = require('yargs')
         .alias('c', 'configfile')
@@ -53,15 +54,16 @@ module.exports = function (config) {
 
         context.cluster = cluster;
 
-        loadModule('elasticsearch', config, context);
-        loadModule('mongodb', config, context);
-        loadModule('statsd', config, context);
-        loadModule('redis', config, context);
+        loadModule('elasticsearch', context);
+        loadModule('mongodb', context);
+        loadModule('statsd', context);
+        loadModule('redis', context);
 
         // The master shouldn't need these connections.
         if (!context.cluster.isMaster) {
             // We have to load this here so it uses the same mongoose instance
-            // This is not really where this belongs.
+            // This is really a TeraServer dependency and doesn't belong here.
+            // It's a problem when TeraServer is loaded from node_modules.
             if (config.baucis) {
                 logger.info("Loading module Baucis");
                 context.baucis = require('baucis');
@@ -112,24 +114,21 @@ module.exports = function (config) {
                 context.worker(context);
             }
         }
-        function loadModule(module, config, context) {
+
+        function loadModule(module, context) {
             var logger = context.logger;
             var sysconfig = context.sysconfig;
 
-            if (config.hasOwnProperty(module)) {
+            if (sysconfig.hasOwnProperty(module)) {
                 logger.info("Loading module " + module);
 
-                config[module].forEach(function (env) {
-                    var moduleConfig;
-                    if (sysconfig.hasOwnProperty(module)) {
-                        moduleConfig = sysconfig[module][env];
-                    }
-
-                    if (!context.hasOwnProperty(module)) {
+                // Load each connection defined for the module
+                _.forOwn(sysconfig[module], function(moduleConfig, conn) {
+                    if (! context.hasOwnProperty(module)) {
                         context[module] = {}
                     }
-
-                    context[module][env] = require('./lib/connectors/' + module)(moduleConfig, logger);
+                    
+                    context[module][conn] = require('./lib/connectors/' + module)(moduleConfig, logger);            
                 })
             }
         }
