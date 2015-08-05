@@ -39,26 +39,7 @@ config.mongodb.default = {
  teraslice Configuration
  ***********************
  */
-config.teraslice = {
-    source:{
-        system: 'elasticsearch',
-        index: 'events-*',
-        size: 5000,
-        auth: 'someToken',
-        start:'2015-07-08', //'2015-07-08',//'2015-07-08',
-        end: /*'2015-08-18',*/ '2015-07-09',
-        interval:'5_mins',
-        dateFieldName: '@timestamp',
-        filter: ''
 
-    },
-    destination:{
-        system: 'elasticsearch',
-        index: 'bigdata',
-        type: 'events',
-        auth: 'someToken'
-    }
-};
 
 //config.teraslice
 /*
