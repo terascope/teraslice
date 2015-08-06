@@ -1,13 +1,13 @@
 'use strict';
 var job;
 
-job = {
+var job1 = {
     name: "Reindex Events",
     lifecycle: "once",
     enabled: false,
     process: [
         {
-            op: 'elasticsearch_slice_reader',
+            op: 'elasticsearch_reader',
             index: 'events-*',
             size: 5000,
             auth: 'someToken',
@@ -17,6 +17,14 @@ job = {
             dateFieldName: '@timestamp',
             filter: ''
 
+        },
+        {
+            op: 'elasticsearch_index_selector',
+            index: 'bigdata',
+            type: 'events',
+            indexPrefix: 'events',
+            timeseries: 'daily',
+            dateFieldName: '@timestamp'
         },
         {
             op: 'elasticsearch_bulk_insert',
@@ -228,7 +236,7 @@ job = {
 };
 
 
-var jobQueue = [];
+//var jobQueue = [];
 
 var reindex = {
     source:{
@@ -272,6 +280,6 @@ var exportData = {
 };
 
 
-jobQueue.push(exportData);
+//jobQueue.push(job1);
 
-module.exports = jobQueue;
+module.exports = job1;
