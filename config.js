@@ -22,11 +22,11 @@ config.log_path = '/Users/kstaken/projects/data/logs';
  MongoDB Configuration
  ***********************
  */
-config.mongodb = {};
+/*config.mongodb = {};
 
 config.mongodb.default = {
     servers: "mongodb://localhost:27017/watchlist"
-};
+};*/
 
 //config.mongodb.servers = "mongodb://localhost:27017/test";
 
@@ -53,7 +53,7 @@ config.elasticsearch.default = {
     host: ["127.0.0.1:9200"],
     keepAlive: false,
     maxRetries: 5,
-    maxSockets: 20,
+    maxSockets: 20
 };
 
 /*
@@ -86,7 +86,7 @@ config.api.port = 8000;
 
 config.api.ssl_path = '/app/config/ssl';
 
-config.api.redis_ip = '127.0.0.1';
+//config.api.redis_ip = '127.0.0.1';
 
 config.api.plugins = ['teranaut'];
 
