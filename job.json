@@ -1,0 +1,35 @@
+
+
+{
+  "name": "Reindex Events",
+  "lifecycle": "once",
+  "enabled": false,
+  "process": [
+    {
+      "op": "elasticsearch_reader",
+      "index": "events-*",
+      "size": 5000,
+      "auth": "someToken",
+      "start": "2015-07-08",
+      "end": "2015-07-08T01:40:00",
+      "interval": "5_mins",
+      "dateFieldName": "@timestamp",
+      "filter": ""
+
+    },
+    {
+      "op": "elasticsearch_index_selector",
+      "index": "bigdata",
+      "type": "events",
+      "indexPrefix": "events",
+      "timeseries": "daily",
+      "dateFieldName": "@timestamp"
+    },
+    {
+      "op": "elasticsearch_bulk_insert",
+      "index": "bigdata",
+      "type": "events",
+      "size": 5000
+    }
+  ]
+}

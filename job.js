@@ -3,7 +3,7 @@ var job;
 
 var job1 = {
     name: "Reindex Events",
-    lifecycle: "once",
+    lifecycle: /*"once",*/ 'persistent',
     enabled: false,
     process: [
         {
@@ -11,9 +11,9 @@ var job1 = {
             index: 'events-*',
             size: 5000,
             auth: 'someToken',
-            start:'2015-07-08',
-            end: '2015-07-09',
-            interval:'5_mins',
+            start: '2015-07-08',
+            end: /*'2015-07-09',*/ '2015-07-08T01:40:00',
+            interval: '5_mins',
             dateFieldName: '@timestamp',
             filter: ''
 
@@ -45,9 +45,9 @@ job = {
             index: 'events-*',
             size: 5000,
             auth: 'someToken',
-            start:'2015-07-08',
+            start: '2015-07-08',
             end: '2015-07-09',
-            interval:'5_mins',
+            interval: '5_mins',
             dateFieldName: '@timestamp',
             filter: ''
 
@@ -94,8 +94,8 @@ job = {
             index: 'events-*',
             size: 5000,
             auth: 'someToken',
-            start:'now',
-            interval:'5_mins',
+            start: 'now',
+            interval: '5_mins',
             dateFieldName: '@timestamp',
             filter: ''
 
@@ -136,7 +136,7 @@ job = {
         {
             op: 'kafka_simple_reader',
             topic: 'incoming',
-            partitions: [1,2,3,4,5],
+            partitions: [1, 2, 3, 4, 5],
             group: 'summary_data_import'
         },
         {
@@ -239,19 +239,19 @@ job = {
 //var jobQueue = [];
 
 var reindex = {
-    source:{
+    source: {
         system: 'elasticsearch',
         index: 'events-*',
         size: 5000,
         auth: 'someToken',
-        start:'2015-07-08', //'2015-07-08',//'2015-07-08',
+        start: '2015-07-08', //'2015-07-08',//'2015-07-08',
         end: /*'2015-08-18',*/ '2015-07-09',
-        interval:'5_mins',
+        interval: '5_mins',
         dateFieldName: '@timestamp',
         filter: ''
 
     },
-    destination:{
+    destination: {
         system: 'elasticsearch',
         index: 'bigdata3',
         type: 'events',
@@ -260,21 +260,21 @@ var reindex = {
 };
 
 var exportData = {
-    source:{
+    source: {
         system: 'elasticsearch',
         index: 'events-*',
         size: 5000,
         auth: 'someToken',
-        start:'2015-07-08', //'2015-07-08',//'2015-07-08',
+        start: '2015-07-08', //'2015-07-08',//'2015-07-08',
         end: '2015-08-18', /*'2015-07-09',*/
-        interval:'10_mins',
+        interval: '10_mins',
         dateFieldName: '@timestamp',
         filter: ''
 
     },
-    destination:{
+    destination: {
         system: 'fs',
-       path: '/Users/jarednoble/Desktop/logs',
+        path: '/Users/jarednoble/Desktop/logs',
 
     }
 };
