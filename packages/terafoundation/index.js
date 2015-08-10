@@ -54,10 +54,12 @@ module.exports = function (config) {
 
         context.cluster = cluster;
 
+        // TODO: this can be made more dynamic so we don't hardcode here.
         loadModule('elasticsearch', context);
         loadModule('mongodb', context);
         loadModule('statsd', context);
         loadModule('redis', context);
+        loadModule('kafka', context);
 
         // The master shouldn't need these connections.
         if (!context.cluster.isMaster) {

@@ -11,6 +11,7 @@
     "bunyan-elasticsearch": "0.0.1",
     "elasticsearch": "^3.1.1",
     "express": "^4.12.3",
+    "kafka-node": "^0.2.27",
     "lodash": "~2.2.1",
     "mongoose": "~3.8",
     "node-statsd": "0.0.7",
