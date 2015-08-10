@@ -11,8 +11,8 @@
       "index": "events-*",
       "size": 5000,
       "auth": "someToken",
-      "start": "2015-07-08T07:00:00",
-      "end": "2015-07-08T07:10:00",
+      "start": "2015-07-08",
+      "end": "2015-07-09",
       "interval": "5_mins",
       "dateFieldName": "@timestamp",
       "filter": ""
@@ -20,7 +20,7 @@
     },
     {
       "op": "elasticsearch_index_selector",
-      "index": "bigdata2",
+      "index": "bigdata3",
       "type": "events",
       "indexPrefix": "events",
       "timeseries": "daily",
@@ -28,8 +28,6 @@
     },
     {
       "op": "elasticsearch_bulk_insert",
-      "index": "bigdata",
-      "type": "events",
       "size": 5000
     }
   ]
