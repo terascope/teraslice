@@ -4,14 +4,15 @@
   "name": "Reindex Events",
   "lifecycle": "once",
   "enabled": false,
+  "analytics": false,
   "process": [
     {
       "op": "elasticsearch_reader",
       "index": "events-*",
       "size": 5000,
       "auth": "someToken",
-      "start": "2015-07-08",
-      "end": "2015-07-08T01:40:00",
+      "start": "2015-07-08T07:00:00",
+      "end": "2015-07-08T07:10:00",
       "interval": "5_mins",
       "dateFieldName": "@timestamp",
       "filter": ""
@@ -19,7 +20,7 @@
     },
     {
       "op": "elasticsearch_index_selector",
-      "index": "bigdata",
+      "index": "bigdata2",
       "type": "events",
       "indexPrefix": "events",
       "timeseries": "daily",
