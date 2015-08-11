@@ -19,7 +19,7 @@
   "dependencies": {
     "bluebird": "^2.9.34",
     "moment": "^2.10.3",
-    "yargs": "^3.18.0",
-    "terafoundation": "terascope/terafoundation"
+    "terafoundation": "terascope/terafoundation",
+    "yargs": "^3.18.0"
   }
 }
