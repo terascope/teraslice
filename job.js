@@ -35,7 +35,7 @@ var job1 = {
     ]
 };
 
-job = {
+var job = {
     name: "Export Events",
     lifecycle: "once",
     enabled: false,
@@ -45,8 +45,8 @@ job = {
             index: 'events-*',
             size: 5000,
             auth: 'someToken',
-            start: '2015-07-08',
-            end: '2015-07-09',
+            start: '2015-07-08T07:00:00',
+            end: '2015-07-08T07:05:00',
             interval: '5_mins',
             dateFieldName: '@timestamp',
             filter: ''
@@ -279,7 +279,63 @@ var exportData = {
     }
 };
 
+var finishedFS = {
+    "name": "Export Events",
+    "lifecycle": "once",
+    "enabled": false,
+    "process": [
+        {
+            "op": "elasticsearch_reader",
+            "index": "events-*",
+            "size": 5000,
+            "auth": "someToken",
+            "start": "2015-07-08",
+            "end": "2015-07-09",
+            "interval": "5_mins",
+            "dateFieldName": "@timestamp",
+            "filter": ""
 
-//jobQueue.push(job1);
+        },
+        {
+            "op": "file_export",
+            "path": "/Users/jarednoble/Desktop/fs",
+            "elastic_metadata": false
+        }
+    ]
+};
+
+var finishedReIndex =
+{
+    "name": "Reindex Events",
+    "lifecycle": "once",
+    "enabled": false,
+    "analytics": false,
+    "process": [
+        {
+            "op": "elasticsearch_reader",
+            "index": "events-*",
+            "size": 5000,
+            "auth": "someToken",
+            "start": "2015-07-08",
+            "end": "2015-07-09",
+            "interval": "5_mins",
+            "dateFieldName": "@timestamp",
+            "filter": ""
+
+        },
+        {
+            "op": "elasticsearch_index_selector",
+            "index": "bigdata3",
+            "type": "events",
+            "indexPrefix": "events",
+            "timeseries": "daily",
+            "dateFieldName": "@timestamp"
+        },
+        {
+            "op": "elasticsearch_bulk_insert",
+            "size": 5000
+        }
+    ]
+};
 
 module.exports = job1;
