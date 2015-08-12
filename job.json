@@ -1,10 +1,9 @@
 
 
 {
-  "name": "Reindex Events",
+  "name": "Export Events",
   "lifecycle": "once",
   "enabled": false,
-  "analytics": false,
   "process": [
     {
       "op": "elasticsearch_reader",
@@ -19,16 +18,9 @@
 
     },
     {
-      "op": "elasticsearch_index_selector",
-      "index": "bigdata3",
-      "type": "events",
-      "indexPrefix": "events",
-      "timeseries": "daily",
-      "dateFieldName": "@timestamp"
-    },
-    {
-      "op": "elasticsearch_bulk_insert",
-      "size": 5000
+      "op": "file_export",
+      "path": "/Users/jarednoble/Desktop/fs",
+      "elastic_metadata": false
     }
   ]
 }
