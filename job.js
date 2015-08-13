@@ -304,6 +304,31 @@ var finishedFS = {
     ]
 };
 
+var finishedImport = {
+    "name": "Import Events",
+    "lifecycle": "once",
+    "enabled": false,
+    "process": [
+        {
+            "op": "file_import",
+            "path": "/Users/jarednoble/Desktop/fs"
+        },
+        {
+            "op": "elasticsearch_index_selector",
+            "index": "importedData",
+            "type": "events",
+            "indexPrefix": "events",
+            "timeseries": "daily",
+            "dateFieldName": "@timestamp"
+        },
+        {
+            "op": "elasticsearch_bulk_insert",
+            "type": "events",
+            "size": 5000
+        }
+    ]
+};
+
 var finishedReIndex =
 {
     "name": "Reindex Events",
