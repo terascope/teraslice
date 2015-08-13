@@ -12,10 +12,8 @@
     {
       "op": "elasticsearch_index_selector",
       "index": "importeddata",
-      "type": "events",
-      "indexPrefix": "events",
-      "timeseries": "daily",
-      "dateFieldName": "@timestamp"
+      "type": "events"
+
     },
     {
       "op": "elasticsearch_bulk_insert",

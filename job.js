@@ -289,8 +289,8 @@ var finishedFS = {
             "index": "events-*",
             "size": 5000,
             "auth": "someToken",
-            "start": "2015-07-08",
-            "end": "2015-07-09",
+            "start": "2015-07-08T07:00:00",
+            "end": "2015-07-08T07:05:00",
             "interval": "5_mins",
             "dateFieldName": "@timestamp",
             "filter": ""
