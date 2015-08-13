@@ -20,6 +20,8 @@
     "bluebird": "^2.9.34",
     "moment": "^2.10.3",
     "terafoundation": "terascope/terafoundation",
-    "yargs": "^3.18.0"
+    "yargs": "^3.18.0",
+    "kafka-node": "^0.2.27",
+    "lodash": "^3.10.1"
   }
 }
