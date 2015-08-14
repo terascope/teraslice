@@ -4,6 +4,7 @@
   "name": "Import Events",
   "lifecycle": "once",
   "enabled": false,
+  "max_retries": false,
   "process": [
     {
       "op": "file_import",
