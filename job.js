@@ -289,8 +289,8 @@ var finishedFS = {
             "index": "events-*",
             "size": 5000,
             "auth": "someToken",
-            "start": "2015-07-08",
-            "end": "2015-07-09",
+            "start": "2015-07-08T07:00:00",
+            "end": "2015-07-08T07:05:00",
             "interval": "5_mins",
             "dateFieldName": "@timestamp",
             "filter": ""
@@ -300,6 +300,31 @@ var finishedFS = {
             "op": "file_export",
             "path": "/Users/jarednoble/Desktop/fs",
             "elastic_metadata": false
+        }
+    ]
+};
+
+var finishedImport = {
+    "name": "Import Events",
+    "lifecycle": "once",
+    "enabled": false,
+    "process": [
+        {
+            "op": "file_import",
+            "path": "/Users/jarednoble/Desktop/fs"
+        },
+        {
+            "op": "elasticsearch_index_selector",
+            "index": "importedData",
+            "type": "events",
+            "indexPrefix": "events",
+            "timeseries": "daily",
+            "dateFieldName": "@timestamp"
+        },
+        {
+            "op": "elasticsearch_bulk_insert",
+            "type": "events",
+            "size": 5000
         }
     ]
 };
