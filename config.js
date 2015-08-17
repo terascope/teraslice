@@ -17,6 +17,9 @@ config.environment = 'development';
 
 config.log_path = '/Users/kstaken/projects/data/logs';
 
+config.teraslice = {};
+config.teraslice.ops_directory = '/Users/jarednoble/Desktop/fakeOps';
+
 /*
  ***********************
  MongoDB Configuration
