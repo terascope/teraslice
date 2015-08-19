@@ -3,7 +3,6 @@
 {
   "name": "Reindex Events",
   "lifecycle": "once",
-  "enabled": false,
   "analytics": false,
   "process": [
     {
@@ -12,7 +11,7 @@
       "size": 5000,
       "auth": "someToken",
       "start": "2015-07-08T00:00:00",
-      "end": "2015-07-08T00:05:00",
+      "end": "2015-07-08T00:10:00",
       "interval": "5_mins",
       "dateFieldName": "@timestamp",
       "filter": ""
