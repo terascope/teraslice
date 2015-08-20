@@ -341,12 +341,10 @@ var finishedReIndex =
             "op": "elasticsearch_reader",
             "index": "events-*",
             "size": 5000,
-            "auth": "someToken",
             "start": "2015-07-08",
             "end": "2015-07-09",
             "interval": "5_mins",
-            "dateFieldName": "@timestamp",
-            "filter": ""
+            "dateFieldName": "@timestamp"
 
         },
         {
@@ -373,7 +371,6 @@ module.exports = convict({
 
     lifecycle: {
         doc: 'Job lifecycle behavior, determines if it should exit on completion or remain active',
-        format: ['once', 'persistent', 'periodic'],
         default: 'once'
     },
     interval: {
