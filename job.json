@@ -4,7 +4,7 @@
   "name": "Reindex Events",
   "lifecycle": "once",
   "analytics": false,
-  "process": [
+  "operations": [
     {
       "op": "elasticsearch_reader",
       "index": "events-*",

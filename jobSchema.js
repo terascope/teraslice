@@ -388,7 +388,7 @@ module.exports = convict({
         doc: 'the number of times a worker will attempt to process the same slice after a error has occurred',
         default: 3
     },
-    process: {
+    operations: {
         doc: 'An array of actions to execute, typically the first is a reader and the last is a sender with ' +
         'any number of processing function in-between',
         default:[],
