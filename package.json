@@ -18,10 +18,11 @@
   "homepage": "https://github.com/terascope/teraslice#readme",
   "dependencies": {
     "bluebird": "^2.9.34",
-    "moment": "^2.10.3",
-    "terafoundation": "terascope/terafoundation",
-    "yargs": "^3.18.0",
     "kafka-node": "^0.2.27",
-    "lodash": "^3.10.1"
+    "lodash": "^3.10.1",
+    "moment": "^2.10.3",
+    "node-webhdfs": "0.0.4",
+    "terafoundation": "terascope/terafoundation",
+    "yargs": "^3.18.0"
   }
 }
