@@ -1,5 +1,6 @@
 'use strict';
 var job;
+var convict = require('convict');
 
 var job1 = {
     name: "Reindex Events",
@@ -340,12 +341,10 @@ var finishedReIndex =
             "op": "elasticsearch_reader",
             "index": "events-*",
             "size": 5000,
-            "auth": "someToken",
             "start": "2015-07-08",
             "end": "2015-07-09",
             "interval": "5_mins",
-            "dateFieldName": "@timestamp",
-            "filter": ""
+            "dateFieldName": "@timestamp"
 
         },
         {
@@ -363,4 +362,39 @@ var finishedReIndex =
     ]
 };
 
-module.exports = job1;
+
+module.exports = convict({
+    name: {
+        doc: 'Name for specific job',
+        default: 'Custom Job'
+    },
+
+    lifecycle: {
+        doc: 'Job lifecycle behavior, determines if it should exit on completion or remain active',
+        default: 'once'
+    },
+    interval: {
+        doc: 'Specify in tandem with periodic lifecycle',
+        default: null
+    },
+    analytics: {
+        doc: 'logs the time it took in milliseconds for each action, as well as the number of docs it receives',
+        default: true
+    },
+    max_retries: {
+        doc: 'the number of times a worker will attempt to process the same slice after a error has occurred',
+        default: 3
+    },
+    operations: {
+        doc: 'An array of actions to execute, typically the first is a reader and the last is a sender with ' +
+        'any number of processing function in-between',
+        default:[],
+        format: function checkJobProcess(arr){
+            if (!(Array.isArray(arr) && arr.length >= 2)) {
+                throw new Error('Process need to be of type array with at least two operations in it')
+            }
+        }
+
+    }
+
+});
