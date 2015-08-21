@@ -375,7 +375,7 @@ module.exports = convict({
     },
     interval: {
         doc: 'Specify in tandem with periodic lifecycle',
-        default: null
+        default: ''
     },
     analytics: {
         doc: 'logs the time it took in milliseconds for each action, as well as the number of docs it receives',
@@ -385,16 +385,17 @@ module.exports = convict({
         doc: 'the number of times a worker will attempt to process the same slice after a error has occurred',
         default: 3
     },
-    operations: {
+    /*operations: {
         doc: 'An array of actions to execute, typically the first is a reader and the last is a sender with ' +
         'any number of processing function in-between',
         default:[],
         format: function checkJobProcess(arr){
+            console.log('what in the world is this',arr);
             if (!(Array.isArray(arr) && arr.length >= 2)) {
                 throw new Error('Process need to be of type array with at least two operations in it')
             }
         }
 
-    }
+    }*/
 
 });
