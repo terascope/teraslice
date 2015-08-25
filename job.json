@@ -4,7 +4,7 @@
   "analytics": false,
   "operations": [
     {
-      "op": "elasticsearch_reader",
+      "_op": "elasticsearch_reader",
       "index": "events-*",
       "size": 5000,
       "start": "2015-08-25",
@@ -13,12 +13,12 @@
       "dateFieldName": "@timestamp"
     },
     {
-      "op": "elasticsearch_index_selector",
+      "_op": "elasticsearch_index_selector",
       "index": "bigdata10",
       "type": "events"
     },
     {
-      "op": "elasticsearch_bulk_insert",
+      "_op": "elasticsearch_bulk_insert",
       "size": 5000
     }
   ]

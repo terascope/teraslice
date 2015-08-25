@@ -401,9 +401,9 @@ module.exports.jobSchema = {
 };
 
 module.exports.commonSchema = {
-    op: {
+    _op: {
         doc: 'Name of operation, it must reflect the name of the file',
         default: '',
         format: 'required_String'
-    },
+    }
 };
