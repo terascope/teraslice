@@ -363,7 +363,7 @@ var finishedReIndex =
 };
 
 
-module.exports = convict({
+module.exports.jobSchema = {
     name: {
         doc: 'Name for specific job',
         default: 'Custom Job'
@@ -398,4 +398,12 @@ module.exports = convict({
 
     }*/
 
-});
+};
+
+module.exports.commonSchema = {
+    op: {
+        doc: 'Name of operation, it must reflect the name of the file',
+        default: '',
+        format: 'required_String'
+    },
+};
