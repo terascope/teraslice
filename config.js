@@ -13,7 +13,7 @@ var config = {};
  Application environment.
  */
 
-config.environment = 'development';
+config.environment = 'production';
 
 config.log_path = '/Users/jarednoble/Desktop/logs';
 

@@ -14,7 +14,7 @@
     },
     {
       "_op": "elasticsearch_index_selector",
-      "index": "bigdata18",
+      "index": "bigdata19",
       "type": "events"
     },
     {
