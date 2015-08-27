@@ -23,6 +23,6 @@ module.exports = function(context) {
         }
         var logger = bunyan.createLogger(loggerConfig);
 
-        context[name] = logger
+        return logger;
     }
 };
