@@ -13,7 +13,7 @@
     "express": "^4.12.3",
     "kafka-node": "^0.2.27",
     "lodash": "~2.2.1",
-    "mongoose": "3.8.34",
+    "mongoose": "3.8.31",
     "node-statsd": "0.0.7",
     "redis": "^0.12.1",
     "yargs": "^3.7.2"
