@@ -13,9 +13,9 @@ var config = {};
  Application environment.
  */
 
-config.environment = 'development';
+config.environment = 'production';
 
-config.log_path = '/Users/kstaken/projects/data/logs';
+config.log_path = '/Users/jarednoble/Desktop/logs';
 
 config.teraslice = {};
 config.teraslice.ops_directory = '/Users/jarednoble/Desktop/fakeOps';
