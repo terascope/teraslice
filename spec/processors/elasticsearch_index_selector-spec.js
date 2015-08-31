@@ -29,9 +29,9 @@ describe('elasticsearch index selector', function() {
     it('indexName will create a timeseries if specified in opConfig', function() {
         var record = {'@timestamp': new Date('2016/08/28')};
         var opConfig = {index: 'events-2016.08.28'};
-        var opConfigDaily = {indexPrefix: 'events-', dateField: '@timestamp', timeseries: 'daily'};
-        var opConfigMonthly = {indexPrefix: 'events-', dateField: '@timestamp', timeseries: 'monthly'};
-        var opConfigYearly = {indexPrefix: 'events-', dateField: '@timestamp', timeseries: 'yearly'};
+        var opConfigDaily = {indexPrefix: 'events-', date_field: '@timestamp', timeseries: 'daily'};
+        var opConfigMonthly = {indexPrefix: 'events-', date_field: '@timestamp', timeseries: 'monthly'};
+        var opConfigYearly = {indexPrefix: 'events-', date_field: '@timestamp', timeseries: 'yearly'};
 
 
         var indexName = indexer.indexName(record, opConfig);
@@ -148,7 +148,7 @@ describe('elasticsearch index selector', function() {
 
         var fn = indexer.newProcessor(context, opConfig, jobConfig);
         var results = fn(data);
-        console.log(results[1]);
+
         expect(results[0]).toEqual({ update: { _index: 'someIndex', _type: 'events', _id: 'someName' } });
         expect(results[1]).toEqual({ doc: { some: 'data', name: 'someName', job: 'to be awesome!' },
             upsert: { name: 'someName', job: 'to be awesome!' } });
