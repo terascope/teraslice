@@ -4,7 +4,7 @@
   "description": "Slice and dice your Elasticsearch data",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node node_modules/jasmine/bin/jasmine"
   },
   "repository": {
     "type": "git",
@@ -19,6 +19,7 @@
   "dependencies": {
     "bluebird": "^2.9.34",
     "convict": "^1.0.1",
+    "jasmine": "^2.3.2",
     "kafka-node": "^0.2.27",
     "lodash": "^3.10.1",
     "moment": "^2.10.3",
