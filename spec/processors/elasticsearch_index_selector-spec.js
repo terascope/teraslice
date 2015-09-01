@@ -156,3 +156,4 @@ describe('elasticsearch index selector', function() {
     });
 
 });
+

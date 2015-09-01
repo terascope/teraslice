@@ -1,3 +1,4 @@
+
 'use strict';
 var Queue = require('../../lib/utils/queue');
 
@@ -23,3 +24,4 @@ describe('Queue', function() {
         expect(first).toEqual('first')
     })
 });
+
