@@ -5,7 +5,8 @@ module.exports = function (config) {
     var primary = domain.create();
     var cluster = require('cluster');
     var _ = require('lodash');
-    var makeLogger = require('./lib/makeLogger');
+    var makeLogger = require('./lib/make_logger');
+    var startWorkers = require('./lib/start_workers');
 
     var argv = require('yargs')
         .alias('c', 'configfile')
@@ -55,6 +56,7 @@ module.exports = function (config) {
 
         context.cluster = cluster;
         context.makeLogger = makeLogger(context);
+        context.startWorkers = startWorkers(context);
 
         // TODO: this can be made more dynamic so we don't hardcode here.
         loadModule('elasticsearch', context);
@@ -106,7 +108,7 @@ module.exports = function (config) {
                     }
                 }
 
-                require('./lib/master')(context);
+                require('./lib/master')(context, config);
 
                 // If there's a master plugin defined, pass it on.
                 if (config.master) {

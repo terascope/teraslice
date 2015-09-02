@@ -1,8 +1,9 @@
 var _ = require('lodash');
 
-module.exports = function (context) {
+module.exports = function (context, config) {
     var cluster = context.cluster;
     var logger = context.logger;
+    var start_workers = config.start_workers ? config.start_workers : true;
 
     var plugin = context.master_plugin;
 
@@ -36,10 +37,14 @@ module.exports = function (context) {
     process.on('SIGTERM', shutdown);
     process.on('SIGINT', shutdown);
 
-    logger.info("Starting " + workerCount + " workers.");
-    for (var i = 0; i < workerCount; i++) {
-        cluster.fork();
+
+    if (start_workers) {
+        logger.info("Starting " + workerCount + " workers.");
+        for (var i = 0; i < workerCount; i++) {
+            cluster.fork();
+        }
     }
+
 
     cluster.on('exit', function (worker, code, signal) {
         if (!shuttingdown) {
