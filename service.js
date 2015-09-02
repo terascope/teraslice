@@ -6,5 +6,6 @@ var master = require('./lib/master');
 var foundation = require('terafoundation')({
     name: 'TeraSlice',
     worker: worker,
-    master: master
+    master: master,
+    prevent_worker_default: true
 });
