@@ -387,7 +387,7 @@ module.exports.jobSchema = {
         doc: 'the number of times a worker will attempt to process the same slice after a error has occurred',
         default: 3
     },
-    worker_count: {
+    workers: {
         doc: 'the number of workers dedicated for the job',
         default: workers
     }
