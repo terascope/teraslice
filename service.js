@@ -7,5 +7,5 @@ var foundation = require('terafoundation')({
     name: 'TeraSlice',
     worker: worker,
     master: master,
-   start_workers: false
+    start_workers: false
 });
