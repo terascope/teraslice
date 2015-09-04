@@ -7,14 +7,14 @@
       "_op": "elasticsearch_reader",
       "index": "events-*",
       "size": 5000,
-      "start": "2015-08-25T07:00:00",
-      "end": "2015-08-25T07:05:00",
+      "start": "2015-08-25",
+      "end": "2015-08-26",
       "interval": "5_mins",
       "date_field_name": "@timestamp"
     },
     {
       "_op": "elasticsearch_index_selector",
-      "index": "bigdata42",
+      "index": "bigdata43",
       "type": "events"
     },
     {
