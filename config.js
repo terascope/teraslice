@@ -20,6 +20,7 @@ config.log_path = '/Users/jarednoble/Desktop/logs';
 config.teraslice = {};
 config.teraslice.ops_directory = '/Users/jarednoble/Desktop/fakeOps';
 config.teraslice.shutdown_timeout = 60;
+config.teraslice.reporter = 'statsd';
 
 /*
  ***********************
