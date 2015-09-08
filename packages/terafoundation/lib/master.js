@@ -3,7 +3,13 @@ var _ = require('lodash');
 module.exports = function (context, config) {
     var cluster = context.cluster;
     var logger = context.logger;
-    var start_workers = config.start_workers ?  true : config.start_workers;
+
+    var start_workers =  true;
+
+    if (config.start_workers === false) {
+        start_workers = false;
+    }
+
     var plugin = context.master_plugin;
 
     if (plugin) plugin.pre();
