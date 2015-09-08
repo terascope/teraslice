@@ -228,13 +228,15 @@ describe('elasticsearch_reader', function() {
 
     });
 
-    it('has a schema and newSlicer method', function() {
+    it('has a schema, newSlicer and a newReader method', function() {
         var reader = es_reader;
 
         expect(reader).toBeDefined();
         expect(reader.newSlicer).toBeDefined();
         expect(reader.schema).toBeDefined();
+        expect(reader.newReader).toBeDefined();
         expect(typeof reader.newSlicer).toEqual('function');
+        expect(typeof reader.newReader).toEqual('function');
         expect(typeof reader.schema).toEqual('function');
 
     });
