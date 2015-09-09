@@ -23,14 +23,20 @@ module.exports = function (config) {
     });
 
     function errorHandler(err) {
-        logger.error("Worker crashed");
+        if (cluster.isMaster) logger.error("Error in master with pid: " + process.pid);
+        else logger.error("Error in worker: " + cluster.worker.id + " pid: " + process.pid);
+
         if (err.message) {
             logger.error(err.message);
+        }
+        else {
+            logger.error(err);
         }
 
         if (err.stack) {
             logger.error(err.stack);
         }
+
         //log saving to disk is async, using hack to give time to flush
         setTimeout(function () {
             process.exit(-1);
@@ -133,8 +139,8 @@ module.exports = function (config) {
                     if (! context.hasOwnProperty(module)) {
                         context[module] = {}
                     }
-                    
-                    context[module][conn] = require('./lib/connectors/' + module)(moduleConfig, logger);            
+
+                    context[module][conn] = require('./lib/connectors/' + module)(moduleConfig, logger);
                 })
             }
         }

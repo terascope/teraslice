@@ -33,8 +33,8 @@ module.exports = function (context, config) {
                 logger.info("All workers have exited. Ending.");
                 process.exit();
             }
-            else {
-                logger.info("Still waiting for workers to stop.");
+            else if (shuttingdown) {
+                logger.info("Waiting for workers to stop: " + _.keys(cluster.workers).length + " pending.");
             }
         }, 1000);
     };
@@ -63,4 +63,3 @@ module.exports = function (context, config) {
     // Put a friendly message on the terminal of the server.
     logger.info("Service starting");
 };
-    
