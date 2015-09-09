@@ -29,9 +29,9 @@ describe('elasticsearch index selector', function() {
     it('indexName will create a timeseries if specified in opConfig', function() {
         var record = {'@timestamp': new Date('2016/08/28')};
         var opConfig = {index: 'events-2016.08.28'};
-        var opConfigDaily = {indexPrefix: 'events-', date_field: '@timestamp', timeseries: 'daily'};
-        var opConfigMonthly = {indexPrefix: 'events-', date_field: '@timestamp', timeseries: 'monthly'};
-        var opConfigYearly = {indexPrefix: 'events-', date_field: '@timestamp', timeseries: 'yearly'};
+        var opConfigDaily = {index_prefix: 'events-', date_field: '@timestamp', timeseries: 'daily'};
+        var opConfigMonthly = {index_prefix: 'events-', date_field: '@timestamp', timeseries: 'monthly'};
+        var opConfigYearly = {index_prefix: 'events-', date_field: '@timestamp', timeseries: 'yearly'};
 
 
         var indexName = indexer.indexName(record, opConfig);
@@ -55,7 +55,7 @@ describe('elasticsearch index selector', function() {
         var op2 = {timeseries: 'daily'};
 
         expect(function(){indexer.newProcessor({}, op1, jobConfig)}).toThrow("timeseries must be one of 'daily', 'monthly', 'yearly'");
-        expect(function(){indexer.newProcessor({}, op2, jobConfig)}).toThrow("timeseries requires an indexPrefix");
+        expect(function(){indexer.newProcessor({}, op2, jobConfig)}).toThrow("timeseries requires an index_prefix");
 
     });
 
