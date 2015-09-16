@@ -54,8 +54,8 @@ describe('elasticsearch index selector', function() {
         var op1 = {timeseries: 'hourly'};
         var op2 = {timeseries: 'daily'};
 
-        expect(function(){indexer.newProcessor({}, op1, jobConfig)}).toThrow("timeseries must be one of 'daily', 'monthly', 'yearly'");
-        expect(function(){indexer.newProcessor({}, op2, jobConfig)}).toThrow("timeseries requires an index_prefix");
+        expect(function(){indexer.newProcessor({}, op1, jobConfig)}).toThrowError("timeseries requires an index_prefix");
+        expect(function(){indexer.newProcessor({}, op2, jobConfig)}).toThrowError("timeseries requires an index_prefix");
 
     });
 
