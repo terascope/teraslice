@@ -7,11 +7,12 @@
  ********************************************************
  */
 
+/*
 var config = {};
 
-/*
+/!*
  Application environment.
- */
+ *!/
 
 config.environment = 'development';
 
@@ -19,8 +20,9 @@ config.log_path = '/Users/jarednoble/Desktop/logs';
 
 config.teraslice = {};
 config.teraslice.ops_directory = '/Users/jarednoble/Desktop/fakeOps';
-config.teraslice.shutdown_timeout = 60;
+config.teraslice.shutdown_timeout = 5;
 //config.teraslice.reporter = 'statsd';
+*/
 
 /*
  ***********************
@@ -52,6 +54,7 @@ config.mongodb.default = {
  Elastic Search Configuration
  ***********************
  */
+/*
 config.elasticsearch = {};
 
 config.elasticsearch.default = {
@@ -61,11 +64,11 @@ config.elasticsearch.default = {
     maxSockets: 20
 };
 
-/*
+/!*
  ***********************
  StatsD Configuration
  ***********************
- */
+ *!/
 config.statsd = {};
 
 config.statsd.default = {
@@ -73,17 +76,17 @@ config.statsd.default = {
     mock: false
 };
 
-config.teranaut = {};
+/!*config.teranaut = {};
 config.teranaut.auth = {};
 config.teranaut.auth.open_signup = true;
-config.teranaut.auth.require_email = true;
+config.teranaut.auth.require_email = true;*!/
 
-/*
+/!*
  ***********************
  API Service Configuration
  ***********************
- */
-config.api = {};
+ *!/
+/!*config.api = {};
 
 config.api.workers = 1;
 
@@ -101,6 +104,7 @@ config.api.plugins_path = '/app/api/plugins';
 // Location of static HTTP assets.
 config.api.static_assets = '/app/api/public';
 
-config.api.log = '/app/logs/api.log';
+config.api.log = '/app/logs/api.log';*!/
 
-module.exports = config;
+*/
+//module.exports = config;
