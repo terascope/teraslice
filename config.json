@@ -1,9 +1,9 @@
 {
-  "TeraSlice": {
+  "teraslice": {
     "teraslice_ops_directory": "/Users/jarednoble/Desktop/fakeOps",
     "shutdown_timeout": 5
   },
-  "Terafoundation": {
+  "terafoundation": {
     "environment": "development",
     "log_path": "/Users/jarednoble/Desktop/logs",
     "elasticsearch": {

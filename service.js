@@ -5,7 +5,7 @@ var master = require('./lib/master');
 var config_schema = require('./system_schema').config_schema;
 
 var foundation = require('terafoundation')({
-    name: 'TeraSlice',
+    name: 'teraslice',
     worker: worker,
     master: master,
     start_workers: false,
