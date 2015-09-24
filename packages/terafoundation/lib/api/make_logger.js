@@ -14,7 +14,7 @@ module.exports = function(context) {
             name: name
         };
 
-        if (config.environment === 'production') {
+        if (config.terafoundation.environment === 'production') {
 
             loggerConfig.streams = [{
                 level: 'info',
