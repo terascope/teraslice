@@ -6,7 +6,7 @@ module.exports = function(context) {
     var config = context.sysconfig;
 
     return function(name, destination) {
-        var configPath = config.log_path ? config.log_path : './logs';
+        var configPath = config.terafoundation.log_path ? config.terafoundation.log_path : './logs';
         //remove whitespace
         var destination = destination.replace(/ /g, '');
 

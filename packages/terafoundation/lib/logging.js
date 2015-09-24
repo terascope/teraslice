@@ -18,7 +18,7 @@ module.exports = function (context) {
         name: name
     };
 
-    var configPath = config.log_path ? config.log_path : './logs';
+    var configPath = config.terafoundation.log_path ? config.terafoundation.log_path : './logs';
 
     var worker_id = '0'; // Use worker_id 0 for the master
     if (cluster.isWorker) worker_id = cluster.worker.id;
