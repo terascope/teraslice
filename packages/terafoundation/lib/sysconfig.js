@@ -2,16 +2,20 @@
 
 var fs = require('fs');
 var os = require('os');
-var _ = require('lodash');
 var cluster = require('cluster');
+var yaml = require('js-yaml');
 
 
-module.exports = function (context) {
+module.exports = function(context) {
 
     var configFile;
 
-    if (fs.existsSync('/app/config/config.js')) {
-        configFile = '/app/config/config.js';
+    if (fs.existsSync('/app/config/config.yaml')) {
+        configFile = '/app/config/config.yaml';
+    }
+
+    if (fs.existsSync('/app/config/config.json')) {
+        configFile = '/app/config/config.json';
     }
 
     // Environment overrides the specific check
@@ -25,7 +29,8 @@ module.exports = function (context) {
     }
 
     if (!configFile) {
-        configFile = process.cwd() + '/config.js';
+        var path = process.cwd();
+        var configFile = fs.existsSync(path + '/config.json') ? path + '/config.json' : path + '/config.yaml';
     }
 
     if (configFile.indexOf('.') === 0) {
@@ -36,8 +41,13 @@ module.exports = function (context) {
         console.log("Could not find a usable config.js at the path: " + configFile);
         return;
     }
+    var config;
 
-    var config = require(configFile);
+    if (configFile.match(/.yaml/)) {
+        config = yaml.safeLoad(fs.readFileSync(configFile, 'utf8'));
+    } else {
+        config = require(configFile);
+    }
 
     // Annotate the config with some information about this instance.
 

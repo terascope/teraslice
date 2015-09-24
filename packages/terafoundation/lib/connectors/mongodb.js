@@ -1,50 +1,75 @@
 'use strict';
 
 var _ = require('lodash');
+var events = require('events');
 
-module.exports = function (customConfig, logger) {
-    var mongoose = require("mongoose");
+module.exports = function(context) {
+    var logger = context.logger;
 
-    // TODO: rework configuration to allow incoming config to be a full mongo config
-    var config = {
-        servers: "mongodb://localhost:27017/test"
-    };
+    function init_events(client) {
+        var conn_events = new events.EventEmitter();
 
-    _.merge(config, customConfig);
+        client.connection.on('error', function (err) {
+            conn_events.emit('error', error);
+        });
 
-    logger.info("Using mongo connection string: " + config.servers);
+        client.connection.on('reconnected', function () {
+            conn_events.emit('reconnected', error);
+        });
 
-    var serverConfig = {
-        server: {
-            auto_reconnect: true,
-            socketOptions: {keepAlive: 1, connectTimeoutMS: 30000}
-        }
-    };
-
-    if (config.replicaSet) {
-        serverConfig.replset = {
-            rs_name: config.replicaSet,
-            socketOptions: {
-                keepAlive: 1,
-                connectTimeoutMS: config.replicaSetTimeout
-            },
-            readPreference: 'secondaryPreferred'
-        };
+        return conn_events;
     }
 
-    mongoose.connect(config.servers, serverConfig, function (error) {
-        if (error) {
-            logger.error("Could not connect to Mongo DB: " + error);
+    function create(customConfig) {
+        var mongoose = require("mongoose");
+
+        // TODO: rework configuration to allow incoming config to be a full mongo config
+        var config = {
+            servers: "mongodb://localhost:27017/test"
+        };
+
+        _.merge(config, customConfig);
+
+        logger.info("Using mongo connection string: " + config.servers);
+
+        var serverConfig = {
+            server: {
+                auto_reconnect: true,
+                socketOptions: {keepAlive: 1, connectTimeoutMS: 30000}
+            }
+        };
+
+        if (config.replicaSet) {
+            serverConfig.replset = {
+                rs_name: config.replicaSet,
+                socketOptions: {
+                    keepAlive: 1,
+                    connectTimeoutMS: config.replicaSetTimeout
+                },
+                readPreference: 'secondaryPreferred'
+            };
         }
-    });
 
-    mongoose.connection.on('error', function (err) {
-        logger.error("Error from mongodb: " + err);
-    });
+        mongoose.connect(config.servers, serverConfig, function (error) {
+            if (error) {
+                logger.error("Could not connect to Mongo DB: " + error);
+            }
+        });
 
-    mongoose.connection.on('reconnected', function () {
-        logger.error('Error: mongo connection dropped. Automatically reconnected.');
-    });
+        return {
+            client: mongoose,
+            events: init_events(mongoose)
+        }
+    }
 
-    return mongoose;
-};
+    function config_schema() {
+        return {
+
+        }
+    }
+
+    return {
+        create: create,
+        config_schema: config_schema
+    }
+}

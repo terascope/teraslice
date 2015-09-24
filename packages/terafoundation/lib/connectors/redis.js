@@ -2,23 +2,48 @@
 
 var _ = require('lodash');
 var redis = require('redis');
+var events = require('events');
 
-module.exports = function (customConfig, logger) {
-    var config = {
-        host: '127.0.0.1',
-        port: 6379
-    };
+module.exports = function(context) {
+    var logger = context.logger;
 
-    _.merge(config, customConfig);
+    function init_events(client) {
+        var conn_events = new events.EventEmitter();
 
-    logger.info("Using redis host: " + config.host);
+        client.on('error', function(error) {
+            conn_events.emit('error', error);
+        });
 
-    var client = redis.createClient(config.port, config.host);
+        return conn_events;
+    }
 
-    // Redis error handler
-    client.on("error", function (err) {
-        logger.error("Error " + err);
-    });
+    function create(customConfig) {
+        var config = {
+            host: '127.0.0.1',
+            port: 6379
+        };
 
-    return client
-};
+        _.merge(config, customConfig);
+
+        logger.info("Using redis host: " + config.host);
+
+        var client = redis.createClient(config.port, config.host);
+
+        return {
+            client: client,
+            events: init_events(client)
+        }
+    }
+
+    function config_schema() {
+        return {
+
+        }
+    }
+
+    return {
+        create: create,
+        config_schema: config_schema
+    }
+}
+

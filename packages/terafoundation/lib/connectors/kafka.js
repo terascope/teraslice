@@ -1,18 +1,48 @@
 'use strict';
 
 var _ = require('lodash');
+var events = require('events');
 
-module.exports = function (customConfig, logger) {
-    var config = {
-        zookeepers: "localhost:2181",
-        clientId: "terafoundation"
-    };
+module.exports = function(context) {
+    var logger = context.logger;
 
-    _.merge(config, customConfig);
+    function init_events(client) {
+        var conn_events = new events.EventEmitter();
 
-    logger.info("Using kafka zookeepers: " + config.zookeepers);
+        client.on('error', function(error) {
+            conn_events.emit('error', error);
+        });
 
-    var kafka = require('kafka-node');
+        return conn_events;
+    }
 
-    return new kafka.Client(config.zookeepers, config.clientId);
-};
+    function create(customConfig) {
+        var config = {
+            zookeepers: "localhost:2181",
+            clientId: "terafoundation"
+        };
+
+        _.merge(config, customConfig);
+
+        logger.info("Using kafka zookeepers: " + config.zookeepers);
+
+        var kafka = require('kafka-node');
+
+        var client = kafka.Client(config.zookeepers, config.clientId);
+        return {
+            client: client,
+            events: init_events(client)
+        }
+    }
+
+    function config_schema() {
+        return {
+
+        }
+    }
+
+    return {
+        create: create,
+        config_schema: config_schema
+    }
+}
