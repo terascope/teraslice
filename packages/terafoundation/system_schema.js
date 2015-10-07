@@ -7,8 +7,8 @@ module.exports = {
     },
     log_path: {
         default: '/Users/jarednoble/Desktop/logs'
-    },
-    elasticsearch: {
+    }
+    /*elasticsearch: {
         default: {
             doc: '',
             default: {
@@ -40,6 +40,6 @@ module.exports = {
             doc: '',
             default: {servers: "mongodb://localhost:27017/teratest"}
         }
-    }
+    }*/
 
 };

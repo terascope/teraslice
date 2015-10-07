@@ -3,20 +3,19 @@ var _ = require('lodash');
 module.exports = function (context, config) {
     var cluster = context.cluster;
     var logger = context.logger;
-
+    var configWorkers = context.sysconfig.terafoundation.workers;
     var start_workers =  true;
 
     if (config.start_workers === false) {
         start_workers = false;
     }
-
     var plugin = context.master_plugin;
 
     if (plugin) plugin.pre();
 
     var shuttingdown = false;
 
-    var workerCount = require('os').cpus().length;
+    var workerCount = configWorkers ? configWorkers : require('os').cpus().length;
 
     var shutdown = function () {
         logger.info("Shutting down.");

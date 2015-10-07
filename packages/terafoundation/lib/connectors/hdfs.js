@@ -1,7 +1,7 @@
 'use strict';
 
+
 var _ = require('lodash');
-var redis = require('redis');
 var events = require('events');
 
 module.exports = function(context) {
@@ -10,24 +10,31 @@ module.exports = function(context) {
     function init_events(client) {
         var conn_events = new events.EventEmitter();
 
-        client.on('error', function(error) {
-            conn_events.emit('error', error);
-        });
+        /*client.on('error', function(error) {
+         conn_events.emit('error', error);
+         });*/
 
         return conn_events;
     }
 
     function create(customConfig) {
+        var hdfsClient = require('node-webhdfs').WebHDFSClient;
+
+        /* Common defaults, can be over-ridden by user provided config */
         var config = {
-            host: '127.0.0.1',
-            port: 6379
+            user: 'webuser',
+            namenode_port: 50070,
+            namenode_host: 'localhost',
+            path_prefix: '/webhdfs/v1'
         };
+
 
         _.merge(config, customConfig);
 
-        logger.info("Using redis host: " + config.host);
+        logger.info("Using elasticsearch hosts: " + config.host);
 
-        var client = redis.createClient(config.port, config.host);
+        // TODO: there's no error handling here at all???
+        var client = new hdfsClient(config);
 
         return {
             client: client,
@@ -46,4 +53,3 @@ module.exports = function(context) {
         config_schema: config_schema
     }
 };
-

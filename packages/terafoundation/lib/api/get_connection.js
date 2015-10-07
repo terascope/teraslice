@@ -46,12 +46,17 @@ module.exports = function(context) {
         var endpoint = options.endpoint;
         var cached = options.cached;
 
-        if (! endpoint) endpoint = 'default';
+        if (!endpoint) {
+            endpoint = 'default';
+        }
 
         // If it's acceptable to use a cached connection just return instead
         // of creating a new one
         var key = type + ":" + endpoint;
-        if (cached && connections.hasOwnProperty(key)) return connections[key];
+
+        if (cached && connections.hasOwnProperty(key)) {
+            return connections[key];
+        }
 
         if (sysconfig.terafoundation.connectors.hasOwnProperty(type)) {
             logger.info("Creating connection for " + type);
@@ -66,7 +71,9 @@ module.exports = function(context) {
 
             var connection = connector.create(moduleConfig);
 
-            if (cached) connections[key] = connection;
+            if (cached) {
+                connections[key] = connection;
+            }
 
             return connection;
         }

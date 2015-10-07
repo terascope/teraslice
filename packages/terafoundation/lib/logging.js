@@ -12,7 +12,9 @@ module.exports = function (context) {
         throw "No system configuration. Can not continue.";
     }
 
-    if (!name) name = 'TeraFoundation';
+    if (!name) {
+        name = 'terafoundation';
+    }
 
     var log_config = {
         name: name

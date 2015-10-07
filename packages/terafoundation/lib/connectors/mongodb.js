@@ -72,4 +72,4 @@ module.exports = function(context) {
         create: create,
         config_schema: config_schema
     }
-}
+};
