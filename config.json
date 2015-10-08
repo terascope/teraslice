@@ -1,24 +1,26 @@
 {
   "teraslice": {
     "teraslice_ops_directory": "/Users/jarednoble/Desktop/fakeOps",
-    "shutdown_timeout": 5
+    "shutdown_timeout": 1
   },
   "terafoundation": {
     "environment": "development",
     "log_path": "/Users/jarednoble/Desktop/logs",
-    "elasticsearch": {
-      "default": {
-        "host": [
-          "127.0.0.1:9200"
-        ],
-        "keepAlive": false,
-        "maxRetries": 5,
-        "maxSockets": 20
-      },
-      "statsd": {
+    "connectors": {
+      "elasticsearch": {
         "default": {
-          "host": "127.0.0.1",
-          "mock": false
+          "host": [
+            "127.0.0.1:9200"
+          ],
+          "keepAlive": true,
+          "maxRetries": 5,
+          "maxSockets": 20
+        },
+        "statsd": {
+          "default": {
+            "host": "127.0.0.1",
+            "mock": false
+          }
         }
       }
     }
