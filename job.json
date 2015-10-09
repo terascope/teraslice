@@ -1,20 +1,21 @@
 {
   "name": "Reindex Events",
-  "lifecycle": "persistent",
+  "lifecycle": "once",
   "analytics": false,
   "operations": [
     {
       "_op": "elasticsearch_reader",
       "index": "events-*",
       "size": 5000,
-      "start": "2015-10-07T19:25:30",
-      "end": "2015-10-07T19:25:59",
-      "interval": "30_s",
-      "date_field_name": "created"
+      "start": "2015-10-08T19:38:49",
+      "end": "2015-10-09",
+      "interval": "5_min",
+      "date_field_name": "created",
+      "full_response": true
     },
     {
       "_op": "elasticsearch_index_selector",
-      "index": "bigdata1",
+      "index": "bigdata3",
       "type": "events"
     },
     {
