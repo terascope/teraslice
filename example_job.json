@@ -20,30 +20,3 @@
   ]
 }
 
-
-{
-  "name": "Reindex Events",
-  "lifecycle": "persistent",
-  "analytics": false,
-  "operations": [
-    {
-      "_op": "elasticsearch_reader",
-      "index": "events-*",
-      "size": 5000,
-      "start": "2015-10-07T19:25:30",
-      "end": "2015-10-07T19:25:59",
-      "interval": "30_s",
-      "date_field_name": "created"
-    },
-    {
-      "_op": "elasticsearch_index_selector",
-      "index": "bigdata1",
-      "type": "events"
-    },
-    {
-      "_op": "elasticsearch_bulk_insert",
-      "size": 5000
-    }
-  ]
-}
-

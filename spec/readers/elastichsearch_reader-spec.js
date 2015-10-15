@@ -33,7 +33,7 @@ describe('elasticsearch_reader', function() {
 
     it('should have index, body and size keys', function() {
         var source = {date_field_mame: '@timestamp', size: 50, index: 'someIndex'};
-        var message = {start: '2015/08/30', end: '2015/08/30'};
+        var message = {start: '2015/08/30', end: '2015/08/30', count: 50};
         var obj = es_reader.buildQuery(source, message);
 
         expect(obj.index).toEqual('someIndex');
@@ -44,17 +44,21 @@ describe('elasticsearch_reader', function() {
 
     it('newReader returns a function that queries elasticsearch', function() {
         var context = {
-            elasticsearch: {
-                default: {
-                    search: function(msg) {
-                        return msg
+            foundation: {
+                getConnection: function() {
+                    return {
+                        client: {
+                            search: function(msg) {
+                                return msg
+                            }
+                        }
                     }
                 }
             }
         };
-        var opConfig = {date_field_name: '@timestamp', size: 50, index: 'someIndex'};
-        var jobConfig = {};
-        var message = {start: '2015/08/30', end: '2015/08/31'};
+        var opConfig = {date_field_name: '@timestamp', size: 50, index: 'someIndex', full_response: true};
+        var jobConfig = {lifecycle: 'once'};
+        var message = {start: '2015/08/30', end: '2015/08/31', count: 50};
 
         var reader = es_reader.newReader(context, opConfig, jobConfig);
         var results = reader(message);
@@ -137,11 +141,16 @@ describe('elasticsearch_reader', function() {
 
     it('newSlicer return a function', function() {
         var clientData = [{count: 100}, {count: 50}];
+
         var context = {
-            elasticsearch: {
-                default: {
-                    count: function() {
-                        return Promise.resolve(clientData.shift())
+            foundation: {
+                getConnection: function() {
+                    return {
+                        client: {
+                            count: function() {
+                                return Promise.resolve(clientData.shift())
+                            }
+                        }
                     }
                 }
             }
@@ -159,10 +168,14 @@ describe('elasticsearch_reader', function() {
     it('newSlicer returns nextChunk that returns an object for the worker', function(done) {
 
         var context = {
-            elasticsearch: {
-                default: {
-                    count: function() {
-                        return Promise.resolve({count: 50})
+            foundation: {
+                getConnection: function() {
+                    return {
+                        client: {
+                            count: function() {
+                                return Promise.resolve({count: 50})
+                            }
+                        }
                     }
                 }
             }
@@ -185,7 +198,8 @@ describe('elasticsearch_reader', function() {
 
             expect(data).toEqual({
                 start: '2015-08-25T00:00:00+00:00',
-                end: '2015-08-25T02:00:00+00:00'
+                end: '2015-08-25T02:00:00+00:00',
+                count: 50
             });
 
             done()
@@ -197,10 +211,14 @@ describe('elasticsearch_reader', function() {
     it('newSlicer will return null when all data has been given', function(done) {
 
         var context = {
-            elasticsearch: {
-                default: {
-                    count: function() {
-                        return Promise.resolve({count: 50})
+            foundation: {
+                getConnection: function() {
+                    return {
+                        client: {
+                            count: function() {
+                                return Promise.resolve({count: 50})
+                            }
+                        }
                     }
                 }
             }
