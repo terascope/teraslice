@@ -1,16 +1,16 @@
 {
-  "name": "Reindex Events",
+  "name": "Data Generator",
   "lifecycle": "persistent",
   "analytics": false,
   "operations": [
     {
       "_op": "elasticsearch_data_generator",
-      "size": 100,
+      "size": 5000,
       "file_path": "/Users/jarednoble/Projects/data.js"
     },
     {
       "_op": "elasticsearch_index_selector",
-      "index": "bigdata8",
+      "index": "bigdata5",
       "type": "events"
     },
     {
@@ -19,3 +19,4 @@
     }
   ]
 }
+

@@ -39,14 +39,23 @@ describe('elasticsearch_bulk_insert', function() {
 
     });
 
-    it('newSender sends data to elasticsearch', function(){
+    it('newSender sends data to elasticsearch', function() {
         var client = {
             bulk: function() {
             }
         };
         var dataArray = [{one: 'data'}, {two: 'data'}, {three: 'data'}];
 
-        var context = {elasticsearch: {default: client}};
+        var context = {
+            foundation: {
+                getConnection: function() {
+                    return {
+                        client: client
+                    }
+                }
+            }
+        };
+
         var opConfig = {size: 10};
         var jobConfig = {};
 
