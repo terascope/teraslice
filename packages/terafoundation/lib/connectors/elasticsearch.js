@@ -1,57 +1,61 @@
 'use strict';
 
-var _ = require('lodash');
 var events = require('events');
 
-module.exports = function(context) {
-    var logger = context.logger;
+function init_events(client) {
+    var conn_events = new events.EventEmitter();
 
-    function init_events(client) {
-        var conn_events = new events.EventEmitter();
+    /*client.on('error', function(error) {
+     conn_events.emit('error', error);
+     });*/
 
-        /*client.on('error', function(error) {
-            conn_events.emit('error', error);
-        });*/
+    return conn_events;
+}
 
-        return conn_events;
-    }
+function create(customConfig, logger) {
+    var elasticsearch = require('elasticsearch');
 
-    function create(customConfig) {
-        var elasticsearch = require('elasticsearch');
+    logger.info("Using elasticsearch hosts: " + customConfig.host);
 
-        /* Common defaults, can be over-ridden by user provided config */
-        var config = {
-            host: ["127.0.0.1:9200"],
-            sniffOnStart: false,
-            sniffInterval: 30000,
-            sniffOnConnectionFault: false,
-            requestTimeout: 120000,
-            deadTimeout: 30000,
-            maxRetries: 3
-        };
-
-
-        _.merge(config, customConfig);
-
-        logger.info("Using elasticsearch hosts: " + config.host);
-
-        // TODO: there's no error handling here at all???
-        var client = new elasticsearch.Client(config);
-
-        return {
-            client: client,
-            events: init_events(client)
-        }
-    }
-
-    function config_schema() {
-        return {
-
-        }
-    }
+    // TODO: there's no error handling here at all???
+    var client = new elasticsearch.Client(customConfig);
 
     return {
-        create: create,
-        config_schema: config_schema
+        client: client,
+        events: init_events(client)
     }
+}
+
+function config_schema() {
+    return {
+        host: {
+            doc: '',
+            default: ["127.0.0.1:9200"]
+        },
+        sniffOnStart: {
+            doc: '',
+            default: false
+        },
+        sniffOnConnectionFault: {
+            doc: '',
+            default: false
+        },
+        requestTimeout: {
+            doc: '',
+            default: 120000
+        },
+        deadTimeout: {
+            doc: '',
+            default: 30000
+        },
+        maxRetries: {
+            doc: '',
+            default: 3
+        }
+    }
+}
+
+module.exports = {
+    create: create,
+    config_schema: config_schema
 };

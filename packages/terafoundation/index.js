@@ -6,40 +6,23 @@ module.exports = function(config) {
     var cluster = require('cluster');
     var _ = require('lodash');
     var convict = require('convict');
-    var makeSchema = require('./lib/make_schema');
+    var validateConfigs = require('./lib/validate_configs');
 
     var argv = require('yargs')
         .alias('c', 'configfile')
         .alias('b', 'bootstrap').argv;
 
-    var schema = makeSchema(config);
-
-//TODO make this take JSON and YAML
     var configFile = require('./lib/sysconfig')({
         configfile: argv.configfile
     });
 
-    var schema = makeSchema(config, configFile);
-
-    var sysconfig = validateConfig(schema, configFile);
+    var sysconfig = validateConfigs(cluster, config, configFile);
 
     var logger = require('./lib/logging')({
         name: config.name,
         cluster: cluster,
         sysconfig: sysconfig
     });
-
-    function validateConfig(schema, configFile) {
-        var config = convict(schema);
-        config.load(configFile);
-
-        if (cluster.isMaster) {
-            config.validate(/*{strict: true}*/);
-        }
-
-        return config.getProperties();
-    }
-
 
     function errorHandler(err) {
         if (cluster.isMaster) logger.error("Error in master with pid: " + process.pid);
@@ -138,24 +121,6 @@ module.exports = function(config) {
                 context.worker(context);
             }
         }
-//TODO review validations 'doc' presence
-        /*function loadModule(module, context) {
-            var logger = context.logger;
-            var sysconfig = context.sysconfig.terafoundation;
-            if (sysconfig.hasOwnProperty(module)) {
-                logger.info("Loading module " + module);
-
-                // Load each connection defined for the module
-                _.forOwn(sysconfig[module], function(moduleConfig, conn) {
-                    if (!context.hasOwnProperty(module)) {
-                        context[module] = {}
-                    }
-                    if (conn !== 'doc') {
-                        context[module][conn] = require('./lib/connectors/' + module)(moduleConfig, logger);
-                    }
-                })
-            }
-        }*/
 
         function initAPI(context) {
             context.foundation = {

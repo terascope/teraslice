@@ -23,10 +23,10 @@ module.exports = function(context) {
 
         try {
             if (fs.existsSync(localPath)) {
-                return require(localPath)(context);
+                return require(localPath);
             }
             else {
-                return require(type)(context);
+                return require(type);
             }
         }
         catch (e) {
@@ -69,7 +69,7 @@ module.exports = function(context) {
 
             var connector = loadConnector(type);
 
-            var connection = connector.create(moduleConfig);
+            var connection = connector.create(moduleConfig, logger);
 
             if (cached) {
                 connections[key] = connection;

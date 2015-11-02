@@ -1,48 +1,45 @@
 'use strict';
 
-var _ = require('lodash');
 var events = require('events');
 
-module.exports = function(context) {
-    var logger = context.logger;
+function init_events(client) {
+    var conn_events = new events.EventEmitter();
 
-    function init_events(client) {
-        var conn_events = new events.EventEmitter();
+    client.on('error', function(error) {
+        conn_events.emit('error', error);
+    });
 
-        client.on('error', function(error) {
-            conn_events.emit('error', error);
-        });
+    return conn_events;
+}
 
-        return conn_events;
-    }
+function create(customConfig, logger) {
 
-    function create(customConfig) {
-        var config = {
-            zookeepers: "localhost:2181",
-            clientId: "terafoundation"
-        };
+    logger.info("Using kafka zookeepers: " + customConfig.zookeepers);
 
-        _.merge(config, customConfig);
+    var kafka = require('kafka-node');
 
-        logger.info("Using kafka zookeepers: " + config.zookeepers);
-
-        var kafka = require('kafka-node');
-
-        var client = kafka.Client(config.zookeepers, config.clientId);
-        return {
-            client: client,
-            events: init_events(client)
-        }
-    }
-
-    function config_schema() {
-        return {
-
-        }
-    }
+    var client = kafka.Client(customConfig.zookeepers, customConfig.clientId);
 
     return {
-        create: create,
-        config_schema: config_schema
+        client: client,
+        events: init_events(client)
     }
+}
+
+function config_schema() {
+    return {
+        zookeepers: {
+            doc: '',
+            default: "localhost:2181"
+        },
+        clientId: {
+            doc: '',
+            default: "terafoundation"
+        }
+    }
+}
+
+module.exports = {
+    create: create,
+    config_schema: config_schema
 };
