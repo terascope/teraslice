@@ -2,8 +2,8 @@
 
 var sys_schema = require('../system_schema');
 var _ = require('lodash');
-var fs = require('fs');
 var convict = require('convict');
+var getModule = require('./file_utils').getModule;
 
 function getPlugin(name, key, configFile) {
 
@@ -13,17 +13,13 @@ function getPlugin(name, key, configFile) {
         firstPath += '.js';
     }
 
-    try {
-        if (fs.existsSync(firstPath)) {
-            return require(firstPath);
-        }
-        else {
-            return require(name);
-        }
-    }
-    catch (e) {
-        throw new Error('Could not retrieve plugin code for: ' + name + '\n' + e);
-    }
+    var paths = {};
+    paths[firstPath] = true;
+    paths[name] = true;
+    var err = 'Could not retrieve plugin code for: ' + name + '\n';
+
+    return getModule(name, paths, err);
+
 }
 
 function getConnectorSchema(name, configFile) {
@@ -36,20 +32,14 @@ function getConnectorSchema(name, configFile) {
     var localPath = __dirname + '/connectors/' + name + '.js';
     var firstPath = opsDir + '/connectors/' + name + '.js';
 
-    try {
-        if (fs.existsSync(firstPath)) {
-            return require(firstPath).config_schema();
-        }
-        else if (fs.existsSync(localPath)) {
-            return require(localPath).config_schema();
-        }
-        else {
-            return require(name).config_schema();
-        }
-    }
-    catch (e) {
-        throw new Error('Could not retrieve plugin code for: ' + name + '\n' + e);
-    }
+    var paths = {};
+    paths[opsDir] = true;
+    paths[localPath] = true;
+    paths[firstPath] = true;
+    var err = 'Could not retrieve schema code for: ' + name + '\n';
+
+    return getModule(name, paths, err).config_schema();
+
 }
 
 function validateConfig(cluster, schema, configFile) {
@@ -63,6 +53,7 @@ function validateConfig(cluster, schema, configFile) {
 
     return config.getProperties();
 }
+
 module.exports = function(cluster, context, configFile) {
     var topLevelName = context.name;
     var topLevelSchema = context.config_schema();

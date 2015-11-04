@@ -15,11 +15,22 @@ module.exports = function(context) {
         };
 
         if (config.terafoundation.environment === 'production') {
+            try {
+                if (fs.lstatSync(configPath).isDirectory()) {
 
-            loggerConfig.streams = [{
-                level: 'info',
-                path: configPath + '/' + destination + '.log'
-            }];
+                    loggerConfig.streams = [{
+                        level: 'info',
+                        path: configPath + '/' + destination + '.log'
+                    }];
+                }
+                else {
+                    throw " log_path is not a directory"
+                }
+            }
+            catch(e) {
+                throw "No valid log_path is specified"
+
+            }
         }
         var logger = bunyan.createLogger(loggerConfig);
 

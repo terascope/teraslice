@@ -7,6 +7,7 @@ module.exports = function(config) {
     var _ = require('lodash');
     var convict = require('convict');
     var validateConfigs = require('./lib/validate_configs');
+    var name = config.name ? config.name : 'terafoundation';
 
     var argv = require('yargs')
         .alias('c', 'configfile')
@@ -18,11 +19,8 @@ module.exports = function(config) {
 
     var sysconfig = validateConfigs(cluster, config, configFile);
 
-    var logger = require('./lib/logging')({
-        name: config.name,
-        cluster: cluster,
-        sysconfig: sysconfig
-    });
+    //set by initAPI
+    var logger;
 
     function errorHandler(err) {
         if (cluster.isMaster) logger.error("Error in master with pid: " + process.pid);
@@ -55,12 +53,8 @@ module.exports = function(config) {
          * Service configuration context
          */
         var context = {};
-        context.logger = logger;
-        //context.configfile = argv.configfile;
+
         context.sysconfig = sysconfig;
-        if (!context.sysconfig) {
-            throw "No system configuration. Can not continue."
-        }
 
         context.cluster = cluster;
 
@@ -123,8 +117,11 @@ module.exports = function(config) {
         }
 
         function initAPI(context) {
+            var makeLogger = require('./lib/api/make_logger')(context);
+            logger =  makeLogger(name, name);
+            context.logger = logger;
             context.foundation = {
-                makeLogger: require('./lib/api/make_logger')(context),
+                makeLogger: makeLogger,
                 startWorkers: require('./lib/api/start_workers')(context),
                 getConnection: require('./lib/api/get_connection')(context)
             };

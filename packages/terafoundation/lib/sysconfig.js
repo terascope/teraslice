@@ -4,17 +4,17 @@ var fs = require('fs');
 var os = require('os');
 var cluster = require('cluster');
 var yaml = require('js-yaml');
-
+var existsSync = require('./file_utils').existsSync;
 
 module.exports = function(context) {
 
     var configFile;
 
-    if (fs.existsSync('/app/config/config.yaml')) {
+    if (existsSync('/app/config/config.yaml')) {
         configFile = '/app/config/config.yaml';
     }
 
-    if (fs.existsSync('/app/config/config.json')) {
+    if (existsSync('/app/config/config.json')) {
         configFile = '/app/config/config.json';
     }
 
@@ -30,15 +30,15 @@ module.exports = function(context) {
 
     if (!configFile) {
         var path = process.cwd();
-        var configFile = fs.existsSync(path + '/config.json') ? path + '/config.json' : path + '/config.yaml';
+        var configFile = existsSync(path + '/config.json') ? path + '/config.json' : path + '/config.yaml';
     }
 
     if (configFile.indexOf('.') === 0) {
         configFile = process.cwd() + '/' + configFile;
     }
 
-    if (!fs.existsSync(configFile)) {
-        console.log("Could not find a usable config.js at the path: " + configFile);
+    if (!existsSync(configFile)) {
+        throw new Error("Could not find a usable config file at the path: " + configFile);
         return;
     }
     var config;
