@@ -1,6 +1,7 @@
 'use strict';
 
 var events = require('events');
+var Agent = require('./elastic_helpers');
 
 function init_events(client) {
     var conn_events = new events.EventEmitter();
@@ -16,8 +17,10 @@ function create(customConfig, logger) {
     var elasticsearch = require('elasticsearch');
 
     logger.info("Using elasticsearch hosts: " + customConfig.host);
-
     // TODO: there's no error handling here at all???
+
+    customConfig.connectionClass = Agent;
+
     var client = new elasticsearch.Client(customConfig);
 
     return {
