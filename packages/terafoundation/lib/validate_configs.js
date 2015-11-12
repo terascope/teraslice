@@ -55,9 +55,19 @@ function validateConfig(cluster, schema, configFile) {
 }
 
 module.exports = function(cluster, context, configFile) {
+    var topLevelSchema;
+
+    if (context.config_schema && typeof context.config_schema === 'function') {
+        topLevelSchema = context.config_schema();
+    }
+    else {
+        topLevelSchema = {};
+    }
+
     var topLevelName = context.name;
-    var topLevelSchema = context.config_schema();
     var config = {};
+    var pluginsContainer = {};
+    var customContainer = {};
 
     // iterate over top level config components
     _.forOwn(configFile, function(value, key) {
@@ -89,6 +99,7 @@ module.exports = function(cluster, context, configFile) {
             var plugins = configFile[key].plugins.names;
 
             plugins.forEach(function(name) {
+                pluginsContainer[name] = true;
                 var code = getPlugin(name, key, configFile);
                 var pluginSchema;
 
@@ -103,6 +114,17 @@ module.exports = function(cluster, context, configFile) {
 
                 config[name] = validateConfig(cluster, pluginSchema, configFile[name]);
             });
+        }
+        //Any other custom top level configuration outside terafoundation and teraserver
+        else {
+            customContainer[key] = configFile[key]
+        }
+    });
+
+    //add any custom configurations that are not plugins
+    _.forOwn(customContainer, function(value, key) {
+        if (!pluginsContainer[key]) {
+            config[key] = value;
         }
     });
 
