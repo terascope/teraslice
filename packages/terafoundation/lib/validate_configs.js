@@ -97,14 +97,14 @@ module.exports = function(cluster, context, configFile) {
             plugins.forEach(function(name) {
                 pluginsContainer[name] = true;
                 var code = getPlugin(name, key, configFile);
-                var pluginSchema;
+                var pluginSchema = {};
 
                 if (code.config_schema) {
                     if (typeof code.config_schema === 'function') {
-                        pluginSchema = context.config_schema();
+                        pluginSchema = code.config_schema();
                     }
                     else {
-                        pluginSchema = context.config_schema;
+                        pluginSchema = code.config_schema;
                     }
                 }
 
