@@ -9,10 +9,6 @@ function getPlugin(name, key, configFile) {
 
     var firstPath = configFile[key].plugins.path + '/' + name;
 
-    if (!firstPath.match(/.js/)) {
-        firstPath += '.js';
-    }
-
     var paths = {};
     paths[firstPath] = true;
     paths[name] = true;
@@ -91,11 +87,11 @@ module.exports = function(cluster, context, configFile) {
         }
 
         //top level service configuration
-        if (key === topLevelName) {
+        else if (key === topLevelName) {
             config[key] = validateConfig(cluster, topLevelSchema, configFile[key]);
         }
 
-        if (configFile[key].plugins) {
+        else if (configFile[key].plugins) {
             var plugins = configFile[key].plugins.names;
 
             plugins.forEach(function(name) {
