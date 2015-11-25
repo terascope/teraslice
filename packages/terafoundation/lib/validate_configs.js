@@ -5,19 +5,6 @@ var _ = require('lodash');
 var convict = require('convict');
 var getModule = require('./file_utils').getModule;
 
-function getPlugin(name, key, configFile) {
-
-    var firstPath = configFile[key].plugins.path + '/' + name;
-
-    var paths = {};
-    paths[firstPath] = true;
-    paths[name] = true;
-    var err = 'Could not retrieve plugin code for: ' + name + '\n';
-
-    return getModule(name, paths, err);
-
-}
-
 function getConnectorSchema(name, configFile) {
     var opsDir = 'noOP';
 
@@ -50,20 +37,24 @@ function validateConfig(cluster, schema, configFile) {
     return config.getProperties();
 }
 
-module.exports = function(cluster, context, configFile) {
-    var topLevelSchema;
-
-    if (context.config_schema && typeof context.config_schema === 'function') {
-        topLevelSchema = context.config_schema();
+function extractSchema(fn, configFile) {
+    if (fn && typeof fn === 'function') {
+        return fn(configFile)
+    }
+    else if (fn && typeof fn === 'object') {
+        return fn;
     }
     else {
-        topLevelSchema = {};
+        return {}
     }
+}
+
+module.exports = function(cluster, context, configFile) {
+    var topLevelSchema = extractSchema(context.config_schema, configFile);
+    var pluginSchema = extractSchema(context.plugin_schema, configFile);
 
     var topLevelName = context.name;
     var config = {};
-    var pluginsContainer = {};
-    var customContainer = {};
 
     // iterate over top level config components
     _.forOwn(configFile, function(value, key) {
@@ -87,40 +78,17 @@ module.exports = function(cluster, context, configFile) {
         }
 
         //top level service configuration
-        else if (key === topLevelName) {
-            config[key] = validateConfig(cluster, topLevelSchema, configFile[key]);
-        }
-
-        else if (configFile[key].plugins) {
-            var plugins = configFile[key].plugins.names;
-
-            plugins.forEach(function(name) {
-                pluginsContainer[name] = true;
-                var code = getPlugin(name, key, configFile);
-                var pluginSchema = {};
-
-                if (code.config_schema) {
-                    if (typeof code.config_schema === 'function') {
-                        pluginSchema = code.config_schema();
-                    }
-                    else {
-                        pluginSchema = code.config_schema;
-                    }
-                }
-
-                config[name] = validateConfig(cluster, pluginSchema, configFile[name]);
-            });
-        }
-        //Any other custom top level configuration outside terafoundation and teraserver
         else {
-            customContainer[key] = configFile[key]
-        }
-    });
-
-    //add any custom configurations that are not plugins
-    _.forOwn(customContainer, function(value, key) {
-        if (!pluginsContainer[key]) {
-            config[key] = value;
+            if (key === topLevelName) {
+                config[key] = validateConfig(cluster, topLevelSchema, configFile[key]);
+            }
+            else if (pluginSchema[key]) {
+                config[key] = validateConfig(cluster, pluginSchema[key], configFile[key]);
+            }
+            //Any other custom top level configuration outside terafoundation and teraserver
+            else {
+                config[key] = configFile[key]
+            }
         }
     });
 
