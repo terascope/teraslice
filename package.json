@@ -24,6 +24,7 @@
     "kafka-node": "^0.2.27",
     "lodash": "^3.10.1",
     "moment": "^2.10.3",
+    "n-readlines": "^0.2.2",
     "node-webhdfs": "0.0.4",
     "terafoundation": "terascope/terafoundation",
     "yargs": "^3.18.0"
