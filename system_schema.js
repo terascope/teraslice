@@ -11,6 +11,14 @@ var schema = {
     reporter: {
         doc: '',
         default: ''
+    },
+    port: {
+        doc: 'Port for slicer',
+        default: 5678
+    },
+    host: {
+        doc: 'IP or hostname where slicer resides',
+        default: 'localhost:'
     }
 };
 
