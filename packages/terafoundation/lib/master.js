@@ -1,10 +1,10 @@
 var _ = require('lodash');
 
-module.exports = function (context, config) {
+module.exports = function(context, config) {
     var cluster = context.cluster;
     var logger = context.logger;
     var configWorkers = context.sysconfig.terafoundation.workers;
-    var start_workers =  true;
+    var start_workers = true;
 
     if (config.start_workers === false) {
         start_workers = false;
@@ -17,20 +17,31 @@ module.exports = function (context, config) {
 
     var workerCount = configWorkers ? configWorkers : require('os').cpus().length;
 
-    var shutdown = function () {
+    var shutdown = function() {
         logger.info("Shutting down.");
         shuttingdown = true;
 
         logger.info("Notifying workers to stop.");
         logger.info("Waiting for " + _.keys(cluster.workers).length + " workers to stop.");
         for (var id in cluster.workers) {
-            cluster.workers[id].kill('SIGINT');
+            if (config.shutdownMessaging) {
+                cluster.workers[id].send({message: 'shutdown'});
+            }
+            else {
+                cluster.workers[id].kill('SIGINT');
+            }
         }
 
-        setInterval(function () {
+        setInterval(function() {
             if (shuttingdown && _.keys(cluster.workers).length === 0) {
                 logger.info("All workers have exited. Ending.");
-                process.exit();
+                //sending kill signal allows for master process above to exit as it pleases
+                if (config.emitter) {
+                    config.emitter.emit('shutdown')
+                }
+                else {
+                    process.exit();
+                }
             }
             else if (shuttingdown) {
                 logger.info("Waiting for workers to stop: " + _.keys(cluster.workers).length + " pending.");
@@ -41,7 +52,7 @@ module.exports = function (context, config) {
     process.on('SIGTERM', shutdown);
     process.on('SIGINT', shutdown);
 
-
+    //default starting workers will use context.worker for code source;
     if (start_workers) {
         logger.info("Starting " + workerCount + " workers.");
         for (var i = 0; i < workerCount; i++) {
@@ -49,11 +60,22 @@ module.exports = function (context, config) {
         }
     }
 
+//assignment is set at /lib/api/start_workers
+    function determineWorkerENV(config, worker) {
+        var options = {};
 
-    cluster.on('exit', function (worker, code, signal) {
-        if (!shuttingdown) {
+        if (config.descriptors) {
+            options[worker.assignment] = true
+        }
+
+        return options;
+    }
+
+    cluster.on('exit', function(worker, code, signal) {
+        if (!shuttingdown && code < 1) {
             logger.error("Worker died " + worker.id + ": launching a new one");
-            cluster.fork();
+            var envConfig = determineWorkerENV(config, worker);
+            var newWorker = cluster.fork(envConfig);
         }
     });
 

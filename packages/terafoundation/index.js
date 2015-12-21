@@ -43,6 +43,37 @@ module.exports = function(config) {
         }, 600)
     }
 
+    function initAPI(context) {
+        var makeLogger = require('./lib/api/make_logger')(context);
+        logger = makeLogger(name, name);
+        context.logger = logger;
+        context.foundation = {
+            makeLogger: makeLogger,
+            startWorkers: require('./lib/api/start_workers')(context),
+            getConnection: require('./lib/api/get_connection')(context)
+        };
+    }
+
+    function findWorkerCode(context, config) {
+        var keyFound = false;
+        if (config.descriptors) {
+            _.forOwn(config.descriptors, function(value, key) {
+
+                if (process.env[key]) {
+                    keyFound = true;
+                    config[key](context);
+                }
+            });
+            //if no key was explicitly set then default to worker
+            if (!keyFound) {
+                config.worker(context);
+            }
+        }
+        else {
+            config.worker(context);
+        }
+    }
+
     // Domain emits 'error' when it's given an unhandled error
     primary.on('error', errorHandler);
     process.on('uncaughtException', errorHandler);
@@ -70,13 +101,6 @@ module.exports = function(config) {
                 context.baucis = require('baucis');
             }
 
-            if (config.worker && typeof config.worker === 'function') {
-                context.worker = config.worker;
-            }
-            else {
-                logger.info("No worker function provided. Loading default.");
-                context.worker = require('./lib/worker');
-            }
         }
 
         if (config.script) {
@@ -108,24 +132,15 @@ module.exports = function(config) {
                 // If there's a master plugin defined, pass it on.
                 if (config.master) {
                     //TODO reexamine this code here
-                    context.master_plugin = config.master(context);
+                    context.master_plugin = config.master(context, config);
                 }
             }
             else {
-                context.worker(context);
+                findWorkerCode(context, config)
             }
         }
 
-        function initAPI(context) {
-            var makeLogger = require('./lib/api/make_logger')(context);
-            logger =  makeLogger(name, name);
-            context.logger = logger;
-            context.foundation = {
-                makeLogger: makeLogger,
-                startWorkers: require('./lib/api/start_workers')(context),
-                getConnection: require('./lib/api/get_connection')(context)
-            };
-        }
+
     });
 
     return primary;
