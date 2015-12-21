@@ -11,6 +11,7 @@ var foundation = require('terafoundation')({
     worker: worker,
     master: master,
     slicer: slicer,
+    shutdownMessaging: true,
     descriptors: {slicer: true, worker: true},
     start_workers: false,
     config_schema: config_schema
