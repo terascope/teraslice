@@ -21,24 +21,6 @@ describe('elasticsearch_bulk_insert', function() {
 
     });
 
-    it('recursiveSend will break up an array and send them in chunks', function() {
-        var client = {
-            bulk: function() {
-            }
-        };
-        var dataArray = [{one: 'data'}, {two: 'data'}, {three: 'data'}];
-        var limit = 2;
-
-        spyOn(client, 'bulk');
-
-        es_sender.recursiveSend(client, dataArray, limit);
-
-        expect(client.bulk.calls.count()).toEqual(2);
-        expect(client.bulk.calls.allArgs()).toEqual([[{body: [{one: 'data'}, {two: 'data'}]}],
-            [{body: [{three: 'data'}]}]])
-
-    });
-
     it('newSender sends data to elasticsearch', function() {
         var client = {
             bulk: function() {
