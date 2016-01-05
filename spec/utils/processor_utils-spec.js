@@ -1,6 +1,6 @@
 'use strict';
 
-var utils = require('../../lib/processors/processor_utils');
+var utils = require('../../lib/utils/processor_utils');
 
 describe('processor_utils', function(){
     var record = {'someDate': '2015/08/31'};
