@@ -2,11 +2,9 @@
 
 var es_reader = require('../../lib/readers/elasticsearch_reader');
 var Promise = require('bluebird');
-var moment = require('moment');
 
 describe('elasticsearch_reader', function() {
     var clientData;
-    var loggedMessage;
 
     beforeEach(function() {
         clientData = [{count: 100}, {count: 50}];
@@ -55,13 +53,10 @@ describe('elasticsearch_reader', function() {
             }
         },
         logger: {
-            info: function(data) {
-                loggedMessage = data;
+            info: function() {
             }
         }
     };
-
-    var client = context.foundation.getConnection().client;
 
     it('has a schema, newSlicer and a newReader method', function() {
         var reader = es_reader;
@@ -92,7 +87,6 @@ describe('elasticsearch_reader', function() {
 
         var opConfig = {date_field_name: '@timestamp', size: 50, index: 'someIndex', full_response: true};
         var jobConfig = {lifecycle: 'once'};
-        var message = {start: '2015/08/30', end: '2015/08/31', count: 50};
 
         var reader = es_reader.newReader(context, opConfig, jobConfig);
 
@@ -138,63 +132,11 @@ describe('elasticsearch_reader', function() {
 
     });
 
-    it('determineSlice returns an object with keys start and end', function(done) {
-
-        var config = {date_field_name: '@timestamp', size: 100, index: 'someIndex'};
-        var start = moment(new Date('2015/08/30'));
-        var end = moment(new Date('2015/08/31'));
-        var size = 100;
-
-        Promise.resolve(es_reader.determineSlice(client, config, start, end, size))
-            .then(function(data) {
-                expect(data).toBeDefined();
-                expect(typeof data).toBe('object');
-                expect(data.start).toBeDefined();
-                expect(data.end).toBeDefined();
-                expect(data.start.format()).toEqual('2015-08-30T00:00:00-07:00');
-                expect(data.end.format()).toEqual('2015-08-31T00:00:00-07:00');
-
-                done();
-            });
-
-    });
-
-    it('determineSlice recurses, splitting chunk in half to get right chunk', function(done) {
-
-        var config = {date_field_name: '@timestamp', size: 50, index: 'someIndex'};
-        var start = moment(new Date('2015/08/30'));
-        var end = moment(new Date('2015/08/31'));
-        var size = 50;
-
-        Promise.resolve(es_reader.determineSlice(client, config, start, end, size))
-            .then(function(data) {
-                expect(data.end.format()).toEqual('2015-08-30T12:00:00-07:00');
-                done();
-            });
-
-    });
-
-    it('determineSlice will return oversized slice if interval is  === || < 1 ms ', function(done) {
-
-        var config = {date_field_name: '@timestamp', size: 10, index: 'someIndex'};
-        var start = moment(new Date('2015/08/30'));
-        var end = moment(new Date('2015/08/31'));
-        var size = 10;
-
-        Promise.resolve(es_reader.determineSlice(client, config, start, end, size))
-            .then(function(data) {
-                expect(data.start.format()).toEqual('2015-08-30T00:00:00-07:00');
-                expect(data.end.format()).toEqual('2015-08-30T00:00:01-07:00');
-
-                done();
-            });
-
-    });
 
     it('newSlicer return a function', function() {
 
         var opConfig = {date_field_name: '@timestamp', size: 50, index: 'someIndex', interval: '12_hrs'};
-        var jobConfig = {};
+        var jobConfig = {lifecycle: 'once'};
 
         var fn = es_reader.newSlicer(context, opConfig, jobConfig);
 
@@ -213,7 +155,7 @@ describe('elasticsearch_reader', function() {
             end: "2015-08-26"
         };
 
-        var jobConfig = {};
+        var jobConfig = {lifecycle: 'once'};
 
         var slicer = es_reader.newSlicer(context, opConfig, jobConfig);
 
@@ -240,7 +182,7 @@ describe('elasticsearch_reader', function() {
             end: "2015-08-25T00:02:00"
         };
 
-        var jobConfig = {};
+        var jobConfig = {lifecycle: 'once'};
 
         var slicer = es_reader.newSlicer(context, opConfig, jobConfig);
 
@@ -251,15 +193,6 @@ describe('elasticsearch_reader', function() {
             done()
         });
 
-    });
-
-    it(' will log a warning if your max_window is set to 10000 ', function() {
-        var opConfig = {index: 'someIndex'};
-        var logger = context.logger;
-
-        es_reader.checkElasticsearch(client, opConfig, logger);
-
-        expect(loggedMessage).toEqual(' max_result_window for index: someIndex is set at 10000. On very large indices it is possible that a slice can not be divided to stay below this limit. If that occurs an error will be thrown by Elasticsearch and the slice can not be processed. Increasing max_result_window in the Elasticsearch index settings will resolve the problem. ');
     });
 
 });
