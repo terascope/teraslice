@@ -1,6 +1,13 @@
 'use strict';
 var config = require('../../lib/utils/config');
 var fs = require('fs');
+var convict = require('convict');
+
+var convictFormats = require('../../lib/utils/convict_utils');
+
+convictFormats.forEach(function(obj) {
+    convict.addFormat(obj)
+});
 
 describe('config', function() {
 
@@ -43,9 +50,9 @@ describe('config', function() {
 
     it('getJob will return the job.json', function() {
         /*var job = require(process.cwd() + '/example_job.json');
-        var results = config.getJob();
+         var results = config.getJob();
 
-        expect(results).toEqual(job)*/
+         expect(results).toEqual(job)*/
 
     });
 
@@ -113,37 +120,51 @@ describe('config', function() {
     });
 
     it('initializeJob returns defaults and functions to start the job', function() {
-       /* var context = {
-            sysconfig: {},
-            cluster: {isMaster: true},
-            startWorkers: function() {
-            },
-            makeLogger: function() {
-            },
-            elasticsearch: {default: {}}
-        };
-        var allConfig = config.initializeJob(context);
+        /* var context = {
+         sysconfig: {},
+         cluster: {isMaster: true},
+         startWorkers: function() {
+         },
+         makeLogger: function() {
+         },
+         elasticsearch: {default: {}}
+         };
+         var allConfig = config.initializeJob(context);
 
-        expect(allConfig.reader).toBeDefined();
-        expect(allConfig.sender).toBeDefined();
-        expect(allConfig.queue).toBeDefined();
-        expect(allConfig.jobConfig).toBeDefined();*/
+         expect(allConfig.reader).toBeDefined();
+         expect(allConfig.sender).toBeDefined();
+         expect(allConfig.queue).toBeDefined();
+         expect(allConfig.jobConfig).toBeDefined();*/
 
     });
 
     it('validateOperation will validate convict schema\'s', function() {
-       /* var opSchema = {
+
+        var context = {
+            cluster: {
+                isMaster: true
+            }
+        };
+        var opSchema = {
             port: {default: 8000}, format: function(val) {
                 return typeof val === 'number'
             }
         };
+
         var job = {_op: "someOP", port: 1234};
+        var otherJob = {_op: "someOP", some: 'key'};
+
         var badJob = {some: 'key'};
 
-        var results = config.validateOperation(opSchema, job, true);
+        var results1 = config.validateOperation(context, opSchema, job, true);
+        var results2 = config.validateOperation(context, opSchema, otherJob, true);
 
-        expect(results).toEqual({port: 1234, _op: 'someOP'});
-        expect(function(){config.validateOperation(opSchema, badJob, true)}).toThrowError()*/
+        expect(results1).toEqual({port: 1234, _op: 'someOP'});
+        expect(results2).toEqual({ port: 8000, _op: 'someOP', some: 'key' });
+
+        expect(function() {
+            config.validateOperation(context ,opSchema, badJob, true)
+        }).toThrowError('_op: This field is required and must by of type string')
 
     });
 });

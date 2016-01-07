@@ -35,33 +35,6 @@ describe('file chunker', function(){
 
     });
 
-    it('getFilename is a function and returns a string', function(){
-        var getFileName = chunker.getFileName;
-        var opConfig = {directory: 'some/path'};
-        var config = {_nodeName: 'someNodeName'};
-
-        var results = getFileName(false, opConfig, config);
-
-        expect(typeof getFileName).toEqual('function');
-        expect(results).toEqual('some/path/someNodeName');
-
-    });
-
-    it('getFileName gets different files under different configurations', function(){
-
-        var getFileName = chunker.getFileName;
-        var opConfig1 = {directory: 'some/path'};
-        var opConfig2 = {directory: 'some/path', filename: 'someName.txt'};
-        var config = {_nodeName: 'someNodeName'};
-
-        var results1 = getFileName('2015.08.31', opConfig1, config);
-        var results2 = getFileName('2015.08.31', opConfig2, config);
-
-        expect(results1).toEqual('some/path-2015.08.31/someNodeName');
-        expect(results2).toEqual('some/path-2015.08.31/someName.txt');
-
-    });
-
     it('creates a chunk size set by opConfig', function(){
         var context = {sysconfig:{}};
         var opConfig = {chunk_size: 2};

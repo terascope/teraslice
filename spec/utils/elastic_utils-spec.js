@@ -282,6 +282,24 @@ describe('elastic_utils', function() {
             new Date(results.end)
         }).not.toThrow();
 
-    })
+    });
+
+    it('recursiveSend will break up an array and send them in chunks', function() {
+        var client = {
+            bulk: function() {
+            }
+        };
+        var dataArray = [{one: 'data'}, {two: 'data'}, {three: 'data'}];
+        var limit = 2;
+
+        spyOn(client, 'bulk');
+
+        utils.recursiveSend(client, dataArray, limit);
+
+        expect(client.bulk.calls.count()).toEqual(2);
+        expect(client.bulk.calls.allArgs()).toEqual([[{body: [{one: 'data'}, {two: 'data'}]}],
+            [{body: [{three: 'data'}]}]])
+
+    });
 
 });

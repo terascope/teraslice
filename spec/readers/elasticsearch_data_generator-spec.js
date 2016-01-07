@@ -4,7 +4,7 @@ var generator = require('../../lib/readers/elasticsearch_data_generator');
 
 describe('elasticsearch_data_generator', function() {
 
-    it('has a schema and newProcessor method', function() {
+    it('has a schema and newReader method', function() {
 
         expect(generator).toBeDefined();
         expect(generator.newReader).toBeDefined();
