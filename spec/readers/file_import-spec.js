@@ -1,7 +1,8 @@
 'use strict';
 
-var file_reader = require('../../lib/readers/file_import');
 var fs = require('fs');
+var file_reader = require('../../lib/readers/file_import');
+var file_utils = require('../../lib/utils/file_utils');
 
 describe('file_import', function(){
     var path = process.cwd() + '/testing_for_teraslice';
@@ -66,7 +67,7 @@ describe('file_import', function(){
     });
 
     it('walk recursively goes through a directory and calls a function on each file', function(){
-        var walk = file_reader.walk;
+        var walk = file_utils.walk;
         var fileArray = [];
 
         walk(path, function(file){

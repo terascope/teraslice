@@ -1,6 +1,6 @@
 {
   "name": "Data Generator",
-  "lifecycle": "persistent",
+  "lifecycle": "once",
   "analytics": false,
   "operations": [
     {
