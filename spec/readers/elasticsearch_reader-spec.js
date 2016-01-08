@@ -132,10 +132,16 @@ describe('elasticsearch_reader', function() {
 
     });
 
-
     it('newSlicer return a function', function() {
 
-        var opConfig = {date_field_name: '@timestamp', size: 50, index: 'someIndex', interval: '12_hrs'};
+        var opConfig = {
+            date_field_name: '@timestamp',
+            size: 50,
+            index: 'someIndex',
+            interval: '12_hrs',
+            start: new Date(),
+            end: new Date()
+        };
         var jobConfig = {lifecycle: 'once'};
 
         var fn = es_reader.newSlicer(context, opConfig, jobConfig);
@@ -192,6 +198,79 @@ describe('elasticsearch_reader', function() {
             expect(data).toBeNull();
             done()
         });
+
+    });
+
+    it('slicer will throw if start and/or end or formatted incorrectly', function() {
+
+        var opConfig1 = {
+            date_field_name: '@timestamp',
+            size: 100,
+            index: 'someIndex',
+            interval: '2_hrs',
+            start: "2015-08-25T00:00:00",
+            end: "2015-08-25T00:02:00"
+        };
+
+        var opConfig2 = {
+            date_field_name: '@timestamp',
+            size: 100,
+            index: 'someIndex',
+            interval: '2_hrs',
+            start: "2015-08-25T00:00:00"
+        };
+
+        var opConfig3 = {
+            date_field_name: '@timestamp',
+            size: 100,
+            index: 'someIndex',
+            interval: '2_hrs',
+            end: "2015-08-25T00:02:00"
+        };
+
+        var opConfig4 = {
+            index: 'someIndex',
+            start: "00_s",
+            end: "59_s"
+        };
+
+        var opConfig5 = {
+            index: 'someIndex',
+            start: "00_s"
+        };
+
+        var opConfig6 = {
+            index: 'someIndex',
+            end: "59_s"
+        };
+
+        var jobConfig1 = {lifecycle: 'once'};
+
+        var jobConfig2 = {lifecycle: 'persistent'};
+
+        expect(function() {
+            es_reader.newSlicer(context, opConfig1, jobConfig2)
+        }).toThrowError('elasticsearch_reader start and/or end are incorrectly formatted. Needs to follow 12_s format');
+
+        expect(function() {
+            es_reader.newSlicer(context, opConfig2, jobConfig1)
+        }).toThrowError('elasticsearch_reader start and/or end are not set');
+
+        expect(function() {
+            es_reader.newSlicer(context, opConfig3, jobConfig1)
+        }).toThrowError('elasticsearch_reader start and/or end are not set');
+
+        expect(function() {
+            es_reader.newSlicer(context, opConfig4, jobConfig1)
+        }).toThrowError('elasticsearch_reader start and/or end dates are invalid');
+
+        expect(function() {
+            es_reader.newSlicer(context, opConfig5, jobConfig2)
+        }).toThrowError('elasticsearch_reader start and/or end are not set');
+
+        expect(function() {
+            es_reader.newSlicer(context, opConfig6, jobConfig2)
+        }).toThrowError('elasticsearch_reader start and/or end are not set');
 
     });
 
