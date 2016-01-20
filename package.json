@@ -19,6 +19,7 @@
   "dependencies": {
     "bluebird": "^2.9.34",
     "convict": "^1.0.1",
+    "datemath-parser": "^1.0.5",
     "jasmine": "^2.3.2",
     "json-schema-faker": "^0.2.1",
     "lodash": "^3.10.1",
