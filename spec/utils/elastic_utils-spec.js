@@ -253,27 +253,16 @@ describe('elastic_utils', function() {
 
     });
 
-    it('findInterval will process the jobConfig to determine the interval to slice', function() {
-        var jobConfig1 = {start: '0s', end: '29s'};
-        var jobConfig2 = {start: '0s', end: '15s'};
-        var jobConfig3 = {start: '0s', end: '59s'};
-
-        expect(utils.findInterval(jobConfig1)).toEqual([30, 's']);
-        expect(utils.findInterval(jobConfig2)).toEqual([16, 's']);
-        expect(utils.findInterval(jobConfig3)).toEqual([60, 's']);
-
-    });
-
     it('getTimes returns valid iso dates', function() {
-        var jobConfig1 = {start: '0s', end: '29s'};
+        var jobConfig1 = {interval: '0s', delay: '29s'};
 
         var results = utils.getTimes(jobConfig1);
 
         expect(results).toBeDefined();
         expect(results.start).toBeDefined();
         expect(results.end).toBeDefined();
-        expect(typeof results.start).toEqual('string');
-        expect(typeof results.end).toEqual('string');
+        expect(typeof results.start).toEqual('object');
+        expect(typeof results.end).toEqual('object');
 
         expect(function() {
             new Date(results.start)
