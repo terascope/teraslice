@@ -87,7 +87,7 @@ describe('file_export', function() {
         var context = {};
         var op = {path: path};
         var operations = [{
-            interval: "5_mins",
+            interval: "5mins",
             start: "2015-07-08T07:00:00",
             end: "2015-07-08T07:10:00"
         }];
@@ -139,7 +139,7 @@ describe('file_export', function() {
         var context = {};
         var opConfig = {path: path};
         var operations = [{
-            interval: "5_mins",
+            interval: "5mins",
             start: "2015-07-08T07:00:00",
             end: "2015-07-08T07:10:00"
         }];

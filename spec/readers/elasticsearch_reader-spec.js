@@ -138,7 +138,7 @@ describe('elasticsearch_reader', function() {
             date_field_name: '@timestamp',
             size: 50,
             index: 'someIndex',
-            interval: '12_hrs',
+            interval: '12hrs',
             start: new Date(),
             end: new Date()
         };
@@ -156,9 +156,9 @@ describe('elasticsearch_reader', function() {
             date_field_name: '@timestamp',
             size: 100,
             index: 'someIndex',
-            interval: '2_hrs',
-            start: "2015-08-25",
-            end: "2015-08-26"
+            interval: '2hrs',
+            start: "2015-08-25T00:00:00Z",
+            end: "2015-08-26T00:00:00Z"
         };
 
         var jobConfig = {lifecycle: 'once'};
@@ -167,8 +167,8 @@ describe('elasticsearch_reader', function() {
 
         Promise.resolve(slicer()).then(function(data) {
             expect(data).toEqual({
-                start: '2015-08-25T00:00:00+00:00',
-                end: '2015-08-25T02:00:00+00:00',
+                start: '2015-08-24T17:00:00.000-07:00',
+                end: '2015-08-24T19:00:00.000-07:00',
                 count: 100
             });
 
@@ -183,7 +183,7 @@ describe('elasticsearch_reader', function() {
             date_field_name: '@timestamp',
             size: 100,
             index: 'someIndex',
-            interval: '2_hrs',
+            interval: '2hrs',
             start: "2015-08-25T00:00:00",
             end: "2015-08-25T00:02:00"
         };
@@ -207,7 +207,7 @@ describe('elasticsearch_reader', function() {
             date_field_name: '@timestamp',
             size: 100,
             index: 'someIndex',
-            interval: '2_hrs',
+            interval: '2hrs',
             start: "2015-08-25T00:00:00",
             end: "2015-08-25T00:02:00"
         };
@@ -216,7 +216,7 @@ describe('elasticsearch_reader', function() {
             date_field_name: '@timestamp',
             size: 100,
             index: 'someIndex',
-            interval: '2_hrs',
+            interval: '2hrs',
             start: "2015-08-25T00:00:00"
         };
 
@@ -224,24 +224,24 @@ describe('elasticsearch_reader', function() {
             date_field_name: '@timestamp',
             size: 100,
             index: 'someIndex',
-            interval: '2_hrs',
+            interval: '2hrs',
             end: "2015-08-25T00:02:00"
         };
 
         var opConfig4 = {
             index: 'someIndex',
-            start: "00_s",
-            end: "59_s"
+            start: "00s",
+            end: "59s"
         };
 
         var opConfig5 = {
             index: 'someIndex',
-            start: "00_s"
+            start: "00s"
         };
 
         var opConfig6 = {
             index: 'someIndex',
-            end: "59_s"
+            end: "59s"
         };
 
         var jobConfig1 = {lifecycle: 'once'};
@@ -250,7 +250,8 @@ describe('elasticsearch_reader', function() {
 
         expect(function() {
             es_reader.newSlicer(context, opConfig1, jobConfig2)
-        }).toThrowError('elasticsearch_reader start and/or end are incorrectly formatted. Needs to follow 12_s format');
+        }).toThrowError('elasticsearch_reader start and/or end are incorrectly formatted. Needs to follow ' +
+            '[number][letter\'s] format, e.g. "12s"');
 
         expect(function() {
             es_reader.newSlicer(context, opConfig2, jobConfig1)
@@ -266,12 +267,13 @@ describe('elasticsearch_reader', function() {
 
         expect(function() {
             es_reader.newSlicer(context, opConfig5, jobConfig2)
-        }).toThrowError('elasticsearch_reader start and/or end are not set');
+        }).toThrowError('elasticsearch_reader start and/or end are incorrectly formatted. Needs to follow ' +
+            '[number][letter\'s] format, e.g. "12s"');
 
         expect(function() {
             es_reader.newSlicer(context, opConfig6, jobConfig2)
-        }).toThrowError('elasticsearch_reader start and/or end are not set');
-
+        }).toThrowError('elasticsearch_reader start and/or end are incorrectly formatted. Needs to follow ' +
+            '[number][letter\'s] format, e.g. "12s"');
     });
 
 });

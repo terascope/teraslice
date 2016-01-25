@@ -63,7 +63,7 @@ describe('data_utils', function() {
         properties: {
             updated: {
                 type: 'string',
-                format: 'isoDate'
+                format: 'utcDate'
             }
 
         },
@@ -71,7 +71,7 @@ describe('data_utils', function() {
     };
 
 
-    it('format isoBetween creates an iso date between two dates', function(){
+    it('format isoBetween creates an iso date between two dates', function() {
         var date = jsf(testObjBetween1);
 
         expect(new Date(date.created)).toBeLessThan(new Date(testObjBetween1.properties.created.end));
@@ -79,7 +79,7 @@ describe('data_utils', function() {
 
     });
 
-    it('format isoBetween will default to current date if start or end is missing', function(){
+    it('format isoBetween will default to current date if start or end is missing', function() {
 
         var date2 = jsf(testObjBetween2);
         var date3 = jsf(testObjBetween3);
@@ -100,18 +100,18 @@ describe('data_utils', function() {
         expect(new Date(date4.created) <= testDate).toBeTruthy();
     });
 
-    it('isoDate will give you a new Date() in iso format', function(){
+    it('isoDate will give you a new Date() in iso format', function() {
 
         var date = jsf(testObjDate);
-        var testDate = new Date().toISOString().slice(0,19);
+        var testDate = new Date().toISOString().slice(0, 19);
 
         //removing milliseconds in iso date to check time, else testDate will always be older than date
 
-        expect(date.updated.slice(0,19)).toEqual(testDate);
+        expect(date.updated.slice(0, 19)).toEqual(testDate);
 
     });
 
-    it('default data creation', function(){
+    it('default data creation', function() {
 
         var data = jsf(schema);
 

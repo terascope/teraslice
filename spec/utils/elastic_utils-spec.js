@@ -3,6 +3,7 @@
 var utils = require('../../lib/utils/elastic_utils');
 var Promise = require('bluebird');
 var moment = require('moment');
+var dateFormat = utils.dateFormat;
 
 
 describe('elastic_utils', function() {
@@ -110,7 +111,7 @@ describe('elastic_utils', function() {
     it('processInterval takes a string and returns an array', function() {
         var processInterval = utils.processInterval;
 
-        var results = processInterval('5_min');
+        var results = processInterval('5min');
 
         expect(Array.isArray(results)).toBe(true);
 
@@ -118,7 +119,7 @@ describe('elastic_utils', function() {
 
     it('processInterval requires input to be a specific format', function() {
         var processInterval = utils.processInterval;
-        var results1 = processInterval('5_min');
+        var results1 = processInterval('5min');
 
         expect(results1[0]).toEqual('5');
         expect(results1[1]).toEqual('m');
@@ -197,8 +198,8 @@ describe('elastic_utils', function() {
                 expect(typeof data).toBe('object');
                 expect(data.start).toBeDefined();
                 expect(data.end).toBeDefined();
-                expect(data.start.format()).toEqual('2015-08-30T00:00:00-07:00');
-                expect(data.end.format()).toEqual('2015-08-31T00:00:00-07:00');
+                expect(data.start.format(dateFormat)).toEqual('2015-08-30T00:00:00.000-07:00');
+                expect(data.end.format(dateFormat)).toEqual('2015-08-31T00:00:00.000-07:00');
 
                 done();
             });
@@ -214,7 +215,7 @@ describe('elastic_utils', function() {
 
         Promise.resolve(utils.determineSlice(client, config, start, end, size))
             .then(function(data) {
-                expect(data.end.format()).toEqual('2015-08-30T12:00:00-07:00');
+                expect(data.end.format(dateFormat)).toEqual('2015-08-30T12:00:00.000-07:00');
                 done();
             });
 
@@ -229,8 +230,8 @@ describe('elastic_utils', function() {
 
         Promise.resolve(utils.determineSlice(client, config, start, end, size))
             .then(function(data) {
-                expect(data.start.format()).toEqual('2015-08-30T00:00:00-07:00');
-                expect(data.end.format()).toEqual('2015-08-30T00:00:01-07:00');
+                expect(data.start.format(dateFormat)).toEqual('2015-08-30T00:00:00.000-07:00');
+                expect(data.end.format(dateFormat)).toEqual('2015-08-30T00:00:00.001-07:00');
 
                 done();
             });
@@ -252,27 +253,16 @@ describe('elastic_utils', function() {
 
     });
 
-    it('findInterval will process the jobConfig to determine the interval to slice', function() {
-        var jobConfig1 = {start: '0_s', end: '29_s'};
-        var jobConfig2 = {start: '0_s', end: '15_s'};
-        var jobConfig3 = {start: '0_s', end: '59_s'};
-
-        expect(utils.findInterval(jobConfig1)).toEqual([30, 's']);
-        expect(utils.findInterval(jobConfig2)).toEqual([16, 's']);
-        expect(utils.findInterval(jobConfig3)).toEqual([60, 's']);
-
-    });
-
     it('getTimes returns valid iso dates', function() {
-        var jobConfig1 = {start: '0_s', end: '29_s'};
+        var jobConfig1 = {interval: '0s', delay: '29s'};
 
         var results = utils.getTimes(jobConfig1);
 
         expect(results).toBeDefined();
         expect(results.start).toBeDefined();
         expect(results.end).toBeDefined();
-        expect(typeof results.start).toEqual('string');
-        expect(typeof results.end).toEqual('string');
+        expect(typeof results.start).toEqual('object');
+        expect(typeof results.end).toEqual('object');
 
         expect(function() {
             new Date(results.start)
@@ -301,5 +291,4 @@ describe('elastic_utils', function() {
             [{body: [{three: 'data'}]}]])
 
     });
-
 });
