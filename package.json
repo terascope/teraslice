@@ -23,7 +23,7 @@
     "jasmine": "^2.3.2",
     "json-schema-faker": "^0.2.1",
     "lodash": "^3.10.1",
-    "moment": "^2.10.3",
+    "moment": "^2.11.1",
     "n-readlines": "^0.2.2",
     "node-webhdfs": "0.0.4",
     "socket.io": "^1.3.7",
