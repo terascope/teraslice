@@ -72,7 +72,7 @@ module.exports = function(context, config) {
     }
 
     cluster.on('exit', function(worker, code, signal) {
-        if (!shuttingdown && code < 1) {
+        if (!shuttingdown) {
             logger.error("Worker died " + worker.id + ": launching a new one");
             var envConfig = determineWorkerENV(config, worker);
             var newWorker = cluster.fork(envConfig);
