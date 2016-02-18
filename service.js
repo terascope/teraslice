@@ -19,14 +19,3 @@ var foundation = require('terafoundation')({
     config_schema: config_schema
     // emitter: emitter
 });
-
-
-/*
- "cluster": {
- "port": 5678,
- "worker_port": 6789,
- "host": "localhost:",
- "master": true
- },
- */
-
