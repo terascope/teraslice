@@ -33,7 +33,6 @@ module.exports.jobSchema = {
         'any number of processing function in-between',
         default: [],
         format: function checkJobProcess(arr) {
-            console.log('what in the world is this', arr);
             if (!(Array.isArray(arr) && arr.length >= 2)) {
                 throw new Error('operations need to be of type array with at least two operations in it')
             }
