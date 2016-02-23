@@ -8,7 +8,6 @@ module.exports.jobSchema = {
         doc: 'Name for specific job',
         default: 'Custom Job'
     },
-
     lifecycle: {
         doc: 'Job lifecycle behavior, determines if it should exit on completion or remain active',
         default: 'once'
@@ -32,9 +31,9 @@ module.exports.jobSchema = {
     operations: {
         doc: 'An array of actions to execute, typically the first is a reader and the last is a sender with ' +
         'any number of processing function in-between',
-        default:[],
-        format: function checkJobProcess(arr){
-            console.log('what in the world is this',arr);
+        default: [],
+        format: function checkJobProcess(arr) {
+            console.log('what in the world is this', arr);
             if (!(Array.isArray(arr) && arr.length >= 2)) {
                 throw new Error('operations need to be of type array with at least two operations in it')
             }
