@@ -1,6 +1,6 @@
 {
   "name": "teraslice",
-  "version": "0.3",
+  "version": "0.3.0",
   "description": "Slice and dice your Elasticsearch data",
   "main": "service.js",
   "scripts": {
