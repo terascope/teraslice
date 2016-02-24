@@ -6,7 +6,7 @@
     {
       "_op": "elasticsearch_data_generator",
       "size": 5000,
-      "file_path": "/Users/jarednoble/Projects/data.js"
+      "file_path": "some/file/path"
     },
     {
       "_op": "elasticsearch_index_selector",
