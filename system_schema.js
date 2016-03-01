@@ -1,9 +1,11 @@
 'use strict';
 var exec = require('child_process').execSync;
+var _ = require('lodash');
+
 
 function portError(port){
 
-    throw new Error('Port specified in config file is already in use, please specify another')
+    throw new Error('Port specified in config file (', port, ') is already in use, please specify another')
 }
 
 function findPort(port, cb) {
@@ -27,6 +29,17 @@ function findPort(port, cb) {
 
 var startingPort = findPort(5678);
 
+var ip = _.chain(require('os').networkInterfaces())
+    .values()
+    .flatten()
+    .filter(function(val){
+        return (val.family == 'IPv4' && val.internal == false)
+    })
+    .pluck('address')
+    .head()
+    .value();
+
+
 var schema = {
     teraslice_ops_directory: {
         doc: '',
@@ -47,9 +60,9 @@ var schema = {
             return findPort(port, portError)
         }
     },
-    host: {
+    hostname: {
         doc: 'IP or hostname where slicer resides',
-        default: 'localhost:'
+        default: ip
     }
 };
 
@@ -66,5 +79,4 @@ module.exports = {
     schema: schema,
     portError: portError,
     findPort: findPort
-
 };
