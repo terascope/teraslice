@@ -3,8 +3,7 @@ var exec = require('child_process').execSync;
 var _ = require('lodash');
 
 
-function portError(port){
-
+function portError(port) {
     throw new Error('Port specified in config file (', port, ') is already in use, please specify another')
 }
 
@@ -32,7 +31,7 @@ var startingPort = findPort(5678);
 var ip = _.chain(require('os').networkInterfaces())
     .values()
     .flatten()
-    .filter(function(val){
+    .filter(function(val) {
         return (val.family == 'IPv4' && val.internal == false)
     })
     .pluck('address')
@@ -56,7 +55,7 @@ var schema = {
     port: {
         doc: 'Port for slicer',
         default: startingPort,
-        format: function(port){
+        format: function(port) {
             return findPort(port, portError)
         }
     },
