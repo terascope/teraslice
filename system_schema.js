@@ -42,6 +42,7 @@ var ip = _.chain(require('os').networkInterfaces())
 var schema = {
     teraslice_ops_directory: {
         doc: '',
+        //TODO change this default setting
         default: '/Users/jarednoble/Desktop/fakeOps'
     },
     shutdown_timeout: {
@@ -60,8 +61,32 @@ var schema = {
         }
     },
     hostname: {
-        doc: 'IP or hostname where slicer resides',
+        doc: 'IP or hostname for server',
         default: ip
+    }
+};
+
+var clusterSchema = {
+    master: {
+        doc: 'boolean for determining if cluster_master should live on this node',
+        default: false
+    },
+    master_hostname:{
+        doc: 'hostname where the cluster_master resides, used to notify all node_masters where to connect',
+        //TODO place a proper default here and checks
+        default: '192.168.1.7'
+    },
+    port: {
+        doc:'port for the cluster_master to listen on',
+        default: 5678
+    },
+    name: {
+        doc: 'Name for the cluster itself, its used for naming log files/indices',
+        default: 'teracluster'
+    },
+    logs: {
+        doc: 'Used to determine the elasticsearch connection to send log and state indices',
+        default: {connection:'default'}
     }
 };
 
@@ -69,6 +94,9 @@ var schema = {
 function config_schema(config) {
     var config = config;
     //TODO do something with config if needed
+    if(config.cluster){
+        schema.cluster = clusterSchema;
+    }
 
     return schema;
 }
