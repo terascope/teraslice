@@ -26,7 +26,7 @@ function findPort(port, cb) {
     }
 }
 
-var startingPort = findPort(5678);
+var startingPort = findPort(45678);
 
 var ip = _.chain(require('os').networkInterfaces())
     .values()
@@ -40,10 +40,9 @@ var ip = _.chain(require('os').networkInterfaces())
 
 
 var schema = {
-    teraslice_ops_directory: {
+    ops_directory: {
         doc: '',
-        //TODO change this default setting
-        default: '/Users/jarednoble/Desktop/fakeOps'
+        default: __dirname + '/lib'
     },
     shutdown_timeout: {
         doc: '',
@@ -74,7 +73,7 @@ var clusterSchema = {
     master_hostname:{
         doc: 'hostname where the cluster_master resides, used to notify all node_masters where to connect',
         //TODO place a proper default here and checks
-        default: '192.168.1.7'
+        default: 'required_String'
     },
     port: {
         doc:'port for the cluster_master to listen on',
@@ -93,7 +92,7 @@ var clusterSchema = {
 
 function config_schema(config) {
     var config = config;
-    //TODO do something with config if needed
+
     if(config.cluster){
         schema.cluster = clusterSchema;
     }
