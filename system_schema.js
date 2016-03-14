@@ -93,7 +93,7 @@ var clusterSchema = {
 function config_schema(config) {
     var config = config;
 
-    if(config.cluster){
+    if(config.teraslice.cluster){
         schema.cluster = clusterSchema;
     }
 
