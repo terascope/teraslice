@@ -17,7 +17,7 @@ describe('elasticsearch_bulk_insert', function() {
         var defaults = es_sender.schema();
 
         expect(defaults.size).toBeDefined();
-        expect(defaults.size.default).toEqual(5000);
+        expect(defaults.size.default).toEqual(500);
 
     });
 
