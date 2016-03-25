@@ -15,7 +15,7 @@ function init_events(client) {
 function create(customConfig, logger) {
     var hdfsClient = require('node-webhdfs').WebHDFSClient;
 
-    logger.info("Using elasticsearch hosts: " + customConfig.host);
+    logger.info("Using hdfs hosts: " + customConfig.host);
 
     // TODO: there's no error handling here at all???
     var client = new hdfsClient(customConfig);

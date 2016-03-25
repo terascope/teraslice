@@ -13,13 +13,13 @@ module.exports = function(context, config) {
 
     if (plugin) plugin.pre();
 
-    var shuttingdown = false;
+    var shuttingDown = false;
 
     var workerCount = configWorkers ? configWorkers : require('os').cpus().length;
 
     var shutdown = function() {
         logger.info("Shutting down.");
-        shuttingdown = true;
+        shuttingDown = true;
 
         logger.info("Notifying workers to stop.");
         logger.info("Waiting for " + _.keys(cluster.workers).length + " workers to stop.");
@@ -33,7 +33,7 @@ module.exports = function(context, config) {
         }
 
         setInterval(function() {
-            if (shuttingdown && _.keys(cluster.workers).length === 0) {
+            if (shuttingDown && _.keys(cluster.workers).length === 0) {
                 logger.info("All workers have exited. Ending.");
                 //sending kill signal allows for master process above to exit as it pleases
                 if (config.emitter) {
@@ -43,7 +43,7 @@ module.exports = function(context, config) {
                     process.exit();
                 }
             }
-            else if (shuttingdown) {
+            else if (shuttingDown) {
                 logger.info("Waiting for workers to stop: " + _.keys(cluster.workers).length + " pending.");
             }
         }, 1000);
@@ -65,17 +65,49 @@ module.exports = function(context, config) {
         var options = {};
 
         if (config.descriptors) {
-            options[worker.assignment] = true
+            options[worker.assignment] = true;
+        }
+
+        if (worker.job) {
+            options.job = worker.job;
+        }
+
+        if (worker.jobID) {
+            options.jobID = worker.jobID;
         }
 
         return options;
     }
 
+    function shouldProcessRestart(code, signal) {
+        var signalOptions = {'SIGKILL': true, 'SIGTERM': true, 'SIGINT': true};
+        var bool = true;
+
+        //code === 0  means it was a clean exit
+        if (code === 0) {
+            bool = false;
+        }
+
+        if (signalOptions[signal]) {
+            bool = false;
+        }
+
+        return bool;
+    }
+
     cluster.on('exit', function(worker, code, signal) {
-        if (!shuttingdown) {
-            logger.error("Worker died " + worker.id + ": launching a new one");
+        logger.info("Worker has exited id: " + worker.id + " code: " + code + " signal: " + signal);
+        if (!shuttingDown && shouldProcessRestart(code, signal)) {
             var envConfig = determineWorkerENV(config, worker);
             var newWorker = cluster.fork(envConfig);
+            logger.info("launching a new worker, id:", newWorker.id);
+
+            cluster.workers[newWorker.id].assignment = worker.assignment;
+
+            if (envConfig.job && envConfig.jobID) {
+                newWorker.job = envConfig.job;
+                newWorker.jobID = envConfig.jobID;
+            }
         }
     });
 
