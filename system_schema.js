@@ -1,9 +1,10 @@
 'use strict';
 var exec = require('child_process').execSync;
+var _ = require('lodash');
 
-function portError(port){
 
-    throw new Error('Port specified in config file is already in use, please specify another')
+function portError(port) {
+    throw new Error('Port specified in config file (', port, ') is already in use, please specify another')
 }
 
 function findPort(port, cb) {
@@ -25,12 +26,23 @@ function findPort(port, cb) {
     }
 }
 
-var startingPort = findPort(5678);
+var startingPort = findPort(45678);
+
+var ip = _.chain(require('os').networkInterfaces())
+    .values()
+    .flatten()
+    .filter(function(val) {
+        return (val.family == 'IPv4' && val.internal == false)
+    })
+    .pluck('address')
+    .head()
+    .value();
+
 
 var schema = {
-    teraslice_ops_directory: {
+    ops_directory: {
         doc: '',
-        default: '/Users/jarednoble/Desktop/fakeOps'
+        default: __dirname + '/lib'
     },
     shutdown_timeout: {
         doc: '',
@@ -43,20 +55,47 @@ var schema = {
     port: {
         doc: 'Port for slicer',
         default: startingPort,
-        format: function(port){
+        format: function(port) {
             return findPort(port, portError)
         }
     },
-    host: {
-        doc: 'IP or hostname where slicer resides',
-        default: 'localhost:'
+    hostname: {
+        doc: 'IP or hostname for server',
+        default: ip
+    }
+};
+
+var clusterSchema = {
+    master: {
+        doc: 'boolean for determining if cluster_master should live on this node',
+        default: false
+    },
+    master_hostname:{
+        doc: 'hostname where the cluster_master resides, used to notify all node_masters where to connect',
+        //TODO place a proper default here and checks
+        default: 'required_String'
+    },
+    port: {
+        doc:'port for the cluster_master to listen on',
+        default: 5678
+    },
+    name: {
+        doc: 'Name for the cluster itself, its used for naming log files/indices',
+        default: 'teracluster'
+    },
+    logs: {
+        doc: 'Used to determine the elasticsearch connection to send log and state indices',
+        default: {connection:'default'}
     }
 };
 
 
 function config_schema(config) {
     var config = config;
-    //TODO do something with config if needed
+
+    if(config.teraslice.cluster){
+        schema.cluster = clusterSchema;
+    }
 
     return schema;
 }
@@ -66,5 +105,4 @@ module.exports = {
     schema: schema,
     portError: portError,
     findPort: findPort
-
 };
