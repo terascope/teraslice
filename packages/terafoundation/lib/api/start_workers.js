@@ -21,7 +21,7 @@ module.exports = function(context) {
             if(env.job){
                 job = env.job;
                 id = JSON.parse(env.job).__id;
-                env.jobID = id
+                env.job_id = id
             }
         }
 
@@ -33,7 +33,7 @@ module.exports = function(context) {
                 //for cluster master reference, when a worker dies, you don't have access to its env at master level
                 worker.assignment = type;
                 worker.job = job;
-                worker.jobID = id;
+                worker.job_id = id;
             }
         }
 
