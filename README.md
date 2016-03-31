@@ -1,10 +1,10 @@
 # Teraslice - Slice and dice your Elasticsearch data
 
 Tereslice is a companion tool for Elasticsearch that helps you process very large volumes of data. It was born and bred in an environment that regularly sees billions of pieces of data per day. It slices the data in your cluster and reprocesses it concurrently to maximize throughput. Here are a few tasks it can help you with:
- 
+
   * Reindexing data at high volumes
   * Moving data between clusters
-  * Off cluster aggregations 
+  * Off cluster aggregations
   * Near real-time rollup calculations
   * Near real-time notifications
   * Moving data out of Elasticsearch into other systems
@@ -12,7 +12,7 @@ Tereslice is a companion tool for Elasticsearch that helps you process very larg
   * Exporting data to files
   * Importing data from a previous export
   * Periodic processing of data stored in an index
-  
+
 In Teraslice you define jobs that specify a pipeline of work to be applied to a slice of data. That work will execute concurrently across many workers to achieve very high re-processing throughput.
 
 The only requirement that Teraslice makes is that the data is sliceable using date ranges. So as long as your index has a date field that varies across records then you can use it to slice things up and concurrently reprocess the data in the index.
@@ -54,26 +54,26 @@ In this instance all the operations that are performed are provided by Teraslice
 
 Operations are nothing more than Javascript modules and writing your own is easy. Custom operations can be inserted in the operations flow as needed.
 
-# Status 
+# Status
 
-Teraslice is in early development. It is usable in a single node configuration but there are many rough edges. Clustering will be coming soon but is not yet usable. 
+Teraslice is in early development. It can be usable in a single node configuration but there are many rough edges. A first pass at Clustering has been merged but is still extremely early.
 
-# Installation 
+# Installation
 
-Teraslice is written in Node.js and has been tested on Linux and Mac OS X. 
+Teraslice is written in Node.js and has been tested on Linux and Mac OS X.
 
 ### Dependencies ###
 * Node.js 0.12 or above
 * At least one Elasticsearch cluster
 
 ### Installing with npm ###
- 
+
 ```
 npm install terascope/teraslice
 ```
-# Configuration 
+# Configuration
 
-Teraslice requires a configuration file in order to run. The configuration file defines your service connections and system level configurations. 
+Teraslice requires a configuration file in order to run. The configuration file defines your service connections and system level configurations.
 
 This configuration example defines a single connection to Elasticsearch on localhost with 8 workers available to Teraslice. The *teraslice.ops_directory* setting tells Teraslice where it can find custom operation implementations.
 
@@ -96,7 +96,7 @@ terafoundation:
 
 # Running
 
-Once you have Teraslice installed you need a job specification and a configuration file to do something useful with it. See above for simple examples of each. 
+Once you have Teraslice installed you need a job specification and a configuration file to do something useful with it. See above for simple examples of each.
 
 Running a Job is then as simple as:
 
@@ -110,5 +110,5 @@ You should see Teraslice start a slicer and some workers and start processing so
 
  * [Operations reference](./docs/reference.md)
  * Writing custom operations
- 
+
 
