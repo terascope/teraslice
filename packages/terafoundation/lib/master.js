@@ -63,18 +63,9 @@ module.exports = function(context, config) {
 //assignment is set at /lib/api/start_workers
     function determineWorkerENV(config, worker) {
         var options = {};
-
-        if (config.descriptors) {
-            options[worker.assignment] = true;
-        }
-
-        if (worker.job) {
-            options.job = worker.job;
-        }
-
-        if (worker.jobID) {
-            options.jobID = worker.jobID;
-        }
+        var envConfig = JSON.parse(worker.service_context);
+        _.assign(options, envConfig);
+        options.service_context = worker.service_context;
 
         return options;
     }
@@ -102,12 +93,8 @@ module.exports = function(context, config) {
             var newWorker = cluster.fork(envConfig);
             logger.info("launching a new worker, id:", newWorker.id);
 
-            cluster.workers[newWorker.id].assignment = worker.assignment;
+            _.assign(cluster.workers[newWorker.id], envConfig)
 
-            if (envConfig.job && envConfig.jobID) {
-                newWorker.job = envConfig.job;
-                newWorker.jobID = envConfig.jobID;
-            }
         }
     });
 

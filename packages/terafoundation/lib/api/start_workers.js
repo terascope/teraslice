@@ -6,34 +6,26 @@ module.exports = function(context) {
     var context = context;
     var logger = context.logger;
 
-    return function(num, descriptor, options) {
+    return function(num, envOptions) {
         var cluster = context.cluster;
-        var env = {};
-        var type = descriptor ? descriptor : 'worker';
-        var id = null;
-        var job = null;
+        //default assignment is set to worker
+        //service_context acts as a dictionary to know what env variables are needed on restarts and crashes
+        var env = {
+            assignment: 'worker',
+            service_context: JSON.stringify({assignment: 'worker'})
+        };
 
-        env[type] = true;
-
-        if (options) {
-            _.assign(env, options);
-
-            if(env.job){
-                job = env.job;
-                id = JSON.parse(env.job).__id;
-                env.job_id = id
-            }
+        if (envOptions) {
+            _.assign(env, envOptions);
+            env.service_context = JSON.stringify(envOptions);
         }
 
         if (cluster.isMaster) {
-            logger.info('Starting ' + num + ' ' + type);
+            logger.info('Starting ' + num + ' ' + env.assignment);
             for (var i = 0; i < num; i++) {
                 var worker = cluster.fork(env);
-
                 //for cluster master reference, when a worker dies, you don't have access to its env at master level
-                worker.assignment = type;
-                worker.job = job;
-                worker.job_id = id;
+                _.assign(worker, env)
             }
         }
 
