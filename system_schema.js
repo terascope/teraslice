@@ -86,6 +86,10 @@ var clusterSchema = {
     logs: {
         doc: 'Used to determine the elasticsearch connection to send log and state indices',
         default: {connection:'default'}
+    },
+    timeout: {
+        doc: 'time in milliseconds for waiting for a response when messaging node_master before throwing an error',
+        default: 60000
     }
 };
 
