@@ -1,6 +1,6 @@
 'use strict';
 
-var sysSchema = require('../system_schema');
+var sysSchema = require('../lib/config/schemas/system');
 var http = require('http');
 
 describe('system_schema', function() {
