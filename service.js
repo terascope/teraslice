@@ -1,10 +1,10 @@
 'use strict';
 
-var worker = require('./lib/worker');
-var slicer = require('./lib/slicer');
+var worker = require('./lib/cluster/worker');
+var slicer = require('./lib/cluster/slicer');
 var master = require('./lib/master');
 var cluster_master = require('./lib/cluster/cluster_master');
-var config_schema = require('./system_schema').config_schema;
+var config_schema = require('./lib/config/schemas/system').config_schema;
 var emitter = require('./lib/utils/events');
 
 var foundation = require('terafoundation')({
