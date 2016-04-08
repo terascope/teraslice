@@ -30,13 +30,13 @@ describe('Queue', function() {
         queue.enqueue({data: 'first', id: 'id1'});
         queue.enqueue({data:'second', id: 'id2'});
         queue.enqueue({data:'three', id: 'id3'});
+        queue.enqueue({data:'four', id: 'id2'});
 
         var len = queue.size();
 
-        var removed = queue.remove('id2');
+        queue.remove('id2');
 
-        expect(len).toEqual(3);
-        expect(removed).toEqual({data:'second', id: 'id2'});
+        expect(len).toEqual(4);
         expect(queue.size()).toEqual(2);
         expect(queue.dequeue()).toEqual({data: 'first', id: 'id1'});
         expect(queue.dequeue()).toEqual({data: 'three', id: 'id3'});
