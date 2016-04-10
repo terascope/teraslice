@@ -39,13 +39,14 @@ var global_context = {
     elasticsearch: {default: {}}
 };
 
-var job_runner = require('../../../lib/cluster/runners/job')(global_context);
-
-var internal = job_runner.__test_context();
 
 describe('job_runner', function() {
     var path = process.cwd() + '/testing_for_teraslice';
     var subPath = path + '/subdir';
+
+    var job_runner = require('../../../lib/cluster/runners/job')(global_context);
+
+    var internal = job_runner.__test_context();
 
     //will set in stateLog test
     var subPathState;
@@ -83,7 +84,7 @@ describe('job_runner', function() {
                 "type": "events"
             },
             {
-                "_op": "elasticsearch_bulk_insert",
+                "_op": "elasticsearch_bulk",
                 "size": 5000
             }
         ]
@@ -130,7 +131,7 @@ describe('job_runner', function() {
 
     });
 
-    it('initializeJob returns defaults and functions to start the job', function() {
+    it('job_runner.initialize returns defaults and functions to start the job', function() {
 
         function getOp(op) {
             return op._op;
@@ -188,24 +189,10 @@ describe('job_runner', function() {
                         script_file: '',
                         script_params: {}
                     },
-                    {_op: 'elasticsearch_bulk_insert', size: 5000}],
+                    {_op: 'elasticsearch_bulk', size: 5000}],
                 logger: undefined
             });
         });
-    });
-
-    it('isString will throw error if not given a string', function() {
-
-        expect(function() {
-            internal.isString('iAmASting')
-        }).not.toThrowError();
-        expect(function() {
-            internal.isString(45)
-        }).toThrowError();
-        expect(function() {
-            internal.isString(['a string'])
-        }).toThrowError();
-
     });
 
 
@@ -214,19 +201,6 @@ describe('job_runner', function() {
         var results = internal.getJob(process.env.job);
 
         expect(results).toEqual(JSON.parse(job));
-
-    });
-
-
-    it('getPath will try to get code at ops_directery first before checking own directory', function() {
-        var jobConfig = {_op: 'elasticsearch_reader'};
-        var path = process.cwd() + '/testing_for_teraslice';
-        var results1 = internal.getPath('readers', jobConfig._op, path);
-        var results2 = internal.getPath('readers', jobConfig._op, '');
-
-        expect(results1).toEqual([{first: 'data', more: {data: 'in here'}}]);
-        expect(results2.newReader).toBeDefined();
-        expect(results2.schema).toBeDefined();
 
     });
 
