@@ -19,12 +19,11 @@ describe('system_schema', function() {
 
     it('schema has defaults', function() {
 
-        expect(sysSchema.schema.teraslice_ops_directory).toBeDefined();
+        expect(sysSchema.schema.ops_directory).toBeDefined();
         expect(sysSchema.schema.shutdown_timeout).toBeDefined();
         expect(sysSchema.schema.reporter).toBeDefined();
         expect(sysSchema.schema.port).toBeDefined();
-        expect(sysSchema.schema.host).toBeDefined();
-        expect(sysSchema.schema.teraslice_ops_directory).toBeDefined();
+        expect(sysSchema.schema.hostname).toBeDefined();
 
     });
 
@@ -32,7 +31,7 @@ describe('system_schema', function() {
 
         expect(function() {
             sysSchema.portError(5678)
-        }).toThrowError('Port specified in config file is already in use, please specify another');
+        }).toThrowError('Port specified in config file (5678) is already in use, please specify another');
 
     });
 
@@ -43,7 +42,7 @@ describe('system_schema', function() {
 
         expect(function() {
             sysSchema.findPort(12345, sysSchema.portError)
-        }).toThrowError('Port specified in config file is already in use, please specify another');
+        }).toThrowError('Port specified in config file (12345) is already in use, please specify another');
 
         expect(function() {
             sysSchema.findPort(12344, sysSchema.portError)

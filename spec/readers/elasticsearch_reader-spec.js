@@ -79,7 +79,7 @@ describe('elasticsearch_reader', function() {
         expect(type).toEqual('[object Object]');
         expect(keys.length).toBeGreaterThan(0);
         expect(schema.size.default).toEqual(5000);
-        expect(schema.interval.default).toEqual('5_mins')
+        expect(schema.interval.default).toEqual('5mins')
 
     });
 
