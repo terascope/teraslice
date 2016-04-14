@@ -62,6 +62,12 @@ module.exports = function(context) {
                 if (sysconfig.terafoundation.connectors[type].hasOwnProperty(endpoint)) {
                     moduleConfig = sysconfig.terafoundation.connectors[type][endpoint];
                 }
+                else {
+                    // If an endpoint was specified and doesn't exist we need to error.
+                    if (endpoint) {
+                        throw new Error("No connection configuration found for " + endpoint);
+                    }
+                }
 
                 var connector = loadConnector(type);
 
