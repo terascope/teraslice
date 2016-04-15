@@ -1,0 +1,21 @@
+{
+  "name": "Data Generator",
+  "lifecycle": "persistent",
+  "workers": 1,
+  "operations": [
+    {
+      "_op": "elasticsearch_data_generator",
+      "size": 5000
+    },
+    {
+      "_op": "elasticsearch_index_selector",
+      "index": "example-logs",
+      "type": "events"
+    },
+    {
+      "_op": "elasticsearch_bulk",
+      "size": 5000
+    }
+  ]
+}
+

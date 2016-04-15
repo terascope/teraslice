@@ -1,0 +1,20 @@
+terafoundation:
+    environment: 'development'
+    workers: 8
+
+    connectors:
+        # ***********************
+        # Elastic Search Configuration
+        # ***********************
+        elasticsearch:
+            default:
+                host:
+                    - "elasticsearch:9200"
+
+teraslice:
+    ops_directory: './examples/ops/'
+    #reporter: 'statsd'
+    cluster:
+        master: true
+        master_hostname: "127.0.0.1"
+        name: "teracluster"

@@ -1,0 +1,24 @@
+{
+    "name": "Reindex",
+    "lifecycle": "once",
+    "workers": 1,
+    "operations": [
+        {
+          "_op": "elasticsearch_reader",
+          "index": "example-logs",
+          "size": 10000,
+          "date_field_name": "created",
+          "full_response": true
+        },
+        {
+            "_op": "elasticsearch_index_selector",
+            "type": "change",
+            "index": "example-logs-new",
+            "id_field": "_key"
+        },
+        {
+          "_op": "elasticsearch_bulk",
+          "size": 100
+        }
+    ]
+}
