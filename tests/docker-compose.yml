@@ -1,0 +1,32 @@
+version: '2'
+services:
+  teraslice-master:
+    image: teraslice
+    ports:
+        - "5678:5678"
+    links:
+        - elasticsearch
+    volumes:
+        - ../examples/config:/app/config
+    command: node /app/source/service.js -c /app/config/processor-master.yaml
+  teraslice-worker:
+    image: teraslice
+    links:
+        - teraslice-master
+        - elasticsearch
+    volumes:
+        - ../examples/config:/app/config
+    command: node /app/source/service.js -c /app/config/processor-worker.yaml
+  elasticsearch:
+    image: elasticsearch
+    ports:
+        - "9200:9200"
+        - "9300:9300"
+    volumes:
+        - data:/app/data1
+    environment:
+        - ES_HEAP_SIZE=2G
+    command: /elasticsearch/bin/elasticsearch -Des.network.host=0.0.0.0
+volumes:
+  data:
+    external: false
