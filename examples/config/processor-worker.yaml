@@ -12,8 +12,8 @@ terafoundation:
                     - "elasticsearch:9200"
 
 teraslice:
-    ops_directory: './examples/ops/'
-    #reporter: 'statsd'
+    ops_directory: '/app/source/examples/ops/'
+
     cluster:
         master: false
         master_hostname: "teraslice-master"
