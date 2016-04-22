@@ -56,7 +56,10 @@ Operations are nothing more than Javascript modules and writing your own is easy
 
 # Status
 
-Teraslice is in early development. It can be usable in a single node configuration but there are many rough edges. A first pass at Clustering has been merged but is still extremely early.
+Teraslice is in early development. Initial cluster support was recently added and we're in the
+process of implementing concurrent slicers. Concurrent slicers currently work for 'once' jobs
+but 'persistent' jobs and job recovery are in the process of being updated. Documentation is
+lagging development.
 
 # Installation
 
@@ -71,16 +74,49 @@ Teraslice is written in Node.js and has been tested on Linux and Mac OS X.
 ```
 npm install terascope/teraslice
 ```
-# Configuration
+
+# Configuration Single Node / Cluster Master
 
 Teraslice requires a configuration file in order to run. The configuration file defines your service connections and system level configurations.
 
 This configuration example defines a single connection to Elasticsearch on localhost with 8 workers available to Teraslice. The *teraslice.ops_directory* setting tells Teraslice where it can find custom operation implementations.
 
+The cluster configuration defines this node as a master node. The node will still have workers
+available and this configuration is sufficient to do useful work if you don't have multiple
+nodes available. The workers will connect to the master on localhost and do work just as if they were in a real cluster.
+
 
 ```
 teraslice:
     ops_directory: '/path/to/ops/'
+    cluster:
+        master: true
+        master_hostname: "127.0.0.1"
+        name: "teracluster"
+
+terafoundation:
+    environment: 'development'
+    log_path: '/path/to/logs'
+    workers: 8
+
+    connectors:
+        elasticsearch:
+            default:
+                host:
+                    - "localhost:9200"
+```
+
+# Configuration Cluster Worker Node
+
+Configuration for a worker node is very similar. You just set 'master' to false and provide the IP address where the master node can be located.
+
+```
+teraslice:
+    ops_directory: '/path/to/ops/'
+    cluster:
+        master: false
+        master_hostname: "YOUR_MASTER_IP"
+        name: "teracluster"
 
 terafoundation:
     environment: 'development'
@@ -98,13 +134,87 @@ terafoundation:
 
 Once you have Teraslice installed you need a job specification and a configuration file to do something useful with it. See above for simple examples of each.
 
-Running a Job is then as simple as:
+Starting the Teraslice service on the master node is simple. Just provide it a path to the configuration file.
 
 ```
-node service.js -c config.yaml -j job.json
+node service.js -c master-config.yaml
 ```
 
-You should see Teraslice start a slicer and some workers and start processing some data.
+Starting a worker on a remote node is basically the same.
+
+```
+node service.js -c worker-config.yaml
+```
+
+The master publishes a REST style API on port 5678.
+
+To submit a job you just post to the /jobs endpoint.
+
+Assuming your job is in a file called 'job.json' it's as simple as
+
+```
+curl -XPOST YOUR_MASTER_IP:5678/jobs -d@job.json
+```
+
+This will return the job_id which can then be used to manage the job.
+```
+{
+    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd"
+}
+```
+# Job Control
+
+### Job status
+
+This will retieve the job configuration including '_status' which indicates the execution status of the job.
+
+```
+curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID
+```
+
+### Stopping a job
+
+Stopping a job stops all execution and frees the workers being consumed 
+by the job on the cluster. 
+
+```
+curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID
+```
+
+### Starting a job
+
+Starting a job will reschedule the job and restart execution from the beginning.
+
+NOTE: the semantics of this operation will be changing in the future. As recovery on a restarted job is not currently consistent.
+
+```
+curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID/_start
+```
+
+Starting a job with recovery will attempt to replay any failed slices from previous runs and will then pickup where it left off. If there are no failed 
+slices the job will simply resume from where it was stopped.
+
+```
+curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID/_start?recover=true
+```
+
+### Pausing a job
+
+Pausing a job will stop execution of the job on the cluster but will not 
+release the workers being used by the job. It simply pauses the slicer and
+stops allocating work to the workers. Workers will complete the work they're doing then just sit idle until the job is resumed.
+
+```
+curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID/_pause
+```
+
+### Resuming a job
+
+Resuming a job restarts the slicer and the allocation of slices to workers.
+
+```
+curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID/_resume
+```
 
 # Operations
 
