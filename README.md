@@ -4,9 +4,6 @@ Tereslice is a companion tool for Elasticsearch that helps you process very larg
 
   * Reindexing data at high volumes
   * Moving data between clusters
-  * Off cluster aggregations
-  * Near real-time rollup calculations
-  * Near real-time notifications
   * Moving data out of Elasticsearch into other systems
   * Automatic syncing of data from Elasticsearch to other systems
   * Exporting data to files
@@ -174,11 +171,11 @@ curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID
 
 ### Stopping a job
 
-Stopping a job stops all execution and frees the workers being consumed 
-by the job on the cluster. 
+Stopping a job stops all execution and frees the workers being consumed
+by the job on the cluster.
 
 ```
-curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID
+curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID/_stop
 ```
 
 ### Starting a job
@@ -191,7 +188,7 @@ NOTE: the semantics of this operation will be changing in the future. As recover
 curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID/_start
 ```
 
-Starting a job with recovery will attempt to replay any failed slices from previous runs and will then pickup where it left off. If there are no failed 
+Starting a job with recovery will attempt to replay any failed slices from previous runs and will then pickup where it left off. If there are no failed
 slices the job will simply resume from where it was stopped.
 
 ```
@@ -200,7 +197,7 @@ curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID/_start?recover=true
 
 ### Pausing a job
 
-Pausing a job will stop execution of the job on the cluster but will not 
+Pausing a job will stop execution of the job on the cluster but will not
 release the workers being used by the job. It simply pauses the slicer and
 stops allocating work to the workers. Workers will complete the work they're doing then just sit idle until the job is resumed.
 
@@ -214,6 +211,14 @@ Resuming a job restarts the slicer and the allocation of slices to workers.
 
 ```
 curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID/_resume
+```
+
+### Viewing cluster state
+
+This will show you all the connected workers and the tasks that are currently assigned to them.
+
+```
+curl YOU_MASTER_IP:5678/cluster/_state
 ```
 
 # Operations
