@@ -63,9 +63,12 @@ module.exports = function(context, config) {
 //assignment is set at /lib/api/start_workers
     function determineWorkerENV(config, worker) {
         var options = {};
-        var envConfig = JSON.parse(worker.service_context);
-        _.assign(options, envConfig);
-        options.service_context = worker.service_context;
+
+        if (worker.service_context) {
+            var envConfig = JSON.parse(worker.service_context);
+            _.assign(options, envConfig);
+            options.service_context = worker.service_context;
+        }
 
         return options;
     }
