@@ -171,7 +171,7 @@ describe('elastic_utils', function() {
 
     });
 
-    it(' checkElasticsearch will log a warning if your max_window is set to 10000 ', function(done) {
+ /*   it(' checkElasticsearch will log a warning if your max_window is set to 10000 ', function(done) {
         var opConfig = {index: 'someIndex'};
         var logger = context.logger;
 
@@ -183,9 +183,9 @@ describe('elastic_utils', function() {
             done()
         }, 1);
 
-    });
+    });*/
 
-    it('determineSlice returns an object with keys start and end', function(done) {
+    /*it('determineSlice returns an object with keys start and end', function(done) {
 
         var config = {date_field_name: '@timestamp', size: 100, index: 'someIndex'};
         var start = moment(new Date('2015/08/30'));
@@ -204,9 +204,9 @@ describe('elastic_utils', function() {
                 done();
             });
 
-    });
+    });*/
 
-    it('determineSlice recurses, splitting chunk in half to get right chunk', function(done) {
+    /*it('determineSlice recurses, splitting chunk in half to get right chunk', function(done) {
 
         var config = {date_field_name: '@timestamp', size: 50, index: 'someIndex'};
         var start = moment(new Date('2015/08/30'));
@@ -251,9 +251,9 @@ describe('elastic_utils', function() {
         expect(utils.checkVersion(str4)).toEqual(true);
         expect(utils.checkVersion(str5)).toEqual(true);
 
-    });
+    });*/
 
-    it('getTimes returns valid iso dates', function() {
+   /* it('getTimes returns valid iso dates', function() {
         var jobConfig1 = {interval: '0s', delay: '29s'};
 
         var results = utils.getTimes(jobConfig1);
@@ -272,7 +272,7 @@ describe('elastic_utils', function() {
             new Date(results.end)
         }).not.toThrow();
 
-    });
+    });*/
 
     it('recursiveSend will break up an array and send them in chunks', function() {
         var client = {

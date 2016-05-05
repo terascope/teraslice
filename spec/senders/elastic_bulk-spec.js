@@ -2,7 +2,7 @@
 
 var es_sender = require('../../lib/senders/elasticsearch_bulk');
 
-describe('elasticsearch_bulk_insert', function() {
+describe('elasticsearch_bulk', function() {
 
     it('has both a newSender and schema method', function() {
 

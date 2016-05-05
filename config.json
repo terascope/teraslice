@@ -1,0 +1,36 @@
+{
+  "teraslice": {
+    "cluster":{
+      "master": true,
+      "timeout": 5000,
+      "master_hostname": "192.168.1.6",
+      "name": "teracluster"
+    },
+    "teraslice_ops_directory": "/Users/jarednoble/Desktop/fakeOps",
+    "workers" : 8,
+    "shutdown_timeout": 1
+  },
+  "terafoundation": {
+    "environment": "development",
+    "logging": "file",
+    "log_path": "/Users/jarednoble/Desktop/logs",
+    "connectors": {
+      "elasticsearch": {
+        "default": {
+          "host": [
+            "127.0.0.1:9200"
+          ],
+          "keepAlive": true,
+          "maxRetries": 5,
+          "maxSockets": 20
+        },
+        "statsd": {
+          "default": {
+            "host": "127.0.0.1",
+            "mock": false
+          }
+        }
+      }
+    }
+  }
+}

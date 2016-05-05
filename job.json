@@ -1,0 +1,27 @@
+{
+  "name": "Reindex Events",
+  "id": 1,
+  "lifecycle": "once",
+  "analytics": true,
+  "workers": 4,
+  "operations": [
+    {
+      "_op": "elasticsearch_reader",
+      "index": "events-2016.01.04",
+      "size": 5000,
+      "date_field_name": "created",
+      "full_response": true
+    },
+    {
+      "_op": "elasticsearch_index_selector",
+      "index": "bigdata3",
+      "type": "events",
+      "date_field_name": "created"
+    },
+    {
+      "_op": "elasticsearch_bulk",
+      "size": 5000
+    }
+  ]
+}
+
