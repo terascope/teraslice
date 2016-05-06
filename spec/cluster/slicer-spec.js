@@ -39,16 +39,13 @@ var global_context = {
 };
 
 
-describe('op_runner', function() {
-
-    var path = process.cwd() + '/testing_for_teraslice';
-    var subPath = path + '/subdir';
-
-    var slicer = require('../../lib/cluster/slicer')(global_context);
+describe('slicers', function() {
+   /* var slicer = require('../../lib/cluster/slicer')(global_context);
+    console.log('whats slicer', slicer);
 
     var internal = slicer.__test_context();
-
-    it('once processes data and exits appropriately', function(done) {
+    console.log('whats internal', internal);
+    fit('once processes data and exits appropriately', function(done) {
         var results;
         var endMsg;
 
@@ -77,7 +74,6 @@ describe('op_runner', function() {
                 logger: function() {
                 }
             },
-            stateName: subPath + '/__DataGenerator_state',
             logData: {
                 retryQueue: retryQueue
             }
@@ -106,5 +102,5 @@ describe('op_runner', function() {
                 done()
             });
 
-    });
-})
+    });*/
+});

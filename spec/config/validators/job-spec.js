@@ -15,8 +15,7 @@ var global_context = {
             }
         }
     },
-    foundation: {
-    },
+    foundation: {},
     cluster: {
         isMaster: true
     }
@@ -83,7 +82,7 @@ describe('job_runner', function() {
 
         expect(function() {
             internal.validateOperation(opSchema, badJob, true)
-        }).toThrowError('_op: This field is required and must by of type string')
+        }).toThrowError('Validation failed for operation: undefined - _op: This field is required and must by of type string')
 
     });
 });

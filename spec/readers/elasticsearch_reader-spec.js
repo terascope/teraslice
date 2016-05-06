@@ -79,7 +79,7 @@ describe('elasticsearch_reader', function() {
         expect(type).toEqual('[object Object]');
         expect(keys.length).toBeGreaterThan(0);
         expect(schema.size.default).toEqual(5000);
-        expect(schema.interval.default).toEqual('5mins')
+        expect(schema.interval.default).toEqual('5m')
 
     });
 
@@ -142,11 +142,11 @@ describe('elasticsearch_reader', function() {
             start: new Date(),
             end: new Date()
         };
-        var jobConfig = {lifecycle: 'once'};
+        var jobConfig = {jobConfig: {lifecycle: 'once', slicers: 1}, readerConfig: opConfig};
 
-        var fn = es_reader.newSlicer(context, opConfig, jobConfig);
-
-        expect(typeof fn).toEqual('function');
+        Promise.resolve(es_reader.newSlicer(context, jobConfig, [])).then(function(slicer) {
+            expect(typeof slicer[0]).toEqual('function');
+        });
 
     });
 
@@ -161,20 +161,18 @@ describe('elasticsearch_reader', function() {
             end: "2015-08-26T00:00:00Z"
         };
 
-        var jobConfig = {lifecycle: 'once'};
+        var jobConfig = {jobConfig: {lifecycle: 'once', slicers: 1}, readerConfig: opConfig};
 
-        var slicer = es_reader.newSlicer(context, opConfig, jobConfig);
-
-        Promise.resolve(slicer()).then(function(data) {
-            expect(data).toEqual({
-                start: '2015-08-24T17:00:00.000-07:00',
-                end: '2015-08-24T19:00:00.000-07:00',
-                count: 100
+        Promise.resolve(es_reader.newSlicer(context, jobConfig, [])).then(function(slicer) {
+            Promise.resolve(slicer[0]()).then(function(data) {
+                expect(data).toEqual({
+                    start: '2015-08-24T17:00:00.000-07:00',
+                    end: '2015-08-24T19:00:00.000-07:00',
+                    count: 100
+                });
+                done()
             });
-
-            done()
         });
-
     });
 
     it('newSlicer will return null when all data has been given', function(done) {
@@ -187,21 +185,21 @@ describe('elasticsearch_reader', function() {
             start: "2015-08-25T00:00:00",
             end: "2015-08-25T00:02:00"
         };
+        var jobConfig = {jobConfig: {lifecycle: 'once', slicers: 1}, readerConfig: opConfig};
 
-        var jobConfig = {lifecycle: 'once'};
-
-        var slicer = es_reader.newSlicer(context, opConfig, jobConfig);
-
-        Promise.resolve(slicer()).then(function(msg) {
-            return slicer();
-        }).then(function(data) {
-            expect(data).toBeNull();
-            done()
-        });
-
+        Promise.resolve(es_reader.newSlicer(context, jobConfig, [])).then(function(slicer) {
+            Promise.resolve(slicer[0]())
+                .then(function(data) {
+                    return slicer[0]();
+                })
+                .then(function(data) {
+                    expect(data).toBeNull();
+                    done()
+                })
+        })
     });
 
-    it('slicer will throw if start and/or end or formatted incorrectly', function() {
+    it('slicer will throw if start and/or end or formatted incorrectly', function(done) {
 
         var opConfig1 = {
             date_field_name: '@timestamp',
@@ -213,67 +211,37 @@ describe('elasticsearch_reader', function() {
         };
 
         var opConfig2 = {
-            date_field_name: '@timestamp',
-            size: 100,
-            index: 'someIndex',
-            interval: '2hrs',
-            start: "2015-08-25T00:00:00"
-        };
-
-        var opConfig3 = {
-            date_field_name: '@timestamp',
-            size: 100,
-            index: 'someIndex',
-            interval: '2hrs',
-            end: "2015-08-25T00:02:00"
-        };
-
-        var opConfig4 = {
-            index: 'someIndex',
-            start: "00s",
-            end: "59s"
-        };
-
-        var opConfig5 = {
             index: 'someIndex',
             start: "00s"
         };
 
-        var opConfig6 = {
+        var opConfig3 = {
             index: 'someIndex',
             end: "59s"
         };
 
-        var jobConfig1 = {lifecycle: 'once'};
-
         var jobConfig2 = {lifecycle: 'persistent'};
 
+        function makeConfigJob(op, job) {
+            return {jobConfig: job, readerConfig: op};
+        }
+
         expect(function() {
-            es_reader.newSlicer(context, opConfig1, jobConfig2)
-        }).toThrowError('elasticsearch_reader start and/or end are incorrectly formatted. Needs to follow ' +
+            es_reader.newSlicer(context, makeConfigJob(opConfig1, jobConfig2), [])
+        }).toThrowError('elasticsearch_reader interval and/or delay are incorrectly formatted. Needs to follow ' +
             '[number][letter\'s] format, e.g. "12s"');
 
         expect(function() {
-            es_reader.newSlicer(context, opConfig2, jobConfig1)
-        }).toThrowError('elasticsearch_reader start and/or end are not set');
-
-        expect(function() {
-            es_reader.newSlicer(context, opConfig3, jobConfig1)
-        }).toThrowError('elasticsearch_reader start and/or end are not set');
-
-        expect(function() {
-            es_reader.newSlicer(context, opConfig4, jobConfig1)
-        }).toThrowError('elasticsearch_reader start and/or end dates are invalid');
-
-        expect(function() {
-            es_reader.newSlicer(context, opConfig5, jobConfig2)
-        }).toThrowError('elasticsearch_reader start and/or end are incorrectly formatted. Needs to follow ' +
+            es_reader.newSlicer(context, makeConfigJob(opConfig2, jobConfig2), [])
+        }).toThrowError('elasticsearch_reader interval and/or delay are incorrectly formatted. Needs to follow ' +
             '[number][letter\'s] format, e.g. "12s"');
 
         expect(function() {
-            es_reader.newSlicer(context, opConfig6, jobConfig2)
-        }).toThrowError('elasticsearch_reader start and/or end are incorrectly formatted. Needs to follow ' +
+            es_reader.newSlicer(context, makeConfigJob(opConfig3, jobConfig2), [])
+        }).toThrowError('elasticsearch_reader interval and/or delay are incorrectly formatted. Needs to follow ' +
             '[number][letter\'s] format, e.g. "12s"');
+
+        done()
     });
 
 });

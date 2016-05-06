@@ -3,12 +3,13 @@
 var fs = require('fs');
 var file_reader = require('../../lib/readers/file_import');
 var file_utils = require('../../lib/utils/file_utils');
+var Promise = require('bluebird');
 
-describe('file_import', function(){
+describe('file_import', function() {
     var path = process.cwd() + '/testing_for_teraslice';
     var subPath = path + '/subdir';
 
-    beforeAll(function(){
+    beforeAll(function() {
         var data1 = JSON.stringify([{first: 'data', more: {data: 'in here'}}]);
         var data2 = JSON.stringify([{second: 'data', more: {data: 'in here'}}]);
         var data3 = JSON.stringify([{third: 'data', more: {data: 'in here'}}]);
@@ -32,11 +33,11 @@ describe('file_import', function(){
 
     });
 
-    afterAll(function(){
+    afterAll(function() {
         var path = process.cwd();
-        fs.unlinkSync(path +'/testing_for_teraslice/file1');
-        fs.unlinkSync(path +'/testing_for_teraslice/file2');
-        fs.unlinkSync(path +'/testing_for_teraslice/subdir/file3');
+        fs.unlinkSync(path + '/testing_for_teraslice/file1');
+        fs.unlinkSync(path + '/testing_for_teraslice/file2');
+        fs.unlinkSync(path + '/testing_for_teraslice/subdir/file3');
         fs.rmdirSync(path + '/testing_for_teraslice/subdir');
         fs.rmdirSync(path + '/testing_for_teraslice');
 
@@ -66,11 +67,11 @@ describe('file_import', function(){
 
     });
 
-    it('walk recursively goes through a directory and calls a function on each file', function(){
+    it('walk recursively goes through a directory and calls a function on each file', function() {
         var walk = file_utils.walk;
         var fileArray = [];
 
-        walk(path, function(file){
+        walk(path, function(file) {
             fileArray.push(file)
         });
 
@@ -81,32 +82,66 @@ describe('file_import', function(){
 
     });
 
-    it('newSlicer is a queue that gives the next path',function(){
+    it('newSlicer is a queue that gives the next path', function(done) {
         var loggerData = [];
         var context = {};
         var opConfig = {path: path};
-        var jobConfig = {logger: {info: function(data){loggerData.push(data)}}};
+        var jobConfig = {
+            readerConfig: opConfig,
+            jobConfig: {
+                logger: {
+                    info: function(data) {
+                        loggerData.push(data)
+                    }
+                }
+            }
+        };
 
-        var slicer = file_reader.newSlicer(context, opConfig, jobConfig);
+        Promise.resolve(file_reader.newSlicer(context, jobConfig)).then(function(slicer) {
+            Promise.resolve(slicer[0]())
+                .then(function(data) {
+                    expect(data).toEqual(path + '/file1');
+                    return slicer[0]();
+                }).then(function(data) {
+                    expect(data).toEqual(path + '/file2');
+                    return slicer[0]();
+                }).then(function(data) {
+                    expect(data).toEqual(path + '/subdir/file3');
+                    done()
+                });
 
-        expect(slicer()).toEqual(path + '/file1');
-        expect(slicer()).toEqual(path + '/file2');
-        expect(slicer()).toEqual(path + '/subdir/file3');
-
+        });
     });
 
-    it('reader returns the data from the file', function(){
+
+    it('reader returns the data from the file', function(done) {
         var loggerData = [];
         var context = {};
         var opConfig = {path: path};
-        var jobConfig = {logger: {info: function(data){loggerData.push(data)}}};
+        var jobConfig = {
+            readerConfig: opConfig,
+            jobConfig: {
+                logger: {
+                    info: function(data) {
+                        loggerData.push(data)
+                    }
+                }
+            }
+        };
 
-        var slicer = file_reader.newSlicer(context, opConfig, jobConfig);
-        var reader = file_reader.newReader(context, opConfig, jobConfig);
-
-        expect(reader(slicer())).toEqual([{first: 'data', more: {data: 'in here'}}]);
-        expect(reader(slicer())).toEqual([{second: 'data', more: {data: 'in here'}}]);
-        expect(reader(slicer())).toEqual([{third: 'data', more: {data: 'in here'}}]);
+        Promise.resolve(file_reader.newSlicer(context, jobConfig)).then(function(slicer) {
+            var reader = file_reader.newReader(context, opConfig, jobConfig);
+            Promise.resolve(slicer[0]()).then(function(data) {
+                expect(reader(data)).toEqual([{first: 'data', more: {data: 'in here'}}]);
+                return slicer[0]()
+            }).then(function(data) {
+                expect(reader(data)).toEqual([{second: 'data', more: {data: 'in here'}}]);
+                return slicer[0]()
+            }).then(function(data) {
+                expect(reader(data)).toEqual([{third: 'data', more: {data: 'in here'}}]);
+                done()
+            })
+        });
 
     });
 

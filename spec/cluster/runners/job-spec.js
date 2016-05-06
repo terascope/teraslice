@@ -18,9 +18,7 @@ var global_context = {
                 client: {
                     indices: {
                         create: function() {
-                            return Promise.resolve({
-
-                            })
+                            return Promise.resolve({})
                         }
                     }
                 }
@@ -41,137 +39,77 @@ var global_context = {
 
 
 describe('job_runner', function() {
-    var path = process.cwd() + '/testing_for_teraslice';
-    var subPath = path + '/subdir';
 
-    var job_runner = require('../../../lib/cluster/runners/job')(global_context);
+    require('../../../lib/cluster/runners/job')(global_context).then(function(job_runner) {
 
-    var internal = job_runner.__test_context();
+        var internal = job_runner.__test_context();
 
-    //will set in stateLog test
-    var subPathState;
-
-    function deleteFolder(path) {
-        try {
-            fs.readdirSync(path).forEach(function(file, index) {
-                var curPath = path + "/" + file;
-                if (fs.lstatSync(curPath).isDirectory()) {
-                    deleteFolder(curPath);
-                } else { // delete file
-                    fs.unlinkSync(curPath);
+        var job = JSON.stringify({
+            "name": "Data Generator",
+            "lifecycle": "once",
+            "analytics": false,
+            "operations": [
+                {
+                    "_op": "elasticsearch_data_generator",
+                    "size": 5000,
+                    "file_path": "/Users/Projects/data.js"
+                },
+                {
+                    "_op": "elasticsearch_index_selector",
+                    "index": "bigdata5",
+                    "type": "events"
+                },
+                {
+                    "_op": "elasticsearch_bulk",
+                    "size": 5000
                 }
-            });
-            fs.rmdirSync(path);
-        }
-        catch (e) {
+            ]
+        });
 
-        }
-    }
+        //used for get job
+        process.env.job = job;
 
-    var job = JSON.stringify({
-        "name": "Data Generator",
-        "lifecycle": "once",
-        "analytics": false,
-        "operations": [
-            {
-                "_op": "elasticsearch_data_generator",
-                "size": 5000,
-                "file_path": "/Users/jarednoble/Projects/data.js"
-            },
-            {
-                "_op": "elasticsearch_index_selector",
-                "index": "bigdata5",
-                "type": "events"
-            },
-            {
-                "_op": "elasticsearch_bulk",
-                "size": 5000
-            }
-        ]
-    });
+        afterAll(function() {
 
-    //used for get job
-    process.env.job = job;
+            //remove enviroment variable
+            delete process.env.job;
 
-    beforeAll(function() {
-        var data1 = JSON.stringify(module.exports = [{first: 'data', more: {data: 'in here'}}]);
-        var data2 = JSON.stringify([{second: 'data', more: {data: 'in here'}}]);
-        var data3 = JSON.stringify([{third: 'data', more: {data: 'in here'}}]);
+        });
 
-        try {
-            fs.mkdirSync(path);
-        } catch (e) {
-            if (e.code != 'EEXIST') throw e;
-        }
+        it('job_runner.initialize returns defaults and functions to start the job', function() {
 
-        try {
-            fs.mkdirSync(path + '/readers');
-        } catch (e) {
-            if (e.code != 'EEXIST') throw e;
-        }
+            var job = require('../../../lib/cluster/runners/job')(global_context).initialize();
 
-        try {
-            fs.mkdirSync(subPath);
-        } catch (e) {
-            if (e.code != 'EEXIST') throw e;
-        }
+            expect(job.reader).toBeDefined();
+            expect(job.sender).toBeDefined();
+            expect(job.queue).toBeDefined();
+            expect(job.jobConfig).toBeDefined();
 
-        fs.writeFileSync(path + '/readers/elasticsearch_reader.js', 'module.exports =' + data1);
-        fs.writeFileSync(path + '/file2.js', data2);
-        fs.writeFileSync(subPath + '/file3.js', data3);
-
-    });
-
-    afterAll(function() {
-
-        //remove enviroment variable
-        delete process.env.job;
-
-        deleteFolder(path);
-
-    });
-
-    it('job_runner.initialize returns defaults and functions to start the job', function() {
-
-        function getOp(op) {
-            return op._op;
-        }
-
-        var job = require('../../../lib/cluster/runners/job')(global_context).initialize();
-
-        job.then(function(allConfig) {
-            expect(allConfig.reader).toBeDefined();
-            expect(allConfig.sender).toBeDefined();
-            expect(allConfig.queue).toBeDefined();
-            expect(allConfig.jobConfig).toBeDefined();
-
-            expect(allConfig.analytics).toEqual(false);
-            expect(typeof allConfig.reader.newReader).toEqual('function');
-            expect(typeof allConfig.reader.newSlicer).toEqual('function');
-            expect(typeof allConfig.sender.newSender).toEqual('function');
-            expect(Array.isArray(allConfig.jobs)).toBeTruthy();
-            expect(allConfig.jobs.map(getOp)).toEqual(JSON.parse(job).operations.map(getOp));
-            expect(allConfig.readerConfig).toEqual({
+            expect(job.analytics).toEqual(false);
+            expect(typeof job.reader.newReader).toEqual('function');
+            expect(typeof job.reader.newSlicer).toEqual('function');
+            expect(typeof job.sender.newSender).toEqual('function');
+            expect(Array.isArray(job.jobs)).toBeTruthy();
+            expect(job.readerConfig).toEqual({
                 _op: 'elasticsearch_data_generator',
                 size: 5000,
-                file_path: '/Users/jarednoble/Projects/data.js'
+                file_path: '/Users/Projects/data.js'
             });
-            expect(allConfig.max_retries).toEqual(3);
-            expect(allConfig.stateName).toEqual(subPath + '/__DataGenerator_state');
-            expect(allConfig.scheduler.toString()).toEqual(config.once.toString());
+            expect(job.max_retries).toEqual(3);
 
-            expect(allConfig.jobConfig).toEqual({
+            expect(job.jobConfig).toEqual({
                 name: 'Data Generator',
                 lifecycle: 'once',
                 interval: '',
                 analytics: false,
                 max_retries: 3,
+                slicers: 1,
                 workers: 4,
                 operations: [
                     {
                         _op: 'elasticsearch_data_generator',
                         size: 5000,
-                        file_path: '/Users/jarednoble/Projects/data.js'
+                        file_path: '/Users/Projects/data.js'
                     },
                     {
                         _op: 'elasticsearch_index_selector',
@@ -193,98 +131,88 @@ describe('job_runner', function() {
                 logger: undefined
             });
         });
-    });
 
+        it('getJob will return the job.json', function() {
 
-    it('getJob will return the job.json', function() {
+            var results = internal.getJob(process.env.job);
 
-        var results = internal.getJob(process.env.job);
+            expect(results).toEqual(JSON.parse(job));
 
-        expect(results).toEqual(JSON.parse(job));
+        });
 
-    });
+        it('initializeWorkers will immediately make all workers by default', function() {
 
+            spyOn(global_context.foundation, 'startWorkers');
 
-    it('initializeWorkers will immediately make all workers by default', function() {
-        /*var foundation = {
-            startWorkers: function() {
-            }
-        };
+            var validJob = {progressive_start: false, workers: 4};
 
-        var context = {
-            foundation: foundation
-        };*/
+            internal.initializeWorkers(validJob);
 
-        spyOn(global_context.foundation, 'startWorkers');
+            expect(global_context.foundation.startWorkers).toHaveBeenCalled();
+            expect(global_context.foundation.startWorkers).toHaveBeenCalledWith(4);
 
-        var validJob = {progressive_start: false, workers: 4};
+        });
 
-        internal.initializeWorkers(validJob);
-
-        expect(global_context.foundation.startWorkers).toHaveBeenCalled();
-        expect(global_context.foundation.startWorkers).toHaveBeenCalledWith(4);
-
-    });
-
-    it('initializeWorkers will ramp up workers over time if flagged', function() {
-        var foundation = {
-            startWorkers: function() {
-            }
-        };
-
-        //starting off with one worker
-        var context = {
-            foundation: foundation,
-            cluster: {
-                workers: {1: 'worker'}
-            }
-        };
-
-        var internal = require('../../../lib/cluster/runners/job')(global_context).__test_context(context);
-
-        spyOn(context.foundation, 'startWorkers');
-
-        var validJob = {progressive_start: 10, workers: 3};
-
-        jasmine.clock().install();
-
-        internal.initializeWorkers(validJob);
-
-        //mocking second and third workers being added
-        var addWorker = setInterval(function() {
-            var id = 1;
-            context.cluster.workers[String(id)] = 'anotherWorker';
-            id += 1
-        }, 3000);
-
-        jasmine.clock().tick(7000);
-
-        expect(context.foundation.startWorkers.calls.count()).toEqual(2);
-        expect(context.foundation.startWorkers).toHaveBeenCalledWith(1);
-
-        clearInterval(addWorker);
-
-        jasmine.clock().uninstall();
-
-    });
-
-    it('initalizeLogger acts as an interface to makeLogger in terafoundation', function() {
-        var context = {
-            foundation: {
-                makeLogger: function(job, logger) {
-                    return [job, logger]
+        it('initializeWorkers will ramp up workers over time if flagged', function() {
+            var foundation = {
+                startWorkers: function() {
                 }
-            }
-        };
-        var job = {name: 'someName'};
-        var loggerName = 'Name';
+            };
 
-        var internal = require('../../../lib/cluster/runners/job')(global_context).__test_context(context);
+            //starting off with one worker
+            var context = {
+                foundation: foundation,
+                cluster: {
+                    workers: {1: 'worker'}
+                }
+            };
 
-        var results = internal.initializeLogger(job, loggerName);
+            var internal = require('../../../lib/cluster/runners/job')(global_context).__test_context(context);
 
-        expect(results[0]).toEqual('Name');
-        expect(results[1]).toEqual('someName');
+            spyOn(context.foundation, 'startWorkers');
 
+            var validJob = {progressive_start: 10, workers: 3};
+
+            jasmine.clock().install();
+
+            internal.initializeWorkers(validJob);
+
+            //mocking second and third workers being added
+            var addWorker = setInterval(function() {
+                var id = 1;
+                context.cluster.workers[String(id)] = 'anotherWorker';
+                id += 1
+            }, 3000);
+
+            jasmine.clock().tick(7000);
+
+            expect(context.foundation.startWorkers.calls.count()).toEqual(2);
+            expect(context.foundation.startWorkers).toHaveBeenCalledWith(1);
+
+            clearInterval(addWorker);
+
+            jasmine.clock().uninstall();
+
+        });
+
+        it('initalizeLogger acts as an interface to makeLogger in terafoundation', function() {
+            var context = {
+                foundation: {
+                    makeLogger: function(job, logger) {
+                        return [job, logger]
+                    }
+                }
+            };
+            var job = {name: 'someName'};
+            var loggerName = 'Name';
+
+            var internal = require('../../../lib/cluster/runners/job')(global_context).__test_context(context);
+
+            var results = internal.initializeLogger(job, loggerName);
+
+            expect(results[0]).toEqual('Name');
+            expect(results[1]).toEqual('someName');
+
+        });
     });
 });
