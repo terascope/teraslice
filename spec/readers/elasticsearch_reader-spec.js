@@ -7,7 +7,7 @@ describe('elasticsearch_reader', function() {
     var clientData;
 
     beforeEach(function() {
-        clientData = [{count: 100}, {count: 50}];
+        clientData = [{'@timestamp': new Date(), count: 100}, {'@timestamp': new Date(), count: 50}];
     });
 
     var context = {
@@ -242,6 +242,30 @@ describe('elasticsearch_reader', function() {
             '[number][letter\'s] format, e.g. "12s"');
 
         done()
+    });
+
+    it('slicers will throw if date_field_name does not exist on docs in the index', function(done) {
+        var opConfig = {
+            date_field_name: 'date',
+            size: 100,
+            index: 'someIndex',
+            interval: '2hrs',
+            start: "2015-08-25T00:00:00",
+            end: "2015-08-25T00:02:00"
+        };
+        var jobConfig = {jobConfig: {lifecycle: 'once', slicers: 1}, readerConfig: opConfig};
+
+        //this is proving that an error occurs and is caught in the catch phrase, not testing directly as it return the stack
+        Promise.resolve(es_reader.newSlicer(context, jobConfig, [])).then(function(slicer) {
+            Promise.resolve(slicer[0]())
+                .then(function(data) {
+                    return slicer[0]();
+                })
+
+        }).catch(function(err) {
+            done()
+        });
+
     });
 
 });
