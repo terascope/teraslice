@@ -1,0 +1,22 @@
+{
+  "name": "docker-compose-js",
+  "version": "0.0.1",
+  "description": "Node.js driver for controlling docker-compose testing environments.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "npm test"
+  },
+  "keywords": [
+    "docker",
+    "docker-compose",
+    "testing"
+  ],
+  "author": "Kimbro Staken",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.4.0"
+  }
+}

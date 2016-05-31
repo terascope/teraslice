@@ -1,0 +1,5 @@
+version: '2'
+services:
+  test:
+    image: node:4
+    command: "/bin/bash -c 'while :; do sleep 1; done'"
