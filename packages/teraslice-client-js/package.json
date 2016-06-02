@@ -1,0 +1,29 @@
+{
+  "name": "teraslice-client-js",
+  "version": "0.0.1",
+  "description": "Javascript client library for working with Teraslice",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/terascope/teraslice-client-js.git"
+  },
+  "keywords": [
+    "javascript",
+    "teraslice",
+    "nodejs",
+    "elasticsearch"
+  ],
+  "author": "Kimbro Staken",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/terascope/teraslice-client-js/issues"
+  },
+  "homepage": "https://github.com/terascope/teraslice-client-js#readme",
+  "dependencies": {
+    "bluebird": "^3.4.0",
+    "request-promise": "^3.0.0"
+  }
+}

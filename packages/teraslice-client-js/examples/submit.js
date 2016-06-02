@@ -1,7 +1,3 @@
-# teraslice-client-js
-Javascript client for Teraslice
-
-```
 var teraslice = require('../index')({
     host: 'http://localhost:5678'
 });
@@ -28,7 +24,16 @@ var job = {
 };
 
 teraslice.jobs.submit(job)
-    .then(function(job_id) {
-        console.log(job_id);
+    .then(function(job) {
+        console.log(job.id());
+        job.status().then(console.log)
+        job.slicer().then(console.log)
+
+        teraslice.cluster.state().then(console.log);
     })
-```
+
+/*teraslice.jobs.list()
+    .then(function(jobs) {
+        console.log(jobs)
+    })*/
+
