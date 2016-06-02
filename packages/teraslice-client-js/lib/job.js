@@ -24,6 +24,34 @@ module.exports = function(config, job_id) {
             });
     }
 
+    function waitForStatus(target, timeout) {
+        if (! timeout) timeout = 1000;
+
+        return new Promise(function(resolve, reject) {
+            function wait() {
+                status()
+                    .then(function(result) {
+                        if (result === target) {
+                            resolve(result);
+                        }
+                        else {
+                            setTimeout(wait, timeout);
+                        }
+
+                        if (result === 'failed') {
+                            // TODO should this reject in this case?
+                            // the job will probably never reach the target status
+                        }
+                    })
+                    .catch(function(err) {
+                        reject(err);
+                    })
+            }
+
+            wait();
+        })
+    }
+
     function spec() {
         return request.get("/jobs/" + job_id);
     }
@@ -36,6 +64,7 @@ module.exports = function(config, job_id) {
         slicer: slicer,
         status: status,
         spec: spec,
-        id: () => { return job_id }
+        id: () => { return job_id },
+        waitForStatus: waitForStatus
     }
 }

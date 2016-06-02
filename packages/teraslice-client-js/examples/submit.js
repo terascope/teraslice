@@ -29,6 +29,12 @@ teraslice.jobs.submit(job)
 
         var job2 = teraslice.jobs.wrap(job.id())
         job2.status().then(console.log)
+
+        console.log('Waiting for the job to finish.')
+        job2.waitForStatus('completed')
+          .then(function() {
+            console.log('Job completed');
+          });
     })
 
 
