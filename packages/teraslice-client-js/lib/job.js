@@ -1,5 +1,11 @@
 'use strict';
 
+/*
+ * This is basically a wrapper around the job_id that acts as a proxy
+ * to the server. It looks like an object but does not store the job
+ * state internally. Any access to the state currently goes to the server.
+ * Depending on how usage of this API develops we may want to reconsider this.
+ */
 module.exports = function(config, job_id) {
     var request = require('./request')(config);
 

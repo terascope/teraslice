@@ -17,8 +17,15 @@ module.exports = function(config) {
         return request.get("/jobs?status=" + status);
     }
 
+    // Wraps the job_id with convenience functions for accessing
+    // the state on the server.
+    function wrap(job_id) {
+        return newjob(config, job_id);
+    }
+
     return {
         submit: submit,
-        list: list
+        list: list,
+        wrap: wrap
     }
 }

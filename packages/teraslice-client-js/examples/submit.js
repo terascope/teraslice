@@ -26,14 +26,9 @@ var job = {
 teraslice.jobs.submit(job)
     .then(function(job) {
         console.log(job.id());
-        job.status().then(console.log)
-        job.slicer().then(console.log)
 
-        teraslice.cluster.state().then(console.log);
+        var job2 = teraslice.jobs.wrap(job.id())
+        job2.status().then(console.log)
     })
 
-/*teraslice.jobs.list()
-    .then(function(jobs) {
-        console.log(jobs)
-    })*/
 

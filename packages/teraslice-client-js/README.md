@@ -36,7 +36,9 @@ var job = {
 };
 
 teraslice.jobs.submit(job)
-    .then(function(job_id) {
-        console.log(job_id);
+    .then(function(job) {
+        console.log(job.id());
+        job.status().then(console.log)
     })
+
 ```
