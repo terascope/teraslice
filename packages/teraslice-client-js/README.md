@@ -1,8 +1,16 @@
 # teraslice-client-js
 Javascript client for Teraslice
 
+## Installation
+
 ```
-var teraslice = require('../index')({
+npm install terascope/teraslice-client-js
+```
+
+## Job submission example
+
+```
+var teraslice = require('teraslice-client-js')({
     host: 'http://localhost:5678'
 });
 
