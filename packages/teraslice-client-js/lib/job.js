@@ -38,9 +38,11 @@ module.exports = function(config, job_id) {
                             setTimeout(wait, timeout);
                         }
 
-                        if (result === 'failed') {
-                            // TODO should this reject in this case?
-                            // the job will probably never reach the target status
+                        // These are terminal states for a job so if we're not explicitly
+                        // watching for these then we need to stop waiting as the job
+                        // status won't change further.
+                        if (result === 'failed' || result === 'rejected' || result === 'aborted') {
+                            reject("Job has status: '" + result + "' which is terminal so status: '" + target + "' is not possible.")
                         }
                     })
                     .catch(function(err) {
