@@ -14,7 +14,7 @@ module.exports = function(config, job_id) {
     }
 
     function action(action) {
-        return request.post("jobs/" + job_id, {});
+        return request.post("/jobs/" + job_id + "/" + action, {});
     }
 
     function status() {
