@@ -8,6 +8,9 @@ module.exports = function(config) {
         return request.post("/jobs", job_spec)
             .then(function(result) {
                 return newjob(config, result.job_id);
+            })
+            .catch(function(err) {
+                throw err.error
             });
     }
 
