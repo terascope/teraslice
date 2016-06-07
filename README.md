@@ -20,16 +20,12 @@ Jobs are specified as simple JSON documents. Here's a simple reindexing example.
 {
     "name": "Reindex",
     "lifecycle": "once",
-    "analytics": true,
-    "workers": 2,
+    "workers": 1,
     "operations": [
         {
           "_op": "elasticsearch_reader",
           "index": "example-logs",
           "size": 10000,
-          "start": "2016-02-18T02:46:56-07:00",
-          "end": "2016-02-18T03:46:56-07:00",
-          "interval": "5min",
           "date_field_name": "created",
           "full_response": true
         },
@@ -40,7 +36,7 @@ Jobs are specified as simple JSON documents. Here's a simple reindexing example.
             "id_field": "_key"
         },
         {
-          "_op": "elasticsearch_bulk_insert",
+          "_op": "elasticsearch_bulk",
           "size": 100
         }
     ]
@@ -63,7 +59,7 @@ lagging development.
 Teraslice is written in Node.js and has been tested on Linux and Mac OS X.
 
 ### Dependencies ###
-* Node.js 0.12 or above
+* Node.js 4 or above
 * At least one Elasticsearch cluster
 
 ### Installing with npm ###
@@ -86,6 +82,7 @@ nodes available. The workers will connect to the master on localhost and do work
 ```
 teraslice:
     ops_directory: '/path/to/ops/'
+    workers: 8
     cluster:
         master: true
         master_hostname: "127.0.0.1"
@@ -94,7 +91,6 @@ teraslice:
 terafoundation:
     environment: 'development'
     log_path: '/path/to/logs'
-    workers: 8
 
     connectors:
         elasticsearch:
@@ -110,6 +106,7 @@ Configuration for a worker node is very similar. You just set 'master' to false 
 ```
 teraslice:
     ops_directory: '/path/to/ops/'
+    workers: 8
     cluster:
         master: false
         master_hostname: "YOUR_MASTER_IP"
@@ -118,7 +115,6 @@ teraslice:
 terafoundation:
     environment: 'development'
     log_path: '/path/to/logs'
-    workers: 8
 
     connectors:
         elasticsearch:
@@ -213,12 +209,21 @@ Resuming a job restarts the slicer and the allocation of slices to workers.
 curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID/_resume
 ```
 
+### Viewing Slicer statistics for a job
+
+This provides information related to the execution of the slicer and can be useful
+in monitoring and optimizing the execution of the job.
+
+```
+curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID/slicer
+```
+
 ### Viewing cluster state
 
 This will show you all the connected workers and the tasks that are currently assigned to them.
 
 ```
-curl YOU_MASTER_IP:5678/cluster/_state
+curl YOU_MASTER_IP:5678/cluster/state
 ```
 
 # Operations
