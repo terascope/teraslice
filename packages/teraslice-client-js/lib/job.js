@@ -1,5 +1,9 @@
 'use strict';
 
+var _ = require('lodash');
+
+var Promise = require('bluebird');
+
 /*
  * This is basically a wrapper around the job_id that acts as a proxy
  * to the server. It looks like an object but does not store the job
@@ -10,7 +14,7 @@ module.exports = function(config, job_id) {
     var request = require('./request')(config);
 
     function slicer(status) {
-        return request.get("/jobs/" + job_id + "/_slicer" );
+        return request.get("/jobs/" + job_id + "/slicer" );
     }
 
     function action(action) {
@@ -58,6 +62,25 @@ module.exports = function(config, job_id) {
         return request.get("/jobs/" + job_id);
     }
 
+    function _filterProcesses(role) {
+        return request.get("/cluster/state")
+            .then(function(state) {
+                var workers = _.reduce(state, function(workers, node) {
+                    var found = _.filter(node.active, function(process) {
+                        if (process.assignment == role && process.job_id == job_id) {
+                            process.node_id = node.node_id;
+                            return process;
+                        }
+                    });
+
+                    if (found.length > 0) workers = workers.concat(found);
+                    return workers;
+                }, [])
+
+                return workers;
+            });
+    }
+
     return {
         start: () => { return action('_start') },
         stop: () => { return action('_stop') },
@@ -67,6 +90,8 @@ module.exports = function(config, job_id) {
         status: status,
         spec: spec,
         id: () => { return job_id },
-        waitForStatus: waitForStatus
+        waitForStatus: waitForStatus,
+        workers: () => { return _filterProcesses('worker') },
+        //slicers: () => { return _filterProcesses('slicer') }
     }
 }

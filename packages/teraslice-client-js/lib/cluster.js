@@ -4,11 +4,11 @@ module.exports = function(config) {
     var request = require('./request')(config);
 
     function state() {
-        return request.get("/cluster/_state");
+        return request.get("/cluster/state");
     }
 
     function slicers() {
-        return request.get("/cluster/_slicers");
+        return request.get("/cluster/slicers");
     }
 
     return {

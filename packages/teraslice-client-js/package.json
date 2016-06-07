@@ -24,6 +24,7 @@
   "homepage": "https://github.com/terascope/teraslice-client-js#readme",
   "dependencies": {
     "bluebird": "^3.4.0",
+    "lodash": "^4.13.1",
     "request-promise": "^3.0.0"
   }
 }
