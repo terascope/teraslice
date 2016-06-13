@@ -55,6 +55,12 @@ module.exports = function(cluster, context, configFile) {
 
     var topLevelName = context.name;
     var config = {};
+    
+    if (config.schema_formats) {
+        config.schema_formats.forEach(function(format) {
+            convict.addFormat(format)
+        });
+    }
 
     // iterate over top level config components
     _.forOwn(configFile, function(value, key) {
