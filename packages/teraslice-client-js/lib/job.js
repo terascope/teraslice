@@ -17,8 +17,18 @@ module.exports = function(config, job_id) {
         return request.get("/jobs/" + job_id + "/slicer" );
     }
 
-    function action(action) {
-        return request.post("/jobs/" + job_id + "/" + action, {});
+    function action(action, options) {
+        var url = "/jobs/" + job_id + "/" + action;
+
+        // options are converted into URL parameters.
+        if (options) {
+            url += '?'
+            _.forOwn(options, function(value, option) {
+                url += option + '=' + value;
+            })
+        }
+
+        return request.post(url, {});
     }
 
     function status() {
@@ -82,10 +92,10 @@ module.exports = function(config, job_id) {
     }
 
     return {
-        start: () => { return action('_start') },
-        stop: () => { return action('_stop') },
-        pause: () => { return action('_pause') },
-        resume: () => { return action('_resume') },
+        start: (options) => { return action('_start', options) },
+        stop: (options) => { return action('_stop', options) },
+        pause: (options) => { return action('_pause', options) },
+        resume: (options) => { return action('_resume', options) },
         slicer: slicer,
         status: status,
         spec: spec,
