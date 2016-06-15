@@ -39,7 +39,7 @@ module.exports = function(compose_file) {
             // Some commands support an additional parameter
             if (param1) args.push(param1);
 
-            var cmd = spawn('docker-compose', args)
+            var cmd = spawn('docker-compose', args);
 
             cmd.stdout.on('data', function(data) {
                 stdout += data;
