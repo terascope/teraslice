@@ -343,7 +343,7 @@ This entails the configuration for the underlying terafoundation and teraslice s
  ```
  {
    "teraslice": {
-     "teraslice_ops_directory": "/Users/jarednoble/Desktop/fakeOps",
+     "ops_directory": "/Users/jarednoble/Desktop/fakeOps",
      "shutdown_timeout": 30
    },
    "terafoundation": {
@@ -378,7 +378,7 @@ This entails the configuration for the underlying terafoundation and teraslice s
 
 | Configuration | Description | Type |  Notes
 |:---------: | :--------: | :------: | :------:
-teraslice_ops_directory | You may provide a file path to a directory from which teraslice will attempt to retrieve any custom modules from | String | optional
+ops_directory | You may provide a file path to a directory from which teraslice will attempt to retrieve any custom modules from | String | optional
 shutdown_timeout | After shutdown sequence has initiated, the number here represents the time it will allow any process to finish before forcing it to close | Number | optional, defaults to 60 seconds
 port | port to which slicer to listen on| number | optional, defaults to 5678
 host | ip or hostname where slicer resides | String | defaults to localhost for development
