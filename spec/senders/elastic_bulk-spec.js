@@ -1,6 +1,6 @@
 'use strict';
 
-var es_sender = require('../../lib/senders/elasticsearch_bulk');
+var es_sender = require('../../lib/processors/elasticsearch_bulk');
 
 describe('elasticsearch_bulk', function() {
 
