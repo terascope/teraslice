@@ -35,9 +35,18 @@ describe('elasticsearch_data_generator', function() {
     it('slicer in "once" mode will return number based off total size ', function(done) {
         var context = {};
         var opConfig = {size: 13};
-        var jobConfig1 = {readerConfig: opConfig, jobConfig: {lifecycle: 'once', operations: [{size: 5}]}};
+        var jobConfig1 = {
+            readerConfig: opConfig,
+            jobConfig: {lifecycle: 'once', operations: [{_op: 'elasticsearch_data_generator', size: 13}, {size: 5}]}
+        };
         //if not specified size defaults to 5000
-        var jobConfig2 = {readerConfig: opConfig, jobConfig: {lifecycle: 'once', operations: [{someKey: 'someValue'}]}};
+        var jobConfig2 = {
+            readerConfig: opConfig,
+            jobConfig: {
+                lifecycle: 'once',
+                operations: [{_op: 'elasticsearch_data_generator', someKey: 'someValue', size: 13}, {size: 5000}]
+            }
+        };
 
 
         Promise.resolve(generator.newSlicer(context, jobConfig1)).then(function(slicer) {

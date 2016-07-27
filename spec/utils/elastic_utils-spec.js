@@ -171,124 +171,107 @@ describe('elastic_utils', function() {
 
     });
 
- /*   it(' checkElasticsearch will log a warning if your max_window is set to 10000 ', function(done) {
-        var opConfig = {index: 'someIndex'};
-        var logger = context.logger;
+    /*   it(' checkElasticsearch will log a warning if your max_window is set to 10000 ', function(done) {
+     var opConfig = {index: 'someIndex'};
+     var logger = context.logger;
 
-        utils.checkElasticsearch(client, opConfig, logger);
+     utils.checkElasticsearch(client, opConfig, logger);
 
-        //checkElasticsearch is a passive logger built on promises but not returning anything
-        setTimeout(function() {
-            expect(loggedMessage).toEqual(' max_result_window for index: someIndex is set at 10000. On very large indices it is possible that a slice can not be divided to stay below this limit. If that occurs an error will be thrown by Elasticsearch and the slice can not be processed. Increasing max_result_window in the Elasticsearch index settings will resolve the problem. ');
-            done()
-        }, 1);
+     //checkElasticsearch is a passive logger built on promises but not returning anything
+     setTimeout(function() {
+     expect(loggedMessage).toEqual(' max_result_window for index: someIndex is set at 10000. On very large indices it is possible that a slice can not be divided to stay below this limit. If that occurs an error will be thrown by Elasticsearch and the slice can not be processed. Increasing max_result_window in the Elasticsearch index settings will resolve the problem. ');
+     done()
+     }, 1);
 
-    });*/
+     });*/
 
     /*it('determineSlice returns an object with keys start and end', function(done) {
 
-        var config = {date_field_name: '@timestamp', size: 100, index: 'someIndex'};
-        var start = moment(new Date('2015/08/30'));
-        var end = moment(new Date('2015/08/31'));
-        var size = 100;
+     var config = {date_field_name: '@timestamp', size: 100, index: 'someIndex'};
+     var start = moment(new Date('2015/08/30'));
+     var end = moment(new Date('2015/08/31'));
+     var size = 100;
 
-        Promise.resolve(utils.determineSlice(client, config, start, end, size))
-            .then(function(data) {
-                expect(data).toBeDefined();
-                expect(typeof data).toBe('object');
-                expect(data.start).toBeDefined();
-                expect(data.end).toBeDefined();
-                expect(data.start.format(dateFormat)).toEqual('2015-08-30T00:00:00.000-07:00');
-                expect(data.end.format(dateFormat)).toEqual('2015-08-31T00:00:00.000-07:00');
+     Promise.resolve(utils.determineSlice(client, config, start, end, size))
+     .then(function(data) {
+     expect(data).toBeDefined();
+     expect(typeof data).toBe('object');
+     expect(data.start).toBeDefined();
+     expect(data.end).toBeDefined();
+     expect(data.start.format(dateFormat)).toEqual('2015-08-30T00:00:00.000-07:00');
+     expect(data.end.format(dateFormat)).toEqual('2015-08-31T00:00:00.000-07:00');
 
-                done();
-            });
+     done();
+     });
 
-    });*/
+     });*/
 
     /*it('determineSlice recurses, splitting chunk in half to get right chunk', function(done) {
 
-        var config = {date_field_name: '@timestamp', size: 50, index: 'someIndex'};
-        var start = moment(new Date('2015/08/30'));
-        var end = moment(new Date('2015/08/31'));
-        var size = 50;
+     var config = {date_field_name: '@timestamp', size: 50, index: 'someIndex'};
+     var start = moment(new Date('2015/08/30'));
+     var end = moment(new Date('2015/08/31'));
+     var size = 50;
 
-        Promise.resolve(utils.determineSlice(client, config, start, end, size))
-            .then(function(data) {
-                expect(data.end.format(dateFormat)).toEqual('2015-08-30T12:00:00.000-07:00');
-                done();
-            });
+     Promise.resolve(utils.determineSlice(client, config, start, end, size))
+     .then(function(data) {
+     expect(data.end.format(dateFormat)).toEqual('2015-08-30T12:00:00.000-07:00');
+     done();
+     });
 
-    });
+     });
 
-    it('determineSlice will return oversized slice if interval is  === || < 1 ms ', function(done) {
+     it('determineSlice will return oversized slice if interval is  === || < 1 ms ', function(done) {
 
-        var config = {date_field_name: '@timestamp', size: 10, index: 'someIndex'};
-        var start = moment(new Date('2015/08/30'));
-        var end = moment(new Date('2015/08/31'));
-        var size = 10;
+     var config = {date_field_name: '@timestamp', size: 10, index: 'someIndex'};
+     var start = moment(new Date('2015/08/30'));
+     var end = moment(new Date('2015/08/31'));
+     var size = 10;
 
-        Promise.resolve(utils.determineSlice(client, config, start, end, size))
-            .then(function(data) {
-                expect(data.start.format(dateFormat)).toEqual('2015-08-30T00:00:00.000-07:00');
-                expect(data.end.format(dateFormat)).toEqual('2015-08-30T00:00:00.001-07:00');
+     Promise.resolve(utils.determineSlice(client, config, start, end, size))
+     .then(function(data) {
+     expect(data.start.format(dateFormat)).toEqual('2015-08-30T00:00:00.000-07:00');
+     expect(data.end.format(dateFormat)).toEqual('2015-08-30T00:00:00.001-07:00');
 
-                done();
-            });
+     done();
+     });
 
-    });
+     });
 
-    it('checkVersion will return a boolean if version is >= 2.1.0 of elasticsearch ', function() {
-        var str1 = '2.0.0';
-        var str2 = '2.0.1';
-        var str3 = '1.7.1';
-        var str4 = '2.1.0';
-        var str5 = '4.3.0';
+     it('checkVersion will return a boolean if version is >= 2.1.0 of elasticsearch ', function() {
+     var str1 = '2.0.0';
+     var str2 = '2.0.1';
+     var str3 = '1.7.1';
+     var str4 = '2.1.0';
+     var str5 = '4.3.0';
 
-        expect(utils.checkVersion(str1)).toEqual(false);
-        expect(utils.checkVersion(str2)).toEqual(false);
-        expect(utils.checkVersion(str3)).toEqual(false);
-        expect(utils.checkVersion(str4)).toEqual(true);
-        expect(utils.checkVersion(str5)).toEqual(true);
+     expect(utils.checkVersion(str1)).toEqual(false);
+     expect(utils.checkVersion(str2)).toEqual(false);
+     expect(utils.checkVersion(str3)).toEqual(false);
+     expect(utils.checkVersion(str4)).toEqual(true);
+     expect(utils.checkVersion(str5)).toEqual(true);
 
-    });*/
+     });*/
 
-   /* it('getTimes returns valid iso dates', function() {
-        var jobConfig1 = {interval: '0s', delay: '29s'};
+    /* it('getTimes returns valid iso dates', function() {
+     var jobConfig1 = {interval: '0s', delay: '29s'};
 
-        var results = utils.getTimes(jobConfig1);
+     var results = utils.getTimes(jobConfig1);
 
-        expect(results).toBeDefined();
-        expect(results.start).toBeDefined();
-        expect(results.end).toBeDefined();
-        expect(typeof results.start).toEqual('object');
-        expect(typeof results.end).toEqual('object');
+     expect(results).toBeDefined();
+     expect(results.start).toBeDefined();
+     expect(results.end).toBeDefined();
+     expect(typeof results.start).toEqual('object');
+     expect(typeof results.end).toEqual('object');
 
-        expect(function() {
-            new Date(results.start)
-        }).not.toThrow();
+     expect(function() {
+     new Date(results.start)
+     }).not.toThrow();
 
-        expect(function() {
-            new Date(results.end)
-        }).not.toThrow();
+     expect(function() {
+     new Date(results.end)
+     }).not.toThrow();
 
-    });*/
+     });*/
 
-    it('recursiveSend will break up an array and send them in chunks', function() {
-        var client = {
-            bulk: function() {
-            }
-        };
-        var dataArray = [{one: 'data'}, {two: 'data'}, {three: 'data'}];
-        var limit = 2;
-
-        spyOn(client, 'bulk');
-
-        utils.recursiveSend(client, dataArray, limit);
-
-        expect(client.bulk.calls.count()).toEqual(2);
-        expect(client.bulk.calls.allArgs()).toEqual([[{body: [{one: 'data'}, {two: 'data'}]}],
-            [{body: [{three: 'data'}]}]])
-
-    });
 });
