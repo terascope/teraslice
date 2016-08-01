@@ -1,6 +1,5 @@
 terafoundation:
     environment: 'development'
-    workers: 8
 
     connectors:
         # ***********************
