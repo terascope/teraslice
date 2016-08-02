@@ -6,6 +6,7 @@
         {
           "_op": "elasticsearch_reader",
           "index": "example-logs",
+          "type": "logs",
           "size": 10000,
           "interval": "10s",
           "delay": "30s",
@@ -23,7 +24,7 @@
         },
         {
           "_op": "elasticsearch_bulk",
-          "size": 100
+          "size": 10000
         }
     ]
 }

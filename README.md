@@ -25,6 +25,7 @@ Jobs are specified as simple JSON documents. Here's a simple reindexing example.
         {
           "_op": "elasticsearch_reader",
           "index": "example-logs",
+          "type": "logs",
           "size": 10000,
           "date_field_name": "created",
           "full_response": true
@@ -37,7 +38,7 @@ Jobs are specified as simple JSON documents. Here's a simple reindexing example.
         },
         {
           "_op": "elasticsearch_bulk",
-          "size": 100
+          "size": 10000
         }
     ]
 }
@@ -120,7 +121,7 @@ terafoundation:
         elasticsearch:
             default:
                 host:
-                    - "localhost:9200"
+                    - "YOUR_MASTER_IP":9200
 ```
 
 # Running
@@ -226,9 +227,16 @@ This will show you all the connected workers and the tasks that are currently as
 curl YOU_MASTER_IP:5678/cluster/state
 ```
 
+# API
+ *[API endpoints reference](./docs/api.md)
+ 
 # Operations
 
  * [Operations reference](./docs/reference.md)
  * Writing custom operations
+ 
+# Configuration
+ *[teraslice configuration reference](./docs/configuration.md)
+
 
 
