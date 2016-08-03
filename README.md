@@ -50,10 +50,7 @@ Operations are nothing more than Javascript modules and writing your own is easy
 
 # Status
 
-Teraslice is in early development. Initial cluster support was recently added and we're in the
-process of implementing concurrent slicers. Concurrent slicers currently work for 'once' jobs
-but 'persistent' jobs and job recovery are in the process of being updated. Documentation is
-lagging development.
+Teraslice is currently in alpha status. Single node deployment and clustering support are functional and being refined. APIs are usable but will still be evolving as we work toward a production release. See the list of open issues for other limitations.
 
 # Installation
 
@@ -228,15 +225,15 @@ curl YOU_MASTER_IP:5678/cluster/state
 ```
 
 # API
- *[API endpoints reference](./docs/api.md)
- 
+ * [API endpoints reference](./docs/api.md)
+
 # Operations
 
  * [Operations reference](./docs/reference.md)
  * Writing custom operations
- 
+
 # Configuration
- *[teraslice configuration reference](./docs/configuration.md)
+ * [Teraslice configuration reference](./docs/configuration.md)
 
 
 
