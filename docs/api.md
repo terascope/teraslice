@@ -296,10 +296,10 @@ query:
 all fields: 
 - node_id
 - job_id
-- available_workers
-- active_workers
+- workers_available
+- workers_active
 - workers_joined
-- reconnected_workers
+- workers_reconnected
 - workers_disconnected
 - failed
 - subslices
@@ -313,10 +313,10 @@ all fields:
 
 defaults: 
 - job_id
-- available_workers
-- active_workers
+- workers_available
+- workers_active
 - workers_joined
-- reconnected_workers
+- workers_reconnected
 - workers_disconnected
 - failed
 - subslices
