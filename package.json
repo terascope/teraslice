@@ -17,6 +17,7 @@
   "homepage": "https://github.com/terascope/teraslice#readme",
   "dependencies": {
     "bluebird": "^2.9.34",
+    "body-parser": "^1.15.2",
     "convict": "^1.0.1",
     "datemath-parser": "^1.0.5",
     "easy-table": "^1.0.0",
