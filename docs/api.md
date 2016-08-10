@@ -69,6 +69,7 @@ response:
 submit a job to be enqueued
 
 parameter options: 
+
 - start = [Boolean]
 
 Setting start to false will just store the job and not automatically enqueue it, in this case only the job_id will be returned 
@@ -92,6 +93,7 @@ query:
 returns an array of all jobs listed in teracluster__jobs index
 
 parameter options: 
+
 - from = [Number]
 - size = [Number]
 - sort = [String]
@@ -125,6 +127,7 @@ query:
 returns all execution contexts (job invocations)
 
 parameter options: 
+
 - status [String]
 - from = [Number]
 - size = [Number]
@@ -163,6 +166,7 @@ issues a recover command, this can only be run if the job is stopped, the job wi
 you can dynamically change the amount of workers that are allocated for a specific job execution.
 
 parameter options: 
+
 - add = [Number]
 - remove = [Number]
 - total = [Number]
@@ -207,6 +211,7 @@ response:
 returns a textual graph of all children of node_masters
 
 parameter options: 
+
 - fields [String]
 
 The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified 
@@ -249,6 +254,7 @@ worker          myCompName  2c1b5ffd-bac4-43a3-bb90-6d6055244ef4  38361
 returns a textual graph of all node_masters
 
 parameter options: 
+
 - fields [String]
 
 The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified 
@@ -258,6 +264,7 @@ query:
 ```curl localhost:5678/txt/workers```
 
 all fields:
+
 - node_id
 - state
 - hostname
@@ -269,6 +276,7 @@ all fields:
 - active
 
 defaults: 
+
 - node_id
 - state
 - hostname
@@ -283,6 +291,7 @@ defaults:
 returns a textual graph of all job listings
 
 parameter options: 
+
 - fields [String]
 
 The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified 
@@ -292,6 +301,7 @@ query:
 ```curl localhost:5678/txt/jobs```
 
 all fields:
+
 - name
 - lifecycle
 - analytics
@@ -318,6 +328,7 @@ defaults:
 returns a textual graph of all job execution contexts
 
 parameter options: 
+
 - fields [String]
 
 The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified 
@@ -327,6 +338,7 @@ query:
 ```curl localhost:5678/txt/jobs```
 
 all fields:
+
 - name
 - lifecycle
 - analytics
@@ -356,6 +368,7 @@ defaults:
 returns a textual graph of all active slicers
 
 parameter options: 
+
 - fields [String]
 
 The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified 
@@ -365,6 +378,7 @@ query:
 ```curl localhost:5678/txt/slicers```
 
 all fields: 
+
 - node_id
 - ex_id
 - workers_available
@@ -383,6 +397,7 @@ all fields:
 - queuing_complete
 
 defaults: 
+
 - ex_id
 - workers_available
 - workers_active
