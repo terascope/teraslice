@@ -181,7 +181,7 @@ query:
 same concept as cluster/slicers, but only get stats on slicer associated with the given ex_id
 
 query: 
-```curl localhost:5678/jobs/{job_id}/slicer```
+```curl localhost:5678/ex/{ex_id}/slicer```
 
 response: 
 ```
