@@ -143,7 +143,7 @@ size is the number of documents returned, from is how many documents in and sort
  returns the job execution context that matches given ex_id
    
    query:
-   ``` curl localhost:5678/jobs/77c94621-48cf-459f-9d95-dfbccf010f5c```
+   ``` curl localhost:5678/ex/77c94621-48cf-459f-9d95-dfbccf010f5c```
 
 #### POST /ex/{ex_id}/_stop 
 
