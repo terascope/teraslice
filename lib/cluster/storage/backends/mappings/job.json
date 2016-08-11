@@ -1,26 +1,41 @@
 {
-    "settings" : {
-        "index.number_of_shards" : 5,
-        "index.number_of_replicas": 1
-    },
-    "mappings": {
-        "job": {
-            "properties": {
-                "job_id": {
-                    "type": "string",
-                    "index" : "not_analyzed"
-                },
-                "_status": {
-                    "type": "string",
-                    "index" : "not_analyzed"
-                },
-                "_created": {
-                    "type": "date"
-                },
-                "_updated": {
-                    "type": "date"
-                }
-            }
+  "settings": {
+    "index.number_of_shards": 5,
+    "index.number_of_replicas": 1
+  },
+  "mappings": {
+    "job": {
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "ex_id": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "_context":{
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "_status": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "_has_errors": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "_slicer_stats": {
+          "type": "object"
+        },
+        "_created": {
+          "type": "date"
+        },
+        "_updated": {
+          "type": "date"
         }
+      }
     }
+  }
 }
