@@ -14,6 +14,7 @@ module.exports = function(config) {
     return {
         state: state,
         slicers: slicers,
-        nodes: () => {}
+        nodes: () => {
+        }
     }
-}
+};

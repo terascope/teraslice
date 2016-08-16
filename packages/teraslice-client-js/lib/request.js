@@ -6,7 +6,7 @@ var request = require('request-promise');
 module.exports = function(config) {
     var teraslice_host = config.host;
 
-    if (! teraslice_host) {
+    if (!teraslice_host) {
         teraslice_host = 'http://localhost:5678'
     }
 
@@ -31,4 +31,4 @@ module.exports = function(config) {
         get: get,
         post: post
     }
-}
+};

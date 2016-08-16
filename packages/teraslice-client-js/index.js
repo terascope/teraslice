@@ -7,4 +7,4 @@ module.exports = function(config) {
         jobs: require('./lib/jobs')(config),
         cluster: require('./lib/cluster')(config)
     }
-}
+};

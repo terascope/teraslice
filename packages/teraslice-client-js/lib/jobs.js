@@ -7,7 +7,7 @@ module.exports = function(config) {
     function submit(job_spec) {
         return request.post("/jobs", job_spec)
             .then(function(result) {
-                return newjob(config, result.job_id);
+                return newjob(config, result.job_id, result.ex_id);
             })
             .catch(function(err) {
                 throw err.error
@@ -15,9 +15,9 @@ module.exports = function(config) {
     }
 
     function list(status) {
-        if (! status) status = '';
+        if (!status) status = '*';
 
-        return request.get("/jobs?status=" + status);
+        return request.get(`/ex?status=${status}`);
     }
 
     // Wraps the job_id with convenience functions for accessing
@@ -31,4 +31,4 @@ module.exports = function(config) {
         list: list,
         wrap: wrap
     }
-}
+};

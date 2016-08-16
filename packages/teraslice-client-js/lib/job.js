@@ -1,7 +1,6 @@
 'use strict';
 
 var _ = require('lodash');
-
 var Promise = require('bluebird');
 
 /*
@@ -10,21 +9,35 @@ var Promise = require('bluebird');
  * state internally. Any access to the state currently goes to the server.
  * Depending on how usage of this API develops we may want to reconsider this.
  */
-module.exports = function(config, job_id) {
+module.exports = function(config, job_id, ex_id) {
     var request = require('./request')(config);
 
     function slicer(status) {
-        return request.get("/jobs/" + job_id + "/slicer" );
+        return request.get(`/ex/${ex_id}/slicer`);
     }
 
-    function action(action, options) {
-        var url = "/jobs/" + job_id + "/" + action;
+    function job_action(action, options) {
+        var url = `/jobs/${job_id}/${action}`;
 
         // options are converted into URL parameters.
         if (options) {
-            url += '?'
+            url += '?';
             _.forOwn(options, function(value, option) {
-                url += option + '=' + value;
+                url += `${option}=${value}`;
+            })
+        }
+
+        return request.post(url, {});
+    }
+
+    function ex_action(action, options) {
+        var url = `/ex/${ex_id}/${action}`;
+
+        // options are converted into URL parameters.
+        if (options) {
+            url += '?';
+            _.forOwn(options, function(value, option) {
+                url += `${option}=${value}`;
             })
         }
 
@@ -32,14 +45,14 @@ module.exports = function(config, job_id) {
     }
 
     function status() {
-        return request.get("/jobs/" + job_id)
+        return request.get(`/ex/${ex_id}`)
             .then(function(job_spec) {
                 return job_spec._status;
             });
     }
 
     function waitForStatus(target, timeout) {
-        if (! timeout) timeout = 1000;
+        if (!timeout) timeout = 1000;
 
         return new Promise(function(resolve, reject) {
             function wait() {
@@ -56,7 +69,7 @@ module.exports = function(config, job_id) {
                         // watching for these then we need to stop waiting as the job
                         // status won't change further.
                         if (result === 'failed' || result === 'rejected' || result === 'aborted') {
-                            reject("Job has status: '" + result + "' which is terminal so status: '" + target + "' is not possible.")
+                            reject(`Job has status: "${result}" which is terminal so status: "${target}" is not possible.`)
                         }
                     })
                     .catch(function(err) {
@@ -69,7 +82,7 @@ module.exports = function(config, job_id) {
     }
 
     function spec() {
-        return request.get("/jobs/" + job_id);
+        return request.get(`/jobs/${job_id}`);
     }
 
     function _filterProcesses(role) {
@@ -77,7 +90,7 @@ module.exports = function(config, job_id) {
             .then(function(state) {
                 var workers = _.reduce(state, function(workers, node) {
                     var found = _.filter(node.active, function(process) {
-                        if (process.assignment == role && process.job_id == job_id) {
+                        if (process.assignment == role && process.ex_id == ex_id) {
                             process.node_id = node.node_id;
                             return process;
                         }
@@ -85,23 +98,37 @@ module.exports = function(config, job_id) {
 
                     if (found.length > 0) workers = workers.concat(found);
                     return workers;
-                }, [])
+                }, []);
 
                 return workers;
             });
     }
 
     return {
-        start: (options) => { return action('_start', options) },
-        stop: (options) => { return action('_stop', options) },
-        pause: (options) => { return action('_pause', options) },
-        resume: (options) => { return action('_resume', options) },
+        start: (options) => {
+            return job_action('_start', options)
+        },
+        recover: (options) => {
+            return ex_action('_recover', options)
+        },
+        stop: (options) => {
+            return ex_action('_stop', options)
+        },
+        pause: (options) => {
+            return ex_action('_pause', options)
+        },
+        resume: (options) => {
+            return ex_action('_resume', options)
+        },
         slicer: slicer,
         status: status,
         spec: spec,
-        id: () => { return job_id },
+        id: () => {
+            return job_id
+        },
         waitForStatus: waitForStatus,
-        workers: () => { return _filterProcesses('worker') },
-        //slicers: () => { return _filterProcesses('slicer') }
+        workers: () => {
+            return _filterProcesses('worker')
+        }
     }
-}
+};
