@@ -8,12 +8,11 @@ terafoundation:
         elasticsearch:
             default:
                 host:
-                    - "elasticsearch:9200"
+                    - "127.0.0.1:9200"
 
 teraslice:
     ops_directory: '/app/source/examples/ops/'
 
-    cluster:
-        master: true
-        master_hostname: "127.0.0.1"
-        name: "teracluster"
+    master: true
+    master_hostname: "127.0.0.1"
+    name: "teracluster"
