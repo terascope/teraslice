@@ -161,6 +161,8 @@ issues a resume command, this allows the slicers to continue if they were in a p
 
 issues a recover command, this can only be run if the job is stopped, the job will attempt to retry failed slices and to resume where it previously left off
 
+##### it is important to note that at this time, anything using id_reader is a non-recoverable job. For date-based indexes, if you use elasticsearch_reader this will only recover to the end date to what is specified on the job. This means that if you were reindexing a index that was continually growing, this will only run till the end date that was determined at the start of the job, you may specify another job to pick up where it left off. recovery offers no guarantees for indexes that have new documents inserted randomly as this reader assumes linear time 
+
 #### POST /ex/{ex_id}/_workers
 
 you can dynamically change the amount of workers that are allocated for a specific job execution.
