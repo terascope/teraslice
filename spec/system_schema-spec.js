@@ -11,16 +11,12 @@ describe('system_schema', function() {
         expect(sysSchema.schema.reporter).toBeDefined();
         expect(sysSchema.schema.hostname).toBeDefined();
 
-    });
+        var schema = sysSchema.config_schema({});
 
-    it('cluster schema', function() {
-
-        var schema = sysSchema.config_schema({teraslice: {cluster: true}});
-
-        expect(schema.cluster).toBeDefined();
-        expect(schema.cluster.port.default).toEqual(5678);
-        expect(schema.cluster.name.default).toEqual('teracluster');
-        expect(schema.cluster.state.default).toEqual({connection: 'default'});
+        expect(schema).toBeDefined();
+        expect(schema.port.default).toEqual(5678);
+        expect(schema.name.default).toEqual('teracluster');
+        expect(schema.state.default).toEqual({connection: 'default'});
 
     });
 
