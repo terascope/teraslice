@@ -8,6 +8,12 @@ var config_schema = require('./lib/config/schemas/system').config_schema;
 var emitter = require('./lib/utils/events');
 var schema_formats = require('./lib/utils/convict_utils');
 
+function get_ops_directory(configFile) {
+    if (configFile.teraslice && configFile.teraslice.ops_directory) {
+        return configFile.teraslice.ops_directory;
+    }
+}
+
 var foundation = require('terafoundation')({
     name: 'teraslice',
     worker: worker,
@@ -18,6 +24,7 @@ var foundation = require('terafoundation')({
     descriptors: {slicer: true, worker: true, cluster_master: true},
     start_workers: false,
     config_schema: config_schema,
-    schema_formats: schema_formats
+    schema_formats: schema_formats,
+    ops_directory: get_ops_directory
     // emitter: emitter
 });

@@ -147,20 +147,24 @@ Assuming your job is in a file called 'job.json' it's as simple as
 curl -XPOST YOUR_MASTER_IP:5678/jobs -d@job.json
 ```
 
-This will return the job_id which can then be used to manage the job.
+This will return the job_id (for access to the original job posted) and the job execution context id (the running instance of a job) which can then be used to manage the job. This will also start the job.
 ```
 {
-    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd"
+    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
+    "ex_id":  "2b5dk70c-qw30-1459-bn47-zchjs80fexg3"
+ 
 }
 ```
 # Job Control
 
+Please check the api docs at the bottom for a comprehensive in-depth list of all api's. What is listed here is just a small brief of only a few api's
+
 ### Job status
 
-This will retieve the job configuration including '_status' which indicates the execution status of the job.
+This will retrieve the job configuration including '_status' which indicates the execution status of the job.
 
 ```
-curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID
+curl YOU_MASTER_IP:5678/jobs/{EX_ID}
 ```
 
 ### Stopping a job
@@ -169,24 +173,22 @@ Stopping a job stops all execution and frees the workers being consumed
 by the job on the cluster.
 
 ```
-curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID/_stop
+curl YOU_MASTER_IP:5678/jobs/{EX_ID}/_stop
 ```
 
 ### Starting a job
 
-Starting a job will reschedule the job and restart execution from the beginning.
-
-NOTE: the semantics of this operation will be changing in the future. As recovery on a restarted job is not currently consistent.
+Posting a new job will automatically start the job. If the job already exists then using the endpoint below will start a new one.
 
 ```
-curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID/_start
+curl YOU_MASTER_IP:5678/jobs/{JOB_ID}/_start
 ```
 
-Starting a job with recovery will attempt to replay any failed slices from previous runs and will then pickup where it left off. If there are no failed
+Starting a job with recover will attempt to replay any failed slices from previous runs and will then pickup where it left off. If there are no failed
 slices the job will simply resume from where it was stopped.
 
 ```
-curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID/_start?recover=true
+curl YOU_MASTER_IP:5678/jobs/{EX_ID}/_recover
 ```
 
 ### Pausing a job
@@ -196,7 +198,7 @@ release the workers being used by the job. It simply pauses the slicer and
 stops allocating work to the workers. Workers will complete the work they're doing then just sit idle until the job is resumed.
 
 ```
-curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID/_pause
+curl YOU_MASTER_IP:5678/jobs/{EX_ID}/_pause
 ```
 
 ### Resuming a job
@@ -204,7 +206,7 @@ curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID/_pause
 Resuming a job restarts the slicer and the allocation of slices to workers.
 
 ```
-curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID/_resume
+curl YOU_MASTER_IP:5678/jobs/{EX_ID}/_resume
 ```
 
 ### Viewing Slicer statistics for a job
@@ -213,7 +215,7 @@ This provides information related to the execution of the slicer and can be usef
 in monitoring and optimizing the execution of the job.
 
 ```
-curl YOU_MASTER_IP:5678/jobs/YOUR_JOB_ID/slicer
+curl YOU_MASTER_IP:5678/jobs/{EX_ID}/slicer
 ```
 
 ### Viewing cluster state

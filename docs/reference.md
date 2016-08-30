@@ -310,7 +310,7 @@ The keys used were hexidecimal based
 | Configuration | Description | Type |  Notes
 |:---------: | :--------: | :------: | :------:
 \_op | Name of operation, it must reflect the exact name of the file | String | required
-size | the maximum number of docs it will send in a given request, anything past it will be split up and sent | Number | required, note that the number should always be an even number, if not then you will run into a bulk request error
+size | the maximum number of docs it will send in a given request, anything past it will be split up and sent | Number | required, typically the index selector returns up to double the length of the original documents due to the metadata involved with bulk requests. This number is essentially doubled to to maintain the notion that we split by actual documents and not the metadata
 connection_map | | Object | optional
 multisend | When set to true the connection_map will be used allocate the data stream across multiple connections based on the keys of the incoming documents | Boolean | optional, defaults to false 
 multisend_index_append | When set to true will append the connection_map prefixes to the name of the index before data is submitted | Boolean | optional, defaults to false
