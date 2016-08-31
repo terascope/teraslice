@@ -5,24 +5,20 @@ var _ = require('lodash');
 var convict = require('convict');
 var getModule = require('./file_utils').getModule;
 
-function getConnectorSchema(name, configFile) {
-    var opsDir = 'noOP';
-
-    if (configFile.teraslice && configFile.teraslice.teraslice_ops_directory) {
-        opsDir = configFile.teraslice.teraslice_ops_directory;
-    }
-
-    var localPath = __dirname + '/connectors/' + name + '.js';
-    var firstPath = opsDir + '/connectors/' + name + '.js';
-
+function getConnectorSchema(name, context, configFile) {
     var paths = {};
-    paths[opsDir] = true;
-    paths[localPath] = true;
-    paths[firstPath] = true;
     var err = 'Could not retrieve schema code for: ' + name + '\n';
 
-    return getModule(name, paths, err).config_schema();
+    var localPath = __dirname + '/connectors/' + name + '.js';
+    paths[localPath] = true;
 
+    if (context.ops_directory) {
+        var opsPath = context.ops_directory + '/connectors/' + name + '.js';
+        paths[opsPath] = true;
+    }
+
+    //getModule has a fallback to check node modules for connector schema
+    return getModule(name, paths, err).config_schema();
 }
 
 function validateConfig(cluster, schema, configFile) {
@@ -64,7 +60,6 @@ module.exports = function(cluster, context, configFile) {
 
     // iterate over top level config components
     _.forOwn(configFile, function(value, key) {
-
         //terafoundation
         if (configFile[key].connectors) {
 
@@ -73,7 +68,7 @@ module.exports = function(cluster, context, configFile) {
 
             //iterate over different connectors
             _.forOwn(configFile[key].connectors, function(innerConfig, connector) {
-                var innerSchema = getConnectorSchema(connector, configFile);
+                var innerSchema = getConnectorSchema(connector, context, configFile);
                 config[key].connectors[connector] = {};
 
                 //iterate over endpoints in connectors

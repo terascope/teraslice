@@ -2,27 +2,15 @@
 
 var events = require('events');
 
-function init_events(client) {
-    var conn_events = new events.EventEmitter();
-
-    /*client.on('error', function(error) {
-     conn_events.emit('error', error);
-     });*/
-
-    return conn_events;
-}
-
 function create(customConfig, logger) {
     var hdfsClient = require('node-webhdfs').WebHDFSClient;
-
     logger.info("Using hdfs hosts: " + customConfig.host);
 
     // TODO: there's no error handling here at all???
     var client = new hdfsClient(customConfig);
 
     return {
-        client: client,
-        events: init_events(client)
+        client: client
     }
 }
 

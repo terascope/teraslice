@@ -17,21 +17,21 @@ function getModule(name, obj, err) {
     for (var path in obj) {
 
         if (existsSync(path)) {
-           try {
-               return require(path)
-           }
-            catch(e){
+            try {
+                return require(path)
+            }
+            catch (e) {
                 continue
             }
         }
     }
-    //if no code was returned then all paths failed
-    if (err) {
-        //console.log(name, obj, err)
-        throw new Error(err)
+    //check if its a node module
+    try {
+        return require(name)
     }
-    else {
-        throw new Error(' Module ' + name + ' was not found ' + '\n' + ' paths searched: ' + (Object.keys(paths)).join('\n'))
+    catch (e) {
+        //if no code was returned then all paths failed
+        throw new Error(err)
     }
 }
 

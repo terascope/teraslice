@@ -2,25 +2,9 @@
 
 var events = require('events');
 
-function init_events(client) {
-    var conn_events = new events.EventEmitter();
-
-    client.connection.on('error', function(err) {
-        conn_events.emit('error', error);
-    });
-
-    client.connection.on('reconnected', function() {
-        conn_events.emit('reconnected', error);
-    });
-
-    return conn_events;
-}
-
 function create(customConfig, logger) {
     var mongoose = require("mongoose");
-
     // TODO: rework configuration to allow incoming config to be a full mongo config
-
     logger.info("Using mongo connection string: " + customConfig.servers);
 
     var serverConfig = {
@@ -48,8 +32,7 @@ function create(customConfig, logger) {
     });
 
     return {
-        client: mongoose,
-        events: init_events(mongoose)
+        client: mongoose
     }
 }
 

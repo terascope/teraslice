@@ -17,6 +17,11 @@ module.exports = function(config) {
         configfile: argv.configfile
     });
 
+    //allows top level function to declare ops_directory, so not hard baked in
+    if (typeof config.ops_directory === 'function') {
+        config.ops_directory = config.ops_directory(configFile);
+    }
+
     var sysconfig = validateConfigs(cluster, config, configFile);
 
     //set by initAPI

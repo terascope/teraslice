@@ -3,16 +3,6 @@
 var events = require('events');
 var Agent = require('./elastic_helpers');
 
-function init_events(client) {
-    var conn_events = new events.EventEmitter();
-
-    /*client.on('error', function(error) {
-     conn_events.emit('error', error);
-     });*/
-
-    return conn_events;
-}
-
 function create(customConfig, logger) {
     var elasticsearch = require('elasticsearch');
 
@@ -24,8 +14,7 @@ function create(customConfig, logger) {
     var client = new elasticsearch.Client(customConfig);
 
     return {
-        client: client,
-        events: init_events(client)
+        client: client
     }
 }
 
