@@ -12,6 +12,10 @@ Tereslice is a companion tool for Elasticsearch that helps you process very larg
 
 In Teraslice you define jobs that specify a pipeline of work to be applied to a slice of data. That work will execute concurrently across many workers to achieve very high re-processing throughput.
 
+[Watch the overview and getting started video](https://www.youtube.com/watch?v=TG7flPTZeeg)
+
+[![Overview and Getting Started](https://raw.github.com/terascope/teraslice/master/docs/images/reindexing-id-71B.png)](https://www.youtube.com/watch?v=TG7flPTZeeg)
+
 The only requirement that Teraslice makes is that the data is sliceable using date ranges. So as long as your index has a date field that varies across records then you can use it to slice things up and concurrently reprocess the data in the index.
 
 Jobs are specified as simple JSON documents. Here's a simple reindexing example.
@@ -152,7 +156,7 @@ This will return the job_id (for access to the original job posted) and the job 
 {
     "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
     "ex_id":  "2b5dk70c-qw30-1459-bn47-zchjs80fexg3"
- 
+
 }
 ```
 # Job Control
