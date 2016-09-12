@@ -137,7 +137,7 @@ delay | Offset applied to reader of when to begin reading, must be in interval s
 - this reader assumes linear date times, and this slicer will stop at the end date specified or the end date determined at the starting point of the job. This means that if an index continually grows while this is running, this will not reach the new data, you would to start another job with the end date from the other job listed as the start date for the new job
 
 ### elasticsearch_data_generator ###
-Used to generate sample data for your elasticsearch cluster. You may use the default data generator which creates randomized data fitting the format listed below or you may create your own custom schema using the [json-schema-faker](https://github.com/json-schema-faker/json-schema-faker) package to create data to whatever schema you desire.
+Used to generate sample data for your elasticsearch cluster. You may use the default data generator which creates randomized data fitting the format listed below or you may create your own custom schema using the [mocker-data-generator](https://github.com/danibram/mocker-data-generator) package to create data to whatever schema you desire.
 
 Default generated data :
 ```
@@ -172,10 +172,11 @@ In once mode, this will created a total of 25 million docs with dates ranging fr
 \_op | Name of operation, it must reflect the exact name of the file | String | required
 size | If lifecycle is set to "once", then size is the total number of documents that the generator will make. If lifecycle is set to "persistent", then this generator will will constantly stream data to elasticsearch in chunks as big as the size indicated | Number | required
 json_schema | File path to where custom schema is located | String | optional, the schema must be exported Node style "module.exports = schema"
-format | specify any provided formats listed in /lib/utils/data_utils for the default generator| String | optional, defaults to "dateNow"
+format | specify any provided formats listed in /lib/utils/data_utils for the generator| String | optional, defaults to "dateNow"
 start | start of date range | String | optional, only used with format isoBetween or utcBetween, defaults to Thu Jan 01 1970 00:00:00 GMT-0700 (MST)
 end | end of date range | String | optional, only used with format isoBetween or utcBetween, defaults to new Date()
 stress_test | If set to true, it will attempt to send non unique documents following your schema as fast as it can, originally used to help determine cluster write performance| Boolean | optional, defaults to false
+date_key | Use this to indicate which key of your schema you would like to use a format listed below, just in case you don't want to set your own | String | optional, defaults to created
 
 #### Description of formats available ####
 There are two categories of formats, ones that return the current date at which the function runs, or one that returns a date within a given range. Note for the non-range category, technically if the job takes 5 minutes to run, you will have dates ranging from the time you started the job up until the time it finished, so its still a range but not as one that spans hours, days weeks etc.
