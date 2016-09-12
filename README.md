@@ -1,6 +1,8 @@
 # Teraslice - Slice and dice your Elasticsearch data
 
-Tereslice is a companion tool for Elasticsearch that helps you process very large volumes of data. It was born and bred in an environment that regularly sees billions of pieces of data per day. It slices the data in your cluster and reprocesses it concurrently to maximize throughput. Here are a few tasks it can help you with:
+Teraslice is an open source, distributed computing platform for processing JSON data stored in Elasticsearch. It can be used for many tasks but is particularly adept at migrating and transforming data within and between Elasticsearch clusters and other data stores. It was born and bred in an environment that regularly sees billions of pieces of data per day and is capable of processing millions of records per second.
+
+Here are a few tasks it can help you with:
 
   * Reindexing data at high volumes
   * Moving data between clusters
@@ -50,7 +52,7 @@ Jobs are specified as simple JSON documents. Here's a simple reindexing example.
 
 In this instance all the operations that are performed are provided by Teraslice. The elasticsearch_reader takes a date range and slices up the index so that it can be reprocessed. The result of that is fed to elasticsearch_index_selector that takes the incoming data and bundles it into a bulk request that is then sent to the cluster using elasticsearch_bulk_insert.
 
-Operations are nothing more than Javascript modules and writing your own is easy. Custom operations can be inserted in the operations flow as needed.
+Operations are nothing more than Javascript modules and writing your own is easy so custom code can be inserted in the operations flow as needed.
 
 # Status
 
