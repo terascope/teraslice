@@ -19,6 +19,7 @@ Example Config
     "environment": "development",
     "logging": "elasticsearch",
     "log_path": "/some/path/to/logs",
+    "log_level": [{console: "warn"},{elasticsearch: "info"}]
     "connectors": {
       "elasticsearch": {
         "default": {
@@ -67,9 +68,13 @@ slicer_port_range | range of ports that slicers will use per node | String | opt
 
 | Configuration | Description | Type |  Notes
 |:---------: | :--------: | :------: | :------:
-log_path | Path to where you would like to store logs pertaining to jobs as well as system logs | String | required
+log_path | Path to where you would like to store logs pertaining to jobs as well as system logs | String | optional, defaults to the executing directory
 environment | Set to either development or production, in development logs are sent to the console, while in production they are written to file located within the dir you specify at log_path| String | defaults to development
 connectors | List of all databases used and connection configurations  | Object | required
+logging | an array of options to specify which logging functionality to use, options: ['console', 'file', 'elasticsearch'], respectively sends logging to all those locations |  Array | optional, defaults to ['console'], if environment is set to production, it will ignore console and add file
+log_level | what level of logs should be shown or saved. possible values: trace, debug, info, warn, error, fatal. if value is a string, all logging function will use that, if you specify an array then you make customize what level of logs go where. example of array => [{console: 'warn'}, {elasticsearch: 'info'}] | String or Array | optional, defaults to "info"
+log_buffer_limit | the number of logs stored in the ringbuffer on the logger before sent, logging must have elasticsearch set as a value for this to take effect | Number | optional, defaults to  30
+log_buffer_interval | interval (number in milliseconds) that the log buffer will send up its logs to elasticsearch if its enabled, used to prevent hanging logs of different services if they haven't hit the limit | Number | optional, default to 60000m which is one minute
 
 ##### connectors #####
 

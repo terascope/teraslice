@@ -14,6 +14,12 @@ function get_ops_directory(configFile) {
     }
 }
 
+function get_cluster_name(configFile){
+    if(configFile.teraslice && configFile.teraslice.name){
+        return configFile.teraslice.name
+    }
+}
+
 var foundation = require('terafoundation')({
     name: 'teraslice',
     worker: worker,
@@ -25,6 +31,7 @@ var foundation = require('terafoundation')({
     start_workers: false,
     config_schema: config_schema,
     schema_formats: schema_formats,
-    ops_directory: get_ops_directory
+    ops_directory: get_ops_directory,
+    get_cluster_name: get_cluster_name
     // emitter: emitter
 });

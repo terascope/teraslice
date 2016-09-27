@@ -1,6 +1,6 @@
 {
   "name": "teraslice",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Slice and dice your Elasticsearch data",
   "main": "service.js",
   "scripts": {
@@ -25,7 +25,7 @@
     "jasmine": "^2.3.2",
     "lodash": "^4.13.1",
     "mocker-data-generator": "^1.2.2",
-    "moment": "^2.11.1",
+    "moment": "^2.15.1",
     "shortid": "^2.2.6",
     "socket.io": "^1.4.5",
     "socket.io-client": "^1.4.5",
