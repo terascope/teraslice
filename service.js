@@ -14,9 +14,18 @@ function get_ops_directory(configFile) {
     }
 }
 
-function get_cluster_name(configFile){
-    if(configFile.teraslice && configFile.teraslice.name){
+function get_cluster_name(configFile) {
+    if (configFile.teraslice && configFile.teraslice.name) {
         return configFile.teraslice.name
+    }
+}
+
+function get_state_name(configFile) {
+    if (configFile.teraslice && configFile.teraslice.state) {
+        return configFile.teraslice.state.connection;
+    }
+    else {
+        return 'default';
     }
 }
 
@@ -32,6 +41,7 @@ var foundation = require('terafoundation')({
     config_schema: config_schema,
     schema_formats: schema_formats,
     ops_directory: get_ops_directory,
-    get_cluster_name: get_cluster_name
+    get_cluster_name: get_cluster_name,
+    get_state_name: get_state_name
     // emitter: emitter
 });
