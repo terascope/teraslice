@@ -20,7 +20,7 @@ function get_cluster_name(configFile) {
     }
 }
 
-function get_state_name(configFile) {
+function logging_connection(configFile) {
     if (configFile.teraslice && configFile.teraslice.state) {
         return configFile.teraslice.state.connection;
     }
@@ -42,6 +42,6 @@ var foundation = require('terafoundation')({
     schema_formats: schema_formats,
     ops_directory: get_ops_directory,
     get_cluster_name: get_cluster_name,
-    get_state_name: get_state_name
+    logging_connection: logging_connection
     // emitter: emitter
 });
