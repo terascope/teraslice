@@ -8,13 +8,13 @@ var config_schema = require('./lib/config/schemas/system').config_schema;
 var emitter = require('./lib/utils/events');
 var schema_formats = require('./lib/utils/convict_utils');
 
-function get_ops_directory(configFile) {
+function ops_directory(configFile) {
     if (configFile.teraslice && configFile.teraslice.ops_directory) {
         return configFile.teraslice.ops_directory;
     }
 }
 
-function get_cluster_name(configFile) {
+function cluster_name(configFile) {
     if (configFile.teraslice && configFile.teraslice.name) {
         return configFile.teraslice.name
     }
@@ -40,8 +40,8 @@ var foundation = require('terafoundation')({
     start_workers: false,
     config_schema: config_schema,
     schema_formats: schema_formats,
-    ops_directory: get_ops_directory,
-    get_cluster_name: get_cluster_name,
+    ops_directory: ops_directory,
+    cluster_name: cluster_name,
     logging_connection: logging_connection
     // emitter: emitter
 });
