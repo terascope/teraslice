@@ -1,20 +1,39 @@
 'use strict';
 
-var events = require('events');
 var Agent = require('./elastic_helpers');
+
+function logWrapper(logger) {
+
+    return function() {
+        this.error = logger.error.bind(logger);
+        this.warning = logger.warn.bind(logger);
+        this.info = logger.info.bind(logger);
+        this.debug = logger.debug.bind(logger);
+        this.trace = function(method, requestUrl, body, responseBody, responseStatus) {
+            logger.trace({
+                method: method,
+                requestUrl: requestUrl,
+                body: body,
+                responseBody: responseBody,
+                responseStatus: responseStatus
+            });
+        };
+        this.close = function() {
+        };
+    }
+}
 
 function create(customConfig, logger) {
     var elasticsearch = require('elasticsearch');
 
     logger.info("Using elasticsearch hosts: " + customConfig.host);
-    // TODO: there's no error handling here at all???
 
     customConfig.connectionClass = Agent;
-
     var client = new elasticsearch.Client(customConfig);
 
     return {
-        client: client
+        client: client,
+        log: logWrapper(logger)
     }
 }
 

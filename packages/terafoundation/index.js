@@ -8,6 +8,7 @@ module.exports = function(config) {
     var convict = require('convict');
     var validateConfigs = require('./lib/validate_configs');
     var name = config.name ? config.name : 'terafoundation';
+    var loggerClient = require('./lib/logger_utils').loggerClient;
 
     var argv = require('yargs')
         .alias('c', 'configfile')
@@ -22,24 +23,27 @@ module.exports = function(config) {
         config.ops_directory = config.ops_directory(configFile);
     }
 
-    var sysconfig = validateConfigs(cluster, config, configFile);
-
-    //set by initAPI
     var logger;
 
+    var sysconfig = validateConfigs(cluster, config, configFile);
+    //set by initAPI
+
     function errorHandler(err) {
-        if (cluster.isMaster) logger.error("Error in master with pid: " + process.pid);
-        else logger.error("Error in worker: " + cluster.worker.id + " pid: " + process.pid);
+        var logErr = logger ? logger.error.bind(logger) : console.log;
+        if (cluster.isMaster) {
+            logErr("Error in master with pid: " + process.pid);
+        }
+        else logErr("Error in worker: " + cluster.worker.id + " pid: " + process.pid);
 
         if (err.message) {
-            logger.error(err.message);
+            logErr(err.message);
         }
         else {
-            logger.error(err);
+            logErr(err);
         }
 
         if (err.stack) {
-            logger.error(err.stack);
+            logErr(err.stack);
         }
 
         //log saving to disk is async, using hack to give time to flush
@@ -50,13 +54,18 @@ module.exports = function(config) {
 
     function initAPI(context) {
         var makeLogger = require('./lib/api/make_logger')(context);
+        //set outside logger
         logger = makeLogger(name, name);
+        //var logger = {info: function(val){console.log(val)}, error: function(val){console.log(val)}, warn: function(val){console.log(val)}}
         context.logger = logger;
+        var getConnection = require('./lib/api/get_connection')(context);
         context.foundation = {
             makeLogger: makeLogger,
             startWorkers: require('./lib/api/start_workers')(context),
-            getConnection: require('./lib/api/get_connection')(context)
+            getConnection: getConnection
         };
+
+        loggerClient(context, logger)
     }
 
     function findWorkerCode(context, config) {
@@ -90,8 +99,12 @@ module.exports = function(config) {
         var context = {};
 
         context.sysconfig = sysconfig;
-
         context.cluster = cluster;
+        context.name = name;
+
+        if (config.get_cluster_name) {
+            context.cluster_name = config.get_cluster_name(context.sysconfig);
+        }
 
         initAPI(context);
 

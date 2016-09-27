@@ -22,15 +22,19 @@ function getConnectorSchema(name, context, configFile) {
 }
 
 function validateConfig(cluster, schema, configFile) {
-    var config = convict(schema);
+    try {
+        var config = convict(schema);
+        config.load(configFile);
 
-    config.load(configFile);
+        if (cluster.isMaster) {
+            config.validate();
+        }
 
-    if (cluster.isMaster) {
-        config.validate();
+        return config.getProperties();
     }
-
-    return config.getProperties();
+    catch (err) {
+        throw new Error('Error validating configuration, error: ' + err.stack)
+    }
 }
 
 function extractSchema(fn, configFile) {

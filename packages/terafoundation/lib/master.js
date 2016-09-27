@@ -40,7 +40,10 @@ module.exports = function(context, config) {
                     config.emitter.emit('shutdown')
                 }
                 else {
-                    process.exit();
+                    logger.flush()
+                        .then(function() {
+                            process.exit();
+                        });
                 }
             }
             else if (shuttingDown) {

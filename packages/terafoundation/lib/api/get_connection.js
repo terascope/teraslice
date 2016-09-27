@@ -30,57 +30,57 @@ module.exports = function(context) {
         return getModule(type, paths, err);
     }
 
-        /*
-         * Creates a new connection to a remote service.
-         *
-         * options.type
-         * options.endpoint
-         * options.cached
-         */
-        return function(options) {
-            var type = options.type;
-            var endpoint = options.endpoint;
-            var cached = options.cached;
+    /*
+     * Creates a new connection to a remote service.
+     *
+     * options.type
+     * options.endpoint
+     * options.cached
+     */
+    return function(options) {
+        var type = options.type;
+        var endpoint = options.endpoint;
+        var cached = options.cached;
 
-            if (!endpoint) {
-                endpoint = 'default';
-            }
+        if (!endpoint) {
+            endpoint = 'default';
+        }
 
-            // If it's acceptable to use a cached connection just return instead
-            // of creating a new one
-            var key = type + ":" + endpoint;
+        // If it's acceptable to use a cached connection just return instead
+        // of creating a new one
+        var key = type + ":" + endpoint;
 
-            if (cached && connections.hasOwnProperty(key)) {
-                return connections[key];
-            }
+        if (cached && connections.hasOwnProperty(key)) {
+            return connections[key];
+        }
 
-            if (sysconfig.terafoundation.connectors.hasOwnProperty(type)) {
-                logger.info("Creating connection for " + type);
+        if (sysconfig.terafoundation.connectors.hasOwnProperty(type)) {
+            logger.info("Creating connection for " + type);
 
-                var moduleConfig = {};
+            var moduleConfig = {};
 
-                if (sysconfig.terafoundation.connectors[type].hasOwnProperty(endpoint)) {
-                    moduleConfig = sysconfig.terafoundation.connectors[type][endpoint];
-                }
-                else {
-                    // If an endpoint was specified and doesn't exist we need to error.
-                    if (endpoint) {
-                        throw new Error("No connection configuration found for " + endpoint);
-                    }
-                }
-
-                var connector = loadConnector(type);
-
-                var connection = connector.create(moduleConfig, logger);
-
-                if (cached) {
-                    connections[key] = connection;
-                }
-
-                return connection;
+            if (sysconfig.terafoundation.connectors[type].hasOwnProperty(endpoint)) {
+                moduleConfig = sysconfig.terafoundation.connectors[type][endpoint];
             }
             else {
-                throw new Error("No connection configuration found for " + type);
+                // If an endpoint was specified and doesn't exist we need to error.
+                if (endpoint) {
+                    throw new Error("No connection configuration found for " + endpoint);
+                }
             }
+
+            var connector = loadConnector(type);
+
+            var connection = connector.create(moduleConfig, logger);
+
+            if (cached) {
+                connections[key] = connection;
+            }
+
+            return connection;
         }
-    };
+        else {
+            throw new Error("No connection configuration found for " + type);
+        }
+    }
+};
