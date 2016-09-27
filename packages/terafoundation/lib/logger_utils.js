@@ -97,7 +97,7 @@ RingBuffer.prototype.setBufferClient = function(client) {
     this.client = client;
 };
 
-function loggerClient(context, logger) {
+function loggerClient(context, logger, logging_connection) {
     var esClient = logger.streams.filter(function(stream) {
         if (stream.stream instanceof RingBuffer) {
             return stream
@@ -105,7 +105,11 @@ function loggerClient(context, logger) {
     });
 
     if (esClient.length > 0) {
-        var client = context.foundation.getConnection({type: 'elasticsearch', cached: true}).client;
+        var client = context.foundation.getConnection({
+            type: 'elasticsearch',
+            endpoint: logging_connection,
+            cached: true
+        }).client;
         esClient[0].stream.setBufferClient(client)
     }
 }

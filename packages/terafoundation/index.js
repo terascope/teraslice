@@ -9,6 +9,7 @@ module.exports = function(config) {
     var validateConfigs = require('./lib/validate_configs');
     var name = config.name ? config.name : 'terafoundation';
     var loggerClient = require('./lib/logger_utils').loggerClient;
+    var logging_connection = 'default';
 
     var argv = require('yargs')
         .alias('c', 'configfile')
@@ -56,7 +57,6 @@ module.exports = function(config) {
         var makeLogger = require('./lib/api/make_logger')(context);
         //set outside logger
         logger = makeLogger(name, name);
-        //var logger = {info: function(val){console.log(val)}, error: function(val){console.log(val)}, warn: function(val){console.log(val)}}
         context.logger = logger;
         var getConnection = require('./lib/api/get_connection')(context);
         context.foundation = {
@@ -65,7 +65,7 @@ module.exports = function(config) {
             getConnection: getConnection
         };
 
-        loggerClient(context, logger)
+        loggerClient(context, logger, logging_connection)
     }
 
     function findWorkerCode(context, config) {
@@ -102,8 +102,12 @@ module.exports = function(config) {
         context.cluster = cluster;
         context.name = name;
 
-        if (config.get_cluster_name) {
-            context.cluster_name = config.get_cluster_name(context.sysconfig);
+        if (typeof config.cluster_name === 'function') {
+            context.cluster_name = config.cluster_name(context.sysconfig);
+        }
+
+        if (typeof config.logging_connection === 'function') {
+            logging_connection = config.logging_connection(context.sysconfig)
         }
 
         initAPI(context);
