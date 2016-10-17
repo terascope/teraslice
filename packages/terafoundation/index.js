@@ -90,6 +90,7 @@ module.exports = function(config) {
     // Domain emits 'error' when it's given an unhandled error
     primary.on('error', errorHandler);
     process.on('uncaughtException', errorHandler);
+    process.on('unhandledRejection', errorHandler);
 
     primary.run(function() {
 
