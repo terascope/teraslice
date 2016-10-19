@@ -1,7 +1,26 @@
-
 #Job configurations#
-This entails a more detailed description of the configurations available for a job. 
-#### The schema for jobs can be found at lib/config/schemas/job, and the schema's for each operation can be found in their respective file located in either lib/readers or lib/processors
+
+A job configuration is the main way a Teraslice user describes the processing they want done.  This page provides a 
+detailed description of the configurations available for a job.
+
+ * [Job configurations](#job-configurations)
+    * [Job level configuration options](#job-level-configuration-options)
+    * [Readers](#readers)
+      * [elasticsearch_reader](#elasticsearch_reader)
+        * [persistent mode](#persistent-mode)
+          * [Differences](#differences)
+          * [Note on common errors](#note-on-common-errors)
+      * [elasticsearch_data_generator](#elasticsearch_data_generator)
+        * [Description of formats available](#description-of-formats-available)
+        * [persistent mode](#persistent-mode-1)
+      * [id_reader](#id_reader)
+    * [Processors](#processors)
+      * [elasticsearch_index_selector](#elasticsearch_index_selector)
+      * [script](#script)
+      * [elasticsearch_bulk](#elasticsearch_bulk)
+      * [stdout](#stdout)
+
+**The schema for jobs can be found at lib/config/schemas/job, and the schema's for each operation can be found in their respective file located in either lib/readers or lib/processors**
 
 Example Job
 ```
@@ -29,7 +48,8 @@ Example Job
     ]
 }
 ```
-Note that the job configuration is divided into top level job configuration, and configuration per each individual operation withing the operations array. 
+Note that the job configuration is divided into top level job configuration, and configuration per each individual operation withing the operations array.
+
 #### Job level configuration options ####
 
 | Configuration | Description | Type |  Notes
