@@ -13,7 +13,7 @@ Example Config
     "name": "teracluster",
     "ops_directory": "/Some/path/to/ops",
     "workers": 8,
-    "shutdown_timeout": 6
+    "shutdown_timeout": 60000
   },
   "terafoundation": {
     "environment": "development",
@@ -50,7 +50,7 @@ The configuration file essentially has two main fields, configuration for terasl
 | Configuration | Description | Type |  Notes
 |:---------: | :--------: | :------: | :------:
 ops_directory | 'path/to/directory', to look for more readers and processors. Usually this is where you place your custom code not part of core, unless you want to leave your code in place. The directory should have a "readers" and "processors" folder mirroring teraslice| String | optional
-shutdown_timeout | time (in seconds), to allow workers and slicers to finish operations before forcefully shutting down when a shutdown signal occurs| Number | optional, defaults to 60 seconds
+shutdown_timeout | time in milliseconds, to allow workers and slicers to finish operations before forcefully shutting down when a shutdown signal occurs| Number | optional, defaults to 60 seconds (60000 ms)
 hostname | IP or hostname for server | String | required, this is used to identify your nodes
 workers | This represents the maximum number of workers that is node is permitted to make, must be set to a number greater than zero. This is currently hard set, and to change this number it must require a reboot and configuration change | Number | optional, defaults to the amount of cpu cores your system is running on
 master | determine if cluster_master should live on this node | Boolean| optional, defaults to false,
