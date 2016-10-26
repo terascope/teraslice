@@ -93,12 +93,11 @@ Example configuration if lifecycle is set to "once"
       "full_response": true,
       "time_resolution": "ms",
       "subslice_key_threshold": 100000,
-      "subslice_key_multiplier": 3,
       "key_type": base64url
     }
 ```
 In this mode, there is a definite start (inclusive) and end time (exclusive). Each slice will be based off of the interval and size configurations.
-If the number of documents exceed the size within a given interval, it will recurse and and split the interval in half continually until the number of documents is less than or equal to size. If this cannot be achieved then the size of the chunk will be calculated against a threshold ( count >= threshold && count >= size * multiplier ), and if it passes the threshold it further subdivides the range by the documents \_id's, else the slicer will ignore the size limit and process the chunk as is.
+If the number of documents exceed the size within a given interval, it will recurse and and split the interval in half continually until the number of documents is less than or equal to size. If this cannot be achieved then the size of the chunk will be calculated against a threshold , and if it passes the threshold it further subdivides the range by the documents \_id's, else the slicer will ignore the size limit and process the chunk as is.
                            
 
 | Configuration | Description | Type |  Notes
@@ -113,7 +112,6 @@ interval | The time interval in which the reader will increment by. The unit of 
 full_response | If set to true, it will return the native response from elasticsearch with all meta-data included. If set to false it will return an array of the actual documents, no meta data included | Boolean | optional, defaults to false
 date_field_name | document field name where the date used for searching resides | String | required
 query | specify any valid lucene query for elasticsearch to use in filtering| String | optional
-subslice_key_multiplier| used in determining when to slice a chunk by thier \_ids| Number | optional, defaults to 2
 subslice_key_threshold |used in determining when to slice a chunk by thier \_ids | Number | optional, defaults to 50000
 time_resolution | Not all dates have millisecond resolutions, specify 's' if you need second level date slicing | String | optional, defaults to milliseconds 'ms'
 key_type | Used to specify the key type of the \_ids of the documents being queryed | String | optional, defualts to elasticsearch id generator (base64url)
@@ -224,7 +222,6 @@ Example configuration
       "index": "events-2016.05.06",
       "type": "events",
       "size": 10000,
-      "verify_count": false,
       "key_type": "hexadecimal",
       "key_range": ["a", "b", "c", "1"],
       "key_depth": 5
@@ -242,7 +239,7 @@ size | The limit to the number of docs pulled in a chunk, if the number of docs 
 full_response | If set to true, it will return the native response from elasticsearch with all meta-data included. If set to false it will return an array of the actual documents, no meta data included | Boolean | optional, defaults to false
 key_type | Used to specify the key type of the \_ids of the documents being queryed | String | optional, defaults to elasticsearch id generator (base64url)
 key_range | if provided, slicer will only recurse on these given keys | Array | optional
-key_depth | used to specify how deep the key generator needs to go(ie 5 means a key of length 5)| Number | optional, defaults to 5, must be careful as you can easily run out of memory   
+key_depth | used to specify how deep the key generator needs to go(ie 5 means a key of length 5)| Number | optional, defaults to 16, must be careful as you can easily run out of memory   
    
 ##Processors##
 
