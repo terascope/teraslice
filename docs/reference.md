@@ -195,7 +195,11 @@ start | start of date range | String | optional, only used with format isoBetwee
 end | end of date range | String | optional, only used with format isoBetween or utcBetween, defaults to new Date()
 stress_test | If set to true, it will attempt to send non unique documents following your schema as fast as it can, originally used to help determine cluster write performance| Boolean | optional, defaults to false
 date_key | Use this to indicate which key of your schema you would like to use a format listed below, just in case you don't want to set your own | String | optional, defaults to created
-
+set_id | used to make an id on the data that will be used for the doc _id for elasticsearch, values: base64url, hexadecimal, HEXADECIMAL | String | optional, if used, then index selector needs to have id_field set to "id"
+id_start_key | set if you would like to force the first part of the ID to a certain character, adds a regex to the front| Sting | optional, must be used in tandem with set_id
+          
+id_start_key is essentially regex, if you set it to "a", then the first character of the id will be "a", can also set ranges [a-f] or randomly alternate betweeen b and a if its set to "[ab]" 
+ 
 #### Description of formats available ####
 There are two categories of formats, ones that return the current date at which the function runs, or one that returns a date within a given range. Note for the non-range category, technically if the job takes 5 minutes to run, you will have dates ranging from the time you started the job up until the time it finished, so its still a range but not as one that spans hours, days weeks etc.
 
