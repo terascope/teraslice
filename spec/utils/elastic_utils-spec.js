@@ -146,14 +146,10 @@ describe('elastic_utils', function() {
         expect(Object.prototype.toString.call(obj)).toEqual('[object Object]');
         expect(obj).toEqual({
             query: {
-                filtered: {
-                    filter: {
-                        range: {
-                            '@timestamp': {
-                                gte: '2015/08/30',
-                                lt: '2015/08/30'
-                            }
-                        }
+                range: {
+                    '@timestamp': {
+                        gte: '2015/08/30',
+                        lt: '2015/08/30'
                     }
                 }
             }
@@ -170,5 +166,5 @@ describe('elastic_utils', function() {
         expect(obj.size).toEqual(50);
 
     });
-    
+
 });

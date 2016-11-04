@@ -1,119 +1,64 @@
 'use strict';
 
-var jsf = require('json-schema-faker');
-
+var mocker = require('mocker-data-generator');
 var schema = require('../../lib/utils/data_utils');
+var moment = require('moment');
 
 describe('data_utils', function() {
 
-    var testObjBetween1 = {
-        type: 'object',
-        properties: {
+    it('format isoBetween creates an iso date between two dates', function(done) {
+        var opConfig = {
+            format: 'isoBetween',
+            start: "2015-12-07T04:00:00-07:00",
+            end: "2015-12-07T08:00:00-07:00",
+            date_key: 'created'
+        };
+        var resultSchema = schema(opConfig);
 
-            created: {
-                type: 'string',
-                format: 'isoBetween',
-                "start": "2015-12-07T04:00:00",
-                "end": "2015-12-07T08:00:00"
-            }
-        },
-        required: ['created']
-    };
-
-    var testObjBetween2 = {
-        type: 'object',
-        properties: {
-
-            created: {
-                type: 'string',
-                format: 'isoBetween',
-                "start": "2015-12-07T04:00:00"
-            }
-        },
-        required: ['created']
-    };
-
-    var testObjBetween3 = {
-        type: 'object',
-        properties: {
-
-            created: {
-                type: 'string',
-                format: 'isoBetween',
-                "end": "2015-12-07T08:00:00"
-            }
-        },
-        required: ['created']
-    };
-
-    var testObjBetween4 = {
-        type: 'object',
-        properties: {
-
-            created: {
-                type: 'string',
-                format: 'isoBetween'
-            }
-        },
-        required: ['created']
-    };
-
-    var testObjDate = {
-        type: 'object',
-        properties: {
-            updated: {
-                type: 'string',
-                format: 'utcDate'
-            }
-
-        },
-        required: ['updated']
-    };
-
-
-    it('format isoBetween creates an iso date between two dates', function() {
-        var date = jsf(testObjBetween1);
-
-        expect(new Date(date.created)).toBeLessThan(new Date(testObjBetween1.properties.created.end));
-        expect(new Date(date.created)).toBeGreaterThan(new Date(testObjBetween1.properties.created.start));
-
+        mocker()
+            .schema('schema', resultSchema, 1)
+            .build(function(data) {
+                var finalResult = data.schema[0];
+                expect(new Date(finalResult.created)).toBeLessThan(new Date(opConfig.end));
+                expect(new Date(finalResult.created)).toBeGreaterThan(new Date(opConfig.start));
+                done()
+            });
     });
 
-    it('format isoBetween will default to current date if start or end is missing', function() {
+    it('between formats will default to current date if end is missing', function(done) {
+        var opConfig = {format: 'isoBetween', start: "2015-12-07T04:00:00-07:00", date_key: 'created'};
+        var resultSchema = schema(opConfig);
 
-        var date2 = jsf(testObjBetween2);
-        var date3 = jsf(testObjBetween3);
-        var date4 = jsf(testObjBetween4);
-
-
-        //creating test date after schema to ensure that its older in ms
-        var testDate = new Date();
-        var oldDate = new Date(0);  //01 January, 1970 UTC
-
-        expect(new Date(date2.created)).toBeLessThan(new Date(testDate));
-        expect(new Date(date2.created)).toBeGreaterThan(new Date(testObjBetween1.properties.created.start));
-
-        expect(new Date(date3.created) >= oldDate).toBeTruthy();
-        expect(new Date(date3.created)).toBeLessThan(new Date(testObjBetween1.properties.created.end));
-
-        expect(new Date(date4.created) >= oldDate).toBeTruthy();
-        expect(new Date(date4.created) <= testDate).toBeTruthy();
+        mocker()
+            .schema('schema', resultSchema, 1)
+            .build(function(data) {
+                var newDate = new Date();
+                var finalResult = data.schema[0];
+                expect(new Date(finalResult.created)).toBeLessThan(newDate);
+                expect(new Date(finalResult.created)).toBeGreaterThan(new Date(opConfig.start));
+                done()
+            });
     });
 
-    it('isoDate will give you a new Date() in iso format', function() {
+    it('between formats will default to 01 January, 1970 UTC if start is missing', function(done) {
+        var endDate = moment().add(2, 'h');
+        var newDate = new Date(0);
+        var opConfig = {format: 'isoBetween', end: endDate.format(), date_key: 'created'};
+        var resultSchema = schema(opConfig);
 
-        var date = jsf(testObjDate);
-        var testDate = new Date().toISOString().slice(0, 19);
-
-        //removing milliseconds in iso date to check time, else testDate will always be older than date
-
-        expect(date.updated.slice(0, 19)).toEqual(testDate);
-
+        mocker()
+            .schema('schema', resultSchema, 1)
+            .build(function(data) {
+                var finalResult = data.schema[0];
+                expect(new Date(finalResult.created)).toBeLessThan(new Date(endDate.format()));
+                expect(new Date(finalResult.created)).toBeGreaterThan(newDate);
+                done()
+            });
     });
 
     it('default data creation', function() {
-
-        var data = jsf(schema);
+        var opConfig = {};
+        var data = schema(opConfig);
 
         expect(data).toBeDefined();
         expect(data.ip).toBeDefined();
