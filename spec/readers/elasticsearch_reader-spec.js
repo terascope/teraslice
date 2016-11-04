@@ -112,14 +112,17 @@ describe('elasticsearch_reader', function() {
         };
         var jobConfig = {
             jobConfig: {
-                lifecycle: 'once', slicers: 1, operations: [opConfig], logger: {
+                lifecycle: 'once',
+                slicers: 1,
+                operations: [opConfig],
+                logger: {
                     info: function() {
                     }
                 }
-            }, readerConfig: opConfig
+            }
         };
 
-        Promise.resolve(es_reader.newSlicer(context, jobConfig, [])).then(function(slicer) {
+        Promise.resolve(es_reader.newSlicer(context, jobConfig, [], {}, context.logger)).then(function(slicer) {
             expect(typeof slicer[0]).toEqual('function');
         });
 
@@ -136,10 +139,10 @@ describe('elasticsearch_reader', function() {
             start: "2015-08-25T00:00:00",
             end: "2015-08-25T00:02:00"
         };
-        var jobConfig = {jobConfig: {lifecycle: 'once', slicers: 1, operations: [opConfig]}, readerConfig: opConfig};
+        var jobConfig = {jobConfig: {lifecycle: 'once', slicers: 1, operations: [opConfig]}};
 
         //this is proving that an error occurs and is caught in the catch phrase, not testing directly as it return the stack
-        Promise.resolve(es_reader.newSlicer(context, jobConfig, [])).then(function(slicer) {
+        Promise.resolve(es_reader.newSlicer(context, jobConfig, [], {}, context.logger)).then(function(slicer) {
             Promise.resolve(slicer[0]())
                 .then(function(data) {
                     return slicer[0]();
@@ -150,5 +153,23 @@ describe('elasticsearch_reader', function() {
         });
 
     });
+    
+    it('op_validation makes sure necessary configuration combos work ', function(){
+        var errorString = 'If subslicing_by_key is set to true, the elasticsearch type parameter of the documents must also be set';
+        var badOP={subslice_by_key: true};
+        var goodOP={subslice_by_key: true, type: 'events-'};
+        var otherGoodOP={subslice_by_key: false, type: 'events-'};
+        
+        expect(function() {
+            es_reader.op_validation(badOP)
+        }).toThrowError(errorString);
+
+        expect(function() {
+            es_reader.op_validation(goodOP)
+        }).not.toThrow();
+        expect(function() {
+            es_reader.op_validation(otherGoodOP)
+        }).not.toThrow();
+    })
 
 });
