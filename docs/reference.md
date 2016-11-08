@@ -341,7 +341,7 @@ This is primarily used for develop purposes, it console logs the incoming data, 
 Example configuration
 ```
 {
-     "op": "stdout",
+     "_op": "stdout",
 }
 ```
 
