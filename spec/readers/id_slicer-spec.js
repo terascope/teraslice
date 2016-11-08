@@ -140,7 +140,6 @@ describe('id_reader', function() {
                     type: 'events-',
                     key_type: 'hexadecimal',
                     key_range: ['a', 'b'],
-                    key_depth: 3,
                     size: 200
                 }]
             }
@@ -178,7 +177,6 @@ describe('id_reader', function() {
                     type: 'events-',
                     key_type: 'hexadecimal',
                     key_range: ['a', 'b'],
-                    key_depth: 3,
                     size: 200
                 }]
             }
@@ -217,7 +215,6 @@ describe('id_reader', function() {
                     type: 'events-',
                     key_type: 'hexadecimal',
                     key_range: ['a', 'b'],
-                    key_depth: 3,
                     size: 200
                 }]
             }
@@ -266,7 +263,6 @@ describe('id_reader', function() {
                     type: 'events-',
                     key_type: 'hexadecimal',
                     key_range: ['a', 'b'],
-                    key_depth: 3,
                     size: 200
                 }]
             }

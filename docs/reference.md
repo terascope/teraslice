@@ -228,7 +228,6 @@ Example configuration
       "size": 10000,
       "key_type": "hexadecimal",
       "key_range": ["a", "b", "c", "1"],
-      "key_depth": 5
     },
 
 ```
@@ -243,7 +242,6 @@ size | The limit to the number of docs pulled in a chunk, if the number of docs 
 full_response | If set to true, it will return the native response from elasticsearch with all meta-data included. If set to false it will return an array of the actual documents, no meta data included | Boolean | optional, defaults to false
 key_type | Used to specify the key type of the \_ids of the documents being queryed | String | optional, defaults to elasticsearch id generator (base64url)
 key_range | if provided, slicer will only recurse on these given keys | Array | optional
-key_depth | used to specify how deep the key generator needs to go(ie 5 means a key of length 5)| Number | optional, defaults to 16, must be careful as you can easily run out of memory   
    
 ##Processors##
 
