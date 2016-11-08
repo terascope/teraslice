@@ -251,7 +251,7 @@ This processor formats the incoming data to prepare it for the elasticsearch bul
 Example configuration
 ```
 {
-     "op": "elasticsearch_index_selector",
+     "_op": "elasticsearch_index_selector",
      "type": "events",
      "indexPrefix": "events",
      "timeseries": "daily",
@@ -284,7 +284,7 @@ This is used to allow other languages other than javascript to process data. Not
 Example configuration
 ```
 {
-     "op": "script",
+     "_op": "script",
      "command": "python",
      "args": ["someFile.py", "-someFlag"],
      "options": {},
