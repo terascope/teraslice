@@ -114,6 +114,17 @@ describe('config', function() {
         expect(results3()).toEqual({endpoint: 'thirdConnection', cached: false, type: 'elasticsearch'});
 
     });
+    
+    it('getOpConfig will fetch the correct opConfig of a job', function() {
+        var name = 'myOP';
+        var resultsOP = {_op: name, more: 'data'};
+        var job = {operations: [{_op: 'other'}, {_op: 'second'}, resultsOP, {_op: 'last'}]};
+        var results = config.getOpConfig(job, name);
+
+        expect(results._op).toEqual(name);
+        expect(JSON.stringify(results)).toEqual(JSON.stringify(resultsOP))
+
+    })
 
 });
 

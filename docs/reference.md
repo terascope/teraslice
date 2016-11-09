@@ -1,7 +1,26 @@
-
 #Job configurations#
-This entails a more detailed description of the configurations available for a job. 
-#### The schema for jobs can be found at lib/config/schemas/job, and the schema's for each operation can be found in their respective file located in either lib/readers or lib/processors
+
+A job configuration is the main way a Teraslice user describes the processing they want done.  This page provides a 
+detailed description of the configurations available for a job.
+
+ * [Job configurations](#job-configurations)
+    * [Job level configuration options](#job-level-configuration-options)
+    * [Readers](#readers)
+      * [elasticsearch_reader](#elasticsearch_reader)
+        * [persistent mode](#persistent-mode)
+          * [Differences](#differences)
+          * [Note on common errors](#note-on-common-errors)
+      * [elasticsearch_data_generator](#elasticsearch_data_generator)
+        * [Description of formats available](#description-of-formats-available)
+        * [persistent mode](#persistent-mode-1)
+      * [id_reader](#id_reader)
+    * [Processors](#processors)
+      * [elasticsearch_index_selector](#elasticsearch_index_selector)
+      * [script](#script)
+      * [elasticsearch_bulk](#elasticsearch_bulk)
+      * [stdout](#stdout)
+
+**The schema for jobs can be found at lib/config/schemas/job, and the schema's for each operation can be found in their respective file located in either lib/readers or lib/processors**
 
 Example Job
 ```
@@ -29,7 +48,8 @@ Example Job
     ]
 }
 ```
-Note that the job configuration is divided into top level job configuration, and configuration per each individual operation withing the operations array. 
+Note that the job configuration is divided into top level job configuration, and configuration per each individual operation withing the operations array.
+
 #### Job level configuration options ####
 
 | Configuration | Description | Type |  Notes
@@ -73,12 +93,11 @@ Example configuration if lifecycle is set to "once"
       "full_response": true,
       "time_resolution": "ms",
       "subslice_key_threshold": 100000,
-      "subslice_key_multiplier": 3,
       "key_type": base64url
     }
 ```
 In this mode, there is a definite start (inclusive) and end time (exclusive). Each slice will be based off of the interval and size configurations.
-If the number of documents exceed the size within a given interval, it will recurse and and split the interval in half continually until the number of documents is less than or equal to size. If this cannot be achieved then the size of the chunk will be calculated against a threshold ( count >= threshold && count >= size * multiplier ), and if it passes the threshold it further subdivides the range by the documents \_id's, else the slicer will ignore the size limit and process the chunk as is.
+If the number of documents exceed the size within a given interval, it will recurse and and split the interval in half continually until the number of documents is less than or equal to size. If this cannot be achieved then the size of the chunk will be calculated against a threshold , and if it passes the threshold it further subdivides the range by the documents \_id's, else the slicer will ignore the size limit and process the chunk as is.
                            
 
 | Configuration | Description | Type |  Notes
@@ -93,7 +112,6 @@ interval | The time interval in which the reader will increment by. The unit of 
 full_response | If set to true, it will return the native response from elasticsearch with all meta-data included. If set to false it will return an array of the actual documents, no meta data included | Boolean | optional, defaults to false
 date_field_name | document field name where the date used for searching resides | String | required
 query | specify any valid lucene query for elasticsearch to use in filtering| String | optional
-subslice_key_multiplier| used in determining when to slice a chunk by thier \_ids| Number | optional, defaults to 2
 subslice_key_threshold |used in determining when to slice a chunk by thier \_ids | Number | optional, defaults to 50000
 time_resolution | Not all dates have millisecond resolutions, specify 's' if you need second level date slicing | String | optional, defaults to milliseconds 'ms'
 key_type | Used to specify the key type of the \_ids of the documents being queryed | String | optional, defualts to elasticsearch id generator (base64url)
@@ -177,7 +195,11 @@ start | start of date range | String | optional, only used with format isoBetwee
 end | end of date range | String | optional, only used with format isoBetween or utcBetween, defaults to new Date()
 stress_test | If set to true, it will attempt to send non unique documents following your schema as fast as it can, originally used to help determine cluster write performance| Boolean | optional, defaults to false
 date_key | Use this to indicate which key of your schema you would like to use a format listed below, just in case you don't want to set your own | String | optional, defaults to created
-
+set_id | used to make an id on the data that will be used for the doc _id for elasticsearch, values: base64url, hexadecimal, HEXADECIMAL | String | optional, if used, then index selector needs to have id_field set to "id"
+id_start_key | set if you would like to force the first part of the ID to a certain character, adds a regex to the front| Sting | optional, must be used in tandem with set_id
+          
+id_start_key is essentially regex, if you set it to "a", then the first character of the id will be "a", can also set ranges [a-f] or randomly alternate betweeen b and a if its set to "[ab]" 
+ 
 #### Description of formats available ####
 There are two categories of formats, ones that return the current date at which the function runs, or one that returns a date within a given range. Note for the non-range category, technically if the job takes 5 minutes to run, you will have dates ranging from the time you started the job up until the time it finished, so its still a range but not as one that spans hours, days weeks etc.
 
@@ -204,10 +226,8 @@ Example configuration
       "index": "events-2016.05.06",
       "type": "events",
       "size": 10000,
-      "verify_count": false,
       "key_type": "hexadecimal",
       "key_range": ["a", "b", "c", "1"],
-      "key_depth": 5
     },
 
 ```
@@ -222,8 +242,6 @@ size | The limit to the number of docs pulled in a chunk, if the number of docs 
 full_response | If set to true, it will return the native response from elasticsearch with all meta-data included. If set to false it will return an array of the actual documents, no meta data included | Boolean | optional, defaults to false
 key_type | Used to specify the key type of the \_ids of the documents being queryed | String | optional, defaults to elasticsearch id generator (base64url)
 key_range | if provided, slicer will only recurse on these given keys | Array | optional
-verify_count | if set to true, then it will check each key set against elasticsearch to make sure keys have the right slice size | Boolean | optional, defaults to true
-key_depth | used to specify how deep the key generator needs to go(ie 5 means a key of length 5)| Number | optional, defaults to 5, must be careful as you can easily run out of memory   
    
 ##Processors##
 
@@ -233,7 +251,7 @@ This processor formats the incoming data to prepare it for the elasticsearch bul
 Example configuration
 ```
 {
-     "op": "elasticsearch_index_selector",
+     "_op": "elasticsearch_index_selector",
      "type": "events",
      "indexPrefix": "events",
      "timeseries": "daily",
@@ -266,7 +284,7 @@ This is used to allow other languages other than javascript to process data. Not
 Example configuration
 ```
 {
-     "op": "script",
+     "_op": "script",
      "command": "python",
      "args": ["someFile.py", "-someFlag"],
      "options": {},
@@ -323,7 +341,7 @@ This is primarily used for develop purposes, it console logs the incoming data, 
 Example configuration
 ```
 {
-     "op": "stdout",
+     "_op": "stdout",
 }
 ```
 

@@ -1,5 +1,7 @@
 # Teraslice - Slice and dice your Elasticsearch data
 
+[![Build Status](https://travis-ci.org/terascope/teraslice.svg?branch=master)](https://travis-ci.org/terascope/teraslice)
+
 Teraslice is an open source, distributed computing platform for processing JSON data stored in Elasticsearch. It can be used for many tasks but is particularly adept at migrating and transforming data within and between Elasticsearch clusters and other data stores. It was born and bred in an environment that regularly sees billions of pieces of data per day and is capable of processing millions of records per second.
 
 Here are a few tasks it can help you with:
@@ -242,6 +244,3 @@ curl YOU_MASTER_IP:5678/cluster/state
 
 # Configuration
  * [Teraslice configuration reference](./docs/configuration.md)
-
-
-

@@ -18,6 +18,9 @@
                     "type": "string",
                     "index" : "not_analyzed"
                 },
+                "slicer_order":{
+                    "type": "integer"
+                },
                 "state": {
                     "type": "string",
                     "index" : "not_analyzed"

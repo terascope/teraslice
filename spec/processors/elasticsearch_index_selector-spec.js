@@ -52,8 +52,7 @@ describe('elasticsearch index selector', function() {
 
         expect(function() {
             fn(data)
-        }).toThrow('type must be specified in elasticsearch index selector config if data' +
-            ' is not from elasticsearch');
+        }).toThrow('type must be specified in elasticsearch index selector config if data is not a full response from elasticsearch');
 
     });
 
@@ -131,7 +130,7 @@ describe('elasticsearch index selector', function() {
 
     });
 
-    it('can send an update request instead of index', function() {
+    it('can send a delete request instead of index', function() {
         var context = {};
         var opConfig = {index: 'someIndex', type: 'events', id_field: 'name', delete: true};
         var jobConfig = {logger: 'im a fake logger'};
@@ -183,4 +182,54 @@ describe('elasticsearch index selector', function() {
         });
     });
 
+    it('op_validation makes sure that the opConfig is configured correctly', function() {
+        var errorString = 'elasticsearch_index_selector is mis-configured, if any of the following configurations are set: timeseries, index_prefix or date_field, they must all be used together, please set the missing parameters';
+        var baseOP = {
+            index: 'someIndex',
+            type: 'events'
+        };
+
+        var op1 = Object.assign({}, baseOP, {timeseries: 'daily'});
+        var op2 = Object.assign({}, baseOP, {timeseries: 'daily', index_prefix: "events-"});
+        var op3 = Object.assign({}, baseOP, {timeseries: 'daily', date_field: 'dateField'});
+        var op4 = Object.assign({}, baseOP, {timeseries: 'daily', index_prefix: "events-", date_field: 'dateField'});
+
+
+        expect(function() {
+            indexer.op_validation(op1)
+        }).toThrowError(errorString);
+        expect(function() {
+            indexer.op_validation(op2)
+        }).toThrowError(errorString);
+        expect(function() {
+            indexer.op_validation(op3);
+        }).toThrowError(errorString);
+
+        expect(function() {
+            indexer.op_validation(op4)
+        }).not.toThrow();
+    });
+
+    it('post_validation makes sure that the full job settings are configured correctly', function() {
+        var errorString = 'elasticsearch_index_selector was set to preserve_id but full_response on readers was not set to true';
+        var sysconfig = {};
+        var badOP = {_op: 'otherOp'};
+        var goodOP = {_op: 'otherOp', full_response: true}
+        var selectorOP = {_op: 'elasticsearch_index_selector', preserve_id: true};
+
+        var job1 = {operations: [badOP, selectorOP]};
+        var job2 = {operations: [badOP, selectorOP, goodOP]};
+        var job3 = {operations: [goodOP, selectorOP, badOP]};
+
+
+        expect(function() {
+            indexer.post_validation(job1, sysconfig)
+        }).toThrowError(errorString);
+        expect(function() {
+            indexer.post_validation(job2, sysconfig)
+        }).toThrowError(errorString);
+        expect(function() {
+            indexer.post_validation(job3, sysconfig)
+        }).not.toThrow();
+    });
 });
