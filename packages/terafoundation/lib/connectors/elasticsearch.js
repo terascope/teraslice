@@ -1,5 +1,6 @@
 'use strict';
 
+var Promise = require('bluebird');
 var Agent = require('./elastic_helpers');
 
 function logWrapper(logger) {
@@ -29,6 +30,9 @@ function create(customConfig, logger) {
     logger.info("Using elasticsearch hosts: " + customConfig.host);
 
     customConfig.connectionClass = Agent;
+    customConfig.defer = function () {
+        return Promise.defer();
+    }
     var client = new elasticsearch.Client(customConfig);
 
     return {
