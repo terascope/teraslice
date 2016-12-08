@@ -110,7 +110,6 @@ describe('elastic_utils', function() {
 
     it('processInterval takes a string and returns an array', function() {
         var processInterval = utils.processInterval;
-
         var results = processInterval('5min');
 
         expect(Array.isArray(results)).toBe(true);
@@ -135,6 +134,46 @@ describe('elastic_utils', function() {
         expect(function() {
             processInterval('5_minz')
         }).toThrowError();
+
+    });
+
+    it('compareInterval can take moment dates to compare interval range and date range', function() {
+        var compareInterval = utils.compareInterval;
+
+        var start = new Date();
+        var date = moment(start);
+        var oldDate = moment(start).subtract(60, 'd');
+        var data = {start: oldDate, limit: date};
+
+        var results1 = compareInterval(['90', 'd'], data, {time_resolution: 'ms'});
+        var results2 = compareInterval(['90', 'd'], data, {time_resolution: 's'});
+
+        expect(results1[0]).toEqual(5184000000);
+        expect(results1[1]).toEqual('ms');
+
+        expect(results2[0]).toEqual(5184000);
+        expect(results2[1]).toEqual('s');
+
+    });
+
+    it('processInterval can take moment dates to compare interval range and date range', function() {
+        var processInterval = utils.processInterval;
+        var start = new Date();
+        var date = moment(start);
+        var oldDate = moment(start).subtract(60, 'd');
+        var otherDate = moment(start).subtract(1, 'm');
+
+        var data = {start: oldDate, limit: date};
+        var otherData = {start: otherDate, limit: date};
+
+        var results1 = processInterval('5min', data, {time_resolution: 'ms'});
+        var results2 = processInterval('5min', otherData, {time_resolution: 'ms'});
+
+        expect(results1[0]).toEqual('5');
+        expect(results1[1]).toEqual('m');
+
+        expect(results2[0]).toEqual(60000);
+        expect(results2[1]).toEqual('ms');
 
     });
 
