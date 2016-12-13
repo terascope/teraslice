@@ -79,11 +79,11 @@ describe('elastic_utils', function() {
     it('dateOptions returns a string used for the moment library', function() {
         var dateOptions = utils.dateOptions;
 
-        var results1 = dateOptions('Day');
-        var results2 = dateOptions('day');
+        expect(function() {
+            dateOptions('Day')
+        }).toThrowError();
 
-        expect(results1).toEqual('d');
-        expect(results2).toEqual('d');
+        expect(dateOptions('day')).toEqual('d');
 
     });
 
@@ -100,10 +100,6 @@ describe('elastic_utils', function() {
 
         expect(function() {
             dateOptions({some: 'obj'})
-        }).toThrowError();
-
-        expect(function() {
-            dateOptions(['hour'])
         }).toThrowError();
 
     });
