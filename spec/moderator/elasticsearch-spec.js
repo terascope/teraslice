@@ -5,14 +5,6 @@ var Promise = require('bluebird');
 
 fdescribe('elasticsearch moderator', function() {
 
-    var express = require('express');
-    var fakeElasticsearch = express();
-    fakeElasticsearch.get('*', function(req, res) {
-        console.log('getting called');
-        res.send('hello')
-    });
-    fakeElasticsearch.listen(9200);
-
     var logger = {
         error: function() {
         },
@@ -21,54 +13,34 @@ fdescribe('elasticsearch moderator', function() {
         info: function() {
         },
         warn: function() {
+        },
+        trace: function() {
         }
     };
 
-    var keyDict = {index: true, search: true, get: true, bulk: true};
-
-
     var nodes = {
-        first: {
-            nodes: {
-                node1: {
-                    thread_pool: {
-                        index: {queue_size: 100, other: 300},
-                        search: {queue_size: 100, other: 300},
-                        get: {queue_size: 100, other: 300},
-                        bulk: {queue_size: 100, other: 300},
-                        other: {queue_size: 100, other: 300}
-                    }
-                },
-                node2: {
-                    thread_pool: {
-                        index: {queue_size: 100, other: 300},
-                        search: {queue_size: 100, other: 300},
-                        get: {queue_size: 100, other: 300},
-                        bulk: {queue_size: 100, other: 300},
-                        other: {queue_size: 100, other: 300}
-                    }
+        nodes: {
+            default: {
+                thread_pool: {
+                    index: {queue_size: 100, other: 300},
+                    search: {queue_size: 100, other: 300},
+                    get: {queue_size: 100, other: 300},
+                    bulk: {queue_size: 100, other: 300},
+                    other: {queue_size: 100, other: 300}
                 }
             }
-        },
-        second: {
-            nodes: {
-                node1: {
-                    thread_pool: {
-                        index: {queue_size: 100, other: 300},
-                        search: {queue_size: 100, other: 300},
-                        get: {queue_size: 100, other: 300},
-                        bulk: {queue_size: 100, other: 300},
-                        other: {queue_size: 100, other: 300}
-                    }
-                },
-                node2: {
-                    thread_pool: {
-                        index: {queue_size: 100, other: 300},
-                        search: {queue_size: 100, other: 300},
-                        get: {queue_size: 100, other: 300},
-                        bulk: {queue_size: 100, other: 300},
-                        other: {queue_size: 100, other: 300}
-                    }
+        }
+    };
+
+    var nodesStats = {
+        nodes: {
+            default: {
+                thread_pool: {
+                    index: {queue: 10},
+                    search: {queue: 10},
+                    get: {queue: 10},
+                    bulk: {queue: 10},
+                    other: {queue: 10}
                 }
             }
         }
@@ -101,9 +73,10 @@ fdescribe('elasticsearch moderator', function() {
                     client: {
                         nodes: {
                             info: function() {
-                                return Promise.resolve()
+                                return Promise.resolve(nodes)
                             },
                             stats: function() {
+                                return Promise.resolve(nodesStats)
                             }
                         }
                     }
@@ -114,19 +87,86 @@ fdescribe('elasticsearch moderator', function() {
     };
 
 
-    var moderator = esModerator(context, logger);
+    it('can initialize', function(done) {
+        var moderator = esModerator(context, logger);
 
-
-    fit('can run', function(done) {
         moderator.initialize()
             .then(function(results) {
-                console.log('results', results);
+                expect(results).toBeTruthy();
                 done()
             })
             .catch(function(err) {
-                console.log('err', err);
+                fail('elasticsearch moderator could not initialize');
                 done()
             })
-    })
+    });
+
+    it('can checkService', function(done) {
+        var moderator = esModerator(context, logger);
+
+        moderator.initialize()
+            .then(function() {
+                return moderator.check_service()
+            })
+            .then(function(results) {
+                expect(results).toEqual({pause: null, resume: null});
+                done()
+            })
+            .catch(function(err) {
+                fail('elasticsearch checkService error occured');
+                done()
+            })
+    });
+
+    it('can checkConnectionStates', function(done) {
+        var moderator = esModerator(context, logger);
+
+        moderator.initialize()
+            .then(function() {
+                return moderator.check_service()
+            })
+            .then(function() {
+                return moderator.checkConnectionStates(['default'])
+            })
+            .then(function(results) {
+                expect(results).toEqual(true);
+                done()
+            })
+            .catch(function(err) {
+                fail('error with checkConnectionStates test');
+                done()
+            })
+    });
+
+    it('checkConnectionStates can return connections that need to be paused and resumed', function(done) {
+        var moderator = esModerator(context, logger);
+        nodesStats.nodes.default.thread_pool.get.queue = 200;
+        moderator.initialize()
+            .then(function() {
+                return moderator.check_service()
+            })
+            .then(function(results) {
+                expect(results).toEqual({pause: [{type: 'elasticsearch', connection: 'default'}], resume: null});
+                return moderator.checkConnectionStates(['default'])
+            })
+            .then(function(results) {
+                expect(results).toEqual(false);
+                //reset value to be healthy
+                nodesStats.nodes.default.thread_pool.get.queue = 10;
+                return moderator.check_service()
+            })
+            .then(function(results) {
+                expect(results).toEqual({pause: null, resume: [{type: 'elasticsearch', connection: 'default'}]});
+                return moderator.checkConnectionStates(['default'])
+            })
+            .then(function(results) {
+                expect(results).toEqual(true);
+                done()
+            })
+            .catch(function(err) {
+                fail('error with checkConnectionStates test');
+                done()
+            })
+    });
 
 });
