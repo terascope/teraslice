@@ -3,7 +3,7 @@
 var esModerator = require('../../lib/cluster/moderator/modules/elasticsearch');
 var Promise = require('bluebird');
 
-fdescribe('elasticsearch moderator', function() {
+describe('elasticsearch moderator', function() {
 
     var logger = {
         error: function() {
