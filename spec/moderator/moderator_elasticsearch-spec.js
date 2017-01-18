@@ -42,12 +42,7 @@ describe('elasticsearch moderator', function() {
         },
         debug: function() {
         },
-        info: function(strMsg) {
-            if (strMsg === 'moderator has initialized') {
-                //don't have a real hook into when moderator is online and initialized,
-                //checkConnection function could run before setup properly
-                eventEmitter.emit('moderator:initialized')
-            }
+        info: function() {
         },
         warn: function() {
         },
@@ -176,7 +171,7 @@ describe('elasticsearch moderator', function() {
             fakeClusterMaster.emit('cluster:moderator:connection_ok', {data: ['default']});
         }
 
-        waitForEvent('moderator:initialized')
+        waitForEvent('moderator:online')
             .then(function() {
                 return waitForEvent('node:message:processed', checkConnection);
             })
@@ -220,7 +215,7 @@ describe('elasticsearch moderator', function() {
             fakeClusterMaster.emit('cluster:moderator:connection_ok', {data: ['default']});
         }
 
-        waitForEvent('moderator:initialized')
+        waitForEvent('moderator:online')
             .then(function() {
                 return delayTime()
             })
