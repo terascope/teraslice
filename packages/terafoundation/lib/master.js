@@ -70,6 +70,7 @@ module.exports = function(context, config) {
         if (worker.service_context) {
             var envConfig = JSON.parse(worker.service_context);
             _.assign(options, envConfig);
+            options.__process_restart = true;
             options.service_context = worker.service_context;
         }
 
@@ -93,11 +94,12 @@ module.exports = function(context, config) {
     }
 
     cluster.on('exit', function(worker, code, signal) {
-        logger.info("Worker has exited id: " + worker.id + " code: " + code + " signal: " + signal);
+        var type = worker.assignment ? worker.assignment : 'Worker';
+        logger.info(`${type} has exited, id: ${worker.id}, code: ${code}, signal: ${signal}`);
         if (!shuttingDown && shouldProcessRestart(code, signal)) {
             var envConfig = determineWorkerENV(config, worker);
             var newWorker = cluster.fork(envConfig);
-            logger.info("launching a new worker, id:", newWorker.id);
+            logger.info(`launching a new worker, id: ${newWorker.id}`);
 
             _.assign(cluster.workers[newWorker.id], envConfig)
 

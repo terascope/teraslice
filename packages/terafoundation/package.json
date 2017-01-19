@@ -1,6 +1,6 @@
 {
   "name": "terafoundation",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "private": true,
   "scripts": {
     "start": "node service.js"
