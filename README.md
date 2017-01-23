@@ -172,7 +172,7 @@ Please check the api docs at the bottom for a comprehensive in-depth list of all
 This will retrieve the job configuration including '_status' which indicates the execution status of the job.
 
 ```
-curl YOU_MASTER_IP:5678/jobs/{EX_ID}
+curl YOU_MASTER_IP:5678/ex/{EX_ID}
 ```
 
 ### Stopping a job
@@ -181,7 +181,7 @@ Stopping a job stops all execution and frees the workers being consumed
 by the job on the cluster.
 
 ```
-curl YOU_MASTER_IP:5678/jobs/{EX_ID}/_stop
+curl -XPOST YOU_MASTER_IP:5678/ex/{EX_ID}/_stop
 ```
 
 ### Starting a job
@@ -189,14 +189,14 @@ curl YOU_MASTER_IP:5678/jobs/{EX_ID}/_stop
 Posting a new job will automatically start the job. If the job already exists then using the endpoint below will start a new one.
 
 ```
-curl YOU_MASTER_IP:5678/jobs/{JOB_ID}/_start
+curl -XPOST YOU_MASTER_IP:5678/jobs/{JOB_ID}/_start
 ```
 
 Starting a job with recover will attempt to replay any failed slices from previous runs and will then pickup where it left off. If there are no failed
 slices the job will simply resume from where it was stopped.
 
 ```
-curl YOU_MASTER_IP:5678/jobs/{EX_ID}/_recover
+curl -XPOST YOU_MASTER_IP:5678/ex/{EX_ID}/_recover
 ```
 
 ### Pausing a job
@@ -206,7 +206,7 @@ release the workers being used by the job. It simply pauses the slicer and
 stops allocating work to the workers. Workers will complete the work they're doing then just sit idle until the job is resumed.
 
 ```
-curl YOU_MASTER_IP:5678/jobs/{EX_ID}/_pause
+curl -XPOST YOU_MASTER_IP:5678/ex/{EX_ID}/_pause
 ```
 
 ### Resuming a job
@@ -214,7 +214,7 @@ curl YOU_MASTER_IP:5678/jobs/{EX_ID}/_pause
 Resuming a job restarts the slicer and the allocation of slices to workers.
 
 ```
-curl YOU_MASTER_IP:5678/jobs/{EX_ID}/_resume
+curl -XPOST YOU_MASTER_IP:5678/ex/{EX_ID}/_resume
 ```
 
 ### Viewing Slicer statistics for a job
@@ -223,7 +223,7 @@ This provides information related to the execution of the slicer and can be usef
 in monitoring and optimizing the execution of the job.
 
 ```
-curl YOU_MASTER_IP:5678/jobs/{EX_ID}/slicer
+curl YOU_MASTER_IP:5678/ex/{EX_ID}/slicer
 ```
 
 ### Viewing cluster state
