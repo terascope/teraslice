@@ -54,7 +54,7 @@ response:
             "failed": 0,
             "subslices": 24,
             "queued": 46,
-            "zero_slice_reduction": 0,
+            "slice_range_expansion": 0,
             "processed": 0,
             "slicers": 2,
             "subslice_by_key": 0,
@@ -199,7 +199,7 @@ response:
             "failed": 0,
             "subslices": 24,
             "queued": 46,
-            "zero_slice_reduction": 0,
+            "slice_range_expansion": 0,
             "processed": 0,
             "slicers": 2,
             "subslice_by_key": 0,
@@ -391,7 +391,7 @@ all fields:
 - failed
 - subslices
 - queued
-- zero_slice_reduction
+- slice_range_expansion
 - processed
 - slicers
 - subslice_by_key
