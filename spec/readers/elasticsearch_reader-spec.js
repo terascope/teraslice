@@ -41,6 +41,7 @@ describe('elasticsearch_reader', function() {
                         },
                         search: function() {
                             return Promise.resolve({
+                                _shards: {failed: 0},
                                 hits: {
                                     hits: clientData.map(function(obj) {
                                         return {_source: obj}
