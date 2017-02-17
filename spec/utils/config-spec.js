@@ -57,26 +57,7 @@ describe('config', function() {
         deleteFolder(path);
 
     });
-
-    it('compareDates will return the latest completed chunk', function() {
-
-        var prev1 = {start: "2016-01-04T23:00:00+00:00", end: "2016-01-04T23:05:00+00:00"};
-        var prev2 = {start: "2016-01-04T23:00:00+00:00", end: "2016-01-04T23:05:00+00:00"};
-        var prev3 = {start: "2016-01-04T23:00:00+00:00"};
-        var prev4 = {start: "2016-01-04T23:00:00+00:00", end: "2016-01-04T23:15:00+00:00"};
-
-        var accum1 = {start: "2016-01-04T23:05:00+00:00", end: "2016-01-04T23:10:00+00:00"};
-        var accum2 = {start: "2016-01-04T23:05:00+00:00"};
-        var accum3 = {start: "2016-01-04T23:05:00+00:00", end: "2016-01-04T23:10:00+00:00"};
-        var accum4 = {start: "2016-01-04T23:05:00+00:00", end: "2016-01-04T23:10:00+00:00"};
-
-        expect(config.compareDates(prev1, accum1)).toEqual(accum1);
-        expect(config.compareDates(prev2, accum2)).toEqual(prev2);
-        expect(config.compareDates(prev3, accum3)).toEqual(accum3);
-        expect(config.compareDates(prev4, accum4)).toEqual(prev4);
-
-    });
-
+    
     it('getClient returns client with certain defaults', function() {
         var context = {
             foundation: {
