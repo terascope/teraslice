@@ -114,8 +114,9 @@ If the number of documents exceed the size within a given interval, it will recu
 | query | specify any valid lucene query for elasticsearch to use in filtering| String | optional |
 | subslice_key_threshold |used in determining when to slice a chunk by thier \_ids | Number | optional, defaults to 50000 |
 | time_resolution | Not all dates have millisecond resolutions, specify 's' if you need second level date slicing | String | optional, defaults to milliseconds 'ms' |
-| key_type | Used to specify the key type of the \_ids of the documents being queryed | String | optional, defualts to elasticsearch id generator (base64url) |
+| key_type | Used to specify the key type of the \_ids of the documents being queryed | String | optional, defaults to elasticsearch id generator (base64url) |
 | connection | Name of the elasticsearch connection to use when sending data | String | optional, defaults to the 'default' connection created for elasticsearch |
+| fields | Used to restrict what is returned from elasticsearch. If used, only these fields on the documents are returned | Array | optional |
 
 start and end may be specified in elasticsearch's [date math syntax](https://www.elastic.co/guide/en/elasticsearch/reference/2.x/common-options.html#date-math)
 
