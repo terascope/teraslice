@@ -45,7 +45,8 @@ Example Config
 
 The configuration file essentially has two main fields, configuration for teraslice and for terafoundation which is a module that sits below it. terafoundation handles clustering/worker creation, general errors and database connection instantiation
 
-##teraslice
+
+## teraslice
 
 | Configuration | Description | Type |  Notes
 |:---------: | :--------: | :------: | :------:
@@ -60,11 +61,9 @@ name | Name for the cluster itself, its used for naming log files/indices | Stri
 state | Elasticsearch cluster where job state, analytics and logs are stored | Object | optional, defaults to {connection: 'default'},
 timeout | time in milliseconds to wait for a response when messaging node to node before throwing an error | Number | optional, defaults to 60000 ms
 slicer_port_range | range of ports that slicers will use per node | String | optional, defaults to range: '45678:46678'
-       
 
 
-
-### terafoundation ##
+### terafoundation
 
 | Configuration | Description | Type |  Notes
 |:---------: | :--------: | :------: | :------:
