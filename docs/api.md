@@ -5,12 +5,12 @@ default endpoint in development is localhost:5678
 
 #### GET /cluster/state
    returns a json object representing the state of the cluster
-   
-   query : 
+
+   query :
    ```curl localhost:5678/cluster/state```
-   
-   response: 
-    
+
+   response:
+
     {
         "myCompName": {
             "node_id": "myCompName",
@@ -30,8 +30,8 @@ default endpoint in development is localhost:5678
             ]
         }
     }
-    
- 
+
+
 #### GET /cluster/slicers
 
 returns an array of all active slicers and their associated statistics
@@ -68,41 +68,41 @@ response:
 
 submit a job to be enqueued
 
-parameter options: 
+parameter options:
 
 - start = [Boolean]
 
-Setting start to false will just store the job and not automatically enqueue it, in this case only the job_id will be returned 
+Setting start to false will just store the job and not automatically enqueue it, in this case only the job_id will be returned
 
 query:
  ```
  curl -XPOST YOUR_MASTER_IP:5678/jobs -d@job.json
  ```
- 
- response: 
- 
+
+ response:
+
  ```
  {
      "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
      "ex_id": "34502x78-1a20-dj8s-as34-acsef60f3asn"
  }
  ```
- 
+
 #### GET /jobs
 
 returns an array of all jobs listed in teracluster__jobs index
 
-parameter options: 
+parameter options:
 
 - from = [Number]
 - size = [Number]
 - sort = [String]
 
-size is the number of documents returned, from is how many documents in and sort is a lucene query  
+size is the number of documents returned, from is how many documents in and sort is a lucene query
 
-  query : 
+  query :
    ```curl localhost:5678/jobs```
-   
+
 #### GET /jobs/{job_id}
 
 returns the job that matches given job_id
@@ -118,7 +118,7 @@ updates a stored job that has the given job_id
 
 issues a start command, this will start a fresh new job associated with the job_id
 
-query: 
+query:
 ``` curl -XPOST localhost:5678/jobs/{job_id}/_start```
 
 
@@ -126,26 +126,26 @@ query:
 
 returns all execution contexts (job invocations)
 
-parameter options: 
+parameter options:
 
 - status [String]
 - from = [Number]
 - size = [Number]
 - sort = [String]
 
-size is the number of documents returned, from is how many documents in and sort is a lucene query  
+size is the number of documents returned, from is how many documents in and sort is a lucene query
 
-  query : 
+  query :
    ```curl localhost:5678/ex?status=running&size=10```
-    
+
 #### GET /ex/{ex_id}
-   
+
  returns the job execution context that matches given ex_id
-   
+
    query:
    ``` curl localhost:5678/ex/77c94621-48cf-459f-9d95-dfbccf010f5c```
 
-#### POST /ex/{ex_id}/_stop 
+#### POST /ex/{ex_id}/_stop
 
 issues a stop command which will shutdown all slicers and workers for that job, marks the job execution context state as stopped
 
@@ -161,13 +161,13 @@ issues a resume command, this allows the slicers to continue if they were in a p
 
 issues a recover command, this can only be run if the job is stopped, the job will attempt to retry failed slices and to resume where it previously left off
 
-##### it is important to note that at this time, anything using id_reader is a non-recoverable job. For date-based indexes, if you use elasticsearch_reader this will only recover to the end date to what is specified on the job. This means that if you were reindexing a index that was continually growing, this will only run till the end date that was determined at the start of the job, you may specify another job to pick up where it left off. recovery offers no guarantees for indexes that have new documents inserted randomly as this reader assumes linear time 
+##### it is important to note that at this time, anything using id_reader is a non-recoverable job. For date-based indexes, if you use elasticsearch_reader this will only recover to the end date to what is specified on the job. This means that if you were reindexing a index that was continually growing, this will only run till the end date that was determined at the start of the job, you may specify another job to pick up where it left off. recovery offers no guarantees for indexes that have new documents inserted randomly as this reader assumes linear time
 
 #### POST /ex/{ex_id}/_workers
 
 you can dynamically change the amount of workers that are allocated for a specific job execution.
 
-parameter options: 
+parameter options:
 
 - add = [Number]
 - remove = [Number]
@@ -175,17 +175,17 @@ parameter options:
 
 if you use total, it will dynamically determine if it needs to add or remove to reach the number of workers you set
 
-query: 
+query:
 ``` curl -XPOST localhost:5678/ex/{ex_id}/_workers?add=5```
 
 #### GET /ex/{ex_id}/slicer
 
 same concept as cluster/slicers, but only get stats on slicer associated with the given ex_id
 
-query: 
+query:
 ```curl localhost:5678/ex/{ex_id}/slicer```
 
-response: 
+response:
 ```
 {
         "node_id": "myCompName",
@@ -212,14 +212,14 @@ response:
 
 returns a textual graph of all children of node_masters
 
-parameter options: 
+parameter options:
 
 - fields [String]
 
-The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified 
+The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie fields="job_id,pid" or fields="job_id pid"
 
-query: 
+query:
 ```curl localhost:5678/txt/workers```
 
 all fields:
@@ -229,18 +229,18 @@ all fields:
 - node_id
 - ex_id
 - hostname
- 
-default: 
+
+default:
 
 - assignment
 - node_id
 - ex_id
 - pid
 
-response: 
+response:
 
 ```
-assignment      node_id     job_id                                pid  
+assignment      node_id     job_id                                pid
 --------------  ----------  ------------------------------------  -----
 cluster_master  myCompName                                        38124
 slicer          myCompName  2c1b5ffd-bac4-43a3-bb90-6d6055244ef4  38357
@@ -255,14 +255,14 @@ worker          myCompName  2c1b5ffd-bac4-43a3-bb90-6d6055244ef4  38361
 
 returns a textual graph of all node_masters
 
-parameter options: 
+parameter options:
 
 - fields [String]
 
-The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified 
+The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie fields="job_id,pid" or fields="job_id pid"
 
-query: 
+query:
 ```curl localhost:5678/txt/workers```
 
 all fields:
@@ -272,34 +272,34 @@ all fields:
 - hostname
 - total
 - active
-- pid 
-- teraslice_version 
+- pid
+- teraslice_version
 - node_version
 - active
 
-defaults: 
+defaults:
 
 - node_id
 - state
 - hostname
 - total
 - active
-- pid 
-- teraslice_version 
+- pid
+- teraslice_version
 - node_version
 
 #### GET /txt/jobs
 
 returns a textual graph of all job listings
 
-parameter options: 
+parameter options:
 
 - fields [String]
 
-The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified 
+The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie fields="job_id,pid" or fields="job_id pid"
 
-query: 
+query:
 ```curl localhost:5678/txt/jobs```
 
 all fields:
@@ -318,25 +318,25 @@ all fields:
 defaults:
 
 - name
-- lifecycle 
-- slicers 
+- lifecycle
+- slicers
 - workers
 - job_id
-- _created 
+- _created
 - _updated
 
 #### GET /txt/ex
 
 returns a textual graph of all job execution contexts
 
-parameter options: 
+parameter options:
 
 - fields [String]
 
-The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified 
+The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie fields="job_id,pid" or fields="job_id pid"
 
-query: 
+query:
 ```curl localhost:5678/txt/jobs```
 
 all fields:
@@ -356,12 +356,12 @@ all fields:
 defaults:
 
 - name
-- lifecycle 
-- slicers 
+- lifecycle
+- slicers
 - workers
 - ex_id
 - job_id
-- _created 
+- _created
 - _updated
 
 
@@ -369,17 +369,17 @@ defaults:
 
 returns a textual graph of all active slicers
 
-parameter options: 
+parameter options:
 
 - fields [String]
 
-The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified 
+The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie fields="ex_id,pid" or fields="ex_id pid"
 
-query: 
+query:
 ```curl localhost:5678/txt/slicers```
 
-all fields: 
+all fields:
 
 - node_id
 - ex_id
@@ -398,7 +398,7 @@ all fields:
 - started
 - queuing_complete
 
-defaults: 
+defaults:
 
 - ex_id
 - workers_available
