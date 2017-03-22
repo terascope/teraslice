@@ -1,6 +1,6 @@
-#Job configurations#
+# Job configurations
 
-A job configuration is the main way a Teraslice user describes the processing they want done.  This page provides a 
+A job configuration is the main way a Teraslice user describes the processing they want done.  This page provides a
 detailed description of the configurations available for a job.
 
  * [Job configurations](#job-configurations)
@@ -62,9 +62,9 @@ slicers | Number of slicer functions that will chunk and prep the data for worke
 workers | Number of worker instances that will process data, depending on the nature of the operations you may choose to over subscribe the number of workers compared to the number of cpu's | Number | optional, defaults to 5, if the number of workers for the job is set above workers specified in system configuration, a warning is passed and the workers set in the system configuration will be used,
 operations | An array containing all the operations as well as their configurations. Typically the first is the reader/slicer. | Array | required
 
-##Readers##
+## Readers ##
 
-###elasticsearch_reader###
+### elasticsearch_reader ###
 Used to retrieve elasticsearch data based on dates. This reader has different behaviour if lifecycle is set to "once" or "persistent"
 
 Example configuration if lifecycle is set to "once"
@@ -78,7 +78,7 @@ Example configuration if lifecycle is set to "once"
           "size": 5000,
           "date_field_name": "created",
     }
-    
+
     //expanded
     {
       "_op": "elasticsearch_reader",
@@ -98,23 +98,24 @@ Example configuration if lifecycle is set to "once"
 ```
 In this mode, there is a definite start (inclusive) and end time (exclusive). Each slice will be based off of the interval and size configurations.
 If the number of documents exceed the size within a given interval, it will recurse and and split the interval in half continually until the number of documents is less than or equal to size. If this cannot be achieved then the size of the chunk will be calculated against a threshold , and if it passes the threshold it further subdivides the range by the documents \_id's, else the slicer will ignore the size limit and process the chunk as is.
-                           
+
 
 | Configuration | Description | Type |  Notes
 |:---------: | :--------: | :------: | :------:
-\_op| Name of operation, it must reflect the exact name of the file | String | required
-index | Which index to read from | String | required
-type | The type of the document that you are reading, used when a chuck is so large that it must be divided up by the documents \_id|String | required
-size | The limit to the number of docs pulled in a chunk, if the number of docs retrieved by the slicer exceeds this number, it will cause the slicer to recurse to provide a smaller batch | Number | optional, defaults to 5000
-start | The start date to which it will read from | String/Number/ elasticsearch date math syntax | optional, inclusive , if not provided the index will be queried for earliest date, this date will be reflected in the opConfig saved in the execution context
-end | The end date to which it will read to| String/Number/ elasticsearch date math syntax | optional, exclusive, if not provided the index will be queried for latest date, this date will be reflected in the opConfig saved in the execution context
-interval | The time interval in which the reader will increment by. The unit of time may be months, weeks, days, hours, minutes, seconds, millesconds or their appropriate abbreviations | String | optional, defaults to auto which tries to calculate the interval by dividing date_range / (numOfRecords / size)
-full_response | If set to true, it will return the native response from elasticsearch with all meta-data included. If set to false it will return an array of the actual documents, no meta data included | Boolean | optional, defaults to false
-date_field_name | document field name where the date used for searching resides | String | required
-query | specify any valid lucene query for elasticsearch to use in filtering| String | optional
-subslice_key_threshold |used in determining when to slice a chunk by thier \_ids | Number | optional, defaults to 50000
-time_resolution | Not all dates have millisecond resolutions, specify 's' if you need second level date slicing | String | optional, defaults to milliseconds 'ms'
-key_type | Used to specify the key type of the \_ids of the documents being queryed | String | optional, defualts to elasticsearch id generator (base64url)
+| \_op| Name of operation, it must reflect the exact name of the file | String | required |
+| index | Which index to read from | String | required |
+| type | The type of the document that you are reading, used when a chuck is so large that it must be divided up by the documents \_id|String | required |
+| size | The limit to the number of docs pulled in a chunk, if the number of docs retrieved by the slicer exceeds this number, it will cause the slicer to recurse to provide a smaller batch | Number | optional, defaults to 5000 |
+| start | The start date to which it will read from | String/Number/ elasticsearch date math syntax | optional, inclusive , if not provided the index will be queried for earliest date, this date will be reflected in the opConfig saved in the execution context |
+| end | The end date to which it will read to| String/Number/ elasticsearch date math syntax | optional, exclusive, if not provided the index will be queried for latest date, this date will be reflected in the opConfig saved in the execution context |
+| interval | The time interval in which the reader will increment by. The unit of time may be months, weeks, days, hours, minutes, seconds, millesconds or their appropriate abbreviations | String | optional, defaults to auto which tries to calculate the interval by dividing date_range / (numOfRecords / size) |
+| full_response | If set to true, it will return the native response from elasticsearch with all meta-data included. If set to false it will return an array of the actual documents, no meta data included | Boolean | optional, defaults to false |
+| date_field_name | document field name where the date used for searching resides | String | required |
+| query | specify any valid lucene query for elasticsearch to use in filtering| String | optional |
+| subslice_key_threshold |used in determining when to slice a chunk by thier \_ids | Number | optional, defaults to 50000 |
+| time_resolution | Not all dates have millisecond resolutions, specify 's' if you need second level date slicing | String | optional, defaults to milliseconds 'ms' |
+| key_type | Used to specify the key type of the \_ids of the documents being queryed | String | optional, defualts to elasticsearch id generator (base64url) |
+| connection | Name of the elasticsearch connection to use when sending data | String | optional, defaults to the 'default' connection created for elasticsearch |
 
 start and end may be specified in elasticsearch's [date math syntax](https://www.elastic.co/guide/en/elasticsearch/reference/2.x/common-options.html#date-math)
 
@@ -195,11 +196,11 @@ start | start of date range | String | optional, only used with format isoBetwee
 end | end of date range | String | optional, only used with format isoBetween or utcBetween, defaults to new Date()
 stress_test | If set to true, it will attempt to send non unique documents following your schema as fast as it can, originally used to help determine cluster write performance| Boolean | optional, defaults to false
 date_key | Use this to indicate which key of your schema you would like to use a format listed below, just in case you don't want to set your own | String | optional, defaults to created
-set_id | used to make an id on the data that will be used for the doc _id for elasticsearch, values: base64url, hexadecimal, HEXADECIMAL | String | optional, if used, then index selector needs to have id_field set to "id"
+set_id | used to make an id on the data that will be used for the doc \_id for elasticsearch, values: base64url, hexadecimal, HEXADECIMAL | String | optional, if used, then index selector needs to have id_field set to "id"
 id_start_key | set if you would like to force the first part of the ID to a certain character, adds a regex to the front| Sting | optional, must be used in tandem with set_id
-          
-id_start_key is essentially regex, if you set it to "a", then the first character of the id will be "a", can also set ranges [a-f] or randomly alternate betweeen b and a if its set to "[ab]" 
- 
+
+id_start_key is essentially regex, if you set it to "a", then the first character of the id will be "a", can also set ranges [a-f] or randomly alternate betweeen b and a if its set to "[ab]"
+
 #### Description of formats available ####
 There are two categories of formats, ones that return the current date at which the function runs, or one that returns a date within a given range. Note for the non-range category, technically if the job takes 5 minutes to run, you will have dates ranging from the time you started the job up until the time it finished, so its still a range but not as one that spans hours, days weeks etc.
 
@@ -216,7 +217,7 @@ isoBetween | similar to dateNow, but uses start and end keys in the job config t
  The data generator will continually stream data into elasticsearch, the "size" key" switches from the total number of documents created to how big each slice is when sent to elasticsearch
 
 ### id_reader ###
-This will slice and read documents based off of their specific \_ids. Underneath the hood it does a wildcard query on _uid
+This will slice and read documents based off of their specific \_ids. Underneath the hood it does a wildcard query on \_uid
 
 Example configuration
 
@@ -242,10 +243,10 @@ size | The limit to the number of docs pulled in a chunk, if the number of docs 
 full_response | If set to true, it will return the native response from elasticsearch with all meta-data included. If set to false it will return an array of the actual documents, no meta data included | Boolean | optional, defaults to false
 key_type | Used to specify the key type of the \_ids of the documents being queryed | String | optional, defaults to elasticsearch id generator (base64url)
 key_range | if provided, slicer will only recurse on these given keys | Array | optional
-   
-##Processors##
 
-###elasticsearch_index_selector###
+## Processors ##
+
+### elasticsearch_index_selector ###
 This processor formats the incoming data to prepare it for the elasticsearch bulk request. It accepts either an array of data or a full elasticsearch response with all associated meta-data. It should be noted that the resulting formatted array required for the bulk request will always double the length of the incoming array
 
 Example configuration
@@ -278,7 +279,7 @@ script_file | Name of the script file to run as part of an update request | Stri
 script_params | key -> value parameter mappings. The value will be extracted from the incoming data and passed to the script as param based on the key | Object | optional
 
 
-###script
+### script
 This is used to allow other languages other than javascript to process data. Note that this is not meant to be highly efficient as it creates a child process that runs whatever script you specify and it communicates to each other through stdin and stdout. If another language is needed, it might be a better idea to use C++ or rust to add a module that Node can create native bindings so that you can require the code like a regular javascript module.
 
 Example configuration
@@ -301,7 +302,7 @@ args | arguments to pass along with the command| Array | optional
 options | Obj containing options to pass into the process env | Object | optional
 
 
-###elasticsearch_bulk###
+### elasticsearch_bulk ###
 This sends a bulk request to elasticsearch
 
 Example configuration
@@ -328,14 +329,15 @@ The keys used were hexidecimal based
 
 | Configuration | Description | Type |  Notes
 |:---------: | :--------: | :------: | :------:
-\_op | Name of operation, it must reflect the exact name of the file | String | required
-size | the maximum number of docs it will send in a given request, anything past it will be split up and sent | Number | required, typically the index selector returns up to double the length of the original documents due to the metadata involved with bulk requests. This number is essentially doubled to to maintain the notion that we split by actual documents and not the metadata
-connection_map | | Object | optional
-multisend | When set to true the connection_map will be used allocate the data stream across multiple connections based on the keys of the incoming documents | Boolean | optional, defaults to false 
-multisend_index_append | When set to true will append the connection_map prefixes to the name of the index before data is submitted | Boolean | optional, defaults to false
-connection | Name of the elasticsearch connection to use when sending data | String | optional, defaults to the 'default' connection created for elasticsearch
+| \_op | Name of operation, it must reflect the exact name of the file | String | required |
+| size | the maximum number of docs it will send in a given request, anything past it will be split up and sent | Number | required, typically the index selector returns up to double the length of the original documents due to the metadata involved with bulk requests. This number is essentially doubled to to maintain the notion that we split by actual documents and not the metadata |
+| connection_map | | Object | optional |
+| multisend | When set to true the connection_map will be used allocate the data stream across multiple connections based on the keys of the incoming documents | Boolean | optional, defaults to false |
+| multisend_index_append | When set to true will append the connection_map prefixes to the name of the index before data is submitted | Boolean | optional, defaults to false |
+| connection | Name of the elasticsearch connection to use when sending data | String | optional, defaults to the 'default' connection created for elasticsearch |
 
-###stdout
+
+### stdout
 This is primarily used for develop purposes, it console logs the incoming data, it's meant to inspect in between operations or end of outputs
 
 Example configuration
@@ -345,4 +347,6 @@ Example configuration
 }
 ```
 
-No configurations are available
+| Configuration | Description | Type |  Notes   |
+|:---------: | :--------: | :------: | :------: |
+| limit | Specify a number > 0 to limit the number of results printed to the console log.  Default is to print all results. | Number | optional |
