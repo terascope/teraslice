@@ -244,6 +244,8 @@ size | The limit to the number of docs pulled in a chunk, if the number of docs 
 full_response | If set to true, it will return the native response from elasticsearch with all meta-data included. If set to false it will return an array of the actual documents, no meta data included | Boolean | optional, defaults to false
 key_type | Used to specify the key type of the \_ids of the documents being queryed | String | optional, defaults to elasticsearch id generator (base64url)
 key_range | if provided, slicer will only recurse on these given keys | Array | optional
+fields | Used to restrict what is returned from elasticsearch. If used, only these fields on the documents are returned | Array | optional |
+query | specify any valid lucene query for elasticsearch to use in filtering| String | optional |
 
 ## Processors ##
 
