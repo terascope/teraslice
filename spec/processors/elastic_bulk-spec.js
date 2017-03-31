@@ -233,8 +233,20 @@ describe('elasticsearch_bulk', function() {
     });
 
     it('post_validation makes sure connection_map is configured in sysconfig', function() {
-        var badJob = {operations: [{_op: 'elasticsearch_bulk', connection_map: {a: 'connectionA', z: 'connectionZ'}}]};
-        var goodJob = {operations: [{_op: 'elasticsearch_bulk', connection_map: {a: 'connectionA', b: 'connectionB'}}]};
+        var badJob = {
+            operations: [{
+                _op: 'elasticsearch_bulk',
+                multisend: true,
+                connection_map: {a: 'connectionA', z: 'connectionZ'}
+            }]
+        };
+        var goodJob = {
+            operations: [{
+                _op: 'elasticsearch_bulk',
+                multisend: true,
+                connection_map: {a: 'connectionA', b: 'connectionB'}
+            }]
+        };
 
         var sysconfig = {
             terafoundation: {
