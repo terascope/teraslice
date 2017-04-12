@@ -32,7 +32,7 @@ function create(customConfig, logger) {
     customConfig.connectionClass = Agent;
     customConfig.defer = function () {
         return Promise.defer();
-    }
+    };
     var client = new elasticsearch.Client(customConfig);
 
     return {

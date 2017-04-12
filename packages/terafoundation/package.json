@@ -19,7 +19,7 @@
     "moment": "^2.15.1",
     "mongoose": "~3.8",
     "node-statsd": "0.0.7",
-    "node-webhdfs": "0.0.4",
+    "node-webhdfs": "0.1.0",
     "redis": "^0.12.1",
     "yargs": "^3.7.2"
   }
