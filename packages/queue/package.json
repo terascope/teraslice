@@ -1,0 +1,22 @@
+{
+  "name": "queue",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node node_modules/jasmine/bin/jasmine"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jsnoble/queue.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jsnoble/queue/issues"
+  },
+  "homepage": "https://github.com/jsnoble/queue#readme",
+  "dependencies": {
+    "jasmine": "^2.5.3"
+  }
+}
