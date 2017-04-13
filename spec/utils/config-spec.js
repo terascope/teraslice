@@ -1,7 +1,7 @@
 'use strict';
 var config = require('../../lib/utils/config');
 var fs = require('fs');
-var Queue = require('../../lib/utils/queue');
+var Queue = require('queue');
 
 describe('config', function() {
 
