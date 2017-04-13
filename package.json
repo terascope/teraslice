@@ -32,7 +32,7 @@
     "terafoundation": "terascope/terafoundation",
     "uuid": "^2.0.1",
     "yargs": "^3.18.0",
-    "queue": "git+https://git@github.com/terascope/queue.git"
+    "queue": "terascope/queue"
   },
   "devDependencies": {
     "json-schema-faker": "^0.3.7"
