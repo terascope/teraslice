@@ -5,6 +5,10 @@
     },
     "mappings": {
         "analytics": {
+            "_all": {
+                "enabled": false
+            },
+            "dynamic": "false",
             "properties": {
                 "ex_id": {
                     "type": "string",

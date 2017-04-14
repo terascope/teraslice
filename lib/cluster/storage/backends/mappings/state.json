@@ -5,6 +5,10 @@
     },
     "mappings": {
         "state": {
+            "_all": {
+                "enabled": false
+            },
+            "dynamic": "false",
             "properties": {
                 "ex_id": {
                     "type": "string",
@@ -24,10 +28,6 @@
                 "state": {
                     "type": "string",
                     "index" : "not_analyzed"
-                },
-                "request": {
-                    "type": "string",
-                    "index" : "no"
                 },
                 "@timestamp": {
                     "type": "date"
