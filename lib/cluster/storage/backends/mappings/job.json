@@ -5,6 +5,10 @@
   },
   "mappings": {
     "job": {
+      "_all": {
+        "enabled": false
+      },
+      "dynamic": "false",
       "properties": {
         "job_id": {
           "type": "string",
