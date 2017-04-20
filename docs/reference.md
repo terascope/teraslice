@@ -42,7 +42,7 @@ Example Job
             "type": "events",
         },
         {
-            "_op": "elasticsearch_bulk_insert",
+            "_op": "elasticsearch_bulk",
             "size": 5000
         }
     ]
