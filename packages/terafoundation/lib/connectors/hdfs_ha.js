@@ -6,27 +6,26 @@ var _ = require('lodash');
 
 function create(customConfig, logger) {
     var hdfsClient = require('node-webhdfs').WebHDFSClient;
-    logger.info("Using hdfs hosts: " + customConfig.host);
-    var client = new hdfsClient(customConfig);
-    var currentNameNode = customConfig.namenode_host;
 
-    function makeNewClient() {
-        var list = customConfig.namenode_list;
-        //we want the next spot
-        var index = list.indexOf(currentNameNode) + 1;
-        //if empty start from the beginning of the
-        var nameNodeHost = list[index] ? list[index] : list[0];
-        currentNameNode = nameNodeHost;
-        var newClient = new hdfsClient(_.assign({}, customConfig, {namenode_host: nameNodeHost}));
+    var highAvailibility = false;
+    var currentNameNode;
 
-        return {
-            client: Promise.promisifyAll(newClient)
-        }
+    if (Array.isArray(customConfig.namenode_host)) {
+        currentNameNode = customConfig.namenode_host[0];
+        customConfig.namenode_list = customConfig.namenode_host;
+        highAvailibility = true;
+    }
+    else {
+        currentNameNode = customConfig.namenode_host;
     }
 
+    var config = _.assign({}, customConfig, {namenode_host: currentNameNode});
+    var client = new hdfsClient(config);
+
+    logger.info(`Using hdfs hosts: ${currentNameNode}, high-availability: ${highAvailibility}`);
+
     return {
-        client: Promise.promisifyAll(client),
-        changeNameNode: makeNewClient
+        client: Promise.promisifyAll(client)
     }
 }
 
@@ -41,8 +40,20 @@ function config_schema() {
             default: 50070
         },
         namenode_host: {
-            doc: '',
-            default: 'localhost'
+            doc: 'a single host, or multiple hosts listed in an array',
+            default: [],
+            format: function(val) {
+                if (typeof val === 'string') {
+                    return;
+                }
+                if (Array.isArray(val)) {
+                    if (val.length < 2) {
+                        throw new Error("namenode_list must have at least two namenodes listed in the array")
+                    }
+                    return;
+                }
+                throw new Error('namenode_list configuration must be set to an array for high availability or a string')
+            }
         },
         path_prefix: {
             doc: '',
