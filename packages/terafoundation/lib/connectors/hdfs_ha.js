@@ -32,11 +32,12 @@ function create(customConfig, logger) {
 function config_schema() {
     return {
         user: {
-            doc: '',
-            default: 'webuser'
+            doc: 'user type for hdfs requests',
+            default: 'hdfs',
+            format: String
         },
         namenode_port: {
-            doc: '',
+            doc: 'port of hdfs',
             default: 50070
         },
         namenode_host: {
@@ -48,15 +49,15 @@ function config_schema() {
                 }
                 if (Array.isArray(val)) {
                     if (val.length < 2) {
-                        throw new Error("namenode_list must have at least two namenodes listed in the array")
+                        throw new Error("namenode_host must have at least two namenodes listed in the array")
                     }
                     return;
                 }
-                throw new Error('namenode_list configuration must be set to an array for high availability or a string')
+                throw new Error('namenode_host configuration must be set to an array for high availability or a string')
             }
         },
         path_prefix: {
-            doc: '',
+            doc: 'endpoint for hdfs web interface',
             default: '/webhdfs/v1'
         }
     }
