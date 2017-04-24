@@ -126,6 +126,9 @@ module.exports = function(config, job_id, ex_id) {
         id: () => {
             return job_id
         },
+        ex: () => {
+            return ex_id
+        },
         waitForStatus: waitForStatus,
         workers: () => {
             return _filterProcesses('worker')
