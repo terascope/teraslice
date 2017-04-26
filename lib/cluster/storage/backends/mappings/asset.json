@@ -1,0 +1,23 @@
+{
+  "settings": {
+    "index.number_of_shards": 5,
+    "index.number_of_replicas": 1
+  },
+  "mappings": {
+    "asset": {
+      "_all": {
+        "enabled": false
+      },
+      "dynamic": "false",
+      "properties": {
+        "blob": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "_created": {
+          "type": "date"
+        }
+      }
+    }
+  }
+}
