@@ -169,7 +169,7 @@ Please check the api docs at the bottom for a comprehensive in-depth list of all
 
 ### Job status
 
-This will retrieve the job configuration including '_status' which indicates the execution status of the job.
+This will retrieve the job configuration including '\_status' which indicates the execution status of the job.
 
 ```
 curl YOU_MASTER_IP:5678/ex/{EX_ID}
@@ -234,13 +234,17 @@ This will show you all the connected workers and the tasks that are currently as
 curl YOU_MASTER_IP:5678/cluster/state
 ```
 
-# API
+# Additional Documentation
+
+## API
+
  * [API endpoints reference](./docs/api.md)
 
-# Operations
+## Operations
 
- * [Operations reference](./docs/reference.md)
- * Writing custom operations
+ * [Job configuration and operations reference](./docs/ops-reference.md)
+ * [Custom operations](./docs/custom_operations.md)
 
-# Configuration
+## Configuration
+
  * [Teraslice configuration reference](./docs/configuration.md)
