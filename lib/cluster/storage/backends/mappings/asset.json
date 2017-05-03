@@ -12,6 +12,10 @@
       "properties": {
         "blob": {
           "type": "string",
+          "index": "no"
+        },
+        "name": {
+          "type": "string",
           "index": "not_analyzed"
         },
         "_created": {
