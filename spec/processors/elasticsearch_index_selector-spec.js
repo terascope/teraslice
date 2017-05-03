@@ -202,12 +202,13 @@ describe('elasticsearch index selector', function() {
         var sysconfig = {};
         var badOP = {_op: 'otherOp'};
         var goodOP = {_op: 'otherOp', full_response: true};
+        var esDataGeneratorOp = {_op: 'elasticsearch_data_generator'};
         var selectorOP = {_op: 'elasticsearch_index_selector', preserve_id: true};
 
         var job1 = {operations: [badOP, selectorOP]};
         var job2 = {operations: [badOP, selectorOP, goodOP]};
         var job3 = {operations: [goodOP, selectorOP, badOP]};
-
+        var job4 = {operations: [esDataGeneratorOp, selectorOP]};
 
         expect(function() {
             indexer.post_validation(job1, sysconfig);
@@ -217,6 +218,9 @@ describe('elasticsearch index selector', function() {
         }).toThrowError(errorString);
         expect(function() {
             indexer.post_validation(job3, sysconfig);
+        }).not.toThrow();
+        expect(function() {
+            indexer.post_validation(job4, sysconfig);
         }).not.toThrow();
     });
 });
