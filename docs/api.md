@@ -64,6 +64,24 @@ response:
 ]
 ```
 
+#### POST /assets
+
+submit a zip file containing custom readers/processors for jobs to use
+
+query:
+ ```
+  curl -XPOST -H "Content-Type: application/octet-stream" localhost:5678/assets --data-binary @zipFile.zip 
+ ```
+
+ response:
+
+ ```
+ {
+     "_id": "ec2d5465609571590fdfe5b371ed7f98a04db5cb"
+ }
+ ```
+the _id returned is the id of elasticsearch document where the zip file has been saved
+
 #### POST /jobs
 
 submit a job to be enqueued
