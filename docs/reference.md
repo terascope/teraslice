@@ -28,7 +28,7 @@ Example Job
     "name": "Reindex Events",
     "lifecycle": "once",
     "analytics": false,
-    "assets": ["custom_op"],
+    "assets": ["ec2d5465609571590fdfe5b371ed7f98a04db5cb"],
     "operations": [
         {
             "_op": "elasticsearch_reader",
@@ -65,7 +65,7 @@ analytics | Determines if analytics should be ran for each slice | Boolean | opt
 max_retries | Number of times a given slice of data will attempt to process before continuing on | Number | optional
 slicers | Number of slicer functions that will chunk and prep the data for worker | Number | optional, defaults to 1
 workers | Number of worker instances that will process data, depending on the nature of the operations you may choose to over subscribe the number of workers compared to the number of cpu's | Number | optional, defaults to 5, if the number of workers for the job is set above workers specified in system configuration, a warning is passed and the workers set in the system configuration will be used,
-assets | An array of strings that are the names of any custom operations that are needed for a job | Array | optional
+assets | An array of strings that are the id's for the corresponding assets zip files. | Array | optional
 operations | An array containing all the operations as well as their configurations. Typically the first is the reader/slicer. | Array | required
 
 ## Readers ##
