@@ -28,6 +28,7 @@
     "mocker-data-generator": "^1.2.2",
     "moment": "^2.15.1",
     "queue": "terascope/queue",
+    "request": "^2.81.0",
     "shortid": "^2.2.6",
     "socket.io": "^1.4.5",
     "socket.io-client": "^1.4.5",
