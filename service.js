@@ -2,8 +2,8 @@
 
 var worker = require('./lib/cluster/worker');
 var slicer = require('./lib/cluster/slicer');
-var assets = require('./lib/cluster/assets');
-var assets_service = require('./lib/cluster/services/assets')
+var assets_loader = require('./lib/cluster/assets');
+var assets_service = require('./lib/cluster/services/assets');
 var master = require('./lib/master');
 var cluster_master = require('./lib/cluster/cluster_master');
 var moderator = require('./lib/cluster/moderator');
@@ -38,7 +38,7 @@ var foundation = require('terafoundation')({
     worker: worker,
     master: master,
     slicer: slicer,
-    assets: assets,
+    assets_loader: assets_loader,
     assets_service: assets_service,
     shutdownMessaging: true,
     cluster_master: cluster_master,
@@ -48,7 +48,7 @@ var foundation = require('terafoundation')({
         worker: true,
         cluster_master: true,
         moderator: true,
-        assets: true,
+        assets_loader: true,
         assets_service: true
     },
     start_workers: false,
