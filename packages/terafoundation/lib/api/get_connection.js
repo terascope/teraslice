@@ -65,7 +65,7 @@ module.exports = function(context) {
             else {
                 // If an endpoint was specified and doesn't exist we need to error.
                 if (endpoint) {
-                    throw new Error("No connection configuration found for " + endpoint);
+                    throw new Error("No " + type + " endpoint configuration found for " + endpoint);
                 }
             }
 
