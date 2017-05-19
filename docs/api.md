@@ -82,6 +82,24 @@ query:
  ```
 the _id returned is the id of elasticsearch document where the zip file has been saved
 
+### DELETE /assets
+
+delete an asset
+
+query:
+ ```
+  curl -XDELETE localhost:5678/assets/ec2d5465609571590fdfe5b371ed7f98a04db5cb
+ ```
+
+ response:
+
+ ```
+ {
+     "_id": "ec2d5465609571590fdfe5b371ed7f98a04db5cb"
+ }
+ ```
+the _id returned is the id of elasticsearch document that was deleted
+
 #### POST /jobs
 
 submit a job to be enqueued
