@@ -3,7 +3,7 @@
 var esModerator = require('../../lib/cluster/moderator/modules/elasticsearch');
 var Promise = require('bluebird');
 
-describe('elasticsearch moderator', function() {
+fdescribe('elasticsearch moderator', function() {
 
     var logger = {
         error: function() {
@@ -138,7 +138,7 @@ describe('elasticsearch moderator', function() {
             })
     });
 
-    it('checkConnectionStates can return connections that need to be paused and resumed', function(done) {
+    fit('checkConnectionStates can return connections that need to be paused and resumed', function(done) {
         var moderator = esModerator(context, logger);
         nodesStats.nodes.default.thread_pool.get.queue = 200;
         moderator.initialize()
