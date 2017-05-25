@@ -82,6 +82,24 @@ query:
  ```
 the _id returned is the id of elasticsearch document where the zip file has been saved
 
+The zip file must contain an asset.json containing a name for the asset bundle and a version number which can be used to query the asset besides using the _id
+```javascript
+ /enclosing_dir
+    asset_op 
+       index.js
+    another_asset.cvs
+    asset.json
+        
+```
+   
+   
+You may zip the enclosing directory or piecemeal the file together
+
+```javascript
+zip -r zipfile.zip enclosing_dir    
+zip -r zipfile.zip asset_op another_asset.cvs asset.json    
+```
+
 ### DELETE /assets
 
 delete an asset
