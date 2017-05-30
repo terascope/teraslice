@@ -461,3 +461,138 @@ defaults:
 - queued
 - processed
 - subslice_by_key
+
+
+#### GET /txt/assets
+
+returns a textual graph of all assets sorted by the most recent at the top
+
+parameter options:
+
+- fields [String]
+
+The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
+ie fields="name,version" or fields="name version"
+
+query:
+```curl localhost:5678/txt/assets```
+
+all fields:
+
+- name
+- version
+- id
+- _created
+- description
+
+default:
+
+- name
+- version
+- id
+- _created
+- description
+
+response:
+
+```
+name     version  id                                        _created                  description
+-------  -------  ----------------------------------------  ------------------------  ------------------------------
+zipfile  0.0.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-30T18:19:18.638Z  Some description 
+otherzip 1.0.1    d94hy8d0b0fe679698d781ef71b332915d020570  2017-05-29T18:19:18.638Z  Some description 
+
+```
+
+The description field is capped to 30 chars
+
+#### GET /txt/assets/asset_name
+
+returns a textual graph of all assets by the given name, sorted by the most recent at the top
+name may contain '*'
+
+parameter options:
+
+- fields [String]
+
+The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
+ie fields="name,version" or fields="name version"
+
+query:
+```
+curl localhost:5678/txt/assets/zipfile
+curl localhost:5678/txt/assets/zipfi*
+
+```
+
+all fields:
+
+- name
+- version
+- id
+- _created
+- description
+
+default:
+
+- name
+- version
+- id
+- _created
+- description
+
+response:
+
+```
+name     version  id                                        _created                  description
+-------  -------  ----------------------------------------  ------------------------  ------------------------------
+zipfile  1.0.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-30T18:19:18.638Z  Some description 
+zipfile  0.3.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-28T18:19:18.638Z  Some description 
+
+```
+
+The description field is capped to 30 chars
+
+#### GET /txt/assets/name/version
+
+returns a textual graph of all assets by a given name and version, sorted by the most recent at the top
+name and version may contain '*'
+
+parameter options:
+
+- fields [String]
+
+The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
+ie fields="name,version" or fields="name version"
+
+query:
+```
+curl localhost:5678/txt/assets/zipfile/0.3.1
+curl localhost:5678/txt/assets/zipfi*/0.3.*
+```
+
+all fields:
+
+- name
+- version
+- id
+- _created
+- description
+
+default:
+
+- name
+- version
+- id
+- _created
+- description
+
+response:
+
+```
+name     version  id                                        _created                  description
+-------  -------  ----------------------------------------  ------------------------  ------------------------------
+zipfile  0.3.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-28T18:19:18.638Z  Some description 
+
+```
+
+The description field is capped to 30 chars
