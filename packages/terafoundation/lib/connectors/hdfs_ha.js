@@ -42,9 +42,10 @@ function config_schema() {
         },
         namenode_host: {
             doc: 'a single host, or multiple hosts listed in an array',
-            default: [],
+            default: null,
             format: function(val) {
                 if (typeof val === 'string') {
+
                     return;
                 }
                 if (Array.isArray(val)) {
