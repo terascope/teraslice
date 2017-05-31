@@ -1,0 +1,39 @@
+{
+  "settings": {
+    "index.number_of_shards": 5,
+    "index.number_of_replicas": 1
+  },
+  "mappings": {
+    "asset": {
+      "_all": {
+        "enabled": false
+      },
+      "dynamic": "false",
+      "properties": {
+        "blob": {
+          "type": "string",
+          "index": "no"
+        },
+        "name": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "version": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "id": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "description": {
+          "type": "string",
+          "index": "analyzed"
+        },
+        "_created": {
+          "type": "date"
+        }
+      }
+    }
+  }
+}
