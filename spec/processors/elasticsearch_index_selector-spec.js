@@ -3,6 +3,7 @@
 var indexer = require('../../lib/processors/elasticsearch_index_selector');
 
 describe('elasticsearch index selector', function() {
+
     it('has a schema and newProcessor method', function() {
         var processor = indexer;
 
@@ -11,6 +12,7 @@ describe('elasticsearch index selector', function() {
         expect(processor.schema).toBeDefined();
         expect(typeof processor.newProcessor).toEqual('function');
         expect(typeof processor.schema).toEqual('function');
+
     });
 
     it('schema function returns on object, formatted to be used by convict', function() {
@@ -21,22 +23,26 @@ describe('elasticsearch index selector', function() {
         expect(type).toEqual('[object Object]');
         expect(keys.length).toBeGreaterThan(0);
         expect(schema[keys[0]].default).toBeDefined();
+
     });
 
     it('new processor will throw if other config options are not present with timeseries', function() {
+
         var jobConfig = {logger: 'im a fake logger'};
         var op1 = {timeseries: 'hourly'};
         var op2 = {timeseries: 'daily'};
 
         expect(function() {
-            indexer.newProcessor({}, op1, jobConfig);
-        }).toThrowError('timeseries requires an index_prefix');
+            indexer.newProcessor({}, op1, jobConfig)
+        }).toThrowError("timeseries requires an index_prefix");
         expect(function() {
-            indexer.newProcessor({}, op2, jobConfig);
-        }).toThrowError('timeseries requires an index_prefix');
+            indexer.newProcessor({}, op2, jobConfig)
+        }).toThrowError("timeseries requires an index_prefix");
+
     });
 
     it('new processor will throw if type is not specified when data is did not come from elasticsearch', function() {
+
         var context = {};
         var opConfig = {index: 'someIndex'};
         var jobConfig = {logger: 'im a fake logger'};
@@ -45,8 +51,9 @@ describe('elasticsearch index selector', function() {
         var fn = indexer.newProcessor(context, opConfig, jobConfig);
 
         expect(function() {
-            fn(data);
+            fn(data)
         }).toThrow('type must be specified in elasticsearch index selector config if data is not a full response from elasticsearch');
+
     });
 
     it('newProcessor takes either an array or elasticsearch formatted data and returns an array', function() {
@@ -59,6 +66,7 @@ describe('elasticsearch index selector', function() {
 
         expect(Array.isArray(final)).toBe(true);
         expect(Array.isArray(finalElastic)).toBe(true);
+
     });
 
     it('it returns properly formatted data for bulk requests', function() {
@@ -72,6 +80,7 @@ describe('elasticsearch index selector', function() {
 
         expect(results[0]).toEqual({index: {_index: 'someIndex', _type: 'events'}});
         expect(results[1]).toEqual({someData: 'some random data'});
+
     });
 
     it('preserve_id will keep the previous id from elasticsearch data', function() {
@@ -83,7 +92,8 @@ describe('elasticsearch index selector', function() {
         var fn = indexer.newProcessor(context, opConfig, jobConfig);
         var results = fn(data);
 
-        expect(results[0]).toEqual({index: {_index: 'someIndex', _type: 'events', _id: 'specialID'}});
+        expect(results[0]).toEqual({index: {_index: 'someIndex', _type: 'events', _id: 'specialID'}})
+
     });
 
     it('can set id to any field in data', function() {
@@ -95,7 +105,8 @@ describe('elasticsearch index selector', function() {
         var fn = indexer.newProcessor(context, opConfig, jobConfig);
         var results = fn(data);
 
-        expect(results[0]).toEqual({index: {_index: 'someIndex', _type: 'events', _id: 'someName'}});
+        expect(results[0]).toEqual({index: {_index: 'someIndex', _type: 'events', _id: 'someName'}})
+
     });
 
     it('can send an update request instead of index', function() {
@@ -116,6 +127,7 @@ describe('elasticsearch index selector', function() {
 
         expect(results[0]).toEqual({update: {_index: 'someIndex', _type: 'events', _id: 'someName'}});
         expect(results[1]).toEqual({doc: {name: 'someName'}});
+
     });
 
     it('can send a delete request instead of index', function() {
@@ -128,6 +140,7 @@ describe('elasticsearch index selector', function() {
         var results = fn(data);
 
         expect(results[0]).toEqual({delete: {_index: 'someIndex', _type: 'events', _id: 'someName'}});
+
     });
 
     it('can upsert specified fields by passing in an array of keys matching the document', function() {
@@ -177,23 +190,23 @@ describe('elasticsearch index selector', function() {
         };
 
         var op1 = Object.assign({}, baseOP, {timeseries: 'daily'});
-        var op2 = Object.assign({}, baseOP, {timeseries: 'daily', index_prefix: 'events-'});
+        var op2 = Object.assign({}, baseOP, {timeseries: 'daily', index_prefix: "events-"});
         var op3 = Object.assign({}, baseOP, {timeseries: 'daily', date_field: 'dateField'});
-        var op4 = Object.assign({}, baseOP, {timeseries: 'daily', index_prefix: 'events-', date_field: 'dateField'});
+        var op4 = Object.assign({}, baseOP, {timeseries: 'daily', index_prefix: "events-", date_field: 'dateField'});
 
 
         expect(function() {
-            indexer.op_validation(op1);
+            indexer.op_validation(op1)
         }).toThrowError(errorString);
         expect(function() {
-            indexer.op_validation(op2);
+            indexer.op_validation(op2)
         }).toThrowError(errorString);
         expect(function() {
             indexer.op_validation(op3);
         }).toThrowError(errorString);
 
         expect(function() {
-            indexer.op_validation(op4);
+            indexer.op_validation(op4)
         }).not.toThrow();
     });
 
@@ -201,26 +214,22 @@ describe('elasticsearch index selector', function() {
         var errorString = 'elasticsearch_index_selector was set to preserve_id but full_response on readers was not set to true';
         var sysconfig = {};
         var badOP = {_op: 'otherOp'};
-        var goodOP = {_op: 'otherOp', full_response: true};
-        var esDataGeneratorOp = {_op: 'elasticsearch_data_generator'};
+        var goodOP = {_op: 'otherOp', full_response: true}
         var selectorOP = {_op: 'elasticsearch_index_selector', preserve_id: true};
 
         var job1 = {operations: [badOP, selectorOP]};
         var job2 = {operations: [badOP, selectorOP, goodOP]};
         var job3 = {operations: [goodOP, selectorOP, badOP]};
-        var job4 = {operations: [esDataGeneratorOp, selectorOP]};
+
 
         expect(function() {
-            indexer.post_validation(job1, sysconfig);
+            indexer.post_validation(job1, sysconfig)
         }).toThrowError(errorString);
         expect(function() {
-            indexer.post_validation(job2, sysconfig);
+            indexer.post_validation(job2, sysconfig)
         }).toThrowError(errorString);
         expect(function() {
-            indexer.post_validation(job3, sysconfig);
-        }).not.toThrow();
-        expect(function() {
-            indexer.post_validation(job4, sysconfig);
+            indexer.post_validation(job3, sysconfig)
         }).not.toThrow();
     });
 });
