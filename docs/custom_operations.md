@@ -1,7 +1,7 @@
 # Custom Operations
 
-It is possible to implement custom operations and utilize them in your Teraslice
-jobs.
+It is possible to implement custom operations (slicers, readers, and processors)
+and utilize them in your Teraslice jobs.
 
 The first step to utilizing custom operations is to configure your Teraslice
 nodes to point to the directory containing your custom code, this is done by
@@ -75,7 +75,9 @@ function newProcessor(context, opConfig, jobConfig) {
     };
 }
 
-// FIXME: Help me describe this.
+// A schema function is required on all operations. It can be used to verify
+// that jobs meet the requirements of your custom processor or it can just
+// return an empty object if you want to skip this type of validation.
 function schema() {
     return {};
 }
