@@ -64,6 +64,60 @@ response:
 ]
 ```
 
+#### POST /assets
+
+submit a zip file containing custom readers/processors for jobs to use
+
+query:
+ ```
+  curl -XPOST -H "Content-Type: application/octet-stream" localhost:5678/assets --data-binary @zipFile.zip 
+ ```
+
+ response:
+
+ ```
+ {
+     "_id": "ec2d5465609571590fdfe5b371ed7f98a04db5cb"
+ }
+ ```
+the _id returned is the id of elasticsearch document where the zip file has been saved
+
+The zip file must contain an asset.json containing a name for the asset bundle and a version number which can be used to query the asset besides using the _id
+```javascript
+ /enclosing_dir
+    asset_op 
+       index.js
+    another_asset.cvs
+    asset.json
+        
+```
+   
+   
+You may zip the enclosing directory or piecemeal the file together
+
+```javascript
+zip -r zipfile.zip enclosing_dir    
+zip -r zipfile.zip asset_op another_asset.cvs asset.json    
+```
+
+### DELETE /assets
+
+delete an asset
+
+query:
+ ```
+  curl -XDELETE localhost:5678/assets/ec2d5465609571590fdfe5b371ed7f98a04db5cb
+ ```
+
+ response:
+
+ ```
+ {
+     "_id": "ec2d5465609571590fdfe5b371ed7f98a04db5cb"
+ }
+ ```
+the _id returned is the id of elasticsearch document that was deleted
+
 #### POST /jobs
 
 submit a job to be enqueued
@@ -407,3 +461,138 @@ defaults:
 - queued
 - processed
 - subslice_by_key
+
+
+#### GET /txt/assets
+
+returns a textual graph of all assets sorted by the most recent at the top
+
+parameter options:
+
+- fields [String]
+
+The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
+ie fields="name,version" or fields="name version"
+
+query:
+```curl localhost:5678/txt/assets```
+
+all fields:
+
+- name
+- version
+- id
+- _created
+- description
+
+default:
+
+- name
+- version
+- id
+- _created
+- description
+
+response:
+
+```
+name     version  id                                        _created                  description
+-------  -------  ----------------------------------------  ------------------------  ------------------------------
+zipfile  0.0.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-30T18:19:18.638Z  Some description 
+otherzip 1.0.1    d94hy8d0b0fe679698d781ef71b332915d020570  2017-05-29T18:19:18.638Z  Some description 
+
+```
+
+The description field is capped to 30 chars
+
+#### GET /txt/assets/asset_name
+
+returns a textual graph of all assets by the given name, sorted by the most recent at the top
+name may contain '*'
+
+parameter options:
+
+- fields [String]
+
+The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
+ie fields="name,version" or fields="name version"
+
+query:
+```
+curl localhost:5678/txt/assets/zipfile
+curl localhost:5678/txt/assets/zipfi*
+
+```
+
+all fields:
+
+- name
+- version
+- id
+- _created
+- description
+
+default:
+
+- name
+- version
+- id
+- _created
+- description
+
+response:
+
+```
+name     version  id                                        _created                  description
+-------  -------  ----------------------------------------  ------------------------  ------------------------------
+zipfile  1.0.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-30T18:19:18.638Z  Some description 
+zipfile  0.3.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-28T18:19:18.638Z  Some description 
+
+```
+
+The description field is capped to 30 chars
+
+#### GET /txt/assets/name/version
+
+returns a textual graph of all assets by a given name and version, sorted by the most recent at the top
+name and version may contain '*'
+
+parameter options:
+
+- fields [String]
+
+The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
+ie fields="name,version" or fields="name version"
+
+query:
+```
+curl localhost:5678/txt/assets/zipfile/0.3.1
+curl localhost:5678/txt/assets/zipfi*/0.3.*
+```
+
+all fields:
+
+- name
+- version
+- id
+- _created
+- description
+
+default:
+
+- name
+- version
+- id
+- _created
+- description
+
+response:
+
+```
+name     version  id                                        _created                  description
+-------  -------  ----------------------------------------  ------------------------  ------------------------------
+zipfile  0.3.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-28T18:19:18.638Z  Some description 
+
+```
+
+The description field is capped to 30 chars
