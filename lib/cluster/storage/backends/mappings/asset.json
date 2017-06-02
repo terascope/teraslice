@@ -12,7 +12,8 @@
       "properties": {
         "blob": {
           "type": "string",
-          "index": "no"
+          "index": "no",
+          "doc_values": false
         },
         "name": {
           "type": "string",
