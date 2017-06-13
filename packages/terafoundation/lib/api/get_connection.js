@@ -71,7 +71,7 @@ module.exports = function(context) {
 
             var connector = loadConnector(type);
 
-            var connection = connector.create(moduleConfig, logger);
+            var connection = connector.create(moduleConfig, logger, options);
 
             if (cached) {
                 connections[key] = connection;
