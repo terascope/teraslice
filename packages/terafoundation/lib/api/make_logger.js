@@ -23,9 +23,11 @@ module.exports = function(context) {
     var log_level = getLogLevel(context.sysconfig.terafoundation.log_level);
     var logger;
 
-    return function(name, destination, meta) {
+    return function(name, destination, _meta) {
         if (logger) {
-            var metaData = meta ? meta : {};
+            var meta = _meta ? _meta : {};
+            //subsequent child loggers don't need name or destination, check to see if name parameter is actual _meta
+            var metaData = typeof name === 'object' ? name : meta;
             var newLogger = logger.child(metaData);
             //add flush fn to the new logger
             newLogger.flush = logger.flush;

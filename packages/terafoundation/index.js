@@ -20,6 +20,7 @@ module.exports = function(config) {
     });
 
     //allows top level function to declare ops_directory, so not hard baked in
+    //TODO verify why we need this
     if (typeof config.ops_directory === 'function') {
         config.ops_directory = config.ops_directory(configFile);
     }
@@ -137,6 +138,7 @@ module.exports = function(config) {
                  * If the bootstrap option is provided we run the bootstrap function to
                  * do any initial application setup.
                  **/
+                //TODO verify we need this
                 if (argv.bootstrap) {
                     if (config.bootstrap && typeof config.bootstrap === 'function') {
                         config.bootstrap(context, function() {
