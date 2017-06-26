@@ -1,0 +1,19 @@
+{
+  "name": "teraslice_processor_test_framework",
+  "version": "1.0.0",
+  "description": "A test framework to make testing Teraslice Processors easier.",
+  "main": "index.js",
+  "author": "Austin Godber",
+  "license": "APACHE",
+  "dependencies": {
+    "jasmine": "^2.6.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.1.1",
+    "eslint-config-google": "^0.8.0",
+    "jsdoc": "^3.4.3"
+},
+  "scripts": {
+    "docs": "jsdoc -P package.json index.js"
+  }
+}
