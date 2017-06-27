@@ -1,7 +1,7 @@
 {
-  "name": "teraslice_processor_test_framework",
+  "name": "teraslice_op_test_harness",
   "version": "1.0.0",
-  "description": "A test framework to make testing Teraslice Processors easier.",
+  "description": "A testing harness to simplify testing Teraslice processors and operations.",
   "main": "index.js",
   "author": "Austin Godber",
   "license": "APACHE",

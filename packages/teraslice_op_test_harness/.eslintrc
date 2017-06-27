@@ -1,0 +1,16 @@
+{
+  "parserOptions": {
+      "ecmaVersion": 6,
+      "sourceType": "module",
+      "semi": "always"
+  },
+  "rules": {
+    "comma-dangle": ["error", "only-multiline"],
+    "no-var": "off",
+    "require-jsdoc": "off",
+    "max-len": ["error", 100, { "ignoreTemplateLiterals": true },
+      { "ignoreStrings": true }],
+    "brace-style": ["error", "1tbs"]
+  },
+  "extends": "google"
+}
