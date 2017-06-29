@@ -1,5 +1,13 @@
+// load data
 var sampleDataArrayLike = require('./data/sampleDataArrayLike.json');
 var sampleDataEsLike = require('./data/sampleDataEsLike.json');
+
+var simpleData = [
+    {'name': 'Skippy', 'age': 20},
+    {'name': 'Flippy', 'age': 21},
+    {'name': 'Hippy', 'age': 22},
+    {'name': 'Dippy', 'age': 23},
+];
 
 var fakeLogger = {
     logger: {
@@ -12,13 +20,19 @@ var fakeLogger = {
     }
 };
 
-var simpleData = [
-    {'name': 'Skippy', 'age': 20},
-    {'name': 'Flippy', 'age': 21},
-    {'name': 'Hippy', 'age': 22},
-    {'name': 'Dippy', 'age': 23},
-];
-
+function runProcessorSpecs(processor) {
+    // TODO: I'd like to refactor this out into a stand-alone spec file in a
+    // subdirectory, but this will do for now.
+    describe('The dupedoc processor', function() {
+        it('has a schema and newProcessor method', function() {
+            expect(processor).toBeDefined();
+            expect(processor.newProcessor).toBeDefined();
+            expect(processor.schema).toBeDefined();
+            expect(typeof processor.newProcessor).toEqual('function');
+            expect(typeof processor.schema).toEqual('function');
+        });
+    });
+}
 
 /**
  * Teraslice Processor Test Framework
@@ -66,6 +80,7 @@ module.exports = (op) => {
              *   documents
              */
             esLike: sampleDataEsLike
-        }
+        },
+        runProcessorSpecs: runProcessorSpecs,
     };
 };

@@ -90,3 +90,26 @@ var myProcessor = processor.newProcessor(
 
 myProcessor(harness.data.simple, sliceLogger)
 ```
+
+## Common Tests
+
+The harness also provides a simple set of tests that can be used on any
+processor.  These tests will ensure that the processor you have implemented
+behaves as expected by Teraslice.
+
+To use these tests, you can simply import the harness, then call,
+`runProcessorSpecs()`, passing your processor in as an argument.  I recommend
+you implement this as a stand-alone file named `harness_spec.js` in your spec
+directory but it could be included at the top of another spec file.  Keeping it
+separate might help call out the fact that these specs are different from the
+tests you've implemented yourself because they come from somewhere else.
+
+```javascript
+'use strict';
+
+var processor = require('../index');
+var harness = require('teraslice_op_test_harness')('dupedoc');
+
+// Run the tests provided by the harness
+harness.runProcessorSpecs(processor);
+```
