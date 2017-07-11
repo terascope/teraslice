@@ -19,6 +19,7 @@ detailed description of the configurations available for a job.
       * [script](#script)
       * [elasticsearch_bulk](#elasticsearch_bulk)
       * [stdout](#stdout)
+      * [noop](#noop)
 
 **The schema for jobs can be found at lib/config/schemas/job, and the schema's for each operation can be found in their respective file located in either lib/readers or lib/processors**
 
@@ -359,3 +360,17 @@ Example configuration
 | Configuration | Description | Type |  Notes   |
 |:---------: | :--------: | :------: | :------: |
 | limit | Specify a number > 0 to limit the number of results printed to the console log.  Default is to print all results. | Number | optional |
+
+### noop
+
+This processor simply passes the data through, unmodified.  It is primarily used
+for develop purposes.
+
+Example configuration
+```
+{
+     "_op": "noop",
+}
+```
+
+There is no configuration for this processor.
