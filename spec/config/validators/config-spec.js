@@ -28,7 +28,6 @@ describe('system_schema', function() {
             analytics: true,
             max_retries: 3,
             slicers: 1,
-            workers: 4,
             operations: [
                 {_op: 'noop'},
                 {_op: 'noop'}
@@ -38,6 +37,7 @@ describe('system_schema', function() {
         };
 
         var jobConfig = configValidator.validateConfig(jobSchema, jobSpec);
+        delete jobConfig.workers;
         expect(jobConfig).toEqual(validJob);
     });
 });
