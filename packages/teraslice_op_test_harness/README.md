@@ -1,68 +1,82 @@
 # Teraslice Operation Test Harness
 
-This project provides a number of mock objects, data sources and functions to
-help you implement tests of your Teraslice operations.  But first, to start off,
-require your processor and then pass in your processor name as an argument to
+This project provides a processor execution function called `run()`, test data
+sources and common test functions to help you implement tests of your Teraslice
+operations.
+
+To start using it, require your processor and then pass it in as an argument to
 the harness module as shown below.  The code examples below assume you are using
 the harness in a `spec/` or `test/` subdirectory and your processor is
-implemented in `../index`.
+implemented in `../index.js`, adjust paths accordingly.
 
 ```javascript
 var processor = require('../index');
-var harness = require('teraslice_op_test_harness')('dupedoc');
+var harness = require('teraslice_op_test_harness')(processor);
 ```
 
 Now, you can access functionality using the `harness` object.
 
-## Mock Objects
+## Processor Execution Function - `run()`
 
-The testing harness provides a number of mocked resources that are needing when
-testing a Teraslice processor or operation.  The first few resources you will
-need are a `context`, an `op`, and a `jobConfig`.  These are needed when you
-create your processor and you can use the standard mock resources like this:
+The testing harness provides a function `run()`, that will run your processor on
+the data you have passed in to the run function.  The `run()` function returns
+the output data from your processor so you can confirm that it behaved the way
+you expected.  Generally speaking, using `harness.run()` looks like the example
+below. The second argument passed to `run()`, `opConfig` is optional.
 
 ```javascript
 var processor = require('../index');
-var harness = require('teraslice_op_test_harness')('dupedoc');
-var myProcessor = processor.newProcessor(
-    harness.context,
-    harness.op,
-    harness.jobConfig);
+var harness = require('teraslice_op_test_harness')(processor);
+
+var data = [];
+var opConfig = {option: 3}
+console.log(harness.run(data, opConfig));
 ```
 
-If you want to override the default operations on your processor, you can do so
-by setting new properties on `op`.  Note that depending on your use case you may
-want to clone `harness.op` to avoid impacting other tests as shown below.
+The rest of the examples will be implemented as valid unit tests using the
+[jasmine](https://jasmine.github.io) testing framework.  This is a convenient
+way for you to develop and test your Teraslice operations without having to run
+them in Teraslice directly.
+
+The example below shows a processor that, using the default operation settings,
+doesn't change the data in any way:
 
 ```javascript
 var processor = require('../index');
-var harness = require('teraslice_op_test_harness')('dupedoc');
-var op = _.cloneDeep(harness.op);
-// setting processors percentage argument to 100
-op.percentage = 100;
+var harness = require('teraslice_op_test_harness')(processor);
 
-var myProcessor = processor.newProcessor(
-    harness.context,
-    op,
-    harness.jobConfig);
+describe('With data in is []', function() {
+    it('data out is []', function() {
+        var data = [];
+        expect(harness.run(data)).toEqual(data);
+    });
+});
 ```
 
-The other resource you're likely to need is a mock logging object.  When calling
-your processor, the first argument is the data and the second argument is the
-`sliceLogger`, which must behave like a bunyan compatible logger.  The
-`fakeLogger.logger` object serves that purpose as shown below.
+If you want to override the default operations used by your processor, you can
+do so by passing in an `opConfig` object with the properties you want to change.
+They will be merged into the default `opConfig` and validated automatically by
+the test harness.  The example below shows the modification of the `percentage`
+property on the operator:
 
 ```javascript
-var _ = require('lodash');
 var processor = require('../index');
-var harness = require('teraslice_op_test_harness')('dupedoc');
-var sliceLogger = harness.fakeLogger.logger;
-var myProcessor = processor.newProcessor(
-    harness.context,
-    harness.op,
-    harness.jobConfig);
+var harness = require('teraslice_op_test_harness')(processor);
 
-myProcessor([], sliceLogger)
+describe('The data doubles when', function() {
+    var opConfig = {percentage: 100};
+
+    it('using simple data and percentage is 100', function() {
+        // prepare the data to test output data against
+        var newData = [];
+        harness.data.simple.forEach(function(item) {
+            newData.push(item, item);
+        });
+
+        // run the operator, passing in input data and the overridden opConfig
+        expect(harness.run(harness.data.simple, opConfig)).toEqual(newData);
+    });
+});
 ```
 
 ## Data Sources
@@ -81,14 +95,13 @@ as shown below.
 
 ```javascript
 var processor = require('../index');
-var harness = require('teraslice_op_test_harness')('dupedoc');
-var sliceLogger = harness.fakeLogger.logger;
-var myProcessor = processor.newProcessor(
-    harness.context,
-    harness.op,
-    harness.jobConfig);
+var harness = require('teraslice_op_test_harness')(processor);
 
-myProcessor(harness.data.simple, sliceLogger)
+describe('The data doubles when', function() {
+    it('using simple data and percentage is 100', function() {
+        expect(harness.run(harness.data.simple)).toEqual(harness.data.simple);
+    });
+});
 ```
 
 ## Common Tests
@@ -108,7 +121,7 @@ tests you've implemented yourself because they come from somewhere else.
 'use strict';
 
 var processor = require('../index');
-var harness = require('teraslice_op_test_harness')('dupedoc');
+var harness = require('teraslice_op_test_harness')(processor);
 
 // Run the tests provided by the harness
 harness.runProcessorSpecs(processor);

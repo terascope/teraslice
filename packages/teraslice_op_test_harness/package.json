@@ -6,13 +6,15 @@
   "author": "Austin Godber",
   "license": "APACHE",
   "dependencies": {
-    "jasmine": "^2.6.0"
+    "lodash": "^4.17.4",
+    "teraslice": "terascope/teraslice"
   },
   "devDependencies": {
+    "jasmine": "^2.6.0",
     "eslint": "^4.1.1",
     "eslint-config-google": "^0.8.0",
     "jsdoc": "^3.4.3"
-},
+  },
   "scripts": {
     "docs": "jsdoc -P package.json index.js"
   }

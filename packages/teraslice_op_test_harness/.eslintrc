@@ -8,7 +8,7 @@
     "comma-dangle": ["error", "only-multiline"],
     "no-var": "off",
     "require-jsdoc": "off",
-    "max-len": ["error", 100, { "ignoreTemplateLiterals": true },
+    "max-len": ["error", 120, { "ignoreTemplateLiterals": true },
       { "ignoreStrings": true }],
     "brace-style": ["error", "1tbs"]
   },
