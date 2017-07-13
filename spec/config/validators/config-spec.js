@@ -2,8 +2,8 @@
 
 var configValidator = require('../../../lib/config/validators/config')();
 
-describe('system_schema', function() {
-    it('schema has defaults', function() {
+describe('When passed a valid jobSchema and jobConfig', function() {
+    it('returns a completed and valid jobConfig', function() {
         var context = {
             sysconfig: {
                 teraslice: {
