@@ -163,7 +163,7 @@ module.exports = function(client, logger, _opConfig) {
             function indexRecord() {
                 client.index(query)
                     .then(function(result) {
-                        resolve(record);
+                        resolve(result);
                     })
                     .catch(errHandler);
             }
@@ -301,7 +301,6 @@ module.exports = function(client, logger, _opConfig) {
         return {found: wasFound, indexWindowSize: results}
     }
 
-// date slicer
     function version() {
         return client.cluster.stats({})
             .then(function(data) {
