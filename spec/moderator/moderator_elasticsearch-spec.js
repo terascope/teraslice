@@ -3,7 +3,7 @@
 var esModerator = require('../../lib/cluster/moderator/index');
 var Promise = require('bluebird');
 
-describe('elasticsearch moderator', function() {
+describe('moderator client', function() {
     var events = require('events');
     var eventEmitter = new events.EventEmitter();
 
@@ -84,7 +84,7 @@ describe('elasticsearch moderator', function() {
                 moderator_resume: 0.5,
                 moderator_interval: 10,
                 master_hostname: 'localhost',
-                port: 9999
+                node_port: 9999
             },
             terafoundation: {
                 connectors: {
