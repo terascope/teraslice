@@ -26,7 +26,7 @@ Queue.prototype.enqueue = function(value) {
     this._size++;
 };
 
-Queue.prototype.shift = function(value) {
+Queue.prototype.unshift = function(value) {
     var currentNode = this.head;
     var node = new Node(value, null, currentNode);
     this.head = node;

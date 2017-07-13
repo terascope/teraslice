@@ -24,11 +24,11 @@ describe('Queue', function() {
         expect(first).toEqual('first')
     });
 
-    it('can shift', function() {
+    it('can unshift', function() {
         var queue = new Queue();
         queue.enqueue(2);
         queue.enqueue(3);
-        queue.shift(1);
+        queue.unshift(1);
 
         expect(queue.size()).toEqual(3);
         expect(queue.dequeue()).toEqual(1);
