@@ -71,11 +71,8 @@ describe('When passed a job without a known connector', function() {
                 }
             ]
         };
-        try {
+        expect(function () {
             configValidator.validateConfig(jobSchema, jobSpec)
-        }
-        catch (err) {
-            expect(err).toMatch(/undefined connection/)
-        }
+        }).toThrowError(/undefined connection/)
     });
 });
