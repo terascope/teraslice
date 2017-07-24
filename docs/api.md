@@ -138,7 +138,6 @@ query:
  ```
  {
      "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
-     "ex_id": "34502x78-1a20-dj8s-as34-acsef60f3asn"
  }
  ```
 
@@ -162,11 +161,17 @@ size is the number of documents returned, from is how many documents in and sort
 returns the job that matches given job_id
 
 query:
-``` curl localhost:5678/jobs/77c94621-48cf-459f-9d95-dfbccf010f5c```
+``` curl localhost:5678/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd```
 
 #### PUT /jobs/{job_id}
 
 updates a stored job that has the given job_id
+
+#### GET /job/:job_id/ex
+returns the current or latest job execution context that matches given job_id
+
+   query:
+   ``` curl localhost:5678/jobs/{job_id}/ex```
 
 #### POST /jobs/{job_id}/_start
 
@@ -174,6 +179,69 @@ issues a start command, this will start a fresh new job associated with the job_
 
 query:
 ``` curl -XPOST localhost:5678/jobs/{job_id}/_start```
+
+
+#### POST /jobs/{job_id}/_stop
+
+issues a stop command which will shutdown all slicers and workers for that job, marks the job execution context state as stopped
+
+#### POST /jobs/{job_id}/_pause
+
+issues a pause command, this will put the slicers on hold to prevent them from giving out more slices for workers, marks the job execution context state as paused
+
+#### POST /jobs/{job_id}/_resume
+
+issues a resume command, this allows the slicers to continue if they were in a paused state, marks the job execution context as running
+
+#### POST /jobs/{job_id}/_recover
+
+issues a recover command, this can only be run if the job is stopped, the job will attempt to retry failed slices and to resume where it previously left off
+
+
+#### POST /jobs/{job_id}/_workers
+
+you can dynamically change the amount of workers that are allocated for a specific job execution.
+
+parameter options:
+
+- add = [Number]
+- remove = [Number]
+- total = [Number]
+
+if you use total, it will dynamically determine if it needs to add or remove to reach the number of workers you set
+
+query:
+``` curl -XPOST localhost:5678/jobs/{job_id}/_workers?add=5```
+
+#### GET /jobs/{job_id}/slicer
+
+same concept as cluster/slicers, but only get stats on slicer associated with the given job_id
+
+query:
+```curl localhost:5678/jobs/{job_id}/slicer```
+
+response:
+```
+{
+        "node_id": "myCompName",
+        "job_id": "a8e2be53-fe17-4727-9336-c9f09db9485f",
+        "stats": {
+            "available_workers": 0,
+            "active_workers": 4,
+            "workers_joined": 4,
+            "reconnected_workers": 0,
+            "workers_disconnected": 0,
+            "failed": 0,
+            "subslices": 24,
+            "queued": 46,
+            "slice_range_expansion": 0,
+            "processed": 0,
+            "slicers": 2,
+            "subslice_by_key": 0,
+            "started": "2016-07-29T13:24:12.558-07:00"
+        }
+    }
+```
 
 
 #### GET /ex

@@ -159,8 +159,6 @@ This will return the job_id (for access to the original job posted) and the job 
 ```
 {
     "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
-    "ex_id":  "2b5dk70c-qw30-1459-bn47-zchjs80fexg3"
-
 }
 ```
 # Job Control
@@ -172,7 +170,7 @@ Please check the api docs at the bottom for a comprehensive in-depth list of all
 This will retrieve the job configuration including '\_status' which indicates the execution status of the job.
 
 ```
-curl YOU_MASTER_IP:5678/ex/{EX_ID}
+curl YOU_MASTER_IP:5678/job/{job_id}/ex}
 ```
 
 ### Stopping a job
@@ -181,7 +179,7 @@ Stopping a job stops all execution and frees the workers being consumed
 by the job on the cluster.
 
 ```
-curl -XPOST YOU_MASTER_IP:5678/ex/{EX_ID}/_stop
+curl -XPOST YOU_MASTER_IP:5678/job/{job_id}/_stop
 ```
 
 ### Starting a job
@@ -196,7 +194,7 @@ Starting a job with recover will attempt to replay any failed slices from previo
 slices the job will simply resume from where it was stopped.
 
 ```
-curl -XPOST YOU_MASTER_IP:5678/ex/{EX_ID}/_recover
+curl -XPOST YOU_MASTER_IP:5678/job/{job_id}/_recover
 ```
 
 ### Pausing a job
@@ -206,7 +204,7 @@ release the workers being used by the job. It simply pauses the slicer and
 stops allocating work to the workers. Workers will complete the work they're doing then just sit idle until the job is resumed.
 
 ```
-curl -XPOST YOU_MASTER_IP:5678/ex/{EX_ID}/_pause
+curl -XPOST YOU_MASTER_IP:5678/job/{job_id}/_pause
 ```
 
 ### Resuming a job
@@ -214,7 +212,7 @@ curl -XPOST YOU_MASTER_IP:5678/ex/{EX_ID}/_pause
 Resuming a job restarts the slicer and the allocation of slices to workers.
 
 ```
-curl -XPOST YOU_MASTER_IP:5678/ex/{EX_ID}/_resume
+curl -XPOST YOU_MASTER_IP:5678/job/{job_id}/_resume
 ```
 
 ### Viewing Slicer statistics for a job
@@ -223,7 +221,7 @@ This provides information related to the execution of the slicer and can be usef
 in monitoring and optimizing the execution of the job.
 
 ```
-curl YOU_MASTER_IP:5678/ex/{EX_ID}/slicer
+curl YOU_MASTER_IP:5678/job/{job_id}/slicer
 ```
 
 ### Viewing cluster state
