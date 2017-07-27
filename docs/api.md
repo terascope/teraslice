@@ -243,6 +243,35 @@ response:
     }
 ```
 
+#### GET /jobs/{job_id}/errors
+
+This endpoint will return an array of all errors from all executions from oldest to newest
+Note that elasticsearch has a window size limit of 10000, please use from to get more if needed
+parameter options:
+
+- from = [Number]
+- size = [Number]
+
+
+query:
+```curl -XGET localhost:5678/jobs/{job_id}/errors
+```
+
+
+#### GET /jobs/{job_id}/errors/{ex_id}
+
+This endpoint will return an array of all errors from the specified  execution from oldest to newest
+Note that elasticsearch has a window size limit of 10000, please use from to get more if needed
+parameter options:
+
+- from = [Number]
+- size = [Number]
+
+
+query:
+```curl -XGET localhost:5678/jobs/{job_id}/errors/{ex_id}
+```
+
 
 #### GET /ex
 
