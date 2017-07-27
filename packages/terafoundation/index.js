@@ -60,10 +60,12 @@ module.exports = function(config) {
         logger = makeLogger(name, name);
         context.logger = logger;
         var getConnection = require('./lib/api/get_connection')(context);
+        var events = require('./lib/api/events');
         context.foundation = {
             makeLogger: makeLogger,
             startWorkers: require('./lib/api/start_workers')(context),
-            getConnection: getConnection
+            getConnection: getConnection,
+            getEventEmitter: () => events
         };
 
         loggerClient(context, logger, logging_connection)

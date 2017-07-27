@@ -5,6 +5,7 @@ module.exports = function(context, config) {
     var logger = context.logger;
     var configWorkers = context.sysconfig.terafoundation.workers;
     var start_workers = true;
+    var events = context.foundation.getEventEmitter();
 
     if (config.start_workers === false) {
         start_workers = false;
@@ -20,7 +21,9 @@ module.exports = function(context, config) {
     var shutdown = function() {
         logger.info("Shutting down.");
         shuttingDown = true;
-
+        //optional hook for shutdown sequences
+        events.emit('terafoundation:shutdown');
+        
         logger.info("Notifying workers to stop.");
         logger.info("Waiting for " + _.keys(cluster.workers).length + " workers to stop.");
         for (var id in cluster.workers) {
@@ -36,15 +39,11 @@ module.exports = function(context, config) {
             if (shuttingDown && _.keys(cluster.workers).length === 0) {
                 logger.info("All workers have exited. Ending.");
                 //sending kill signal allows for master process above to exit as it pleases
-                if (config.emitter) {
-                    config.emitter.emit('shutdown')
-                }
-                else {
-                    logger.flush()
-                        .then(function() {
-                            process.exit();
-                        });
-                }
+
+                logger.flush()
+                    .then(function() {
+                        process.exit();
+                    });
             }
             else if (shuttingDown) {
                 logger.info("Waiting for workers to stop: " + _.keys(cluster.workers).length + " pending.");
@@ -94,12 +93,13 @@ module.exports = function(context, config) {
     }
 
     cluster.on('exit', function(worker, code, signal) {
-        var type = worker.assignment ? worker.assignment : 'Worker';
+        var type = worker.assignment ? worker.assignment : 'worker';
         logger.info(`${type} has exited, id: ${worker.id}, code: ${code}, signal: ${signal}`);
         if (!shuttingDown && shouldProcessRestart(code, signal)) {
             var envConfig = determineWorkerENV(config, worker);
             var newWorker = cluster.fork(envConfig);
-            logger.info(`launching a new worker, id: ${newWorker.id}`);
+            logger.info(`launching a new ${type}, id: ${newWorker.id}`);
+            logger.debug(`new worker configuration: ${JSON.stringify(envConfig)}`);
 
             _.assign(cluster.workers[newWorker.id], envConfig)
 
