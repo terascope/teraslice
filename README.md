@@ -248,3 +248,8 @@ curl YOU_MASTER_IP:5678/cluster/state
 ## Configuration
 
  * [Teraslice configuration reference](./docs/configuration.md)
+ 
+## Services
+ * [additional services](./docs/services.md)
+
+
