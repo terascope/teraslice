@@ -1,10 +1,9 @@
 {
   "name": "teraslice-client-js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Javascript client library for working with Teraslice",
   "main": "index.js",
   "scripts": {
-    "test": "npm test"
   },
   "repository": {
     "type": "git",
