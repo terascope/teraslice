@@ -9,7 +9,6 @@ var cluster_master = require('./lib/cluster/cluster_master');
 var moderator = require('./lib/cluster/moderator');
 
 var config_schema = require('./lib/config/schemas/system').config_schema;
-var emitter = require('./lib/utils/events');
 var schema_formats = require('./lib/utils/convict_utils');
 
 function ops_directory(configFile) {
@@ -57,5 +56,4 @@ var foundation = require('terafoundation')({
     ops_directory: ops_directory,
     cluster_name: cluster_name,
     logging_connection: logging_connection
-    // emitter: emitter
 });

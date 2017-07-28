@@ -1,7 +1,8 @@
 'use strict';
 var config = require('../../lib/utils/config');
 var fs = require('fs');
-var Queue = require('queue');
+var events = require('events');
+var eventEmitter = new events.EventEmitter();
 
 describe('config', function() {
 
@@ -67,6 +68,9 @@ describe('config', function() {
                             return config;
                         }
                     }
+                },
+                getEventEmitter: function(){
+                    return eventEmitter;
                 }
             }
         };

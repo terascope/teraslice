@@ -2,6 +2,8 @@
 
 var esModerator = require('../../lib/cluster/moderator/modules/elasticsearch');
 var Promise = require('bluebird');
+var events = require('events');
+var eventEmitter = new events.EventEmitter();
 
 describe('elasticsearch moderator', function() {
 
@@ -81,6 +83,9 @@ describe('elasticsearch moderator', function() {
                         }
                     }
                 }
+            },
+            getEventEmitter: function(){
+                return eventEmitter;
             }
         },
         logger: logger

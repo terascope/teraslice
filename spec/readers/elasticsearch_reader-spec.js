@@ -2,6 +2,8 @@
 
 var es_reader = require('../../lib/readers/elasticsearch_reader');
 var Promise = require('bluebird');
+var events = require('events');
+var eventEmitter = new events.EventEmitter();
 
 describe('elasticsearch_reader', function() {
     var clientData;
@@ -51,6 +53,9 @@ describe('elasticsearch_reader', function() {
                         }
                     }
                 }
+            },
+            getEventEmitter: function(){
+                return eventEmitter;
             }
         },
         logger: {
