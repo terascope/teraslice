@@ -4,6 +4,8 @@ var utils = require('../../lib/utils/date_utils');
 var Promise = require('bluebird');
 var moment = require('moment');
 
+var events = require('events');
+var eventEmitter = new events.EventEmitter();
 
 describe('elastic_utils', function() {
     var clientData;
@@ -53,6 +55,9 @@ describe('elastic_utils', function() {
                         }
                     }
                 }
+            },
+            getEventEmitter: function(){
+                return eventEmitter;
             }
         },
         logger: {

@@ -1,6 +1,8 @@
 'use strict';
 
 var es_sender = require('../../lib/processors/elasticsearch_bulk');
+var events = require('events');
+var eventEmitter = new events.EventEmitter();
 
 describe('elasticsearch_bulk', function() {
 
@@ -47,6 +49,9 @@ describe('elasticsearch_bulk', function() {
                         }
                     }
                 }
+            },
+            getEventEmitter: function(){
+                return eventEmitter;
             }
         },
         logger: {

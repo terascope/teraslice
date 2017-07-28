@@ -118,6 +118,9 @@ describe('elasticsearch moderator', function() {
             },
             makeLogger: function() {
                 return logger
+            },
+            getEventEmitter: function(){
+                return eventEmitter;
             }
         },
         logger: logger,

@@ -2,6 +2,8 @@
 
 var id_reader = require('../../lib/readers/id_reader');
 var Promise = require('bluebird');
+var events = require('events');
+var eventEmitter = new events.EventEmitter();
 
 describe('id_reader', function() {
 
@@ -29,6 +31,9 @@ describe('id_reader', function() {
                         }
                     }
                 }
+            },
+            getEventEmitter: function(){
+                return eventEmitter;
             }
         },
         logger: {
