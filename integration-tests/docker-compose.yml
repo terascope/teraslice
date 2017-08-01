@@ -1,0 +1,31 @@
+# TODO: docker-compose-js doesn't `scale` with compose format version >= 2.2
+version: '2.1'
+services:
+  teraslice-master:
+    image: teraslice
+    ports:
+        - "45678:45678"
+    links:
+        - elasticsearch
+    volumes:
+        - ./config:/app/config
+    command: node /app/source/service.js -c /app/config/processor-master.yaml
+  teraslice-worker:
+    image: teraslice
+    links:
+        - teraslice-master
+        - elasticsearch
+    volumes:
+        - ./config:/app/config
+    command: node /app/source/service.js -c /app/config/processor-worker.yaml
+  elasticsearch:
+    # TODO: Will no longer be available in docker hub past 5.5
+    image: elasticsearch:${ES_VERSION}
+    ports:
+        - "49200:49200"
+        - "49300:49300"
+    volumes:
+        - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    environment:
+        ES_VERSION: ${ES_VERSION}
+        ES_JAVA_OPTS: '-Xms2g -Xmx2g'

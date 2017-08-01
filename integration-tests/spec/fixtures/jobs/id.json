@@ -1,0 +1,26 @@
+
+{
+  "name": "ID_Reindex",
+  "lifecycle": "once",
+  "analytics": true,
+  "slicers": 2,
+  "workers": 4,
+  "operations": [
+    {
+      "_op": "id_reader",
+      "index": "example-logs-10000",
+      "type": "events",
+      "size": 1000,
+      "key_type": "base64url"
+    },
+    {
+      "_op": "elasticsearch_index_selector",
+      "index": "test-id_reindex-10000",
+      "type": "events"
+    },
+    {
+      "_op": "elasticsearch_bulk",
+      "size": 50000
+    }
+  ]
+}
