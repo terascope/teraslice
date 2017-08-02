@@ -1,0 +1,36 @@
+{
+    "name": "teraslice-integration-tests",
+    "version": "0.1.0",
+    "description": "Teraslice integration test suite",
+    "scripts": {
+        "lint": "eslint lib",
+        "test": "jasmine"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/terascope/teraslice.git"
+    },
+    "keywords": [
+        "teraslice",
+        "elasticsearch",
+        "docker-compose"
+    ],
+    "author": "Kimbro Staken",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "homepage": "https://github.com/terascope/teraslice/integration-tests/#readme",
+    "dependencies": {
+        "bluebird": "^3.4.0",
+        "docker-compose-js": "terascope/docker-compose-js",
+        "elasticsearch": "^11.0.1",
+        "jasmine": "^2.7",
+        "jasmine-spec-reporter": "^4.1",
+        "lodash": "^4.13.1",
+        "teraslice-client-js": "terascope/teraslice-client-js"
+    },
+    "config": {
+        "esVersion": 2.3
+    }
+}
