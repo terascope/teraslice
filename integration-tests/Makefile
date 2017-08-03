@@ -16,7 +16,6 @@ help: ## show target summary
 
 
 node_modules: package.json
-	npm set registry http://npm.terascope.io:4873
 	npm install
 
 
