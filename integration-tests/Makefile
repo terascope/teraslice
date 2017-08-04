@@ -24,7 +24,7 @@ lint: node_modules ## run linters
 
 
 images.log: ../Dockerfile
-	docker build --no-cache -t teraslice .. | tee images.log
+	docker build --no-cache -t teraslice .. > images.log
 
 
 test: ES=5.5# elasticsearch version to use
