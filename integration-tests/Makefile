@@ -24,7 +24,7 @@ lint: node_modules ## run linters
 
 
 images.log: ../Dockerfile
-	docker build -t teraslice .. > images.log
+	docker build --no-cache -t teraslice .. | tee images.log
 
 
 test: ES=5.5# elasticsearch version to use
@@ -37,8 +37,13 @@ test-all: ## run test matrix
 	make test ES=5.5
 
 
-clean: ## destroy test environment
+clean: ## remove test docker containers
 	docker-compose down -v
+
+
+clean-all: clean ## remove all test artifacts
+	rm -rf node_modules
+	rm images.log
 
 
 grep: TYPE:=F# how to interpret NEEDLE (F=fixed, E=extended regex, G=basic regex)
