@@ -10,8 +10,27 @@ Teraslice integration test suite
 
 # General Notes
 
+Unless specified, all commands are assumed to be run from this integration-tests
+directory - utils like `make` & `docker-compose` look for files in current dir.
+
 Look to `make help` for interesting build targets & usage. You can `make test`
 to test the latest stable row from the version matrix.
+
+There are currently two supported "modes": developer mode & QA/CI mode. The
+default dev. To override, `export MODE=qa` in your environment.
+
+## Dev Mode
+
+When in dev mode, the teraslice project root and any npm-linked dependencies
+will be bind-mounted into the test image to avoid rebuilds between edits. The
+recommended workflow is:
+
+1. Make edits to teraslice and any npm-linked modules.
+
+1. From the teraslice project root, `make -C integration-tests test` will run
+   the test suite against latest stable versions.
+
+1. Repeat as needed.
 
 # Trouble-Shooting
 

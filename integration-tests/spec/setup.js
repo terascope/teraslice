@@ -11,7 +11,6 @@ if (process.stdout.isTTY) {
     var SpecReporter = require('jasmine-spec-reporter').SpecReporter
     jasmine.getEnv().clearReporters()
     jasmine.getEnv().addReporter(new SpecReporter({spec: {
-        displayStacktrace: true,
         displayDuration: true
     }}))
 }
@@ -20,7 +19,7 @@ describe('teraslice', function() {
 
     function dockerUp() {
         console.log(' - Bringing Docker environment up')
-        return misc.compose.up()
+        return misc.compose.up({build: ''})
     }
 
     function waitForES() {

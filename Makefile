@@ -1,10 +1,9 @@
 
 .DEFAULT_GOAL := help
-.PHONY: help lint test test-all clean grep
+.PHONY: help lint test integration-tests run docker-image grep
 SHELL := bash
 
-export MODE ?= dev # accepted values: dev, qa
-export ES_VERSION ?= 5.5
+APP_NAME := teraslice
 
 
 help: ## show target summary
@@ -26,22 +25,24 @@ lint: node_modules ## run linters
 	npm run lint
 
 
-test: node_modules ## run tests
-	./docker-compose.sh > docker-compose.yml # do every time in case variables or linked modules change
-	$$(npm bin)/jasmine
+test: node_modules ## run unit tests
+	npm run test
 
 
-test-all: ## run test matrix
-	ES_VERSION=2.3 make test
-	ES_VERSION=5.5 make test
+integration-tests: ## run integration tests
+	make -C integration-tests test
 
 
-clean: ## remove test docker containers
-	docker-compose down -v
+run: node_modules ## start listening to events
+	npm run start
 
 
-clean-all: clean ## remove all test artifacts
-	rm -rf node_modules
+Dockerfile: Dockerfile.sh
+	./Dockerfile.sh > Dockerfile
+
+
+docker-image: Dockerfile ## build docker image
+	docker build -t $(APP_NAME) .
 
 
 grep: TYPE:=F# how to interpret NEEDLE (F=fixed, E=extended regex, G=basic regex)
