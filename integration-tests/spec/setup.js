@@ -24,33 +24,55 @@ describe('teraslice', function() {
     }
 
     function waitForES() {
-        console.log(` - Waiting for Elasticsearch to be ready`)
+        process.stdout.write(' - Waiting for Elasticsearch...')
         return new Promise(function(resolve, reject) {
+            var attempts = 0
             function wait() {
+                attempts++
                 misc.es().cat.indices({
                     requestTimeout: 1000
                 })
-                .then(resolve)
-                .catch(function(err) {
-                    console.warn('    - still waiting...')
-                    setTimeout(wait, 1000)
-                })
+                    .then(function() {
+                        console.log(' Ready')
+                        resolve()
+                    })
+                    .catch(function(err) {
+                        if (attempts > 50) {
+                            console.log(' Giving up')
+                            reject('timed out')
+                        }
+                        else {
+                            process.stdout.write('.')
+                            setTimeout(wait, 1000)
+                        }
+                    })
             }
             wait()
         })
     }
 
     function waitForTeraslice() {
-        console.log(' - Waiting for Teraslice to be ready')
+        process.stdout.write(' - Waiting for Teraslice...')
         return new Promise(function(resolve, reject) {
+            var attempts = 0
             var check = misc.teraslice().cluster.state
             function wait() {
-                check().then(function() {
-                    resolve()
-                }).catch(function(err) {
-                    console.warn('    - still waiting...')
-                    setTimeout(wait, 1000)
-                })
+                attempts++
+                check()
+                    .then(function() {
+                        console.log(' Ready')
+                        resolve()
+                    })
+                    .catch(function(err) {
+                        if (attempts > 50) {
+                            console.log(' Giving up')
+                            reject('timed out')
+                        }
+                        else {
+                            process.stdout.write('.')
+                            setTimeout(wait, 1000)
+                        }
+                    })
             }
             wait()
         })
@@ -140,11 +162,11 @@ describe('teraslice', function() {
         Promise.resolve(before)
             .mapSeries(f => f())
             .then(function() {
-                console.log('Global setup complete')
+                console.log('Global setup complete. Starting tests...')
                 done()
             })
             .catch(function(err) {
-                console.error('Setup failed: ', err)
+                console.error('Setup failed: ', err, ' - `docker-compose logs` may provide clues')
                 process.exit(2)
             })
     })
