@@ -44,6 +44,13 @@ module.exports = function(config, job_id) {
         return request.post(url, {});
     }
 
+    function ex_id() {
+        return request.get(`/jobs/${job_id}/ex`)
+            .then(function(job_spec) {
+                return job_spec.ex_id;
+            });
+    }
+
     function status() {
         return request.get(`/jobs/${job_id}/ex`)
             .then(function(job_spec) {
@@ -115,7 +122,7 @@ module.exports = function(config, job_id) {
                 return workers;
             });
     }
-    
+
     function changeWorkers(param, workerNum){
         var url = `/jobs/${job_id}/_workers?${param}=${workerNum}`;
         return request.post(url)
@@ -143,9 +150,7 @@ module.exports = function(config, job_id) {
         id: () => {
             return job_id
         },
-        ex: () => {
-            return ex_id
-        },
+        ex: ex_id,
         waitForStatus: waitForStatus,
         workers: () => {
             return _filterProcesses('worker')
