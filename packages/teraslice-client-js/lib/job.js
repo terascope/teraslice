@@ -9,11 +9,11 @@ var Promise = require('bluebird');
  * state internally. Any access to the state currently goes to the server.
  * Depending on how usage of this API develops we may want to reconsider this.
  */
-module.exports = function(config, job_id, ex_id) {
+module.exports = function(config, job_id) {
     var request = require('./request')(config);
 
     function slicer(status) {
-        return request.get(`/ex/${ex_id}/slicer`);
+        return request.get(`/jobs/${job_id}/slicer`);
     }
 
     function job_action(action, options) {
@@ -45,7 +45,7 @@ module.exports = function(config, job_id, ex_id) {
     }
 
     function status() {
-        return request.get(`/ex/${ex_id}`)
+        return request.get(`/jobs/${job_id}/ex`)
             .then(function(job_spec) {
                 return job_spec._status;
             });
@@ -102,7 +102,7 @@ module.exports = function(config, job_id, ex_id) {
             .then(function(state) {
                 var workers = _.reduce(state, function(workers, node) {
                     var found = _.filter(node.active, function(process) {
-                        if (process.assignment == role && process.ex_id == ex_id) {
+                        if (process.assignment == role && process.job_id == job_id) {
                             process.node_id = node.node_id;
                             return process;
                         }
@@ -115,22 +115,27 @@ module.exports = function(config, job_id, ex_id) {
                 return workers;
             });
     }
+    
+    function changeWorkers(param, workerNum){
+        var url = `/jobs/${job_id}/_workers?${param}=${workerNum}`;
+        return request.post(url)
+    }
 
     return {
         start: (options) => {
             return job_action('_start', options)
         },
         recover: (options) => {
-            return ex_action('_recover', options)
+            return job_action('_recover', options)
         },
         stop: (options) => {
-            return ex_action('_stop', options)
+            return job_action('_stop', options)
         },
         pause: (options) => {
-            return ex_action('_pause', options)
+            return job_action('_pause', options)
         },
         resume: (options) => {
-            return ex_action('_resume', options)
+            return job_action('_resume', options)
         },
         slicer: slicer,
         status: status,
@@ -144,6 +149,7 @@ module.exports = function(config, job_id, ex_id) {
         waitForStatus: waitForStatus,
         workers: () => {
             return _filterProcesses('worker')
-        }
+        },
+        changeWorkers: changeWorkers
     }
 };

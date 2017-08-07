@@ -7,7 +7,7 @@ module.exports = function(config) {
     function submit(job_spec) {
         return request.post("/jobs", job_spec)
             .then(function(result) {
-                return newjob(config, result.job_id, result.ex_id);
+                return newjob(config, result.job_id);
             })
             .catch(function(err) {
                 throw err.error
