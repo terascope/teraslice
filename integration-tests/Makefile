@@ -27,7 +27,7 @@ lint: node_modules ## run linters
 
 
 test: node_modules ## run tests
-	./docker-compose.sh > docker-compose.yml # do every time in case variables or linked modules change
+	./docker-compose.sh # do every time in case variables or linked modules change
 	$$(npm bin)/jasmine
 
 

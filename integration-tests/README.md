@@ -27,7 +27,7 @@ recommended workflow is:
 
 1. Make edits to teraslice and any npm-linked modules.
 
-1. From the teraslice project root, `make -C integration-tests test` will run
+1. From the teraslice project root, `make integration-tests` will run
    the test suite against latest stable versions.
 
 1. Repeat as needed.
