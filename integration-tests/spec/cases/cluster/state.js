@@ -144,10 +144,15 @@ module.exports = function() {
 
             teraslice.jobs.submit(job_spec)
                 .then(function(job) {
-                    ex_id = job.ex()
                     // The job may run for a while so we have to wait for it to finish.
                     return job
                         .waitForStatus('running')
+                        .then(function() {
+                            return job.ex()
+                                .then(function(_ex_id) {
+                                    ex_id = _ex_id
+                                })
+                        })
                         .then(function() {
                             return teraslice.cluster.state()
                         })
@@ -206,10 +211,14 @@ module.exports = function() {
             teraslice.jobs.submit(job_spec)
                 .then(function(job) {
                     // The job may run for a while so we have to wait for it to finish.
-                    ex_id = job.ex()
-
                     return job
                         .waitForStatus('running')
+                        .then(function() {
+                            return job.ex()
+                                .then(function(_ex_id) {
+                                    ex_id = _ex_id
+                                })
+                        })
                         .then(function() {
                             return teraslice.cluster.state()
                         })
