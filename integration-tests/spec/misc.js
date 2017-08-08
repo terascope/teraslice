@@ -1,14 +1,14 @@
-'use strict'
+'use strict';
 
-var _ = require('lodash')
-var Promise = require('bluebird')
-var TerasliceClient = require('teraslice-client-js')
-var ElasticsearchClient = require('elasticsearch').Client
+var _ = require('lodash');
+var Promise = require('bluebird');
+var TerasliceClient = require('teraslice-client-js');
+var ElasticsearchClient = require('elasticsearch').Client;
 
 module.exports = function() {
 
-    var DOCKER_IP = process.env.ip ? process.env.ip : 'localhost'
-    var compose = require('docker-compose-js')('docker-compose.yml')
+    var DOCKER_IP = process.env.ip ? process.env.ip : 'localhost';
+    var compose = require('docker-compose-js')('docker-compose.yml');
 
     function newJob(name) {
         return _.cloneDeep(require(`./fixtures/jobs/${name}.json`))
@@ -58,4 +58,4 @@ module.exports = function() {
         compose: compose,
         scale: scale
     }
-}()
+};

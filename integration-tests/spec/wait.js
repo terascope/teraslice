@@ -1,8 +1,8 @@
-'use strict'
+'use strict';
 
-var _ = require('lodash')
-var Promise = require('bluebird')
-var misc = require('./misc')
+var _ = require('lodash');
+var Promise = require('bluebird');
+var misc = require('./misc')();
 
 module.exports = function() {
     /*
@@ -71,4 +71,4 @@ module.exports = function() {
         forLength: forLength,
         forNodes: forNodes
     }
-}()
+};

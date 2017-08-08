@@ -1,17 +1,16 @@
-'use strict'
+'use strict';
 
-var Promise = require('bluebird')
-var _ = require('lodash')
-var misc = require('../../misc')
+var Promise = require('bluebird');
+var misc = require('../../misc')();
 
 module.exports = function() {
-    var teraslice = misc.teraslice()
+    var teraslice = misc.teraslice();
 
     describe('reindex', function() {
 
         it('should work for simple case', function(done) {
-            var job_spec = misc.newJob('reindex')
-            job_spec.name = 'basic reindex'
+            var job_spec = misc.newJob('reindex');
+            job_spec.name = 'basic reindex';
             job_spec.operations[1].index = 'test-reindex-10';
 
             teraslice.jobs.submit(job_spec)
@@ -33,8 +32,8 @@ module.exports = function() {
         });
 
         it('should complete after lifecycle changes', function(done) {
-            var job_spec = misc.newJob('reindex')
-            job_spec.name = 'reindex after lifecycle changes'
+            var job_spec = misc.newJob('reindex');
+            job_spec.name = 'reindex after lifecycle changes';
             // Job needs to be able to run long enough to cycle
             job_spec.operations[0].index = 'example-logs-10000';
             job_spec.operations[1].index = 'test-reindex-lifecycle';
@@ -81,8 +80,8 @@ module.exports = function() {
         });
 
         it('should support idempotency', function(done) {
-            var job_spec = misc.newJob('reindex')
-            job_spec.name = 'reindex 10 times'
+            var job_spec = misc.newJob('reindex');
+            job_spec.name = 'reindex 10 times';
             job_spec.operations[1].index = 'test-reindex-10times';
 
             var iterations = 10;
