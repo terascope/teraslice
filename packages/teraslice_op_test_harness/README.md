@@ -79,6 +79,30 @@ describe('The data doubles when', function() {
 });
 ```
 
+## Multiple calls to the same processor instance
+
+If you need to test a processor that maintains some type of state across slices you can create a processor instance and then call the process function independently.
+
+```javascript
+var processor = require('../index');
+var harness = require('teraslice_op_test_harness')(processor);
+
+describe('The data doubles when', function() {
+    var opConfig = {percentage: 100};
+
+    it('using simple data and percentage is 100', function() {
+        var processor = harness.getProcessor(opConfig);
+
+        // First call on the processor can use the input to setup state
+        harness.process(processor, harness.data.simple)
+
+        // Second call is using the same processor so if you setup state
+        // it should still exist.
+        expect(harness.process(processor, harness.data.simple)).toEqual(newData);
+    });
+});
+```
+
 ## Data Sources
 
 One of the main benefits of the testing harness is that it provides a consistent

@@ -74,6 +74,30 @@ module.exports = (processor) => {
 
     var validator = require('teraslice/lib/config/validators/config')();
 
+    function run(data, extraOpConfig) {
+        var myProcessor = getProcessor(extraOpConfig);
+
+        return process(myProcessor, data);
+    }
+
+    function getProcessor(extraOpConfig) {
+        // run the jobConfig and opConfig through the validator to get
+        // complete and convict validated configs
+        var jobConfig = validator.validateConfig(jobSchema, jobSpec(op, extraOpConfig));
+        jobConfig.operations = jobSpec(op, extraOpConfig).operations.map(function(opConfig) {
+            return validator.validateConfig(processor.schema(), opConfig);
+        });
+
+        return processor.newProcessor(
+            context, // context
+            jobConfig.operations[1], // 1 is opConfig for current op, the 0th operation is a noop
+            jobConfig); // jobConfig
+    }
+
+    function process(myProcessor, data) {
+        return myProcessor(data, fakeLogger.logger);
+    }
+
     return {
         /* Setup mock contexts for processor, each processor takes:
          *   context - global teraslice/terafoundation context object
@@ -116,20 +140,8 @@ module.exports = (processor) => {
         },
         _jobSpec: jobSpec,
         runProcessorSpecs: runProcessorSpecs,
-        run: function(data, extraOpConfig) {
-            // run the jobConfig and opConfig through the validator to get
-            // complete and convict validated configs
-            var jobConfig = validator.validateConfig(jobSchema, jobSpec(op, extraOpConfig));
-            jobConfig.operations = jobSpec(op, extraOpConfig).operations.map(function(opConfig) {
-                return validator.validateConfig(processor.schema(), opConfig);
-            });
-
-            var myProcessor = processor.newProcessor(
-                context, // context
-                jobConfig.operations[1], // 1 is opConfig for current op, the 0th operation is a noop
-                jobConfig); // jobConfig
-
-            return myProcessor(data, fakeLogger.logger);
-        },
+        run: run,
+        getProcessor: getProcessor,
+        process, process
     };
 };
