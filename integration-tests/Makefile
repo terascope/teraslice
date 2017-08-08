@@ -3,7 +3,8 @@
 .PHONY: help lint test test-all clean grep
 SHELL := bash
 
-export MODE ?= dev # accepted values: dev, qa
+# MODE acceptable values: dev, qa
+export MODE ?= dev
 export ES_VERSION ?= 5.5
 
 
