@@ -70,7 +70,7 @@ submit a zip file containing custom readers/processors for jobs to use
 
 query:
  ```
-  curl -XPOST -H "Content-Type: application/octet-stream" localhost:5678/assets --data-binary @zipFile.zip 
+  curl -XPOST -H "Content-Type: application/octet-stream" localhost:5678/assets --data-binary @zipFile.zip
  ```
 
  response:
@@ -85,14 +85,14 @@ the _id returned is the id of elasticsearch document where the zip file has been
 The zip file must contain an asset.json containing a name for the asset bundle and a version number which can be used to query the asset besides using the _id
 ```javascript
  /enclosing_dir
-    asset_op 
+    asset_op
        index.js
     another_asset.cvs
     asset.json
-        
+
 ```
-   
-   
+
+
 You may zip the enclosing directory or piecemeal the file together
 
 ```javascript
@@ -167,7 +167,7 @@ query:
 
 updates a stored job that has the given job_id
 
-#### GET /job/:job_id/ex
+#### GET /jobs/:job_id/ex
 returns the current or latest job execution context that matches given job_id
 
    query:
@@ -595,8 +595,8 @@ response:
 ```
 name     version  id                                        _created                  description
 -------  -------  ----------------------------------------  ------------------------  ------------------------------
-zipfile  0.0.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-30T18:19:18.638Z  Some description 
-otherzip 1.0.1    d94hy8d0b0fe679698d781ef71b332915d020570  2017-05-29T18:19:18.638Z  Some description 
+zipfile  0.0.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-30T18:19:18.638Z  Some description
+otherzip 1.0.1    d94hy8d0b0fe679698d781ef71b332915d020570  2017-05-29T18:19:18.638Z  Some description
 
 ```
 
@@ -642,8 +642,8 @@ response:
 ```
 name     version  id                                        _created                  description
 -------  -------  ----------------------------------------  ------------------------  ------------------------------
-zipfile  1.0.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-30T18:19:18.638Z  Some description 
-zipfile  0.3.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-28T18:19:18.638Z  Some description 
+zipfile  1.0.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-30T18:19:18.638Z  Some description
+zipfile  0.3.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-28T18:19:18.638Z  Some description
 
 ```
 
@@ -688,7 +688,7 @@ response:
 ```
 name     version  id                                        _created                  description
 -------  -------  ----------------------------------------  ------------------------  ------------------------------
-zipfile  0.3.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-28T18:19:18.638Z  Some description 
+zipfile  0.3.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-28T18:19:18.638Z  Some description
 
 ```
 
