@@ -4,7 +4,8 @@
   "description": "Slice and dice your Elasticsearch data",
   "main": "service.js",
   "scripts": {
-    "test": "node node_modules/jasmine/bin/jasmine"
+    "lint": "eslint lib",
+    "test": "jasmine"
   },
   "repository": {
     "type": "git",

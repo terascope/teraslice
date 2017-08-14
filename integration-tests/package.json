@@ -29,8 +29,5 @@
         "jasmine-spec-reporter": "^4.1",
         "lodash": "^4.13.1",
         "teraslice-client-js": "terascope/teraslice-client-js"
-    },
-    "config": {
-        "esVersion": 2.3
     }
 }

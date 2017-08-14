@@ -22,7 +22,7 @@ describe('teraslice', function() {
 
     function dockerUp() {
         console.log(' - Bringing Docker environment up');
-        return misc.compose.up()
+        return misc.compose.up({build: ''})
     }
 
     function waitForES() {
@@ -127,7 +127,7 @@ describe('teraslice', function() {
                         resolve();
                         return
                     }
-                    console.warn('    - defining index:', indexName, ', reason:', _.get(stats, '_all.total.docs.count'));
+                    console.warn('    - defining index:', indexName, ', reason:', _.get(stats, '_all.total.docs.count', 'index_not_found'));
                     misc.es().indices.delete({index: indexName}, function() {
                         if (!hex) {
                             resolve(misc.teraslice().jobs.submit(job_spec))
