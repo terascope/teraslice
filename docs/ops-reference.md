@@ -298,7 +298,7 @@ Example configuration
      "_op": "script",
      "command": "someFile.py",
      "args": ["-someFlag1", "-someFlag2"],
-     "asset_name": "someAsset"
+     "asset_name": "someAsset",
      "options": {},
 }
 ```
