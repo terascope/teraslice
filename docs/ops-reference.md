@@ -296,20 +296,22 @@ Example configuration
 ```
 {
      "_op": "script",
-     "command": "python",
-     "args": ["someFile.py", "-someFlag"],
+     "command": "someFile.py",
+     "args": ["-someFlag1", "-someFlag2"],
+     "asset_name": "someAsset"
      "options": {},
 }
 ```
 
 please look as this [reference](https://nodejs.org/dist/latest-v4.x/docs/api/child_process.html#child_process_child_process_spawn_command_args_options) for more information
 
-| Configuration | Description | Type |  Notes
-|:---------: | :--------: | :------: | :------:
-\_op | Name of operation, it must reflect the exact name of the file | String | required
-command | what command to run | String | required,
-args | arguments to pass along with the command| Array | optional
-options | Obj containing options to pass into the process env | Object | optional
+| Configuration | Description | Type |  Notes   |
+|:---------: | :--------: | :------: | :------: |
+| \_op | Name of operation, it must reflect the exact name of the file | String | required |
+| command | what command to run | String | required |
+| args | arguments to pass along with the command | Array | optional |
+| options | Obj containing options to pass into the process env | Object | optional |
+| asset_name | Name of asset containing command to run | String | optional |
 
 
 ### elasticsearch_bulk ###
