@@ -21,7 +21,7 @@ if test "$MODE" == "dev"
 then
     # TODO: Binary dependencies will not work in the container
     VOLS+=("..:/app/source")
-    for linked in $(find ../node_modules -type l -lname '../*' -maxdepth 1)
+    for linked in $(find ../node_modules -type l -maxdepth 1)
     do
         VOLS+=("$(realpath "$linked"):/app/source/node_modules/$(basename "$linked")")
     done
@@ -72,5 +72,5 @@ done)
         - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     environment:
         ES_VERSION: ${ES_VERSION}
-        ES_JAVA_OPTS: '-Xms2g -Xmx2g'
+        ES_JAVA_OPTS: '-Xms1g -Xmx1g'
 DOCKER
