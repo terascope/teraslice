@@ -41,3 +41,38 @@ describe('When passed a valid jobSchema and jobConfig', function() {
         expect(jobConfig).toEqual(validJob);
     });
 });
+
+describe('When passed a job without a known connector', function() {
+    it('raises an exception', function() {
+        var context = {
+            sysconfig: {
+                teraslice: {
+                    ops_directory: ''
+                },
+                terafoundation: {
+                    connectors: {
+                        elasticsearch: {
+                            t1: {
+                                host: ['1.1.1.1:9200']
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        var jobSchema = require('../../../lib/config/schemas/job').jobSchema(context);
+        var jobSpec = {
+            'operations': [{
+                    '_op': 'elasticsearch_reader',
+                    connection: 'unknown'
+                },
+                {
+                    '_op': 'noop'
+                }
+            ]
+        };
+        expect(function () {
+            configValidator.validateConfig(jobSchema, jobSpec)
+        }).toThrowError(/undefined connection/)
+    });
+});
