@@ -30,6 +30,7 @@ Example Job
     "lifecycle": "once",
     "analytics": false,
     "assets": ["ec2d5465609571590fdfe5b371ed7f98a04db5cb"],
+    "recycle_worker" : 10000,
     "operations": [
         {
             "_op": "elasticsearch_reader",
@@ -67,6 +68,7 @@ max_retries | Number of times a given slice of data will attempt to process befo
 slicers | Number of slicer functions that will chunk and prep the data for worker | Number | optional, defaults to 1
 workers | Number of worker instances that will process data, depending on the nature of the operations you may choose to over subscribe the number of workers compared to the number of cpu's | Number | optional, defaults to 5, if the number of workers for the job is set above workers specified in system configuration, a warning is passed and the workers set in the system configuration will be used,
 assets | An array of strings that are the id's for the corresponding assets zip files. | Array | optional
+recycle_worker | The number of slices a worker processes before it exits and restarts, only use if you have leaky workers | Null/Number | optional, defaults to null, if specified it must be a number
 operations | An array containing all the operations as well as their configurations. Typically the first is the reader/slicer. | Array | required
 
 ## Readers ##
