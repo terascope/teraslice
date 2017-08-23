@@ -39,6 +39,9 @@
                 "time": {
                     "type": "integer"
                 },
+                "memory": {
+                    "type": "integer"
+                },
                 "@timestamp": {
                     "type": "date"
                 }
