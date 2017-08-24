@@ -1,6 +1,6 @@
 terafoundation:
     environment: 'development'
-
+    log_level: info
     connectors:
         # ***********************
         # Elastic Search Configuration

@@ -31,6 +31,26 @@ module.exports = function() {
                 .finally(done)
         });
 
+        it('should collect cluster level stats', function(done) {
+            teraslice.cluster.stats()
+                .then(function(stats) {
+                    expect(stats.slicer.processed).toBeGreaterThan(0);
+                    expect(stats.slicer.failed).toBe(0);
+                    expect(stats.slicer.queued).toBeDefined();
+                    expect(stats.slicer.job_duration).toBeGreaterThan(0);
+                    expect(stats.slicer.workers_joined).toBeGreaterThan(0);
+                    expect(stats.slicer.workers_disconnected).toBeDefined();
+                    expect(stats.slicer.workers_reconnected).toBeDefined();
+                    // executions: total, failed, active?
+                    // exceptions?
+                })
+                .catch(function(err) {
+                    console.log('what error', err);
+                    fail()
+                })
+                .finally(done)
+        })
+
         it('should complete after lifecycle changes', function(done) {
             var job_spec = misc.newJob('reindex');
             job_spec.name = 'reindex after lifecycle changes';
