@@ -28,6 +28,7 @@ describe('When passed a valid jobSchema and jobConfig', function() {
             analytics: true,
             max_retries: 3,
             slicers: 1,
+            recycle_worker: null,
             operations: [
                 {_op: 'noop'},
                 {_op: 'noop'}
