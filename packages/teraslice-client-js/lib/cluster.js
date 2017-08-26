@@ -7,12 +7,17 @@ module.exports = function(config) {
         return request.get("/cluster/state");
     }
 
+    function stats() {
+        return request.get("/cluster/stats");
+    }
+
     function slicers() {
         return request.get("/cluster/slicers");
     }
 
     return {
         state: state,
+        stats: stats,
         slicers: slicers,
         nodes: () => {
         }
