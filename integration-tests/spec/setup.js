@@ -183,4 +183,5 @@ describe('teraslice', function() {
     require('./cases/cluster/worker-allocation')();
     require('./cases/cluster/state')();
     require('./cases/validation/job')();
+    require('./cases/jobs/lifecycle')();
 });
