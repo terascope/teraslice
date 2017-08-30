@@ -16,14 +16,20 @@ function realpath {
     fi
 }
 
-declare -a VOLS=("./config:/app/config")
+# Speed up bind mounts on mac.
+if uname | grep -iq 'darwin'
+then
+    CACHED=":cached"
+fi
+
+declare -a VOLS=("./config:/app/config${CACHED}")
 if test "$MODE" == "dev"
 then
     # TODO: Binary dependencies will not work in the container
-    VOLS+=("..:/app/source")
+    VOLS+=("..:/app/source${CACHED}")
     for linked in $(find ../node_modules -type l -maxdepth 1)
     do
-        VOLS+=("$(realpath "$linked"):/app/source/node_modules/$(basename "$linked")")
+        VOLS+=("$(realpath "$linked"):/app/source/node_modules/$(basename "$linked")${CACHED}")
     done
     DOCKERFILE=Dockerfile.dev
 else
