@@ -18,7 +18,7 @@
           "type": "string",
           "index": "not_analyzed"
         },
-        "_context":{
+        "_context": {
           "type": "string",
           "index": "not_analyzed"
         },
@@ -27,6 +27,14 @@
           "index": "not_analyzed"
         },
         "_has_errors": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "slicer_hostname": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "slicer_port": {
           "type": "string",
           "index": "not_analyzed"
         },
