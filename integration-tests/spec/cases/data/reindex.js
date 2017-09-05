@@ -49,7 +49,7 @@ module.exports = function() {
                     fail()
                 })
                 .finally(done)
-        })
+        });
 
         it('should complete after lifecycle changes', function(done) {
             var job_spec = misc.newJob('reindex');
