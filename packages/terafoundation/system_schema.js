@@ -95,6 +95,11 @@ module.exports = {
             }
         }
     },
+    log_index_rollover_frequency: {
+        doc: "How frequently the log indices are created",
+        default: "monthly",
+        format: ['daily', 'monthly', 'yearly']
+    },
     workers: {
         doc: 'Number of workers per server',
         default: workerCount

@@ -14,9 +14,16 @@ var levelsObj = {
     60: 'fatal'
 };
 
-function RingBuffer(index_name, limit, delay, client) {
+var indexFormat = {
+    daily: 'YYYY.MM.DD',
+    monthly: 'YYYY.MM',
+    yearly: 'YYYY'
+};
+
+function RingBuffer(index_name, limit, delay, client, timeseriesFormat) {
     var rlimit = limit ? limit : 500;
     this.index_name = index_name;
+    this.timeseriesFormat = timeseriesFormat;
     if (client) {
         this.client = client;
     }
@@ -47,11 +54,12 @@ RingBuffer.prototype.sendBulk = function() {
     var data = this.records;
     var client = this.client;
     var index_name = this.index_name;
+    var timeseriesFormat = this.timeseriesFormat;
 
     var esData = data.reduce(function(prev, record) {
         prev.push({
             "index": {
-                "_index": index_name + '__logs-' + moment(record.time).format('YYYY.MM.DD'),
+                "_index": `${index_name}__logs-${moment(record.time).format(indexFormat[timeseriesFormat])}`,
                 "_type": "logs"
             }
         });
@@ -66,6 +74,7 @@ RingBuffer.prototype.sendBulk = function() {
         return client.bulk({body: esData})
             .then(function(res) {
                 if (res.errors) {
+                    console.log('whats this error', JSON.stringify(res));
                     res.items.forEach(function(item) {
                         console.log(item.create)
                     })

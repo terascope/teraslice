@@ -67,8 +67,9 @@ module.exports = function(context) {
                 var name = context.cluster_name;
                 var limit = config.terafoundation.log_buffer_limit;
                 var delay = config.terafoundation.log_buffer_interval;
+                var timeseriesFormat = context.sysconfig.terafoundation.log_index_rollover_frequency;
 
-                ringBuffer = new RingBuffer(name, limit, delay, null);
+                ringBuffer = new RingBuffer(name, limit, delay, null, timeseriesFormat);
                 streamConfig.push({stream: ringBuffer, type: 'raw'})
             }
 
