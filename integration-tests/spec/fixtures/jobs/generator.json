@@ -1,0 +1,16 @@
+{
+  "name": "generator",
+  "slicers": 1,
+  "lifecycle": "persistent",
+  "workers": 3,
+  "operations": [
+    {
+      "_op": "elasticsearch_data_generator",
+      "size": 1000,
+      "stress_test": false
+    },
+    {
+      "_op": "noop"
+    }
+  ]
+}
