@@ -109,7 +109,7 @@ function post_validation(job, sysconfig) {
 }
 
 //optional, used to change the slicer queue length 
-function setQueueLength(jobConfig){
+function slicerQueueLength(jobConfig){
     // the fully validated job configuration file
     
    // should return a num >= 1
@@ -122,7 +122,7 @@ module.exports = {
   schema, schema,
   op_validation: op_validation,
   post_validation: post_validation,
-  setQueueLength: setQueueLength
+  slicerQueueLength: slicerQueueLength
 }
 
 ```
