@@ -58,7 +58,6 @@ describe('id_reader', function() {
         expect(reader.schema).toBeDefined();
         expect(reader.newReader).toBeDefined();
         expect(reader.post_validation).toBeDefined();
-        expect(reader.parallelSlicers).toEqual(true);
 
         expect(typeof reader.newSlicer).toEqual('function');
         expect(typeof reader.newReader).toEqual('function');
