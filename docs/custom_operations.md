@@ -82,8 +82,47 @@ function schema() {
     return {};
 }
 
+//optional, used to validate settings within the same op
+function op_validation(op) {
+    if (op.id_start_key && !op.set_id) {
+        throw new Error('elasticsearch_data_generator is mis-configured, id_start_key must be used with set_id parameter, please set the missing parameters')
+    }
+}
+
+//optional, used to validate settings across different ops
+function post_validation(job, sysconfig) {
+    var opConfig = getOpConfig(job, 'elasticsearch_data_generator');
+
+    if (opConfig.set_id) {
+        var indexSelectorConfig = job.operations.find(function(op) {
+            return op._op === 'elasticsearch_index_selector';
+        });
+
+        if (!indexSelectorConfig.id_field) {
+            throw new Error('elasticsearch_data_generator is mis-configured, set_id must be used in tandem with id_field which is set in elasticsearch_index_selector')
+        }
+
+        if (indexSelectorConfig.id_field !== 'id') {
+            throw new Error('id_field set in elasticsearch_index_selector must be set to "id" when elasticsearch_data_generator is creating ids')
+        }
+    }
+}
+
+//optional, used to change the slicer queue length 
+function setQueueLength(jobConfig){
+    // the fully validated job configuration file
+    
+   // should return a num >= 1
+   //or return  'QUEUE_MINIMUM_SIZE' which will make the queue dynamic to the number of workers
+}
+
 module.exports = {
-    newProcessor: newProcessor,
-    schema: schema,
-};
+  newReader: newReader,
+  newSlicer: newSlicer,
+  schema, schema,
+  op_validation: op_validation,
+  post_validation: post_validation,
+  setQueueLength: setQueueLength
+}
+
 ```
