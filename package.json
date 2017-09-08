@@ -5,7 +5,7 @@
   "main": "service.js",
   "scripts": {
     "lint": "eslint lib",
-    "test": "jasmine"
+    "test": "nyc -x spec/ jasmine"
   },
   "repository": {
     "type": "git",
@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "jasmine-spec-reporter": "^4.2.1",
-    "json-schema-faker": "^0.3.7"
+    "json-schema-faker": "^0.3.7",
+    "nyc": "^11.2.1"
   }
 }
