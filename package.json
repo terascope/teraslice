@@ -5,7 +5,10 @@
   "main": "service.js",
   "scripts": {
     "lint": "eslint lib",
-    "test": "jasmine"
+    "jasmine": "jasmine",
+    "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
+    "testcov": "nyc -x spec/ jasmine && nyc report --reporter=html",
+    "showcov": "open coverage/index.html"
   },
   "repository": {
     "type": "git",
@@ -41,6 +44,7 @@
   },
   "devDependencies": {
     "jasmine-spec-reporter": "^4.2.1",
-    "json-schema-faker": "^0.3.7"
+    "json-schema-faker": "^0.3.7",
+    "nyc": "^11.2.1"
   }
 }
