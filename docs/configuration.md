@@ -8,7 +8,7 @@ Example Config
 {
   "teraslice": {
     "master": true,
-    "timeout": 20000,
+    "network_timeout": 20000,
     "master_hostname": "SomeIP",
     "name": "teracluster",
     "ops_directory": "/Some/path/to/ops",
