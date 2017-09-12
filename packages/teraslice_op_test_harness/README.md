@@ -64,7 +64,9 @@ var processor = require('../index');
 var harness = require('teraslice_op_test_harness')(processor);
 
 describe('The data doubles when', function() {
-    var opConfig = {percentage: 100};
+    var opConfig = {
+        percentage: 100
+    };
 
     it('using simple data and percentage is 100', function() {
         // prepare the data to test output data against
@@ -88,7 +90,9 @@ var processor = require('../index');
 var harness = require('teraslice_op_test_harness')(processor);
 
 describe('The data doubles when', function() {
-    var opConfig = {percentage: 100};
+    var opConfig = {
+        percentage: 100
+    };
 
     it('using simple data and percentage is 100', function() {
         var processor = harness.getProcessor(opConfig);

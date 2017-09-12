@@ -37,9 +37,9 @@ function runProcessorSpecs(processor) {
 }
 
 module.exports = (processor) => {
-    var op = processor._op;
     /* A minimal context object */
     var context = {
+        logger: fakeLogger.logger,
         sysconfig:
             {
                 teraslice: {
@@ -48,6 +48,9 @@ module.exports = (processor) => {
             }
     };
 
+    // Baseline op configuration. By default this is just empty.
+    var baseOpConfig = {};
+
     var jobSchema = require('teraslice/lib/config/schemas/job').jobSchema(context);
 
     /**
@@ -55,12 +58,10 @@ module.exports = (processor) => {
      * the first one `noop` and the second one the op being tested.  If the
      * optional opConfig object is passed in as a second argument it is merged
      * with the template opConfig for the second operation.
-     * @param  {String} op       a string containing the name of the operation
      * @param  {Object} opConfig an optional partial opConfig
      * @return {Object}          a jobConfig object
      */
-    function jobSpec(op, opConfig) {
-        var baseOpConfig = {'_op': op};
+    function jobSpec(opConfig) {
         _.merge(baseOpConfig, opConfig);
         return {
             'operations': [
@@ -83,15 +84,16 @@ module.exports = (processor) => {
     function getProcessor(extraOpConfig) {
         // run the jobConfig and opConfig through the validator to get
         // complete and convict validated configs
-        var jobConfig = validator.validateConfig(jobSchema, jobSpec(op, extraOpConfig));
-        jobConfig.operations = jobSpec(op, extraOpConfig).operations.map(function(opConfig) {
-            return validator.validateConfig(processor.schema(), opConfig);
-        });
+        var jobConfig = validator.validateConfig(jobSchema, jobSpec(extraOpConfig));
+
+        var opConfig = _.merge(baseOpConfig, extraOpConfig);
+
+        validator.validateConfig(processor.schema(), opConfig);
 
         return processor.newProcessor(
-            context, // context
-            jobConfig.operations[1], // 1 is opConfig for current op, the 0th operation is a noop
-            jobConfig); // jobConfig
+            context,
+            opConfig,
+            jobConfig);
     }
 
     function process(myProcessor, data) {
