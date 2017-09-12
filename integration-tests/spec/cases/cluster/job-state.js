@@ -1,6 +1,5 @@
 'use strict';
 
-var _ = require('lodash');
 var Promise = require('bluebird');
 var misc = require('../../misc')();
 var wait = require('../../wait')();

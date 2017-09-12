@@ -176,12 +176,13 @@ describe('teraslice', function() {
                 process.exit(2)
             })
     });
-    
-    require('./cases/cluster/job-state')();
-    require('./cases/data/id-reader')();
-    require('./cases/data/elasticsearch-bulk')();
-    require('./cases/data/reindex')();
-    require('./cases/cluster/worker-allocation')();
-    require('./cases/cluster/state')();
-    require('./cases/validation/job')();
+
+    require('./cases/cluster/api')();
+   // require('./cases/cluster/job-state')();
+    //require('./cases/data/id-reader')();
+    //require('./cases/data/elasticsearch-bulk')();
+    //require('./cases/data/reindex')();
+    //require('./cases/cluster/worker-allocation')();
+    //require('./cases/cluster/state')();
+    //require('./cases/validation/job')();
 });
