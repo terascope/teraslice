@@ -35,7 +35,7 @@ module.exports = function() {
                         })
 
                 })
-                .catch(fail())
+                .catch(fail)
                 .finally(done);
         });
     });
