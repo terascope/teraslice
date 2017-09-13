@@ -27,8 +27,27 @@ module.exports = function(config) {
         });
     }
 
+
+    function put(path, record) {
+        return request({
+            method: 'PUT',
+            uri: teraslice_host + path,
+            body: record,
+            json: true // Automatically stringifies the body to JSON
+        });
+    }
+
+    function deleteFn(path) {
+        return request({
+            method: 'DELETE',
+            uri: teraslice_host + path
+        });
+    }
+
     return {
         get: get,
-        post: post
+        post: post,
+        put: put,
+        delete: deleteFn
     }
 };
