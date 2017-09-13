@@ -45,6 +45,11 @@
   "devDependencies": {
     "jasmine-spec-reporter": "^4.2.1",
     "json-schema-faker": "^0.3.7",
+    "eslint": "^4.6.1",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-jsx-a11y": "^5.1.1",
+    "eslint-plugin-react": "^7.3.0",
     "nyc": "^11.2.1"
   }
 }
