@@ -1,4 +1,5 @@
 {
+    "template": "*__analytics*",
     "settings" : {
         "index.number_of_shards" : 5,
         "index.number_of_replicas": 1
@@ -11,6 +12,10 @@
             "dynamic": "false",
             "properties": {
                 "ex_id": {
+                    "type": "string",
+                    "index" : "not_analyzed"
+                },
+                "job_id": {
                     "type": "string",
                     "index" : "not_analyzed"
                 },
