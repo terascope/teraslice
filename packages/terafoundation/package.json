@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "node service.js"
+    "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
+    "testcov": "nyc -x spec/ jasmine && nyc report --reporter=html",
+    "showcov": "open coverage/index.html"
   },
   "dependencies": {
     "agentkeepalive": "^2.0.3",
@@ -24,11 +26,14 @@
     "yargs": "^3.7.2"
   },
   "devDependencies": {
-    "jasmine-spec-reporter": "^4.2.1",
     "eslint": "^4.6.1",
     "eslint-config-airbnb": "^15.1.0",
     "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-jasmine": "^2.8.4",
     "eslint-plugin-jsx-a11y": "^5.1.1",
-    "eslint-plugin-react": "^7.3.0"
+    "eslint-plugin-react": "^7.3.0",
+    "jasmine": "^2.8.0",
+    "jasmine-spec-reporter": "^4.2.1",
+    "nyc": "^11.2.1"
   }
 }

@@ -1,11 +1,13 @@
 {
     "extends": "airbnb",
+    "plugins": ["jasmine"],
     "parserOptions": {
         "ecmaVersion": 6,
-        "sourceType": "script",
+        "sourceType": "script"
     },
     "env": {
-        "node": true
+        "node": true,
+        "jasmine": true
     },
     "rules": {
         "no-underscore-dangle": "off",

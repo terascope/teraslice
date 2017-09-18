@@ -1,73 +1,73 @@
-var _ = require('lodash');
+'use strict';
 
-module.exports = function(context, config) {
-    var cluster = context.cluster;
-    var logger = context.logger;
-    var configWorkers = context.sysconfig.terafoundation.workers;
-    var start_workers = true;
-    var events = context.foundation.getEventEmitter();
+const _ = require('lodash');
 
-    if (config.start_workers === false) {
-        start_workers = false;
+module.exports = function module(context, moduleConfig) {
+    const cluster = context.cluster;
+    const logger = context.logger;
+    const configWorkers = context.sysconfig.terafoundation.workers;
+    let startWorkers = true;
+    const events = context.foundation.getEventEmitter();
+
+    if (moduleConfig.start_workers === false) {
+        startWorkers = false;
     }
-    var plugin = context.master_plugin;
+    const plugin = context.master_plugin;
 
     if (plugin) plugin.pre();
 
-    var shuttingDown = false;
+    let shuttingDown = false;
 
-    var workerCount = configWorkers ? configWorkers : require('os').cpus().length;
+    const workerCount = configWorkers || require('os').cpus().length;
 
-    var shutdown = function() {
-        logger.info("Shutting down.");
+    function shutdown() {
+        logger.info('Shutting down.');
         shuttingDown = true;
-        //optional hook for shutdown sequences
+        // optional hook for shutdown sequences
         events.emit('terafoundation:shutdown');
-        
-        logger.info("Notifying workers to stop.");
-        logger.info("Waiting for " + _.keys(cluster.workers).length + " workers to stop.");
-        for (var id in cluster.workers) {
-            if (config.shutdownMessaging) {
-                cluster.workers[id].send({message: 'shutdown'});
-            }
-            else {
+
+        logger.info('Notifying workers to stop.');
+        logger.info(`Waiting for ${_.keys(cluster.workers).length} workers to stop.`);
+        _.forOwn(cluster.workers, (value, id) => {
+            if (moduleConfig.shutdownMessaging) {
+                cluster.workers[id].send({ message: 'shutdown' });
+            } else {
                 cluster.workers[id].kill('SIGINT');
             }
-        }
+        });
 
-        setInterval(function() {
+        setInterval(() => {
             if (shuttingDown && _.keys(cluster.workers).length === 0) {
-                logger.info("All workers have exited. Ending.");
-                //sending kill signal allows for master process above to exit as it pleases
+                logger.info('All workers have exited. Ending.');
+                // sending kill signal allows for master process above to exit as it pleases
 
                 logger.flush()
-                    .then(function() {
+                    .then(() => {
                         process.exit();
                     });
-            }
-            else if (shuttingDown) {
-                logger.info("Waiting for workers to stop: " + _.keys(cluster.workers).length + " pending.");
+            } else if (shuttingDown) {
+                logger.info(`Waiting for workers to stop: ${_.keys(cluster.workers).length} pending.`);
             }
         }, 1000);
-    };
+    }
 
     process.on('SIGTERM', shutdown);
     process.on('SIGINT', shutdown);
 
-    //default starting workers will use context.worker for code source;
-    if (start_workers) {
-        logger.info("Starting " + workerCount + " workers.");
-        for (var i = 0; i < workerCount; i++) {
+    // default starting workers will use context.worker for code source;
+    if (startWorkers) {
+        logger.info(`Starting ${workerCount} workers.`);
+        for (let i = 0; i < workerCount; i += 1) {
             cluster.fork();
         }
     }
 
-//assignment is set at /lib/api/start_workers
-    function determineWorkerENV(config, worker) {
-        var options = {};
+    // assignment is set at /lib/api/start_workers
+    function determineWorkerENV(worker) {
+        const options = {};
 
         if (worker.service_context) {
-            var envConfig = JSON.parse(worker.service_context);
+            const envConfig = JSON.parse(worker.service_context);
             _.assign(options, envConfig);
             options.__process_restart = true;
             options.service_context = worker.service_context;
@@ -77,10 +77,10 @@ module.exports = function(context, config) {
     }
 
     function shouldProcessRestart(code, signal) {
-        var signalOptions = {'SIGKILL': true, 'SIGTERM': true, 'SIGINT': true};
-        var bool = true;
+        const signalOptions = { SIGKILL: true, SIGTERM: true, SIGINT: true };
+        let bool = true;
 
-        //code === 0  means it was a clean exit
+        // code === 0  means it was a clean exit
         if (code === 0) {
             bool = false;
         }
@@ -92,22 +92,21 @@ module.exports = function(context, config) {
         return bool;
     }
 
-    cluster.on('exit', function(worker, code, signal) {
-        var type = worker.assignment ? worker.assignment : 'worker';
+    cluster.on('exit', (worker, code, signal) => {
+        const type = worker.assignment ? worker.assignment : 'worker';
         logger.info(`${type} has exited, id: ${worker.id}, code: ${code}, signal: ${signal}`);
         if (!shuttingDown && shouldProcessRestart(code, signal)) {
-            var envConfig = determineWorkerENV(config, worker);
-            var newWorker = cluster.fork(envConfig);
+            const envConfig = determineWorkerENV(worker);
+            const newWorker = cluster.fork(envConfig);
             logger.info(`launching a new ${type}, id: ${newWorker.id}`);
             logger.debug(`new worker configuration: ${JSON.stringify(envConfig)}`);
 
-            _.assign(cluster.workers[newWorker.id], envConfig)
-
+            _.assign(cluster.workers[newWorker.id], envConfig);
         }
     });
 
     if (plugin) plugin.post();
 
     // Put a friendly message on the terminal of the server.
-    logger.info("Service starting");
+    logger.info('Service starting');
 };

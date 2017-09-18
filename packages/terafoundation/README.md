@@ -18,7 +18,7 @@ var foundation = require('terafoundation')({
 });
 
 //worker.js
-module.exports = function(context) 
+module.exports = function(context)
 var logger = context.logger
     var count = 0;
     while (true) {
@@ -40,8 +40,8 @@ descriptors | Object listing all the different modules that a child process coul
 cluster_name | name of application| String or Function | optional, defaults to terafoundation
 logging_connection | If storing logs to elasticsearch, use this parameter to specify which endpoint it will use in the connectors configuration| String or Function | optional
 script | javascript execution of code | Function | optional
-config_schema | system schema for the top level service| Object or Function | optional 
-plugin_schema |system schema for plugins associated with the top level service |Object or Function | optional 
+config_schema | system schema for the top level service| Object or Function | optional
+plugin_schema |system schema for plugins associated with the top level service |Object or Function | optional
 schema_formats | If you have custom formats used for your schema validations you must pass them down | Array | optional, used to add any custom formats for convict validation library
 start_workers | By default, the service will attempt to create as many child process as set in the config, if set to false then the top level application will be in charge of when a child process will be created | Boolean | optional, defaults to true
 shutdownMessaging | If set to true then it provides a ipc shutdown message so all child process can hook into for custom shutdown. All child process will receive an ipc message of {message: 'shutdown'} | Boolean | optional, defaults to false which in turn cause the main process to call a kill signal "SIGINT"
@@ -94,30 +94,30 @@ The context is an object with the following keys:
  * `foundation` which contains the api to make a logger, create a database connection, or to make a worker
 
 #### API
-The api is located at `context.foundation` and it provides three functions:
+The api is located at `context.apis.foundation`:
 
- * `get_connection` which is used to get a database client. 
+ * `getConnection` which is used to get a database client.
 ```
-var client = context.context.foundation.getConnection({
+var client = context.apis.foundation.getConnection({
         type: 'elasticsearch',
         endpoint: default,
         cached: true
       }).client;
 ```
-   in this example, type references which database you are using, it correlates to the db's named in connectors. Endpoint references which of the endpoint you will use, and cached determines if once the client has been made to reuse the same one or not
-   
-* `make_logger` which is used to create another logger
+   In this example, `type` references which type of connector you are using. `Endpoint` references which of the endpoints you will use, and `cached` determines if the same client instance will be returned on subsequent calls.
+
+* `makeLogger` which is used to create a logger
 
 ```
-var logger = context.foundation.makeLogger({module: 'worker', slice: '7dj38d'});
+var logger = context.apis.foundation.makeLogger({module: 'worker', slice: '7dj38d'});
 
 ```
 The object attaches metadata to any of the logs done by the new child logger. This allows more visible logging per action taken or per module
 
-* `start_workers` which is used to create specific child workers
+* `startWorkers` which is used to create specific child workers
 
 ```
-context.foundation.startWorkers(1, {
+context.apis.foundation.startWorkers(1, {
             assignment: 'assets_service',
             port: assets_port,
             node_id: context.sysconfig._nodeName
@@ -125,15 +125,24 @@ context.foundation.startWorkers(1, {
 ```
 The first argument is the number of specific workers you are going to make. The second parameter is an object. The key `assignment` must match whats listed in the descriptors listed in the complex terafoundation example above. It allows the system to know what type of child process to create. All keys and values in the object will also by stored in the process environment `process.env` . This allows you to pass a port number, identifier or anything else that the process needs to know before hand to boot up
 
+* `getSystemEvents` which returns the system wide event emitter
 
-   
+```
+var events = context.apis.foundation.getSystemEvents();
+
+events.on('event', function() {
+    // do something for this event.
+    });
+```
+This allows listening to and emitting events on the system events bus.
+
 
 ## terafoundation configuration
 
 A configuration file may either be a YAML or JSON file. You can pass in the configuration file at run time:
- `node service.js -c config.yaml` 
+ `node service.js -c config.yaml`
 or by having the appropriate configuration file located at the root of your project
- 
+
 ```
 /root-app
   /node-modules
@@ -169,7 +178,7 @@ terafoundation:
          - 127.0.0.1:9215
          keepAlive: true
          maxRetries: 5
-         maxSockets: 20 
+         maxSockets: 20
     mongo:
       default:
         host: 127.0.0.1
@@ -189,10 +198,9 @@ Each endpoint will have its own configuration which will then be used by the act
 | Configuration | Description | Type |  Notes
 |:---------: | :--------: | :------: | :------:
 environment | Set for legacy purposes, if set to production, it will also write logs to file | String | optional, defaults to development
-log_path | directory where the logs will be stored if logging is set to file | String | optional, defaults to root of project 
+log_path | directory where the logs will be stored if logging is set to file | String | optional, defaults to root of project
 logging | a list to where logs will be written to, settings available are ['console', 'file', 'elasticsearch'] | Array of Strings | optional, defaults to ['console']
-log_level | this determines what level of logs are shown, options: trace, debug, info, warn , error, fatal | String or Array | optional, defaults to info, if a string is set then all log destinations in logging will use this, you may also customize log levels for each destination: [{console: 'debug'}, {file: 'warn}, {elasticsearch: 'info'}] 
-log_buffer_limit | the number of logs stored in the ringbuffer on the logger before sent, logging must have elasticsearch set as a value for this to take effect | Number | optional, defaults to 30 
-log_buffer_interval | interval (number in milliseconds) that the log buffer will send up its logs, this is used if logging is set to use elasticsearch | Number | optional, defaults to 60000 ms 
+log_level | this determines what level of logs are shown, options: trace, debug, info, warn , error, fatal | String or Array | optional, defaults to info, if a string is set then all log destinations in logging will use this, you may also customize log levels for each destination: [{console: 'debug'}, {file: 'warn}, {elasticsearch: 'info'}]
+log_buffer_limit | the number of logs stored in the ringbuffer on the logger before sent, logging must have elasticsearch set as a value for this to take effect | Number | optional, defaults to 30
+log_buffer_interval | interval (number in milliseconds) that the log buffer will send up its logs, this is used if logging is set to use elasticsearch | Number | optional, defaults to 60000 ms
 connectors | An object containing database client information for you service | Object | required
-

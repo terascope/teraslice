@@ -5,16 +5,16 @@ var dirPath = process.cwd();
 
 module.exports = {
     environment: {
-        doc: 'Set for legacy purposes, if set to production, it will also write logs to file',
+        doc: 'If set to `production`, console logging will be disabled and logs will be sent to a file',
         default: 'development'
     },
     log_path: {
-        doc: 'directory where the logs will be stored if logging is set to file',
+        doc: 'Directory where the logs will be stored if logging is set to `file`',
         default: dirPath,
         format: String
     },
     logging: {
-        doc: 'options to specify which logging functionality to use',
+        doc: 'Logging destinations. Expects an array of logging targets. options: console, file, elasticsearch',
         default: ['console'],
         format: function(config) {
             var values = {console: true, file: true, elasticsearch: true};
@@ -30,7 +30,7 @@ module.exports = {
         }
     },
     log_level: {
-        doc: 'what level of logs should be used by the bunyan logger',
+        doc: 'Default logging levels',
         default: 'info',
         format: function(val) {
             var check = {'trace': true, 'debug': true, 'info': true, 'warn': true, 'error': true, 'fatal': true};
@@ -64,7 +64,7 @@ module.exports = {
         }
     },
     log_buffer_limit: {
-        doc: 'the number of logs stored in the ringbuffer on the logger before sent, logging must have elasticsearch set as a value for this to take effect',
+        doc: 'Number of log lines to buffer before sending to elasticsearch, logging must have elasticsearch set as a value for this to take effect',
         default: 30,
         format: function(val) {
             if (isNaN(val)) {
@@ -80,7 +80,7 @@ module.exports = {
         }
     },
     log_buffer_interval: {
-        doc: 'interval (number in milliseconds) that the log buffer will send up its logs',
+        doc: 'How often the log buffer will flush the logs (number in milliseconds)',
         default: 60000,
         format: function(val) {
             if (isNaN(val)) {

@@ -1,46 +1,48 @@
 'use strict';
 
-module.exports = function(config) {
-    var domain = require('domain');
-    var primary = domain.create();
-    var cluster = require('cluster');
-    var _ = require('lodash');
-    var convict = require('convict');
-    var validateConfigs = require('./lib/validate_configs');
-    var name = config.name ? config.name : 'terafoundation';
-    var loggerClient = require('./lib/logger_utils').loggerClient;
-    var logging_connection = 'default';
+module.exports = function module(config) {
+    const domain = require('domain');
+    const primary = domain.create();
+    const cluster = require('cluster');
+    const _ = require('lodash');
 
-    var argv = require('yargs')
+    const validateConfigs = require('./lib/validate_configs');
+    const loggerClient = require('./lib/logger_utils').loggerClient;
+    const api = require('./lib/api');
+
+    const name = config.name ? config.name : 'terafoundation';
+    let loggingConnection = 'default';
+
+    const argv = require('yargs')
         .alias('c', 'configfile')
         .alias('b', 'bootstrap').argv;
 
-    var configFile = require('./lib/sysconfig')({
+    const configFile = require('./lib/sysconfig')({
         configfile: argv.configfile
     });
 
-    //allows top level function to declare ops_directory, so not hard baked in
-    //TODO verify why we need this
+    // allows top level function to declare ops_directory, so not hard baked in
+    // TODO verify why we need this
     if (typeof config.ops_directory === 'function') {
         config.ops_directory = config.ops_directory(configFile);
     }
 
-    var logger;
+    let logger;
 
-    var sysconfig = validateConfigs(cluster, config, configFile);
-    //set by initAPI
+    const sysconfig = validateConfigs(cluster, config, configFile);
+    // set by initAPI
 
     function errorHandler(err) {
-        var logErr = logger ? logger.error.bind(logger) : console.log;
+        const logErr = logger ? logger.error.bind(logger) : console.log;
         if (cluster.isMaster) {
-            logErr("Error in master with pid: " + process.pid);
+            logErr(`Error in master with pid: ${process.pid}`);
+        } else {
+            logErr(`Error in worker: ${cluster.worker.id} pid: ${process.pid}`);
         }
-        else logErr("Error in worker: " + cluster.worker.id + " pid: " + process.pid);
 
         if (err.message) {
             logErr(err.message);
-        }
-        else {
+        } else {
             logErr(err);
         }
 
@@ -48,44 +50,26 @@ module.exports = function(config) {
             logErr(err.stack);
         }
 
-        //log saving to disk is async, using hack to give time to flush
-        setTimeout(function() {
+        // log saving to disk is async, using hack to give time to flush
+        setTimeout(() => {
             process.exit(-1);
-        }, 600)
+        }, 600);
     }
 
-    function initAPI(context) {
-        var makeLogger = require('./lib/api/make_logger')(context);
-        //set outside logger
-        logger = makeLogger(name, name);
-        context.logger = logger;
-        var getConnection = require('./lib/api/get_connection')(context);
-        var events = require('./lib/api/events');
-        context.foundation = {
-            makeLogger: makeLogger,
-            startWorkers: require('./lib/api/start_workers')(context),
-            getConnection: getConnection,
-            getEventEmitter: () => events
-        };
-
-        loggerClient(context, logger, logging_connection)
-    }
-
-    function findWorkerCode(context, config) {
-        var keyFound = false;
+    function findWorkerCode(context) {
+        let keyFound = false;
         if (config.descriptors) {
-            _.forOwn(config.descriptors, function(value, key) {
+            _.forOwn(config.descriptors, (value, key) => {
                 if (process.env.assignment === key) {
                     keyFound = true;
                     config[key](context);
                 }
             });
-            //if no key was explicitly set then default to worker
+            // if no key was explicitly set then default to worker
             if (!keyFound) {
                 config.worker(context);
             }
-        }
-        else {
+        } else {
             config.worker(context);
         }
     }
@@ -95,12 +79,11 @@ module.exports = function(config) {
     process.on('uncaughtException', errorHandler);
     process.on('unhandledRejection', errorHandler);
 
-    primary.run(function() {
-
+    primary.run(() => {
         /*
          * Service configuration context
          */
-        var context = {};
+        const context = {};
 
         context.sysconfig = sysconfig;
         context.cluster = cluster;
@@ -110,11 +93,18 @@ module.exports = function(config) {
             context.cluster_name = config.cluster_name(context.sysconfig);
         }
 
-        if (typeof config.logging_connection === 'function') {
-            logging_connection = config.logging_connection(context.sysconfig)
+        if (typeof config.loggingConnection === 'function') {
+            loggingConnection = config.loggingConnection(context.sysconfig);
         }
 
-        initAPI(context);
+        // Initialize the API
+        api(context);
+
+        // Bootstrap the top level logger
+        context.logger = context.apis.foundation.makeLogger(context.name, context.name);
+        // FIXME: this should probably be refactored to actually create the
+        // logger as it stands this function is very confusing
+        loggerClient(context, context.logger, loggingConnection);
 
         // The master shouldn't need these connections.
         if (!context.cluster.isMaster) {
@@ -122,51 +112,43 @@ module.exports = function(config) {
             // This is really a teraserver dependency and doesn't belong here.
             // It's a problem when teraserver is loaded from node_modules.
             if (config.baucis) {
-                logger.info("Loading module Baucis");
+                logger.info('Loading module Baucis');
                 context.baucis = require('baucis');
             }
-
         }
 
         if (config.script) {
             config.script(context);
-        }
-        else {
+        /**
+         * Use cluster to start multiple workers
+         */
+        } else if (context.cluster.isMaster) {
             /**
-             * Use cluster to start multiple workers
-             */
-            if (context.cluster.isMaster) {
-                /**
-                 * If the bootstrap option is provided we run the bootstrap function to
-                 * do any initial application setup.
-                 **/
-                //TODO verify we need this
-                if (argv.bootstrap) {
-                    if (config.bootstrap && typeof config.bootstrap === 'function') {
-                        config.bootstrap(context, function() {
-                            //process.exit(0);
-                        });
-                    }
-                    else {
-                        logger.error("No bootstrap function provided. Nothing to do.");
-                        //process.exit(0);
-                    }
-                }
-
-                require('./lib/master')(context, config);
-
-                // If there's a master plugin defined, pass it on.
-                if (config.master) {
-                    //TODO reexamine this code here
-                    context.master_plugin = config.master(context, config);
+             * If the bootstrap option is provided we run the bootstrap function to
+             * do any initial application setup.
+             * */
+            // TODO verify we need this
+            if (argv.bootstrap) {
+                if (config.bootstrap && typeof config.bootstrap === 'function') {
+                    config.bootstrap(context, () => {
+                        // process.exit(0);
+                    });
+                } else {
+                    logger.error('No bootstrap function provided. Nothing to do.');
+                    // process.exit(0);
                 }
             }
-            else {
-                findWorkerCode(context, config)
+
+            require('./lib/master')(context, config);
+
+            // If there's a master plugin defined, pass it on.
+            if (config.master) {
+                // TODO reexamine this code here
+                context.master_plugin = config.master(context, config);
             }
+        } else {
+            findWorkerCode(context);
         }
-
-
     });
 
     return primary;
