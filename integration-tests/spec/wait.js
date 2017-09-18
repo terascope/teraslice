@@ -39,12 +39,12 @@ module.exports = function() {
                         if (result === value) {
                             return resolve(result);
                         }
-                        else {
-                            setTimeout(checkValue, 500);
-                        }
 
                         if (counter > iterations) {
                             reject(`forValue didn't find target value after ${iterations} iterations.`);
+                        }
+                        else {
+                            setTimeout(checkValue, 500);
                         }
                     })
             }
