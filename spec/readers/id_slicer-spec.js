@@ -8,6 +8,7 @@ var eventEmitter = new events.EventEmitter();
 describe('id_reader', function() {
 
     var clientData;
+    var makeSearchFailure = false;
 
     beforeEach(function() {
         clientData = [{hits: {total: 100}}, {hits: {total: 100}}, {hits: {total: 100}}, {hits: {total: 100}}, {hits: {total: 100}}, {hits: {total: 100}}];
@@ -19,20 +20,26 @@ describe('id_reader', function() {
                 return {
                     client: {
                         search: function() {
+                            var metaData = {_shards: {failed: 0}};
+                            if (makeSearchFailure) {
+                                metaData._shards.failed = 1;
+                                metaData._shards.failures = [{reason: {type: 'some Error'}}];
+                                makeSearchFailure = false;
+                            }
+
                             if (clientData.length > 1) {
                                 var data = clientData.shift();
-
                                 return Promise.resolve(
-                                    Object.assign({}, data, {_shards: {failed: 0}}))
+                                    Object.assign({}, data, metaData))
                             }
                             else {
-                                return Promise.resolve(Object.assign({}, clientData[0], {_shards: {failed: 0}}));
+                                return Promise.resolve(Object.assign({}, clientData[0], metaData));
                             }
                         }
                     }
                 }
             },
-            getEventEmitter: function(){
+            getEventEmitter: function() {
                 return eventEmitter;
             }
         },
@@ -101,7 +108,6 @@ describe('id_reader', function() {
         }).toThrowError(errorStr3);
 
     });
-    // context, job, retryData, slicerAnalytics, logger
 
     it('can create multiple slicers', function(done) {
         var retryData = [];
@@ -166,6 +172,49 @@ describe('id_reader', function() {
                     .then(function(results) {
                         expect(results).toEqual(null);
                         done();
+                    });
+            })
+
+    });
+
+    it('it produces values even with an initial search error', function(done) {
+        var retryData = [];
+        var job1 = {
+            jobConfig: {
+                slicers: 1,
+                operations: [{
+                    _op: 'id_reader',
+                    type: 'events-',
+                    key_type: 'hexadecimal',
+                    key_range: ['a', 'b'],
+                    size: 200
+                }]
+            }
+        };
+
+        var slicer = id_reader.newSlicer(context, job1, retryData, slicerAnalytics, logger);
+
+        Promise.resolve(slicer)
+            .then(function(slicers) {
+                makeSearchFailure = true;
+                return Promise.resolve(slicers[0]())
+                    .then(function(results) {
+                        expect(results).toBeDefined();
+                        expect(results).toEqual({count: 100, key: 'events-#a*'});
+                        makeSearchFailure = false;
+                        return Promise.resolve(slicers[0]())
+                    })
+                    .then(function(results) {
+                        expect(results).toEqual({count: 100, key: 'events-#b*'});
+
+                        return Promise.resolve(slicers[0]())
+                    })
+                    .then(function(results) {
+                        expect(results).toEqual(null);
+                        done();
+                    })
+                    .catch(function(err) {
+                        fail(err)
                     });
             })
 
@@ -254,11 +303,11 @@ describe('id_reader', function() {
                     })
 
             })
-           
+
     });
 
     it('can return to previous position', function(done) {
-        var retryData = [{lastSlice: {key:'events-#a6*'}}];
+        var retryData = [{lastSlice: {key: 'events-#a6*'}}];
         var job1 = {
             jobConfig: {
                 slicers: 1,
@@ -273,7 +322,7 @@ describe('id_reader', function() {
         };
 
         var slicer = id_reader.newSlicer(context, job1, retryData, slicerAnalytics, logger);
-        
+
         Promise.resolve(slicer)
             .then(function(slicers) {
                 return Promise.resolve(slicers[0]())
@@ -299,6 +348,6 @@ describe('id_reader', function() {
                     })
             })
     });
-   
+
 
 });
