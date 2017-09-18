@@ -174,7 +174,49 @@ describe('id_reader', function() {
                         done();
                     });
             })
+            .catch(function(err){
+                fail(err)
+            })
 
+    });
+
+    it('it produces values starting at a specific depth', function(done) {
+        var retryData = [];
+        var job1 = {
+            jobConfig: {
+                slicers: 1,
+                operations: [{
+                    _op: 'id_reader',
+                    type: 'events-',
+                    key_type: 'hexadecimal',
+                    key_range: ['a', 'b', 'c', 'd'],
+                    starting_key_depth: 3,
+                    size: 200
+                }]
+            }
+        };
+
+        var slicer = id_reader.newSlicer(context, job1, retryData, slicerAnalytics, logger);
+
+        Promise.resolve(slicer)
+            .then(function(slicers) {
+                return Promise.resolve(slicers[0]())
+                    .then(function(results) {
+                        expect(results).toEqual({count: 100, key: 'events-#a00*'});
+                        return Promise.resolve(slicers[0]())
+                    })
+                    .then(function(results) {
+                        expect(results).toEqual({count: 100, key: 'events-#a01*'});
+                        return Promise.resolve(slicers[0]())
+                    })
+                    .then(function(results) {
+                        expect(results).toEqual({count: 100, key: 'events-#a02*'});
+                        done();
+                    })
+            })
+            .catch(function(err){
+                fail(err)
+            })
     });
 
     it('it produces values even with an initial search error', function(done) {

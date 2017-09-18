@@ -29,11 +29,11 @@ module.exports = function() {
         });
 
         it('should support reindexing by hex id', function(done) {
-            var job_spec = misc.newJob('id')
-            job_spec.name = 'reindex by hex id'
-            job_spec.operations[0].key_type = 'hexadecimal'
-            job_spec.operations[0].index = 'example-logs-10000-hex'
-            job_spec.operations[1].index = "test-hexadecimal-logs"
+            var job_spec = misc.newJob('id');
+            job_spec.name = 'reindex by hex id';
+            job_spec.operations[0].key_type = 'hexadecimal';
+            job_spec.operations[0].index = 'example-logs-10000-hex';
+            job_spec.operations[1].index = "test-hexadecimal-logs";
 
             teraslice.jobs.submit(job_spec)
                 .then(function(job) {
