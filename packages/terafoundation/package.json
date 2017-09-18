@@ -1,6 +1,6 @@
 {
   "name": "terafoundation",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
