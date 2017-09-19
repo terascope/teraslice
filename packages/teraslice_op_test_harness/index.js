@@ -88,7 +88,7 @@ module.exports = (processor) => {
 
         var opConfig = _.merge(baseOpConfig, extraOpConfig);
 
-        validator.validateConfig(processor.schema(), opConfig);
+        opConfig = validator.validateConfig(processor.schema(), opConfig);
 
         return processor.newProcessor(
             context,
