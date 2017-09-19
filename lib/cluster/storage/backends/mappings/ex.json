@@ -4,7 +4,7 @@
     "index.number_of_replicas": 1
   },
   "mappings": {
-    "job": {
+    "ex": {
       "_all": {
         "enabled": false
       },
