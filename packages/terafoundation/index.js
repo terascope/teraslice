@@ -102,6 +102,8 @@ module.exports = function module(config) {
 
         // Bootstrap the top level logger
         context.logger = context.apis.foundation.makeLogger(context.name, context.name);
+        logger = context.logger;
+
         // FIXME: this should probably be refactored to actually create the
         // logger as it stands this function is very confusing
         loggerClient(context, context.logger, loggingConnection);
