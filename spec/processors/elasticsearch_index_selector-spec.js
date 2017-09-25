@@ -87,10 +87,11 @@ describe('elasticsearch index selector', function() {
         var context = {};
         var opConfig = {index: 'someIndex', type: 'events', preserve_id: true, delete: false};
         var jobConfig = {logger: 'im a fake logger'};
-        var data = {hits: {hits: [{type: 'someType', _id: 'specialID'}]}};
+        var data = [{type: 'someType', _index: 'some_index', _id: 'specialID', _source: {some: 'data'}}];
 
         var fn = indexer.newProcessor(context, opConfig, jobConfig);
         var results = fn(data);
+        console.log('what are results', results);
 
         expect(results[0]).toEqual({index: {_index: 'someIndex', _type: 'events', _id: 'specialID'}})
 
