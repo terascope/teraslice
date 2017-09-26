@@ -77,9 +77,9 @@ module.exports = function(client, logger, _opConfig) {
         return {data: retry, error: false};
     }
 
-    function search(query) {
+    function count(query) {
         let retryTimer = {start: 5000, limit: 10000};
-        let isCounting = query.size === 0;
+        query.size = 0;
 
         return new Promise(function(resolve, reject) {
             function searchES() {
@@ -100,12 +100,57 @@ module.exports = function(client, logger, _opConfig) {
                             }
                         }
                         else {
-                            if (isCounting) {
-                                resolve(data.hits.total)
+                            resolve(data.hits.total)
+                        }
+                    })
+                    .catch(function(err) {
+                        if (_.get(err, 'body.error.type') === 'reduce_search_phase_exception') {
+                            var retriableError = _.every(err.body.error.root_cause, function(shard) {
+                                return shard.type === 'es_rejected_execution_exception';
+                            });
+                            //scaffolding for retries, just reject for now
+                            if (retriableError) {
+                                var errMsg = parseError(err);
+                                logger.error(errMsg);
+                                reject(errMsg)
                             }
+                        }
+                        else {
+                            var errMsg = parseError(err);
+                            logger.error(errMsg);
+                            reject(errMsg)
+                        }
+                    });
+            }
 
+            searchES();
+        })
+    }
+
+    function search(query) {
+        let retryTimer = {start: 5000, limit: 10000};
+
+        return new Promise(function(resolve, reject) {
+            function searchES() {
+                client.search(query)
+                    .then(function(data) {
+                        if (data._shards.failed > 0) {
+                            var reasons = _.uniq(_.flatMap(data._shards.failures, function(shard) {
+                                return shard.reason.type
+                            }));
+
+                            if (reasons.length > 1 || reasons[0] !== 'es_rejected_execution_exception') {
+                                var errorReason = reasons.join(' | ');
+                                logger.error('Not all shards returned successful, shard errors: ', errorReason);
+                                reject(errorReason)
+                            }
+                            else {
+                                retry(retryTimer, searchES)
+                            }
+                        }
+                        else {
                             if (config.full_response) {
-                                resolve(data)
+                                resolve(data.hits.hits)
                             }
                             else {
                                 resolve(_.map(data.hits.hits, function(hit) {
@@ -510,6 +555,7 @@ module.exports = function(client, logger, _opConfig) {
 
     return {
         search: search,
+        count: count,
         get: get,
         index: index,
         indexWithId: indexWithId,
