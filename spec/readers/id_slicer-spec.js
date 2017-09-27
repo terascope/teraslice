@@ -57,22 +57,22 @@ describe('id_reader', function() {
     var slicerAnalytics = {};
 
 
-    it('has a schema, newSlicer and a newReader method, post_validation', function() {
+    it('has a schema, newSlicer and a newReader method, crossValidation', function() {
         var reader = id_reader;
 
         expect(reader).toBeDefined();
         expect(reader.newSlicer).toBeDefined();
         expect(reader.schema).toBeDefined();
         expect(reader.newReader).toBeDefined();
-        expect(reader.post_validation).toBeDefined();
+        expect(reader.crossValidation).toBeDefined();
 
         expect(typeof reader.newSlicer).toEqual('function');
         expect(typeof reader.newReader).toEqual('function');
         expect(typeof reader.schema).toEqual('function');
-        expect(typeof reader.post_validation).toEqual('function');
+        expect(typeof reader.crossValidation).toEqual('function');
     });
 
-    it('post_validation makes sure its configured correctly', function() {
+    it('crossValidation makes sure its configured correctly', function() {
         var errorStr1 = 'The number of slicers specified on the job cannot be more the length of key_range';
         var errorStr2 = 'The number of slicers specified on the job cannot be more than 16';
         var errorStr3 = 'The number of slicers specified on the job cannot be more than 64';
@@ -87,24 +87,24 @@ describe('id_reader', function() {
 
 
         expect(function() {
-            id_reader.post_validation(job1, sysconfig)
+            id_reader.crossValidation(job1, sysconfig)
         }).not.toThrow();
         expect(function() {
-            id_reader.post_validation(job2, sysconfig)
+            id_reader.crossValidation(job2, sysconfig)
         }).toThrowError(errorStr1);
 
         expect(function() {
-            id_reader.post_validation(job3, sysconfig)
+            id_reader.crossValidation(job3, sysconfig)
         }).not.toThrow();
         expect(function() {
-            id_reader.post_validation(job4, sysconfig)
+            id_reader.crossValidation(job4, sysconfig)
         }).toThrowError(errorStr2);
 
         expect(function() {
-            id_reader.post_validation(job5, sysconfig)
+            id_reader.crossValidation(job5, sysconfig)
         }).not.toThrow();
         expect(function() {
-            id_reader.post_validation(job6, sysconfig)
+            id_reader.crossValidation(job6, sysconfig)
         }).toThrowError(errorStr3);
 
     });
