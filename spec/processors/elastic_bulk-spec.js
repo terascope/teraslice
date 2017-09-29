@@ -237,7 +237,7 @@ describe('elasticsearch_bulk', function() {
         });
     });
 
-    it('post_validation makes sure connection_map is configured in sysconfig', function() {
+    it('crossValidation makes sure connection_map is configured in sysconfig', function() {
         var badJob = {
             operations: [{
                 _op: 'elasticsearch_bulk',
@@ -266,11 +266,11 @@ describe('elasticsearch_bulk', function() {
         var errorString = 'elasticsearch_bulk connection_map specifies a connection for [connectionZ] but is not found in the system configuration [terafoundation.connectors.elasticsearch]';
 
         expect(function() {
-            es_sender.post_validation(badJob, sysconfig)
+            es_sender.crossValidation(badJob, sysconfig)
         }).toThrowError(errorString);
 
         expect(function() {
-            es_sender.post_validation(goodJob, sysconfig)
+            es_sender.crossValidation(goodJob, sysconfig)
         }).not.toThrow();
     })
 
