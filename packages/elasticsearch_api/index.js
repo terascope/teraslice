@@ -150,7 +150,7 @@ module.exports = function(client, logger, _opConfig) {
                         }
                         else {
                             if (config.full_response) {
-                                resolve(data.hits.hits)
+                                resolve(data)
                             }
                             else {
                                 resolve(_.map(data.hits.hits, function(hit) {
