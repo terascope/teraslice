@@ -8,7 +8,7 @@ module.exports = function() {
     var teraslice = misc.teraslice();
 
     describe('api endpoint', function() {
-
+        // TODO need to test case of jobs with assets
         it('should update job specs', function(done) {
             var job_spec = misc.newJob('generator');
             var job_id;
@@ -24,7 +24,8 @@ module.exports = function() {
                         })
                         .then(function(jobSpec) {
                             expect(jobSpec.workers).toEqual(3);
-                            return job.put(`/jobs/${job_id}`, {workers: 2});
+                            jobSpec.workers = 2;
+                            return job.put(`/jobs/${job_id}`, jobSpec);
                         })
                         .then(function() {
                             return job.spec();
