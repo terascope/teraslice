@@ -47,7 +47,7 @@ module.exports = function() {
                 })
                 .then(function(status) {
                     expect(status).toEqual('completed');
-                    return misc.indexStats('test-reindex-10')
+                    return misc.indexStats('test-reindex-bad-query')
                         .catch(function(errResponse) {
                             // the job should  be marked as completed but no new index
                             // as there are no records
