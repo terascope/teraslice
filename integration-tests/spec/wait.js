@@ -4,7 +4,7 @@ var _ = require('lodash');
 var Promise = require('bluebird');
 var misc = require('./misc')();
 
-module.exports = function() {
+module.exports = function wait() {
     /*
      * Waits for the promise returned by 'func' to resolve to an array
      * then waits for the length of that array to match 'value'.
@@ -66,9 +66,34 @@ module.exports = function() {
         }, node_count);
     }
 
-    return {
-        forValue: forValue,
-        forLength: forLength,
-        forNodes: forNodes
+    /*
+     * Wait for 'workerCount' workers to be joined on job 'jobId'.  `iterations`
+     * is passed to forValue and indicates how many times the condition will be
+     * tested for.
+     * TODO: Implement a more generic function that waits for states other than
+     * 'joined'
+     */
+    function forWorkersJoined(jobId, workerCount, iterations) {
+        return forValue(() => {
+            return misc.teraslice().cluster
+                .slicers()
+                .then((slicers) => {
+                    const slicer = _.find(slicers, s => s.job_id === jobId);
+                    if (slicer !== undefined) {
+                        return slicer.stats.workers_joined;
+                    }
+                    return 0;
+                });
+        }, workerCount, iterations)
+            .catch((e) => {
+                throw (new Error(`(forWorkersJoined) ${e}`));
+            });
     }
+
+    return {
+        forValue,
+        forLength,
+        forNodes,
+        forWorkersJoined
+    };
 };
