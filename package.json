@@ -44,6 +44,7 @@
   },
   "devDependencies": {
     "jasmine-spec-reporter": "^4.2.1",
+    "teraslice_op_test_harness": "terascope/teraslice_op_test_harness",
     "json-schema-faker": "^0.3.7",
     "eslint": "^4.6.1",
     "eslint-config-airbnb": "^15.1.0",

@@ -1,0 +1,22 @@
+{
+  "name": "ES DataGen test script",
+  "lifecycle": "persistent",
+  "workers": 1,
+  "operations": [
+    {
+      "_op": "elasticsearch_data_generator",
+      "size": 100000,
+      "stress_test": true
+    },
+    {
+     "_op": "script",
+     "command": "test_script.py",
+     "asset": "test_script",
+     "args": [""],
+     "options": {}
+    },
+    {
+        "_op": "noop"
+    }
+  ]
+}
