@@ -177,6 +177,8 @@ describe('teraslice', function() {
             })
     });
 
+    require('./cases/cluster/api')();
+    require('./cases/cluster/job-state')();
     require('./cases/data/id-reader')();
     require('./cases/data/elasticsearch-bulk')();
     require('./cases/data/reindex')();

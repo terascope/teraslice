@@ -8,7 +8,7 @@ Example Config
 {
   "teraslice": {
     "master": true,
-    "timeout": 20000,
+    "network_timeout": 20000,
     "master_hostname": "SomeIP",
     "name": "teracluster",
     "ops_directory": "/Some/path/to/ops",
@@ -53,6 +53,8 @@ The configuration file essentially has two main fields, configuration for terasl
 |:---------: | :--------: | :------: | :------:
 ops_directory | 'path/to/directory', to look for more readers and processors. Usually this is where you place your custom code not part of core, unless you want to leave your code in place. The directory should have a "readers" and "processors" folder mirroring teraslice| String | optional
 assets_directory | 'path/to/directory', to look for more custom readers and processors. Usually this is where you place your custom code not part of core, unless you want to leave your code in place. | String | optional
+network_timeout | time in milliseconds to wait for a response when messaging node to node before throwing an error | Number | optional, defaults to 60000 ms
+worker_disconnect_timeout | time in milliseconds that the slicer will wait after all workers have disconnected before terminating the job | Number | optional, defaults to 300000 ms or 5 minutes
 shutdown_timeout | time in milliseconds, to allow workers and slicers to finish operations before forcefully shutting down when a shutdown signal occurs| Number | optional, defaults to 60 seconds (60000 ms)
 hostname | IP or hostname for server | String | required, this is used to identify your nodes
 workers | This represents the maximum number of workers that is node is permitted to make, must be set to a number greater than zero. This is currently hard set, and to change this number it must require a reboot and configuration change | Number | optional, defaults to the amount of cpu cores your system is running on
@@ -61,9 +63,7 @@ master_hostname | hostname where the cluster_master resides, used to notify all 
 port | port for the cluster_master to listen on, this is the port that is exposed externally for the api | Number | optional, defaults to 5678
 name | Name for the cluster itself, its used for naming log files/indices | String | defaults to 'teracluster',
 state | Elasticsearch cluster where job state, analytics and logs are stored | Object | optional, defaults to {connection: 'default'},
-timeout | time in milliseconds to wait for a response when messaging node to node before throwing an error | Number | optional, defaults to 60000 ms
 slicer_port_range | range of ports that slicers will use per node | String | optional, defaults to range: '45678:46678'
-slicer_queue_length | this parameter determines the queue length of the slicer, if queue is full it will not produce more slices until it drop below this number | Number | optional, defaults to 10000
 
 ### terafoundation
 

@@ -162,21 +162,21 @@ describe('elasticsearch_reader', function() {
 
     });
 
-    it('op_validation makes sure necessary configuration combos work ', function() {
+    it('selfValidation makes sure necessary configuration combos work ', function() {
         var errorString = 'If subslice_by_key is set to true, the elasticsearch type parameter of the documents must also be set';
         var badOP = {subslice_by_key: true};
         var goodOP = {subslice_by_key: true, type: 'events-'};
         var otherGoodOP = {subslice_by_key: false, type: 'events-'};
 
         expect(function() {
-            es_reader.op_validation(badOP)
+            es_reader.selfValidation(badOP)
         }).toThrowError(errorString);
 
         expect(function() {
-            es_reader.op_validation(goodOP)
+            es_reader.selfValidation(goodOP)
         }).not.toThrow();
         expect(function() {
-            es_reader.op_validation(otherGoodOP)
+            es_reader.selfValidation(otherGoodOP)
         }).not.toThrow();
     })
 

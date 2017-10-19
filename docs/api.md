@@ -532,6 +532,7 @@ query:
 
 all fields:
 
+- name
 - node_id
 - ex_id
 - workers_available
@@ -551,13 +552,13 @@ all fields:
 
 defaults:
 
-- ex_id
+- name
+- job_id
 - workers_available
 - workers_active
 - failed
 - queued
 - processed
-- subslice_by_key
 
 
 #### GET /txt/assets

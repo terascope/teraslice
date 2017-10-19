@@ -30,6 +30,7 @@ Example Job
     "lifecycle": "once",
     "analytics": false,
     "assets": ["ec2d5465609571590fdfe5b371ed7f98a04db5cb"],
+    "recycle_worker" : 10000,
     "operations": [
         {
             "_op": "elasticsearch_reader",
@@ -67,6 +68,7 @@ max_retries | Number of times a given slice of data will attempt to process befo
 slicers | Number of slicer functions that will chunk and prep the data for worker | Number | optional, defaults to 1
 workers | Number of worker instances that will process data, depending on the nature of the operations you may choose to over subscribe the number of workers compared to the number of cpu's | Number | optional, defaults to 5, if the number of workers for the job is set above workers specified in system configuration, a warning is passed and the workers set in the system configuration will be used,
 assets | An array of strings that are the id's for the corresponding assets zip files. | Array | optional
+recycle_worker | The number of slices a worker processes before it exits and restarts, only use if you have leaky workers | Null/Number | optional, defaults to null, if specified it must be a number
 operations | An array containing all the operations as well as their configurations. Typically the first is the reader/slicer. | Array | required
 
 ## Readers ##
@@ -251,6 +253,7 @@ size | The limit to the number of docs pulled in a chunk, if the number of docs 
 full_response | If set to true, it will return the native response from elasticsearch with all meta-data included. If set to false it will return an array of the actual documents, no meta data included | Boolean | optional, defaults to false
 key_type | Used to specify the key type of the \_ids of the documents being queryed | String | optional, defaults to elasticsearch id generator (base64url)
 key_range | if provided, slicer will only recurse on these given keys | Array | optional
+starting_key_depth | if provided, slicer will only produce keys with minimum length determined by this setting | Number | optional
 fields | Used to restrict what is returned from elasticsearch. If used, only these fields on the documents are returned | Array | optional |
 query | specify any valid lucene query for elasticsearch to use in filtering| String | optional |
 

@@ -14,24 +14,9 @@
           "type": "string",
           "index": "not_analyzed"
         },
-        "ex_id": {
+        "_context": {
           "type": "string",
           "index": "not_analyzed"
-        },
-        "_context":{
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "_status": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "_has_errors": {
-          "type": "string",
-          "index": "not_analyzed"
-        },
-        "_slicer_stats": {
-          "type": "object"
         },
         "_created": {
           "type": "date"

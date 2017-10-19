@@ -24,7 +24,7 @@ describe('analytics', function() {
             });
         };
 
-        var analyticsObj = {time: [], size: []};
+        var analyticsObj = {time: [], size: [], memory: []};
         var data = [{some: 'insideData'}];
 
         var analyze = analytics.analyze(fn);
@@ -38,15 +38,20 @@ describe('analytics', function() {
             expect(data[0].some).toEqual('insideData');
             expect(analyticsObj.time.length).toEqual(1);
             expect(analyticsObj.size.length).toEqual(1);
+            expect(analyticsObj.memory.length).toEqual(1);
+
             expect(analyticsObj.time[0] >= 0).toBe(true);
             expect(analyticsObj.size[0]).toEqual(1);
+            expect(analyticsObj.memory[0] >= 0).toBe(true);
 
             done();
         });
     });
 
     it('insertAnalyzers takes an array of functions and returns them wrapped with the analyze function', function() {
-        var fnArray = [function() {}, function() {}];
+        var fnArray = [function() {
+        }, function() {
+        }];
         var results = analytics.insertAnalyzers(fnArray);
 
         expect(Array.isArray(results)).toBe(true);
@@ -56,8 +61,8 @@ describe('analytics', function() {
 
     });
 
-    it('statsContainer takes in job.operations and returns an object for the number of ops', function(){
-        var ops = [{ops1: 'config1'},{ops2: 'config2'},{ops3: 'config3'}];
+    it('statsContainer takes in job.operations and returns an object for the number of ops', function() {
+        var ops = [{ops1: 'config1'}, {ops2: 'config2'}, {ops3: 'config3'}];
 
         var results = analytics.statContainer(ops);
 
@@ -68,35 +73,42 @@ describe('analytics', function() {
         expect(Array.isArray(results.size)).toBe(true);
         expect(results.time.length).toEqual(3);
         expect(results.size.length).toEqual(3);
-
+        expect(results.memory.length).toEqual(3);
     });
 
-    it('addStats transfers message stats to the statsContainer', function(){
-        var ops = [{ops1: 'config1'},{ops2: 'config2'},{ops3: 'config3'}];
+    it('addStats transfers message stats to the statsContainer', function() {
+        var ops = [{ops1: 'config1'}, {ops2: 'config2'}, {ops3: 'config3'}];
         var statsObj = analytics.statContainer(ops);
-        var data = {time: [234, 125, 1300], size: [2300, 4600]};
-        var data2 = {time: [346, 325, 1102], size: [1120, 2240]};
+        var data = {time: [234, 125, 1300], size: [2300, 4600], memory: [1234, 4567]};
+        var data2 = {time: [346, 325, 1102], size: [1120, 2240], memory: [12345, 56789]};
 
         expect(statsObj.size[0].length).toEqual(0);
         expect(statsObj.time[0].length).toEqual(0);
+        expect(statsObj.memory[0].length).toEqual(0);
 
         analytics.addStats(statsObj, data);
 
         expect(statsObj.size[0].length).toEqual(1);
         expect(statsObj.time[0].length).toEqual(1);
+        expect(statsObj.memory[0].length).toEqual(1);
+
         expect(_.flatten(statsObj.size)).toEqual(data.size);
         expect(_.flatten(statsObj.time)).toEqual(data.time);
+        expect(_.flatten(statsObj.memory)).toEqual(data.memory);
 
         analytics.addStats(statsObj, data2);
 
         expect(statsObj.size[0].length).toEqual(2);
         expect(statsObj.time[0].length).toEqual(2);
+        expect(statsObj.memory[0].length).toEqual(2);
+
         expect(_.flatten(statsObj.size)).toEqual(_.flatten(_.zip(data.size, data2.size)));
         expect(_.flatten(statsObj.time)).toEqual(_.flatten(_.zip(data.time, data2.time)));
+        expect(_.flatten(statsObj.memory)).toEqual(_.flatten(_.zip(data.memory, data2.memory)));
 
     });
 
-    it('calculateStats takes an array of ints and returns an obj that has the  min, max, and total of ints', function(){
+    it('calculateStats takes an array of ints and returns an obj that has the  min, max, and total of ints', function() {
         var data = [232, 254, 345, 112, 367, 343, 321, 213, 222, 245];
 
         var results = analytics.calculateStats(data);
