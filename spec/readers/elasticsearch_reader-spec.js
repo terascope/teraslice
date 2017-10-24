@@ -12,6 +12,13 @@ describe('elasticsearch_reader', function() {
         clientData = [{'@timestamp': new Date(), count: 100}, {'@timestamp': new Date(), count: 50}];
     });
 
+    const logger = {
+        error: () => {},
+        info: () => {},
+        warn: () => {},
+        debug: () => {}
+    };
+
     var context = {
         foundation: {
             getConnection: function() {
@@ -58,16 +65,13 @@ describe('elasticsearch_reader', function() {
                 return eventEmitter;
             }
         },
-        logger: {
-            error: function() {
-            },
-            info: function() {
-            },
-            warn: function() {
-            },
-            debug: function() {
+        apis: {
+            foundation: {
+                getSystemEvents: () => eventEmitter,
+                makeLogger: () => logger
             }
-        }
+        },
+        logger: logger
     };
 
     it('has a schema, newSlicer and a newReader method', function() {
