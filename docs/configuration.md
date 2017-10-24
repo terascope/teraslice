@@ -65,6 +65,7 @@ port | port for the cluster_master to listen on, this is the port that is expose
 name | Name for the cluster itself, its used for naming log files/indices | String | defaults to 'teracluster',
 state | Elasticsearch cluster where job state, analytics and logs are stored | Object | optional, defaults to {connection: 'default'},
 slicer_port_range | range of ports that slicers will use per node | String | optional, defaults to range: '45678:46678'
+slicer_allocation_attempts | The number of times a slicer will try to be allocated before failing | Number | optional, defaults to 3
 
 ### terafoundation
 
