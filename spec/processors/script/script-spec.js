@@ -37,7 +37,7 @@ describe(processorName, () => {
             _op: 'script',
             command: `${assetPath}/test_script.py`
         };
-        Promise.resolve(harness.run(data, context, opConfig))
+        Promise.resolve(harness.run(data, opConfig, context))
             .then((checkData) => {
                 expect(checkData).toEqual(data);
                 done();
@@ -55,7 +55,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.run(data, context, opConfig))
+        Promise.resolve(harness.run(data, opConfig, context))
             .then((checkData) => {
                 expect(checkData).toEqual(data);
                 done();
@@ -72,7 +72,7 @@ describe(processorName, () => {
             asset: 'test_script'
         };
 
-        Promise.resolve(harness.run(data, context, opConfig))
+        Promise.resolve(harness.run(data, opConfig, context))
             .then((checkData) => {
                 expect(checkData).toEqual(data);
                 done();
@@ -80,7 +80,6 @@ describe(processorName, () => {
                 fail(error);
             });
     });
-
 
 
     it('data out is the same as data in (simple)', (done) => {
@@ -91,7 +90,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.run(harness.data.simple, context, opConfig))
+        Promise.resolve(harness.run(harness.data.simple, opConfig, context))
             .then((checkData) => {
                 expect(checkData).toEqual(harness.data.simple);
                 done();
@@ -125,7 +124,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.run(harness.data.esLike, context, opConfig))
+        Promise.resolve(harness.run(harness.data.esLike, opConfig, context))
             .then((checkData) => {
                 expect(checkData).toEqual(harness.data.esLike);
                 done();
@@ -142,7 +141,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.run(harness.data.simple, context, opConfig))
+        Promise.resolve(harness.run(harness.data.simple, opConfig, context))
             .then((checkData) => {
                 expect(checkData).toEqual(harness.data.simple);
                 done();
@@ -159,7 +158,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.run(harness.data.simple, context, opConfig))
+        Promise.resolve(harness.run(harness.data.simple, opConfig, context))
             .then((checkData) => {
                 expect(checkData.length).toEqual(harness.data.simple.length - 1);
                 done();
@@ -176,7 +175,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.run(harness.data.simple, context, opConfig))
+        Promise.resolve(harness.run(harness.data.simple, opConfig, context))
             .then((checkData) => {
                 expect(checkData.length).toEqual(harness.data.simple.length - 2);
                 done();
@@ -193,7 +192,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.run(harness.data.simple, context, opConfig))
+        Promise.resolve(harness.run(harness.data.simple, opConfig, context))
             .then((checkData) => {
                 expect(checkData.length).toEqual(harness.data.simple.length - 3);
                 done();
@@ -211,7 +210,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.run(data, context, opConfig))
+        Promise.resolve(harness.run(data, opConfig, context))
             .then((checkData) => {
                 expect(checkData).toEqual('');
             }).catch((error) => {
@@ -232,7 +231,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.run(data, context, opConfig))
+        Promise.resolve(harness.run(data, opConfig, context))
             .then((checkData) => {
                 fail(checkData);
             }).catch((error) => {
@@ -254,7 +253,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.run(data, context, opConfig))
+        Promise.resolve(harness.run(data, opConfig, context))
             .then((checkData) => {
                 fail(checkData);
             }).catch((error) => {
