@@ -25,7 +25,7 @@ var fakeLogger = {
 function runProcessorSpecs(processor) {
     // TODO: I'd like to refactor this out into a stand-alone spec file in a
     // subdirectory, but this will do for now.
-    describe('The dupedoc processor', function() {
+    describe('test harness', function() {
         it('has a schema and newProcessor method', function() {
             expect(processor).toBeDefined();
             expect(processor.newProcessor).toBeDefined();
@@ -45,7 +45,10 @@ module.exports = (processor) => {
                 teraslice: {
                     ops_directory: ''
                 }
-            }
+            },
+        apis: {
+            registerAPI() {},
+        }
     };
 
     // Baseline op configuration. By default this is just empty.
@@ -61,6 +64,7 @@ module.exports = (processor) => {
      * @param  {Object} opConfig an optional partial opConfig
      * @return {Object}          a jobConfig object
      */
+
     function jobSpec(opConfig) {
         _.merge(baseOpConfig, opConfig);
         return {
@@ -75,20 +79,23 @@ module.exports = (processor) => {
 
     var validator = require('teraslice/lib/config/validators/config')();
 
-    function run(data, extraOpConfig) {
-        var myProcessor = getProcessor(extraOpConfig);
-
-        return process(myProcessor, data);
+    function run(data, extraOpConfig, extraContext) {
+        return Promise.resolve(getProcessor(extraOpConfig, extraContext))
+            .then(function(proc) {
+                return process(proc, data);
+            });
     }
 
-    function getProcessor(extraOpConfig) {
+    function getProcessor(extraOpConfig, extraContext) {
         // run the jobConfig and opConfig through the validator to get
         // complete and convict validated configs
         var jobConfig = validator.validateConfig(jobSchema, jobSpec(extraOpConfig));
 
         var opConfig = _.merge(baseOpConfig, extraOpConfig);
-
         opConfig = validator.validateConfig(processor.schema(), opConfig);
+
+        context = _.merge(context, extraContext);
+        context = validator.validateConfig(processor.schema(), context);
 
         return processor.newProcessor(
             context,
