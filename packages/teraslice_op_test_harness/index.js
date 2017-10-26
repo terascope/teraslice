@@ -80,6 +80,10 @@ module.exports = (processor) => {
     var validator = require('teraslice/lib/config/validators/config')();
 
     function run(data, extraOpConfig, extraContext) {
+        return process(getProcessor(extraOpConfig, extraContext), data);
+    }
+
+    function runAsync(data, extraOpConfig, extraContext) {
         return Promise.resolve(getProcessor(extraOpConfig, extraContext))
             .then(function(proc) {
                 return process(proc, data);
@@ -95,7 +99,6 @@ module.exports = (processor) => {
         opConfig = validator.validateConfig(processor.schema(), opConfig);
 
         context = _.merge(context, extraContext);
-        context = validator.validateConfig(processor.schema(), context);
 
         return processor.newProcessor(
             context,
@@ -150,6 +153,7 @@ module.exports = (processor) => {
         _jobSpec: jobSpec,
         runProcessorSpecs: runProcessorSpecs,
         run: run,
+        runAsync: runAsync,
         getProcessor: getProcessor,
         process, process
     };

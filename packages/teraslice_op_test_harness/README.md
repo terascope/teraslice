@@ -98,11 +98,38 @@ describe('The data doubles when', function() {
         var processor = harness.getProcessor(opConfig);
 
         // First call on the processor can use the input to setup state
-        harness.process(processor, harness.data.simple)
+        harness.run(processor, harness.data.simple)
 
         // Second call is using the same processor so if you setup state
         // it should still exist.
-        expect(harness.process(processor, harness.data.simple)).toEqual(newData);
+        expect(harness.run(processor, harness.data.simple)).toEqual(newData);
+    });
+});
+```
+
+## Async/Promise based processors
+
+In some scenarios a processor will be asynchronous and needs to return a
+promise.
+
+```javascript
+var processor = require('../index');
+var harness = require('teraslice_op_test_harness')(processor);
+
+describe('The data doubles when', function() {
+    var opConfig = {
+        percentage: 100
+    };
+
+    it('using simple data and percentage is 100', function(done) {
+        var processor = harness.getProcessor(opConfig);
+
+        // First call on the processor can use the input to setup state
+        harness.runAsync(processor, harness.data.simple)
+            .then((result) => {
+                    expect(result).toEqual(newData);
+                    done();
+                });
     });
 });
 ```
