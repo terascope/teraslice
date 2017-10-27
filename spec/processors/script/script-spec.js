@@ -37,7 +37,7 @@ describe(processorName, () => {
             _op: 'script',
             command: `${assetPath}/test_script.py`
         };
-        Promise.resolve(harness.runAsync(data, opConfig, context))
+        harness.runAsync(data, opConfig, context)
             .then((checkData) => {
                 expect(checkData).toEqual(data);
                 done();
@@ -55,7 +55,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.runAsync(data, opConfig, context))
+        harness.runAsync(data, opConfig, context)
             .then((checkData) => {
                 expect(checkData).toEqual(data);
                 done();
@@ -71,8 +71,7 @@ describe(processorName, () => {
             command: 'test_script.py',
             asset: 'test_script'
         };
-
-        Promise.resolve(harness.runAsync(data, opConfig, context))
+        harness.runAsync(data, opConfig, context)
             .then((checkData) => {
                 expect(checkData).toEqual(data);
                 done();
@@ -90,7 +89,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.runAsync(harness.data.simple, opConfig, context))
+        harness.runAsync(harness.data.simple, opConfig, context)
             .then((checkData) => {
                 expect(checkData).toEqual(harness.data.simple);
                 done();
@@ -107,7 +106,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.runAsync(harness.data.arrayLike, context, opConfig))
+        harness.runAsync(harness.data.arrayLike, context, opConfig)
             .then((checkData) => {
                 expect(checkData).toEqual(harness.data.arrayLike);
                 done();
@@ -124,7 +123,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.runAsync(harness.data.esLike, opConfig, context))
+        harness.runAsync(harness.data.esLike, opConfig, context)
             .then((checkData) => {
                 expect(checkData).toEqual(harness.data.esLike);
                 done();
@@ -141,7 +140,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.runAsync(harness.data.simple, opConfig, context))
+        harness.runAsync(harness.data.simple, opConfig, context)
             .then((checkData) => {
                 expect(checkData).toEqual(harness.data.simple);
                 done();
@@ -158,7 +157,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.runAsync(harness.data.simple, opConfig, context))
+        harness.runAsync(harness.data.simple, opConfig, context)
             .then((checkData) => {
                 expect(checkData.length).toEqual(harness.data.simple.length - 1);
                 done();
@@ -175,7 +174,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.runAsync(harness.data.simple, opConfig, context))
+        harness.runAsync(harness.data.simple, opConfig, context)
             .then((checkData) => {
                 expect(checkData.length).toEqual(harness.data.simple.length - 2);
                 done();
@@ -192,7 +191,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.runAsync(harness.data.simple, opConfig, context))
+        harness.runAsync(harness.data.simple, opConfig, context)
             .then((checkData) => {
                 expect(checkData.length).toEqual(harness.data.simple.length - 3);
                 done();
@@ -210,7 +209,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.runAsync(data, opConfig, context))
+        harness.runAsync(data, opConfig, context)
             .then((checkData) => {
                 expect(checkData).toEqual('');
             }).catch((error) => {
@@ -231,7 +230,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.runAsync(data, opConfig, context))
+        harness.runAsync(data, opConfig, context)
             .then((checkData) => {
                 fail(checkData);
             }).catch((error) => {
@@ -253,7 +252,7 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        Promise.resolve(harness.runAsync(data, opConfig, context))
+        harness.runAsync(data, opConfig, context)
             .then((checkData) => {
                 fail(checkData);
             }).catch((error) => {
