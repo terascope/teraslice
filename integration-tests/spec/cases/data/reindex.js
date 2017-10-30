@@ -2,6 +2,7 @@
 
 var Promise = require('bluebird');
 var misc = require('../../misc')();
+var _ = require('lodash');
 
 module.exports = function() {
     var teraslice = misc.teraslice();
@@ -25,6 +26,33 @@ module.exports = function() {
                         .then(function(stats) {
                             expect(stats.count).toBe(10);
                             expect(stats.deleted).toBe(0);
+                        });
+                })
+                .catch(fail)
+                .finally(done)
+        });
+
+        it('should work when no data is returned with lucene query', function(done) {
+            var job_spec = misc.newJob('reindex');
+            job_spec.name = 'basic reindex';
+            job_spec.operations[1].index = 'test-reindex-bad-query';
+            job_spec.operations[0].query = 'bytes:>=99999999';
+
+            teraslice.jobs.submit(job_spec)
+                .then(function(job) {
+                    expect(job).toBeDefined();
+                    expect(job.id()).toBeDefined();
+
+                    return job.waitForStatus('completed');
+                })
+                .then(function(status) {
+                    expect(status).toEqual('completed');
+                    return misc.indexStats('test-reindex-bad-query')
+                        .catch(function(errResponse) {
+                            // the job should  be marked as completed but no new index
+                            // as there are no records
+                            var reason = _.get(errResponse, 'body.error.reason');
+                            expect(reason).toEqual('no such index');
                         });
                 })
                 .catch(fail)
