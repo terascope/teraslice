@@ -51,28 +51,22 @@ module.exports = (processor) => {
         }
     };
 
-    // Baseline op configuration. By default this is just empty.
-    var baseOpConfig = {};
-
     var jobSchema = require('teraslice/lib/config/schemas/job').jobSchema(context);
 
     /**
      * jobSpec returns a simple jobConfig object consisting of two operations,
-     * the first one `noop` and the second one the op being tested.  If the
-     * optional opConfig object is passed in as a second argument it is merged
-     * with the template opConfig for the second operation.
+     * the first one `noop` and the second one the op being tested.
      * @param  {Object} opConfig an optional partial opConfig
      * @return {Object}          a jobConfig object
      */
 
     function jobSpec(opConfig) {
-        _.merge(baseOpConfig, opConfig);
         return {
             'operations': [
                 {
                     '_op': 'noop'
                 },
-                baseOpConfig
+                opConfig
             ],
         };
     }
@@ -90,19 +84,17 @@ module.exports = (processor) => {
             });
     }
 
-    function getProcessor(extraOpConfig, extraContext) {
+    function getProcessor(opConfig, extraContext) {
+        if (opConfig == null) {
+            opConfig = {};
+        }
         // run the jobConfig and opConfig through the validator to get
         // complete and convict validated configs
-        var jobConfig = validator.validateConfig(jobSchema, jobSpec(extraOpConfig));
-
-        var opConfig = _.merge(baseOpConfig, extraOpConfig);
-        opConfig = validator.validateConfig(processor.schema(), opConfig);
-
-        context = _.merge(context, extraContext);
+        let jobConfig = validator.validateConfig(jobSchema, jobSpec(opConfig));
 
         return processor.newProcessor(
-            context,
-            opConfig,
+            _.merge({}, context, extraContext),
+            validator.validateConfig(processor.schema(), opConfig),
             jobConfig);
     }
 

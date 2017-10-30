@@ -16,6 +16,7 @@
     "jsdoc": "^3.4.3"
   },
   "scripts": {
+    "test": "jasmine",
     "docs": "jsdoc -P package.json index.js"
   }
 }
