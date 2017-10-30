@@ -1,32 +1,34 @@
-var _ = require('lodash');
+'use strict';
+
+const _ = require('lodash');
 
 // load data
-var sampleDataArrayLike = require('./data/sampleDataArrayLike.json');
-var sampleDataEsLike = require('./data/sampleDataEsLike.json');
+const sampleDataArrayLike = require('./data/sampleDataArrayLike.json');
+const sampleDataEsLike = require('./data/sampleDataEsLike.json');
 
-var simpleData = [
-    {'name': 'Skippy', 'age': 20},
-    {'name': 'Flippy', 'age': 21},
-    {'name': 'Hippy', 'age': 22},
-    {'name': 'Dippy', 'age': 23},
+const simpleData = [
+    { name: 'Skippy', age: 20 },
+    { name: 'Flippy', age: 21 },
+    { name: 'Hippy', age: 22 },
+    { name: 'Dippy', age: 23 },
 ];
 
-var fakeLogger = {
+const fakeLogger = {
     logger: {
-        fatal: function() {},
-        error: function() {},
-        warn: function() {},
-        info: function() {},
-        debug: function() {},
-        trace: function() {},
+        fatal() {},
+        error() {},
+        warn() {},
+        info() {},
+        debug() {},
+        trace() {},
     }
 };
 
 function runProcessorSpecs(processor) {
     // TODO: I'd like to refactor this out into a stand-alone spec file in a
     // subdirectory, but this will do for now.
-    describe('test harness', function() {
-        it('has a schema and newProcessor method', function() {
+    describe('test harness', () => {
+        it('has a schema and newProcessor method', () => {
             expect(processor).toBeDefined();
             expect(processor.newProcessor).toBeDefined();
             expect(processor.schema).toBeDefined();
@@ -38,7 +40,7 @@ function runProcessorSpecs(processor) {
 
 module.exports = (processor) => {
     /* A minimal context object */
-    var context = {
+    const context = {
         logger: fakeLogger.logger,
         sysconfig:
             {
@@ -51,7 +53,7 @@ module.exports = (processor) => {
         }
     };
 
-    var jobSchema = require('teraslice/lib/config/schemas/job').jobSchema(context);
+    const jobSchema = require('teraslice/lib/config/schemas/job').jobSchema(context);
 
     /**
      * jobSpec returns a simple jobConfig object consisting of two operations,
@@ -62,16 +64,16 @@ module.exports = (processor) => {
 
     function jobSpec(opConfig) {
         return {
-            'operations': [
+            operations: [
                 {
-                    '_op': 'noop'
+                    _op: 'noop'
                 },
                 opConfig
             ],
         };
     }
 
-    var validator = require('teraslice/lib/config/validators/config')();
+    const validator = require('teraslice/lib/config/validators/config')();
 
     function run(data, extraOpConfig, extraContext) {
         return process(getProcessor(extraOpConfig, extraContext), data);
@@ -79,9 +81,7 @@ module.exports = (processor) => {
 
     function runAsync(data, extraOpConfig, extraContext) {
         return Promise.resolve(getProcessor(extraOpConfig, extraContext))
-            .then(function(proc) {
-                return process(proc, data);
-            });
+            .then(proc => process(proc, data));
     }
 
     function getProcessor(opConfig, extraContext) {
@@ -90,7 +90,7 @@ module.exports = (processor) => {
         }
         // run the jobConfig and opConfig through the validator to get
         // complete and convict validated configs
-        let jobConfig = validator.validateConfig(jobSchema, jobSpec(opConfig));
+        const jobConfig = validator.validateConfig(jobSchema, jobSpec(opConfig));
 
         return processor.newProcessor(
             _.merge({}, context, extraContext),
@@ -109,7 +109,7 @@ module.exports = (processor) => {
          *   jobConfig - details on this jobs configuration
          *   sliceLogger - a logger instance for each slice
          */
-        context: context,
+        context,
 
         /** Fake logger object with empty method definitions.  Suitable for use as
          *  the general teraslice logger or as the sliceLogger.  Implements the
@@ -123,7 +123,7 @@ module.exports = (processor) => {
          *  Which are derived from bunyan's default levels:
          *    https://github.com/trentm/node-bunyan#levels
          */
-        fakeLogger: fakeLogger,
+        fakeLogger,
 
         /** Standard test data objects: arrayLike and esLike */
         data: {
@@ -143,10 +143,10 @@ module.exports = (processor) => {
             esLike: sampleDataEsLike
         },
         _jobSpec: jobSpec,
-        runProcessorSpecs: runProcessorSpecs,
-        run: run,
-        runAsync: runAsync,
-        getProcessor: getProcessor,
-        process, process
+        runProcessorSpecs,
+        run,
+        runAsync,
+        getProcessor,
+        process
     };
 };

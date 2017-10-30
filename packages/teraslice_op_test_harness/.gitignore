@@ -1,3 +1,5 @@
 node_modules
 out
+.nyc_output
+coverage
 .tern-port

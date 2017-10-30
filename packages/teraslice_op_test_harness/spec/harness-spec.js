@@ -1,4 +1,4 @@
-
+'use strict';
 
 describe('With no op config', function() {
     const harness = require('../index')(require('./processors/foo'));

@@ -1,4 +1,3 @@
-
 'use strict';
 
 // Add a field with static value `foo`.

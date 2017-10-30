@@ -1,3 +1,5 @@
+'use strict';
+
 var op = 'noop';
 var harness = require('../index')({_op: op});
 
