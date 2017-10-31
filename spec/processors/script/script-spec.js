@@ -40,9 +40,10 @@ describe(processorName, () => {
         harness.runAsync(data, opConfig, context)
             .then((checkData) => {
                 expect(checkData).toEqual(data);
-                done();
             }).catch((error) => {
                 fail(error);
+            }).finally(() => {
+                done();
             });
     });
 
@@ -58,9 +59,10 @@ describe(processorName, () => {
         harness.runAsync(data, opConfig, context)
             .then((checkData) => {
                 expect(checkData).toEqual(data);
-                done();
             }).catch((error) => {
                 fail(error);
+            }).finally(() => {
+                done();
             });
     });
 
@@ -74,9 +76,10 @@ describe(processorName, () => {
         harness.runAsync(data, opConfig, context)
             .then((checkData) => {
                 expect(checkData).toEqual(data);
-                done();
             }).catch((error) => {
                 fail(error);
+            }).finally(() => {
+                done();
             });
     });
 
@@ -92,9 +95,10 @@ describe(processorName, () => {
         harness.runAsync(harness.data.simple, opConfig, context)
             .then((checkData) => {
                 expect(checkData).toEqual(harness.data.simple);
-                done();
             }).catch((error) => {
                 fail(error);
+            }).finally(() => {
+                done();
             });
     });
 
@@ -106,12 +110,13 @@ describe(processorName, () => {
             options: {},
             asset: 'test_script'
         };
-        harness.runAsync(harness.data.arrayLike, context, opConfig)
+        harness.runAsync(harness.data.arrayLike, opConfig, context)
             .then((checkData) => {
                 expect(checkData).toEqual(harness.data.arrayLike);
-                done();
             }).catch((error) => {
                 fail(error);
+            }).finally(() => {
+                done();
             });
     });
 
@@ -126,9 +131,10 @@ describe(processorName, () => {
         harness.runAsync(harness.data.esLike, opConfig, context)
             .then((checkData) => {
                 expect(checkData).toEqual(harness.data.esLike);
-                done();
             }).catch((error) => {
                 fail(error);
+            }).finally(() => {
+                done();
             });
     });
 
@@ -143,9 +149,10 @@ describe(processorName, () => {
         harness.runAsync(harness.data.simple, opConfig, context)
             .then((checkData) => {
                 expect(checkData).toEqual(harness.data.simple);
-                done();
             }).catch((error) => {
                 fail(error);
+            }).finally(() => {
+                done();
             });
     });
 
@@ -160,9 +167,10 @@ describe(processorName, () => {
         harness.runAsync(harness.data.simple, opConfig, context)
             .then((checkData) => {
                 expect(checkData.length).toEqual(harness.data.simple.length - 1);
-                done();
             }).catch((error) => {
                 fail(error);
+            }).finally(() => {
+                done();
             });
     });
 
@@ -177,9 +185,10 @@ describe(processorName, () => {
         harness.runAsync(harness.data.simple, opConfig, context)
             .then((checkData) => {
                 expect(checkData.length).toEqual(harness.data.simple.length - 2);
-                done();
             }).catch((error) => {
                 fail(error);
+            }).finally(() => {
+                done();
             });
     });
 
@@ -194,9 +203,10 @@ describe(processorName, () => {
         harness.runAsync(harness.data.simple, opConfig, context)
             .then((checkData) => {
                 expect(checkData.length).toEqual(harness.data.simple.length - 3);
-                done();
             }).catch((error) => {
                 fail(error);
+            }).finally(() => {
+                done();
             });
     });
 
@@ -216,6 +226,7 @@ describe(processorName, () => {
                 expect(error.code).toEqual('ENOENT');
                 expect(error.errno).toEqual('ENOENT');
                 expect(error.syscall).toEqual(`spawn ${assetPath}/test_script_x.py`);
+            }).finally(() => {
                 done();
             });
     });
@@ -239,7 +250,8 @@ describe(processorName, () => {
                 expect(errorLines[1].trim()).toEqual(`File "${assetPath}/test_script_with_error.py", line 5, in <module>`);
                 expect(errorLines[2].trim()).toEqual('json_data = json.loads(json_string)');
                 expect(errorLines[3].trim()).toEqual('NameError: name \'json\' is not defined');
-                done(error);
+            }).finally(() => {
+                done();
             });
     });
 
@@ -259,7 +271,8 @@ describe(processorName, () => {
                 expect(error.code).toEqual('ENOENT');
                 expect(error.errno).toEqual('ENOENT');
                 expect(error.syscall).toEqual(`spawn ${assetPath}/test_script_with_no_exec.py`);
-                done(error);
+            }).finally(() => {
+                done();
             });
     });
 });
