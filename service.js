@@ -1,47 +1,46 @@
 'use strict';
 
-var worker = require('./lib/cluster/worker');
-var slicer = require('./lib/cluster/slicer');
-var assets_loader = require('./lib/cluster/assets');
-var assets_service = require('./lib/cluster/services/assets');
-var master = require('./lib/master');
-var cluster_master = require('./lib/cluster/cluster_master');
-var moderator = require('./lib/cluster/moderator');
+const worker = require('./lib/cluster/worker');
+const slicer = require('./lib/cluster/slicer');
+const assetsLoader = require('./lib/cluster/assets_loader');
+const assetsService = require('./lib/cluster/services/assets');
+const master = require('./lib/master');
+const clusterMaster = require('./lib/cluster/cluster_master');
+const moderator = require('./lib/cluster/moderator');
 
-var config_schema = require('./lib/config/schemas/system').config_schema;
-var schema_formats = require('./lib/utils/convict_utils');
+const configSchema = require('./lib/config/schemas/system').config_schema;
+const schemaFormats = require('./lib/utils/convict_utils');
 
-function ops_directory(configFile) {
+function opsDirectory(configFile) {
     if (configFile.teraslice && configFile.teraslice.ops_directory) {
         return configFile.teraslice.ops_directory;
     }
 }
 
-function cluster_name(configFile) {
+function clusterName(configFile) {
     if (configFile.teraslice && configFile.teraslice.name) {
-        return configFile.teraslice.name
+        return configFile.teraslice.name;
     }
 }
 
-function logging_connection(configFile) {
+function loggingConnection(configFile) {
     if (configFile.teraslice && configFile.teraslice.state) {
         return configFile.teraslice.state.connection;
     }
-    else {
-        return 'default';
-    }
+
+    return 'default';
 }
 
-var foundation = require('terafoundation')({
+const foundation = require('terafoundation')({
     name: 'teraslice',
-    worker: worker,
-    master: master,
-    slicer: slicer,
-    assets_loader: assets_loader,
-    assets_service: assets_service,
+    worker,
+    master,
+    slicer,
+    assets_loader: assetsLoader,
+    assets_service: assetsService,
     shutdownMessaging: true,
-    cluster_master: cluster_master,
-    moderator: moderator,
+    cluster_master: clusterMaster,
+    moderator,
     descriptors: {
         slicer: true,
         worker: true,
@@ -51,9 +50,9 @@ var foundation = require('terafoundation')({
         assets_service: true
     },
     start_workers: false,
-    config_schema: config_schema,
-    schema_formats: schema_formats,
-    ops_directory: ops_directory,
-    cluster_name: cluster_name,
-    logging_connection: logging_connection
+    config_schema: configSchema,
+    schema_formats: schemaFormats,
+    ops_directory: opsDirectory,
+    cluster_name: clusterName,
+    logging_connection: loggingConnection
 });

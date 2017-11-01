@@ -130,7 +130,7 @@ module.exports = function() {
                     verifyClusterState(state, 2)
                 })
                 .catch(function(err) {
-                    fail()
+                    fail(err)
                 })
                 .finally(done)
         });

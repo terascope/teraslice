@@ -91,7 +91,6 @@ describe('elasticsearch index selector', function() {
 
         var fn = indexer.newProcessor(context, opConfig, jobConfig);
         var results = fn(data);
-        console.log('what are results', results);
 
         expect(results[0]).toEqual({index: {_index: 'someIndex', _type: 'events', _id: 'specialID'}})
 
