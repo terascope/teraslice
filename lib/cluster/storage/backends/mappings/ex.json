@@ -46,9 +46,6 @@
         },
         "_updated": {
           "type": "date"
-        },
-        "something": {
-          "type": "date"
         }
       }
     }
