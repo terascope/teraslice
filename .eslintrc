@@ -5,7 +5,8 @@
         "sourceType": "script"
     },
     "env": {
-        "node": true
+        "node": true,
+        "jasmine": true
     },
     "rules": {
         "no-underscore-dangle": "off",
