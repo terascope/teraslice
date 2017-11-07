@@ -6,6 +6,7 @@
   "author": "Austin Godber",
   "license": "APACHE",
   "dependencies": {
+    "bluebird": "^3.5.1",
     "lodash": "^4.17.4",
     "teraslice": "terascope/teraslice"
   },
@@ -22,6 +23,7 @@
     "nyc": "^11.2.1"
   },
   "scripts": {
+    "lint": "eslint index.js spec",
     "docs": "jsdoc -P package.json index.js",
     "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
     "testcov": "nyc -x spec/ jasmine && nyc report --reporter=html",

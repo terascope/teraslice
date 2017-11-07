@@ -1,6 +1,8 @@
 'use strict';
 
 const _ = require('lodash');
+const Promise = require('bluebird');
+const EventEmitter = require('events').EventEmitter;
 
 // load data
 const sampleDataArrayLike = require('./data/sampleDataArrayLike.json');
@@ -40,8 +42,12 @@ function runProcessorSpecs(processor) {
 
 module.exports = (processor) => {
     /* A minimal context object */
+    const events = new EventEmitter();
     const context = {
         logger: fakeLogger.logger,
+        foundation: {
+            getEventEmitter: () => events
+        },
         sysconfig:
             {
                 teraslice: {
@@ -84,9 +90,29 @@ module.exports = (processor) => {
             .then(proc => process(proc, data));
     }
 
+    function runSlices(slices, extraOpConfig, extraContext) {
+        const newProcessor = getProcessor(extraOpConfig, extraContext);
+        const results = [];
+        return new Promise((resolve) => {
+            Promise.resolve(slices)
+                .mapSeries(slice => results.push(process(newProcessor, slice)))
+                .then(() => {
+                    // Not yet clear if this is general enough. Trying it out to
+                    // help keep callers simple.
+                    emulateShutdown();
+                })
+                .then(() => {
+                    // Run one last time with empty slice to give processor's
+                    // shutdown logic a chance to flush its state.
+                    results.push(process(newProcessor, []));
+                    resolve(results);
+                });
+        });
+    }
+
     function getProcessor(opConfig, extraContext) {
         if (opConfig == null) {
-            opConfig = {};
+            opConfig = {}; // eslint-disable-line no-param-reassign
         }
         // run the jobConfig and opConfig through the validator to get
         // complete and convict validated configs
@@ -100,6 +126,10 @@ module.exports = (processor) => {
 
     function process(myProcessor, data) {
         return myProcessor(data, fakeLogger.logger);
+    }
+
+    function emulateShutdown() {
+        events.emit('worker:shutdown');
     }
 
     return {
@@ -146,6 +176,8 @@ module.exports = (processor) => {
         runProcessorSpecs,
         run,
         runAsync,
+        runSlices,
+        emulateShutdown,
         getProcessor,
         process
     };

@@ -1,5 +1,7 @@
 # Teraslice Operation Test Harness
 
+[![Build Status](https://travis-ci.org/terascope/teraslice_op_test_harness.svg?branch=master)](https://travis-ci.org/terascope/teraslice_op_test_harness)
+
 This project provides a processor execution function called `run()`, test data
 sources and common test functions to help you implement tests of your Teraslice
 operations.
@@ -83,7 +85,34 @@ describe('The data doubles when', function() {
 
 ## Multiple calls to the same processor instance
 
-If you need to test a processor that maintains some type of state across slices you can create a processor instance and then call the process function independently.
+If you need to test a processor that maintains some type of state across slices
+you have two options:
+
+### 1 Use `runSlices() -> Promise`
+
+This will process all of the given slices, `emulateShutdown()`, then process a
+final empty slice to give the processor a chance to flush its state.
+
+```javascript
+var processor = require('../sum');
+var harness = require('teraslice_op_test_harness')(processor);
+
+describe('Add running total', function() {
+    var opConfig = { src_field: 'x', dst_field: 'y' };
+    it('works', function() {
+        var slices = [ [{ x: 10 }, { x: 11 }], [{ x: 21 }] ];
+        harness.runSlices(slices)
+            .then((results) => {
+                expect(results.length).toEqual(3);
+                expect(results[0].y).toEqual([{ x: 10, y: 10 }, { x: 11, y: 21 }]);
+                expect(results[1].y).toEqual([{ x: 21, y: 42 }]);
+                expect(results[2].y).toEqual([]);
+            });
+    });
+});
+```
+
+### 2. Create a processor instance to call `process()` independently
 
 ```javascript
 var processor = require('../index');
