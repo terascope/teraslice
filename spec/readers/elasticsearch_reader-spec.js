@@ -71,7 +71,7 @@ describe('elasticsearch_reader', () => {
         },
         apis: {
             foundation: {
-                getSystemEvents: () => eventEmitter,
+                getSystemEvents: () => events,
                 makeLogger: () => logger
             }
         },
