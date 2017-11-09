@@ -75,7 +75,7 @@ describe('elasticsearch_reader', () => {
                 makeLogger: () => logger
             }
         },
-        logger: logger
+        logger
     };
 
     function getNewSlicer(jobInstance) {
@@ -328,7 +328,7 @@ describe('elasticsearch_reader', () => {
             time_resolution: 's',
             size: 100,
             index: 'someIndex',
-            interval: '2hrs',
+            interval: '2hrs'
         };
 
         const jobInstance = { jobConfig: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
@@ -585,7 +585,7 @@ describe('elasticsearch_reader', () => {
                 Promise.resolve(slicer())
                     .then((results) => {
                         hexadecimal.forEach((char, index) => {
-                             const subslice = results[index];
+                            const subslice = results[index];
                             expect(subslice.start.format() === firstDate.format()).toEqual(true);
                             expect(subslice.end.format() === closingDate.format()).toEqual(true);
                             expect(subslice.key).toEqual(`test#${char}*`);
