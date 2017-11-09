@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 
-module.export = function parseError(err) {
+module.exports = function parseError(err) {
     if (err.toJSON) {
         if (_.get(err, 'body.error.type') === 'index_not_found_exception') {
             return `error: index_not_found_exception, could not find index: ${err.body.error.index}`
