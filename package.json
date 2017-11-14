@@ -40,7 +40,8 @@
     "terafoundation": "terascope/terafoundation",
     "elasticsearch_api": "terascope/elasticsearch_api",
     "uuid": "^2.0.1",
-    "yargs": "^3.18.0"
+    "yargs": "^3.18.0",
+    "error_parser": "terascope/error_parser"
   },
   "devDependencies": {
     "jasmine-spec-reporter": "^4.2.1",

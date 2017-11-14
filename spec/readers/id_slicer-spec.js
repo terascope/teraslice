@@ -256,7 +256,8 @@ describe('id_reader', function() {
                         done();
                     })
                     .catch(function(err) {
-                        fail(err)
+                        fail(err);
+                        done();
                     });
             })
 
