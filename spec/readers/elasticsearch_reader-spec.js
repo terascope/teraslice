@@ -19,7 +19,8 @@ describe('elasticsearch_reader', () => {
         error: () => {},
         info: () => {},
         warn: () => {},
-        debug: () => {}
+        debug: () => {},
+        trace: () => {}
     };
 
     const context = {
@@ -426,7 +427,7 @@ describe('elasticsearch_reader', () => {
             });
     });
 
-    it('slicer can expand date slices up to find data', (done) => {
+    it('slicer can do a simple expansion of date slices up to find data', (done) => {
         const firstDate = moment();
         const middleDate = moment(firstDate).add(5, 'm');
         const endDate = moment(firstDate).add(10, 'm');
@@ -474,6 +475,72 @@ describe('elasticsearch_reader', () => {
                     .then((results) => {
                         expect(hasExpanded).toEqual(true);
                         expect(results.start).toEqual(endDate.format());
+                        expect(results.end).toEqual(closingDate.format());
+                        expect(results.count).toEqual(100);
+                        return slicer();
+                    })
+                    .then((results) => {
+                        expect(results).toEqual(null);
+                        done();
+                    })
+                    .catch((error) => {
+                        fail(error);
+                        done();
+                    });
+            });
+    });
+
+    it('slicer can do a simple expansion of date slices up to find data', (done) => {
+        const firstDate = moment();
+        const middleDate = moment(firstDate).add(5, 'm');
+        const endDate = moment(firstDate).add(10, 'm');
+        const closingDate = moment(endDate).add(1, 's');
+        console.log('what is first date', middleDate.format());
+        const opConfig = {
+            _op: 'elasticsearch_reader',
+            date_field_name: '@timestamp',
+            time_resolution: 's',
+            size: 100,
+            index: 'someIndex',
+            interval: '5m',
+        };
+
+        const jobInstance = { jobConfig: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
+        // first two objects are consumed for determining start and end dates,
+        // the count of zero hits the expansion code, then it hits the 150 which is
+        // above the size limit so it runs another recursive query
+        clientData = [
+            { '@timestamp': firstDate, count: 100 },
+            { '@timestamp': endDate, count: 100 },
+            { '@timestamp': middleDate, count: 0 },
+            { '@timestamp': middleDate, count: 150 },
+            { '@timestamp': endDate, count: 100 },
+            { '@timestamp': endDate, count: 100 },
+            { '@timestamp': closingDate, count: 100 }
+        ];
+        allowSlicerToComplete = true;
+
+        let hasExpanded = false;
+
+        events.on('slicer:slice:range_expansion', () => {
+            hasExpanded = true;
+            return true;
+        });
+
+        Promise.resolve(getNewSlicer(jobInstance))
+            .then((slicerArray) => {
+                const slicer = slicerArray[0];
+
+                Promise.resolve(slicer())
+                    .then((results) => {
+                        expect(results.start).toEqual(firstDate.format());
+                        expect(moment(results.end).isBetween(middleDate, endDate)).toEqual(true);
+                        expect(results.count).toEqual(100);
+                        return slicer();
+                    })
+                    .then((results) => {
+                        expect(hasExpanded).toEqual(true);
+                        expect(moment(results.start).isBetween(middleDate, endDate)).toEqual(true);
                         expect(results.end).toEqual(closingDate.format());
                         expect(results.count).toEqual(100);
                         return slicer();
