@@ -1,5 +1,5 @@
 {
-  "template": "*__logs*",
+  "template": "__logs*",
   "mappings": {
     "_default_": {
       "dynamic_templates": [
