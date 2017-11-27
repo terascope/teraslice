@@ -183,7 +183,14 @@ query:
 
 #### POST /jobs/{job_id}/_stop
 
-issues a stop command which will shutdown all slicers and workers for that job, marks the job execution context state as stopped
+parameter options:
+
+- timeout = [Number]
+
+issues a stop command which will shutdown all slicers and workers for that job, marks the job execution context state as stopped. You can optionally add a timeout query parameter to dynamically change how long it will wait as the time the slicer/readers will exit will vary. Note: the timeout your provide will be added to the network_latency_buffer for the final timeout used.
+
+query: 
+```curl -XPOST localhost:5678/jobs/{job_id}/_stop?timeout=120000```
 
 #### POST /jobs/{job_id}/_pause
 
@@ -298,7 +305,14 @@ size is the number of documents returned, from is how many documents in and sort
 
 #### POST /ex/{ex_id}/_stop
 
-issues a stop command which will shutdown all slicers and workers for that job, marks the job execution context state as stopped
+parameter options:
+
+- timeout = [Number]
+
+issues a stop command which will shutdown all slicers and workers for that job, marks the job execution context state as stopped. You can optionally add a timeout query parameter to dynamically change how long it will wait as the time the slicer/readers will exit will vary. Note: the timeout your provide will be added to the network_latency_buffer for the final timeout used.
+
+query: 
+```curl -XPOST localhost:5678/ex/{ex_id}/_stop?timeout=120000```
 
 #### POST /ex/{ex_id}/_pause
 
