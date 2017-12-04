@@ -1,6 +1,5 @@
 'use strict';
 
-var Promise = require('bluebird');
 var request = require('request-promise');
 
 module.exports = function(config) {
@@ -18,13 +17,15 @@ module.exports = function(config) {
         });
     }
 
-    function post(path, record) {
-        return request({
+    function post(path, record, isStream) {
+        var config = {
             method: 'POST',
             uri: teraslice_host + path,
-            body: record,
-            json: true // Automatically stringifies the body to JSON
-        });
+            body: record
+        };
+
+        if (!isStream) config.json = true;
+        return request(config);
     }
 
 

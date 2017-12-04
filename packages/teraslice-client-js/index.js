@@ -5,6 +5,7 @@ module.exports = function(config) {
 
     return {
         jobs: require('./lib/jobs')(config),
-        cluster: require('./lib/cluster')(config)
+        cluster: require('./lib/cluster')(config),
+        assets: require('./lib/assets')(config)
     }
 };
