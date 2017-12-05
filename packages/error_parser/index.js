@@ -22,5 +22,9 @@ module.exports = function parseError(err) {
     if (err.stack) {
         return err.stack
     }
-    return err.response ? err.response : err;
+    if (err.response){
+        return err.response;
+    }
+    // in a hdfs error it can return the entire data set so we make sure to only take up to 5k chars
+    return err.length >= 5000 ? `${err.slice(0,5000)} ...` : err;
 };

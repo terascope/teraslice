@@ -68,4 +68,19 @@ describe('error_parser', () => {
         expect(errorParser(errorData)).toEqual(expectedErrorMsg)
     })
 
+    it('will truncate error messages to 5k length', () => {
+        const msg = 'i am a elasticsearch error';
+        let longErrorMsg = '';
+
+        while (longErrorMsg.length < 5000){
+            longErrorMsg += 'a';
+        }
+
+        expect(errorParser(msg)).toEqual(msg)
+        expect(errorParser(msg).length).toEqual(msg.length)
+
+        expect(errorParser(longErrorMsg)).toEqual(`${longErrorMsg} ...`);
+        expect(errorParser(longErrorMsg).length).toEqual(longErrorMsg.length + 4)
+    })
+
 });
