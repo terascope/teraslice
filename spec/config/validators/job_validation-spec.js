@@ -64,7 +64,7 @@ describe('can validate a job', () => {
         };
 
         expect(() => {
-            const validJob = api.validate(jobSpec);
+            api.validate(jobSpec);
         }).toThrowError();
     });
 
@@ -84,7 +84,7 @@ describe('can validate a job', () => {
         };
 
         expect(() => {
-            const validJob = api.validate(jobSpec);
+            api.validate(jobSpec);
         }).not.toThrowError();
     });
 
@@ -106,7 +106,7 @@ describe('can validate a job', () => {
         };
 
         expect(() => {
-            const validJob = api.validate(jobSpec);
+            api.validate(jobSpec);
         }).toThrowError();
     });
 
@@ -130,7 +130,7 @@ describe('can validate a job', () => {
         };
 
         expect(() => {
-            const validJob = api.validate(jobSpec);
+            api.validate(jobSpec);
         }).toThrowError();
     });
 
@@ -139,21 +139,19 @@ describe('can validate a job', () => {
         const opCode = { newProcessor: () => null, schema: () => ({}) };
         const badCode1 = { newProcessor: () => null, schema: () => 'retuning a string' };
         const badCode2 = { newProcessor: () => null, schema: 3 };
-        const badCode3 = { newProcessor: () => null};
+        const badCode3 = { newProcessor: () => null };
 
         expect(() => {
-            const validJob = api.hasSchema(opCode, 'test');
+            api.hasSchema(opCode, 'test');
         }).not.toThrowError();
         expect(() => {
-            const validJob = api.hasSchema(badCode1, 'test');
+            api.hasSchema(badCode1, 'test');
         }).toThrowError('test schema needs to return an object');
         expect(() => {
-            const validJob = api.hasSchema(badCode2, 'test');
+            api.hasSchema(badCode2, 'test');
         }).toThrowError('test needs to have a method named "schema"');
         expect(() => {
-            const validJob = api.hasSchema(badCode3, 'test');
+            api.hasSchema(badCode3, 'test');
         }).toThrowError('test needs to have a method named "schema"');
-
-
     });
 });

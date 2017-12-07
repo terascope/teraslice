@@ -1,54 +1,54 @@
 'use strict';
 
-var esModerator = require('../../lib/cluster/moderator/modules/elasticsearch');
-var Promise = require('bluebird');
-var events = require('events');
-var eventEmitter = new events.EventEmitter();
+const esModerator = require('../../lib/cluster/moderator/modules/elasticsearch');
+const Promise = require('bluebird');
+const events = require('events');
 
-describe('elasticsearch moderator', function() {
+const eventEmitter = new events.EventEmitter();
 
-    var logger = {
-        error: function() {
+describe('elasticsearch moderator', () => {
+    const logger = {
+        error() {
         },
-        debug: function() {
+        debug() {
         },
-        info: function() {
+        info() {
         },
-        warn: function() {
+        warn() {
         },
-        trace: function() {
+        trace() {
         }
     };
 
-    var nodes = {
+    const nodes = {
         nodes: {
             default: {
                 thread_pool: {
-                    index: {queue_size: 100, other: 300},
-                    search: {queue_size: 100, other: 300},
-                    get: {queue_size: 100, other: 300},
-                    bulk: {queue_size: 100, other: 300},
-                    other: {queue_size: 100, other: 300}
+                    index: { queue_size: 100, other: 300 },
+                    search: { queue_size: 100, other: 300 },
+                    get: { queue_size: 100, other: 300 },
+                    bulk: { queue_size: 100, other: 300 },
+                    other: { queue_size: 100, other: 300 }
                 }
             }
         }
     };
 
-    var nodesStats = {
+    const nodesStats = {
         nodes: {
             default: {
                 thread_pool: {
-                    index: {queue: 10},
-                    search: {queue: 10},
-                    get: {queue: 10},
-                    bulk: {queue: 10},
-                    other: {queue: 10}
+                    index: { queue: 10 },
+                    search: { queue: 10 },
+                    get: { queue: 10 },
+                    bulk: { queue: 10 },
+                    other: { queue: 10 }
                 }
             }
         }
     };
 
-    var context = {
+    const context = {
         sysconfig: {
             teraslice: {
                 moderator_limit: 0.8,
@@ -59,7 +59,7 @@ describe('elasticsearch moderator', function() {
                     elasticsearch: {
                         default: {
                             host: [
-                                "127.0.0.1:9200"
+                                '127.0.0.1:9200'
                             ],
                             keepAlive: true,
                             maxRetries: 5,
@@ -70,110 +70,104 @@ describe('elasticsearch moderator', function() {
             }
         },
         foundation: {
-            getConnection: function() {
+            getConnection() {
                 return {
                     client: {
                         nodes: {
-                            info: function() {
-                                return Promise.resolve(nodes)
+                            info() {
+                                return Promise.resolve(nodes);
                             },
-                            stats: function() {
-                                return Promise.resolve(nodesStats)
+                            stats() {
+                                return Promise.resolve(nodesStats);
                             }
                         }
                     }
-                }
+                };
             },
-            getEventEmitter: function(){
+            getEventEmitter() {
                 return eventEmitter;
             }
         },
-        logger: logger
+        logger
     };
 
 
-    it('can initialize', function(done) {
-        var moderator = esModerator(context, logger);
+    it('can initialize', (done) => {
+        const moderator = esModerator(context, logger);
 
         moderator.initialize()
-            .then(function(results) {
+            .then((results) => {
                 expect(results).toBeTruthy();
-                done()
+                done();
             })
-            .catch(function(err) {
+            .catch(() => {
                 fail('elasticsearch moderator could not initialize');
-                done()
-            })
+                done();
+            });
     });
 
-    it('can checkService', function(done) {
-        var moderator = esModerator(context, logger);
+    it('can checkService', (done) => {
+        const moderator = esModerator(context, logger);
 
         moderator.initialize()
-            .then(function() {
-                return moderator.check_service()
+            .then(() => moderator.check_service())
+            .then((results) => {
+                expect(results).toEqual({ pause: null, resume: [{ type: 'elasticsearch', connection: 'default' }] });
+                done();
             })
-            .then(function(results) {
-                expect(results).toEqual({pause: null, resume: [{type: 'elasticsearch', connection: 'default'}]});
-                done()
-            })
-            .catch(function(err) {
+            .catch(() => {
                 fail('elasticsearch checkService error occured');
-                done()
-            })
+                done();
+            });
     });
 
-    it('can checkConnectionStates', function(done) {
-        var moderator = esModerator(context, logger);
+    it('can checkConnectionStates', (done) => {
+        const moderator = esModerator(context, logger);
 
         moderator.initialize()
-            .then(function() {
-                return moderator.check_service()
-            })
-            .then(function() {
-                return moderator.checkConnectionStates(['default'])
-            })
-            .then(function(results) {
+            .then(() => moderator.check_service())
+            .then(() => moderator.checkConnectionStates(['default']))
+            .then((results) => {
                 expect(results).toEqual(true);
-                done()
+                done();
             })
-            .catch(function(err) {
+            .catch(() => {
                 fail('error with checkConnectionStates test');
-                done()
-            })
+                done();
+            });
     });
 
-    it('checkConnectionStates can return connections that need to be paused and resumed', function(done) {
-        var moderator = esModerator(context, logger);
+    it('checkConnectionStates can return connections that need to be paused and resumed', (done) => {
+        const moderator = esModerator(context, logger);
         nodesStats.nodes.default.thread_pool.get.queue = 200;
         moderator.initialize()
-            .then(function(bool) {
+            .then((bool) => {
                 expect(bool).toEqual(true);
-                return moderator.check_service()
+                return moderator.check_service();
             })
-            .then(function(results) {
-                //state is throttled starting off until it runs check_services, it remains throttled because of queue = 200
-                expect(results).toEqual({pause: null, resume: null});
-                return moderator.checkConnectionStates(['default'])
+            .then((results) => {
+                // state is throttled starting off until it runs check_services, it remains
+                // throttled because of queue = 200
+                expect(results).toEqual({ pause: null, resume: null });
+                return moderator.checkConnectionStates(['default']);
             })
-            .then(function(results) {
+            .then((results) => {
                 expect(results).toEqual(false);
-                //reset value to be healthy
+                // reset value to be healthy
                 nodesStats.nodes.default.thread_pool.get.queue = 10;
-                return moderator.check_service()
+                return moderator.check_service();
             })
-            .then(function(results) {
-                expect(results).toEqual({pause: null, resume: [{type: 'elasticsearch', connection: 'default'}]});
-                return moderator.checkConnectionStates(['default'])
+            .then((results) => {
+                expect(results).toEqual({ pause: null, resume: [{ type: 'elasticsearch', connection: 'default' }] });
+                return moderator.checkConnectionStates(['default']);
             })
-            .then(function(results) {
+            .then((results) => {
                 expect(results).toEqual(true);
-                done()
+                done();
             })
-            .catch(function(err) {
+            .catch(() => {
                 fail('error with checkConnectionStates test');
-                done()
-            })
+                done();
+            });
     });
-
 });

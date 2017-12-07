@@ -84,7 +84,6 @@ describe('elasticsearch_reader', () => {
             context,
             _.cloneDeep(jobInstance),
             [],
-            {},
             context.logger
         );
     }
@@ -168,7 +167,7 @@ describe('elasticsearch_reader', () => {
 
         // this is proving that an error occurs and is caught in the catch phrase,
         // not testing directly as it return the stack
-        Promise.resolve(elasticDateReader.newSlicer(context, jobConfig, [], {}, context.logger))
+        Promise.resolve(elasticDateReader.newSlicer(context, jobConfig, [], context.logger))
             .catch(() => {
                 done();
             });
@@ -495,7 +494,7 @@ describe('elasticsearch_reader', () => {
         const middleDate = moment(firstDate).add(5, 'm');
         const endDate = moment(firstDate).add(10, 'm');
         const closingDate = moment(endDate).add(1, 's');
-        console.log('what is first date', middleDate.format());
+
         const opConfig = {
             _op: 'elasticsearch_reader',
             date_field_name: '@timestamp',

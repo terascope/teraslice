@@ -1,39 +1,36 @@
 'use strict';
 
-var Promise = require('bluebird');
-var analytics = require('../../lib/utils/analytics');
-var _ = require('lodash');
+const Promise = require('bluebird');
+const analytics = require('../../lib/utils/analytics');
+const _ = require('lodash');
 
-describe('analytics', function() {
-
-    beforeAll(function() {
+describe('analytics', () => {
+    beforeAll(() => {
         jasmine.clock().install();
     });
 
-    afterAll(function() {
+    afterAll(() => {
         jasmine.clock().uninstall();
     });
 
-    it('analyze returns a function what captures the time it took to complete a step, data in and data out', function(done) {
-
-        var fn = function(data) {
-            return new Promise(function(resolve, reject) {
-                setTimeout(function() {
-                    resolve(data)
+    it('analyze returns a function what captures the time it took to complete a step, data in and data out', (done) => {
+        const fn = function (data) {
+            return new Promise(((resolve) => {
+                setTimeout(() => {
+                    resolve(data);
                 }, 1000);
-            });
+            }));
         };
 
-        var analyticsObj = {time: [], size: [], memory: []};
-        var data = [{some: 'insideData'}];
+        const analyticsObj = { time: [], size: [], memory: [] };
+        const dataIn = [{ some: 'insideData' }];
 
-        var analyze = analytics.analyze(fn);
-        var results = analyze(analyticsObj, data);
+        const analyze = analytics.analyze(fn);
+        const results = analyze(analyticsObj, dataIn);
 
         jasmine.clock().tick(1001);
 
-        results.then(function(data) {
-
+        results.then((data) => {
             expect(Array.isArray(data)).toBe(true);
             expect(data[0].some).toEqual('insideData');
             expect(analyticsObj.time.length).toEqual(1);
@@ -48,23 +45,22 @@ describe('analytics', function() {
         });
     });
 
-    it('insertAnalyzers takes an array of functions and returns them wrapped with the analyze function', function() {
-        var fnArray = [function() {
-        }, function() {
+    it('insertAnalyzers takes an array of functions and returns them wrapped with the analyze function', () => {
+        const fnArray = [function () {
+        }, function () {
         }];
-        var results = analytics.insertAnalyzers(fnArray);
+        const results = analytics.insertAnalyzers(fnArray);
 
         expect(Array.isArray(results)).toBe(true);
         expect(results.length).toEqual(2);
         expect(typeof results[0]).toEqual('function');
         expect(results[0].toString()).toEqual(analytics.analyze().toString());
-
     });
 
-    it('statsContainer takes in job.operations and returns an object for the number of ops', function() {
-        var ops = [{ops1: 'config1'}, {ops2: 'config2'}, {ops3: 'config3'}];
+    it('statsContainer takes in job.operations and returns an object for the number of ops', () => {
+        const ops = [{ ops1: 'config1' }, { ops2: 'config2' }, { ops3: 'config3' }];
 
-        var results = analytics.statContainer(ops);
+        const results = analytics.statContainer(ops);
 
         expect(results).toBeDefined();
         expect(results.time).toBeDefined();
@@ -76,11 +72,11 @@ describe('analytics', function() {
         expect(results.memory.length).toEqual(3);
     });
 
-    it('addStats transfers message stats to the statsContainer', function() {
-        var ops = [{ops1: 'config1'}, {ops2: 'config2'}, {ops3: 'config3'}];
-        var statsObj = analytics.statContainer(ops);
-        var data = {time: [234, 125, 1300], size: [2300, 4600], memory: [1234, 4567]};
-        var data2 = {time: [346, 325, 1102], size: [1120, 2240], memory: [12345, 56789]};
+    it('addStats transfers message stats to the statsContainer', () => {
+        const ops = [{ ops1: 'config1' }, { ops2: 'config2' }, { ops3: 'config3' }];
+        const statsObj = analytics.statContainer(ops);
+        const data = { time: [234, 125, 1300], size: [2300, 4600], memory: [1234, 4567] };
+        const data2 = { time: [346, 325, 1102], size: [1120, 2240], memory: [12345, 56789] };
 
         expect(statsObj.size[0].length).toEqual(0);
         expect(statsObj.time[0].length).toEqual(0);
@@ -105,21 +101,18 @@ describe('analytics', function() {
         expect(_.flatten(statsObj.size)).toEqual(_.flatten(_.zip(data.size, data2.size)));
         expect(_.flatten(statsObj.time)).toEqual(_.flatten(_.zip(data.time, data2.time)));
         expect(_.flatten(statsObj.memory)).toEqual(_.flatten(_.zip(data.memory, data2.memory)));
-
     });
 
-    it('calculateStats takes an array of ints and returns an obj that has the  min, max, and total of ints', function() {
-        var data = [232, 254, 345, 112, 367, 343, 321, 213, 222, 245];
+    it('calculateStats takes an array of ints and returns an obj that has the  min, max, and total of ints', () => {
+        const data = [232, 254, 345, 112, 367, 343, 321, 213, 222, 245];
 
-        var results = analytics.calculateStats(data);
+        const results = analytics.calculateStats(data);
 
         expect(results).toBeDefined();
         expect(results.max).toEqual(367);
         expect(results.min).toEqual(112);
-        //toFixed returns a string
+        // toFixed returns a string
         expect(results.average).toEqual('265.40');
-
     });
-
 });
 
