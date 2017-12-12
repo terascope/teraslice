@@ -170,7 +170,7 @@ Please check the api docs at the bottom for a comprehensive in-depth list of all
 This will retrieve the job configuration including '\_status' which indicates the execution status of the job.
 
 ```
-curl YOU_MASTER_IP:5678/jobs/{job_id}/ex}
+curl YOU_MASTER_IP:5678/jobs/{job_id}/ex
 ```
 
 ### Stopping a job
