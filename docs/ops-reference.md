@@ -37,16 +37,16 @@ Example Job
             "index": "events-*",
             "type": "event",
             "size": 5000,
-            "date_field_name": "created",
+            "date_field_name": "created"
         },
         {
-            "_op": "custom_op"
+            "_op": "custom_op",
             "some": "configuration"
         },
         {
             "_op": "elasticsearch_index_selector",
             "index": "bigdata3",
-            "type": "events",
+            "type": "events"
         },
         {
             "_op": "elasticsearch_bulk",
@@ -80,31 +80,31 @@ Used to retrieve elasticsearch data based on dates. This reader has different be
 Example configuration if lifecycle is set to "once"
 
 ```
-    //simplified using defaults
-    {
-          "_op": "elasticsearch_reader",
-          "index": "events-*",
-          "type": "event",
-          "size": 5000,
-          "date_field_name": "created",
-    }
+//simplified using defaults
+{
+    "_op": "elasticsearch_reader",
+    "index": "events-*",
+    "type": "event",
+    "size": 5000,
+    "date_field_name": "created"
+}
 
-    //expanded
-    {
-      "_op": "elasticsearch_reader",
-      "index": "events-*",
-      "type": "event",
-      "size": 5000,
-      "start": "2015-10-26T21:33:27.190-07:00",
-      "end": ""2015-10-27T21:33:27.190-07:00",
-      "interval": "10min",
-      "date_field_name": "created",
-      "query": "someLucene: query",
-      "full_response": true,
-      "time_resolution": "ms",
-      "subslice_key_threshold": 100000,
-      "key_type": base64url
-    }
+//expanded
+{
+    "_op": "elasticsearch_reader",
+    "index": "events-*",
+    "type": "event",
+    "size": 5000,
+    "start": "2015-10-26T21:33:27.190-07:00",
+    "end": ""2015-10-27T21:33:27.190-07:00",
+    "interval": "10min",
+    "date_field_name": "created",
+    "query": "someLucene: query",
+    "full_response": true,
+    "time_resolution": "ms",
+    "subslice_key_threshold": 100000,
+    "key_type": base64url
+}
 ```
 In this mode, there is a definite start (inclusive) and end time (exclusive). Each slice will be based off of the interval and size configurations.
 If the number of documents exceed the size within a given interval, it will recurse and and split the interval in half continually until the number of documents is less than or equal to size. If this cannot be achieved then the size of the chunk will be calculated against a threshold , and if it passes the threshold it further subdivides the range by the documents \_id's, else the slicer will ignore the size limit and process the chunk as is.
@@ -136,13 +136,13 @@ Example configuration if lifecycle is set to "persistent"
 
 ```
 {
-     "_op": "elasticsearch_reader",
-     "index": "someIndex",
-     "size": 5000,
-     "interval": "5s"
-     "delay": "1m"
-     "date_field_name": "created",
-     "full_response": true
+    "_op": "elasticsearch_reader",
+    "index": "someIndex",
+    "size": 5000,
+    "interval": "5s",
+    "delay": "1m",
+    "date_field_name": "created",
+    "full_response": true
 }
 ```
 
@@ -172,14 +172,14 @@ Used to generate sample data for your elasticsearch cluster. You may use the def
 Default generated data :
 ```
 {
-  ip: '1.12.146.136',
-  userAgent: 'Mozilla/5.0 (Windows NT 5.2; WOW64; rv:8.9) Gecko/20100101 Firefox/8.9.9',
-  url: 'https://gabrielle.org',
-  uuid: '408433ff-9495-4d1c-b066-7f9668b168f0',
-  ipv6: '8188:b9ad:d02d:d69e:5ca4:05e2:9aa5:23b0',
-  location: '-25.40587, 56.56418',
-  created: "2016-01-19T13:33:09.356-07:00",
-  bytes: 4850020
+    "ip": "1.12.146.136",
+    "userAgent": "Mozilla/5.0 (Windows NT 5.2; WOW64; rv:8.9) Gecko/20100101 Firefox/8.9.9",
+    "url": "https://gabrielle.org",
+    "uuid": "408433ff-9495-4d1c-b066-7f9668b168f0",
+    "ipv6": "8188:b9ad:d02d:d69e:5ca4:05e2:9aa5:23b0",
+    "location": "-25.40587, 56.56418",
+    "created": "2016-01-19T13:33:09.356-07:00",
+    "bytes": 4850020
 }
 
 ```
@@ -231,13 +231,13 @@ This will slice and read documents based off of their specific \_ids. Underneath
 Example configuration
 ```
 {
-      "_op": "id_reader",
-      "index": "events-2016.05.06",
-      "type": "events",
-      "size": 10000,
-      "key_type": "hexadecimal",
-      "key_range": ["a", "b", "c", "1"],
-    },
+    "_op": "id_reader",
+    "index": "events-2016.05.06",
+    "type": "events",
+    "size": 10000,
+    "key_type": "hexadecimal",
+    "key_range": ["a", "b", "c", "1"]
+}
 
 ```
 Currently the id_reader and makes keys for base64url (elasticsearch native id generator) and hexidecimal. However at this point the hexidecimal only works if the keys are lowercase, future update will fix this
@@ -263,11 +263,11 @@ This processor formats the incoming data to prepare it for the elasticsearch bul
 Example configuration
 ```
 {
-     "_op": "elasticsearch_index_selector",
-     "type": "events",
-     "indexPrefix": "events",
-     "timeseries": "daily",
-     "date_field": "created"
+    "_op": "elasticsearch_index_selector",
+    "type": "events",
+    "indexPrefix": "events",
+    "timeseries": "daily",
+    "date_field": "created"
 }
 ```
 
@@ -296,37 +296,37 @@ This is used to allow other languages other than javascript to process data. Not
 Example configuration
 ```
 {
-     "_op": "script",
-     "command": "someFile.py",
-     "args": ["-someFlag1", "-someFlag2"],
-     "asset": "someAsset",
-     "options": {},
+    "_op": "script",
+    "command": "someFile.py",
+    "args": ["-someFlag1", "-someFlag2"],
+    "asset": "someAsset",
+    "options": {}
 }
 ```
 
 Example Job: `examples/jobs/script/test_script_job.json`
 ```
 {
-  "name": "ES DataGen test script",
-  "lifecycle": "persistent",
-  "workers": 1,
-  "operations": [
-    {
-      "_op": "elasticsearch_data_generator",
-      "size": 100000,
-      "stress_test": true
-    },
-    {
-     "_op": "script",
-     "command": "test_script.py",
-     "asset": "test_script",
-     "args": [""],
-     "options": {}
-    },
-    {
-        "_op": "noop"
-    }
-  ]
+    "name": "ES DataGen test script",
+    "lifecycle": "persistent",
+    "workers": 1,
+    "operations": [
+        {
+            "_op": "elasticsearch_data_generator",
+            "size": 100000,
+            "stress_test": true
+        },
+        {
+            "_op": "script",
+            "command": "test_script.py",
+            "asset": "test_script",
+            "args": [""],
+            "options": {}
+        },
+        {
+            "_op": "noop"
+        }
+    ]
 }
 ```
 
@@ -358,20 +358,20 @@ This sends a bulk request to elasticsearch
 Example configuration
 ```
 {
-     "_op": "elasticsearch_bulk",
-     "size": 10000,
-     "multisend": true,
-     "multisend_index_append": true,
-     "connection_map": {
-           "a,2": "es_d1",
-           "b,3": "es_d2",
-           "c,4": "es_d3",
-           "d,5": "es_d4",
-           "e,6": "es_d5",
-           "f,7": "es_d6",
-           "0,8": "es_d7",
-           "1,9": "es_d8"
-     }
+    "_op": "elasticsearch_bulk",
+    "size": 10000,
+    "multisend": true,
+    "multisend_index_append": true,
+    "connection_map": {
+        "a,2": "es_d1",
+        "b,3": "es_d2",
+        "c,4": "es_d3",
+        "d,5": "es_d4",
+        "e,6": "es_d5",
+        "f,7": "es_d6",
+        "0,8": "es_d7",
+        "1,9": "es_d8"
+    }
 }
 ```
 The keys used were hexidecimal based
@@ -392,7 +392,7 @@ This is primarily used for develop purposes, it console logs the incoming data, 
 Example configuration
 ```
 {
-     "_op": "stdout",
+    "_op": "stdout"
 }
 ```
 
@@ -408,7 +408,7 @@ for develop purposes.
 Example configuration
 ```
 {
-     "_op": "noop",
+    "_op": "noop"
 }
 ```
 
