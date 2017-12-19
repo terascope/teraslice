@@ -1,7 +1,7 @@
 'use strict';
 
 const worker = require('./lib/cluster/worker');
-const slicer = require('./lib/cluster/slicer');
+const executionController = require('./lib/cluster/execution_controller');
 const assetsLoader = require('./lib/cluster/assets_loader');
 const assetsService = require('./lib/cluster/services/assets');
 const master = require('./lib/master');
@@ -35,14 +35,14 @@ const foundation = require('terafoundation')({
     name: 'teraslice',
     worker,
     master,
-    slicer,
+    execution_controller: executionController,
     assets_loader: assetsLoader,
     assets_service: assetsService,
     shutdownMessaging: true,
     cluster_master: clusterMaster,
     moderator,
     descriptors: {
-        slicer: true,
+        execution_controller: true,
         worker: true,
         cluster_master: true,
         moderator: true,
