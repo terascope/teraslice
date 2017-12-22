@@ -130,8 +130,8 @@ describe('elasticsearch_reader', () => {
             start: new Date(),
             end: new Date()
         };
-        const jobInstance = {
-            jobConfig: {
+        const executionContext = {
+            config: {
                 lifecycle: 'once',
                 slicers: 1,
                 operations: [opConfig],
@@ -139,11 +139,11 @@ describe('elasticsearch_reader', () => {
             }
         };
 
-        Promise.resolve(getNewSlicer(jobInstance))
+        Promise.resolve(getNewSlicer(executionContext))
             .then((slicer) => {
                 expect(typeof slicer[0]).toEqual('function');
-                jobInstance.jobConfig.slicers = 3;
-                return getNewSlicer(jobInstance);
+                executionContext.config.slicers = 3;
+                return getNewSlicer(executionContext);
             })
             .then((slicers) => {
                 expect(slicers.length).toEqual(3);
@@ -163,11 +163,11 @@ describe('elasticsearch_reader', () => {
             start: '2015-08-25T00:00:00',
             end: '2015-08-25T00:02:00'
         };
-        const jobConfig = { jobConfig: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
+        const executionContext = { config: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
 
         // this is proving that an error occurs and is caught in the catch phrase,
         // not testing directly as it return the stack
-        Promise.resolve(elasticDateReader.newSlicer(context, jobConfig, [], context.logger))
+        Promise.resolve(elasticDateReader.newSlicer(context, executionContext, [], context.logger))
             .catch(() => {
                 done();
             });
@@ -197,7 +197,7 @@ describe('elasticsearch_reader', () => {
         const laterDate = moment(firstDate).add(5, 'm');
         let updatedConfig;
 
-        events.on('slicer:job:update', (updateObj) => {
+        events.on('slicer:execution:update', (updateObj) => {
             updatedConfig = updateObj.update[0];
             return true;
         });
@@ -242,39 +242,39 @@ describe('elasticsearch_reader', () => {
             end: moment(laterDate).add(1, 's').format()
         };
 
-        const jobInstance = { jobConfig: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
+        const executionContext = { config: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
 
         // this is proving that an error occurs and is caught in the catch phrase,
         // not testing directly as it return the stack same dates should have a difference of 1s
         clientData = [{ '@timestamp': firstDate, count: 100 }, { '@timestamp': firstDate, count: 50 }];
 
-        Promise.resolve(getNewSlicer(jobInstance))
+        Promise.resolve(getNewSlicer(executionContext))
             .then(() => {
                 expect(updatedConfig.start).toEqual(firstDate.format());
                 expect(updatedConfig.end).toEqual(moment(firstDate).add(1, 's').format());
                 clientData = [{ '@timestamp': firstDate, count: 100 }, { '@timestamp': laterDate, count: 50 }];
-                return getNewSlicer(jobInstance);
+                return getNewSlicer(executionContext);
             })
             .then(() => {
                 expect(updatedConfig.start).toEqual(firstDate.format());
                 expect(updatedConfig.end).toEqual(moment(firstDate).add(5, 'm').add(1, 's').format());
-                jobInstance.jobConfig.operations = [opConfig2];
+                executionContext.config.operations = [opConfig2];
                 clientData = [{ '@timestamp': firstDate, count: 100 }, { '@timestamp': laterDate, count: 50 }];
-                return getNewSlicer(jobInstance);
+                return getNewSlicer(executionContext);
             })
             .then(() => {
                 expect(updatedConfig.start).toEqual(firstDate.format());
                 expect(updatedConfig.end).toEqual(moment(firstDate).add(5, 'm').add(1, 's').format());
-                jobInstance.jobConfig.operations = [opConfig3];
+                executionContext.config.operations = [opConfig3];
                 clientData = [{ '@timestamp': firstDate, count: 100 }, { '@timestamp': laterDate, count: 50 }];
-                return getNewSlicer(jobInstance);
+                return getNewSlicer(executionContext);
             })
             .then(() => {
                 expect(updatedConfig.start).toEqual(firstDate.format());
                 expect(updatedConfig.end).toEqual(moment(firstDate).add(5, 'm').add(1, 's').format());
-                jobInstance.jobConfig.operations = [opConfig4];
+                executionContext.config.operations = [opConfig4];
                 clientData = [{ '@timestamp': firstDate, count: 100 }, { '@timestamp': laterDate, count: 50 }];
-                return getNewSlicer(jobInstance);
+                return getNewSlicer(executionContext);
             })
             .then(() => {
                 expect(updatedConfig.start).toEqual(firstDate.format());
@@ -298,11 +298,11 @@ describe('elasticsearch_reader', () => {
             query: 'some:luceneQueryWithNoResults'
         };
 
-        const jobInstance = { jobConfig: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
+        const executionContext = { config: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
         // setting clientData to an empty array to simulate a query with no results
         clientData = [];
         allowSlicerToComplete = true;
-        Promise.resolve(getNewSlicer(jobInstance))
+        Promise.resolve(getNewSlicer(executionContext))
             .then((slicerArray) => {
                 const slicer = slicerArray[0];
 
@@ -331,7 +331,7 @@ describe('elasticsearch_reader', () => {
             interval: '2hrs'
         };
 
-        const jobInstance = { jobConfig: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
+        const executionContext = { config: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
         // first two objects are consumed for determining start and end dates
         clientData = [
             { '@timestamp': firstDate, count: 100 },
@@ -341,7 +341,7 @@ describe('elasticsearch_reader', () => {
         ];
         allowSlicerToComplete = true;
 
-        Promise.resolve(getNewSlicer(jobInstance))
+        Promise.resolve(getNewSlicer(executionContext))
             .then((slicerArray) => {
                 const slicer = slicerArray[0];
 
@@ -377,7 +377,7 @@ describe('elasticsearch_reader', () => {
             interval: '2hrs',
         };
 
-        const jobInstance = { jobConfig: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
+        const executionContext = { config: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
         // first two objects are consumed for determining start and end dates,
         // a middleDate is used in recursion to split in half, so it needs two
         clientData = [
@@ -397,7 +397,7 @@ describe('elasticsearch_reader', () => {
             return true;
         });
 
-        Promise.resolve(getNewSlicer(jobInstance))
+        Promise.resolve(getNewSlicer(executionContext))
             .then((slicerArray) => {
                 const slicer = slicerArray[0];
 
@@ -440,7 +440,7 @@ describe('elasticsearch_reader', () => {
             interval: '5m',
         };
 
-        const jobInstance = { jobConfig: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
+        const executionContext = { config: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
         // first two objects are consumed for determining start and end dates,
         // a middleDate is used in recursion to expand,
         clientData = [
@@ -460,7 +460,7 @@ describe('elasticsearch_reader', () => {
             return true;
         });
 
-        Promise.resolve(getNewSlicer(jobInstance))
+        Promise.resolve(getNewSlicer(executionContext))
             .then((slicerArray) => {
                 const slicer = slicerArray[0];
 
@@ -504,7 +504,7 @@ describe('elasticsearch_reader', () => {
             interval: '5m',
         };
 
-        const jobInstance = { jobConfig: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
+        const executionContext = { config: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
         // first two objects are consumed for determining start and end dates,
         // the count of zero hits the expansion code, then it hits the 150 which is
         // above the size limit so it runs another recursive query
@@ -526,7 +526,7 @@ describe('elasticsearch_reader', () => {
             return true;
         });
 
-        Promise.resolve(getNewSlicer(jobInstance))
+        Promise.resolve(getNewSlicer(executionContext))
             .then((slicerArray) => {
                 const slicer = slicerArray[0];
 
@@ -579,8 +579,8 @@ describe('elasticsearch_reader', () => {
             interval: '5m',
         };
 
-        const jobInstance = { jobConfig: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
-        const jobInstance2 = { jobConfig: { lifecycle: 'once', slicers: 1, operations: [opConfig2] } };
+        const executionContext1 = { config: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
+        const executionContext2 = { config: { lifecycle: 'once', slicers: 1, operations: [opConfig2] } };
 
         // first two objects are consumed for determining start and end dates,
         // a middleDate is used in recursion to expand,
@@ -588,7 +588,7 @@ describe('elasticsearch_reader', () => {
             { '@timestamp': firstDateS, count: 100 }
         ];
 
-        Promise.all([getNewSlicer(jobInstance), getNewSlicer(jobInstance2)])
+        Promise.all([getNewSlicer(executionContext1), getNewSlicer(executionContext2)])
             .spread((slicerArraySec, slicerArrayMilli) => {
                 const slicerS = slicerArraySec[0];
                 const slicerMS = slicerArrayMilli[0];
@@ -633,7 +633,7 @@ describe('elasticsearch_reader', () => {
             type: 'test'
         };
         const hexadecimal = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
-        const jobInstance = { jobConfig: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
+        const executionContext = { config: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
 
         // first two objects are consumed for determining start and end dates,
         // a middleDate is used in recursion to expand,
@@ -644,7 +644,7 @@ describe('elasticsearch_reader', () => {
             { '@timestamp': firstDate, count: 5 }
         ];
 
-        Promise.resolve(getNewSlicer(jobInstance))
+        Promise.resolve(getNewSlicer(executionContext))
             .then((slicerArraySec) => {
                 const slicer = slicerArraySec[0];
 

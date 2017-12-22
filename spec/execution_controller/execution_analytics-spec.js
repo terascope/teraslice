@@ -6,7 +6,7 @@ const events = require('events');
 const eventEmitter = new events.EventEmitter();
 
 describe('execution_analytics', () => {
-    const executionAnalyticsModule = require('../../lib/cluster/execution_controller/analytics');
+    const executionAnalyticsModule = require('../../lib/cluster/execution_controller/execution_analytics');
 
     let msgHandler;
     let msgResponse;
@@ -47,8 +47,10 @@ describe('execution_analytics', () => {
         }
     };
 
+    const executionModules = { context, messaging };
+
     it('can instantiate', () => {
-        const executionAnalytics = executionAnalyticsModule(context, messaging);
+        const executionAnalytics = executionAnalyticsModule(executionModules);
 
         expect(executionAnalytics).toBeDefined();
         expect(executionAnalytics.set).toBeDefined();
@@ -65,7 +67,7 @@ describe('execution_analytics', () => {
     });
 
     it('can return analytics', () => {
-        const executionAnalytics = executionAnalyticsModule(context, messaging);
+        const executionAnalytics = executionAnalyticsModule(executionModules);
         const data = executionAnalytics.getAnalytics();
 
         expect(data.workers_available).toBeDefined();
@@ -86,7 +88,7 @@ describe('execution_analytics', () => {
     });
 
     it('can increment values', () => {
-        const executionAnalytics = executionAnalyticsModule(context, messaging);
+        const executionAnalytics = executionAnalyticsModule(executionModules);
         executionAnalytics.increment('workers_available');
         executionAnalytics.increment('workers_available');
         executionAnalytics.increment('failed');
@@ -100,7 +102,7 @@ describe('execution_analytics', () => {
     });
 
     it('can set values', () => {
-        const executionAnalytics = executionAnalyticsModule(context, messaging);
+        const executionAnalytics = executionAnalyticsModule(executionModules);
         executionAnalytics.set('workers_active', 5);
         executionAnalytics.set('queued', 15);
 
@@ -113,7 +115,7 @@ describe('execution_analytics', () => {
     });
 
     it('can listen for slicer events', () => {
-        const executionAnalytics = executionAnalyticsModule(context, messaging);
+        const executionAnalytics = executionAnalyticsModule(executionModules);
         eventEmitter.emit('slicer:slice:recursion');
         eventEmitter.emit('slicer:slice:recursion');
 
@@ -132,7 +134,7 @@ describe('execution_analytics', () => {
         process.env.job_id = 456;
         process.env.job = JSON.stringify({ name: 'test' });
 
-        const executionAnalytics = executionAnalyticsModule(context, messaging);
+        const executionAnalytics = executionAnalyticsModule(executionModules);
         const incomingMsg = { __msgId: 1234, __source: 'testing', node_id: 'someNode' };
         expect(msgHandler.event).toEqual('cluster:slicer:analytics');
         expect(typeof msgHandler.callback).toEqual('function');
@@ -154,7 +156,7 @@ describe('execution_analytics', () => {
     });
 
     it('will sent analytic updates periodically', (done) => {
-        const executionAnalytics = executionAnalyticsModule(context, messaging);
+        const executionAnalytics = executionAnalyticsModule(executionModules);
 
         waitFor(12)
             .then(() => {

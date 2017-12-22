@@ -21,7 +21,7 @@ describe('config', () => {
             });
             fs.rmdirSync(path);
         } catch (e) {
-            console.log(e);
+            if (e.code !== 'ENOENT')  console.log(e);
         }
     }
 

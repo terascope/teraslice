@@ -19,14 +19,10 @@ describe('can validate a job', () => {
             }
         },
         logger: {
-            error() {
-            },
-            info() {
-            },
-            warn() {
-            },
-            debug() {
-            }
+            error() {},
+            info() {},
+            warn() {},
+            debug() {}
         }
     };
 

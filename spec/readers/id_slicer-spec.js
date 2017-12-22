@@ -112,13 +112,13 @@ describe('id_reader', () => {
     it('can create multiple slicers', (done) => {
         const retryData = [];
         const job1 = {
-            jobConfig: {
+            config: {
                 slicers: 1,
                 operations: [{ _op: 'id_reader', key_type: 'hexadecimal', key_range: ['a', 'b'] }]
             }
         };
         const job2 = {
-            jobConfig: {
+            config: {
                 slicers: 2,
                 operations: [{ _op: 'id_reader', key_type: 'hexadecimal', key_range: ['a', 'b'] }]
             }
@@ -143,7 +143,7 @@ describe('id_reader', () => {
     it('it produces values', (done) => {
         const retryData = [];
         const job1 = {
-            jobConfig: {
+            config: {
                 slicers: 1,
                 operations: [{
                     _op: 'id_reader',
@@ -180,7 +180,7 @@ describe('id_reader', () => {
     it('it produces values starting at a specific depth', (done) => {
         const retryData = [];
         const job1 = {
-            jobConfig: {
+            config: {
                 slicers: 1,
                 operations: [{
                     _op: 'id_reader',
@@ -217,7 +217,7 @@ describe('id_reader', () => {
     it('it produces values even with an initial search error', (done) => {
         const retryData = [];
         const job1 = {
-            jobConfig: {
+            config: {
                 slicers: 1,
                 operations: [{
                     _op: 'id_reader',
@@ -260,7 +260,7 @@ describe('id_reader', () => {
     it('key range gets divided up by number of slicers', (done) => {
         const retryData = [];
         const job1 = {
-            jobConfig: {
+            config: {
                 slicers: 2,
                 operations: [{
                     _op: 'id_reader',
@@ -302,7 +302,7 @@ describe('id_reader', () => {
 
         const retryData = [];
         const job1 = {
-            jobConfig: {
+            config: {
                 slicers: 1,
                 operations: [{
                     _op: 'id_reader',
@@ -346,7 +346,7 @@ describe('id_reader', () => {
     it('can return to previous position', (done) => {
         const retryData = [{ lastSlice: { key: 'events-#a6*' } }];
         const job1 = {
-            jobConfig: {
+            config: {
                 slicers: 1,
                 operations: [{
                     _op: 'id_reader',
