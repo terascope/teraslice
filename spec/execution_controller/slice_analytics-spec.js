@@ -1,18 +1,12 @@
 'use strict';
 
-const Promise = require('bluebird');
 const analyticsCode = require('../../lib/cluster/execution_controller/slice_analytics');
 const _ = require('lodash');
+const events = require('events');
+
+const eventEmitter = new events.EventEmitter();
 
 describe('slice_analytics', () => {
-    beforeAll(() => {
-        jasmine.clock().install();
-    });
-
-    afterAll(() => {
-        jasmine.clock().uninstall();
-    });
-
     const logger = {
         error() {},
         info() {},
@@ -72,48 +66,6 @@ describe('slice_analytics', () => {
         expect(results.min).toEqual(112);
         // toFixed returns a string
         expect(results.average).toEqual('265.40');
-    });
-    // TODO this belongs in runner/execution
-    xit('analyze returns a function what captures the time it took to complete a step, data in and data out', (done) => {
-        const fn = function (data) {
-            return new Promise(((resolve) => {
-                setTimeout(() => {
-                    resolve(data);
-                }, 1000);
-            }));
-        };
-
-        const analyticsObj = { time: [], size: [], memory: [] };
-        const dataIn = [{ some: 'insideData' }];
-
-        const analyze = analytics.analyze(fn);
-        const results = analyze(analyticsObj, dataIn);
-
-        jasmine.clock().tick(1001);
-
-        results.then((data) => {
-            expect(Array.isArray(data)).toBe(true);
-            expect(data[0].some).toEqual('insideData');
-            expect(analyticsObj.time.length).toEqual(1);
-            expect(analyticsObj.size.length).toEqual(1);
-            expect(analyticsObj.memory.length).toEqual(1);
-
-            expect(analyticsObj.time[0] >= 0).toBe(true);
-            expect(analyticsObj.size[0]).toEqual(1);
-            expect(analyticsObj.memory[0] >= 0).toBe(true);
-
-            done();
-        });
-    });
-    // TODO this belongs in runner/execution
-    xit('insertAnalyzers takes an array of functions and returns them wrapped with the analyze function', () => {
-        const fnArray = [() => {}, () => {}];
-        const results = analytics.insertAnalyzers(fnArray);
-
-        expect(Array.isArray(results)).toBe(true);
-        expect(results.length).toEqual(2);
-        expect(typeof results[0]).toEqual('function');
-        expect(results[0].toString()).toEqual(analytics.analyze().toString());
     });
 
     it('statsContainer takes in job.operations and returns an object for the number of ops', () => {
