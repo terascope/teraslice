@@ -117,8 +117,7 @@ function slicerQueueLength(jobConfig){
 }
 
 module.exports = {
-  newReader: newReader,
-  newSlicer: newSlicer,
+  newProcessor: newProcessor,
   schema, schema,
   op_validation: op_validation,
   post_validation: post_validation,

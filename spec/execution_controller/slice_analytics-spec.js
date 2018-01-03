@@ -7,9 +7,10 @@ const events = require('events');
 const eventEmitter = new events.EventEmitter();
 
 describe('slice_analytics', () => {
+    const logMessages = [];
     const logger = {
         error() {},
-        info() {},
+        info(msg) { logMessages.push(msg); },
         warn() {},
         trace() {},
         debug() {}
@@ -20,11 +21,11 @@ describe('slice_analytics', () => {
             getSystemEvents: () => eventEmitter } } },
 
         engine: { enqueueSlice: () => {} },
-        executionContext: { config: { slicers: 2, operations: [{ ops1: 'config1' }, { ops2: 'config2' }, { ops3: 'config3' }] } }
+        executionContext: { config: { slicers: 2, operations: [{ _op: 'config1' }, { _op: 'config2' }, { _op: 'config3' }] } }
     };
     const testConfig = { ex_id: '1234', job_id: '5678' };
     const analytics = analyticsCode(executionModules);
-    const statContainer = analytics.__test_context(testConfig);
+    const statContainer = analytics.__test_context(testConfig).sliceAnalytics;
 
     it('addStats transfers message stats to the statsContainer', () => {
         const statsObj = statContainer;
@@ -58,8 +59,7 @@ describe('slice_analytics', () => {
 
     it('calculateStats takes an array of ints and returns an obj that has the  min, max, and total of ints', () => {
         const data = [232, 254, 345, 112, 367, 343, 321, 213, 222, 245];
-
-        const results = analytics.calculateStats(data);
+        const results = analytics.__test_context({})._calculateStats(data);
 
         expect(results).toBeDefined();
         expect(results.max).toEqual(367);
@@ -79,5 +79,13 @@ describe('slice_analytics', () => {
         expect(results.time.length).toEqual(3);
         expect(results.size.length).toEqual(3);
         expect(results.memory.length).toEqual(3);
+    });
+
+    it('analyzeStats will log results', () => {
+        analytics.analyzeStats();
+        expect(logMessages.shift()).toEqual('calculating statistics');
+        expect(logMessages.shift().includes('operation config1')).toEqual(true);
+        expect(logMessages.shift().includes('operation config2')).toEqual(true);
+        expect(logMessages.shift().includes('operation config3')).toEqual(true);
     });
 });
