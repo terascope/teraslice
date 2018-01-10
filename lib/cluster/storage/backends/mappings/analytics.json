@@ -45,7 +45,7 @@
                     "type": "integer"
                 },
                 "memory": {
-                    "type": "integer"
+                    "type": "long"
                 },
                 "@timestamp": {
                     "type": "date"
