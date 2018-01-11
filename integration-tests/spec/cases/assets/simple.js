@@ -70,7 +70,7 @@ module.exports = function simpleAssetTest() {
                         job.waitForStatus('running');
                         return job;
                     })
-                    .then(job => wait.forWorkersJoined(job.id(), workers, 10))
+                    .then(job => wait.forWorkersJoined(job.id(), workers, 20))
                     .then(r => expect(r).toEqual(workers))
                     .catch(fail)
                     .finally(done);
@@ -98,7 +98,7 @@ module.exports = function simpleAssetTest() {
                         job.waitForStatus('running');
                         return job;
                     })
-                    .then(job => wait.forWorkersJoined(job.id(), workers, 10))
+                    .then(job => wait.forWorkersJoined(job.id(), workers, 20))
                     .then(r => expect(r).toEqual(workers))
                     .catch(fail)
                     .finally(done);
