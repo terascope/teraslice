@@ -10,6 +10,39 @@ const wait = require('../../wait')();
 module.exports = function simpleAssetTest() {
     const teraslice = misc.teraslice();
 
+    /**
+     * Uploads the specified asset file and then submits the specified job spec
+     * it then waits for the job to enter the running state, then waits for
+     * the requested number of workers to enter the joined state.  Then that has
+     * happened it tests to see that the number of workers joined is the number
+     * of workers requested.  This reasoning is a bit circular, but a worker
+     * won't enter the `joined` state if it fails to load its assets.
+     *
+     * @param {string}   jobSpecName the name of job to run
+     * @param {string}   assetPath   the relative path to the asset file
+     */
+    function submitAndValidateAssetJob(jobSpecName, assetPath) {
+        const fileStream = fs.createReadStream(assetPath);
+        const jobSpec = misc.newJob(jobSpecName);
+        const workers = jobSpec.workers; // save for comparison
+
+        return teraslice.assets.post(fileStream)
+            .then((result) => {
+                // NOTE: In this case, the asset is referenced by the ID
+                // assigned by teraslice and not it's name.
+                jobSpec.assets = [JSON.parse(result)._id];
+                return teraslice.jobs.submit(jobSpec)
+                    .then(job =>
+                        job.waitForStatus('running')
+                            .then(() => wait.forWorkersJoined(job.id(), workers, 20))
+                            .then((r) => {
+                                expect(r).toEqual(workers);
+                                return job.stop();
+                            })
+                    );
+            });
+    }
+
     describe('Asset Tests', () => {
         describe('After uploading an asset', () => {
             it('can be deleted', (done) => {
@@ -54,24 +87,10 @@ module.exports = function simpleAssetTest() {
         // example_assets/drop_property/
         // example_assets/drop_property/index.js
         // asset.json
-        describe('After starting a job with a Type 1 asset', () => {
-            const jobSpecOrig = misc.newJob('generator-asset-once');
-            const workers = jobSpecOrig.workers; // save for comparison
-
-            it('should eventually have all workers active', (done) => {
-                const testStream = fs.createReadStream('spec/fixtures/assets/example_asset_1.zip');
-
-                teraslice.assets.post(testStream)
-                    .then((result) => {
-                        jobSpecOrig.assets = [JSON.parse(result)._id];
-                        return teraslice.jobs.submit(jobSpecOrig);
-                    })
-                    .then((job) => {
-                        job.waitForStatus('running');
-                        return job;
-                    })
-                    .then(job => wait.forWorkersJoined(job.id(), workers, 20))
-                    .then(r => expect(r).toEqual(workers))
+        describe('After starting a job with a Type 1 asset specified by ID', () => {
+            it('should eventually have all workers joined', (done) => {
+                const assetPath = 'spec/fixtures/assets/example_asset_1.zip';
+                submitAndValidateAssetJob('generator-asset', assetPath)
                     .catch(fail)
                     .finally(done);
             });
@@ -82,24 +101,10 @@ module.exports = function simpleAssetTest() {
         // example_assets/asset.json
         // example_assets/drop_property/
         // example_assets/drop_property/index.js
-        describe('After starting a job with a Type 2 asset', () => {
-            const jobSpecOrig = misc.newJob('generator-asset-once');
-            const workers = jobSpecOrig.workers; // save for comparison
-
-            it('should eventually have all workers active', (done) => {
-                const testStream = fs.createReadStream('spec/fixtures/assets/example_asset_2.zip');
-
-                teraslice.assets.post(testStream)
-                    .then((result) => {
-                        jobSpecOrig.assets = [JSON.parse(result)._id];
-                        return teraslice.jobs.submit(jobSpecOrig);
-                    })
-                    .then((job) => {
-                        job.waitForStatus('running');
-                        return job;
-                    })
-                    .then(job => wait.forWorkersJoined(job.id(), workers, 20))
-                    .then(r => expect(r).toEqual(workers))
+        describe('After starting a job with a Type 2 asset specified by ID', () => {
+            it('should eventually have all workers joined', (done) => {
+                const assetPath = 'spec/fixtures/assets/example_asset_2.zip';
+                submitAndValidateAssetJob('generator-asset', assetPath)
                     .catch(fail)
                     .finally(done);
             });

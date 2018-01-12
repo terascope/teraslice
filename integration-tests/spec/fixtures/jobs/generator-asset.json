@@ -1,7 +1,7 @@
 {
     "name": "generator-asset",
     "slicers": 1,
-    "lifecycle": "once",
+    "lifecycle": "persistent",
     "workers": 3,
     "operations": [
         {
