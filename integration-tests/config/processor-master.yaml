@@ -11,6 +11,7 @@ terafoundation:
                     - "elasticsearch:49200"
 
 teraslice:
+    assets_directory: '/tmp/'
     ops_directory: '/app/source/examples/ops/'
     workers: 8
     master: true

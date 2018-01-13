@@ -1,0 +1,20 @@
+{
+    "name": "generator-asset",
+    "slicers": 1,
+    "lifecycle": "persistent",
+    "workers": 3,
+    "operations": [
+        {
+            "_op": "elasticsearch_data_generator",
+            "size": 15000,
+            "stress_test": false
+        },
+        {
+            "_op": "drop_property",
+            "property": "userAgent"
+        },
+        {
+            "_op": "noop"
+        }
+    ]
+}
