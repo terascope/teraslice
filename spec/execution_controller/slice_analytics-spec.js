@@ -16,15 +16,22 @@ describe('slice_analytics', () => {
         debug() {}
     };
 
-    const executionModules = {
-        context: { apis: { foundation: { makeLogger: () => logger,
-            getSystemEvents: () => eventEmitter } } },
-
-        engine: { enqueueSlice: () => {} },
-        executionContext: { config: { slicers: 2, operations: [{ _op: 'config1' }, { _op: 'config2' }, { _op: 'config3' }] } }
+    const context = {
+        apis: {
+            foundation: { makeLogger: () => logger,
+                getSystemEvents: () => eventEmitter
+            }
+        }
     };
+    const executionContext = {
+        config: {
+            slicers: 2,
+            operations: [{ _op: 'config1' }, { _op: 'config2' }, { _op: 'config3' }]
+        }
+    };
+
     const testConfig = { ex_id: '1234', job_id: '5678' };
-    const analytics = analyticsCode(executionModules);
+    const analytics = analyticsCode(context, executionContext);
     const statContainer = analytics.__test_context(testConfig).sliceAnalytics;
 
     it('addStats transfers message stats to the statsContainer', () => {

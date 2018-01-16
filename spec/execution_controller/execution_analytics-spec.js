@@ -47,10 +47,8 @@ describe('execution_analytics', () => {
         }
     };
 
-    const executionModules = { context, messaging };
-
     it('can instantiate', () => {
-        const executionAnalytics = executionAnalyticsModule(executionModules);
+        const executionAnalytics = executionAnalyticsModule(context, messaging);
 
         expect(executionAnalytics).toBeDefined();
         expect(executionAnalytics.set).toBeDefined();
@@ -67,7 +65,7 @@ describe('execution_analytics', () => {
     });
 
     it('can return analytics', () => {
-        const executionAnalytics = executionAnalyticsModule(executionModules);
+        const executionAnalytics = executionAnalyticsModule(context, messaging);
         const data = executionAnalytics.getAnalytics();
 
         expect(data.workers_available).toBeDefined();
@@ -88,7 +86,7 @@ describe('execution_analytics', () => {
     });
 
     it('can increment values', () => {
-        const executionAnalytics = executionAnalyticsModule(executionModules);
+        const executionAnalytics = executionAnalyticsModule(context, messaging);
         executionAnalytics.increment('workers_available');
         executionAnalytics.increment('workers_available');
         executionAnalytics.increment('failed');
@@ -102,7 +100,7 @@ describe('execution_analytics', () => {
     });
 
     it('can set values', () => {
-        const executionAnalytics = executionAnalyticsModule(executionModules);
+        const executionAnalytics = executionAnalyticsModule(context, messaging);
         executionAnalytics.set('workers_active', 5);
         executionAnalytics.set('queued', 15);
 
@@ -115,7 +113,7 @@ describe('execution_analytics', () => {
     });
 
     it('can listen for slicer events', () => {
-        const executionAnalytics = executionAnalyticsModule(executionModules);
+        const executionAnalytics = executionAnalyticsModule(context, messaging);
         eventEmitter.emit('slicer:slice:recursion');
         eventEmitter.emit('slicer:slice:recursion');
 
@@ -134,7 +132,7 @@ describe('execution_analytics', () => {
         process.env.job_id = 456;
         process.env.job = JSON.stringify({ name: 'test' });
 
-        const executionAnalytics = executionAnalyticsModule(executionModules);
+        const executionAnalytics = executionAnalyticsModule(context, messaging);
         const incomingMsg = { __msgId: 1234, __source: 'testing', node_id: 'someNode' };
         expect(msgHandler.event).toEqual('cluster:slicer:analytics');
         expect(typeof msgHandler.callback).toEqual('function');
@@ -156,7 +154,7 @@ describe('execution_analytics', () => {
     });
 
     it('will sent analytic updates periodically', (done) => {
-        const executionAnalytics = executionAnalyticsModule(executionModules);
+        const executionAnalytics = executionAnalyticsModule(context, messaging);
 
         waitFor(12)
             .then(() => {

@@ -149,7 +149,7 @@ describe('op runner', () => {
         opCode(context);
         const getClient = testRegisterApi.op_runner.getClient;
         const errStr = 'No configuration for endpoint default was found in the terafoundation connectors';
-        eventEmitter.on('foundation:get_connection:error', (errMsg) => {
+        eventEmitter.on('client:initialization:error', (errMsg) => {
             expect(errMsg.error.includes(errStr)).toEqual(true);
             done();
         });

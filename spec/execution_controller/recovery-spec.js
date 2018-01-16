@@ -17,29 +17,29 @@ describe('execution recovery', () => {
     let sentMsg = null;
     const startingPoints = {};
     let testSlices = [{ slice_id: 1 }, { slice_id: 2 }];
+    const queue = [];
 
-    const executionModules = {
-        context: { apis: { foundation: { makeLogger: () => logger,
-            getSystemEvents: () => eventEmitter } } },
-        messaging: { send: (msg) => { sentMsg = msg; } },
-        executionAnalytics: { getAnalytics: () => ({}) },
-        exStore: {
-            failureMetaData: () => {},
-            setStatus: () => {}
-        },
-        stateStore: {
-            executionStartingSlice: (exId, ind) => { startingPoints[ind] = exId; },
-            recoverSlices: () => {
-                const data = testSlices.slice();
-                testSlices = [];
-                return Promise.resolve(data);
-            }
-        },
-        engine: { enqueueSlice: () => {} },
-        executionContext: { config: { slicers: 2 } }
+    const context = { apis: { foundation: { makeLogger: () => logger,
+        getSystemEvents: () => eventEmitter } } };
+    const messaging = { send: (msg) => { sentMsg = msg; } };
+    const executionAnalytics = { getAnalytics: () => ({}) };
+    const exStore = {
+        failureMetaData: () => {},
+        setStatus: () => {}
     };
+    const stateStore = {
+        executionStartingSlice: (exId, ind) => { startingPoints[ind] = exId; },
+        recoverSlices: () => {
+            const data = testSlices.slice();
+            testSlices = [];
+            return Promise.resolve(data);
+        }
+    };
+    const enqueueSlice = (val) => { queue.push(val); };
+    const executionContext = { config: { slicers: 2 } };
+
     const testConfig = { ex_id: '1234', job_id: '5678', recover_execution: '9999' };
-    const recoveryModule = recoveryCode(executionModules);
+    const recoveryModule = recoveryCode(context, messaging, executionAnalytics, exStore, stateStore, executionContext, enqueueSlice);
     const recovery = recoveryModule.__test_context(testConfig);
 
     function waitFor(fn, time) {
@@ -110,9 +110,10 @@ describe('execution recovery', () => {
     });
 
     it('can recover slices', (done) => {
-        const sendSucess1 = sendEvent('slice:success', { slice: { slice_id: 1 } });
-        const sendSucess2 = sendEvent('slice:success', { slice: { slice_id: 2 } });
-
+        const data1 = { slice_id: 1 };
+        const data2 = { slice_id: 2 };
+        const sendSucess1 = sendEvent('slice:success', { slice: data1 });
+        const sendSucess2 = sendEvent('slice:success', { slice: data2 });
         function sequence() {
             return new Promise((resolve) => {
                 waitFor(sendSucess1, 100)
@@ -123,6 +124,11 @@ describe('execution recovery', () => {
 
         Promise.all([recoveryModule.recoverSlices(), sequence()])
             .then(() => expect(startingPoints).toEqual({ 0: '9999', 1: '9999' }))
+            .then(() => {
+                expect(queue.length).toEqual(2);
+                expect(queue[0]).toEqual(data1);
+                expect(queue[1]).toEqual(data2);
+            })
             .catch(fail)
             .finally(done);
     });
