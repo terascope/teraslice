@@ -70,7 +70,7 @@ describe('execution runner', () => {
             setTimeout(() => {
                 const data = _data || {};
                 fs.copySync(processorPath, `${assetPath}/${fileName}.js`);
-                eventEmitter.emit('worker:assets_loaded', data);
+                eventEmitter.emit('execution:assets_loaded', data);
                 resolve();
             }, timeout);
         });
@@ -286,6 +286,36 @@ describe('execution runner', () => {
         expect(Array.isArray(results)).toBe(true);
         expect(results.length).toEqual(2);
         expect(typeof results[0]).toEqual('function');
+    });
+
+    it('registers getOpConfig', (done) => {
+        const op1 = { _op: 'elasticsearch_data_generator', more: 'config' };
+        const op2 = { _op: 'noop', other: 'config' };
+        const assetjob = {
+            assets: [assetId],
+            operations: [op1, op2]
+        };
+
+        const assetProcess = {
+            env: {
+                job: JSON.stringify(assetjob),
+                assignment: 'execution_controller'
+            }
+        };
+        const executionRunner = executionCode(context).__test_context(context, assetProcess);
+
+        Promise.all([executionRunner.initialize(eventEmitter, logger), simulateAssetDownload(200)])
+            .then(() => {
+                expect(testRegisterApi.job_runner).toBeDefined();
+                expect(typeof testRegisterApi.job_runner).toEqual('object');
+                expect(typeof testRegisterApi.job_runner.getOpConfig).toEqual('function');
+
+                expect(testRegisterApi.job_runner.getOpConfig('elasticsearch_data_generator')).toEqual(op1);
+                expect(testRegisterApi.job_runner.getOpConfig('noop')).toEqual(op2);
+                expect(testRegisterApi.job_runner.getOpConfig('somethingElse')).toEqual(undefined);
+            })
+            .catch(fail)
+            .finally(done);
     });
 });
 
