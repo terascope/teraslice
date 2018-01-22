@@ -3,6 +3,7 @@
     "slicers": 1,
     "lifecycle": "persistent",
     "workers": 3,
+    "assets": ["ex1"],
     "operations": [
         {
             "_op": "elasticsearch_data_generator",
