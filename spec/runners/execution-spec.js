@@ -288,7 +288,7 @@ describe('execution runner', () => {
         expect(typeof results[0]).toEqual('function');
     });
 
-    it('registers getOpConfig', (done) => {
+    it('registers getOpConfig', () => {
         const op1 = { _op: 'elasticsearch_data_generator', more: 'config' };
         const op2 = { _op: 'noop', other: 'config' };
         const assetjob = {
@@ -302,20 +302,16 @@ describe('execution runner', () => {
                 assignment: 'execution_controller'
             }
         };
-        const executionRunner = executionCode(context).__test_context(context, assetProcess);
+        executionCode(context).__test_context(context, assetProcess);
+        // This tests that job_runner api is available as soon as the module comes up
+        expect(testRegisterApi.job_runner).toBeDefined();
+        expect(typeof testRegisterApi.job_runner).toEqual('object');
+        expect(typeof testRegisterApi.job_runner.getOpConfig).toEqual('function');
 
-        Promise.all([executionRunner.initialize(eventEmitter, logger), simulateAssetDownload(200)])
-            .then(() => {
-                expect(testRegisterApi.job_runner).toBeDefined();
-                expect(typeof testRegisterApi.job_runner).toEqual('object');
-                expect(typeof testRegisterApi.job_runner.getOpConfig).toEqual('function');
+        expect(testRegisterApi.job_runner.getOpConfig('elasticsearch_data_generator')).toEqual(op1);
+        expect(testRegisterApi.job_runner.getOpConfig('noop')).toEqual(op2);
+        expect(testRegisterApi.job_runner.getOpConfig('somethingElse')).toEqual(undefined);
 
-                expect(testRegisterApi.job_runner.getOpConfig('elasticsearch_data_generator')).toEqual(op1);
-                expect(testRegisterApi.job_runner.getOpConfig('noop')).toEqual(op2);
-                expect(testRegisterApi.job_runner.getOpConfig('somethingElse')).toEqual(undefined);
-            })
-            .catch(fail)
-            .finally(done);
     });
 });
 
