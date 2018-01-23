@@ -15,11 +15,15 @@ module.exports = function(config) {
         return request.get("/cluster/slicers");
     }
 
+    function txt(type) {
+        return request.get(`/txt/${type}`);
+    }
+
     return {
         state: state,
         stats: stats,
         slicers: slicers,
-        nodes: () => {
-        }
+        nodes: () => {},
+        txt: txt
     }
 };

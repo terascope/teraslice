@@ -4,8 +4,10 @@ module.exports = function(config) {
     var request = require('./request')(config);
     var newjob = require('./job');
 
-    function submit(job_spec) {
-        return request.post("/jobs", job_spec)
+    function submit(job_spec, shouldNotStart) {
+        let endpoint = '/jobs';
+        if (shouldNotStart) endpoint += '?start=false';
+        return request.post(endpoint, job_spec)
             .then(function(result) {
                 return newjob(config, result.job_id);
             })
