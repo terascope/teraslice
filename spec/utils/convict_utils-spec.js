@@ -1,13 +1,12 @@
 'use strict';
 
-var convictUtils = require('../../lib/utils/convict_utils');
+const convictUtils = require('../../lib/utils/convict_utils');
 
-describe('convict-utils', function() {
-
+describe('convict-utils', () => {
     function getSchema(name) {
-        var results;
+        let results;
 
-        convictUtils.forEach(function(obj) {
+        convictUtils.forEach((obj) => {
             if (obj.name === name) {
                 results = obj;
             }
@@ -16,46 +15,42 @@ describe('convict-utils', function() {
         return results;
     }
 
-    it('returns an array with objects used for validations', function() {
-
+    it('returns an array with objects used for validations', () => {
         expect(Array.isArray(convictUtils)).toBe(true);
         expect(convictUtils.length >= 2).toBe(true);
     });
 
-    it('required_String will throw if not given a string', function() {
-        var required = getSchema('required_String');
+    it('required_String will throw if not given a string', () => {
+        const required = getSchema('required_String');
 
         expect(required.name).toBeDefined();
         expect(typeof required.validate).toEqual('function');
         expect(typeof required.coerce).toEqual('function');
-        expect(function() {
-            required.validate('someString')
+        expect(() => {
+            required.validate('someString');
         }).not.toThrowError();
-        expect(function() {
-            required.validate(253)
+        expect(() => {
+            required.validate(253);
         }).toThrowError('This field is required and must by of type string');
-        expect(function() {
-            required.validate(undefined)
+        expect(() => {
+            required.validate(undefined);
         }).toThrowError('This field is required and must by of type string');
-
     });
 
-    it('optional_String will throw if not given a string, but will not throw if its undefined', function() {
-        var optional = getSchema('optional_String');
+    it('optional_String will throw if not given a string, but will not throw if its undefined', () => {
+        const optional = getSchema('optional_String');
 
         expect(optional.name).toBeDefined();
         expect(typeof optional.validate).toEqual('function');
         expect(typeof optional.coerce).toEqual('function');
-        expect(function() {
-            optional.validate('someString')
+        expect(() => {
+            optional.validate('someString');
         }).not.toThrowError();
-        expect(function() {
-            optional.validate(253)
+        expect(() => {
+            optional.validate(253);
         }).toThrowError('This field is optional but if specified it must be of type string');
-        expect(function() {
-            optional.validate(undefined)
+        expect(() => {
+            optional.validate(undefined);
         }).not.toThrowError();
-
     });
-
 });

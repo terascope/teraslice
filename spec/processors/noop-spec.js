@@ -1,9 +1,9 @@
 'use strict';
 
-var processor = require('../../lib/processors/noop');
+const processor = require('../../lib/processors/noop');
 
-describe('noop processor', function() {
-    it('has a schema and newProcessor method', function() {
+describe('noop processor', () => {
+    it('has a schema and newProcessor method', () => {
         expect(processor).toBeDefined();
         expect(processor.newProcessor).toBeDefined();
         expect(processor.schema).toBeDefined();
@@ -12,25 +12,25 @@ describe('noop processor', function() {
     });
 });
 
-describe('The data remains unchanged when', function() {
-    var context = {};
-    var opConfig = {};
-    var jobConfig = {logger: 'im a fake logger'};
+describe('The data remains unchanged when', () => {
+    const context = {};
+    const opConfig = {};
+    const jobConfig = { logger: 'im a fake logger' };
 
-    var myProcessor = processor.newProcessor(
+    const myProcessor = processor.newProcessor(
         context,
         opConfig,
         jobConfig);
-    it('using empty data array', function() {
+    it('using empty data array', () => {
         // zero elements
         expect(myProcessor([])).toEqual([]);
     });
-    it('using simple data array', function() {
+    it('using simple data array', () => {
         // zero elements
-        var data = [
-            {'a': 1},
-            {'a': 2},
-            {'a': 3}
+        const data = [
+            { a: 1 },
+            { a: 2 },
+            { a: 3 }
         ];
         expect(myProcessor(data)).toEqual(data);
     });

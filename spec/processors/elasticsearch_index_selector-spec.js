@@ -1,117 +1,106 @@
 'use strict';
 
-var indexer = require('../../lib/processors/elasticsearch_index_selector');
+const indexer = require('../../lib/processors/elasticsearch_index_selector');
 
-describe('elasticsearch index selector', function() {
-
-    it('has a schema and newProcessor method', function() {
-        var processor = indexer;
+describe('elasticsearch index selector', () => {
+    it('has a schema and newProcessor method', () => {
+        const processor = indexer;
 
         expect(processor).toBeDefined();
         expect(processor.newProcessor).toBeDefined();
         expect(processor.schema).toBeDefined();
         expect(typeof processor.newProcessor).toEqual('function');
         expect(typeof processor.schema).toEqual('function');
-
     });
 
-    it('schema function returns on object, formatted to be used by convict', function() {
-        var schema = indexer.schema();
-        var type = Object.prototype.toString.call(schema);
-        var keys = Object.keys(schema);
+    it('schema function returns on object, formatted to be used by convict', () => {
+        const schema = indexer.schema();
+        const type = Object.prototype.toString.call(schema);
+        const keys = Object.keys(schema);
 
         expect(type).toEqual('[object Object]');
         expect(keys.length).toBeGreaterThan(0);
         expect(schema[keys[0]].default).toBeDefined();
-
     });
 
-    it('new processor will throw if other config options are not present with timeseries', function() {
+    it('new processor will throw if other config options are not present with timeseries', () => {
+        const jobConfig = { logger: 'im a fake logger' };
+        const op1 = { timeseries: 'hourly' };
+        const op2 = { timeseries: 'daily' };
 
-        var jobConfig = {logger: 'im a fake logger'};
-        var op1 = {timeseries: 'hourly'};
-        var op2 = {timeseries: 'daily'};
-
-        expect(function() {
-            indexer.newProcessor({}, op1, jobConfig)
-        }).toThrowError("timeseries requires an index_prefix");
-        expect(function() {
-            indexer.newProcessor({}, op2, jobConfig)
-        }).toThrowError("timeseries requires an index_prefix");
-
+        expect(() => {
+            indexer.newProcessor({}, op1, jobConfig);
+        }).toThrowError('timeseries requires an index_prefix');
+        expect(() => {
+            indexer.newProcessor({}, op2, jobConfig);
+        }).toThrowError('timeseries requires an index_prefix');
     });
 
-    it('new processor will throw if type is not specified when data is did not come from elasticsearch', function() {
+    it('new processor will throw if type is not specified when data is did not come from elasticsearch', () => {
+        const context = {};
+        const opConfig = { index: 'someIndex' };
+        const jobConfig = { logger: 'im a fake logger' };
+        const data = [{ someData: 'some random data' }];
 
-        var context = {};
-        var opConfig = {index: 'someIndex'};
-        var jobConfig = {logger: 'im a fake logger'};
-        var data = [{someData: 'some random data'}];
+        const fn = indexer.newProcessor(context, opConfig, jobConfig);
 
-        var fn = indexer.newProcessor(context, opConfig, jobConfig);
-
-        expect(function() {
-            fn(data)
+        expect(() => {
+            fn(data);
         }).toThrow('type must be specified in elasticsearch index selector config if data is not a full response from elasticsearch');
-
     });
 
-    it('newProcessor takes either an array or elasticsearch formatted data and returns an array', function() {
-        var jobConfig = {logger: 'im a fake logger'};
-        var fn = indexer.newProcessor({}, {type: 'someType'}, jobConfig);
-        var fromElastic = {hits: {hits: [{type: 'someType'}]}};
+    it('newProcessor takes either an array or elasticsearch formatted data and returns an array', () => {
+        const jobConfig = { logger: 'im a fake logger' };
+        const fn = indexer.newProcessor({}, { type: 'someType' }, jobConfig);
+        const fromElastic = { hits: { hits: [{ type: 'someType' }] } };
 
-        var final = fn([]);
-        var finalElastic = fn(fromElastic);
+        const final = fn([]);
+        const finalElastic = fn(fromElastic);
 
         expect(Array.isArray(final)).toBe(true);
         expect(Array.isArray(finalElastic)).toBe(true);
-
     });
 
-    it('it returns properly formatted data for bulk requests', function() {
-        var context = {};
-        var opConfig = {index: 'someIndex', type: 'events', delete: false};
-        var jobConfig = {logger: 'im a fake logger'};
-        var data = [{someData: 'some random data'}];
+    it('it returns properly formatted data for bulk requests', () => {
+        const context = {};
+        const opConfig = { index: 'someIndex', type: 'events', delete: false };
+        const jobConfig = { logger: 'im a fake logger' };
+        const data = [{ someData: 'some random data' }];
 
-        var fn = indexer.newProcessor(context, opConfig, jobConfig);
-        var results = fn(data);
+        const fn = indexer.newProcessor(context, opConfig, jobConfig);
+        const results = fn(data);
 
-        expect(results[0]).toEqual({index: {_index: 'someIndex', _type: 'events'}});
-        expect(results[1]).toEqual({someData: 'some random data'});
-
+        expect(results[0]).toEqual({ index: { _index: 'someIndex', _type: 'events' } });
+        expect(results[1]).toEqual({ someData: 'some random data' });
     });
 
-    it('preserve_id will keep the previous id from elasticsearch data', function() {
-        var context = {};
-        var opConfig = {index: 'someIndex', type: 'events', preserve_id: true, delete: false};
-        var jobConfig = {logger: 'im a fake logger'};
-        var data = {hits: {hits: [{type: 'someType', _index: 'some_index', _id: 'specialID', _source: {some: 'data'}}]}};
+    it('preserve_id will keep the previous id from elasticsearch data', () => {
+        const context = {};
+        const opConfig = { index: 'someIndex', type: 'events', preserve_id: true, delete: false };
+        const jobConfig = { logger: 'im a fake logger' };
+        const data = { hits: { hits: [{ type: 'someType', _index: 'some_index', _id: 'specialID', _source: { some: 'data' } }] } };
 
-        var fn = indexer.newProcessor(context, opConfig, jobConfig);
-        var results = fn(data);
+        const fn = indexer.newProcessor(context, opConfig, jobConfig);
+        const results = fn(data);
 
-        expect(results[0]).toEqual({index: {_index: 'someIndex', _type: 'events', _id: 'specialID'}})
-
+        expect(results[0]).toEqual({ index: { _index: 'someIndex', _type: 'events', _id: 'specialID' } });
     });
 
-    it('can set id to any field in data', function() {
-        var context = {};
-        var opConfig = {index: 'someIndex', type: 'events', id_field: 'name'};
-        var jobConfig = {logger: 'im a fake logger'};
-        var data = [{some: 'data', name: 'someName'}];
+    it('can set id to any field in data', () => {
+        const context = {};
+        const opConfig = { index: 'someIndex', type: 'events', id_field: 'name' };
+        const jobConfig = { logger: 'im a fake logger' };
+        const data = [{ some: 'data', name: 'someName' }];
 
-        var fn = indexer.newProcessor(context, opConfig, jobConfig);
-        var results = fn(data);
+        const fn = indexer.newProcessor(context, opConfig, jobConfig);
+        const results = fn(data);
 
-        expect(results[0]).toEqual({index: {_index: 'someIndex', _type: 'events', _id: 'someName'}})
-
+        expect(results[0]).toEqual({ index: { _index: 'someIndex', _type: 'events', _id: 'someName' } });
     });
 
-    it('can send an update request instead of index', function() {
-        var context = {};
-        var opConfig = {
+    it('can send an update request instead of index', () => {
+        const context = {};
+        const opConfig = {
             index: 'someIndex',
             type: 'events',
             id_field: 'name',
@@ -119,94 +108,92 @@ describe('elasticsearch index selector', function() {
             delete: false,
             update: true
         };
-        var jobConfig = {logger: 'im a fake logger'};
-        var data = [{some: 'data', name: 'someName'}];
+        const jobConfig = { logger: 'im a fake logger' };
+        const data = [{ some: 'data', name: 'someName' }];
 
-        var fn = indexer.newProcessor(context, opConfig, jobConfig);
-        var results = fn(data);
+        const fn = indexer.newProcessor(context, opConfig, jobConfig);
+        const results = fn(data);
 
-        expect(results[0]).toEqual({update: {_index: 'someIndex', _type: 'events', _id: 'someName'}});
-        expect(results[1]).toEqual({doc: {name: 'someName'}});
-
+        expect(results[0]).toEqual({ update: { _index: 'someIndex', _type: 'events', _id: 'someName' } });
+        expect(results[1]).toEqual({ doc: { name: 'someName' } });
     });
 
-    it('can send a delete request instead of index', function() {
-        var context = {};
-        var opConfig = {index: 'someIndex', type: 'events', id_field: 'name', delete: true};
-        var jobConfig = {logger: 'im a fake logger'};
-        var data = [{some: 'data', name: 'someName'}];
+    it('can send a delete request instead of index', () => {
+        const context = {};
+        const opConfig = { index: 'someIndex', type: 'events', id_field: 'name', delete: true };
+        const jobConfig = { logger: 'im a fake logger' };
+        const data = [{ some: 'data', name: 'someName' }];
 
-        var fn = indexer.newProcessor(context, opConfig, jobConfig);
-        var results = fn(data);
+        const fn = indexer.newProcessor(context, opConfig, jobConfig);
+        const results = fn(data);
 
-        expect(results[0]).toEqual({delete: {_index: 'someIndex', _type: 'events', _id: 'someName'}});
-
+        expect(results[0]).toEqual({ delete: { _index: 'someIndex', _type: 'events', _id: 'someName' } });
     });
 
-    it('can upsert specified fields by passing in an array of keys matching the document', function() {
-        var context = {};
-        var opConfig = {index: 'someIndex', type: 'events', upsert: true, update_fields: ['name', 'job']};
-        var jobConfig = {logger: 'im a fake logger'};
-        var data = [{some: 'data', name: 'someName', job: 'to be awesome!'}];
+    it('can upsert specified fields by passing in an array of keys matching the document', () => {
+        const context = {};
+        const opConfig = { index: 'someIndex', type: 'events', upsert: true, update_fields: ['name', 'job'] };
+        const jobConfig = { logger: 'im a fake logger' };
+        const data = [{ some: 'data', name: 'someName', job: 'to be awesome!' }];
 
-        var fn = indexer.newProcessor(context, opConfig, jobConfig);
-        var results = fn(data);
+        const fn = indexer.newProcessor(context, opConfig, jobConfig);
+        const results = fn(data);
 
-        expect(results[0]).toEqual({update: {_index: 'someIndex', _type: 'events'}});
+        expect(results[0]).toEqual({ update: { _index: 'someIndex', _type: 'events' } });
         expect(results[1]).toEqual({
-            upsert: {some: 'data', name: 'someName', job: 'to be awesome!'},
-            doc: {name: 'someName', job: 'to be awesome!'}
+            upsert: { some: 'data', name: 'someName', job: 'to be awesome!' },
+            doc: { name: 'someName', job: 'to be awesome!' }
         });
     });
 
-    it('script file to run as part of an update request', function() {
-        var context = {};
-        var opConfig = {
+    it('script file to run as part of an update request', () => {
+        const context = {};
+        const opConfig = {
             index: 'someIndex',
             type: 'events',
             upsert: true,
             update_fields: [],
             script_file: 'someFile',
-            script_params: {aKey: 'job'}
+            script_params: { aKey: 'job' }
         };
-        var jobConfig = {logger: 'im a fake logger'};
-        var data = [{some: 'data', name: 'someName', job: 'to be awesome!'}];
+        const jobConfig = { logger: 'im a fake logger' };
+        const data = [{ some: 'data', name: 'someName', job: 'to be awesome!' }];
 
-        var fn = indexer.newProcessor(context, opConfig, jobConfig);
-        var results = fn(data);
+        const fn = indexer.newProcessor(context, opConfig, jobConfig);
+        const results = fn(data);
 
-        expect(results[0]).toEqual({update: {_index: 'someIndex', _type: 'events'}});
+        expect(results[0]).toEqual({ update: { _index: 'someIndex', _type: 'events' } });
         expect(results[1]).toEqual({
-            upsert: {some: 'data', name: 'someName', job: 'to be awesome!'},
-            script: {file: 'someFile', params: {aKey: 'to be awesome!'}}
+            upsert: { some: 'data', name: 'someName', job: 'to be awesome!' },
+            script: { file: 'someFile', params: { aKey: 'to be awesome!' } }
         });
     });
 
-    it('selfValidation makes sure that the opConfig is configured correctly', function() {
-        var errorString = 'elasticsearch_index_selector is mis-configured, if any of the following configurations are set: timeseries, index_prefix or date_field, they must all be used together, please set the missing parameters';
-        var baseOP = {
+    it('selfValidation makes sure that the opConfig is configured correctly', () => {
+        const errorString = 'elasticsearch_index_selector is mis-configured, if any of the following configurations are set: timeseries, index_prefix or date_field, they must all be used together, please set the missing parameters';
+        const baseOP = {
             index: 'someIndex',
             type: 'events'
         };
 
-        var op1 = Object.assign({}, baseOP, {timeseries: 'daily'});
-        var op2 = Object.assign({}, baseOP, {timeseries: 'daily', index_prefix: "events-"});
-        var op3 = Object.assign({}, baseOP, {timeseries: 'daily', date_field: 'dateField'});
-        var op4 = Object.assign({}, baseOP, {timeseries: 'daily', index_prefix: "events-", date_field: 'dateField'});
+        const op1 = Object.assign({}, baseOP, { timeseries: 'daily' });
+        const op2 = Object.assign({}, baseOP, { timeseries: 'daily', index_prefix: 'events-' });
+        const op3 = Object.assign({}, baseOP, { timeseries: 'daily', date_field: 'dateField' });
+        const op4 = Object.assign({}, baseOP, { timeseries: 'daily', index_prefix: 'events-', date_field: 'dateField' });
 
 
-        expect(function() {
-            indexer.selfValidation(op1)
+        expect(() => {
+            indexer.selfValidation(op1);
         }).toThrowError(errorString);
-        expect(function() {
-            indexer.selfValidation(op2)
+        expect(() => {
+            indexer.selfValidation(op2);
         }).toThrowError(errorString);
-        expect(function() {
+        expect(() => {
             indexer.selfValidation(op3);
         }).toThrowError(errorString);
 
-        expect(function() {
-            indexer.selfValidation(op4)
+        expect(() => {
+            indexer.selfValidation(op4);
         }).not.toThrow();
     });
 });
