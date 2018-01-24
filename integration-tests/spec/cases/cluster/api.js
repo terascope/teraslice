@@ -1,44 +1,55 @@
 'use strict';
 
-var misc = require('../../misc')();
-var wait = require('../../wait')();
-var request = require('request');
+const misc = require('../../misc')();
+const fs = require('fs');
+const _ = require('lodash');
 
-module.exports = function() {
-    var teraslice = misc.teraslice();
+module.exports = function () {
+    const teraslice = misc.teraslice();
 
-    describe('api endpoint', function() {
-        // TODO need to test case of jobs with assets
-        it('should update job specs', function(done) {
-            var job_spec = misc.newJob('generator');
-            var job_id;
+    describe('api endpoint', () => {
+        it('submitted jobs are not saved in validated form', (done) => {
+            const assetPath = 'spec/fixtures/assets/example_asset_1.zip';
+            const testStream = fs.createReadStream(assetPath);
+            const jobSpec = misc.newJob('generator-asset');
 
-            teraslice.jobs.submit(job_spec)
-                .then(function(job) {
-                    job_id = job.id();
-                    expect(job_id).toBeDefined();
+            teraslice.assets.post(testStream)
+                .then(() => teraslice.jobs.submit(jobSpec, 'shouldNotStart'))
+                .then(job => job.spec())
+                .then((jobConfig) => {
+                    _.forOwn(jobSpec, (value, key) => {
+                        expect(jobConfig[key]).toEqual(value);
+                    });
+                })
+                .catch(fail)
+                .finally(done);
+        });
 
-                    return job.waitForStatus('running')
-                        .then(function() {
-                            return job.spec();
-                        })
-                        .then(function(jobSpec) {
-                            expect(jobSpec.workers).toEqual(3);
+        it('should update job specs', (done) => {
+            // NOTE that this relies on the asset loaded in the test above
+            const jobSpec = misc.newJob('generator-asset');
+            let jobId;
+
+            teraslice.jobs.submit(jobSpec, 'shouldNotStart')
+                .then((job) => {
+                    jobId = job.id();
+                    expect(jobId).toBeDefined();
+                    return job.spec()
+                        .then((jobConfig) => {
+                            expect(jobConfig.workers).toEqual(3);
                             jobSpec.workers = 2;
-                            return job.put(`/jobs/${job_id}`, jobSpec);
+                            return job.put(`/jobs/${jobId}`, jobSpec);
                         })
-                        .then(function() {
-                            return job.spec();
-                        })
-                        .then(function(jobSpec) {
-                            expect(jobSpec.workers).toEqual(2);
-                            return job.stop();
-                        })
-
+                        .then(() => job.spec())
+                        .then((jobConfig) => {
+                            // This will check that assets are not parsed as well
+                            _.forOwn(jobSpec, (value, key) => {
+                                expect(jobConfig[key]).toEqual(value);
+                            });
+                        });
                 })
                 .catch(fail)
                 .finally(done);
         });
     });
-
 };

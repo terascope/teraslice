@@ -1,8 +1,6 @@
 'use strict';
 
-const Promise = require('bluebird');
 const fs = require('fs');
-
 const misc = require('../../misc')();
 const wait = require('../../wait')();
 
@@ -44,41 +42,38 @@ module.exports = function simpleAssetTest() {
     }
 
     describe('Asset Tests', () => {
-        describe('After uploading an asset', () => {
-            it('can be deleted', (done) => {
-                const testStream = fs.createReadStream('spec/fixtures/assets/example_asset_1.zip');
+        it('After uploading an asset, it can be deleted', (done) => {
+            const testStream = fs.createReadStream('spec/fixtures/assets/example_asset_1.zip');
 
-                teraslice.assets.post(testStream)
-                    .then((result) => {
-                        // save the asset ID that was submitted to terslice
-                        const assetId = JSON.parse(result)._id;
-                        return teraslice.assets.delete(assetId)
-                            .then((response) => {
-                                // ensure the deleted asset's ID matches that of
-                                // the saved asset
-                                expect(assetId).toEqual(JSON.parse(response).assetId);
-                                // TODO: verify that this asset no longer
-                                // appears in /txt/assets
-                                return response;
-                            });
-                    })
-                    .catch(fail)
-                    .finally(done);
-            });
+            teraslice.assets.post(testStream)
+                .then((result) => {
+                    // save the asset ID that was submitted to terslice
+                    const assetId = JSON.parse(result)._id;
+                    return teraslice.assets.delete(assetId)
+                        .then((response) => {
+                            // ensure the deleted asset's ID matches that of
+                            // the saved asset
+                            expect(assetId).toEqual(JSON.parse(response).assetId);
+                            // TODO: verify that this asset no longer
+                            // appears in /txt/assets
+                            return response;
+                        });
+                })
+                .catch(fail)
+                .finally(done);
         });
+
 
         // Test a bad asset
         // curl -XPOST -H "Content-Type: application/octet-stream" localhost:45678/assets --data-binary spec/fixtures/assets/example_assets_1.zip
         // {"error":"asset.json was not found in root directory of asset bundle nor any immediate sub directory"}
-        describe('Uploading a bad asset', () => {
-            it('returns an error', (done) => {
-                const testStream = fs.createReadStream('spec/fixtures/assets/example_bad_asset_1.zip');
+        it('Uploading a bad asset returns an error', (done) => {
+            const testStream = fs.createReadStream('spec/fixtures/assets/example_bad_asset_1.zip');
 
-                teraslice.assets.post(testStream)
-                    .then(result => expect(JSON.parse(result).error).toMatch('asset.json was not found'))
-                    .catch(fail)
-                    .finally(done);
-            });
+            teraslice.assets.post(testStream)
+                .then(result => expect(JSON.parse(result).error).toMatch('asset.json was not found'))
+                .catch(fail)
+                .finally(done);
         });
 
 
@@ -87,13 +82,11 @@ module.exports = function simpleAssetTest() {
         // example_assets/drop_property/
         // example_assets/drop_property/index.js
         // asset.json
-        describe('After starting a job with a Type 1 asset specified by ID', () => {
-            it('should eventually have all workers joined', (done) => {
-                const assetPath = 'spec/fixtures/assets/example_asset_1.zip';
-                submitAndValidateAssetJob('generator-asset', assetPath)
-                    .catch(fail)
-                    .finally(done);
-            });
+        it('After starting a job with a Type 1 asset specified by ID should eventually have all workers joined', (done) => {
+            const assetPath = 'spec/fixtures/assets/example_asset_1.zip';
+            submitAndValidateAssetJob('generator-asset', assetPath)
+                .catch(fail)
+                .finally(done);
         });
 
         // Type 2 Asset - asset.json in subdirectory of zipfile
@@ -101,13 +94,11 @@ module.exports = function simpleAssetTest() {
         // example_assets/asset.json
         // example_assets/drop_property/
         // example_assets/drop_property/index.js
-        describe('After starting a job with a Type 2 asset specified by ID', () => {
-            it('should eventually have all workers joined', (done) => {
-                const assetPath = 'spec/fixtures/assets/example_asset_2.zip';
-                submitAndValidateAssetJob('generator-asset', assetPath)
-                    .catch(fail)
-                    .finally(done);
-            });
+        it('After starting a job with a Type 2 asset specified by ID should eventually have all workers joined', (done) => {
+            const assetPath = 'spec/fixtures/assets/example_asset_2.zip';
+            submitAndValidateAssetJob('generator-asset', assetPath)
+                .catch(fail)
+                .finally(done);
         });
     });
 };
