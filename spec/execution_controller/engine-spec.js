@@ -51,6 +51,7 @@ describe('execution engine', () => {
     let respondingMsg = null;
     let executionOperationsUpdate = null;
     let exStatus = null;
+    const updateState = {};
 
     const messaging = {
         send: (msg) => {
@@ -83,8 +84,7 @@ describe('execution engine', () => {
         update: (exId, obj) => { executionOperationsUpdate = obj; }
     };
     const stateStore = {
-        executionStartingSlice: () => {
-        },
+        executionStartingSlice: () => {},
         recoverSlices: () => {
             const data = testSlices.slice();
             testSlices = [];
@@ -92,7 +92,10 @@ describe('execution engine', () => {
         },
         createState: () => {},
         count: () => Promise.resolve(0),
-        shutdown: () => {}
+        shutdown: () => {},
+        updateState: (slice, state, error) => {
+            updateState[state] = slice;
+        }
     };
     const executionContext = {
         config: {
@@ -712,6 +715,81 @@ describe('execution engine', () => {
             .then(() => {
                 expect(loggerErrMsg).toEqual(`execution: ${exId} had 2 slice failures during processing`);
                 expect(exStatus).toEqual('failed');
+            })
+            .catch(fail)
+            .finally(done);
+    });
+
+    it('can send slices to specific workers', (done) => {
+        const myEmitter = makeEmitter();
+        const engine = makeEngine();
+        const exId = 1234;
+        const engineTextContext = engine.__test_context(executionAnalytics, slicerAnalytics, recovery, exId);
+        const workerQueue = engineTextContext.workerQueue;
+        const slicerQueue = engineTextContext.slicerQueue;
+        const slice1 = { request: { some: 'slice' } };
+        const slice2 = Object.assign({}, slice1, { request: { request_worker: 3 } });
+        const slice3 = Object.assign({}, slice1, { request: { request_worker: 99 } });
+
+        const worker1 = { worker_id: 1 };
+        const worker2 = { worker_id: 2 };
+        const worker3 = { worker_id: 3 };
+
+        let invalidSlice = null;
+
+        function workerQueueList() {
+            const results = [];
+            workerQueue.each(worker => results.push(worker));
+            return results;
+        }
+
+        engineTextContext._engineSetup();
+
+        myEmitter.on('slice:invalid', data => invalidSlice = data);
+
+        workerQueue.enqueue(worker1);
+        workerQueue.enqueue(worker2);
+        workerQueue.enqueue(worker3);
+
+        waitFor(10)
+            .then(() => {
+                // We expect that no workers have been allocated yet
+                expect(workerQueue.size()).toEqual(3);
+                slicerQueue.enqueue(slice1);
+                return waitFor(10);
+            })
+            .then(() => {
+                expect(workerQueue.size()).toEqual(2);
+                expect(sentMsg).toEqual({
+                    to: 'worker',
+                    message: 'slicer:slice:new',
+                    payload: slice1,
+                    address: 1
+                });
+                expect(workerQueueList()).toEqual([worker2, worker3]);
+                slicerQueue.enqueue(slice2);
+                return waitFor(10);
+            })
+            .then(() => {
+                expect(workerQueue.size()).toEqual(1);
+                expect(sentMsg).toEqual({
+                    to: 'worker',
+                    message: 'slicer:slice:new',
+                    payload: slice2,
+                    address: 3
+                });
+                expect(workerQueueList()).toEqual([worker2]);
+                slicerQueue.enqueue(slice3);
+                // check that there was no invalid state records so far
+                expect(invalidSlice).toEqual(null);
+                expect(updateState).toEqual({});
+                return waitFor(10);
+            })
+            .then(() => {
+                expect(workerQueue.size()).toEqual(1);
+                expect(invalidSlice).toEqual(slice3.request);
+                expect(updateState).toEqual({ invalid: slice3.request });
+                expect(workerQueueList()).toEqual([worker2]);
             })
             .catch(fail)
             .finally(done);
