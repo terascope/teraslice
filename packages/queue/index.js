@@ -124,6 +124,46 @@ Queue.prototype.remove = function(id, keyForID) {
     }
 };
 
+Queue.prototype.extract = function(key, val) {
+    if (this.head) {
+        var currentNode = this.head;
+        var isFound = false;
+
+        while (currentNode && !isFound) {
+            var previousNode = currentNode.prev;
+            var nextNode = currentNode.next;
+
+            if (currentNode.value[key] === val) {
+                var data = currentNode.value;
+                isFound = true;
+                if (nextNode) {
+
+                    if (previousNode) {
+                        previousNode.next = nextNode;
+                        nextNode.prev = previousNode;
+                    }
+                    else {
+                        nextNode.prev = null;
+                    }
+                }
+                else {
+                    if (previousNode) {
+                        previousNode.next = null;
+                        this.tail = previousNode;
+                    }
+                }
+                this._size--;
+                return data;
+            }
+            else {
+                currentNode = nextNode;
+            }
+        }
+    }
+
+    return null;
+};
+
 Queue.prototype.size = function() {
     return this._size;
 };

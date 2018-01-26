@@ -10,7 +10,7 @@ unshift | will add value to queue and place it at head of queue| any | the value
 each | calls a function on each value in the queue | Function | it does not return anything, it behaves similarly to [].each()
 remove | iterates and removes any from the queue that matches the value passed in. | String, String | Looks at values located at the key 'id', if a second args is given then it will look at that key instead. Check the example for more details
 size | returns the size of the queue | no args | returns a number, 0 if queue is empty
-
+extract | removes and returns a particular value in the queue | String, String | The first parameter is the key of the object in which you will be checking, and the second is the actual value that you will be comparing
 ### Usage
 
 ```
@@ -57,5 +57,21 @@ queue.remove('someOtherKeyId', 'anotherKey');
 queue.each( obj => console.log(obj) ) 
 => {first: 1, id: 'someId'}
 => {third: 3, id:, 'yetAnotherId'}
+
+var newQueue = new Queue();
+newQueue.enqueue({job_id: 2});
+newQueue.enqueue({ex_id: 3});
+newQueue.size()).toEqual(2);
+=> 2
+
+newQueue.extract('ex_id', 3);
+=> {ex_id: 3}
+
+newQueue.size()
+=> 1
+
+newQueue.dequeue();
+=> {job_id: 2}
+
 
 ```

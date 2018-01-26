@@ -88,5 +88,45 @@ describe('Queue', function() {
         expect(queue.dequeue()).toEqual({data: 'second', id: 'id2'});
         expect(queue.dequeue()).toEqual({data: 'third', ex_id: 'id3'});
     });
+
+    it('can extract from queue based on a key and id', function() {
+        var queue1 = new Queue();
+        expect(queue1.extract()).toEqual(null);
+        expect(queue1.size()).toEqual(0);
+
+        var queue2 = new Queue();
+        queue2.enqueue({job_id: 2});
+        expect(queue2.size()).toEqual(1);
+        expect(queue2.extract('job_id', 2)).toEqual({job_id: 2});
+        expect(queue2.size()).toEqual(0);
+        expect(queue2.dequeue()).toEqual(null);
+
+        var queue3 = new Queue();
+        queue3.enqueue({job_id: 2});
+        queue3.enqueue({ex_id: 3});
+        expect(queue3.size()).toEqual(2);
+        expect(queue3.extract('ex_id', 3)).toEqual({ex_id: 3});
+        expect(queue3.size()).toEqual(1);
+        expect(queue3.dequeue()).toEqual({job_id: 2});
+        expect(queue3.dequeue()).toEqual(null);
+
+        var queue4 = new Queue();
+        queue4.enqueue({data: 'first', id: 'id1'});
+        queue4.enqueue({data: 'second', id: 'id2'});
+        queue4.enqueue({data: 'third', ex_id: 'id3'});
+        queue4.enqueue({data: 'fourth', job_id: 'id2'});
+
+        var len = queue4.size();
+
+        var data = queue4.extract('id', 'id2');
+
+        expect(len).toEqual(4);
+        expect(queue4.size()).toEqual(3);
+        expect(data).toEqual({data: 'second', id: 'id2'});
+        expect(queue4.dequeue()).toEqual({data: 'first', id: 'id1'});
+        expect(queue4.dequeue()).toEqual({data: 'third', ex_id: 'id3'});
+        expect(queue4.dequeue()).toEqual({data: 'fourth', job_id: 'id2'});
+
+    });
 });
 
