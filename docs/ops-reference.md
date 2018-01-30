@@ -71,6 +71,7 @@ Note that the job configuration is divided into top level job configuration, and
 | assets | An array of strings that are the id's for the corresponding assets zip files. | Array | optional |
 | recycle_worker | The number of slices a worker processes before it exits and restarts, only use if you have leaky workers | Null/Number | optional, defaults to null, if specified it must be a number. |
 | operations | An array containing all the operations as well as their configurations. Typically the first is the reader/slicer. | Array | required |
+| probation_window | time in ms that the execution controller checks for failed slices, if there are none then it updates the state of the execution to running (this is only when lifecycle is set to persistent) | Number | optional |
 
 ## Readers ##
 
