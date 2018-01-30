@@ -34,7 +34,8 @@ describe('When passed a valid jobSchema and jobConfig', () => {
                 { _op: 'noop' }
             ],
             assets: null,
-            moderator: null
+            moderator: null,
+            probation_window: 300000
         };
 
         const jobConfig = configValidator.validateConfig(jobSchema, jobSpec);

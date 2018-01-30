@@ -3,6 +3,7 @@
 const engineCode = require('../../lib/cluster/execution_controller/engine');
 const events = require('events');
 const Promise = require('bluebird');
+const _ = require('lodash');
 
 const eventEmitter = new events.EventEmitter();
 
@@ -65,7 +66,7 @@ describe('execution engine', () => {
         respond: (msg) => { respondingMsg = msg; }
     };
     const executionAnalytics = {
-        getAnalytics: () => ({}),
+        getAnalytics: () => ({failed: 1}),
         set: () => {},
         increment: () => {},
         shutdown: () => {}
@@ -142,8 +143,9 @@ describe('execution engine', () => {
         return newEmitter;
     }
 
-    function makeEngine() {
-        return engineCode(context, messaging, exStore, stateStore, executionContext);
+    function makeEngine(_execution) {
+        const execution = _execution || executionContext;
+        return engineCode(context, messaging, exStore, stateStore, execution);
     }
 
     it('can instantiate', (done) => {
@@ -392,6 +394,29 @@ describe('execution engine', () => {
                     ex_id: 1234,
                     payload: { set_status: true }
                 });
+            })
+            .catch(fail)
+            .finally(done);
+    });
+
+    it('failed slice can recover to running status in persistent mode', (done) => {
+        const newExecution =  _.cloneDeep(executionContext);
+        newExecution.config.lifecycle = 'persistent';
+        newExecution.config.probation_window = 100;
+        const myEmitter = makeEmitter();
+        const engine = makeEngine(newExecution);
+        const engineTextContext = engine.__test_context(executionAnalytics, slicerAnalytics, recovery, 1234);
+        const registerSlicers = engineTextContext._registerSlicers;
+
+        registerSlicers([() => {}], false);
+        myEmitter.emit('slice:failure');
+        waitFor(10)
+            .then(() => {
+                expect(exStatus).toEqual('failing');
+                return waitFor(150);
+            })
+            .then(() => {
+                expect(exStatus).toEqual('running');
             })
             .catch(fail)
             .finally(done);
