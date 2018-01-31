@@ -46,7 +46,11 @@ module.exports = (processor) => {
     const context = {
         logger: fakeLogger.logger,
         foundation: {
-            getEventEmitter: () => events
+            getEventEmitter: () => events, // Deprecated
+            getSystemEvents: () => events,
+            makeLogger: () => {},
+            getConnection: () => ({ client: {} }),
+            startWorkers: () => {}
         },
         sysconfig:
             {
