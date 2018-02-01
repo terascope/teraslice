@@ -1,190 +1,36 @@
 'use strict';
 
-var uuid = require('uuid');
-var Promise = require('bluebird');
-var _ = require('lodash');
-
+const Promise = require('bluebird');
+const _ = require('lodash');
+const parseError = require('error_parser');
 const DOCUMENT_EXISTS = 409;
 
 // Module to manage persistence in Elasticsearch.
 // All functions in this module return promises that must be resolved to get the final result.
 module.exports = function(client, logger, _opConfig) {
+    const warning = _warn(logger, 'The elasticsearch cluster queues are overloaded, resubmitting failed queries from bulk');
     let config = _opConfig ? _opConfig : {};
-    let warning = _warn(logger, 'The elasticsearch cluster queues are overloaded, resubmitting failed queries from bulk');
 
-    function _warn(logger, msg) {
-        var loggerFn = _.throttle(function() {
-            logger.warn(msg)
-        }, 5000);
-
-        return loggerFn;
-    }
-
-    function parseError(err) {
-        if (err.toJSON) {
-            var err = err.toJSON();
-            if (err.msg) {
-                return err.msg;
-            }
-            else {
-                return "Unknown ES Error Format " + JSON.stringify(err);
-            }
-        }
-        if (err.stack) {
-            return err.stack
-        }
-        return err.response ? err.response : err;
-    }
-
-    function _filterResponse(logger, data, results) {
-        var nonRetriableError = false;
-        var reason = '';
-        var retry = [];
-        var items = results.items;
-
-        for (var i = 0; i < items.length; i++) {
-            //key could either be create or delete etc, just want the actual data at the value spot
-            var item = _.values(items[i])[0];
-            if (item.error) {
-                // On a create request if a document exists it's not an error.
-                // are there cases where this is incorrect?
-                if (item.status === DOCUMENT_EXISTS) {
-                    continue;
-                }
-
-                if (item.error.type === 'es_rejected_execution_exception') {
-                    if (i === 0) {
-                        retry.push(data[0], data[1])
-                    }
-                    else {
-                        retry.push(data[i * 2], data[i * 2 + 1])
-                    }
-                }
-                else {
-                    if (item.error.type !== 'document_already_exists_exception' && item.error.type !== 'document_missing_exception') {
-                        nonRetriableError = true;
-                        reason = `${item.error.type}--${item.error.reason}`;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (nonRetriableError) {
-            return {data: [], error: nonRetriableError, reason: reason};
-        }
-
-        return {data: retry, error: false};
-    }
 
     function count(query) {
-        let retryTimer = {start: 5000, limit: 10000};
         query.size = 0;
-
-        return new Promise(function(resolve, reject) {
-            function searchES() {
-                client.search(query)
-                    .then(function(data) {
-                        if (data._shards.failed > 0) {
-                            var reasons = _.uniq(_.flatMap(data._shards.failures, function(shard) {
-                                return shard.reason.type
-                            }));
-
-                            if (reasons.length > 1 || reasons[0] !== 'es_rejected_execution_exception') {
-                                var errorReason = reasons.join(' | ');
-                                logger.error('Not all shards returned successful, shard errors: ', errorReason);
-                                reject(errorReason)
-                            }
-                            else {
-                                retry(retryTimer, searchES)
-                            }
-                        }
-                        else {
-                            resolve(data.hits.total)
-                        }
-                    })
-                    .catch(function(err) {
-                        if (_.get(err, 'body.error.type') === 'reduce_search_phase_exception') {
-                            var retriableError = _.every(err.body.error.root_cause, function(shard) {
-                                return shard.type === 'es_rejected_execution_exception';
-                            });
-                            //scaffolding for retries, just reject for now
-                            if (retriableError) {
-                                var errMsg = parseError(err);
-                                logger.error(errMsg);
-                                reject(errMsg)
-                            }
-                        }
-                        else {
-                            var errMsg = parseError(err);
-                            logger.error(errMsg);
-                            reject(errMsg)
-                        }
-                    });
-            }
-
-            searchES();
-        })
+        return _searchES(query)
+            .then(data => data.hits.total);
     }
 
     function search(query) {
-        let retryTimer = {start: 5000, limit: 10000};
-
-        return new Promise(function(resolve, reject) {
-            function searchES() {
-                client.search(query)
-                    .then(function(data) {
-                        if (data._shards.failed > 0) {
-                            var reasons = _.uniq(_.flatMap(data._shards.failures, function(shard) {
-                                return shard.reason.type
-                            }));
-
-                            if (reasons.length > 1 || reasons[0] !== 'es_rejected_execution_exception') {
-                                var errorReason = reasons.join(' | ');
-                                logger.error('Not all shards returned successful, shard errors: ', errorReason);
-                                reject(errorReason)
-                            }
-                            else {
-                                retry(retryTimer, searchES)
-                            }
-                        }
-                        else {
-                            if (config.full_response) {
-                                resolve(data)
-                            }
-                            else {
-                                resolve(_.map(data.hits.hits, function(hit) {
-                                    return hit._source
-                                }));
-                            }
-                        }
-                    })
-                    .catch(function(err) {
-                        if (_.get(err, 'body.error.type') === 'reduce_search_phase_exception') {
-                            var retriableError = _.every(err.body.error.root_cause, function(shard) {
-                                return shard.type === 'es_rejected_execution_exception';
-                            });
-                            //scaffolding for retries, just reject for now
-                            if (retriableError) {
-                                var errMsg = parseError(err);
-                                logger.error(errMsg);
-                                reject(errMsg)
-                            }
-                        }
-                        else {
-                            var errMsg = parseError(err);
-                            logger.error(errMsg);
-                            reject(errMsg)
-                        }
-                    });
-            }
-
-            searchES();
-        })
+        return _searchES(query)
+            .then(data => {
+                if (config.full_response) {
+                    return data
+                }
+                else {
+                    return _.map(data.hits.hits, (doc) => doc._source);
+                }
+            });
     }
 
     function get(query) {
-
         return new Promise(function(resolve, reject) {
             var errHandler = _errorHandler(getRecord, query, reject, logger);
 
@@ -201,7 +47,6 @@ module.exports = function(client, logger, _opConfig) {
     }
 
     function index(query) {
-
         return new Promise(function(resolve, reject) {
             var errHandler = _errorHandler(indexRecord, query, reject, logger);
 
@@ -218,14 +63,12 @@ module.exports = function(client, logger, _opConfig) {
     }
 
     function indexWithId(query) {
-
         return new Promise(function(resolve, reject) {
             var errHandler = _errorHandler(indexRecordID, query, reject, logger);
 
             function indexRecordID() {
                 client.index(query)
                     .then(function(result) {
-                        //TODO verify I need query.body back, on file uploads this passes around the base64 zip
                         resolve(query.body);
                     })
                     .catch(errHandler);
@@ -236,7 +79,6 @@ module.exports = function(client, logger, _opConfig) {
     }
 
     function create(query) {
-
         return new Promise(function(resolve, reject) {
             var errHandler = _errorHandler(createRecord, query, reject, logger);
 
@@ -254,7 +96,6 @@ module.exports = function(client, logger, _opConfig) {
 
 
     function update(query) {
-
         return new Promise(function(resolve, reject) {
             var errHandler = _errorHandler(updateRecord, query, reject, logger);
 
@@ -271,7 +112,6 @@ module.exports = function(client, logger, _opConfig) {
     }
 
     function remove(query) {
-
         return new Promise(function(resolve, reject) {
             var errHandler = _errorHandler(removeRecord, query, reject, logger);
 
@@ -285,40 +125,6 @@ module.exports = function(client, logger, _opConfig) {
 
             removeRecord();
         });
-    }
-
-    function retry(retryTimer, fn, data) {
-        let timer = Math.floor(Math.random() * (retryTimer.limit - retryTimer.start) + retryTimer.start);
-
-        if (retryTimer.limit < 60000) {
-            retryTimer.limit += 10000
-        }
-        if (retryTimer.start < 30000) {
-            retryTimer.start += 5000
-        }
-        setTimeout(function() {
-            fn(data);
-        }, timer);
-    }
-
-    function _errorHandler(fn, data, reject, logger) {
-        let retryTimer = {start: 5000, limit: 10000};
-
-        return function(err) {
-            if (_.get(err, 'body.error.type') === 'es_rejected_execution_exception') {
-                retry(retryTimer, fn, data)
-            }
-            else {
-                var errMsg = parseError(err);
-                logger.error(errMsg);
-                reject(errMsg)
-            }
-        }
-    }
-
-    function _checkVersion(str) {
-        var num = Number(str.replace(/\./g, ''));
-        return num >= 210;
     }
 
     function verifyIndex(indexObj, name) {
@@ -392,7 +198,7 @@ module.exports = function(client, logger, _opConfig) {
                 client.bulk({body: data})
                     .then(function(results) {
                         if (results.errors) {
-                            var response = _filterResponse(logger, data, results);
+                            var response = _filterResponse(data, results);
 
                             if (response.error) {
                                 reject(response.reason)
@@ -551,6 +357,123 @@ module.exports = function(client, logger, _opConfig) {
 
             indexRecovery();
         })
+    }
+
+    function _warn(logger, msg) {
+        return _.throttle(() => logger.warn(msg), 5000);
+    }
+
+    function _filterResponse(data, results) {
+        const retry = [];
+        const items = results.items;
+        let nonRetriableError = false;
+        let reason = '';
+
+        for (let i = 0; i < items.length; i += 1) {
+            //key could either be create or delete etc, just want the actual data at the value spot
+            const item = _.values(items[i])[0];
+            if (item.error) {
+                // On a create request if a document exists it's not an error.
+                // are there cases where this is incorrect?
+                if (item.status === DOCUMENT_EXISTS) {
+                    continue;
+                }
+
+                if (item.error.type === 'es_rejected_execution_exception') {
+                    if (i === 0) {
+                        retry.push(data[0], data[1])
+                    }
+                    else {
+                        retry.push(data[i * 2], data[i * 2 + 1])
+                    }
+                }
+                else {
+                    if (item.error.type !== 'document_already_exists_exception' && item.error.type !== 'document_missing_exception') {
+                        nonRetriableError = true;
+                        reason = `${item.error.type}--${item.error.reason}`;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (nonRetriableError) {
+            return {data: [], error: nonRetriableError, reason: reason};
+        }
+
+        return {data: retry, error: false};
+    }
+
+    function _searchES(query) {
+        return new Promise((resolve, reject) => {
+            const errHandler = _errorHandler(_performSearch, query, reject, logger);
+            const retry = retryFn(_searchES, query);
+
+            function _performSearch(queryParam) {
+                client.search(queryParam)
+                    .then(function(data) {
+                        if (data._shards.failed > 0) {
+                            const reasons = _.uniq(_.flatMap(data._shards.failures, (shard) => shard.reason.type));
+
+                            if (reasons.length > 1 || reasons[0] !== 'es_rejected_execution_exception') {
+                                const errorReason = reasons.join(' | ');
+                                logger.error('Not all shards returned successful, shard errors: ', errorReason);
+                                reject(errorReason)
+                            }
+                            else {
+                                retry()
+                            }
+                        }
+                        else {
+                            resolve(data)
+                        }
+                    })
+                    .catch(errHandler);
+            }
+
+            _performSearch(query)
+        })
+    }
+
+    function retryFn(fn, data) {
+        let retryTimer = {start: 5000, limit: 10000};
+
+        return () => {
+            let timer = Math.floor(Math.random() * (retryTimer.limit - retryTimer.start) + retryTimer.start);
+
+            if (retryTimer.limit < 60000) {
+                retryTimer.limit += 10000
+            }
+            if (retryTimer.start < 30000) {
+                retryTimer.start += 5000
+            }
+            setTimeout(function() {
+                fn(data);
+            }, timer);
+        }
+    }
+
+
+    function _errorHandler(fn, data, reject, logger) {
+        const retry = retryFn(fn, data);
+        return function(err) {
+            const isRejectedError = _.get(err, 'body.error.type') === 'es_rejected_execution_exception';
+            const isConnectionError = _.get(err, 'message') === 'No Living connections';
+            if (isRejectedError) {
+                // this iteration we will not handle with no living connections issue
+                retry()
+            }
+            else {
+                const errMsg = `invoking elasticsearch_api ${fn.name} resulted in a runtime error: ${parseError(err)}`;
+                logger.error(errMsg);
+                reject(errMsg)
+            }
+        }
+    }
+
+    function _checkVersion(str) {
+        var num = Number(str.replace(/\./g, ''));
+        return num >= 210;
     }
 
     return {
