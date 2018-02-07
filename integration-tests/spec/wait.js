@@ -1,8 +1,8 @@
 'use strict';
 
-var _ = require('lodash');
-var Promise = require('bluebird');
-var misc = require('./misc')();
+const _ = require('lodash');
+const Promise = require('bluebird');
+const misc = require('./misc')();
 
 module.exports = function wait() {
     /*
@@ -11,12 +11,8 @@ module.exports = function wait() {
      */
     function forLength(func, value, iterations) {
         return forValue(
-            function() {
-                return func()
-                    .then(function(result) {
-                        return result.length
-                    })
-            },
+            () => func()
+                .then(result => result.length),
             value, iterations);
     }
 
@@ -26,44 +22,37 @@ module.exports = function wait() {
      * time for the value to match before the returned promise will
      * reject.
      */
-    function forValue(func, value, iterations) {
-        if (! iterations) iterations = 100;
-        var counter = 0;
+    function forValue(func, value, _iterations) {
+        const iterations = _iterations || 100;
+        let counter = 0;
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(((resolve, reject) => {
             function checkValue() {
                 func()
-                    .then(function(result) {
-                        counter++;
-
+                    .then((result) => {
+                        counter += 1;
                         if (result === value) {
                             return resolve(result);
                         }
-
                         if (counter > iterations) {
                             reject(`forValue didn't find target value after ${iterations} iterations.`);
-                        }
-                        else {
+                        } else {
                             setTimeout(checkValue, 500);
                         }
-                    })
+                    });
             }
 
             checkValue();
-        });
+        }));
     }
 
     /*
      * Wait for 'node_count' nodes to be available.
      */
-    function forNodes(node_count) {
-        return forLength(function() {
-            return misc.teraslice().cluster
-                .state()
-                .then(function(state) {
-                    return _.keys(state)
-                });
-        }, node_count);
+    function forNodes(nodeCount) {
+        return forLength(() => misc.teraslice().cluster
+            .state()
+            .then(state => _.keys(state)), nodeCount);
     }
 
     /*
@@ -74,17 +63,15 @@ module.exports = function wait() {
      * 'joined'
      */
     function forWorkersJoined(jobId, workerCount, iterations) {
-        return forValue(() => {
-            return misc.teraslice().cluster
-                .slicers()
-                .then((slicers) => {
-                    const slicer = _.find(slicers, s => s.job_id === jobId);
-                    if (slicer !== undefined) {
-                        return slicer.workers_joined;
-                    }
-                    return 0;
-                });
-        }, workerCount, iterations)
+        return forValue(() => misc.teraslice().cluster
+            .slicers()
+            .then((slicers) => {
+                const slicer = _.find(slicers, s => s.job_id === jobId);
+                if (slicer !== undefined) {
+                    return slicer.workers_joined;
+                }
+                return 0;
+            }), workerCount, iterations)
             .catch((e) => {
                 throw (new Error(`(forWorkersJoined) ${e}`));
             });
