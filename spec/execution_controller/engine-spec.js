@@ -61,7 +61,7 @@ describe('execution engine', () => {
         register: (obj) => {
             messagingEvents[obj.event] = obj.callback;
         },
-        initialize: () => {},
+        listen: () => {},
         respond: (msg) => { respondingMsg = msg; }
     };
     const executionAnalytics = {
@@ -156,7 +156,7 @@ describe('execution engine', () => {
             .then(() => {
                 expect(logInfo).toEqual('execution: 1234 has initialized and is listening on port 3000');
             })
-            .then(testContext._shutdown())
+            .then(engine.shutdown())
             .catch(fail)
             .finally(done);
     });
@@ -173,8 +173,6 @@ describe('execution engine', () => {
         expect(typeof messagingEvents['worker:slice:complete']).toEqual('function');
         expect(messagingEvents['network:disconnect']).toBeDefined();
         expect(typeof messagingEvents['network:disconnect']).toEqual('function');
-        expect(messagingEvents['worker:shutdown']).toBeDefined();
-        expect(typeof messagingEvents['worker:shutdown']).toEqual('function');
         expect(messagingEvents['assets:loaded']).toBeDefined();
         expect(typeof messagingEvents['assets:loaded']).toEqual('function');
     });
@@ -579,7 +577,7 @@ describe('execution engine', () => {
 
         const pause = messagingEvents['cluster:execution:pause'];
         const resume = messagingEvents['cluster:execution:resume'];
-        const shutdown = engineTestContext._shutdown;
+        const shutdown = engine.shutdown;
 
         engine.initialize()
             .then(() => {
@@ -686,18 +684,15 @@ describe('execution engine', () => {
         const engine = makeEngine();
         const exId = 1234;
         const engineTextContext = engine.__test_context(executionAnalytics, slicerAnalytics, recovery, exId);
-        const executionShutdown = engineTextContext._executionShutdown;
+        const executionShutdown = engine.shutdown;
         let gotStopEvent = false;
-        let gotShutdownEvent = false;
 
         myEmitter.on('execution:stop', () => gotStopEvent = true);
-        myEmitter.on('execution:shutdown', () => gotShutdownEvent = true);
 
         Promise.all([executionShutdown(), waitFor(50)])
             .then(() => {
                 expect(logInfo).toEqual(`slicer for execution: ${exId} has received a shutdown notice`);
                 expect(gotStopEvent).toEqual(true);
-                expect(gotShutdownEvent).toEqual(true);
             })
             .catch(fail)
             .finally(done);
