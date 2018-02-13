@@ -53,6 +53,7 @@ describe('execution engine', () => {
     let executionOperationsUpdate = null;
     let exStatus = null;
     const updateState = {};
+    const analyticsData = { failed: 1, processed: 5 };
 
     const messaging = {
         send: (msg) => {
@@ -66,7 +67,7 @@ describe('execution engine', () => {
         respond: (msg) => { respondingMsg = msg; }
     };
     const executionAnalytics = {
-        getAnalytics: () => ({failed: 1}),
+        getAnalytics: () => analyticsData,
         set: () => {},
         increment: () => {},
         shutdown: () => {}
@@ -413,6 +414,9 @@ describe('execution engine', () => {
         waitFor(10)
             .then(() => {
                 expect(exStatus).toEqual('failing');
+                myEmitter.emit('slice:failure');
+                // imitate more slices being processed
+                analyticsData.processed = 20;
                 return waitFor(150);
             })
             .then(() => {
