@@ -80,7 +80,7 @@ module.exports = function wait() {
                 .then((slicers) => {
                     const slicer = _.find(slicers, s => s.job_id === jobId);
                     if (slicer !== undefined) {
-                        return slicer.stats.workers_joined;
+                        return slicer.workers_joined;
                     }
                     return 0;
                 });
