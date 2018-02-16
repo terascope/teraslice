@@ -19,14 +19,20 @@ module.exports = function module(context) {
             env.service_context = JSON.stringify(envOptions);
         }
 
+        const workers = [];
         if (cluster.isMaster) {
             logger.info(`Starting ${num} ${env.assignment}`);
             for (let i = 0; i < num; i += 1) {
                 const worker = cluster.fork(env);
+
                 // for cluster master reference, when a worker dies, you
                 // don't have access to its env at master level
                 _.assign(worker, env);
+
+                workers.push(worker);
             }
         }
+
+        return workers;
     };
 };
