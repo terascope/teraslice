@@ -77,7 +77,7 @@ describe('execution engine', () => {
         addStats: () => {}
     };
     const exStore = {
-        failureMetaData: () => {},
+        executionMetaData: () => {},
         setStatus: (exId, status, errorMeta) => {
             exStatus = status;
             return Promise.resolve(true);
