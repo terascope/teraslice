@@ -58,7 +58,7 @@ module.exports = function () {
                 .finally(done);
         });
 
-        it('should update job specs', (done) => {
+        xit('should update job specs', (done) => {
             // NOTE that this relies on the asset loaded in the test above
             const jobSpec = misc.newJob('generator-asset');
             let jobId;

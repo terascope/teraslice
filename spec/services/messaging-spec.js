@@ -2,10 +2,11 @@
 
 const messagingModule = require('../../lib/cluster/services/messaging');
 const events = require('events');
+const Promise = require('bluebird');
 
 const eventEmitter = new events.EventEmitter();
 
-fdescribe('messaging module', () => {
+describe('messaging module', () => {
     const logger = {
         error() {},
         info() {},
@@ -16,6 +17,7 @@ fdescribe('messaging module', () => {
     };
 
     const testExId = '7890';
+    eventEmitter.setMaxListeners(40);
 
     class MyEmitter extends events {
         constructor() {
@@ -31,6 +33,7 @@ fdescribe('messaging module', () => {
         secondWorkerMsg = null;
         thirdWorkerMsg = null;
     });
+    let clusterFn = () => {};
 
     class MyCluster extends events {
         constructor() {
@@ -39,17 +42,20 @@ fdescribe('messaging module', () => {
                 first: {
                     ex_id: testExId,
                     assignment: 'execution_controller',
-                    send: msg => firstWorkerMsg = msg
+                    send: msg => firstWorkerMsg = msg,
+                    on: (key, fn) => clusterFn = fn
                 },
                 second: {
                     ex_id: testExId,
                     assignment: 'worker',
-                    send: msg => secondWorkerMsg = msg
+                    send: msg => secondWorkerMsg = msg,
+                    on: (key, fn) => clusterFn = fn
                 },
                 third: {
                     ex_id: 'somethingElse',
                     assignment: 'worker',
-                    send: msg => thirdWorkerMsg = msg
+                    send: msg => thirdWorkerMsg = msg,
+                    on: (key, fn) => clusterFn = fn
                 }
             };
         }
@@ -70,11 +76,16 @@ fdescribe('messaging module', () => {
         }
     };
 
+    const clusterEmitter = new MyCluster();
+    clusterEmitter.setMaxListeners(40);
+
     const context = {
         sysconfig: {
             teraslice: {
                 master_hostname: '127.0.0.1',
-                port: 47898
+                port: 47898,
+                action_timeout: 5000,
+                network_latency_buffer: 10
             }
         },
         apis: {
@@ -82,13 +93,15 @@ fdescribe('messaging module', () => {
                 getSystemEvents: () => eventEmitter
             }
         },
-        cluster: new MyCluster()
+        cluster: clusterEmitter
     };
     const childHookFn = () => {};
 
 
     function getContext(obj) {
-        const config = Object.assign(new MyEmitter(), obj);
+        const emitter = new MyEmitter();
+        emitter.setMaxListeners(40);
+        const config = Object.assign(emitter, obj);
         return Object.assign({}, context, { __testingModule: config });
     }
 
@@ -257,7 +270,7 @@ fdescribe('messaging module', () => {
         expect(thirdWorkerMsg).toEqual(thirdMsg);
     });
 
-    fit('can forward messages', () => {
+    it('can forward/broadcast messages', () => {
         const testContext = getContext({ env: { assignment: 'node_master' } });
         const messaging = messagingModule(testContext, logger);
         const forwardMessage = messaging.__test_context(io)._forwardMessage;
@@ -272,6 +285,16 @@ fdescribe('messaging module', () => {
                 message: 'someEvent'
             }
         });
+
+        messaging.broadcast('someEvent', { some: 'data' });
+        expect(emitMsg).toEqual({
+            message: 'networkMessage',
+            data: {
+                some: 'data',
+                message: 'someEvent'
+            }
+        });
+
         forwardMessage(workerMsg);
         // should be a process msg
         expect(secondWorkerMsg).toEqual(workerMsg);
@@ -280,19 +303,279 @@ fdescribe('messaging module', () => {
         const messaging2 = messagingModule(testContext2, logger);
         const clusterMasterForwarding = messaging2.__test_context(io)._forwardMessage;
 
-        clusterMasterForwarding()
+        clusterMasterForwarding({
+            to: 'execution_controller',
+            message: 'execution:stop',
+            address: 'someNodeMaster'
+        });
+        // should be a network socket msg, sent to a specific node
+        expect(socketMsg).toEqual({
+            message: 'networkMessage',
+            address: 'someNodeMaster',
+            data: {
+                to: 'execution_controller',
+                message: 'execution:stop',
+                address: 'someNodeMaster'
+            }
+        });
 
-        const testContext3 = getContext({ env: { assignment: 'execution_controller' } });
+        let sentProcessMsg = null;
+        const sentToProcess = msg => sentProcessMsg = msg;
+        const testContext3 = getContext({
+            env: {
+                assignment: 'execution_controller'
+            },
+            send: sentToProcess
+        });
         const messaging3 = messagingModule(testContext3, logger);
         const executionControllerForwarding = messaging3.__test_context(io)._forwardMessage;
 
-        // le;t emitMsg = null;
-        // let socketMsg = null;
-        console.log(emitMsg);
+        executionControllerForwarding({
+            to: 'worker',
+            message: 'slicer:slice:new',
+            address: 'someSpecificWorker'
+        });
+        // should be a network socket msg, sent to a specific node
+        expect(socketMsg).toEqual({
+            message: 'slicer:slice:new',
+            address: 'someSpecificWorker',
+            data: {
+                to: 'worker',
+                message: 'slicer:slice:new',
+                address: 'someSpecificWorker'
+            }
+        });
+
+        executionControllerForwarding({
+            to: 'cluster_master',
+            message: 'cluster:slicer:analytics'
+        });
+        // should be a ipc msg, sent to a specific node
+        expect(sentProcessMsg).toEqual({
+            to: 'cluster_master',
+            message: 'cluster:slicer:analytics'
+        });
     });
 
-    xit('can work with messaging:response messages', () => {
+    it('can work with messaging:response messages', () => {
         const testContext = getContext({ env: { assignment: 'node_master' } });
         const messaging = messagingModule(testContext, logger, childHookFn);
+        const handleResponse = messaging.__test_context()._handleResponse;
+        const msgId = 'someId';
+        const nodeMsg = { __source: 'node_master', __msgId: msgId, message: 'someMessage' };
+        const workerMsg = { to: 'worker', ex_id: testExId, message: 'execution:stop' };
+
+        let emittedData = null;
+
+        eventEmitter.on(msgId, data => emittedData = data);
+
+        handleResponse(nodeMsg);
+        expect(emittedData).toEqual(nodeMsg);
+
+        handleResponse(workerMsg);
+        // should be a process msg
+        expect(secondWorkerMsg).toEqual(workerMsg);
+    });
+
+    it('can getClientCounts', () => {
+        const testContext = getContext({ env: { assignment: 'node_master' } });
+        const messaging = messagingModule(testContext, logger, childHookFn);
+
+        expect(messaging.getClientCounts()).toEqual(0);
+        messaging.__test_context(io);
+
+        expect(messaging.getClientCounts()).toEqual(2);
+    });
+
+    it('can send transactional and non-transactional messages', (done) => {
+        const testContext = getContext({ env: { assignment: 'node_master' } });
+        const messaging = messagingModule(testContext, logger, childHookFn);
+        const workerMsg = { to: 'worker', ex_id: testExId, message: 'execution:stop' };
+        const transactionalMsg = Object.assign({}, workerMsg, { response: true });
+        const transactionalErrorMsg = Object.assign(
+            {},
+            workerMsg,
+            { response: true, error: 'someError' }
+        );
+        const transactionalTimeoutErrorMsg = Object.assign(
+            {},
+            workerMsg,
+            { response: true, error: 'someError', timeout: 30 }
+        );
+
+        function sendEvent(timer) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    let msgId;
+                    if (secondWorkerMsg) {
+                        msgId = secondWorkerMsg.__msgId;
+                    } else {
+                        msgId = '12345';
+                    }
+                    eventEmitter.emit(msgId, secondWorkerMsg);
+                    resolve();
+                }, timer);
+            });
+        }
+
+        // this is technically a sync message, but a promise is returned for composability
+        // and to act similiar to its transactional counterpart
+        messaging.send(workerMsg)
+            .then((bool) => {
+                expect(bool).toEqual(true);
+                expect(secondWorkerMsg).toEqual(workerMsg);
+                return Promise.all([messaging.send(transactionalMsg), sendEvent(20)]);
+            })
+            .spread((results) => {
+                expect(results).toEqual(secondWorkerMsg);
+                // testing error scenario
+                return Promise.all([messaging.send(transactionalErrorMsg), sendEvent(20)])
+                    .catch((err) => {
+                        expect(err).toEqual('Error: someError occurred on node: node_master');
+                        return Promise.all([
+                            messaging.send(transactionalTimeoutErrorMsg),
+                            sendEvent(100)
+                        ])
+                            .catch((error) => {
+                                const messageSent = secondWorkerMsg;
+                                expect(error).toEqual(`timeout error while communicating with ${messageSent.to}, msg: ${messageSent.message}, data: ${JSON.stringify(messageSent)}`);
+                                return true;
+                            });
+                    });
+            })
+            .catch(fail)
+            .finally(done);
+    });
+
+    it('can respond', (done) => {
+        let sentProcessMsg = null;
+        const sentToProcess = msg => sentProcessMsg = msg;
+        const testContext = getContext({
+            env: {
+                assignment: 'execution_controller'
+            },
+            send: sentToProcess
+        });
+        const messaging = messagingModule(testContext, logger, childHookFn);
+        const workerMsg = {
+            to: 'execution_controller',
+            ex_id: testExId,
+            message: 'execution:stop',
+            __msgId: 1234,
+            __source: 'cluster_master'
+        };
+
+        messaging.respond(workerMsg, { some: 'data' })
+            .then(() => {
+                expect(sentProcessMsg).toEqual({
+                    some: 'data',
+                    __msgId: 1234,
+                    __source: 'cluster_master',
+                    message: 'messaging:response',
+                    to: 'cluster_master'
+                });
+            })
+            .catch(fail)
+            .finally(done);
+    });
+
+    it('can register callbacks and attach them to socket/io', () => {
+        const testContext = getContext({ env: { assignment: 'node_master' } });
+        const messaging = messagingModule(testContext, logger, childHookFn);
+        const getRegistry = messaging.__test_context()._getRegistry;
+        const registerFns = messaging.__test_context()._registerFns;
+        let exitIsCalled = false;
+        const socketSettings = [];
+
+        messaging.register({
+            event: 'network:connect',
+            identifier: 'node_id',
+            callback: (msg, id, identifier) => {
+                socketSettings.push({ msg, id, identifier });
+                return true;
+            }
+        });
+
+        messaging.register({
+            event: 'cluster:node:get_port',
+            callback: () => 3452
+        });
+
+        messaging.register({
+            event: 'child:exit',
+            callback: () => exitIsCalled = true
+        });
+
+        expect(() => messaging.register({
+            event: 'some:event',
+            callback: () => exitIsCalled = true
+        })).toThrow();
+
+        const results = getRegistry();
+
+        expect(results['cluster:node:get_port']).toBeDefined();
+        expect(typeof results['cluster:node:get_port']).toEqual('function');
+        expect(results['cluster:node:get_port']()).toEqual(3452);
+
+        // it internally maps 'network:connect' to connect
+        expect(results.connect).toBeDefined();
+        expect(typeof results.connect).toEqual('function');
+        expect(results.connect()).toEqual(true);
+        expect(results.connect.__socketIdentifier).toEqual('node_id');
+
+        // node master sets the event on the cluster obj
+        context.cluster.emit('exit');
+        expect(exitIsCalled).toEqual(true);
+
+        socketSettings.shift();
+
+        const socketList = {};
+        const joinList = {};
+        const socket = {
+            on: (key, fn) => socketList[key] = fn,
+            join: id => joinList[id] = id
+        };
+
+        registerFns(socket);
+        socketList.connect({ node_id: 'someId' });
+        expect(socketSettings[0]).toEqual({
+            msg: { node_id: 'someId' },
+            id: 'someId',
+            identifier: 'node_id'
+        });
+    });
+
+    it('can listen and setup server', () => {
+        const testContext1 = getContext({ env: { assignment: 'node_master' } });
+        const messaging1 = messagingModule(testContext1, logger, childHookFn);
+
+        const testContext2 = getContext({ env: { assignment: 'cluster_master' } });
+        const messaging2 = messagingModule(testContext2, logger, childHookFn);
+
+        const testContext3 = getContext({ env: { assignment: 'execution_controller' } });
+        const messaging3 = messagingModule(testContext3, logger, childHookFn);
+
+        expect(() => messaging1.listen()).not.toThrow();
+        expect(() => messaging2.listen({ port: 45645, server: {} })).not.toThrow();
+        expect(() => messaging3.listen({ port: 45647 })).not.toThrow();
+    });
+
+    it('sets up listerns', () => {
+        const testContext1 = getContext({ env: { assignment: 'node_master' } });
+        const messaging1 = messagingModule(testContext1, logger, childHookFn);
+        messaging1.__test_context(io);
+
+        context.cluster.emit('online', { id: 'first' });
+        clusterFn({ to: 'cluster_master' });
+        clusterFn({ to: 'node_master' });
+        clusterFn({ to: 'worker' });
+
+        const testContext2 = getContext({ env: { assignment: 'execution_controller' } });
+        const messaging2 = messagingModule(testContext2, logger, childHookFn);
+        messaging2.__test_context(io);
+        testContext2.__testingModule.emit('message', {
+            to: 'cluster_master',
+            message: 'cluster:slicer:analytics'
+        });
     });
 });
