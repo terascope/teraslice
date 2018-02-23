@@ -7,7 +7,7 @@ const _ = require('lodash');
 
 const eventEmitter = new events.EventEmitter();
 
-fdescribe('execution engine', () => {
+describe('execution engine', () => {
     let loggerErrMsg;
     let debugMsg;
     let logInfo;
@@ -335,60 +335,54 @@ fdescribe('execution engine', () => {
         const myEmitter = makeEmitter();
         const engine = makeEngine();
 
-        engine.run()
-            .then(() => {
-                const registerSlicers = engine.__test_context(executionAnalytics,
-                    slicerAnalytics, recovery)._registerSlicers;
+        const registerSlicers = engine.__test_context(executionAnalytics,
+            slicerAnalytics, recovery, 1234, false, executionContext)._registerSlicers;
 
-                const slicers = [() => {}];
-                const errSlicers = {
-                    slicer: () => {}
-                };
+        const slicers = [() => {}];
+        const errSlicers = {
+            slicer: () => {}
+        };
 
-                expect(() => {
-                    registerSlicers(errSlicers, 'recovery');
-                }).toThrowError('newSlicer from module testEngine needs to return an array of slicers');
+        expect(() => {
+            registerSlicers(errSlicers, 'recovery');
+        }).toThrowError('newSlicer from module testEngine needs to return an array of slicers');
 
-                expect(() => {
-                    registerSlicers(slicers, 'recovery');
-                }).not.toThrowError();
-                // make sure error logic is not registered in recovery, recovery mangages itself internally
-                expect(myEmitter.listenerCount('slice:failure')).toEqual(0);
+        expect(() => {
+            registerSlicers(slicers, 'recovery');
+        }).not.toThrowError();
+        // make sure error logic is not registered in recovery, recovery mangages itself internally
+        expect(myEmitter.listenerCount('slice:failure')).toEqual(0);
 
 
-                expect(() => {
-                    registerSlicers(slicers);
-                }).not.toThrowError();
+        expect(() => {
+            registerSlicers(slicers);
+        }).not.toThrowError();
 
-                expect(myEmitter.listenerCount('slice:failure')).toEqual(1);
+        expect(myEmitter.listenerCount('slice:failure')).toEqual(1);
 
-                myEmitter.emit('slice:failure');
-                expect(exStatus).toEqual('failing');
-            });
+        myEmitter.emit('slice:failure');
+        expect(exStatus).toEqual('failing');
     });
 
     it('execution can recover', (done) => {
         const myEmitter = makeEmitter();
         const engine = makeEngine();
 
-        engine.run()
-            .then(() => {
-                const engineTextContext = engine.__test_context(executionAnalytics,
-                    slicerAnalytics, recovery, 1234, true);
-                const executionRecovery = engineTextContext._executionRecovery;
+        const engineTextContext = engine.__test_context(executionAnalytics,
+            slicerAnalytics, recovery, 1234, true, executionContext);
 
-                function sendEvent(time) {
-                    return waitFor(time)
-                        .then(() => {
-                            myEmitter.emit('execution:recovery:complete');
-                        });
-                }
+        const executionRecovery = engineTextContext._executionRecovery;
 
-                return Promise.all([executionRecovery(), sendEvent(150)])
-                    .spread((data) => {
-                        expect(data).toEqual({ starting: 'point' });
-                    })
-                    .catch(fail);
+        function sendEvent(time) {
+            return waitFor(time)
+                .then(() => {
+                    myEmitter.emit('execution:recovery:complete');
+                });
+        }
+
+        Promise.all([executionRecovery(), sendEvent(150)])
+            .spread((data) => {
+                expect(data).toEqual({ starting: 'point' });
             })
             .catch(fail)
             .finally(done);
@@ -397,57 +391,51 @@ fdescribe('execution engine', () => {
     it('terminal error marks job as failed', (done) => {
         const engine = makeEngine();
 
-        engine.run()
-            .then(() => {
-                const engineTextContext = engine.__test_context(executionAnalytics,
-                    slicerAnalytics, recovery, 1234);
-                const terminalError = engineTextContext._terminalError;
-                const myError = new Error('an error');
+        const engineTextContext = engine.__test_context(executionAnalytics,
+            slicerAnalytics, recovery, 1234, executionContext);
+        const terminalError = engineTextContext._terminalError;
+        const myError = new Error('an error');
 
-                Promise.all([terminalError(myError), waitFor(20)])
-                    .then(() => {
-                        expect(exStatus).toEqual('failed');
-                        expect(sentMsg).toEqual({
-                            to: 'cluster_master',
-                            message: 'execution:error:terminal',
-                            ex_id: 1234,
-                            payload: { set_status: true }
-                        });
-                    })
-                    .catch(fail)
-                    .finally(done);
-            });
+        Promise.all([terminalError(myError), waitFor(20)])
+            .then(() => {
+                expect(exStatus).toEqual('failed');
+                expect(sentMsg).toEqual({
+                    to: 'cluster_master',
+                    message: 'execution:error:terminal',
+                    ex_id: 1234,
+                    payload: { set_status: true }
+                });
+            })
+            .catch(fail)
+            .finally(done);
     });
 
     it('failed slice can recover to running status in persistent mode', (done) => {
-        const newExecution =  _.cloneDeep(executionContext);
+        const newExecution = _.cloneDeep(executionContext);
         newExecution.config.lifecycle = 'persistent';
         newExecution.config.probation_window = 100;
         const myEmitter = makeEmitter();
         const engine = makeEngine(newExecution);
 
-        engine.run()
-            .then(() => {
-                const engineTextContext = engine.__test_context(executionAnalytics,
-                    slicerAnalytics, recovery, 1234);
-                const registerSlicers = engineTextContext._registerSlicers;
+        const engineTextContext = engine.__test_context(executionAnalytics,
+            slicerAnalytics, recovery, 1234, false, newExecution);
+        const registerSlicers = engineTextContext._registerSlicers;
 
-                registerSlicers([() => {}], false);
+        registerSlicers([() => {}], false);
+        myEmitter.emit('slice:failure');
+        waitFor(10)
+            .then(() => {
+                expect(exStatus).toEqual('failing');
                 myEmitter.emit('slice:failure');
-                waitFor(10)
-                    .then(() => {
-                        expect(exStatus).toEqual('failing');
-                        myEmitter.emit('slice:failure');
-                        // imitate more slices being processed
-                        analyticsData.processed = 20;
-                        return waitFor(150);
-                    })
-                    .then(() => {
-                        expect(exStatus).toEqual('running');
-                    })
-                    .catch(fail)
-                    .finally(done);
-            });
+                // imitate more slices being processed
+                analyticsData.processed = 20;
+                return waitFor(150);
+            })
+            .then(() => {
+                expect(exStatus).toEqual('running');
+            })
+            .catch(fail)
+            .finally(done);
     });
 
     it('slicer init retry will attempt to create slicer', (done) => {
@@ -464,22 +452,19 @@ fdescribe('execution engine', () => {
 
         const engine = makeEngine();
 
-        engine.run()
-            .then(() => {
-                const engineTextContext = engine.__test_context(executionAnalytics,
-                    slicerAnalytics, recovery, 1234);
-                const slicerInitRetry = engineTextContext._slicerInitRetry;
-                const myError = new Error('an error');
+        const engineTextContext = engine.__test_context(executionAnalytics,
+            slicerAnalytics, recovery, 1234, false, executionContext);
+        const slicerInitRetry = engineTextContext._slicerInitRetry;
+        const myError = new Error('an error');
 
-                slicerInitRetry(myError)
-                    .then((slicerArray) => {
-                        expect(slicerArray[0]()).toEqual('all done');
-                    })
-                    .catch(fail)
-                    .finally(() => {
-                        executionContext.slicer.newSlicer = oldSlicer;
-                        done();
-                    });
+        slicerInitRetry(myError)
+            .then((slicerArray) => {
+                expect(slicerArray[0]()).toEqual('all done');
+            })
+            .catch(fail)
+            .finally(() => {
+                executionContext.slicer.newSlicer = oldSlicer;
+                done();
             });
     });
 
@@ -490,40 +475,37 @@ fdescribe('execution engine', () => {
         const engine = makeEngine();
         const exId = 1234;
 
-        engine.run()
-            .then(() => {
-                const engineTextContext = engine.__test_context(executionAnalytics,
-                    slicerAnalytics, recovery, exId);
-                const startWorkerConnectionWatchDog = engineTextContext._startWorkerConnectionWatchDog;
-                const startWorkerDisconnectWatchDog = engineTextContext._startWorkerDisconnectWatchDog;
+        const engineTextContext = engine.__test_context(executionAnalytics,
+            slicerAnalytics, recovery, exId, executionContext);
+        const startWorkerConnectionWatchDog = engineTextContext._startWorkerConnectionWatchDog;
+        const startWorkerDisconnectWatchDog = engineTextContext._startWorkerDisconnectWatchDog;
 
-                Promise.all([startWorkerConnectionWatchDog(), waitFor(750)])
-                    .spread(() => {
-                        expect(exStatus).toEqual('failed');
-                        expect(sentMsg).toEqual({
-                            to: 'cluster_master',
-                            message: 'execution:error:terminal',
-                            ex_id: 1234,
-                            payload: { set_status: true }
-                        });
-                        expect(loggerErrMsg).toEqual(`A worker has not connected to a slicer for ex: ${exId}, shutting down execution`);
-                        return Promise.all([startWorkerDisconnectWatchDog(), waitFor(750), messagingEvents['worker:ready']({})]);
-                    })
-                    .then(() => {
-                        expect(exStatus).toEqual('failed');
-                        expect(sentMsg).toEqual({
-                            to: 'cluster_master',
-                            message: 'execution:error:terminal',
-                            ex_id: 1234,
-                            payload: { set_status: true }
-                        });
-                        expect(loggerErrMsg).toEqual(`all workers from slicer #${exId} have disconnected`);
-                    })
-                    .catch(fail)
-                    .finally(() => {
-                        clientCounter = oldClientCounter;
-                        done();
-                    });
+        Promise.all([startWorkerConnectionWatchDog(), waitFor(750)])
+            .spread(() => {
+                expect(exStatus).toEqual('failed');
+                expect(sentMsg).toEqual({
+                    to: 'cluster_master',
+                    message: 'execution:error:terminal',
+                    ex_id: 1234,
+                    payload: { set_status: true }
+                });
+                expect(loggerErrMsg).toEqual(`A worker has not connected to a slicer for ex: ${exId}, shutting down execution`);
+                return Promise.all([startWorkerDisconnectWatchDog(), waitFor(750), messagingEvents['worker:ready']({})]);
+            })
+            .then(() => {
+                expect(exStatus).toEqual('failed');
+                expect(sentMsg).toEqual({
+                    to: 'cluster_master',
+                    message: 'execution:error:terminal',
+                    ex_id: 1234,
+                    payload: { set_status: true }
+                });
+                expect(loggerErrMsg).toEqual(`all workers from slicer #${exId} have disconnected`);
+            })
+            .catch(fail)
+            .finally(() => {
+                clientCounter = oldClientCounter;
+                done();
             });
     });
 
@@ -541,59 +523,56 @@ fdescribe('execution engine', () => {
         const myEmitter = makeEmitter();
         const engine = makeEngine();
 
-        engine.run()
+        const engineTestContext = engine.__test_context(executionAnalytics,
+            slicerAnalytics, recovery, 1234, false, executionContext);
+        const getScheduler = engineTestContext._getScheduler;
+        const slicerQueue = engineTestContext.slicerQueue;
+        const allDone = () => null;
+        const makesSlices = () => ({ some: 'data' });
+        const makesArrayOfSlices = () => [{ id: 1 }, { id: 2 }];
+        const slicerError = () => {
+            throw new Error('im an error');
+            return false;
+        };
+        let isASlicerDone = false;
+
+        myEmitter.on('slicer:finished', () => {
+            isASlicerDone = true;
+        });
+
+        const slicers = getScheduler([makesSlices, makesArrayOfSlices,
+            allDone, slicerError]);
+
+        expect(slicers.length).toEqual(4);
+        expect(slicerQueue.size()).toEqual(0);
+
+        callSlicer(slicers[0])
             .then(() => {
-                const engineTestContext = engine.__test_context(executionAnalytics,
-                    slicerAnalytics, recovery);
-                const getScheduler = engineTestContext._getScheduler;
-                const slicerQueue = engineTestContext.slicerQueue;
-                const allDone = () => null;
-                const makesSlices = () => ({ some: 'data' });
-                const makesArrayOfSlices = () => [{ id: 1 }, { id: 2 }];
-                const slicerError = () => {
-                    throw new Error('im an error');
-                    return false;
-                };
-                let isASlicerDone = false;
-
-                myEmitter.on('slicer:finished', () => {
-                    isASlicerDone = true;
-                });
-
-                const slicers = getScheduler([makesSlices, makesArrayOfSlices,
-                    allDone, slicerError]);
-
-                expect(slicers.length).toEqual(4);
+                expect(slicerQueue.size()).toEqual(1);
+                const slice = slicerQueue.dequeue();
+                expect(slice.request).toEqual({ some: 'data' });
+                return callSlicer(slicers[1]);
+            })
+            .then(() => {
+                expect(slicerQueue.size()).toEqual(2);
+                const slice1 = slicerQueue.dequeue();
+                expect(slice1.request).toEqual({ id: 1 });
+                const slice2 = slicerQueue.dequeue();
+                expect(slice2.request).toEqual({ id: 2 });
+                return callSlicer(slicers[2]);
+            })
+            .then(() => {
                 expect(slicerQueue.size()).toEqual(0);
-
-                callSlicer(slicers[0])
-                    .then(() => {
-                        expect(slicerQueue.size()).toEqual(1);
-                        const slice = slicerQueue.dequeue();
-                        expect(slice.request).toEqual({ some: 'data' });
-                        return callSlicer(slicers[1]);
-                    })
-                    .then(() => {
-                        expect(slicerQueue.size()).toEqual(2);
-                        const slice1 = slicerQueue.dequeue();
-                        expect(slice1.request).toEqual({ id: 1 });
-                        const slice2 = slicerQueue.dequeue();
-                        expect(slice2.request).toEqual({ id: 2 });
-                        return callSlicer(slicers[2]);
-                    })
-                    .then(() => {
-                        expect(slicerQueue.size()).toEqual(0);
-                        expect(isASlicerDone).toEqual(true);
-                        return callSlicer(slicers[3]);
-                    })
-                    .then(() => {
-                        expect(sentMsg.to).toEqual('cluster_master');
-                        expect(sentMsg.message).toEqual('execution:error:terminal');
-                        return true;
-                    })
-                    .catch(fail)
-                    .finally(done);
-            });
+                expect(isASlicerDone).toEqual(true);
+                return callSlicer(slicers[3]);
+            })
+            .then(() => {
+                expect(sentMsg.to).toEqual('cluster_master');
+                expect(sentMsg.message).toEqual('execution:error:terminal');
+                return true;
+            })
+            .catch(fail)
+            .finally(done);
     });
 
     it('can initialize, pause, resume and shutdown', (done) => {
@@ -778,10 +757,12 @@ fdescribe('execution engine', () => {
             });
     });
 
-    fit('can send slices to specific workers', (done) => {
+    it('can send slices to specific workers', (done) => {
         const myEmitter = makeEmitter();
         const engine = makeEngine();
         const exId = 1234;
+        const engineTextContext = engine.__test_context(executionAnalytics,
+            slicerAnalytics, recovery, exId);
         const slice1 = { request: { some: 'slice' } };
         const slice2 = Object.assign({}, slice1, { request: { request_worker: 3 } });
         const slice3 = Object.assign({}, slice1, { request: { request_worker: 99 } });
@@ -792,10 +773,8 @@ fdescribe('execution engine', () => {
 
         let invalidSlice = null;
 
-        engine.run()
+        engineTextContext._engineSetup()
             .then(() => {
-                const engineTextContext = engine.__test_context(executionAnalytics,
-                    slicerAnalytics, recovery, exId);
                 const workerQueue = engineTextContext.workerQueue;
                 const slicerQueue = engineTextContext.slicerQueue;
 
@@ -804,7 +783,6 @@ fdescribe('execution engine', () => {
                     workerQueue.each(worker => results.push(worker));
                     return results;
                 }
-                //engineTextContext._engineSetup();
 
                 myEmitter.on('slice:invalid', data => invalidSlice = data);
 
@@ -821,7 +799,6 @@ fdescribe('execution engine', () => {
                     })
                     .then(() => {
                         expect(workerQueue.size()).toEqual(2);
-console.log(sentMsg)                        
                         expect(sentMsg).toEqual({
                             to: 'worker',
                             message: 'slicer:slice:new',
