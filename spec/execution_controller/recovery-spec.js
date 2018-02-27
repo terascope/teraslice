@@ -30,7 +30,7 @@ describe('execution recovery', () => {
     const messaging = { send: msg => sentMsg = msg };
     const executionAnalytics = { getAnalytics: () => ({}) };
     const exStore = {
-        failureMetaData: () => {},
+        executionMetaData: () => {},
         setStatus: () => new Promise(resolve => resolve(true))
     };
     const stateStore = {
