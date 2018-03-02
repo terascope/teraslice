@@ -120,11 +120,13 @@ describe('execution runner', () => {
         executionRunner.initialize(eventEmitter, logger)
             .catch((err) => {
                 expect(err).toBeDefined();
-                expect(typeof err).toEqual('string');
+                expect(err.message).toContain('Could not retrieve code');
             })
             .finally(done);
     });
 
+    /* This capability has been moved to the node_master.
+    TODO: see if these tests can be repurposed there.
     it('execution_controller can wait for an asset while initializing', (done) => {
         const assetjob = {
             assets: [assetId],
@@ -158,6 +160,7 @@ describe('execution runner', () => {
             .finally(done);
     });
 
+
     it('worker can wait for an asset while initializing', (done) => {
         const assetjob = {
             assets: [assetId],
@@ -179,6 +182,7 @@ describe('execution runner', () => {
             .catch(fail)
             .finally(done);
     });
+
 
     it('can fail if downloading asset failed', (done) => {
         const assetjob = {
@@ -204,7 +208,7 @@ describe('execution runner', () => {
             })
             .finally(done);
     });
-
+    */
 
     it('can instantiate an execution', (done) => {
         const exRunnerSlicer = executionCode(context).__test_context(context, tempProcess);
@@ -314,4 +318,3 @@ describe('execution runner', () => {
 
     });
 });
-
