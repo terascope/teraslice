@@ -9,31 +9,25 @@
             "_all": {
                 "enabled": false
             },
-            "dynamic": "false",
+            "dynamic": false,
             "properties": {
                 "ex_id": {
-                    "type": "string",
-                    "index" : "not_analyzed"
+                    "type": "keyword"
                 },
                 "job_id": {
-                    "type": "string",
-                    "index" : "not_analyzed"
+                    "type": "keyword"
                 },
                 "worker_id": {
-                    "type": "string",
-                    "index" : "not_analyzed"
+                    "type": "keyword"
                 },
                 "slice_id": {
-                    "type": "string",
-                    "index" : "not_analyzed"
+                    "type": "keyword"
                 },
                 "slicer_id": {
-                    "type": "string",
-                    "index" : "not_analyzed"
+                    "type": "keyword"
                 },
                 "op": {
-                    "type": "string",
-                    "index" : "not_analyzed"
+                    "type": "keyword"
                 },
                 "order": {
                     "type": "integer"

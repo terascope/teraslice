@@ -8,28 +8,24 @@
       "_all": {
         "enabled": false
       },
-      "dynamic": "false",
+      "dynamic": false,
       "properties": {
         "blob": {
-          "type": "string",
-          "index": "no",
+          "type": "keyword",
+          "index": false,
           "doc_values": false
         },
         "name": {
-          "type": "string",
-          "index": "not_analyzed"
+          "type": "keyword"
         },
         "version": {
-          "type": "string",
-          "index": "not_analyzed"
+          "type": "keyword"
         },
         "id": {
-          "type": "string",
-          "index": "not_analyzed"
+          "type": "keyword"
         },
         "description": {
-          "type": "string",
-          "index": "analyzed"
+          "type": "keyword"
         },
         "_created": {
           "type": "date"
