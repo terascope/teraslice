@@ -242,38 +242,44 @@ describe('execution runner', () => {
     });
 
     it('analyze returns a function what captures the time it took to complete a step, data in and data out', (done) => {
-        jasmine.clock().install();
         const analyze = executionCode(context).__test_context(context, tempProcess).analyze;
 
         const fn = function (data) {
             return new Promise(((resolve) => {
                 setTimeout(() => {
                     resolve(data);
-                }, 1000);
+                }, 10);
             }));
         };
 
+        function waitFor() {
+            return new Promise(resolve => setTimeout(() => resolve(true), 15));
+        }
+
         const analyticsObj = { time: [], size: [], memory: [] };
         const dataIn = [{ some: 'insideData' }];
+        const analyzedFn = analyze(fn, 0);
 
-        const analyzedFn = analyze(fn);
-        const results = analyzedFn(analyticsObj, dataIn);
+        Promise.all([analyzedFn(analyticsObj, dataIn), waitFor()])
+            .spread((data) => {
+                expect(Array.isArray(data)).toBe(true);
+                expect(data[0].some).toEqual('insideData');
+                expect(analyticsObj.time.length).toEqual(1);
+                expect(analyticsObj.size.length).toEqual(1);
+                expect(analyticsObj.memory.length).toEqual(1);
 
-        jasmine.clock().tick(1001);
-
-        results.then((data) => {
-            expect(Array.isArray(data)).toBe(true);
-            expect(data[0].some).toEqual('insideData');
-            expect(analyticsObj.time.length).toEqual(1);
-            expect(analyticsObj.size.length).toEqual(1);
-            expect(analyticsObj.memory.length).toEqual(1);
-
-            expect(analyticsObj.time[0] >= 0).toBe(true);
-            expect(analyticsObj.size[0]).toEqual(1);
-            expect(analyticsObj.memory[0] >= 0).toBe(true);
-        })
+                expect(analyticsObj.time[0] >= 0).toBe(true);
+                expect(analyticsObj.size[0]).toEqual(1);
+                expect(analyticsObj.memory[0] >= 0).toBe(true);
+                return Promise.all([analyzedFn(analyticsObj, dataIn), waitFor()]);
+            })
+            .then(() => {
+            // we check to make sure retried calls don't add extra data
+                expect(analyticsObj.time.length).toEqual(1);
+                expect(analyticsObj.size.length).toEqual(1);
+                expect(analyticsObj.memory.length).toEqual(1);
+            })
             .finally(() => {
-                jasmine.clock().uninstall();
                 done();
             });
     });
@@ -311,7 +317,6 @@ describe('execution runner', () => {
         expect(testRegisterApi.job_runner.getOpConfig('elasticsearch_data_generator')).toEqual(op1);
         expect(testRegisterApi.job_runner.getOpConfig('noop')).toEqual(op2);
         expect(testRegisterApi.job_runner.getOpConfig('somethingElse')).toEqual(undefined);
-
     });
 });
 
