@@ -1,67 +1,64 @@
 'use strict';
 
-var Promise = require('bluebird');
-var misc = require('../../misc')();
-var _ = require('lodash');
+const Promise = require('bluebird');
+const misc = require('../../misc')();
+const _ = require('lodash');
 
-module.exports = function() {
-    var teraslice = misc.teraslice();
+module.exports = function () {
+    const teraslice = misc.teraslice();
 
-    describe('reindex', function() {
+    describe('reindex', () => {
+        it('should work for simple case', (done) => {
+            const jobSpec = misc.newJob('reindex');
+            jobSpec.name = 'basic reindex';
+            jobSpec.operations[1].index = 'test-reindex-10';
 
-        it('should work for simple case', function(done) {
-            var job_spec = misc.newJob('reindex');
-            job_spec.name = 'basic reindex';
-            job_spec.operations[1].index = 'test-reindex-10';
-
-            teraslice.jobs.submit(job_spec)
-                .then(function(job) {
+            teraslice.jobs.submit(jobSpec)
+                .then((job) => {
                     expect(job).toBeDefined();
                     expect(job.id()).toBeDefined();
 
                     return job.waitForStatus('completed');
                 })
-                .then(function() {
-                    return misc.indexStats('test-reindex-10')
-                        .then(function(stats) {
-                            expect(stats.count).toBe(10);
-                            expect(stats.deleted).toBe(0);
-                        });
-                })
+                .then(() => misc.indexStats('test-reindex-10')
+                    .then((stats) => {
+                        expect(stats.count).toBe(10);
+                        expect(stats.deleted).toBe(0);
+                    }))
                 .catch(fail)
-                .finally(done)
+                .finally(done);
         });
 
-        it('should work when no data is returned with lucene query', function(done) {
-            var job_spec = misc.newJob('reindex');
-            job_spec.name = 'basic reindex';
-            job_spec.operations[1].index = 'test-reindex-bad-query';
-            job_spec.operations[0].query = 'bytes:>=99999999';
+        it('should work when no data is returned with lucene query', (done) => {
+            const jobSpec = misc.newJob('reindex');
+            jobSpec.name = 'basic reindex';
+            jobSpec.operations[1].index = 'test-reindex-bad-query';
+            jobSpec.operations[0].query = 'bytes:>=99999999';
 
-            teraslice.jobs.submit(job_spec)
-                .then(function(job) {
+            teraslice.jobs.submit(jobSpec)
+                .then((job) => {
                     expect(job).toBeDefined();
                     expect(job.id()).toBeDefined();
 
                     return job.waitForStatus('completed');
                 })
-                .then(function(status) {
+                .then((status) => {
                     expect(status).toEqual('completed');
                     return misc.indexStats('test-reindex-bad-query')
-                        .catch(function(errResponse) {
+                        .catch((errResponse) => {
                             // the job should  be marked as completed but no new index
                             // as there are no records
-                            var reason = _.get(errResponse, 'body.error.reason');
+                            const reason = _.get(errResponse, 'body.error.reason');
                             expect(reason).toEqual('no such index');
                         });
                 })
                 .catch(fail)
-                .finally(done)
+                .finally(done);
         });
 
-        it('should collect cluster level stats', function(done) {
+        it('should collect cluster level stats', (done) => {
             teraslice.cluster.stats()
-                .then(function(stats) {
+                .then((stats) => {
                     expect(stats.slicer.processed).toBeGreaterThan(0);
                     expect(stats.slicer.failed).toBe(0);
                     expect(stats.slicer.queued).toBeDefined();
@@ -72,90 +69,69 @@ module.exports = function() {
                     // executions: total, failed, active?
                     // exceptions?
                 })
-                .catch(function(err) {
+                .catch((err) => {
                     console.log('what error', err);
-                    fail()
+                    fail();
                 })
-                .finally(done)
+                .finally(done);
         });
 
-        it('should complete after lifecycle changes', function(done) {
-            var job_spec = misc.newJob('reindex');
-            job_spec.name = 'reindex after lifecycle changes';
+        it('should complete after lifecycle changes', (done) => {
+            const jobSpec = misc.newJob('reindex');
+            jobSpec.name = 'reindex after lifecycle changes';
             // Job needs to be able to run long enough to cycle
-            job_spec.operations[0].index = 'example-logs-10000';
-            job_spec.operations[1].index = 'test-reindex-lifecycle';
+            jobSpec.operations[0].index = 'example-logs-10000';
+            jobSpec.operations[1].index = 'test-reindex-lifecycle';
 
-            teraslice.jobs.submit(job_spec)
-                .then(function(job) {
+            teraslice.jobs.submit(jobSpec)
+                .then((job) => {
                     expect(job.id()).toBeDefined();
 
                     return job.waitForStatus('running')
-                        .then(function() {
-                            return job.pause();
-                        })
-                        .then(function() {
-                            return job.waitForStatus('paused');
-                        })
-                        .then(function() {
-                            return job.resume();
-                        })
-                        .then(function() {
-                            return job.waitForStatus('running');
-                        })
-                        .then(function() {
-                            return job.stop();
-                        })
-                        .then(function() {
-                            return job.waitForStatus('stopped');
-                        })
-                        .then(function() {
-                            return job.recover();
-                        })
-                        .then(function() {
-                            return job.waitForStatus('completed');
-                        })
-                        .then(function() {
-                            return misc.indexStats('test-reindex-lifecycle')
-                                .then(function(stats) {
-                                    expect(stats.count).toBe(10000);
-                                    expect(stats.deleted).toBe(0);
-                                });
-                        });
+                        .then(() => job.pause())
+                        .then(() => job.waitForStatus('paused'))
+                        .then(() => job.resume())
+                        .then(() => job.waitForStatus('running'))
+                        .then(() => job.stop())
+                        .then(() => job.waitForStatus('stopped'))
+                        .then(() => job.recover())
+                        .then(() => job.waitForStatus('completed'))
+                        .then(() => misc.indexStats('test-reindex-lifecycle')
+                            .then((stats) => {
+                                expect(stats.count).toBe(10000);
+                                expect(stats.deleted).toBe(0);
+                            }));
                 })
                 .catch(fail)
                 .finally(done);
         });
 
-        it('should support idempotency', function(done) {
-            var job_spec = misc.newJob('reindex');
-            job_spec.name = 'reindex 10 times';
-            job_spec.operations[1].index = 'test-reindex-10times';
+        it('should support idempotency', (done) => {
+            const jobSpec = misc.newJob('reindex');
+            jobSpec.name = 'reindex 10 times';
+            jobSpec.operations[1].index = 'test-reindex-10times';
 
-            var iterations = 10;
-            var jobs = [];
+            const iterations = 10;
+            const jobs = [];
 
-            for (var i = 0; i < iterations; i++) {
-                jobs.push(teraslice.jobs.submit(job_spec));
+            for (let i = 0; i < iterations; i += 1) {
+                jobs.push(teraslice.jobs.submit(jobSpec));
             }
 
             Promise
-                .map(jobs, function(job) {
+                .map(jobs, (job) => {
                     expect(job).toBeDefined();
                     expect(job.id()).toBeDefined();
 
                     return job.waitForStatus('completed');
                 })
                 .all()
-                .then(function() {
-                    return misc.indexStats('test-reindex-10times')
-                        .then(function(stats) {
-                            expect(stats.count).toBe(10 * iterations);
-                            expect(stats.deleted).toBe(0);
-                            done();
-                        });
-                });
+                .then(() => misc.indexStats('test-reindex-10times')
+                    .then((stats) => {
+                        expect(stats.count).toBe(10 * iterations);
+                        expect(stats.deleted).toBe(0);
+                        done();
+                    }));
         });
-
     });
 };

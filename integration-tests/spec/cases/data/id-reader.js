@@ -1,128 +1,104 @@
 'use strict';
 
-var misc = require('../../misc')();
+const misc = require('../../misc')();
 
-module.exports = function() {
-    var teraslice = misc.teraslice();
+module.exports = function () {
+    const teraslice = misc.teraslice();
 
-    describe('id reader', function() {
-        it('should support reindexing', function(done) {
-            var job_spec = misc.newJob('id');
-            job_spec.name = 'reindex by id';
-            job_spec.operations[1].index = "test-id_reindex-10000";
+    describe('id reader', () => {
+        it('should support reindexing', (done) => {
+            const jobSpec = misc.newJob('id');
+            jobSpec.name = 'reindex by id';
+            jobSpec.operations[1].index = 'test-id_reindex-10000';
 
-            teraslice.jobs.submit(job_spec)
-                .then(function(job) {
+            teraslice.jobs.submit(jobSpec)
+                .then((job) => {
                     expect(job).toBeDefined();
                     expect(job.id()).toBeDefined();
-                    return job.waitForStatus('completed')
+                    return job.waitForStatus('completed');
                 })
-                .then(function() {
-                    return misc.indexStats('test-id_reindex-10000')
-                        .then(function(stats) {
-                            expect(stats.count).toBe(10000);
-                            expect(stats.deleted).toBe(0);
-                        })
-                })
+                .then(() => misc.indexStats('test-id_reindex-10000')
+                    .then((stats) => {
+                        expect(stats.count).toBe(10000);
+                        expect(stats.deleted).toBe(0);
+                    }))
                 .catch(fail)
-                .finally(done)
+                .finally(done);
         });
 
-        it('should support reindexing by hex id', function(done) {
-            var job_spec = misc.newJob('id');
-            job_spec.name = 'reindex by hex id';
-            job_spec.operations[0].key_type = 'hexadecimal';
-            job_spec.operations[0].index = 'example-logs-10000-hex';
-            job_spec.operations[1].index = "test-hexadecimal-logs";
+        it('should support reindexing by hex id', (done) => {
+            const jobSpec = misc.newJob('id');
+            jobSpec.name = 'reindex by hex id';
+            jobSpec.operations[0].key_type = 'hexadecimal';
+            jobSpec.operations[0].index = 'example-logs-10000-hex';
+            jobSpec.operations[1].index = 'test-hexadecimal-logs';
 
-            teraslice.jobs.submit(job_spec)
-                .then(function(job) {
+            teraslice.jobs.submit(jobSpec)
+                .then((job) => {
                     expect(job).toBeDefined();
                     expect(job.id()).toBeDefined();
-                    return job.waitForStatus('completed')
+                    return job.waitForStatus('completed');
                 })
-                .then(function() {
-                    return misc.indexStats('test-hexadecimal-logs')
-                        .then(function(stats) {
-                            expect(stats.count).toBe(10000);
-                            expect(stats.deleted).toBe(0);
-                        })
-                })
+                .then(() => misc.indexStats('test-hexadecimal-logs')
+                    .then((stats) => {
+                        expect(stats.count).toBe(10000);
+                        expect(stats.deleted).toBe(0);
+                    }))
                 .catch(fail)
-                .finally(done)
+                .finally(done);
         });
 
-        it('should support reindexing by hex id + key_range', function(done) {
-            var job_spec = misc.newJob('id');
-            job_spec.name = 'reindex by hex id (range=a..e)';
-            job_spec.operations[0].key_type = 'hexadecimal';
-            job_spec.operations[0].key_range = ['a', 'b', 'c', 'd', 'e'];
+        it('should support reindexing by hex id + key_range', (done) => {
+            const jobSpec = misc.newJob('id');
+            jobSpec.name = 'reindex by hex id (range=a..e)';
+            jobSpec.operations[0].key_type = 'hexadecimal';
+            jobSpec.operations[0].key_range = ['a', 'b', 'c', 'd', 'e'];
 
-            job_spec.operations[0].index = 'example-logs-10000-hex';
-            job_spec.operations[1].index = 'test-keyrange-logs';
+            jobSpec.operations[0].index = 'example-logs-10000-hex';
+            jobSpec.operations[1].index = 'test-keyrange-logs';
 
-            teraslice.jobs.submit(job_spec)
-                .then(function(job) {
+            teraslice.jobs.submit(jobSpec)
+                .then((job) => {
                     expect(job).toBeDefined();
                     expect(job.id()).toBeDefined();
-                    return job.waitForStatus('completed')
+                    return job.waitForStatus('completed');
                 })
-                .then(function() {
-                    return misc.indexStats('test-keyrange-logs')
-                        .then(function(stats) {
-                            expect(stats.count).toBe(5000);
-                            expect(stats.deleted).toBe(0);
-                        })
-                })
+                .then(() => misc.indexStats('test-keyrange-logs')
+                    .then((stats) => {
+                        expect(stats.count).toBe(5000);
+                        expect(stats.deleted).toBe(0);
+                    }))
                 .catch(fail)
-                .finally(done)
+                .finally(done);
         });
 
-        it('should complete after stopping and restarting', function(done) {
-            var job_spec = misc.newJob('id');
+        it('should complete after stopping and restarting', (done) => {
+            const jobSpec = misc.newJob('id');
             // Job needs to be able to run long enough to cycle
-            job_spec.name = 'reindex by id (with restart)';
-            job_spec.operations[1].index = "test-id_reindex-lifecycle-10000";
+            jobSpec.name = 'reindex by id (with restart)';
+            jobSpec.operations[1].index = 'test-id_reindex-lifecycle-10000';
 
-            teraslice.jobs.submit(job_spec)
-                .then(function(job) {
+            teraslice.jobs.submit(jobSpec)
+                .then((job) => {
                     expect(job.id()).toBeDefined();
 
                     return job.waitForStatus('running')
-                        .then(function() {
-                            return job.pause()
-                        })
-                        .then(function() {
-                            return job.waitForStatus('paused')
-                        })
-                        .then(function() {
-                            return job.resume()
-                        })
-                        .then(function() {
-                            return job.waitForStatus('running')
-                        })
-                        .then(function() {
-                            return job.stop()
-                        })
-                        .then(function() {
-                            return job.waitForStatus('stopped')
-                        })
-                        .then(function() {
-                            return job.recover()
-                        })
-                        .then(function() {
-                            return job.waitForStatus('completed')
-                        })
-                        .then(function() {
-                            return misc.indexStats("test-id_reindex-lifecycle-10000")
-                                .then(function(stats) {
-                                    expect(stats.count).toBe(10000);
-                                    expect(stats.deleted).toBe(0);
-                                })
-                        })
+                        .then(() => job.pause())
+                        .then(() => job.waitForStatus('paused'))
+                        .then(() => job.resume())
+                        .then(() => job.waitForStatus('running'))
+                        .then(() => job.stop())
+                        .then(() => job.waitForStatus('stopped'))
+                        .then(() => job.recover())
+                        .then(() => job.waitForStatus('completed'))
+                        .then(() => misc.indexStats('test-id_reindex-lifecycle-10000')
+                            .then((stats) => {
+                                expect(stats.count).toBe(10000);
+                                expect(stats.deleted).toBe(0);
+                            }));
                 })
                 .catch(fail)
-                .finally(done)
-        })
-    })
+                .finally(done);
+        });
+    });
 };

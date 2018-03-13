@@ -129,7 +129,7 @@ describe('messaging module', () => {
                 slicer_port: config.port
             });
             const testContext = getContext({ env: { assignment: type, job } });
-            const testModule = messagingModule(testContext, logger, childHookFn).__test_context();
+            const testModule = messagingModule(testContext, logger).__test_context();
             return testModule._makeConfigurations();
         }
 
@@ -169,12 +169,12 @@ describe('messaging module', () => {
     it('can be called without errors', () => {
         const testContext = getContext({ env: { assignment: 'node_master' } });
 
-        expect(() => messagingModule(testContext, logger, childHookFn)).not.toThrow();
+        expect(() => messagingModule(testContext, logger)).not.toThrow();
     });
 
     it('has a router', () => {
         const testContext = getContext({ env: { assignment: 'node_master' } });
-        const messaging = messagingModule(testContext, logger, childHookFn);
+        const messaging = messagingModule(testContext, logger);
         const routing = messaging.__test_context().routing;
 
         const routingData = {
@@ -191,19 +191,19 @@ describe('messaging module', () => {
 
     it('can determie path for message', () => {
         const testContext1 = getContext({ env: { assignment: 'node_master' } });
-        const messaging1 = messagingModule(testContext1, logger, childHookFn);
+        const messaging1 = messagingModule(testContext1, logger);
         const routerNodeMaster = messaging1.__test_context()._determinePathForMessage;
 
         const testContext2 = getContext({ env: { assignment: 'cluster_master' } });
-        const messaging2 = messagingModule(testContext2, logger, childHookFn);
+        const messaging2 = messagingModule(testContext2, logger);
         const routerClusterMaster = messaging2.__test_context()._determinePathForMessage;
 
         const testContext3 = getContext({ env: { assignment: 'execution_controller' } });
-        const messaging3 = messagingModule(testContext3, logger, childHookFn);
+        const messaging3 = messagingModule(testContext3, logger);
         const routerExecutionController = messaging3.__test_context()._determinePathForMessage;
 
         const testContext4 = getContext({ env: { assignment: 'assets_service' } });
-        const messaging4 = messagingModule(testContext4, logger, childHookFn);
+        const messaging4 = messagingModule(testContext4, logger);
         const routerAssetsService = messaging4.__test_context()._determinePathForMessage;
 
         const failureMessage1 = { to: 'theUnknown' };
@@ -359,7 +359,7 @@ describe('messaging module', () => {
 
     it('can work with messaging:response messages', () => {
         const testContext = getContext({ env: { assignment: 'node_master' } });
-        const messaging = messagingModule(testContext, logger, childHookFn);
+        const messaging = messagingModule(testContext, logger);
         const handleResponse = messaging.__test_context()._handleResponse;
         const msgId = 'someId';
         const nodeMsg = { __source: 'node_master', __msgId: msgId, message: 'someMessage' };
@@ -379,7 +379,7 @@ describe('messaging module', () => {
 
     it('can getClientCounts', () => {
         const testContext = getContext({ env: { assignment: 'node_master' } });
-        const messaging = messagingModule(testContext, logger, childHookFn);
+        const messaging = messagingModule(testContext, logger);
 
         expect(messaging.getClientCounts()).toEqual(0);
         messaging.__test_context(io);
@@ -389,7 +389,7 @@ describe('messaging module', () => {
 
     it('can send transactional and non-transactional messages', (done) => {
         const testContext = getContext({ env: { assignment: 'node_master' } });
-        const messaging = messagingModule(testContext, logger, childHookFn);
+        const messaging = messagingModule(testContext, logger);
         const workerMsg = { to: 'worker', ex_id: testExId, message: 'execution:stop' };
         const transactionalMsg = Object.assign({}, workerMsg, { response: true });
         const transactionalErrorMsg = Object.assign(
@@ -456,7 +456,7 @@ describe('messaging module', () => {
             },
             send: sentToProcess
         });
-        const messaging = messagingModule(testContext, logger, childHookFn);
+        const messaging = messagingModule(testContext, logger);
         const workerMsg = {
             to: 'execution_controller',
             ex_id: testExId,
@@ -481,7 +481,7 @@ describe('messaging module', () => {
 
     it('can register callbacks and attach them to socket/io', () => {
         const testContext = getContext({ env: { assignment: 'node_master' } });
-        const messaging = messagingModule(testContext, logger, childHookFn);
+        const messaging = messagingModule(testContext, logger);
         const getRegistry = messaging.__test_context()._getRegistry;
         const registerFns = messaging.__test_context()._registerFns;
         let exitIsCalled = false;
@@ -547,13 +547,13 @@ describe('messaging module', () => {
 
     it('can listen and setup server', () => {
         const testContext1 = getContext({ env: { assignment: 'node_master' } });
-        const messaging1 = messagingModule(testContext1, logger, childHookFn);
+        const messaging1 = messagingModule(testContext1, logger);
 
         const testContext2 = getContext({ env: { assignment: 'cluster_master' } });
-        const messaging2 = messagingModule(testContext2, logger, childHookFn);
+        const messaging2 = messagingModule(testContext2, logger);
 
         const testContext3 = getContext({ env: { assignment: 'execution_controller' } });
-        const messaging3 = messagingModule(testContext3, logger, childHookFn);
+        const messaging3 = messagingModule(testContext3, logger);
 
         expect(() => messaging1.listen()).not.toThrow();
         expect(() => messaging2.listen({ port: 45645, server: {} })).not.toThrow();
@@ -562,16 +562,21 @@ describe('messaging module', () => {
 
     it('sets up listerns', () => {
         const testContext1 = getContext({ env: { assignment: 'node_master' } });
-        const messaging1 = messagingModule(testContext1, logger, childHookFn);
+        const messaging1 = messagingModule(testContext1, logger);
         messaging1.__test_context(io);
+        const spy = jasmine.createSpy('spy');
+
+        messaging1.registerChildOnlineHook(spy);
 
         context.cluster.emit('online', { id: 'first' });
         clusterFn({ to: 'cluster_master' });
         clusterFn({ to: 'node_master' });
         clusterFn({ to: 'worker' });
 
+        expect(spy).toHaveBeenCalled();
+
         const testContext2 = getContext({ env: { assignment: 'execution_controller' } });
-        const messaging2 = messagingModule(testContext2, logger, childHookFn);
+        const messaging2 = messagingModule(testContext2, logger);
         messaging2.__test_context(io);
         testContext2.__testingModule.emit('message', {
             to: 'cluster_master',

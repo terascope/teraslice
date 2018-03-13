@@ -1,40 +1,35 @@
 'use strict';
 
-var _ = require('lodash');
-var misc = require('../../misc')();
-var wait = require('../../wait')();
+const _ = require('lodash');
+const misc = require('../../misc')();
+const wait = require('../../wait')();
 
-module.exports = function() {
-    var teraslice = misc.teraslice();
+module.exports = function () {
+    const teraslice = misc.teraslice();
 
-    function findWorkers(nodes, type, job_id) {
-        return _.filter(nodes, function(worker) {
-            if (job_id) {
+    function findWorkers(nodes, type, jobId) {
+        return _.filter(nodes, (worker) => {
+            if (jobId) {
                 if (type) {
-                    return worker.assignment === type && worker.job_id === job_id;
+                    return worker.assignment === type && worker.job_id === jobId;
                 }
-                else {
-                    return worker.job_id === job_id;
-                }
+
+                return worker.job_id === jobId;
             }
-            else {
-                return worker.assignment === type;
-            }
-        })
+
+            return worker.assignment === type;
+        });
     }
 
-    function checkState(state, type, job_id) {
-        return _.flatten(_.map(state, function(node, second) {
-            return findWorkers(node.active, type, job_id)
-        })).length
-
+    function checkState(state, type, jobId) {
+        return _.flatten(_.map(state, node => findWorkers(node.active, type, jobId))).length;
     }
 
-    function verifyClusterState(state, node_count) {
+    function verifyClusterState(state, nodeCount) {
         // 2 nodes by default
-        var nodes = _.keys(state);
-        expect(nodes.length).toBe(node_count);
-        nodes.forEach(function(node) {
+        const nodes = _.keys(state);
+        expect(nodes.length).toBe(nodeCount);
+        nodes.forEach((node) => {
             expect(state[node].total).toBe(8);
             expect(state[node].node_id).toBeDefined();
             expect(state[node].hostname).toBeDefined();
@@ -47,114 +42,103 @@ module.exports = function() {
             if (state[node].available === 6) {
                 expect(state[node].active.length).toBe(2);
 
-                var workers = findWorkers(state[node].active, 'cluster_master');
+                const workers = findWorkers(state[node].active, 'cluster_master');
 
                 expect(workers.length).toBe(1);
-                expect(workers[0].assignment).toBe('cluster_master')
+                expect(workers[0].assignment).toBe('cluster_master');
+            } else {
+                expect(state[node].active.length).toBe(0);
             }
-            else {
-                expect(state[node].active.length).toBe(0)
-            }
-        })
+        });
     }
 
-    describe('cluster state', function() {
-        it('should match default configuration', function(done) {
+    describe('cluster state', () => {
+        it('should match default configuration', (done) => {
             teraslice.cluster.state()
-                .then(function(state) {
-                    verifyClusterState(state, 2)
+                .then((state) => {
+                    verifyClusterState(state, 2);
                 })
-                .catch(function(err) {
+                .catch((err) => {
                     console.log('what error', err);
-                    fail()
+                    fail();
                 })
-                .finally(done)
+                .finally(done);
         });
 
-        it('should update after adding and removing a worker node', function(done) {
+        it('should update after adding and removing a worker node', (done) => {
             // Add a second worker node
             misc.scale(2)
-                .then(function() {
+                .then(() =>
                     // Wait for it to show up in cluster state.
-                    return wait.forNodes(3)
+                    wait.forNodes(3)
+                )
+                .then(() => teraslice.cluster.state())
+                .then((state) => {
+                    verifyClusterState(state, 3);
                 })
-                .then(function() {
-                    return teraslice.cluster.state()
-                })
-                .then(function(state) {
-                    verifyClusterState(state, 3)
-                })
-                .then(function() {
+                .then(() =>
                     // Scale back to a single worker.
-                    return misc.scale(1)
-                })
-                .then(function() {
+                    misc.scale(1)
+                )
+                .then(() =>
                     // Should just be 2 nodes now.
-                    return wait.forNodes(2)
-                })
-                .then(function() {
-                    return teraslice.cluster.state()
-                })
-                .then(function(state) {
-                    verifyClusterState(state, 2)
+                    wait.forNodes(2)
+                )
+                .then(() => teraslice.cluster.state())
+                .then((state) => {
+                    verifyClusterState(state, 2);
                 })
                 .catch(fail)
-                .finally(done)
+                .finally(done);
         });
 
-        it('should update after adding and removing 20 worker nodes', function(done) {
+        it('should update after adding and removing 20 worker nodes', (done) => {
             // Add additional worker nodes. There's one already and we want 20 more.
             misc.scale(21)
-                .then(function() {
+                .then(() =>
                     // Wait for all the nodes to show up in cluster state.
-                    return wait.forNodes(22)
+                    wait.forNodes(22)
+                )
+                .then(() => teraslice.cluster.state())
+                .then((state) => {
+                    verifyClusterState(state, 22);
                 })
-                .then(function() {
-                    return teraslice.cluster.state()
-                })
-                .then(function(state) {
-                    verifyClusterState(state, 22)
-                })
-                .then(function() {
+                .then(() =>
                     // Scale back to a single worker.
-                    return misc.scale(1)
-                })
-                .then(function() {
+                    misc.scale(1)
+                )
+                .then(() =>
                     // Should just be 2 nodes now.
-                    return wait.forNodes(2)
+                    wait.forNodes(2)
+                )
+                .then(() => teraslice.cluster.state())
+                .then((state) => {
+                    verifyClusterState(state, 2);
                 })
-                .then(function() {
-                    return teraslice.cluster.state()
+                .catch((err) => {
+                    fail(err);
                 })
-                .then(function(state) {
-                    verifyClusterState(state, 2)
-                })
-                .catch(function(err) {
-                    fail(err)
-                })
-                .finally(done)
+                .finally(done);
         });
 
-        it('should be correct for running job with 1 worker', function(done) {
-            var job_spec = misc.newJob('reindex');
-            job_spec.name = 'cluster state with 1 worker';
-            job_spec.operations[0].index = 'example-logs-1000';
-            job_spec.operations[0].size = 100;
-            job_spec.operations[1].index = 'test-clusterstate-job-1-1000';
-            var job_id;
+        it('should be correct for running job with 1 worker', (done) => {
+            const jobSpec = misc.newJob('reindex');
+            jobSpec.name = 'cluster state with 1 worker';
+            jobSpec.operations[0].index = 'example-logs-1000';
+            jobSpec.operations[0].size = 100;
+            jobSpec.operations[1].index = 'test-clusterstate-job-1-1000';
+            let jobId;
 
-            teraslice.jobs.submit(job_spec)
-                .then(function(job) {
-                    job_id = job.id();
+            teraslice.jobs.submit(jobSpec)
+                .then((job) => {
+                    jobId = job.id();
                     // The job may run for a while so we have to wait for it to finish.
                     return job
                         .waitForStatus('running')
-                        .then(function() {
-                            return teraslice.cluster.state()
-                        })
-                        .then(function(state) {
-                            var nodes = _.keys(state);
-                            nodes.forEach(function(node) {
+                        .then(() => teraslice.cluster.state())
+                        .then((state) => {
+                            const nodes = _.keys(state);
+                            nodes.forEach((node) => {
                                 expect(state[node].total).toBe(8);
 
                                 // There are 2 nodes in the cluster so the slicer
@@ -166,57 +150,50 @@ module.exports = function() {
                                 // The node with more than one worker should have the actual worker
                                 // and there should only be one.
                                 if (state[node].active.length > 2) {
-                                    expect(findWorkers(state[node].active, 'worker', job_id).length).toBe(1)
+                                    expect(findWorkers(state[node].active, 'worker', jobId).length).toBe(1);
                                 }
 
                                 if (state[node].available === 7) {
-                                    expect(state[node].active.length).toBe(1)
+                                    expect(state[node].active.length).toBe(1);
+                                } else {
+                                    expect(state[node].active.length).toBe(2);
                                 }
-                                else {
-                                    expect(state[node].active.length).toBe(2)
-                                }
-                            })
+                            });
                         })
-                        .then(function() {
-                            return job.waitForStatus('completed')
-                        })
+                        .then(() => job.waitForStatus('completed'));
                 })
-                .then(function() {
-                    return misc.indexStats('test-clusterstate-job-1-1000')
-                        .then(function(stats) {
-                            expect(stats.count).toBe(1000);
-                            expect(stats.deleted).toBe(0);
-                        })
-                })
-                .catch(function(err) {
+                .then(() => misc.indexStats('test-clusterstate-job-1-1000')
+                    .then((stats) => {
+                        expect(stats.count).toBe(1000);
+                        expect(stats.deleted).toBe(0);
+                    }))
+                .catch((err) => {
                     console.log('is this failing', err);
-                    fail()
+                    fail();
                 })
-                .finally(done)
+                .finally(done);
         });
 
-        it('should be correct for running job with 3 workers', function(done) {
-            var job_spec = misc.newJob('reindex');
-            job_spec.name = 'cluster state with 3 workers';
-            job_spec.workers = 3;
-            job_spec.operations[0].index = 'example-logs-1000';
-            job_spec.operations[0].size = 20;
-            job_spec.operations[1].index = 'test-clusterstate-job-3-1000';
-            var job_id;
+        it('should be correct for running job with 3 workers', (done) => {
+            const jobSpec = misc.newJob('reindex');
+            jobSpec.name = 'cluster state with 3 workers';
+            jobSpec.workers = 3;
+            jobSpec.operations[0].index = 'example-logs-1000';
+            jobSpec.operations[0].size = 20;
+            jobSpec.operations[1].index = 'test-clusterstate-job-3-1000';
+            let jobId;
 
-            teraslice.jobs.submit(job_spec)
-                .then(function(job) {
+            teraslice.jobs.submit(jobSpec)
+                .then((job) => {
                     // The job may run for a while so we have to wait for it to finish.
-                    job_id = job.id();
+                    jobId = job.id();
 
                     return job
                         .waitForStatus('running')
-                        .then(function() {
-                            return teraslice.cluster.state()
-                        })
-                        .then(function(state) {
-                            var nodes = _.keys(state);
-                            nodes.forEach(function(node) {
+                        .then(() => teraslice.cluster.state())
+                        .then((state) => {
+                            const nodes = _.keys(state);
+                            nodes.forEach((node) => {
                                 expect(state[node].total).toBe(8);
 
                                 // There are 2 nodes in the cluster so the slicer
@@ -227,24 +204,20 @@ module.exports = function() {
                                 expect(state[node].available).toBeGreaterThan(3);
 
                                 // Both nodes should have at least one worker.
-                                expect(findWorkers(state[node].active, 'worker', job_id).length).toBeGreaterThan(0);
+                                expect(findWorkers(state[node].active, 'worker', jobId).length).toBeGreaterThan(0);
 
-                                expect(checkState(state, null, job_id)).toBe(4)
-                            })
+                                expect(checkState(state, null, jobId)).toBe(4);
+                            });
                         })
-                        .then(function() {
-                            return job.waitForStatus('completed')
-                        })
+                        .then(() => job.waitForStatus('completed'));
                 })
-                .then(function() {
-                    return misc.indexStats('test-clusterstate-job-3-1000')
-                        .then(function(stats) {
-                            expect(stats.count).toBe(1000);
-                            expect(stats.deleted).toBe(0)
-                        })
-                })
+                .then(() => misc.indexStats('test-clusterstate-job-3-1000')
+                    .then((stats) => {
+                        expect(stats.count).toBe(1000);
+                        expect(stats.deleted).toBe(0);
+                    }))
                 .catch(fail)
-                .finally(done)
-        })
-    })
+                .finally(done);
+        });
+    });
 };
