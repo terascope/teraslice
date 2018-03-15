@@ -1,4 +1,4 @@
-FROM node:4
+FROM node:8
 MAINTAINER Kimbro Staken
 
 RUN mkdir -p /app/source
