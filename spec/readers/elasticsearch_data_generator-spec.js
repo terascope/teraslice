@@ -62,16 +62,19 @@ describe('elasticsearch_data_generator', () => {
         });
     });
 
-    it('slicer in "persistent" mode will continuously produce the same number', () => {
+    it('slicer in "persistent" mode will continuously produce the same number', (done) => {
         const context = {};
-        const executionContext = { config: { lifecycle: 'persistent', operations: [{ size: 5 }] } };
+        const executionContext = { config: { lifecycle: 'persistent', operations: [{ _op: 'elasticsearch_data_generator', size: 550 }] } };
 
-        Promise.resolve(generator.newSlicer(context, executionContext)).then((slicer) => {
-            expect(typeof slicer[0]).toEqual('function');
-            expect(slicer[0]()).toEqual(550);
-            expect(slicer[0]()).toEqual(550);
-            expect(slicer[0]()).toEqual(550);
-        });
+        Promise.resolve(generator.newSlicer(context, executionContext))
+            .then((slicer) => {
+                expect(typeof slicer[0]).toEqual('function');
+                expect(slicer[0]()).toEqual(550);
+                expect(slicer[0]()).toEqual(550);
+                expect(slicer[0]()).toEqual(550);
+            })
+            .catch(fail)
+            .finally(done);
     });
 
     it('data generator will only return one slicer', () => {
