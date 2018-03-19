@@ -336,8 +336,8 @@ describe('elasticsearch_reader', () => {
         clientData = [
             { '@timestamp': firstDate, count: 100 },
             { '@timestamp': laterDate, count: 100 },
-            { '@timestamp': laterDate, count: 100 },
-            { '@timestamp': closingDate, count: 100 }
+            { count: 100 },
+            { count: 100 }
         ];
         allowSlicerToComplete = true;
 
@@ -428,7 +428,6 @@ describe('elasticsearch_reader', () => {
 
     it('slicer can do a simple expansion of date slices up to find data', (done) => {
         const firstDate = moment();
-        const middleDate = moment(firstDate).add(5, 'm');
         const endDate = moment(firstDate).add(10, 'm');
         const closingDate = moment(endDate).add(1, 's');
         const opConfig = {
@@ -446,10 +445,10 @@ describe('elasticsearch_reader', () => {
         clientData = [
             { '@timestamp': firstDate, count: 100 },
             { '@timestamp': endDate, count: 100 },
-            { '@timestamp': middleDate, count: 0 },
-            { '@timestamp': middleDate, count: 100 },
-            { '@timestamp': endDate, count: 100 },
-            { '@timestamp': closingDate, count: 100 }
+            { count: 0 },
+            { count: 100 },
+            { count: 100 },
+            { count: 100 }
         ];
         allowSlicerToComplete = true;
 
@@ -489,7 +488,7 @@ describe('elasticsearch_reader', () => {
             });
     });
 
-    it('slicer can do a simple expansion of date slices up to find data', (done) => {
+    it('slicer can do expansion of date slices with large slices', (done) => {
         const firstDate = moment();
         const middleDate = moment(firstDate).add(5, 'm');
         const endDate = moment(firstDate).add(10, 'm');
@@ -511,11 +510,11 @@ describe('elasticsearch_reader', () => {
         clientData = [
             { '@timestamp': firstDate, count: 100 },
             { '@timestamp': endDate, count: 100 },
-            { '@timestamp': middleDate, count: 0 },
-            { '@timestamp': middleDate, count: 150 },
-            { '@timestamp': endDate, count: 100 },
-            { '@timestamp': endDate, count: 100 },
-            { '@timestamp': closingDate, count: 100 }
+            { count: 0 },
+            { count: 150 },
+            { count: 100 },
+            { count: 100 },
+            { count: 100 }
         ];
         allowSlicerToComplete = true;
 
@@ -552,6 +551,75 @@ describe('elasticsearch_reader', () => {
                         fail(error);
                         done();
                     });
+            });
+    });
+
+    it('slicer can expand date slices properly in uneven data distribution', (done) => {
+        const firstDate = moment();
+        const midDate = moment(firstDate).add(5, 'm');
+        const endDate = moment(firstDate).add(10, 'm');
+        const closingDate = moment(endDate).add(1, 's');
+
+        const opConfig = {
+            _op: 'elasticsearch_reader',
+            date_field_name: '@timestamp',
+            time_resolution: 's',
+            size: 100,
+            index: 'someIndex',
+            interval: '5m',
+        };
+
+        const executionContext = { config: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
+        // first two objects are consumed for determining start and end dates,
+        // the count of zero hits the expansion code, then it hits the 150 which is
+        // above the size limit so it runs another recursive query
+        clientData = [
+            { '@timestamp': firstDate, count: 100 },
+            { '@timestamp': endDate, count: 100 },
+            { count: 0 },
+            { count: 150 },
+            { count: 0 },
+            { count: 100 },
+            { count: 100 },
+            { count: 100 },
+            { count: 100 }
+        ];
+        allowSlicerToComplete = true;
+
+        let hasExpanded = false;
+
+        events.on('slicer:slice:range_expansion', () => {
+            hasExpanded = true;
+            return true;
+        });
+        /*
+        the results coming out { start: '2018-03-19T08:28:26-07:00',
+        end: '2018-03-19T08:40:56-07:00',
+        count: 100 }
+
+        */
+
+        Promise.resolve(getNewSlicer(executionContext))
+            .then((slicerArray) => {
+                const slicer = slicerArray[0];
+
+                Promise.resolve(slicer())
+                    .then((results) => {
+                        expect(results.start).toEqual(firstDate.format());
+                        expect(moment(results.end).isBetween(midDate, endDate)).toEqual(true);
+                        expect(results.count).toEqual(100);
+                        return slicer();
+                    })
+                    .then((results) => {
+                        expect(hasExpanded).toEqual(true);
+                        expect(moment(results.start).isBetween(midDate, endDate)).toEqual(true);
+                        expect(results.end).toEqual(closingDate.format());
+                        expect(results.count).toEqual(100);
+                        return slicer();
+                    })
+                    .then(results => expect(results).toEqual(null))
+                    .catch(fail)
+                    .finally(done);
             });
     });
 
