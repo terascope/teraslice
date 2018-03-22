@@ -1,0 +1,48 @@
+{
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": {
+        "labels": { "app": "teraslice" },
+        "name": "teraslice"
+    },
+    "spec": {
+        "replicas": 1,
+        "template": {
+            "metadata": { "labels": { "app": "teraslice" } },
+            "spec": {
+                "containers": [{
+                    "image": "docker.terascope.io/teraslice:0.30.0",
+                    "name": "teraslice",
+                    "ports": [{ "containerPort": 45680 }],
+                    "volumeMounts": [{
+                        "mountPath": "/app/config",
+                        "name": "config"
+                    }],
+                    "env": [
+                    {
+                        "name": "node_type",
+                        "value": "worker"
+                    },
+                    {
+                        "name": "EX",
+                        "value": ""
+                    }
+                    ]
+                    
+                }],
+                "volumes": [{
+                    "name": "config",
+                    "configMap": {
+                        "name": "teraslice-worker",
+                        "items": [{
+                            "key": "teraslice-worker.yml",
+                            "path": "teraslice.yaml"
+                        }]
+                    }
+                }],
+                "imagePullSecrets": [{ "name": "docker-tera1-secret" }]
+            }
+        },
+        "selector": { "matchLabels": { "app": "teraslice" } }
+    }
+}
