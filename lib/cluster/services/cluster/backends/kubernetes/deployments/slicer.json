@@ -2,33 +2,40 @@
     "apiVersion": "apps/v1",
     "kind": "Deployment",
     "metadata": {
-        "labels": { "app": "teraslice" },
-        "name": "teraslice"
+        "labels": {
+            "app": "teraslice",
+            "nodeType": "slicer",
+            "exId": "<EXID>"
+        },
+        "name": "teraslice-slicer-<EXID>"
     },
     "spec": {
         "replicas": 1,
         "template": {
-            "metadata": { "labels": { "app": "teraslice" } },
+            "metadata": {
+                "labels": {
+                    "app": "teraslice",
+                    "nodeType": "slicer",
+                    "exId": "<EXID>"
+                }
+            },
             "spec": {
                 "containers": [{
                     "image": "docker.terascope.io/teraslice:0.30.0",
-                    "name": "teraslice",
+                    "name": "teraslice-slicer-<EXID>",
                     "ports": [{ "containerPort": 45680 }],
                     "volumeMounts": [{
                         "mountPath": "/app/config",
                         "name": "config"
                     }],
-                    "env": [
-                    {
+                    "env": [{
                         "name": "node_type",
                         "value": "execution_controller"
                     },
                     {
                         "name": "EX",
-                        "value": ""
-                    }
-                    ]
-                    
+                        "value": "<EX>"
+                    }]
                 }],
                 "volumes": [{
                     "name": "config",
@@ -43,6 +50,12 @@
                 "imagePullSecrets": [{ "name": "docker-tera1-secret" }]
             }
         },
-        "selector": { "matchLabels": { "app": "teraslice" } }
+        "selector": {
+            "matchLabels": {
+                "app": "teraslice",
+                "nodeType": "slicer",
+                "exId": "<EXID>"
+            }
+        }
     }
 }

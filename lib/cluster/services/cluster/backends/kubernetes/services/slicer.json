@@ -3,9 +3,11 @@
   "apiVersion": "v1",
   "metadata": {
     "labels": {
-      "app": "teraslice-slicer-"
+        "app": "teraslice",
+        "nodeType": "slicer",
+        "exId": "<EXID>"
     },
-    "name": "teraslice-slicer-",
+    "name": "teraslice-slicer-<EXID>",
     "namespace": "default"
   },
   "spec": {
@@ -16,7 +18,9 @@
       }
     ],
     "selector": {
-      "app": "teraslice-slicer-"
+      "app": "teraslice",
+      "nodeType": "slicer",
+      "exId": "<EXID>"
     }
   }
 }
