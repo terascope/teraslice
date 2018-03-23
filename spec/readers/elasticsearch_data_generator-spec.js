@@ -1,6 +1,7 @@
 'use strict';
 
 const generator = require('../../lib/readers/elasticsearch_data_generator');
+const Promise = require('bluebird');
 
 describe('elasticsearch_data_generator', () => {
     it('has a schema and newReader method', () => {
@@ -13,19 +14,22 @@ describe('elasticsearch_data_generator', () => {
         expect(typeof generator.schema).toEqual('function');
     });
 
-    it('newReader returns a function that produces generated data', () => {
+    it('newReader returns a function that produces generated data', (done) => {
         const context = {};
         const opConfig = {};
         const executionContext = {};
 
         const getData = generator.newReader(context, opConfig, executionContext);
-
-        const results1 = getData(1);
-        const results2 = getData(20);
-
-        expect(results1.length).toEqual(1);
-        expect(results2.length).toEqual(20);
-        expect(Object.keys(results1[0]).length).toBeGreaterThan(1);
+        Promise.resolve()
+            .then(() => getData(1))
+            .then((results) => {
+                expect(results.length).toEqual(1);
+                expect(Object.keys(results[0]).length).toBeGreaterThan(1);
+                return getData(20);
+            })
+            .then(results => expect(results.length).toEqual(20))
+            .catch(fail)
+            .finally(done);
     });
 
     it('slicer in "once" mode will return number based off total size ', (done) => {

@@ -25,8 +25,14 @@ describe('execution recovery', () => {
         testSlices = [{ slice_id: 1 }, { slice_id: 2 }];
     });
 
-    const context = { apis: { foundation: { makeLogger: () => logger,
-        getSystemEvents: () => eventEmitter } } };
+    const context = {
+        apis: {
+            foundation: {
+                makeLogger: () => logger,
+                getSystemEvents: () => eventEmitter
+            }
+        }
+    };
     const messaging = { send: msg => sentMsg = msg };
     const executionAnalytics = { getAnalytics: () => ({}) };
     const exStore = {
@@ -116,7 +122,7 @@ describe('execution recovery', () => {
                 expect(recovery._recoveryBatchCompleted()).toEqual(true);
                 return recovery._setId({ slice_id: 2 });
             })
-            .then(() => sendError())
+            .then(() => Promise.all([sendError(), waitFor(() => {}, 30)]))
             .then(() => {
                 expect(sentMsg).toEqual({
                     to: 'cluster_master',

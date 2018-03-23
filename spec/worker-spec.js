@@ -2,6 +2,7 @@
 
 const eventsModule = require('events');
 const _ = require('lodash');
+const Promise = require('bluebird');
 
 const eventEmitter = new eventsModule.EventEmitter();
 
