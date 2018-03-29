@@ -24,7 +24,7 @@
     "dependencies": {
         "bluebird": "^3.4.0",
         "docker-compose-js": "terascope/docker-compose-js",
-        "elasticsearch": "^11.0.1",
+        "elasticsearch": "^14.1.0",
         "jasmine": "^2.7",
         "jasmine-spec-reporter": "^4.1",
         "lodash": "^4.13.1",

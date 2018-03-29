@@ -1,102 +1,101 @@
 'use strict';
 
-var misc = require('../../misc')();
+const misc = require('../../misc')();
 
-module.exports = function() {
-    describe('job validation', function() {
+module.exports = function () {
+    describe('job validation', () => {
+        it('should be rejected with empty index selector index name', (done) => {
+            const jobSpec = misc.newJob('reindex');
+            jobSpec.operations[1].index = ''; // index selector
 
-        it('should be rejected with empty index selector index name', function(done) {
-            var job_spec = misc.newJob('reindex');
-            job_spec.operations[1].index = ''; // index selector
-
-            misc.teraslice().jobs.submit(job_spec)
-                .then(function() {
-                    fail("Submission should not succeed when no index is specified.")
+            misc.teraslice().jobs.submit(jobSpec)
+                .then(() => {
+                    fail('Submission should not succeed when no index is specified.');
                 }) // This should throw a validation error.
-                .catch(function(err) {
+                .catch((err) => {
                     expect(err.error).toBe(500);
                 })
-                .finally(done)
+                .finally(done);
         });
 
-        it('should be rejected with empty reader index name', function(done) {
-            var job_spec = misc.newJob('reindex');
-            job_spec.operations[0].index = ''; // reader
+        it('should be rejected with empty reader index name', (done) => {
+            const jobSpec = misc.newJob('reindex');
+            jobSpec.operations[0].index = ''; // reader
 
-            misc.teraslice().jobs.submit(job_spec)
-                .catch(function(err) {
+            misc.teraslice().jobs.submit(jobSpec)
+                .catch((err) => {
                     expect(err.error).toBe(500);
                 })
-                .finally(done)
+                .finally(done);
         });
 
-        it('should be rejected with slicers = 0', function(done) {
-            var job_spec = misc.newJob('reindex');
-            job_spec.slicers = 0;
+        it('should be rejected with slicers = 0', (done) => {
+            const jobSpec = misc.newJob('reindex');
+            jobSpec.slicers = 0;
 
-            misc.teraslice().jobs.submit(job_spec)
-                .then(function() {
-                    fail("Submission should not succeed when slicers == 0")
+            misc.teraslice().jobs.submit(jobSpec)
+                .then(() => {
+                    fail('Submission should not succeed when slicers == 0');
                 }) // This should throw a validation error.
-                .catch(function(err) {
+                .catch((err) => {
                     expect(err.error).toBe(500);
                 })
-                .finally(done)
+                .finally(done);
         });
 
-        it('should be rejected with slicers < 0', function(done) {
-            var job_spec = misc.newJob('reindex');
-            job_spec.slicers = -1;
+        it('should be rejected with slicers < 0', (done) => {
+            const jobSpec = misc.newJob('reindex');
+            jobSpec.slicers = -1;
 
-            misc.teraslice().jobs.submit(job_spec)
-                .then(function() {
-                    fail("Submission should not succeed when slicers == -1")
+            misc.teraslice().jobs.submit(jobSpec)
+                .then(() => {
+                    fail('Submission should not succeed when slicers == -1');
                 }) // This should throw a validation error.
-                .catch(function(err) {
+                .catch((err) => {
                     expect(err.error).toBe(500);
                 })
-                .finally(done)
+                .finally(done);
         });
 
-        it('should be rejected with negative workers == 0', function(done) {
-            var job_spec = misc.newJob('reindex');
-            job_spec.workers = 0;
+        it('should be rejected with negative workers == 0', (done) => {
+            const jobSpec = misc.newJob('reindex');
+            jobSpec.workers = 0;
 
-            misc.teraslice().jobs.submit(job_spec)
-                .then(function() {
-                    fail("Submission should not succeed when workers == 0")
+            misc.teraslice().jobs.submit(jobSpec)
+                .then(() => {
+                    fail('Submission should not succeed when workers == 0');
                 }) // This should throw a validation error.
-                .catch(function(err) {
+                .catch((err) => {
                     expect(err.error).toBe(500);
                 })
-                .finally(done)
+                .finally(done);
         });
 
-        it('should be rejected with invalid lifecycle', function(done) {
-            var job_spec = misc.newJob('reindex');
-            job_spec.lifecycle = 'invalid';
+        it('should be rejected with invalid lifecycle', (done) => {
+            const jobSpec = misc.newJob('reindex');
+            jobSpec.lifecycle = 'invalid';
 
-            misc.teraslice().jobs.submit(job_spec)
-                .then(function() {
-                    fail("Submission should not succeed when lifecycle is invalid")
+            misc.teraslice().jobs.submit(jobSpec)
+                .then(() => {
+                    fail('Submission should not succeed when lifecycle is invalid');
                 }) // This should throw a validation error.
-                .catch(function(err) {
+                .catch((err) => {
                     expect(err.error).toBe(500);
                 })
-                .finally(done)
+                .finally(done);
         });
 
-        it('should be rejected if empty', function(done) {
-            var job_spec = {};
+        it('should be rejected if empty', (done) => {
+            const jobSpec = {};
 
-            misc.teraslice().jobs.submit(job_spec)
-                .then(function() {
-                    fail("Submission should not succeed when job is empty")
+            misc.teraslice().jobs.submit(jobSpec)
+                .then(() => {
+                    fail('Submission should not succeed when job is empty');
                 }) // This should throw a validation error.
-                .catch(function(err) {
+                .catch((err) => {
                     expect(err.error).toBe(400);
                 })
-                .finally(done)
+                .finally(done);
         });
     });
 };

@@ -38,7 +38,7 @@ module.exports = function () {
                         .then((jobConfig) => {
                             expect(jobConfig.workers).toEqual(3);
                             jobSpec.workers = 2;
-                            return job.put(`/jobs/${jobId}`, jobSpec);
+                            return teraslice.cluster.put(`/jobs/${jobId}`, jobSpec);
                         })
                         .then(() => job.spec())
                         .then((jobConfig) => {
@@ -47,6 +47,44 @@ module.exports = function () {
                                 expect(jobConfig[key]).toEqual(value);
                             });
                         });
+                })
+                .catch(fail)
+                .finally(done);
+        });
+
+        it('will not send lifecycle changes to executions that are not active', (done) => {
+            const jobSpec = misc.newJob('reindex');
+            jobSpec.name = 'basic reindex for lifecycle';
+            jobSpec.operations[1].index = 'test-reindex-10-lifecycle';
+            let jobId;
+            let exId;
+
+            function didError(Prom) {
+                return Promise.resolve()
+                    .then(() => Prom)
+                    .then(() => false)
+                    .catch(() => true);
+            }
+
+            teraslice.jobs.submit(jobSpec)
+                .then((job) => {
+                    expect(job).toBeDefined();
+                    expect(job.id()).toBeDefined();
+                    jobId = job.id();
+
+                    return job.waitForStatus('completed');
+                })
+                .then(() => teraslice.cluster.get(`/jobs/${jobId}/ex`))
+                .then((ex) => {
+                    exId = ex.ex_id;
+                    return Promise.all([
+                        didError(teraslice.cluster.post(`/jobs/${jobId}/_stop`)),
+                        didError(teraslice.cluster.post(`/jobs/${jobId}/_resume`)),
+                        didError(teraslice.cluster.post(`/jobs/${jobId}/_pause`)),
+                        didError(teraslice.cluster.post(`/ex/${exId}/_stop`)),
+                        didError(teraslice.cluster.post(`/ex/${exId}/_resume`)),
+                        didError(teraslice.cluster.post(`/ex/${exId}/_pause`)),
+                    ]);
                 })
                 .catch(fail)
                 .finally(done);
