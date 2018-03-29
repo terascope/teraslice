@@ -127,18 +127,6 @@ module.exports = function(config, job_id) {
         var url = `/jobs/${job_id}/_workers?${param}=${workerNum}`;
         return request.post(url)
     }
-    
-    function post(endpoint, data){
-        return request.post(endpoint, data)
-    }
-
-    function put(endpoint, data){
-        return request.put(endpoint, data)
-    }
-
-    function deleteFn(endpoint){
-        return request.delete(endpoint)
-    }
 
     return {
         start: (options) => {
@@ -167,10 +155,6 @@ module.exports = function(config, job_id) {
         workers: () => {
             return _filterProcesses('worker')
         },
-        changeWorkers: changeWorkers,
-        post: post,
-        put: put,
-        delete: deleteFn
-        
+        changeWorkers: changeWorkers
     }
 };

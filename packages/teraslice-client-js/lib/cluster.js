@@ -19,11 +19,32 @@ module.exports = function(config) {
         return request.get(`/txt/${type}`);
     }
 
+    function getEndpoint(endpoint) {
+        return request.get(endpoint)
+    }
+
+    function post(endpoint, data){
+        return request.post(endpoint, data)
+    }
+
+    function put(endpoint, data){
+        return request.put(endpoint, data)
+    }
+
+    function deleteFn(endpoint){
+        return request.delete(endpoint)
+    }
+
     return {
         state: state,
         stats: stats,
         slicers: slicers,
         nodes: () => {},
-        txt: txt
+        txt: txt,
+        get: getEndpoint,
+        post: post,
+        put: put,
+        delete: deleteFn
+
     }
 };
