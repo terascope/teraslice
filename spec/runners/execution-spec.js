@@ -5,6 +5,7 @@ const events = require('events');
 const Promise = require('bluebird');
 const fs = require('fs-extra');
 const path = require('path');
+const _ = require('lodash');
 
 const eventEmitter = new events.EventEmitter();
 
@@ -22,6 +23,10 @@ describe('execution runner', () => {
     const testDir = `${__dirname}/execution_test`;
     const assetPath = `${testDir}/${assetId}`;
     const processorPath = path.join(__dirname, '../../lib/processors/noop.js');
+
+    const job = {
+        operations: [{ _op: 'elasticsearch_data_generator' }, { _op: 'noop' }]
+    };
 
     // TODO do something with assets_dir
     const context = {
@@ -41,18 +46,9 @@ describe('execution runner', () => {
                 testRegisterApi[key] = obj;
             }
         },
-        logger
-    };
-
-    const job = {
-        operations: [{ _op: 'elasticsearch_data_generator' }, { _op: 'noop' }]
-    };
-
-    const tempProcess = {
-        env: {
-            job: JSON.stringify(job),
-            assignment: 'execution_controller'
-        }
+        logger,
+        __test_assignment: 'execution_controller',
+        __test_job: JSON.stringify(job)
     };
 
     beforeEach(() => {
@@ -81,7 +77,7 @@ describe('execution runner', () => {
     });
 
     it('can initialize', (done) => {
-        const executionRunner = executionCode(context).__test_context(context, tempProcess);
+        const executionRunner = executionCode(context).__test_context();
 
         executionRunner.initialize(eventEmitter, logger)
             .then((results) => {
@@ -108,14 +104,9 @@ describe('execution runner', () => {
         const assetjob = {
             operations: [{ _op: 'assetTest' }, { _op: 'noop' }]
         };
-
-        const assetProcess = {
-            env: {
-                job: JSON.stringify(assetjob),
-                assignment: 'execution_controller'
-            }
-        };
-        const executionRunner = executionCode(context).__test_context(context, assetProcess);
+        const newContext = _.cloneDeep(context);
+        newContext.__test_job = JSON.stringify(assetjob);
+        const executionRunner = executionCode(newContext).__test_context();
 
         executionRunner.initialize(eventEmitter, logger)
             .catch((err) => {
@@ -130,14 +121,9 @@ describe('execution runner', () => {
             assets: [assetId],
             operations: [{ _op: 'assetTest' }, { _op: 'noop' }]
         };
-
-        const assetProcess = {
-            env: {
-                job: JSON.stringify(assetjob),
-                assignment: 'execution_controller'
-            }
-        };
-        const executionRunner = executionCode(context).__test_context(context, assetProcess);
+        const newContext = _.cloneDeep(context);
+        newContext.__test_job = JSON.stringify(assetjob);
+        const executionRunner = executionCode(newContext).__test_context();
 
         Promise.all([executionRunner.initialize(eventEmitter, logger), simulateAssetDownload(200)])
             .spread((results) => {
@@ -163,14 +149,10 @@ describe('execution runner', () => {
             assets: [assetId],
             operations: [{ _op: 'elasticsearch_data_generator' }, { _op: 'assetTest' }]
         };
-
-        const assetProcess = {
-            env: {
-                job: JSON.stringify(assetjob),
-                assignment: 'worker'
-            }
-        };
-        const executionRunner = executionCode(context).__test_context(context, assetProcess);
+        const newContext = _.cloneDeep(context);
+        newContext.__test_job = JSON.stringify(assetjob);
+        newContext.__test_assignment = 'worker';
+        const executionRunner = executionCode(newContext).__test_context();
 
         Promise.all([executionRunner.initialize(eventEmitter, logger), simulateAssetDownload(200)])
             .spread((results) => {
@@ -186,13 +168,9 @@ describe('execution runner', () => {
             operations: [{ _op: 'assetTest2' }, { _op: 'noop' }]
         };
 
-        const assetProcess = {
-            env: {
-                job: JSON.stringify(assetjob),
-                assignment: 'execution_controller'
-            }
-        };
-        const executionRunner = executionCode(context).__test_context(context, assetProcess);
+        const newContext = _.cloneDeep(context);
+        newContext.__test_job = JSON.stringify(assetjob);
+        const executionRunner = executionCode(newContext).__test_context();
 
         Promise.all([
             executionRunner.initialize(eventEmitter, logger),
@@ -207,9 +185,10 @@ describe('execution runner', () => {
 
 
     it('can instantiate an execution', (done) => {
-        const exRunnerSlicer = executionCode(context).__test_context(context, tempProcess);
-        const workerProcess = Object.assign({}, tempProcess, { env: { assignment: 'worker', job: JSON.stringify(job) } });
-        const exRunnerWorker = executionCode(context).__test_context(context, workerProcess);
+        const exRunnerSlicer = executionCode(context).__test_context();
+        const newContext = _.cloneDeep(context);
+        newContext.__test_assignment = 'worker';
+        const exRunnerWorker = executionCode(newContext).__test_context();
 
         Promise.all([exRunnerSlicer._instantiateJob(), exRunnerWorker._instantiateJob()])
             .spread((slicerExe, workerExe) => {
@@ -242,7 +221,7 @@ describe('execution runner', () => {
     });
 
     it('analyze returns a function what captures the time it took to complete a step, data in and data out', (done) => {
-        const analyze = executionCode(context).__test_context(context, tempProcess).analyze;
+        const analyze = executionCode(context).__test_context().analyze;
 
         const fn = function (data) {
             return new Promise(((resolve) => {
@@ -301,14 +280,9 @@ describe('execution runner', () => {
             assets: [assetId],
             operations: [op1, op2]
         };
-
-        const assetProcess = {
-            env: {
-                job: JSON.stringify(assetjob),
-                assignment: 'execution_controller'
-            }
-        };
-        executionCode(context).__test_context(context, assetProcess);
+        const newContext = _.cloneDeep(context);
+        newContext.__test_job = JSON.stringify(assetjob);
+        executionCode(newContext).__test_context();
         // This tests that job_runner api is available as soon as the module comes up
         expect(testRegisterApi.job_runner).toBeDefined();
         expect(typeof testRegisterApi.job_runner).toEqual('object');

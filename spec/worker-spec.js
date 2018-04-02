@@ -49,13 +49,16 @@ describe('Worker', () => {
                     return logger;
                 },
                 getSystemEvents: () => eventEmitter
-            }
+            },
+            registerAPI: () => {}
         },
         cluster: {
             worker: {
                 id: 'someID'
             }
-        }
+        },
+        logger,
+        __test_assignment: 'worker'
     };
     const messaging = {
         register: (obj) => {
@@ -99,25 +102,32 @@ describe('Worker', () => {
             }, timeout);
         });
     }
+    const mockJob = JSON.stringify(require('../examples/jobs/data_generator.json'));
 
-    function getWorker(_executionContext) {
-        const execution = _executionContext || executionContext;
-        return workerExecutorModule(context, messaging, execution, stateStore, analyticsStore);
+    function instantiateModule(_executionContext, exId, jobId) {
+        const execution = _executionContext || _.cloneDeep(executionContext);
+        context.__test_job = mockJob;
+        context.__test_assignment = 'worker';
+        const worker = workerExecutorModule(context, messaging, stateStore, analyticsStore);
+        const testContext = worker.__test_context(execution, exId, jobId);
+        return { worker, testContext };
     }
 
     it('can load without throwing', () => {
-        expect(() => getWorker()).not.toThrowError();
-        const module = getWorker();
+        expect(() => instantiateModule()).not.toThrowError();
+        const module = instantiateModule();
+        const worker = module.worker;
+        const testModule = module.testContext;
         expect(module).toBeDefined();
         expect(typeof module).toEqual('object');
-        expect(module.shutdown).toBeDefined();
-        expect(typeof module.shutdown).toEqual('function');
-        expect(module.__test_context).toBeDefined();
-        expect(typeof module.__test_context).toEqual('function');
+        expect(worker.shutdown).toBeDefined();
+        expect(typeof worker.shutdown).toEqual('function');
+        expect(testModule).toBeDefined();
+        expect(typeof worker.__test_context).toEqual('function');
     });
 
     it('registers messsaging events', () => {
-        getWorker();
+        instantiateModule();
         expect(messagingEvents['assets:loaded']).toBeDefined();
         expect(typeof messagingEvents['assets:loaded']).toEqual('function');
         expect(messagingEvents['slicer:slice:new']).toBeDefined();
@@ -137,7 +147,7 @@ describe('Worker', () => {
         const data = { some: 'assetMetaData' };
         let innerEventCalled = false;
         let respData;
-        getWorker();
+        instantiateModule();
 
         events.on('execution:assets_loaded', (resp) => {
             innerEventCalled = true;
@@ -157,7 +167,7 @@ describe('Worker', () => {
     it('transmits network errors', (done) => {
         const events = makeEmitter();
         let innerEventCalled = false;
-        getWorker();
+        instantiateModule();
 
         events.on('network:error', () => {
             innerEventCalled = true;
@@ -176,11 +186,11 @@ describe('Worker', () => {
     it('can mark slices as failed', (done) => {
         const events = makeEmitter();
         let innerEventCalled = false;
-        const worker = getWorker();
+        const module = instantiateModule();
         const sliceId = 'some5Lic8';
         const error = new Error('some slice error');
-        const sliceFailed = worker.__test_context()._sliceFailed;
-        const lastMessage = worker.__test_context()._lastMessage;
+        const sliceFailed = module.testContext._sliceFailed;
+        const lastMessage = module.testContext._lastMessage;
 
         const slice = { payload: { slice_id: sliceId, some: 'data' } };
 
@@ -204,9 +214,9 @@ describe('Worker', () => {
 
     it('can mark slices as completed', (done) => {
         const events = makeEmitter();
-        const worker = getWorker();
+        const module = instantiateModule();
         const sliceId = 'some5Lic8';
-        const sliceCompleted = worker.__test_context()._sliceCompleted;
+        const sliceCompleted = module.testContext._sliceCompleted;
         let gotSuccess = false;
         let gotFinalize = false;
 
@@ -261,11 +271,9 @@ describe('Worker', () => {
         const events = makeEmitter();
         const myExecution = _.cloneDeep(executionContext);
         myExecution.config.recycle_worker = 2;
-        const worker = getWorker(myExecution);
-        const recycle = worker.__test_context()._recycleFn();
+        const recycle = instantiateModule(myExecution).testContext._recycleFn();
         const sentMessage = {};
         let gotEvent = false;
-
 
         events.on('worker:recycle', () => {
             gotEvent = true;
@@ -286,7 +294,7 @@ describe('Worker', () => {
     it('can shutdown', (done) => {
         const events = makeEmitter();
         let innerEventCalled = false;
-        const worker = getWorker();
+        const worker = instantiateModule().worker;
 
         events.on('worker:shutdown', () => {
             innerEventCalled = true;
@@ -303,10 +311,10 @@ describe('Worker', () => {
     it('can process slices', (done) => {
         const myExecution = _.cloneDeep(executionContext);
 
-        function makeData(analyticsObj) {
+        function makeData() {
             return () => Promise.resolve([{ data: 'someData' }, { data: 'otherData' }]);
         }
-        function mapData(analyticsObj) {
+        function mapData() {
             return results => results.map(obj => obj.data);
         }
 
@@ -314,9 +322,7 @@ describe('Worker', () => {
         const exId = '1234';
         const jobId = '5678';
         const events = makeEmitter();
-        const worker = getWorker(myExecution);
-        const lastMessage = worker.__test_context(exId, jobId)._lastMessage;
-
+        const lastMessage = instantiateModule(myExecution, exId, jobId).testContext._lastMessage;
         const slice = { slice_id: 'as35g' };
         let sliceSuccess = false;
 
@@ -353,8 +359,7 @@ describe('Worker', () => {
     it('can keep track of last sent messages', (done) => {
         const exId = '1234';
         const jobId = '5678';
-        const worker = getWorker();
-        const lastMessage = worker.__test_context(exId, jobId)._lastMessage;
+        const lastMessage = instantiateModule(null, exId, jobId).testContext._lastMessage;
         const slice = { slice_id: 'as35g' };
 
         Promise.all([
@@ -398,10 +403,10 @@ describe('Worker', () => {
         const jobId = '5678';
         const slice = { slice_id: 'as35g' };
         const events = makeEmitter();
-        const worker = getWorker();
-        const _retrySliceModule = worker.__test_context(exId, jobId)._retrySliceModule;
+        const retrySliceModule = instantiateModule(null, exId, jobId).testContext._retrySliceModule;
+
         const errEvent = new Error('an error');
-        const retrySlice = _retrySliceModule(slice, [() => Promise.reject('an error'), () => Promise.reject('an error')], logger, {});
+        const retrySlice = retrySliceModule(slice, [() => Promise.reject('an error'), () => Promise.reject('an error')], logger, {});
         let sliceRetry = false;
 
         events.on('slice:retry', (response) => {
@@ -425,8 +430,7 @@ describe('Worker', () => {
         const exId = '1234';
         const jobId = '5678';
         const events = makeEmitter();
-        const worker = getWorker();
-        worker.__test_context(exId, jobId);
+        instantiateModule(null, exId, jobId);
 
         let gotDisconnectEvent = false;
         const disconnEvent = { some: 'event' };

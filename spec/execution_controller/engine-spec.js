@@ -38,14 +38,19 @@ describe('execution engine', () => {
             foundation: {
                 makeLogger: () => logger,
                 getSystemEvents: () => eventEmitter
-            }
+            },
+            registerAPI: () => {}
         },
         sysconfig: {
             teraslice: {
                 worker_disconnect_timeout: 500,
                 slicer_timeout: 500
             }
-        }
+        },
+        foundation: {
+            getEventEmitter: () => eventEmitter
+        },
+        logger
     };
     const messagingEvents = {};
     let sentMsg = null;
@@ -144,14 +149,19 @@ describe('execution engine', () => {
         return newEmitter;
     }
 
-    function makeEngine(_execution) {
+    function makeEngine(_execution, _testRecovery) {
         const execution = _execution || executionContext;
-        return engineCode(context, messaging, exStore, stateStore, execution);
+        const myEmitter = makeEmitter();
+        let testRecovery = false;
+        if (_testRecovery) testRecovery = _testRecovery;
+        const engine = engineCode(context, messaging, exStore, stateStore);
+        const testContext = engine.__test_context(execution, executionAnalytics, slicerAnalytics, recovery, 1234, testRecovery);
+        return { engine, testContext, myEmitter };
     }
 
     it('can instantiate', (done) => {
-        const engine = makeEngine();
-        const testContext = engine.__test_context(executionAnalytics, slicerAnalytics, recovery, 1234);
+        const engine = makeEngine().engine;
+
         expect(engine).toBeDefined();
         expect(engine.initialize).toBeDefined();
 
@@ -181,8 +191,7 @@ describe('execution engine', () => {
     });
 
     it('can set and adjust queue length', () => {
-        const engine = makeEngine();
-        const testContext = engine.__test_context(executionAnalytics, slicerAnalytics);
+        const testContext = makeEngine().testContext;
         const errExEnv = {
             slicer: { slicerQueueLength: 10 }
         };
@@ -237,8 +246,7 @@ describe('execution engine', () => {
     });
 
     it('can enqueue and dequeue workers', () => {
-        const engine = makeEngine();
-        const workerQueue = engine.__test_context(executionAnalytics, slicerAnalytics).workerQueue;
+        const workerQueue = makeEngine().testContext.workerQueue;
         const someWorker = { id: 'someWorker' };
 
         expect(workerQueue).toBeDefined();
@@ -252,8 +260,7 @@ describe('execution engine', () => {
     });
 
     it('can enqueue slices', () => {
-        const engine = makeEngine();
-        const engineTest = engine.__test_context(executionAnalytics, slicerAnalytics);
+        const engineTest = makeEngine().testContext;
         const slicerQueue = engineTest.slicerQueue;
         const allocateSlice = engineTest._allocateSlice;
         const slice = { some: 'slice' };
@@ -274,12 +281,10 @@ describe('execution engine', () => {
     });
 
     it('can register slice completions', () => {
-        // prevent slicer all done event collisions
-        const myEmitter = makeEmitter();
-        const engine = makeEngine();
         const exId = '1234';
-        const engineTestContext = engine.__test_context(executionAnalytics, slicerAnalytics, recovery, exId);
-        const workerQueue = engineTestContext.workerQueue;
+        const testEngine = makeEngine();
+        const workerQueue = testEngine.testContext.workerQueue;
+        const myEmitter = testEngine.myEmitter;
         const sliceComplete = messagingEvents['worker:slice:complete'];
         let gotSliceSuccess = false;
         let gotSliceFailure = false;
@@ -327,10 +332,10 @@ describe('execution engine', () => {
     });
 
     it('can register slicers', () => {
-        // prevent slicer all done event collisions
-        const myEmitter = makeEmitter();
-        const engine = makeEngine();
-        const registerSlicers = engine.__test_context(executionAnalytics, slicerAnalytics, recovery)._registerSlicers;
+        const engineTest = makeEngine();
+        const registerSlicers = engineTest.testContext._registerSlicers;
+        const myEmitter = engineTest.myEmitter;
+
         const slicers = [() => {}];
         const errSlicers = {
             slicer: () => {}
@@ -358,10 +363,9 @@ describe('execution engine', () => {
     });
 
     it('execution can recover', (done) => {
-        const myEmitter = makeEmitter();
-        const engine = makeEngine();
-        const engineTextContext = engine.__test_context(executionAnalytics, slicerAnalytics, recovery, 1234, true);
-        const executionRecovery = engineTextContext._executionRecovery;
+        const engineTest = makeEngine(null, true);
+        const executionRecovery = engineTest.testContext._executionRecovery;
+        const myEmitter = engineTest.myEmitter;
 
         function sendEvent(time) {
             return waitFor(time)
@@ -371,17 +375,13 @@ describe('execution engine', () => {
         }
 
         Promise.all([executionRecovery(), sendEvent(150)])
-            .spread((data) => {
-                expect(data).toEqual({ starting: 'point' });
-            })
+            .spread(data => expect(data).toEqual({ starting: 'point' }))
             .catch(fail)
             .finally(done);
     });
 
     it('terminal error marks job as failed', (done) => {
-        const engine = makeEngine();
-        const engineTextContext = engine.__test_context(executionAnalytics, slicerAnalytics, recovery, 1234);
-        const terminalError = engineTextContext._terminalError;
+        const terminalError = makeEngine().testContext._terminalError;
         const myError = new Error('an error');
 
         Promise.all([terminalError(myError), waitFor(20)])
@@ -402,10 +402,9 @@ describe('execution engine', () => {
         const newExecution =  _.cloneDeep(executionContext);
         newExecution.config.lifecycle = 'persistent';
         newExecution.config.probation_window = 100;
-        const myEmitter = makeEmitter();
-        const engine = makeEngine(newExecution);
-        const engineTextContext = engine.__test_context(executionAnalytics, slicerAnalytics, recovery, 1234);
-        const registerSlicers = engineTextContext._registerSlicers;
+        const engineTest = makeEngine(newExecution);
+        const registerSlicers = engineTest.testContext._registerSlicers;
+        const myEmitter = engineTest.myEmitter;
 
         registerSlicers([() => {}], false);
         myEmitter.emit('slice:failure');
@@ -436,9 +435,7 @@ describe('execution engine', () => {
         }
         executionContext.slicer.newSlicer = slicerError;
 
-        const engine = makeEngine();
-        const engineTextContext = engine.__test_context(executionAnalytics, slicerAnalytics, recovery, 1234);
-        const slicerInitRetry = engineTextContext._slicerInitRetry;
+        const slicerInitRetry = makeEngine().testContext._slicerInitRetry;
         const myError = new Error('an error');
 
         slicerInitRetry(myError)
@@ -453,8 +450,7 @@ describe('execution engine', () => {
     });
 
     it('can pass along assets:loaded event', () => {
-        const myEmitter = makeEmitter();
-        makeEngine();
+        const myEmitter = makeEngine().myEmitter;
         const assetsLoaded = messagingEvents['assets:loaded'];
         let assetsHaveLoaded = false;
         const data = { asset: 'data' };
@@ -471,10 +467,8 @@ describe('execution engine', () => {
     it('watchdogs can call', (done) => {
         const oldClientCounter = clientCounter;
         clientCounter = 0;
-        const myEmitter = makeEmitter();
-        const engine = makeEngine();
+        const engineTextContext = makeEngine().testContext;
         const exId = 1234;
-        const engineTextContext = engine.__test_context(executionAnalytics, slicerAnalytics, recovery, exId);
         const startWorkerConnectionWatchDog = engineTextContext._startWorkerConnectionWatchDog;
         const startWorkerDisconnectWatchDog = engineTextContext._startWorkerDisconnectWatchDog;
 
@@ -508,8 +502,7 @@ describe('execution engine', () => {
     });
 
     it('can update operations', () => {
-        const myEmitter = makeEmitter();
-        makeEngine();
+        const myEmitter = makeEngine().myEmitter;
         const updateData = [{ _op: 1 }];
 
         myEmitter.emit('slicer:execution:update', { update: updateData });
@@ -518,11 +511,10 @@ describe('execution engine', () => {
 
     it('can create a scheduler', (done) => {
         // prevent slicer all done event collisions
-        const myEmitter = makeEmitter();
-        const engine = makeEngine();
-        const engineTestContext = engine.__test_context(executionAnalytics, slicerAnalytics, recovery);
-        const getScheduler = engineTestContext._getScheduler;
-        const slicerQueue = engineTestContext.slicerQueue;
+        const engineTest = makeEngine();
+        const myEmitter = engineTest.myEmitter;
+        const getScheduler = engineTest.testContext._getScheduler;
+        const slicerQueue = engineTest.testContext.slicerQueue;
         const allDone = () => null;
         const makesSlices = () => ({ some: 'data' });
         const makesArrayOfSlices = () => [{ id: 1 }, { id: 2 }];
@@ -582,10 +574,9 @@ describe('execution engine', () => {
             newSlicer: () => [spyObj.firstSlicer, spyObj.secondSlicer],
             slicerQueueLength: () => 100000
         };
-
-        const engine = makeEngine();
-        const engineTestContext = engine.__test_context(executionAnalytics, slicerAnalytics, recovery, 1234);
-        const slicerQueue = engineTestContext.slicerQueue;
+        const engineTest = makeEngine();
+        const engine = engineTest.engine;
+        const slicerQueue = engineTest.testContext.slicerQueue;
 
         let currentSlicerCount;
         let prevSlicerCount;
@@ -674,10 +665,9 @@ describe('execution engine', () => {
 
     it('can complete when slicers are finished', (done) => {
         // prevent slicer all done event collisions
-        const myEmitter = makeEmitter();
-        const engine = makeEngine();
-        const engineTextContext = engine.__test_context(executionAnalytics, slicerAnalytics, recovery);
-        const slicerQueue = engineTextContext.slicerQueue;
+        const engineTest = makeEngine();
+        const myEmitter = engineTest.myEmitter;
+        const slicerQueue = engineTest.testContext.slicerQueue;
 
         let allDoneCounter = 0;
         const allDone = () => null;
@@ -686,8 +676,8 @@ describe('execution engine', () => {
             allDoneCounter += 1;
         });
 
-        engineTextContext._registerSlicers([allDone, allDone]);
-        engineTextContext._engineSetup();
+        engineTest.testContext._registerSlicers([allDone, allDone]);
+        engineTest.testContext._engineSetup();
 
         waitFor(20)
             .then(() => {
@@ -709,11 +699,10 @@ describe('execution engine', () => {
     });
 
     it('executionShutdown', (done) => {
-        const myEmitter = makeEmitter();
-        const engine = makeEngine();
+        const engineTest = makeEngine();
+        const myEmitter = engineTest.myEmitter;
+        const executionShutdown = engineTest.engine.shutdown;
         const exId = 1234;
-        const engineTextContext = engine.__test_context(executionAnalytics, slicerAnalytics, recovery, exId);
-        const executionShutdown = engine.shutdown;
         let gotStopEvent = false;
 
         myEmitter.on('execution:stop', () => gotStopEvent = true);
@@ -728,11 +717,9 @@ describe('execution engine', () => {
     });
 
     it('can log error counts at end of execution', (done) => {
-        const myEmitter = makeEmitter();
-        const engine = makeEngine();
+        const engineTest = makeEngine();
+        const executionCompleted = engineTest.testContext._executionCompleted;
         const exId = 1234;
-        const engineTextContext = engine.__test_context(executionAnalytics, slicerAnalytics, recovery, exId);
-        const executionCompleted = engineTextContext._executionCompleted;
         stateStore.count = () => Promise.resolve(2);
 
         Promise.all([executionCompleted(), waitFor(50)])
@@ -745,12 +732,10 @@ describe('execution engine', () => {
     });
 
     it('can send slices to specific workers', (done) => {
-        const myEmitter = makeEmitter();
-        const engine = makeEngine();
-        const exId = 1234;
-        const engineTextContext = engine.__test_context(executionAnalytics, slicerAnalytics, recovery, exId);
-        const workerQueue = engineTextContext.workerQueue;
-        const slicerQueue = engineTextContext.slicerQueue;
+        const engineTest = makeEngine();
+        const myEmitter = engineTest.myEmitter;
+        const workerQueue = engineTest.testContext.workerQueue;
+        const slicerQueue = engineTest.testContext.slicerQueue;
         const slice1 = { request: { some: 'slice' } };
         const slice2 = Object.assign({}, slice1, { request: { request_worker: 3 } });
         const slice3 = Object.assign({}, slice1, { request: { request_worker: 99 } });
@@ -767,7 +752,7 @@ describe('execution engine', () => {
             return results;
         }
 
-        engineTextContext._engineSetup();
+        engineTest.testContext._engineSetup();
 
         myEmitter.on('slice:invalid', data => invalidSlice = data);
 
