@@ -30,101 +30,83 @@ module.exports = function(client, logger, _opConfig) {
             });
     }
 
-    function get(query) {
+    function makeRequest(clientBase, endpoint, query, resolver) {
         return new Promise(function(resolve, reject) {
-            var errHandler = _errorHandler(getRecord, query, reject, logger);
+            var errHandler = _errorHandler(runRequest, query, reject, logger);
 
-            function getRecord() {
-                client.get(query)
-                    .then(function(result) {
-                        resolve(result._source)
-                    })
+            function runRequest() {
+                clientBase[endpoint](query)
+                    .then(result => resolve(result))
                     .catch(errHandler);
             }
 
-            getRecord();
-        })
+            runRequest();
+        });
+    }
+
+    function clientRequest(endpoint, query, resolver) {
+        return makeRequest(client, endpoint, query, resolver)
+    }
+
+    function clientIndicesRequest(endpoint, query, resolver) {
+        return makeRequest(client.indices, endpoint, query, resolver)
+    }
+
+    function mget(query) {
+        return clientRequest('mget', query);
+    }
+
+    function get(query) {
+        return clientRequest('get', query)
+            .then(result => result._source);
     }
 
     function index(query) {
-        return new Promise(function(resolve, reject) {
-            var errHandler = _errorHandler(indexRecord, query, reject, logger);
-
-            function indexRecord() {
-                client.index(query)
-                    .then(function(result) {
-                        resolve(result);
-                    })
-                    .catch(errHandler);
-            }
-
-            indexRecord();
-        })
+        return clientRequest('index', query);
     }
 
     function indexWithId(query) {
-        return new Promise(function(resolve, reject) {
-            var errHandler = _errorHandler(indexRecordID, query, reject, logger);
-
-            function indexRecordID() {
-                client.index(query)
-                    .then(function(result) {
-                        resolve(query.body);
-                    })
-                    .catch(errHandler);
-            }
-
-            indexRecordID();
-        })
+        return clientRequest('index', query)
+            .then(result => query.body);
     }
 
     function create(query) {
-        return new Promise(function(resolve, reject) {
-            var errHandler = _errorHandler(createRecord, query, reject, logger);
-
-            function createRecord() {
-                client.create(query)
-                    .then(function(result) {
-                        resolve(query.body);
-                    })
-                    .catch(errHandler);
-            }
-
-            createRecord();
-        })
+        return clientRequest('create', query)
+            .then(result => query.body);
     }
 
-
     function update(query) {
-        return new Promise(function(resolve, reject) {
-            var errHandler = _errorHandler(updateRecord, query, reject, logger);
-
-            function updateRecord() {
-                client.update(query)
-                    .then(function(result) {
-                        resolve(query.body.doc);
-                    })
-                    .catch(errHandler);
-            }
-
-            updateRecord();
-        })
+        return clientRequest('update', query)
+            .then(result => query.body.doc);
     }
 
     function remove(query) {
-        return new Promise(function(resolve, reject) {
-            var errHandler = _errorHandler(removeRecord, query, reject, logger);
+        return clientRequest('delete', query)
+            .then(result => result.found);
+    }
 
-            function removeRecord() {
-                client.delete(query)
-                    .then(function(result) {
-                        resolve(result.found);
-                    })
-                    .catch(errHandler);
-            }
+    function indexExists(query) {
+        return clientIndicesRequest('exists', query);
+    }
 
-            removeRecord();
-        });
+    function indexCreate(query) {
+        return clientIndicesRequest('create', query);
+    }
+
+    function indexRefresh(query) {
+        return clientIndicesRequest('refresh', query);
+    }
+
+    function indexRecovery(query) {
+        return clientIndicesRequest('recovery', query);
+    }
+
+    function nodeInfo() {
+        return client.nodes.info();
+    }
+
+    function nodeStats() {
+        return client.nodes.stats()
     }
 
     function verifyIndex(indexObj, name) {
@@ -229,15 +211,13 @@ module.exports = function(client, logger, _opConfig) {
         });
     }
 
-    function nodeInfo() {
-        return client.nodes.info();
+    function _warn(logger, msg) {
+        return _.throttle(() => logger.warn(msg), 5000);
     }
 
-    function nodeStats() {
-        return client.nodes.stats()
-    }
-
-
+    /*
+     * These range query functions do not belong in this module.
+     */
     function _buildRangeQuery(opConfig, msg) {
         var body = {
             query: {
@@ -289,78 +269,6 @@ module.exports = function(client, logger, _opConfig) {
         }
 
         return query;
-    }
-
-    function index_exists(query) {
-
-        return new Promise(function(resolve, reject) {
-            var errHandler = _errorHandler(exists, query, reject, logger);
-
-            function exists() {
-                client.indices.exists(query)
-                    .then(function(results) {
-                        resolve(results);
-                    })
-                    .catch(errHandler);
-            }
-
-            exists();
-        })
-    }
-
-    function index_create(query) {
-
-        return new Promise(function(resolve, reject) {
-            var errHandler = _errorHandler(indexCreate, query, reject, logger);
-
-            function indexCreate() {
-                client.indices.create(query)
-                    .then(function(results) {
-                        resolve(results);
-                    })
-                    .catch(errHandler);
-            }
-
-            indexCreate();
-        })
-    }
-
-    function index_refresh(query) {
-
-        return new Promise(function(resolve, reject) {
-            var errHandler = _errorHandler(indexRefresh, query, reject, logger);
-
-            function indexRefresh() {
-                client.indices.refresh(query)
-                    .then(function(results) {
-                        resolve(results);
-                    })
-                    .catch(errHandler);
-            }
-
-            indexRefresh();
-        })
-    }
-
-    function index_recovery(query) {
-
-        return new Promise(function(resolve, reject) {
-            var errHandler = _errorHandler(indexRecovery, query, reject, logger);
-
-            function indexRecovery() {
-                client.indices.recovery(query)
-                    .then(function(results) {
-                        resolve(results);
-                    })
-                    .catch(errHandler);
-            }
-
-            indexRecovery();
-        })
-    }
-
-    function _warn(logger, msg) {
-        return _.throttle(() => logger.warn(msg), 5000);
     }
 
     function _filterResponse(data, results) {
@@ -491,9 +399,14 @@ module.exports = function(client, logger, _opConfig) {
         nodeInfo: nodeInfo,
         nodeStats: nodeStats,
         buildQuery: buildQuery,
-        index_exists: index_exists,
-        index_create: index_create,
-        index_refresh: index_refresh,
-        index_recovery: index_recovery
+        indexExists: indexExists,
+        indexCreate: indexCreate,
+        indexRefresh: indexRefresh,
+        indexRecovery: indexRecovery,
+        // The APIs below are deprecated and should be removed.
+        index_exists: indexExists,
+        index_create: indexCreate,
+        index_refresh: indexRefresh,
+        index_recovery: indexRecovery
     };
 };
