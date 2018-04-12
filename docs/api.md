@@ -2,15 +2,36 @@
 # API Endpoints
 default endpoint in development is localhost:5678
 
+### General Search Parameters
+describes a common interface to the api endpoint that use it
+
+parameter options:
+- size = [Number]   the number of documents returned
+- from = [Number]   elasticsearch paging mechanism
+- sort = [String]   elasticsearch sorting query
+- fields = [String]     comma separated list of keys that the returning query documents will only have
+- date_field = [String]     used with start/end, is the key that contains the date on the documents
+- start = [Date or DateMath]    start date filtering query, can use elasticsearch date math
+- end = [Date or DateMath]      end date filtering query, can use elasticsearch date math
+
+
+query:
+ ```
+curl 'localhost:5678/some/endpoint?size=7000&sort=_created:desc&from=20000&fields=field1,field2'
+curl 'localhost:5678/some/endpoint?date_field=_created&start=2018-04-12T10:42:22.504Z&end=2018-04-22T10:42:22.504Z'
+curl 'localhost:5678/some/endpoint?date_field=_created&start=now-4d&end=now'
+curl -G -XGET localhost:5678/some/endpoint --data-urlencode start=now+1d
+curl 'localhost:5678/some/endpoint?q=name:someName AND (_status:failing OR _status:failed)&sort=_created:asc'
+```
+
 
 #### GET /cluster/state
-   returns a json object representing the state of the cluster
+returns a json object representing the state of the cluster
 
-   query :
-   ```curl localhost:5678/v1/cluster/state```
+query : ```curl localhost:5678/v1/cluster/state```
 
-   response:
-
+response:
+```
     {
         "myCompName": {
             "node_id": "myCompName",
@@ -30,7 +51,7 @@ default endpoint in development is localhost:5678
             ]
         }
     }
-
+```
 
 #### GET /cluster/slicers
 
@@ -83,7 +104,7 @@ query:
 the _id returned is the id of elasticsearch document where the zip file has been saved
 
 The zip file must contain an asset.json containing a name for the asset bundle and a version number which can be used to query the asset besides using the _id
-```javascript
+```
  /enclosing_dir
     asset_op
        index.js
@@ -95,7 +116,7 @@ The zip file must contain an asset.json containing a name for the asset bundle a
 
 You may zip the enclosing directory or piecemeal the file together
 
-```javascript
+```
 zip -r zipfile.zip enclosing_dir    
 zip -r zipfile.zip asset_op another_asset.cvs asset.json    
 ```
@@ -145,13 +166,7 @@ query:
 
 returns an array of all jobs listed in teracluster__jobs index
 
-parameter options:
-
-- from = [Number]
-- size = [Number]
-- sort = [String]
-
-size is the number of documents returned, from is how many documents in and sort is a lucene query
+uses the [general search interface](#general-search-parameters)
 
   query :
    ```curl localhost:5678/v1/jobs```
@@ -256,8 +271,7 @@ This endpoint will return an array of all errors from all executions from oldest
 Note that elasticsearch has a window size limit of 10000, please use from to get more if needed
 parameter options:
 
-- from = [Number]
-- size = [Number]
+uses the [general search interface](#general-search-parameters)
 
 
 query:
@@ -271,8 +285,7 @@ This endpoint will return an array of all errors from the specified  execution f
 Note that elasticsearch has a window size limit of 10000, please use from to get more if needed
 parameter options:
 
-- from = [Number]
-- size = [Number]
+uses the [general search interface](#general-search-parameters)
 
 
 query:
@@ -286,15 +299,9 @@ returns all execution contexts (job invocations)
 
 parameter options:
 
-- status [String]
-- from = [Number]
-- size = [Number]
-- sort = [String]
+uses the [general search interface](#general-search-parameters)
 
-size is the number of documents returned, from is how many documents in and sort is a lucene query
-
-  query :
-   ```curl localhost:5678/v1/ex?status=running&size=10```
+  query :   ```curl localhost:5678/v1/ex?q=_status:running&size=10```
 
 #### GET /ex/{ex_id}
 
@@ -451,12 +458,8 @@ defaults:
 
 returns a textual graph of all job listings
 
-parameter options:
+uses the [general search interface](#general-search-parameters)
 
-- fields [String]
-
-The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
-ie fields="job_id,pid" or fields="job_id pid"
 
 query:
 ```curl localhost:5678/txt/jobs```
@@ -488,12 +491,8 @@ defaults:
 
 returns a textual graph of all job execution contexts
 
-parameter options:
+uses the [general search interface](#general-search-parameters)
 
-- fields [String]
-
-The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
-ie fields="job_id,pid" or fields="job_id pid"
 
 query:
 ```curl localhost:5678/txt/jobs```

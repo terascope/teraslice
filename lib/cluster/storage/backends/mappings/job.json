@@ -16,6 +16,9 @@
         "_context": {
           "type": "keyword"
         },
+        "name": {
+          "type": "keyword"
+        },
         "_created": {
           "type": "date"
         },

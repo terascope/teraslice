@@ -39,6 +39,12 @@
         },
         "_updated": {
           "type": "date"
+        },
+        "name": {
+          "type": "keyword"
+        },
+        "lifecycle": {
+          "type": "keyword"
         }
       }
     }
