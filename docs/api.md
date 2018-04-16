@@ -6,11 +6,11 @@ default endpoint in development is localhost:5678
 describes a common interface to the api endpoint that use it
 
 parameter options:
-- size = [Number]   the number of documents returned
+- size = [Number]   the number of documents returned, defaults to `10000`
 - from = [Number]   elasticsearch paging mechanism
-- sort = [String]   elasticsearch sorting query
+- sort = [String]   elasticsearch sorting query, defaults to `_updated:desc`
 - fields = [String]     comma separated list of keys that the returning query documents will only have
-- date_field = [String]     used with start/end, is the key that contains the date on the documents
+- date_field = [String]     used with start/end, is the key that contains the date on the documents, defaults to `_updated`
 - start = [Date or DateMath]    start date filtering query, can use elasticsearch date math
 - end = [Date or DateMath]      end date filtering query, can use elasticsearch date math
 
