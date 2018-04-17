@@ -18,7 +18,7 @@
                     "type": "keyword"
                 },
                 "slicer_id": {
-                    "type": "keyword"
+                    "type": "integer"
                 },
                 "slicer_order":{
                     "type": "integer"
