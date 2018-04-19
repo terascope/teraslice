@@ -1,0 +1,31 @@
+{
+  "name": "tjm",
+  "version": "1.0.0",
+  "description": "teraslice job manager",
+  "main": "index.js",
+  "scripts": {
+    "test": "node node_modules/jasmine/bin/jasmine"
+  },
+  "bin": {
+    "tjm": "./index.js"
+  },
+  "keywords": [
+    "teraslice"
+  ],
+  "author": "ciorg",
+  "license": "ISC",
+  "dependencies": {
+    "archiver": "^2.1.1",
+    "bluebird": "^3.5.1",
+    "chalk": "^2.3.2",
+    "eslint": "^4.19.1",
+    "lodash": "^4.17.5",
+    "teraslice-client-js": "terascope/teraslice-client-js",
+    "yargs": "^11.0.0"
+  },
+  "devDependencies": {
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.10.0",
+    "jasmine": "^3.1.0"
+  }
+}

@@ -1,0 +1,25 @@
+{
+    "name": "Data Generator",
+    "lifecycle": "once",
+    "workers": 1,
+    "operations": [
+        {
+            "_op": "elasticsearch_data_generator",
+            "size": 10000
+        },
+        {
+            "_op": "elasticsearch_index_selector",
+            "index": "auto-data-logs",
+            "type": "events"
+        },
+        {
+            "_op": "elasticsearch_bulk",
+            "size": 100
+        }
+    ],
+    "tjm": {
+        "cluster": "http://localhost",
+        "version": "0.0.1",
+        "job_id": "ffa9b355-52d6-48b8-87bc-6ad13795cc4b"
+    }
+}
