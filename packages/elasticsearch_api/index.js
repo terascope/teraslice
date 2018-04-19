@@ -141,6 +141,16 @@ module.exports = function(client, logger, _opConfig) {
     }
 
     function version() {
+        const wildCardRegex = RegExp(/\*/g);
+        const isWildCardRegexSearch = config.index.match(wildCardRegex);
+        // We cannot reliable search index queries with wildcards for existence or max_result_window, it could be
+        // a cross cluster search, but we cant check cluster stats or settings as it could be in a different cluster.
+        // A regular regex query will not error, it will just return no results which is not always an error
+        if (isWildCardRegexSearch !== null) {
+            logger.warn(`Running a regex or cross cluster search for ${config.index}, there is no reliable way to verify index and max_result_window`);
+            return Promise.resolve(true);
+        }
+
         return client.cluster.stats({})
             .then(function(data) {
                 const version = data.nodes.versions[0];
