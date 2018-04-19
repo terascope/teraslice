@@ -412,10 +412,8 @@ describe('Worker', () => {
         const lastMessage = instantiateModule({ exId, jobId }).testContext._lastMessage;
         const slice = { slice_id: 'as35g' };
 
-        Promise.all([
-            messagingEvents['slicer:slice:new']({ payload: slice }),
-            waitFor(10)
-        ])
+        Promise.resolve()
+            .then(() => messagingEvents['slicer:slice:new']({ payload: slice }))
             .then(() => {
                 const theLastMessage = lastMessage();
                 expect(theLastMessage).toEqual({
