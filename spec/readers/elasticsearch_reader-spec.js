@@ -309,13 +309,13 @@ describe('elasticsearch_reader', () => {
                 Promise.resolve(slicer())
                     .then((results) => {
                         expect(results).toEqual(null);
-                        done();
                     })
                     .catch((error) => {
                         fail(error);
-                        done();
                     });
-            });
+            })
+            .catch(fail)
+            .finally(done);
     });
 
     it('slicer can produce date slices', (done) => {
