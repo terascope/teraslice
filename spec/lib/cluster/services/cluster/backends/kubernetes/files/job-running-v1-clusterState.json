@@ -1,0 +1,39 @@
+{
+  "192.168.99.100": {
+    "node_id": "192.168.99.100",
+    "hostname": "192.168.99.100",
+    "pid": 1,
+    "node_version": "N/A",
+    "teraslice_version": "N/A",
+    "total": 42,
+    "state": "connected",
+    "available": 42,
+    "active": [
+      {
+        "worker_id": "teraslice-master-6cbf8454cd-7jgrs",
+        "assignment": "master",
+        "pid": "teraslice-master-6cbf8454cd-7jgrs",
+        "pod_ip": "172.17.0.3",
+        "assets": []
+      },
+      {
+        "worker_id": "teraslice-slicer-8b414884-2266-4d3f-976e-78c281177b9a-784cbt5mz",
+        "assignment": "slicer",
+        "pid": "teraslice-slicer-8b414884-2266-4d3f-976e-78c281177b9a-784cbt5mz",
+        "ex_id": "8b414884-2266-4d3f-976e-78c281177b9a",
+        "job_id": "dc1471b2-a6ed-43c2-942e-69b9a073a51b",
+        "pod_ip": "172.17.0.5",
+        "assets": []
+      },
+      {
+        "worker_id": "teraslice-worker-8b414884-2266-4d3f-976e-78c281177b9a-8b68v7p8t",
+        "assignment": "worker",
+        "pid": "teraslice-worker-8b414884-2266-4d3f-976e-78c281177b9a-8b68v7p8t",
+        "ex_id": "8b414884-2266-4d3f-976e-78c281177b9a",
+        "job_id": "dc1471b2-a6ed-43c2-942e-69b9a073a51b",
+        "pod_ip": "172.17.0.6",
+        "assets": []
+      }
+    ]
+  }
+}
