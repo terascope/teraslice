@@ -4,10 +4,10 @@
     "metadata": {
         "labels": {
             "app": "teraslice",
-            "nodeType": "slicer",
+            "nodeType": "execution_controller",
             "exId": "<EXID>"
         },
-        "name": "teraslice-slicer-<EXID>"
+        "name": "teraslice-execution_controller-<EXID>"
     },
     "spec": {
         "replicas": 1,
@@ -15,14 +15,14 @@
             "metadata": {
                 "labels": {
                     "app": "teraslice",
-                    "nodeType": "slicer",
+                    "nodeType": "execution_controller",
                     "exId": "<EXID>"
                 }
             },
             "spec": {
                 "containers": [{
-                    "image": "docker.terascope.io/teraslice:0.30.0",
-                    "name": "teraslice-slicer-<EXID>",
+                    "image": "teraslice:asgdev",
+                    "name": "teraslice-execution_controller-<EXID>",
                     "ports": [{ "containerPort": 45680 }],
                     "volumeMounts": [{
                         "mountPath": "/app/config",
@@ -35,6 +35,14 @@
                     {
                         "name": "EX",
                         "value": "<EX>"
+                    },
+                    {
+                        "name": "POD_IP",
+                        "valueFrom": {
+                            "fieldRef": {
+                                "fieldPath": "status.podIP"
+                            }
+                        }
                     }]
                 }],
                 "volumes": [{
@@ -53,7 +61,7 @@
         "selector": {
             "matchLabels": {
                 "app": "teraslice",
-                "nodeType": "slicer",
+                "nodeType": "execution_controller",
                 "exId": "<EXID>"
             }
         }
