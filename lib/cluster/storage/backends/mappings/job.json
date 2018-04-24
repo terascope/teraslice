@@ -1,7 +1,15 @@
 {
   "settings": {
     "index.number_of_shards": 5,
-    "index.number_of_replicas": 1
+    "index.number_of_replicas": 1,
+    "analysis": {
+      "analyzer": {
+        "lowercase_keyword_analyzer": {
+          "tokenizer": "keyword",
+          "filter": "lowercase"
+        }
+      }
+    }
   },
   "mappings": {
     "job": {
@@ -17,13 +25,23 @@
           "type": "keyword"
         },
         "name": {
-          "type": "keyword"
+          "type": "text",
+          "analyzer": "lowercase_keyword_analyzer"
         },
         "_created": {
           "type": "date"
         },
         "_updated": {
           "type": "date"
+        },
+        "lifecycle": {
+          "type": "keyword"
+        },
+        "workers": {
+          "type": "integer"
+        },
+        "slicers": {
+          "type": "integer"
         }
       }
     }

@@ -1,7 +1,15 @@
 {
   "settings": {
     "index.number_of_shards": 5,
-    "index.number_of_replicas": 1
+    "index.number_of_replicas": 1,
+    "analysis": {
+      "analyzer": {
+        "lowercase_keyword_analyzer": {
+          "tokenizer": "keyword",
+          "filter": "lowercase"
+        }
+      }
+    }
   },
   "mappings": {
     "asset": {
@@ -16,7 +24,8 @@
           "doc_values": false
         },
         "name": {
-          "type": "keyword"
+          "type": "text",
+          "analyzer": "lowercase_keyword_analyzer"
         },
         "version": {
           "type": "keyword"
