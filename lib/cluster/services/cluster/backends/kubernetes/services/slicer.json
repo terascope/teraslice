@@ -4,10 +4,10 @@
   "metadata": {
     "labels": {
         "app": "teraslice",
-        "nodeType": "slicer",
+        "nodeType": "execution_controller",
         "exId": "<EXID>"
     },
-    "name": "teraslice-slicer-<EXID>",
+    "name": "teraslice-execution_controller-<EXID>",
     "namespace": "default"
   },
   "spec": {
@@ -19,7 +19,7 @@
     ],
     "selector": {
       "app": "teraslice",
-      "nodeType": "slicer",
+      "nodeType": "execution_controller",
       "exId": "<EXID>"
     }
   }
