@@ -46,7 +46,7 @@ describe('elasticsearch index selector', () => {
 
         expect(() => {
             fn(data);
-        }).toThrow('type must be specified in elasticsearch index selector config if data is not a full response from elasticsearch');
+        }).toThrow(new Error('type must be specified in elasticsearch index selector config if data is not a full response from elasticsearch'));
     });
 
     it('newProcessor takes either an array or elasticsearch formatted data and returns an array', () => {

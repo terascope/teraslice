@@ -18,7 +18,6 @@ describe('system_schema', () => {
             validator.validate();
             return validator.getProperties();
         } catch (err) {
-            console.log('the err' );
             return err.message;
         }
     }

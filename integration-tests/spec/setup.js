@@ -3,7 +3,6 @@
 const _ = require('lodash');
 const Promise = require('bluebird');
 const misc = require('./misc')();
-const fs = require('fs');
 
 // We need long timeouts for some of these jobs
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 600000;
@@ -83,11 +82,7 @@ describe('teraslice', () => {
 
     function cleanup() {
         console.log(' - Cleaning up teraslice state & prior test results');
-        const deletions = [
-            misc.es().indices.delete({ index: 'teracluster__*', ignore: [404] }),
-            misc.es().indices.delete({ index: 'test-*', ignore: [404] })
-        ];
-        return Promise.all(deletions);
+        return misc.es().indices.delete({ index: 'test-*', ignore: [404] });
     }
 
     function generateTestData() {
@@ -158,7 +153,7 @@ describe('teraslice', () => {
             });
     }
 
-    const before = [dockerUp, waitForES, waitForTeraslice, cleanup, generateTestData];
+    const before = [dockerUp, waitForES, cleanup, waitForTeraslice, generateTestData];
 
     beforeAll((done) => {
         Promise.resolve(before)

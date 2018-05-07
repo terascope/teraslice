@@ -53,6 +53,11 @@ describe('id_reader', () => {
             error() {},
             info() {},
             warn() {}
+        },
+        apis: {
+            foundation: {
+                getSystemEvents: () => eventEmitter
+            }
         }
     };
 

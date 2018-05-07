@@ -38,6 +38,7 @@ test-all: ## run test matrix
 
 
 clean: ## remove test docker containers
+	curl -XDELETE "localhost:49200/*"
 	docker-compose down -v
 
 

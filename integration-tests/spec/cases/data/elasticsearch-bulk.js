@@ -1,31 +1,28 @@
 'use strict';
 
-var misc = require('../../misc')();
+const misc = require('../../misc')();
 
-module.exports = function() {
-    var teraslice = misc.teraslice();
+module.exports = function () {
+    const teraslice = misc.teraslice();
 
-    describe('elasticsearch bulk', function() {
+    describe('elasticsearch bulk', () => {
+        it('should support multisend', (done) => {
+            const jobSpec = misc.newJob('multisend');
+            jobSpec.name = 'multisend';
+            jobSpec.operations[1].index = 'test-multisend-10000';
 
-        it('should support multisend', function(done) {
-            var job_spec = misc.newJob('multisend');
-            job_spec.name = 'multisend';
-            job_spec.operations[1].index = 'test-multisend-10000';
-
-            teraslice.jobs.submit(job_spec)
-                .then(function(job) {
+            teraslice.jobs.submit(jobSpec)
+                .then((job) => {
                     expect(job).toBeDefined();
                     expect(job.id()).toBeDefined();
                     return job.waitForStatus('completed');
                 })
-                .then(function() {
-                    return misc.indexStats('test-multisend-10000')
-                        .then(function(stats) {
-                            expect(stats.count).toBe(10000);
-                        });
-                })
+                .then(() => misc.indexStats('test-multisend-10000')
+                    .then((stats) => {
+                        expect(stats.count).toBe(10000);
+                    }))
                 .catch(fail)
-                .finally(done)
+                .finally(done);
         });
     });
 };
