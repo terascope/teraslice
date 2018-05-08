@@ -284,7 +284,7 @@ describe('Worker', () => {
         expect(sentMessage).toEqual(sentMessage);
         expect(gotEvent).toEqual(false);
 
-        waitFor(120)
+        waitFor(200)
             .then(() => {
                 expect(sentMessage).toEqual({ isShuttingDown: true });
                 expect(gotEvent).toEqual(true);

@@ -577,7 +577,7 @@ describe('execution engine', () => {
 
         const engineTest = makeEngine();
         const engine = engineTest.engine;
-        const { slicerQueue } = engineTest.testContext;
+        const slicerQueue = engineTest.testContext.slicerQueue;
 
         let currentSlicerCount;
         let prevSlicerCount;
@@ -598,7 +598,7 @@ describe('execution engine', () => {
 
         const pause = messagingEvents['cluster:execution:pause'];
         const resume = messagingEvents['cluster:execution:resume'];
-        const { shutdown } = engine;
+        const shutdown = engine.shutdown;
         // for pausing/stopping, the async slicers may be already calling so counts may
         // increase by 1 or 2 since there are two slicers
         function compareCounts(prev, next) {
@@ -672,7 +672,7 @@ describe('execution engine', () => {
         // prevent slicer all done event collisions
         const engineTest = makeEngine();
         const myEmitter = engineTest.myEmitter;
-        const { slicerQueue } = engineTest.testContext;
+        const slicerQueue = engineTest.testContext.slicerQueue;
 
         let allDoneCounter = 0;
         const allDone = () => null;
