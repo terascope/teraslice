@@ -54,7 +54,7 @@ module.exports = function module(context) {
 
         // Setup console logging. Always turned on for development but off by
         // default for production.
-        if (environment === undefined || environment === 'development' || _.include(loggingConfig.logging, 'console')) {
+        if (environment === undefined || environment === 'development' || _.includes(loggingConfig.logging, 'console')) {
             const level = logLevel.console ? logLevel.console : 'info';
             streamConfig.push({ stream: process.stdout, level });
         }
@@ -62,7 +62,7 @@ module.exports = function module(context) {
         // Setup logging to files.
         // FIXME: this currently sends logs to files anytime environment is
         // production. There are scenarios where this may not be desireable.
-        if (environment === 'production' || _.include(loggingConfig.logging, 'file')) {
+        if (environment === 'production' || _.includes(loggingConfig.logging, 'file')) {
             const configPath = loggingConfig.log_path ? loggingConfig.log_path : './logs';
 
             // remove whitespace
@@ -83,7 +83,7 @@ module.exports = function module(context) {
             }
         }
 
-        if (_.include(loggingConfig.logging, 'elasticsearch')) {
+        if (_.includes(loggingConfig.logging, 'elasticsearch')) {
             const limit = loggingConfig.log_buffer_limit;
             const delay = loggingConfig.log_buffer_interval;
             const timeseriesFormat = loggingConfig.log_index_rollover_frequency;
