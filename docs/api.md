@@ -7,7 +7,7 @@ default endpoint in development is localhost:5678
    returns a json object representing the state of the cluster
 
    query :
-   ```curl localhost:5678/cluster/state```
+   ```curl localhost:5678/v1/cluster/state```
 
    response:
 
@@ -37,7 +37,7 @@ default endpoint in development is localhost:5678
 returns an array of all active slicers and their associated statistics
 
 query:
-```curl localhost:5678/cluster/slicers ```
+```curl localhost:5678/v1/cluster/slicers ```
 
 response:
 ```
@@ -130,7 +130,7 @@ Setting start to false will just store the job and not automatically enqueue it,
 
 query:
  ```
- curl -XPOST YOUR_MASTER_IP:5678/jobs -d@job.json
+ curl -XPOST YOUR_MASTER_IP:5678/v1/jobs -d@job.json
  ```
 
  response:
@@ -154,14 +154,14 @@ parameter options:
 size is the number of documents returned, from is how many documents in and sort is a lucene query
 
   query :
-   ```curl localhost:5678/jobs```
+   ```curl localhost:5678/v1/jobs```
 
 #### GET /jobs/{job_id}
 
 returns the job that matches given job_id
 
 query:
-``` curl localhost:5678/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd```
+``` curl localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd```
 
 #### PUT /jobs/{job_id}
 
@@ -171,14 +171,14 @@ updates a stored job that has the given job_id
 returns the current or latest job execution context that matches given job_id
 
    query:
-   ``` curl localhost:5678/jobs/{job_id}/ex```
+   ``` curl localhost:5678/v1/jobs/{job_id}/ex```
 
 #### POST /jobs/{job_id}/_start
 
 issues a start command, this will start a fresh new job associated with the job_id
 
 query:
-``` curl -XPOST localhost:5678/jobs/{job_id}/_start```
+``` curl -XPOST localhost:5678/v1/jobs/{job_id}/_start```
 
 
 #### POST /jobs/{job_id}/_stop
@@ -189,8 +189,8 @@ parameter options:
 
 issues a stop command which will shutdown all slicers and workers for that job, marks the job execution context state as stopped. You can optionally add a timeout query parameter to dynamically change how long it will wait as the time the slicer/readers will exit will vary. Note: the timeout your provide will be added to the network_latency_buffer for the final timeout used.
 
-query: 
-```curl -XPOST localhost:5678/jobs/{job_id}/_stop?timeout=120000```
+query:
+```curl -XPOST localhost:5678/v1/jobs/{job_id}/_stop?timeout=120000```
 
 #### POST /jobs/{job_id}/_pause
 
@@ -218,14 +218,14 @@ parameter options:
 if you use total, it will dynamically determine if it needs to add or remove to reach the number of workers you set
 
 query:
-``` curl -XPOST localhost:5678/jobs/{job_id}/_workers?add=5```
+``` curl -XPOST localhost:5678/v1/jobs/{job_id}/_workers?add=5```
 
 #### GET /jobs/{job_id}/slicer
 
 same concept as cluster/slicers, but only get stats on slicer associated with the given job_id
 
 query:
-```curl localhost:5678/jobs/{job_id}/slicer```
+```curl localhost:5678/v1/jobs/{job_id}/slicer```
 
 response:
 ```
@@ -261,7 +261,7 @@ parameter options:
 
 
 query:
-```curl -XGET localhost:5678/jobs/{job_id}/errors
+```curl -XGET localhost:5678/v1/jobs/{job_id}/errors
 ```
 
 
@@ -276,7 +276,7 @@ parameter options:
 
 
 query:
-```curl -XGET localhost:5678/jobs/{job_id}/errors/{ex_id}
+```curl -XGET localhost:5678/v1/jobs/{job_id}/errors/{ex_id}
 ```
 
 
@@ -294,14 +294,14 @@ parameter options:
 size is the number of documents returned, from is how many documents in and sort is a lucene query
 
   query :
-   ```curl localhost:5678/ex?status=running&size=10```
+   ```curl localhost:5678/v1/ex?status=running&size=10```
 
 #### GET /ex/{ex_id}
 
  returns the job execution context that matches given ex_id
 
    query:
-   ``` curl localhost:5678/ex/77c94621-48cf-459f-9d95-dfbccf010f5c```
+   ``` curl localhost:5678/v1/ex/77c94621-48cf-459f-9d95-dfbccf010f5c```
 
 #### POST /ex/{ex_id}/_stop
 
@@ -311,8 +311,8 @@ parameter options:
 
 issues a stop command which will shutdown all slicers and workers for that job, marks the job execution context state as stopped. You can optionally add a timeout query parameter to dynamically change how long it will wait as the time the slicer/readers will exit will vary. Note: the timeout your provide will be added to the network_latency_buffer for the final timeout used.
 
-query: 
-```curl -XPOST localhost:5678/ex/{ex_id}/_stop?timeout=120000```
+query:
+```curl -XPOST localhost:5678/v1/ex/{ex_id}/_stop?timeout=120000```
 
 #### POST /ex/{ex_id}/_pause
 
@@ -335,14 +335,14 @@ parameter options:
 if you use total, it will dynamically determine if it needs to add or remove to reach the number of workers you set
 
 query:
-``` curl -XPOST localhost:5678/ex/{ex_id}/_workers?add=5```
+``` curl -XPOST localhost:5678/v1/ex/{ex_id}/_workers?add=5```
 
 #### GET /ex/{ex_id}/slicer
 
 same concept as cluster/slicers, but only get stats on slicer associated with the given ex_id
 
 query:
-```curl localhost:5678/ex/{ex_id}/slicer```
+```curl localhost:5678/v1/ex/{ex_id}/slicer```
 
 response:
 ```
