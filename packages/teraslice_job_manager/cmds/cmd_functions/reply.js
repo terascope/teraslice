@@ -3,9 +3,8 @@
 const chalk = require('chalk');
 
 module.exports = () => {
-    function error(message) {
-        console.log(chalk.red(message));
-        process.exit();
+    function error(err) {
+        throw chalk.red(err);
     }
 
     function success(message) {

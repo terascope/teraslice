@@ -16,8 +16,8 @@ exports.handler = (argv) => {
 
     Promise.resolve()
         .then(() => tjmFunctions.alreadyRegisteredCheck(jobContents))
-        .then((result) => {
-            if (result === false) {
+        .then((registerCheck) => {
+            if (registerCheck === false) {
                 return Promise.reject('Job is not on the cluster');
             }
             return Promise.resolve(true);

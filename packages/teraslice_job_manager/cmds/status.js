@@ -7,8 +7,8 @@ exports.builder = (yargs) => {
 };
 exports.handler = (argv) => {
     const reply = require('./cmd_functions/reply')();
-    const jsonData = require('./cmd_functions/json_data_functions')(argv.jobFile);
-    const jobContents = jsonData.jobFileHandler()[1];
+    const jsonData = require('./cmd_functions/json_data_functions')();
+    const jobContents = jsonData.jobFileHandler(argv.jobFile)[1];
     jsonData.metaDataCheck(jobContents);
     const tjmFunctions = require('./cmd_functions/functions')(argv, jobContents.tjm.cluster);
     const jobId = jobContents.tjm.job_id;

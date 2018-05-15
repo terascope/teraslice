@@ -18,7 +18,7 @@
         }
     ],
     "tjm": {
-        "cluster": "http://localhost",
+        "cluster": "http://localhost:5678",
         "version": "0.0.1",
         "job_id": "ffa9b355-52d6-48b8-87bc-6ad13795cc4b"
     }

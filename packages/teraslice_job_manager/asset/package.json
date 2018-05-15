@@ -1,0 +1,6 @@
+{
+    "name": "common_processors",
+    "version": "0.0.29",
+    "description": "Processing modules that are common across data types",
+    "main": "index.js"
+}

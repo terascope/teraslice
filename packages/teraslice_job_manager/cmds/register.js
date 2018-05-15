@@ -8,17 +8,17 @@ exports.desc = 'Registers job with a cluster.  Specify the cluster with -c.\nAdd
 exports.builder = (yargs) => {
     yargs
         .option('c', { describe: 'cluster where the job will be registered',
-            default: 'localhost' })
+            default: 'localhost:5678' })
         .option('a', { describe: 'builds the assets and deploys to cluster, optional',
             default: false,
             type: 'boolean' })
-        .example('tjm register jobfile.prod -c ts_gen1.tera1.terascope.io -a');
+        .example('tjm register jobfile.prod -c clusterDomain -a');
 };
 exports.handler = (argv) => {
     const reply = require('./cmd_functions/reply')();
-    const jsonData = require('./cmd_functions/json_data_functions')(argv.jobFile);
+    const jsonData = require('./cmd_functions/json_data_functions')();
     const tjmFunctions = require('./cmd_functions/functions')(argv);
-    const jobData = jsonData.jobFileHandler();
+    const jobData = jsonData.jobFileHandler(argv.jobFile);
     const jobContents = jobData[1];
     const jobFilePath = jobData[0];
 
@@ -30,7 +30,7 @@ exports.handler = (argv) => {
             }
             return Promise.resolve(true);
         })
-        .then(() => tjmFunctions.loadAssets())
+        .then(() => tjmFunctions.loadAsset())
         .then(() => tjmFunctions.teraslice.jobs.submit(jobContents, true))
         .then((result) => {
             const jobId = result.id();
