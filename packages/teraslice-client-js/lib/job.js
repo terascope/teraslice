@@ -104,6 +104,10 @@ module.exports = function(config, job_id) {
         return request.get(`/jobs/${job_id}`);
     }
 
+    function errors() {
+        return request.get(`/jobs/${job_id}/errors`);
+    }
+
     function _filterProcesses(role) {
         return request.get("/cluster/state")
             .then(function(state) {
@@ -147,6 +151,7 @@ module.exports = function(config, job_id) {
         slicer: slicer,
         status: status,
         spec: spec,
+        errors: errors,
         id: () => {
             return job_id
         },
