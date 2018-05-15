@@ -16,6 +16,8 @@
         "import/no-dynamic-require": "off",
         "global-require": "off",
         "strict": ["error", "global"],
-        "comma-dangle": "off"
+        "comma-dangle": "off",
+        "prefer-promise-reject-errors": "off",
+        "no-restricted-globals": ["error", "isFinite"]
     }
 }

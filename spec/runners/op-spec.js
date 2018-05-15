@@ -143,7 +143,6 @@ describe('op runner', () => {
     it('getClient will error properly', (done) => {
         const makeError = () => {
             throw new Error('a client error');
-            return false;
         };
         context.apis.foundation.getConnection = makeError;
         opCode(context);

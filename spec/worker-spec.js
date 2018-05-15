@@ -2,6 +2,7 @@
 
 const eventsModule = require('events');
 const _ = require('lodash');
+const Promise = require('bluebird');
 
 const eventEmitter = new eventsModule.EventEmitter();
 
@@ -283,7 +284,7 @@ describe('Worker', () => {
         expect(sentMessage).toEqual(sentMessage);
         expect(gotEvent).toEqual(false);
 
-        waitFor(120)
+        waitFor(200)
             .then(() => {
                 expect(sentMessage).toEqual({ isShuttingDown: true });
                 expect(gotEvent).toEqual(true);
