@@ -1,6 +1,6 @@
 'use strict';
 
-const mocker = require('mocker-data-generator');
+const mocker = require('mocker-data-generator').default;
 const schema = require('../../lib/utils/data_utils');
 const moment = require('moment');
 
@@ -16,11 +16,16 @@ describe('data_utils', () => {
 
         mocker()
             .schema('schema', resultSchema, 1)
-            .build((data) => {
+            .build()
+            .then((data) => {
                 const finalResult = data.schema[0];
                 expect(new Date(finalResult.created)).toBeLessThan(new Date(opConfig.end));
                 expect(new Date(finalResult.created)).toBeGreaterThan(new Date(opConfig.start));
                 done();
+            })
+            .catch((err) => {
+                fail(err);
+                done()
             });
     });
 
@@ -30,11 +35,16 @@ describe('data_utils', () => {
 
         mocker()
             .schema('schema', resultSchema, 1)
-            .build((data) => {
+            .build()
+            .then((data) => {
                 const newDate = new Date();
                 const finalResult = data.schema[0];
                 expect(new Date(finalResult.created)).toBeLessThan(newDate);
                 expect(new Date(finalResult.created)).toBeGreaterThan(new Date(opConfig.start));
+                done();
+            })
+            .catch((err) => {
+                fail(err);
                 done();
             });
     });
@@ -47,10 +57,15 @@ describe('data_utils', () => {
 
         mocker()
             .schema('schema', resultSchema, 1)
-            .build((data) => {
+            .build()
+            .then((data) => {
                 const finalResult = data.schema[0];
                 expect(new Date(finalResult.created)).toBeLessThan(new Date(endDate.format()));
                 expect(new Date(finalResult.created)).toBeGreaterThan(newDate);
+                done();
+            })
+            .catch((err) => {
+                fail(err);
                 done();
             });
     });

@@ -399,7 +399,7 @@ describe('execution engine', () => {
     });
 
     it('failed slice can recover to running status in persistent mode', (done) => {
-        const newExecution =  _.cloneDeep(executionContext);
+        const newExecution = _.cloneDeep(executionContext);
         newExecution.config.lifecycle = 'persistent';
         newExecution.config.probation_window = 100;
         const engineTest = makeEngine(newExecution);
@@ -564,8 +564,8 @@ describe('execution engine', () => {
 
     it('can initialize, pause, resume and shutdown', (done) => {
         const spyObj = {
-            firstSlicer: () => ({ some: 'data' }),
-            secondSlicer: () => ({ some: 'data' })
+            firstSlicer: () => Promise.resolve({ some: 'data' }),
+            secondSlicer: () => Promise.resolve({ some: 'data' })
         };
 
         spyOn(spyObj, 'firstSlicer').and.callThrough();
@@ -574,6 +574,7 @@ describe('execution engine', () => {
             newSlicer: () => [spyObj.firstSlicer, spyObj.secondSlicer],
             slicerQueueLength: () => 100000
         };
+
         const engineTest = makeEngine();
         const engine = engineTest.engine;
         const slicerQueue = engineTest.testContext.slicerQueue;
@@ -598,6 +599,12 @@ describe('execution engine', () => {
         const pause = messagingEvents['cluster:execution:pause'];
         const resume = messagingEvents['cluster:execution:resume'];
         const shutdown = engine.shutdown;
+        // for pausing/stopping, the async slicers may be already calling so counts may
+        // increase by 1 or 2 since there are two slicers
+        function compareCounts(prev, next) {
+            if (prev === next || prev + 2 === next || prev + 1 === next) return true;
+            return false;
+        }
 
         engine.initialize()
             .then(() => {
@@ -617,18 +624,16 @@ describe('execution engine', () => {
 
                 prevFirstCallCount = currFirstCallCount;
                 prevSecondCallCount = currSecondCallCount;
-
                 return pause();
             })
             .then(() => {
                 currentSlicerCount = slicerQueue.size();
-                expect(currentSlicerCount === prevSlicerCount).toEqual(true);
+                expect(compareCounts(prevSlicerCount, currentSlicerCount)).toEqual(true);
 
                 currFirstCallCount = spyObj.firstSlicer.calls.count();
                 currSecondCallCount = spyObj.firstSlicer.calls.count();
-
-                expect(currFirstCallCount === prevFirstCallCount).toEqual(true);
-                expect(currSecondCallCount === prevSecondCallCount).toEqual(true);
+                expect(compareCounts(prevFirstCallCount, currFirstCallCount)).toEqual(true);
+                expect(compareCounts(prevSecondCallCount, currSecondCallCount)).toEqual(true);
 
                 resume();
                 return waitFor(20);
@@ -651,13 +656,13 @@ describe('execution engine', () => {
             })
             .then(() => {
                 currentSlicerCount = slicerQueue.size();
-                expect(currentSlicerCount === prevSlicerCount).toEqual(true);
+                expect(compareCounts(prevSlicerCount, currentSlicerCount)).toEqual(true);
 
                 currFirstCallCount = spyObj.firstSlicer.calls.count();
                 currSecondCallCount = spyObj.firstSlicer.calls.count();
 
-                expect(currFirstCallCount === prevFirstCallCount).toEqual(true);
-                expect(currSecondCallCount === prevSecondCallCount).toEqual(true);
+                expect(compareCounts(prevFirstCallCount, currFirstCallCount)).toEqual(true);
+                expect(compareCounts(prevSecondCallCount, currSecondCallCount)).toEqual(true);
             })
             .catch(fail)
             .finally(done);
