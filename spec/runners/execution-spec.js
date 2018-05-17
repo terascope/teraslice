@@ -52,6 +52,7 @@ describe('execution runner', () => {
     };
 
     beforeEach(() => {
+        fs.remove(testDir);
         fs.ensureDirSync(testDir);
     });
 
@@ -178,7 +179,26 @@ describe('execution runner', () => {
         ])
             .then(fail)
             .catch((err) => {
-                expect(err).toEqual('test error');
+                expect(err).toBeDefined();
+                expect(typeof err).toEqual('string');
+            })
+            .finally(done);
+    });
+
+    it('can fail if assets downloaded but fails to instantiate', (done) => {
+        const assetjob = {
+            assets: [assetId],
+            operations: [{ _op: 'fail' }]
+        };
+        fs.copySync(path.join(__dirname, 'processors', 'fail.js'), path.join(assetPath, 'fail.js'));
+        const newContext = _.cloneDeep(context);
+        newContext.__test_job = JSON.stringify(assetjob);
+        const executionRunner = executionCode(newContext).__test_context();
+
+        executionRunner.initialize(eventEmitter, logger)
+            .catch((err) => {
+                expect(err).toBeDefined();
+                expect(typeof err).toEqual('string');
             })
             .finally(done);
     });
@@ -293,4 +313,3 @@ describe('execution runner', () => {
         expect(testRegisterApi.job_runner.getOpConfig('somethingElse')).toEqual(undefined);
     });
 });
-
