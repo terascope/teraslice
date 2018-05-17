@@ -27,7 +27,7 @@ function validateConfig(cluster, schema, configFile) {
         config.load(configFile);
 
         if (cluster.isMaster) {
-            config.validate();
+            config.validate({ allowed: true });
         }
 
         return config.getProperties();
