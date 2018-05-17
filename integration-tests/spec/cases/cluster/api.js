@@ -118,6 +118,20 @@ module.exports = function () {
                 .finally(done);
         });
 
+        it('api end point /assets/assetName/version should return an array of json objects of asset metadata', (done) => {
+            teraslice.cluster.get('/assets/ex1/0.0.1')
+                .then((response) => {
+                    expect(_.isArray(response)).toBe(true);
+                    expect(_.isPlainObject(response[0])).toBe(true);
+                    expect(_.has(response[0], '_created')).toBe(true);
+                    expect(_.has(response[0], 'name')).toBe(true);
+                    expect(_.has(response[0], 'id')).toBe(true);
+                    expect(_.has(response[0], 'version')).toBe(true);
+                })
+                .catch(fail)
+                .finally(done);
+        });
+
         it('api end point /txt/assets should return a text table', (done) => {
             teraslice.cluster.txt('assets')
                 .then((response) => {
@@ -130,6 +144,16 @@ module.exports = function () {
 
         it('api end point /txt/assets/assetName should return a text table', (done) => {
             teraslice.cluster.txt('assets/ex1')
+                .then((response) => {
+                    expect(_.isArray(response)).toBe(false);
+                    expect(typeof response).toBe('string');
+                })
+                .catch(fail)
+                .finally(done);
+        });
+
+        it('api end point /txt/assets/assetName/version should return a text table', (done) => {
+            teraslice.cluster.txt('assets/ex1/0.0.1')
                 .then((response) => {
                     expect(_.isArray(response)).toBe(false);
                     expect(typeof response).toBe('string');
