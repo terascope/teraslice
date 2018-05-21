@@ -5,7 +5,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const Promise = require('bluebird');
 const readFile = Promise.promisify(require('fs').readFile);
-const reply = require('./cmd_functions/reply')();
+let reply = require('./cmd_functions/reply')();
 
 
 exports.command = 'asset <cmd>';
@@ -51,27 +51,28 @@ exports.handler = (argv, testTjmFunctions) => {
     }
 
     if (clusters.length === 0 || clusters === undefined) {
-        reply.error('Cluster data is missing from asset.json or not specified using -c.');
+        return reply.error('Cluster data is missing from asset.json or not specified using -c.');
     }
 
     let tjmFunctions;
     if (testTjmFunctions) {
+        // mock function to use for testing
         tjmFunctions = testTjmFunctions;
+        reply = testTjmFunctions.reply;
     } else {
         tjmFunctions = require('./cmd_functions/functions')(argv);
     }
 
     if (argv.cmd === 'deploy') {
-        return Promise.resolve()
-            .then(() => tjmFunctions.loadAsset())
+        return tjmFunctions.loadAsset()
             .catch(err => {
                 if(err.name === 'RequestError') {
-                    reply.error(`Could not connect to ${argv.c}`);
+                    return reply.error(`Could not connect to ${argv.c}`);
                 }
-                reply.error(err.message)
+                return reply.error(err);
             });
     } else if (argv.cmd === 'update') {
-        Promise.resolve()
+        return Promise.resolve()
             .then(() => fs.emptyDir(path.join(process.cwd(), 'builds')))
             .then(() => tjmFunctions.zipAsset())
             .then(zipData => {
@@ -91,7 +92,7 @@ exports.handler = (argv, testTjmFunctions) => {
                         .then((postResponse) => {
                             const postResponseJson = JSON.parse(postResponse);
                             if (postResponseJson.error) {
-                                console.log(`cluster: ${cluster} - ${postResponseJson.error}`);
+                                throw new Error(`cluster: ${cluster} - ${postResponseJson.error}`);
                             } else {
                                 reply.success(`Asset posted to ${argv.c} with id ${postResponseJson._id}`);
                             }

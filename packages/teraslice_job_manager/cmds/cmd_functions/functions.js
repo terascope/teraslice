@@ -4,7 +4,7 @@ const _ = require('lodash');
 const fs = require('fs-extra');
 const archiver = require('archiver');
 const Promise = require('bluebird');
-const reply = require('./reply')();
+let reply = require('./reply')();
 const path = require('path');
 const writeFile = Promise.promisify(require('fs').writeFile);
 
@@ -31,12 +31,8 @@ module.exports = (argv, clusterName) => {
     function _postAsset() {
         return Promise.resolve()
             .then(() => fs.readFile(path.join(process.cwd(), 'builds', 'processors.zip')))
-            .then((zipFile) => {
-                return teraslice.assets.post(zipFile)
-            })
-            .then((assetPostResponse) => {
-                return assetPostResponse;
-            });
+            .then(zipFile => teraslice.assets.post(zipFile))
+            .then(assetPostResponse => assetPostResponse);
     }
 
     function loadAsset() {
@@ -62,7 +58,6 @@ module.exports = (argv, clusterName) => {
                     })
                     .then(() => reply.success('TJM data added to asset.json'))
                     .then(() => reply.success(`Asset has successfully been deployed to ${argv.c}`))
-                    .catch(err => reply(err));
         }
         return Promise.resolve(true);
     }
@@ -74,7 +69,7 @@ module.exports = (argv, clusterName) => {
     function httpClusterNameCheck(url) {
         // needs to have a port number
         if (url.lastIndexOf(':') !== url.length - 5) {
-            reply.error('Cluster names need to include a port number')
+            return reply.error('Cluster names need to include a port number');
         }
 
         if (url.indexOf('http') !== 0) {
@@ -131,8 +126,9 @@ module.exports = (argv, clusterName) => {
         }
     }
 
-    function __testContext(_teraslice) {
-        teraslice = _teraslice
+    function __testContext(_teraslice, _reply) {
+        teraslice = _teraslice,
+        reply = _reply
     }
 
     function __testFunctions() {
