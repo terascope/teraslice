@@ -15,4 +15,4 @@ EXPOSE 5678
 
 VOLUME /app/config /app/logs
 
-CMD ["make", "master"]
+ENTRYPOINT ["node", "service.js"]
