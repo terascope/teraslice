@@ -752,7 +752,7 @@ describe('execution engine', () => {
     it('can send slices to specific workers', (done) => {
         const engineTest = makeEngine();
         const { myEmitter } = engineTest;
-        const { slicerQueue, workerQueue } = engineTest.testContext;
+        const { slicerQueue, workerQueue, enqueueWorker } = engineTest.testContext;
         const slice1 = { request: { some: 'slice' } };
         const slice2 = Object.assign({}, slice1, { request: { request_worker: 3 } });
         const slice3 = Object.assign({}, slice1, { request: { request_worker: 99 } });
@@ -773,9 +773,9 @@ describe('execution engine', () => {
 
         myEmitter.on('slice:invalid', (data) => { invalidSlice = data; });
 
-        workerQueue.enqueue(worker1);
-        workerQueue.enqueue(worker2);
-        workerQueue.enqueue(worker3);
+        enqueueWorker(worker1);
+        enqueueWorker(worker2);
+        enqueueWorker(worker3);
 
         waitFor(10)
             .then(() => {
@@ -824,7 +824,7 @@ describe('execution engine', () => {
     it('should not send two slices to the same worker', (done) => {
         const engineTest = makeEngine();
         const { myEmitter } = engineTest;
-        const { workerQueue, slicerQueue } = engineTest.testContext;
+        const { workerQueue, slicerQueue, enqueueWorker } = engineTest.testContext;
         const slice1 = { request: { some: 'slice' } };
 
         const worker1 = { worker_id: 1 };
@@ -837,16 +837,18 @@ describe('execution engine', () => {
 
         myEmitter.on('slice:invalid', (data) => { invalidSlice = data; });
 
-        workerQueue.enqueue(worker1);
-        workerQueue.enqueue(worker1);
-        workerQueue.enqueue(worker2);
+        enqueueWorker(worker1);
+        enqueueWorker(worker1);
+        enqueueWorker(worker2);
 
         expect(workerQueue.size()).toEqual(2);
+        expect(sentMsgs).toEqual([]);
 
         slicerQueue.enqueue(slice1);
         slicerQueue.enqueue(slice1);
         waitFor(10).then(() => {
             expect(workerQueue.size()).toEqual(0);
+            expect(sentMsgs.length).toEqual(2);
             expect(sentMsgs).toEqual([
                 {
                     to: 'worker',
@@ -869,7 +871,7 @@ describe('execution engine', () => {
     it('should not send two slices to the same worker when specifiying the worker id', (done) => {
         const engineTest = makeEngine();
         const { myEmitter } = engineTest;
-        const { workerQueue, slicerQueue } = engineTest.testContext;
+        const { workerQueue, slicerQueue, enqueueWorker } = engineTest.testContext;
         const slice1 = { request: { request_worker: 1, some: 'slice' } };
 
         const worker1 = { worker_id: 1 };
@@ -887,16 +889,18 @@ describe('execution engine', () => {
 
         myEmitter.on('slice:invalid', (data) => { invalidSlice = data; });
 
-        workerQueue.enqueue(worker1);
-        workerQueue.enqueue(worker1);
-        workerQueue.enqueue(worker2);
+        enqueueWorker(worker1);
+        enqueueWorker(worker1);
+        enqueueWorker(worker2);
 
         expect(workerQueue.size()).toEqual(2);
+        expect(sentMsgs).toEqual([]);
 
         slicerQueue.enqueue(slice1);
         slicerQueue.enqueue(slice1);
         waitFor(10).then(() => {
             expect(workerQueue.size()).toEqual(1);
+            expect(sentMsgs.length).toEqual(1);
             expect(sentMsgs).toEqual([
                 {
                     to: 'worker',
