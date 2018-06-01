@@ -914,4 +914,25 @@ describe('execution engine', () => {
             done();
         }).catch(done.fail);
     });
+
+    it('should workerQueue extract should not be extract the same worker twice', () => {
+        const engineTest = makeEngine();
+        const { workerQueue, enqueueWorker } = engineTest.testContext;
+
+        const worker1 = { worker_id: 1 };
+        const worker2 = { worker_id: 2 };
+
+        engineTest.testContext._engineSetup();
+
+        enqueueWorker(worker1);
+        enqueueWorker(worker1);
+        enqueueWorker(worker2);
+
+        expect(workerQueue.size()).toEqual(2);
+        expect(workerQueue.extract('worker_id', 1)).toEqual(worker1);
+        expect(workerQueue.extract('worker_id', 1)).toEqual(null);
+        expect(workerQueue.size()).toEqual(1);
+        expect(workerQueue.extract('worker_id', 2)).toEqual(worker2);
+        expect(workerQueue.size()).toEqual(0);
+    });
 });
