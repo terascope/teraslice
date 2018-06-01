@@ -38,7 +38,7 @@ describe('teraslice', () => {
     }
 
     // ensure docker-compose stack is down before starting it
-    function dockerDown() {
+    function dockerStop() {
         console.log(' - Ensuring docker environment is in a clean slate');
         return misc.compose.down({ 'remove-orphans': '' }).catch(() => Promise.resolve());
     }
@@ -172,7 +172,7 @@ describe('teraslice', () => {
             });
     }
 
-    const before = [dockerDown, dockerUp, waitForES, cleanup, waitForTeraslice, generateTestData];
+    const before = [dockerStop, dockerUp, waitForES, cleanup, waitForTeraslice, generateTestData];
 
     beforeAll((done) => {
         Promise.resolve(before)
