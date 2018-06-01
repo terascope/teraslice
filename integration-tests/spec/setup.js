@@ -7,7 +7,7 @@ const Promise = require('bluebird');
 const misc = require('./misc')();
 
 // We need long timeouts for some of these jobs
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
 
 if (process.stdout.isTTY) {
     const { SpecReporter } = require('jasmine-spec-reporter');
@@ -185,7 +185,7 @@ describe('teraslice', () => {
                 console.error('Setup failed: ', err, ' - `docker-compose logs` may provide clues');
                 process.exit(2);
             });
-    }, 60000);
+    }, 3 * 60 * 1000);
 
     require('./cases/cluster/api')();
     require('./cases/assets/simple')();

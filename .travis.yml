@@ -12,7 +12,6 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
 script:
-  - make test
-  - make integration-tests
-after_script:
+  - time make test
+  - time make integration-tests
   - make lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
