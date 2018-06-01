@@ -2,6 +2,7 @@
 This is a typical FIFO queue implementation with a few extra helper methods
 
 ### API
+
 | method | Description | Type |  Notes
 |:---------: | :--------: | :------: | :------:
 enqueue | will add any value to the queue| Any | Adds to end of queue
@@ -11,6 +12,8 @@ each | calls a function on each value in the queue | Function | it does not retu
 remove | iterates and removes any from the queue that matches the value passed in. | String, String | Looks at values located at the key 'id', if a second args is given then it will look at that key instead. Check the example for more details
 size | returns the size of the queue | no args | returns a number, 0 if queue is empty
 extract | removes and returns a particular value in the queue | String, String | The first parameter is the key of the object in which you will be checking, and the second is the actual value that you will be comparing
+exists | returns a boolean indicating the existence of a particular value in the queue | String, String | The first parameter is the key of the object in which you will be checking, and the second is the actual value that you will be comparing
+
 ### Usage
 
 ```
@@ -27,11 +30,11 @@ queue.dequeue();  => {first: 1}
 queue.size();  => 2
 
 // O(N)
-queue.unshift({first: 1}) 
+queue.unshift({first: 1})
 queue.size();  => 3
 
 //takes in a function and calls it on each value in the queue
-queue.each(obj => console.log(obj)); 
+queue.each(obj => console.log(obj));
 => {first: 1, id: 'someId'}
 => {second: 2, id: 'anotherId'}
 => {third: 3, id:, 'yetAnotherId'}
@@ -54,7 +57,7 @@ queue.each(obj => console.log(obj));
 // second argument will change what key it looks at
 queue.remove('someOtherKeyId', 'anotherKey');
 
-queue.each( obj => console.log(obj) ) 
+queue.each( obj => console.log(obj) )
 => {first: 1, id: 'someId'}
 => {third: 3, id:, 'yetAnotherId'}
 
@@ -73,5 +76,10 @@ newQueue.size()
 newQueue.dequeue();
 => {job_id: 2}
 
+newQueue.exists('ex_id', 3);
+=> true
+
+newQueue.exists('ex_id', 123123);
+=> false
 
 ```

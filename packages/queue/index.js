@@ -174,4 +174,21 @@ Queue.prototype.size = function() {
     return this._size;
 };
 
+Queue.prototype.exists = function(key, val) {
+    var currentNode = this.head;
+
+    if (currentNode && currentNode.value[key] === val) {
+        return true
+    }
+
+    while (currentNode && currentNode.next) {
+        currentNode = currentNode.next;
+
+        if (currentNode.value[key] === val) {
+            return true
+        }
+    }
+    return false
+};
+
 module.exports = Queue;

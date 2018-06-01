@@ -10,6 +10,7 @@ describe('Queue', function() {
         expect(typeof queue.size).toBe('function');
         expect(typeof queue.remove).toBe('function');
         expect(typeof queue.extract).toBe('function');
+        expect(typeof queue.exists).toBe('function');
     });
 
     it('can enqueue and dequeue', function() {
@@ -145,4 +146,15 @@ describe('Queue', function() {
         expect(queue.size()).toEqual(1);
         expect(queue.extract('job_id', 1)).toEqual(null);
     });
+    
+    it('can check for the existence of a node given a key and value', () => {
+        const queue = new Queue();
+
+        queue.enqueue({ id: 'some-random-id' })
+        queue.enqueue({ id: 'example-id' })
+        queue.enqueue({ id: 'some-other-id' })
+
+        expect(queue.exists('id', 'example-id')).toEqual(true)
+        expect(queue.exists('id', 'missing-id')).toEqual(false)
+    })
 });
