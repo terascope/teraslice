@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint-disable no-console */
+
 const _ = require('lodash');
 const Promise = require('bluebird');
 const misc = require('./misc')();
@@ -8,7 +10,7 @@ const misc = require('./misc')();
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 600000;
 
 if (process.stdout.isTTY) {
-    const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
+    const { SpecReporter } = require('jasmine-spec-reporter');
     jasmine.getEnv().clearReporters();
     jasmine.getEnv().addReporter(new SpecReporter({
         spec: {
@@ -20,9 +22,25 @@ if (process.stdout.isTTY) {
 
 describe('teraslice', () => {
     function dockerUp() {
-        console.log(' - Bringing Docker environment up...');
-        console.log(' * this may take a few minutes');
-        return misc.compose.up({ build: '' });
+        process.stdout.write(' - Bringing Docker environment up');
+        const intervalId = setInterval(() => {
+            process.stdout.write('.');
+        }, 30 * 1000);
+        return misc.compose.up({ build: '' }).then((result) => {
+            clearInterval(intervalId);
+            process.stdout.write('\n');
+            return result;
+        }, (err) => {
+            clearInterval(intervalId);
+            process.stdout.write('\n');
+            return err;
+        });
+    }
+
+    // ensure docker-compose stack is down before starting it
+    function dockerDown() {
+        console.log(' - Ensuring docker environment is in a clean slate');
+        return misc.compose.down({ 'remove-orphans': '' }).catch(() => Promise.resolve());
     }
 
     function waitForES() {
@@ -154,7 +172,7 @@ describe('teraslice', () => {
             });
     }
 
-    const before = [dockerUp, waitForES, cleanup, waitForTeraslice, generateTestData];
+    const before = [dockerDown, dockerUp, waitForES, cleanup, waitForTeraslice, generateTestData];
 
     beforeAll((done) => {
         Promise.resolve(before)

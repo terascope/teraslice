@@ -5,7 +5,7 @@ RUN mkdir -p /app/source
 
 WORKDIR /app/source
 
-RUN yarn add bluebird@^2.9.34 \
+RUN npm install bluebird@^2.9.34 \
     body-parser@^1.15.2 \
     convict@^1.0.1 \
     datemath-parser@^1.0.5 \
