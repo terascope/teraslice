@@ -3,7 +3,7 @@
 const bunyan = require('bunyan');
 const fs = require('fs');
 const _ = require('lodash');
-const RingBuffer = require('../logger_utils').RingBuffer;
+const { RingBuffer } = require('../logger_utils');
 const Promise = require('bluebird');
 
 function getLogLevel(level) {
@@ -50,7 +50,7 @@ module.exports = function module(context) {
 
         const streamConfig = [];
         let ringBuffer = false;
-        const environment = loggingConfig.environment;
+        const { environment } = loggingConfig;
 
         // Setup console logging. Always turned on for development but off by
         // default for production.

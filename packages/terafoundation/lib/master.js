@@ -3,8 +3,7 @@
 const _ = require('lodash');
 
 module.exports = function module(context, moduleConfig) {
-    const cluster = context.cluster;
-    const logger = context.logger;
+    const { cluster, logger } = context;
     const configWorkers = context.sysconfig.terafoundation.workers;
     let startWorkers = true;
     const events = context.foundation.getEventEmitter();

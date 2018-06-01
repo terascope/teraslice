@@ -4,8 +4,7 @@ const _ = require('lodash');
 
 module.exports = function module(context) {
     return function startWorkers(num, envOptions) {
-        const logger = context.logger;
-        const cluster = context.cluster;
+        const { logger, cluster } = context;
         // default assignment is set to worker
         // service_context acts as a dictionary to know what env variables
         // are needed on restarts and crashes

@@ -7,15 +7,15 @@ module.exports = function module(config) {
     const _ = require('lodash');
 
     const validateConfigs = require('./lib/validate_configs');
-    const loggerClient = require('./lib/logger_utils').loggerClient;
+    const { loggerClient } = require('./lib/logger_utils');
     const api = require('./lib/api');
 
     const name = config.name ? config.name : 'terafoundation';
     let loggingConnection = 'default';
 
-    const argv = require('yargs')
+    const { argv } = require('yargs')
         .alias('c', 'configfile')
-        .alias('b', 'bootstrap').argv;
+        .alias('b', 'bootstrap');
 
     const configFile = require('./lib/sysconfig')({
         configfile: argv.configfile
@@ -101,8 +101,8 @@ module.exports = function module(config) {
         api(context);
 
         // Bootstrap the top level logger
-        context.logger = context.apis.foundation.makeLogger(context.name, context.name);
-        logger = context.logger;
+        logger = context.apis.foundation.makeLogger(context.name, context.name);
+        context.logger = logger;
 
         // FIXME: this should probably be refactored to actually create the
         // logger as it stands this function is very confusing

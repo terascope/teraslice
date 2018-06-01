@@ -6,11 +6,10 @@
  connected
  reconnected
  */
-const getModule = require('../file_utils').getModule;
+const { getModule } = require('../file_utils');
 
 module.exports = function module(context) {
-    const sysconfig = context.sysconfig;
-
+    const { sysconfig } = context;
     const connections = {};
 
     /*
@@ -36,22 +35,16 @@ module.exports = function module(context) {
      * options.cached
      */
     return function getConnection(options) {
-        const logger = context.logger;
+        const { logger } = context;
 
-        const type = options.type;
-        let endpoint = options.endpoint;
-        const cached = options.cached;
-
-        if (!endpoint) {
-            endpoint = 'default';
-        }
+        const { type, endpoint = 'default', cached } = options;
 
         // If it's acceptable to use a cached connection just return instead
         // of creating a new one
         const key = `${type}:${endpoint}`;
 
         // Location in the configuration where we look for connectors.
-        const connectors = sysconfig.terafoundation.connectors;
+        const { connectors } = sysconfig.terafoundation;
 
         if (cached && Object.prototype.hasOwnProperty.call(connections, key)) {
             return connections[key];

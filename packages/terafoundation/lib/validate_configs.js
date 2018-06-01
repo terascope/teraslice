@@ -3,7 +3,8 @@
 const sysSchema = require('../system_schema');
 const _ = require('lodash');
 const convict = require('convict');
-const getModule = require('./file_utils').getModule;
+const { getModule } = require('./file_utils');
+const os = require('os');
 
 function getConnectorSchema(name, context) {
     const paths = {};
@@ -21,7 +22,8 @@ function getConnectorSchema(name, context) {
     return getModule(name, paths, err).config_schema();
 }
 
-function validateConfig(cluster, schema, configFile) {
+function validateConfig(cluster, _schema, configFile) {
+    const schema = _schema || {};
     try {
         const config = convict(schema);
         config.load(configFile);
@@ -47,10 +49,7 @@ function extractSchema(fn, configFile) {
 }
 
 module.exports = function module(cluster, context, configFile) {
-    const topLevelSchema = extractSchema(context.config_schema, configFile);
-    const pluginSchema = extractSchema(context.plugin_schema, configFile);
-
-    const topLevelName = context.name;
+    const schema = extractSchema(context.config_schema, configFile);
     const config = {};
 
     if (context.schema_formats) {
@@ -62,7 +61,7 @@ module.exports = function module(cluster, context, configFile) {
     // iterate over top level config components
     _.forOwn(configFile, (value, key) => {
         // terafoundation
-        if (configFile[key].connectors) {
+        if (key === 'terafoundation') {
             config[key] = validateConfig(cluster, sysSchema, configFile[key]);
             config[key].connectors = {};
 
@@ -77,18 +76,18 @@ module.exports = function module(cluster, context, configFile) {
                         validateConfig(cluster, innerSchema, name);
                 });
             });
-
-        // top level service configuration
-        } else if (key === topLevelName) {
-            config[key] = validateConfig(cluster, topLevelSchema, configFile[key]);
-        } else if (pluginSchema[key]) {
-            config[key] = validateConfig(cluster, pluginSchema[key], configFile[key]);
-
-        // Any other custom top level configuration outside terafoundation and teraserver
         } else {
-            config[key] = configFile[key];
+            config[key] = validateConfig(cluster, schema[key], configFile[key]);
         }
     });
+
+    // Annotate the config with some information about this instance.
+    const hostname = os.hostname();
+    if (cluster.worker) {
+        config._nodeName = `${hostname}.${cluster.worker.id}`;
+    } else {
+        config._nodeName = hostname;
+    }
 
     return config;
 };
