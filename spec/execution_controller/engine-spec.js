@@ -828,7 +828,7 @@ describe('execution engine', () => {
         const slice1 = { request: { some: 'slice' } };
 
         const worker1 = { worker_id: 1 };
-        const worker2 = { worker_id: 1 };
+        const worker2 = { worker_id: 2 };
 
         let invalidSlice = null;
 
@@ -837,6 +837,7 @@ describe('execution engine', () => {
 
         myEmitter.on('slice:invalid', (data) => { invalidSlice = data; });
 
+        workerQueue.enqueue(worker1);
         workerQueue.enqueue(worker1);
         workerQueue.enqueue(worker2);
 
@@ -886,6 +887,7 @@ describe('execution engine', () => {
 
         myEmitter.on('slice:invalid', (data) => { invalidSlice = data; });
 
+        workerQueue.enqueue(worker1);
         workerQueue.enqueue(worker1);
         workerQueue.enqueue(worker2);
 
