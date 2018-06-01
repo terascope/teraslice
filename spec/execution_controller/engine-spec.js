@@ -825,27 +825,30 @@ describe('execution engine', () => {
         const engineTest = makeEngine();
         const { myEmitter } = engineTest;
         const { workerQueue, slicerQueue, enqueueWorker } = engineTest.testContext;
-        const slice1 = { request: { some: 'slice' } };
-
-        const worker1 = { worker_id: 1 };
-        const worker2 = { worker_id: 2 };
 
         let invalidSlice = null;
-
 
         engineTest.testContext._engineSetup();
 
         myEmitter.on('slice:invalid', (data) => { invalidSlice = data; });
 
-        enqueueWorker(worker1);
-        enqueueWorker(worker1);
-        enqueueWorker(worker2);
+        enqueueWorker({ worker_id: 1 });
+        enqueueWorker({ worker_id: 1 });
+        enqueueWorker({ worker_id: 2 });
 
         expect(workerQueue.size()).toEqual(2);
         expect(sentMsgs).toEqual([]);
 
-        slicerQueue.enqueue(slice1);
-        slicerQueue.enqueue(slice1);
+        slicerQueue.enqueue({
+            request: {
+                some: 'slice'
+            }
+        });
+        slicerQueue.enqueue({
+            request: {
+                some: 'slice'
+            }
+        });
         waitFor(10).then(() => {
             expect(workerQueue.size()).toEqual(0);
             expect(sentMsgs.length).toEqual(2);
@@ -853,13 +856,21 @@ describe('execution engine', () => {
                 {
                     to: 'worker',
                     message: 'slicer:slice:new',
-                    payload: slice1,
+                    payload: {
+                        request: {
+                            some: 'slice'
+                        }
+                    },
                     address: 1
                 },
                 {
                     to: 'worker',
                     message: 'slicer:slice:new',
-                    payload: slice1,
+                    payload: {
+                        request: {
+                            some: 'slice'
+                        }
+                    },
                     address: 2
                 }
             ]);
@@ -872,10 +883,6 @@ describe('execution engine', () => {
         const engineTest = makeEngine();
         const { myEmitter } = engineTest;
         const { workerQueue, slicerQueue, enqueueWorker } = engineTest.testContext;
-        const slice1 = { request: { request_worker: 1, some: 'slice' } };
-
-        const worker1 = { worker_id: 1 };
-        const worker2 = { worker_id: 2 };
 
         let invalidSlice = null;
 
@@ -889,15 +896,25 @@ describe('execution engine', () => {
 
         myEmitter.on('slice:invalid', (data) => { invalidSlice = data; });
 
-        enqueueWorker(worker1);
-        enqueueWorker(worker1);
-        enqueueWorker(worker2);
+        enqueueWorker({ worker_id: 1 });
+        enqueueWorker({ worker_id: 1 });
+        enqueueWorker({ worker_id: 2 });
 
         expect(workerQueue.size()).toEqual(2);
         expect(sentMsgs).toEqual([]);
 
-        slicerQueue.enqueue(slice1);
-        slicerQueue.enqueue(slice1);
+        slicerQueue.enqueue({
+            request: {
+                request_worker: 1,
+                some: 'slice'
+            }
+        });
+        slicerQueue.enqueue({
+            request: {
+                request_worker: 1,
+                some: 'slice'
+            }
+        });
         waitFor(10).then(() => {
             expect(workerQueue.size()).toEqual(1);
             expect(sentMsgs.length).toEqual(1);
@@ -905,12 +922,20 @@ describe('execution engine', () => {
                 {
                     to: 'worker',
                     message: 'slicer:slice:new',
-                    payload: slice1,
+                    payload: {
+                        request: {
+                            request_worker: 1,
+                            some: 'slice'
+                        }
+                    },
                     address: 1
                 }
             ]);
-            expect(workerQueueList()).toEqual([worker2]);
-            expect(invalidSlice).toEqual(null);
+            expect(workerQueueList()).toEqual([{ worker_id: 2 }]);
+            expect(invalidSlice).toEqual({
+                request_worker: 1,
+                some: 'slice'
+            });
             done();
         }).catch(done.fail);
     });
@@ -919,20 +944,17 @@ describe('execution engine', () => {
         const engineTest = makeEngine();
         const { workerQueue, enqueueWorker } = engineTest.testContext;
 
-        const worker1 = { worker_id: 1 };
-        const worker2 = { worker_id: 2 };
-
         engineTest.testContext._engineSetup();
 
-        enqueueWorker(worker1);
-        enqueueWorker(worker1);
-        enqueueWorker(worker2);
+        enqueueWorker({ worker_id: 1 });
+        enqueueWorker({ worker_id: 1 });
+        enqueueWorker({ worker_id: 2 });
 
         expect(workerQueue.size()).toEqual(2);
-        expect(workerQueue.extract('worker_id', 1)).toEqual(worker1);
+        expect(workerQueue.extract('worker_id', 1)).toEqual({ worker_id: 1 });
         expect(workerQueue.extract('worker_id', 1)).toEqual(null);
         expect(workerQueue.size()).toEqual(1);
-        expect(workerQueue.extract('worker_id', 2)).toEqual(worker2);
+        expect(workerQueue.extract('worker_id', 2)).toEqual({ worker_id: 2 });
         expect(workerQueue.size()).toEqual(0);
     });
 });
