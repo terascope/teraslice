@@ -11,7 +11,7 @@ RUN mkdir -p /app/source
 
 WORKDIR /app/source
 
-RUN npm install $(python3 - <<PYTHON
+RUN yarn add $(python3 - <<PYTHON
 import json
 deps = json.load(open('package.json')).get('dependencies').items()
 print(' \\\\\n    '.join('{}@{}'.format(*i) for i in sorted(deps)))

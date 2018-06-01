@@ -14,3 +14,5 @@ before_install:
 script:
   - make test
   - make integration-tests
+after_script:
+  - make lint || echo "Let's show the lint output here but we don't want it cause a failure yet"

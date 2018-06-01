@@ -20,7 +20,8 @@ if (process.stdout.isTTY) {
 
 describe('teraslice', () => {
     function dockerUp() {
-        console.log(' - Bringing Docker environment up');
+        console.log(' - Bringing Docker environment up...');
+        console.log(' * this may take a few minutes');
         return misc.compose.up({ build: '' });
     }
 

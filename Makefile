@@ -18,16 +18,16 @@ help: ## show target summary
 
 
 node_modules: package.json
-	npm install
+	yarn install
 	touch node_modules
 
 
 lint: node_modules ## run linters
-	npm run lint
+	yarn lint
 
 
 test: node_modules ## run unit tests
-	npm run test
+	yarn test
 
 
 integration-tests: ## run integration tests
