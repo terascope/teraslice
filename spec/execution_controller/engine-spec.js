@@ -496,7 +496,15 @@ describe('execution engine', () => {
                     payload: { set_status: true }
                 });
                 expect(loggerErrMsg).toEqual(`A worker has not connected to a slicer for ex: ${exId}, shutting down execution`);
-                return Promise.all([startWorkerDisconnectWatchDog(), waitFor(750), messagingEvents['worker:ready']({})]);
+                return Promise.all([
+                    startWorkerDisconnectWatchDog(),
+                    waitFor(750),
+                    messagingEvents['worker:ready']({
+                        payload: {
+                            worker_id: 1,
+                        }
+                    })
+                ]);
             })
             .then(() => {
                 expect(exStatus).toEqual('failed');
@@ -752,7 +760,7 @@ describe('execution engine', () => {
     it('can send slices to specific workers', (done) => {
         const engineTest = makeEngine();
         const { myEmitter } = engineTest;
-        const { slicerQueue, workerQueue, enqueueWorker } = engineTest.testContext;
+        const { slicerQueue, workerQueue, _enqueueWorker } = engineTest.testContext;
         const slice1 = { request: { some: 'slice' } };
         const slice2 = Object.assign({}, slice1, { request: { request_worker: 3 } });
         const slice3 = Object.assign({}, slice1, { request: { request_worker: 99 } });
@@ -773,9 +781,9 @@ describe('execution engine', () => {
 
         myEmitter.on('slice:invalid', (data) => { invalidSlice = data; });
 
-        enqueueWorker(worker1);
-        enqueueWorker(worker2);
-        enqueueWorker(worker3);
+        _enqueueWorker(worker1);
+        _enqueueWorker(worker2);
+        _enqueueWorker(worker3);
 
         waitFor(10)
             .then(() => {
@@ -824,7 +832,7 @@ describe('execution engine', () => {
     it('should not send two slices to the same worker', (done) => {
         const engineTest = makeEngine();
         const { myEmitter } = engineTest;
-        const { workerQueue, slicerQueue, enqueueWorker } = engineTest.testContext;
+        const { workerQueue, slicerQueue, _enqueueWorker } = engineTest.testContext;
 
         let invalidSlice = null;
 
@@ -832,9 +840,9 @@ describe('execution engine', () => {
 
         myEmitter.on('slice:invalid', (data) => { invalidSlice = data; });
 
-        enqueueWorker({ worker_id: 1 });
-        enqueueWorker({ worker_id: 1 });
-        enqueueWorker({ worker_id: 2 });
+        _enqueueWorker({ worker_id: 1 });
+        _enqueueWorker({ worker_id: 1 });
+        _enqueueWorker({ worker_id: 2 });
 
         expect(workerQueue.size()).toEqual(2);
         expect(sentMsgs).toEqual([]);
@@ -882,7 +890,7 @@ describe('execution engine', () => {
     it('should not send two slices to the same worker when specifiying the worker id', (done) => {
         const engineTest = makeEngine();
         const { myEmitter } = engineTest;
-        const { workerQueue, slicerQueue, enqueueWorker } = engineTest.testContext;
+        const { workerQueue, slicerQueue, _enqueueWorker } = engineTest.testContext;
 
         let invalidSlice = null;
 
@@ -896,9 +904,9 @@ describe('execution engine', () => {
 
         myEmitter.on('slice:invalid', (data) => { invalidSlice = data; });
 
-        enqueueWorker({ worker_id: 1 });
-        enqueueWorker({ worker_id: 1 });
-        enqueueWorker({ worker_id: 2 });
+        _enqueueWorker({ worker_id: 1 });
+        _enqueueWorker({ worker_id: 1 });
+        _enqueueWorker({ worker_id: 2 });
 
         expect(workerQueue.size()).toEqual(2);
         expect(sentMsgs).toEqual([]);
@@ -942,13 +950,13 @@ describe('execution engine', () => {
 
     it('should workerQueue extract should not be extract the same worker twice', () => {
         const engineTest = makeEngine();
-        const { workerQueue, enqueueWorker } = engineTest.testContext;
+        const { workerQueue, _enqueueWorker } = engineTest.testContext;
 
         engineTest.testContext._engineSetup();
 
-        enqueueWorker({ worker_id: 1 });
-        enqueueWorker({ worker_id: 1 });
-        enqueueWorker({ worker_id: 2 });
+        _enqueueWorker({ worker_id: 1 });
+        _enqueueWorker({ worker_id: 1 });
+        _enqueueWorker({ worker_id: 2 });
 
         expect(workerQueue.size()).toEqual(2);
         expect(workerQueue.extract('worker_id', 1)).toEqual({ worker_id: 1 });

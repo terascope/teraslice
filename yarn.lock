@@ -3002,8 +3002,8 @@ qs@6.5.2, qs@~6.5.1:
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
 
 queue@terascope/queue:
-  version "1.0.0"
-  resolved "https://codeload.github.com/terascope/queue/tar.gz/13ca1703247a04f9ab064662a10ff376824c970f"
+  version "1.1.0"
+  resolved "https://codeload.github.com/terascope/queue/tar.gz/56d11d4cd9facd28ad1102fc71ce562679c32fd5"
   dependencies:
     jasmine "^2.5.3"
 
