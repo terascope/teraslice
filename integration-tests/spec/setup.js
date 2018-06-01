@@ -21,7 +21,7 @@ if (process.stdout.isTTY) {
 }
 
 describe('teraslice', () => {
-    function dockerUp() {
+    function () {
         process.stdout.write(' - Bringing Docker environment up');
         const intervalId = setInterval(() => {
             process.stdout.write('.');
@@ -38,7 +38,7 @@ describe('teraslice', () => {
     }
 
     // ensure docker-compose stack is down before starting it
-    function dockerStop() {
+    function dockerDown() {
         console.log(' - Ensuring docker environment is in a clean slate');
         return misc.compose.down({ 'remove-orphans': '' }).catch(() => Promise.resolve());
     }
@@ -172,7 +172,7 @@ describe('teraslice', () => {
             });
     }
 
-    const before = [dockerStop, dockerUp, waitForES, cleanup, waitForTeraslice, generateTestData];
+    const before = [dockerDown, dockerUp, waitForES, cleanup, waitForTeraslice, generateTestData];
 
     beforeAll((done) => {
         Promise.resolve(before)
