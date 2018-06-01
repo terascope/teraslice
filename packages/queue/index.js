@@ -137,12 +137,12 @@ Queue.prototype.extract = function(key, val) {
                 var data = currentNode.value;
                 isFound = true;
                 if (nextNode) {
-
                     if (previousNode) {
                         previousNode.next = nextNode;
                         nextNode.prev = previousNode;
                     }
                     else {
+                        this.head = nextNode
                         nextNode.prev = null;
                     }
                 }
@@ -153,6 +153,12 @@ Queue.prototype.extract = function(key, val) {
                     }
                 }
                 this._size--;
+                if (this._size === 1) {
+                    this.tail = this.head
+                }
+                else if (this._size === 0) {
+                    this.head = this.tail = null
+                }
                 return data;
             }
             else {
