@@ -20,11 +20,11 @@ help: ## show target summary
 
 
 node_modules: package.json
-	npm install
+	yarn install
 
 
 lint: node_modules ## run linters
-	npm run lint
+	yarn lint
 
 
 test: node_modules ## run tests

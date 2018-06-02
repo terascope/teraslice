@@ -8,15 +8,11 @@ FROM node:8
 MAINTAINER Kimbro Staken
 
 RUN mkdir -p /app/source
-
 WORKDIR /app/source
+COPY package.json /app/source
 
-RUN npm install $(python3 - <<PYTHON
-import json
-deps = json.load(open('package.json')).get('dependencies').items()
-print(' \\\\\n    '.join('{}@{}'.format(*i) for i in sorted(deps)))
-PYTHON
-)
+RUN npm set progress=false && npm config set depth 0
+RUN npm install --only=production
 
 COPY . /app/source
 

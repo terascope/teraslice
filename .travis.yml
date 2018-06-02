@@ -1,3 +1,17 @@
+sudo: required
 language: node_js
 node_js:
-  - "8"
+  - '8'
+services:
+  - docker
+env:
+  - DOCKER_COMPOSE_VERSION=1.21.1
+before_install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+script:
+  - time make test
+  - time make integration-tests
+  - make lint || echo "Let's show the lint output here but we don't want it cause a failure yet"

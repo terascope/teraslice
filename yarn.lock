@@ -3697,7 +3697,7 @@ tar-stream@^1.5.2:
 
 terafoundation@terascope/terafoundation:
   version "0.2.0"
-  resolved "https://codeload.github.com/terascope/terafoundation/tar.gz/491de8f116c6c5a8e3bad3954a8a2170166f6159"
+  resolved "https://codeload.github.com/terascope/terafoundation/tar.gz/9bf91bf7ea72ecd6a1e28d70f70eb5bef7d22107"
   dependencies:
     agentkeepalive "^3.4.1"
     baucis "1.6.5"
@@ -3718,7 +3718,7 @@ terafoundation@terascope/terafoundation:
 
 teraslice@terascope/teraslice:
   version "0.36.0"
-  resolved "https://codeload.github.com/terascope/teraslice/tar.gz/160d1de06a005b7be233b1b08f5ecbac0da67924"
+  resolved "https://codeload.github.com/terascope/teraslice/tar.gz/9cf816ef9b9795baa1f30f9009458046c2f7489e"
   dependencies:
     bluebird "^3.5.1"
     body-parser "^1.18.2"
