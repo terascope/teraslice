@@ -14,8 +14,14 @@ module.exports = function module(config) {
     let loggingConnection = 'default';
 
     const { argv } = require('yargs')
+        .usage('Usage: $0 [options]')
         .alias('c', 'configfile')
-        .alias('b', 'bootstrap');
+        .describe('c', `Configuration file to load.
+            If not specified, the envorinment TERAFOUNDATION_CONFIG can be used.`)
+        .alias('b', 'bootstrap')
+        .describe('b', 'Perform initial setup')
+        .help('h')
+        .alias('h', 'help');
 
     const configFile = require('./lib/sysconfig')({
         configfile: argv.configfile
@@ -33,6 +39,7 @@ module.exports = function module(config) {
     // set by initAPI
 
     function errorHandler(err) {
+        // eslint-disable-next-line no-console
         const logErr = logger ? logger.error.bind(logger) : console.log;
         if (cluster.isMaster) {
             logErr(`Error in master with pid: ${process.pid}`);

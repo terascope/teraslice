@@ -1,18 +1,22 @@
 'use strict';
 
-const context = {
-    sysconfig: {
-        terafoundation: {
-            log_level: 'debug'
-        }
-    },
-    name: 'terafoundation'
-};
-
-// This sets up the API endpoints in the context.
-require('../../lib/api')(context);
+const api = require('../../lib/api');
 
 describe('apis module', () => {
+    const context = {
+        sysconfig: {
+            terafoundation: {
+                log_level: 'debug'
+            }
+        },
+        name: 'terafoundation'
+    };
+
+    beforeEach(() => {
+        // This sets up the API endpoints in the context.
+        api(context);
+    });
+
     it('context.apis.registerAPI should exist', () => {
         expect(context.apis.registerAPI).toBeDefined();
         expect(typeof context.apis.registerAPI).toBe('function');
@@ -29,6 +33,9 @@ describe('apis module', () => {
     });
 
     it('Should throw an exception if redefining an API', () => {
+        context.apis.registerAPI('testapi', {
+            testfunction: () => {}
+        });
         expect(() => {
             context.apis.registerAPI('testapi', {
                 testfunction: () => {}

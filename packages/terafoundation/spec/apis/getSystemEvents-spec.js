@@ -1,26 +1,30 @@
 'use strict';
 
-const context = {
-    sysconfig: {
-        terafoundation: {
-            log_level: 'debug'
-        }
-    },
-    name: 'terafoundation'
-};
-
-// This sets up the API endpoints in the context.
-require('../../lib/api')(context);
+const api = require('../../lib/api');
 
 describe('getSystemEvents foundation API', () => {
-    const foundation = context.apis.foundation;
+    const context = {
+        sysconfig: {
+            terafoundation: {
+                log_level: 'debug'
+            }
+        },
+        name: 'terafoundation'
+    };
+
+    beforeEach(() => {
+        // This sets up the API endpoints in the context.
+        api(context);
+    });
 
     it('should return and event emitter', () => {
+        const { foundation } = context.apis;
         expect(foundation.getSystemEvents().on).toBeDefined();
         expect(foundation.getSystemEvents().emit).toBeDefined();
     });
 
     it('should emit and receive events', () => {
+        const { foundation } = context.apis;
         const spy = jasmine.createSpy('testevent');
         const events = foundation.getSystemEvents();
 

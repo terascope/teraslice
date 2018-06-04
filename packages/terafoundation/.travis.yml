@@ -1,3 +1,12 @@
 language: node_js
 node_js:
-  - "8"
+- '8'
+deploy:
+  provider: npm
+  email: peter@terascope.io
+  api_key:
+    secure: PW9Cj8++ShCa6Hh2lfmScAXgDEOZEicwLscN5vojz9tqNnd4f9qGY9FOinWXUsmPYhdcafr83aGTxMCjmTLQTmflbA0f76HMRn2zGW4zkbuD1/52pBsJ0Peqtzk5WHf6vhi7VJZxdZV/f3BFChFIWiz6VXlewdEFNHRl6uUwEBbuVbZdDuVBzxJN5tGvwFzxSEDH/18tTx+NceXN/Obb2VI7mjO38jhsHcrXasMvimtrZfbBH2oavE6kQ5F4jrYVSvC9P6PCAXscUXA8sFQlU+3Jtyk5OQxriqRRCVOHEnujYiu6DMjj/vWUEZ5JcMSNSJ8/E7ZGeoDBLI8VT5J7rdoZ4g19K2ga79cStlgaV4NfdXFaXijrY1YUD4N7VMmekh1Ua63Tb7AcUn2RNuuTKimeGZTXhlgdPx5Er0+Hrk0Pg3WoabwtG6708Ln86EKJwPKAWVQ9s4yEArFDpx9T1gsBMfJMvD71WFKpQEtJYSCl5gkeYh2KJa3jHuie4VHMHMI03D+7+SzWRJf3PqchPyojWIyzfyU3zq/g3iagcFHbEaYT+2w6/dJcg0Wt+uL51D3my8+V61MJPXd2aQ5lIdTxl0fTeDo+Ws0nw47YxCQTR//04dplJyuxk/rNlhzJCD69Y06FssqQ1KvMdZPfpj9ow8LOKVrhE1K0IxDC/RU=
+  on:
+    tags: true
+    branch: master
+    repo: terascope/terafoundation

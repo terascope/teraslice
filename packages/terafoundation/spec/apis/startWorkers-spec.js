@@ -2,45 +2,45 @@
 
 const fakeLogger = require('../helpers/fakeLogger');
 
-const context = {
-    sysconfig: {
-        terafoundation: {
-            log_level: 'debug'
-        }
-    },
-    name: 'terafoundation'
-};
-
-// This sets up the API endpoints in the context.
-require('../../lib/api')(context);
+const api = require('../../lib/api');
 
 describe('startWorkers foundation API', () => {
-    const foundation = context.apis.foundation;
-    let forkSpy;
+    const context = {
+        sysconfig: {
+            terafoundation: {
+                log_level: 'debug'
+            }
+        },
+        name: 'terafoundation'
+    };
 
     beforeEach(() => {
-        forkSpy = jasmine.createSpy('cluster-fork');
-
+        // This sets up the API endpoints in the context.
+        api(context);
         context.cluster = {
             isMaster: true,
-            fork: forkSpy
+            fork: jasmine.createSpy('cluster-fork')
         };
         context.logger = fakeLogger;
     });
 
     it('should call fork to create a worker', () => {
+        const { foundation } = context.apis;
+        const { fork } = context.cluster;
         foundation.startWorkers(1);
 
-        expect(forkSpy).toHaveBeenCalledWith({
+        expect(fork).toHaveBeenCalledWith({
             assignment: 'worker',
             service_context: '{"assignment":"worker"}'
         });
     });
 
     it('should call fork to create a worker with environment', () => {
+        const { foundation } = context.apis;
+        const { fork } = context.cluster;
         foundation.startWorkers(1, { myoption: 'myoption' });
 
-        expect(forkSpy).toHaveBeenCalledWith({
+        expect(fork).toHaveBeenCalledWith({
             assignment: 'worker',
             service_context: '{"myoption":"myoption"}',
             myoption: 'myoption'
@@ -48,16 +48,20 @@ describe('startWorkers foundation API', () => {
     });
 
     it('fork should not be called if this is not the master', () => {
+        const { foundation } = context.apis;
+        const { fork } = context.cluster;
         context.cluster.isMaster = false;
 
         foundation.startWorkers(1, { myoption: 'myoption' });
 
-        expect(forkSpy.calls.count()).toBe(0);
+        expect(fork.calls.count()).toBe(0);
     });
 
     it('should call fork 10 times to create 10 workers', () => {
+        const { foundation } = context.apis;
+        const { fork } = context.cluster;
         foundation.startWorkers(10);
 
-        expect(forkSpy.calls.count()).toBe(10);
+        expect(fork.calls.count()).toBe(10);
     });
 });

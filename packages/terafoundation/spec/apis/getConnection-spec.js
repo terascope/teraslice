@@ -1,41 +1,45 @@
 'use strict';
 
 const fakeLogger = require('../helpers/fakeLogger');
+const api = require('../../lib/api');
 
-const context = {
-    sysconfig: {
-        terafoundation: {
-            log_level: 'debug',
-            connectors: {
-                elasticsearch: {
-                    default: {
+describe('getConnection foundation API', () => {
+    const context = {
+        sysconfig: {
+            terafoundation: {
+                log_level: 'debug',
+                connectors: {
+                    elasticsearch: {
+                        default: {
 
+                        }
                     }
                 }
             }
-        }
-    },
-    name: 'terafoundation'
-};
+        },
+        name: 'terafoundation'
+    };
 
-// This sets up the API endpoints in the context.
-require('../../lib/api')(context);
 
-context.logger = fakeLogger;
-
-describe('getConnection foundation API', () => {
-    const foundation = context.apis.foundation;
+    beforeEach(() => {
+        // This sets up the API endpoints in the context.
+        api(context);
+        context.logger = fakeLogger;
+    });
 
     it('should return the default connection', () => {
+        const { foundation } = context.apis;
         expect(foundation.getConnection({ type: 'elasticsearch' }).client).toBeDefined();
     });
 
     it('should throw an error for non existent connector', () => {
+        const { foundation } = context.apis;
         expect(() => foundation.getConnection({ type: 'nonexistent' }))
             .toThrowError('No connection configuration found for nonexistent');
     });
 
     it('should throw an error for non existent endpoint', () => {
+        const { foundation } = context.apis;
         expect(() => foundation.getConnection({ type: 'elasticsearch', endpoint: 'nonexistent' }))
             .toThrowError('No elasticsearch endpoint configuration found for nonexistent');
     });

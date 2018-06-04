@@ -1,23 +1,21 @@
 'use strict';
 
-let context = {
-    sysconfig: {
-        terafoundation: {
-            log_level: 'debug',
-            logging: ['file', 'console'],
-            log_path: '/tmp'
-        }
-    },
-    name: 'terafoundation'
-};
-
+const api = require('../../lib/api');
 
 describe('makeLogger foundation API', () => {
     it('should create a logger', () => {
-        // This sets up the API endpoints in the context.
-        require('../../lib/api')(context);
-
-        const foundation = context.apis.foundation;
+        const context = {
+            sysconfig: {
+                terafoundation: {
+                    log_level: 'debug',
+                    logging: ['file', 'console'],
+                    log_path: '/tmp'
+                }
+            },
+            name: 'terafoundation'
+        };
+        api(context);
+        const { foundation } = context.apis;
 
         const logger = foundation.makeLogger(context.name, context.name);
 
@@ -28,7 +26,7 @@ describe('makeLogger foundation API', () => {
     });
 
     it('should create an elasticsearch logger', () => {
-        context = {
+        const context = {
             sysconfig: {
                 terafoundation: {
                     log_level: 'debug',
@@ -44,8 +42,8 @@ describe('makeLogger foundation API', () => {
             name: 'eslogging'
         };
 
-        require('../../lib/api')(context);
-        const foundation = context.apis.foundation;
+        api(context);
+        const { foundation } = context.apis;
 
         const logger = foundation.makeLogger(context.name, context.name);
 
@@ -57,7 +55,7 @@ describe('makeLogger foundation API', () => {
     });
 
     it('setting production with no log_path should fail', () => {
-        context = {
+        const context = {
             sysconfig: {
                 terafoundation: {
                     environment: 'production',
@@ -67,8 +65,8 @@ describe('makeLogger foundation API', () => {
             name: 'terafoundation'
         };
 
-        require('../../lib/api')(context);
-        const foundation = context.apis.foundation;
+        api(context);
+        const { foundation } = context.apis;
 
         // This should throw an error on setup of the root logger.
         expect(() => foundation.makeLogger(context.name, context.name))
@@ -76,7 +74,7 @@ describe('makeLogger foundation API', () => {
     });
 
     it('setting production with log_path set to a file should fail', () => {
-        context = {
+        const context = {
             sysconfig: {
                 terafoundation: {
                     environment: 'production',
@@ -87,8 +85,8 @@ describe('makeLogger foundation API', () => {
             name: 'terafoundation'
         };
 
-        require('../../lib/api')(context);
-        const foundation = context.apis.foundation;
+        api(context);
+        const { foundation } = context.apis;
 
         // This should throw an error on setup of the root logger.
         expect(() => foundation.makeLogger(context.name, context.name))
