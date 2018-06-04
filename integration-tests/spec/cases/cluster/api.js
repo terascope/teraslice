@@ -4,7 +4,7 @@ const misc = require('../../misc')();
 const fs = require('fs');
 const _ = require('lodash');
 
-module.exports = function () {
+module.exports = function api() {
     const teraslice = misc.teraslice();
 
     describe('api endpoint', () => {
@@ -90,19 +90,17 @@ module.exports = function () {
                 .finally(done);
         });
 
-        it('api end point /assets should return an array of json objects of asset metadata', (done) => {
-            return teraslice.cluster.get('/assets')
-                .then((response) => {
-                    expect(_.isArray(response)).toBe(true);
-                    expect(_.isPlainObject(response[0])).toBe(true);
-                    expect(_.has(response[0], '_created')).toBe(true);
-                    expect(_.has(response[0], 'name')).toBe(true);
-                    expect(_.has(response[0], 'id')).toBe(true);
-                    expect(_.has(response[0], 'version')).toBe(true);
-                })
-                .catch(fail)
-                .finally(done);
-        })
+        it('api end point /assets should return an array of json objects of asset metadata', done => teraslice.cluster.get('/assets')
+            .then((response) => {
+                expect(_.isArray(response)).toBe(true);
+                expect(_.isPlainObject(response[0])).toBe(true);
+                expect(_.has(response[0], '_created')).toBe(true);
+                expect(_.has(response[0], 'name')).toBe(true);
+                expect(_.has(response[0], 'id')).toBe(true);
+                expect(_.has(response[0], 'version')).toBe(true);
+            })
+            .catch(fail)
+            .finally(done));
 
         it('api end point /assets/assetName should return an array of json objects of asset metadata', (done) => {
             teraslice.cluster.get('/assets/ex1')

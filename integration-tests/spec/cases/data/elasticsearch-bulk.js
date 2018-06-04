@@ -2,7 +2,7 @@
 
 const misc = require('../../misc')();
 
-module.exports = function () {
+module.exports = function elasticsearchBulk() {
     const teraslice = misc.teraslice();
 
     describe('elasticsearch bulk', () => {

@@ -3,7 +3,7 @@
 const Promise = require('bluebird');
 const misc = require('../../misc')();
 
-module.exports = function () {
+module.exports = function jobState() {
     const teraslice = misc.teraslice();
 
     describe('worker allocation', () => {

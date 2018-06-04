@@ -40,7 +40,7 @@ describe('teraslice', () => {
     // ensure docker-compose stack is down before starting it
     function dockerDown() {
         console.log(' - Ensuring docker environment is in a clean slate');
-        return misc.compose.down({ 'remove-orphans': '', rmi: 'local' }).catch(() => Promise.resolve());
+        return misc.compose.down({ 'remove-orphans': '' }).catch(() => Promise.resolve());
     }
 
     function waitForES() {

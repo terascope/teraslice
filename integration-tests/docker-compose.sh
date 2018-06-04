@@ -72,6 +72,12 @@ done)
     volumes:
         - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     environment:
-        ES_VERSION: ${ES_VERSION}
-        ES_JAVA_OPTS: '-Xms1g -Xmx1g'
+        - discovery.type=single-node
+        - bootstrap.memory_lock=true
+        - "ES_VERSION=${ES_VERSION}"
+        - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
 DOCKER

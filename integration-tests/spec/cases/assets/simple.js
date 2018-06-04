@@ -22,7 +22,7 @@ module.exports = function simpleAssetTest() {
     function submitAndValidateAssetJob(jobSpecName, assetPath) {
         const fileStream = fs.createReadStream(assetPath);
         const jobSpec = misc.newJob(jobSpecName);
-        const workers = jobSpec.workers; // save for comparison
+        const { workers } = jobSpec; // save for comparison
 
         return teraslice.assets.post(fileStream)
             .then((result) => {
@@ -36,8 +36,7 @@ module.exports = function simpleAssetTest() {
                             .then((r) => {
                                 expect(r).toEqual(workers);
                                 return job.stop();
-                            })
-                    );
+                            }));
             });
     }
 
@@ -65,8 +64,10 @@ module.exports = function simpleAssetTest() {
 
 
         // Test a bad asset
-        // curl -XPOST -H "Content-Type: application/octet-stream" localhost:45678/assets --data-binary spec/fixtures/assets/example_assets_1.zip
-        // {"error":"asset.json was not found in root directory of asset bundle nor any immediate sub directory"}
+        // curl -XPOST -H "Content-Type: application/octet-stream"
+        //   localhost:45678/assets --data-binary spec/fixtures/assets/example_assets_1.zip
+        // {"error":"asset.json was not found in root directory of asset bundle
+        //    nor any immediate sub directory"}
         it('Uploading a bad asset returns an error', (done) => {
             const testStream = fs.createReadStream('spec/fixtures/assets/example_bad_asset_1.zip');
 

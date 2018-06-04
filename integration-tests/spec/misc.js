@@ -5,7 +5,7 @@ const Promise = require('bluebird');
 const TerasliceClient = require('teraslice-client-js');
 const ElasticsearchClient = require('elasticsearch').Client;
 
-module.exports = function () {
+module.exports = function misc() {
     const DOCKER_IP = process.env.ip ? process.env.ip : 'localhost';
     const compose = require('docker-compose-js')('docker-compose.yml');
 
@@ -46,7 +46,7 @@ module.exports = function () {
 
     // Adds teraslice-workers to the environment
     function scale(count) {
-        return compose.scale(`teraslice-worker=${count}`);
+        return compose.scale(`teraslice-worker=${count}`, { timeout: 5 });
     }
 
     return {
