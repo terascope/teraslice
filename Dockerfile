@@ -3,11 +3,10 @@ MAINTAINER Kimbro Staken
 
 RUN mkdir -p /app/source
 WORKDIR /app/source
-COPY package.json /app/source
+COPY package.json yarn.lock /app/source/
 
-RUN npm set progress=false && npm config set depth 0
-RUN npm install bunyan
-RUN npm install --only=production
+RUN yarn global add bunyan
+RUN yarn install --no-progress --production=true
 
 COPY . /app/source
 
