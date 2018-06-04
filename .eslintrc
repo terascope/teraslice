@@ -2,7 +2,10 @@
     "extends": "airbnb",
     "parserOptions": {
         "ecmaVersion": 6,
-        "sourceType": "script"
+        "sourceType": "script",
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true
+        }
     },
     "env": {
         "node": true,
@@ -18,6 +21,12 @@
         "strict": ["error", "global"],
         "comma-dangle": "off",
         "prefer-promise-reject-errors": "off",
-        "no-restricted-globals": ["error", "isFinite"]
+        "no-restricted-globals": ["error", "isFinite"],
+        "func-names": ["error", "as-needed"],
+        "semi-spacing": "error",
+        "rest-spread-spacing": ["error"],
+        "no-path-concat": "error",
+        "no-debugger": "error",
+        "handle-callback-err": ["error", "error"]
     }
 }
