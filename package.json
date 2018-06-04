@@ -2,6 +2,7 @@
   "name": "teraslice",
   "version": "0.36.0",
   "description": "Slice and dice your Elasticsearch data",
+  "bin": "service.js",
   "main": "service.js",
   "scripts": {
     "lint": "eslint lib",
