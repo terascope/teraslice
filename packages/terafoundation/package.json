@@ -1,7 +1,9 @@
 {
   "name": "terafoundation",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "scripts": {
+    "lint": "eslint *.js lib",
+    "lint:fix": "eslint --fix *.js lib",
     "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
     "testcov": "nyc -x spec/ jasmine && nyc report --reporter=html",
     "showcov": "open coverage/index.html"
