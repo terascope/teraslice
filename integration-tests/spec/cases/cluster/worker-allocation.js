@@ -3,7 +3,7 @@
 const misc = require('../../misc')();
 const wait = require('../../wait')();
 
-module.exports = function () {
+module.exports = function workerAllocationTest() {
     const teraslice = misc.teraslice();
 
     function workersTest(workers, workersExpected, records, done) {
@@ -42,11 +42,11 @@ module.exports = function () {
 
         it('with 5 workers', (done) => {
             workersTest(5, 5, 10000, done);
-        });
+        }, 2 * 60 * 1000);
 
         it('with 13 out of requested 20 workers', (done) => {
             workersTest(20, 13, 10000, done);
-        });
+        }, 3 * 160 * 1000);
 
         // TODO: Debug this test
         xit('should scale from 13 to 20 workers', (done) => {

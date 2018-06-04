@@ -4,7 +4,7 @@ const _ = require('lodash');
 const misc = require('../../misc')();
 const wait = require('../../wait')();
 
-module.exports = function () {
+module.exports = function clusterStateTest() {
     const teraslice = misc.teraslice();
 
     function findWorkers(nodes, type, jobId) {
@@ -58,10 +58,7 @@ module.exports = function () {
                 .then((state) => {
                     verifyClusterState(state, 2);
                 })
-                .catch((err) => {
-                    console.log('what error', err);
-                    fail();
-                })
+                .catch(fail)
                 .finally(done);
         });
 
@@ -70,20 +67,17 @@ module.exports = function () {
             misc.scale(2)
                 .then(() =>
                     // Wait for it to show up in cluster state.
-                    wait.forNodes(3)
-                )
+                    wait.forNodes(3))
                 .then(() => teraslice.cluster.state())
                 .then((state) => {
                     verifyClusterState(state, 3);
                 })
                 .then(() =>
                     // Scale back to a single worker.
-                    misc.scale(1)
-                )
+                    misc.scale(1))
                 .then(() =>
                     // Should just be 2 nodes now.
-                    wait.forNodes(2)
-                )
+                    wait.forNodes(2))
                 .then(() => teraslice.cluster.state())
                 .then((state) => {
                     verifyClusterState(state, 2);
@@ -97,27 +91,22 @@ module.exports = function () {
             misc.scale(21)
                 .then(() =>
                     // Wait for all the nodes to show up in cluster state.
-                    wait.forNodes(22)
-                )
+                    wait.forNodes(22))
                 .then(() => teraslice.cluster.state())
                 .then((state) => {
                     verifyClusterState(state, 22);
                 })
                 .then(() =>
                     // Scale back to a single worker.
-                    misc.scale(1)
-                )
+                    misc.scale(1))
                 .then(() =>
                     // Should just be 2 nodes now.
-                    wait.forNodes(2)
-                )
+                    wait.forNodes(2))
                 .then(() => teraslice.cluster.state())
                 .then((state) => {
                     verifyClusterState(state, 2);
                 })
-                .catch((err) => {
-                    fail(err);
-                })
+                .catch(fail)
                 .finally(done);
         });
 
@@ -168,8 +157,7 @@ module.exports = function () {
                         expect(stats.deleted).toBe(0);
                     }))
                 .catch((err) => {
-                    console.log('is this failing', err);
-                    fail();
+                    fail(err);
                 })
                 .finally(done);
         });

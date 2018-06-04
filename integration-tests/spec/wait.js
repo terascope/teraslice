@@ -13,7 +13,8 @@ module.exports = function wait() {
         return forValue(
             () => func()
                 .then(result => result.length),
-            value, iterations);
+            value, iterations
+        );
     }
 
     /*
@@ -32,7 +33,8 @@ module.exports = function wait() {
                     .then((result) => {
                         counter += 1;
                         if (result === value) {
-                            return resolve(result);
+                            resolve(result);
+                            return;
                         }
                         if (counter > iterations) {
                             reject(`forValue didn't find target value after ${iterations} iterations.`);
