@@ -23,6 +23,9 @@ then
 fi
 
 declare -a VOLS=("./config:/app/config${CACHED}")
+
+DOCKERFILE=Dockerfile
+
 if test "$MODE" == "dev"
 then
     # TODO: Binary dependencies will not work in the container
@@ -31,10 +34,8 @@ then
     do
         VOLS+=("$(realpath "$linked"):/app/source/node_modules/$(basename "$linked")${CACHED}")
     done
-    DOCKERFILE=Dockerfile.dev
 else
     make -C .. Dockerfile
-    DOCKERFILE=Dockerfile
 fi
 
 cat > docker-compose.yml <<DOCKER

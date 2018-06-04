@@ -15,12 +15,14 @@ function opsDirectory(configFile) {
     if (configFile.teraslice && configFile.teraslice.ops_directory) {
         return configFile.teraslice.ops_directory;
     }
+    return null;
 }
 
 function clusterName(configFile) {
     if (configFile.teraslice && configFile.teraslice.name) {
         return configFile.teraslice.name;
     }
+    return null;
 }
 
 function loggingConnection(configFile) {
@@ -31,7 +33,7 @@ function loggingConnection(configFile) {
     return 'default';
 }
 
-const foundation = require('terafoundation')({
+require('terafoundation')({
     name: 'teraslice',
     worker,
     master,

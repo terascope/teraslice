@@ -3695,6 +3695,27 @@ tar-stream@^1.5.2:
     to-buffer "^1.1.0"
     xtend "^4.0.0"
 
+terafoundation@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/terafoundation/-/terafoundation-0.2.1.tgz#7807a67933d69260db068d1409caf9b06c78031a"
+  dependencies:
+    agentkeepalive "^3.4.1"
+    baucis "1.6.5"
+    bluebird "^3.5.1"
+    bunyan "^1.8.12"
+    bunyan-elasticsearch "1.0.1"
+    convict "^4.1.0"
+    elasticsearch "^14.2.1"
+    express "^4.16.3"
+    js-yaml "^3.11.0"
+    lodash "~4.17.5"
+    moment "^2.21.0"
+    mongoose "~4.13.12"
+    node-statsd "0.1.1"
+    node-webhdfs "^0.2.1"
+    redis "^2.8.0"
+    yargs "^11.0.0"
+
 terafoundation@terascope/terafoundation:
   version "0.2.0"
   resolved "https://codeload.github.com/terascope/terafoundation/tar.gz/9bf91bf7ea72ecd6a1e28d70f70eb5bef7d22107"

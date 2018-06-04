@@ -33,14 +33,14 @@ describe('teraslice', () => {
         }, (err) => {
             clearInterval(intervalId);
             console.log(' Failed');
-            return err;
+            return Promise.reject(err);
         });
     }
 
     // ensure docker-compose stack is down before starting it
     function dockerDown() {
         console.log(' - Ensuring docker environment is in a clean slate');
-        return misc.compose.down({ 'remove-orphans': '' }).catch(() => Promise.resolve());
+        return misc.compose.down({ 'remove-orphans': '', rmi: 'local' }).catch(() => Promise.resolve());
     }
 
     function waitForES() {
