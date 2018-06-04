@@ -1,17 +1,28 @@
 sudo: required
 language: node_js
 node_js:
-  - '8'
+- '8'
 services:
-  - docker
+- docker
 env:
-  - DOCKER_COMPOSE_VERSION=1.21.1
+- DOCKER_COMPOSE_VERSION=1.21.1
 before_install:
-  - sudo rm /usr/local/bin/docker-compose
-  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
-  - chmod +x docker-compose
-  - sudo mv docker-compose /usr/local/bin
+- sudo rm /usr/local/bin/docker-compose
+- curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname
+  -s`-`uname -m` > docker-compose
+- chmod +x docker-compose
+- sudo mv docker-compose /usr/local/bin
 script:
-  - time make test
-  - time make integration-tests
-  - make lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
+- time make test
+- time make integration-tests
+- make lint || echo "Let's show the lint output here but we don't want it cause a
+  failure yet"
+deploy:
+  provider: npm
+  email: peter@terascope.io
+  api_key:
+    secure: IbA84R9gLLdyCaMhkvqkhgeDxcIX85LLQZbY3WbWxrw7b7zrD64+NQSkV0vztYKldlGIPqW2FmuL92FYGpb2O3WLF/jVi/cttKtiUhFZ7OXF7di7882AW+GJ6ZvKaZ/Vsb3VY5D+Rdkad1xOpZsQdDWjCOFMMYkzpsL5KRin1gpV4Os5GCZ11c40lujABVktBt+jLyxXNqpI9Reh9j3+elq+jnuZnAApVAghNQUkslFgWH7C4m2dweMieytC3zMJJYX+xnAFrA6pbZIkhEIz1pgjjPuErhZGXtEBUQ0rH9fb+N6Ooq4l5LHuvLDh22gT7gTGvyBQrNpfFWEcNP7O8I3ophHG3t/6dXfudYrEJejtxYjSXnQweXLExkEZdaiCpEOA1SlZAYghPFYg1HSuEuXguiGf/vi9UC4rPuVbLm9gQO94EMK/BHFEpFDRqiHE5Mva4rzuYXUeuMtln0dkMancxh8b0alC0XaNeG9VbWAlUIvlAErczBvqD82GDo/vF06oWOzLS5eTH0dDVvgRint0fLNgofAL7WX2KO2wohS/S9tNpIiBr+L7FZLoNWIi0jhENNCse22VVOUlmPI+2AYa/p0X7TCOwQX7Ua2MRajzjxCyNsKv9e5VpRuY4Jio102aIymXucAIecx6yPGIbUW6ioSCVJ2SCt2+voHW89E=
+  on:
+    branch: master
+    tags: true
+    repo: terascope/teraslice
