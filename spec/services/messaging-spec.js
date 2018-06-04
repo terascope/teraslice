@@ -4,8 +4,6 @@ const messagingModule = require('../../lib/cluster/services/messaging');
 const events = require('events');
 const Promise = require('bluebird');
 
-const eventEmitter = new events.EventEmitter();
-
 describe('messaging module', () => {
     const logger = {
         error() {},
@@ -17,45 +15,37 @@ describe('messaging module', () => {
     };
 
     const testExId = '7890';
-    eventEmitter.setMaxListeners(40);
 
-    class MyEmitter extends events {
-        constructor() {
-            super();
-        }
-    }
     let firstWorkerMsg = null;
     let secondWorkerMsg = null;
     let thirdWorkerMsg = null;
 
-    beforeEach(() => {
-        firstWorkerMsg = null;
-        secondWorkerMsg = null;
-        thirdWorkerMsg = null;
-    });
     let clusterFn = () => {};
 
-    class MyCluster extends events {
+    class MyCluster extends events.EventEmitter {
         constructor() {
             super();
             this.workers = {
                 first: {
                     ex_id: testExId,
                     assignment: 'execution_controller',
-                    send: msg => firstWorkerMsg = msg,
-                    on: (key, fn) => clusterFn = fn
+                    send: (msg) => { firstWorkerMsg = msg; },
+                    on: (key, fn) => { clusterFn = fn; },
+                    removeListener: () => {}
                 },
                 second: {
                     ex_id: testExId,
                     assignment: 'worker',
-                    send: msg => secondWorkerMsg = msg,
-                    on: (key, fn) => clusterFn = fn
+                    send: (msg) => { secondWorkerMsg = msg; },
+                    on: (key, fn) => { clusterFn = fn; },
+                    removeListener: () => {}
                 },
                 third: {
                     ex_id: 'somethingElse',
                     assignment: 'worker',
-                    send: msg => thirdWorkerMsg = msg,
-                    on: (key, fn) => clusterFn = fn
+                    send: (msg) => { thirdWorkerMsg = msg; },
+                    on: (key, fn) => { clusterFn = fn; },
+                    removeListener: () => {}
                 }
             };
         }
@@ -65,10 +55,14 @@ describe('messaging module', () => {
     let socketMsg = null;
 
     const io = {
-        emit: (msg, msgObj) => emitMsg = { message: msg, data: msgObj },
+        emit: (msg, msgObj) => {
+            emitMsg = { message: msg, data: msgObj };
+        },
         sockets: {
             in: address => ({
-                emit: (msg, msgObj) => socketMsg = { message: msg, data: msgObj, address }
+                emit: (msg, msgObj) => {
+                    socketMsg = { message: msg, data: msgObj, address };
+                }
             })
         },
         eio: {
@@ -76,40 +70,56 @@ describe('messaging module', () => {
         }
     };
 
-    const clusterEmitter = new MyCluster();
-    clusterEmitter.setMaxListeners(40);
-
-    const context = {
-        sysconfig: {
-            teraslice: {
-                master_hostname: '127.0.0.1',
-                port: 47898,
-                action_timeout: 5000,
-                network_latency_buffer: 10
-            }
-        },
-        apis: {
-            foundation: {
-                getSystemEvents: () => eventEmitter
-            }
-        },
-        cluster: clusterEmitter
-    };
-    const childHookFn = () => {};
-
-
     function getContext(obj) {
-        const emitter = new MyEmitter();
+        const emitter = new events.EventEmitter();
         emitter.setMaxListeners(40);
+        const systemEvents = new events.EventEmitter();
+        systemEvents.setMaxListeners(40);
+        const clusterEmitter = new MyCluster();
+        clusterEmitter.setMaxListeners(40);
         const config = Object.assign(emitter, obj);
-        return Object.assign({}, context, { __testingModule: config });
+
+        const cleanup = () => {
+            emitter.removeAllListeners();
+            systemEvents.removeAllListeners();
+            clusterEmitter.removeAllListeners();
+        };
+
+        return {
+            sysconfig: {
+                teraslice: {
+                    master_hostname: '127.0.0.1',
+                    port: 47898,
+                    action_timeout: 5000,
+                    network_latency_buffer: 10
+                }
+            },
+            apis: {
+                foundation: {
+                    getSystemEvents: () => systemEvents
+                }
+            },
+            cluster: clusterEmitter,
+            __testingModule: config,
+            cleanup,
+        };
     }
+
+    beforeEach(() => {
+        firstWorkerMsg = null;
+        secondWorkerMsg = null;
+        thirdWorkerMsg = null;
+    });
+
+    afterEach(() => {
+        process.removeAllListeners('message');
+    });
 
     it('can make a hostname', () => {
         const testContext = getContext({ env: { assignment: 'node_master' } });
         const messaging = messagingModule(testContext, logger);
         const makeHostName = messaging.__test_context()._makeHostName;
-        const getHostUrl = messaging.getHostUrl;
+        const { getHostUrl } = messaging;
 
         expect(makeHostName('127.0.0.1', 5647)).toEqual('http://127.0.0.1:5647');
         expect(makeHostName('127.0.0.1:', 5647)).toEqual('http://127.0.0.1:5647');
@@ -119,18 +129,20 @@ describe('messaging module', () => {
 
         expect(makeHostName('127.0.0.1', 5647, 'v1')).toEqual('http://127.0.0.1:5647/v1');
         expect(getHostUrl()).toEqual('http://127.0.0.1:47898');
+        testContext.cleanup();
     });
 
     it('can detect itself and make configurations', () => {
         function getConfig(type) {
-            const config = context.sysconfig.teraslice;
             const job = JSON.stringify({
-                slicer_hostname: config.master_hostname,
-                slicer_port: config.port
+                slicer_hostname: '127.0.0.1',
+                slicer_port: 47898
             });
             const testContext = getContext({ env: { assignment: type, job } });
             const testModule = messagingModule(testContext, logger).__test_context();
-            return testModule._makeConfigurations();
+            const result = testModule._makeConfigurations();
+            testContext.cleanup();
+            return result;
         }
 
         expect(getConfig('node_master')).toEqual({
@@ -170,16 +182,19 @@ describe('messaging module', () => {
         const testContext = getContext({ env: { assignment: 'node_master' } });
 
         expect(() => messagingModule(testContext, logger)).not.toThrow();
+        testContext.cleanup();
     });
 
     it('has a router', () => {
         const testContext = getContext({ env: { assignment: 'node_master' } });
         const messaging = messagingModule(testContext, logger);
-        const routing = messaging.__test_context().routing;
+        const { routing } = messaging.__test_context();
 
         const routingData = {
             cluster_master: { execution_controller: 'network', node_master: 'network', assets_loader: 'ipc' },
-            node_master: { cluster_process: 'ipc', cluster_master: 'network', execution_controller: 'ipc', worker: 'ipc', assets_loader: 'ipc', execution: 'ipc' },
+            node_master: {
+                cluster_process: 'ipc', cluster_master: 'network', execution_controller: 'ipc', worker: 'ipc', assets_loader: 'ipc', execution: 'ipc'
+            },
             execution_controller: { worker: 'network', cluster_master: 'ipc', node_master: 'ipc' },
             worker: { execution_controller: 'network', cluster_master: 'ipc', node_master: 'ipc' },
             assets_loader: { execution: 'ipc', cluster_master: 'ipc' },
@@ -187,6 +202,7 @@ describe('messaging module', () => {
         };
 
         expect(routing).toEqual(routingData);
+        testContext.cleanup();
     });
 
     it('can determie path for message', () => {
@@ -230,6 +246,10 @@ describe('messaging module', () => {
 
         expect(routerAssetsService({ to: 'cluster_master' })).toEqual('ipc');
         expect(() => routerAssetsService(failureMessage2)).toThrow();
+        testContext1.cleanup();
+        testContext2.cleanup();
+        testContext3.cleanup();
+        testContext4.cleanup();
     });
 
     it('can send process messages', () => {
@@ -239,7 +259,9 @@ describe('messaging module', () => {
         const firstMsg = { to: 'execution_controller', ex_id: testExId, message: 'execution:stop' };
         const secondMsg = { to: 'worker', ex_id: testExId, message: 'execution:stop' };
         const thirdMsg = { to: 'worker', message: 'worker:shutdown' };
-        const executionMsg = { to: 'execution', meta: 'someData', ex_id: testExId, message: 'worker:shutdown' };
+        const executionMsg = {
+            to: 'execution', meta: 'someData', ex_id: testExId, message: 'worker:shutdown'
+        };
 
         expect(firstWorkerMsg).toEqual(null);
         expect(secondWorkerMsg).toEqual(null);
@@ -268,6 +290,7 @@ describe('messaging module', () => {
         expect(firstWorkerMsg).toEqual(executionMsg);
         expect(secondWorkerMsg).toEqual(executionMsg);
         expect(thirdWorkerMsg).toEqual(thirdMsg);
+        testContext.cleanup();
     });
 
     it('can forward/broadcast messages', () => {
@@ -320,7 +343,7 @@ describe('messaging module', () => {
         });
 
         let sentProcessMsg = null;
-        const sentToProcess = msg => sentProcessMsg = msg;
+        const sentToProcess = (msg) => { sentProcessMsg = msg; };
         const testContext3 = getContext({
             env: {
                 assignment: 'execution_controller'
@@ -355,10 +378,14 @@ describe('messaging module', () => {
             to: 'cluster_master',
             message: 'cluster:slicer:analytics'
         });
+        testContext.cleanup();
+        testContext2.cleanup();
+        testContext3.cleanup();
     });
 
     it('can work with messaging:response messages', () => {
         const testContext = getContext({ env: { assignment: 'node_master' } });
+        const eventEmitter = testContext.apis.foundation.getSystemEvents();
         const messaging = messagingModule(testContext, logger);
         const handleResponse = messaging.__test_context()._handleResponse;
         const msgId = 'someId';
@@ -367,7 +394,7 @@ describe('messaging module', () => {
 
         let emittedData = null;
 
-        eventEmitter.on(msgId, data => emittedData = data);
+        eventEmitter.once(msgId, (data) => { emittedData = data; });
 
         handleResponse(nodeMsg);
         expect(emittedData).toEqual(nodeMsg);
@@ -375,6 +402,7 @@ describe('messaging module', () => {
         handleResponse(workerMsg);
         // should be a process msg
         expect(secondWorkerMsg).toEqual(workerMsg);
+        testContext.cleanup();
     });
 
     it('can getClientCounts', () => {
@@ -385,10 +413,12 @@ describe('messaging module', () => {
         messaging.__test_context(io);
 
         expect(messaging.getClientCounts()).toEqual(2);
+        testContext.cleanup();
     });
 
     it('can send transactional and non-transactional messages', (done) => {
         const testContext = getContext({ env: { assignment: 'node_master' } });
+        const eventEmitter = testContext.apis.foundation.getSystemEvents();
         const messaging = messagingModule(testContext, logger);
         const workerMsg = { to: 'worker', ex_id: testExId, message: 'execution:stop' };
         const transactionalMsg = Object.assign({}, workerMsg, { response: true });
@@ -444,12 +474,15 @@ describe('messaging module', () => {
                     });
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => {
+                testContext.cleanup();
+                done();
+            });
     });
 
     it('can respond', (done) => {
         let sentProcessMsg = null;
-        const sentToProcess = msg => sentProcessMsg = msg;
+        const sentToProcess = (msg) => { sentProcessMsg = msg; };
         const testContext = getContext({
             env: {
                 assignment: 'execution_controller'
@@ -476,7 +509,10 @@ describe('messaging module', () => {
                 });
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => {
+                testContext.cleanup();
+                done();
+            });
     });
 
     it('can register callbacks and attach them to socket/io', () => {
@@ -503,12 +539,12 @@ describe('messaging module', () => {
 
         messaging.register({
             event: 'child:exit',
-            callback: () => exitIsCalled = true
+            callback: () => { exitIsCalled = true; }
         });
 
         expect(() => messaging.register({
             event: 'some:event',
-            callback: () => exitIsCalled = true
+            callback: () => { exitIsCalled = true; }
         })).toThrow();
 
 
@@ -525,7 +561,7 @@ describe('messaging module', () => {
         expect(results.connect.__socketIdentifier).toEqual('node_id');
 
         // node master sets the event on the cluster obj
-        context.cluster.emit('exit');
+        testContext.cluster.emit('exit');
         expect(exitIsCalled).toEqual(true);
 
         socketSettings.shift();
@@ -533,8 +569,8 @@ describe('messaging module', () => {
         const socketList = {};
         const joinList = {};
         const socket = {
-            on: (key, fn) => socketList[key] = fn,
-            join: id => joinList[id] = id
+            on: (key, fn) => { socketList[key] = fn; },
+            join: (id) => { joinList[id] = id; }
         };
 
         registerFns(socket);
@@ -544,6 +580,7 @@ describe('messaging module', () => {
             id: 'someId',
             identifier: 'node_id'
         });
+        testContext.cleanup();
     });
 
     it('can listen and setup server', () => {
@@ -559,6 +596,9 @@ describe('messaging module', () => {
         expect(() => messaging1.listen()).not.toThrow();
         expect(() => messaging2.listen({ port: 45645, server: {} })).not.toThrow();
         expect(() => messaging3.listen({ port: 45647 })).not.toThrow();
+        testContext1.cleanup();
+        testContext2.cleanup();
+        testContext3.cleanup();
     });
 
     it('sets up listerns', () => {
@@ -569,7 +609,7 @@ describe('messaging module', () => {
 
         messaging1.registerChildOnlineHook(spy);
 
-        context.cluster.emit('online', { id: 'first' });
+        testContext1.cluster.emit('online', { id: 'first' });
         clusterFn({ to: 'cluster_master' });
         clusterFn({ to: 'node_master' });
         clusterFn({ to: 'worker' });
@@ -583,5 +623,7 @@ describe('messaging module', () => {
             to: 'cluster_master',
             message: 'cluster:slicer:analytics'
         });
+        testContext1.cleanup();
+        testContext2.cleanup();
     });
 });

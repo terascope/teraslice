@@ -11,12 +11,12 @@ describe('Worker', () => {
     const messagingEvents = {};
 
     let updatedSlice;
-    let analyticsData;
     let sentMsg;
     let errorMsg;
-    let debugMsg;
-    let logMsg;
-    let warnMsg;
+    let analyticsData; // eslint-disable-line
+    let debugMsg; // eslint-disable-line
+    let logMsg; // eslint-disable-line
+    let warnMsg; // eslint-disable-line
     let loggerConfig;
     let respondingMsg;
 
@@ -71,7 +71,7 @@ describe('Worker', () => {
             sentMsg = _sentMsg;
         },
         respond: (_inc, res) => {
-            respondingMsg = Object.assign({}, _inc, { message: 'messaging:response' }, res );
+            respondingMsg = Object.assign({}, _inc, { message: 'messaging:response' }, res);
         },
         listen: () => {}
     };
@@ -120,10 +120,21 @@ describe('Worker', () => {
         return { worker, testContext };
     }
 
+    beforeEach(() => {
+        updatedSlice = null;
+        sentMsg = null;
+        errorMsg = null;
+        analyticsData = null;
+        debugMsg = null;
+        logMsg = null;
+        warnMsg = null;
+        loggerConfig = null;
+    });
+
     it('can load without throwing', () => {
         expect(() => instantiateModule()).not.toThrowError();
         const module = instantiateModule();
-        const worker = module.worker;
+        const { worker } = module;
         const testModule = module.testContext;
         expect(module).toBeDefined();
         expect(typeof module).toEqual('object');
@@ -301,7 +312,7 @@ describe('Worker', () => {
     it('can shutdown', (done) => {
         const events = makeEmitter();
         let innerEventCalled = false;
-        const worker = instantiateModule().worker;
+        const { worker } = instantiateModule();
 
         events.on('worker:shutdown', () => {
             innerEventCalled = true;
