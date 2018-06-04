@@ -4,7 +4,7 @@ const Promise = require('bluebird');
 const misc = require('../../misc')();
 const _ = require('lodash');
 
-module.exports = function () {
+module.exports = function reindexTests() {
     const teraslice = misc.teraslice();
 
     describe('reindex', () => {
@@ -69,10 +69,7 @@ module.exports = function () {
                     // executions: total, failed, active?
                     // exceptions?
                 })
-                .catch((err) => {
-                    console.log('what error', err);
-                    fail();
-                })
+                .catch(fail)
                 .finally(done);
         });
 
