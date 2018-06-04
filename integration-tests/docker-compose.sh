@@ -24,8 +24,6 @@ fi
 
 declare -a VOLS=("./config:/app/config${CACHED}")
 
-DOCKERFILE=Dockerfile
-
 if test "$MODE" == "dev"
 then
     # TODO: Binary dependencies will not work in the container
@@ -34,8 +32,6 @@ then
     do
         VOLS+=("$(realpath "$linked"):/app/source/node_modules/$(basename "$linked")${CACHED}")
     done
-else
-    make -C .. Dockerfile
 fi
 
 cat > docker-compose.yml <<DOCKER
@@ -45,7 +41,6 @@ services:
   teraslice-master:
     build:
       context: ..
-      dockerfile: $DOCKERFILE
     ports:
         - "45678:45678"
     links:
@@ -59,7 +54,6 @@ done)
   teraslice-worker:
     build:
       context: ..
-      dockerfile: $DOCKERFILE
     links:
         - teraslice-master
         - elasticsearch
