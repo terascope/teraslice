@@ -3,3 +3,6 @@ thread_pool.bulk.queue_size: 2000
 network.host: 0.0.0.0
 http.port: 49200
 transport.tcp.port: 49300
+bootstrap.memory_lock: true
+discovery.type: single-node
+cluster.routing.allocation.disk.threshold_enabled: false

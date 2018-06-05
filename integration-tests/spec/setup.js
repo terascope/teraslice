@@ -203,10 +203,7 @@ describe('teraslice', () => {
             });
     });
 
-    afterAll(() => misc.teraslice().cluster.txt('ex').then((result) => {
-        console.log(result);
-        return misc.compose.stop();
-    }));
+    afterAll(() => misc.compose.stop());
 
     require('./cases/cluster/api')();
     require('./cases/assets/simple')();

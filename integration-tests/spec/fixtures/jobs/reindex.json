@@ -2,6 +2,7 @@
     "name": "Reindex",
     "lifecycle": "once",
     "workers": 1,
+    "analytics": false,
     "operations": [
         {
           "_op": "elasticsearch_reader",

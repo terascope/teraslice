@@ -19,18 +19,18 @@ function realpath {
 # Speed up bind mounts on mac.
 if uname | grep -iq 'darwin'
 then
-    CACHED=":cached"
+    CACHING=":delegated"
 fi
 
-declare -a VOLS=("./config:/app/config${CACHED}")
+declare -a VOLS=("./config:/app/config${CACHING}")
 
 if test "$MODE" == "dev"
 then
     # TODO: Binary dependencies will not work in the container
-    VOLS+=("..:/app/source${CACHED}")
+    VOLS+=("..:/app/source${CACHING}")
     for linked in $(find ../node_modules -type l -maxdepth 1)
     do
-        VOLS+=("$(realpath "$linked"):/app/source/node_modules/$(basename "$linked")${CACHED}")
+        VOLS+=("$(realpath "$linked"):/app/source/node_modules/$(basename "$linked")${CACHING}")
     done
 fi
 
@@ -42,9 +42,9 @@ services:
       context: ..
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:45678/cluster/state"]
-      retries: 10
-      timeout: 5s
       interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "45678:45678"
     depends_on:
@@ -82,19 +82,23 @@ done)
     image: elasticsearch:${ES_VERSION}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:49200"]
+      interval: 2s
+      timeout: 2s
       retries: 10
-      timeout: 5s
-      interval: 10s
     ports:
       - "49200:49200"
       - "49300:49300"
     volumes:
-      - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     environment:
       - "ES_VERSION=${ES_VERSION}"
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    mem_limit: 2g
     ulimits:
       memlock:
         soft: -1
         hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
 DOCKER

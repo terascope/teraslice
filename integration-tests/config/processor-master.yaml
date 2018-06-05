@@ -11,6 +11,11 @@ terafoundation:
                     - "elasticsearch:49200"
 
 teraslice:
+    worker_disconnect_timeout: 120000
+    node_disconnect_timeout: 120000
+    slicer_timeout: 60000
+    shutdown_timeout: 30000
+    slicer_port_range: '45679:47678'
     assets_directory: '/tmp/'
     ops_directory: '/app/source/examples/ops/'
     workers: 8

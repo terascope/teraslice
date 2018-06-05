@@ -2,7 +2,7 @@
 
 const misc = require('../../misc')();
 
-module.exports = function () {
+module.exports = function job() {
     describe('job validation', () => {
         it('should be rejected with empty index selector index name', (done) => {
             const jobSpec = misc.newJob('reindex');
