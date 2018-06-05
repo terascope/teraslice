@@ -203,7 +203,10 @@ describe('teraslice', () => {
             });
     });
 
-    afterAll(() => dockerDown());
+    afterAll(() => misc.teraslice().cluster.txt('ex').then((result) => {
+        console.log(result);
+        return misc.compose.stop();
+    }));
 
     require('./cases/cluster/api')();
     require('./cases/assets/simple')();

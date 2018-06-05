@@ -21,7 +21,7 @@ module.exports = function api() {
                         expect(jobConfig[key]).toEqual(value);
                     });
                 })
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -48,7 +48,7 @@ module.exports = function api() {
                             });
                         });
                 })
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -86,7 +86,7 @@ module.exports = function api() {
                         didError(teraslice.cluster.post(`/ex/${exId}/_pause`)),
                     ]);
                 })
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -99,7 +99,7 @@ module.exports = function api() {
                 expect(_.has(response[0], 'id')).toBe(true);
                 expect(_.has(response[0], 'version')).toBe(true);
             })
-            .catch(fail)
+            .catch(done.fail)
             .finally(done));
 
         it('api end point /assets/assetName should return an array of json objects of asset metadata', (done) => {
@@ -112,7 +112,7 @@ module.exports = function api() {
                     expect(_.has(response[0], 'id')).toBe(true);
                     expect(_.has(response[0], 'version')).toBe(true);
                 })
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -126,7 +126,7 @@ module.exports = function api() {
                     expect(_.has(response[0], 'id')).toBe(true);
                     expect(_.has(response[0], 'version')).toBe(true);
                 })
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -136,7 +136,7 @@ module.exports = function api() {
                     expect(_.isArray(response)).toBe(false);
                     expect(typeof response).toBe('string');
                 })
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -146,7 +146,7 @@ module.exports = function api() {
                     expect(_.isArray(response)).toBe(false);
                     expect(typeof response).toBe('string');
                 })
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -156,7 +156,7 @@ module.exports = function api() {
                     expect(_.isArray(response)).toBe(false);
                     expect(typeof response).toBe('string');
                 })
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
     });

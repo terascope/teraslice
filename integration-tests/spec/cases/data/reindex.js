@@ -25,7 +25,7 @@ module.exports = function reindexTests() {
                         expect(stats.count).toBe(10);
                         expect(stats.deleted).toBe(0);
                     }))
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -52,7 +52,7 @@ module.exports = function reindexTests() {
                             expect(reason).toEqual('no such index');
                         });
                 })
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -69,7 +69,7 @@ module.exports = function reindexTests() {
                     // executions: total, failed, active?
                     // exceptions?
                 })
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -99,7 +99,7 @@ module.exports = function reindexTests() {
                                 expect(stats.deleted).toBe(0);
                             }));
                 })
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 

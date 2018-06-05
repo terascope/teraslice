@@ -21,7 +21,7 @@ module.exports = function elasticsearchBulk() {
                     .then((stats) => {
                         expect(stats.count).toBe(10000);
                     }))
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
     });

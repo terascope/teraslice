@@ -40,7 +40,6 @@ services:
   teraslice-master:
     build:
       context: ..
-    scale: 1
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:45678/cluster/state"]
       retries: 10
@@ -63,7 +62,6 @@ done)
   teraslice-worker:
     build:
       context: ..
-    scale: 2
     depends_on:
       elasticsearch:
         condition: service_healthy

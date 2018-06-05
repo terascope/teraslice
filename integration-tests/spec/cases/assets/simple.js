@@ -58,7 +58,7 @@ module.exports = function simpleAssetTest() {
                             return response;
                         });
                 })
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -73,7 +73,7 @@ module.exports = function simpleAssetTest() {
 
             teraslice.assets.post(testStream)
                 .then(result => expect(JSON.parse(result).error).toMatch('asset.json was not found'))
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -86,7 +86,7 @@ module.exports = function simpleAssetTest() {
         it('After starting a job with a Type 1 asset specified by ID should eventually have all workers joined', (done) => {
             const assetPath = 'spec/fixtures/assets/example_asset_1.zip';
             submitAndValidateAssetJob('generator-asset', assetPath)
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -98,7 +98,7 @@ module.exports = function simpleAssetTest() {
         it('After starting a job with a Type 2 asset specified by ID should eventually have all workers joined', (done) => {
             const assetPath = 'spec/fixtures/assets/example_asset_2.zip';
             submitAndValidateAssetJob('generator-asset', assetPath)
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
     });

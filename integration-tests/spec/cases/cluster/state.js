@@ -56,9 +56,9 @@ module.exports = function clusterStateTest() {
         it('should match default configuration', (done) => {
             teraslice.cluster.state()
                 .then((state) => {
-                    verifyClusterState(state, 3);
+                    verifyClusterState(state, 2);
                 })
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -82,7 +82,7 @@ module.exports = function clusterStateTest() {
                 .then((state) => {
                     verifyClusterState(state, 2);
                 })
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -106,7 +106,7 @@ module.exports = function clusterStateTest() {
                 .then((state) => {
                     verifyClusterState(state, 2);
                 })
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -204,7 +204,7 @@ module.exports = function clusterStateTest() {
                         expect(stats.count).toBe(1000);
                         expect(stats.deleted).toBe(0);
                     }))
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
     });

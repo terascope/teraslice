@@ -29,7 +29,7 @@ module.exports = function workerAllocationTest() {
                         expect(stats.count).toBe(records);
                         expect(stats.deleted).toBe(0);
                     })))
-            .catch(fail)
+            .catch(done.fail)
             .finally(() => {
                 done();
             });
@@ -90,7 +90,7 @@ module.exports = function workerAllocationTest() {
                             expect(stats.count).toBe(records);
                             expect(stats.deleted).toBe(0);
                         })))
-                .catch(fail)
+                .catch(done.fail)
                 .finally(() => {
                     // Drop back down to a single worker node
                     misc.scale(1)

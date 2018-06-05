@@ -22,7 +22,7 @@ module.exports = function () {
                         expect(stats.count).toBe(10000);
                         expect(stats.deleted).toBe(0);
                     }))
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -44,7 +44,7 @@ module.exports = function () {
                         expect(stats.count).toBe(10000);
                         expect(stats.deleted).toBe(0);
                     }))
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -68,7 +68,7 @@ module.exports = function () {
                         expect(stats.count).toBe(5000);
                         expect(stats.deleted).toBe(0);
                     }))
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
 
@@ -97,7 +97,7 @@ module.exports = function () {
                                 expect(stats.deleted).toBe(0);
                             }));
                 })
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
     });

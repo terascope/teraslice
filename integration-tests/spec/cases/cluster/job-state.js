@@ -31,7 +31,7 @@ module.exports = function jobState() {
                         .then(() => job2.stop())
                         .then(() => job2.waitForStatus('stopped'));
                 })
-                .catch(fail)
+                .catch(done.fail)
                 .finally(done);
         });
     });
