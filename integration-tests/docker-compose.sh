@@ -41,10 +41,19 @@ services:
   teraslice-master:
     build:
       context: ..
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:45678/cluster/state"]
+      retries: 10
+      timeout: 5s
+      interval: 10s
     ports:
         - "45678:45678"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
     links:
         - elasticsearch
+    stop_grace_period: 30s
     volumes:
 $(for vol in ${VOLS[@]}
 do
@@ -54,9 +63,15 @@ done)
   teraslice-worker:
     build:
       context: ..
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      teraslice-master:
+        condition: service_healthy
     links:
         - teraslice-master
         - elasticsearch
+    stop_grace_period: 30s
     volumes:
 $(for vol in ${VOLS[@]}
 do
@@ -66,14 +81,17 @@ done)
   elasticsearch:
     # TODO: Will no longer be available in docker hub past 5.5
     image: elasticsearch:${ES_VERSION}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:49200"]
+      retries: 10
+      timeout: 5s
+      interval: 10s
     ports:
         - "49200:49200"
         - "49300:49300"
     volumes:
         - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     environment:
-        - discovery.type=single-node
-        - bootstrap.memory_lock=true
         - "ES_VERSION=${ES_VERSION}"
         - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
     ulimits:

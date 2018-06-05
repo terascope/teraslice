@@ -7,7 +7,7 @@ const Promise = require('bluebird');
 const misc = require('./misc')();
 
 // We need long timeouts for some of these jobs
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 60 * 1000;
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 2 * 60 * 1000;
 
 if (process.stdout.isTTY) {
     const { SpecReporter } = require('jasmine-spec-reporter');
@@ -39,8 +39,14 @@ describe('teraslice', () => {
 
     // ensure docker-compose stack is down before starting it
     function dockerDown() {
-        console.log(' - Ensuring docker environment is in a clean slate');
-        return misc.compose.down({ 'remove-orphans': '' }).catch(() => Promise.resolve());
+        process.stdout.write(' - Ensuring docker environment is in a clean slate...');
+        return misc.compose.down({ 'remove-orphans': '' })
+            .then(() => {
+                console.log(' Ready');
+            }).catch(() => {
+                console.log(' Ready (with error)');
+                return Promise.resolve();
+            });
     }
 
     function waitForES() {
@@ -51,6 +57,7 @@ describe('teraslice', () => {
             function wait() {
                 attempts += 1;
                 misc.es().cat.indices({
+                    health: 'green',
                     requestTimeout: 1000
                 })
                     .then(() => {
@@ -70,6 +77,25 @@ describe('teraslice', () => {
 
             wait();
         }));
+    }
+
+    function updateESSettings() {
+        process.stdout.write(' - Updating ES settings...');
+        return misc.es().indices.putSettings({
+            index: '_all',
+            preserveExisting: true,
+            body: {
+                'index.max_result_window': 100000,
+                'index.number_of_shards': 1,
+                'index.number_of_replicas': 0
+            }
+        })
+            .then(() => {
+                console.log(' Ready');
+            }).catch(() => {
+                console.error(' Failed');
+                return Promise.resolve();
+            });
     }
 
     function waitForTeraslice() {
@@ -172,7 +198,15 @@ describe('teraslice', () => {
             });
     }
 
-    const before = [dockerDown, dockerUp, waitForES, cleanup, waitForTeraslice, generateTestData];
+    const before = [
+        dockerDown,
+        dockerUp,
+        waitForES,
+        updateESSettings,
+        cleanup,
+        waitForTeraslice,
+        generateTestData
+    ];
 
     beforeAll((done) => {
         Promise.resolve(before)
@@ -183,9 +217,13 @@ describe('teraslice', () => {
             })
             .catch((err) => {
                 console.error('Setup failed: ', err, ' - `docker-compose logs` may provide clues');
-                process.exit(2);
+                misc.compose.kill().finally(() => {
+                    process.exit(2);
+                });
             });
     }, 3 * 60 * 1000);
+
+    afterAll(() => misc.compose.kill());
 
     require('./cases/cluster/api')();
     require('./cases/assets/simple')();
