@@ -6,7 +6,6 @@ services:
 - docker
 env:
 - DOCKER_COMPOSE_VERSION=1.21.1
-- MODE=qa
 before_install:
 - sudo rm /usr/local/bin/docker-compose
 - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname
@@ -15,7 +14,7 @@ before_install:
 - sudo mv docker-compose /usr/local/bin
 script:
 - time make test
-- time make integration-tests
+- time env MODE=qa make integration-tests
 - make lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
 deploy:
   provider: npm
