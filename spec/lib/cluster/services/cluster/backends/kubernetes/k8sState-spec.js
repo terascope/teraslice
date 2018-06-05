@@ -4,7 +4,7 @@ const podsJobRunning = require('./files/job-running-v1-k8s-pods.json');
 const expectedClusterState = require('./files/job-running-v1-clusterState.json');
 const k8sState = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8sState');
 
-
+// FIXME: Remember, I break unit tests if I leave this in!!
 fdescribe('foo', () => {
     it('generates cluster state', () => {
         let clusterState = {};
