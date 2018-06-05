@@ -3,5 +3,6 @@
     "spec_files": [
         "setup.js"
     ],
+    "stopSpecOnExpectationFailure": false,
     "random": false
 }

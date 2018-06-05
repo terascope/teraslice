@@ -46,7 +46,7 @@ module.exports = function misc() {
 
     // Adds teraslice-workers to the environment
     function scale(count) {
-        return compose.scale(`teraslice-worker=${count}`);
+        return compose.up({ scale: `teraslice-worker=${count}` });
     }
 
     return {

@@ -56,7 +56,7 @@ module.exports = function clusterStateTest() {
         it('should match default configuration', (done) => {
             teraslice.cluster.state()
                 .then((state) => {
-                    verifyClusterState(state, 2);
+                    verifyClusterState(state, 3);
                 })
                 .catch(fail)
                 .finally(done);

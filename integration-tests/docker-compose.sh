@@ -10,9 +10,9 @@ function realpath {
     local path=$1
     if test -L "$path"
     then
-        echo $(realpath $(readlink "$path"))
+        realpath "$(readlink "$path")"
     else
-        echo $path
+        echo "$path"
     fi
 }
 
@@ -35,19 +35,19 @@ then
 fi
 
 cat > docker-compose.yml <<DOCKER
-# TODO: docker-compose-js won't "scale" with compose format version >= 2.2
-version: '2.1'
+version: '2.4'
 services:
   teraslice-master:
     build:
       context: ..
+    scale: 1
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:45678/cluster/state"]
       retries: 10
       timeout: 5s
       interval: 10s
     ports:
-        - "45678:45678"
+      - "45678:45678"
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -55,7 +55,7 @@ services:
         - elasticsearch
     stop_grace_period: 30s
     volumes:
-$(for vol in ${VOLS[@]}
+$(for vol in "${VOLS[@]}"
 do
   echo "        - $vol"
 done)
@@ -63,17 +63,18 @@ done)
   teraslice-worker:
     build:
       context: ..
+    scale: 2
     depends_on:
       elasticsearch:
         condition: service_healthy
       teraslice-master:
         condition: service_healthy
     links:
-        - teraslice-master
-        - elasticsearch
+      - teraslice-master
+      - elasticsearch
     stop_grace_period: 30s
     volumes:
-$(for vol in ${VOLS[@]}
+$(for vol in "${VOLS[@]}"
 do
   echo "        - $vol"
 done)
@@ -87,13 +88,13 @@ done)
       timeout: 5s
       interval: 10s
     ports:
-        - "49200:49200"
-        - "49300:49300"
+      - "49200:49200"
+      - "49300:49300"
     volumes:
-        - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     environment:
-        - "ES_VERSION=${ES_VERSION}"
-        - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "ES_VERSION=${ES_VERSION}"
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
     ulimits:
       memlock:
         soft: -1

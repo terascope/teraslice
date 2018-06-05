@@ -7,7 +7,7 @@ const Promise = require('bluebird');
 const misc = require('./misc')();
 
 // We need long timeouts for some of these jobs
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 2 * 60 * 1000;
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 6 * 60 * 1000;
 
 if (process.stdout.isTTY) {
     const { SpecReporter } = require('jasmine-spec-reporter');
@@ -77,25 +77,6 @@ describe('teraslice', () => {
 
             wait();
         }));
-    }
-
-    function updateESSettings() {
-        process.stdout.write(' - Updating ES settings...');
-        return misc.es().indices.putSettings({
-            index: '_all',
-            preserveExisting: true,
-            body: {
-                'index.max_result_window': 100000,
-                'index.number_of_shards': 1,
-                'index.number_of_replicas': 0
-            }
-        })
-            .then(() => {
-                console.log(' Ready');
-            }).catch(() => {
-                console.error(' Failed');
-                return Promise.resolve();
-            });
     }
 
     function waitForTeraslice() {
@@ -202,7 +183,6 @@ describe('teraslice', () => {
         dockerDown,
         dockerUp,
         waitForES,
-        updateESSettings,
         cleanup,
         waitForTeraslice,
         generateTestData
@@ -221,9 +201,9 @@ describe('teraslice', () => {
                     process.exit(2);
                 });
             });
-    }, 3 * 60 * 1000);
+    });
 
-    afterAll(() => misc.compose.kill());
+    afterAll(() => dockerDown());
 
     require('./cases/cluster/api')();
     require('./cases/assets/simple')();

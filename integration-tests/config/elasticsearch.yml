@@ -1,8 +1,5 @@
+cluster.name: teraslice-integration-${ES_VERSION}
+thread_pool.bulk.queue_size: 2000
 network.host: 0.0.0.0
 http.port: 49200
 transport.tcp.port: 49300
-cluster.name: teraslice-integration-${ES_VERSION}
-thread_pool.bulk.queue_size: 2000
-# path.data: /usr/share/elasticsearch/data/${ES_VERSION}
-# threadpool.bulk.queue_size: 2000
-# index.number_of_replicas: 0
