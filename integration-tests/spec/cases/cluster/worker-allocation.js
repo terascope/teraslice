@@ -44,16 +44,16 @@ module.exports = function workerAllocationTest() {
             workersTest(5, 5, 10000, done);
         });
 
-        it('with 13 out of requested 20 workers', (done) => {
-            workersTest(20, 13, 10000, done);
+        it('with 17 out of requested 20 workers', (done) => {
+            workersTest(20, 17, 10000, done);
         });
 
         // TODO: Debug this test
         xit('should scale from 13 to 20 workers', (done) => {
-            // Test cluster has 16 workers total.
+            // Test cluster has 20 workers total.
             // 1 is consumed by the cluster_master. 1 by the slicer.
             // So the job should consume 13 to start.
-            // the when we add another worker. 8 more should become available.
+            // the when we add another worker. 4 more should become available.
             // And all 20 should schedule.
             const workers = 20;
             const records = 10000;

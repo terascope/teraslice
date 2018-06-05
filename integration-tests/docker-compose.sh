@@ -19,11 +19,12 @@ function realpath {
 # Speed up bind mounts on mac.
 if uname | grep -iq 'darwin'
 then
-    CACHING=":delegated"
+    CACHING=":cached"
 fi
 
 declare -a VOLS=("./config:/app/config${CACHING}")
 
+echo "* running in $MODE mode"
 if test "$MODE" == "dev"
 then
     # TODO: Binary dependencies will not work in the container
@@ -62,6 +63,7 @@ done)
   teraslice-worker:
     build:
       context: ..
+    scale: 4
     depends_on:
       elasticsearch:
         condition: service_healthy

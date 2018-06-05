@@ -4,6 +4,7 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
+const { forNodes } = require('./wait')();
 const misc = require('./misc')();
 
 // We need long timeouts for some of these jobs
@@ -22,35 +23,30 @@ if (process.stdout.isTTY) {
 
 describe('teraslice', () => {
     function dockerUp() {
-        process.stdout.write(' - Bringing Docker environment up...');
-        const intervalId = setInterval(() => {
-            process.stdout.write('.');
-        }, 10 * 1000);
-        return misc.compose.up({ build: '' }).then((result) => {
-            clearInterval(intervalId);
-            console.log(' Ready');
+        console.time(' [benchmark] docker-compose up');
+        console.log(' - Bringing Docker environment up...');
+        return misc.compose.up({ build: '', 'renew-anon-volumes': '' }).then((result) => {
+            console.timeEnd(' [benchmark] docker-compose up');
             return result;
-        }, (err) => {
-            clearInterval(intervalId);
-            console.log(' Failed');
-            return Promise.reject(err);
         });
     }
 
     // ensure docker-compose stack is down before starting it
     function dockerDown() {
-        process.stdout.write(' - Ensuring docker environment is in a clean slate...');
-        return misc.compose.down({ 'remove-orphans': '' })
+        console.time(' [benchmark] docker-compose down');
+        console.log(' - Ensuring docker environment is in a clean slate...');
+        return misc.compose.down({ timeout: 1 })
             .then(() => {
-                console.log(' Ready');
+                console.timeEnd(' [benchmark] docker-compose down');
             }).catch(() => {
-                console.log(' Ready (with error)');
+                console.timeEnd(' [benchmark] docker-compose down (with error)');
                 return Promise.resolve();
             });
     }
 
     function waitForES() {
-        process.stdout.write(' - Waiting for Elasticsearch...');
+        console.time(' [benchmark] waiting for elasticsearch');
+        console.log(' - Waiting for Elasticsearch...');
         return new Promise(((resolve, reject) => {
             let attempts = 0;
 
@@ -61,7 +57,7 @@ describe('teraslice', () => {
                     requestTimeout: 1000
                 })
                     .then(() => {
-                        console.log(' Ready');
+                        console.timeEnd(' [benchmark] waiting for elasticsearch');
                         resolve();
                     })
                     .catch(() => {
@@ -69,7 +65,6 @@ describe('teraslice', () => {
                             console.log(' Giving up');
                             reject('timed out');
                         } else {
-                            process.stdout.write('.');
                             setTimeout(wait, 1000);
                         }
                     });
@@ -80,39 +75,24 @@ describe('teraslice', () => {
     }
 
     function waitForTeraslice() {
-        process.stdout.write(' - Waiting for Teraslice...');
-        return new Promise(((resolve, reject) => {
-            let attempts = 0;
-
-            function wait() {
-                attempts += 1;
-                misc.teraslice().cluster.txt('assets')
-                    .then(() => {
-                        console.log(' Ready');
-                        resolve();
-                    })
-                    .catch(() => {
-                        if (attempts > 50) {
-                            console.log(' Giving up');
-                            reject('timed out');
-                        } else {
-                            process.stdout.write('.');
-                            setTimeout(wait, 1000);
-                        }
-                    });
-            }
-
-            wait();
-        }));
+        console.time(' [benchmark] waiting for teraslice');
+        console.log(' - Waiting for Teraslice...');
+        return forNodes(5).then(() => {
+            console.timeEnd(' [benchmark] waiting for teraslice');
+        });
     }
 
     function cleanup() {
+        console.time(' [benchmark] cleanup');
         console.log(' - Cleaning up teraslice state & prior test results');
-        return misc.es().indices.delete({ index: 'test-*', ignore: [404] });
+        return misc.es().indices.delete({ index: 'test-*', ignore: [404] }).then(() => {
+            console.timeEnd(' [benchmark] cleanup');
+        });
     }
 
     function generateTestData() {
-        console.log(' - Making sure example data generated');
+        console.time(' [benchmark] generate test data');
+        console.log(' - Generating example data');
 
         function generate(count, hex) {
             let indexName = `example-logs-${count}`;
@@ -163,7 +143,6 @@ describe('teraslice', () => {
                 });
             }));
         }
-
         return Promise.all([
             generate(10),
             generate(1000),
@@ -173,26 +152,27 @@ describe('teraslice', () => {
             .then(_.filter)
             .then(_.flatten)
             .map(job => job.waitForStatus('completed'))
+            .then(() => {
+                console.timeEnd(' [benchmark] generate test data');
+            })
             .catch((err) => {
                 console.error('Data generation failed: ', err);
                 process.exit(1);
             });
     }
 
-    const before = [
-        dockerDown,
-        dockerUp,
-        waitForES,
-        cleanup,
-        waitForTeraslice,
-        generateTestData
-    ];
-
     beforeAll((done) => {
-        Promise.resolve(before)
-            .mapSeries(f => f())
+        console.log('- Global setup complete. Starting tests...');
+        console.time(' [benchmark] global setup');
+        Promise.resolve()
+            .then(() => dockerDown())
+            .then(() => dockerUp())
+            .then(() => waitForES())
+            .then(() => waitForTeraslice())
+            .then(() => cleanup())
+            .then(() => generateTestData())
             .then(() => {
-                console.log('Global setup complete. Starting tests...');
+                console.timeEnd(' [benchmark] global setup');
                 done();
             })
             .catch((err) => {
