@@ -309,7 +309,7 @@ describe('Worker', () => {
             .finally(done);
     });
 
-    it('can process slices', (done) => {
+    it('can process slices, and send back over allocated slices', (done) => {
         const myExecution = _.cloneDeep(executionContext);
 
         function makeData() {
@@ -325,6 +325,14 @@ describe('Worker', () => {
         const events = makeEmitter();
         const lastMessage = instantiateModule(myExecution, exId, jobId).testContext._lastMessage;
         const slice = { slice_id: 'as35g' };
+        const slice2 = { slice_id: 'as35g', other: 'data' };
+        const sentBackMsg = {
+            to: 'execution_controller',
+            message: 'worker:slice:over_allocated',
+            worker_id: 'testHostName__someID',
+            payload: slice2
+        };
+
         let sliceSuccess = false;
 
         events.on('slice:success', () => {
@@ -352,6 +360,9 @@ describe('Worker', () => {
                     slice: { slice_id: 'as35g' },
                     analytics: { time: [], size: [], memory: [] }
                 });
+                messagingEvents['slicer:slice:new']({ payload: slice });
+                messagingEvents['slicer:slice:new']({ payload: slice2 });
+                expect(sentMsg).toEqual(sentBackMsg);
             })
             .catch(fail)
             .finally(done);

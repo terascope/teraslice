@@ -198,6 +198,8 @@ describe('execution engine', () => {
         expect(typeof messagingEvents['worker:ready']).toEqual('function');
         expect(messagingEvents['worker:slice:complete']).toBeDefined();
         expect(typeof messagingEvents['worker:slice:complete']).toEqual('function');
+        expect(messagingEvents['worker:slice:over_allocated']).toBeDefined();
+        expect(typeof messagingEvents['worker:slice:over_allocated']).toEqual('function');
         expect(messagingEvents['network:disconnect']).toBeDefined();
         expect(typeof messagingEvents['network:disconnect']).toEqual('function');
         expect(messagingEvents['assets:loaded']).toBeDefined();
@@ -964,5 +966,34 @@ describe('execution engine', () => {
         expect(workerQueue.size()).toEqual(1);
         expect(workerQueue.extract('worker_id', 2)).toEqual({ worker_id: 2 });
         expect(workerQueue.size()).toEqual(0);
+    });
+
+    it('should re-enqueue a slice that was overprovisioned to a worker', () => {
+        const engineTest = makeEngine();
+        const { slicerQueue } = engineTest.testContext;
+        const returningSlice = { zero: 'zero' };
+        const slice1 = { one: 'one' };
+        const slice2 = { two: 'two' };
+        const slice3 = { three: 'three' };
+        const workerId = 'someId';
+        const returningResponse = {
+            to: 'execution_controller',
+            message: 'worker:slice:over_allocated',
+            worker_id: workerId,
+            payload: returningSlice
+        };
+
+        slicerQueue.enqueue(slice1);
+        slicerQueue.enqueue(slice2);
+        slicerQueue.enqueue(slice3);
+
+        expect(slicerQueue.size()).toEqual(3);
+
+        messagingEvents['worker:slice:over_allocated'](returningResponse);
+
+        expect(slicerQueue.size()).toEqual(4);
+        expect(slicerQueue.dequeue()).toEqual(returningSlice);
+        expect(slicerQueue.dequeue()).toEqual(slice1);
+        expect(slicerQueue.size()).toEqual(2);
     });
 });
