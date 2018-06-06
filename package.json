@@ -5,7 +5,9 @@
   "bin": "service.js",
   "main": "service.js",
   "scripts": {
-    "lint": "eslint lib",
+    "start": "node service.js",
+    "lint": "eslint lib/**/*.js",
+    "lint:fix": "eslint --fix lib/**/*.js",
     "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
     "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
   },
