@@ -28,9 +28,8 @@ describe('teraslice', () => {
 
         return misc.compose.up({
             build: '',
-            'renew-anon-volumes': '',
-            'quiet-pull': '',
-            timeout: 1
+            timeout: 1,
+            'no-recreate': ''
         }).then((result) => {
             console.timeEnd(' [benchmark] docker-compose up');
             return result;
@@ -42,7 +41,10 @@ describe('teraslice', () => {
         console.time(' [benchmark] docker-compose down');
         console.log(' - Ensuring docker environment is in a clean slate...');
 
-        return misc.compose.down({ timeout: 1 })
+        return misc.compose.down({
+            timeout: 1,
+            volumes: ''
+        })
             .then(() => {
                 console.timeEnd(' [benchmark] docker-compose down');
             }).catch(() => {

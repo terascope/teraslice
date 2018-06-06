@@ -44,9 +44,9 @@ services:
     scale: 1
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:45678/cluster/state"]
-      interval: 7s
+      interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
     ports:
       - "45678:45678"
     depends_on:
@@ -85,7 +85,7 @@ done)
     image: elasticsearch:${ES_VERSION}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:49200"]
-      interval: 2s
+      interval: 10s
       timeout: 2s
       retries: 10
     ports:
@@ -96,4 +96,12 @@ done)
     environment:
       - "ES_VERSION=${ES_VERSION}"
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    mem_limit: 2g
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
 DOCKER
