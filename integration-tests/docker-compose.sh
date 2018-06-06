@@ -29,10 +29,10 @@ if test "$MODE" == "dev"
 then
     # TODO: Binary dependencies will not work in the container
     VOLS+=("..:/app/source${CACHING}")
-    for linked in $(find ../node_modules -type l -maxdepth 1)
+    while IFS= read -r -d '' linked
     do
         VOLS+=("$(realpath "$linked"):/app/source/node_modules/$(basename "$linked")${CACHING}")
-    done
+    done < <(find ../node_modules -type l -maxdepth 1)
 fi
 
 cat > docker-compose.yml <<DOCKER
