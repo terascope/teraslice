@@ -26,11 +26,15 @@ describe('teraslice', () => {
         console.time(' [benchmark] docker-compose up');
         console.log(' - Bringing Docker environment up...');
 
-        return misc.compose.up({
+        const options = {
             build: '',
             timeout: 1,
-            'no-recreate': ''
-        }).then((result) => {
+        };
+        if (process.env.MODE === 'qa') {
+            options['no-recreate'] = '';
+        }
+
+        return misc.compose.up(options).then((result) => {
             console.timeEnd(' [benchmark] docker-compose up');
             return result;
         });
@@ -44,13 +48,9 @@ describe('teraslice', () => {
         return misc.compose.down({
             timeout: 1,
             volumes: ''
-        })
-            .then(() => {
-                console.timeEnd(' [benchmark] docker-compose down');
-            }).catch(() => {
-                console.timeEnd(' [benchmark] docker-compose down (with error)');
-                return Promise.resolve();
-            });
+        }).then(() => {
+            console.timeEnd(' [benchmark] docker-compose down');
+        });
     }
 
     function waitForES() {

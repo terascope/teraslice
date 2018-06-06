@@ -86,15 +86,15 @@ module.exports = function clusterStateTest() {
                 .finally(done);
         });
 
-        it('should update after adding and removing 20 worker nodes', (done) => {
-            // Add additional worker nodes. There's one already and we want 20 more.
-            misc.scale(21)
+        it('should update after adding and removing 10 worker nodes', (done) => {
+            // Add additional worker nodes. There's one already and we want 13 more.
+            misc.scale(13)
                 .then(() =>
                     // Wait for all the nodes to show up in cluster state.
-                    wait.forNodes(22))
+                    wait.forNodes(14))
                 .then(() => teraslice.cluster.state())
                 .then((state) => {
-                    verifyClusterState(state, 22);
+                    verifyClusterState(state, 13);
                 })
                 .then(() =>
                     // Scale back to a default worker count.
