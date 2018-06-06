@@ -18,6 +18,7 @@ describe('Worker', () => {
     let logMsg;
     let warnMsg;
     let loggerConfig;
+    let respondingMsg;
 
     const logger = {
         error(err) {
@@ -67,6 +68,7 @@ describe('Worker', () => {
         },
         getHostUrl: () => 'someURL',
         send: _sentMsg => sentMsg = _sentMsg,
+        respond: (_inc, res) => respondingMsg = Object.assign({}, _inc, { message: 'messaging:response' }, { payload: res }),
         listen: () => {}
     };
     const executionContext = {
@@ -326,11 +328,17 @@ describe('Worker', () => {
         const lastMessage = instantiateModule(myExecution, exId, jobId).testContext._lastMessage;
         const slice = { slice_id: 'as35g' };
         const slice2 = { slice_id: 'as35g', other: 'data' };
-        const sentBackMsg = {
+        const incomingMsg = {
             to: 'execution_controller',
-            message: 'worker:slice:over_allocated',
+            message: 'slicer:slice:new',
             worker_id: 'testHostName__someID',
             payload: slice2
+        };
+        const sentBackMsg = {
+            to: 'execution_controller',
+            message: 'messaging:response',
+            worker_id: 'testHostName__someID',
+            payload: { willProcess: false }
         };
 
         let sliceSuccess = false;
@@ -360,9 +368,10 @@ describe('Worker', () => {
                     slice: { slice_id: 'as35g' },
                     analytics: { time: [], size: [], memory: [] }
                 });
+
                 messagingEvents['slicer:slice:new']({ payload: slice });
-                messagingEvents['slicer:slice:new']({ payload: slice2 });
-                expect(sentMsg).toEqual(sentBackMsg);
+                messagingEvents['slicer:slice:new'](incomingMsg);
+                expect(respondingMsg).toEqual(sentBackMsg);
             })
             .catch(fail)
             .finally(done);

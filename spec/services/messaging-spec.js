@@ -511,6 +511,7 @@ describe('messaging module', () => {
             callback: () => exitIsCalled = true
         })).toThrow();
 
+
         const results = getRegistry();
 
         expect(results['cluster:node:get_port']).toBeDefined();
