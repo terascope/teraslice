@@ -9,7 +9,8 @@
     "jasmine": "jasmine",
     "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
     "testcov": "nyc -x spec/ jasmine && nyc report --reporter=html",
-    "showcov": "open coverage/index.html"
+    "showcov": "open coverage/index.html",
+    "report-coverage": "nyc -x spec/ --reporter=text-lcov jasmine > coverage/coverage.lcov && codecov"
   },
   "repository": {
     "type": "git",
@@ -44,6 +45,7 @@
     "yargs": "^11.0.0"
   },
   "devDependencies": {
+    "codecov": "^3.0.2",
     "eslint": "^4.19.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.9.0",

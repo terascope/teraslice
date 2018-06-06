@@ -16,6 +16,7 @@ script:
 - time make test
 - time env MODE=qa make integration-tests
 - make lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
+- yarn report-coverage
 deploy:
   provider: npm
   email: peter@terascope.io
