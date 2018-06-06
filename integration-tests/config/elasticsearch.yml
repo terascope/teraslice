@@ -4,3 +4,5 @@ network.host: 0.0.0.0
 http.port: 49200
 transport.tcp.port: 49300
 discovery.type: single-node
+bootstrap.memory_lock: true
+cluster.routing.allocation.disk.threshold_enabled: false

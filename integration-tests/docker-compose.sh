@@ -85,7 +85,7 @@ done)
     image: elasticsearch:${ES_VERSION}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:49200"]
-      interval: 10s
+      interval: 4s
       timeout: 2s
       retries: 10
     ports:
@@ -96,7 +96,6 @@ done)
     environment:
       - "ES_VERSION=${ES_VERSION}"
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-    mem_limit: 2g
     ulimits:
       memlock:
         soft: -1
