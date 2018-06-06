@@ -9,6 +9,7 @@ RUN yarn global add \
     --silent \
     --no-progress \
     bunyan
+
 RUN yarn install \
     --silent \
     --no-progress \
@@ -20,4 +21,6 @@ EXPOSE 5678
 
 VOLUME /app/config /app/logs
 
-ENTRYPOINT ["node", "service.js"]
+ENV TERAFOUNDATION_CONFIG /app/config/processor-master.yaml 
+
+CMD ["node", "--max-old-space-size=2048", "service.js"]

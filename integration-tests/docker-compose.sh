@@ -49,6 +49,8 @@ services:
       retries: 10
     ports:
       - "45678:45678"
+    environment:
+        - TERAFOUNDATION_CONFIG=/app/config/processor-master.yaml
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -60,11 +62,12 @@ $(for vol in "${VOLS[@]}"
 do
   echo "        - $vol"
 done)
-    command: node /app/source/service.js -c /app/config/processor-master.yaml
   teraslice-worker:
     build:
       context: ..
     scale: 3
+    environment:
+        - TERAFOUNDATION_CONFIG=/app/config/processor-worker.yaml
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -79,7 +82,6 @@ $(for vol in "${VOLS[@]}"
 do
   echo "        - $vol"
 done)
-    command: node /app/source/service.js -c /app/config/processor-worker.yaml
   elasticsearch:
     # TODO: Will no longer be available in docker hub past 5.5
     image: elasticsearch:${ES_VERSION}
