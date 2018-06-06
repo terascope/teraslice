@@ -94,7 +94,7 @@ module.exports = function clusterStateTest() {
                     wait.forNodes(14))
                 .then(() => teraslice.cluster.state())
                 .then((state) => {
-                    verifyClusterState(state, 13);
+                    verifyClusterState(state, 14);
                 })
                 .then(() =>
                     // Scale back to a default worker count.
