@@ -44,7 +44,7 @@ services:
     scale: 1
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:45678/cluster/state"]
-      interval: 10s
+      interval: 7s
       timeout: 5s
       retries: 5
     ports:
@@ -96,12 +96,4 @@ done)
     environment:
       - "ES_VERSION=${ES_VERSION}"
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-    mem_limit: 2g
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
 DOCKER
