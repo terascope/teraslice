@@ -139,7 +139,7 @@ module.exports = function clusterStateTest() {
                                 if (state[node].active.length > 2) {
                                     expect(findWorkers(state[node].active, 'worker', jobId).length).toBe(1);
                                 }
-                                expect(checkState(state, null, jobId)).toBe(1);
+                                expect(checkState(state, null, jobId)).toBe(2);
                             });
                         })
                         .then(() => job.waitForStatus('completed'));
