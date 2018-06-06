@@ -92,8 +92,8 @@ module.exports = function workerAllocationTest() {
                         })))
                 .catch(done.fail)
                 .finally(() => {
-                    // Drop back down to a single worker node
-                    misc.scale(1)
+                    // Scale back to a default worker count.
+                    misc.scale(3)
                         .finally(done);
                 });
         });

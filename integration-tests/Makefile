@@ -29,7 +29,7 @@ lint: node_modules ## run linters
 
 test: node_modules ## run tests
 	./docker-compose.sh # do every time in case variables or linked modules change
-	$$(npm bin)/jasmine --fail-fast=true --stop-on-failure=true
+	$$(npm bin)/jasmine
 
 
 test-all: ## run test matrix

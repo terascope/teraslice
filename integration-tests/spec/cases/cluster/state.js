@@ -30,16 +30,16 @@ module.exports = function clusterStateTest() {
         const nodes = _.keys(state);
         expect(nodes.length).toBe(nodeCount);
         nodes.forEach((node) => {
-            expect(state[node].total).toBe(4);
+            expect(state[node].total).toBe(5);
             expect(state[node].node_id).toBeDefined();
             expect(state[node].hostname).toBeDefined();
 
-            // Nodes should have 1-4 workers available.
-            expect(state[node].available).toBeLessThan(5);
+            // Nodes should have 1-5 workers available.
+            expect(state[node].available).toBeLessThan(6);
             expect(state[node].available).toBeGreaterThan(0);
 
-            // Should be two workers active if only 6 available
-            if (state[node].available === 2) {
+            // Should be two workers active if only 3 available
+            if (state[node].available === 3) {
                 expect(state[node].active.length).toBe(2);
 
                 const workers = findWorkers(state[node].active, 'cluster_master');
@@ -56,7 +56,7 @@ module.exports = function clusterStateTest() {
         it('should match default configuration', (done) => {
             teraslice.cluster.state()
                 .then((state) => {
-                    verifyClusterState(state, 5);
+                    verifyClusterState(state, 4);
                 })
                 .catch(done.fail)
                 .finally(done);
@@ -74,13 +74,13 @@ module.exports = function clusterStateTest() {
                 })
                 .then(() =>
                     // Scale back to a default worker count.
-                    misc.scale(4))
+                    misc.scale(3))
                 .then(() =>
                     // Should just be 4 nodes now.
-                    wait.forNodes(5))
+                    wait.forNodes(4))
                 .then(() => teraslice.cluster.state())
                 .then((state) => {
-                    verifyClusterState(state, 5);
+                    verifyClusterState(state, 4);
                 })
                 .catch(done.fail)
                 .finally(done);
@@ -98,13 +98,13 @@ module.exports = function clusterStateTest() {
                 })
                 .then(() =>
                     // Scale back to a default worker count.
-                    misc.scale(4))
+                    misc.scale(3))
                 .then(() =>
                     // Should just be 4 nodes now.
-                    wait.forNodes(5))
+                    wait.forNodes(4))
                 .then(() => teraslice.cluster.state())
                 .then((state) => {
-                    verifyClusterState(state, 5);
+                    verifyClusterState(state, 4);
                 })
                 .catch(done.fail)
                 .finally(done);
@@ -128,10 +128,10 @@ module.exports = function clusterStateTest() {
                         .then((state) => {
                             const nodes = _.keys(state);
                             nodes.forEach((node) => {
-                                expect(state[node].total).toBe(4);
+                                expect(state[node].total).toBe(5);
 
-                                // / Nodes should have 1-4 workers available.
-                                expect(state[node].available).toBeLessThan(5);
+                                // / Nodes should have 1-5 workers available.
+                                expect(state[node].available).toBeLessThan(6);
                                 expect(state[node].available).toBeGreaterThan(0);
 
                                 // The node with more than one worker should have the actual worker
@@ -139,6 +139,7 @@ module.exports = function clusterStateTest() {
                                 if (state[node].active.length > 2) {
                                     expect(findWorkers(state[node].active, 'worker', jobId).length).toBe(1);
                                 }
+                                expect(checkState(state, null, jobId)).toBe(1);
                             });
                         })
                         .then(() => job.waitForStatus('completed'));
@@ -154,13 +155,13 @@ module.exports = function clusterStateTest() {
                 .finally(done);
         });
 
-        it('should be correct for running job with 5 workers', (done) => {
+        it('should be correct for running job with 4 workers', (done) => {
             const jobSpec = misc.newJob('reindex');
             jobSpec.name = 'cluster state with 2 workers';
-            jobSpec.workers = 5;
+            jobSpec.workers = 4;
             jobSpec.operations[0].index = 'example-logs-1000';
             jobSpec.operations[0].size = 20;
-            jobSpec.operations[1].index = 'test-clusterstate-job-5-1000';
+            jobSpec.operations[1].index = 'test-clusterstate-job-4-1000';
             let jobId;
 
             teraslice.jobs.submit(jobSpec)
@@ -174,21 +175,21 @@ module.exports = function clusterStateTest() {
                         .then((state) => {
                             const nodes = _.keys(state);
                             nodes.forEach((node) => {
-                                expect(state[node].total).toBe(4);
+                                expect(state[node].total).toBe(5);
 
-                                // Nodes should have 1-4 workers available.
-                                expect(state[node].available).toBeLessThan(5);
+                                // Nodes should have 1-5 workers available.
+                                expect(state[node].available).toBeLessThan(6);
                                 expect(state[node].available).toBeGreaterThan(0);
 
                                 // Both nodes should have at least one worker.
                                 expect(findWorkers(state[node].active, 'worker', jobId).length).toBeGreaterThan(0);
 
-                                expect(checkState(state, null, jobId)).toBe(6);
+                                expect(checkState(state, null, jobId)).toBe(5);
                             });
                         })
                         .then(() => job.waitForStatus('completed'));
                 })
-                .then(() => misc.indexStats('test-clusterstate-job-5-1000')
+                .then(() => misc.indexStats('test-clusterstate-job-4-1000')
                     .then((stats) => {
                         expect(stats.count).toBe(1000);
                         expect(stats.deleted).toBe(0);

@@ -25,7 +25,13 @@ describe('teraslice', () => {
     function dockerUp() {
         console.time(' [benchmark] docker-compose up');
         console.log(' - Bringing Docker environment up...');
-        return misc.compose.up({ build: '', 'renew-anon-volumes': '' }).then((result) => {
+
+        return misc.compose.up({
+            build: '',
+            'renew-anon-volumes': '',
+            'quiet-pull': '',
+            timeout: 1
+        }).then((result) => {
             console.timeEnd(' [benchmark] docker-compose up');
             return result;
         });
@@ -35,6 +41,7 @@ describe('teraslice', () => {
     function dockerDown() {
         console.time(' [benchmark] docker-compose down');
         console.log(' - Ensuring docker environment is in a clean slate...');
+
         return misc.compose.down({ timeout: 1 })
             .then(() => {
                 console.timeEnd(' [benchmark] docker-compose down');
@@ -47,6 +54,7 @@ describe('teraslice', () => {
     function waitForES() {
         console.time(' [benchmark] waiting for elasticsearch');
         console.log(' - Waiting for Elasticsearch...');
+
         return new Promise(((resolve, reject) => {
             let attempts = 0;
 
@@ -55,19 +63,17 @@ describe('teraslice', () => {
                 misc.es().cat.indices({
                     health: 'green',
                     requestTimeout: 1000
-                })
-                    .then(() => {
-                        console.timeEnd(' [benchmark] waiting for elasticsearch');
-                        resolve();
-                    })
-                    .catch(() => {
-                        if (attempts > 50) {
-                            console.log(' Giving up');
-                            reject('timed out');
-                        } else {
-                            setTimeout(wait, 1000);
-                        }
-                    });
+                }).then(() => {
+                    console.timeEnd(' [benchmark] waiting for elasticsearch');
+                    resolve();
+                }).catch(() => {
+                    if (attempts > 50) {
+                        console.log(' Giving up');
+                        reject('timed out');
+                    } else {
+                        setTimeout(wait, 1000);
+                    }
+                });
             }
 
             wait();
@@ -77,7 +83,8 @@ describe('teraslice', () => {
     function waitForTeraslice() {
         console.time(' [benchmark] waiting for teraslice');
         console.log(' - Waiting for Teraslice...');
-        return forNodes(5).then(() => {
+
+        return forNodes(4).then(() => {
             console.timeEnd(' [benchmark] waiting for teraslice');
         });
     }
@@ -85,6 +92,7 @@ describe('teraslice', () => {
     function cleanup() {
         console.time(' [benchmark] cleanup');
         console.log(' - Cleaning up teraslice state & prior test results');
+
         return misc.es().indices.delete({ index: 'test-*', ignore: [404] }).then(() => {
             console.timeEnd(' [benchmark] cleanup');
         });
@@ -119,13 +127,16 @@ describe('teraslice', () => {
                     }
                 ]
             };
+
             return new Promise(((resolve) => {
                 misc.es().indices.stats({ index: indexName }, (err, stats) => {
                     if (_.get(stats, '_all.total.docs.count') === count) {
                         resolve();
                         return;
                     }
-                    console.warn('    - defining index:', indexName, ', reason:', _.get(stats, '_all.total.docs.count', 'index_not_found'));
+
+                    console.warn(`    - defining index: ${indexName}, reason:`, _.get(stats, '_all.total.docs.count', 'index_not_found'));
+
                     misc.es().indices.delete({ index: indexName }, () => {
                         if (!hex) {
                             resolve(misc.teraslice().jobs.submit(jobSpec));
@@ -143,6 +154,7 @@ describe('teraslice', () => {
                 });
             }));
         }
+
         return Promise.all([
             generate(10),
             generate(1000),

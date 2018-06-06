@@ -17,7 +17,7 @@ teraslice:
     shutdown_timeout: 30000
     assets_directory: '/tmp/'
     ops_directory: '/app/source/examples/ops/'
-    workers: 4
+    workers: 5
     master: true
     master_hostname: "127.0.0.1"
     port: 45678
