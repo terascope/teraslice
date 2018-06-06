@@ -10,7 +10,7 @@
     "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
     "testcov": "nyc -x spec/ jasmine && nyc report --reporter=html",
     "showcov": "open coverage/index.html",
-    "report-coverage": "nyc -x spec/ --reporter=text-lcov jasmine > coverage/coverage.lcov && codecov"
+    "report-coverage": "nyc jasmine && nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
   },
   "repository": {
     "type": "git",

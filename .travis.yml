@@ -15,6 +15,7 @@ before_install:
 script:
 - time make test
 - time env MODE=qa make integration-tests
+after_success:
 - make lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
 - yarn report-coverage
 deploy:
