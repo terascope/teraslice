@@ -36,7 +36,7 @@ then
 fi
 
 cat > docker-compose.yml <<DOCKER
-version: '2.4'
+version: '2.2'
 services:
   teraslice-master:
     build:
