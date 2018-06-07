@@ -47,6 +47,7 @@
     "lodash": "^4.17.5",
     "mocker-data-generator": "^2.6.1",
     "moment": "^2.21.0",
+    "portfinder": "^1.0.13",
     "queue": "terascope/queue",
     "request": "^2.85.0",
     "shortid": "^2.2.8",

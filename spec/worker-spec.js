@@ -111,12 +111,12 @@ describe('Worker', () => {
     }
     const mockJob = JSON.stringify(require('../examples/jobs/data_generator.json'));
 
-    function instantiateModule(_executionContext, exId, jobId) {
+    function instantiateModule(_executionContext, exId, jobId, sentMessage) {
         const execution = _executionContext || _.cloneDeep(executionContext);
         context.__test_job = mockJob;
         context.__test_assignment = 'worker';
         const worker = workerExecutorModule(context, messaging, stateStore, analyticsStore);
-        const testContext = worker.__test_context(execution, exId, jobId);
+        const testContext = worker.__test_context(execution, exId, jobId, sentMessage);
         return { worker, testContext };
     }
 
@@ -288,27 +288,19 @@ describe('Worker', () => {
 
     it('will emit recycle after so many invocations', (done) => {
         const events = makeEmitter();
-        const myExecution = _.cloneDeep(executionContext);
-        myExecution.config.recycle_worker = 2;
-        const recycle = instantiateModule(myExecution).testContext._recycleFn();
-        const sentMessage = {};
-        let gotEvent = false;
+        const { _recycleFn, _lastMessage } = instantiateModule(null, null, null, {}).testContext;
+        const recycle = _recycleFn(2);
 
-        events.on('worker:recycle', () => {
-            gotEvent = true;
+        events.once('worker:recycle', () => {
+            const sentMessage = _lastMessage();
+            expect(sentMessage).toEqual({ isShuttingDown: true });
+            done();
         });
 
-        recycle(sentMessage);
-        expect(sentMessage).toEqual(sentMessage);
-        expect(gotEvent).toEqual(false);
-
-        waitFor(200)
-            .then(() => {
-                expect(sentMessage).toEqual({ isShuttingDown: true });
-                expect(gotEvent).toEqual(true);
-                done();
-            });
-    });
+        const existingSentMessage = _lastMessage();
+        expect(existingSentMessage).toEqual({ });
+        recycle();
+    }, 200);
 
     it('can shutdown', (done) => {
         const events = makeEmitter();
