@@ -18,6 +18,7 @@ describe('Worker', () => {
     let logMsg;
     let warnMsg;
     let loggerConfig;
+    let respondingMsg;
 
     const logger = {
         error(err) {
@@ -66,7 +67,12 @@ describe('Worker', () => {
             messagingEvents[obj.event] = obj.callback;
         },
         getHostUrl: () => 'someURL',
-        send: _sentMsg => sentMsg = _sentMsg,
+        send: (_sentMsg) => {
+            sentMsg = _sentMsg;
+        },
+        respond: (_inc, res) => {
+            respondingMsg = Object.assign({}, _inc, { message: 'messaging:response' }, res );
+        },
         listen: () => {}
     };
     const executionContext = {
@@ -309,7 +315,7 @@ describe('Worker', () => {
             .finally(done);
     });
 
-    it('can process slices', (done) => {
+    it('can process slices, and send back over allocated slices', (done) => {
         const myExecution = _.cloneDeep(executionContext);
 
         function makeData() {
@@ -325,6 +331,20 @@ describe('Worker', () => {
         const events = makeEmitter();
         const lastMessage = instantiateModule(myExecution, exId, jobId).testContext._lastMessage;
         const slice = { slice_id: 'as35g' };
+        const slice2 = { slice_id: 'as35g', other: 'data' };
+        const incomingMsg = {
+            to: 'execution_controller',
+            message: 'slicer:slice:new',
+            worker_id: 'testHostName__someID',
+            payload: slice2
+        };
+        const sentBackMsg = {
+            to: 'execution_controller',
+            message: 'messaging:response',
+            worker_id: 'testHostName__someID',
+            payload: { willProcess: false }
+        };
+
         let sliceSuccess = false;
 
         events.on('slice:success', () => {
@@ -352,6 +372,10 @@ describe('Worker', () => {
                     slice: { slice_id: 'as35g' },
                     analytics: { time: [], size: [], memory: [] }
                 });
+
+                messagingEvents['slicer:slice:new']({ payload: slice });
+                messagingEvents['slicer:slice:new'](incomingMsg);
+                expect(respondingMsg).toEqual(sentBackMsg);
             })
             .catch(fail)
             .finally(done);

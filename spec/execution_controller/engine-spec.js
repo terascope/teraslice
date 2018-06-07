@@ -60,11 +60,13 @@ describe('execution engine', () => {
     let exStatus = null;
     const updateState = {};
     const analyticsData = { failed: 1, processed: 5 };
+    let respondingMessage = {};
 
     const messaging = {
         send: (msg) => {
             sentMsg = msg;
             sentMsgs.push(msg);
+            return Promise.resolve(respondingMessage);
         },
         getClientCounts: () => clientCounter,
         register: (obj) => {
@@ -798,7 +800,8 @@ describe('execution engine', () => {
                     to: 'worker',
                     message: 'slicer:slice:new',
                     payload: slice1,
-                    address: 1
+                    address: 1,
+                    response: true
                 });
                 expect(workerQueueList()).toEqual([worker2, worker3]);
                 slicerQueue.enqueue(slice2);
@@ -810,7 +813,8 @@ describe('execution engine', () => {
                     to: 'worker',
                     message: 'slicer:slice:new',
                     payload: slice2,
-                    address: 3
+                    address: 3,
+                    response: true
                 });
                 expect(workerQueueList()).toEqual([worker2]);
                 slicerQueue.enqueue(slice3);
@@ -869,7 +873,8 @@ describe('execution engine', () => {
                             some: 'slice'
                         }
                     },
-                    address: 1
+                    address: 1,
+                    response: true
                 },
                 {
                     to: 'worker',
@@ -879,7 +884,8 @@ describe('execution engine', () => {
                             some: 'slice'
                         }
                     },
-                    address: 2
+                    address: 2,
+                    response: true
                 }
             ]);
             expect(invalidSlice).toEqual(null);
@@ -887,7 +893,7 @@ describe('execution engine', () => {
         }).catch(done.fail);
     });
 
-    it('should not send two slices to the same worker when specifiying the worker id', (done) => {
+    it('should not send two slices to the same worker when specifying the worker id', (done) => {
         const engineTest = makeEngine();
         const { myEmitter } = engineTest;
         const { workerQueue, slicerQueue, _enqueueWorker } = engineTest.testContext;
@@ -936,7 +942,8 @@ describe('execution engine', () => {
                             some: 'slice'
                         }
                     },
-                    address: 1
+                    address: 1,
+                    response: true
                 }
             ]);
             expect(workerQueueList()).toEqual([{ worker_id: 2 }]);
@@ -964,5 +971,38 @@ describe('execution engine', () => {
         expect(workerQueue.size()).toEqual(1);
         expect(workerQueue.extract('worker_id', 2)).toEqual({ worker_id: 2 });
         expect(workerQueue.size()).toEqual(0);
+    });
+
+    it('should re-enqueue a slice that was over provisioned to a worker', (done) => {
+        const engineTest = makeEngine();
+        const { slicerQueue, _sendSlice } = engineTest.testContext;
+        const returningSlice = { zero: 'zero' };
+        const slice1 = { one: 'one' };
+        const slice2 = { two: 'two' };
+        const slice3 = { three: 'three' };
+        const workerId = 'someId';
+        const returningResponse = {
+            to: 'execution_controller',
+            message: 'worker:slice:over_allocated',
+            worker_id: workerId,
+            payload: returningSlice
+        };
+
+        slicerQueue.enqueue(slice1);
+        slicerQueue.enqueue(slice2);
+        slicerQueue.enqueue(slice3);
+
+        expect(slicerQueue.size()).toEqual(3);
+        respondingMessage = { payload: { willProcess: false, slice: returningResponse } };
+        Promise.resolve()
+            .then(() => _sendSlice(returningSlice, workerId))
+            .then(() => {
+                expect(slicerQueue.size()).toEqual(4);
+                expect(slicerQueue.dequeue()).toEqual(returningSlice);
+                expect(slicerQueue.dequeue()).toEqual(slice1);
+                expect(slicerQueue.size()).toEqual(2);
+            })
+            .catch(fail)
+            .finally(done);
     });
 });
