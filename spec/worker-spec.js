@@ -129,6 +129,7 @@ describe('Worker', () => {
         logMsg = null;
         warnMsg = null;
         loggerConfig = null;
+        respondingMsg = null;
     });
 
     it('can load without throwing', () => {
