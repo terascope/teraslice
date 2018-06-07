@@ -52,6 +52,8 @@ describe('teraslice', () => {
             volumes: ''
         }).then(() => {
             console.timeEnd(' [benchmark] docker-compose down');
+        }).catch(() => {
+            console.timeEnd(' [benchmark] docker-compose down');
         });
     }
 
