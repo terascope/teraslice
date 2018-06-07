@@ -7,7 +7,7 @@ A larger example of the API used in this way is available in the [integration te
 ## Installation
 
 ```
-npm install terascope/docker-compose-js
+npm install docker-compose-js
 ```
 
 ## Usage
@@ -59,6 +59,6 @@ compose.up()
         console.log(error);
     })
     .finally(function() {
-        compose.down();
+        return compose.down();
     })
 ```

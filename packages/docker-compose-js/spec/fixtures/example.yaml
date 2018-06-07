@@ -1,0 +1,7 @@
+version: '2'
+services:
+  test:
+    image: bash
+    command: "sleep 30"
+    ports:
+        - '40230'

@@ -1,13 +1,27 @@
 {
   "name": "docker-compose-js",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Node.js driver for controlling docker-compose testing environments.",
   "main": "index.js",
-  "directories": {
-    "test": "tests"
-  },
   "scripts": {
-    "test": "npm test"
+    "lint": "eslint *.js spec/**/*.js",
+    "lint:fix": "eslint --fix *.js spec/**/*.js",
+    "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
+    "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
+  },
+  "nyc": {
+    "cache": true,
+    "all": true,
+    "include": [
+      "*.js",
+      "lib/**/*.js"
+    ],
+    "reporter": [
+      "text-summary",
+      "html",
+      "lcov",
+      "json"
+    ]
   },
   "keywords": [
     "docker",
@@ -17,6 +31,18 @@
   "author": "Kimbro Staken",
   "license": "MIT",
   "dependencies": {
-    "bluebird": "^3.4.0"
+    "bluebird": "^3.4.0",
+    "debug": "^3.1.0"
+  },
+  "devDependencies": {
+    "codecov": "^3.0.2",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.12.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.9.1",
+    "jasmine": "^3.1.0",
+    "jasmine-spec-reporter": "^4.2.1",
+    "nyc": "^12.0.2"
   }
 }

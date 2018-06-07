@@ -1,0 +1,28 @@
+sudo: required
+language: node_js
+node_js:
+- '8'
+services:
+- docker
+env:
+- DOCKER_COMPOSE_VERSION=1.21.1
+before_install:
+- sudo rm /usr/local/bin/docker-compose
+- curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname
+  -s`-`uname -m` > docker-compose
+- chmod +x docker-compose
+- sudo mv docker-compose /usr/local/bin
+script:
+- yarn test
+after_success:
+- yarn lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
+- yarn report-coverage
+deploy:
+  provider: npm
+  email: peter@terascope.io
+  api_key:
+    secure: "XlaMuoJ1+fysgeJfVK+bpOMTNzuGnVqBgyFcFuuX63mpIrZ9Sgy2kbJLARfeMvlFZPqulyTSSysWTAyQQUgtHC8dSH8Q1K759STyI2s/b+OQ325s0PT+HGeN9pMRt/zRg9PrEoTVOW4wAuCwjgyVMTntuejL5hM6F3+nL0v7wu9lnA5y3WxVW5mmCHYYcbqMbXeghoZEaDk99LZ9qnI7skY/0pehWyVF91D4n+UredpxA92ddmrMPeoho/9yEB4ihqiWaSSdvJJ6ShL/4hPtxqm/exvuYzbN5UnhKyFjJBDlIt8eQM/F9K3gQrM6qe46bDEZffV7vsjFgaN7r6xSe/p7j2hxhhFySaLj10JqFW77G1eKujjWpuHvjh/II1BEhveqZIVy9fAoa4y5tamakCic4VnXpWuY5cd1TIRkrBq5blNcuNzYPMvG+o8ui+7zRaFhGxbd3gVLAGQf4/cIizY/Igk/v7k4Nr5QKrH8BFvqsi6q2moMdD5o04yl5IU90VKxXKnS1Px7LU9TmKk2WV1udmh62+gbO8KrSweBTfBsWeRXYJWE+5VCqGeqXHeqhYo7HYKAk2oCBIAjDE8/sktQfR3StxM0QCtr8kp9M/D0rHH9MO9Ln7ZdXOzeg1enq0sB7xhS0onHSd7Mj0xxWbhvkgrJ3ZHD/SZwst7Csnk="
+  on:
+    branch: master
+    tags: true
+    repo: terascope/docker-compose-js
