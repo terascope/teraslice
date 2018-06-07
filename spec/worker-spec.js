@@ -67,8 +67,12 @@ describe('Worker', () => {
             messagingEvents[obj.event] = obj.callback;
         },
         getHostUrl: () => 'someURL',
-        send: _sentMsg => sentMsg = _sentMsg, // eslint-disable-line
-        respond: (_inc, res) => respondingMsg = Object.assign({}, _inc, { message: 'messaging:response' }, { payload: res }), // eslint-disable-line
+        send: (_sentMsg) => {
+            sentMsg = _sentMsg;
+        },
+        respond: (_inc, res) => {
+            respondingMsg = Object.assign({}, _inc, { message: 'messaging:response' }, { payload: res });
+        },
         listen: () => {}
     };
     const executionContext = {
