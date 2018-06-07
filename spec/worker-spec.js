@@ -71,7 +71,7 @@ describe('Worker', () => {
             sentMsg = _sentMsg;
         },
         respond: (_inc, res) => {
-            respondingMsg = Object.assign({}, _inc, { message: 'messaging:response' }, { payload: res });
+            respondingMsg = Object.assign({}, _inc, { message: 'messaging:response' }, res );
         },
         listen: () => {}
     };
