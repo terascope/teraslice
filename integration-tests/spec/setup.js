@@ -32,6 +32,8 @@ describe('teraslice', () => {
         };
         if (process.env.MODE === 'qa') {
             options['no-recreate'] = '';
+        } else {
+            options['renew-anon-volumes'] = '';
         }
 
         return misc.compose.up(options).then((result) => {
