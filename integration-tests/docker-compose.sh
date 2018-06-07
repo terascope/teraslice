@@ -53,7 +53,7 @@ services:
         - TERAFOUNDATION_CONFIG=/app/config/processor-master.yaml
     depends_on:
       elasticsearch:
-        condition: service_healthy
+        condition: service_started
     links:
         - elasticsearch
     stop_grace_period: 30s

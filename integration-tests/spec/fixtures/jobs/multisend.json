@@ -2,7 +2,7 @@
     "name": "Multisend Test",
     "workers": 1,
     "lifecycle": "once",
-    "analytics": false,
+    "analytics": true,
     "operations": [
         {
             "_op": "elasticsearch_reader",
