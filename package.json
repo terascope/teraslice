@@ -7,8 +7,8 @@
   "scripts": {
     "lint": "eslint lib",
     "jasmine": "jasmine",
-    "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
-    "testcov": "nyc -x spec/ jasmine && nyc report --reporter=html",
+    "test": "nyc -x spec/ --reporter=text-summary jasmine; nyc report --reporter=html",
+    "testcov": "nyc -x spec/ jasmine; nyc report --reporter=html",
     "showcov": "open coverage/index.html"
   },
   "repository": {
@@ -53,6 +53,7 @@
     "eslint-plugin-react": "^7.7.0",
     "jasmine-spec-reporter": "^4.2.1",
     "json-schema-faker": "^0.5.0-rc13",
+    "nock": "^9.3.0",
     "nyc": "^11.6.0",
     "teraslice_op_test_harness": "terascope/teraslice_op_test_harness"
   }
