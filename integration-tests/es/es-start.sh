@@ -1,9 +1,13 @@
 #!/bin/bash
 
-trap "exit" INT TERM ERR
-trap "kill 0" EXIT
+if [ -d "/usr/share/elasticsearch/data/" ]; then
+    echo "* removing old data"
+    rm -rf /usr/share/elasticsearch/data/*
+fi
 
-es-cleanup &
-echo "starting elasticsearch"
-elasticsearch &
-wait
+if [ -d "/usr/share/elasticsearch/logs/" ]; then
+    echo "* removing old logs"
+    rm -rf /usr/share/elasticsearch/logs/*
+fi
+
+elasticsearch

@@ -3,8 +3,7 @@
     "version": "0.1.0",
     "description": "Teraslice integration test suite",
     "scripts": {
-        "lint": "eslint lib",
-        "test": "jasmine"
+        "test": "jasmine --fail-fast=true --stop-on-failure=true"
     },
     "repository": {
         "type": "git",

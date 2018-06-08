@@ -44,6 +44,7 @@ services:
     build:
       context: ..
     scale: 1
+    restart: 'no'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:45678/cluster/state"]
       interval: 10s
@@ -68,11 +69,7 @@ done)
     build:
       context: ..
     scale: 3
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://teraslice-master:45678/txt/workers"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+    restart: 'no'
     environment:
         - TERAFOUNDATION_CONFIG=/app/config/processor-worker.yaml
     depends_on:
@@ -92,22 +89,15 @@ done)
   elasticsearch:
     build:
       context: ./es
+    restart: 'no'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:49200"]
-      interval: 5s
+      interval: 10s
       timeout: 2s
-      retries: 10
+      retries: 5
     ports:
       - "49200:49200"
       - "49300:49300"
     environment:
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-    mem_limit: 1500m
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
 DOCKER

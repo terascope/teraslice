@@ -4,11 +4,14 @@ node_js:
 - '8'
 services:
 - docker
+before_install:
+- pushd ./integration-tests; yarn; popd;
 script:
-- time make test
-- time env MODE=qa make integration-tests
+- yarn test
+after_script:
+- yarn test:integration
 after_success:
-- make lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
+- yarn lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
 - yarn report-coverage
 deploy:
   provider: npm

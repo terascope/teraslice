@@ -9,6 +9,7 @@
     "lint": "eslint lib/**/*.js",
     "lint:fix": "eslint --fix lib/**/*.js",
     "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
+    "test:integration": "pushd ./integration-tests > /dev/null; yarn test; popd > /dev/null;",
     "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
   },
   "nyc": {
