@@ -43,15 +43,18 @@ services:
   teraslice-master:
     build:
       context: ..
+    command: node --max-old-space-size=512 service.js
     scale: 1
     restart: 'no'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:45678/cluster/state"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+      interval: 15s
+      timeout: 10s
+      retries: 5
     ports:
       - "45678:45678"
+    expose:
+      - "45679-46678"
     environment:
         - TERAFOUNDATION_CONFIG=/app/config/processor-master.yaml
     depends_on:
@@ -59,6 +62,7 @@ services:
         condition: service_healthy
     links:
         - elasticsearch
+    mem_limit: 1g
     stop_grace_period: 30s
     volumes:
 $(for vol in "${VOLS[@]}"
@@ -68,8 +72,11 @@ done)
   teraslice-worker:
     build:
       context: ..
+    command: node --max-old-space-size=512 service.js
     scale: 3
     restart: 'no'
+    expose:
+      - "45679-46678"
     environment:
         - TERAFOUNDATION_CONFIG=/app/config/processor-worker.yaml
     depends_on:
@@ -80,6 +87,7 @@ done)
     links:
       - teraslice-master
       - elasticsearch
+    mem_limit: 1g
     stop_grace_period: 30s
     volumes:
 $(for vol in "${VOLS[@]}"
@@ -92,12 +100,20 @@ done)
     restart: 'no'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:49200"]
-      interval: 10s
-      timeout: 2s
+      interval: 15s
+      timeout: 10s
       retries: 5
     ports:
       - "49200:49200"
       - "49300:49300"
     environment:
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    mem_limit: 2g
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
 DOCKER

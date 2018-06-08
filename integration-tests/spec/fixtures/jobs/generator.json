@@ -3,6 +3,7 @@
   "slicers": 1,
   "lifecycle": "persistent",
   "workers": 3,
+  "analytics": false,
   "operations": [
     {
       "_op": "elasticsearch_data_generator",
