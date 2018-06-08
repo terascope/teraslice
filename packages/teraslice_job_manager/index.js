@@ -1,7 +1,8 @@
 #! /usr/bin/env node
 
-'use strict';
+/* eslint-disable no-console, no-unused-vars */
 
+'use strict';
 
 const argv = require('yargs')
     .commandDir('cmds')
@@ -11,3 +12,13 @@ const argv = require('yargs')
     .version(false)
     .strict()
     .argv;
+
+process.on('unhandledRejection', (error) => {
+    console.error('UnhandledRejection: ', error.stack);
+    process.exit(1);
+});
+
+process.on('uncaughtException', (error) => {
+    console.error('UncaughtException: ', error.stack);
+    process.exit(1);
+});

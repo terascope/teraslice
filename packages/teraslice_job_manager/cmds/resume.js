@@ -5,37 +5,31 @@ exports.desc = 'resumes a paused job\n';
 exports.builder = (yargs) => {
     yargs.example('tjm resume jobfile.prod');
 };
-exports.handler = (argv) => {
+exports.handler = (argv, _testFunctions) => {
     const reply = require('./cmd_functions/reply')();
-    const jsonData = require('./cmd_functions/json_data_functions')(argv.jobFile);
-    const jobContents = jsonData.jobFileHandler()[1];
+    const jsonData = require('./cmd_functions/json_data_functions')();
+    const jobContents = jsonData.jobFileHandler(argv.jobFile)[1];
     jsonData.metaDataCheck(jobContents);
-    const tjmFunctions = require('./cmd_functions/functions')(argv, jobContents.tjm.cluster);
+    const tjmFunctions = _testFunctions || require('./cmd_functions/functions')(argv, jobContents.tjm.cluster);
     const jobId = jobContents.tjm.job_id;
     const cluster = jobContents.tjm.cluster;
 
-    Promise.resolve()
-        .then(() => tjmFunctions.alreadyRegisteredCheck(jobContents))
-        .then((result) => {
-            if (result === false) {
-                reply.error('Job is not on the cluster');
-            }
-            return Promise.resolve(true);
-        })
+    return tjmFunctions.alreadyRegisteredCheck(jobContents)
         .then(() => tjmFunctions.teraslice.jobs.wrap(jobId).status())
         .then((status) => {
-            if (status !== 'paused' && status !== 'stopped') {
-                reply.error(`Job ${jobId} is not paused on ${cluster}, but is ${status}.  Use start to start job`);
+            if (status !== 'paused') {
+                reply.fatal(`Job ${jobId} is not paused on ${cluster}, but is ${status}.  Use start to start job`);
             }
-            return Promise.resolve(true);
+            return Promise.resolve();
         })
         .then(() => tjmFunctions.teraslice.jobs.wrap(jobId).resume())
-        .then((result) => {
-            if (result.status.status === 'running') {
+        .then((resumeStatus) => {
+            if (resumeStatus.status.status === 'running') {
                 reply.success(`Resumed job ${jobId} on ${cluster}`);
             } else {
-                reply.error('Could not resume job');
+                reply.fatal('Could not resume job');
             }
+            return resumeStatus;
         })
-        .catch(err => reply.error(err.message));
+        .catch(err => reply.fatal(err.message));
 };

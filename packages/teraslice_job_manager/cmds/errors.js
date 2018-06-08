@@ -5,32 +5,25 @@ exports.desc = 'Shows the errors for a job\n';
 exports.builder = (yargs) => {
     yargs.example('tjm errors jobfile.prod');
 };
-exports.handler = (argv) => {
+exports.handler = (argv, _testFunctions) => {
     const reply = require('./cmd_functions/reply')();
-    const jsonData = require('./cmd_functions/json_data_functions')(argv.jobFile);
-    const jobContents = jsonData.jobFileHandler()[1];
+    const jsonData = require('./cmd_functions/json_data_functions')();
+    const jobContents = jsonData.jobFileHandler(argv.jobFile)[1];
     jsonData.metaDataCheck(jobContents);
-    const tjmFunctions = require('./cmd_functions/functions')(argv, jobContents.tjm.cluster);
-
+    const tjmFunctions = _testFunctions || require('./cmd_functions/functions')(argv, jobContents.tjm.cluster);
     const jobId = jobContents.tjm.job_id;
 
-    Promise.resolve()
-        .then(() => tjmFunctions.alreadyRegisteredCheck(jobContents))
-        .then((registerCheck) => {
-            if (registerCheck === false) {
-                return Promise.reject('Job is not on the cluster');
-            }
-            return Promise.resolve(true);
-        })
+    return tjmFunctions.alreadyRegisteredCheck(jobContents)
         .then(() => tjmFunctions.teraslice.jobs.wrap(jobId).errors())
         .then((errors) => {
             if (errors.length === 0) {
                 reply.success('This job has no errors');
             } else {
                 errors.forEach((error) => {
-                    reply.warning(error);
+                    reply.warning(JSON.stringify(error, null, 4));
                 });
             }
+            return errors
         })
-        .catch(err => reply.error(err.message));
+        .catch(err => reply.fatal(err.message));
 };

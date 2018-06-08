@@ -1,86 +1,72 @@
 'use strict';
 
 const fs = require('fs-extra');
+const asset = require('../cmds/asset');
 const path = require('path');
-const chalk = require('chalk');
-const Promise = require('bluebird');
 
-let deploy;
-const _tjmFunctions = {
-    loadAsset: () => {
-        return deploy;
-    },
-    zipAsset: () => {
-        return Promise.resolve(
-            {
-                bytes: 1000,
-                success: 'very successful'
-            }
-        );
-    },
-    reply: {
-        error: (message) => {
-            return message;
-        },
-        success: (message) => {
-            return message;
-        }
-    }
-}
+let deployMessage = 'default deployed message';
+let deployError = null;
 
 const assetJson = {
     name: 'testing_123',
     version: '0.0.01',
     description: 'dummy asset.json for testing'
-}
+};
 
-const assetPath = path.join(process.cwd(), 'asset/asset.json');
+const assetPath = path.join(__dirname, '..', 'asset/asset.json');
+
+const _tjmFunctions = {
+    loadAsset: () => {
+        if (deployError) {
+            return Promise.reject(deployError);
+        }
+        return Promise.resolve(deployMessage);
+    },
+    zipAsset: () => Promise.resolve({
+        bytes: 1000,
+        success: 'very successful'
+    })
+};
 
 describe('asset command testing', () => {
-    let argv = {};
-    let error = new Error();
-
-    it('deploy triggers load asset', (done) => {
-        argv.c = 'localhost:5678';
-        argv.cmd = 'deploy'; 
-        deploy = Promise.resolve('deployed');
- 
-        Promise.resolve()
-            .then(() => fs.ensureFile(assetPath))
-            .then(() => fs.writeJson(assetPath, assetJson, {spaces: 4}))
-            .then(() => require('../cmds/asset').handler(argv, _tjmFunctions))
-            .then((result) => {
-                expect(result).toEqual('deployed');
-            })
-            .catch(fail)
-            .finally(done);
+    beforeEach(() => {
+        deployError = null;
+        deployMessage = 'default deployed message';
     });
+    let argv = {};
 
-    it('deploy should respond to a request error', (done) => {
+    it('deploy triggers load asset', () => {
         argv.c = 'localhost:5678';
         argv.cmd = 'deploy';
-        error.name = 'RequestError';
-        error.message = 'This is an error'
-        
-        deploy = Promise.reject(
-            error
-        );   
+        deployMessage = 'deployed';
 
-        return Promise.resolve()
-            .then(() => require('../cmds/asset').handler(argv, _tjmFunctions))
-            .then(err => expect(err).toBe('Could not connect to localhost:5678'))
-            .catch(fail)
-            .finally(done);
+        return fs.ensureFile(assetPath)
+            .then(() => fs.writeJson(assetPath, assetJson, { spaces: 4 }))
+            .then(() => asset.handler(argv, _tjmFunctions))
+            .then((result) => {
+                expect(result).toEqual('deployed');
+            });
     });
 
-     it('asset update should throw an error if no cluster data', (done) => {
+    it('deploy should respond to a request error', () => {
+        argv.c = 'localhost:5678';
+        argv.cmd = 'deploy';
+        const error = new Error('This is an error');
+        error.name = 'RequestError';
+        error.message = 'This is an error';
+
+        deployError = error;
+        return asset.handler(argv, _tjmFunctions)
+            .catch((err) => {
+                expect(err).toBe('Could not connect to localhost:5678');
+            });
+    });
+
+    it('asset update should throw an error if no cluster data', () => {
         argv = {};
         argv.cmd = 'update';
 
-        return Promise.resolve()
-            .then(() => require('../cmds/asset').handler(argv, _tjmFunctions))
-            .then(err => expect(err).toBe('Cluster data is missing from asset.json or not specified using -c.'))
-            .catch(fail)
-            .finally(done);
+        return expect(() => asset.handler(argv, _tjmFunctions))
+            .toThrow('Cluster data is missing from asset.json or not specified using -c.');
     });
 });
