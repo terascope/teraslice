@@ -9,7 +9,7 @@ before_install:
 script:
 - yarn test
 after_script:
-- yarn test:integration
+- yarn integration-tests
 after_success:
 - yarn lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
 - yarn report-coverage
