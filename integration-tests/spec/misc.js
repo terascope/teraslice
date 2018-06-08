@@ -7,7 +7,7 @@ const ElasticsearchClient = require('elasticsearch').Client;
 
 module.exports = function misc() {
     const DOCKER_IP = process.env.ip ? process.env.ip : 'localhost';
-    const compose = require('docker-compose-js')('docker-compose.yml');
+    const compose = require('@terascope/docker-compose-js')('docker-compose.yml');
 
     function newJob(name) {
         return _.cloneDeep(require(`./fixtures/jobs/${name}.json`));

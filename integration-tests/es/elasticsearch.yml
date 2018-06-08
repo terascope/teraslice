@@ -1,4 +1,4 @@
-cluster.name: teraslice-integration-${ES_VERSION}
+cluster.name: teraslice-integration-5.5
 thread_pool.bulk.queue_size: 2000
 network.host: 0.0.0.0
 http.port: 49200

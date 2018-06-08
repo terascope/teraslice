@@ -22,6 +22,8 @@ then
     CACHING=":cached"
 fi
 
+MODE="${MODE:-dev}"
+
 declare -a VOLS=("./config:/app/config${CACHING}")
 
 echo "* running in $MODE mode"
@@ -46,7 +48,7 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:45678/cluster/state"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 3
     ports:
       - "45678:45678"
     environment:
@@ -66,6 +68,11 @@ done)
     build:
       context: ..
     scale: 3
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://teraslice-master:45678/txt/workers"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     environment:
         - TERAFOUNDATION_CONFIG=/app/config/processor-worker.yaml
     depends_on:
@@ -83,8 +90,8 @@ do
   echo "        - $vol"
 done)
   elasticsearch:
-    # TODO: Will no longer be available in docker hub past 5.5
-    image: elasticsearch:${ES_VERSION}
+    build:
+      context: ./es
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:49200"]
       interval: 5s
@@ -93,10 +100,7 @@ done)
     ports:
       - "49200:49200"
       - "49300:49300"
-    volumes:
-      - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     environment:
-      - "ES_VERSION=${ES_VERSION}"
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
     mem_limit: 1500m
     ulimits:

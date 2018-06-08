@@ -32,8 +32,6 @@ describe('teraslice', () => {
         };
         if (process.env.MODE === 'qa') {
             options['no-recreate'] = '';
-        } else {
-            options['renew-anon-volumes'] = '';
         }
 
         return misc.compose.up(options).then((result) => {
@@ -48,8 +46,7 @@ describe('teraslice', () => {
         console.log(' - Ensuring docker environment is in a clean slate...');
 
         return misc.compose.down({
-            timeout: 1,
-            volumes: ''
+            timeout: 1
         }).then(() => {
             console.timeEnd(' [benchmark] docker-compose down');
         }).catch(() => {
@@ -57,20 +54,25 @@ describe('teraslice', () => {
         });
     }
 
-    function waitForES() {
-        console.time(' [benchmark] waiting for elasticsearch');
-        console.log(' - Waiting for Elasticsearch...');
+    function waitForDockerComposeToBeUp() {
+        console.time(' [benchmark] waiting for docker compose');
+        console.log(' - Waiting for Docker Compose...');
 
         return new Promise(((resolve, reject) => {
             let attempts = 0;
 
             function wait() {
                 attempts += 1;
-                misc.es().cat.indices({
-                    health: 'green',
-                    requestTimeout: 1000
+                misc.compose.ps().then((result) => {
+                    const allLines = _.split(_.trim(result), '\n');
+                    const lines = _.takeRight(allLines, allLines.length - 2);
+                    const healthy = _.every(lines, line => /healthy/.test(line));
+                    if (!healthy) {
+                        return Promise.reject();
+                    }
+                    return Promise.resolve();
                 }).then(() => {
-                    console.timeEnd(' [benchmark] waiting for elasticsearch');
+                    console.timeEnd(' [benchmark] waiting for docker compose');
                     resolve();
                 }).catch(() => {
                     if (attempts > 50) {
@@ -185,7 +187,7 @@ describe('teraslice', () => {
         Promise.resolve()
             .then(() => dockerDown())
             .then(() => dockerUp())
-            .then(() => waitForES())
+            .then(() => waitForDockerComposeToBeUp())
             .then(() => waitForTeraslice())
             .then(() => cleanup())
             .then(() => generateTestData())
