@@ -54,46 +54,12 @@ describe('teraslice', () => {
         });
     }
 
-    function waitForDockerComposeToBeUp() {
-        console.time(' [benchmark] waiting for docker compose');
-        console.log(' - Waiting for Docker Compose...');
-
-        return new Promise(((resolve, reject) => {
-            let attempts = 0;
-
-            function wait() {
-                attempts += 1;
-                misc.compose.ps().then((result) => {
-                    const allLines = _.split(_.trim(result), '\n');
-                    const lines = _.takeRight(allLines, allLines.length - 2);
-                    const healthy = _.every(lines, line => /healthy/.test(line));
-                    if (!healthy) {
-                        return Promise.reject();
-                    }
-                    return Promise.resolve();
-                }).then(() => {
-                    console.timeEnd(' [benchmark] waiting for docker compose');
-                    resolve();
-                }).catch(() => {
-                    if (attempts > 50) {
-                        console.log(' Giving up');
-                        reject('timed out');
-                    } else {
-                        setTimeout(wait, 1000);
-                    }
-                });
-            }
-
-            wait();
-        }));
-    }
-
-    function waitForTeraslice() {
-        console.time(' [benchmark] waiting for teraslice');
+    function waitForTerasliceNodes() {
+        console.time(' [benchmark] waiting for teraslice nodes');
         console.log(' - Waiting for Teraslice...');
 
         return forNodes(4).then(() => {
-            console.timeEnd(' [benchmark] waiting for teraslice');
+            console.timeEnd(' [benchmark] waiting for teraslice nodes');
         });
     }
 
@@ -187,8 +153,7 @@ describe('teraslice', () => {
         Promise.resolve()
             .then(() => dockerDown())
             .then(() => dockerUp())
-            .then(() => waitForDockerComposeToBeUp())
-            .then(() => waitForTeraslice())
+            .then(() => waitForTerasliceNodes())
             .then(() => cleanup())
             .then(() => generateTestData())
             .then(() => {
