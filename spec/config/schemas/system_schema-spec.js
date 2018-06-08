@@ -9,12 +9,12 @@ describe('system_schema', () => {
         convict.addFormat(format);
     });
 
-    const schema = sysSchema.config_schema({});
+    const schema = sysSchema.config_schema({}).teraslice;
 
     function checkValidation(config) {
-        const validator = convict(schema);
-        validator.load(config);
         try {
+            const validator = convict(schema);
+            validator.load(config);
             validator.validate();
             return validator.getProperties();
         } catch (err) {
@@ -23,10 +23,10 @@ describe('system_schema', () => {
     }
 
     it('schema has defaults', () => {
-        expect(sysSchema.schema.ops_directory).toBeDefined();
-        expect(sysSchema.schema.shutdown_timeout).toBeDefined();
-        expect(sysSchema.schema.reporter).toBeDefined();
-        expect(sysSchema.schema.hostname).toBeDefined();
+        expect(schema.ops_directory).toBeDefined();
+        expect(schema.shutdown_timeout).toBeDefined();
+        expect(schema.reporter).toBeDefined();
+        expect(schema.hostname).toBeDefined();
         expect(schema).toBeDefined();
         expect(schema.port.default).toEqual(5678);
         expect(schema.name.default).toEqual('teracluster');
@@ -34,7 +34,6 @@ describe('system_schema', () => {
     });
 
     it('ops_directory is optional but requires a string', () => {
-        checkValidation({ ops_directory: 234 });
-        checkValidation({ assets_directory: 234 });
+        expect(checkValidation({ ops_directory: 234 })).toEqual('ops_directory: This field is optional but if specified it must be of type string: value was 234');
     });
 });

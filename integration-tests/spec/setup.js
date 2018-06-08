@@ -1,14 +1,16 @@
 'use strict';
 
+/* eslint-disable no-console */
+
 const _ = require('lodash');
 const Promise = require('bluebird');
 const misc = require('./misc')();
 
 // We need long timeouts for some of these jobs
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 600000;
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 60 * 1000;
 
 if (process.stdout.isTTY) {
-    const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
+    const { SpecReporter } = require('jasmine-spec-reporter');
     jasmine.getEnv().clearReporters();
     jasmine.getEnv().addReporter(new SpecReporter({
         spec: {
@@ -20,8 +22,25 @@ if (process.stdout.isTTY) {
 
 describe('teraslice', () => {
     function dockerUp() {
-        console.log(' - Bringing Docker environment up');
-        return misc.compose.up({ build: '' });
+        process.stdout.write(' - Bringing Docker environment up...');
+        const intervalId = setInterval(() => {
+            process.stdout.write('.');
+        }, 10 * 1000);
+        return misc.compose.up({ build: '' }).then((result) => {
+            clearInterval(intervalId);
+            console.log(' Ready');
+            return result;
+        }, (err) => {
+            clearInterval(intervalId);
+            console.log(' Failed');
+            return Promise.reject(err);
+        });
+    }
+
+    // ensure docker-compose stack is down before starting it
+    function dockerDown() {
+        console.log(' - Ensuring docker environment is in a clean slate');
+        return misc.compose.down({ 'remove-orphans': '', rmi: 'local' }).catch(() => Promise.resolve());
     }
 
     function waitForES() {
@@ -153,7 +172,7 @@ describe('teraslice', () => {
             });
     }
 
-    const before = [dockerUp, waitForES, cleanup, waitForTeraslice, generateTestData];
+    const before = [dockerDown, dockerUp, waitForES, cleanup, waitForTeraslice, generateTestData];
 
     beforeAll((done) => {
         Promise.resolve(before)
@@ -166,7 +185,7 @@ describe('teraslice', () => {
                 console.error('Setup failed: ', err, ' - `docker-compose logs` may provide clues');
                 process.exit(2);
             });
-    });
+    }, 3 * 60 * 1000);
 
     require('./cases/cluster/api')();
     require('./cases/assets/simple')();

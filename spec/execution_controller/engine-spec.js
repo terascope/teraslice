@@ -54,22 +54,27 @@ describe('execution engine', () => {
     };
     const messagingEvents = {};
     let sentMsg = null;
-    let respondingMsg = null;
+    const sentMsgs = [];
+    // let respondingMsg = null;
     let executionOperationsUpdate = null;
     let exStatus = null;
     const updateState = {};
     const analyticsData = { failed: 1, processed: 5 };
+    let respondingMessage = {};
 
     const messaging = {
         send: (msg) => {
             sentMsg = msg;
+            sentMsgs.push(msg);
+            return Promise.resolve(respondingMessage);
         },
         getClientCounts: () => clientCounter,
         register: (obj) => {
             messagingEvents[obj.event] = obj.callback;
         },
         listen: () => {},
-        respond: (msg) => { respondingMsg = msg; }
+        // respond: (msg) => { respondingMsg = msg; }
+        respond: () => {}
     };
     const executionAnalytics = {
         getAnalytics: () => analyticsData,
@@ -83,7 +88,7 @@ describe('execution engine', () => {
     };
     const exStore = {
         executionMetaData: () => {},
-        setStatus: (exId, status, errorMeta) => {
+        setStatus: (exId, status) => {
             exStatus = status;
             return Promise.resolve(true);
         },
@@ -100,7 +105,7 @@ describe('execution engine', () => {
         createState: () => {},
         count: () => Promise.resolve(0),
         shutdown: () => {},
-        updateState: (slice, state, error) => {
+        updateState: (slice, state) => {
             updateState[state] = slice;
         }
     };
@@ -150,17 +155,28 @@ describe('execution engine', () => {
     }
 
     function makeEngine(_execution, _testRecovery) {
+        sentMsg = null;
+        sentMsgs.length = 0;
+        executionOperationsUpdate = null;
+        exStatus = null;
         const execution = _execution || executionContext;
         const myEmitter = makeEmitter();
         let testRecovery = false;
         if (_testRecovery) testRecovery = _testRecovery;
         const engine = engineCode(context, messaging, exStore, stateStore);
-        const testContext = engine.__test_context(execution, executionAnalytics, slicerAnalytics, recovery, 1234, testRecovery);
+        const testContext = engine.__test_context(
+            execution,
+            executionAnalytics,
+            slicerAnalytics,
+            recovery,
+            1234,
+            testRecovery
+        );
         return { engine, testContext, myEmitter };
     }
 
     it('can instantiate', (done) => {
-        const engine = makeEngine().engine;
+        const { engine } = makeEngine();
 
         expect(engine).toBeDefined();
         expect(engine.initialize).toBeDefined();
@@ -191,7 +207,7 @@ describe('execution engine', () => {
     });
 
     it('can set and adjust queue length', () => {
-        const testContext = makeEngine().testContext;
+        const { testContext } = makeEngine();
         const errExEnv = {
             slicer: { slicerQueueLength: 10 }
         };
@@ -246,7 +262,7 @@ describe('execution engine', () => {
     });
 
     it('can enqueue and dequeue workers', () => {
-        const workerQueue = makeEngine().testContext.workerQueue;
+        const { workerQueue } = makeEngine().testContext;
         const someWorker = { id: 'someWorker' };
 
         expect(workerQueue).toBeDefined();
@@ -261,7 +277,7 @@ describe('execution engine', () => {
 
     it('can enqueue slices', () => {
         const engineTest = makeEngine().testContext;
-        const slicerQueue = engineTest.slicerQueue;
+        const { slicerQueue } = engineTest;
         const allocateSlice = engineTest._allocateSlice;
         const slice = { some: 'slice' };
 
@@ -283,8 +299,8 @@ describe('execution engine', () => {
     it('can register slice completions', () => {
         const exId = '1234';
         const testEngine = makeEngine();
-        const workerQueue = testEngine.testContext.workerQueue;
-        const myEmitter = testEngine.myEmitter;
+        const { workerQueue } = testEngine.testContext;
+        const { myEmitter } = testEngine;
         const sliceComplete = messagingEvents['worker:slice:complete'];
         let gotSliceSuccess = false;
         let gotSliceFailure = false;
@@ -334,7 +350,7 @@ describe('execution engine', () => {
     it('can register slicers', () => {
         const engineTest = makeEngine();
         const registerSlicers = engineTest.testContext._registerSlicers;
-        const myEmitter = engineTest.myEmitter;
+        const { myEmitter } = engineTest;
 
         const slicers = [() => {}];
         const errSlicers = {
@@ -365,7 +381,7 @@ describe('execution engine', () => {
     it('execution can recover', (done) => {
         const engineTest = makeEngine(null, true);
         const executionRecovery = engineTest.testContext._executionRecovery;
-        const myEmitter = engineTest.myEmitter;
+        const { myEmitter } = engineTest;
 
         function sendEvent(time) {
             return waitFor(time)
@@ -404,7 +420,7 @@ describe('execution engine', () => {
         newExecution.config.probation_window = 100;
         const engineTest = makeEngine(newExecution);
         const registerSlicers = engineTest.testContext._registerSlicers;
-        const myEmitter = engineTest.myEmitter;
+        const { myEmitter } = engineTest;
 
         registerSlicers([() => {}], false);
         myEmitter.emit('slice:failure');
@@ -450,7 +466,7 @@ describe('execution engine', () => {
     });
 
     it('can pass along assets:loaded event', () => {
-        const myEmitter = makeEngine().myEmitter;
+        const { myEmitter } = makeEngine();
         const assetsLoaded = messagingEvents['assets:loaded'];
         let assetsHaveLoaded = false;
         const data = { asset: 'data' };
@@ -482,7 +498,15 @@ describe('execution engine', () => {
                     payload: { set_status: true }
                 });
                 expect(loggerErrMsg).toEqual(`A worker has not connected to a slicer for ex: ${exId}, shutting down execution`);
-                return Promise.all([startWorkerDisconnectWatchDog(), waitFor(750), messagingEvents['worker:ready']({})]);
+                return Promise.all([
+                    startWorkerDisconnectWatchDog(),
+                    waitFor(750),
+                    messagingEvents['worker:ready']({
+                        payload: {
+                            worker_id: 1,
+                        }
+                    })
+                ]);
             })
             .then(() => {
                 expect(exStatus).toEqual('failed');
@@ -502,7 +526,7 @@ describe('execution engine', () => {
     });
 
     it('can update operations', () => {
-        const myEmitter = makeEngine().myEmitter;
+        const { myEmitter } = makeEngine();
         const updateData = [{ _op: 1 }];
 
         myEmitter.emit('slicer:execution:update', { update: updateData });
@@ -512,15 +536,14 @@ describe('execution engine', () => {
     it('can create a scheduler', (done) => {
         // prevent slicer all done event collisions
         const engineTest = makeEngine();
-        const myEmitter = engineTest.myEmitter;
+        const { myEmitter } = engineTest;
         const getScheduler = engineTest.testContext._getScheduler;
-        const slicerQueue = engineTest.testContext.slicerQueue;
+        const { slicerQueue } = engineTest.testContext;
         const allDone = () => null;
         const makesSlices = () => ({ some: 'data' });
         const makesArrayOfSlices = () => [{ id: 1 }, { id: 2 }];
         const slicerError = () => {
             throw new Error('im an error');
-            return false;
         };
         let isASlicerDone = false;
 
@@ -576,8 +599,8 @@ describe('execution engine', () => {
         };
 
         const engineTest = makeEngine();
-        const engine = engineTest.engine;
-        const slicerQueue = engineTest.testContext.slicerQueue;
+        const { engine } = engineTest;
+        const { slicerQueue } = engineTest.testContext;
 
         let currentSlicerCount;
         let prevSlicerCount;
@@ -598,7 +621,7 @@ describe('execution engine', () => {
 
         const pause = messagingEvents['cluster:execution:pause'];
         const resume = messagingEvents['cluster:execution:resume'];
-        const shutdown = engine.shutdown;
+        const { shutdown } = engine;
         // for pausing/stopping, the async slicers may be already calling so counts may
         // increase by 1 or 2 since there are two slicers
         function compareCounts(prev, next) {
@@ -671,8 +694,8 @@ describe('execution engine', () => {
     it('can complete when slicers are finished', (done) => {
         // prevent slicer all done event collisions
         const engineTest = makeEngine();
-        const myEmitter = engineTest.myEmitter;
-        const slicerQueue = engineTest.testContext.slicerQueue;
+        const { myEmitter } = engineTest;
+        const { slicerQueue } = engineTest.testContext;
 
         let allDoneCounter = 0;
         const allDone = () => null;
@@ -705,12 +728,12 @@ describe('execution engine', () => {
 
     it('executionShutdown', (done) => {
         const engineTest = makeEngine();
-        const myEmitter = engineTest.myEmitter;
+        const { myEmitter } = engineTest;
         const executionShutdown = engineTest.engine.shutdown;
         const exId = 1234;
         let gotStopEvent = false;
 
-        myEmitter.on('execution:stop', () => gotStopEvent = true);
+        myEmitter.on('execution:stop', () => { gotStopEvent = true; });
 
         Promise.all([executionShutdown(), waitFor(50)])
             .then(() => {
@@ -738,9 +761,8 @@ describe('execution engine', () => {
 
     it('can send slices to specific workers', (done) => {
         const engineTest = makeEngine();
-        const myEmitter = engineTest.myEmitter;
-        const workerQueue = engineTest.testContext.workerQueue;
-        const slicerQueue = engineTest.testContext.slicerQueue;
+        const { myEmitter } = engineTest;
+        const { slicerQueue, workerQueue, _enqueueWorker } = engineTest.testContext;
         const slice1 = { request: { some: 'slice' } };
         const slice2 = Object.assign({}, slice1, { request: { request_worker: 3 } });
         const slice3 = Object.assign({}, slice1, { request: { request_worker: 99 } });
@@ -759,11 +781,11 @@ describe('execution engine', () => {
 
         engineTest.testContext._engineSetup();
 
-        myEmitter.on('slice:invalid', data => invalidSlice = data);
+        myEmitter.on('slice:invalid', (data) => { invalidSlice = data; });
 
-        workerQueue.enqueue(worker1);
-        workerQueue.enqueue(worker2);
-        workerQueue.enqueue(worker3);
+        _enqueueWorker(worker1);
+        _enqueueWorker(worker2);
+        _enqueueWorker(worker3);
 
         waitFor(10)
             .then(() => {
@@ -778,7 +800,8 @@ describe('execution engine', () => {
                     to: 'worker',
                     message: 'slicer:slice:new',
                     payload: slice1,
-                    address: 1
+                    address: 1,
+                    response: true
                 });
                 expect(workerQueueList()).toEqual([worker2, worker3]);
                 slicerQueue.enqueue(slice2);
@@ -790,7 +813,8 @@ describe('execution engine', () => {
                     to: 'worker',
                     message: 'slicer:slice:new',
                     payload: slice2,
-                    address: 3
+                    address: 3,
+                    response: true
                 });
                 expect(workerQueueList()).toEqual([worker2]);
                 slicerQueue.enqueue(slice3);
@@ -804,6 +828,179 @@ describe('execution engine', () => {
                 expect(invalidSlice).toEqual(slice3.request);
                 expect(updateState).toEqual({ invalid: slice3.request });
                 expect(workerQueueList()).toEqual([worker2]);
+            })
+            .catch(fail)
+            .finally(done);
+    });
+
+    it('should not send two slices to the same worker', (done) => {
+        const engineTest = makeEngine();
+        const { myEmitter } = engineTest;
+        const { workerQueue, slicerQueue, _enqueueWorker } = engineTest.testContext;
+
+        let invalidSlice = null;
+
+        engineTest.testContext._engineSetup();
+
+        myEmitter.on('slice:invalid', (data) => { invalidSlice = data; });
+
+        _enqueueWorker({ worker_id: 1 });
+        _enqueueWorker({ worker_id: 1 });
+        _enqueueWorker({ worker_id: 2 });
+
+        expect(workerQueue.size()).toEqual(2);
+        expect(sentMsgs).toEqual([]);
+
+        slicerQueue.enqueue({
+            request: {
+                some: 'slice'
+            }
+        });
+        slicerQueue.enqueue({
+            request: {
+                some: 'slice'
+            }
+        });
+        waitFor(10).then(() => {
+            expect(workerQueue.size()).toEqual(0);
+            expect(sentMsgs.length).toEqual(2);
+            expect(sentMsgs).toEqual([
+                {
+                    to: 'worker',
+                    message: 'slicer:slice:new',
+                    payload: {
+                        request: {
+                            some: 'slice'
+                        }
+                    },
+                    address: 1,
+                    response: true
+                },
+                {
+                    to: 'worker',
+                    message: 'slicer:slice:new',
+                    payload: {
+                        request: {
+                            some: 'slice'
+                        }
+                    },
+                    address: 2,
+                    response: true
+                }
+            ]);
+            expect(invalidSlice).toEqual(null);
+            done();
+        }).catch(done.fail);
+    });
+
+    it('should not send two slices to the same worker when specifying the worker id', (done) => {
+        const engineTest = makeEngine();
+        const { myEmitter } = engineTest;
+        const { workerQueue, slicerQueue, _enqueueWorker } = engineTest.testContext;
+
+        let invalidSlice = null;
+
+        function workerQueueList() {
+            const results = [];
+            workerQueue.each(worker => results.push(worker));
+            return results;
+        }
+
+        engineTest.testContext._engineSetup();
+
+        myEmitter.on('slice:invalid', (data) => { invalidSlice = data; });
+
+        _enqueueWorker({ worker_id: 1 });
+        _enqueueWorker({ worker_id: 1 });
+        _enqueueWorker({ worker_id: 2 });
+
+        expect(workerQueue.size()).toEqual(2);
+        expect(sentMsgs).toEqual([]);
+
+        slicerQueue.enqueue({
+            request: {
+                request_worker: 1,
+                some: 'slice'
+            }
+        });
+        slicerQueue.enqueue({
+            request: {
+                request_worker: 1,
+                some: 'slice'
+            }
+        });
+        waitFor(10).then(() => {
+            expect(workerQueue.size()).toEqual(1);
+            expect(sentMsgs.length).toEqual(1);
+            expect(sentMsgs).toEqual([
+                {
+                    to: 'worker',
+                    message: 'slicer:slice:new',
+                    payload: {
+                        request: {
+                            request_worker: 1,
+                            some: 'slice'
+                        }
+                    },
+                    address: 1,
+                    response: true
+                }
+            ]);
+            expect(workerQueueList()).toEqual([{ worker_id: 2 }]);
+            expect(invalidSlice).toEqual({
+                request_worker: 1,
+                some: 'slice'
+            });
+            done();
+        }).catch(done.fail);
+    });
+
+    it('should workerQueue extract should not be extract the same worker twice', () => {
+        const engineTest = makeEngine();
+        const { workerQueue, _enqueueWorker } = engineTest.testContext;
+
+        engineTest.testContext._engineSetup();
+
+        _enqueueWorker({ worker_id: 1 });
+        _enqueueWorker({ worker_id: 1 });
+        _enqueueWorker({ worker_id: 2 });
+
+        expect(workerQueue.size()).toEqual(2);
+        expect(workerQueue.extract('worker_id', 1)).toEqual({ worker_id: 1 });
+        expect(workerQueue.extract('worker_id', 1)).toEqual(null);
+        expect(workerQueue.size()).toEqual(1);
+        expect(workerQueue.extract('worker_id', 2)).toEqual({ worker_id: 2 });
+        expect(workerQueue.size()).toEqual(0);
+    });
+
+    it('should re-enqueue a slice that was over provisioned to a worker', (done) => {
+        const engineTest = makeEngine();
+        const { slicerQueue, _sendSlice } = engineTest.testContext;
+        const returningSlice = { zero: 'zero' };
+        const slice1 = { one: 'one' };
+        const slice2 = { two: 'two' };
+        const slice3 = { three: 'three' };
+        const workerId = 'someId';
+        const returningResponse = {
+            to: 'execution_controller',
+            message: 'worker:slice:over_allocated',
+            worker_id: workerId,
+            payload: returningSlice
+        };
+
+        slicerQueue.enqueue(slice1);
+        slicerQueue.enqueue(slice2);
+        slicerQueue.enqueue(slice3);
+
+        expect(slicerQueue.size()).toEqual(3);
+        respondingMessage = { payload: { willProcess: false, slice: returningResponse } };
+        Promise.resolve()
+            .then(() => _sendSlice(returningSlice, workerId))
+            .then(() => {
+                expect(slicerQueue.size()).toEqual(4);
+                expect(slicerQueue.dequeue()).toEqual(returningSlice);
+                expect(slicerQueue.dequeue()).toEqual(slice1);
+                expect(slicerQueue.size()).toEqual(2);
             })
             .catch(fail)
             .finally(done);
