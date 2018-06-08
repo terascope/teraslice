@@ -64,7 +64,7 @@ describe('id reader', () => {
             })
             .then(() => misc.indexStats('test-keyrange-logs')
                 .then((stats) => {
-                    expect(stats.count).toBe(10000);
+                    expect(stats.count).toBe(5000);
                     expect(stats.deleted).toBe(0);
                 }))
             .catch(fail)
