@@ -5,11 +5,10 @@ node_js:
 services:
 - docker
 before_install:
-- pushd ./integration-tests; yarn; popd;
+- cd ./integration-tests && yarn install; cd ..;
 script:
 - yarn test
-after_script:
-- yarn integration-tests
+- cd ./integration-tests && yarn test; cd ..;
 after_success:
 - yarn lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
 - yarn report-coverage
