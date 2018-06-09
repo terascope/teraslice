@@ -1,5 +1,7 @@
 FROM elasticsearch:5.5
 
+MAINTAINER Terascope, LLC
+
 COPY es-start.sh /usr/local/bin/es-start
 COPY elasticsearch.yml /usr/share/elasticsearch/config/
 
