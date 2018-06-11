@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+- '8'
+after_success:
+- yarn lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
+- yarn report-coverage
+deploy:
+  provider: npm
+  email: peter@terascope.io
+  api_key:
+      secure: "a0KW4aSyoqnajZA+hAO17iLa55AxPwRsAlueVfV+FHsA7igpNSvWWX/7fQB9F8wNZGTdsOs8k7VxMY5dmGu95DQIYJV5RmB061+yYNty00dCxQOZaITFcvbnTPeLca4HiXUcBXpIPq9deaTnUd5XwDVBaQ6JXVbdno1xAr5LbYcI0AyFm+GLjCsCtrUN0uAhgM2vaVSC3HPGNi78+ljPEQZ9r13m6GCiUvDYp04fZeIye7KsX6EZi6ki54r68PdTg+RO6rkBaHb+juOYV+adXfc8OtBQAr3ZygxKmuj6j8eeZwBZQAKMWUBcwm+pqa0OOczS4uefFbw/VaNdSuUGP8xCm69UqNZ+HG1wgaFn6RSnV6oKgMOLEBkEGKdjiig3ly1Bz3rXXJOAmWSz8itXvUxsd5iCISWUpHswstdDlpe/7G9cnK4hLrgd4+vg2kp+U+VgSra1SiylPX+gzbVKm++5+or7mpOX8q6o0VaZAVOykQBVnh67C1vP1dxWwV2Ih7/WxxB+zXEt1vbIwmTPcAhZZFrRDug8f/8GeWu9JSmxCso4BFmNIwLXL20gXVa27Etnla+zm6VhPgJK8p0RIfUuBlr8M9cs2zlUTI3xk/V3KFE4wubDnqvfrAshEuNdlCsDL0XIDB0BJmo7qNr+uT1zN5DQ0f1qA91JMMSwiEg="
+  on:
+    branch: master
+    tags: true
+    condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+
+    repo: terascope/error_parser

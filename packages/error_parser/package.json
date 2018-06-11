@@ -1,17 +1,36 @@
 {
-  "name": "error_parser",
+  "name": "@terascope/error-parser",
   "version": "1.0.0",
-  "description": "generic error parser",
+  "description": "Generic error parser",
   "main": "index.js",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "test": "jasmine"
+    "lint": "eslint *.js spec/**/*.js",
+    "lint:fix": "eslint --fix *.js spec/**/*.js",
+    "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
+    "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
+  },
+  "nyc": {
+    "cache": true,
+    "all": true,
+    "include": [
+      "*.js"
+    ],
+    "reporter": [
+      "text-summary",
+      "html",
+      "lcov",
+      "json"
+    ]
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/terascope/error_parser.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/terascope/error_parser/issues"
   },
@@ -20,6 +39,14 @@
     "lodash": "^4.17.4"
   },
   "devDependencies": {
-    "jasmine": "^2.8.0"
+    "codecov": "^3.0.2",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.12.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.9.1",
+    "jasmine": "^3.1.0",
+    "jasmine-spec-reporter": "^4.2.1",
+    "nyc": "^12.0.2"
   }
 }
