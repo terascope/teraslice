@@ -62,8 +62,8 @@ describe('messaging module', () => {
             in: address => ({
                 emit: (msg, msgObj) => {
                     socketMsg = { message: msg, data: msgObj, address };
-                }
-            })
+                },
+            }),
         },
         eio: {
             clientsCount: 2
@@ -569,8 +569,11 @@ describe('messaging module', () => {
         const socketList = {};
         const joinList = {};
         const socket = {
+            rooms: joinList,
             on: (key, fn) => { socketList[key] = fn; },
-            join: (id) => { joinList[id] = id; }
+            join: (id) => { joinList[id] = id; },
+            removeListener: (key) => { delete socketList[key]; },
+            removeListeners: (key) => { delete socketList[key]; }
         };
 
         registerFns(socket);
@@ -580,6 +583,7 @@ describe('messaging module', () => {
             id: 'someId',
             identifier: 'node_id'
         });
+
         testContext.cleanup();
     });
 
