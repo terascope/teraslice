@@ -43,7 +43,7 @@ services:
   teraslice-master:
     build:
       context: ..
-    command: node --max-old-space-size=512 service.js
+    command: node --max-old-space-size=256 service.js
     scale: 1
     restart: 'no'
     healthcheck:
@@ -62,7 +62,7 @@ services:
         condition: service_healthy
     links:
         - elasticsearch
-    mem_limit: 1g
+    mem_limit: 512m
     stop_grace_period: 30s
     volumes:
 $(for vol in "${VOLS[@]}"
@@ -72,7 +72,7 @@ done)
   teraslice-worker:
     build:
       context: ..
-    command: node --max-old-space-size=512 service.js
+    command: node --max-old-space-size=256 service.js
     scale: 3
     restart: 'no'
     expose:
@@ -87,7 +87,7 @@ done)
     links:
       - teraslice-master
       - elasticsearch
-    mem_limit: 1g
+    mem_limit: 512m
     stop_grace_period: 30s
     volumes:
 $(for vol in "${VOLS[@]}"
@@ -107,8 +107,8 @@ done)
       - "49200:49200"
       - "49300:49300"
     environment:
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-    mem_limit: 2g
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    mem_limit: 1g
     ulimits:
       memlock:
         soft: -1
