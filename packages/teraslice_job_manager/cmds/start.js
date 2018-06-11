@@ -19,7 +19,7 @@ exports.handler = (argv, _testFunctions) => {
         .then(() => tjmFunctions.teraslice.jobs.wrap(jobId).start())
         .then((startResponse) => {
             if (_.has(startResponse, 'job_id')) {
-                reply.success(`Started job ${jobId}`);
+                reply.green(`Started job ${jobId}`);
             } else {
                 reply.fatal('Could not start job');
             }

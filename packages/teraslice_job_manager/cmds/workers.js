@@ -25,7 +25,7 @@ exports.handler = (argv, _testFunctions) => {
             return tjmFunctions.teraslice.jobs.wrap(jobId).changeWorkers(argv.param, argv.num);
         })
         .then((workersChange) => {
-            reply.success(workersChange);
+            reply.green(workersChange);
             return workersChange;
         })
         .catch(err => reply.fatal(err.message));

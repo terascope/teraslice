@@ -19,7 +19,7 @@ exports.handler = (argv, _testFunctions) => {
             if (!stopResponse.status.status === 'stopped') {
                 return Promise.reject(new Error('Job could not be stopped'));                
             }
-            reply.success(`Stopped job ${jobId} on ${jobContents.tjm.cluster}`);
+            reply.green(`Stopped job ${jobId} on ${jobContents.tjm.cluster}`);
                 return stopResponse;
         })
         .catch(err => reply.fatal(err));

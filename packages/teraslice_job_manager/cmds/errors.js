@@ -17,10 +17,10 @@ exports.handler = (argv, _testFunctions) => {
         .then(() => tjmFunctions.teraslice.jobs.wrap(jobId).errors())
         .then((errors) => {
             if (errors.length === 0) {
-                reply.success('This job has no errors');
+                reply.green('This job has no errors');
             } else {
                 errors.forEach((error) => {
-                    reply.warning(JSON.stringify(error, null, 4));
+                    reply.yellow(JSON.stringify(error, null, 4));
                 });
             }
             return errors

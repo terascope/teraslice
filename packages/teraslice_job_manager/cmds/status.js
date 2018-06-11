@@ -16,7 +16,7 @@ exports.handler = (argv, _testFunctions) => {
     return tjmFunctions.alreadyRegisteredCheck(jobContents)
         .then(() => tjmFunctions.teraslice.jobs.wrap(jobId).status())
         .then((status) => {
-            reply.success(`Job status: ${status}`);
+            reply.green(`Job status: ${status}`);
             return status;
         })
         .catch(err => reply.fatal(err.message));

@@ -48,8 +48,8 @@ module.exports = (argv, clusterName) => {
         return fs.emptyDir(path.join(process.cwd(), 'builds'))
             .then(() => zipAsset())
             .then((zipData) => {
-                reply.success(zipData.bytes);
-                reply.success(zipData.success);
+                reply.green(zipData.bytes);
+                reply.green(zipData.success);
             })
             .then(() => _postAsset())
             .then((postResponse) => {
@@ -57,15 +57,15 @@ module.exports = (argv, clusterName) => {
                 if (postResponseJson.error) {
                     return Promise.reject(new Error(postResponseJson.error));
                 }
-                reply.success(`Asset posted to ${argv.c} with id ${postResponseJson._id}`);
+                reply.green(`Asset posted to ${argv.c} with id ${postResponseJson._id}`);
                 return Promise.resolve();
             })
             .then(() => {
                 const assetJson = _updateAssetMetadata();
                 return createJsonFile(path.join(process.cwd(), 'asset/asset.json'), assetJson);
             })
-            .then(() => reply.success('TJM data added to asset.json'))
-            .then(() => reply.success(`Asset has successfully been deployed to ${argv.c}`));
+            .then(() => reply.green('TJM data added to asset.json'))
+            .then(() => reply.green(`Asset has successfully been deployed to ${argv.c}`));
     }
 
     function createJsonFile(filePath, jsonObject) {

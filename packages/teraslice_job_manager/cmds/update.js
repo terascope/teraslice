@@ -26,20 +26,20 @@ exports.handler = (argv, _testFunctions) => {
         return tjmFunctions.teraslice.jobs.wrap(jobId).status()
             .then((status) => {
                 if (status === 'running') {
-                    reply.success(`Job ${jobId} is currently running on ${cluster}, attempting to stop and restart`);
+                    reply.green(`Job ${jobId} is currently running on ${cluster}, attempting to stop and restart`);
                     return tjmFunctions.teraslice.jobs.wrap(jobId).stop();
                 }
-                reply.success(`Job ${jobId} is not currently running on ${cluster}, attempting to start`);
+                reply.green(`Job ${jobId} is not currently running on ${cluster}, attempting to start`);
                 return Promise.resolve();
             })
             .then((newStatus) => {
                 if (_.has(newStatus, 'status.status') && newStatus.status.status === 'stopped') {
-                    reply.success(`stopped job ${jobId} on ${cluster}`);
+                    reply.green(`stopped job ${jobId} on ${cluster}`);
                 }
                 return tjmFunctions.teraslice.jobs.wrap(jobId).start();
             })
             .then((restartResponse) => {
-                    reply.success(`started job ${jobId} on ${cluster}`);
+                    reply.green(`started job ${jobId} on ${cluster}`);
                     return restartResponse;
                 });
     }
@@ -50,8 +50,8 @@ exports.handler = (argv, _testFunctions) => {
             if (_.isEmpty(updateResponse)) {
                 return Promise.reject(new Error ('Could not update job'));
             }
-            reply.success(`Job was updated on ${cluster}`);
-            reply.success(JSON.stringify(updateResponse, null, 4));
+            reply.green(`Job was updated on ${cluster}`);
+            reply.green(JSON.stringify(updateResponse, null, 4));
             return Promise.resolve();
         })
         .then(() => {

@@ -68,7 +68,7 @@ exports.handler = (argv, _testTjmFunctions) => {
                 const latest = trimTop.map(item => item.split(' ')
                     .filter(i => i !== ''))
                     .reduce((high, item) => (parseInt(item[1].split('.').join(''), 10) > high ? item : high), 0);
-                reply.success(`Cluster: ${cluster}, Name: ${latest[0]}, Version: ${latest[1]}`);
+                reply.green(`Cluster: ${cluster}, Name: ${latest[0]}, Version: ${latest[1]}`);
             })
             .catch((err) => {
                 if (err.message === 'Cannot read property \'split\' of undefined') {
@@ -95,8 +95,8 @@ exports.handler = (argv, _testTjmFunctions) => {
         return fs.emptyDir(path.join(process.cwd(), 'builds'))
             .then(() => tjmFunctions.zipAsset())
             .then((zipData) => {
-                reply.success(zipData.bytes);
-                reply.success(zipData.success);
+                reply.green(zipData.bytes);
+                reply.green(zipData.success);
             })
             .then(() => fs.readFile(`${process.cwd()}/builds/processors.zip`))
             .then((zippedFileData) => {
@@ -113,7 +113,7 @@ exports.handler = (argv, _testTjmFunctions) => {
                             if (postResponseJson.error) {
                                 reply.fatal(postResponseJson.error);
                             } else {
-                                reply.success(`Asset posted to ${argv.c} with id ${postResponseJson._id}`);
+                                reply.green(`Asset posted to ${argv.c} with id ${postResponseJson._id}`);
                             }
                         })
                         .catch((err) => {

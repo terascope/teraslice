@@ -28,7 +28,7 @@ exports.handler = (argv, _testFunctions) => {
         .then(() => tjmFunctions.teraslice.jobs.wrap(jobId).pause())
         .then((result) => {
             if (result.status.status === 'paused') {
-                reply.success(`Paused job ${jobId} on ${cluster}`);
+                reply.green(`Paused job ${jobId} on ${cluster}`);
             } else {
                 reply.fatal('Could not pause job');
             }

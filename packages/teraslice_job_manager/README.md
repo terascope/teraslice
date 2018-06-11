@@ -30,6 +30,9 @@ For all commands that accept -c, if -c is missing default is http://localhost
 **PAUSE** - Pauses a job.
 - tjm pause jobFile.json
 
+**RESET** - Removes tjm data from job file or asset file, just specify the relative path
+- tjm reset asset/asset.json
+
 **RESUME** - Resumes a paused job.
 - tjm resume jobFile.json
 
@@ -45,9 +48,10 @@ For all commands that accept -c, if -c is missing default is http://localhost
 **UPDATE** - Updates a job.
 - tjm update jobFile.json
 
+**VIEW** - Displays job file as it is saved on the cluster
+- tjm view jobFile.json
+
 **WORKERS** - Adds to or removes workers from a job.
 - tjm workers add 10 jobFile.json
 - tjm workers remove 5 jobFile.json
 
-**RESET** - Removes tjm data from job file or asset file, just specify the relative path
-- tjm reset asset/asset.json

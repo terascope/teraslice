@@ -40,16 +40,16 @@ exports.handler = (argv, _testTjmFunctions) => {
         })
         .then((result) => {
             const jobId = result.id();
-            reply.success(`Successfully registered job: ${jobId} on ${argv.c}`);
+            reply.green(`Successfully registered job: ${jobId} on ${argv.c}`);
             _.set(jobContents, 'tjm.cluster', tjmFunctions.httpClusterNameCheck(argv.c));
             _.set(jobContents, 'tjm.version', '0.0.1');
             _.set(jobContents, 'tjm.job_id', jobId);
             tjmFunctions.createJsonFile(jobFilePath, jobContents);
-            reply.success('Updated job file with tjm data');
+            reply.green('Updated job file with tjm data');
         })
         .then(() => {
             if (argv.r) {
-                reply.success(`New job started on ${argv.c}`);
+                reply.green(`New job started on ${argv.c}`);
             }
         })
         .catch(err => reply.fatal(err.message));
