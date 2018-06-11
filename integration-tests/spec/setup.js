@@ -10,7 +10,9 @@ const execFile = Promise.promisify(require('child_process').execFile);
 const { forNodes } = require('./wait');
 const misc = require('./misc');
 
+// require jasmine-expect for more friendly expecations
 require('jasmine-expect');
+
 // We need long timeouts for some of these jobs
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 6 * 60 * 1000;
 
@@ -26,7 +28,7 @@ if (process.stdout.isTTY) {
 }
 
 function generatingDockerFile() {
-    signale.pending('Generating docker-compose file');
+    signale.pending('Generating docker-compose file...');
     const fileName = path.join(__dirname, '..', 'docker-compose.sh');
     return execFile(fileName, { cwd: path.join(__dirname, '..') }).then(() => {
         signale.success('Generated docker-compose file');
@@ -130,14 +132,14 @@ function generateTestData() {
 }
 
 beforeAll((done) => {
-    signale.time();
+    signale.time('global setup');
     generatingDockerFile()
         .then(() => dockerDown())
         .then(() => dockerUp())
         .then(() => waitForTerasliceNodes())
         .then(() => generateTestData())
         .then(() => {
-            signale.timeEnd();
+            signale.timeEnd('global setup');
             done();
         })
         .catch((err) => {
