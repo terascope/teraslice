@@ -1,6 +1,8 @@
-FROM elasticsearch:5.5
+FROM docker.elastic.co/elasticsearch/elasticsearch:5.5.3
 
 MAINTAINER Terascope, LLC
+
+USER root
 
 COPY es-start.sh /usr/local/bin/es-start
 COPY elasticsearch.yml /usr/share/elasticsearch/config/

@@ -1,4 +1,4 @@
-cluster.name: teraslice-integration-5.5
+cluster.name: teraslice-integration
 thread_pool.bulk.queue_size: 2000
 network.host: 0.0.0.0
 http.port: 49200
@@ -6,3 +6,4 @@ transport.tcp.port: 49300
 discovery.type: single-node
 bootstrap.memory_lock: true
 cluster.routing.allocation.disk.threshold_enabled: false
+xpack.security.enabled: false
