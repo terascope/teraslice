@@ -13,8 +13,9 @@
     "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
   },
   "files": [
-    "lib",
-    "examples"
+      "*.js",
+      "lib/**/*",
+      "examples/**/*"
   ],
   "nyc": {
     "cache": true,
