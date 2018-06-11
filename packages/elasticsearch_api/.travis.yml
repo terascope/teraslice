@@ -1,3 +1,16 @@
 language: node_js
 node_js:
-  - "4"
+  - '8'
+after_success:
+  - yarn lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
+  - yarn report-coverage
+deploy:
+  provider: npm
+  email: peter@terascope.io
+  api_key:
+    secure: "PlqxkwxhvgntxBuTOA8y0Maut/P55HBnSDe0gKrfplh3HJbJj4GQYz2zNbC0xBI+B9AgNB/5WEpBQZtr6KexD6os5bVPckOP5GdhVPAgCmr8b2HmXibVZoxNzg3Z48sn2ItwgEUmiZhkhWO8V9xmaBBWFV4YUhqL27w8DCh0uJ2tTVw4hA6GGDiSDh/0VymT5ujzd5V9VUcqDkFZ8mZj5etnZ2Gnb5UXUOgFjRfoZDuAUhZOXBeQaTL4e6fJmhQfU44bHyv18WVLxwm3tRQfS0Q4pl6kDoeuVd/k5ZqdTklmWaiRcXcgdZMy9z/82r8zyXgzuk/F7DRRJjm+JtF3n/Shs+3YajM1GKLd83ALsZFT0I4Awn5ygbviaY1dyz531AEvXNb6x1vATeXjq0v+wO4eJtDRjxGrLVJgEekJDHBjs7C0hs4/S7AUEZd/FyrHB0/QMHfgKU76VcAKQ/P2GpNhh2sSjNrfPMEVJiKpsTlArNmYHfwPkrReCOdN+eF3go6a7n8jXMYJjUBIE5iOv0UJclCWq3U930bTOkGn0Uv1MRDzIO2gW0Nu3m2rXSwpRccu0t5V9SaVmmoOPsNj7oPcjG6HP1lFQJy6SCxBhqtdF+ituwEYVKRxxHsuSXbWEPETcdmAM9liRrskmTYzwgRbPO6NoD31+nxH7daGS9M="
+  on:
+    tags: true
+    condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+
+    branch: master
+    repo: terascope/elasticsearch_api

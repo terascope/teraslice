@@ -1,28 +1,57 @@
 {
-  "name": "elasticsearch_api",
-  "version": "1.0.0",
+  "name": "@terascope/elasticsearch-api",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jasmine"
+    "lint": "eslint *.js",
+    "lint:fix": "eslint --fix *.js",
+    "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
+    "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
+  },
+  "nyc": {
+    "cache": true,
+    "all": true,
+    "include": [
+      "*.js"
+    ],
+    "reporter": [
+      "text-summary",
+      "html",
+      "lcov",
+      "json"
+    ]
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/terascope/elasticsearch_api.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/terascope/elasticsearch_api/issues"
   },
   "homepage": "https://github.com/terascope/elasticsearch_api#readme",
   "dependencies": {
     "bluebird": "^3.5.0",
+    "error_parser": "terascope/error_parser",
     "lodash": "^4.17.4",
-    "uuid": "^3.0.1",
-    "error_parser": "terascope/error_parser"
+    "uuid": "^3.0.1"
   },
   "devDependencies": {
-    "jasmine": "^3.1.0"
+    "codecov": "^3.0.2",
+    "debug": "^3.1.0",
+    "eslint": "^4.19.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-jasmine": "^2.9.3",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.7.0",
+    "jasmine": "^3.1.0",
+    "jasmine-spec-reporter": "^4.2.1",
+    "nyc": "^12.0.2"
   }
 }

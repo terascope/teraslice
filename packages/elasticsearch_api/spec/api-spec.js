@@ -2,12 +2,12 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
+const debug = require('debug')('elasticsearch-api');
+const esApi = require('../index');
 
-describe('elasticsearch_api', () => {
-
-    const esApi = require('../index');
-    let query;
+describe('elasticsearch-api', () => {
     let recordsReturned = [];
+    let searchQuery; // eslint-disable-line
     let failed = 0;
     let failures = [];
     let total = 0;
@@ -25,10 +25,11 @@ describe('elasticsearch_api', () => {
     let indicesPutAliasCalled = false;
 
     beforeEach(() => {
+        searchQuery = null;
         searchError = false;
         failed = 0;
         failures = [];
-        bulkError: false;
+        bulkError = false;
         elasticDown = false;
         recoverError = false;
         changeMappings = false;
@@ -56,8 +57,8 @@ describe('elasticsearch_api', () => {
     function waitFor(time, fn) {
         return new Promise(resolve => setTimeout(() => {
             if (fn) fn();
-            resolve(true)
-        }, time))
+            resolve(true);
+        }, time));
     }
 
     function postedData(action, id) {
@@ -67,7 +68,7 @@ describe('elasticsearch_api', () => {
             _id: id || 'AWKWOrWojTNwAyqyzq5l',
             _version: 1,
             result: action,
-            _shards: {total: 2, successful: 1, failed: 0}
+            _shards: { total: 2, successful: 1, failed: 0 }
         };
         if (action === 'created') result.created = true;
         if (action === 'deleted') result.found = true;
@@ -75,46 +76,46 @@ describe('elasticsearch_api', () => {
     }
 
     const template = {
-        "template": "test*",
-        "settings": {
-            "index.number_of_shards": 5,
-            "index.number_of_replicas": 1
+        template: 'test*',
+        settings: {
+            'index.number_of_shards': 5,
+            'index.number_of_replicas': 1
         },
-        "mappings": {
-            "state": {
-                "_all": {
-                    "enabled": true
+        mappings: {
+            state: {
+                _all: {
+                    enabled: true
                 },
-                "dynamic": "false",
-                "properties": {
+                dynamic: 'false',
+                properties: {
                     ip: {
-                        "type": "string",
-                        "index": "not_analyzed"
+                        type: 'string',
+                        index: 'not_analyzed'
                     },
                     userAgent: {
-                        "type": "string",
-                        "index": "not_analyzed"
+                        type: 'string',
+                        index: 'not_analyzed'
                     },
                     url: {
-                        "type": "string",
-                        "index": "not_analyzed"
+                        type: 'string',
+                        index: 'not_analyzed'
                     },
                     uuid: {
-                        "type": "string",
-                        "index": "not_analyzed"
+                        type: 'string',
+                        index: 'not_analyzed'
                     },
                     created: {
-                        "type": "date"
+                        type: 'date'
                     },
                     ipv6: {
-                        "type": "string",
-                        "index": "not_analyzed"
+                        type: 'string',
+                        index: 'not_analyzed'
                     },
                     location: {
                         type: 'geo_point'
                     },
                     bytes: {
-                        "type": "integer"
+                        type: 'integer'
                     }
                 }
             }
@@ -122,46 +123,46 @@ describe('elasticsearch_api', () => {
     };
 
     const template2 = {
-        "template": "test*",
-        "settings": {
-            "index.number_of_shards": 5,
-            "index.number_of_replicas": 1
+        template: 'test*',
+        settings: {
+            'index.number_of_shards': 5,
+            'index.number_of_replicas': 1
         },
-        "mappings": {
-            "ex": {
-                "_all": {
-                    "enabled": true
+        mappings: {
+            ex: {
+                _all: {
+                    enabled: true
                 },
-                "dynamic": "false",
-                "properties": {
+                dynamic: 'false',
+                properties: {
                     ip: {
-                        "type": "string",
-                        "index": "not_analyzed"
+                        type: 'string',
+                        index: 'not_analyzed'
                     },
                     userAgent: {
-                        "type": "string",
-                        "index": "not_analyzed"
+                        type: 'string',
+                        index: 'not_analyzed'
                     },
                     url: {
-                        "type": "string",
-                        "index": "not_analyzed"
+                        type: 'string',
+                        index: 'not_analyzed'
                     },
                     uuid: {
-                        "type": "string",
-                        "index": "not_analyzed"
+                        type: 'string',
+                        index: 'not_analyzed'
                     },
                     created: {
-                        "type": "date"
+                        type: 'date'
                     },
                     ipv6: {
-                        "type": "string",
-                        "index": "not_analyzed"
+                        type: 'string',
+                        index: 'not_analyzed'
                     },
                     location: {
                         type: 'geo_point'
                     },
                     bytes: {
-                        "type": "integer"
+                        type: 'integer'
                     }
                 }
             }
@@ -170,31 +171,31 @@ describe('elasticsearch_api', () => {
 
     function getRecoveryData(index) {
         const obj = {};
-        obj[index] = {shards: [{shard: 1, primary: true, stage: recoverError ? 'notdone' : 'DONE'}]};
+        obj[index] = { shards: [{ shard: 1, primary: true, stage: recoverError ? 'notdone' : 'DONE' }] };
         return obj;
     }
 
     function createBulkResponse(results) {
-        const response = {took: 22, errors: false, items: results};
+        const response = { took: 22, errors: false, items: results };
         if (bulkError) {
             response.errors = true;
             response.items = results.body.map((obj, index) => {
                 _.forOwn(obj, (value, key) => {
-                    obj[key] = _.assign(value, {error: {type: bulkError[index] || 'someType', reason: 'someReason'}})
+                    obj[key] = _.assign(value, { error: { type: bulkError[index] || 'someType', reason: 'someReason' } });
                 });
                 return obj;
-            })
+            });
         }
         return response;
     }
 
     function simulateTemplateResponse(originalMapping, index, recordType) {
         const results = {};
-        results[index] = {mappings: JSON.parse(JSON.stringify(originalMapping.mappings))};
+        results[index] = { mappings: JSON.parse(JSON.stringify(originalMapping.mappings)) };
         // simulate the 'false' to false issue
         results[index].mappings[recordType].dynamic = 'false';
         if (changeMappings) {
-            results[index].mappings[recordType].properties['newKey'] = {type: 'keyword'}
+            results[index].mappings[recordType].properties.newKey = { type: 'keyword' };
         }
         return results;
     }
@@ -203,14 +204,14 @@ describe('elasticsearch_api', () => {
         mget: () => Promise.resolve(getData()),
         get: () => Promise.resolve(recordsReturned[0]),
         index: () => Promise.resolve(postedData('created')),
-        create: (obj) => Promise.resolve(postedData('created', obj.id)),
+        create: obj => Promise.resolve(postedData('created', obj.id)),
         update: () => Promise.resolve(postedData('updated')),
         delete: () => Promise.resolve(postedData('deleted')),
-        bulk: (data) => Promise.resolve(createBulkResponse(data)),
+        bulk: data => Promise.resolve(createBulkResponse(data)),
         search: (_query) => {
-            query = _query;
+            searchQuery = _query;
             if (searchError) return Promise.reject(searchError);
-            return Promise.resolve(getData())
+            return Promise.resolve(getData());
         },
         reindex: () => {
             reindexCalled = true;
@@ -221,25 +222,25 @@ describe('elasticsearch_api', () => {
                 if (elasticDown) return Promise.reject(true);
                 return Promise.resolve(indexAlreadyExists);
             },
-            create: () => Promise.resolve({"acknowledged": true, "shards_acknowledged": true}),
-            refresh: () => Promise.resolve({_shards: {total: 10, successful: 5, failed: 0}}),
-            recovery: (query) => Promise.resolve(getRecoveryData(query.index)),
+            create: () => Promise.resolve({ acknowledged: true, shards_acknowledged: true }),
+            refresh: () => Promise.resolve({ _shards: { total: 10, successful: 5, failed: 0 } }),
+            recovery: query => Promise.resolve(getRecoveryData(query.index)),
             getSettings: () => {
                 const obj = {};
-                obj.some_index = {settings: {index: {max_result_window: 1000000}}};
-                return Promise.resolve(obj)
+                obj.some_index = { settings: { index: { max_result_window: 1000000 } } };
+                return Promise.resolve(obj);
             },
             putTemplate: () => {
                 putTemplateCalled = true;
-                return Promise.resolve({"acknowledged": true})
+                return Promise.resolve({ acknowledged: true });
             },
             delete: () => {
                 indicesDeleteCalled = true;
-                return Promise.resolve(true)
+                return Promise.resolve(true);
             },
             putAlias: () => {
                 indicesPutAliasCalled = true;
-                return Promise.resolve(true)
+                return Promise.resolve(true);
             },
             getMapping: () => {
                 let index = 'teracluster__state';
@@ -251,15 +252,15 @@ describe('elasticsearch_api', () => {
                     templateArg = template2;
                     indexAlreadyExists = false;
                 }
-                return Promise.resolve(simulateTemplateResponse(templateArg, index, type))
+                return Promise.resolve(simulateTemplateResponse(templateArg, index, type));
             }
         },
         nodes: {
-            info: () => Promise.resolve({_nodes: {}}),
-            stats: () => Promise.resolve({_nodes: {}})
+            info: () => Promise.resolve({ _nodes: {} }),
+            stats: () => Promise.resolve({ _nodes: {} })
         },
         cluster: {
-            stats: () => Promise.resolve({nodes: {versions: ["5.4.1"]}})
+            stats: () => Promise.resolve({ nodes: { versions: ['5.4.1'] } })
         },
         __testing: {
             start: 100,
@@ -268,24 +269,30 @@ describe('elasticsearch_api', () => {
     };
 
     const logger = {
-        error() {
+        error(...args) {
+            debug('error:', ...args);
         },
-        info() {
+        info(...args) {
+            debug('error:', ...args);
         },
-        warn(msg) {
-            warnMsg = msg;
+        warn(...args) {
+            ([warnMsg] = args);
+            debug('warn:', ...args);
         },
-        trace() {
+        trace(...args) {
+            debug('trace:', ...args);
         },
-        debug() {
+        debug(...args) {
+            debug('debug:', ...args);
         },
-        flush() {
+        flush(...args) {
+            debug('flush:', ...args);
         }
     };
 
     it('can instantiate', () => {
         let api;
-        expect(() => api = esApi(client, logger)).not.toThrow();
+        expect(() => { api = esApi(client, logger); }).not.toThrow();
         expect(api).toBeDefined();
         expect(typeof api).toEqual('object');
         expect(api.search).toBeDefined();
@@ -329,26 +336,26 @@ describe('elasticsearch_api', () => {
     });
 
     it('count returns total amount for query', (done) => {
-        const query = {body: 'someQuery'};
+        const query = { body: 'someQuery' };
         const api = esApi(client, logger);
 
         Promise.resolve(api.count(query))
             .then((results) => {
-                expect(query).toEqual({body: 'someQuery', size: 0});
+                expect(query).toEqual({ body: 'someQuery', size: 0 });
                 expect(results).toEqual(0);
                 total = 500;
-                return api.count(query)
+                return api.count(query);
             })
-            .then((results) => expect(results).toEqual(500))
+            .then(results => expect(results).toEqual(500))
             .catch(fail)
-            .finally(done)
+            .finally(done);
     });
 
     it('can search', (done) => {
-        const query = {body: 'someQuery'};
+        const query = { body: 'someQuery' };
         const api = esApi(client, logger);
-        const apiFullResponse = esApi(client, logger, {full_response: true});
-        recordsReturned = [{_source: {some: 'data'}}];
+        const apiFullResponse = esApi(client, logger, { full_response: true });
+        recordsReturned = [{ _source: { some: 'data' } }];
 
         Promise.all([api.search(query), apiFullResponse.search(query)])
             .spread((results1, results2) => {
@@ -356,35 +363,35 @@ describe('elasticsearch_api', () => {
                 expect(results2).toEqual(getData());
             })
             .catch(fail)
-            .finally(done)
+            .finally(done);
     });
 
     it('search can handle rejection errors', (done) => {
-        const query = {body: 'someQuery'};
+        const query = { body: 'someQuery' };
         const api = esApi(client, logger);
         let queryFailed = false;
-        searchError = {body: {error: {type: 'es_rejected_execution_exception'}}};
-        recordsReturned = [{_source: {some: 'data'}}];
+        searchError = { body: { error: { type: 'es_rejected_execution_exception' } } };
+        recordsReturned = [{ _source: { some: 'data' } }];
 
-        Promise.all([api.search(query), waitFor(50, () => searchError = false)])
+        Promise.all([api.search(query), waitFor(50, () => { searchError = false; })])
             .spread((results) => {
                 expect(results).toEqual([recordsReturned[0]._source]);
-                searchError = {body: {error: {type: 'some_thing_else'}}};
+                searchError = { body: { error: { type: 'some_thing_else' } } };
                 return api.search(query)
-                    .catch(err => queryFailed = true)
+                    .catch(() => { queryFailed = true; });
             })
             .then(() => expect(queryFailed).toEqual(true))
             .catch(fail)
-            .finally(done)
+            .finally(done);
     });
 
     it('search can handle shard errors', (done) => {
-        const query = {body: 'someQuery'};
+        const query = { body: 'someQuery' };
         const api = esApi(client, logger);
         let queryFailed = false;
         failed = 3;
-        failures = [{reason: {type: 'es_rejected_execution_exception'}}];
-        recordsReturned = [{_source: {some: 'data'}}];
+        failures = [{ reason: { type: 'es_rejected_execution_exception' } }];
+        recordsReturned = [{ _source: { some: 'data' } }];
 
         Promise.all([
             api.search(query),
@@ -393,70 +400,70 @@ describe('elasticsearch_api', () => {
                 failures = [];
             })
         ])
-            .spread(results => {
+            .spread((results) => {
                 expect(results).toEqual([recordsReturned[0]._source]);
                 failed = 4;
-                failures = [{reason: {type: 'some other error'}}];
+                failures = [{ reason: { type: 'some other error' } }];
                 return Promise.all([
                     api.search(query),
                     waitFor(50, () => {
                         failed = 0;
                         failures = [];
                     })
-                ])
-                    .catch(err => queryFailed = true)
-
+                ]).catch(() => { queryFailed = true; });
             })
             .then(() => expect(queryFailed).toEqual(true))
             .catch(fail)
-            .finally(done)
+            .finally(done);
     });
 
     it('can call mget', (done) => {
-        const query = {body: 'someQuery'};
+        const query = { body: 'someQuery' };
         const api = esApi(client, logger);
-        recordsReturned = [{_source: {some: 'data'}}];
+        recordsReturned = [{ _source: { some: 'data' } }];
 
         Promise.resolve(api.mget(query))
-            .then((results) => expect(results).toEqual(getData()))
+            .then(results => expect(results).toEqual(getData()))
             .catch(fail)
-            .finally(done)
+            .finally(done);
     });
 
     it('can call get', (done) => {
-        const query = {body: 'someQuery'};
+        const query = { body: 'someQuery' };
         const api = esApi(client, logger);
-        recordsReturned = [{_source: {some: 'data'}}];
+        recordsReturned = [{ _source: { some: 'data' } }];
 
         Promise.resolve(api.get(query))
-            .then((results) => expect(results).toEqual(recordsReturned[0]._source))
+            .then(results => expect(results).toEqual(recordsReturned[0]._source))
             .catch(fail)
             .finally(done);
     });
 
     it('can call index', (done) => {
-        const query = {index: 'someIndex', type: 'sometype', body: 'someQuery'};
+        const query = { index: 'someIndex', type: 'sometype', body: 'someQuery' };
         const api = esApi(client, logger);
 
         Promise.resolve(api.index(query))
-            .then((results) => expect(results.created).toEqual(true))
+            .then(results => expect(results.created).toEqual(true))
             .catch(fail)
             .finally(done);
     });
 
     it('can call indexWithId', (done) => {
-        const query = {index: 'someIndex', id: 'someId', type: 'sometype', body: 'someQuery'};
+        const query = {
+            index: 'someIndex', id: 'someId', type: 'sometype', body: 'someQuery'
+        };
         const api = esApi(client, logger);
-        recordsReturned = [{_source: {some: 'data'}}];
+        recordsReturned = [{ _source: { some: 'data' } }];
 
         Promise.resolve(api.indexWithId(query))
-            .then((results) => expect(results).toEqual(query.body))
+            .then(results => expect(results).toEqual(query.body))
             .catch(fail)
             .finally(done);
     });
 
     it('can call create', (done) => {
-        const query = {index: 'someIndex', type: 'sometype', body: 'someQuery'};
+        const query = { index: 'someIndex', type: 'sometype', body: 'someQuery' };
         const api = esApi(client, logger);
 
         Promise.resolve(api.create(query))
@@ -466,7 +473,7 @@ describe('elasticsearch_api', () => {
     });
 
     it('can call update', (done) => {
-        const query = {index: 'someIndex', type: 'sometype', body: {doc: {some: 'data'}}};
+        const query = { index: 'someIndex', type: 'sometype', body: { doc: { some: 'data' } } };
         const api = esApi(client, logger);
 
         Promise.resolve(api.update(query))
@@ -476,7 +483,7 @@ describe('elasticsearch_api', () => {
     });
 
     it('can call remove', (done) => {
-        const query = {index: 'someIndex', type: 'sometype', id: 'someId'};
+        const query = { index: 'someIndex', type: 'sometype', id: 'someId' };
         const api = esApi(client, logger);
 
         Promise.resolve(api.remove(query))
@@ -486,7 +493,7 @@ describe('elasticsearch_api', () => {
     });
 
     it('can call indexExists', (done) => {
-        const query = {index: 'someIndex'};
+        const query = { index: 'someIndex' };
         const api = esApi(client, logger);
 
         Promise.resolve(api.indexExists(query))
@@ -496,7 +503,7 @@ describe('elasticsearch_api', () => {
     });
 
     it('can call indexCreate', (done) => {
-        const query = {index: 'someIndex'};
+        const query = { index: 'someIndex' };
         const api = esApi(client, logger);
 
         Promise.resolve(api.indexCreate(query))
@@ -506,7 +513,7 @@ describe('elasticsearch_api', () => {
     });
 
     it('can call indexRefresh', (done) => {
-        const query = {index: 'someIndex'};
+        const query = { index: 'someIndex' };
         const api = esApi(client, logger);
 
         Promise.resolve(api.indexRefresh(query))
@@ -516,7 +523,7 @@ describe('elasticsearch_api', () => {
     });
 
     it('can call indexRecovery', (done) => {
-        const query = {index: 'someIndex'};
+        const query = { index: 'someIndex' };
         const api = esApi(client, logger);
 
         Promise.resolve(api.indexRecovery(query))
@@ -553,7 +560,7 @@ describe('elasticsearch_api', () => {
     });
 
     it('can warn window size with version', (done) => {
-        const api = esApi(client, logger, {index: 'some_index'});
+        const api = esApi(client, logger, { index: 'some_index' });
 
         Promise.resolve(api.version())
             .then(() => expect(warnMsg).toBeTruthy())
@@ -573,13 +580,13 @@ describe('elasticsearch_api', () => {
     it('can call bulkSend', (done) => {
         const api = esApi(client, logger);
         const myBulkData = [
-            {index: {_index: 'some_index', _type: 'events', _id: 1}},
-            {title: 'foo'},
-            {delete: {_index: 'some_index', _type: 'events', _id: 5}}
+            { index: { _index: 'some_index', _type: 'events', _id: 1 } },
+            { title: 'foo' },
+            { delete: { _index: 'some_index', _type: 'events', _id: 5 } }
         ];
 
         Promise.resolve(api.bulkSend(myBulkData))
-            .then((results) => expect(results).toBeTruthy())
+            .then(results => expect(results).toBeTruthy())
             .catch(fail)
             .finally(done);
     });
@@ -587,22 +594,24 @@ describe('elasticsearch_api', () => {
     it('can call bulkSend with errors', (done) => {
         const api = esApi(client, logger);
         const myBulkData = [
-            {index: {_index: 'some_index', _type: 'events', _id: 1}},
-            {title: 'foo'},
-            {delete: {_index: 'some_index', _type: 'events', _id: 5}}
+            { index: { _index: 'some_index', _type: 'events', _id: 1 } },
+            { title: 'foo' },
+            { delete: { _index: 'some_index', _type: 'events', _id: 5 } }
         ];
         bulkError = ['es_rejected_execution_exception', 'es_rejected_execution_exception', 'es_rejected_execution_exception'];
         let queryFailed = false;
 
-        Promise.all([api.bulkSend(myBulkData), waitFor(20, () => bulkError = false)])
+        Promise.all([api.bulkSend(myBulkData), waitFor(20, () => { bulkError = false; })])
             .spread((results) => {
                 expect(results).toBeTruthy();
                 bulkError = ['some_thing_else', 'some_thing_else', 'some_thing_else'];
-                return Promise.all([api.bulkSend(myBulkData), waitFor(20, () => bulkError = false)])
-                    .catch((err) => {
-                        queryFailed = true;
-                        expect(err).toEqual('some_thing_else--someReason')
-                    })
+                return Promise.all([
+                    api.bulkSend(myBulkData),
+                    waitFor(20, () => { bulkError = false; })
+                ]).catch((err) => {
+                    queryFailed = true;
+                    expect(err).toEqual('some_thing_else--someReason');
+                });
             })
             .then(() => expect(queryFailed).toEqual(true))
             .catch(fail)
@@ -611,14 +620,14 @@ describe('elasticsearch_api', () => {
 
     it('can call buildQuery', () => {
         const api = esApi(client, logger);
-        const opConfig1 = {index: 'some_index'};
-        const opConfig2 = {index: 'some_index', date_field_name: 'created'};
-        const opConfig3 = {index: 'some_index', query: 'someLucene:query'};
-        const opConfig4 = {index: 'some_index', query: 'someLucene:query', fields: ['field1', 'field2']};
+        const opConfig1 = { index: 'some_index' };
+        const opConfig2 = { index: 'some_index', date_field_name: 'created' };
+        const opConfig3 = { index: 'some_index', query: 'someLucene:query' };
+        const opConfig4 = { index: 'some_index', query: 'someLucene:query', fields: ['field1', 'field2'] };
 
-        const msg1 = {count: 100, key: 'someKey'};
-        const msg2 = {count: 100, start: new Date(), end: new Date()};
-        const msg3 = {count: 100};
+        const msg1 = { count: 100, key: 'someKey' };
+        const msg2 = { count: 100, start: new Date(), end: new Date() };
+        const msg3 = { count: 100 };
 
         function makeResponse(opConfig, msg, data) {
             const query = {
@@ -638,17 +647,16 @@ describe('elasticsearch_api', () => {
             return query;
         }
 
-        const response1 = {wildcard: {_uid: 'someKey'}};
-        const response2 = {range: {created: {gte: msg2.start, lt: msg2.end}}};
-        const response3 = {query_string: {query: opConfig3.query}};
-        const response4 = [{wildcard: {_uid: 'someKey'}}, {query_string: {query: opConfig3.query}}];
+        const response1 = { wildcard: { _uid: 'someKey' } };
+        const response2 = { range: { created: { gte: msg2.start, lt: msg2.end } } };
+        const response3 = { query_string: { query: opConfig3.query } };
+        const response4 = [{ wildcard: { _uid: 'someKey' } }, { query_string: { query: opConfig3.query } }];
 
         expect(api.buildQuery(opConfig1, msg1)).toEqual(makeResponse(opConfig1, msg1, response1));
         expect(api.buildQuery(opConfig2, msg2)).toEqual(makeResponse(opConfig2, msg2, response2));
         expect(api.buildQuery(opConfig3, msg3)).toEqual(makeResponse(opConfig3, msg3, response3));
         expect(api.buildQuery(opConfig4, msg3)).toEqual(makeResponse(opConfig4, msg3, response3));
         expect(api.buildQuery(opConfig3, msg1)).toEqual(makeResponse(opConfig3, msg1, response4));
-
     });
 
     it('can set up an index', (done) => {
@@ -661,7 +669,7 @@ describe('elasticsearch_api', () => {
 
         api.indexSetup(clusterName, newIndex, migrantIndexName, template, recordType, clientName)
             .catch(fail)
-            .finally(done)
+            .finally(done);
     });
 
     it('can set up an index and wait for availability', (done) => {
@@ -675,11 +683,18 @@ describe('elasticsearch_api', () => {
         searchError = true;
 
         Promise.all([
-            waitFor(300, () => searchError = false),
-            api.indexSetup(clusterName, newIndex, migrantIndexName, template, recordType, clientName)
+            waitFor(300, () => { searchError = false; }),
+            api.indexSetup(
+                clusterName,
+                newIndex,
+                migrantIndexName,
+                template,
+                recordType,
+                clientName
+            )
         ])
             .catch(fail)
-            .finally(done)
+            .finally(done);
     });
 
     it('can wait for elasticsearch availability', (done) => {
@@ -694,12 +709,20 @@ describe('elasticsearch_api', () => {
         recoverError = true;
 
         Promise.all([
-            api.indexSetup(clusterName, newIndex, migrantIndexName, template, recordType, clientName, 1000),
-            waitFor(1, () => elasticDown = false),
-            waitFor(1200, () => recoverError = false),
+            api.indexSetup(
+                clusterName,
+                newIndex,
+                migrantIndexName,
+                template,
+                recordType,
+                clientName,
+                1000
+            ),
+            waitFor(1, () => { elasticDown = false; }),
+            waitFor(1200, () => { recoverError = false; }),
         ])
             .catch(fail)
-            .finally(done)
+            .finally(done);
     });
 
     it('can send template on state mapping changes, does not migrate', (done) => {
@@ -718,7 +741,7 @@ describe('elasticsearch_api', () => {
                 expect(reindexCalled).toEqual(false);
             })
             .catch(fail)
-            .finally(done)
+            .finally(done);
     });
 
     it('can migrate on mapping changes', (done) => {
@@ -739,7 +762,6 @@ describe('elasticsearch_api', () => {
                 expect(indicesPutAliasCalled).toEqual(true);
             })
             .catch(fail)
-            .finally(done)
-    })
-
+            .finally(done);
+    });
 });

@@ -6,7 +6,7 @@ elasticsearch client api used across multiple services, handles retries and expo
 #### Installation
 
 ```
-npm install terascope/elasticsearch_api
+npm install @terascope/elasticsearch-api
 ```
 
 
@@ -14,16 +14,16 @@ npm install terascope/elasticsearch_api
 # example
 
 ```
-    var elasticsearch = require('elasticsearch');
+    var elasticsearch = require('@terascope/elasticsearch-api');
     var bunyan = require('bunyan');
-    
+
     var logger = logger = bunyan.createLogger({name: 'someName'});
     var client = new elasticsearch.Client({host: ["127.0.0.1:9200"]});
     var opConfig = {full_response: false};
 
-    var elasticsearch = require('elasticsearch_api')(client, logger, opConfig);
+    var elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
     var query = elasticsearch.buildQuery(opConfig, msg);
-     
+
     elasticsearch.search(query)
        .then(function(results){
            console.log(results)
@@ -32,7 +32,7 @@ npm install terascope/elasticsearch_api
 
 
 ### Configuration
-The elasticsearch_api module must be passed in an elasticsearch client and a bunyan based logger. You may also optional pass in an object as the third argument.
+The `@terascope/elasticsearch-api` module must be passed in an elasticsearch client and a bunyan based logger. You may also optional pass in an object as the third argument.
 
 
 ##### Configuration for opConfig
@@ -45,15 +45,15 @@ index | only used if you are using the version method  | String| required if usi
 The majority of methods exhibit the same behavior of the native elasticsearch client
 
 #### get
-It gets a single document 
+It gets a single document
 
 Query requires:
 - id
-- type 
+- type
 - index
 ```
     var query = {id: 'someID', type: 'someType', index: 'someIndex'};
-     
+
     elasticsearch.get(query)
        .then(function(results){
            console.log(results)
@@ -65,12 +65,12 @@ This will index a document to a given index
 
 Query requires:
 - index
-- type 
-- body 
+- type
+- body
 
 ```
     var query = {index: 'someIndex', type: 'someType', body: {actual: 'data'};
-     
+
     elasticsearch.index(query)
        .then(function(results){
            console.log(results)
@@ -84,18 +84,18 @@ This will index a document to a given index with a specific id
 
 Query requires:
 - index
-- type 
+- type
 - id
-- body 
+- body
 
 ```
     var query = {
         index: 'someIndex',
-        type: 'someType', 
+        type: 'someType',
         id: 'someID',
         body: {actual: 'data'}
       };
-     
+
     elasticsearch.indexWithId(query)
        .then(function(results){
            console.log(results)
@@ -112,13 +112,13 @@ Update parts of a document, body is a partial document, which will be merged wit
 
 Query requires:
 - index
-- type 
+- type
 - id
 - body
 
 ```
     var query = {index: 'someIndex', type: 'someType', id: 'someId', body: { doc: {partial: 'document'};
-     
+
     elasticsearch.update(query)
        .then(function(results){
            console.log(results)
@@ -131,12 +131,12 @@ Deletes a document for a given id
 
 Query requires:
 - index
-- type 
+- type
 - id
 
 ```
     var query = {index: 'someIndex', type: 'someType', id: 'someId'};
-     
+
     elasticsearch.remove(query)
        .then(function(results){
            console.log(results)
@@ -170,7 +170,7 @@ optional:
                        }
                    }
                };
-               
+
     elasticsearch.search(query)
        .then(function(results){
            console.log(results)
@@ -189,8 +189,8 @@ Query requires:
 
 ```
     var opConfig = {index: 'someIndex'}
-    var elasticsearch = require('elasticsearch_api')(client, logger, opConfig);
-     
+    var elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
+
     elasticsearch.version()
        .then(function(){
             // do stuff
@@ -204,8 +204,8 @@ Query requires:
 Adds a template
 
 Query requires:
-- template 
-- name 
+- template
+- name
 
 ```
     var client = getClient(context, context.sysconfig.teraslice.state, 'elasticsearch');
@@ -219,10 +219,10 @@ Query requires:
 Uses the client bulk functionality with exponential back-off retries
 
 Query requires:
-- data  (formatted to work with elasticsearch bulk queries) 
+- data  (formatted to work with elasticsearch bulk queries)
 
 ```
-     var elasticsearch = require('elasticsearch_api')(client, logger, opConfig);
+     var elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
      elasticsearch.bulkSend(data)
         .then(function(){
             //all done sending data
@@ -239,7 +239,7 @@ directly calls elasticsearch client.nodes.stats()
 calls client.indices.exists() with and retries if queue is overloaded
 
 Query requires:
-- index 
+- index
 
 ```
     var existQuery = {index: index_name};
@@ -250,7 +250,7 @@ Query requires:
 calls client.indices.create() with and retries if queue is overloaded
 
 Query requires:
-- index 
+- index
 - body (mapping for index)
 
 ```
@@ -262,7 +262,7 @@ Query requires:
 calls client.indices.refreash() with and retries if queue is overloaded
 
 Query requires:
-- index 
+- index
 
 ```
     var query = {index: index_name};
@@ -273,7 +273,7 @@ Query requires:
 calls client.indices.recovery() with and retries if queue is overloaded
 
 Query requires:
-- index 
+- index
 
 ```
     var existQuery = {index: index_name};
@@ -290,7 +290,7 @@ Query requires:
 
 Basic usage
 ```
-    var elasticsearch = require('elasticsearch_api')(client, logger, opConfig);
+    var elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
     var query = elasticsearch.buildQuery(opConfig, msg);
     elasticsearch.search(query)
 ```
@@ -301,7 +301,7 @@ Basic usage
 |:---------: | :--------: | :------: | :------:
 index | Index in which you will read from  | String| required
 fields | Determines what fields are sent back in the returning query. Setting it to true or false will determine if the _source field should be returned. Setting it to a list of fields will return results only of those fields and if set to a single string will only return that specific field| String, Array of Strings, Boolean| optional
-date_field_name | the field name of the document on which you will be performing a range query | String | required only if msg parameter has a start and end value, 
+date_field_name | the field name of the document on which you will be performing a range query | String | required only if msg parameter has a start and end value,
 query | Must be lucene query syntax. If set then this will add a lucene query to the final query| String | optional
 
 ##### Configuration for msg
@@ -321,17 +321,17 @@ Example of query generated:
        index: 'someIndex',
        query: 'bytes:>80000'
     };
-    
+
     var msg = {
-       count: 2000, 
-       start: "2016-11-28T11:18:07.018-07:00", 
-       end: "2016-11-28T11:18:07.031-07:00", 
+       count: 2000,
+       start: "2016-11-28T11:18:07.018-07:00",
+       end: "2016-11-28T11:18:07.031-07:00",
        key: "a76f*"
     };
 
     var query = elasticsearch.buildQuery(opConfig, msg);
     console.log(query);
- 
+
     var obj = {
       "index": "someIndex",
       "size": 2000,
@@ -357,7 +357,7 @@ Example of query generated:
                   _uid: "a76f*"
                 }
               }
-    
+
             ]
           }
         }
