@@ -1,6 +1,10 @@
 {
-    "spec_dir": "spec",
-    "spec_files": [
-        "setup.js"
-    ]
+  "spec_dir": "spec",
+  "spec_files": [
+    "cases/**/*.js"
+  ],
+  "helpers": [
+    "setup.js"
+  ],
+  "random": false
 }

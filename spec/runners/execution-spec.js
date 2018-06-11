@@ -20,12 +20,15 @@ describe('execution runner', () => {
     const testRegisterApi = {};
 
     const assetId = '1234';
-    const testDir = `${__dirname}/execution_test`;
+    const testDir = path.join(__dirname, 'execution_test');
     const assetPath = `${testDir}/${assetId}`;
     const processorPath = path.join(__dirname, '../../lib/processors/noop.js');
 
     const job = {
-        operations: [{ _op: 'elasticsearch_data_generator' }, { _op: 'noop' }]
+        operations: [
+            { _op: 'elasticsearch_data_generator' },
+            { _op: 'noop' }
+        ]
     };
 
     // TODO do something with assets_dir
@@ -51,14 +54,9 @@ describe('execution runner', () => {
         __test_job: JSON.stringify(job)
     };
 
-    beforeEach(() => {
-        fs.remove(testDir);
-        fs.ensureDirSync(testDir);
-    });
+    beforeEach(() => fs.remove(testDir).then(() => fs.ensureDir(testDir)));
 
-    afterEach(() => {
-        fs.remove(testDir);
-    });
+    afterEach(() => fs.remove(testDir));
 
     // we will async copy an op over to simulate the downloading of an asset
     function simulateAssetDownload(timeout, _data, _fileName) {
@@ -241,7 +239,7 @@ describe('execution runner', () => {
     });
 
     it('analyze returns a function what captures the time it took to complete a step, data in and data out', (done) => {
-        const analyze = executionCode(context).__test_context().analyze;
+        const { analyze } = executionCode(context).__test_context();
 
         const fn = function (data) {
             return new Promise(((resolve) => {
@@ -284,7 +282,7 @@ describe('execution runner', () => {
     });
 
     it('insertAnalyzers takes an array of functions and returns them wrapped with the analyze function', () => {
-        const insertAnalyzers = executionCode(context).insertAnalyzers;
+        const { insertAnalyzers } = executionCode(context);
         const fnArray = [() => {}, () => {}];
         const results = insertAnalyzers(fnArray);
 

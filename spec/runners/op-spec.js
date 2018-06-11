@@ -41,14 +41,9 @@ describe('op runner', () => {
     const assetPath = `${testDir}/${assetId}`;
     const processorPath = path.join(__dirname, '../../lib/processors/noop.js');
 
-    beforeAll(() => {
-        fs.ensureDirSync(testDir);
-        fs.copySync(processorPath, `${assetPath}/noop.js`);
-    });
+    beforeAll(() => fs.ensureDir(testDir).then(() => fs.copy(processorPath, `${assetPath}/noop.js`)));
 
-    afterAll(() => {
-        fs.remove(testDir);
-    });
+    afterAll(() => fs.remove(testDir));
 
     it('can instantiate', () => {
         let opRunner;
@@ -133,7 +128,7 @@ describe('op runner', () => {
 
     it('getClient will return a client', () => {
         opCode(context);
-        const getClient = testRegisterApi.op_runner.getClient;
+        const { getClient } = testRegisterApi.op_runner;
 
         expect(getClient({}, 'elasticsearch')).toEqual({ type: 'elasticsearch', endpoint: 'default', cached: true });
         expect(getClient({ connection: 'someConnection' }, 'kafka')).toEqual({ type: 'kafka', endpoint: 'someConnection', cached: true });
@@ -146,7 +141,7 @@ describe('op runner', () => {
         };
         context.apis.foundation.getConnection = makeError;
         opCode(context);
-        const getClient = testRegisterApi.op_runner.getClient;
+        const { getClient } = testRegisterApi.op_runner;
         const errStr = 'No configuration for endpoint default was found in the terafoundation connectors';
         eventEmitter.on('client:initialization:error', (errMsg) => {
             expect(errMsg.error.includes(errStr)).toEqual(true);

@@ -4,24 +4,34 @@ node_js:
 - '8'
 services:
 - docker
-env:
-- DOCKER_COMPOSE_VERSION=1.21.1
 before_install:
-- sudo rm /usr/local/bin/docker-compose
-- curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname
-  -s`-`uname -m` > docker-compose
-- chmod +x docker-compose
-- sudo mv docker-compose /usr/local/bin
+- yarn --cwd ./integration-tests install
 script:
-- time make test
-- time make integration-tests
-- make lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
+- yarn test
+- yarn integration-tests
+after_success:
+- yarn lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
+- yarn report-coverage
+before_deploy:
+  - git config --local user.name "terascope-ci"
+  - git config --local user.email "ci@terascope.io"
 deploy:
-  provider: npm
-  email: peter@terascope.io
-  api_key:
-    secure: IbA84R9gLLdyCaMhkvqkhgeDxcIX85LLQZbY3WbWxrw7b7zrD64+NQSkV0vztYKldlGIPqW2FmuL92FYGpb2O3WLF/jVi/cttKtiUhFZ7OXF7di7882AW+GJ6ZvKaZ/Vsb3VY5D+Rdkad1xOpZsQdDWjCOFMMYkzpsL5KRin1gpV4Os5GCZ11c40lujABVktBt+jLyxXNqpI9Reh9j3+elq+jnuZnAApVAghNQUkslFgWH7C4m2dweMieytC3zMJJYX+xnAFrA6pbZIkhEIz1pgjjPuErhZGXtEBUQ0rH9fb+N6Ooq4l5LHuvLDh22gT7gTGvyBQrNpfFWEcNP7O8I3ophHG3t/6dXfudYrEJejtxYjSXnQweXLExkEZdaiCpEOA1SlZAYghPFYg1HSuEuXguiGf/vi9UC4rPuVbLm9gQO94EMK/BHFEpFDRqiHE5Mva4rzuYXUeuMtln0dkMancxh8b0alC0XaNeG9VbWAlUIvlAErczBvqD82GDo/vF06oWOzLS5eTH0dDVvgRint0fLNgofAL7WX2KO2wohS/S9tNpIiBr+L7FZLoNWIi0jhENNCse22VVOUlmPI+2AYa/p0X7TCOwQX7Ua2MRajzjxCyNsKv9e5VpRuY4Jio102aIymXucAIecx6yPGIbUW6ioSCVJ2SCt2+voHW89E=
-  on:
-    branch: master
-    tags: true
-    repo: terascope/teraslice
+  - provider: releases
+    name: "$TRAVIS_TAG $TRAVIS_COMMIT_MESSAGE"
+    prerelease: true
+    api_key:
+      secure: "D0n8JmBIneMfqdRxprBaRWFfdek2LhgVWknPawgciHwofKgokyIgQnS/0v5WuaCIDpqSLdueCXunbDLK1DmrGHrovyKzmo0RharJBQALt8CJO+ScXaIvGeVk7WXaNyQxijltVIZjuHvjvzdxyKOiiKivr45GXo9dyar5Kj5nJENK3lvv2cSkT+pik6ckiWO+9seNOkA+QAz677VZLCZGPIOfRaLNI2yF8QEltX8XDOuZmdOhbbHUGFtgcUEMrz3ph6BATKfAPO/tTj+b7To43v10p5vf8u3EM0SIiS5G7NArJgomatGIYex9RPvaX2G2wp99r3qs5Y0zQapeXdX9h6lVzu0N82oO0XHVNCL1OE60ShYLcp+HVvqJsz1u6kGBU3EiPwIJtfTyio8+BAHhcQd1zaNOhadNME5IVpOcUORfmWnLGWo9lTV/b+lYcYUhra6nejcqBB+8eFpOiFYiRrIWLhnWmD7A2dgkuaiIo+/Lo8VaLN7bdvvHGx8cyaces5OmIcpcbgpjMKfU8Rgga+I2FEVXnBkjcU/5HeYpbPWFCUBcOyWo14bNr08wPsx/I+MT8yhYDg4plBhvkSS2ROGGSM2T2anfD6uFRGE+8Y2LBLBcYzDfUGz56JXpqgP0rLM/QeRtZ3C0a5BUrAaKM6/ZaUUo9X/LCZIEeexiD9E="
+    on:
+      branch: master
+      tags: true
+      condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+
+      repo: terascope/teraslice
+  - provider: npm
+    email: peter@terascope.io
+    api_key:
+      secure: IbA84R9gLLdyCaMhkvqkhgeDxcIX85LLQZbY3WbWxrw7b7zrD64+NQSkV0vztYKldlGIPqW2FmuL92FYGpb2O3WLF/jVi/cttKtiUhFZ7OXF7di7882AW+GJ6ZvKaZ/Vsb3VY5D+Rdkad1xOpZsQdDWjCOFMMYkzpsL5KRin1gpV4Os5GCZ11c40lujABVktBt+jLyxXNqpI9Reh9j3+elq+jnuZnAApVAghNQUkslFgWH7C4m2dweMieytC3zMJJYX+xnAFrA6pbZIkhEIz1pgjjPuErhZGXtEBUQ0rH9fb+N6Ooq4l5LHuvLDh22gT7gTGvyBQrNpfFWEcNP7O8I3ophHG3t/6dXfudYrEJejtxYjSXnQweXLExkEZdaiCpEOA1SlZAYghPFYg1HSuEuXguiGf/vi9UC4rPuVbLm9gQO94EMK/BHFEpFDRqiHE5Mva4rzuYXUeuMtln0dkMancxh8b0alC0XaNeG9VbWAlUIvlAErczBvqD82GDo/vF06oWOzLS5eTH0dDVvgRint0fLNgofAL7WX2KO2wohS/S9tNpIiBr+L7FZLoNWIi0jhENNCse22VVOUlmPI+2AYa/p0X7TCOwQX7Ua2MRajzjxCyNsKv9e5VpRuY4Jio102aIymXucAIecx6yPGIbUW6ioSCVJ2SCt2+voHW89E=
+    on:
+      branch: master
+      tags: true
+      condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+
+      repo: terascope/teraslice
