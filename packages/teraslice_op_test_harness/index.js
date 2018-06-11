@@ -2,7 +2,8 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
-const EventEmitter = require('events').EventEmitter;
+const { EventEmitter } = require('events');
+const debug = require('debug')('teraslice-op-test-harness');
 
 // load data
 const sampleDataArrayLike = require('./data/sampleDataArrayLike.json');
@@ -17,12 +18,24 @@ const simpleData = [
 
 const fakeLogger = {
     logger: {
-        fatal() {},
-        error() {},
-        warn() {},
-        info() {},
-        debug() {},
-        trace() {},
+        fatal(...args) {
+            debug('fatal:', ...args);
+        },
+        error(...args) {
+            debug('error:', ...args);
+        },
+        warn(...args) {
+            debug('warn:', ...args);
+        },
+        info(...args) {
+            debug('info:', ...args);
+        },
+        debug(...args) {
+            debug('debug:', ...args);
+        },
+        trace(...args) {
+            debug('trace:', ...args);
+        },
     }
 };
 
@@ -86,32 +99,28 @@ module.exports = (processor) => {
     const validator = require('teraslice/lib/config/validators/config')();
 
     function run(data, extraOpConfig, extraContext) {
-        return process(getProcessor(extraOpConfig, extraContext), data);
+        return processFn(getProcessor(extraOpConfig, extraContext), data);
     }
 
     function runAsync(data, extraOpConfig, extraContext) {
         return Promise.resolve(getProcessor(extraOpConfig, extraContext))
-            .then(proc => process(proc, data));
+            .then(proc => processFn(proc, data));
     }
 
     function runSlices(slices, extraOpConfig, extraContext) {
         const newProcessor = getProcessor(extraOpConfig, extraContext);
-        const results = [];
-        return new Promise((resolve) => {
-            Promise.resolve(slices)
-                .mapSeries(slice => results.push(process(newProcessor, slice)))
-                .then(() => {
-                    // Not yet clear if this is general enough. Trying it out to
-                    // help keep callers simple.
-                    emulateShutdown();
-                })
-                .then(() => {
-                    // Run one last time with empty slice to give processor's
-                    // shutdown logic a chance to flush its state.
-                    results.push(process(newProcessor, []));
-                    resolve(results);
+        return Promise.resolve(slices)
+            .mapSeries(slice => processFn(newProcessor, slice))
+            .then((results) => {
+                // Not yet clear if this is general enough. Trying it out to
+                // help keep callers simple.
+                emulateShutdown();
+
+                return Promise.resolve().then(() => processFn(newProcessor, [])).then((result) => {
+                    results.push(result);
+                    return results;
                 });
-        });
+            });
     }
 
     function getProcessor(opConfig, extraContext) {
@@ -123,12 +132,13 @@ module.exports = (processor) => {
         const jobConfig = validator.validateConfig(jobSchema, jobSpec(opConfig));
 
         return processor.newProcessor(
-            _.merge({}, context, extraContext),
+            _.assign({}, context, extraContext),
             validator.validateConfig(processor.schema(), opConfig),
-            jobConfig);
+            jobConfig
+        );
     }
 
-    function process(myProcessor, data) {
+    function processFn(myProcessor, data) {
         return myProcessor(data, fakeLogger.logger);
     }
 
@@ -183,6 +193,6 @@ module.exports = (processor) => {
         runSlices,
         emulateShutdown,
         getProcessor,
-        process
+        process: processFn
     };
 };

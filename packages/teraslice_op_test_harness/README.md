@@ -13,7 +13,7 @@ implemented in `../index.js`, adjust paths accordingly.
 
 ```javascript
 var processor = require('../index');
-var harness = require('teraslice_op_test_harness')(processor);
+var harness = require('@terascope/teraslice-op-test-harness')(processor);
 ```
 
 Now, you can access functionality using the `harness` object.
@@ -28,7 +28,7 @@ below. The second argument passed to `run()`, `opConfig` is optional.
 
 ```javascript
 var processor = require('../index');
-var harness = require('teraslice_op_test_harness')(processor);
+var harness = require('@terascope/teraslice-op-test-harness')(processor);
 
 var data = [];
 var opConfig = {option: 3}
@@ -45,7 +45,7 @@ doesn't change the data in any way:
 
 ```javascript
 var processor = require('../index');
-var harness = require('teraslice_op_test_harness')(processor);
+var harness = require('@terascope/teraslice-op-test-harness')(processor);
 
 describe('With data in is []', function() {
     it('data out is []', function() {
@@ -63,7 +63,7 @@ property on the operator:
 
 ```javascript
 var processor = require('../index');
-var harness = require('teraslice_op_test_harness')(processor);
+var harness = require('@terascope/teraslice-op-test-harness')(processor);
 
 describe('The data doubles when', function() {
     var opConfig = {
@@ -95,7 +95,7 @@ final empty slice to give the processor a chance to flush its state.
 
 ```javascript
 var processor = require('../sum');
-var harness = require('teraslice_op_test_harness')(processor);
+var harness = require('@terascope/teraslice-op-test-harness')(processor);
 
 describe('Add running total', function() {
     var opConfig = { src_field: 'x', dst_field: 'y' };
@@ -116,7 +116,7 @@ describe('Add running total', function() {
 
 ```javascript
 var processor = require('../index');
-var harness = require('teraslice_op_test_harness')(processor);
+var harness = require('@terascope/teraslice-op-test-harness')(processor);
 
 describe('The data doubles when', function() {
     var opConfig = {
@@ -143,7 +143,7 @@ promise.
 
 ```javascript
 var processor = require('../index');
-var harness = require('teraslice_op_test_harness')(processor);
+var harness = require('@terascope/teraslice-op-test-harness')(processor);
 
 describe('The data doubles when', function() {
     var opConfig = {
@@ -179,7 +179,7 @@ as shown below.
 
 ```javascript
 var processor = require('../index');
-var harness = require('teraslice_op_test_harness')(processor);
+var harness = require('@terascope/teraslice-op-test-harness')(processor);
 
 describe('The data doubles when', function() {
     it('using simple data and percentage is 100', function() {
@@ -205,7 +205,7 @@ tests you've implemented yourself because they come from somewhere else.
 'use strict';
 
 var processor = require('../index');
-var harness = require('teraslice_op_test_harness')(processor);
+var harness = require('@terascope/teraslice-op-test-harness')(processor);
 
 // Run the tests provided by the harness
 harness.runProcessorSpecs(processor);

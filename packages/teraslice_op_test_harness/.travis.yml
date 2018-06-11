@@ -1,3 +1,16 @@
 language: node_js
 node_js:
-  - "4"
+- '8'
+after_success:
+- yarn lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
+- yarn report-coverage
+deploy:
+  provider: npm
+  email: peter@terascope.io
+  api_key:
+      secure: "HdRY5sHLDgipP16i0X1ev2aUyHw+IWUQxbVBrmdab8lxj97noB7ZR4gOe2w8zJi7KBpLDNN0FlI8MvHY5W1CUyPXwo6PLekvDgCGVtfuTAG4powMj4DxpGXLXryY7eSZePTuTmqNn8Q0aQ0vwRDiaYB3QF1Bv6nxiPkAWZKKTXfcJSzeGzOMtTadsAiADVzvYGRIzDtOJo5hIwfFJ6ycMP9aRCAw08DweTI6wcJex4PCJriPmAfi2E/dLu+/zobEHukXBoT8UO8KDhooLKhqcX4yNCVV3askNw09ukn7/OoGlKi/MnX7WSW6FFuCM0ZIyAcgsRLdDPRBX2d3DMQgMdJsCfsxQUyOmrJwi36ck0r3DXzLYWVOWim8Mzj8KBZmkfKKIYyievKY4BmFp1OtOUYwCBJ+koUTuI3wRaK/nY81GTyI2Owqo4IAgle9VE2ljffFXxGdF87YistazalQMYPl1F80PTNf8KeB2rS6+NdlGgBV+i+KRA6vIcIGugaQKci3m4l4/OmpRYCdeL8AmAtcIlzABP7lBtWM0AMiTl5KV2Vvha749Q4V+MWp5RSoYPKCP8RZ8Iu30Vfxtg+uEexTYYz6b4T5oIfCDydCd8UitQIHk2OdCtZd324PVJIlHq4uYyP520ybXQXjZX5DA1qzAMH/YLbTnkx6I+iZTmE="
+  on:
+    branch: master
+    tags: true
+    condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+
+    repo: terascope/teraslice_op_test_harness

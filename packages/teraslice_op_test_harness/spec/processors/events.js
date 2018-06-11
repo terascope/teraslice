@@ -1,21 +1,25 @@
 'use strict';
 
-// Call cb(event) for each worker event.
+const Promise = require('bluebird');
+// Count the occurances of each event by name
 
 function newProcessor(context, opConfig) {
     const events = context.foundation.getEventEmitter();
-    events.on('worker:shutdown', () => {
-        opConfig.cb('worker:shutdown');
+    let count = 0;
+    events.on(opConfig.eventName, () => {
+        count += 1;
     });
-    return function process(data) {
-        return data;
+    return function process() {
+        return Promise.delay(0).then(() => count);
     };
 }
 
 function schema() {
     return {
-        cb: {
-            doc: 'Callback function for events.'
+        eventName: {
+            doc: 'Event name to aggregate for count.',
+            format: String,
+            default: null
         }
     };
 }
