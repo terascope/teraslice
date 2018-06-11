@@ -1,14 +1,16 @@
 'use strict';
 
-/* eslint-disable no-console */
+/* eslint-disable no-signale */
 
 const _ = require('lodash');
+const signale = require('signale');
 const path = require('path');
 const Promise = require('bluebird');
 const execFile = Promise.promisify(require('child_process').execFile);
 const { forNodes } = require('./wait');
 const misc = require('./misc');
 
+require('jasmine-expect');
 // We need long timeouts for some of these jobs
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 6 * 60 * 1000;
 
@@ -24,51 +26,49 @@ if (process.stdout.isTTY) {
 }
 
 function generatingDockerFile() {
-    console.log('- Generating Dockerfile...');
+    signale.pending('Generating docker-compose file');
     const fileName = path.join(__dirname, '..', 'docker-compose.sh');
-    return execFile(fileName, { cwd: path.join(__dirname, '..') });
+    return execFile(fileName, { cwd: path.join(__dirname, '..') }).then(() => {
+        signale.success('Generated docker-compose file');
+    });
 }
 
 function dockerUp() {
-    console.time(' [benchmark] docker-compose up');
-    console.log('- Bringing Docker environment up...');
+    signale.pending('Bringing Docker environment up...');
 
     const options = {
         build: '',
         timeout: 1,
     };
     return misc.compose.up(options).then((result) => {
-        console.timeEnd(' [benchmark] docker-compose up');
+        signale.success('Docker environment is good to go');
         return result;
     });
 }
 
 // ensure docker-compose stack is down before starting it
 function dockerDown() {
-    console.time(' [benchmark] docker-compose down');
-    console.log('- Ensuring docker environment is in a clean slate...');
+    signale.pending('Ensuring docker environment is in a clean slate...');
 
     return misc.compose.down({
         timeout: 1
     }).then(() => {
-        console.timeEnd(' [benchmark] docker-compose down');
+        signale.success('Docker environment is clean');
     }).catch(() => {
-        console.timeEnd(' [benchmark] docker-compose down');
+        signale.success('Docker environment should be clean');
     });
 }
 
 function waitForTerasliceNodes() {
-    console.time(' [benchmark] waiting for teraslice nodes');
-    console.log('- Waiting for Teraslice...');
+    signale.pending('Waiting for Teraslice...');
 
     return forNodes(4).then(() => {
-        console.timeEnd(' [benchmark] waiting for teraslice nodes');
+        signale.success('Teraslice is ready');
     });
 }
 
 function generateTestData() {
-    console.time(' [benchmark] generate test data');
-    console.log('- Generating example data');
+    signale.pending('Generating example data...');
 
     function generate(count, hex) {
         let indexName = `example-logs-${count}`;
@@ -124,25 +124,24 @@ function generateTestData() {
         .then(_.flatten)
         .map(job => job.waitForStatus('completed'))
         .then(() => {
-            console.timeEnd(' [benchmark] generate test data');
+            signale.success('Data generation is done');
         })
         .catch(err => Promise.reject(new Error('Data generation failed: ', err)));
 }
 
 beforeAll((done) => {
-    console.log('- Global setup complete. Starting tests...');
-    console.time(' [benchmark] global setup');
+    signale.time();
     generatingDockerFile()
         .then(() => dockerDown())
         .then(() => dockerUp())
         .then(() => waitForTerasliceNodes())
         .then(() => generateTestData())
         .then(() => {
-            console.timeEnd(' [benchmark] global setup');
+            signale.timeEnd();
             done();
         })
         .catch((err) => {
-            console.error('Setup failed: ', err, '- `docker-compose logs` may provide clues');
+            signale.error(new Error('Setup failed: ', err, '- `docker-compose logs` may provide clues'));
             return misc.compose.kill().finally(() => {
                 process.exit(1);
             });

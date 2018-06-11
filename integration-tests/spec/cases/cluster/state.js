@@ -25,32 +25,46 @@ describe('cluster state', () => {
         return _.flatten(_.map(state, node => findWorkers(node.active, type, jobId))).length;
     }
 
+    function verifyClusterMaster(state) {
+        // verify that the cluster master worker exists within the state
+        const nodes = _.filter(state, (node) => {
+            const cms = findWorkers(node.active, 'cluster_master');
+            return cms.length > 0;
+        });
+
+        expect(nodes).toBeArrayOfSize(1);
+
+        // verify that the cluster master has the cluster master worker
+        const activeWorkers = nodes[0].active;
+        expect(activeWorkers.length).toBeGreaterThanOrEqualTo(1);
+        const cmWorkers = findWorkers(activeWorkers, 'cluster_master');
+        expect(cmWorkers).toBeArrayOfSize(1);
+        expect(cmWorkers[0].assignment).toEqual('cluster_master');
+
+        // verify that the cluster master has the assets service worker
+        const amWorkers = findWorkers(activeWorkers, 'assets_service');
+        expect(amWorkers).toBeArrayOfSize(1);
+        expect(amWorkers[0].assignment).toEqual('assets_service');
+    }
+
     function verifyClusterState(state, nodeCount) {
-        // 2 nodes by default
-        const nodes = _.keys(state);
-        expect(nodes.length).toBe(nodeCount);
-        nodes.forEach((node) => {
-            expect(state[node].total).toBe(5);
-            expect(state[node].node_id).toBeDefined();
-            expect(state[node].hostname).toBeDefined();
+        expect(_.keys(state)).toBeArrayOfSize(nodeCount);
+
+        // verify each node
+        _.forEach(state, (node) => {
+            expect(node.total).toBe(5);
+            expect(node.node_id).toBeDefined();
+            expect(node.hostname).toBeDefined();
 
             // Nodes should have 1-5 workers available.
-            expect(state[node].available).toBeLessThan(6);
-            expect(state[node].available).toBeGreaterThan(0);
+            expect(node.available).toBeWithinRange(0, 6);
 
-            // TODO: Make this check more stable
-            // Should be two workers active if only 3 available
-            // if (state[node].available === 3) {
-            //     expect(state[node].active.length).toBe(2);
-            //
-            //     const workers = findWorkers(state[node].active, 'cluster_master');
-            //
-            //     expect(workers.length).toBe(1);
-            //     expect(workers[0].assignment).toBe('cluster_master');
-            // } else {
-            //     expect(state[node].active.length).toBe(0);
-            // }
+            const expectActiveLength = node.total - node.available;
+            expect(node.active).toBeArrayOfSize(expectActiveLength);
         });
+
+        // verify cluster master
+        verifyClusterMaster(state);
     }
 
     it('should match default configuration', (done) => {
@@ -131,8 +145,7 @@ describe('cluster state', () => {
                             expect(state[node].total).toBe(5);
 
                             // / Nodes should have 1-5 workers available.
-                            expect(state[node].available).toBeLessThan(6);
-                            expect(state[node].available).toBeGreaterThan(0);
+                            expect(state[node].available).toBeWithinRange(0, 6);
 
                             // The node with more than one worker should have the actual worker
                             // and there should only be one.
@@ -178,8 +191,7 @@ describe('cluster state', () => {
                             expect(state[node].total).toBe(5);
 
                             // Nodes should have 1-5 workers available.
-                            expect(state[node].available).toBeLessThan(6);
-                            expect(state[node].available).toBeGreaterThan(0);
+                            expect(state[node].available).toBeWithinRange(0, 6);
 
                             // Both nodes should have at least one worker.
                             expect(findWorkers(state[node].active, 'worker', jobId).length).toBeGreaterThan(0);

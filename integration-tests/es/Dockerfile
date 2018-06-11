@@ -1,6 +1,6 @@
 FROM docker.elastic.co/elasticsearch/elasticsearch:5.5.3
 
-MAINTAINER Terascope, LLC
+MAINTAINER Terascope, LLC <support@terascope.io>
 
 USER root
 
