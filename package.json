@@ -1,26 +1,27 @@
 {
   "name": "teraslice",
-  "version": "0.36.3",
+  "version": "0.36.4",
   "description": "Slice and dice your Elasticsearch data",
   "bin": "service.js",
   "main": "service.js",
   "scripts": {
     "start": "node service.js",
-    "lint": "eslint lib/**/*.js",
-    "lint:fix": "eslint --fix lib/**/*.js",
+    "lint": "eslint *.js lib/**/*.js",
+    "lint:fix": "eslint --fix *.js lib/**/*.js",
     "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
     "integration-tests": "yarn --cwd ./integration-tests test",
     "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
   },
   "files": [
-      "*.js",
-      "lib/**/*",
-      "examples/**/*"
+    "*.js",
+    "lib/**/*",
+    "examples/**/*"
   ],
   "nyc": {
     "cache": true,
     "all": true,
     "include": [
+      "*.js",
       "lib/**/*.js"
     ],
     "reporter": [
@@ -40,7 +41,8 @@
   },
   "homepage": "https://github.com/terascope/teraslice#readme",
   "dependencies": {
-    "@terascope/elasticsearch-api": "^1.0.1-beta",
+    "@terascope/elasticsearch-api": "^1.0.1",
+    "@terascope/error-parser": "^1.0.0",
     "@terascope/queue": "^1.1.3",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
@@ -48,7 +50,6 @@
     "datemath-parser": "^1.0.6",
     "decompress": "^4.2.0",
     "easy-table": "^1.1.1",
-    "error_parser": "terascope/error_parser",
     "express": "^4.16.3",
     "fs-extra": "^6.0.1",
     "lodash": "^4.17.5",
@@ -63,6 +64,7 @@
     "yargs": "^11.0.0"
   },
   "devDependencies": {
+    "@terascope/teraslice-op-test-harness": "^1.0.0",
     "codecov": "^3.0.2",
     "eslint": "^4.19.0",
     "eslint-config-airbnb": "^16.1.0",
@@ -72,7 +74,6 @@
     "jasmine": "^3.1.0",
     "jasmine-spec-reporter": "^4.2.1",
     "json-schema-faker": "^0.5.0-rc13",
-    "nyc": "^12.0.2",
-    "teraslice_op_test_harness": "terascope/teraslice_op_test_harness"
+    "nyc": "^12.0.2"
   }
 }

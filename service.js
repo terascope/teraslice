@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 'use strict';
 
 const worker = require('./lib/cluster/worker');

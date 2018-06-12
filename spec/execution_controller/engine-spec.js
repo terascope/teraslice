@@ -271,7 +271,7 @@ describe('execution engine', () => {
         messagingEvents['worker:ready']({ payload: someWorker });
         expect(workerQueue.size()).toEqual(1);
 
-        messagingEvents['network:disconnect'](someWorker.id);
+        messagingEvents['network:disconnect']('ping timeout', someWorker.id);
         expect(workerQueue.size()).toEqual(0);
     });
 

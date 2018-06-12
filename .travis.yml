@@ -17,7 +17,7 @@ before_deploy:
   - git config --local user.email "ci@terascope.io"
 deploy:
   - provider: releases
-    name: "$TRAVIS_TAG $TRAVIS_COMMIT_MESSAGE"
+    name: "$TRAVIS_TAG"
     prerelease: true
     api_key:
       secure: "D0n8JmBIneMfqdRxprBaRWFfdek2LhgVWknPawgciHwofKgokyIgQnS/0v5WuaCIDpqSLdueCXunbDLK1DmrGHrovyKzmo0RharJBQALt8CJO+ScXaIvGeVk7WXaNyQxijltVIZjuHvjvzdxyKOiiKivr45GXo9dyar5Kj5nJENK3lvv2cSkT+pik6ckiWO+9seNOkA+QAz677VZLCZGPIOfRaLNI2yF8QEltX8XDOuZmdOhbbHUGFtgcUEMrz3ph6BATKfAPO/tTj+b7To43v10p5vf8u3EM0SIiS5G7NArJgomatGIYex9RPvaX2G2wp99r3qs5Y0zQapeXdX9h6lVzu0N82oO0XHVNCL1OE60ShYLcp+HVvqJsz1u6kGBU3EiPwIJtfTyio8+BAHhcQd1zaNOhadNME5IVpOcUORfmWnLGWo9lTV/b+lYcYUhra6nejcqBB+8eFpOiFYiRrIWLhnWmD7A2dgkuaiIo+/Lo8VaLN7bdvvHGx8cyaces5OmIcpcbgpjMKfU8Rgga+I2FEVXnBkjcU/5HeYpbPWFCUBcOyWo14bNr08wPsx/I+MT8yhYDg4plBhvkSS2ROGGSM2T2anfD6uFRGE+8Y2LBLBcYzDfUGz56JXpqgP0rLM/QeRtZ3C0a5BUrAaKM6/ZaUUo9X/LCZIEeexiD9E="

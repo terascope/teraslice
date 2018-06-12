@@ -82,18 +82,33 @@
     lodash "^4.17.5"
     to-fast-properties "^2.0.0"
 
-"@terascope/elasticsearch-api@^1.0.1-beta":
-  version "1.0.1-beta"
-  resolved "https://registry.yarnpkg.com/@terascope/elasticsearch-api/-/elasticsearch-api-1.0.1-beta.tgz#ed6b3db2eb88da9e62011232b236d55ebd096421"
+"@terascope/elasticsearch-api@^1.0.1", "@terascope/elasticsearch-api@^1.0.1-beta":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@terascope/elasticsearch-api/-/elasticsearch-api-1.0.1.tgz#b8696f122338d6a522782c2acf0914271d7ba9e0"
   dependencies:
     bluebird "^3.5.0"
     error_parser terascope/error_parser
     lodash "^4.17.4"
     uuid "^3.0.1"
 
+"@terascope/error-parser@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@terascope/error-parser/-/error-parser-1.0.0.tgz#0853b6d10845babda7a7ed596632f866d2fde86d"
+  dependencies:
+    lodash "^4.17.4"
+
 "@terascope/queue@^1.1.3":
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/@terascope/queue/-/queue-1.1.3.tgz#a58419716d43d12ad09491cabb6fab306cc64931"
+
+"@terascope/teraslice-op-test-harness@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@terascope/teraslice-op-test-harness/-/teraslice-op-test-harness-1.0.0.tgz#5d6dbbd0bfd5871f5b64e1e7cba97d2109b7c870"
+  dependencies:
+    bluebird "^3.5.1"
+    debug "^3.1.0"
+    lodash "^4.17.4"
+    teraslice terascope/teraslice
 
 JSONSelect@0.4.0:
   version "0.4.0"
@@ -824,13 +839,6 @@ dashdash@^1.12.0:
   dependencies:
     assert-plus "^1.0.0"
 
-datemath-parser@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/datemath-parser/-/datemath-parser-1.0.5.tgz#6a67d9b42d03e4cde933ce86513011ca8d3d4101"
-  dependencies:
-    lodash "^3.0.0"
-    moment "^2.9.0"
-
 datemath-parser@^1.0.6:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/datemath-parser/-/datemath-parser-1.0.6.tgz#d527dabf8541b3da1b661d81c16c328f3b9a8dc5"
@@ -1068,15 +1076,6 @@ elasticsearch@^14.2.1:
     lodash.isempty "^4.4.0"
     lodash.trimend "^4.5.1"
 
-elasticsearch_api@terascope/elasticsearch_api:
-  version "1.0.0"
-  resolved "https://codeload.github.com/terascope/elasticsearch_api/tar.gz/3dcc0e0215741632e8ad41c98311a7c1f8b48cbb"
-  dependencies:
-    bluebird "^3.5.0"
-    error_parser terascope/error_parser
-    lodash "^4.17.4"
-    uuid "^3.0.1"
-
 emoji-regex@^6.1.0:
   version "6.5.1"
   resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-6.5.1.tgz#9baea929b155565c11ea41c6626eaa65cef992c2"
@@ -1142,7 +1141,7 @@ error-ex@^1.2.0:
 
 error_parser@terascope/error_parser:
   version "1.0.0"
-  resolved "https://codeload.github.com/terascope/error_parser/tar.gz/8ae70454aa00548af250a2a3abfc294910681121"
+  resolved "https://codeload.github.com/terascope/error_parser/tar.gz/f721bba4c8163ec3ef2272cd1cb2c86786762baa"
   dependencies:
     lodash "^4.17.4"
 
@@ -1407,10 +1406,6 @@ execa@^0.7.0:
     signal-exit "^3.0.0"
     strip-eof "^1.0.0"
 
-exit@^0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/exit/-/exit-0.1.2.tgz#0632638f8d877cc82107d30a0fff1a17cba1cd0c"
-
 expand-brackets@^2.1.4:
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/expand-brackets/-/expand-brackets-2.1.4.tgz#b77735e315ce30f6b6eff0f83b04151a22449622"
@@ -1666,14 +1661,6 @@ from@~0:
 fs-constants@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/fs-constants/-/fs-constants-1.0.0.tgz#6be0de9be998ce16af8afc24497b9ee9b7ccd9ad"
-
-fs-extra@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-5.0.0.tgz#414d0110cdd06705734d055652c5411260c31abd"
-  dependencies:
-    graceful-fs "^4.1.2"
-    jsonfile "^4.0.0"
-    universalify "^0.1.0"
 
 fs-extra@^6.0.1:
   version "6.0.1"
@@ -2200,10 +2187,6 @@ istanbul-reports@^1.4.1:
   dependencies:
     handlebars "^4.0.11"
 
-jasmine-core@~2.99.0:
-  version "2.99.1"
-  resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-2.99.1.tgz#e6400df1e6b56e130b61c4bcd093daa7f6e8ca15"
-
 jasmine-core@~3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-3.1.0.tgz#a4785e135d5df65024dfc9224953df585bd2766c"
@@ -2213,14 +2196,6 @@ jasmine-spec-reporter@^4.2.1:
   resolved "https://registry.yarnpkg.com/jasmine-spec-reporter/-/jasmine-spec-reporter-4.2.1.tgz#1d632aec0341670ad324f92ba84b4b32b35e9e22"
   dependencies:
     colors "1.1.2"
-
-jasmine@^2.5.3:
-  version "2.99.0"
-  resolved "https://registry.yarnpkg.com/jasmine/-/jasmine-2.99.0.tgz#8ca72d102e639b867c6489856e0e18a9c7aa42b7"
-  dependencies:
-    exit "^0.1.2"
-    glob "^7.0.6"
-    jasmine-core "~2.99.0"
 
 jasmine@^3.1.0:
   version "3.1.0"
@@ -2434,10 +2409,6 @@ lodash@2.4.2:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-2.4.2.tgz#fadd834b9683073da179b3eae6d9c0d15053f73e"
 
-lodash@^3.0.0:
-  version "3.10.1"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-3.10.1.tgz#5bf45e8e49ba4189e17d482789dfd15bd140b7b6"
-
 lodash@^4.12.0, lodash@^4.14.0, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.3.0, lodash@~4.17.5:
   version "4.17.10"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.10.tgz#1b7793cf7259ea38fb3661d4d38b3260af8ae4e7"
@@ -2598,7 +2569,7 @@ moment@2.19.3:
   version "2.19.3"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.19.3.tgz#bdb99d270d6d7fda78cc0fbace855e27fe7da69f"
 
-moment@2.22.2, moment@^2.10.6, moment@^2.11.1, moment@^2.15.2, moment@^2.21.0, moment@^2.22.2, moment@^2.9.0:
+moment@2.22.2, moment@^2.10.6, moment@^2.11.1, moment@^2.15.2, moment@^2.21.0, moment@^2.22.2:
   version "2.22.2"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.22.2.tgz#3c257f9839fc0e93ff53149632239eb90783ff66"
 
@@ -3067,12 +3038,6 @@ qs@6.5.1:
 qs@6.5.2, qs@~6.5.1:
   version "6.5.2"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
-
-queue@terascope/queue:
-  version "1.1.0"
-  resolved "https://codeload.github.com/terascope/queue/tar.gz/56d11d4cd9facd28ad1102fc71ce562679c32fd5"
-  dependencies:
-    jasmine "^2.5.3"
 
 randexp@^0.4.5, randexp@^0.4.9:
   version "0.4.9"
@@ -3773,61 +3738,31 @@ terafoundation@^0.2.1:
     redis "^2.8.0"
     yargs "^11.0.0"
 
-terafoundation@terascope/terafoundation:
-  version "0.2.0"
-  resolved "https://codeload.github.com/terascope/terafoundation/tar.gz/9bf91bf7ea72ecd6a1e28d70f70eb5bef7d22107"
+"teraslice@github:terascope/teraslice":
+  version "0.36.3"
+  resolved "https://codeload.github.com/terascope/teraslice/tar.gz/ccc08bb009042c9715bb4f091964a570465a133b"
   dependencies:
-    agentkeepalive "^3.4.1"
-    baucis "1.6.5"
-    bluebird "^3.5.1"
-    bunyan "^1.8.12"
-    bunyan-elasticsearch "1.0.1"
-    convict "^4.1.0"
-    elasticsearch "^14.2.1"
-    express "^4.16.3"
-    js-yaml "^3.11.0"
-    lodash "~4.17.5"
-    moment "^2.21.0"
-    mongoose "~4.13.12"
-    node-statsd "0.1.1"
-    node-webhdfs "^0.2.1"
-    redis "^2.8.0"
-    yargs "^11.0.0"
-
-teraslice@terascope/teraslice:
-  version "0.36.0"
-  resolved "https://codeload.github.com/terascope/teraslice/tar.gz/9cf816ef9b9795baa1f30f9009458046c2f7489e"
-  dependencies:
+    "@terascope/elasticsearch-api" "^1.0.1-beta"
+    "@terascope/queue" "^1.1.3"
     bluebird "^3.5.1"
     body-parser "^1.18.2"
-    convict "^4.1.0"
-    datemath-parser "^1.0.5"
+    convict "^4.3.0"
+    datemath-parser "^1.0.6"
     decompress "^4.2.0"
     easy-table "^1.1.1"
-    elasticsearch_api terascope/elasticsearch_api
     error_parser terascope/error_parser
     express "^4.16.3"
-    fs-extra "^5.0.0"
-    jasmine "^3.1.0"
+    fs-extra "^6.0.1"
     lodash "^4.17.5"
     mocker-data-generator "^2.6.1"
     moment "^2.21.0"
-    queue terascope/queue
     request "^2.85.0"
     shortid "^2.2.8"
     socket.io "^2.0.4"
     socket.io-client "^2.0.4"
-    terafoundation terascope/terafoundation
+    terafoundation "^0.2.1"
     uuid "^3.2.1"
     yargs "^11.0.0"
-
-teraslice_op_test_harness@terascope/teraslice_op_test_harness:
-  version "1.0.0"
-  resolved "https://codeload.github.com/terascope/teraslice_op_test_harness/tar.gz/da94a5201b40706cf9bf40ea319a258b9c4c0acb"
-  dependencies:
-    bluebird "^3.5.1"
-    lodash "^4.17.4"
-    teraslice terascope/teraslice
 
 test-exclude@^4.2.0:
   version "4.2.1"
