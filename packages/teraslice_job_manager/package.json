@@ -1,12 +1,29 @@
 {
-  "name": "tjm",
-  "version": "0.0.1",
+  "name": "teraslice-job-manager",
+  "version": "1.0.0",
   "description": "teraslice job manager",
   "main": "index.js",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "lint": "eslint *.js cmds/**/*.js spec/**/*.js",
-    "lint:fix": "eslint --fix *.js cmds/**/*.js spec/**/*.js",
-    "test": "jasmine"
+    "lint": "eslint *.js spec/**/*.js",
+    "lint:fix": "eslint --fix *.js spec/**/*.js",
+    "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
+    "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
+  },
+  "nyc": {
+    "cache": true,
+    "all": true,
+    "include": [
+      "*.js"
+    ],
+    "reporter": [
+      "text-summary",
+      "html",
+      "lcov",
+      "json"
+    ]
   },
   "bin": {
     "tjm": "./index.js"
@@ -15,7 +32,7 @@
     "teraslice"
   ],
   "author": "ciorg",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "archiver": "^2.1.1",
     "bluebird": "^3.5.1",
@@ -26,11 +43,14 @@
     "yargs": "^11.0.0"
   },
   "devDependencies": {
+    "codecov": "^3.0.2",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.12.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
-    "eslint-plugin-react": "^7.8.2",
-    "jasmine": "^3.1.0"
+    "eslint-plugin-react": "^7.9.1",
+    "jasmine": "^3.1.0",
+    "jasmine-spec-reporter": "^4.2.1",
+    "nyc": "^12.0.2"
   }
 }

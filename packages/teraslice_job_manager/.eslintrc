@@ -3,13 +3,15 @@
     "parserOptions": {
         "ecmaVersion": 6,
         "sourceType": "script",
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true
+        }
     },
     "env": {
         "node": true,
         "jasmine": true
     },
     "rules": {
-        "prefer-destructuring": "off",
         "no-underscore-dangle": "off",
         "indent": ["error", 4],
         "no-param-reassign": ["error", { "props": false }],
@@ -17,6 +19,14 @@
         "import/no-dynamic-require": "off",
         "global-require": "off",
         "strict": ["error", "global"],
-        "comma-dangle": "off"
+        "comma-dangle": "off",
+        "prefer-promise-reject-errors": "off",
+        "no-restricted-globals": ["error", "isFinite"],
+        "func-names": ["error", "as-needed"],
+        "semi-spacing": "error",
+        "rest-spread-spacing": ["error"],
+        "no-path-concat": "error",
+        "no-debugger": "error",
+        "handle-callback-err": ["error", "error"]
     }
 }
