@@ -6,8 +6,8 @@
   "main": "service.js",
   "scripts": {
     "start": "node service.js",
-    "lint": "eslint lib/**/*.js",
-    "lint:fix": "eslint --fix lib/**/*.js",
+    "lint": "eslint *.js lib/**/*.js",
+    "lint:fix": "eslint --fix *.js lib/**/*.js",
     "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
     "integration-tests": "yarn --cwd ./integration-tests test",
     "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
@@ -21,6 +21,7 @@
     "cache": true,
     "all": true,
     "include": [
+      "*.js",
       "lib/**/*.js"
     ],
     "reporter": [
