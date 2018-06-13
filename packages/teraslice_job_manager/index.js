@@ -8,7 +8,7 @@ require('yargs')
     .help('help')
     .alias('help', 'h')
     .version(false)
-    .strict();
+    .strict().argv;
 
 process.on('unhandledRejection', (error) => {
     console.error('UnhandledRejection: ', error.stack); // eslint-disable-line no-console
