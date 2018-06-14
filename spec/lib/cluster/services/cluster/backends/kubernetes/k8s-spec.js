@@ -10,10 +10,14 @@ const nock = require('nock');
 const path = require('path');
 
 function print(err, result) {
-    console.log(JSON.stringify(err || result, null, 2));
+    // FIXME: How much does this smell, do we have an existing convention?
+    if (process.env.DEBUG) {
+        console.log(JSON.stringify(err || result, null, 2));
+    }
 }
 
 const logger = {
+    debug: print,
     info: print,
     warn: print,
     error: print
@@ -120,12 +124,46 @@ fdescribe('k8s', () => {
         beforeEach(() => {
             nock(_url, { encodedQueryParams: true })
                 .patch('/apis/apps/v1/namespaces/default/deployments/test1')
-                .reply(204);
+                .reply(204, { });
         });
 
         it('can patch a deployment', async () => {
             const response = await k8s.patchDeployment({ name: 'testName' }, 'test1');
             expect(response).toEqual({});
+        });
+    });
+
+    // FIXME: I feel a little weird about how I test the arithmetic for
+    // set/add/remove here but if I didn't mock it this way, I felt like I
+    // wasn't really testing anything.
+    describe('->scaleDeployment', () => {
+        beforeEach(() => {
+            nock(_url)
+                .get('/apis/apps/v1/namespaces/default/deployments/')
+                .query({ labelSelector: /nodeType=worker,exId=.*/ })
+                .reply(200, {
+                    kind: 'DeploymentList',
+                    items: [
+                        { spec: { replicas: 5 }, metadata: { name: 'dname' } }
+                    ]
+                })
+                .patch('/apis/apps/v1/namespaces/default/deployments/dname')
+                .reply(200, (uri, requestBody) => requestBody);
+        });
+
+        it('can set nodes to a deployment to 2', async () => {
+            const response = await k8s.scaleDeployment('abcde1234', 2, 'set');
+            expect(response.spec.replicas).toEqual(2);
+        });
+
+        it('can add 2 nodes to a deployment with 5 to get 7', async () => {
+            const response = await k8s.scaleDeployment('abcde1234', 2, 'add');
+            expect(response.spec.replicas).toEqual(7);
+        });
+
+        it('can remove 2 nodes from a deployment with 5 to get 3', async () => {
+            const response = await k8s.scaleDeployment('abcde1234', 2, 'remove');
+            expect(response.spec.replicas).toEqual(3);
         });
     });
 });
