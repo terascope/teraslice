@@ -5,9 +5,28 @@
     "lint": "eslint *.js lib",
     "lint:fix": "eslint --fix *.js lib",
     "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
-    "testcov": "nyc -x spec/ jasmine && nyc report --reporter=html",
-    "showcov": "open coverage/index.html"
+    "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
   },
+  "files": [
+    "*.js",
+    "lib/**/*",
+    "examples/**/*"
+  ],
+  "nyc": {
+    "cache": true,
+    "all": true,
+    "include": [
+      "*.js",
+      "lib/**/*.js"
+    ],
+    "reporter": [
+      "text-summary",
+      "html",
+      "lcov",
+      "json"
+    ]
+  },
+  "license": "Apache-2.0",
   "dependencies": {
     "agentkeepalive": "^3.4.1",
     "baucis": "1.6.5",
@@ -27,6 +46,7 @@
     "yargs": "^11.0.0"
   },
   "devDependencies": {
+    "codecov": "^3.0.2",
     "eslint": "^4.19.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.9.0",
