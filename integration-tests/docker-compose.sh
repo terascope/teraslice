@@ -10,74 +10,110 @@ function realpath {
     local path=$1
     if test -L "$path"
     then
-        echo $(realpath $(readlink "$path"))
+        realpath "$(readlink "$path")"
     else
-        echo $path
+        echo "$path"
     fi
 }
 
 # Speed up bind mounts on mac.
 if uname | grep -iq 'darwin'
 then
-    CACHED=":cached"
+    CACHING=":cached"
 fi
 
-declare -a VOLS=("./config:/app/config${CACHED}")
+MODE="${MODE:-dev}"
 
-DOCKERFILE=Dockerfile
+declare -a VOLS=("./config:/app/config${CACHING}")
 
+echo "* running in $MODE mode"
 if test "$MODE" == "dev"
 then
     # TODO: Binary dependencies will not work in the container
-    VOLS+=("..:/app/source${CACHED}")
-    for linked in $(find ../node_modules -type l -maxdepth 1)
+    VOLS+=("..:/app/source${CACHING}")
+    while IFS= read -r -d '' linked
     do
-        VOLS+=("$(realpath "$linked"):/app/source/node_modules/$(basename "$linked")${CACHED}")
-    done
-else
-    make -C .. Dockerfile
+        VOLS+=("$(realpath "$linked"):/app/source/node_modules/$(basename "$linked")${CACHING}")
+    done < <(find ../node_modules -type l -maxdepth 1)
 fi
 
 cat > docker-compose.yml <<DOCKER
-# TODO: docker-compose-js won't "scale" with compose format version >= 2.2
-version: '2.1'
+version: '2.2'
 services:
   teraslice-master:
     build:
       context: ..
-      dockerfile: $DOCKERFILE
+    command: node --max-old-space-size=256 service.js
+    scale: 1
+    restart: 'no'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:45678/cluster/state"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
     ports:
-        - "45678:45678"
+      - "45678:45678"
+    expose:
+      - "45679-46678"
+    environment:
+        - TERAFOUNDATION_CONFIG=/app/config/processor-master.yaml
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
     links:
         - elasticsearch
+    mem_limit: 512m
+    stop_grace_period: 30s
     volumes:
-$(for vol in ${VOLS[@]}
+$(for vol in "${VOLS[@]}"
 do
   echo "        - $vol"
 done)
-    command: node /app/source/service.js -c /app/config/processor-master.yaml
   teraslice-worker:
     build:
       context: ..
-      dockerfile: $DOCKERFILE
+    command: node --max-old-space-size=256 service.js
+    scale: 3
+    restart: 'no'
+    expose:
+      - "45679-46678"
+    environment:
+        - TERAFOUNDATION_CONFIG=/app/config/processor-worker.yaml
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      teraslice-master:
+        condition: service_healthy
     links:
-        - teraslice-master
-        - elasticsearch
+      - teraslice-master
+      - elasticsearch
+    mem_limit: 512m
+    stop_grace_period: 30s
     volumes:
-$(for vol in ${VOLS[@]}
+$(for vol in "${VOLS[@]}"
 do
   echo "        - $vol"
 done)
-    command: node /app/source/service.js -c /app/config/processor-worker.yaml
   elasticsearch:
-    # TODO: Will no longer be available in docker hub past 5.5
-    image: elasticsearch:${ES_VERSION}
+    build:
+      context: ./es
+    restart: 'no'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:49200"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
     ports:
-        - "49200:49200"
-        - "49300:49300"
-    volumes:
-        - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - "49200:49200"
+      - "49300:49300"
     environment:
-        ES_VERSION: ${ES_VERSION}
-        ES_JAVA_OPTS: '-Xms1g -Xmx1g'
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    mem_limit: 1g
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
 DOCKER

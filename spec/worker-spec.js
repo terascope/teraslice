@@ -11,12 +11,12 @@ describe('Worker', () => {
     const messagingEvents = {};
 
     let updatedSlice;
-    let analyticsData;
     let sentMsg;
     let errorMsg;
-    let debugMsg;
-    let logMsg;
-    let warnMsg;
+    let analyticsData; // eslint-disable-line
+    let debugMsg; // eslint-disable-line
+    let logMsg; // eslint-disable-line
+    let warnMsg; // eslint-disable-line
     let loggerConfig;
     let respondingMsg;
 
@@ -41,7 +41,7 @@ describe('Worker', () => {
         sysconfig: {
             teraslice: {
                 hostname: 'testHostName',
-                shutdown_timeout: 60000
+                shutdown_timeout: 1000
             }
         },
         apis: {
@@ -60,8 +60,10 @@ describe('Worker', () => {
             }
         },
         logger,
+        __test_job: JSON.stringify(require('../examples/jobs/data_generator.json')),
         __test_assignment: 'worker'
     };
+
     const messaging = {
         register: (obj) => {
             messagingEvents[obj.event] = obj.callback;
@@ -71,24 +73,18 @@ describe('Worker', () => {
             sentMsg = _sentMsg;
         },
         respond: (_inc, res) => {
-            respondingMsg = Object.assign({}, _inc, { message: 'messaging:response' }, res );
+            respondingMsg = Object.assign({}, _inc, { message: 'messaging:response' }, res);
         },
         listen: () => {}
     };
-    const executionContext = {
-        queue: [],
-        config: {
-            max_retries: 3,
-            analytics: true,
-            recycle_worker: false
-        }
-    };
+
     const stateStore = {
         updateState: (slice, type, errMsg) => {
             updatedSlice = { slice, type, errMsg };
             return Promise.resolve(true);
         }
     };
+
     const analyticsStore = {
         log: (_executionContext, slice, specData) => {
             analyticsData = { executionContext: _executionContext, slice, specData };
@@ -109,21 +105,50 @@ describe('Worker', () => {
             }, timeout);
         });
     }
-    const mockJob = JSON.stringify(require('../examples/jobs/data_generator.json'));
 
-    function instantiateModule(_executionContext, exId, jobId) {
-        const execution = _executionContext || _.cloneDeep(executionContext);
-        context.__test_job = mockJob;
-        context.__test_assignment = 'worker';
-        const worker = workerExecutorModule(context, messaging, stateStore, analyticsStore);
-        const testContext = worker.__test_context(execution, exId, jobId);
+    function instantiateModule(options = {}) {
+        const {
+            exId, jobId, sentMessage, queue
+        } = options;
+
+        const executionContext = {
+            queue: [],
+            config: {
+                max_retries: 3,
+                analytics: true,
+                recycle_worker: false
+            }
+        };
+
+        const worker = workerExecutorModule(
+            context,
+            messaging,
+            stateStore,
+            analyticsStore,
+            { exId, jobId }
+        );
+
+        const testContext = worker.__test_context();
+        testContext._initializeContext(executionContext, queue, sentMessage);
         return { worker, testContext };
     }
+
+    beforeEach(() => {
+        updatedSlice = null;
+        sentMsg = null;
+        errorMsg = null;
+        analyticsData = null;
+        debugMsg = null;
+        logMsg = null;
+        warnMsg = null;
+        loggerConfig = null;
+        respondingMsg = null;
+    });
 
     it('can load without throwing', () => {
         expect(() => instantiateModule()).not.toThrowError();
         const module = instantiateModule();
-        const worker = module.worker;
+        const { worker } = module;
         const testModule = module.testContext;
         expect(module).toBeDefined();
         expect(typeof module).toEqual('object');
@@ -276,32 +301,34 @@ describe('Worker', () => {
 
     it('will emit recycle after so many invocations', (done) => {
         const events = makeEmitter();
-        const myExecution = _.cloneDeep(executionContext);
-        myExecution.config.recycle_worker = 2;
-        const recycle = instantiateModule(myExecution).testContext._recycleFn();
-        const sentMessage = {};
-        let gotEvent = false;
 
-        events.on('worker:recycle', () => {
-            gotEvent = true;
+        const { testContext } = instantiateModule({
+            sentMessage: {
+                someMessage: true
+            }
         });
 
-        recycle(sentMessage);
-        expect(sentMessage).toEqual(sentMessage);
-        expect(gotEvent).toEqual(false);
+        const {
+            _recycleFn,
+            _lastMessage,
+        } = testContext;
 
-        waitFor(200)
-            .then(() => {
-                expect(sentMessage).toEqual({ isShuttingDown: true });
-                expect(gotEvent).toEqual(true);
-                done();
+        events.once('worker:recycle', () => {
+            expect(_lastMessage()).toEqual({
+                isShuttingDown: true,
+                someMessage: true
             });
-    });
+            done();
+        });
+
+        _.defer(_recycleFn, 2);
+        expect(_lastMessage()).toEqual({ someMessage: true });
+    }, 300);
 
     it('can shutdown', (done) => {
         const events = makeEmitter();
         let innerEventCalled = false;
-        const worker = instantiateModule().worker;
+        const { worker } = instantiateModule();
 
         events.on('worker:shutdown', () => {
             innerEventCalled = true;
@@ -316,8 +343,6 @@ describe('Worker', () => {
     });
 
     it('can process slices, and send back over allocated slices', (done) => {
-        const myExecution = _.cloneDeep(executionContext);
-
         function makeData() {
             return () => Promise.resolve([{ data: 'someData' }, { data: 'otherData' }]);
         }
@@ -325,11 +350,11 @@ describe('Worker', () => {
             return results => results.map(obj => obj.data);
         }
 
-        myExecution.queue = [makeData, mapData];
+        const queue = [makeData, mapData];
         const exId = '1234';
         const jobId = '5678';
         const events = makeEmitter();
-        const lastMessage = instantiateModule(myExecution, exId, jobId).testContext._lastMessage;
+        const lastMessage = instantiateModule({ exId, jobId, queue }).testContext._lastMessage;
         const slice = { slice_id: 'as35g' };
         const slice2 = { slice_id: 'as35g', other: 'data' };
         const incomingMsg = {
@@ -384,7 +409,7 @@ describe('Worker', () => {
     it('can keep track of last sent messages', (done) => {
         const exId = '1234';
         const jobId = '5678';
-        const lastMessage = instantiateModule(null, exId, jobId).testContext._lastMessage;
+        const lastMessage = instantiateModule({ exId, jobId }).testContext._lastMessage;
         const slice = { slice_id: 'as35g' };
 
         Promise.all([
@@ -428,7 +453,7 @@ describe('Worker', () => {
         const jobId = '5678';
         const slice = { slice_id: 'as35g' };
         const events = makeEmitter();
-        const retrySliceModule = instantiateModule(null, exId, jobId).testContext._retrySliceModule;
+        const retrySliceModule = instantiateModule({ exId, jobId }).testContext._retrySliceModule;
 
         const errEvent = new Error('an error');
         const retrySlice = retrySliceModule(slice, [() => Promise.reject('an error'), () => Promise.reject('an error')], logger, {});
@@ -455,7 +480,7 @@ describe('Worker', () => {
         const exId = '1234';
         const jobId = '5678';
         const events = makeEmitter();
-        instantiateModule(null, exId, jobId);
+        instantiateModule({ exId, jobId });
 
         let gotDisconnectEvent = false;
         const disconnEvent = { some: 'event' };

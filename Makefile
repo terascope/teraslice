@@ -43,14 +43,8 @@ worker: LOG=info# log level: debug, info, warn, error
 worker: node_modules ## start teraslice worker node
 	node service.js -c examples/config/processor-worker.yaml | bunyan -o short -l $(LOG)
 
-
-Dockerfile: Dockerfile.sh
-	./Dockerfile.sh > Dockerfile
-
-
-docker-image: Dockerfile ## build docker image
+docker-image: ## build docker image
 	docker build -t $(APP_NAME) .
-
 
 grep: TYPE:=F# how to interpret NEEDLE (F=fixed, E=extended regex, G=basic regex)
 grep: NEEDLE:=todo# pattern to search for

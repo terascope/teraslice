@@ -1,15 +1,43 @@
 {
   "name": "teraslice",
-  "version": "0.36.2",
+  "version": "0.36.5",
   "description": "Slice and dice your Elasticsearch data",
   "bin": "service.js",
   "main": "service.js",
   "scripts": {
+<<<<<<< HEAD
     "lint": "eslint lib",
     "jasmine": "jasmine",
     "test": "nyc -x spec/ --reporter=text-summary jasmine; nyc report --reporter=html",
     "testcov": "nyc -x spec/ jasmine; nyc report --reporter=html",
     "showcov": "open coverage/index.html"
+=======
+    "start": "node service.js",
+    "lint": "eslint *.js lib/**/*.js",
+    "lint:fix": "eslint --fix *.js lib/**/*.js",
+    "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
+    "integration-tests": "yarn --cwd ./integration-tests test",
+    "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
+  },
+  "files": [
+    "*.js",
+    "lib/**/*",
+    "examples/**/*"
+  ],
+  "nyc": {
+    "cache": true,
+    "all": true,
+    "include": [
+      "*.js",
+      "lib/**/*.js"
+    ],
+    "reporter": [
+      "text-summary",
+      "html",
+      "lcov",
+      "json"
+    ]
+>>>>>>> upstream/master
   },
   "repository": {
     "type": "git",
@@ -21,22 +49,26 @@
   },
   "homepage": "https://github.com/terascope/teraslice#readme",
   "dependencies": {
+    "@terascope/elasticsearch-api": "^1.0.1",
+    "@terascope/error-parser": "^1.0.0",
+    "@terascope/queue": "^1.1.3",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
-    "convict": "^4.1.0",
-    "datemath-parser": "^1.0.5",
+    "convict": "^4.3.0",
+    "datemath-parser": "^1.0.6",
     "decompress": "^4.2.0",
     "easy-table": "^1.1.1",
-    "elasticsearch_api": "terascope/elasticsearch_api",
-    "error_parser": "terascope/error_parser",
     "express": "^4.16.3",
+<<<<<<< HEAD
     "fs-extra": "^5.0.0",
     "jasmine": "^3.1.0",
     "kubernetes-client": "^5.3.0",
+=======
+    "fs-extra": "^6.0.1",
+>>>>>>> upstream/master
     "lodash": "^4.17.5",
     "mocker-data-generator": "^2.6.1",
     "moment": "^2.21.0",
-    "queue": "terascope/queue",
     "request": "^2.85.0",
     "shortid": "^2.2.8",
     "socket.io": "^2.0.4",
@@ -46,15 +78,22 @@
     "yargs": "^11.0.0"
   },
   "devDependencies": {
+    "@terascope/teraslice-op-test-harness": "^1.0.0",
+    "codecov": "^3.0.2",
     "eslint": "^4.19.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.9.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
-    "eslint-plugin-react": "^7.7.0",
+    "eslint-plugin-react": "^7.9.1",
+    "jasmine": "^3.1.0",
     "jasmine-spec-reporter": "^4.2.1",
     "json-schema-faker": "^0.5.0-rc13",
+<<<<<<< HEAD
     "nock": "^9.3.0",
     "nyc": "^11.6.0",
     "teraslice_op_test_harness": "terascope/teraslice_op_test_harness"
+=======
+    "nyc": "^12.0.2"
+>>>>>>> upstream/master
   }
 }
