@@ -30,7 +30,7 @@ const _url = 'http://mock.kube.api';
 
 
 // FIXME: Remember, I break unit tests if I leave this in!!
-fdescribe('k8s', () => {
+describe('k8s', () => {
     let k8s;
 
     beforeEach(async () => {
