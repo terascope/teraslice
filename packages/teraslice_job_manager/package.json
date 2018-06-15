@@ -7,8 +7,8 @@
     "access": "public"
   },
   "scripts": {
-    "lint": "eslint *.js spec/**/*.js",
-    "lint:fix": "eslint --fix *.js spec/**/*.js",
+    "lint": "eslint *.js cmd/**/*.js spec/**/*.js",
+    "lint:fix": "eslint --fix *.js cmd/**/*.js spec/**/*.js",
     "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
     "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
   },
@@ -16,7 +16,8 @@
     "cache": true,
     "all": true,
     "include": [
-      "*.js"
+      "*.js",
+      "cmds/**/*.js"
     ],
     "reporter": [
       "text-summary",

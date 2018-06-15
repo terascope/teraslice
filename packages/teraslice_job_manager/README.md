@@ -40,6 +40,9 @@ For all commands that accept `-c`, if `-c` is missing default is http://localhos
 **RESET** - Removes tjm data from job file or asset file, just specify the relative path
 - `tjm reset asset/asset.json`
 
+**Restart** - Stops and restarts a job
+- `tjm restart jobFile.json`
+
 **RESUME** - Resumes a paused job.
 - `tjm resume jobFile.json`
 
