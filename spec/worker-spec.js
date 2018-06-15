@@ -323,7 +323,7 @@ describe('Worker', () => {
 
         _.defer(_recycleFn, 2);
         expect(_lastMessage()).toEqual({ someMessage: true });
-    }, 300);
+    }, 1000);
 
     it('can shutdown', (done) => {
         const events = makeEmitter();
