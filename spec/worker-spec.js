@@ -75,7 +75,7 @@ describe('Worker', () => {
         respond: (_inc, res) => {
             respondingMsg = Object.assign({}, _inc, { message: 'messaging:response' }, res);
         },
-        listen: () => {}
+        listen: () => Promise.resolve()
     };
 
     const stateStore = {

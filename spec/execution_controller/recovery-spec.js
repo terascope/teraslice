@@ -33,7 +33,9 @@ describe('execution recovery', () => {
             }
         }
     };
-    const messaging = { send: msg => sentMsg = msg };
+    const messaging = {
+        send: (msg) => { sentMsg = msg; }
+    };
     const executionAnalytics = { getAnalytics: () => ({}) };
     const exStore = {
         executionMetaData: () => {},

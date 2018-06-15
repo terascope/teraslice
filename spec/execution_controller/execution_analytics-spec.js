@@ -44,7 +44,8 @@ describe('execution_analytics', () => {
         },
         send: (obj) => {
             msgSent = obj;
-        }
+        },
+        listen: () => Promise.resolve()
     };
 
     it('can instantiate', () => {
