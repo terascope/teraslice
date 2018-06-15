@@ -5,13 +5,6 @@
   "bin": "service.js",
   "main": "service.js",
   "scripts": {
-<<<<<<< HEAD
-    "lint": "eslint lib",
-    "jasmine": "jasmine",
-    "test": "nyc -x spec/ --reporter=text-summary jasmine; nyc report --reporter=html",
-    "testcov": "nyc -x spec/ jasmine; nyc report --reporter=html",
-    "showcov": "open coverage/index.html"
-=======
     "start": "node service.js",
     "lint": "eslint *.js lib/**/*.js",
     "lint:fix": "eslint --fix *.js lib/**/*.js",
@@ -37,7 +30,6 @@
       "lcov",
       "json"
     ]
->>>>>>> upstream/master
   },
   "repository": {
     "type": "git",
@@ -59,13 +51,8 @@
     "decompress": "^4.2.0",
     "easy-table": "^1.1.1",
     "express": "^4.16.3",
-<<<<<<< HEAD
-    "fs-extra": "^5.0.0",
-    "jasmine": "^3.1.0",
     "kubernetes-client": "^5.3.0",
-=======
     "fs-extra": "^6.0.1",
->>>>>>> upstream/master
     "lodash": "^4.17.5",
     "mocker-data-generator": "^2.6.1",
     "moment": "^2.21.0",
@@ -88,12 +75,7 @@
     "jasmine": "^3.1.0",
     "jasmine-spec-reporter": "^4.2.1",
     "json-schema-faker": "^0.5.0-rc13",
-<<<<<<< HEAD
     "nock": "^9.3.0",
-    "nyc": "^11.6.0",
-    "teraslice_op_test_harness": "terascope/teraslice_op_test_harness"
-=======
     "nyc": "^12.0.2"
->>>>>>> upstream/master
   }
 }
