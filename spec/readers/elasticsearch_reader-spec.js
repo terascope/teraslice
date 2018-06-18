@@ -200,7 +200,7 @@ describe('elasticsearch_reader', () => {
         let updatedConfig;
 
         function checkUpdate(updateObj) {
-            updatedConfig = updateObj.update[0];
+            updatedConfig = _.get(updateObj, 'update[0]');
             return true;
         }
 
@@ -254,7 +254,6 @@ describe('elasticsearch_reader', () => {
 
         Promise.resolve(getNewSlicer(executionContext))
             .then(() => {
-                console.log('what am i here', updatedConfig)
                 expect(updatedConfig.start).toEqual(firstDate.format());
                 expect(updatedConfig.end).toEqual(moment(firstDate).add(1, 's').format());
                 clientData = [{ '@timestamp': firstDate, count: 100 }, { '@timestamp': laterDate, count: 50 }];
