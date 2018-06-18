@@ -321,7 +321,9 @@ describe('Worker', () => {
             done();
         });
 
-        _.defer(_recycleFn, 2);
+        setTimeout(() => {
+            _recycleFn(2);
+        }, 100);
         expect(_lastMessage()).toEqual({ someMessage: true });
     }, 1000);
 
