@@ -27,6 +27,9 @@ describe('api endpoint', () => {
     it('should update job specs', (done) => {
         // NOTE that this relies on the asset loaded in the test above
         const jobSpec = misc.newJob('generator-asset');
+        const alteredJob = _.cloneDeep(jobSpec);
+        alteredJob.workers = 2;
+        delete alteredJob.slicers;
         let jobId;
 
         teraslice.jobs.submit(jobSpec, 'shouldNotStart')
@@ -35,16 +38,16 @@ describe('api endpoint', () => {
                 expect(jobId).toBeDefined();
                 return job.spec()
                     .then((jobConfig) => {
+                        expect(jobConfig.slicers).toEqual(1);
                         expect(jobConfig.workers).toEqual(3);
-                        jobSpec.workers = 2;
-                        return teraslice.cluster.put(`/jobs/${jobId}`, jobSpec);
+                        return teraslice.cluster.put(`/jobs/${jobId}`, alteredJob);
                     })
                     .then(() => job.spec())
                     .then((jobConfig) => {
                         // This will check that assets are not parsed as well
-                        _.forOwn(jobSpec, (value, key) => {
-                            expect(jobConfig[key]).toEqual(value);
-                        });
+                        expect(jobConfig.assets).toEqual(alteredJob.assets);
+                        expect(jobConfig.workers).toEqual(alteredJob.workers);
+                        expect(jobConfig.slicers).not.toBeDefined();
                     });
             })
             .catch(fail)
