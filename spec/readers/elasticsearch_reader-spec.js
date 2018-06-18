@@ -2,9 +2,11 @@
 
 const elasticDateReader = require('../../lib/readers/elasticsearch_reader');
 const Promise = require('bluebird');
-const events = require('../../lib/utils/events');
 const moment = require('moment');
 const _ = require('lodash');
+const EventEmitter = require('events');
+
+const events = new EventEmitter();
 
 describe('elasticsearch_reader', () => {
     let clientData;
@@ -197,10 +199,12 @@ describe('elasticsearch_reader', () => {
         const laterDate = moment(firstDate).add(5, 'm');
         let updatedConfig;
 
-        events.on('slicer:execution:update', (updateObj) => {
+        function checkUpdate(updateObj) {
             updatedConfig = updateObj.update[0];
             return true;
-        });
+        }
+
+        events.on('slicer:execution:update', checkUpdate);
 
         const opConfig = {
             _op: 'elasticsearch_reader',
@@ -250,6 +254,7 @@ describe('elasticsearch_reader', () => {
 
         Promise.resolve(getNewSlicer(executionContext))
             .then(() => {
+                console.log('what am i here', updatedConfig)
                 expect(updatedConfig.start).toEqual(firstDate.format());
                 expect(updatedConfig.end).toEqual(moment(firstDate).add(1, 's').format());
                 clientData = [{ '@timestamp': firstDate, count: 100 }, { '@timestamp': laterDate, count: 50 }];
@@ -284,6 +289,9 @@ describe('elasticsearch_reader', () => {
             .catch((error) => {
                 fail(error);
                 done();
+            })
+            .finally(() => {
+                events.removeListener('slicer:execution:update', checkUpdate);
             });
     });
 
@@ -556,8 +564,8 @@ describe('elasticsearch_reader', () => {
 
     it('slicer can expand date slices properly in uneven data distribution', (done) => {
         const firstDate = moment();
-        const midDate = moment(firstDate).add(5, 'm');
-        const endDate = moment(firstDate).add(10, 'm');
+        const midDate = moment(firstDate).add(8, 'm');
+        const endDate = moment(firstDate).add(16, 'm');
         const closingDate = moment(endDate).add(1, 's');
 
         const opConfig = {
@@ -566,7 +574,7 @@ describe('elasticsearch_reader', () => {
             time_resolution: 's',
             size: 100,
             index: 'someIndex',
-            interval: '5m',
+            interval: '3m',
         };
 
         const executionContext = { config: { lifecycle: 'once', slicers: 1, operations: [opConfig] } };
@@ -593,9 +601,12 @@ describe('elasticsearch_reader', () => {
             return true;
         });
         /*
-        the results coming out { start: '2018-03-19T08:28:26-07:00',
-        end: '2018-03-19T08:40:56-07:00',
-        count: 100 }
+        the results coming out:
+        {
+            start: '2018-03-19T08:28:26-07:00',
+            end: '2018-03-19T08:40:56-07:00',
+            count: 100
+        }
 
         */
 
@@ -606,15 +617,22 @@ describe('elasticsearch_reader', () => {
                 Promise.resolve(slicer())
                     .then((results) => {
                         expect(results.start).toEqual(firstDate.format());
-                        expect(moment(results.end).isBetween(midDate, endDate)).toEqual(true);
+                        expect(moment(results.end).isBetween(firstDate, midDate)).toEqual(true);
                         expect(results.count).toEqual(100);
                         return slicer();
                     })
                     .then((results) => {
+                        expect(moment(results.end).isBetween(midDate, endDate)).toEqual(true);
                         expect(hasExpanded).toEqual(true);
-                        expect(moment(results.start).isBetween(midDate, endDate)).toEqual(true);
-                        expect(results.end).toEqual(closingDate.format());
                         expect(results.count).toEqual(100);
+                        return slicer();
+                    })
+                    .then((results) => {
+                        expect(moment(results.end).isBetween(midDate, endDate)).toEqual(true);
+                        return slicer();
+                    })
+                    .then((results) => {
+                        expect(results.end).toEqual(closingDate.format());
                         return slicer();
                     })
                     .then(results => expect(results).toEqual(null))
