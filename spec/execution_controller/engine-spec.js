@@ -72,7 +72,7 @@ describe('execution engine', () => {
         register: (obj) => {
             messagingEvents[obj.event] = obj.callback;
         },
-        listen: () => {},
+        listen: () => Promise.resolve(),
         // respond: (msg) => { respondingMsg = msg; }
         respond: () => {}
     };

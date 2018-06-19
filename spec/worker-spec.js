@@ -75,7 +75,7 @@ describe('Worker', () => {
         respond: (_inc, res) => {
             respondingMsg = Object.assign({}, _inc, { message: 'messaging:response' }, res);
         },
-        listen: () => {}
+        listen: () => Promise.resolve()
     };
 
     const stateStore = {
@@ -301,6 +301,7 @@ describe('Worker', () => {
 
     it('will emit recycle after so many invocations', (done) => {
         const events = makeEmitter();
+        let interval = null;
 
         const { testContext } = instantiateModule({
             sentMessage: {
@@ -314,6 +315,7 @@ describe('Worker', () => {
         } = testContext;
 
         events.once('worker:recycle', () => {
+            clearInterval(interval);
             expect(_lastMessage()).toEqual({
                 isShuttingDown: true,
                 someMessage: true
@@ -321,9 +323,11 @@ describe('Worker', () => {
             done();
         });
 
-        _.defer(_recycleFn, 2);
+        interval = setInterval(() => {
+            _recycleFn(2);
+        }, 100);
         expect(_lastMessage()).toEqual({ someMessage: true });
-    }, 300);
+    });
 
     it('can shutdown', (done) => {
         const events = makeEmitter();
