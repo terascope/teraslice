@@ -4,14 +4,18 @@
   "description": "Teraslice worker",
   "main": "index.js",
   "scripts": {
+    "start": "node command.js",
+    "lint": "eslint *.js lib spec",
+    "lint:fix": "eslint --fix *.js lib spec",
     "test": "jest --forceExit --detectOpenHandles",
-    "start": "node command.js"
+    "report-coverage": "codecov"
   },
   "repository": "git@github.com:terascope/teraslice-worker.git",
   "author": "Terasope, LLC <info@terascope.io>",
   "license": "Apache-2.0",
   "private": false,
   "devDependencies": {
+    "codecov": "^3.0.2",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.12.0",
