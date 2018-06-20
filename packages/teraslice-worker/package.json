@@ -1,0 +1,22 @@
+{
+  "name": "teraslice-worker",
+  "version": "0.0.0",
+  "description": "Teraslice worker",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --forceExit --detectOpenHandles",
+    "start": "node command.js"
+  },
+  "repository": "git@github.com:terascope/teraslice-worker.git",
+  "author": "Terasope, LLC <info@terascope.io>",
+  "license": "Apache-2.0",
+  "private": false,
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.12.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.9.1",
+    "jest": "^23.1.0"
+  }
+}
