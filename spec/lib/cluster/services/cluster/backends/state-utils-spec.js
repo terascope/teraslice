@@ -5,7 +5,7 @@ const path = require('path');
 
 const moment = require('moment');
 
-const stateUtils = require('../../../../../../lib/cluster/services/cluster/backends/stateUtils');
+const stateUtils = require('../../../../../../lib/cluster/services/cluster/backends/state-utils');
 const { dateFormat } = require('../../../../../../lib/utils/date_utils');
 
 const clusterStateFile = path.join(__dirname, 'files', 'sample-state.json');
@@ -96,6 +96,7 @@ describe('stateUtils', () => {
                 );
             } catch (e) {
                 console.log(e);
+                expect(e).not.toBeDefined();
             }
             expect(slicerStats[0].ex_id).toEqual('8d7669e1-d351-4a0d-b36e-b11da5ade26a');
         });
