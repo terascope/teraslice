@@ -1,0 +1,149 @@
+{
+    "node1.lan": {
+        "node_id": "node1.lan",
+        "hostname": "10.0.0.1",
+        "pid": 1,
+        "node_version": "v8.11.1",
+        "teraslice_version": "0.36.4",
+        "total": 50,
+        "state": "connected",
+        "available": 46,
+        "active": [
+            {
+                "worker_id": 1,
+                "assignment": "cluster_master",
+                "pid": 15
+            },
+            {
+                "worker_id": 2,
+                "assignment": "assets_service",
+                "pid": 16
+            },
+            {
+                "worker_id": 4,
+                "assignment": "worker",
+                "pid": 45,
+                "ex_id": "8d7669e1-d351-4a0d-b36e-b11da5ade26a",
+                "job_id": "a1af76a0-a2bd-457d-b14a-f11e5f04b9a1",
+                "assets": [
+                    "afd3c6b956183df14241428df3e177a568ecc584",
+                    "40d69de5d0a6fe1be69e5a7d2413e11c4f97c964"
+                ]
+            },
+            {
+                "worker_id": 5,
+                "assignment": "worker",
+                "pid": 46,
+                "ex_id": "8d7669e1-d351-4a0d-b36e-b11da5ade26a",
+                "job_id": "a1af76a0-a2bd-457d-b14a-f11e5f04b9a1",
+                "assets": [
+                    "afd3c6b956183df14241428df3e177a568ecc584",
+                    "40d69de5d0a6fe1be69e5a7d2413e11c4f97c964"
+                ]
+            }
+        ]
+    },
+    "node2.lan": {
+        "node_id": "node2.lan",
+        "hostname": "10.0.0.2",
+        "pid": 1,
+        "node_version": "v8.11.1",
+        "teraslice_version": "0.36.4",
+        "total": 50,
+        "state": "connected",
+        "available": 46,
+        "active": [
+            {
+                "worker_id": 1,
+                "assignment": "execution_controller",
+                "pid": 16,
+                "ex_id": "8d7669e1-d351-4a0d-b36e-b11da5ade26a",
+                "job_id": "a1af76a0-a2bd-457d-b14a-f11e5f04b9a1",
+                "assets": [
+                    "afd3c6b956183df14241428df3e177a568ecc584",
+                    "40d69de5d0a6fe1be69e5a7d2413e11c4f97c964"
+                ],
+                "node_id": "node2.lan",
+                "hostname": "10.0.0.2"
+            },
+            {
+                "worker_id": 3,
+                "assignment": "worker",
+                "pid": 28,
+                "ex_id": "8d7669e1-d351-4a0d-b36e-b11da5ade26a",
+                "job_id": "a1af76a0-a2bd-457d-b14a-f11e5f04b9a1",
+                "assets": [
+                    "afd3c6b956183df14241428df3e177a568ecc584",
+                    "40d69de5d0a6fe1be69e5a7d2413e11c4f97c964"
+                ]
+            },
+            {
+                "worker_id": 4,
+                "assignment": "worker",
+                "pid": 29,
+                "ex_id": "8d7669e1-d351-4a0d-b36e-b11da5ade26a",
+                "job_id": "a1af76a0-a2bd-457d-b14a-f11e5f04b9a1",
+                "assets": [
+                    "afd3c6b956183df14241428df3e177a568ecc584",
+                    "40d69de5d0a6fe1be69e5a7d2413e11c4f97c964"
+                ]
+            },
+            {
+                "worker_id": 5,
+                "assignment": "worker",
+                "pid": 34,
+                "ex_id": "8d7669e1-d351-4a0d-b36e-b11da5ade26a",
+                "job_id": "a1af76a0-a2bd-457d-b14a-f11e5f04b9a1",
+                "assets": [
+                    "afd3c6b956183df14241428df3e177a568ecc584",
+                    "40d69de5d0a6fe1be69e5a7d2413e11c4f97c964"
+                ]
+            }
+        ]
+    },
+    "node3.lan": {
+        "node_id": "node3.lan",
+        "hostname": "10.0.0.3",
+        "pid": 1,
+        "node_version": "v8.11.1",
+        "teraslice_version": "0.36.4",
+        "total": 50,
+        "state": "connected",
+        "available": 47,
+        "active": [
+            {
+                "worker_id": 1,
+                "assignment": "worker",
+                "pid": 16,
+                "ex_id": "8d7669e1-d351-4a0d-b36e-b11da5ade26a",
+                "job_id": "a1af76a0-a2bd-457d-b14a-f11e5f04b9a1",
+                "assets": [
+                    "afd3c6b956183df14241428df3e177a568ecc584",
+                    "40d69de5d0a6fe1be69e5a7d2413e11c4f97c964"
+                ]
+            },
+            {
+                "worker_id": 2,
+                "assignment": "worker",
+                "pid": 21,
+                "ex_id": "8d7669e1-d351-4a0d-b36e-b11da5ade26a",
+                "job_id": "a1af76a0-a2bd-457d-b14a-f11e5f04b9a1",
+                "assets": [
+                    "afd3c6b956183df14241428df3e177a568ecc584",
+                    "40d69de5d0a6fe1be69e5a7d2413e11c4f97c964"
+                ]
+            },
+            {
+                "worker_id": 3,
+                "assignment": "worker",
+                "pid": 22,
+                "ex_id": "8d7669e1-d351-4a0d-b36e-b11da5ade26a",
+                "job_id": "a1af76a0-a2bd-457d-b14a-f11e5f04b9a1",
+                "assets": [
+                    "afd3c6b956183df14241428df3e177a568ecc584",
+                    "40d69de5d0a6fe1be69e5a7d2413e11c4f97c964"
+                ]
+            }
+        ]
+    }
+}
