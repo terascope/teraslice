@@ -36,7 +36,7 @@ describe('stateUtils', () => {
     });
 
     describe('->findWorkersByExecutionID', () => {
-        it('returns the right nummber of workers', () => {
+        it('returns the right number of workers', () => {
             const workerList = stateUtils.findWorkersByExecutionID(
                 clusterState,
                 '8d7669e1-d351-4a0d-b36e-b11da5ade26a'
@@ -46,7 +46,7 @@ describe('stateUtils', () => {
     });
 
     describe('->findSlicersByExecutionID', () => {
-        it('returns foo', () => {
+        it('returns execution_controller worker', () => {
             const workerList = stateUtils.findSlicersByExecutionID(
                 clusterState,
                 { '8d7669e1-d351-4a0d-b36e-b11da5ade26a': '8d7669e1-d351-4a0d-b36e-b11da5ade26a' }
@@ -56,7 +56,7 @@ describe('stateUtils', () => {
     });
 
     describe('->newGetSlicerStats', () => {
-        it('runs without exploding', async () => {
+        it('returns valid slicerStats', async () => {
             let slicerStats;
             const context = { sysconfig: { teraslice: { action_timeout: 5 } } };
             const msgResponse = {
