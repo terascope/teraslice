@@ -8,7 +8,7 @@
     "start": "node service.js",
     "lint": "eslint *.js lib/**/*.js",
     "lint:fix": "eslint --fix *.js lib/**/*.js",
-    "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
+    "test": "nyc -x spec/ --reporter=text-summary jasmine; nyc report --reporter=html",
     "integration-tests": "yarn --cwd ./integration-tests test",
     "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
   },
