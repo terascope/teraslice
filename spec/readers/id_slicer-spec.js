@@ -91,26 +91,28 @@ describe('id_reader', () => {
         const job5 = { slicers: 20, operations: [{ _op: 'id_reader', key_type: 'base64url' }] };
         const job6 = { slicers: 70, operations: [{ _op: 'id_reader', key_type: 'base64url' }] };
 
-
+        const contextConfig = {
+            sysconfig
+        };
         expect(() => {
-            idReader.crossValidation(job1, sysconfig);
+            idReader.crossValidation(contextConfig, job1);
         }).not.toThrow();
         expect(() => {
-            idReader.crossValidation(job2, sysconfig);
+            idReader.crossValidation(contextConfig, job2);
         }).toThrowError(errorStr1);
 
         expect(() => {
-            idReader.crossValidation(job3, sysconfig);
+            idReader.crossValidation(contextConfig, job3);
         }).not.toThrow();
         expect(() => {
-            idReader.crossValidation(job4, sysconfig);
+            idReader.crossValidation(contextConfig, job4);
         }).toThrowError(errorStr2);
 
         expect(() => {
-            idReader.crossValidation(job5, sysconfig);
+            idReader.crossValidation(contextConfig, job5);
         }).not.toThrow();
         expect(() => {
-            idReader.crossValidation(job6, sysconfig);
+            idReader.crossValidation(contextConfig, job6);
         }).toThrowError(errorStr3);
     });
 
