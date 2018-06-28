@@ -210,12 +210,14 @@ describe('elasticsearch_bulk', () => {
             }]
         };
 
-        const sysconfig = {
-            terafoundation: {
-                connectors: {
-                    elasticsearch: {
-                        connectionA: 'connection Config',
-                        connectionB: 'otherConnection Config'
+        const contextConfig = {
+            sysconfig: {
+                terafoundation: {
+                    connectors: {
+                        elasticsearch: {
+                            connectionA: 'connection Config',
+                            connectionB: 'otherConnection Config'
+                        }
                     }
                 }
             }
@@ -223,11 +225,11 @@ describe('elasticsearch_bulk', () => {
         const errorString = 'elasticsearch_bulk connection_map specifies a connection for [connectionZ] but is not found in the system configuration [terafoundation.connectors.elasticsearch]';
 
         expect(() => {
-            esSender.crossValidation(badJob, sysconfig);
+            esSender.crossValidation(contextConfig, badJob);
         }).toThrowError(errorString);
 
         expect(() => {
-            esSender.crossValidation(goodJob, sysconfig);
+            esSender.crossValidation(contextConfig, goodJob);
         }).not.toThrow();
     });
 });

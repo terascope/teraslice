@@ -130,9 +130,9 @@ describe('op runner', () => {
         opCode(context);
         const { getClient } = testRegisterApi.op_runner;
 
-        expect(getClient({}, 'elasticsearch')).toEqual({ type: 'elasticsearch', endpoint: 'default', cached: true });
-        expect(getClient({ connection: 'someConnection' }, 'kafka')).toEqual({ type: 'kafka', endpoint: 'someConnection', cached: true });
-        expect(getClient({ connection_cache: false }, 'mongo')).toEqual({ type: 'mongo', endpoint: 'default', cached: true });
+        expect(getClient(context, {}, 'elasticsearch')).toEqual({ type: 'elasticsearch', endpoint: 'default', cached: true });
+        expect(getClient(context, { connection: 'someConnection' }, 'kafka')).toEqual({ type: 'kafka', endpoint: 'someConnection', cached: true });
+        expect(getClient(context, { connection_cache: false }, 'mongo')).toEqual({ type: 'mongo', endpoint: 'default', cached: true });
     });
 
     it('getClient will error properly', (done) => {
@@ -147,6 +147,6 @@ describe('op runner', () => {
             expect(errMsg.error.includes(errStr)).toEqual(true);
             done();
         });
-        getClient();
+        getClient(context, {}, 'elasticsearch');
     });
 });

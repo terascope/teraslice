@@ -306,8 +306,8 @@ describe('execution runner', () => {
         expect(typeof testRegisterApi.job_runner).toEqual('object');
         expect(typeof testRegisterApi.job_runner.getOpConfig).toEqual('function');
 
-        expect(testRegisterApi.job_runner.getOpConfig('elasticsearch_data_generator')).toEqual(op1);
-        expect(testRegisterApi.job_runner.getOpConfig('noop')).toEqual(op2);
-        expect(testRegisterApi.job_runner.getOpConfig('somethingElse')).toEqual(undefined);
+        expect(testRegisterApi.job_runner.getOpConfig(assetjob, 'elasticsearch_data_generator')).toEqual(op1);
+        expect(testRegisterApi.job_runner.getOpConfig(assetjob, 'noop')).toEqual(op2);
+        expect(testRegisterApi.job_runner.getOpConfig(assetjob, 'somethingElse')).toEqual(undefined);
     });
 });
