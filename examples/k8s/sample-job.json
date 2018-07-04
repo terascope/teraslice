@@ -1,0 +1,23 @@
+{
+    "name": "gen-tenk-noop",
+    "lifecycle": "persistent",
+    "workers": 1,
+    "operations": [
+        {
+            "_op": "elasticsearch_data_generator",
+            "json_schema": "",
+            "size": 10000,
+            "start": "",
+            "end": "",
+            "format": "",
+            "stress_test": false,
+            "date_key": "created",
+            "set_id": "",
+            "id_start_key": ""
+        },
+        {
+            "_op": "noop"
+        }
+    ],
+    "analytics": true
+}

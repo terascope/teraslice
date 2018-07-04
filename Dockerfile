@@ -21,6 +21,6 @@ EXPOSE 5678
 
 VOLUME /app/config /app/logs
 
-ENV TERAFOUNDATION_CONFIG /app/config/processor-master.yaml 
+ENV TERAFOUNDATION_CONFIG /app/config/teraslice.yaml
 
 CMD ["node", "--max-old-space-size=2048", "service.js"]

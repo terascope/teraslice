@@ -48,7 +48,7 @@
             }],
             "containers": [{
                 "name": "teraslice-master",
-                "image": "teraslice:asgdev",
+                "image": "teraslice:k8sdev",
                 "ports": [{
                     "containerPort": 5678,
                     "protocol": "TCP"
@@ -109,7 +109,7 @@
                 "lastState": {},
                 "ready": true,
                 "restartCount": 0,
-                "image": "teraslice:asgdev",
+                "image": "teraslice:k8sdev",
                 "imageID": "docker://sha256:4ad49f448c6cea8cfc3eca506705ae7d78a8b62b7cbede1faeababfc6e548a0b",
                 "containerID": "docker://cedf07daf52e1d49f026f210f83c42246cc147498a90b923048d8cf991d5882b"
             }],
