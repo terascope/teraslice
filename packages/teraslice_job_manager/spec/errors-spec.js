@@ -5,7 +5,7 @@ const Promise = require('bluebird');
 const errors = require('../cmds/errors');
 
 const argv = {
-    jobFile: 'spec/fixtures/test_job_file.json'
+    job_file: 'spec/fixtures/test_job_file.json'
 };
 
 let registeredCheck;

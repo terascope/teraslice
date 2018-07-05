@@ -15,7 +15,7 @@ describe('reset should remove tjm data from file', () => {
     it('tjm data should be pulled from file', () => {
         // copy fixture file
         const argv = {
-            jobFile: 'spec/fixtures/resetJobFile.json'
+            job_file: 'spec/fixtures/resetJobFile.json'
         };
 
         const fakeJobData = require('./fixtures/test_job_file.json');

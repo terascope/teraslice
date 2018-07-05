@@ -7,26 +7,19 @@ const Promise = require('bluebird');
 const reply = require('./reply')();
 const path = require('path');
 
-module.exports = (argv, clusterName) => {
-    let cluster;
-    if (clusterName) {
-        cluster = clusterName;
-    } else if (argv.c) {
-        cluster = argv.c;
-    } else if (argv.l) {
-        cluster = 'http://localhost:5678';
-    }
-    httpClusterNameCheck(cluster);
+module.exports = (tjmConfig) => {
     let teraslice = require('teraslice-client-js')({
-        host: `${httpClusterNameCheck(cluster)}`
+        host: `${tjmConfig.cluster}`
     });
 
-    function alreadyRegisteredCheck(jobContents) {
+    function alreadyRegisteredCheck() {
+        const jobContents = tjmConfig.job_file_content;
         if (_.has(jobContents, 'tjm.cluster')) {
             return teraslice.jobs.wrap(jobContents.tjm.job_id).spec()
                 .then((jobSpec) => {
                     if (jobSpec.job_id === jobContents.tjm.job_id) {
-                        return Promise.resolve();
+                        // return true for testing purposes
+                        return Promise.resolve(true);
                     }
                     return Promise.reject(new Error('Job is not on the cluster'));
                 });
@@ -42,7 +35,7 @@ module.exports = (argv, clusterName) => {
     }
 
     function loadAsset() {
-        if (!argv.a) {
+        if (!tjmConfig.a) {
             return Promise.resolve();
         }
         return fs.emptyDir(path.join(process.cwd(), 'builds'))
@@ -57,7 +50,7 @@ module.exports = (argv, clusterName) => {
                 if (postResponseJson.error) {
                     return Promise.reject(new Error(postResponseJson.error));
                 }
-                reply.green(`Asset posted to ${argv.c} with id ${postResponseJson._id}`);
+                reply.green(`Asset posted to ${tjmConfig.c} with id ${postResponseJson._id}`);
                 return Promise.resolve();
             })
             .then(() => {
@@ -65,26 +58,11 @@ module.exports = (argv, clusterName) => {
                 return createJsonFile(path.join(process.cwd(), 'asset/asset.json'), assetJson);
             })
             .then(() => reply.green('TJM data added to asset.json'))
-            .then(() => reply.green(`Asset has successfully been deployed to ${argv.c}`));
+            .then(() => reply.green(`Asset has successfully been deployed to ${tjmConfig.c}`));
     }
 
     function createJsonFile(filePath, jsonObject) {
         return fs.writeJson(filePath, jsonObject, { spaces: 4 });
-    }
-
-    function httpClusterNameCheck(url) {
-        if (!url) {
-            return '';
-        }
-        // needs to have a port number
-        if (url.lastIndexOf(':') !== url.length - 5) {
-            reply.fatal('Cluster names need to include a port number');
-        }
-
-        if (url.indexOf('http') !== 0) {
-            return `http://${url}`;
-        }
-        return url;
     }
 
     function zipAsset() {
@@ -123,15 +101,15 @@ module.exports = (argv, clusterName) => {
             throw new Error(`Could not load asset.json: ${err.message}`);
         }
 
-        const c = argv.l ? 'http://localhost:5678' : argv.c;
+        const cluster = tjmConfig.l ? 'http://localhost:5678' : tjmConfig.c;
         if (_.has(assetJson, 'tjm.clusters')) {
-            if (_.indexOf(assetJson.tjm.clusters, httpClusterNameCheck(c)) >= 0) {
-                throw new Error(`Assets have already been deployed to ${c}, use update`);
+            if (_.indexOf(assetJson.tjm.clusters, cluster) >= 0) {
+                throw new Error(`Assets have already been deployed to ${cluster}, use update`);
             }
-            assetJson.tjm.clusters.push(httpClusterNameCheck(c));
+            assetJson.tjm.clusters.push(cluster);
             return assetJson;
         }
-        _.set(assetJson, 'tjm.clusters', [httpClusterNameCheck(c)]);
+        _.set(assetJson, 'tjm.clusters', [cluster]);
         return assetJson;
     }
 
@@ -148,7 +126,6 @@ module.exports = (argv, clusterName) => {
 
     return {
         alreadyRegisteredCheck,
-        httpClusterNameCheck,
         loadAsset,
         createJsonFile,
         teraslice,

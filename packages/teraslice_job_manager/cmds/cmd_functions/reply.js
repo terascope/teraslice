@@ -9,6 +9,7 @@ module.exports = () => {
     function formatErr(err) {
         return _.toString(_.get(err, 'message', err));
     }
+
     function fatal(err) {
         if (process.env.TJM_TEST_MODE) {
             throw formatErr(err);

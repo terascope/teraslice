@@ -45,7 +45,7 @@ describe('asset command testing', () => {
             .then(() => asset.handler(argv, _tjmFunctions))
             .then((result) => {
                 expect(result).toEqual('deployed');
-            });
+            })
     });
 
     it('deploy should respond to a request error', () => {
@@ -58,7 +58,7 @@ describe('asset command testing', () => {
         deployError = error;
         return asset.handler(argv, _tjmFunctions)
             .catch((err) => {
-                expect(err).toBe('Could not connect to localhost:5678');
+                expect(err).toBe('Could not connect to http://localhost:5678');
             });
     });
 

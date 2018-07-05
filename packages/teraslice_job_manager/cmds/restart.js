@@ -1,21 +1,22 @@
 'use strict';
 
 const _ = require('lodash');
+const reply = require('./cmd_functions/reply')();
+const dataChecks = require('./cmd_functions/data_checks');
 
-exports.command = 'restart <jobFile>';
+exports.command = 'restart <job_file>';
 exports.desc = 'stops and starts a job\n';
 exports.builder = (yargs) => {
     yargs.example('tjm restart jobfile.prod.json');
 };
 exports.handler = (argv, _testFunctions) => {
-    const reply = require('./cmd_functions/reply')();
-    const jsonData = require('./cmd_functions/json_data_functions')();
-    const jobContents = jsonData.jobFileHandler(argv.jobFile)[1];
-    jsonData.metaDataCheck(jobContents);
-    const tjmFunctions = _testFunctions || require('./cmd_functions/functions')(argv, jobContents.tjm.cluster);
+    const tjmConfig = _.clone(argv);
+    dataChecks(tjmConfig).returnJobData();
+    const tjmFunctions = _testFunctions || require('./cmd_functions/functions')(tjmConfig);
+    const jobContents = tjmConfig.job_file_content;
     const jobId = jobContents.tjm.job_id;
 
-    return tjmFunctions.alreadyRegisteredCheck(jobContents)
+    return tjmFunctions.alreadyRegisteredCheck()
         .then(() => tjmFunctions.teraslice.jobs.wrap(jobId).stop())
         .then((stopResponse) => {
             if (!stopResponse.status.status === 'stopped') {
