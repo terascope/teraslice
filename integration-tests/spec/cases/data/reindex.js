@@ -114,19 +114,19 @@ describe('reindex', () => {
             jobs.push(teraslice.jobs.submit(jobSpec));
         }
 
-        Promise
-            .map(jobs, (job) => {
+        Promise.resolve()
+            .then(() => Promise.map(jobs, (job) => {
                 expect(job).toBeDefined();
                 expect(job.id()).toBeDefined();
 
                 return job.waitForStatus('completed');
-            })
-            .all()
+            }))
             .then(() => misc.indexStats('test-reindex-10times')
                 .then((stats) => {
                     expect(stats.count).toBe(10 * iterations);
                     expect(stats.deleted).toBe(0);
-                    done();
-                }));
+                }))
+            .catch(fail)
+            .finally(done);
     });
 });

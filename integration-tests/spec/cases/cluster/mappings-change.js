@@ -2,13 +2,12 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
-
-const misc = require('../../misc')();
+const { forNodes } = require('../../wait');
+const misc = require('../../misc');
 
 const docker = misc.compose;
 
-
-module.exports = function (waitForTeraslice) {
+module.exports = () => {
     const client = misc.es();
 
     function checkIndex(index) {
@@ -16,7 +15,7 @@ module.exports = function (waitForTeraslice) {
             .then((results) => {
                 const indexName = Object.keys(results)[0];
                 const alias = Object.keys(results[indexName].aliases)[0];
-                const mappings = results[indexName].mappings;
+                const { mappings } = results[indexName];
                 return { indexName, alias, mappings };
             });
     }
@@ -32,7 +31,7 @@ module.exports = function (waitForTeraslice) {
 
     describe('cluster on start', () => {
         it('should migrate and update alias on state indices when a mapping changes', (done) => {
-            const version = require('../../../../package.json').version;
+            const { version } = require('../../../../package.json');
             let startingIndex = 'teracluster__ex';
             let migrantName = `${startingIndex}-v${version}`;
             let indexCount;
@@ -58,7 +57,7 @@ module.exports = function (waitForTeraslice) {
                     indexCount = count;
                     return restartTeraslice();
                 })
-                .then(() => waitForTeraslice())
+                .then(() => forNodes(4))
                 .then(() => checkIndex(migrantName))
                 .then((indexInfo) => {
                     expect(indexInfo.alias).toEqual(startingIndex);

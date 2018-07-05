@@ -3,7 +3,7 @@
 const search = require('../../lib/cluster/services/api/search');
 const Promise = require('bluebird');
 const moment = require('moment');
-const dateFormat = require('../../lib/utils/date_utils').dateFormat;
+const { dateFormat } = require('../../lib/utils/date_utils');
 
 describe('api search', () => {
     const logger = {
@@ -15,8 +15,8 @@ describe('api search', () => {
         flush() {}
     };
 
-    function searchFn() {
-        return [].slice.call(arguments);
+    function searchFn(...args) {
+        return args.slice();
     }
 
     it('can load', (done) => {
