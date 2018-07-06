@@ -1,7 +1,7 @@
 {
-  "192.168.99.100": {
-    "node_id": "192.168.99.100",
-    "hostname": "192.168.99.100",
+  "127.0.0.1": {
+    "node_id": "127.0.0.1",
+    "hostname": "127.0.0.1",
     "pid": 1,
     "node_version": "N/A",
     "teraslice_version": "N/A",

@@ -1,5 +1,8 @@
 # Kubernetes Clustering
 
+** KUBERNETES SUPPORT IS STILL A WORK IN PROGRESS
+These notes are intended for contributors only **
+
 Teraslice supports the use of Kubernetes as a cluster manager.  The supported
 versions of Kubernetes is:
 
