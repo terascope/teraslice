@@ -30,7 +30,7 @@ spec:
           configMap:
             name: teraslice-master
             items:
-              - key: processor-master-k8s.yaml
+              - key: teraslice-master.yaml
                 path: teraslice.yaml  # the filename that the configMap gets written to, inside the matching mountPath
       imagePullSecrets:
         - name: docker-tera1-secret

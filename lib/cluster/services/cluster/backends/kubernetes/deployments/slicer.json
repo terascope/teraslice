@@ -50,7 +50,7 @@
                     "configMap": {
                         "name": "teraslice-worker",
                         "items": [{
-                            "key": "teraslice-worker.yml",
+                            "key": "teraslice-worker.yaml",
                             "path": "teraslice.yaml"
                         }]
                     }

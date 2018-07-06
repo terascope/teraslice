@@ -18,67 +18,36 @@ in both the `teraslice-master` and `teraslice-worker` ConfigMaps.
 
 ### ConfigMaps
 
-For the ConfigMaps below, substitute your values for:
+Kubernetes ConfigMaps are used to configure Teraslice, you will need to
+substitute the appropriate Elasticsearch host and port number for the values:
 
 * `<ELASTICSEARCH_HOST>`
 * `<ELASTICSEARCH_PORT>`
 
-then add `teraslice-master` configmap:
+in the `teraslice-worker.yaml` and `teraslice-master.yaml` files prior to
+loading them the with the commands shown below:
 
-```yaml
-apiVersion: v1
-data:
-  processor-master-k8s.yaml: |
-    terafoundation:
-        environment: 'development'
-        connectors:
-            elasticsearch:
-                default:
-                    host:
-                        - "<ELASTICSEARCH_HOST>:<ELASTICSEARCH_PORT>"
-
-    teraslice:
-        ops_directory: '/app/source/examples/ops/'
-        cluster_manager_type: 'kubernetes'
-        master: true
-        master_hostname: "127.0.0.1"
-        name: "teracluster"
-kind: ConfigMap
+```bash
+cd example/k8s
+kubectl create configmap teraslice-worker --from-file=teraslice-worker.yaml
+kubectl create configmap teraslice-master --from-file=teraslice-master.yaml
 ```
 
-and then add `teraslice-worker` ConfigMap:
-
-```yaml
-apiVersion: v1
-data:
-  teraslice-worker.yml: |+
-    terafoundation:
-        environment: 'development'
-        connectors:
-            elasticsearch:
-                default:
-                    host:
-                        - "<ELASTICSEARCH_HOST>:<ELASTICSEARCH_PORT>"
-    teraslice:
-        ops_directory: '/app/source/examples/ops/'
-        cluster_manager_type: kubernetes
-        master: false
-        master_hostname: "teraslice-master"
-        name: "teracluster"
-kind: ConfigMap
-```
+You will also need to make sure your docker registry credentials are loaded
+if you aren't using the public docker hub.
 
 FIXME: The secret name is hardcoded somewhere as `docker-tera1-secret`, this
 should probably be a more sensible default that could be overridden in the
 config files.  I will leave this as a TODO
 
 ```bash
-kubectl create secret docker-registry docker-tera1-secret \
+kubectl create -n k8sdev secret docker-registry docker-tera1-secret \
     --docker-server=<DOCKER_HOST> \
     --docker-username=<DOCKER_USER> \
     --docker-password=<DOCKER_PASS> \
     --docker-email=<DOCKER_EMAIL>
 ```
+
 # Makefile
 
 There is a Makefile I use to help bootstrap Teraslice and do repetitive tasks,
@@ -101,6 +70,7 @@ The standard workflow is:
 
 ```
 cd examples/k8s
+export TS_MASTER_URL=192.168.99.100:30678
 make k8s-master
 make submit
 make show
