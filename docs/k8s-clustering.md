@@ -19,6 +19,18 @@ IP address of that interface is what you need to set as:
 
 in both the `teraslice-master` and `teraslice-worker` ConfigMaps.
 
+### `default` ServiceAccount Binding
+
+As a development workaround, cluster admin privileges should be added to the
+default ServiceAccount in the default namespace using the following command:
+
+```
+cd example/k8s
+kubectl create -f teraslice-default-binding.yaml
+```
+
+This may not be appropriate for production environments.
+
 ### ConfigMaps
 
 Kubernetes ConfigMaps are used to configure Teraslice, you will need to
