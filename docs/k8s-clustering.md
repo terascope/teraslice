@@ -31,6 +31,12 @@ kubectl create -f teraslice-default-binding.yaml
 
 This may not be appropriate for production environments.
 
+### Kubernetes Specific Configuration Settings
+
+|  Configuration   |                    Description                    |  Type  |  Notes   |
+|:----------------:|:-------------------------------------------------:|:------:|:--------:|
+| kubernetes_image | Name of docker image, default: `teraslice:k8sdev` | String | optional |
+
 ### ConfigMaps
 
 Kubernetes ConfigMaps are used to configure Teraslice, you will need to
@@ -81,13 +87,37 @@ k8s-master:  start teraslice master in k8s
 build:  build the teraslice:k8sdev container
 ```
 
-The standard workflow is:
+The standard minikube based dev workflow is:
 
 ```
 cd examples/k8s
-export TS_MASTER_URL=192.168.99.100:30678
+make build
 make k8s-master
 make submit
+make show
+make destroy
+```
+
+# Using a Custom Image Name
+
+If you want to use a custom image name, add the `kubernetes_image` setting to
+the teraslice section of both your master and workers configMaps with the
+desired image name like so:
+
+```
+    kubernetes_image: "teraslice:asgdev"
+```
+
+and then when you build the image, provide the `TERASLICE_K8S_IMAGE` environment
+variable as shown below:
+
+```
+cd examples/k8s
+# Build with a different image name (it must match the name in your teraslice.yaml configMap)
+TERASLICE_K8S_IMAGE=teraslice:asgdev make build
+make k8s-master
+# Submit job to k8s endpoint
+TERASLICE_MASTER_URL=192.168.99.100:30678 make submit
 make show
 make destroy
 ```

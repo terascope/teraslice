@@ -21,7 +21,7 @@
             },
             "spec": {
                 "containers": [{
-                    "image": "teraslice:k8sdev",
+                    "image": "<TERASLICE_K8S_IMAGE>",
                     "name": "teraslice",
                     "ports": [{ "containerPort": 45680 }],
                     "volumeMounts": [{
