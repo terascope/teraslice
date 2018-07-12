@@ -154,8 +154,15 @@ describe('checks to for job and asset file content', () => {
 
         const jobFileFunctions = require('../cmds/cmd_functions/data_checks')(tjmConfig);
         const jobData = jobFileFunctions.returnJobData(true);
-        expect(tjmConfig.cluster).toBe('someClusterName');
+        expect(tjmConfig.cluster).toBe('http://someClusterName');
         fs.unlinkSync(path.join(__dirname, '..', 'fakeFile2.json'));
+    });
+
+    it('url check should add http to urls when needed', () => {
+        const jobFileFunctions = require('../cmds/cmd_functions/data_checks')();
+        expect(jobFileFunctions._urlCheck('http://bobsyouruncle.com')).toEqual('http://bobsyouruncle.com');
+        expect(jobFileFunctions._urlCheck('https://bobsyouruncle.com')).toEqual('https://bobsyouruncle.com');
+        expect(jobFileFunctions._urlCheck('bobsyouruncle.com')).toEqual('http://bobsyouruncle.com');
     });
 });
 

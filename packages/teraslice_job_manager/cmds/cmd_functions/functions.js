@@ -8,14 +8,14 @@ const reply = require('./reply')();
 const path = require('path');
 
 module.exports = (tjmConfig) => {
-    let teraslice = require('teraslice-client-js')({
+    let terasliceClient = require('teraslice-client-js')({
         host: `${tjmConfig.cluster}`
     });
 
     function alreadyRegisteredCheck() {
         const jobContents = tjmConfig.job_file_content;
         if (_.has(jobContents, 'tjm.cluster')) {
-            return teraslice.jobs.wrap(jobContents.tjm.job_id).spec()
+            return terasliceClient.jobs.wrap(jobContents.tjm.job_id).spec()
                 .then((jobSpec) => {
                     if (jobSpec.job_id === jobContents.tjm.job_id) {
                         // return true for testing purposes
@@ -30,7 +30,7 @@ module.exports = (tjmConfig) => {
     function _postAsset() {
         return Promise.resolve()
             .then(() => fs.readFile(path.join(process.cwd(), 'builds', 'processors.zip')))
-            .then(zipFile => teraslice.assets.post(zipFile))
+            .then(zipFile => terasliceClient.assets.post(zipFile))
             .then(assetPostResponse => assetPostResponse);
     }
 
@@ -50,7 +50,7 @@ module.exports = (tjmConfig) => {
                 if (postResponseJson.error) {
                     return Promise.reject(new Error(postResponseJson.error));
                 }
-                reply.green(`Asset posted to ${tjmConfig.c} with id ${postResponseJson._id}`);
+                reply.green(`Asset posted to ${tjmConfig.cluster} with id ${postResponseJson._id}`);
                 return Promise.resolve();
             })
             .then(() => {
@@ -58,7 +58,7 @@ module.exports = (tjmConfig) => {
                 return createJsonFile(path.join(process.cwd(), 'asset/asset.json'), assetJson);
             })
             .then(() => reply.green('TJM data added to asset.json'))
-            .then(() => reply.green(`Asset has successfully been deployed to ${tjmConfig.c}`));
+            .then(() => reply.green(`Asset has successfully been deployed to ${tjmConfig.cluster}`));
     }
 
     function createJsonFile(filePath, jsonObject) {
@@ -93,19 +93,10 @@ module.exports = (tjmConfig) => {
 
     function _updateAssetMetadata() {
         // writes asset metadata to asset.json
-        let assetJson;
+        const cluster = tjmConfig.cluster;
+        const assetJson = tjmConfig.asset_file_content;
 
-        try {
-            assetJson = fs.readJsonSync(path.join(process.cwd(), 'asset', 'asset.json'));
-        } catch (err) {
-            throw new Error(`Could not load asset.json: ${err.message}`);
-        }
-
-        const cluster = tjmConfig.l ? 'http://localhost:5678' : tjmConfig.c;
         if (_.has(assetJson, 'tjm.clusters')) {
-            if (_.indexOf(assetJson.tjm.clusters, cluster) >= 0) {
-                throw new Error(`Assets have already been deployed to ${cluster}, use update`);
-            }
             assetJson.tjm.clusters.push(cluster);
             return assetJson;
         }
@@ -113,8 +104,8 @@ module.exports = (tjmConfig) => {
         return assetJson;
     }
 
-    function __testContext(_teraslice) {
-        teraslice = _teraslice;
+    function __testContext(_terasliceClient) {
+        terasliceClient = _terasliceClient;
     }
 
     function __testFunctions() {
@@ -128,7 +119,7 @@ module.exports = (tjmConfig) => {
         alreadyRegisteredCheck,
         loadAsset,
         createJsonFile,
-        teraslice,
+        terasliceClient,
         __testContext,
         __testFunctions,
         zipAsset,

@@ -12,7 +12,7 @@ let registeredCheck;
 let returnedErrors;
 const _tjmTestFunctions = {
     alreadyRegisteredCheck: () => registeredCheck,
-    teraslice: {
+    terasliceClient: {
         jobs: {
             wrap: () => {
                     return { 

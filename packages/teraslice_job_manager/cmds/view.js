@@ -16,7 +16,7 @@ exports.handler = (argv, _testFunctions) => {
 
     const jobId = tjmConfig.job_file_content.tjm.job_id;
     return tjmFunctions.alreadyRegisteredCheck()
-        .then(() => tjmFunctions.teraslice.jobs.wrap(jobId).spec())
+        .then(() => tjmFunctions.terasliceClient.jobs.wrap(jobId).spec())
         .then(jobSpec => {
             reply.yellow(`Current Job File on Cluster ${tjmConfig.cluster}:`);
             reply.green(JSON.stringify(jobSpec, null, 4));

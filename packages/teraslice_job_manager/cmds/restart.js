@@ -17,14 +17,14 @@ exports.handler = (argv, _testFunctions) => {
     const jobId = jobContents.tjm.job_id;
 
     return tjmFunctions.alreadyRegisteredCheck()
-        .then(() => tjmFunctions.teraslice.jobs.wrap(jobId).stop())
+        .then(() => tjmFunctions.terasliceClient.jobs.wrap(jobId).stop())
         .then((stopResponse) => {
             if (!stopResponse.status.status === 'stopped') {
                 return Promise.reject(new Error('Job could not be stopped'));                
             }
             reply.green(`Stopped job ${jobId} on ${jobContents.tjm.cluster}`);
         })
-        .then(() => tjmFunctions.teraslice.jobs.wrap(jobId).start())
+        .then(() => tjmFunctions.terasliceClient.jobs.wrap(jobId).start())
         .then((startResponse) => {
             if (_.has(startResponse, 'job_id')) {
                 reply.green(`Restarted job ${jobId}`);

@@ -14,7 +14,7 @@ let stopStatus;
 let newJobContents;
 const _tjmTestFunctions = {
     alreadyRegisteredCheck: () => registeredCheck,
-    teraslice: {
+    terasliceClient: {
         jobs: {
             wrap: (jobId) => {
                     return { 

@@ -23,7 +23,7 @@ exports.handler = (argv, _testFunctions) => {
             if (argv.num <= 0 || _.isNaN(argv.num)) {
                 return Promise.reject(new Error('Number of workers must be a positive number'));
             }
-            return tjmFunctions.teraslice.jobs.wrap(jobId)
+            return tjmFunctions.terasliceClient.jobs.wrap(jobId)
                 .changeWorkers(tjmConfig.param, tjmConfig.num);
         })
         .then((workersChange) => {

@@ -23,6 +23,7 @@ For all commands that accept `-c`, if `-c` is missing default is http://localhos
 - `tjm asset deploy -c` clusterName *Deploys assets to the cluster*
 - `tjm asset update -c` clusterName *Updates asset in the cluster(s) specified.  If no -c flag then all the clusters in the asset.json will get updated*
 - `tjm asset status` *Shows the latest asset version in the cluster(s) in asset.json*
+- `tjm asset replace -c` clusterName *Deletes and replaces an asset, this is intended to be used for asset development and not for production asset management* 
 
 **REGISTER** - Registers a job to a cluster with an option to deploy assets.  Updates the jobFile.json with the cluster and job id data.  Use -a to deploy assets, -r to run immediately after registering
 - `tjm register -c clustername jobFile.json`

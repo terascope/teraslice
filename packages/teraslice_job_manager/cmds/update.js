@@ -24,11 +24,11 @@ exports.handler = (argv, _testFunctions) => {
     const cluster = tjmConfig.cluster;
 
     function restartJob() {
-        return tjmFunctions.teraslice.jobs.wrap(jobId).status()
+        return tjmFunctions.terasliceClient.jobs.wrap(jobId).status()
             .then((status) => {
                 if (status === 'running') {
                     reply.green(`Job ${jobId} is currently running on ${cluster}, attempting to stop and restart`);
-                    return tjmFunctions.teraslice.jobs.wrap(jobId).stop();
+                    return tjmFunctions.terasliceClient.jobs.wrap(jobId).stop();
                 }
                 reply.green(`Job ${jobId} is not currently running on ${cluster}, attempting to start`);
                 return Promise.resolve();
@@ -37,7 +37,7 @@ exports.handler = (argv, _testFunctions) => {
                 if (_.has(newStatus, 'status.status') && newStatus.status.status === 'stopped') {
                     reply.green(`stopped job ${jobId} on ${cluster}`);
                 }
-                return tjmFunctions.teraslice.jobs.wrap(jobId).start();
+                return tjmFunctions.terasliceClient.jobs.wrap(jobId).start();
             })
             .then((restartResponse) => {
                     reply.green(`started job ${jobId} on ${cluster}`);
@@ -46,7 +46,7 @@ exports.handler = (argv, _testFunctions) => {
     }
 
     return tjmFunctions.alreadyRegisteredCheck()
-        .then(() => tjmFunctions.teraslice.cluster.put(`/jobs/${jobId}`, tjmConfig.job_file_content))
+        .then(() => tjmFunctions.terasliceClient.cluster.put(`/jobs/${jobId}`, tjmConfig.job_file_content))
         .then((updateResponse) => {
             if (_.isEmpty(updateResponse)) {
                 return Promise.reject(new Error ('Could not update job'));

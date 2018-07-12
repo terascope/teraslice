@@ -13,7 +13,7 @@ let registeredCheck;
 let specData;
 const _tjmTestFunctions = {
     alreadyRegisteredCheck: () => registeredCheck,
-    teraslice: {
+    terasliceClient: {
         jobs: {
             wrap: (jobContents) => {
                     return { spec: () => Promise.resolve(specData) }

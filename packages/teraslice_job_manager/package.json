@@ -1,6 +1,6 @@
 {
   "name": "teraslice-job-manager",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "teraslice job manager",
   "main": "index.js",
   "publishConfig": {
@@ -40,6 +40,7 @@
     "chalk": "^2.3.2",
     "fs-extra": "^5.0.0",
     "lodash": "^4.17.5",
+    "prompts": "^0.1.11",
     "teraslice-client-js": "terascope/teraslice-client-js",
     "yargs": "^11.0.0"
   },

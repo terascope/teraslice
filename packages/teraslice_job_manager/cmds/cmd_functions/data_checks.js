@@ -16,7 +16,7 @@ module.exports = (tjmConfig) => {
             return;
         }
         
-        tjmConfig.cluster = tjmConfig.l ? 'http://localhost:5678' : tjmConfig.c;
+        tjmConfig.cluster = tjmConfig.l ? 'http://localhost:5678' : _urlCheck(tjmConfig.c);
 
         if(!tjmConfig.cluster) {
             reply.fatal('Use -c to specify a cluster or use -l for localhost')
