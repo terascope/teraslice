@@ -1,0 +1,15 @@
+# NOTE: This binding is probably a little to permissive for most people's needs
+# this allows ANY pod to act as a cluster-admin in the default namespace.  This
+# is a temporary development workaround.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: teraslice-default-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: default

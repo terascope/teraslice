@@ -247,6 +247,9 @@ curl YOU_MASTER_IP:5678/v1/cluster/state
 ## Configuration
 
  * [Teraslice configuration reference](./docs/configuration.md)
+ * [Kubernetes Cluster Master](./docs/k8s-clustering.md)
 
 ## Services
+
  * [additional services](./docs/services.md)
+

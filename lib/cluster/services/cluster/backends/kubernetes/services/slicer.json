@@ -1,0 +1,26 @@
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "labels": {
+        "app": "teraslice",
+        "nodeType": "execution_controller",
+        "exId": "<EXID>"
+    },
+    "name": "teraslice-execution_controller-<EXID>",
+    "namespace": "default"
+  },
+  "spec": {
+    "ports": [
+      {
+        "port": 45680,
+        "targetPort": 45680
+      }
+    ],
+    "selector": {
+      "app": "teraslice",
+      "nodeType": "execution_controller",
+      "exId": "<EXID>"
+    }
+  }
+}

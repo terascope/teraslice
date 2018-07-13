@@ -1,0 +1,13 @@
+terafoundation:
+    environment: 'development'
+    connectors:
+        elasticsearch:
+            default:
+                host:
+                    - "<ELASTICSEARCH_HOST>:<ELASTICSEARCH_PORT>"
+teraslice:
+    ops_directory: '/app/source/examples/ops/'
+    cluster_manager_type: "kubernetes"
+    master: false
+    master_hostname: "teraslice-master"
+    name: "teracluster"
