@@ -329,7 +329,7 @@ describe('execution engine', () => {
     it('can register slice completions', () => {
         const exId = '1234';
         const testEngine = makeEngine();
-        const { workerQueue } = testEngine.testContext;
+        const { workerQueue, _getSliceCompletedCache } = testEngine.testContext;
         const { myEmitter } = testEngine;
         const sliceComplete = messagingEvents['worker:slice:complete'];
         let gotSliceSuccess = false;
@@ -339,18 +339,20 @@ describe('execution engine', () => {
             __msgId: _.uniqueId('msg-id-'),
             payload: {
                 worker_id: 'some-worker-id',
-                slice_id: _.uniqueId('slice-id-'),
-                slice_order: 1,
-                some: 'data'
+                slice: {
+                    slice_id: _.uniqueId('slice-id-'),
+                    slice_order: 1,
+                }
             }
         };
         const slice2 = {
             __msgId: _.uniqueId('msg-id-'),
             payload: {
                 worker_id: _.uniqueId('worker-id-'),
-                slice_id: _.uniqueId('slice-id-'),
-                slice_order: 2,
-                some: 'data',
+                slice: {
+                    slice_id: _.uniqueId('slice-id-'),
+                    slice_order: 2,
+                },
                 error: 'some error'
             }
         };
@@ -359,9 +361,10 @@ describe('execution engine', () => {
             __msgId: _.uniqueId('msg-id-'),
             payload: {
                 worker_id: _.uniqueId('worker-id-'),
-                slice_id: _.uniqueId('slice-id-'),
-                slice_order: 3,
-                some: 'data',
+                slice: {
+                    slice_id: _.uniqueId('slice-id-'),
+                    slice_order: 3,
+                },
                 retry: true,
                 analytics: true
             }
@@ -371,8 +374,10 @@ describe('execution engine', () => {
             __msgId: _.uniqueId('msg-id-'),
             payload: {
                 worker_id: _.uniqueId('worker-id-'),
-                slice_id: _.uniqueId('slice-id-'),
-                slice_order: 4,
+                slice: {
+                    slice_id: _.uniqueId('slice-id-'),
+                    slice_order: 4,
+                },
                 some: 'data',
                 isShuttingDown: true,
             }
@@ -395,11 +400,18 @@ describe('execution engine', () => {
             incoming: slice1,
             outgoing: {
                 payload: {
-                    slice_id: slice1.payload.slice_id,
+                    slice_id: slice1.payload.slice.slice_id,
                     recorded: true
                 }
             }
         });
+
+        const cache = _getSliceCompletedCache();
+        const cachekey = JSON.stringify({
+            slice: slice1.payload.slice,
+            worker_id: slice1.payload.worker_id,
+        });
+        expect(cache[cachekey]).toEqual(true);
 
         expect(workerQueue.size()).toEqual(1);
 
@@ -419,7 +431,7 @@ describe('execution engine', () => {
 
     it('can safely call slice complete twice', () => {
         const testEngine = makeEngine();
-        const { workerQueue } = testEngine.testContext;
+        const { workerQueue, _getSliceCompletedCache } = testEngine.testContext;
         const { myEmitter } = testEngine;
         const sliceComplete = messagingEvents['worker:slice:complete'];
         let gotSliceSuccess = false;
@@ -429,9 +441,10 @@ describe('execution engine', () => {
             __msgId: _.uniqueId('msg-id-'),
             payload: {
                 worker_id: 'some-worker-id',
-                slice_id: _.uniqueId('slice-id-'),
-                slice_order: 1,
-                some: 'data'
+                slice: {
+                    slice_id: _.uniqueId('slice-id-'),
+                    slice_order: 1,
+                }
             }
         };
 
@@ -447,6 +460,13 @@ describe('execution engine', () => {
 
         sliceComplete(slice, slice.payload.worker_id);
 
+        const cache = _getSliceCompletedCache();
+        const cachekey = JSON.stringify({
+            slice: slice.payload.slice,
+            worker_id: slice.payload.worker_id,
+        });
+        expect(cache[cachekey]).toEqual(true);
+
         expect(workerQueue.size()).toEqual(1);
 
         expect(gotSliceSuccess).toEqual(true);
@@ -455,7 +475,7 @@ describe('execution engine', () => {
             incoming: slice,
             outgoing: {
                 payload: {
-                    slice_id: slice.payload.slice_id,
+                    slice_id: slice.payload.slice.slice_id,
                     recorded: true
                 }
             }
@@ -470,7 +490,7 @@ describe('execution engine', () => {
         expect(gotSliceSuccess).toEqual(false);
         expect(gotSliceFailure).toEqual(false);
 
-        expect(warnMsg).toEqual(`worker: ${slice.payload.worker_id} already marked slice ${slice.payload.slice_id} as complete`);
+        expect(warnMsg).toEqual(`worker: ${slice.payload.worker_id} already marked slice ${slice.payload.slice.slice_id} as complete`);
     });
 
     it('can register slicers', () => {
