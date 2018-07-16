@@ -1,9 +1,9 @@
 'use strict';
 
-const engineCode = require('../../lib/cluster/execution_controller/engine');
 const events = require('events');
 const Promise = require('bluebird');
 const _ = require('lodash');
+const engineCode = require('../../lib/cluster/execution_controller/engine');
 
 const eventEmitter = new events.EventEmitter();
 
