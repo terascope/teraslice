@@ -220,7 +220,7 @@ describe('execution engine', () => {
             .finally(done);
     });
 
-    it('registers messsaging events', () => {
+    it('registers messaging events', () => {
         makeEngine();
         expect(messagingEvents['cluster:execution:pause']).toBeDefined();
         expect(typeof messagingEvents['cluster:execution:pause']).toEqual('function');
@@ -470,7 +470,7 @@ describe('execution engine', () => {
         expect(gotSliceSuccess).toEqual(false);
         expect(gotSliceFailure).toEqual(false);
 
-        expect(warnMsg).toEqual(`worker: ${slice.payload.worker_id} already marked this slice as complete`);
+        expect(warnMsg).toEqual(`worker: ${slice.payload.worker_id} already marked slice ${slice.payload.slice_id} as complete`);
     });
 
     it('can register slicers', () => {
@@ -571,7 +571,7 @@ describe('execution engine', () => {
         function slicerError() {
             if (errorCounter < 2) {
                 errorCounter += 1;
-                return Promise.reject('an error occured during slicer initialization');
+                return Promise.reject('an error occurred during slicer initialization');
             }
             return Promise.resolve([() => 'all done']);
         }
