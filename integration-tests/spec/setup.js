@@ -1,6 +1,6 @@
 'use strict';
 
-/* eslint-disable no-signale */
+process.env.BLUEBIRD_LONG_STACK_TRACES = '1';
 
 const _ = require('lodash');
 const signale = require('signale');
@@ -98,7 +98,7 @@ function generateTestData() {
             ]
         };
 
-        return new Promise(((resolve) => {
+        return new Promise(((resolve, reject) => {
             misc.es().indices.delete({ index: indexName }, () => {
                 if (!hex) {
                     resolve(misc.teraslice().jobs.submit(jobSpec));
@@ -106,11 +106,14 @@ function generateTestData() {
                     jobSpec.operations[0].size = count / hex.length;
                     jobSpec.operations[0].set_id = 'hexadecimal';
                     jobSpec.operations[1].id_field = 'id';
-                    resolve(_.map(hex, (letter) => {
+                    const jobs = _.map(hex, (letter) => {
                         jobSpec.name = `Generate: ${indexName}[${letter}]`;
                         jobSpec.operations[0].id_start_key = letter;
                         return misc.teraslice().jobs.submit(jobSpec);
-                    }));
+                    });
+                    Promise.all(jobs)
+                        .then(() => resolve())
+                        .catch(err => reject(err));
                 }
             });
         }));
