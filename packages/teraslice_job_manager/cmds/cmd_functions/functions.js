@@ -96,11 +96,11 @@ module.exports = (tjmConfig) => {
         const cluster = tjmConfig.cluster;
         const assetJson = tjmConfig.asset_file_content;
 
-        if (_.has(assetJson, 'tjm.clusters')) {
+        if (!_.has(assetJson, 'tjm.clusters')) {
+            _.set(assetJson, 'tjm.clusters', [cluster]);
+        } else if (assetJson.tjm.clusters.indexOf(cluster) === -1) {
             assetJson.tjm.clusters.push(cluster);
-            return assetJson;
         }
-        _.set(assetJson, 'tjm.clusters', [cluster]);
         return assetJson;
     }
 

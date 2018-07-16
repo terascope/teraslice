@@ -1,6 +1,6 @@
 {
   "name": "teraslice-job-manager",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "teraslice job manager",
   "main": "index.js",
   "publishConfig": {
