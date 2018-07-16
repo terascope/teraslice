@@ -115,9 +115,15 @@ function generateTestData() {
                 };
 
                 return Promise.all([
-                    client.index({ index, type: 'state', id: errored.slice_id, body: errored }),
-                    client.index({ index, type: 'state', id: notCompleted.slice_id, body: notCompleted }),
-                    client.index({ index: 'teracluster__ex', type: 'ex', id: exConfig.ex_id, body: exConfig })
+                    client.index({
+ index, type: 'state', id: errored.slice_id, body: errored 
+}),
+                    client.index({
+ index, type: 'state', id: notCompleted.slice_id, body: notCompleted 
+}),
+                    client.index({
+ index: 'teracluster__ex', type: 'ex', id: exConfig.ex_id, body: exConfig 
+})
                 ])
                     .catch(err => Promise.reject(err));
             });
@@ -125,13 +131,11 @@ function generateTestData() {
 
     function postJob(jobSpec) {
         return misc.teraslice().jobs.submit(jobSpec)
-            .then((job) => {
-                return job.ex()
+            .then((job) => job.ex()
                     .then((exId) => {
                         jobList.push(exId);
                         return job;
-                    });
-            });
+                    }));
     }
 
     function cleanupIndex(indexName) {

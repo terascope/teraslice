@@ -79,10 +79,6 @@ describe('Worker', () => {
             return Promise.resolve();
         },
         listen: () => {},
-<<<<<<< HEAD
-=======
-        shutdown: () => {}
->>>>>>> handle messaging.shutdown when needed
     };
 
     const stateStore = {
