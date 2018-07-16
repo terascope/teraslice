@@ -19,6 +19,7 @@ describe('Worker', () => {
     let warnMsg; // eslint-disable-line
     let loggerConfig;
     let respondingMsg;
+    let messageResponse;
 
     const logger = {
         error(err) {
@@ -71,9 +72,11 @@ describe('Worker', () => {
         getHostUrl: () => 'someURL',
         send: (_sentMsg) => {
             sentMsg = _sentMsg;
+            return Promise.resolve(messageResponse);
         },
         respond: (_inc, res) => {
             respondingMsg = Object.assign({}, _inc, { message: 'messaging:response' }, res);
+            return Promise.resolve();
         },
         listen: () => {}
     };
@@ -143,6 +146,7 @@ describe('Worker', () => {
         warnMsg = null;
         loggerConfig = null;
         respondingMsg = null;
+        messageResponse = Promise.resolve(true);
     });
 
     it('can load without throwing', () => {
@@ -158,14 +162,12 @@ describe('Worker', () => {
         expect(typeof worker.__test_context).toEqual('function');
     });
 
-    it('registers messsaging events', () => {
+    it('registers messaging events', () => {
         instantiateModule();
         expect(messagingEvents['assets:loaded']).toBeDefined();
         expect(typeof messagingEvents['assets:loaded']).toEqual('function');
         expect(messagingEvents['slicer:slice:new']).toBeDefined();
         expect(typeof messagingEvents['slicer:slice:new']).toEqual('function');
-        expect(messagingEvents['slicer:slice:recorded']).toBeDefined();
-        expect(typeof messagingEvents['slicer:slice:recorded']).toEqual('function');
         expect(messagingEvents['network:error']).toBeDefined();
         expect(typeof messagingEvents['network:error']).toEqual('function');
         expect(messagingEvents['network:disconnect']).toBeDefined();
@@ -411,6 +413,13 @@ describe('Worker', () => {
         const jobId = '5678';
         const lastMessage = instantiateModule({ exId, jobId }).testContext._lastMessage;
         const slice = { slice_id: 'as35g' };
+        let recordSlice;
+
+        messageResponse = new Promise((resolve) => {
+            recordSlice = (resp) => {
+                resolve(resp);
+            };
+        });
 
         Promise.all([
             messagingEvents['slicer:slice:new']({ payload: slice }),
@@ -423,18 +432,23 @@ describe('Worker', () => {
                     slice: { slice_id: 'as35g' },
                     analytics: { time: [], size: [], memory: [] }
                 });
+
                 // this should add the retry key to last sent message
                 messagingEvents['network:connect']();
                 const newLastMessage = Object.assign({}, theLastMessage, { retry: true });
+
                 expect(lastMessage()).toEqual(newLastMessage);
                 expect(sentMsg).toEqual({
                     to: 'execution_controller',
                     message: 'worker:slice:complete',
                     worker_id: 'testHostName__someID',
+                    response: true,
                     payload: newLastMessage
                 });
 
-                messagingEvents['slicer:slice:recorded']();
+                recordSlice({ recorded: true });
+                return Promise.delay(100);
+            }).then(() => {
                 expect(lastMessage()).toEqual(false);
                 messagingEvents['network:connect']();
                 expect(sentMsg).toEqual({
@@ -442,6 +456,61 @@ describe('Worker', () => {
                     message: 'worker:ready',
                     worker_id: 'testHostName__someID',
                     payload: { worker_id: 'testHostName__someID' }
+                });
+            })
+            .catch(fail)
+            .finally(done);
+    });
+
+    it('can handle timeouts when marking slice as complete', (done) => {
+        const exId = '1234';
+        const jobId = '5678';
+        const lastMessage = instantiateModule({ exId, jobId }).testContext._lastMessage;
+        const slice = { slice_id: 'as35g' };
+        let rejectSlice;
+
+        messageResponse = new Promise((resolve, reject) => {
+            rejectSlice = (err) => {
+                reject(err);
+            };
+        });
+
+        Promise.all([
+            messagingEvents['slicer:slice:new']({ payload: slice }),
+            waitFor(10)
+        ])
+            .then(() => {
+                const theLastMessage = lastMessage();
+                expect(theLastMessage).toEqual({
+                    worker_id: 'testHostName__someID',
+                    slice: { slice_id: 'as35g' },
+                    analytics: { time: [], size: [], memory: [] }
+                });
+
+                // this should add the retry key to last sent message
+                messagingEvents['network:connect']();
+                const newLastMessage = Object.assign({}, theLastMessage, { retry: true });
+
+                expect(lastMessage()).toEqual(newLastMessage);
+                expect(sentMsg).toEqual({
+                    to: 'execution_controller',
+                    message: 'worker:slice:complete',
+                    worker_id: 'testHostName__someID',
+                    response: true,
+                    payload: newLastMessage
+                });
+
+                rejectSlice(new Error('Bad news!'));
+                return Promise.delay(100).then(() => {
+                    expect(lastMessage()).toEqual(newLastMessage);
+                    expect(sentMsg).toEqual({
+                        to: 'execution_controller',
+                        message: 'worker:slice:complete',
+                        worker_id: 'testHostName__someID',
+                        response: true,
+                        payload: newLastMessage
+                    });
+                    expect(errorMsg).toEqual('waiting for slice completed response');
                 });
             })
             .catch(fail)
