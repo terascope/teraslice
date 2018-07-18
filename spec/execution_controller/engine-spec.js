@@ -329,7 +329,7 @@ describe('execution engine', () => {
     it('can register slice completions', () => {
         const exId = '1234';
         const testEngine = makeEngine();
-        const { workerQueue, _getSliceCompletedCache } = testEngine.testContext;
+        const { workerQueue, cache } = testEngine.testContext;
         const { myEmitter } = testEngine;
         const sliceComplete = messagingEvents['worker:slice:complete'];
         let gotSliceSuccess = false;
@@ -406,12 +406,11 @@ describe('execution engine', () => {
             }
         });
 
-        const cache = _getSliceCompletedCache();
         const cachekey = JSON.stringify({
             slice: slice1.payload.slice,
             worker_id: slice1.payload.worker_id,
         });
-        expect(cache[cachekey]).toEqual(true);
+        expect(cache.get(cachekey)).toEqual(true);
 
         expect(workerQueue.size()).toEqual(1);
 
@@ -431,7 +430,7 @@ describe('execution engine', () => {
 
     it('can safely call slice complete twice', () => {
         const testEngine = makeEngine();
-        const { workerQueue, _getSliceCompletedCache } = testEngine.testContext;
+        const { workerQueue, cache } = testEngine.testContext;
         const { myEmitter } = testEngine;
         const sliceComplete = messagingEvents['worker:slice:complete'];
         let gotSliceSuccess = false;
@@ -460,12 +459,11 @@ describe('execution engine', () => {
 
         sliceComplete(slice, slice.payload.worker_id);
 
-        const cache = _getSliceCompletedCache();
         const cachekey = JSON.stringify({
             slice: slice.payload.slice,
             worker_id: slice.payload.worker_id,
         });
-        expect(cache[cachekey]).toEqual(true);
+        expect(cache.get(cachekey)).toEqual(true);
 
         expect(workerQueue.size()).toEqual(1);
 

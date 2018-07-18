@@ -56,6 +56,7 @@
     "lodash": "^4.17.5",
     "mocker-data-generator": "^2.6.1",
     "moment": "^2.21.0",
+    "node-cache": "^4.2.0",
     "request": "^2.85.0",
     "shortid": "^2.2.12",
     "socket.io": "2.1.1",
