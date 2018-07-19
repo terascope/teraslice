@@ -1,8 +1,8 @@
 'use strict';
 
-const analyticsCode = require('../../lib/cluster/execution_controller/slice_analytics');
 const _ = require('lodash');
 const events = require('events');
+const analyticsCode = require('../../lib/cluster/execution_controller/slice_analytics');
 
 const eventEmitter = new events.EventEmitter();
 
@@ -18,7 +18,8 @@ describe('slice_analytics', () => {
 
     const context = {
         apis: {
-            foundation: { makeLogger: () => logger,
+            foundation: {
+                makeLogger: () => logger,
                 getSystemEvents: () => eventEmitter
             }
         }
@@ -30,9 +31,9 @@ describe('slice_analytics', () => {
         }
     };
 
-    const testConfig = { ex_id: '1234', job_id: '5678' };
-    const analytics = analyticsCode(context, executionContext);
-    const statContainer = analytics.__test_context(testConfig).sliceAnalytics;
+    const testConfig = { exId: '1234', jobId: '5678' };
+    const analytics = analyticsCode(context, executionContext, testConfig);
+    const statContainer = analytics.__test_context().sliceAnalytics;
 
     it('addStats transfers message stats to the statsContainer', () => {
         const statsObj = statContainer;
