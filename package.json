@@ -47,7 +47,7 @@
     "barbe": "^3.0.14",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
-    "convict": "^4.3.1",
+    "convict": "^4.3.2",
     "datemath-parser": "^1.0.6",
     "decompress": "^4.2.0",
     "easy-table": "^1.1.1",
