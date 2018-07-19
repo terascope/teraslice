@@ -1,11 +1,8 @@
 {
-    "extends": "airbnb",
+    "extends": "airbnb-base",
     "parserOptions": {
         "ecmaVersion": 8,
-        "sourceType": "script",
-        "ecmaFeatures": {
-            "experimentalObjectRestSpread": true
-        }
+        "sourceType": "script"
     },
     "env": {
         "node": true,
