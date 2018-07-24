@@ -4,10 +4,11 @@
     "metadata": {
         "labels": {
             "app": "teraslice",
-            "nodeType": "worker",
-            "exId": "<EXID>"
+            "nodeType": "{{nodeType}}",
+            "exId": "{{exId}}",
+            "jobId": "{{jobId}}"
         },
-        "name": "teraslice-worker-<EXID>"
+        "name": "{{name}}"
     },
     "spec": {
         "replicas": 1,
@@ -15,27 +16,28 @@
             "metadata": {
                 "labels": {
                     "app": "teraslice",
-                    "nodeType": "worker",
-                    "exId": "<EXID>"
+                    "nodeType": "{{nodeType}}",
+                    "exId": "{{exId}}",
+                    "jobId": "{{jobId}}"
                 }
             },
             "spec": {
                 "containers": [{
-                    "image": "<TERASLICE_K8S_IMAGE>",
+                    "image": "{{dockerImage}}",
                     "imagePullPolicy": "Always",
-                    "name": "teraslice",
+                    "name": "{{name}}",
                     "ports": [{ "containerPort": 45680 }],
                     "volumeMounts": [{
                         "mountPath": "/app/config",
                         "name": "config"
                     }],
                     "env": [{
-                        "name": "node_type",
-                        "value": "worker"
+                        "name": "NODE_TYPE",
+                        "value": "{{nodeType}}"
                     },
                     {
                         "name": "EX",
-                        "value": "<EX>"
+                        "value": "{{execution}}"
                     },
                     {
                         "name": "POD_IP",
@@ -62,8 +64,8 @@
         "selector": {
             "matchLabels": {
                 "app": "teraslice",
-                "nodeType": "worker",
-                "exId": "<EXID>"
+                "nodeType": "{{nodeType}}",
+                "exId": "{{exId}}"
             }
         }
     }

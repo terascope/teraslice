@@ -5,9 +5,9 @@
 //   env DEBUG='nock*' make test
 
 const fs = require('fs');
-const K8s = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8s');
 const nock = require('nock');
 const path = require('path');
+const K8s = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8s');
 
 function print(err, result) {
     // FIXME: How much does this smell, do we have an existing convention?
