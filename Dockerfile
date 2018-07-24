@@ -19,7 +19,7 @@ COPY . /app/source
 
 EXPOSE 5678
 
-VOLUME /app/config /app/logs
+VOLUME /app/config /app/logs /app/assets
 
 ENV TERAFOUNDATION_CONFIG /app/config/teraslice.yaml
 

@@ -4,11 +4,12 @@
   "metadata": {
     "labels": {
         "app": "teraslice",
-        "nodeType": "execution_controller",
-        "exId": "<EXID>"
+        "nodeType": "{{nodeType}}",
+        "exId": "{{exId}}",
+        "jobId": "{{jobId}}"
     },
-    "name": "teraslice-execution_controller-<EXID>",
-    "namespace": "default"
+    "name": "{{name}}",
+    "namespace": "{{namespace}}"
   },
   "spec": {
     "ports": [
@@ -19,8 +20,8 @@
     ],
     "selector": {
       "app": "teraslice",
-      "nodeType": "execution_controller",
-      "exId": "<EXID>"
+      "nodeType": "{{nodeType}}",
+      "exId": "{{exId}}"
     }
   }
 }

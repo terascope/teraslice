@@ -4,10 +4,11 @@
     "metadata": {
         "labels": {
             "app": "teraslice",
-            "nodeType": "execution_controller",
-            "exId": "<EXID>"
+            "nodeType": "{{nodeType}}",
+            "exId": "{{exId}}",
+            "jobId": "{{jobId}}"
         },
-        "name": "teraslice-execution_controller-<EXID>"
+        "name": "{{name}}"
     },
     "spec": {
         "replicas": 1,
@@ -15,27 +16,27 @@
             "metadata": {
                 "labels": {
                     "app": "teraslice",
-                    "nodeType": "execution_controller",
-                    "exId": "<EXID>"
+                    "nodeType": "{{nodeType}}",
+                    "exId": "{{exId}}"
                 }
             },
             "spec": {
                 "containers": [{
-                    "image": "<TERASLICE_K8S_IMAGE>",
+                    "image": "{{dockerImage}}",
                     "imagePullPolicy": "Always",
-                    "name": "teraslice-execution_controller-<EXID>",
+                    "name": "{{name}}",
                     "ports": [{ "containerPort": 45680 }],
                     "volumeMounts": [{
                         "mountPath": "/app/config",
                         "name": "config"
                     }],
                     "env": [{
-                        "name": "node_type",
-                        "value": "execution_controller"
+                        "name": "NODE_TYPE",
+                        "value": "{{nodeType}}"
                     },
                     {
                         "name": "EX",
-                        "value": "<EX>"
+                        "value": "{{execution}}"
                     },
                     {
                         "name": "POD_IP",
@@ -56,14 +57,16 @@
                         }]
                     }
                 }],
-                "imagePullSecrets": [{ "name": "docker-tera1-secret" }]
+                "imagePullSecrets": [
+                    { "name": "docker-tera1-secret" }
+                ]
             }
         },
         "selector": {
             "matchLabels": {
                 "app": "teraslice",
-                "nodeType": "execution_controller",
-                "exId": "<EXID>"
+                "nodeType": "{{nodeType}}",
+                "exId": "{{exId}}"
             }
         }
     }
