@@ -624,6 +624,10 @@ describe('elasticsearch-api', () => {
         const opConfig2 = { index: 'some_index', date_field_name: 'created' };
         const opConfig3 = { index: 'some_index', query: 'someLucene:query' };
         const opConfig4 = { index: 'some_index', query: 'someLucene:query', fields: ['field1', 'field2'] };
+        // const opConfig5 = { index: 'some_index', geo_field: 'some_field' };
+        // const opConfig6 = { index: 'some_index' };
+        // const opConfig7 = { index: 'some_index' };
+        // const opConfig8 = { index: 'some_index' };
 
         const msg1 = { count: 100, key: 'someKey' };
         const msg2 = { count: 100, start: new Date(), end: new Date() };

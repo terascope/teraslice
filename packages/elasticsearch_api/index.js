@@ -8,7 +8,7 @@ const DOCUMENT_EXISTS = 409;
 
 // Module to manage persistence in Elasticsearch.
 // All functions in this module return promises that must be resolved to get the final result.
-module.exports = function elasticsearchApi(client, logger, _opConfig) {
+module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     const warning = _warn(logger, 'The elasticsearch cluster queues are overloaded, resubmitting failed queries from bulk');
     const config = _opConfig || {};
     let retryStart = 5000;
@@ -160,7 +160,6 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
             logger.warn(`Running a regex or cross cluster search for ${config.index}, there is no reliable way to verify index and max_result_window`);
             return Promise.resolve(true);
         }
-
         return client.cluster.stats({})
             .then((data) => {
                 if (!_checkVersion(data.nodes.versions[0])) {
@@ -269,9 +268,99 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         return _.throttle(() => warnLogger.warn(msg), 5000);
     }
 
-    /*
-     * These range query functions do not belong in this module.
-     */
+    function geoSearch(opConfig) {
+        let isGeoSort = false;
+        const queryResults = {};
+        // check for key existence to see if they are user defined
+        if (opConfig.geo_sort_order || opConfig.geo_sort_unit || opConfig.geo_sort_point) {
+            isGeoSort = true;
+        }
+
+        const {
+            geo_box_top_left: geoBoxTopLeft,
+            geo_box_bottom_right: geoBoxBottomRight,
+            geo_point: geoPoint,
+            geo_distance: geoDistance,
+            geo_sort_point: geoSortPoint,
+            geo_sort_order: geoSortOrder = 'asc',
+            geo_sort_unit: geoSortUnit = 'm'
+        } = opConfig;
+
+        let parsedGeoSortPoint;
+
+        function createGeoSortQuery(location) {
+            const sortedSearch = { _geo_distance: {} };
+            sortedSearch._geo_distance[opConfig.geo_field] = {
+                lat: location[0],
+                lon: location[1]
+            };
+            sortedSearch._geo_distance.order = geoSortOrder;
+            sortedSearch._geo_distance.unit = geoSortUnit;
+            return sortedSearch;
+        }
+
+        if (geoSortPoint) {
+            parsedGeoSortPoint = createGeoPoint(geoSortPoint);
+        }
+
+        // Handle an Geo Bounding Box query
+        if (geoBoxTopLeft) {
+            const topLeft = createGeoPoint(geoBoxTopLeft);
+            const bottomRight = createGeoPoint(geoBoxBottomRight);
+
+            const searchQuery = {
+                geo_bounding_box: {}
+            };
+
+            searchQuery.geo_bounding_box[opConfig.geo_field] = {
+                top_left: {
+                    lat: topLeft[0],
+                    lon: topLeft[1]
+                },
+                bottom_right: {
+                    lat: bottomRight[0],
+                    lon: bottomRight[1]
+                }
+            };
+
+            queryResults.query = searchQuery;
+
+            if (isGeoSort) {
+                queryResults.sort = createGeoSortQuery(parsedGeoSortPoint);
+            }
+
+            return queryResults;
+        }
+
+        // Handle a Geo Distance from point query
+        const location = createGeoPoint(geoPoint);
+
+        // if both are available then add this first query
+        if (location) {
+            const searchQuery = {
+                geo_distance: {
+                    distance: geoDistance
+                }
+            };
+
+            searchQuery.geo_distance[opConfig.geo_field] = {
+                lat: location[0],
+                lon: location[1]
+            };
+
+            queryResults.query = searchQuery;
+        }
+
+        const locationPoints = parsedGeoSortPoint || location;
+        queryResults.sort = createGeoSortQuery(locationPoints);
+        return queryResults;
+    }
+
+    function createGeoPoint(point) {
+        const pieces = point.split(',');
+        return pieces;
+    }
+
     function _buildRangeQuery(opConfig, msg) {
         const body = {
             query: {
@@ -307,7 +396,45 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
             });
         }
 
+        if (opConfig.geo_field) {
+            validateGeoParameters(opConfig);
+            const geoQuery = geoSearch(opConfig);
+            body.query.bool.must.push(geoQuery.query);
+            if (geoQuery.sort) body.sort = [geoQuery.sort];
+        }
         return body;
+    }
+    function validateGeoParameters(opConfig) {
+        const {
+            geo_field: geoField,
+            geo_box_top_left: geoBoxTopLeft,
+            geo_box_bottom_right: geoBoxBottomRight,
+            geo_point: geoPoint,
+            geo_distance: geoDistance,
+            geo_sort_point: geoSortPoint,
+            geo_sort_order: geoSortOrder,
+            geo_sort_unit: geoSortUnit
+        } = opConfig;
+
+        if (geoBoxTopLeft && geoPoint) {
+            throw new Error('geo_box and geo_distance queries can not be combined.');
+        }
+
+        if ((geoPoint && !geoDistance) || (!geoPoint && geoDistance)) {
+            throw new Error('Both geo_point and geo_distance must be provided for a geo_point query.');
+        }
+
+        if ((geoBoxTopLeft && !geoBoxBottomRight) || (!geoBoxTopLeft && geoBoxBottomRight)) {
+            throw new Error('Both geo_box_top_left and geo_box_bottom_right must be provided for a geo bounding box query.');
+        }
+
+        if ((geoSortOrder || geoSortUnit || geoSortPoint) && !geoSortPoint) {
+            throw new Error('bounding box search requires geo_sort_point to be set if any other geo_sort_* parameter is provided');
+        }
+
+        if ((geoBoxTopLeft || geoPoint || geoDistance || geoSortPoint) && !geoField) {
+            throw new Error('geo box search requires geo_field to be set if any other geo query parameters are provided');
+        }
     }
 
     function buildQuery(opConfig, msg) {
@@ -634,6 +761,7 @@ module.exports = function elasticsearchApi(client, logger, _opConfig) {
         indexRefresh,
         indexRecovery,
         indexSetup,
+        validateGeoParameters,
         // The APIs below are deprecated and should be removed.
         index_exists: indexExists,
         index_create: indexCreate,
