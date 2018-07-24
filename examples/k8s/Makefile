@@ -6,6 +6,7 @@ SHELL := bash
 # TERASLICE_MASTER_URL env variable
 TERASLICE_MASTER_URL ?= 192.168.99.100:30678
 TERASLICE_K8S_IMAGE ?= teraslice:k8sdev
+TERASLICE_WORKER_K8S_IMAGE ?= teraslice:k8sdev
 LOG_LENGTH ?= 10
 
 help: ## show target summary
@@ -43,4 +44,4 @@ k8s-master: ## start teraslice master in k8s
 	kubectl create -f ./masterDeployment.yaml
 
 build: ## build the teraslice:k8sdev container, override container name by setting TERASLICE_K8S_IMAGE
-	docker build -t $(TERASLICE_K8S_IMAGE) .
+	docker build -t $(TERASLICE_K8S_IMAGE) ../../
