@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -37,7 +37,7 @@
   "homepage": "https://github.com/terascope/elasticsearch_api#readme",
   "dependencies": {
     "bluebird": "^3.5.0",
-    "error_parser": "terascope/error_parser",
+    "@terascope/error-parser": "^1.0.0",
     "lodash": "^4.17.4",
     "uuid": "^3.0.1"
   },

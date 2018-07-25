@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird');
 const _ = require('lodash');
-const parseError = require('error_parser');
+const parseError = require('@terascope/error-parser');
 
 const DOCUMENT_EXISTS = 409;
 
