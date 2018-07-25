@@ -2,7 +2,6 @@
 
 const messagingModule = require('../../lib/cluster/services/messaging');
 const events = require('events');
-const _ = require('lodash');
 const Promise = require('bluebird');
 
 describe('messaging module', () => {
@@ -604,44 +603,6 @@ describe('messaging module', () => {
                 }
             });
         }).toThrow();
-
-        testContext.cleanup();
-    });
-
-    it('can register callbacks and attach them to socket/io rooms only once', () => {
-        const testContext = getContext({ env: { assignment: 'execution_controller' } });
-        const messaging = messagingModule(testContext, logger);
-        const getRegistry = messaging.__test_context()._getRegistry;
-        const registerFns = messaging.__test_context()._registerFns;
-        const joinList = {};
-
-        const socket = new events.EventEmitter();
-        socket.rooms = joinList;
-        socket.join = (key) => {
-            expect(key).toEqual('someId');
-            if (!joinList[key]) joinList[key] = 0;
-            joinList[key] += 1;
-        };
-
-
-        // run it twice to verify it doesn't call join twice
-        _.times(2, () => {
-            messaging.register({
-                event: 'worker:ready',
-                identifier: 'worker_id',
-                callback: () => {
-                    expect(joinList.someId).toEqual(1);
-                }
-            });
-
-            const registry = getRegistry();
-
-            expect(registry['worker:ready']).toBeDefined();
-            expect(typeof registry['worker:ready']).toEqual('function');
-
-            registerFns(socket);
-            socket.emit('worker:ready', { worker_id: 'someId' });
-        });
 
         testContext.cleanup();
     });
