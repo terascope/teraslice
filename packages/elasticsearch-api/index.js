@@ -268,6 +268,51 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return _.throttle(() => warnLogger.warn(msg), 5000);
     }
 
+    function validateGeoParameters(opConfig) {
+        const {
+            geo_field: geoField,
+            geo_box_top_left: geoBoxTopLeft,
+            geo_box_bottom_right: geoBoxBottomRight,
+            geo_point: geoPoint,
+            geo_distance: geoDistance,
+            geo_sort_point: geoSortPoint,
+            geo_sort_order: geoSortOrder,
+            geo_sort_unit: geoSortUnit
+        } = opConfig;
+
+        function isBoundingBoxQuery() {
+            return geoBoxTopLeft && geoBoxBottomRight;
+        }
+
+        function isGeoDistanceQuery() {
+            return geoPoint && geoDistance;
+        }
+
+        if (geoBoxTopLeft && geoPoint) {
+            throw new Error('geo_box and geo_distance queries can not be combined.');
+        }
+
+        if ((geoPoint && !geoDistance) || (!geoPoint && geoDistance)) {
+            throw new Error('Both geo_point and geo_distance must be provided for a geo_point query.');
+        }
+
+        if ((geoBoxTopLeft && !geoBoxBottomRight) || (!geoBoxTopLeft && geoBoxBottomRight)) {
+            throw new Error('Both geo_box_top_left and geo_box_bottom_right must be provided for a geo bounding box query.');
+        }
+
+        if (geoBoxTopLeft && (geoSortOrder || geoSortUnit) && !geoSortPoint) {
+            throw new Error('bounding box search requires geo_sort_point to be set if any other geo_sort_* parameter is provided');
+        }
+
+        if ((geoBoxTopLeft || geoPoint || geoDistance || geoSortPoint) && !geoField) {
+            throw new Error('geo box search requires geo_field to be set if any other geo query parameters are provided');
+        }
+
+        if (geoField && !(isBoundingBoxQuery() || isGeoDistanceQuery())) {
+            throw new Error('if geo_field is specified then the appropriate geo_box or geo_distance query parameters need to be provided as well');
+        }
+    }
+
     function geoSearch(opConfig) {
         let isGeoSort = false;
         const queryResults = {};
@@ -286,8 +331,6 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             geo_sort_unit: geoSortUnit = 'm'
         } = opConfig;
 
-        let parsedGeoSortPoint;
-
         function createGeoSortQuery(location) {
             const sortedSearch = { _geo_distance: {} };
             sortedSearch._geo_distance[opConfig.geo_field] = {
@@ -298,6 +341,8 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             sortedSearch._geo_distance.unit = geoSortUnit;
             return sortedSearch;
         }
+
+        let parsedGeoSortPoint;
 
         if (geoSortPoint) {
             parsedGeoSortPoint = createGeoPoint(geoSortPoint);
@@ -332,11 +377,8 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             return queryResults;
         }
 
-        // Handle a Geo Distance from point query
-        const location = createGeoPoint(geoPoint);
-
-        // if both are available then add this first query
-        if (location) {
+        if (geoDistance) {
+            const location = createGeoPoint(geoPoint);
             const searchQuery = {
                 geo_distance: {
                     distance: geoDistance
@@ -349,10 +391,10 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             };
 
             queryResults.query = searchQuery;
+            const locationPoints = parsedGeoSortPoint || location;
+            queryResults.sort = createGeoSortQuery(locationPoints);
         }
 
-        const locationPoints = parsedGeoSortPoint || location;
-        queryResults.sort = createGeoSortQuery(locationPoints);
         return queryResults;
     }
 
@@ -372,9 +414,8 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         // is a range type query
         if (msg.start && msg.end) {
             const dateObj = {};
-            const { date_field_name } = opConfig; // eslint-disable-line
-
-            dateObj[date_field_name] = {
+            const { date_field_name: dateFieldName } = opConfig;
+            dateObj[dateFieldName] = {
                 gte: msg.start,
                 lt: msg.end
             };
@@ -403,38 +444,6 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             if (geoQuery.sort) body.sort = [geoQuery.sort];
         }
         return body;
-    }
-    function validateGeoParameters(opConfig) {
-        const {
-            geo_field: geoField,
-            geo_box_top_left: geoBoxTopLeft,
-            geo_box_bottom_right: geoBoxBottomRight,
-            geo_point: geoPoint,
-            geo_distance: geoDistance,
-            geo_sort_point: geoSortPoint,
-            geo_sort_order: geoSortOrder,
-            geo_sort_unit: geoSortUnit
-        } = opConfig;
-
-        if (geoBoxTopLeft && geoPoint) {
-            throw new Error('geo_box and geo_distance queries can not be combined.');
-        }
-
-        if ((geoPoint && !geoDistance) || (!geoPoint && geoDistance)) {
-            throw new Error('Both geo_point and geo_distance must be provided for a geo_point query.');
-        }
-
-        if ((geoBoxTopLeft && !geoBoxBottomRight) || (!geoBoxTopLeft && geoBoxBottomRight)) {
-            throw new Error('Both geo_box_top_left and geo_box_bottom_right must be provided for a geo bounding box query.');
-        }
-
-        if ((geoSortOrder || geoSortUnit || geoSortPoint) && !geoSortPoint) {
-            throw new Error('bounding box search requires geo_sort_point to be set if any other geo_sort_* parameter is provided');
-        }
-
-        if ((geoBoxTopLeft || geoPoint || geoDistance || geoSortPoint) && !geoField) {
-            throw new Error('geo box search requires geo_field to be set if any other geo query parameters are provided');
-        }
     }
 
     function buildQuery(opConfig, msg) {
