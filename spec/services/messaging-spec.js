@@ -1,8 +1,8 @@
 'use strict';
 
-const messagingModule = require('../../lib/cluster/services/messaging');
 const events = require('events');
 const Promise = require('bluebird');
+const messagingModule = require('../../lib/cluster/services/messaging');
 
 describe('messaging module', () => {
     const logger = {

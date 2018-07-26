@@ -1,10 +1,12 @@
 'use strict';
 
-const podsJobRunning = require('./files/job-running-v1-k8s-pods.json');
+const _ = require('lodash');
+const _podsJobRunning = require('./files/job-running-v1-k8s-pods.json');
 const k8sState = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8sState');
 
 describe('k8sState', () => {
     it('generates cluster state correctly on first call', () => {
+        const podsJobRunning = _.cloneDeep(_podsJobRunning);
         const clusterState = {};
 
         k8sState.gen(podsJobRunning, clusterState);
@@ -51,6 +53,7 @@ describe('k8sState', () => {
     });
 
     it('generates cluster state correctly on second call', () => {
+        const podsJobRunning = _.cloneDeep(_podsJobRunning);
         const clusterState = {};
 
         k8sState.gen(podsJobRunning, clusterState);
