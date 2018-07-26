@@ -12,7 +12,7 @@ const K8s = require('../../../../../../../lib/cluster/services/cluster/backends/
 function print(err, result) {
     // FIXME: How much does this smell, do we have an existing convention?
     if (process.env.DEBUG) {
-        console.log(JSON.stringify(err || result, null, 2));
+        console.error(JSON.stringify(err || result, null, 2)); // eslint-disable-line no-console
     }
 }
 
@@ -151,7 +151,7 @@ describe('k8s', () => {
         // The following test unexpectedly fails with:
         //      ✗ can delete a service by name (0.082 sec)
         // - TypeError: Cannot read property 'statusCode' of undefined
-        //     at K8s.delete (/Users/godber/Workspace/terascope/opensource/teraslice/lib/cluster/services/cluster/backends/kubernetes/k8s.js:50:61)
+        //     at K8s.delete (./lib/cluster/services/cluster/backends/kubernetes/k8s.js:50:61)
         //     at <Jasmine>
         //     at process._tickCallback (internal/process/next_tick.js:188:7)
         // it('can delete a service by name', async () => {

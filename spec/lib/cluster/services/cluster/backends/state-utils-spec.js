@@ -84,7 +84,10 @@ describe('stateUtils', () => {
             };
 
             const messaging = {
-                send: () => msgResponse
+                send: () => msgResponse,
+                listRooms: () => ([
+                    'node2.lan',
+                ])
             };
 
             const getSlicerStats = stateUtils.newGetSlicerStats(clusterState, context, messaging);
@@ -95,7 +98,7 @@ describe('stateUtils', () => {
                     '8d7669e1-d351-4a0d-b36e-b11da5ade26a'
                 );
             } catch (e) {
-                console.log(e);
+                console.error(e); // eslint-disable-line no-console
                 expect(e).not.toBeDefined();
             }
             expect(slicerStats[0].ex_id).toEqual('8d7669e1-d351-4a0d-b36e-b11da5ade26a');

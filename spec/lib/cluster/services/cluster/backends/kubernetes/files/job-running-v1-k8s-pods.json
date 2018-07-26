@@ -110,31 +110,31 @@
                 "ready": true,
                 "restartCount": 0,
                 "image": "teraslice:k8sdev",
-                "imageID": "docker://sha256:4ad49f448c6cea8cfc3eca506705ae7d78a8b62b7cbede1faeababfc6e548a0b",
-                "containerID": "docker://cedf07daf52e1d49f026f210f83c42246cc147498a90b923048d8cf991d5882b"
+                "imageID": "docker://sha256:123",
+                "containerID": "docker://123"
             }],
             "qosClass": "BestEffort"
         }
     }, {
         "metadata": {
-            "name": "teraslice-slicer-8b414884-2266-4d3f-976e-78c281177b9a-784cbt5mz",
-            "generateName": "teraslice-slicer-8b414884-2266-4d3f-976e-78c281177b9a-784c557c8-",
+            "name": "teraslice-slicer-123456-784cbt5mz",
+            "generateName": "teraslice-slicer-123456-784c557c8-",
             "namespace": "default",
-            "selfLink": "/api/v1/namespaces/default/pods/teraslice-slicer-8b414884-2266-4d3f-976e-78c281177b9a-784cbt5mz",
+            "selfLink": "/api/v1/namespaces/default/pods/teraslice-slicer-123456-784cbt5mz",
             "uid": "78502ea9-419c-11e8-82f0-080027936d77",
             "resourceVersion": "1089556",
             "creationTimestamp": "2018-04-16T17:34:52Z",
             "labels": {
                 "app": "teraslice",
-                "exId": "8b414884-2266-4d3f-976e-78c281177b9a",
-                "jobId": "dc1471b2-a6ed-43c2-942e-69b9a073a51b",
+                "exId": "123456",
+                "jobId": "654321",
                 "nodeType": "slicer",
                 "pod-template-hash": "340711374"
             },
             "ownerReferences": [{
                 "apiVersion": "extensions/v1beta1",
                 "kind": "ReplicaSet",
-                "name": "teraslice-slicer-8b414884-2266-4d3f-976e-78c281177b9a-784c557c8",
+                "name": "teraslice-slicer-123456-784c557c8",
                 "uid": "784cf203-419c-11e8-82f0-080027936d77",
                 "controller": true,
                 "blockOwnerDeletion": true
@@ -159,18 +159,18 @@
                 }
             }],
             "containers": [{
-                "name": "teraslice-slicer-8b414884-2266-4d3f-976e-78c281177b9a",
-                "image": "docker.terascope.io/teraslice:0.30.0",
+                "name": "teraslice-slicer-123456",
+                "image": "docker.registry.example/teraslice:0.0.0",
                 "ports": [{
                     "containerPort": 45680,
                     "protocol": "TCP"
                 }],
                 "env": [{
-                    "name": "node_type",
+                    "name": "NODE_TYPE",
                     "value": "execution_controller"
                 }, {
                     "name": "EX",
-                    "value": "{\"name\":\"gen-tenk-noop\",\"lifecycle\":\"persistent\",\"workers\":1,\"operations\":[{\"_op\":\"elasticsearch_data_generator\",\"json_schema\":\"\",\"size\":10000,\"start\":\"\",\"end\":\"\",\"format\":\"\",\"stress_test\":false,\"date_key\":\"created\",\"set_id\":\"\",\"id_start_key\":\"\"},{\"_op\":\"noop\"}],\"analytics\":true,\"job_id\":\"dc1471b2-a6ed-43c2-942e-69b9a073a51b\",\"_context\":\"ex\",\"_created\":\"2018-04-16T17:34:51.375Z\",\"_updated\":\"2018-04-16T17:34:51.375Z\",\"max_retries\":3,\"slicers\":1,\"assets\":null,\"moderator\":null,\"recycle_worker\":null,\"probation_window\":300000,\"ex_id\":\"8b414884-2266-4d3f-976e-78c281177b9a\",\"slicer_port\":45680,\"slicer_hostname\":\"teraslice-slicer-8b414884-2266-4d3f-976e-78c281177b9a\"}"
+                    "value": "{\"name\":\"gen-tenk-noop\",\"lifecycle\":\"persistent\",\"workers\":1,\"operations\":[{\"_op\":\"elasticsearch_data_generator\",\"json_schema\":\"\",\"size\":10000,\"start\":\"\",\"end\":\"\",\"format\":\"\",\"stress_test\":false,\"date_key\":\"created\",\"set_id\":\"\",\"id_start_key\":\"\"},{\"_op\":\"noop\"}],\"analytics\":true,\"job_id\":\"654321\",\"_context\":\"ex\",\"_created\":\"2018-04-16T17:34:51.375Z\",\"_updated\":\"2018-04-16T17:34:51.375Z\",\"max_retries\":3,\"slicers\":1,\"assets\":null,\"moderator\":null,\"recycle_worker\":null,\"probation_window\":300000,\"ex_id\":\"123456\",\"slicer_port\":45680,\"slicer_hostname\":\"teraslice-slicer-123456\"}"
                 }],
                 "resources": {},
                 "volumeMounts": [{
@@ -219,7 +219,7 @@
             "podIP": "172.17.0.5",
             "startTime": "2018-04-16T17:34:52Z",
             "containerStatuses": [{
-                "name": "teraslice-slicer-8b414884-2266-4d3f-976e-78c281177b9a",
+                "name": "teraslice-slicer-123456",
                 "state": {
                     "running": {
                         "startedAt": "2018-04-16T17:34:53Z"
@@ -228,32 +228,32 @@
                 "lastState": {},
                 "ready": true,
                 "restartCount": 0,
-                "image": "docker.terascope.io/teraslice:0.30.0",
-                "imageID": "docker-pullable://docker.terascope.io/teraslice@sha256:1ea9e0cb8ad7c7c4ed928a48d9a8cb820b03fc0f3df8b3090eb4ebe9832294d0",
+                "image": "docker.registry.example/teraslice:0.0.0",
+                "imageID": "docker-pullable://docker.registry.example/teraslice@sha256:123",
                 "containerID": "docker://9c2a9167956ea6792a071d4d7acde419392edb9a3d1b23265293cb9249446428"
             }],
             "qosClass": "BestEffort"
         }
     }, {
         "metadata": {
-            "name": "teraslice-worker-8b414884-2266-4d3f-976e-78c281177b9a-8b68v7p8t",
-            "generateName": "teraslice-worker-8b414884-2266-4d3f-976e-78c281177b9a-8b685bfc-",
+            "name": "teraslice-worker-123456-8b68v7p8t",
+            "generateName": "teraslice-worker-123456-8b685bfc-",
             "namespace": "default",
-            "selfLink": "/api/v1/namespaces/default/pods/teraslice-worker-8b414884-2266-4d3f-976e-78c281177b9a-8b68v7p8t",
+            "selfLink": "/api/v1/namespaces/default/pods/teraslice-worker-123456-8b68v7p8t",
             "uid": "785abe18-419c-11e8-82f0-080027936d77",
             "resourceVersion": "1089559",
             "creationTimestamp": "2018-04-16T17:34:52Z",
             "labels": {
                 "app": "teraslice",
-                "exId": "8b414884-2266-4d3f-976e-78c281177b9a",
-                "jobId": "dc1471b2-a6ed-43c2-942e-69b9a073a51b",
+                "exId": "123456",
+                "jobId": "654321",
                 "nodeType": "worker",
                 "pod-template-hash": "46241697"
             },
             "ownerReferences": [{
                 "apiVersion": "extensions/v1beta1",
                 "kind": "ReplicaSet",
-                "name": "teraslice-worker-8b414884-2266-4d3f-976e-78c281177b9a-8b685bfc",
+                "name": "teraslice-worker-123456-8b685bfc",
                 "uid": "78588255-419c-11e8-82f0-080027936d77",
                 "controller": true,
                 "blockOwnerDeletion": true
@@ -278,18 +278,18 @@
                 }
             }],
             "containers": [{
-                "name": "teraslice-worker-8b414884-2266-4d3f-976e-78c281177b9a",
-                "image": "docker.terascope.io/teraslice:0.30.0",
+                "name": "teraslice-worker-123456",
+                "image": "docker.registry.example/teraslice:0.0.0",
                 "ports": [{
                     "containerPort": 45680,
                     "protocol": "TCP"
                 }],
                 "env": [{
-                    "name": "node_type",
+                    "name": "NODE_TYPE",
                     "value": "worker"
                 }, {
                     "name": "EX",
-                    "value": "{\"name\":\"gen-tenk-noop\",\"lifecycle\":\"persistent\",\"workers\":1,\"operations\":[{\"_op\":\"elasticsearch_data_generator\",\"json_schema\":\"\",\"size\":10000,\"start\":\"\",\"end\":\"\",\"format\":\"\",\"stress_test\":false,\"date_key\":\"created\",\"set_id\":\"\",\"id_start_key\":\"\"},{\"_op\":\"noop\"}],\"analytics\":true,\"job_id\":\"dc1471b2-a6ed-43c2-942e-69b9a073a51b\",\"_context\":\"ex\",\"_created\":\"2018-04-16T17:34:51.375Z\",\"_updated\":\"2018-04-16T17:34:51.375Z\",\"max_retries\":3,\"slicers\":1,\"assets\":null,\"moderator\":null,\"recycle_worker\":null,\"probation_window\":300000,\"ex_id\":\"8b414884-2266-4d3f-976e-78c281177b9a\",\"slicer_port\":45680,\"slicer_hostname\":\"teraslice-slicer-8b414884-2266-4d3f-976e-78c281177b9a\"}"
+                    "value": "{\"name\":\"gen-tenk-noop\",\"lifecycle\":\"persistent\",\"workers\":1,\"operations\":[{\"_op\":\"elasticsearch_data_generator\",\"json_schema\":\"\",\"size\":10000,\"start\":\"\",\"end\":\"\",\"format\":\"\",\"stress_test\":false,\"date_key\":\"created\",\"set_id\":\"\",\"id_start_key\":\"\"},{\"_op\":\"noop\"}],\"analytics\":true,\"job_id\":\"654321\",\"_context\":\"ex\",\"_created\":\"2018-04-16T17:34:51.375Z\",\"_updated\":\"2018-04-16T17:34:51.375Z\",\"max_retries\":3,\"slicers\":1,\"assets\":null,\"moderator\":null,\"recycle_worker\":null,\"probation_window\":300000,\"ex_id\":\"123456\",\"slicer_port\":45680,\"slicer_hostname\":\"teraslice-slicer-123456\"}"
                 }],
                 "resources": {},
                 "volumeMounts": [{
@@ -338,7 +338,7 @@
             "podIP": "172.17.0.6",
             "startTime": "2018-04-16T17:34:52Z",
             "containerStatuses": [{
-                "name": "teraslice-worker-8b414884-2266-4d3f-976e-78c281177b9a",
+                "name": "teraslice-worker-123456",
                 "state": {
                     "running": {
                         "startedAt": "2018-04-16T17:34:53Z"
@@ -347,9 +347,9 @@
                 "lastState": {},
                 "ready": true,
                 "restartCount": 0,
-                "image": "docker.terascope.io/teraslice:0.30.0",
-                "imageID": "docker-pullable://docker.terascope.io/teraslice@sha256:1ea9e0cb8ad7c7c4ed928a48d9a8cb820b03fc0f3df8b3090eb4ebe9832294d0",
-                "containerID": "docker://2441fbe43c8d9a05bf4a03e3cad6d848e51b978b239d7220f200446a4263cc2f"
+                "image": "docker.registry.example/teraslice:0.0.0",
+                "imageID": "docker-pullable://docker.registry.example/teraslice@sha256:123",
+                "containerID": "docker://123"
             }],
             "qosClass": "BestEffort"
         }
