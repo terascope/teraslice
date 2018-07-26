@@ -1,16 +1,13 @@
-# Teraslice - Distributed computing for JavaScript and JSON data
+# Teraslice - Distributed computing platform for processing JSON data
 
 [![Build Status](https://travis-ci.org/terascope/teraslice.svg?branch=master)](https://travis-ci.org/terascope/teraslice)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/292c293875764b98bb014375298c165a)](https://www.codacy.com/app/terascope/teraslice?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=terascope/teraslice&amp;utm_campaign=Badge_Grade)
 
-Teraslice is an open source, distributed computing platform for processing JSON data. It works together with Elasticsearch and Kafka to enable highly scalable data processing pipelines composed from Javascript modules called `operations`.
+Teraslice is an open source, distributed computing platform for processing JSON data. It works together with Elasticsearch and Kafka to enable highly scalable data processing pipelines.
 
 It supports the creation of custom processor logic implemented in JavaScript and plugged into to the system to validate, transform and enrich data. Processing pipelines are scalable and easily distributable across many computers.
 
-The architecture is open and extensible and by implementing a custom reader you can distribute and scale JavaScript code across a cluster. Custom code is deployed using asset bundles and pre-built asset bundles can
-
-It serves as a data transformation and orchestration platform that enables large scale processing of data stored
-It can be used for many tasks but is particularly adept at migrating and transforming data within and between Elasticsearch clusters and other data stores. It was born and bred in an environment that regularly sees billions of pieces of data per day and is capable of processing millions of records per second.
+TODO: rework this section
 
 Here are a few tasks it can help you with:
 
