@@ -86,6 +86,15 @@
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.7.0.tgz#9a06f4f137ee84d7df0460c1fdb1135ffa6c50fd"
 
+"@terascope/elasticsearch-api@^1.0.0":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@terascope/elasticsearch-api/-/elasticsearch-api-1.1.1.tgz#87de959d443289c77cbd0a2131de3b71b6fc4b8a"
+  dependencies:
+    "@terascope/error-parser" "^1.0.0"
+    bluebird "^3.5.0"
+    lodash "^4.17.4"
+    uuid "^3.0.1"
+
 "@terascope/elasticsearch-api@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@terascope/elasticsearch-api/-/elasticsearch-api-1.0.1.tgz#b8696f122338d6a522782c2acf0914271d7ba9e0"

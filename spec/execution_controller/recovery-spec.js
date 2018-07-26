@@ -33,14 +33,14 @@ describe('execution recovery', () => {
             }
         }
     };
-    const messaging = { send: msg => sentMsg = msg };
+    const messaging = { send: (msg) => { sentMsg = msg; } };
     const executionAnalytics = { getAnalytics: () => ({}) };
     const exStore = {
         executionMetaData: () => {},
         setStatus: () => new Promise(resolve => resolve(true))
     };
     const stateStore = {
-        executionStartingSlice: (exId, ind) => startingPoints[ind] = exId,
+        executionStartingSlice: (exId, ind) => { startingPoints[ind] = exId; },
         recoverSlices: () => {
             const data = testSlices.slice();
             testSlices = [];
@@ -49,7 +49,7 @@ describe('execution recovery', () => {
     };
     const executionContext = { config: { slicers: 2 } };
 
-    const testConfig = { ex_id: '1234', job_id: '5678', recover_execution: '9999' };
+    const testConfig = { ex_id: '1234', job_id: '5678', recovered_execution: '9999' };
     let recoveryModule = recoveryCode(context, messaging, executionAnalytics, exStore, stateStore, executionContext);
     let recovery = recoveryModule.__test_context(testConfig);
 
@@ -150,7 +150,7 @@ describe('execution recovery', () => {
         const sendSucess2 = sendEvent('slice:success', { slice: data2 }, eventEmitter2);
         let allDoneEventFired = false;
 
-        eventEmitter2.on('execution:recovery:complete', () => allDoneEventFired = true);
+        eventEmitter2.on('execution:recovery:complete', () => { allDoneEventFired = true; });
 
         expect(recoveryModule.recoveryComplete()).toEqual(false);
         let slicer;
@@ -160,7 +160,7 @@ describe('execution recovery', () => {
                 expect(Array.isArray(slicerArray)).toEqual(true);
                 expect(slicerArray.length).toEqual(1);
                 expect(typeof slicerArray[0]).toEqual('function');
-                slicer = slicerArray[0];
+                [slicer] = slicerArray;
                 expect(recoveryModule.recoveryComplete()).toEqual(false);
                 return slicer();
             })

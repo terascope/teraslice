@@ -31,6 +31,12 @@
         "slicer_port": {
           "type": "keyword"
         },
+        "recovered_execution": {
+          "type": "keyword"
+        },
+        "recovered_slice_type": {
+          "type": "keyword"
+        },
         "_slicer_stats": {
           "type": "object"
         },
