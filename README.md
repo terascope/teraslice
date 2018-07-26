@@ -1,12 +1,20 @@
-# Teraslice - Slice and dice your Elasticsearch data
+# Teraslice - Distributed computing for JavaScript and JSON data
 
 [![Build Status](https://travis-ci.org/terascope/teraslice.svg?branch=master)](https://travis-ci.org/terascope/teraslice)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/292c293875764b98bb014375298c165a)](https://www.codacy.com/app/terascope/teraslice?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=terascope/teraslice&amp;utm_campaign=Badge_Grade)
 
-Teraslice is an open source, distributed computing platform for processing JSON data stored in Elasticsearch. It can be used for many tasks but is particularly adept at migrating and transforming data within and between Elasticsearch clusters and other data stores. It was born and bred in an environment that regularly sees billions of pieces of data per day and is capable of processing millions of records per second.
+Teraslice is an open source, distributed computing platform for processing JSON data. It works together with Elasticsearch and Kafka to enable highly scalable data processing pipelines composed from Javascript modules called `operations`.
+
+It supports the creation of custom processor logic implemented in JavaScript and plugged into to the system to validate, transform and enrich data. Processing pipelines are scalable and easily distributable across many computers.
+
+The architecture is open and extensible and by implementing a custom reader you can distribute and scale JavaScript code across a cluster. Custom code is deployed using asset bundles and pre-built asset bundles can
+
+It serves as a data transformation and orchestration platform that enables large scale processing of data stored
+It can be used for many tasks but is particularly adept at migrating and transforming data within and between Elasticsearch clusters and other data stores. It was born and bred in an environment that regularly sees billions of pieces of data per day and is capable of processing millions of records per second.
 
 Here are a few tasks it can help you with:
 
+  * Data ingest from Kafka to Elasticsearch
   * Reindexing data at high volumes
   * Moving data between clusters
   * Moving data out of Elasticsearch into other systems
@@ -59,187 +67,38 @@ Operations are nothing more than Javascript modules and writing your own is easy
 
 # Status
 
-Teraslice is currently in alpha status. Single node deployment and clustering support are functional and being refined. APIs are usable but will still be evolving as we work toward a production release. See the list of open issues for other limitations.
+Teraslice is currently in alpha status. APIs are usable but will still be evolving as we work toward a production release. Native clustering is the prefered deployment mechanism but Kubernetes Clustering is in development. Native cluster allows very simple deployment on a single node. See the list of open issues for other limitations.
 
-# Installation
+# Quick Start
 
-Teraslice is written in Node.js and has been tested on Linux and Mac OS X.
+Quick local installation of a single node Teraslice cluster.
 
-### Dependencies ###
-* Node.js 4 or above
-* At least one Elasticsearch 5 or above cluster
+You'll need node.js 8.x and Elasticsearch installed on your computer first.
 
-### Installing with npm ###
+[Download a release](/terascope/teraslice/releases) and extract it.
 
 ```
-npm install terascope/teraslice
+cd TERASLICE_DIRECTORY
+yarn install
+node service.js
 ```
 
-# Configuration Single Node / Cluster Master
+This will bring up a simple cluster talking to your local Elasticsearch instance.
 
-Teraslice requires a configuration file in order to run. The configuration file defines your service connections and system level configurations.
+# Documentation
 
-This configuration example defines a single connection to Elasticsearch on localhost with 8 workers available to Teraslice. The *teraslice.ops_directory* setting tells Teraslice where it can find custom operation implementations.
+## Overview
 
-The cluster configuration defines this node as a master node. The node will still have workers
-available and this configuration is sufficient to do useful work if you don't have multiple
-nodes available. The workers will connect to the master on localhost and do work just as if they were in a real cluster.
-
-
-```
-teraslice:
-    ops_directory: '/path/to/ops/'
-    workers: 8
-    cluster:
-        master: true
-        master_hostname: "127.0.0.1"
-        name: "teracluster"
-
-terafoundation:
-    environment: 'development'
-    log_path: '/path/to/logs'
-
-    connectors:
-        elasticsearch:
-            default:
-                host:
-                    - "localhost:9200"
-```
-
-# Configuration Cluster Worker Node
-
-Configuration for a worker node is very similar. You just set 'master' to false and provide the IP address where the master node can be located.
-
-```
-teraslice:
-    ops_directory: '/path/to/ops/'
-    workers: 8
-    cluster:
-        master: false
-        master_hostname: "YOUR_MASTER_IP"
-        name: "teracluster"
-
-terafoundation:
-    environment: 'development'
-    log_path: '/path/to/logs'
-
-    connectors:
-        elasticsearch:
-            default:
-                host:
-                    - "YOUR_MASTER_IP":9200
-```
-
-# Running
-
-Once you have Teraslice installed you need a job specification and a configuration file to do something useful with it. See above for simple examples of each.
-
-Starting the Teraslice service on the master node is simple. Just provide it a path to the configuration file.
-
-```
-node service.js -c master-config.yaml
-```
-
-Starting a worker on a remote node is basically the same.
-
-```
-node service.js -c worker-config.yaml
-```
-
-The master publishes a REST style API on port 5678.
-
-To submit a job you just post to the /jobs endpoint.
-
-Assuming your job is in a file called 'job.json' it's as simple as
-
-```
-curl -XPOST YOUR_MASTER_IP:5678/v1/jobs -d@job.json
-```
-
-This will return the job_id (for access to the original job posted) and the job execution context id (the running instance of a job) which can then be used to manage the job. This will also start the job.
-```
-{
-    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
-}
-```
-# Job Control
-
-Please check the api docs at the bottom for a comprehensive in-depth list of all api's. What is listed here is just a small brief of only a few api's
-
-### Job status
-
-This will retrieve the job configuration including '\_status' which indicates the execution status of the job.
-
-```
-curl YOU_MASTER_IP:5678/v1/jobs/{job_id}/ex
-```
-
-### Stopping a job
-
-Stopping a job stops all execution and frees the workers being consumed
-by the job on the cluster.
-
-```
-curl -XPOST YOU_MASTER_IP:5678/v1/jobs/{job_id}/_stop
-```
-
-### Starting a job
-
-Posting a new job will automatically start the job. If the job already exists then using the endpoint below will start a new one.
-
-```
-curl -XPOST YOU_MASTER_IP:5678/v1/jobs/{JOB_ID}/_start
-```
-
-Starting a job with recover will attempt to replay any failed slices from previous runs and will then pickup where it left off. If there are no failed
-slices the job will simply resume from where it was stopped.
-
-```
-curl -XPOST YOU_MASTER_IP:5678/v1/jobs/{job_id}/_recover
-```
-
-### Pausing a job
-
-Pausing a job will stop execution of the job on the cluster but will not
-release the workers being used by the job. It simply pauses the slicer and
-stops allocating work to the workers. Workers will complete the work they're doing then just sit idle until the job is resumed.
-
-```
-curl -XPOST YOU_MASTER_IP:5678/v1/jobs/{job_id}/_pause
-```
-
-### Resuming a job
-
-Resuming a job restarts the slicer and the allocation of slices to workers.
-
-```
-curl -XPOST YOU_MASTER_IP:5678/v1/jobs/{job_id}/_resume
-```
-
-### Viewing Slicer statistics for a job
-
-This provides information related to the execution of the slicer and can be useful
-in monitoring and optimizing the execution of the job.
-
-```
-curl YOU_MASTER_IP:5678/v1/jobs/{job_id}/slicer
-```
-
-### Viewing cluster state
-
-This will show you all the connected workers and the tasks that are currently assigned to them.
-
-```
-curl YOU_MASTER_IP:5678/v1/cluster/state
-```
-
-# Additional Documentation
+ * [Getting Started](./docs/getting-started.md)
+ * [Terminology](./docs/terminology.md)
+ * [Job Control](./docs/job-control.md)
 
 ## API
 
- * [API endpoints reference](./docs/api.md)
+ * [Text API endpoints reference](./docs/txt.md)
+ * [REST API endpoints reference](./docs/api.md)
 
-## Operations
+## Operation Components
 
  * [Job configuration and operations reference](./docs/ops-reference.md)
  * [Custom operations](./docs/custom_operations.md)
@@ -248,8 +107,4 @@ curl YOU_MASTER_IP:5678/v1/cluster/state
 
  * [Teraslice configuration reference](./docs/configuration.md)
  * [Kubernetes Cluster Master](./docs/k8s-clustering.md)
-
-## Services
-
- * [additional services](./docs/services.md)
 
