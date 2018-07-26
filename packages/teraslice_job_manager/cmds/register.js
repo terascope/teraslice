@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-const Promise = require('bluebird');
 const reply = require('./cmd_functions/reply')();
 const dataChecks = require('./cmd_functions/data_checks');
 
@@ -33,12 +32,7 @@ exports.handler = (argv, _testTjmFunctions) => {
     const jobFilePath = tjmConfig.job_file_path;
 
     return tjmFunctions.loadAsset()
-        .then(() => {
-            if (!_.has(jobContents, 'tjm.cluster')) {
-                return tjmFunctions.terasliceClient.jobs.submit(jobContents, !tjmConfig.r);
-            }
-            return Promise.reject(new Error(`Job is already registered on ${tjmConfig.cluster}`))
-        })
+        .then(() => tjmFunctions.terasliceClient.jobs.submit(jobContents, !tjmConfig.r))
         .then((result) => {
             const jobId = result.id();
             reply.green(`Successfully registered job: ${jobId} on ${tjmConfig.cluster}`);

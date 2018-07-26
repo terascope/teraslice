@@ -1,6 +1,5 @@
 'use strict';
 
-const path = require('path');
 const Promise = require('bluebird');
 const status = require('../cmds/status');
 
@@ -14,13 +13,14 @@ const _tjmTestFunctions = {
     alreadyRegisteredCheck: () => registeredCheck,
     terasliceClient: {
         jobs: {
-            wrap: (jobId) => {
-                    return { 
-                        status: () => statusResponse
-                    }
-                }
+            wrap: () => {
+                const functions = {
+                    status: () => statusResponse
+                };
+                return functions;
             }
         }
+    }
 };
 
 describe('status displays the current status for a job', () => {
@@ -29,16 +29,14 @@ describe('status displays the current status for a job', () => {
         return status.handler(argv, _tjmTestFunctions)
             .then(done.fail)
             .catch(() => done());
-    })
+    });
 
     it('returns the status for a job', (done) => {
         registeredCheck = Promise.resolve();
         statusResponse = 'running';
         return status.handler(argv, _tjmTestFunctions)
-            .then((status) => {
-                expect(status).toEqual('running');
-            })
+            .then(response => expect(response).toEqual('running'))
             .catch(() => done.fail)
             .finally(() => done());
-    })
+    });
 });

@@ -93,7 +93,7 @@ module.exports = (tjmConfig) => {
 
     function _updateAssetMetadata() {
         // writes asset metadata to asset.json
-        const cluster = tjmConfig.cluster;
+        const { cluster } = tjmConfig;
         const assetJson = tjmConfig.asset_file_content;
 
         if (!_.has(assetJson, 'tjm.clusters')) {

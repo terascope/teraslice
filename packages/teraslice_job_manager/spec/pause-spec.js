@@ -1,6 +1,5 @@
 'use strict';
 
-const path = require('path');
 const Promise = require('bluebird');
 const pause = require('../cmds/pause');
 
@@ -16,13 +15,14 @@ const _tjmTestFunctions = {
     terasliceClient: {
         jobs: {
             wrap: () => {
-                    return { 
-                        status: () => jobStatus,
-                        pause: () => pauseStatus
-                    }
-                }
+                const functions = {
+                    status: () => jobStatus,
+                    pause: () => pauseStatus
+                };
+                return functions;
             }
         }
+    }
 };
 
 describe('pause should pause jobs that are running', () => {
@@ -31,7 +31,7 @@ describe('pause should pause jobs that are running', () => {
         return pause.handler(argv, _tjmTestFunctions)
             .then(done.fail)
             .catch(() => done());
-    })
+    });
 
     it('should throw an error if the job status is not running', (done) => {
         registeredCheck = Promise.resolve();
@@ -39,7 +39,7 @@ describe('pause should pause jobs that are running', () => {
         return pause.handler(argv, _tjmTestFunctions)
             .then(done.fail)
             .catch(() => done());
-    })
+    });
 
     it('should throw an error if the pause status is not paused', (done) => {
         registeredCheck = Promise.resolve();
@@ -48,11 +48,11 @@ describe('pause should pause jobs that are running', () => {
             status: {
                 status: 'broken'
             }
-        }
+        };
         return pause.handler(argv, _tjmTestFunctions)
             .then(done.fail)
             .catch(() => done());
-    })
+    });
 
     it('should pause the job', (done) => {
         registeredCheck = Promise.resolve();
@@ -61,11 +61,11 @@ describe('pause should pause jobs that are running', () => {
             status: {
                 status: 'paused'
             }
-        }
+        };
         return pause.handler(argv, _tjmTestFunctions)
             .then((result) => {
                 expect(result.status.status).toBe('paused');
             })
             .finally(() => done());
-    })
+    });
 });

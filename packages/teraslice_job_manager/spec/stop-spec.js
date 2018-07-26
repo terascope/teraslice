@@ -1,6 +1,5 @@
 'use strict';
 
-const path = require('path');
 const Promise = require('bluebird');
 const stop = require('../cmds/stop');
 
@@ -14,13 +13,14 @@ const _tjmTestFunctions = {
     alreadyRegisteredCheck: () => registeredCheck,
     terasliceClient: {
         jobs: {
-            wrap: (jobId) => {
-                    return { 
-                        status: () => stopResponse
-                    }
-                }
+            wrap: () => {
+                const functions = {
+                    status: () => stopResponse
+                };
+                return functions;
             }
         }
+    }
 };
 
 describe('stops job', () => {
@@ -29,7 +29,7 @@ describe('stops job', () => {
         return stop.handler(argv, _tjmTestFunctions)
             .then(done.fail)
             .catch(() => done());
-    })
+    });
 
     it('confirms job has been stopped', (done) => {
         registeredCheck = Promise.resolve();
@@ -39,12 +39,10 @@ describe('stops job', () => {
             }
         };
         return stop.handler(argv, _tjmTestFunctions)
-            .then((stopResponse) => {
-                expect(stopResponse.status.status).toEqual('stopped');
-            })
+            .then(response => expect(response.status.status).toEqual('stopped'))
             .catch(() => done.fail)
             .finally(() => done());
-    })
+    });
 
     it('throws an error if status is not stopped', (done) => {
         registeredCheck = Promise.resolve();
@@ -56,7 +54,7 @@ describe('stops job', () => {
         return stop.handler(argv, _tjmTestFunctions)
             .then(done.fail)
             .catch(() => done());
-    })
+    });
 
     it('throws an error if no status in response', (done) => {
         registeredCheck = Promise.resolve();
@@ -64,5 +62,5 @@ describe('stops job', () => {
         return stop.handler(argv, _tjmTestFunctions)
             .then(done.fail)
             .catch(() => done());
-    })
+    });
 });

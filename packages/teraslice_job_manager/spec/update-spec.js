@@ -1,6 +1,5 @@
 'use strict';
 
-const path = require('path');
 const Promise = require('bluebird');
 const update = require('../cmds/update');
 
@@ -9,29 +8,26 @@ const argv = {
 };
 
 let registeredCheck;
-let currentStatus;
-let stopStatus;
 let newJobContents;
 const _tjmTestFunctions = {
     alreadyRegisteredCheck: () => registeredCheck,
     terasliceClient: {
         jobs: {
-            wrap: (jobId) => {
-                    return { 
-                        status: () => Promise.resolve('running'),
-                        stop: () => Promise.resolve({
-                            status: {
-                                status: 'stopped'
-                            }
-                        }),
-                        start: () => Promise.resolve({ job_id: 12345})
-                    }
-                }
-            },
+            wrap: () => {
+                const functions = {
+                    status: () => Promise.resolve('running'),
+                    stop: () => Promise.resolve({
+                        status: {
+                            status: 'stopped'
+                        }
+                    }),
+                    start: () => Promise.resolve({ job_id: 12345 })
+                };
+                return functions;
+            }
+        },
         cluster: {
-            put: (endpoint, jobContents) => {
-                return newJobContents;
-            } 
+            put: () => newJobContents
         }
     }
 };
@@ -42,7 +38,7 @@ describe('should update job file with option to restart job', () => {
         return update.handler(argv, _tjmTestFunctions)
             .then(done.fail)
             .catch(() => done());
-    })
+    });
 
     it('should throw an error if job data not returned from teraslice client', (done) => {
         registeredCheck = Promise.resolve();
@@ -50,7 +46,7 @@ describe('should update job file with option to restart job', () => {
         return update.handler(argv, _tjmTestFunctions)
             .then(done.fail)
             .catch(() => done());
-    })
+    });
 
     it('should update job and return status if argv.r is present', (done) => {
         registeredCheck = Promise.resolve();
@@ -67,11 +63,9 @@ describe('should update job file with option to restart job', () => {
 
         argv.r = true;
         return update.handler(argv, _tjmTestFunctions)
-            .then((restart) => {
-               expect(restart.job_id).toBe(12345);
-            })
+            .then(restart => expect(restart.job_id).toBe(12345))
             .finally(() => done());
-    })
+    });
 
     it('should update job and return if argv.r is not present', (done) => {
         registeredCheck = Promise.resolve();
@@ -87,11 +81,7 @@ describe('should update job file with option to restart job', () => {
         };
         argv.r = false;
         return update.handler(argv, _tjmTestFunctions)
-            .then((update) => {
-               expect(update).toBeUndefined();
-            })
+            .then(updateResult => expect(updateResult).toBeUndefined())
             .finally(() => done());
-    })
-
-    
+    });
 });

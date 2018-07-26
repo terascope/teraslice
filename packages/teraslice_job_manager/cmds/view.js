@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-let reply = require('./cmd_functions/reply')();
+const reply = require('./cmd_functions/reply')();
 const dataChecks = require('./cmd_functions/data_checks');
 
 exports.command = 'view [job_file]';
@@ -12,12 +12,12 @@ exports.builder = (yargs) => {
 exports.handler = (argv, _testFunctions) => {
     const tjmConfig = _.clone(argv);
     dataChecks(tjmConfig).returnJobData();
-    let tjmFunctions = _testFunctions || require('./cmd_functions/functions')(tjmConfig);
+    const tjmFunctions = _testFunctions || require('./cmd_functions/functions')(tjmConfig);
 
     const jobId = tjmConfig.job_file_content.tjm.job_id;
     return tjmFunctions.alreadyRegisteredCheck()
         .then(() => tjmFunctions.terasliceClient.jobs.wrap(jobId).spec())
-        .then(jobSpec => {
+        .then((jobSpec) => {
             reply.yellow(`Current Job File on Cluster ${tjmConfig.cluster}:`);
             reply.green(JSON.stringify(jobSpec, null, 4));
             return jobSpec;

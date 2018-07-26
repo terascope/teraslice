@@ -92,29 +92,19 @@ describe('tjmFunctions testing', () => {
         tjmFunctions = require('../cmds/cmd_functions/functions')(tjmConfig);
         tjmFunctions.__testContext(_terasliceClient);
         tjmFunctions.alreadyRegisteredCheck(jobContents)
-            .catch((err) => {
-                expect(err.message).toEqual('Job is not on the cluster');
-            })
+            .catch(err => expect(err.message).toEqual('Job is not on the cluster'))
             .finally(() => done());
     });
 
     it('alreadyRegisteredCheck should reject if the job contents are empty', (done) => {
         jobContents = {};
-        const jobData = {
-            contents: jobContents,
-            file_path: 'someFilePath',
-            cluster: 'clustername'
-        }
-
         tjmConfig.job_file_content = jobContents;
         tjmConfig.job_file_path = 'someFilePath';
 
         someJobId = 'jobYouAreLookingFor';
         tjmFunctions = require('../cmds/cmd_functions/functions')(tjmConfig);
         tjmFunctions.alreadyRegisteredCheck()
-            .catch((err) => {
-                expect(err.message).toEqual('No cluster configuration for this job');
-            })
+            .catch(err => expect(err.message).toEqual('No cluster configuration for this job'))
             .finally(() => done());
     });
 
@@ -124,7 +114,7 @@ describe('tjmFunctions testing', () => {
             name: 'testing_123',
             version: '0.0.01',
             description: 'dummy asset.json for testing'
-        }
+        };
 
         const tjmFuncs = require('../cmds/cmd_functions/functions')(tjmConfig);
         return Promise.resolve()
@@ -137,8 +127,7 @@ describe('tjmFunctions testing', () => {
             .finally(() => done());
     });
 
-    it('cluster is added to array in asset.json if a new cluster', (done) => {   
-        
+    it('cluster is added to array in asset.json if a new cluster', (done) => {
         tjmConfig.cluster = 'http://anotherCluster:5678';
         tjmConfig.asset_file_content = {
             name: 'testing_123',
@@ -147,7 +136,7 @@ describe('tjmFunctions testing', () => {
             tjm: {
                 clusters: ['http://localhost:5678', 'http://newCluster:5678']
             }
-        }
+        };
 
         tjmFunctions = require('../cmds/cmd_functions/functions')(tjmConfig);
         return Promise.resolve()
@@ -162,8 +151,7 @@ describe('tjmFunctions testing', () => {
             .finally(() => done());
     });
 
-    it('cluster is not added to array in asset.json it is already there', (done) => {   
-        
+    it('cluster is not added to array in asset.json it is already there', (done) => {
         tjmConfig.cluster = 'http://newCluster:5678';
         tjmConfig.asset_file_content = {
             name: 'testing_123',
@@ -172,7 +160,7 @@ describe('tjmFunctions testing', () => {
             tjm: {
                 clusters: ['http://localhost:5678', 'http://newCluster:5678']
             }
-        }
+        };
 
         tjmFunctions = require('../cmds/cmd_functions/functions')(tjmConfig);
         return Promise.resolve()
@@ -203,7 +191,7 @@ describe('tjmFunctions testing', () => {
             .then(() => tjmFunctions.zipAsset())
             .then(zipMessage => expect(zipMessage.success).toBe('Assets have been zipped to builds/processors.zip'))
             .then(() => fs.pathExists(path.join(__dirname, '..', 'builds/processors.zip')))
-            .then((exists) => expect(exists).toBe(true))
+            .then(exists => expect(exists).toBe(true))
             .catch(done.fail)
             .finally(() => done());
     });
@@ -215,19 +203,19 @@ describe('tjmFunctions testing', () => {
         });
 
         Promise.resolve()
-        .then(() => fs.emptyDir(path.join(__dirname, '..', 'builds')))
-        .then(() => fs.writeFile(path.join(__dirname, '..', 'builds/processors.zip'), 'this is some sweet text'))
-        .then(() => {
-            tjmFunctions.__testContext(_terasliceClient);
-            return tjmFunctions.__testFunctions()._postAsset();
-        })
-        .then((response) => {
-            const parsedResponse = JSON.parse(response);
-            expect(parsedResponse.success).toBe('Asset was deployed');
-            expect(parsedResponse._id).toBe('12345AssetId');
-        })
-        .catch(done.fail)
-        .finally(() => done());
+            .then(() => fs.emptyDir(path.join(__dirname, '..', 'builds')))
+            .then(() => fs.writeFile(path.join(__dirname, '..', 'builds/processors.zip'), 'this is some sweet text'))
+            .then(() => {
+                tjmFunctions.__testContext(_terasliceClient);
+                return tjmFunctions.__testFunctions()._postAsset();
+            })
+            .then((response) => {
+                const parsedResponse = JSON.parse(response);
+                expect(parsedResponse.success).toBe('Asset was deployed');
+                expect(parsedResponse._id).toBe('12345AssetId');
+            })
+            .catch(done.fail)
+            .finally(() => done());
     });
 
     it('load asset removes build, adds metadata to asset, zips asset, posts to cluster', (done) => {
@@ -246,14 +234,14 @@ describe('tjmFunctions testing', () => {
             fs.writeFile(path.join(__dirname, '..', 'asset/asset.json'), JSON.stringify(assetJson, null, 4)),
             fs.emptyDir(path.join(__dirname, '..', 'builds'))
         ])
-        .then(() => tjmFunctions.loadAsset())
-        .then(() => {
+            .then(() => tjmFunctions.loadAsset())
+            .then(() => {
                 const updatedAssetJson = require(path.join(__dirname, '..', 'asset/asset.json'));
                 expect(updatedAssetJson.tjm.clusters[0]).toBe('http://localhost:5678');
                 expect(fs.pathExistsSync(path.join(__dirname, '..', 'builds/processors.zip'))).toBe(true);
                 expect(fs.pathExistsSync(path.join(__dirname, '..', 'asset/package.json'))).toBe(true);
-        })
-        .catch(done.fail)
-        .finally(() => done());
+            })
+            .catch(done.fail)
+            .finally(() => done());
     });
 });

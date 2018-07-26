@@ -28,7 +28,7 @@ exports.handler = (argv, _testFunctions) => {
                     reply.yellow(JSON.stringify(error, null, 4));
                 });
             }
-            return errors
+            return errors;
         })
         .catch(err => reply.fatal(err.message));
 };

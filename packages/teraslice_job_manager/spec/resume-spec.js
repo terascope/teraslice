@@ -1,6 +1,5 @@
 'use strict';
 
-const path = require('path');
 const Promise = require('bluebird');
 const resume = require('../cmds/resume');
 
@@ -16,13 +15,14 @@ const _tjmTestFunctions = {
     terasliceClient: {
         jobs: {
             wrap: () => {
-                    return { 
-                        status: () => jobStatus,
-                        resume: () => resumeStatus
-                    }
-                }
+                const functions = {
+                    status: () => jobStatus,
+                    resume: () => resumeStatus
+                };
+                return functions;
             }
         }
+    }
 };
 
 describe('resume should restart a paused job', () => {
@@ -31,19 +31,19 @@ describe('resume should restart a paused job', () => {
         return resume.handler(argv, _tjmTestFunctions)
             .then(done.fail)
             .catch(() => done());
-    })
+    });
 
     it('should throw an error if job is not paused', (done) => {
         registeredCheck = Promise.resolve();
-        jobStatus = 'stopped'
+        jobStatus = 'stopped';
         return resume.handler(argv, _tjmTestFunctions)
             .then(done.fail)
             .catch(() => done());
-    })
+    });
 
     it('should resume job', (done) => {
         registeredCheck = Promise.resolve();
-        jobStatus = 'paused'
+        jobStatus = 'paused';
         resumeStatus = {
             status: {
                 status: 'running'
@@ -52,25 +52,22 @@ describe('resume should restart a paused job', () => {
         };
 
         return resume.handler(argv, _tjmTestFunctions)
-            .then((status) => {
-                expect(status.status.status).toEqual('running');
-            })
+            .then(status => expect(status.status.status).toEqual('running'))
             .catch(() => done.fail)
             .finally(() => done());
-    })
+    });
 
     it('should throw error if resume status is not running', (done) => {
         registeredCheck = Promise.resolve();
-        jobStatus = 'paused'
+        jobStatus = 'paused';
         resumeStatus = {
             status: {
                 status: 'broken'
             }
-
         };
 
         return resume.handler(argv, _tjmTestFunctions)
             .then(done.fail)
             .catch(() => done());
-    })
+    });
 });

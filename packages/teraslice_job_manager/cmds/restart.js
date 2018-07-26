@@ -20,9 +20,9 @@ exports.handler = (argv, _testFunctions) => {
         .then(() => tjmFunctions.terasliceClient.jobs.wrap(jobId).stop())
         .then((stopResponse) => {
             if (!stopResponse.status.status === 'stopped') {
-                return Promise.reject(new Error('Job could not be stopped'));                
+                return Promise.reject(new Error('Job could not be stopped'));
             }
-            reply.green(`Stopped job ${jobId} on ${jobContents.tjm.cluster}`);
+            return reply.green(`Stopped job ${jobId} on ${jobContents.tjm.cluster}`);
         })
         .then(() => tjmFunctions.terasliceClient.jobs.wrap(jobId).start())
         .then((startResponse) => {

@@ -29,20 +29,14 @@ const _tjmFunctions = {
     }),
     terasliceClient: {
         cluster: {
-            get: (endPoint) => {
-                return Promise.resolve([
-                    {
-                        id: 'someAssetId'
-                    }
-                ]);
-            }
+            get: () => Promise.resolve([
+                {
+                    id: 'someAssetId'
+                }
+            ])
         },
         assets: {
-            delete: (assetId) => {
-                return Promise.resolve(
-                    JSON.stringify({ assetId: 'anAssetId' })
-                )
-            }
+            delete: () => Promise.resolve(JSON.stringify({ assetId: 'anAssetId' }))
         }
     }
 };
@@ -56,31 +50,29 @@ describe('asset command testing', () => {
 
     it('deploy triggers load asset', (done) => {
         argv.c = 'localhost:5678';
-        argv.cmd = 'deploy';
+        argv.deploy = true;
         deployMessage = 'deployed';
 
         return Promise.resolve()
             .then(() => fs.ensureFile(assetPath))
             .then(() => fs.writeJson(assetPath, assetJson, { spaces: 4 }))
             .then(() => asset.handler(argv, _tjmFunctions))
-            .then((result) => expect(result).toEqual('deployed'))
+            .then(result => expect(result).toEqual('deployed'))
             .then(() => fs.remove(assetPath))
             .catch(done.fail)
-            .finally(() => done()); 
+            .finally(() => done());
     });
 
     it('deploy should respond to a request error', () => {
         argv.c = 'localhost:5678';
-        argv.cmd = 'deploy';
+        argv.deploy = true;
         const error = new Error('This is an error');
         error.name = 'RequestError';
         error.message = 'This is an error';
 
         deployError = error;
         return asset.handler(argv, _tjmFunctions)
-            .catch((err) => {
-                expect(err).toBe('Could not connect to http://localhost:5678');
-            });
+            .catch(err => expect(err).toBe('Could not connect to http://localhost:5678'));
     });
 
     it('deploy should throw an error if requested cluster already in cluster tjm data', (done) => {
@@ -89,16 +81,16 @@ describe('asset command testing', () => {
             version: '0.0.01',
             description: 'dummy asset.json for testing',
             tjm: {
-                clusters: [ 
-                    'http://localhost:5678', 
+                clusters: [
+                    'http://localhost:5678',
                     'http://newCluster:5678',
                     'http://anotherCluster:5678'
                 ]
             }
         };
-        argv.cmd = 'deploy';
+        argv.deploy = true;
         argv.c = 'http://localhost:5678';
-        
+
         return Promise.resolve()
             .then(() => fs.ensureFile(assetPath))
             .then(() => fs.writeJson(assetPath, testJson, { spaces: 4 }))
@@ -112,7 +104,7 @@ describe('asset command testing', () => {
 
     it('update should throw an error if no cluster data', () => {
         argv = {};
-        argv.cmd = 'update';
+        argv.update = true;
 
         expect(() => asset.handler(argv, _tjmFunctions))
             .toThrow('Cluster data is missing from asset.json or not specified using -c.');
@@ -120,7 +112,7 @@ describe('asset command testing', () => {
 
     it('replace should delete and replace asset by name', (done) => {
         argv = {
-            cmd: 'replace',
+            replace: true,
             l: true,
         };
 
@@ -130,15 +122,14 @@ describe('asset command testing', () => {
             .then(() => fs.ensureFile(assetPath))
             .then(() => fs.writeJson(assetPath, assetJson, { spaces: 4 }))
             .then(() => asset.handler(argv, _tjmFunctions))
-            .then((result) => expect(result).toBe('default deployed message'))
+            .then(result => expect(result).toBe('default deployed message'))
             .catch(done.fail)
             .finally(() => done());
-            
     });
 
     it('replace should exit if continue is false', (done) => {
         argv = {
-            cmd: 'replace',
+            replace: true,
             l: true,
         };
 
@@ -152,6 +143,5 @@ describe('asset command testing', () => {
                 expect(err).toBe('Exiting tjm');
             })
             .finally(() => done());
-            
     });
 });

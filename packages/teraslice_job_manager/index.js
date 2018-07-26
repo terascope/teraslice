@@ -2,13 +2,13 @@
 
 'use strict';
 
-require('yargs')
+const { argv } = require('yargs') // eslint-disable-line no-unused-vars
     .commandDir('cmds')
     .demandCommand()
     .help('help')
     .alias('help', 'h')
-    .version(false)
-    .strict().argv;
+    .version()
+    .strict();
 
 process.on('unhandledRejection', (error) => {
     console.error('UnhandledRejection: ', error.stack); // eslint-disable-line no-console

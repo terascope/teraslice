@@ -15,7 +15,7 @@ exports.handler = (argv, _testFunctions) => {
     const tjmFunctions = _testFunctions || require('./cmd_functions/functions')(tjmConfig);
 
     const jobId = tjmConfig.job_file_content.tjm.job_id;
-    const cluster = tjmConfig.cluster;
+    const { cluster } = tjmConfig;
 
     return tjmFunctions.alreadyRegisteredCheck()
         .then(() => tjmFunctions.terasliceClient.jobs.wrap(jobId).status())

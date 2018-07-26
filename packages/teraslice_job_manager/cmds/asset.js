@@ -9,32 +9,53 @@ const reply = require('./cmd_functions/reply')();
 const dataChecks = require('./cmd_functions/data_checks');
 
 
-exports.command = 'asset <cmd>';
-exports.desc = 'Deploys, updates or checks the status of an asset.  Options are deploy, update, status.  Assumes assets are in ./asset.  Adds metadata to asset.json once deployed.\n';
+exports.command = 'asset';
+exports.desc = 'Zip and post assets to a cluster';
 exports.builder = (yargs) => {
     yargs
-        .option(
-            'c',
-            {
-                describe: 'cluster where assets will be deployed, updated or checked',
-                default: ''
-            }
-        )
-        .option(
-            'a',
-            {
-                describe: 'create and deply assets, on by default',
-                default: true,
-                type: 'boolean'
-            }
-        )
+        .option('c', {
+            describe: 'cluster where assets will be deployed, updated or checked',
+            default: ''
+        })
+        .option('a', {
+            describe: 'zip and deploy assets, on by default',
+            type: 'boolean',
+            default: true,
+            hidden: true
+        })
         .option('l', {
             describe: 'for testing, specifies localhost',
             default: false,
             type: 'boolean'
         })
-        .choices('cmd', ['deploy', 'update', 'status', 'replace'])
-        .example('tjm asset deploy -c clustername, tjm asset update or tjm asset status');
+        .option('deploy', {
+            alias: 'd',
+            describe: 'deploy assets to a cluster, used with c, conflicts with update and status',
+            default: false,
+            type: 'boolean'
+        })
+        .option('status', {
+            alias: 's',
+            describe: 'displays the latest version of the asset on a cluster, can be used with cluster',
+            default: false,
+            type: 'boolean'
+        })
+        .option('update', {
+            alias: 'u',
+            describe: 'posts latest asset version on the cluster, can be used with -c or update all clusters in asset.json',
+            default: false,
+            type: 'boolean'
+        })
+        .option('replace', {
+            alias: 'r',
+            describe: 'deletes asset on cluster then zips and posts a new one, recommended dev use only',
+            default: false,
+            type: 'boolean'
+        })
+        .example('tjm asset --deploy -c clustername (deploys asset to cluster)\n' +
+            'tjm asset -dc clustername (same as above, but shorthand)\n' +
+            'tjm asset --update -l (updates asset on localhost)\n' +
+            'tjm asset -ul (shorthand for above)\n');
 };
 exports.handler = (argv, _testTjmFunctions) => {
     const tjmConfig = _.clone(argv);
@@ -45,8 +66,7 @@ exports.handler = (argv, _testTjmFunctions) => {
 
     try {
         tjmConfig.asset_file_content = require(path.join(process.cwd(), assetPath));
-    } 
-    catch (error) {
+    } catch (error) {
         reply.fatal(error);
     }
 
@@ -80,14 +100,14 @@ exports.handler = (argv, _testTjmFunctions) => {
                 reply.fatal(err);
             });
     }
-
-    if (argv.cmd === 'deploy') {
+    if (argv.deploy) {
         return Promise.resolve()
             .then(() => {
                 if (_.has(tjmConfig.asset_file_content.tjm, 'clusters') &&
                     _.indexOf(tjmConfig.asset_file_content.tjm.clusters, tjmConfig.c) >= 0) {
-                    return Promise.reject( new Error(`Assets have already been deployed to ${tjmConfig.c}, use update`));
+                    return Promise.reject(new Error(`Assets have already been deployed to ${tjmConfig.c}, use update`));
                 }
+                return Promise.resolve();
             })
             .then(() => tjmFunctions.loadAsset())
             .catch((err) => {
@@ -96,7 +116,7 @@ exports.handler = (argv, _testTjmFunctions) => {
                 }
                 reply.fatal(err);
             });
-    } else if (argv.cmd === 'update') {
+    } else if (argv.update) {
         return fs.emptyDir(path.join(process.cwd(), 'builds'))
             .then(() => tjmFunctions.zipAsset())
             .then((zipData) => {
@@ -119,35 +139,36 @@ exports.handler = (argv, _testTjmFunctions) => {
                             }
                         });
                 }
-                if(_.has(tjmConfig, 'clusters')) {
+                if (_.has(tjmConfig, 'clusters')) {
                     return tjmConfig.clusters.forEach(cluster => postAssets(cluster));
                 }
                 return postAssets(tjmConfig.cluster);
             })
             .catch(err => reply.fatal((err.message)));
-    } else if (argv.cmd === 'status') {
-        if(_.has(tjmConfig, 'clusters')) {
+    } else if (argv.status) {
+        if (_.has(tjmConfig, 'clusters')) {
             return Promise.each(tjmConfig.clusters, cluster => latestAssetVersion(cluster));
         }
         return latestAssetVersion(tjmConfig.cluster);
-    } else if (argv.cmd === 'replace') {
+    } else if (argv.replace) {
         // for dev purposed only, in prod need to upload most recent version
         reply.yellow('*** Warning ***\nThis function is intended for asset development only.  Using it for production asset management is a bad idea.');
-        
+
         const assetName = tjmConfig.asset_file_content.name;
         // set prompts answer for testing
-        if (_testTjmFunctions) prompts.inject({continue: _testTjmFunctions.continue});
-    
+        if (_testTjmFunctions) prompts.inject({ continue: _testTjmFunctions.continue });
+
         return Promise.resolve()
-            .then(() => prompts({ type: 'confirm', name: 'continue', message: 'Replace Assets?'}))
-            .then(result => result.continue ? true : Promise.reject('Exiting tjm'))
+            .then(() => prompts({ type: 'confirm', name: 'continue', message: 'Replace Assets?' }))
+            .then(result => (result.continue ? true : Promise.reject('Exiting tjm')))
             .then(() => tjmFunctions.terasliceClient.cluster.get(`/assets/${assetName}`))
             .then(assets => tjmFunctions.terasliceClient.assets.delete(assets[0].id))
             .then((response) => {
                 const parsedResponse = JSON.parse(response);
-                reply.green(`removed ${parsedResponse.assetId} from ${tjmConfig.cluster}`)
+                reply.green(`removed ${parsedResponse.assetId} from ${tjmConfig.cluster}`);
             })
             .then(() => tjmFunctions.loadAsset())
             .catch(err => reply.fatal(err));
     }
+    return reply.fatal('Not a asset function, check help and try again');
 };

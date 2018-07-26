@@ -1,6 +1,5 @@
 'use strict';
 
-const path = require('path');
 const Promise = require('bluebird');
 const errors = require('../cmds/errors');
 
@@ -15,12 +14,13 @@ const _tjmTestFunctions = {
     terasliceClient: {
         jobs: {
             wrap: () => {
-                    return { 
-                        errors: () => returnedErrors
-                    }
-                }
+                const functions = {
+                    errors: () => returnedErrors
+                };
+                return functions;
             }
         }
+    }
 };
 
 describe('errors should show errors for a job', () => {
@@ -29,27 +29,23 @@ describe('errors should show errors for a job', () => {
         return errors.handler(argv, _tjmTestFunctions)
             .then(done.fail)
             .catch(() => done());
-    })
+    });
 
     it('should show errors if errors returned', (done) => {
         registeredCheck = Promise.resolve();
-        returnedErrors = [ 'e1', 'e2', 'e3' ];
+        returnedErrors = ['e1', 'e2', 'e3'];
         return errors.handler(argv, _tjmTestFunctions)
-            .then((errors) => {
-                expect(errors).toEqual(returnedErrors);
-            })
+            .then(errorResponse => expect(errorResponse).toEqual(returnedErrors))
             .catch(() => done.fail)
             .finally(() => done());
-    })
+    });
 
     it('should show no errors if no errors returned', (done) => {
         registeredCheck = Promise.resolve();
         returnedErrors = [];
         return errors.handler(argv, _tjmTestFunctions)
-            .then((errors) => {
-                expect(errors.length).toBe(0);
-            })
+            .then(errorResponse => expect(errorResponse.length).toBe(0))
             .catch(() => done.fail)
             .finally(() => done());
-    })
+    });
 });

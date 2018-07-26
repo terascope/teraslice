@@ -1,6 +1,5 @@
 'use strict';
 
-const path = require('path');
 const Promise = require('bluebird');
 const restart = require('../cmds/restart');
 
@@ -15,14 +14,15 @@ const _tjmTestFunctions = {
     alreadyRegisteredCheck: () => registeredCheck,
     terasliceClient: {
         jobs: {
-            wrap: (jobId) => {
-                    return { 
-                        stop: () => stopResponse,
-                        start: () => startResponse
-                    }
-                }
+            wrap: () => {
+                const functions = {
+                    stop: () => stopResponse,
+                    start: () => startResponse
+                };
+                return functions;
             }
         }
+    }
 };
 
 describe('start should start a job', () => {
@@ -31,11 +31,11 @@ describe('start should start a job', () => {
         return restart.handler(argv, _tjmTestFunctions)
             .then(done.fail)
             .catch(() => done());
-    })
+    });
 
     it('should throw an error if job is not stopped', (done) => {
         registeredCheck = Promise.resolve();
-        stopResponse =  stopResponse = {
+        stopResponse = {
             status: {
                 status: 'running'
             }
@@ -43,11 +43,11 @@ describe('start should start a job', () => {
         return restart.handler(argv, _tjmTestFunctions)
             .then(done.fail)
             .catch(() => done());
-    })
+    });
 
     it('should throw error if start response does not have the job_id', (done) => {
         registeredCheck = Promise.resolve();
-        stopResponse =  stopResponse = {
+        stopResponse = {
             status: {
                 status: 'stopped'
             }
@@ -55,22 +55,20 @@ describe('start should start a job', () => {
         startResponse = { };
         return restart.handler(argv, _tjmTestFunctions)
             .then(done.fail)
-        .   catch(() => done());
-    })
+            .catch(() => done());
+    });
 
     it('should restart job', (done) => {
         registeredCheck = Promise.resolve();
-        stopResponse =  stopResponse = {
+        stopResponse = {
             status: {
                 status: 'stopped'
             }
         };
         startResponse = { job_id: 'success' };
         return restart.handler(argv, _tjmTestFunctions)
-            .then((startResponse) => {
-                expect(startResponse.job_id).toEqual('success');
-            })
+            .then(response => expect(response.job_id).toEqual('success'))
             .catch(() => done.fail)
             .finally(() => done());
-    })
+    });
 });

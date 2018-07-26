@@ -14,7 +14,7 @@ exports.builder = (yargs) => {
 exports.handler = (argv, _testFunctions) => {
     const tjmConfig = _.clone(argv);
     dataChecks(tjmConfig).returnJobData();
-    
+
     const tjmFunctions = _testFunctions || require('./cmd_functions/functions')(tjmConfig);
 
     const jobId = tjmConfig.job_file_content.tjm.job_id;
