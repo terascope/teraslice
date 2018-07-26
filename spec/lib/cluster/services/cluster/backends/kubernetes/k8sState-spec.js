@@ -5,7 +5,7 @@ const _podsJobRunning = require('./files/job-running-v1-k8s-pods.json');
 const k8sState = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8sState');
 
 describe('k8sState', () => {
-    it('generates cluster state correctly on first call', () => {
+    it('should generate cluster state correctly on first call', () => {
         const podsJobRunning = _.cloneDeep(_podsJobRunning);
         const clusterState = {};
 
@@ -52,7 +52,7 @@ describe('k8sState', () => {
             });
     });
 
-    it('generates cluster state correctly on second call', () => {
+    it('should generate cluster state correctly on second call', () => {
         const podsJobRunning = _.cloneDeep(_podsJobRunning);
         const clusterState = {};
 
@@ -81,6 +81,19 @@ describe('k8sState', () => {
                 pod_ip: '172.17.0.6',
                 assets: []
             });
+    });
+
+    it('should remove old host ips', () => {
+        const podsJobRunning = _.cloneDeep(_podsJobRunning);
+        const clusterState = {};
+        clusterState['2.2.2.2'] = {
+            state: 'idk',
+            active: []
+        };
+
+        k8sState.gen(podsJobRunning, clusterState);
+        expect(clusterState['192.168.99.100'].active.length).toEqual(3);
+        expect(clusterState['2.2.2.2']).toBeUndefined();
     });
 
     // This might not be technically possible, I think there will at least have
