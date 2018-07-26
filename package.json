@@ -41,7 +41,7 @@
   },
   "homepage": "https://github.com/terascope/teraslice#readme",
   "dependencies": {
-    "@terascope/elasticsearch-api": "^1.0.1",
+    "@terascope/elasticsearch-api": "^1.0.0",
     "@terascope/error-parser": "^1.0.0",
     "@terascope/queue": "^1.1.3",
     "bluebird": "^3.5.1",
