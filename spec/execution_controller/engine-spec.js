@@ -530,7 +530,7 @@ describe('execution engine', () => {
         function sendEvent(time) {
             return waitFor(time)
                 .then(() => {
-                    myEmitter.emit('execution:recovery:complete');
+                    myEmitter.emit('execution:recovery:complete', { starting: 'point' });
                 });
         }
 
