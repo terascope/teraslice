@@ -1,8 +1,8 @@
 'use strict';
 
-const recoveryCode = require('../../lib/cluster/execution_controller/recovery');
 const eventsModule = require('events');
 const Promise = require('bluebird');
+const recoveryCode = require('../../lib/cluster/execution_controller/recovery');
 
 const eventEmitter = new eventsModule.EventEmitter();
 const eventEmitter2 = new eventsModule.EventEmitter();
@@ -40,18 +40,34 @@ describe('execution recovery', () => {
         setStatus: () => new Promise(resolve => resolve(true))
     };
     const stateStore = {
-        executionStartingSlice: (exId, ind) => { startingPoints[ind] = exId; },
+        executionStartingSlice: (exId, ind) => {
+            startingPoints[ind] = exId;
+        },
         recoverSlices: () => {
             const data = testSlices.slice();
             testSlices = [];
             return Promise.resolve(data);
         }
     };
-    const executionContext = { config: { slicers: 2 } };
+    const executionContext = {
+        config: {
+            slicers: 2,
+            recovered_execution: '9999'
+        },
+        ex_id: '1234',
+        job_id: '5678',
+    };
 
-    const testConfig = { ex_id: '1234', job_id: '5678', recovered_execution: '9999' };
-    let recoveryModule = recoveryCode(context, messaging, executionAnalytics, exStore, stateStore, executionContext);
-    let recovery = recoveryModule.__test_context(testConfig);
+    let recoveryModule = recoveryCode(
+        context,
+        messaging,
+        executionAnalytics,
+        exStore,
+        stateStore,
+        executionContext
+    );
+
+    let recovery = recoveryModule.__test_context();
 
     function waitFor(fn, time) {
         return new Promise((resolve) => {
@@ -99,8 +115,16 @@ describe('execution recovery', () => {
     });
 
     it('initalizes and sets up listeners', (done) => {
-        recoveryModule = recoveryCode(context, messaging, executionAnalytics, exStore, stateStore, executionContext);
-        recovery = recoveryModule.__test_context(testConfig);
+        recoveryModule = recoveryCode(
+            context,
+            messaging,
+            executionAnalytics,
+            exStore,
+            stateStore,
+            executionContext
+        );
+
+        recovery = recoveryModule.__test_context();
         recoveryModule.initialize();
 
         expect(recovery._retryState()).toEqual({ });
@@ -137,8 +161,16 @@ describe('execution recovery', () => {
 
     it('can recover slices', (done) => {
         context.apis.foundation.getSystemEvents = () => eventEmitter2;
-        recoveryModule = recoveryCode(context, messaging, executionAnalytics, exStore, stateStore, executionContext);
-        recovery = recoveryModule.__test_context(testConfig);
+        recoveryModule = recoveryCode(
+            context,
+            messaging,
+            executionAnalytics,
+            exStore,
+            stateStore,
+            executionContext
+        );
+
+        recovery = recoveryModule.__test_context();
 
         expect(recoveryModule.recoveryComplete()).toEqual(true);
 

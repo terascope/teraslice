@@ -28,11 +28,12 @@ describe('slice_analytics', () => {
         config: {
             slicers: 2,
             operations: [{ _op: 'config1' }, { _op: 'config2' }, { _op: 'config3' }]
-        }
+        },
+        ex_id: '1234',
+        job_id: '5678'
     };
 
-    const testConfig = { exId: '1234', jobId: '5678' };
-    const analytics = analyticsCode(context, executionContext, testConfig);
+    const analytics = analyticsCode(context, executionContext);
     const statContainer = analytics.__test_context().sliceAnalytics;
 
     it('addStats transfers message stats to the statsContainer', () => {
