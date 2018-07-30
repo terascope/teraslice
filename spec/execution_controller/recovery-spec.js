@@ -18,7 +18,7 @@ describe('execution recovery', () => {
 
     const startingPoints = {};
 
-    let sentMsg = null;
+    let executionFailureMsg = null;
     let testSlices = [{ slice_id: 1 }, { slice_id: 2 }];
 
     beforeEach(() => {
@@ -33,12 +33,8 @@ describe('execution recovery', () => {
             }
         }
     };
-    const messaging = { send: (msg) => { sentMsg = msg; } };
-    const executionAnalytics = { getAnalytics: () => ({}) };
-    const exStore = {
-        executionMetaData: () => {},
-        setStatus: () => new Promise(resolve => resolve(true))
-    };
+    const executionFailed = (err) => { executionFailureMsg = err; };
+
     const stateStore = {
         executionStartingSlice: (exId, ind) => {
             startingPoints[ind] = exId;
@@ -60,9 +56,7 @@ describe('execution recovery', () => {
 
     let recoveryModule = recoveryCode(
         context,
-        messaging,
-        executionAnalytics,
-        exStore,
+        executionFailed,
         stateStore,
         executionContext
     );
@@ -98,6 +92,8 @@ describe('execution recovery', () => {
         expect(typeof recoveryModule.getSlicerStartingPosition).toEqual('function');
         expect(recoveryModule.recoveryComplete).toBeDefined();
         expect(typeof recoveryModule.recoveryComplete).toEqual('function');
+        expect(recoveryModule.shutdown).toBeDefined();
+        expect(typeof recoveryModule.shutdown).toEqual('function');
     });
 
     it('manages retry slice state', () => {
@@ -117,12 +113,12 @@ describe('execution recovery', () => {
     it('initalizes and sets up listeners', (done) => {
         recoveryModule = recoveryCode(
             context,
-            messaging,
-            executionAnalytics,
-            exStore,
+            executionFailed,
             stateStore,
             executionContext
         );
+
+        executionFailureMsg = null;
 
         recovery = recoveryModule.__test_context();
         recoveryModule.initialize();
@@ -148,12 +144,7 @@ describe('execution recovery', () => {
             })
             .then(() => Promise.all([sendError(), waitFor(() => {}, 30)]))
             .then(() => {
-                expect(sentMsg).toEqual({
-                    to: 'cluster_master',
-                    message: 'execution:error:terminal',
-                    ex_id: '1234',
-                    payload: { set_status: true }
-                });
+                expect(executionFailureMsg).toEqual('an error occured');
             })
             .catch(fail)
             .finally(() => done());
@@ -163,9 +154,7 @@ describe('execution recovery', () => {
         context.apis.foundation.getSystemEvents = () => eventEmitter2;
         recoveryModule = recoveryCode(
             context,
-            messaging,
-            executionAnalytics,
-            exStore,
+            executionFailed,
             stateStore,
             executionContext
         );
