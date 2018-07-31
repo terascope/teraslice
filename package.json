@@ -3,7 +3,7 @@
   "version": "0.37.1",
   "description": "Slice and dice your Elasticsearch data",
   "bin": "service.js",
-  "main": "service.js",
+  "main": "index.js",
   "scripts": {
     "start": "node service.js",
     "lint": "eslint *.js lib/**/*.js",
