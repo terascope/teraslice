@@ -43,4 +43,4 @@ k8s-master: ## start teraslice master in k8s
 	kubectl create -f ./masterDeployment.yaml
 
 build: ## build the teraslice:k8sdev container, override container name by setting TERASLICE_K8S_IMAGE
-	docker build -t $(TERASLICE_K8S_IMAGE) ../../
+	docker build -t $(TERASLICE_K8S_IMAGE) .
