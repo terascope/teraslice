@@ -1,0 +1,23 @@
+{
+    "name": "Example Job",
+    "lifecycle": "once",
+    "workers": 3,
+    "operations": [
+        {
+            "_op": "elasticsearch_data_generator",
+            "size": 1000000
+        },
+        {
+            "_op": "noop"
+        },
+        {
+            "_op": "elasticsearch_index_selector",
+            "index": "teraslice-worker-test-2",
+            "type": "events"
+        },
+        {
+            "_op": "elasticsearch_bulk",
+            "size": 1000
+        }
+    ]
+}

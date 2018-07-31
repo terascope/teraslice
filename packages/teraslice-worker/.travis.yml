@@ -1,8 +1,12 @@
 language: node_js
 node_js:
 - '8'
+services:
+  - elasticsearch
+before_script:
+  - sleep 10
 after_success:
-- yarn lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
+- yarn lint
 - yarn report-coverage
 deploy:
   provider: npm
