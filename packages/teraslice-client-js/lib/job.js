@@ -31,17 +31,19 @@ module.exports = function(config, job_id) {
     }
 
     function ex_action(action, options) {
-        var url = `/ex/${ex_id}/${action}`;
-
-        // options are converted into URL parameters.
-        if (options) {
-            url += '?';
-            _.forOwn(options, function(value, option) {
-                url += `${option}=${value}`;
-            })
-        }
-
-        return request.post(url, {});
+        return ex_id()
+            .then((exId) => {
+                const url = `/ex/${exId}/${action}`;
+                // options are converted into URL parameters.
+                if (options) {
+                    url += '?';
+                    _.forOwn(options, function(value, option) {
+                        url += `${option}=${value}`;
+                    })
+                }
+        
+                return request.post(url, {});
+            });
     }
 
     function ex_id() {
@@ -137,7 +139,7 @@ module.exports = function(config, job_id) {
             return job_action('_start', options)
         },
         recover: (options) => {
-            return job_action('_recover', options)
+            return ex_action('_recover', options)
         },
         stop: (options) => {
             return job_action('_stop', options)
