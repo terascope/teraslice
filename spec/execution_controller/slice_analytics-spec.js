@@ -1,8 +1,8 @@
 'use strict';
 
-const analyticsCode = require('../../lib/cluster/execution_controller/slice_analytics');
 const _ = require('lodash');
 const events = require('events');
+const analyticsCode = require('../../lib/cluster/execution_controller/slice_analytics');
 
 const eventEmitter = new events.EventEmitter();
 
@@ -18,7 +18,8 @@ describe('slice_analytics', () => {
 
     const context = {
         apis: {
-            foundation: { makeLogger: () => logger,
+            foundation: {
+                makeLogger: () => logger,
                 getSystemEvents: () => eventEmitter
             }
         }
@@ -27,12 +28,13 @@ describe('slice_analytics', () => {
         config: {
             slicers: 2,
             operations: [{ _op: 'config1' }, { _op: 'config2' }, { _op: 'config3' }]
-        }
+        },
+        ex_id: '1234',
+        job_id: '5678'
     };
 
-    const testConfig = { ex_id: '1234', job_id: '5678' };
     const analytics = analyticsCode(context, executionContext);
-    const statContainer = analytics.__test_context(testConfig).sliceAnalytics;
+    const statContainer = analytics.__test_context().sliceAnalytics;
 
     it('addStats transfers message stats to the statsContainer', () => {
         const statsObj = statContainer;
@@ -66,7 +68,7 @@ describe('slice_analytics', () => {
 
     it('calculateStats takes an array of ints and returns an obj that has the  min, max, and total of ints', () => {
         const data = [232, 254, 345, 112, 367, 343, 321, 213, 222, 245];
-        const results = analytics.__test_context({})._calculateStats(data);
+        const results = analytics.__test_context()._calculateStats(data);
 
         expect(results).toBeDefined();
         expect(results.max).toEqual(367);

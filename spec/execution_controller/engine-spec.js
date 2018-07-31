@@ -1,9 +1,9 @@
 'use strict';
 
-const engineCode = require('../../lib/cluster/execution_controller/engine');
 const events = require('events');
 const Promise = require('bluebird');
 const _ = require('lodash');
+const engineCode = require('../../lib/cluster/execution_controller/engine');
 
 const eventEmitter = new events.EventEmitter();
 
@@ -530,7 +530,7 @@ describe('execution engine', () => {
         function sendEvent(time) {
             return waitFor(time)
                 .then(() => {
-                    myEmitter.emit('execution:recovery:complete');
+                    myEmitter.emit('execution:recovery:complete', { starting: 'point' });
                 });
         }
 
@@ -541,7 +541,7 @@ describe('execution engine', () => {
     });
 
     it('terminal error marks job as failed', (done) => {
-        const terminalError = makeEngine().testContext._terminalError;
+        const { terminalError } = makeEngine().testContext;
         const myError = new Error('an error');
 
         Promise.all([terminalError(myError), waitFor(20)])
