@@ -1,8 +1,8 @@
 'use strict';
 
-const messagingModule = require('../../lib/cluster/services/messaging');
 const events = require('events');
 const Promise = require('bluebird');
+const messagingModule = require('../../lib/cluster/services/messaging');
 
 describe('messaging module', () => {
     const logger = {
@@ -461,14 +461,14 @@ describe('messaging module', () => {
                 // testing error scenario
                 return Promise.all([messaging.send(transactionalErrorMsg), sendEvent(20)])
                     .catch((err) => {
-                        expect(err).toEqual('Error: someError occurred on node: node_master');
+                        expect(err.toString()).toEqual('Error: someError occurred on node: node_master');
                         return Promise.all([
                             messaging.send(transactionalTimeoutErrorMsg),
                             sendEvent(100)
                         ])
                             .catch((error) => {
                                 const messageSent = secondWorkerMsg;
-                                expect(error).toEqual(`timeout error while communicating with ${messageSent.to}, msg: ${messageSent.message}, data: ${JSON.stringify(messageSent)}`);
+                                expect(error.message).toEqual(`timeout error while communicating with ${messageSent.to}, msg: ${messageSent.message}, data: ${JSON.stringify(messageSent)}`);
                                 return true;
                             });
                     });

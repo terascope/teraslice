@@ -589,7 +589,7 @@ describe('execution engine', () => {
         function slicerError() {
             if (errorCounter < 2) {
                 errorCounter += 1;
-                return Promise.reject('an error occurred during slicer initialization');
+                return Promise.reject(new Error('an error occurred during slicer initialization'));
             }
             return Promise.resolve([() => 'all done']);
         }

@@ -525,7 +525,7 @@ describe('Worker', () => {
         const retrySliceModule = instantiateModule({ exId, jobId }).testContext._retrySliceModule;
 
         const errEvent = new Error('an error');
-        const retrySlice = retrySliceModule(slice, [() => Promise.reject('an error'), () => Promise.reject('an error')], logger, {});
+        const retrySlice = retrySliceModule(slice, [() => Promise.reject(new Error('an error')), () => Promise.reject(new Error('an error'))], logger, {});
         let sliceRetry = false;
 
         events.on('slice:retry', (response) => {

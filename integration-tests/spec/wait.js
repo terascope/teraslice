@@ -36,7 +36,7 @@ function forValue(func, value, _iterations) {
                         return;
                     }
                     if (counter > iterations) {
-                        reject(`forValue didn't find target value after ${iterations} iterations.`);
+                        reject(new Error(`forValue didn't find target value after ${iterations} iterations.`));
                     } else {
                         setTimeout(checkValue, 500);
                     }

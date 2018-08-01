@@ -1,11 +1,11 @@
 'use strict';
 
-const executionCode = require('../../lib/cluster/runners/execution');
 const events = require('events');
 const Promise = require('bluebird');
 const fs = require('fs-extra');
 const path = require('path');
 const _ = require('lodash');
+const executionCode = require('../../lib/cluster/runners/execution');
 
 const eventEmitter = new events.EventEmitter();
 
@@ -110,7 +110,7 @@ describe('execution runner', () => {
         executionRunner.initialize(eventEmitter, logger)
             .catch((err) => {
                 expect(err).toBeDefined();
-                expect(typeof err).toEqual('string');
+                expect(_.isError(err)).toEqual(true);
             })
             .finally(done);
     });
@@ -178,7 +178,7 @@ describe('execution runner', () => {
             .then(fail)
             .catch((err) => {
                 expect(err).toBeDefined();
-                expect(typeof err).toEqual('string');
+                expect(_.isError(err)).toEqual(true);
             })
             .finally(done);
     });

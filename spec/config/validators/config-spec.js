@@ -1,6 +1,6 @@
 'use strict';
 
-const configValidator = require('../../../lib/config/validators/config')();
+const configValidator = require('../../../lib/config/validators/config');
 
 describe('When passed a valid jobSchema and jobConfig', () => {
     it('returns a completed and valid jobConfig', () => {
