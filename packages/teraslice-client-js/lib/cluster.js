@@ -1,50 +1,41 @@
 'use strict';
 
-module.exports = function(config) {
-    var request = require('./request')(config);
+const _ = require('lodash');
+const autoBind = require('auto-bind');
+const Promise = require('bluebird');
+const Client = require('./client');
 
-    function state() {
-        return request.get("/cluster/state");
+class Cluster extends Client {
+    constructor(config) {
+        super(config);
+        autoBind(this);
     }
 
-    function stats() {
-        return request.get("/cluster/stats");
+    state() {
+        return this.get('/cluster/state');
     }
 
-    function slicers() {
-        return request.get("/cluster/slicers");
+    stats() {
+        return this.get('/cluster/stats');
     }
 
-    function txt(type) {
-        return request.get(`/txt/${type}`);
+    slicers() {
+        return this.get('/cluster/slicers');
     }
 
-    function getEndpoint(endpoint) {
-        return request.get(endpoint)
+    txt(type) {
+        const validTypes = ['assets', 'slicers', 'ex', 'jobs', 'nodes', 'workers'];
+        const isValid = _.some(validTypes, validType => _.startsWith(type, validType));
+        if (!isValid) {
+            const error = new Error(`"${type}" is not a valid type. Must be one of ${JSON.stringify(validTypes)}`);
+            return Promise.reject(error);
+        }
+        return this.get(`/txt/${type}`, { json: false });
     }
 
-    function post(endpoint, data){
-        return request.post(endpoint, data)
+    nodes() { // eslint-disable-line
+        // not sure why this empty?
     }
+}
 
-    function put(endpoint, data){
-        return request.put(endpoint, data)
-    }
-
-    function deleteFn(endpoint){
-        return request.delete(endpoint)
-    }
-
-    return {
-        state: state,
-        stats: stats,
-        slicers: slicers,
-        nodes: () => {},
-        txt: txt,
-        get: getEndpoint,
-        post: post,
-        put: put,
-        delete: deleteFn
-
-    }
-};
+module.exports = Cluster;

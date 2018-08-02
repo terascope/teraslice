@@ -4,7 +4,7 @@ Javascript client for Teraslice
 ## Installation
 
 ```
-npm install terascope/teraslice-client-js
+npm install teraslice-client-js
 ```
 
 ## Job submission example

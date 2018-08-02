@@ -1,36 +1,49 @@
 'use strict';
 
-module.exports = function(config) {
-    var request = require('./request')(config);
-    var newjob = require('./job');
+const _ = require('lodash');
+const autoBind = require('auto-bind');
+const Promise = require('bluebird');
+const Client = require('./client');
+const Job = require('./job');
 
-    function submit(job_spec, shouldNotStart) {
-        let endpoint = '/jobs';
-        if (shouldNotStart) endpoint += '?start=false';
-        return request.post(endpoint, job_spec)
-            .then(function(result) {
-                return newjob(config, result.job_id);
-            })
-            .catch(function(err) {
-                throw err.error
-            });
+class Jobs extends Client {
+    constructor(config) {
+        super(config);
+        this._config = config;
+        autoBind(this);
     }
 
-    function list(status) {
-        if (!status) status = '*';
+    submit(jobSpec, shouldNotStart) {
+        if (!jobSpec) {
+            return Promise.reject(new Error('submit requires a jobSpec'));
+        }
 
-        return request.get(`/ex?status=${status}`);
+        const options = {
+            json: jobSpec,
+            qs: { start: !shouldNotStart }
+        };
+
+        return this.post('/jobs', options)
+            .then(result => this.wrap(result.job_id));
+    }
+
+    list(options) {
+        const qs = _parseListOptions(options);
+        return this.get('/ex', { qs });
     }
 
     // Wraps the job_id with convenience functions for accessing
     // the state on the server.
-    function wrap(job_id) {
-        return newjob(config, job_id);
+    wrap(jobId) {
+        return new Job(this._config, jobId);
     }
+}
 
-    return {
-        submit: submit,
-        list: list,
-        wrap: wrap
-    }
-};
+function _parseListOptions(options) {
+    // support legacy
+    if (!options) return { status: '*' };
+    if (_.isString(options)) return { status: options };
+    return options;
+}
+
+module.exports = Jobs;

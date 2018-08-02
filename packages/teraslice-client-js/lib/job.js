@@ -1,7 +1,9 @@
 'use strict';
 
-var _ = require('lodash');
-var Promise = require('bluebird');
+const _ = require('lodash');
+const autoBind = require('auto-bind');
+const Promise = require('bluebird');
+const Client = require('./client');
 
 /*
  * This is basically a wrapper around the job_id that acts as a proxy
@@ -9,159 +11,133 @@ var Promise = require('bluebird');
  * state internally. Any access to the state currently goes to the server.
  * Depending on how usage of this API develops we may want to reconsider this.
  */
-module.exports = function(config, job_id) {
-    var request = require('./request')(config);
 
-    function slicer(status) {
-        return request.get(`/jobs/${job_id}/slicer`);
-    }
-
-    function job_action(action, options) {
-        var url = `/jobs/${job_id}/${action}`;
-
-        // options are converted into URL parameters.
-        if (options) {
-            url += '?';
-            _.forOwn(options, function(value, option) {
-                url += `${option}=${value}`;
-            })
+class Job extends Client {
+    constructor(config, jobId) {
+        super(config);
+        if (!jobId) {
+            throw new Error('Job requires jobId');
         }
-
-        return request.post(url, {});
+        if (!_.isString(jobId)) {
+            throw new Error('Job requires jobId to be a string');
+        }
+        this._jobId = jobId;
+        autoBind(this);
     }
 
-    function ex_action(action, options) {
-        return ex_id()
-            .then((exId) => {
-                const url = `/ex/${exId}/${action}`;
-                // options are converted into URL parameters.
-                if (options) {
-                    url += '?';
-                    _.forOwn(options, function(value, option) {
-                        url += `${option}=${value}`;
-                    })
-                }
-        
-                return request.post(url, {});
-            });
+    id() { return this._jobId; }
+
+    slicer() {
+        return this.get(`/jobs/${this._jobId}/slicer`);
     }
 
-    function ex_id() {
-        return request.get(`/jobs/${job_id}/ex`)
-            .then(function(job_spec) {
-                return job_spec.ex_id;
-            });
+    start(qs) {
+        return this.post(`/jobs/${this._jobId}/_start`, { qs });
     }
 
-    function status() {
-        return request.get(`/jobs/${job_id}/ex`)
-            .then(function(job_spec) {
-                return job_spec._status;
-            });
+    stop(qs) {
+        return this.post(`/jobs/${this._jobId}/_stop`, { qs });
     }
 
-    function waitForStatus(target, timeout) {
-        if (!timeout) timeout = 1000;
+    pause(qs) {
+        return this.post(`/jobs/${this._jobId}/_pause`, { qs });
+    }
 
-        return new Promise(function(resolve, reject) {
-            // Not all terminal states considered failure.
-            var terminal = {
-                completed: false,
-                failed: true,
-                rejected: true,
-                aborted: true
-            };
-            function wait() {
-                status()
-                    .then(function(result) {
-                        if (result === target) {
-                            resolve(result);
-                        }
-                        else {
-                            setTimeout(wait, timeout);
-                        }
+    resume(qs) {
+        return this.post(`/jobs/${this._jobId}/_resume`, { qs });
+    }
 
-                        // These are terminal states for a job so if we're not explicitly
-                        // watching for these then we need to stop waiting as the job
-                        // status won't change further.
-                        if (terminal[result] !== undefined) {
-                            if (terminal[result]) {
-                                reject(`Job has status: "${result}" which is terminal so status: "${target}" is not possible. job_id: ${job_id}`)
-                            }
-                            else {
-                                resolve(result)
-                            }
-                        }
-                    })
-                    .catch(function(err) {
-                        reject(err);
-                    })
+    recover(qs) {
+        return this.ex().then(exId => this.post(`/ex/${exId}/_recover`, { qs }));
+    }
+
+    ex() {
+        return this.get(`/jobs/${this._jobId}/ex`)
+            .then(jobSpec => jobSpec.ex_id);
+    }
+
+    status() {
+        return this.get(`/jobs/${this._jobId}/ex`)
+            .then(jobSpec => jobSpec._status);
+    }
+
+    waitForStatus(target, intervalMs = 1000, timeoutMs = 0) {
+        const terminal = {
+            terminated: true,
+            failed: true,
+            rejected: true,
+            completed: true,
+            stopped: true,
+        };
+
+        const startTime = Date.now();
+
+        const checkStatus = async () => {
+            const result = await this.status();
+
+            if (result === target) {
+                return result;
             }
 
-            wait();
-        })
+            // These are terminal states for a job so if we're not explicitly
+            // watching for these then we need to stop waiting as the job
+            // status won't change further.
+            if (terminal[result]) {
+                throw new Error(`Job cannot reach the target status, "${target}", because it is in the terminal state, "${result}"`);
+            }
+
+            const elapsed = Date.now() - startTime;
+            if (timeoutMs > 0 && elapsed >= timeoutMs) {
+                throw new Error(`Job status failed to change from status "${result}" within ${timeoutMs}ms`);
+            }
+
+            await Promise.delay(intervalMs);
+            return checkStatus();
+        };
+
+        return Promise.resolve().then(() => checkStatus());
     }
 
-    function spec() {
-        return request.get(`/jobs/${job_id}`);
+    spec() {
+        return this.get(`/jobs/${this._jobId}`);
     }
 
-    function errors() {
-        return request.get(`/jobs/${job_id}/errors`);
+    errors() {
+        return this.get(`/jobs/${this._jobId}/errors`);
     }
 
-    function _filterProcesses(role) {
-        return request.get("/cluster/state")
-            .then(function(state) {
-                var workers = _.reduce(state, function(workers, node) {
-                    var found = _.filter(node.active, function(process) {
-                        if (process.assignment == role && process.job_id == job_id) {
-                            process.node_id = node.node_id;
-                            return process;
-                        }
-                    });
+    workers() {
+        return this.get('/cluster/state').then(state => this._filterProcesses(state, 'worker'));
+    }
 
-                    if (found.length > 0) workers = workers.concat(found);
-                    return workers;
-                }, []);
+    changeWorkers(action, workerNum) {
+        if (action == null || workerNum == null) {
+            return Promise.reject(new Error('changeWorkers requires action and count'));
+        }
+        if (!_.includes(['add', 'remove', 'total'], action)) {
+            return Promise.reject(new Error('changeWorkers requires action to be one of add, remove, or total'));
+        }
 
-                return workers;
+        const qs = {};
+        qs[action] = workerNum;
+        return this.post(`/jobs/${this._jobId}/_workers`, { qs });
+    }
+
+    _filterProcesses(state, role) {
+        const filteredWorkers = _.reduce(state, (workers, node) => {
+            _.forEach(node.active, (_activeProcess) => {
+                const activeProcess = _.cloneDeep(_activeProcess);
+                if (activeProcess.assignment !== role) return;
+                if (activeProcess.job_id !== this._jobId) return;
+                activeProcess.node_id = node.node_id;
+                workers.push(activeProcess);
             });
-    }
 
-    function changeWorkers(param, workerNum){
-        var url = `/jobs/${job_id}/_workers?${param}=${workerNum}`;
-        return request.post(url)
-    }
+            return workers;
+        }, []);
 
-    return {
-        start: (options) => {
-            return job_action('_start', options)
-        },
-        recover: (options) => {
-            return ex_action('_recover', options)
-        },
-        stop: (options) => {
-            return job_action('_stop', options)
-        },
-        pause: (options) => {
-            return job_action('_pause', options)
-        },
-        resume: (options) => {
-            return job_action('_resume', options)
-        },
-        slicer: slicer,
-        status: status,
-        spec: spec,
-        errors: errors,
-        id: () => {
-            return job_id
-        },
-        ex: ex_id,
-        waitForStatus: waitForStatus,
-        workers: () => {
-            return _filterProcesses('worker')
-        },
-        changeWorkers: changeWorkers
+        return filteredWorkers;
     }
-};
+}
+
+module.exports = Job;

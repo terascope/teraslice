@@ -1,11 +1,8 @@
 'use strict';
 
-module.exports = function(config) {
-    var teraslice_host = config.host;
+const TerasliceClient = require('./lib');
 
-    return {
-        jobs: require('./lib/jobs')(config),
-        cluster: require('./lib/cluster')(config),
-        assets: require('./lib/assets')(config)
-    }
+// we don't want to break the existing api by forcing the client to be called with new
+module.exports = function createTerasliceClient(config) {
+    return new TerasliceClient(config);
 };

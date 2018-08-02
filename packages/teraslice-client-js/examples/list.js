@@ -1,4 +1,8 @@
-var teraslice = require('../index')({
+'use strict';
+
+/* eslint-disable no-console */
+
+const teraslice = require('../index')({
     host: 'http://localhost:5678'
 });
 
