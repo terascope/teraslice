@@ -124,15 +124,13 @@ describe('execution_analytics', () => {
     });
 
     it('registers an event handler which sends analytics data to cluster master', () => {
-        const beforeExID = process.env.ex_id;
-        const beforeJobID = process.env.job_id;
-        const beforeJob = process.env.job;
+        const config = {
+            exId: '123',
+            jobId: '456',
+            execution: { name: 'test' }
+        };
 
-        process.env.ex_id = 123;
-        process.env.job_id = 456;
-        process.env.job = JSON.stringify({ name: 'test' });
-
-        const executionAnalytics = executionAnalyticsModule(context, messaging);
+        const executionAnalytics = executionAnalyticsModule(context, messaging, config);
         const incomingMsg = { __msgId: 1234, __source: 'testing', node_id: 'someNode' };
         expect(msgHandler.event).toEqual('cluster:slicer:analytics');
         expect(typeof msgHandler.callback).toEqual('function');
@@ -147,10 +145,6 @@ describe('execution_analytics', () => {
         expect(typeof msgResponse.payload.stats).toEqual('object');
 
         executionAnalytics.shutdown();
-        // other tests use these variables so need to return them to what they where
-        process.env.ex_id = beforeExID;
-        process.env.job_id = beforeJobID;
-        process.env.job = beforeJob;
     });
 
     it('will sent analytic updates periodically', (done) => {

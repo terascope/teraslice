@@ -39,8 +39,11 @@ describe('Node master', () => {
         },
         cluster: {},
         logger,
-        __test_job: JSON.stringify(require('../examples/jobs/data_generator.json')),
-        __test_assignment: 'worker'
+    };
+
+    const testConfig = {
+        execution: _.cloneDeep(require('../examples/jobs/data_generator.json')),
+        assignment: 'worker',
     };
 
     const fakeClusterMaster = require('socket.io')();
@@ -136,7 +139,7 @@ describe('Node master', () => {
         context.apis.foundation.getSystemEvents = () => newEmitter;
         context.cluster = Object.assign(Object.create(newEmitter), startingWorkers);
         eventEmitter.on('deleteWorker', id => delete context.cluster.workers[id]);
-        return nodeModule(context);
+        return nodeModule(context, testConfig);
     }
 
     function waitFor(timeout) {

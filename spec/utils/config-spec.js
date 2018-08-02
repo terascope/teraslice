@@ -1,8 +1,8 @@
 'use strict';
 
-const config = require('../../lib/utils/config');
 const fs = require('fs');
 const events = require('events');
+const config = require('../../lib/utils/config');
 
 const eventEmitter = new events.EventEmitter();
 
@@ -21,7 +21,9 @@ describe('config', () => {
             });
             fs.rmdirSync(path);
         } catch (e) {
-            if (e.code !== 'ENOENT') console.log(e);
+            if (e.code !== 'ENOENT') {
+                console.error(e); // eslint-disable-line no-console
+            }
         }
     }
 
@@ -107,4 +109,3 @@ describe('config', () => {
         expect(JSON.stringify(results)).toEqual(JSON.stringify(resultsOP));
     });
 });
-

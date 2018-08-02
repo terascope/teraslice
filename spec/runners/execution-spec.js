@@ -24,7 +24,7 @@ describe('execution runner', () => {
     const assetPath = `${testDir}/${assetId}`;
     const processorPath = path.join(__dirname, '../../lib/processors/noop.js');
 
-    const job = {
+    const execution = {
         operations: [
             { _op: 'elasticsearch_data_generator' },
             { _op: 'noop' }
@@ -50,8 +50,11 @@ describe('execution runner', () => {
             }
         },
         logger,
-        __test_assignment: 'execution_controller',
-        __test_job: JSON.stringify(job)
+    };
+
+    const testConfig = {
+        processAssignment: 'execution_controller',
+        execution
     };
 
     beforeEach(() => fs.remove(testDir).then(() => fs.ensureDir(testDir)));
@@ -76,7 +79,7 @@ describe('execution runner', () => {
     });
 
     it('can initialize', (done) => {
-        const executionRunner = executionCode(context).__test_context();
+        const executionRunner = executionCode(context, testConfig).__test_context();
 
         executionRunner.initialize(eventEmitter, logger)
             .then((results) => {
@@ -85,7 +88,7 @@ describe('execution runner', () => {
                 expect(results.queue).toBeDefined();
                 expect(results.queue.length).toEqual(0);
                 expect(results.config).toBeDefined();
-                expect(results.config).toEqual(job);
+                expect(results.config).toEqual(execution);
                 expect(results.slicer).toBeDefined();
                 expect(typeof results.slicer).toEqual('object');
                 expect(results.slicer.newReader).toBeDefined();
@@ -104,8 +107,11 @@ describe('execution runner', () => {
             operations: [{ _op: 'assetTest' }, { _op: 'noop' }]
         };
         const newContext = _.cloneDeep(context);
-        newContext.__test_job = JSON.stringify(assetjob);
-        const executionRunner = executionCode(newContext).__test_context();
+
+        const newTestConfig = _.cloneDeep(testConfig);
+        newTestConfig.execution = assetjob;
+
+        const executionRunner = executionCode(newContext, newTestConfig).__test_context();
 
         executionRunner.initialize(eventEmitter, logger)
             .catch((err) => {
@@ -121,8 +127,10 @@ describe('execution runner', () => {
             operations: [{ _op: 'assetTest' }, { _op: 'noop' }]
         };
         const newContext = _.cloneDeep(context);
-        newContext.__test_job = JSON.stringify(assetjob);
-        const executionRunner = executionCode(newContext).__test_context();
+        const newTestConfig = _.cloneDeep(testConfig);
+        newTestConfig.execution = assetjob;
+
+        const executionRunner = executionCode(newContext, newTestConfig).__test_context();
 
         Promise.all([executionRunner.initialize(eventEmitter, logger), simulateAssetDownload(200)])
             .spread((results) => {
@@ -149,9 +157,10 @@ describe('execution runner', () => {
             operations: [{ _op: 'elasticsearch_data_generator' }, { _op: 'assetTest' }]
         };
         const newContext = _.cloneDeep(context);
-        newContext.__test_job = JSON.stringify(assetjob);
-        newContext.__test_assignment = 'worker';
-        const executionRunner = executionCode(newContext).__test_context();
+        const newTestConfig = _.cloneDeep(testConfig);
+        newTestConfig.execution = assetjob;
+
+        const executionRunner = executionCode(newContext, newTestConfig).__test_context();
 
         Promise.all([executionRunner.initialize(eventEmitter, logger), simulateAssetDownload(200)])
             .spread((results) => {
@@ -168,8 +177,10 @@ describe('execution runner', () => {
         };
 
         const newContext = _.cloneDeep(context);
-        newContext.__test_job = JSON.stringify(assetjob);
-        const executionRunner = executionCode(newContext).__test_context();
+        const newTestConfig = _.cloneDeep(testConfig);
+        newTestConfig.execution = assetjob;
+
+        const executionRunner = executionCode(newContext, newTestConfig).__test_context();
 
         Promise.all([
             executionRunner.initialize(eventEmitter, logger),
@@ -190,8 +201,10 @@ describe('execution runner', () => {
         };
         fs.copySync(path.join(__dirname, 'processors', 'fail.js'), path.join(assetPath, 'fail.js'));
         const newContext = _.cloneDeep(context);
-        newContext.__test_job = JSON.stringify(assetjob);
-        const executionRunner = executionCode(newContext).__test_context();
+        const newTestConfig = _.cloneDeep(testConfig);
+        newTestConfig.execution = assetjob;
+
+        const executionRunner = executionCode(newContext, newTestConfig).__test_context();
 
         executionRunner.initialize(eventEmitter, logger)
             .catch((err) => {
@@ -203,10 +216,12 @@ describe('execution runner', () => {
 
 
     it('can instantiate an execution', (done) => {
-        const exRunnerSlicer = executionCode(context).__test_context();
+        const exRunnerSlicer = executionCode(context, testConfig).__test_context();
         const newContext = _.cloneDeep(context);
-        newContext.__test_assignment = 'worker';
-        const exRunnerWorker = executionCode(newContext).__test_context();
+        const newTestConfig = _.cloneDeep(testConfig);
+        newTestConfig.processAssignment = 'worker';
+
+        const exRunnerWorker = executionCode(newContext, newTestConfig).__test_context();
 
         Promise.all([exRunnerSlicer._instantiateJob(), exRunnerWorker._instantiateJob()])
             .spread((slicerExe, workerExe) => {
@@ -215,7 +230,7 @@ describe('execution runner', () => {
                 expect(slicerExe.queue).toBeDefined();
                 expect(slicerExe.queue.length).toEqual(0);
                 expect(slicerExe.config).toBeDefined();
-                expect(slicerExe.config).toEqual(job);
+                expect(slicerExe.config).toEqual(execution);
                 expect(slicerExe.slicer).toBeDefined();
                 expect(typeof slicerExe.slicer).toEqual('object');
                 expect(slicerExe.slicer.newReader).toBeDefined();
@@ -231,7 +246,7 @@ describe('execution runner', () => {
                 expect(workerExe.queue).toBeDefined();
                 expect(workerExe.queue.length).toEqual(2);
                 expect(workerExe.config).toBeDefined();
-                expect(workerExe.config).toEqual(job);
+                expect(workerExe.config).toEqual(execution);
                 expect(workerExe.slicer).toEqual(null);
             })
             .catch(fail)
@@ -239,7 +254,7 @@ describe('execution runner', () => {
     });
 
     it('analyze returns a function what captures the time it took to complete a step, data in and data out', (done) => {
-        const { analyze } = executionCode(context).__test_context();
+        const { analyze } = executionCode(context, testConfig).__test_context();
 
         const fn = function (data) {
             return new Promise(((resolve) => {
@@ -282,7 +297,7 @@ describe('execution runner', () => {
     });
 
     it('insertAnalyzers takes an array of functions and returns them wrapped with the analyze function', () => {
-        const { insertAnalyzers } = executionCode(context);
+        const { insertAnalyzers } = executionCode(context, testConfig);
         const fnArray = [() => {}, () => {}];
         const results = insertAnalyzers(fnArray);
 
@@ -299,8 +314,10 @@ describe('execution runner', () => {
             operations: [op1, op2]
         };
         const newContext = _.cloneDeep(context);
-        newContext.__test_job = JSON.stringify(assetjob);
-        executionCode(newContext).__test_context();
+        const newTestConfig = _.cloneDeep(context);
+        newTestConfig.execution = assetjob;
+
+        executionCode(newContext, newTestConfig).__test_context();
         // This tests that job_runner api is available as soon as the module comes up
         expect(testRegisterApi.job_runner).toBeDefined();
         expect(typeof testRegisterApi.job_runner).toEqual('object');
