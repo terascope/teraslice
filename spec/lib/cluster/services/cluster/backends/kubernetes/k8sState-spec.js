@@ -32,9 +32,9 @@ describe('k8sState', () => {
         expect(clusterState['192.168.99.100'].active.length).toEqual(3);
         expect(clusterState['192.168.99.100'].active[1])
             .toEqual({
-                worker_id: 'teraslice-slicer-123456-784cbt5mz',
+                worker_id: 'teraslice-execution_controller-123456-784cbt5mz',
                 assignment: 'slicer',
-                pid: 'teraslice-slicer-123456-784cbt5mz',
+                pid: 'teraslice-execution_controller-123456-784cbt5mz',
                 ex_id: '123456',
                 job_id: '654321',
                 pod_ip: '172.17.0.5',
@@ -63,9 +63,9 @@ describe('k8sState', () => {
         expect(clusterState['192.168.99.100'].active.length).toEqual(3);
         expect(clusterState['192.168.99.100'].active[1])
             .toEqual({
-                worker_id: 'teraslice-slicer-123456-784cbt5mz',
+                worker_id: 'teraslice-execution_controller-123456-784cbt5mz',
                 assignment: 'slicer',
-                pid: 'teraslice-slicer-123456-784cbt5mz',
+                pid: 'teraslice-execution_controller-123456-784cbt5mz',
                 ex_id: '123456',
                 job_id: '654321',
                 pod_ip: '172.17.0.5',

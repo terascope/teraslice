@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help show destroy logs logs-master logs-slicer logs-worker submit k8s-master build
+.PHONY: help show destroy logs logs-master logs-ex logs-worker submit k8s-master build
 SHELL := bash
 
 # defaults to my minikube teraslice master, override by setting the
@@ -30,7 +30,7 @@ logs: ## show logs for k8s deployments and services
 logs-master: ## show logs for k8s teraslice master
 	kubectl logs -l app=teraslice,nodeType=master --tail=$(LOG_LENGTH) | bunyan
 
-logs-slicer: ## show logs for k8s teraslice slicers
+logs-ex: ## show logs for k8s teraslice execution_controllers
 	kubectl logs -l app=teraslice,nodeType=execution_controller --tail=$(LOG_LENGTH) | bunyan
 
 logs-worker: ## show logs for k8s teraslice workers

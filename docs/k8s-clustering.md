@@ -80,7 +80,7 @@ show:  show k8s deployments and services
 destroy:  delete k8s deployments and services
 logs:  show logs for k8s deployments and services
 logs-master:  show logs for k8s teraslice master
-logs-slicer:  show logs for k8s teraslice slicers
+logs-ex:  show logs for k8s teraslice execution_controllers
 logs-worker:  show logs for k8s teraslice workers
 submit:  submit test job
 k8s-master:  start teraslice master in k8s

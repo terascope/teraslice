@@ -133,40 +133,31 @@ describe('k8s', () => {
         });
     });
 
-
     describe('->delete', () => {
-        beforeEach(() => {
+        it('can delete a deployment by name', async () => {
             nock(_url)
                 .delete('/apis/apps/v1/namespaces/default/deployments/test1')
-                .reply(200, { })
-                .delete('/apis/v1/namespaces/default/services/test1')
                 .reply(200, { });
-        });
 
-        it('can delete a deployment by name', async () => {
             const response = await k8s.delete('test1', 'deployments');
             expect(response).toEqual({});
         });
 
-        // The following test unexpectedly fails with:
-        //      ✗ can delete a service by name (0.082 sec)
-        // - TypeError: Cannot read property 'statusCode' of undefined
-        //     at K8s.delete (./lib/cluster/services/cluster/backends/kubernetes/k8s.js:50:61)
-        //     at <Jasmine>
-        //     at process._tickCallback (internal/process/next_tick.js:188:7)
-        // it('can delete a service by name', async () => {
-        //     const response = await k8s.delete('test1', 'services');
-        //     expect(response).toEqual({});
-        // });
+        it('can delete a service by name', async () => {
+            nock(_url)
+                .delete('/api/v1/namespaces/default/services/test1')
+                .reply(200, { });
+
+            const response = await k8s.delete('test1', 'services');
+            expect(response).toEqual({});
+        });
     });
 
-
-    // FIXME: I feel a little weird about how I test the arithmetic for
-    // set/add/remove here but if I didn't mock it this way, I felt like I
-    // wasn't really testing anything.
     describe('->scaleExecution', () => {
+        let scope;
+
         beforeEach(() => {
-            nock(_url)
+            scope = nock(_url)
                 .get('/apis/apps/v1/namespaces/default/deployments/')
                 .query({ labelSelector: /nodeType=worker,exId=.*/ })
                 .reply(200, {
@@ -174,22 +165,38 @@ describe('k8s', () => {
                     items: [
                         { spec: { replicas: 5 }, metadata: { name: 'dname' } }
                     ]
-                })
-                .patch('/apis/apps/v1/namespaces/default/deployments/dname')
-                .reply(200, (uri, requestBody) => requestBody);
+                });
         });
 
         it('can set nodes to a deployment to 2', async () => {
+            scope.patch('/apis/apps/v1/namespaces/default/deployments/dname', {
+                spec: {
+                    replicas: 2,
+                }
+            }).reply(200, (uri, requestBody) => requestBody);
+
             const response = await k8s.scaleExecution('abcde1234', 2, 'set');
             expect(response.spec.replicas).toEqual(2);
         });
 
         it('can add 2 nodes to a deployment with 5 to get 7', async () => {
+            scope.patch('/apis/apps/v1/namespaces/default/deployments/dname', {
+                spec: {
+                    replicas: 7,
+                }
+            }).reply(200, (uri, requestBody) => requestBody);
+
             const response = await k8s.scaleExecution('abcde1234', 2, 'add');
             expect(response.spec.replicas).toEqual(7);
         });
 
         it('can remove 2 nodes from a deployment with 5 to get 3', async () => {
+            scope.patch('/apis/apps/v1/namespaces/default/deployments/dname', {
+                spec: {
+                    replicas: 3,
+                }
+            }).reply(200, (uri, requestBody) => requestBody);
+
             const response = await k8s.scaleExecution('abcde1234', 2, 'remove');
             expect(response.spec.replicas).toEqual(3);
         });
