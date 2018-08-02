@@ -202,7 +202,7 @@ issues a resume command, this allows the slicers to continue if they were in a p
 
 #### POST /jobs/{job_id}/_recover
 
-issues a recover command, this can only be run if the job is stopped, the job will attempt to retry failed slices and to resume where it previously left off
+THIS API ENDPOINT IS BEING DEPRECATED: issues a recover command, this can only be run if the job is stopped, the job will attempt to retry failed slices and to resume where it previously left off
 
 
 #### POST /jobs/{job_id}/_workers
@@ -321,6 +321,17 @@ issues a pause command, this will put the slicers on hold to prevent them from g
 #### POST /ex/{ex_id}/_resume
 
 issues a resume command, this allows the slicers to continue if they were in a paused state, marks the job execution context as running
+
+#### POST /ex/{ex_id}/_recover
+
+parameter options:
+
+- cleanup = [String] 'all' or 'errors'
+
+query:
+``` curl -XPOST localhost:5678/v1/ex/{ex_id}/_recover?cleanup=errors```
+
+issues a recover command, this can only be run if the execution is stopped, the job will attempt to retry failed slices and to resume where it previously left off. If cleanup parameter is specified it will NOT resume where it left off and exit after recovery completes. If the cleanup parameter is set to `all`, then it will attempt to reprocess all slices left in error or started status, if it is set to  `errors` then it will only reprocess state records that are marked as error.
 
 #### POST /ex/{ex_id}/_workers
 

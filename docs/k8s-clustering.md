@@ -62,7 +62,7 @@ should probably be a more sensible default that could be overridden in the
 config files.  I will leave this as a TODO
 
 ```bash
-kubectl create -n k8sdev secret docker-registry docker-tera1-secret \
+kubectl create secret docker-registry docker-tera1-secret \
     --docker-server=<DOCKER_HOST> \
     --docker-username=<DOCKER_USER> \
     --docker-password=<DOCKER_PASS> \
@@ -79,9 +79,9 @@ help:  show target summary
 show:  show k8s deployments and services
 destroy:  delete k8s deployments and services
 logs:  show logs for k8s deployments and services
-logsm:  show logs for k8s teraslice master
-logss:  show logs for k8s teraslice slicers
-logsw:  show logs for k8s teraslice workers
+logs-master:  show logs for k8s teraslice master
+logs-ex:  show logs for k8s teraslice execution_controllers
+logs-worker:  show logs for k8s teraslice workers
 submit:  submit test job
 k8s-master:  start teraslice master in k8s
 build:  build the teraslice:k8sdev container

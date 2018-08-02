@@ -17,20 +17,20 @@
         "assets": []
       },
       {
-        "worker_id": "teraslice-slicer-8b414884-2266-4d3f-976e-78c281177b9a-784cbt5mz",
+        "worker_id": "teraslice-execution_controller-123456-784cbt5mz",
         "assignment": "slicer",
-        "pid": "teraslice-slicer-8b414884-2266-4d3f-976e-78c281177b9a-784cbt5mz",
-        "ex_id": "8b414884-2266-4d3f-976e-78c281177b9a",
-        "job_id": "dc1471b2-a6ed-43c2-942e-69b9a073a51b",
+        "pid": "teraslice-execution_controller-123456-784cbt5mz",
+        "ex_id": "123456",
+        "job_id": "654321",
         "pod_ip": "172.17.0.5",
         "assets": []
       },
       {
-        "worker_id": "teraslice-worker-8b414884-2266-4d3f-976e-78c281177b9a-8b68v7p8t",
+        "worker_id": "teraslice-worker-123456-8b68v7p8t",
         "assignment": "worker",
-        "pid": "teraslice-worker-8b414884-2266-4d3f-976e-78c281177b9a-8b68v7p8t",
-        "ex_id": "8b414884-2266-4d3f-976e-78c281177b9a",
-        "job_id": "dc1471b2-a6ed-43c2-942e-69b9a073a51b",
+        "pid": "teraslice-worker-123456-8b68v7p8t",
+        "ex_id": "123456",
+        "job_id": "654321",
         "pod_ip": "172.17.0.6",
         "assets": []
       }

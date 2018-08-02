@@ -52,15 +52,15 @@ describe('execution engine', () => {
         },
         logger
     };
-    const messagingEvents = {};
+    let messagingEvents = {};
     let sentMsg = null;
-    const sentMsgs = [];
-    // let respondingMsg = null;
+    let sentMsgs = [];
     let executionOperationsUpdate = null;
     let exStatus = null;
-    const updateState = {};
-    const analyticsData = { failed: 1, processed: 5 };
+    let updateState = {};
+    let analyticsData = { };
     let respondingMessage = {};
+    let messageResponses = {};
 
     const messaging = {
         send: (msg) => {
@@ -73,19 +73,27 @@ describe('execution engine', () => {
             messagingEvents[obj.event] = obj.callback;
         },
         listen: () => {},
-        // respond: (msg) => { respondingMsg = msg; }
-        respond: () => {}
+        respond: (incoming = {}, outgoing = {}) => {
+            const msgId = incoming.__msgId;
+            messageResponses[msgId] = {
+                incoming,
+                outgoing,
+            };
+        }
     };
+
     const executionAnalytics = {
         getAnalytics: () => analyticsData,
         set: () => {},
         increment: () => {},
         shutdown: () => {}
     };
+
     const slicerAnalytics = {
         analyzeStats: () => {},
         addStats: () => {}
     };
+
     const exStore = {
         executionMetaData: () => {},
         setStatus: (exId, status) => {
@@ -95,6 +103,7 @@ describe('execution engine', () => {
         shutdown: () => {},
         update: (exId, obj) => { executionOperationsUpdate = obj; }
     };
+
     const stateStore = {
         executionStartingSlice: () => {},
         recoverSlices: () => {
@@ -109,6 +118,7 @@ describe('execution engine', () => {
             updateState[state] = slice;
         }
     };
+
     const executionContext = {
         config: {
             slicers: 2,
@@ -123,6 +133,7 @@ describe('execution engine', () => {
             newSlicer: () => Promise.resolve([() => null])
         }
     };
+
     const recovery = {
         recoveryComplete: () => true,
         getSlicerStartingPosition: () => Promise.resolve({ starting: 'point' }),
@@ -175,6 +186,25 @@ describe('execution engine', () => {
         return { engine, testContext, myEmitter };
     }
 
+    beforeEach(() => {
+        loggerErrMsg = null;
+        debugMsg = null;
+        logInfo = null;
+        warnMsg = null;
+        testSlices = null;
+        clientCounter = 15;
+        messagingEvents = {};
+        sentMsg = null;
+        sentMsgs = [];
+
+        executionOperationsUpdate = null;
+        exStatus = null;
+        updateState = {};
+        analyticsData = { failed: 1, processed: 5 };
+        respondingMessage = {};
+        messageResponses = {};
+    });
+
     it('can instantiate', (done) => {
         const { engine } = makeEngine();
 
@@ -190,7 +220,7 @@ describe('execution engine', () => {
             .finally(done);
     });
 
-    it('registers messsaging events', () => {
+    it('registers messaging events', () => {
         makeEngine();
         expect(messagingEvents['cluster:execution:pause']).toBeDefined();
         expect(typeof messagingEvents['cluster:execution:pause']).toEqual('function');
@@ -263,7 +293,7 @@ describe('execution engine', () => {
 
     it('can enqueue and dequeue workers', () => {
         const { workerQueue } = makeEngine().testContext;
-        const someWorker = { id: 'someWorker' };
+        const someWorker = { worker_id: 'someWorker' };
 
         expect(workerQueue).toBeDefined();
         expect(workerQueue.size()).toEqual(0);
@@ -271,7 +301,7 @@ describe('execution engine', () => {
         messagingEvents['worker:ready']({ payload: someWorker });
         expect(workerQueue.size()).toEqual(1);
 
-        messagingEvents['network:disconnect']('ping timeout', someWorker.id);
+        messagingEvents['network:disconnect']('ping timeout', someWorker.worker_id);
         expect(workerQueue.size()).toEqual(0);
     });
 
@@ -299,17 +329,59 @@ describe('execution engine', () => {
     it('can register slice completions', () => {
         const exId = '1234';
         const testEngine = makeEngine();
-        const { workerQueue } = testEngine.testContext;
+        const { workerQueue, cache } = testEngine.testContext;
         const { myEmitter } = testEngine;
         const sliceComplete = messagingEvents['worker:slice:complete'];
         let gotSliceSuccess = false;
         let gotSliceFailure = false;
 
-        const workerId = '789';
-        const slice1 = { payload: { some: 'data' } };
-        const slice2 = { payload: { some: 'data', error: 'some error' } };
-        const slice3 = { payload: { some: 'data', retry: true, analytics: true } };
-        const slice4 = { payload: { some: 'data', isShuttingDown: true } };
+        const slice1 = {
+            __msgId: _.uniqueId('msg-id-'),
+            payload: {
+                worker_id: 'some-worker-id',
+                slice: {
+                    slice_id: _.uniqueId('slice-id-'),
+                    slice_order: 1,
+                }
+            }
+        };
+        const slice2 = {
+            __msgId: _.uniqueId('msg-id-'),
+            payload: {
+                worker_id: _.uniqueId('worker-id-'),
+                slice: {
+                    slice_id: _.uniqueId('slice-id-'),
+                    slice_order: 2,
+                },
+                error: 'some error'
+            }
+        };
+
+        const slice3 = {
+            __msgId: _.uniqueId('msg-id-'),
+            payload: {
+                worker_id: _.uniqueId('worker-id-'),
+                slice: {
+                    slice_id: _.uniqueId('slice-id-'),
+                    slice_order: 3,
+                },
+                retry: true,
+                analytics: true
+            }
+        };
+
+        const slice4 = {
+            __msgId: _.uniqueId('msg-id-'),
+            payload: {
+                worker_id: _.uniqueId('worker-id-'),
+                slice: {
+                    slice_id: _.uniqueId('slice-id-'),
+                    slice_order: 4,
+                },
+                some: 'data',
+                isShuttingDown: true,
+            }
+        };
 
         myEmitter.on('slice:success', () => {
             gotSliceSuccess = true;
@@ -321,30 +393,102 @@ describe('execution engine', () => {
 
         expect(workerQueue.size()).toEqual(0);
 
-        sliceComplete(slice1, workerId);
+        sliceComplete(slice1, slice1.payload.worker_id);
 
         expect(gotSliceSuccess).toEqual(true);
-        expect(sentMsg).toEqual({
-            to: 'worker',
-            address: workerId,
-            message: 'slicer:slice:recorded',
-            payload: null
+        expect(messageResponses[slice1.__msgId]).toEqual({
+            incoming: slice1,
+            outgoing: {
+                payload: {
+                    slice_id: slice1.payload.slice.slice_id,
+                    recorded: true
+                }
+            }
         });
+
+        const cachekey = JSON.stringify({
+            slice: slice1.payload.slice,
+            worker_id: slice1.payload.worker_id,
+        });
+        expect(cache.get(cachekey)).toEqual(true);
 
         expect(workerQueue.size()).toEqual(1);
 
-        sliceComplete(slice2, workerId);
+        sliceComplete(slice2, slice2.payload.worker_id);
         expect(gotSliceFailure).toEqual(true);
 
         expect(workerQueue.size()).toEqual(2);
 
-        sliceComplete(slice3, workerId);
-        expect(warnMsg).toEqual(`worker: ${workerId} has rejoined slicer: ${exId}`);
+        sliceComplete(slice3, slice3.payload.worker_id);
+        expect(warnMsg).toEqual(`worker: ${slice3.payload.worker_id} has rejoined slicer: ${exId}`);
 
         expect(workerQueue.size()).toEqual(3);
 
-        sliceComplete(slice4, workerId);
+        sliceComplete(slice4, slice4.payload.worker_id);
         expect(workerQueue.size()).toEqual(3);
+    });
+
+    it('can safely call slice complete twice', () => {
+        const testEngine = makeEngine();
+        const { workerQueue, cache } = testEngine.testContext;
+        const { myEmitter } = testEngine;
+        const sliceComplete = messagingEvents['worker:slice:complete'];
+        let gotSliceSuccess = false;
+        let gotSliceFailure = false;
+
+        const slice = {
+            __msgId: _.uniqueId('msg-id-'),
+            payload: {
+                worker_id: 'some-worker-id',
+                slice: {
+                    slice_id: _.uniqueId('slice-id-'),
+                    slice_order: 1,
+                }
+            }
+        };
+
+        myEmitter.on('slice:success', () => {
+            gotSliceSuccess = true;
+        });
+
+        myEmitter.on('slice:failure', () => {
+            gotSliceFailure = true;
+        });
+
+        expect(workerQueue.size()).toEqual(0);
+
+        sliceComplete(slice, slice.payload.worker_id);
+
+        const cachekey = JSON.stringify({
+            slice: slice.payload.slice,
+            worker_id: slice.payload.worker_id,
+        });
+        expect(cache.get(cachekey)).toEqual(true);
+
+        expect(workerQueue.size()).toEqual(1);
+
+        expect(gotSliceSuccess).toEqual(true);
+
+        expect(messageResponses[slice.__msgId]).toEqual({
+            incoming: slice,
+            outgoing: {
+                payload: {
+                    slice_id: slice.payload.slice.slice_id,
+                    recorded: true
+                }
+            }
+        });
+
+        gotSliceSuccess = false;
+
+        sliceComplete(slice, slice.payload.worker_id);
+
+        expect(workerQueue.size()).toEqual(1);
+
+        expect(gotSliceSuccess).toEqual(false);
+        expect(gotSliceFailure).toEqual(false);
+
+        expect(warnMsg).toEqual(`worker: ${slice.payload.worker_id} already marked slice ${slice.payload.slice.slice_id} as complete`);
     });
 
     it('can register slicers', () => {
@@ -445,7 +589,7 @@ describe('execution engine', () => {
         function slicerError() {
             if (errorCounter < 2) {
                 errorCounter += 1;
-                return Promise.reject('an error occured during slicer initialization');
+                return Promise.reject('an error occurred during slicer initialization');
             }
             return Promise.resolve([() => 'all done']);
         }

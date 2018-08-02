@@ -1,10 +1,12 @@
 'use strict';
 
-const podsJobRunning = require('./files/job-running-v1-k8s-pods.json');
+const _ = require('lodash');
+const _podsJobRunning = require('./files/job-running-v1-k8s-pods.json');
 const k8sState = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8sState');
 
 describe('k8sState', () => {
-    it('generates cluster state correctly on first call', () => {
+    it('should generate cluster state correctly on first call', () => {
+        const podsJobRunning = _.cloneDeep(_podsJobRunning);
         const clusterState = {};
 
         k8sState.gen(podsJobRunning, clusterState);
@@ -30,27 +32,28 @@ describe('k8sState', () => {
         expect(clusterState['192.168.99.100'].active.length).toEqual(3);
         expect(clusterState['192.168.99.100'].active[1])
             .toEqual({
-                worker_id: 'teraslice-slicer-8b414884-2266-4d3f-976e-78c281177b9a-784cbt5mz',
+                worker_id: 'teraslice-execution_controller-123456-784cbt5mz',
                 assignment: 'slicer',
-                pid: 'teraslice-slicer-8b414884-2266-4d3f-976e-78c281177b9a-784cbt5mz',
-                ex_id: '8b414884-2266-4d3f-976e-78c281177b9a',
-                job_id: 'dc1471b2-a6ed-43c2-942e-69b9a073a51b',
+                pid: 'teraslice-execution_controller-123456-784cbt5mz',
+                ex_id: '123456',
+                job_id: '654321',
                 pod_ip: '172.17.0.5',
                 assets: []
             });
         expect(clusterState['192.168.99.100'].active[2])
             .toEqual({
-                worker_id: 'teraslice-worker-8b414884-2266-4d3f-976e-78c281177b9a-8b68v7p8t',
+                worker_id: 'teraslice-worker-123456-8b68v7p8t',
                 assignment: 'worker',
-                pid: 'teraslice-worker-8b414884-2266-4d3f-976e-78c281177b9a-8b68v7p8t',
-                ex_id: '8b414884-2266-4d3f-976e-78c281177b9a',
-                job_id: 'dc1471b2-a6ed-43c2-942e-69b9a073a51b',
+                pid: 'teraslice-worker-123456-8b68v7p8t',
+                ex_id: '123456',
+                job_id: '654321',
                 pod_ip: '172.17.0.6',
                 assets: []
             });
     });
 
-    it('generates cluster state correctly on second call', () => {
+    it('should generate cluster state correctly on second call', () => {
+        const podsJobRunning = _.cloneDeep(_podsJobRunning);
         const clusterState = {};
 
         k8sState.gen(podsJobRunning, clusterState);
@@ -60,24 +63,37 @@ describe('k8sState', () => {
         expect(clusterState['192.168.99.100'].active.length).toEqual(3);
         expect(clusterState['192.168.99.100'].active[1])
             .toEqual({
-                worker_id: 'teraslice-slicer-8b414884-2266-4d3f-976e-78c281177b9a-784cbt5mz',
+                worker_id: 'teraslice-execution_controller-123456-784cbt5mz',
                 assignment: 'slicer',
-                pid: 'teraslice-slicer-8b414884-2266-4d3f-976e-78c281177b9a-784cbt5mz',
-                ex_id: '8b414884-2266-4d3f-976e-78c281177b9a',
-                job_id: 'dc1471b2-a6ed-43c2-942e-69b9a073a51b',
+                pid: 'teraslice-execution_controller-123456-784cbt5mz',
+                ex_id: '123456',
+                job_id: '654321',
                 pod_ip: '172.17.0.5',
                 assets: []
             });
         expect(clusterState['192.168.99.100'].active[2])
             .toEqual({
-                worker_id: 'teraslice-worker-8b414884-2266-4d3f-976e-78c281177b9a-8b68v7p8t',
+                worker_id: 'teraslice-worker-123456-8b68v7p8t',
                 assignment: 'worker',
-                pid: 'teraslice-worker-8b414884-2266-4d3f-976e-78c281177b9a-8b68v7p8t',
-                ex_id: '8b414884-2266-4d3f-976e-78c281177b9a',
-                job_id: 'dc1471b2-a6ed-43c2-942e-69b9a073a51b',
+                pid: 'teraslice-worker-123456-8b68v7p8t',
+                ex_id: '123456',
+                job_id: '654321',
                 pod_ip: '172.17.0.6',
                 assets: []
             });
+    });
+
+    it('should remove old host ips', () => {
+        const podsJobRunning = _.cloneDeep(_podsJobRunning);
+        const clusterState = {};
+        clusterState['2.2.2.2'] = {
+            state: 'idk',
+            active: []
+        };
+
+        k8sState.gen(podsJobRunning, clusterState);
+        expect(clusterState['192.168.99.100'].active.length).toEqual(3);
+        expect(clusterState['2.2.2.2']).toBeUndefined();
     });
 
     // This might not be technically possible, I think there will at least have

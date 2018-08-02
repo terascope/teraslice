@@ -1,9 +1,9 @@
 'use strict';
 
-const messagingModule = require('../../lib/cluster/services/messaging');
-const events = require('events');
 const _ = require('lodash');
+const events = require('events');
 const Promise = require('bluebird');
+const messagingModule = require('../../lib/cluster/services/messaging');
 
 describe('messaging module', () => {
     const logger = {
@@ -54,6 +54,7 @@ describe('messaging module', () => {
 
     let emitMsg = null;
     let socketMsg = null;
+    const connected = {};
 
     const io = {
         emit: (msg, msgObj) => {
@@ -65,6 +66,7 @@ describe('messaging module', () => {
                     socketMsg = { message: msg, data: msgObj, address };
                 },
             }),
+            connected,
         },
         eio: {
             clientsCount: 2
@@ -110,6 +112,7 @@ describe('messaging module', () => {
         firstWorkerMsg = null;
         secondWorkerMsg = null;
         thirdWorkerMsg = null;
+        _.omitBy(connected);
     });
 
     afterEach(() => {
@@ -291,6 +294,37 @@ describe('messaging module', () => {
         expect(firstWorkerMsg).toEqual(executionMsg);
         expect(secondWorkerMsg).toEqual(executionMsg);
         expect(thirdWorkerMsg).toEqual(thirdMsg);
+        testContext.cleanup();
+    });
+
+    it('can get a list of rooms as the cluster_master', () => {
+        connected['some-socket-id'] = {
+            rooms: {
+                'room-a': 'room-a',
+                'room-b': 'room-b'
+            }
+        };
+
+        connected['another-socket-id'] = {
+            rooms: {
+                'room-1': 'room-1'
+            }
+        };
+
+        const testContext = getContext({
+            env: {
+                assignment: 'cluster_master'
+            },
+        });
+
+        const messaging = messagingModule(testContext, logger);
+
+        messaging.__test_context(io);
+
+        const rooms = messaging.listRooms();
+
+        expect(rooms).toEqual(['room-a', 'room-b', 'room-1']);
+
         testContext.cleanup();
     });
 
@@ -604,44 +638,6 @@ describe('messaging module', () => {
                 }
             });
         }).toThrow();
-
-        testContext.cleanup();
-    });
-
-    it('can register callbacks and attach them to socket/io rooms only once', () => {
-        const testContext = getContext({ env: { assignment: 'execution_controller' } });
-        const messaging = messagingModule(testContext, logger);
-        const getRegistry = messaging.__test_context()._getRegistry;
-        const registerFns = messaging.__test_context()._registerFns;
-        const joinList = {};
-
-        const socket = new events.EventEmitter();
-        socket.rooms = joinList;
-        socket.join = (key) => {
-            expect(key).toEqual('someId');
-            if (!joinList[key]) joinList[key] = 0;
-            joinList[key] += 1;
-        };
-
-
-        // run it twice to verify it doesn't call join twice
-        _.times(2, () => {
-            messaging.register({
-                event: 'worker:ready',
-                identifier: 'worker_id',
-                callback: () => {
-                    expect(joinList.someId).toEqual(1);
-                }
-            });
-
-            const registry = getRegistry();
-
-            expect(registry['worker:ready']).toBeDefined();
-            expect(typeof registry['worker:ready']).toEqual('function');
-
-            registerFns(socket);
-            socket.emit('worker:ready', { worker_id: 'someId' });
-        });
 
         testContext.cleanup();
     });
