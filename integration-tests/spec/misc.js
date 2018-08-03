@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
-const TerasliceClient = require('teraslice-client-js');
+const terasliceClient = require('teraslice-client-js');
 const ElasticsearchClient = require('elasticsearch').Client;
 
 const DOCKER_IP = process.env.ip ? process.env.ip : 'localhost';
@@ -13,7 +13,7 @@ function newJob(name) {
 }
 
 function teraslice() {
-    return TerasliceClient({
+    return terasliceClient({
         host: `http://${DOCKER_IP}:45678`
     });
 }
