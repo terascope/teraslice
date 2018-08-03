@@ -6,8 +6,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node service.js",
-    "lint": "eslint *.js lib/**/*.js",
-    "lint:fix": "eslint --fix *.js lib/**/*.js",
+    "lint": "eslint *.js lib spec integration-tests",
+    "lint:fix": "eslint --fix *.js lib spec integration-tests",
     "test": "nyc -x spec/ --reporter=text-summary jasmine; nyc report --reporter=html",
     "integration-tests": "yarn --cwd ./integration-tests test",
     "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
@@ -63,6 +63,7 @@
     "socket.io-client": "~1.4.5",
     "terafoundation": "^0.2.1",
     "uuid": "^3.3.2",
+    "verror": "^1.10.0",
     "yargs": "^11.0.0"
   },
   "devDependencies": {
