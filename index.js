@@ -4,6 +4,7 @@ module.exports = {
     utils: {
         date: require('./lib/utils/date_utils'),
         file: require('./lib/utils/file_utils'),
+        error: require('./lib/utils/error_utils'),
         schemaFormats: require('./lib/utils/convict_utils'),
         system: require('./lib/config/schemas/system')
     },

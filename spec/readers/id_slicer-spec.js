@@ -1,8 +1,8 @@
 'use strict';
 
-const idReader = require('../../lib/readers/id_reader');
 const Promise = require('bluebird');
 const events = require('events');
+const idReader = require('../../lib/readers/id_reader');
 
 const eventEmitter = new events.EventEmitter();
 
@@ -37,7 +37,8 @@ describe('id_reader', () => {
                             if (clientData.length > 1) {
                                 const data = clientData.shift();
                                 return Promise.resolve(
-                                    Object.assign({}, data, metaData));
+                                    Object.assign({}, data, metaData)
+                                );
                             }
 
                             return Promise.resolve(Object.assign({}, clientData[0], metaData));
@@ -61,7 +62,7 @@ describe('id_reader', () => {
         }
     };
 
-    const logger = context.logger;
+    const { logger } = context;
 
     it('has a schema, newSlicer and a newReader method, crossValidation', () => {
         const reader = idReader;

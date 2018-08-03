@@ -12,7 +12,7 @@ describe('job validation', () => {
                 fail('Submission should not succeed when no index is specified.');
             }) // This should throw a validation error.
             .catch((err) => {
-                expect(err.error).toBe(500);
+                expect(err.error).toBeGreaterThanOrEqual(400);
             })
             .finally(done);
     });
@@ -23,7 +23,7 @@ describe('job validation', () => {
 
         misc.teraslice().jobs.submit(jobSpec)
             .catch((err) => {
-                expect(err.error).toBe(500);
+                expect(err.error).toBeGreaterThanOrEqual(400);
             })
             .finally(done);
     });
@@ -37,7 +37,7 @@ describe('job validation', () => {
                 fail('Submission should not succeed when slicers == 0');
             }) // This should throw a validation error.
             .catch((err) => {
-                expect(err.error).toBe(500);
+                expect(err.error).toBeGreaterThanOrEqual(400);
             })
             .finally(done);
     });
@@ -51,7 +51,7 @@ describe('job validation', () => {
                 fail('Submission should not succeed when slicers == -1');
             }) // This should throw a validation error.
             .catch((err) => {
-                expect(err.error).toBe(500);
+                expect(err.error).toBeGreaterThanOrEqual(400);
             })
             .finally(done);
     });
@@ -65,7 +65,7 @@ describe('job validation', () => {
                 fail('Submission should not succeed when workers == 0');
             }) // This should throw a validation error.
             .catch((err) => {
-                expect(err.error).toBe(500);
+                expect(err.error).toBeGreaterThanOrEqual(400);
             })
             .finally(done);
     });
@@ -79,7 +79,7 @@ describe('job validation', () => {
                 fail('Submission should not succeed when lifecycle is invalid');
             }) // This should throw a validation error.
             .catch((err) => {
-                expect(err.error).toBe(500);
+                expect(err.error).toBeGreaterThanOrEqual(400);
             })
             .finally(done);
     });
@@ -92,7 +92,7 @@ describe('job validation', () => {
                 fail('Submission should not succeed when job is empty');
             }) // This should throw a validation error.
             .catch((err) => {
-                expect(err.error).toBe(400);
+                expect(err.error).toBeGreaterThanOrEqual(400);
             })
             .finally(done);
     });
