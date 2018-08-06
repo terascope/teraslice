@@ -1,0 +1,67 @@
+{
+    "apiVersion": "batch/v1",
+    "kind": "Job",
+    "metadata": {
+        "labels": {
+            "app": "teraslice",
+            "nodeType": "{{nodeType}}",
+            "exId": "{{exId}}",
+            "jobId": "{{jobId}}"
+        },
+        "name": "{{name}}",
+        "namespace": "{{namespace}}"
+    },
+    "spec": {
+        "template": {
+            "metadata": {
+                "labels": {
+                    "app": "teraslice",
+                    "nodeType": "{{nodeType}}",
+                    "exId": "{{exId}}",
+                    "jobId": "{{jobId}}"
+                }
+            },
+            "spec": {
+                "containers": [{
+                    "image": "{{dockerImage}}",
+                    "name": "{{name}}",
+                    "ports": [{ "containerPort": 45680 }],
+                    "volumeMounts": [{
+                        "mountPath": "/app/config",
+                        "name": "config"
+                    }],
+                    "env": [{
+                        "name": "NODE_TYPE",
+                        "value": "{{nodeType}}"
+                    },
+                    {
+                        "name": "EX",
+                        "value": "{{execution}}"
+                    },
+                    {
+                        "name": "POD_IP",
+                        "valueFrom": {
+                            "fieldRef": {
+                                "fieldPath": "status.podIP"
+                            }
+                        }
+                    }]
+                }],
+                "volumes": [{
+                    "name": "config",
+                    "configMap": {
+                        "name": "teraslice-worker",
+                        "items": [{
+                            "key": "teraslice-worker.yaml",
+                            "path": "teraslice.yaml"
+                        }]
+                    }
+                }],
+                "imagePullSecrets": [
+                    { "name": "docker-tera1-secret" }
+                ],
+                "restartPolicy": "Never"
+            }
+        }
+    }
+}
