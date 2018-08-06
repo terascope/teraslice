@@ -80,6 +80,7 @@ fdescribe('k8s', () => {
                 .get('/api/v1/namespaces/default/pods/')
                 .query({ labelSelector: 'app=teraslice' })
                 .reply(200, { kind: 'PodList' });
+
             const pods = await k8s.list('app=teraslice', 'pods');
             expect(pods.kind).toEqual('PodList');
         });
@@ -89,6 +90,7 @@ fdescribe('k8s', () => {
                 .get('/api/v1/namespaces/default/services/')
                 .query({ labelSelector: 'app=teraslice' })
                 .reply(200, { kind: 'ServiceList' });
+
             const pods = await k8s.list('app=teraslice', 'services');
             expect(pods.kind).toEqual('ServiceList');
         });
@@ -98,6 +100,7 @@ fdescribe('k8s', () => {
                 .get('/apis/apps/v1/namespaces/default/deployments/')
                 .query({ labelSelector: 'app=teraslice' })
                 .reply(200, { kind: 'DeploymentList' });
+
             const deployments = await k8s.list('app=teraslice', 'deployments');
             expect(deployments.kind).toEqual('DeploymentList');
         });
@@ -107,28 +110,38 @@ fdescribe('k8s', () => {
                 .get('/apis/batch/v1/namespaces/default/jobs/')
                 .query({ labelSelector: 'app=teraslice' })
                 .reply(200, { kind: 'JobList' });
+
             const jobs = await k8s.list('app=teraslice', 'jobs');
             expect(jobs.kind).toEqual('JobList');
         });
     });
 
     describe('->post', () => {
-        beforeEach(() => {
+        it('can post a service', async () => {
             nock(_url, { encodedQueryParams: true })
                 .post('/api/v1/namespaces/default/services')
-                .reply(201, { kind: 'Service' })
-                .post('/apis/apps/v1/namespaces/default/deployments')
-                .reply(201, { kind: 'Deployment' });
-        });
+                .reply(201, { kind: 'Service' });
 
-        it('can post a service', async () => {
             const response = await k8s.post({ kind: 'Service' }, 'service');
             expect(response.kind).toEqual('Service');
         });
 
         it('can post a deployment', async () => {
+            nock(_url, { encodedQueryParams: true })
+                .post('/apis/apps/v1/namespaces/default/deployments')
+                .reply(201, { kind: 'Deployment' });
+
             const response = await k8s.post({ kind: 'Deployment' }, 'deployment');
             expect(response.kind).toEqual('Deployment');
+        });
+
+        it('can post a job', async () => {
+            nock(_url, { encodedQueryParams: true })
+                .post('/apis/batch/v1/namespaces/default/jobs')
+                .reply(201, { kind: 'Job' });
+
+            const response = await k8s.post({ kind: 'Job' }, 'job');
+            expect(response.kind).toEqual('Job');
         });
     });
 
