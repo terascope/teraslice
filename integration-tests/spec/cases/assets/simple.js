@@ -23,33 +23,32 @@ describe('Asset Tests', () => {
         const jobSpec = misc.newJob(jobSpecName);
         const { workers } = jobSpec; // save for comparison
 
-        return teraslice.assets.post(fileStream)
+        return teraslice.assets.post(fileStream, true)
             .then((result) => {
                 // NOTE: In this case, the asset is referenced by the ID
                 // assigned by teraslice and not it's name.
-                jobSpec.assets = [JSON.parse(result)._id];
+                jobSpec.assets = [result._id];
                 return teraslice.jobs.submit(jobSpec)
-                    .then(job =>
-                        job.waitForStatus('running')
-                            .then(() => wait.forWorkersJoined(job.id(), workers, 20))
-                            .then((r) => {
-                                expect(r).toEqual(workers);
-                                return job.stop();
-                            }));
+                    .then(job => job.waitForStatus('running', 100)
+                        .then(() => wait.forWorkersJoined(job.id(), workers, 20))
+                        .then((r) => {
+                            expect(r).toEqual(workers);
+                            return job.stop();
+                        }));
             });
     }
     it('After uploading an asset, it can be deleted', (done) => {
         const testStream = fs.createReadStream('spec/fixtures/assets/example_asset_1.zip');
 
-        teraslice.assets.post(testStream)
+        teraslice.assets.post(testStream, true)
             .then((result) => {
                 // save the asset ID that was submitted to terslice
-                const assetId = JSON.parse(result)._id;
-                return teraslice.assets.delete(assetId)
+                const assetId = result._id;
+                return teraslice.assets.delete(assetId, true)
                     .then((response) => {
                         // ensure the deleted asset's ID matches that of
                         // the saved asset
-                        expect(assetId).toEqual(JSON.parse(response).assetId);
+                        expect(assetId).toEqual(response.assetId);
                         // TODO: verify that this asset no longer
                         // appears in /txt/assets
                         return response;
@@ -68,9 +67,15 @@ describe('Asset Tests', () => {
     it('Uploading a bad asset returns an error', (done) => {
         const testStream = fs.createReadStream('spec/fixtures/assets/example_bad_asset_1.zip');
 
-        teraslice.assets.post(testStream)
-            .then(result => expect(JSON.parse(result).error).toMatch('asset.json was not found'))
-            .catch(fail)
+        teraslice.assets.post(testStream, true)
+            .then((result) => {
+                expect(result.error).toBeGreaterThanOrEqual(400);
+                expect(result.message).toMatch('asset.json was not found');
+            })
+            .catch((error) => {
+                expect(error).toBeUndefined();
+                fail();
+            })
             .finally(done);
     });
 

@@ -1,24 +1,24 @@
 'use strict';
 
-const recoveryCode = require('../../lib/cluster/execution_controller/recovery');
 const eventsModule = require('events');
 const Promise = require('bluebird');
+const recoveryCode = require('../../lib/cluster/execution_controller/recovery');
 
 const eventEmitter = new eventsModule.EventEmitter();
 const eventEmitter2 = new eventsModule.EventEmitter();
 
 describe('execution recovery', () => {
     const logger = {
-        error() {},
-        info() {},
-        warn() {},
-        trace() {},
-        debug() {}
+        error() { },
+        info() { },
+        warn() { },
+        trace() { },
+        debug() { }
     };
 
     const startingPoints = {};
 
-    let sentMsg = null;
+    let executionFailureMsg = null;
     let testSlices = [{ slice_id: 1 }, { slice_id: 2 }];
 
     beforeEach(() => {
@@ -33,25 +33,35 @@ describe('execution recovery', () => {
             }
         }
     };
-    const messaging = { send: (msg) => { sentMsg = msg; } };
-    const executionAnalytics = { getAnalytics: () => ({}) };
-    const exStore = {
-        executionMetaData: () => {},
-        setStatus: () => new Promise(resolve => resolve(true))
-    };
+    const terminalError = (err) => { executionFailureMsg = err; };
+
     const stateStore = {
-        executionStartingSlice: (exId, ind) => { startingPoints[ind] = exId; },
+        executionStartingSlice: (exId, ind) => {
+            startingPoints[ind] = exId;
+        },
         recoverSlices: () => {
             const data = testSlices.slice();
             testSlices = [];
             return Promise.resolve(data);
         }
     };
-    const executionContext = { config: { slicers: 2 } };
+    const executionContext = {
+        config: {
+            slicers: 2,
+            recovered_execution: '9999'
+        },
+        ex_id: '1234',
+        job_id: '5678',
+    };
 
-    const testConfig = { ex_id: '1234', job_id: '5678', recovered_execution: '9999' };
-    let recoveryModule = recoveryCode(context, messaging, executionAnalytics, exStore, stateStore, executionContext);
-    let recovery = recoveryModule.__test_context(testConfig);
+    let recoveryModule = recoveryCode(
+        context,
+        terminalError,
+        stateStore,
+        executionContext
+    );
+
+    let recovery = recoveryModule.__test_context();
 
     function waitFor(fn, time) {
         return new Promise((resolve) => {
@@ -82,6 +92,8 @@ describe('execution recovery', () => {
         expect(typeof recoveryModule.getSlicerStartingPosition).toEqual('function');
         expect(recoveryModule.recoveryComplete).toBeDefined();
         expect(typeof recoveryModule.recoveryComplete).toEqual('function');
+        expect(recoveryModule.shutdown).toBeDefined();
+        expect(typeof recoveryModule.shutdown).toEqual('function');
     });
 
     it('manages retry slice state', () => {
@@ -94,16 +106,24 @@ describe('execution recovery', () => {
 
         recovery._sliceComplete({ slice: { slice_id: 1 } });
 
-        expect(recovery._retryState()).toEqual({ });
+        expect(recovery._retryState()).toEqual({});
         expect(recovery._recoveryBatchCompleted()).toEqual(true);
     });
 
     it('initalizes and sets up listeners', (done) => {
-        recoveryModule = recoveryCode(context, messaging, executionAnalytics, exStore, stateStore, executionContext);
-        recovery = recoveryModule.__test_context(testConfig);
+        recoveryModule = recoveryCode(
+            context,
+            terminalError,
+            stateStore,
+            executionContext
+        );
+
+        executionFailureMsg = null;
+
+        recovery = recoveryModule.__test_context();
         recoveryModule.initialize();
 
-        expect(recovery._retryState()).toEqual({ });
+        expect(recovery._retryState()).toEqual({});
         expect(recovery._recoveryBatchCompleted()).toEqual(true);
 
         recovery._setId({ slice_id: 1 });
@@ -122,14 +142,9 @@ describe('execution recovery', () => {
                 expect(recovery._recoveryBatchCompleted()).toEqual(true);
                 return recovery._setId({ slice_id: 2 });
             })
-            .then(() => Promise.all([sendError(), waitFor(() => {}, 30)]))
+            .then(() => Promise.all([sendError(), waitFor(() => { }, 30)]))
             .then(() => {
-                expect(sentMsg).toEqual({
-                    to: 'cluster_master',
-                    message: 'execution:error:terminal',
-                    ex_id: '1234',
-                    payload: { set_status: true }
-                });
+                expect(executionFailureMsg).toEqual('an error occured');
             })
             .catch(fail)
             .finally(() => done());
@@ -137,8 +152,14 @@ describe('execution recovery', () => {
 
     it('can recover slices', (done) => {
         context.apis.foundation.getSystemEvents = () => eventEmitter2;
-        recoveryModule = recoveryCode(context, messaging, executionAnalytics, exStore, stateStore, executionContext);
-        recovery = recoveryModule.__test_context(testConfig);
+        recoveryModule = recoveryCode(
+            context,
+            terminalError,
+            stateStore,
+            executionContext
+        );
+
+        recovery = recoveryModule.__test_context();
 
         expect(recoveryModule.recoveryComplete()).toEqual(true);
 
@@ -173,7 +194,7 @@ describe('execution recovery', () => {
             .then((slice) => {
                 expect(slice).toEqual({ slice_id: 2 });
                 expect(recoveryModule.recoveryComplete()).toEqual(false);
-                return Promise.all([slicer(), waitFor(() => {}, 150)]);
+                return Promise.all([slicer(), waitFor(() => { }, 150)]);
             })
             .spread((slice) => {
                 expect(slice).toEqual(null);

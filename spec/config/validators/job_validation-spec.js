@@ -1,7 +1,7 @@
 'use strict';
 
-const jobValidator = require('../../../lib/config/validators/job')();
 const events = require('events');
+const jobValidator = require('../../../lib/config/validators/job')();
 
 const eventEmitter = new events.EventEmitter();
 

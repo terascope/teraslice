@@ -14,7 +14,7 @@ describe('id reader', () => {
             .then((job) => {
                 expect(job).toBeDefined();
                 expect(job.id()).toBeDefined();
-                return job.waitForStatus('completed');
+                return job.waitForStatus('completed', 100);
             })
             .then(() => misc.indexStats('test-id_reindex-10000')
                 .then((stats) => {
@@ -36,7 +36,7 @@ describe('id reader', () => {
             .then((job) => {
                 expect(job).toBeDefined();
                 expect(job.id()).toBeDefined();
-                return job.waitForStatus('completed');
+                return job.waitForStatus('completed', 100);
             })
             .then(() => misc.indexStats('test-hexadecimal-logs')
                 .then((stats) => {
@@ -60,7 +60,7 @@ describe('id reader', () => {
             .then((job) => {
                 expect(job).toBeDefined();
                 expect(job.id()).toBeDefined();
-                return job.waitForStatus('completed');
+                return job.waitForStatus('completed', 100);
             })
             .then(() => misc.indexStats('test-keyrange-logs')
                 .then((stats) => {
@@ -81,15 +81,15 @@ describe('id reader', () => {
             .then((job) => {
                 expect(job.id()).toBeDefined();
 
-                return job.waitForStatus('running')
+                return job.waitForStatus('running', 100)
                     .then(() => job.pause())
-                    .then(() => job.waitForStatus('paused'))
+                    .then(() => job.waitForStatus('paused', 100))
                     .then(() => job.resume())
-                    .then(() => job.waitForStatus('running'))
+                    .then(() => job.waitForStatus('running', 100))
                     .then(() => job.stop())
-                    .then(() => job.waitForStatus('stopped'))
+                    .then(() => job.waitForStatus('stopped', 100))
                     .then(() => job.recover())
-                    .then(() => job.waitForStatus('completed'))
+                    .then(() => job.waitForStatus('completed', 100))
                     .then(() => misc.indexStats('test-id_reindex-lifecycle-10000')
                         .then((stats) => {
                             expect(stats.count).toBe(10000);

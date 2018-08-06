@@ -61,8 +61,6 @@ describe('Worker', () => {
             }
         },
         logger,
-        __test_job: JSON.stringify(require('../examples/jobs/data_generator.json')),
-        __test_assignment: 'worker'
     };
 
     const messaging = {
@@ -123,12 +121,19 @@ describe('Worker', () => {
             }
         };
 
+        const testConfig = {
+            execution: _.cloneDeep(require('../examples/jobs/data_generator.json')),
+            assignment: 'worker',
+            exId,
+            jobId,
+        };
+
         const worker = workerExecutorModule(
             context,
             messaging,
             stateStore,
             analyticsStore,
-            { exId, jobId }
+            testConfig
         );
 
         const testContext = worker.__test_context();
@@ -525,7 +530,7 @@ describe('Worker', () => {
         const retrySliceModule = instantiateModule({ exId, jobId }).testContext._retrySliceModule;
 
         const errEvent = new Error('an error');
-        const retrySlice = retrySliceModule(slice, [() => Promise.reject('an error'), () => Promise.reject('an error')], logger, {});
+        const retrySlice = retrySliceModule(slice, [() => Promise.reject(new Error('an error')), () => Promise.reject(new Error('an error'))], logger, {});
         let sliceRetry = false;
 
         events.on('slice:retry', (response) => {

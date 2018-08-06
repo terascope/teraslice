@@ -1,9 +1,9 @@
 'use strict';
 
-const engineCode = require('../../lib/cluster/execution_controller/engine');
 const events = require('events');
 const Promise = require('bluebird');
 const _ = require('lodash');
+const engineCode = require('../../lib/cluster/execution_controller/engine');
 
 const eventEmitter = new events.EventEmitter();
 
@@ -165,23 +165,29 @@ describe('execution engine', () => {
         return newEmitter;
     }
 
-    function makeEngine(_execution, _testRecovery) {
+    function makeEngine(execution = executionContext, _testRecovery) {
         sentMsg = null;
         sentMsgs.length = 0;
         executionOperationsUpdate = null;
         exStatus = null;
-        const execution = _execution || executionContext;
         const myEmitter = makeEmitter();
+
         let testRecovery = false;
         if (_testRecovery) testRecovery = _testRecovery;
-        const engine = engineCode(context, messaging, exStore, stateStore);
+
+        const testConfig = {
+            exId: 1234,
+            processAssignment: 'execution_controller',
+        };
+
+        const engine = engineCode(context, messaging, exStore, stateStore, testConfig);
+
         const testContext = engine.__test_context(
             execution,
             executionAnalytics,
             slicerAnalytics,
             recovery,
-            1234,
-            testRecovery
+            testRecovery,
         );
         return { engine, testContext, myEmitter };
     }
@@ -213,6 +219,7 @@ describe('execution engine', () => {
 
         engine.initialize()
             .then(() => {
+                expect(loggerErrMsg).toEqual(null);
                 expect(logInfo).toEqual('execution: 1234 has initialized and is listening on port 3000');
             })
             .then(engine.shutdown())
@@ -523,14 +530,14 @@ describe('execution engine', () => {
     });
 
     it('execution can recover', (done) => {
-        const engineTest = makeEngine(null, true);
+        const engineTest = makeEngine(undefined, true);
         const executionRecovery = engineTest.testContext._executionRecovery;
         const { myEmitter } = engineTest;
 
         function sendEvent(time) {
             return waitFor(time)
                 .then(() => {
-                    myEmitter.emit('execution:recovery:complete');
+                    myEmitter.emit('execution:recovery:complete', { starting: 'point' });
                 });
         }
 
@@ -541,7 +548,7 @@ describe('execution engine', () => {
     });
 
     it('terminal error marks job as failed', (done) => {
-        const terminalError = makeEngine().testContext._terminalError;
+        const { terminalError } = makeEngine().testContext;
         const myError = new Error('an error');
 
         Promise.all([terminalError(myError), waitFor(20)])
@@ -589,7 +596,7 @@ describe('execution engine', () => {
         function slicerError() {
             if (errorCounter < 2) {
                 errorCounter += 1;
-                return Promise.reject('an error occurred during slicer initialization');
+                return Promise.reject(new Error('an error occurred during slicer initialization'));
             }
             return Promise.resolve([() => 'all done']);
         }

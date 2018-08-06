@@ -1,7 +1,7 @@
 'use strict';
 
-const generator = require('../../lib/readers/elasticsearch_data_generator');
 const Promise = require('bluebird');
+const generator = require('../../lib/readers/elasticsearch_data_generator');
 
 describe('elasticsearch_data_generator', () => {
     it('has a schema and newReader method', () => {
