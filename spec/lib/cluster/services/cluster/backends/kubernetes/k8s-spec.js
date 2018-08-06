@@ -75,33 +75,38 @@ fdescribe('k8s', () => {
     });
 
     describe('->list', () => {
-        beforeEach(() => {
+        it('can get PodList', async () => {
             nock(_url)
                 .get('/api/v1/namespaces/default/pods/')
                 .query({ labelSelector: 'app=teraslice' })
-                .reply(200, { kind: 'PodList' })
-                .get('/apis/apps/v1/namespaces/default/deployments/')
-                .query({ labelSelector: 'app=teraslice' })
-                .reply(200, { kind: 'DeploymentList' })
-                .get('/apis/v1/namespaces/default/services/')
-                .query({ labelSelector: 'app=teraslice' })
-                .reply(200, { kind: 'ServiceList' })
-                .get('/apis/batch/v1/namespaces/default/jobs/')
-                .query({ labelSelector: 'app=teraslice' })
-                .reply(200, { kind: 'JobList' });
-        });
-
-        it('can get PodList', async () => {
+                .reply(200, { kind: 'PodList' });
             const pods = await k8s.list('app=teraslice', 'pods');
             expect(pods.kind).toEqual('PodList');
         });
 
+        it('can get ServiceList', async () => {
+            nock(_url)
+                .get('/api/v1/namespaces/default/services/')
+                .query({ labelSelector: 'app=teraslice' })
+                .reply(200, { kind: 'ServiceList' });
+            const pods = await k8s.list('app=teraslice', 'services');
+            expect(pods.kind).toEqual('ServiceList');
+        });
+
         it('can get DeploymentList', async () => {
+            nock(_url)
+                .get('/apis/apps/v1/namespaces/default/deployments/')
+                .query({ labelSelector: 'app=teraslice' })
+                .reply(200, { kind: 'DeploymentList' });
             const deployments = await k8s.list('app=teraslice', 'deployments');
             expect(deployments.kind).toEqual('DeploymentList');
         });
 
         it('can get JobList', async () => {
+            nock(_url)
+                .get('/apis/batch/v1/namespaces/default/jobs/')
+                .query({ labelSelector: 'app=teraslice' })
+                .reply(200, { kind: 'JobList' });
             const jobs = await k8s.list('app=teraslice', 'jobs');
             expect(jobs.kind).toEqual('JobList');
         });
