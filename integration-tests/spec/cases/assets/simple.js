@@ -29,7 +29,7 @@ describe('Asset Tests', () => {
                 // assigned by teraslice and not it's name.
                 jobSpec.assets = [result._id];
                 return teraslice.jobs.submit(jobSpec)
-                    .then(job => job.waitForStatus('running')
+                    .then(job => job.waitForStatus('running', 100)
                         .then(() => wait.forWorkersJoined(job.id(), workers, 20))
                         .then((r) => {
                             expect(r).toEqual(workers);

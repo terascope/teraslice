@@ -76,9 +76,17 @@ describe('elasticsearch index selector', () => {
 
     it('preserve_id will keep the previous id from elasticsearch data', () => {
         const context = {};
-        const opConfig = { index: 'someIndex', type: 'events', preserve_id: true, delete: false };
+        const opConfig = {
+            index: 'someIndex', type: 'events', preserve_id: true, delete: false
+        };
         const jobConfig = { logger: 'im a fake logger' };
-        const data = { hits: { hits: [{ type: 'someType', _index: 'some_index', _id: 'specialID', _source: { some: 'data' } }] } };
+        const data = {
+            hits: {
+                hits: [{
+                    type: 'someType', _index: 'some_index', _id: 'specialID', _source: { some: 'data' }
+                }]
+            }
+        };
 
         const fn = indexer.newProcessor(context, opConfig, jobConfig);
         const results = fn(data);
@@ -120,7 +128,9 @@ describe('elasticsearch index selector', () => {
 
     it('can send a delete request instead of index', () => {
         const context = {};
-        const opConfig = { index: 'someIndex', type: 'events', id_field: 'name', delete: true };
+        const opConfig = {
+            index: 'someIndex', type: 'events', id_field: 'name', delete: true
+        };
         const jobConfig = { logger: 'im a fake logger' };
         const data = [{ some: 'data', name: 'someName' }];
 
@@ -132,7 +142,9 @@ describe('elasticsearch index selector', () => {
 
     it('can upsert specified fields by passing in an array of keys matching the document', () => {
         const context = {};
-        const opConfig = { index: 'someIndex', type: 'events', upsert: true, update_fields: ['name', 'job'] };
+        const opConfig = {
+            index: 'someIndex', type: 'events', upsert: true, update_fields: ['name', 'job']
+        };
         const jobConfig = { logger: 'im a fake logger' };
         const data = [{ some: 'data', name: 'someName', job: 'to be awesome!' }];
 

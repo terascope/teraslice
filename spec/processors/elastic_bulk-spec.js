@@ -1,7 +1,7 @@
 'use strict';
 
-const esSender = require('../../lib/processors/elasticsearch_bulk');
 const events = require('events');
+const esSender = require('../../lib/processors/elasticsearch_bulk');
 
 const eventEmitter = new events.EventEmitter();
 

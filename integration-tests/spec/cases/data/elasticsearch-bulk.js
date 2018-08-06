@@ -14,7 +14,7 @@ describe('elasticsearch bulk', () => {
             .then((job) => {
                 expect(job).toBeDefined();
                 expect(job.id()).toBeDefined();
-                return job.waitForStatus('completed');
+                return job.waitForStatus('completed', 100);
             })
             .then(() => misc.indexStats('test-multisend-10000')
                 .then((stats) => {

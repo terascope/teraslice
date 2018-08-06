@@ -6,8 +6,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node service.js",
-    "lint": "eslint *.js lib spec integration-tests",
-    "lint:fix": "eslint --fix *.js lib spec integration-tests",
+    "lint": "eslint *.js lib spec",
+    "lint:fix": "eslint --fix *.js lib spec",
     "test": "nyc -x spec/ --reporter=text-summary jasmine; nyc report --reporter=html",
     "integration-tests": "yarn --cwd ./integration-tests test",
     "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"

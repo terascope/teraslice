@@ -1,8 +1,8 @@
 'use strict';
 
-const misc = require('../../misc');
 const fs = require('fs');
 const _ = require('lodash');
+const misc = require('../../misc');
 
 
 describe('api endpoint', () => {
@@ -74,7 +74,7 @@ describe('api endpoint', () => {
                 expect(job.id()).toBeDefined();
                 jobId = job.id();
 
-                return job.waitForStatus('completed');
+                return job.waitForStatus('completed', 100);
             })
             .then(() => teraslice.cluster.get(`/jobs/${jobId}/ex`))
             .then((ex) => {

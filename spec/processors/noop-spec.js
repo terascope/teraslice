@@ -20,7 +20,8 @@ describe('The data remains unchanged when', () => {
     const myProcessor = processor.newProcessor(
         context,
         opConfig,
-        jobConfig);
+        jobConfig
+    );
     it('using empty data array', () => {
         // zero elements
         expect(myProcessor([])).toEqual([]);
