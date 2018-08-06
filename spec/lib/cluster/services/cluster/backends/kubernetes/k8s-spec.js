@@ -29,7 +29,7 @@ const _url = 'http://mock.kube.api';
 // const _url = 'https://192.168.99.100:8443';
 
 // FIXME: Remember, I break unit tests if I leave this in!!
-describe('k8s', () => {
+fdescribe('k8s', () => {
     let k8s;
 
     beforeEach(async () => {
@@ -85,7 +85,10 @@ describe('k8s', () => {
                 .reply(200, { kind: 'DeploymentList' })
                 .get('/apis/v1/namespaces/default/services/')
                 .query({ labelSelector: 'app=teraslice' })
-                .reply(200, { kind: 'ServiceList' });
+                .reply(200, { kind: 'ServiceList' })
+                .get('/apis/batch/v1/namespaces/default/jobs/')
+                .query({ labelSelector: 'app=teraslice' })
+                .reply(200, { kind: 'JobList' });
         });
 
         it('can get PodList', async () => {
@@ -96,6 +99,11 @@ describe('k8s', () => {
         it('can get DeploymentList', async () => {
             const deployments = await k8s.list('app=teraslice', 'deployments');
             expect(deployments.kind).toEqual('DeploymentList');
+        });
+
+        it('can get JobList', async () => {
+            const jobs = await k8s.list('app=teraslice', 'jobs');
+            expect(jobs.kind).toEqual('JobList');
         });
     });
 
@@ -148,6 +156,15 @@ describe('k8s', () => {
                 .reply(200, { });
 
             const response = await k8s.delete('test1', 'services');
+            expect(response).toEqual({});
+        });
+
+        it('can delete a job by name', async () => {
+            nock(_url)
+                .delete('/apis/batch/v1/namespaces/default/jobs/test1')
+                .reply(200, { });
+
+            const response = await k8s.delete('test1', 'jobs');
             expect(response).toEqual({});
         });
     });
