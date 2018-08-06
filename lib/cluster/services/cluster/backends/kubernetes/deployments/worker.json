@@ -25,7 +25,6 @@
             "spec": {
                 "containers": [{
                     "image": "{{dockerImage}}",
-                    "imagePullPolicy": "Always",
                     "name": "{{name}}",
                     "ports": [{ "containerPort": 45680 }],
                     "volumeMounts": [{
