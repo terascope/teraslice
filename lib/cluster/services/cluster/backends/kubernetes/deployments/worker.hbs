@@ -4,38 +4,40 @@
     "metadata": {
         "labels": {
             "app": "teraslice",
-            "nodeType": "worker",
-            "exId": "<EXID>"
+            "nodeType": "{{nodeType}}",
+            "exId": "{{exId}}",
+            "jobId": "{{jobId}}"
         },
-        "name": "teraslice-worker-<EXID>"
+        "name": "{{name}}",
+        "namespace": "{{namespace}}"
     },
     "spec": {
-        "replicas": 1,
+        "replicas": {{replicas}},
         "template": {
             "metadata": {
                 "labels": {
                     "app": "teraslice",
-                    "nodeType": "worker",
-                    "exId": "<EXID>"
+                    "nodeType": "{{nodeType}}",
+                    "exId": "{{exId}}",
+                    "jobId": "{{jobId}}"
                 }
             },
             "spec": {
                 "containers": [{
-                    "image": "<TERASLICE_K8S_IMAGE>",
-                    "imagePullPolicy": "Always",
-                    "name": "teraslice",
+                    "image": "{{dockerImage}}",
+                    "name": "{{name}}",
                     "ports": [{ "containerPort": 45680 }],
                     "volumeMounts": [{
                         "mountPath": "/app/config",
                         "name": "config"
                     }],
                     "env": [{
-                        "name": "node_type",
-                        "value": "worker"
+                        "name": "NODE_TYPE",
+                        "value": "{{nodeType}}"
                     },
                     {
                         "name": "EX",
-                        "value": "<EX>"
+                        "value": "{{execution}}"
                     },
                     {
                         "name": "POD_IP",
@@ -56,14 +58,15 @@
                         }]
                     }
                 }],
+                "terminationGracePeriodSeconds": {{shutdownTimeout}},
                 "imagePullSecrets": [{ "name": "docker-tera1-secret" }]
             }
         },
         "selector": {
             "matchLabels": {
                 "app": "teraslice",
-                "nodeType": "worker",
-                "exId": "<EXID>"
+                "nodeType": "{{nodeType}}",
+                "exId": "{{exId}}"
             }
         }
     }

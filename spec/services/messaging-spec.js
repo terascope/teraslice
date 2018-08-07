@@ -1,8 +1,9 @@
 'use strict';
 
-const messagingModule = require('../../lib/cluster/services/messaging');
+const _ = require('lodash');
 const events = require('events');
 const Promise = require('bluebird');
+const messagingModule = require('../../lib/cluster/services/messaging');
 
 describe('messaging module', () => {
     const logger = {
@@ -53,6 +54,7 @@ describe('messaging module', () => {
 
     let emitMsg = null;
     let socketMsg = null;
+    const connected = {};
 
     const io = {
         emit: (msg, msgObj) => {
@@ -64,6 +66,7 @@ describe('messaging module', () => {
                     socketMsg = { message: msg, data: msgObj, address };
                 },
             }),
+            connected,
         },
         eio: {
             clientsCount: 2
@@ -109,6 +112,7 @@ describe('messaging module', () => {
         firstWorkerMsg = null;
         secondWorkerMsg = null;
         thirdWorkerMsg = null;
+        _.omitBy(connected);
     });
 
     afterEach(() => {
@@ -290,6 +294,37 @@ describe('messaging module', () => {
         expect(firstWorkerMsg).toEqual(executionMsg);
         expect(secondWorkerMsg).toEqual(executionMsg);
         expect(thirdWorkerMsg).toEqual(thirdMsg);
+        testContext.cleanup();
+    });
+
+    it('can get a list of rooms as the cluster_master', () => {
+        connected['some-socket-id'] = {
+            rooms: {
+                'room-a': 'room-a',
+                'room-b': 'room-b'
+            }
+        };
+
+        connected['another-socket-id'] = {
+            rooms: {
+                'room-1': 'room-1'
+            }
+        };
+
+        const testContext = getContext({
+            env: {
+                assignment: 'cluster_master'
+            },
+        });
+
+        const messaging = messagingModule(testContext, logger);
+
+        messaging.__test_context(io);
+
+        const rooms = messaging.listRooms();
+
+        expect(rooms).toEqual(['room-a', 'room-b', 'room-1']);
+
         testContext.cleanup();
     });
 

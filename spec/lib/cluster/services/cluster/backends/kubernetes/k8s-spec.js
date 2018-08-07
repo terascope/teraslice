@@ -5,14 +5,14 @@
 //   env DEBUG='nock*' make test
 
 const fs = require('fs');
-const K8s = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8s');
 const nock = require('nock');
 const path = require('path');
+const K8s = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8s');
 
 function print(err, result) {
     // FIXME: How much does this smell, do we have an existing convention?
     if (process.env.DEBUG) {
-        console.log(JSON.stringify(err || result, null, 2));
+        console.error(JSON.stringify(err || result, null, 2)); // eslint-disable-line no-console
     }
 }
 
@@ -28,8 +28,6 @@ const swaggerFile = path.join(__dirname, 'files', 'swagger.json');
 const _url = 'http://mock.kube.api';
 // const _url = 'https://192.168.99.100:8443';
 
-
-// FIXME: Remember, I break unit tests if I leave this in!!
 describe('k8s', () => {
     let k8s;
 
@@ -76,47 +74,73 @@ describe('k8s', () => {
     });
 
     describe('->list', () => {
-        beforeEach(() => {
+        it('can get PodList', async () => {
             nock(_url)
                 .get('/api/v1/namespaces/default/pods/')
                 .query({ labelSelector: 'app=teraslice' })
-                .reply(200, { kind: 'PodList' })
-                .get('/apis/apps/v1/namespaces/default/deployments/')
-                .query({ labelSelector: 'app=teraslice' })
-                .reply(200, { kind: 'DeploymentList' })
-                .get('/apis/v1/namespaces/default/services/')
-                .query({ labelSelector: 'app=teraslice' })
-                .reply(200, { kind: 'ServiceList' });
-        });
+                .reply(200, { kind: 'PodList' });
 
-        it('can get PodList', async () => {
             const pods = await k8s.list('app=teraslice', 'pods');
             expect(pods.kind).toEqual('PodList');
         });
 
+        it('can get ServiceList', async () => {
+            nock(_url)
+                .get('/api/v1/namespaces/default/services/')
+                .query({ labelSelector: 'app=teraslice' })
+                .reply(200, { kind: 'ServiceList' });
+
+            const pods = await k8s.list('app=teraslice', 'services');
+            expect(pods.kind).toEqual('ServiceList');
+        });
+
         it('can get DeploymentList', async () => {
+            nock(_url)
+                .get('/apis/apps/v1/namespaces/default/deployments/')
+                .query({ labelSelector: 'app=teraslice' })
+                .reply(200, { kind: 'DeploymentList' });
+
             const deployments = await k8s.list('app=teraslice', 'deployments');
             expect(deployments.kind).toEqual('DeploymentList');
+        });
+
+        it('can get JobList', async () => {
+            nock(_url)
+                .get('/apis/batch/v1/namespaces/default/jobs/')
+                .query({ labelSelector: 'app=teraslice' })
+                .reply(200, { kind: 'JobList' });
+
+            const jobs = await k8s.list('app=teraslice', 'jobs');
+            expect(jobs.kind).toEqual('JobList');
         });
     });
 
     describe('->post', () => {
-        beforeEach(() => {
+        it('can post a service', async () => {
             nock(_url, { encodedQueryParams: true })
                 .post('/api/v1/namespaces/default/services')
-                .reply(201, { kind: 'Service' })
-                .post('/apis/apps/v1/namespaces/default/deployments')
-                .reply(201, { kind: 'Deployment' });
-        });
+                .reply(201, { kind: 'Service' });
 
-        it('can post a service', async () => {
             const response = await k8s.post({ kind: 'Service' }, 'service');
             expect(response.kind).toEqual('Service');
         });
 
         it('can post a deployment', async () => {
+            nock(_url, { encodedQueryParams: true })
+                .post('/apis/apps/v1/namespaces/default/deployments')
+                .reply(201, { kind: 'Deployment' });
+
             const response = await k8s.post({ kind: 'Deployment' }, 'deployment');
             expect(response.kind).toEqual('Deployment');
+        });
+
+        it('can post a job', async () => {
+            nock(_url, { encodedQueryParams: true })
+                .post('/apis/batch/v1/namespaces/default/jobs')
+                .reply(201, { kind: 'Job' });
+
+            const response = await k8s.post({ kind: 'Job' }, 'job');
+            expect(response.kind).toEqual('Job');
         });
     });
 
@@ -133,40 +157,40 @@ describe('k8s', () => {
         });
     });
 
-
     describe('->delete', () => {
-        beforeEach(() => {
+        it('can delete a deployment by name', async () => {
             nock(_url)
                 .delete('/apis/apps/v1/namespaces/default/deployments/test1')
-                .reply(200, { })
-                .delete('/apis/v1/namespaces/default/services/test1')
                 .reply(200, { });
-        });
 
-        it('can delete a deployment by name', async () => {
             const response = await k8s.delete('test1', 'deployments');
             expect(response).toEqual({});
         });
 
-        // The following test unexpectedly fails with:
-        //      ✗ can delete a service by name (0.082 sec)
-        // - TypeError: Cannot read property 'statusCode' of undefined
-        //     at K8s.delete (/Users/godber/Workspace/terascope/opensource/teraslice/lib/cluster/services/cluster/backends/kubernetes/k8s.js:50:61)
-        //     at <Jasmine>
-        //     at process._tickCallback (internal/process/next_tick.js:188:7)
-        // it('can delete a service by name', async () => {
-        //     const response = await k8s.delete('test1', 'services');
-        //     expect(response).toEqual({});
-        // });
+        it('can delete a service by name', async () => {
+            nock(_url)
+                .delete('/api/v1/namespaces/default/services/test1')
+                .reply(200, { });
+
+            const response = await k8s.delete('test1', 'services');
+            expect(response).toEqual({});
+        });
+
+        it('can delete a job by name', async () => {
+            nock(_url)
+                .delete('/apis/batch/v1/namespaces/default/jobs/test1')
+                .reply(200, { });
+
+            const response = await k8s.delete('test1', 'jobs');
+            expect(response).toEqual({});
+        });
     });
 
-
-    // FIXME: I feel a little weird about how I test the arithmetic for
-    // set/add/remove here but if I didn't mock it this way, I felt like I
-    // wasn't really testing anything.
     describe('->scaleExecution', () => {
+        let scope;
+
         beforeEach(() => {
-            nock(_url)
+            scope = nock(_url)
                 .get('/apis/apps/v1/namespaces/default/deployments/')
                 .query({ labelSelector: /nodeType=worker,exId=.*/ })
                 .reply(200, {
@@ -174,22 +198,38 @@ describe('k8s', () => {
                     items: [
                         { spec: { replicas: 5 }, metadata: { name: 'dname' } }
                     ]
-                })
-                .patch('/apis/apps/v1/namespaces/default/deployments/dname')
-                .reply(200, (uri, requestBody) => requestBody);
+                });
         });
 
         it('can set nodes to a deployment to 2', async () => {
+            scope.patch('/apis/apps/v1/namespaces/default/deployments/dname', {
+                spec: {
+                    replicas: 2,
+                }
+            }).reply(200, (uri, requestBody) => requestBody);
+
             const response = await k8s.scaleExecution('abcde1234', 2, 'set');
             expect(response.spec.replicas).toEqual(2);
         });
 
         it('can add 2 nodes to a deployment with 5 to get 7', async () => {
+            scope.patch('/apis/apps/v1/namespaces/default/deployments/dname', {
+                spec: {
+                    replicas: 7,
+                }
+            }).reply(200, (uri, requestBody) => requestBody);
+
             const response = await k8s.scaleExecution('abcde1234', 2, 'add');
             expect(response.spec.replicas).toEqual(7);
         });
 
         it('can remove 2 nodes from a deployment with 5 to get 3', async () => {
+            scope.patch('/apis/apps/v1/namespaces/default/deployments/dname', {
+                spec: {
+                    replicas: 3,
+                }
+            }).reply(200, (uri, requestBody) => requestBody);
+
             const response = await k8s.scaleExecution('abcde1234', 2, 'remove');
             expect(response.spec.replicas).toEqual(3);
         });
