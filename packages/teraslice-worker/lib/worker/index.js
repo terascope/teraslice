@@ -33,7 +33,6 @@ class Worker {
             workerId,
             networkLatencyBuffer,
             actionTimeout,
-            events,
         });
 
         this.slice = new Slice(context, executionContext);
@@ -47,11 +46,10 @@ class Worker {
         this.events = events;
 
         this.isShuttingDown = false;
+        this.shouldShutdown = false;
         this.isProcessing = false;
         this.isInitialized = false;
         this.slicesProcessed = 0;
-
-        this._onShutdown = this._onShutdown.bind(this);
     }
 
     async initialize() {
@@ -65,12 +63,17 @@ class Worker {
 
         await this.messenger.start();
 
-        this.events.once('worker:shutdown', this._onShutdown);
+        this.messenger.once('worker:shutdown', async () => {
+            this.logger.warn('shutdown event received...');
+            this.shouldShutdown = true;
+        });
     }
 
     async run() {
         const runForever = async () => {
             if (this.isShuttingDown) return;
+            if (this.shouldShutdown) return;
+
             try {
                 await this.runOnce();
             } catch (err) {
@@ -123,7 +126,6 @@ class Worker {
 
         const shutdownErrs = [];
 
-        this.events.removeListener('worker:shutdown', this._onShutdown);
         this.events.emit('worker:shutdown');
 
         try {
@@ -200,11 +202,6 @@ class Worker {
                 done(err);
             }, this.shutdownTimeout);
         });
-    }
-
-    _onShutdown() {
-        this.logger.debug('worker:shutdown event received...');
-        this.shutdown();
     }
 }
 

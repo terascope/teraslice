@@ -51,6 +51,16 @@ class ClusterMasterServer extends MessengerServer {
         this.server.on('connection', this._onConnection);
     }
 
+    stopExecution(nodeId, exId, timeoutMs) {
+        return this.sendWithResponse({
+            address: nodeId,
+            message: 'cluster:execution:stop',
+            payload: {
+                ex_id: exId
+            }
+        }, { timeoutMs });
+    }
+
     pauseExecution(nodeId, exId, timeoutMs) {
         return this.sendWithResponse({
             address: nodeId,
@@ -71,7 +81,7 @@ class ClusterMasterServer extends MessengerServer {
         }, { timeoutMs });
     }
 
-    resumerequestAnalyticsExecution(nodeId, exId, timeoutMs) {
+    requestAnalytics(nodeId, exId, timeoutMs) {
         return this.sendWithResponse({
             address: nodeId,
             message: 'cluster:slicer:analytics',

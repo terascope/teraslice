@@ -56,7 +56,7 @@ describe('ExecutionController', () => {
             }
         ],
         [
-            'processing  slices with multiple workers and one reconnects',
+            'processing slices with multiple workers and one reconnects',
             {
                 slicerResults: [
                     { example: 'slice-disconnect' },
@@ -162,6 +162,20 @@ describe('ExecutionController', () => {
                 ],
                 pauseAndResume: true,
                 body: { example: 'slice-pause-and-resume' },
+                count: 1,
+                analytics: _.sample([true, false]),
+                useExecutionRunner: _.sample([true, false])
+            }
+        ],
+        [
+            'processing a slice and the execution is stopped',
+            {
+                slicerResults: [
+                    { example: 'slice-execution-stop' },
+                    null
+                ],
+                sendClusterStop: true,
+                body: { example: 'slice-execution-stop' },
                 count: 1,
                 analytics: _.sample([true, false]),
                 useExecutionRunner: _.sample([true, false])
@@ -291,7 +305,7 @@ describe('ExecutionController', () => {
         ]
     ];
 
-    // fdescribe.each([testCases[testCases.length - 1]])('when %s', (m, options) => {
+    // fdescribe.each([testCases[10]])('when %s', (m, options) => {
     describe.each(testCases)('when %s', (m, options) => {
         const {
             slicerResults,
@@ -303,6 +317,7 @@ describe('ExecutionController', () => {
             analytics = false,
             workers = 1,
             pauseAndResume = false,
+            sendClusterStop = false,
             sliceFails = false,
             slicerFails = false,
             emitsExecutionUpdate,
@@ -371,7 +386,6 @@ describe('ExecutionController', () => {
             const opCount = testContext.executionContext.config.operations.length;
 
             await exController.initialize();
-            const doneProcessing = () => slices.length >= count;
 
             const socketOptions = reconnect ? {
                 timeout: 1000,
@@ -413,9 +427,9 @@ describe('ExecutionController', () => {
                 }
 
                 async function process() {
-                    if (doneProcessing()) return;
+                    if (exController.isDone()) return;
 
-                    const slice = await workerMessenger.waitForSlice(doneProcessing);
+                    const slice = await workerMessenger.waitForSlice(() => exController.isDone());
 
                     if (!slice) return;
 
@@ -442,17 +456,25 @@ describe('ExecutionController', () => {
                     }
 
                     async function completeSlice() {
-                        if (!pauseAndResume) {
-                            await Promise.delay(0);
-                            await workerMessenger.sliceComplete(msg);
+                        if (pauseAndResume) {
+                            await Promise.all([
+                                clusterMaster.pauseExecution(nodeId, exId)
+                                    .then(() => clusterMaster.resumeExecution(nodeId, exId)),
+                                workerMessenger.sliceComplete(msg),
+                            ]);
                             return;
                         }
 
-                        await Promise.all([
-                            clusterMaster.pauseExecution(nodeId, exId)
-                                .then(() => clusterMaster.resumeExecution(nodeId, exId)),
-                            workerMessenger.sliceComplete(msg),
-                        ]);
+                        if (sendClusterStop) {
+                            await Promise.all([
+                                clusterMaster.stopExecution(nodeId, exId),
+                                workerMessenger.sliceComplete(msg)
+                            ]);
+                            return;
+                        }
+
+                        await Promise.delay(0);
+                        await workerMessenger.sliceComplete(msg);
                     }
 
                     await Promise.all([

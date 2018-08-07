@@ -13,7 +13,6 @@ class WorkerMessenger extends MessengerClient {
             workerId,
             networkLatencyBuffer,
             actionTimeout,
-            events
         } = opts;
 
         if (!isString(executionControllerUrl)) {
@@ -40,7 +39,6 @@ class WorkerMessenger extends MessengerClient {
             to: 'execution_controller'
         });
 
-        this.events = events;
         this.workerId = workerId;
         this.available = false;
     }
@@ -64,7 +62,7 @@ class WorkerMessenger extends MessengerClient {
         });
 
         this.socket.on('execution:finished', (msg) => {
-            this.events.emit('worker:shutdown', msg);
+            this.emit('worker:shutdown', msg);
         });
 
         this.handleResponses(this.socket);

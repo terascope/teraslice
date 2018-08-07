@@ -47,8 +47,6 @@ class ExecutionController {
         this.clusterMasterClient = new ClusterMasterClient({
             clusterMasterUrl: formatURL(clusterMasterHostname, clusterMasterPort),
             executionContext,
-            hostname: _.get(context, 'sysconfig.teraslice.hostname'),
-            workerId,
             networkLatencyBuffer,
             actionTimeout,
         });
@@ -75,6 +73,7 @@ class ExecutionController {
         this.isPaused = false;
         this.isShuttingDown = false;
         this.isInitialized = false;
+        this.shouldShutdown = false;
 
         this._dispatchSlices = this._dispatchSlices.bind(this);
         this.setFailingStatus = this.setFailingStatus.bind(this);
@@ -122,6 +121,12 @@ class ExecutionController {
 
         this.clusterMasterClient.on('cluster:execution:resume', (msg) => {
             this.resume();
+            this.clusterMasterClient.respond(msg);
+        });
+
+        this.clusterMasterClient.once('cluster:execution:stop', (msg) => {
+            this.logger.warn('shutdown event received...');
+            this.shouldShutdown = true;
             this.clusterMasterClient.respond(msg);
         });
 
@@ -283,6 +288,7 @@ class ExecutionController {
 
     isDone() {
         if (this.isShuttingDown) return true;
+        if (this.shouldShutdown) return true;
         if (this.slicerFailed) return true;
         if (this.isPaused) return false;
         if (this._slicersDone()) return true;
@@ -300,6 +306,7 @@ class ExecutionController {
 
         this.isShuttingDown = true;
         this.logger.info('execution controller is shutting down...');
+        this.events.emit('worker:shutdown');
 
         const shutdownErrs = [];
 

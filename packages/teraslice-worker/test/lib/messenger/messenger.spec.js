@@ -121,7 +121,6 @@ describe('Messenger', () => {
             worker = new WorkerMessenger({
                 executionControllerUrl: 'http://idk.example.com',
                 workerId: 'hello',
-                events: new EventEmitter(),
                 actionTimeout: 1000,
                 socketOptions: {
                     timeout: 1000,
@@ -178,7 +177,6 @@ describe('Messenger', () => {
             workerId = newId('worker-id');
             worker = new WorkerMessenger({
                 workerId,
-                events: new EventEmitter(),
                 executionControllerUrl,
                 networkLatencyBuffer: 0,
                 actionTimeout: 1000,
@@ -245,11 +243,11 @@ describe('Messenger', () => {
                     exMessenger.executionFinished('some-ex-id');
 
                     const timeout = setTimeout(() => {
-                        worker.events.removeAllListeners('worker:shutdown');
+                        worker.removeAllListeners('worker:shutdown');
                         done();
                     }, 1000);
 
-                    worker.events.once('worker:shutdown', (_msg) => {
+                    worker.once('worker:shutdown', (_msg) => {
                         clearTimeout(timeout);
                         msg = _msg;
                         done();

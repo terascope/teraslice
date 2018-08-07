@@ -66,12 +66,12 @@ describe('Worker', () => {
 
             exMessenger.events.once('slice:success', (_msg) => {
                 sliceSuccess = _msg;
-                worker.events.emit('worker:shutdown');
+                worker.messenger.emit('worker:shutdown');
             });
 
             exMessenger.events.once('slice:failure', (_msg) => {
                 sliceFailure = _msg;
-                worker.events.emit('worker:shutdown');
+                worker.messenger.emit('worker:shutdown');
             });
 
             await exMessenger.sendNewSlice(
