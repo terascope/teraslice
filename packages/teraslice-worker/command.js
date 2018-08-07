@@ -142,15 +142,18 @@ class Command {
                     if (!arg) {
                         throw new Error('Execution context must not be not be empty');
                     }
+
+                    const ex = Buffer.from(arg, 'base64').toString('utf-8');
+
                     try {
-                        return JSON.parse(arg);
+                        return JSON.parse(ex);
                     } catch (err) {
                         throw new Error('Execution context be a valid JSON');
                     }
                 },
                 default: process.env.EX,
                 demandOption: true,
-                describe: `Execution context in JSON stringified form.
+                describe: `Execution Context, in the format of a base64 encoded json string.
                 Defaults to env EX.`,
             })
             .option('n', {
