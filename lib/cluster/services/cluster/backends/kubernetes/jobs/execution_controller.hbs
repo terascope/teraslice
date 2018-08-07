@@ -60,6 +60,7 @@
                 "imagePullSecrets": [
                     { "name": "docker-tera1-secret" }
                 ],
+                "terminationGracePeriodSeconds": {{shutdownTimeout}},
                 "restartPolicy": "Never"
             }
         }

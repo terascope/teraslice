@@ -28,8 +28,7 @@ const swaggerFile = path.join(__dirname, 'files', 'swagger.json');
 const _url = 'http://mock.kube.api';
 // const _url = 'https://192.168.99.100:8443';
 
-// FIXME: Remember, I break unit tests if I leave this in!!
-fdescribe('k8s', () => {
+describe('k8s', () => {
     let k8s;
 
     beforeEach(async () => {

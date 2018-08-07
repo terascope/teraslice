@@ -12,7 +12,7 @@
         "namespace": "{{namespace}}"
     },
     "spec": {
-        "replicas": 1,
+        "replicas": {{replicas}},
         "template": {
             "metadata": {
                 "labels": {
@@ -58,6 +58,7 @@
                         }]
                     }
                 }],
+                "terminationGracePeriodSeconds": {{shutdownTimeout}},
                 "imagePullSecrets": [{ "name": "docker-tera1-secret" }]
             }
         },
