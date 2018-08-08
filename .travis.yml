@@ -4,11 +4,13 @@ node_js:
 - '8'
 services:
 - docker
+- elasticsearch
 before_install:
 - yarn --cwd ./integration-tests install
+before_script:
+- yarn packages:bootstrap
 script:
-- yarn test
-- yarn integration-tests
+- yarn test:all
 after_success:
 - yarn lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
 - yarn report-coverage

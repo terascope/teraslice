@@ -1,4 +1,5 @@
-FROM node:8.11.3
+FROM node:8
+LABEL MAINTAINER Terascope, LLC <info@terascope.io>
 
 RUN mkdir -p /app/source
 WORKDIR /app/source
@@ -13,6 +14,8 @@ RUN yarn install \
     --silent \
     --no-progress \
     --production=true
+
+RUN yarn packages:bootstrap
 
 COPY . /app/source
 

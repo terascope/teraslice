@@ -11,7 +11,8 @@
     "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
     "report-coverage": "codecov"
   },
-  "repository": "git@github.com:terascope/teraslice-worker.git",
+  "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-worker#readme",
+  "repository": "git@github.com:terascope/teraslice.git",
   "author": "Terascope, LLC <info@terascope.io>",
   "license": "Apache-2.0",
   "private": false,
@@ -45,7 +46,7 @@
     "socket.io": "^2.1.1",
     "socket.io-client": "^2.1.1",
     "terafoundation": "^0.2.1",
-    "teraslice": "terascope/teraslice#938231e",
+    "teraslice": "^0.37.1",
     "uuid": "^3.3.2",
     "yargs": "^12.0.1"
   }

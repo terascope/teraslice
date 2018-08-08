@@ -3,17 +3,26 @@
   "version": "0.38.0",
   "description": "Slice and dice your Elasticsearch data",
   "bin": "service.js",
-  "main": "service.js",
+  "main": "index.js",
   "scripts": {
     "start": "node service.js",
-    "lint": "eslint *.js lib/**/*.js",
-    "lint:fix": "eslint --fix *.js lib/**/*.js",
+    "lint": "eslint lib spec packages",
+    "lint:fix": "eslint --fix *.js ib spec packages",
+    "test:all": "yarn test && yarn packages:test && yarn integration-tests",
     "test": "nyc -x spec/ --reporter=text-summary jasmine; nyc report --reporter=html",
     "packages:bootstrap": "lerna bootstrap",
     "packages:test": "lerna run test",
     "packages:lint": "lerna run lint",
     "integration-tests": "yarn --cwd ./integration-tests test",
     "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
+  },
+  "directories": {
+    "example": "examples",
+    "doc": "docs",
+    "lib": "lib",
+    "test": "spec",
+    "bin": "service.js",
+    "main": "index.js"
   },
   "files": [
     "*.js",
@@ -42,6 +51,7 @@
   "bugs": {
     "url": "https://github.com/terascope/teraslice/issues"
   },
+  "author": "Terascope, LLC <info@terascope.io>",
   "homepage": "https://github.com/terascope/teraslice#readme",
   "dependencies": {
     "@terascope/elasticsearch-api": "^1.0.0",
