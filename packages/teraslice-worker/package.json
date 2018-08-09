@@ -7,7 +7,7 @@
     "start": "node command.js",
     "lint": "eslint *.js lib test",
     "lint:fix": "eslint --fix *.js lib test",
-    "test": "jest --color --forceExit",
+    "test": "jest --color --no-cache",
     "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
     "report-coverage": "codecov"
   },
