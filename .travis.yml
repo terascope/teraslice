@@ -2,23 +2,25 @@ sudo: required
 language: node_js
 node_js:
 - '8'
+addons:
+  apt:
+    packages:
+      - docker-ce
 services:
-- docker
-- elasticsearch
-before_install:
-- yarn --cwd ./integration-tests install
+  - docker
+  - elasticsearch
 before_script:
-# sleep for 10 seconds (recommended by travis-ci for elasticsearch)
-- sleep 10
-# link dependencies
-- yarn bootstrap
+  # sleep for 10 seconds (recommended by travis-ci for elasticsearch)
+  - sleep 10
+  # link dependencies
+  - yarn bootstrap
 script:
-- yarn test
-- yarn test:e2e
+  - yarn test
+  - yarn test:e2e
 after_success:
-- yarn lint
-# disable reporting coverage for now
-# - yarn report-coverage
+  - yarn lint
+  # disable reporting coverage for now
+  # - yarn report-coverage
 before_deploy:
   - git config --local user.name "terascope-ci"
   - git config --local user.email "ci@terascope.io"

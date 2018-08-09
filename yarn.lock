@@ -574,12 +574,6 @@
     lodash "^4.17.4"
     uuid "^3.0.1"
 
-"@terascope/error-parser@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@terascope/error-parser/-/error-parser-1.0.0.tgz#0853b6d10845babda7a7ed596632f866d2fde86d"
-  dependencies:
-    lodash "^4.17.4"
-
 JSONSelect@0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/JSONSelect/-/JSONSelect-0.4.0.tgz#a08edcc67eb3fcbe99ed630855344a0cf282bb8d"
