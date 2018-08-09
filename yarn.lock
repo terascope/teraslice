@@ -565,13 +565,6 @@
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.7.0.tgz#9a06f4f137ee84d7df0460c1fdb1135ffa6c50fd"
 
-"@terascope/docker-compose-js@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@terascope/docker-compose-js/-/docker-compose-js-1.0.0.tgz#77ce7d54dce089611860875cedf7e5f823611cc6"
-  dependencies:
-    bluebird "^3.4.0"
-    debug "^3.1.0"
-
 "@terascope/elasticsearch-api@^1.0.0":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@terascope/elasticsearch-api/-/elasticsearch-api-1.1.1.tgz#87de959d443289c77cbd0a2131de3b71b6fc4b8a"

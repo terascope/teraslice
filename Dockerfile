@@ -1,21 +1,19 @@
 FROM node:8
 LABEL MAINTAINER Terascope, LLC <info@terascope.io>
 
-RUN mkdir -p /app/source
-WORKDIR /app/source
-COPY . /app/source/
-
 ENV NODE_ENV production
 
-RUN yarn global add \
-    --silent \
-    --no-progress \
-    bunyan
+RUN mkdir -p /app/source
+WORKDIR /app/source
+COPY package.json yarn.lock /app/source/
 
 RUN yarn install \
     --silent \
     --no-progress \
     --production=true
+
+COPY entrypoint.js lerna.json examples /app/source/ 
+COPY packages /app/source/packages
 
 RUN yarn bootstrap:production
 

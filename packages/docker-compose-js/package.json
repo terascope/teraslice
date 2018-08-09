@@ -7,8 +7,8 @@
   "description": "Node.js driver for controlling docker-compose testing environments.",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint *.js spec/**/*.js",
-    "lint:fix": "eslint --fix *.js spec/**/*.js",
+    "lint": "eslint *.js spec",
+    "lint:fix": "eslint --fix *.js spec",
     "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
     "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
   },
@@ -16,8 +16,7 @@
     "cache": true,
     "all": true,
     "include": [
-      "*.js",
-      "lib/**/*.js"
+      "*.js"
     ],
     "reporter": [
       "text-summary",
@@ -31,8 +30,13 @@
     "docker-compose",
     "testing"
   ],
-  "author": "Kimbro Staken",
+  "homepage": "https://github.com/terascope/teraslice/tree/master/packages/docker-compose-js#readme",
+  "repository": "git@github.com:terascope/teraslice.git",
+  "author": "Terascope, LLC <info@terascope.io>",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/terascope/teraslice/issues"
+  },
   "dependencies": {
     "bluebird": "^3.4.0",
     "debug": "^3.1.0"

@@ -3,3 +3,4 @@ coverage
 assets
 tests
 spec
+./e2e
