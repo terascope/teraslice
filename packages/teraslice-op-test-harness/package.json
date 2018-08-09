@@ -37,7 +37,7 @@
     "bluebird": "^3.5.1",
     "debug": "^3.1.0",
     "lodash": "^4.17.4",
-    "teraslice": "^0.37.1"
+    "teraslice": "^0.37.0"
   },
   "devDependencies": {
     "eslint": "^4.6.1",
