@@ -7,6 +7,7 @@ const signale = require('signale');
 const path = require('path');
 const Promise = require('bluebird');
 const uuid = require('uuid');
+const { SpecReporter } = require('jasmine-spec-reporter');
 const execFile = Promise.promisify(require('child_process').execFile);
 const { forNodes } = require('./wait');
 const misc = require('./misc');
@@ -18,16 +19,13 @@ require('jasmine-expect');
 // We need long timeouts for some of these jobs
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 6 * 60 * 1000;
 
-if (process.stdout.isTTY) {
-    const { SpecReporter } = require('jasmine-spec-reporter');
-    jasmine.getEnv().clearReporters();
-    jasmine.getEnv().addReporter(new SpecReporter({
-        spec: {
-            displayStacktrace: true,
-            displayDuration: true
-        }
-    }));
-}
+jasmine.getEnv().clearReporters();
+jasmine.getEnv().addReporter(new SpecReporter({
+    spec: {
+        displayStacktrace: true,
+        displayDuration: true
+    }
+}));
 
 function generatingDockerFile() {
     signale.pending('Generating docker-compose file...');
@@ -116,14 +114,14 @@ function generateTestData() {
 
                 return Promise.all([
                     client.index({
- index, type: 'state', id: errored.slice_id, body: errored 
-}),
+                        index, type: 'state', id: errored.slice_id, body: errored
+                    }),
                     client.index({
- index, type: 'state', id: notCompleted.slice_id, body: notCompleted 
-}),
+                        index, type: 'state', id: notCompleted.slice_id, body: notCompleted
+                    }),
                     client.index({
- index: 'teracluster__ex', type: 'ex', id: exConfig.ex_id, body: exConfig 
-})
+                        index: 'teracluster__ex', type: 'ex', id: exConfig.ex_id, body: exConfig
+                    })
                 ])
                     .catch(err => Promise.reject(err));
             });
@@ -131,11 +129,11 @@ function generateTestData() {
 
     function postJob(jobSpec) {
         return misc.teraslice().jobs.submit(jobSpec)
-            .then((job) => job.ex()
-                    .then((exId) => {
-                        jobList.push(exId);
-                        return job;
-                    }));
+            .then(job => job.ex()
+                .then((exId) => {
+                    jobList.push(exId);
+                    return job;
+                }));
     }
 
     function cleanupIndex(indexName) {
@@ -194,7 +192,7 @@ function generateTestData() {
         .then(_.filter)
         .then(_.flatten)
         .then((jobs) => {
-            const generatedJobs = jobs.map(job => job.waitForStatus('completed'));
+            const generatedJobs = jobs.map(job => job.waitForStatus('completed', 100));
             // we need fully active jobs so we can get proper meta data for recovery state tests
             generatedJobs.push(populateStateForRecoveryTests());
             return Promise.all(generatedJobs);

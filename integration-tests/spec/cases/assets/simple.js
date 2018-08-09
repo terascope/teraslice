@@ -29,13 +29,12 @@ describe('Asset Tests', () => {
                 // assigned by teraslice and not it's name.
                 jobSpec.assets = [JSON.parse(result)._id];
                 return teraslice.jobs.submit(jobSpec)
-                    .then(job =>
-                        job.waitForStatus('running')
-                            .then(() => wait.forWorkersJoined(job.id(), workers, 20))
-                            .then((r) => {
-                                expect(r).toEqual(workers);
-                                return job.stop();
-                            }));
+                    .then(job => job.waitForStatus('running', 100)
+                        .then(() => wait.forWorkersJoined(job.id(), workers, 20))
+                        .then((r) => {
+                            expect(r).toEqual(workers);
+                            return job.stop();
+                        }));
             });
     }
     it('After uploading an asset, it can be deleted', (done) => {

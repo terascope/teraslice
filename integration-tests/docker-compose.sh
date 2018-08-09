@@ -43,7 +43,7 @@ services:
   teraslice-master:
     build:
       context: ..
-    command: node --max-old-space-size=256 service.js
+    command: node --max-old-space-size=256 entrypoint.js
     scale: 1
     restart: 'no'
     healthcheck:
@@ -72,7 +72,7 @@ done)
   teraslice-worker:
     build:
       context: ..
-    command: node --max-old-space-size=256 service.js
+    command: node --max-old-space-size=256 entrypoint.js
     scale: 3
     restart: 'no'
     expose:

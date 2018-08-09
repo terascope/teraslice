@@ -79,19 +79,13 @@ describe('cluster state', () => {
     it('should update after adding and removing a worker node', (done) => {
         // Add a second worker node
         misc.scale(5)
-            .then(() =>
-            // Wait for it to show up in cluster state.
-                wait.forNodes(6))
+            .then(() => wait.forNodes(6))
             .then(() => teraslice.cluster.state())
             .then((state) => {
                 verifyClusterState(state, 6);
             })
-            .then(() =>
-            // Scale back to a default worker count.
-                misc.scale(3))
-            .then(() =>
-            // Should just be 4 nodes now.
-                wait.forNodes(4))
+            .then(() => misc.scale(3))
+            .then(() => wait.forNodes(4))
             .then(() => teraslice.cluster.state())
             .then((state) => {
                 verifyClusterState(state, 4);
@@ -103,19 +97,13 @@ describe('cluster state', () => {
     it('should update after adding and removing 10 worker nodes', (done) => {
         // Add additional worker nodes. There's one already and we want 13 more.
         misc.scale(13)
-            .then(() =>
-            // Wait for all the nodes to show up in cluster state.
-                wait.forNodes(14))
+            .then(() => wait.forNodes(14))
             .then(() => teraslice.cluster.state())
             .then((state) => {
                 verifyClusterState(state, 14);
             })
-            .then(() =>
-            // Scale back to a default worker count.
-                misc.scale(3))
-            .then(() =>
-            // Should just be 4 nodes now.
-                wait.forNodes(4))
+            .then(() => misc.scale(3))
+            .then(() => wait.forNodes(4))
             .then(() => teraslice.cluster.state())
             .then((state) => {
                 verifyClusterState(state, 4);
@@ -155,7 +143,7 @@ describe('cluster state', () => {
                             expect(checkState(state, null, jobId)).toBe(2);
                         });
                     })
-                    .then(() => job.waitForStatus('completed'));
+                    .then(() => job.waitForStatus('completed', 100));
             })
             .then(() => misc.indexStats('test-clusterstate-job-1-1000')
                 .then((stats) => {
@@ -199,7 +187,7 @@ describe('cluster state', () => {
                             expect(checkState(state, null, jobId)).toBe(5);
                         });
                     })
-                    .then(() => job.waitForStatus('completed'));
+                    .then(() => job.waitForStatus('completed', 100));
             })
             .then(() => misc.indexStats('test-clusterstate-job-4-1000')
                 .then((stats) => {

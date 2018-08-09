@@ -13,12 +13,12 @@ function workersTest(workers, workersExpected, records, done) {
     jobSpec.operations[1].index = `test-allocation-${workers}-worker`;
     jobSpec.workers = workers;
     teraslice.jobs.submit(jobSpec)
-        .then(job => job.waitForStatus('running')
+        .then(job => job.waitForStatus('running', 100)
             .then(() => job.workers())
             .then((runningWorkers) => {
                 expect(runningWorkers.length).toBe(workersExpected);
             })
-            .then(() => job.waitForStatus('completed'))
+            .then(() => job.waitForStatus('completed', 100))
             .then(() => wait.forLength(job.workers, 0))
             .then((workerCount) => {
                 expect(workerCount).toBe(0);
@@ -65,7 +65,7 @@ describe('worker allocation', () => {
         jobSpec.workers = workers;
 
         teraslice.jobs.submit(jobSpec)
-            .then(job => job.waitForStatus('running')
+            .then(job => job.waitForStatus('running', 100)
                 .then(() => job.workers())
                 .then((runningWorkers) => {
                     // The job should only get 13 workers to start.
@@ -78,7 +78,7 @@ describe('worker allocation', () => {
                 .then((workerCount) => {
                     expect(workerCount).toBe(20);
 
-                    return job.waitForStatus('completed');
+                    return job.waitForStatus('completed', 100);
                 })
                 .then(() => wait.forLength(job.workers, 0, 100))
                 .then((workerCount) => {

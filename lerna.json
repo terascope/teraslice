@@ -1,7 +1,13 @@
 {
     "packages": [
-        "packages/*"
+        "packages/*",
+        "e2e"
     ],
+    "command": {
+        "run": {
+            "ignore": "teraslice-e2e"
+        }
+    },
     "npmClient": "yarn",
     "version": "0.37.1"
 }

@@ -3,7 +3,9 @@ LABEL MAINTAINER Terascope, LLC <info@terascope.io>
 
 RUN mkdir -p /app/source
 WORKDIR /app/source
-COPY package.json yarn.lock /app/source/
+COPY . /app/source/
+
+ENV NODE_ENV production
 
 RUN yarn global add \
     --silent \
@@ -15,9 +17,7 @@ RUN yarn install \
     --no-progress \
     --production=true
 
-RUN yarn packages:bootstrap
-
-COPY . /app/source
+RUN yarn bootstrap:production
 
 EXPOSE 5678
 
@@ -25,4 +25,4 @@ VOLUME /app/config /app/logs /app/assets
 
 ENV TERAFOUNDATION_CONFIG /app/config/teraslice.yaml
 
-CMD ["node", "--max-old-space-size=2048", "service.js"]
+CMD ["node", "--max-old-space-size=2048", "entrypoint.js"]

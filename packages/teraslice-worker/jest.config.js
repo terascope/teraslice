@@ -3,9 +3,6 @@
 module.exports = {
     verbose: true,
     testEnvironment: 'node',
-    globals: {
-        __DEV__: true
-    },
     bail: false,
     globalSetup: '<rootDir>/test/global.setup.js',
     globalTeardown: '<rootDir>/test/global.teardown.js',
