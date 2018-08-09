@@ -10,7 +10,7 @@
     "lint": "eslint *.js lib spec",
     "lint:fix": "eslint --fix *.js lib spec",
     "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
-    "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
+    "coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov"
   },
   "nyc": {
     "cache": true,
@@ -47,7 +47,6 @@
     "request-promise": "^4.2.2"
   },
   "devDependencies": {
-    "codecov": "^3.0.2",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^13.0.0",
     "eslint-plugin-import": "^2.12.0",

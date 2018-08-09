@@ -4,11 +4,15 @@
         "e2e"
     ],
     "command": {
+        "publish": {
+            "npmClient": "npm"
+        },
         "run": {
             "ignore": "teraslice-e2e",
             "bail": false
         }
     },
     "npmClient": "yarn",
-    "version": "0.37.1"
+    "useWorkspaces": true,
+    "version": "independent"
 }

@@ -11,7 +11,7 @@
     "lint": "eslint *.js spec",
     "lint:fix": "eslint --fix *.js spec",
     "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
-    "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
+    "coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov"
   },
   "nyc": {
     "cache": true,
@@ -40,7 +40,6 @@
     "teraslice": "^0.37.1"
   },
   "devDependencies": {
-    "codecov": "^3.0.2",
     "eslint": "^4.6.1",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.7.0",

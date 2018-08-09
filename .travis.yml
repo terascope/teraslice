@@ -9,36 +9,47 @@ addons:
 services:
   - docker
   - elasticsearch
-before_script:
-  # sleep for 10 seconds (recommended by travis-ci for elasticsearch)
-  - sleep 10
-  # link dependencies
+cache:
+  yarn: true
+install:
+  - yarn install
   - yarn bootstrap
 script:
-  - yarn test
   - yarn test:e2e
-after_success:
-  - yarn lint
-  # disable reporting coverage for now
-  # - yarn report-coverage
-before_deploy:
-  - git config --local user.name "terascope-ci"
-  - git config --local user.email "ci@terascope.io"
-deploy:
-  - provider: releases
-    prerelease: true
-    api_key:
-      secure: "ikJIrNiYXy2kd2WvFMvG8zkKUI5uXUVTG1OJ9E7pQPRbp5tqmCsko9AQVx+51ChWi5a25CFbkhhG6FGZoukU9i70QyZ5WuQUFmjLrdSjjCw9uVPd9G+n0CyDUaFbRTsqY4gkt0E6Zb6P3ULpex5DU55Nvn+lhRkHxYKsQSSTVEe1tF7jdvaSXruCxRVssnc/goN8x43POS9veouC5of3nvUhUX/7mo4qER7P2vhm3yh5hjbf22+seNKcxP99dTrrVO9Cm2m9B41RW3p7tdzVrZ7q8RUdmPiY/SG/Al+8W2mj9NTOTd78JH6016GK/7gdiHbFungUbz0tYYizrNP6RahaZVRtUnz0nJMYtIEe2l7q/UStV2TlGngQAummxOhmBbrh7fjfSm+uu6SnKlhghicBIR91kscNpMHeCuhHXTedNZd/VD4zZFDUqTP0yLM+5toQByK7n9zg4CBdfTlJ8cC0ikf97xxr/KE5uK7gFOpNfC1z4nW4Ir+c9k8Xf97rT+kz26JzoN+BWxHGa1DlTCwpuTWz51+cgWG9w2OtUvWz3JdRpPb7sFQtCswiS+TkHtz/r9JKKmIMDnFhx4GAJbSfFxKM/KMvDOeMrRVbI6TVuzCa1aH1oLipXz6tFOQRDPCX80HIxloWYpYr/YofpvEeYiJkRMsEgrpVDJuHpq0="
-    on:
-      branch: master
-      tags: true
-      condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+
-      repo: terascope/teraslice
-  - provider: script
-    skip_cleanup: true
-    script: ./deploy.sh
-    on:
-      branch: master
-      tags: true
-      condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+
-      repo: terascope/teraslice
+jobs:
+  include:
+    - stage: Run All Package Tests and Report Coverage
+      if: tag IS blank
+      script:
+        - yarn test
+      after_script:
+        - yarn coverage
+        - bash <(curl -s https://codecov.io/bash)
+    - stage: Intergration Tests
+      if: tag IS blank AND branch != master AND type = pull_request
+      script:
+        - yarn test:e2e
+    - stage: Lint All Packages
+      if: tag IS blank AND type = 'pull_request'
+      script:
+        - yarn lint
+    - stage: Publish Packages
+      if: tag IS blank AND branch = master AND type != pull_request
+      script:
+        - npm config set //registry.npmjs.org/:_authToken $NPM_DEPLOY_TOKEN
+        - lerna publish --yes --canary=pre --skip-git
+    - stage: Release Teraslice
+      if: tag IS blank AND branch = master AND type != pull_request
+      before_install:
+        - yarn global add publish-release
+      script:
+        - npm config set //registry.npmjs.org/:_authToken $NPM_DEPLOY_TOKEN
+        - export TERASLICE_VERSION="v$(node -pe "require('./packages/teraslice/package.json).version")"
+        - echo "releasing $TERASLICE_VERSION..."
+        - publish-release \
+          --owner terascope \
+          --token "$GITHUB_DEPLOY_TOKEN" \
+          --skipIfPublished \
+          --prerelease \
+          --tag "$(TERASLICE_VERSION)"
+        - lerna publish --yes from-git

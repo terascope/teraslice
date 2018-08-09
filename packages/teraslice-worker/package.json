@@ -9,7 +9,7 @@
     "lint:fix": "eslint --fix *.js lib test",
     "test": "jest --color",
     "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
-    "report-coverage": "codecov"
+    "coverage": ""
   },
   "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-worker#readme",
   "repository": "git@github.com:terascope/teraslice.git",
@@ -20,7 +20,6 @@
     "archiver": "^2.1.1",
     "bufferstreams": "^2.0.1",
     "chance": "^1.0.16",
-    "codecov": "^3.0.4",
     "elasticsearch": "^15.1.1",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^13.0.0",
