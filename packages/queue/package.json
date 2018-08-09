@@ -7,8 +7,8 @@
     "access": "public"
   },
   "scripts": {
-    "lint": "eslint lib/**/*.js",
-    "lint:fix": "eslint --fix lib/**/*.js",
+    "lint": "eslint *.js spec",
+    "lint:fix": "eslint --fix *.js spec",
     "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
     "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
   },
@@ -25,16 +25,13 @@
       "json"
     ]
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jsnoble/queue.git"
-  },
-  "author": "",
+  "homepage": "https://github.com/terascope/teraslice/tree/master/packages/queue#readme",
+  "repository": "git@github.com:terascope/teraslice.git",
+  "author": "Terascope, LLC <info@terascope.io>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jsnoble/queue/issues"
+    "url": "https://github.com/terascope/teraslice/issues"
   },
-  "homepage": "https://github.com/jsnoble/queue#readme",
   "dependencies": {},
   "devDependencies": {
     "codecov": "^3.0.2",
