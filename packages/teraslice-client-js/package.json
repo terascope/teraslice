@@ -26,22 +26,19 @@
       "json"
     ]
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/terascope/teraslice-client-js.git"
-  },
+  "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-client-js#readme",
+  "repository": "git@github.com:terascope/teraslice.git",
+  "author": "Terascope, LLC <info@terascope.io>",
   "keywords": [
     "javascript",
     "teraslice",
     "nodejs",
     "elasticsearch"
   ],
-  "author": "Kimbro Staken",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/terascope/teraslice-client-js/issues"
+    "url": "https://github.com/terascope/teraslice/issues"
   },
-  "homepage": "https://github.com/terascope/teraslice-client-js#readme",
   "dependencies": {
     "auto-bind": "^1.2.1",
     "bluebird": "^3.4.0",

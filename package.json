@@ -6,8 +6,8 @@
         "test": "env FORCE_COLOR=1 lerna run test --stream",
         "test:e2e": "yarn --cwd ./e2e test",
         "report-coverage": "lerna run report-coverage",
-        "lint": "lerna run lint",
-        "lint:fix": "lerna run lint:fix"
+        "lint": "env FORCE_COLOR=1 lerna run lint",
+        "lint:fix": "env FORCE_COLOR=1 lerna run lint:fix"
     },
     "dependencies": {
         "lerna": "^3.0.0-rc.0"

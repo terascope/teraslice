@@ -5,7 +5,8 @@
     ],
     "command": {
         "run": {
-            "ignore": "teraslice-e2e"
+            "ignore": "teraslice-e2e",
+            "bail": false
         }
     },
     "npmClient": "yarn",
