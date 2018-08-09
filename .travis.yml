@@ -7,8 +7,8 @@ addons:
     packages:
       - docker-ce
 services:
-- docker
-- elasticsearch
+  - docker
+  - elasticsearch
 cache:
   yarn: true
 env:
@@ -18,34 +18,41 @@ env:
   # GITHUB_DEPLOY_TOKEN
   - secure: vVCbjKEBTo61ZJS1FFwLUcn5fr8ia9uy6F38g8jtFb1Xn+6MDOqqrEiG49RnFI/82ZqkEYmKwbL317cG3eXb0JT8YGA1nIGzhXGwOafU6MF6J5g0f3SIFWCxLMazn7AJpjskLstsMh6acf3Bnsu5AUm/hFKIrzwd306lS7F8XebhaislGNFIqPHugPxXhofturYjozoJVwDqMhdmx+M/HI76IYRxnDwnx/SJFgAU2lBAnHC6YNHeKdFJMsAKmaX79IuyGDYpX1XpDC0mhd03jssoP8qS9Yey0WI2Qt5v/QFfsetFpGWH9+34b1a7UD15ByS4cB+kz1l+2jcwvGG2F9AbnuzbCbAs1YJSh9238tFH91TgEIkkpQrCRc4U8KUSg+jSGZu3yOlqdyyVRb0nkPin6S5AZQQgsBwmBoSaTXA3MObo1+oGYPkPPzVKe38NEIZWOHuQf+nB2RTteGpqF1D0FSwyKpDuABj2S3IGzqs+p/SkyKL1uPzckn+bFUIlgPfjJyUrfb46VcCjPSfkYKKqa/9jxAP5xqlYAKxgrL2xBHiYgi5dWwFY/45v13trgMNeUXkuk6BSYg0RQaEf5GNO1VNEJxFgFaQFltGXWYBv2hHR588e/k8SftZBd5e0tCCWJPjfO6Fb96Dm4xI5SDUvNKdJAf9/+iM2KfNK8w4=
 before_install:
-- yarn global add lerna publish-release
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
 install:
-- yarn install
-- yarn bootstrap
+  - yarn install
+  - yarn bootstrap
 script:
-- yarn test
+  - yarn test
 after_success:
-- yarn lint
+  - yarn lint
 jobs:
   include:
   - stage: coverage
     if: branch = master OR type = pull_request
     after_script:
-    - yarn coverage
-    - bash <(curl -s https://codecov.io/bash)
+      - yarn coverage
+      - bash <(curl -s https://codecov.io/bash)
   - stage: test-e2e
     if: tag IS blank AND branch != master AND type = pull_request
     script:
-    - yarn test:e2e
+      - yarn test:e2e
   - stage: publish
     if: tag IS blank AND branch = master AND type != pull_request
+    install:
+      - yarn global add lerna
     script:
-    - npm config set //registry.npmjs.org/:_authToken $NPM_DEPLOY_TOKEN
-    - lerna publish --yes --canary=pre --skip-git --ignore teraslice
+      - npm config set //registry.npmjs.org/:_authToken $NPM_DEPLOY_TOKEN
+      - lerna publish --yes --canary=pre --skip-git
   - stage: release
     if: tag IS present AND tag =~ ^v AND branch = master AND type != pull_request
+    install:
+      - yarn global add lerna publish-release
     script:
-    - npm config set //registry.npmjs.org/:_authToken $NPM_DEPLOY_TOKEN
-    - publish-release --tag "$(TERASLICE_VERSION)" --owner terascope --token "$GITHUB_DEPLOY_TOKEN" --skipIfPublished --prerelease
-    - echo "Releasing $TERASLICE_VERSION..."
-    - lerna publish --yes --skip-git from-git
+      - npm config set //registry.npmjs.org/:_authToken $NPM_DEPLOY_TOKEN
+      - publish-release --tag "$(TERASLICE_VERSION)" --owner terascope --token "$GITHUB_DEPLOY_TOKEN" --skipIfPublished --prerelease
+      - echo "Releasing $TERASLICE_VERSION..."
+      - lerna publish --yes --skip-git from-git
