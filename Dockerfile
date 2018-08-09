@@ -7,6 +7,11 @@ RUN mkdir -p /app/source
 WORKDIR /app/source
 COPY package.json yarn.lock /app/source/
 
+RUN yarn global add \
+    --silent \
+    --no-progress \
+    bunyan
+
 RUN yarn install \
     --silent \
     --no-progress \
