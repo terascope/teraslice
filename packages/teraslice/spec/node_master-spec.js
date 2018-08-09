@@ -39,7 +39,7 @@ describe('Node master', () => {
         },
         cluster: {},
         logger,
-        __test_job: JSON.stringify(require('../examples/jobs/data_generator.json')),
+        __test_job: JSON.stringify(require('../../../examples/jobs/data_generator.json')),
         __test_assignment: 'worker'
     };
 
