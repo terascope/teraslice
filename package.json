@@ -8,7 +8,9 @@
         "test:e2e": "yarn --cwd ./e2e test",
         "coverage": "lerna run coverage --no-bail",
         "lint": "env FORCE_COLOR=1 lerna run lint --no-bail",
-        "lint:fix": "env FORCE_COLOR=1 lerna run lint:fix --no-bail"
+        "lint:fix": "env FORCE_COLOR=1 lerna run lint:fix --no-bail",
+        "publish:draft": "lerna publish --yes --canary=beta --skip-git",
+        "publish:release": "lerna publish --yes --skip-git from-git"
     },
     "dependencies": {
         "lerna": "^3.0.0-rc.0"

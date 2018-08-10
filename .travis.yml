@@ -19,26 +19,33 @@ before_install:
   - curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
+  - npm config set //registry.npmjs.org/:_authToken $NPM_DEPLOY_TOKEN
 install:
-  - yarn global add lerna
   - yarn install
   - yarn bootstrap
+script:
+  - echo 'Testing node version $(node --version)...'
+  - echo 'Testing elasticsearch version $(elasticsearch --version)...'
+  - echo 'Testing docker version $(docker --version)...'
+  - echo 'Testing docker-compose version $(docker-compose --version)...'
 jobs:
   include:
+  - stage: Test
+    if: tag IS blank
+    script: yarn test
   - stage: Coverage
     if: tag IS blank
     script: yarn coverage && bash <(curl -s https://codecov.io/bash)
   - stage: Lint
     if: tag IS blank
     script: yarn lint
-  - stage: Test e2e
+  - stage: Test End-to-End
     if: tag IS blank AND type = pull_request
     script: yarn test:e2e
   - stage: Release (Draft)
     if: tag IS blank AND branch = master
     script:
-      - npm config set //registry.npmjs.org/:_authToken $NPM_DEPLOY_TOKEN
-      - lerna publish --yes --canary=beta --skip-git
+      - yarn publish:draft
     deploy:
       provider: releases
       name: "$TRAVIS_TAG"
@@ -49,8 +56,6 @@ jobs:
     if: tag IS present AND tag =~ ^v AND branch = master
     script:
       - echo "Releasing $TRAVIS_TAG..."
-      - npm config set //registry.npmjs.org/:_authToken $NPM_DEPLOY_TOKEN
-      - lerna publish --yes --skip-git from-git
     deploy:
       provider: releases
       name: "$TRAVIS_TAG"
