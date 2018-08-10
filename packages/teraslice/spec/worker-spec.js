@@ -325,6 +325,7 @@ describe('Worker', () => {
 
         _.defer(_recycleFn, 2);
         expect(_lastMessage()).toEqual({ someMessage: true });
+        _.defer(_recycleFn, 2);
     }, 300);
 
     it('can shutdown', (done) => {
