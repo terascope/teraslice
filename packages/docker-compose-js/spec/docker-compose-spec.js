@@ -31,14 +31,12 @@ describe('compose', () => {
     describe('when the cluster is up', () => {
         beforeEach((done) => {
             sut.up({
-                'renew-anon-volumes': '',
                 'force-recreate': ''
             }).then(done).catch(done.fail);
         });
 
         afterEach((done) => {
             sut.down({
-                timeout: 1,
                 '--volumes': '',
                 '--remove-orphans': ''
             }).then(done).catch(done.fail);
