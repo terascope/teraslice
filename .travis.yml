@@ -16,7 +16,7 @@ env:
 cache: yarn
 before_install:
   - sudo rm /usr/local/bin/docker-compose
-  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
   - export FORCE_COLOR=1
@@ -40,6 +40,7 @@ jobs:
   - stage: Release
     name: Release
     if: branch = master
+    before_install: skip
     before_deploy:
       - echo "//registry.npmjs.org/:_authToken=\${NPM_DEPLOY_TOKEN}" > .npmrc
     deploy:
