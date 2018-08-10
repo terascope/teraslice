@@ -11,25 +11,20 @@ env:
   - secure: PJjAOuduzYG+SvtiCEYL7Tz0ZQmY1RzXLvpT7ctINIhpiFTQvT3UZ5WK/9gI6NF/FU+oW0Nm7/GhKZZArrqNu2S86bR4M1K32WNGlLU7+CblvPEOmZ8qW+HdNZvzNo+w1IH1WHAOdP1EpdRvWCyD+o2K21W/NV9sFue0o+HDh9d1TU85EodetjZQI84o3gs04/3XLmzneDhdUhFLjaYzL/tI4Kbo7h9Dqb3Twy/HgpcckUqFWzl01ZsZA56oPkXqIehsqlPvv8Tdnke8YhBO7IQ9Vm6PbsKlBZKPwzVEcUYtzGZopWkaXkfI9mVbBWOHVt2KtwnsFpnb67JaVpEl1iXeJ09unEDnyyxRoKPe/yisu+l8IChwTSAUeibWLfGRWGEpo2AvH0RrXEzRY0Wry8py5vdMdSgxqCtNy1eAoYVmjhWhutKwR4jia19aQ6C7dao2nkScREju+PRNm72tCouyaxOXxylvus1vTpOxusGxBhoq4qCof48udC91P6mSwqy+bdlO8mJ1JpS6RnVlGK0n0KJlPyijZMchElKk6RRB3AjCnU3bUCqsCP0D2j6s10YISJ0vwn2G8MyUQIClyQ2tkfyH+uddymNJ8b1ocHrcsBYFpGQ5M2WPEyjCpZdK+LMWMQ22OFSOn/P5o6qDiFhP89th9+FXgp9vqoPZ3oY=
 cache: yarn
 install: yarn install && yarn bootstrap
+script:
+  - yarn test
+  - yarn test:e2e
+after_success:
+  - yarn lint
+  - yarn coverage
+  - bash <(curl -s https://codecov.io/bash)
 jobs:
   include:
-  - stage: Setup Cache
-    script: skip
-  - stage: Tests
-    name: 'Tests'
-  - script: 'yarn test
-      && yarn coverage
-      && bash <(curl -s https://codecov.io/bash);
-      yarn lint'
-    name: 'Test Packages'
-  - script: yarn test:e2e
-    if: type = 'pull_request'
-    name: 'Test End-to-End'
   - stage: Release (Draft)
-    if: tag IS blank AND branch = master AND type != pull_request
     script:
       - npm config set //registry.npmjs.org/:_authToken $NPM_DEPLOY_TOKEN
       - yarn publish:draft
+    after_success: skip
     deploy:
       provider: releases
       name: "$TRAVIS_TAG"
@@ -41,6 +36,7 @@ jobs:
     script:
       - npm config set //registry.npmjs.org/:_authToken $NPM_DEPLOY_TOKEN
       - yarn publish:release
+    after_success: skip
     deploy:
       provider: releases
       name: "$TRAVIS_TAG"
