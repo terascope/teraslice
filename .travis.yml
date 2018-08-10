@@ -12,17 +12,18 @@ env:
 cache: yarn
 install: yarn install && yarn bootstrap
 jobs:
+  fast-finish: true
   include:
   - stage: Tests
-    script:
-      - yarn test
+    script: yarn test
     after_success:
       - yarn lint
       - yarn coverage
       - bash <(curl -s https://codecov.io/bash)
-  - stage: End-to-End Tests
-    if: branch = master
-    script: yarn test
+  - script:
+    name: End-to-End Tests
+    if: type = pull_request
+    script: yarn test:e2e
   - stage: Release (Draft)
     if: tag IS blank AND branch = master
     script:

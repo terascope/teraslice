@@ -86,10 +86,7 @@ describe('compose', () => {
 
         it('should be able to be list running services', (done) => {
             sut.start()
-                .then(() => sut.ps({
-                    // Only output services
-                    services: ''
-                }))
+                .then(() => sut.ps())
                 .then((result) => {
                     expect(result).not.toEqual(null);
                     expect(result).toContain('test');
