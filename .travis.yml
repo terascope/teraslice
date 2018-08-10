@@ -13,8 +13,10 @@ cache: yarn
 install: yarn install && yarn bootstrap
 jobs:
   include:
-  - stage: Tests
+  - stage: Setup Cache
     script: skip
+  - stage: Tests
+    name: 'Tests'
   - script: 'yarn test
       && yarn coverage
       && bash <(curl -s https://codecov.io/bash);
