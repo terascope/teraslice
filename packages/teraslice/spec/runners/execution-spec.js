@@ -1,11 +1,11 @@
 'use strict';
 
-const executionCode = require('../../lib/cluster/runners/execution');
 const events = require('events');
 const Promise = require('bluebird');
 const fs = require('fs-extra');
 const path = require('path');
 const _ = require('lodash');
+const executionCode = require('../../lib/cluster/runners/execution');
 
 const eventEmitter = new events.EventEmitter();
 

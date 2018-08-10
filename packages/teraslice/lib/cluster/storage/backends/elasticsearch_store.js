@@ -16,8 +16,6 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
     let flushInterval;
     let destroyFns = {};
 
-    let destroyFns = {};
-
     // Buffer to build up bulk requests.
     let bulkQueue = [];
     let savingBulk = false; // serialize save requests.
@@ -221,7 +219,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
                 .catch((err) => {
                     const errMsg = parseError(err);
                     logger.error(errMsg);
-                    return Promise.reject(errMsg);
+                    return Promise.reject(new Error(errMsg));
                 })
                 .finally(() => {
                     savingBulk = false;

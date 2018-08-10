@@ -7,7 +7,7 @@ const _ = require('lodash');
 const parseError = require('@terascope/error-parser');
 
 const INIT_STATUS = ['pending', 'scheduling', 'initializing'];
-const RUNNING_STATUS = ['running', 'failing', 'paused', 'moderator_paused'];
+const RUNNING_STATUS = ['running', 'failing', 'paused'];
 const TERMINAL_STATUS = ['completed', 'stopped', 'rejected', 'failed', 'terminated'];
 
 const VALID_STATUS = INIT_STATUS.concat(RUNNING_STATUS).concat(TERMINAL_STATUS);

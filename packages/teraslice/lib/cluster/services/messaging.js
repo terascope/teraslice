@@ -241,7 +241,7 @@ module.exports = function messaging(context, logger) {
                     }
                     // if network host (slicer, cluster_master) and connection
                     // or retry event, join room
-                    if (key === 'worker:ready' || key === 'node:online' || key === 'moderator:online' || (msg.retry && key === 'worker:slice:complete')) {
+                    if (key === 'worker:ready' || key === 'node:online' || (msg.retry && key === 'worker:slice:complete')) {
                         const rooms = Object.keys(socket.rooms);
                         const hasRoom = _.some(rooms, r => r === id);
                         if (!hasRoom) {
@@ -427,7 +427,6 @@ module.exports = function messaging(context, logger) {
             cluster_master: { networkClient: false, ipcClient: true },
             execution_controller: { networkClient: false, ipcClient: true },
             worker: { networkClient: true, ipcClient: true },
-            moderator: { networkClient: true, ipcClient: true },
             assets_loader: { networkClient: false, ipcClient: true },
             assets_service: { networkClient: true, ipcClient: true }
         };
@@ -445,7 +444,7 @@ module.exports = function messaging(context, logger) {
         }
 
         if (processConfig.clients.networkClient) {
-            if (env.assignment === 'node_master' || env.assignment === 'moderator' || env.assignment === 'assets_service') {
+            if (env.assignment === 'node_master' || env.assignment === 'assets_service') {
                 host = context.sysconfig.teraslice.master_hostname;
                 ({ port } = context.sysconfig.teraslice);
             }

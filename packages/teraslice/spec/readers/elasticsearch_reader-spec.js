@@ -1,10 +1,10 @@
 'use strict';
 
-const elasticDateReader = require('../../lib/readers/elasticsearch_reader');
 const Promise = require('bluebird');
 const moment = require('moment');
 const _ = require('lodash');
 const EventEmitter = require('events');
+const elasticDateReader = require('../../lib/readers/elasticsearch_reader');
 
 const events = new EventEmitter();
 
@@ -114,7 +114,9 @@ describe('elasticsearch_reader', () => {
     });
 
     it('newReader returns a function that queries elasticsearch', () => {
-        const opConfig = { date_field_name: '@timestamp', size: 50, index: 'someIndex', full_response: true };
+        const opConfig = {
+            date_field_name: '@timestamp', size: 50, index: 'someIndex', full_response: true
+        };
         const jobConfig = { lifecycle: 'once' };
         const reader = elasticDateReader.newReader(context, opConfig, jobConfig);
 
@@ -751,4 +753,3 @@ describe('elasticsearch_reader', () => {
             });
     });
 });
-

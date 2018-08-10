@@ -1,8 +1,8 @@
 'use strict';
 
-const config = require('../../lib/utils/config');
 const fs = require('fs');
 const events = require('events');
+const config = require('../../lib/utils/config');
 
 const eventEmitter = new events.EventEmitter();
 
@@ -107,4 +107,3 @@ describe('config', () => {
         expect(JSON.stringify(results)).toEqual(JSON.stringify(resultsOP));
     });
 });
-

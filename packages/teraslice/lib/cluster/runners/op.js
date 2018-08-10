@@ -26,7 +26,8 @@ module.exports = function module(context, { skipRegister } = {}) {
 
         if (opConfig && Object.prototype.hasOwnProperty.call(opConfig, 'connection')) {
             clientConfig.endpoint = opConfig.connection ? opConfig.connection : 'default';
-            clientConfig.cached = opConfig.connection_cache !== undefined ? opConfig.connection_cache : true;
+            const isCached = opConfig.connection_cache != null;
+            clientConfig.cached = isCached ? opConfig.connection_cache : true;
         } else {
             clientConfig.endpoint = 'default';
             clientConfig.cached = true;

@@ -1,9 +1,9 @@
 'use strict';
 
-const opCode = require('../../lib/cluster/runners/op');
 const events = require('events');
 const fs = require('fs-extra');
 const path = require('path');
+const opCode = require('../../lib/cluster/runners/op');
 
 const eventEmitter = new events.EventEmitter();
 

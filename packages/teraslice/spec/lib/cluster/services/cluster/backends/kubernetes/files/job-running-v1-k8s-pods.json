@@ -170,7 +170,7 @@
                     "value": "execution_controller"
                 }, {
                     "name": "EX",
-                    "value": "{\"name\":\"gen-tenk-noop\",\"lifecycle\":\"persistent\",\"workers\":1,\"operations\":[{\"_op\":\"elasticsearch_data_generator\",\"json_schema\":\"\",\"size\":10000,\"start\":\"\",\"end\":\"\",\"format\":\"\",\"stress_test\":false,\"date_key\":\"created\",\"set_id\":\"\",\"id_start_key\":\"\"},{\"_op\":\"noop\"}],\"analytics\":true,\"job_id\":\"654321\",\"_context\":\"ex\",\"_created\":\"2018-04-16T17:34:51.375Z\",\"_updated\":\"2018-04-16T17:34:51.375Z\",\"max_retries\":3,\"slicers\":1,\"assets\":null,\"moderator\":null,\"recycle_worker\":null,\"probation_window\":300000,\"ex_id\":\"123456\",\"slicer_port\":45680,\"slicer_hostname\":\"teraslice-execution_controller-123456\"}"
+                    "value": "eyJuYW1lIjoiZ2VuLXRlbmstbm9vcCIsImxpZmVjeWNsZSI6InBlcnNpc3RlbnQiLCJ3b3JrZXJzIjoxLCJvcGVyYXRpb25zIjpbeyJfb3AiOiJlbGFzdGljc2VhcmNoX2RhdGFfZ2VuZXJhdG9yIiwianNvbl9zY2hlbWEiOiIiLCJzaXplIjoxMDAwMCwic3RhcnQiOiIiLCJlbmQiOiIiLCJmb3JtYXQiOiIiLCJzdHJlc3NfdGVzdCI6ZmFsc2UsImRhdGVfa2V5IjoiY3JlYXRlZCIsInNldF9pZCI6IiIsImlkX3N0YXJ0X2tleSI6IiJ9LHsiX29wIjoibm9vcCJ9XSwiYW5hbHl0aWNzIjp0cnVlLCJqb2JfaWQiOiI2NTQzMjEiLCJfY29udGV4dCI6ImV4IiwiX2NyZWF0ZWQiOiIyMDE4LTA0LTE2VDE3OjM0OjUxLjM3NVoiLCJfdXBkYXRlZCI6IjIwMTgtMDQtMTZUMTc6MzQ6NTEuMzc1WiIsIm1heF9yZXRyaWVzIjozLCJzbGljZXJzIjoxLCJhc3NldHMiOm51bGwsInJlY3ljbGVfd29ya2VyIjpudWxsLCJwcm9iYXRpb25fd2luZG93IjozMDAwMDAsImV4X2lkIjoiMTIzNDU2Iiwic2xpY2VyX3BvcnQiOjQ1NjgwLCJzbGljZXJfaG9zdG5hbWUiOiJ0ZXJhc2xpY2UtZXhlY3V0aW9uX2NvbnRyb2xsZXItMTIzNDU2In0="
                 }],
                 "resources": {},
                 "volumeMounts": [{
@@ -289,7 +289,7 @@
                     "value": "worker"
                 }, {
                     "name": "EX",
-                    "value": "{\"name\":\"gen-tenk-noop\",\"lifecycle\":\"persistent\",\"workers\":1,\"operations\":[{\"_op\":\"elasticsearch_data_generator\",\"json_schema\":\"\",\"size\":10000,\"start\":\"\",\"end\":\"\",\"format\":\"\",\"stress_test\":false,\"date_key\":\"created\",\"set_id\":\"\",\"id_start_key\":\"\"},{\"_op\":\"noop\"}],\"analytics\":true,\"job_id\":\"654321\",\"_context\":\"ex\",\"_created\":\"2018-04-16T17:34:51.375Z\",\"_updated\":\"2018-04-16T17:34:51.375Z\",\"max_retries\":3,\"slicers\":1,\"assets\":null,\"moderator\":null,\"recycle_worker\":null,\"probation_window\":300000,\"ex_id\":\"123456\",\"slicer_port\":45680,\"slicer_hostname\":\"teraslice-execution_controller-123456\"}"
+                    "value": "eyJuYW1lIjoiZ2VuLXRlbmstbm9vcCIsImxpZmVjeWNsZSI6InBlcnNpc3RlbnQiLCJ3b3JrZXJzIjoxLCJvcGVyYXRpb25zIjpbeyJfb3AiOiJlbGFzdGljc2VhcmNoX2RhdGFfZ2VuZXJhdG9yIiwianNvbl9zY2hlbWEiOiIiLCJzaXplIjoxMDAwMCwic3RhcnQiOiIiLCJlbmQiOiIiLCJmb3JtYXQiOiIiLCJzdHJlc3NfdGVzdCI6ZmFsc2UsImRhdGVfa2V5IjoiY3JlYXRlZCIsInNldF9pZCI6IiIsImlkX3N0YXJ0X2tleSI6IiJ9LHsiX29wIjoibm9vcCJ9XSwiYW5hbHl0aWNzIjp0cnVlLCJqb2JfaWQiOiI2NTQzMjEiLCJfY29udGV4dCI6ImV4IiwiX2NyZWF0ZWQiOiIyMDE4LTA0LTE2VDE3OjM0OjUxLjM3NVoiLCJfdXBkYXRlZCI6IjIwMTgtMDQtMTZUMTc6MzQ6NTEuMzc1WiIsIm1heF9yZXRyaWVzIjozLCJzbGljZXJzIjoxLCJhc3NldHMiOm51bGwsInJlY3ljbGVfd29ya2VyIjpudWxsLCJwcm9iYXRpb25fd2luZG93IjozMDAwMDAsImV4X2lkIjoiMTIzNDU2Iiwic2xpY2VyX3BvcnQiOjQ1NjgwLCJzbGljZXJfaG9zdG5hbWUiOiJ0ZXJhc2xpY2UtZXhlY3V0aW9uX2NvbnRyb2xsZXItMTIzNDU2In0="
                 }],
                 "resources": {},
                 "volumeMounts": [{

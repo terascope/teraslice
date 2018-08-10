@@ -184,26 +184,6 @@ const schema = {
         default: 60000,
         format: Number
     },
-    moderator: {
-        doc: 'boolean for determining if moderator should live on this node',
-        default: false,
-        format: Boolean
-    },
-    moderator_limit: {
-        doc: 'percentage limit (decimal form) of elasticsearch queue.length/threshold that the moderator will issue a pause event',
-        default: 0.85,
-        format: Number
-    },
-    moderator_resume: {
-        doc: 'percentage limit (decimal form) of elasticsearch queue.length/threshold that the moderator will issue a resume event on previously paused jobs by the moderator',
-        default: 0.5,
-        format: Number
-    },
-    moderator_interval: {
-        doc: 'Interval in ms in which the moderator checks the database',
-        default: 10000,
-        format: Number
-    },
     index_rollover_frequency: {
         state: {
             doc: 'How frequently the teraslice state indices are created',

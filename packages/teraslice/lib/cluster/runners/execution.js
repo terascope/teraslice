@@ -14,11 +14,11 @@ module.exports = function module(context, config = {}) {
     const opRunner = require('./op')(context);
     // used for testing so we dont have to pollute the process env in testing
     const {
-        processAssingment = context.__test_assignment || process.env.assignment,
+        processAssignment = context.__test_assignment || process.env.assignment,
         execution = _parseJob(context.__test_job || process.env.job),
     } = config;
 
-    const isSlicer = processAssingment === 'execution_controller';
+    const isSlicer = processAssignment === 'execution_controller';
     const assetPath = execution.assets ? context.sysconfig.teraslice.assets_directory : null;
     const jobAssets = execution.assets ? execution.assets : [];
     /*

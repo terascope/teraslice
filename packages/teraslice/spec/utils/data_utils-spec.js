@@ -1,8 +1,8 @@
 'use strict';
 
 const mocker = require('mocker-data-generator').default;
-const schema = require('../../lib/utils/data_utils');
 const moment = require('moment');
+const schema = require('../../lib/utils/data_utils');
 
 describe('data_utils', () => {
     it('format isoBetween creates an iso date between two dates', (done) => {
@@ -25,7 +25,7 @@ describe('data_utils', () => {
             })
             .catch((err) => {
                 fail(err);
-                done()
+                done();
             });
     });
 

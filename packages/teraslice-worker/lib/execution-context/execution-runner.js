@@ -10,7 +10,7 @@ class ExecutionRunner {
     constructor(context, executionContext) {
         this._runner = makeExecutionRunner(context, {
             execution: executionContext.job,
-            processAssingment: executionContext.assignment,
+            processAssignment: executionContext.assignment,
         });
 
         this._assets = new Assets(context, executionContext);

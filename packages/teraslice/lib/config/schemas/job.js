@@ -62,8 +62,8 @@ function jobSchema(context) {
             }
         },
         operations: {
-            doc: 'An array of actions to execute, typically the first is a reader and the last is a sender with ' +
-            'any number of processing function in-between',
+            doc: 'An array of actions to execute, typically the first is a reader and the last is a sender with '
+            + 'any number of processing function in-between',
             default: [],
             format: function checkJobProcess(arr) {
                 if (!(Array.isArray(arr) && arr.length >= 2)) {
@@ -80,8 +80,8 @@ function jobSchema(context) {
             }
         },
         assets: {
-            doc: 'An array of actions to execute, typically the first is a reader and the last is a sender with ' +
-            'any number of processing function in-between',
+            doc: 'An array of actions to execute, typically the first is a reader and the last is a sender with '
+            + 'any number of processing function in-between',
             default: null,
             format(arr) {
                 if (arr !== null) {
@@ -90,35 +90,6 @@ function jobSchema(context) {
                     }
                     if (!arr.every(val => typeof val === 'string')) {
                         throw new Error('assets needs to be an array of strings');
-                    }
-                }
-            }
-        },
-        moderator: {
-            doc: 'specify on job if it is to be moderated to not overwhelm their respective databases',
-            default: null,
-            format(val) {
-                if (val) {
-                    if (typeof val === 'object') {
-                        const configConnectors = _.get(context.sysconfig, 'terafoundation.connectors', {});
-                        _.forOwn(val, (config, key) => {
-                            if (!configConnectors[key]) {
-                                throw new Error(`Moderator specified on job is marked as using ${key}, but it cannot be found in terafoundation.connectors system configuration`);
-                            }
-
-                            const connections = Object.keys(configConnectors[key]);
-                            const isArray = Array.isArray(config);
-                            if (isArray) {
-                                const diff = _.difference(config, connections);
-                                if (diff.length > 0) {
-                                    throw new Error(`Moderator specified on job is marked as using ${key} with connection ${diff}, but the following ${diff} connections were not found`);
-                                }
-                            } else {
-                                throw new Error(`Error in validating moderator, database: ${key} must be set to an array, was given: ${JSON.stringify(config)}`);
-                            }
-                        });
-                    } else {
-                        throw new Error('Moderator on the job must be set to an object');
                     }
                 }
             }

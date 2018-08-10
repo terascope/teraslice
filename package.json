@@ -4,7 +4,7 @@
     "scripts": {
         "bootstrap": "lerna bootstrap",
         "bootstrap:production": "lerna bootstrap -- --silent --no-progress --production=true",
-        "test": "env FORCE_COLOR=1 lerna run test --no-bail",
+        "test": "env FORCE_COLOR=1 lerna run test --no-bail --concurrency=1 --stream",
         "test:e2e": "yarn --cwd ./e2e test",
         "coverage": "lerna run coverage --no-bail",
         "lint": "env FORCE_COLOR=1 lerna run lint --no-bail",
