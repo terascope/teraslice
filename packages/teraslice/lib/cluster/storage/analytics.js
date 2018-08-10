@@ -22,7 +22,7 @@ module.exports = function module(context) {
         const results = [];
         const indexData = timeseriesIndex(timeseriesFormat, _index);
         const esIndex = indexData.index;
-        const timestamp = indexData.timestamp;
+        const { timestamp } = indexData;
         // These records are uniquely identified by ex_id + slice_id
         job.config.operations.forEach((op, index) => {
             results.push(backend.bulk({

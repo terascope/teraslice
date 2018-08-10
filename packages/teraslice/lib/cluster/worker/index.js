@@ -101,7 +101,6 @@ module.exports = function module(context) {
             })
             .then(logger.flush)
             .catch((err) => {
-                exitCode = 1;
                 const errMsg = parseError(err);
                 logger.error(`Error while attempting to shutdown worker ${ID}, error: ${errMsg}`);
                 return logger.flush();

@@ -1,5 +1,5 @@
 'use strict';
 
-module.exports = function (context) {
+module.exports = function _master(context) {
     return require('./cluster/node_master')(context);
 };

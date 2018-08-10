@@ -5,14 +5,14 @@ const utils = require('../../lib/utils/date_utils');
 
 describe('elastic_utils', () => {
     it('has methods dateOptions and processInterval', () => {
-        const dateOptions = utils.dateOptions;
+        const { dateOptions } = utils;
 
         expect(dateOptions).toBeDefined();
         expect(typeof dateOptions).toEqual('function');
     });
 
     it('dateOptions returns a string used for the moment library', () => {
-        const dateOptions = utils.dateOptions;
+        const { dateOptions } = utils;
 
         expect(() => {
             dateOptions('Day');
@@ -22,7 +22,7 @@ describe('elastic_utils', () => {
     });
 
     it('dateOptions will throw a new error if not given correct values', () => {
-        const dateOptions = utils.dateOptions;
+        const { dateOptions } = utils;
 
         expect(() => {
             dateOptions('hourz');

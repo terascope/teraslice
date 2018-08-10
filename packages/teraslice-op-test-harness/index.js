@@ -96,7 +96,7 @@ module.exports = (processor) => {
         };
     }
 
-    const validator = require('teraslice/lib/config/validators/config')();
+    const validator = require('teraslice/lib/config/validators/config');
 
     function run(data, extraOpConfig, extraContext) {
         return processFn(getProcessor(extraOpConfig, extraContext), data);

@@ -114,7 +114,9 @@ describe('K8s Utils', () => {
             });
 
             expect(workerDeployment.spec.replicas).toEqual(config.replicas);
-            expect(workerDeployment.spec.template.metadata.labels).toEqual(workerDeployment.metadata.labels);
+
+            const { labels } = workerDeployment.spec.template.metadata;
+            expect(labels).toEqual(workerDeployment.metadata.labels);
 
             const templateSpec = workerDeployment.spec.template.spec;
 

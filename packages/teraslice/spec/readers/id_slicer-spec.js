@@ -62,7 +62,7 @@ describe('id_reader', () => {
         }
     };
 
-    const logger = context.logger;
+    const { logger } = context;
 
     it('has a schema, newSlicer and a newReader method, crossValidation', () => {
         const reader = idReader;

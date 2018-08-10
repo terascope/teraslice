@@ -1,8 +1,8 @@
 'use strict';
 
 const Promise = require('bluebird');
-const { makeTable, handleError } = require('../../utils/api_utils');
 const _ = require('lodash');
+const { makeTable, handleError } = require('../../utils/api_utils');
 
 module.exports = function module(context) {
     const logger = context.apis.foundation.makeLogger({ module: 'assets_service' });

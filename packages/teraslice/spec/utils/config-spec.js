@@ -21,7 +21,7 @@ describe('config', () => {
             });
             fs.rmdirSync(path);
         } catch (e) {
-            if (e.code !== 'ENOENT') console.log(e);
+            if (e.code !== 'ENOENT') console.error(e); // eslint-disable-line
         }
     }
 

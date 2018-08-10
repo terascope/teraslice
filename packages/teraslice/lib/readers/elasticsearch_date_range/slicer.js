@@ -4,8 +4,8 @@ const Promise = require('bluebird');
 const moment = require('moment');
 const _ = require('lodash');
 const dateMath = require('datemath-parser');
-const { dateOptions, dateFormat: dateFormatMS, dateFormatSeconds: dateFormatS } = require('./../../utils/date_utils');
 const parseError = require('@terascope/error-parser');
+const { dateOptions, dateFormat: dateFormatMS, dateFormatSeconds: dateFormatS } = require('./../../utils/date_utils');
 const { retryModule } = require('../../utils/error_utils');
 
 function newSlicer(context, opConfig, executionContext, retryData, logger, client) {

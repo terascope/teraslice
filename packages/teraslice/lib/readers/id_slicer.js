@@ -1,6 +1,6 @@
 'use strict';
 
-/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-restricted-syntax, no-useless-escape, max-len */
 
 const _ = require('lodash');
 const parseError = require('@terascope/error-parser');
@@ -223,7 +223,7 @@ module.exports = function fn(context, client, executionContext, opConfig, logger
         // slicer is being used as a subslicer, needs to ignore multiple slicer
         // configs and division of key array
         if (range) {
-            return Promise.resolve(retryData.map(retryData => keyGenerator(baseKeyArray, baseKeyArray, retryData.key, range)));
+            return Promise.resolve(retryData.map(data => keyGenerator(baseKeyArray, baseKeyArray, data.key, range)));
         }
 
         // real retry of executionContext here, need to reformat retry data

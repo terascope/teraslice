@@ -5,8 +5,8 @@ const fs = Promise.promisifyAll(require('fs'));
 const crypto = require('crypto');
 const _ = require('lodash');
 const parseError = require('@terascope/error-parser');
-const { saveAsset, normalizeZipFile } = require('../../utils/file_utils');
 const fse = require('fs-extra');
+const { saveAsset, normalizeZipFile } = require('../../utils/file_utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
 

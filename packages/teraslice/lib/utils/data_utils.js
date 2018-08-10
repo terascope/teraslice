@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint-disable no-useless-escape */
+
 const moment = require('moment');
 const { dateFormat } = require('./date_utils');
 
@@ -100,7 +102,6 @@ module.exports = function module(opConfig, otherSchema) {
         const reg = schema.id.randexp;
         schema.id.randexp = `${opConfig.id_start_key}${reg}`;
     }
-
 
     return schema;
 };

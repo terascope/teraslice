@@ -1,8 +1,8 @@
 'use strict';
 
 const moment = require('moment');
-const dateFormat = require('../../utils/date_utils').dateFormat;
 const _ = require('lodash');
+const { dateFormat } = require('../../utils/date_utils');
 
 module.exports = function module(context, messaging) {
     const events = context.apis.foundation.getSystemEvents();
@@ -53,7 +53,7 @@ module.exports = function module(context, messaging) {
         event: 'cluster:slicer:analytics',
         callback: (msg) => {
             logger.debug('api is requesting execution analytics', executionAnalytics);
-            const name = JSON.parse(process.env.job).name;
+            const { name } = JSON.parse(process.env.job);
             messaging.respond(msg, {
                 node_id: msg.node_id,
                 job_id: jobId,

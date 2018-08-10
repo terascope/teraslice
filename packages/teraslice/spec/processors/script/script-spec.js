@@ -1,7 +1,9 @@
 'use strict';
 
+const opHarness = require('@terascope/teraslice-op-test-harness');
 const processor = require('../../../lib/processors/script');
-const harness = require('@terascope/teraslice-op-test-harness')(processor);
+
+const harness = opHarness(processor);
 
 const processorName = 'script processor';
 
