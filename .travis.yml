@@ -9,8 +9,7 @@ addons:
 services:
   - docker
   - elasticsearch
-cache:
-  yarn: true
+cache: yarn
 env:
   global:
   # NPM_DEPLOY_TOKEN
@@ -23,36 +22,37 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
 install:
+  - yarn global add lerna publish-release
   - yarn install
   - yarn bootstrap
-script:
-  - yarn test
-after_success:
-  - yarn lint
 jobs:
   include:
+  - stage: test
+    if: tag IS blank
+    script: yarn test
   - stage: coverage
-    if: branch = master OR type = pull_request
-    after_script:
-      - yarn coverage
-      - bash <(curl -s https://codecov.io/bash)
+    if: tag IS blank
+    script: yarn coverage && bash <(curl -s https://codecov.io/bash)
+  - stage: lint
+    if: tag IS blank
+    script: yarn lint
   - stage: test-e2e
-    if: tag IS blank AND branch != master AND type = pull_request
-    script:
-      - yarn test:e2e
+    if: tag IS blank AND type = pull_request
+    script: yarn test:e2e
   - stage: publish
-    if: tag IS blank AND branch = master AND type != pull_request
-    install:
-      - yarn global add lerna
+    if: tag IS blank AND branch = master
     script:
       - npm config set //registry.npmjs.org/:_authToken $NPM_DEPLOY_TOKEN
       - lerna publish --yes --canary=pre --skip-git
   - stage: release
-    if: tag IS present AND tag =~ ^v AND branch = master AND type != pull_request
-    install:
-      - yarn global add lerna publish-release
+    if: tag IS present AND tag =~ ^v AND branch = master
     script:
+      - echo "Releasing $TRAVIS_TAG..."
       - npm config set //registry.npmjs.org/:_authToken $NPM_DEPLOY_TOKEN
-      - publish-release --tag "$(TERASLICE_VERSION)" --owner terascope --token "$GITHUB_DEPLOY_TOKEN" --skipIfPublished --prerelease
-      - echo "Releasing $TERASLICE_VERSION..."
       - lerna publish --yes --skip-git from-git
+    deploy:
+      provider: releases
+      name: "$TRAVIS_TAG"
+      prerelease: true
+      api_key:
+        secure: "ikJIrNiYXy2kd2WvFMvG8zkKUI5uXUVTG1OJ9E7pQPRbp5tqmCsko9AQVx+51ChWi5a25CFbkhhG6FGZoukU9i70QyZ5WuQUFmjLrdSjjCw9uVPd9G+n0CyDUaFbRTsqY4gkt0E6Zb6P3ULpex5DU55Nvn+lhRkHxYKsQSSTVEe1tF7jdvaSXruCxRVssnc/goN8x43POS9veouC5of3nvUhUX/7mo4qER7P2vhm3yh5hjbf22+seNKcxP99dTrrVO9Cm2m9B41RW3p7tdzVrZ7q8RUdmPiY/SG/Al+8W2mj9NTOTd78JH6016GK/7gdiHbFungUbz0tYYizrNP6RahaZVRtUnz0nJMYtIEe2l7q/UStV2TlGngQAummxOhmBbrh7fjfSm+uu6SnKlhghicBIR91kscNpMHeCuhHXTedNZd/VD4zZFDUqTP0yLM+5toQByK7n9zg4CBdfTlJ8cC0ikf97xxr/KE5uK7gFOpNfC1z4nW4Ir+c9k8Xf97rT+kz26JzoN+BWxHGa1DlTCwpuTWz51+cgWG9w2OtUvWz3JdRpPb7sFQtCswiS+TkHtz/r9JKKmIMDnFhx4GAJbSfFxKM/KMvDOeMrRVbI6TVuzCa1aH1oLipXz6tFOQRDPCX80HIxloWYpYr/YofpvEeYiJkRMsEgrpVDJuHpq0="
