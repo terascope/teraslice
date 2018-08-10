@@ -1,0 +1,48 @@
+{
+  "name": "@terascope/error-parser",
+  "version": "1.0.0",
+  "description": "Generic error parser",
+  "main": "index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "lint": "eslint *.js spec",
+    "lint:fix": "eslint --fix *.js spec",
+    "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
+    "coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov"
+  },
+  "nyc": {
+    "cache": true,
+    "all": true,
+    "include": [
+      "*.js"
+    ],
+    "reporter": [
+      "text-summary",
+      "html",
+      "lcov",
+      "json"
+    ]
+  },
+  "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-client-js#readme",
+  "repository": "git@github.com:terascope/teraslice.git",
+  "author": "Terascope, LLC <info@terascope.io>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/terascope/teraslice/issues"
+  },
+  "dependencies": {
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.12.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.9.1",
+    "jasmine": "^3.1.0",
+    "jasmine-spec-reporter": "^4.2.1",
+    "nyc": "^12.0.2"
+  }
+}

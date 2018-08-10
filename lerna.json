@@ -1,0 +1,18 @@
+{
+    "packages": [
+        "packages/*",
+        "e2e"
+    ],
+    "command": {
+        "publish": {
+            "npmClient": "npm"
+        },
+        "run": {
+            "ignore": "teraslice-e2e",
+            "bail": false
+        }
+    },
+    "npmClient": "yarn",
+    "useWorkspaces": true,
+    "version": "independent"
+}

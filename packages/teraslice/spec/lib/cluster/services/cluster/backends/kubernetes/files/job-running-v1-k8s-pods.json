@@ -1,0 +1,357 @@
+{
+    "kind": "PodList",
+    "apiVersion": "v1",
+    "metadata": {
+        "selfLink": "/api/v1/namespaces/default/pods",
+        "resourceVersion": "1089627"
+    },
+    "items": [{
+        "metadata": {
+            "name": "teraslice-master-6cbf8454cd-7jgrs",
+            "generateName": "teraslice-master-6cbf8454cd-",
+            "namespace": "default",
+            "selfLink": "/api/v1/namespaces/default/pods/teraslice-master-6cbf8454cd-7jgrs",
+            "uid": "6db7c686-419c-11e8-82f0-080027936d77",
+            "resourceVersion": "1089503",
+            "creationTimestamp": "2018-04-16T17:34:34Z",
+            "labels": {
+                "app": "teraslice",
+                "nodeType": "master",
+                "pod-template-hash": "2769401078"
+            },
+            "ownerReferences": [{
+                "apiVersion": "extensions/v1beta1",
+                "kind": "ReplicaSet",
+                "name": "teraslice-master-6cbf8454cd",
+                "uid": "6db6db57-419c-11e8-82f0-080027936d77",
+                "controller": true,
+                "blockOwnerDeletion": true
+            }]
+        },
+        "spec": {
+            "volumes": [{
+                "name": "config",
+                "configMap": {
+                    "name": "teraslice-master",
+                    "items": [{
+                        "key": "processor-master-k8s.yaml",
+                        "path": "teraslice.yaml"
+                    }],
+                    "defaultMode": 420
+                }
+            }, {
+                "name": "default-token-g6bfn",
+                "secret": {
+                    "secretName": "default-token-g6bfn",
+                    "defaultMode": 420
+                }
+            }],
+            "containers": [{
+                "name": "teraslice-master",
+                "image": "teraslice:k8sdev",
+                "ports": [{
+                    "containerPort": 5678,
+                    "protocol": "TCP"
+                }],
+                "resources": {},
+                "volumeMounts": [{
+                    "name": "config",
+                    "mountPath": "/app/config"
+                }, {
+                    "name": "default-token-g6bfn",
+                    "readOnly": true,
+                    "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+                }],
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "imagePullPolicy": "IfNotPresent"
+            }],
+            "restartPolicy": "Always",
+            "terminationGracePeriodSeconds": 30,
+            "dnsPolicy": "ClusterFirst",
+            "serviceAccountName": "default",
+            "serviceAccount": "default",
+            "nodeName": "minikube",
+            "securityContext": {},
+            "imagePullSecrets": [{
+                "name": "docker-tera1-secret"
+            }],
+            "schedulerName": "default-scheduler"
+        },
+        "status": {
+            "phase": "Running",
+            "conditions": [{
+                "type": "Initialized",
+                "status": "True",
+                "lastProbeTime": null,
+                "lastTransitionTime": "2018-04-16T17:34:34Z"
+            }, {
+                "type": "Ready",
+                "status": "True",
+                "lastProbeTime": null,
+                "lastTransitionTime": "2018-04-16T17:34:35Z"
+            }, {
+                "type": "PodScheduled",
+                "status": "True",
+                "lastProbeTime": null,
+                "lastTransitionTime": "2018-04-16T17:34:34Z"
+            }],
+            "hostIP": "192.168.99.100",
+            "podIP": "172.17.0.3",
+            "startTime": "2018-04-16T17:34:34Z",
+            "containerStatuses": [{
+                "name": "teraslice-master",
+                "state": {
+                    "running": {
+                        "startedAt": "2018-04-16T17:34:35Z"
+                    }
+                },
+                "lastState": {},
+                "ready": true,
+                "restartCount": 0,
+                "image": "teraslice:k8sdev",
+                "imageID": "docker://sha256:123",
+                "containerID": "docker://123"
+            }],
+            "qosClass": "BestEffort"
+        }
+    }, {
+        "metadata": {
+            "name": "teraslice-execution_controller-123456-784cbt5mz",
+            "generateName": "teraslice-execution_controller-123456-784c557c8-",
+            "namespace": "default",
+            "selfLink": "/api/v1/namespaces/default/pods/teraslice-execution_controller-123456-784cbt5mz",
+            "uid": "78502ea9-419c-11e8-82f0-080027936d77",
+            "resourceVersion": "1089556",
+            "creationTimestamp": "2018-04-16T17:34:52Z",
+            "labels": {
+                "app": "teraslice",
+                "exId": "123456",
+                "jobId": "654321",
+                "nodeType": "slicer",
+                "pod-template-hash": "340711374"
+            },
+            "ownerReferences": [{
+                "apiVersion": "extensions/v1beta1",
+                "kind": "ReplicaSet",
+                "name": "teraslice-execution_controller-123456-784c557c8",
+                "uid": "784cf203-419c-11e8-82f0-080027936d77",
+                "controller": true,
+                "blockOwnerDeletion": true
+            }]
+        },
+        "spec": {
+            "volumes": [{
+                "name": "config",
+                "configMap": {
+                    "name": "teraslice-worker",
+                    "items": [{
+                        "key": "teraslice-worker.yml",
+                        "path": "teraslice.yaml"
+                    }],
+                    "defaultMode": 420
+                }
+            }, {
+                "name": "default-token-g6bfn",
+                "secret": {
+                    "secretName": "default-token-g6bfn",
+                    "defaultMode": 420
+                }
+            }],
+            "containers": [{
+                "name": "teraslice-execution_controller-123456",
+                "image": "docker.registry.example/teraslice:0.0.0",
+                "ports": [{
+                    "containerPort": 45680,
+                    "protocol": "TCP"
+                }],
+                "env": [{
+                    "name": "NODE_TYPE",
+                    "value": "execution_controller"
+                }, {
+                    "name": "EX",
+                    "value": "eyJuYW1lIjoiZ2VuLXRlbmstbm9vcCIsImxpZmVjeWNsZSI6InBlcnNpc3RlbnQiLCJ3b3JrZXJzIjoxLCJvcGVyYXRpb25zIjpbeyJfb3AiOiJlbGFzdGljc2VhcmNoX2RhdGFfZ2VuZXJhdG9yIiwianNvbl9zY2hlbWEiOiIiLCJzaXplIjoxMDAwMCwic3RhcnQiOiIiLCJlbmQiOiIiLCJmb3JtYXQiOiIiLCJzdHJlc3NfdGVzdCI6ZmFsc2UsImRhdGVfa2V5IjoiY3JlYXRlZCIsInNldF9pZCI6IiIsImlkX3N0YXJ0X2tleSI6IiJ9LHsiX29wIjoibm9vcCJ9XSwiYW5hbHl0aWNzIjp0cnVlLCJqb2JfaWQiOiI2NTQzMjEiLCJfY29udGV4dCI6ImV4IiwiX2NyZWF0ZWQiOiIyMDE4LTA0LTE2VDE3OjM0OjUxLjM3NVoiLCJfdXBkYXRlZCI6IjIwMTgtMDQtMTZUMTc6MzQ6NTEuMzc1WiIsIm1heF9yZXRyaWVzIjozLCJzbGljZXJzIjoxLCJhc3NldHMiOm51bGwsInJlY3ljbGVfd29ya2VyIjpudWxsLCJwcm9iYXRpb25fd2luZG93IjozMDAwMDAsImV4X2lkIjoiMTIzNDU2Iiwic2xpY2VyX3BvcnQiOjQ1NjgwLCJzbGljZXJfaG9zdG5hbWUiOiJ0ZXJhc2xpY2UtZXhlY3V0aW9uX2NvbnRyb2xsZXItMTIzNDU2In0="
+                }],
+                "resources": {},
+                "volumeMounts": [{
+                    "name": "config",
+                    "mountPath": "/app/config"
+                }, {
+                    "name": "default-token-g6bfn",
+                    "readOnly": true,
+                    "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+                }],
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "imagePullPolicy": "IfNotPresent"
+            }],
+            "restartPolicy": "Always",
+            "terminationGracePeriodSeconds": 30,
+            "dnsPolicy": "ClusterFirst",
+            "serviceAccountName": "default",
+            "serviceAccount": "default",
+            "nodeName": "minikube",
+            "securityContext": {},
+            "imagePullSecrets": [{
+                "name": "docker-tera1-secret"
+            }],
+            "schedulerName": "default-scheduler"
+        },
+        "status": {
+            "phase": "Running",
+            "conditions": [{
+                "type": "Initialized",
+                "status": "True",
+                "lastProbeTime": null,
+                "lastTransitionTime": "2018-04-16T17:34:52Z"
+            }, {
+                "type": "Ready",
+                "status": "True",
+                "lastProbeTime": null,
+                "lastTransitionTime": "2018-04-16T17:34:54Z"
+            }, {
+                "type": "PodScheduled",
+                "status": "True",
+                "lastProbeTime": null,
+                "lastTransitionTime": "2018-04-16T17:34:52Z"
+            }],
+            "hostIP": "192.168.99.100",
+            "podIP": "172.17.0.5",
+            "startTime": "2018-04-16T17:34:52Z",
+            "containerStatuses": [{
+                "name": "teraslice-execution_controller-123456",
+                "state": {
+                    "running": {
+                        "startedAt": "2018-04-16T17:34:53Z"
+                    }
+                },
+                "lastState": {},
+                "ready": true,
+                "restartCount": 0,
+                "image": "docker.registry.example/teraslice:0.0.0",
+                "imageID": "docker-pullable://docker.registry.example/teraslice@sha256:123",
+                "containerID": "docker://9c2a9167956ea6792a071d4d7acde419392edb9a3d1b23265293cb9249446428"
+            }],
+            "qosClass": "BestEffort"
+        }
+    }, {
+        "metadata": {
+            "name": "teraslice-worker-123456-8b68v7p8t",
+            "generateName": "teraslice-worker-123456-8b685bfc-",
+            "namespace": "default",
+            "selfLink": "/api/v1/namespaces/default/pods/teraslice-worker-123456-8b68v7p8t",
+            "uid": "785abe18-419c-11e8-82f0-080027936d77",
+            "resourceVersion": "1089559",
+            "creationTimestamp": "2018-04-16T17:34:52Z",
+            "labels": {
+                "app": "teraslice",
+                "exId": "123456",
+                "jobId": "654321",
+                "nodeType": "worker",
+                "pod-template-hash": "46241697"
+            },
+            "ownerReferences": [{
+                "apiVersion": "extensions/v1beta1",
+                "kind": "ReplicaSet",
+                "name": "teraslice-worker-123456-8b685bfc",
+                "uid": "78588255-419c-11e8-82f0-080027936d77",
+                "controller": true,
+                "blockOwnerDeletion": true
+            }]
+        },
+        "spec": {
+            "volumes": [{
+                "name": "config",
+                "configMap": {
+                    "name": "teraslice-worker",
+                    "items": [{
+                        "key": "teraslice-worker.yml",
+                        "path": "teraslice.yaml"
+                    }],
+                    "defaultMode": 420
+                }
+            }, {
+                "name": "default-token-g6bfn",
+                "secret": {
+                    "secretName": "default-token-g6bfn",
+                    "defaultMode": 420
+                }
+            }],
+            "containers": [{
+                "name": "teraslice-worker-123456",
+                "image": "docker.registry.example/teraslice:0.0.0",
+                "ports": [{
+                    "containerPort": 45680,
+                    "protocol": "TCP"
+                }],
+                "env": [{
+                    "name": "NODE_TYPE",
+                    "value": "worker"
+                }, {
+                    "name": "EX",
+                    "value": "eyJuYW1lIjoiZ2VuLXRlbmstbm9vcCIsImxpZmVjeWNsZSI6InBlcnNpc3RlbnQiLCJ3b3JrZXJzIjoxLCJvcGVyYXRpb25zIjpbeyJfb3AiOiJlbGFzdGljc2VhcmNoX2RhdGFfZ2VuZXJhdG9yIiwianNvbl9zY2hlbWEiOiIiLCJzaXplIjoxMDAwMCwic3RhcnQiOiIiLCJlbmQiOiIiLCJmb3JtYXQiOiIiLCJzdHJlc3NfdGVzdCI6ZmFsc2UsImRhdGVfa2V5IjoiY3JlYXRlZCIsInNldF9pZCI6IiIsImlkX3N0YXJ0X2tleSI6IiJ9LHsiX29wIjoibm9vcCJ9XSwiYW5hbHl0aWNzIjp0cnVlLCJqb2JfaWQiOiI2NTQzMjEiLCJfY29udGV4dCI6ImV4IiwiX2NyZWF0ZWQiOiIyMDE4LTA0LTE2VDE3OjM0OjUxLjM3NVoiLCJfdXBkYXRlZCI6IjIwMTgtMDQtMTZUMTc6MzQ6NTEuMzc1WiIsIm1heF9yZXRyaWVzIjozLCJzbGljZXJzIjoxLCJhc3NldHMiOm51bGwsInJlY3ljbGVfd29ya2VyIjpudWxsLCJwcm9iYXRpb25fd2luZG93IjozMDAwMDAsImV4X2lkIjoiMTIzNDU2Iiwic2xpY2VyX3BvcnQiOjQ1NjgwLCJzbGljZXJfaG9zdG5hbWUiOiJ0ZXJhc2xpY2UtZXhlY3V0aW9uX2NvbnRyb2xsZXItMTIzNDU2In0="
+                }],
+                "resources": {},
+                "volumeMounts": [{
+                    "name": "config",
+                    "mountPath": "/app/config"
+                }, {
+                    "name": "default-token-g6bfn",
+                    "readOnly": true,
+                    "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+                }],
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "imagePullPolicy": "IfNotPresent"
+            }],
+            "restartPolicy": "Always",
+            "terminationGracePeriodSeconds": 30,
+            "dnsPolicy": "ClusterFirst",
+            "serviceAccountName": "default",
+            "serviceAccount": "default",
+            "nodeName": "minikube",
+            "securityContext": {},
+            "imagePullSecrets": [{
+                "name": "docker-tera1-secret"
+            }],
+            "schedulerName": "default-scheduler"
+        },
+        "status": {
+            "phase": "Running",
+            "conditions": [{
+                "type": "Initialized",
+                "status": "True",
+                "lastProbeTime": null,
+                "lastTransitionTime": "2018-04-16T17:34:52Z"
+            }, {
+                "type": "Ready",
+                "status": "True",
+                "lastProbeTime": null,
+                "lastTransitionTime": "2018-04-16T17:34:54Z"
+            }, {
+                "type": "PodScheduled",
+                "status": "True",
+                "lastProbeTime": null,
+                "lastTransitionTime": "2018-04-16T17:34:52Z"
+            }],
+            "hostIP": "192.168.99.100",
+            "podIP": "172.17.0.6",
+            "startTime": "2018-04-16T17:34:52Z",
+            "containerStatuses": [{
+                "name": "teraslice-worker-123456",
+                "state": {
+                    "running": {
+                        "startedAt": "2018-04-16T17:34:53Z"
+                    }
+                },
+                "lastState": {},
+                "ready": true,
+                "restartCount": 0,
+                "image": "docker.registry.example/teraslice:0.0.0",
+                "imageID": "docker-pullable://docker.registry.example/teraslice@sha256:123",
+                "containerID": "docker://123"
+            }],
+            "qosClass": "BestEffort"
+        }
+    }]
+}

@@ -1,0 +1,59 @@
+{
+  "name": "teraslice-client-js",
+  "version": "0.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Javascript client library for working with Teraslice",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint *.js lib spec",
+    "lint:fix": "eslint --fix *.js lib spec",
+    "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
+    "coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov"
+  },
+  "nyc": {
+    "cache": true,
+    "all": false,
+    "include": [
+      "*.js",
+      "lib"
+    ],
+    "reporter": [
+      "text-summary",
+      "html",
+      "lcov",
+      "json"
+    ]
+  },
+  "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-client-js#readme",
+  "repository": "git@github.com:terascope/teraslice.git",
+  "author": "Terascope, LLC <info@terascope.io>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/terascope/teraslice/issues"
+  },
+  "keywords": [
+    "javascript",
+    "teraslice",
+    "nodejs",
+    "elasticsearch"
+  ],
+  "dependencies": {
+    "auto-bind": "^1.2.1",
+    "bluebird": "^3.4.0",
+    "lodash": "^4.13.1",
+    "request": "^2.87.0",
+    "request-promise": "^4.2.2"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^13.0.0",
+    "eslint-plugin-import": "^2.12.0",
+    "jasmine": "^3.1.0",
+    "jasmine-expect": "^3.8.3",
+    "jasmine-spec-reporter": "^4.2.1",
+    "nock": "^9.3.2",
+    "nyc": "^12.0.2"
+  }
+}

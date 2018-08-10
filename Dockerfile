@@ -1,5 +1,7 @@
 FROM node:8
-MAINTAINER Kimbro Staken
+LABEL MAINTAINER Terascope, LLC <info@terascope.io>
+
+ENV NODE_ENV production
 
 RUN mkdir -p /app/source
 WORKDIR /app/source
@@ -15,7 +17,11 @@ RUN yarn install \
     --no-progress \
     --production=true
 
-COPY . /app/source
+COPY entrypoint.js lerna.json examples /app/source/ 
+COPY packages /app/source/packages
+COPY scripts /app/source/scripts
+
+RUN yarn bootstrap:production
 
 EXPOSE 5678
 
@@ -23,4 +29,4 @@ VOLUME /app/config /app/logs /app/assets
 
 ENV TERAFOUNDATION_CONFIG /app/config/teraslice.yaml
 
-CMD ["node", "--max-old-space-size=2048", "service.js"]
+CMD ["node", "--max-old-space-size=2048", "entrypoint.js"]

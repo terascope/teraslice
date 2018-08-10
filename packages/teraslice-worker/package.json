@@ -1,0 +1,53 @@
+{
+  "name": "teraslice-worker",
+  "version": "0.1.0",
+  "description": "Teraslice worker",
+  "main": "index.js",
+  "scripts": {
+    "start": "node command.js",
+    "lint": "eslint *.js lib test",
+    "lint:fix": "eslint --fix *.js lib test",
+    "test": "jest --color --forceExit --verbose=false",
+    "test:dev": "jest",
+    "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
+    "coverage": ""
+  },
+  "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-worker#readme",
+  "repository": "git@github.com:terascope/teraslice.git",
+  "author": "Terascope, LLC <info@terascope.io>",
+  "license": "Apache-2.0",
+  "private": false,
+  "devDependencies": {
+    "archiver": "^2.1.1",
+    "bufferstreams": "^2.0.1",
+    "chance": "^1.0.16",
+    "elasticsearch": "^15.1.1",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^13.0.0",
+    "eslint-plugin-import": "^2.12.0",
+    "jest": "^23.4.2",
+    "jest-extended": "^0.7.2",
+    "jest-fixtures": "^0.6.0",
+    "tmp": "^0.0.33"
+  },
+  "dependencies": {
+    "@terascope/error-parser": "^1.0.0",
+    "@terascope/queue": "^1.1.3",
+    "bluebird": "^3.5.1",
+    "bluebird-retry": "^0.11.0",
+    "debug": "^3.1.0",
+    "fs-extra": "^7.0.0",
+    "lodash": "^4.17.10",
+    "moment": "^2.22.2",
+    "nanoid": "^1.1.0",
+    "nested-error-stacks": "^2.0.1",
+    "node-cache": "^4.2.0",
+    "porty": "^3.1.1",
+    "socket.io": "^2.1.1",
+    "socket.io-client": "^2.1.1",
+    "terafoundation": "^0.2.1",
+    "teraslice": "^0.38.0",
+    "uuid": "^3.3.2",
+    "yargs": "^12.0.1"
+  }
+}
