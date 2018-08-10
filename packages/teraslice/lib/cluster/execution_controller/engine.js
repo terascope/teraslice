@@ -185,11 +185,11 @@ module.exports = function module(context, messaging, exStore, stateStore) {
             .then(_executionInit)
             .then(_engineSetup)
             .then(_executionRecovery)
-            .catch(_terminalError)
+            .catch(executionFailed)
             .then(_slicerInit)
             .catch(_slicerInitRetry)
             .then(_registerSlicers)
-            .catch(_terminalError);
+            .catch(executionFailed);
     }
 
     function _executionInit() {
@@ -261,7 +261,7 @@ module.exports = function module(context, messaging, exStore, stateStore) {
         }));
     }
 
-    function _terminalError(err) {
+    function executionFailed(err) {
         const errMsg = parseError(err);
         const executionStats = executionAnalytics.getAnalytics();
         const errorMeta = exStore.executionMetaData(executionStats, errMsg);
@@ -349,7 +349,7 @@ module.exports = function module(context, messaging, exStore, stateStore) {
         if (!executionAnalytics) executionAnalytics = require('./execution_analytics')(context, messaging);
         if (!slicerAnalytics) slicerAnalytics = require('./slice_analytics')(context, executionContext);
         _setQueueLength(executionContext);
-        if (!recovery) recovery = require('./recovery')(context, _terminalError, stateStore, executionContext);
+        if (!recovery) recovery = require('./recovery')(context, executionFailed, stateStore, executionContext);
 
         messaging.listen({ port: executionContext.config.slicer_port });
 
@@ -703,7 +703,7 @@ module.exports = function module(context, messaging, exStore, stateStore) {
             _executionInit,
             _engineSetup,
             _executionRecovery,
-            _terminalError,
+            executionFailed,
             _slicerInitRetry,
             _startWorkerConnectionWatchDog,
             _startWorkerDisconnectWatchDog,

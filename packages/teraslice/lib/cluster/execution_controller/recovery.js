@@ -122,9 +122,7 @@ function recovery(context, executionFailed, stateStore, executionContext) {
                             }
                         } else {
                             _waitForRecoveryBatchCompletion()
-                                .then(() => {
-                                    retrieveSlices(slicerID);
-                                });
+                                .then(() => retrieveSlices(slicerID));
                         }
                     })
                     .catch(err => reject(parseError(err)));

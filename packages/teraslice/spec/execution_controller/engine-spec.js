@@ -541,10 +541,10 @@ describe('execution engine', () => {
     });
 
     it('terminal error marks job as failed', (done) => {
-        const terminalError = makeEngine().testContext._terminalError;
+        const { executionFailed } = makeEngine().testContext;
         const myError = new Error('an error');
 
-        Promise.all([terminalError(myError), waitFor(20)])
+        Promise.all([executionFailed(myError), waitFor(20)])
             .then(() => {
                 expect(exStatus).toEqual('failed');
                 expect(sentMsg).toEqual({

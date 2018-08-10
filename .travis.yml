@@ -39,10 +39,9 @@ jobs:
     script: yarn test:e2e
   - stage: Release
     name: Release
-    if: branch = master
+    if: branch = master AND type != pull_request
     before_install: skip
-    before_deploy:
-      - echo "//registry.npmjs.org/:_authToken=\${NPM_DEPLOY_TOKEN}" > .npmrc
+    before_deploy: echo "//registry.npmjs.org/:_authToken=\${NPM_DEPLOY_TOKEN}" > .npmrc
     deploy:
       # if not tag release a draft version
       - provider: script
