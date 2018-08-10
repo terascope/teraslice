@@ -19,6 +19,7 @@ RUN yarn install \
 
 COPY entrypoint.js lerna.json examples /app/source/ 
 COPY packages /app/source/packages
+COPY scripts /app/source/scripts
 
 RUN yarn bootstrap:production
 

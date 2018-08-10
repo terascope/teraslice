@@ -78,9 +78,23 @@ function forWorkersJoined(jobId, workerCount, iterations) {
         });
 }
 
+function waitForClusterMaster(timeoutMs = 30000) {
+    const endTime = Date.now() + timeoutMs;
+    const { cluster } = misc.teraslice();
+    function _try() {
+        if (endTime < Date.now()) {
+            return Promise.reject(new Error('Failure to communicate with the Cluster Master'));
+        }
+        return cluster.state().catch(() => _try());
+    }
+
+    return _try();
+}
+
 module.exports = {
     forValue,
     forLength,
     forNodes,
-    forWorkersJoined
+    forWorkersJoined,
+    waitForClusterMaster
 };

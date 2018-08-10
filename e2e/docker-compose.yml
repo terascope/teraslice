@@ -1,0 +1,77 @@
+version: '2.2'
+services:
+  teraslice-master:
+    extends:
+      service: teraslice-worker
+    scale: 1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:45678/cluster/state"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    ports:
+      - "45678:45678"
+    environment:
+      - TERAFOUNDATION_CONFIG=/app/config/processor-master.yaml
+  teraslice-worker:
+    build:
+      context: ..
+    command: [
+      "./scripts/wait-for-it.sh",
+      "elasticsearch:49200",
+      "--timeout=30",
+      "--strict",
+      "--",
+      "node",
+      "--max-old-space-size=256",
+      "entrypoint.js"
+    ]
+    scale: 3
+    restart: 'no'
+    stop_grace_period: 30s
+    environment:
+      - TERAFOUNDATION_CONFIG=/app/config/processor-worker.yaml
+    networks:
+      - cluster
+    volumes:
+      - teraslice-assets:/app/assets
+      - ./config:/app/config:cached
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.5.3
+    restart: 'no'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:49200"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    ports:
+      - "49200:49200"
+      - "49300:49300"
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "network.host=0.0.0.0"
+      - "http.port=49200"
+      - "transport.tcp.port=49300"
+      - "discovery.type=single-node"
+      - "bootstrap.memory_lock=true"
+      - "cluster.routing.allocation.disk.threshold_enabled=false"
+      - "xpack.security.enabled=false"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - cluster
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+volumes:
+  teraslice-assets:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  elasticsearch-data:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+networks:
+  cluster:

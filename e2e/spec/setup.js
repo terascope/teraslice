@@ -4,12 +4,10 @@ process.env.BLUEBIRD_LONG_STACK_TRACES = '1';
 
 const _ = require('lodash');
 const signale = require('signale');
-const path = require('path');
 const Promise = require('bluebird');
 const uuid = require('uuid');
 const { SpecReporter } = require('jasmine-spec-reporter');
-const execFile = Promise.promisify(require('child_process').execFile);
-const { forNodes } = require('./wait');
+const { forNodes, waitForClusterMaster } = require('./wait');
 const misc = require('./misc');
 
 const jobList = [];
@@ -27,25 +25,18 @@ jasmine.getEnv().addReporter(new SpecReporter({
     }
 }));
 
-function generatingDockerFile() {
-    signale.pending('Generating docker-compose file...');
-    const fileName = path.join(__dirname, '..', 'docker-compose.sh');
-    return execFile(fileName, { cwd: path.join(__dirname, '..') }).then(() => {
-        signale.success('Generated docker-compose file');
-    });
-}
-
 function dockerUp() {
     signale.pending('Bringing Docker environment up...');
 
-    const options = {
-        build: '',
-        timeout: 1,
-    };
-    return misc.compose.up(options).then((result) => {
-        signale.success('Docker environment is good to go');
-        return result;
-    });
+    return misc.compose
+        .up({
+            build: '',
+            timeout: 5,
+        })
+        .then(() => waitForClusterMaster())
+        .then(() => {
+            signale.success('Docker environment is good to go');
+        });
 }
 
 // ensure docker-compose stack is down before starting it
@@ -53,7 +44,8 @@ function dockerDown() {
     signale.pending('Ensuring docker environment is in a clean slate...');
 
     return misc.compose.down({
-        timeout: 1
+        'remove-orphans': '',
+        timeout: 5,
     }).then(() => {
         signale.success('Docker environment is clean');
     }).catch(() => {
@@ -208,8 +200,7 @@ function generateTestData() {
 
 beforeAll((done) => {
     signale.time('global setup');
-    generatingDockerFile()
-        .then(() => dockerDown())
+    dockerDown()
         .then(() => dockerUp())
         .then(() => waitForTerasliceNodes())
         .then(() => generateTestData())
