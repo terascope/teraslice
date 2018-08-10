@@ -30,13 +30,9 @@ script:
   - echo 'Testing docker-compose version $(docker-compose --version)...'
 jobs:
   include:
-  - stage: Tests
-    if: tag IS blan
-    - script: yarn test; yarn coverage && bash <(curl -s https://codecov.io/bash)
-    - script: yarn lint
-  - stage: Test End-to-End
-    if: tag IS blank AND type = pull_request
-    script: yarn test:e2e 
+  - script: yarn test && yarn coverage && bash <(curl -s https://codecov.io/bash)
+  - script: '[ "${TRAVIS_PULL_REQUEST}" = "true" ] && yarn lint'
+  - script: '[ "${TRAVIS_PULL_REQUEST}" = "true" ] && yarn test:e2e'
   - stage: Release (Draft)
     if: tag IS blank AND branch = master
     script: yarn publish:draft
