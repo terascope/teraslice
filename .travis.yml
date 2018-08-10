@@ -20,9 +20,6 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
   - npm config set //registry.npmjs.org/:_authToken $NPM_DEPLOY_TOKEN
-install:
-  - yarn install
-  - yarn bootstrap
 script:
   - echo 'Testing node version $(node --version)...'
   - echo 'Testing elasticsearch version $(elasticsearch --version)...'
@@ -30,11 +27,14 @@ script:
   - echo 'Testing docker-compose version $(docker-compose --version)...'
 jobs:
   include:
+  - stage: Install
+    script: yarn install && yarn bootstrap
+  - stage: Tests
   - script: yarn test && yarn coverage && bash <(curl -s https://codecov.io/bash)
   - script: '[ "${TRAVIS_PULL_REQUEST}" = "true" ] && yarn lint'
   - script: '[ "${TRAVIS_PULL_REQUEST}" = "true" ] && yarn test:e2e'
   - stage: Release (Draft)
-    if: tag IS blank AND branch = master
+    if: tag IS blank AND branch = master AND type != pull_request
     script: yarn publish:draft
     deploy:
       provider: releases
