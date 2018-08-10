@@ -5,7 +5,6 @@ node_js:
 services:
   - docker
   - elasticsearch
-cache: yarn
 env:
   global:
   # NPM_DEPLOY_TOKEN
@@ -22,10 +21,15 @@ script:
   - echo 'Testing docker-compose version $(docker-compose --version)...'
 jobs:
   include:
-  - stage: Tests, Coverage and Linting
+  - stage: Test
+    name: 'Test All Packages'
   - script: yarn test && yarn coverage && bash <(curl -s https://codecov.io/bash)
-  - script: '[ "${TRAVIS_PULL_REQUEST}" = "true" ] && yarn lint'
-  - script: '[ "${TRAVIS_PULL_REQUEST}" = "true" ] && yarn test:e2e'
+  - script: yarn lint
+    if: type = 'pull_request'
+    name: 'Lint'
+  - script: yarn test:e2e
+    if: type = 'pull_request'
+    name: 'Test End-to-End'
   - stage: Release (Draft)
     if: tag IS blank AND branch = master AND type != pull_request
     script: yarn publish:draft
