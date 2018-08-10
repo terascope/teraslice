@@ -15,15 +15,16 @@ install:
 before_script:
   - npm config set //registry.npmjs.org/:_authToken $NPM_DEPLOY_TOKEN
 script:
-  - echo 'Testing node version $(node --version)...'
-  - echo 'Testing elasticsearch version $(elasticsearch --version)...'
-  - echo 'Testing docker version $(docker --version)...'
-  - echo 'Testing docker-compose version $(docker-compose --version)...'
+  - echo "Testing node version $(node --version)..."
+  - echo "Testing elasticsearch version $(elasticsearch --version)..."
+  - echo "Testing docker version $(docker --version)..."
+  - echo "Testing docker-compose version $(docker-compose --version)..."
 jobs:
   include:
   - stage: Test
-    name: 'Test All Packages'
+    name: 'Test Setup'
   - script: yarn test && yarn coverage && bash <(curl -s https://codecov.io/bash)
+    name: 'Test All Packages'
   - script: yarn lint
     if: type = 'pull_request'
     name: 'Lint'
