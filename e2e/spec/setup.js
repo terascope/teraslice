@@ -219,7 +219,7 @@ beforeAll((done) => {
         })
         .catch((err) => {
             signale.error('Setup failed, `docker-compose logs` may provide clues');
-            signale.error(err.stack);
+            signale.error(err);
 
             return misc.compose.kill().finally(() => {
                 process.exit(1);
