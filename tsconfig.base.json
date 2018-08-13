@@ -8,8 +8,7 @@
         ],
         "experimentalDecorators": true,
         "declaration": true,
-        "composite": true,
-        "sourceMap": true,
+        "inlineSourceMap": true,
         "strict": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
@@ -19,5 +18,9 @@
             "node_modules/@types",
             "**/node_modules/@types"
         ]
-    }
+    },
+    "exclude": [
+        "node_modules",
+        "**/test/**/*.ts"
+    ]
 }

@@ -129,11 +129,11 @@ module.exports = (processor) => {
         }
         // run the jobConfig and opConfig through the validator to get
         // complete and convict validated configs
-        const jobConfig = validators.validateConfig(jobSchema, jobSpec(opConfig));
+        const jobConfig = validators.validateJobConfig(jobSchema, jobSpec(opConfig));
 
         return processor.newProcessor(
             _.assign({}, context, extraContext),
-            validators.validateConfig(processor.schema(), opConfig),
+            validators.validateOpConfig(processor.schema(), opConfig),
             jobConfig
         );
     }

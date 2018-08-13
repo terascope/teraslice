@@ -8,10 +8,10 @@ it('should have validators.validateOpConfig available', () => {
     expect(validators.validateOpConfig).toBeTruthy();
 });
 
-it('should have schemas.job.jobSchema available', () => {
-    expect(schemas.job.jobSchema).toBeTruthy();
+it('should have schemas.jobSchema available', () => {
+    expect(schemas.jobSchema).toBeTruthy();
 });
 
-it('should have schemas.job.commonSchema available', () => {
-    expect(schemas.job.commonSchema).toBeTruthy();
+it('should have schemas.commonSchema available', () => {
+    expect(schemas.commonSchema).toBeTruthy();
 });
