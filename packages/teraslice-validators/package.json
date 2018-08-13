@@ -1,0 +1,57 @@
+{
+  "name": "@terascope/teraslice-validators",
+  "version": "0.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Teraslice Validators",
+  "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-validators#readme",
+  "bugs": {
+    "url": "https://github.com/terascope/teraslice/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/terascope/teraslice.git"
+  },
+  "license": "MIT",
+  "directories": {
+    "lib": "dist",
+    "test": "test"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "lint": "tslint --force --format verbose \"src/**/*.ts\"",
+    "prepublishOnly": "npm run build",
+    "prebuild": "rimraf dist && npm run lint",
+    "build": "tsc --pretty",
+    "test": "jest",
+    "watch": "npm run build -- --watch",
+    "watch:test": "jest --watch"
+  },
+  "dependencies": {
+    "@terascope/teraslice-types": "^0.1.0",
+    "@types/convict": "^4.2.0",
+    "bluebird": "^3.5.1",
+    "convict": "^4.3.2"
+  },
+  "devDependencies": {
+    "@types/bluebird": "^3.5.23",
+    "@types/jest": "^22.0.1",
+    "@types/lodash": "^4.14.116",
+    "@types/node": "^8.0.0",
+    "jest": "^22.0.4",
+    "rimraf": "^2.0.0",
+    "ts-jest": "^22.0.1",
+    "ts-node": "^3.2.0",
+    "tslint": "^5.0.0",
+    "tslint-config-airbnb": "^5.9.2",
+    "typescript": "^2.3.0"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  }
+}

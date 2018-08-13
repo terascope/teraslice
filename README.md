@@ -66,13 +66,29 @@ Teraslice is currently in alpha status. Single node deployment and clustering su
 Teraslice is written in Node.js and has been tested on Linux and Mac OS X.
 
 ### Dependencies ###
-* Node.js 4 or above
+* Node.js 8 or above
+* Yarn
 * At least one Elasticsearch 5 or above cluster
 
-### Installing with npm ###
+### Installation ###
 
+```sh
+git clone https://github.com/terascope/teraslice.git
+cd teraslice
+# Make sure you bootstrap all of the projects together
+yarn bootstrap
 ```
-npm install terascope/teraslice
+## Customizing the Docker Image
+
+```Dockerfile
+FROM terascope/teraslice:latest # or any tag
+
+# Add terafoundation connectors here
+RUN yarn add terascope/terafoundation_kafka_connector
+```
+
+```sh
+docker build -t custom-teraslice .
 ```
 
 # Configuration Single Node / Cluster Master
@@ -137,13 +153,13 @@ Once you have Teraslice installed you need a job specification and a configurati
 Starting the Teraslice service on the master node is simple. Just provide it a path to the configuration file.
 
 ```
-node service.js -c master-config.yaml
+yarn start -c master-config.yaml
 ```
 
 Starting a worker on a remote node is basically the same.
 
 ```
-node service.js -c worker-config.yaml
+yarn start -c worker-config.yaml
 ```
 
 The master publishes a REST style API on port 5678.

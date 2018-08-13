@@ -17,10 +17,11 @@ RUN yarn install \
     --no-progress \
     --production=true
 
-COPY entrypoint.js lerna.json examples /app/source/
+COPY service.js lerna.json examples /app/source/
 COPY packages /app/source/packages
 COPY scripts /app/source/scripts
 
+RUN yarn build
 RUN yarn bootstrap:production
 
 EXPOSE 5678
@@ -29,4 +30,4 @@ VOLUME /app/config /app/logs /app/assets
 
 ENV TERAFOUNDATION_CONFIG /app/config/teraslice.yaml
 
-CMD ["node", "--max-old-space-size=2048", "entrypoint.js"]
+CMD ["node", "--max-old-space-size=2048", "service.js"]

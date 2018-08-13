@@ -4,7 +4,7 @@
   "description": "Teraslice worker",
   "main": "index.js",
   "scripts": {
-    "start": "node command.js",
+    "start": "node service.js",
     "lint": "eslint *.js lib test",
     "lint:fix": "eslint --fix *.js lib test",
     "test": "jest --color --forceExit --verbose=false",

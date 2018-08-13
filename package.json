@@ -2,7 +2,9 @@
     "name": "teraslice",
     "private": true,
     "scripts": {
-        "bootstrap": "lerna bootstrap",
+        "start": "node service.js",
+        "build": "./scripts/build.sh",
+        "bootstrap": "lerna bootstrap && ./scripts/build.sh",
         "bootstrap:production": "lerna bootstrap -- --silent --no-progress --production=true",
         "test": "env FORCE_COLOR=1 lerna run test --stream",
         "test:e2e": "yarn --cwd ./e2e test",

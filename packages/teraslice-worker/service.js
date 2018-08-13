@@ -15,7 +15,7 @@ const { readSysConfig } = require('./lib/terafoundation');
 const { generateContext } = require('./lib/utils/context');
 const processHandler = require('./process-handler');
 
-class Command {
+class Service {
     constructor() {
         const {
             configfile,
@@ -186,11 +186,11 @@ class Command {
     }
 }
 
-async function runCommand() {
-    const cmd = new Command();
+async function runService() {
+    const cmd = new Service();
     await cmd.registerExitHandler();
     await cmd.initialize();
     await cmd.run();
 }
 
-runCommand();
+runService();

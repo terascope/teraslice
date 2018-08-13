@@ -10,7 +10,7 @@ const nodeType = process.env.NODE_TYPE;
 if (useTerasliceWorker && (nodeType === 'execution_controller' || nodeType === 'worker')) {
     const workerPath = path.join(__dirname, 'packages/teraslice-worker');
     process.chdir(workerPath);
-    require(path.join(workerPath, 'command.js')); /* eslint-disable-line */
+    require(path.join(workerPath, 'service.js')); /* eslint-disable-line */
 } else {
     const teraslicePath = path.join(__dirname, 'packages/teraslice');
     process.chdir(teraslicePath);

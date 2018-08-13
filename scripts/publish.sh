@@ -15,17 +15,29 @@ script_directory(){
   echo "$dir"
 }
 
+check_deps() {
+    if [ -z "$(command -v jq)" ]; then
+        echo "./publish.sh requires jq installed"
+        exit 1
+    fi
+}
+
 publish() {
     local dir="$1"
     local dryRun="$2"
     local suffix="$3"
-    local name targetVersion currentVersion
+    local name targetVersion currentVersion isPrivate
 
-    pushd "$dir" > /dev/null
-        name="$(cat package.json | jq -r '.name')"
-        targetVersion="$(cat package.json | jq -r '.version')${suffix}"
+    pushd "$dir" > /dev/null || return
+        name="$(jq -r '.name' package.json)"
+        isPrivate="$(jq -r '.private' package.json)"
+        if [ "$isPrivate" == 'true' ]; then
+            echo "* $name is a private module skipping..."
+            return;
+        fi
+        targetVersion="$(jq -r '.version' package.json)${suffix}"
         currentVersion="$(npm info --json 2> /dev/null | jq -r '.version // "0.0.0"')"
-        
+
         if [ -z "$currentVersion" ]; then
             currentVersion="0.0.0"
         fi
@@ -36,20 +48,13 @@ publish() {
                 npm publish
             fi
         fi
-    popd "$dir" > /dev/null
-}
-
-write_npmrc() {
-    if [ -z "$NPM_TOKEN" ]; then
-        echo 'Missing NPM_TOKEN in environment';
-        exit 1;
-    fi
-
-    echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+    popd "$dir" > /dev/null || return;
 }
 
 main() {
-    local commitHash suffix releaseType='release' dryRun='false'
+    check_deps
+
+    local projectDir commitHash suffix releaseType='release' dryRun='false'
 
     if [ "$1" == '--dry-run' ]; then
         dryRun='true'
@@ -73,8 +78,8 @@ main() {
         exit 1
     fi
 
-    local projectDir="$(script_directory)/../"
-    for package in ${projectDir}/packages/*; do
+    projectDir="$(script_directory)/../"
+    for package in "${projectDir}/packages/"*; do
         publish "$package" "$dryRun" "$suffix";
     done
 }

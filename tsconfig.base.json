@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "target": "es2016",
+        "lib": [
+            "esnext"
+        ],
+        "declaration": true,
+        "inlineSourceMap": true,
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "preserveConstEnums": true
+    },
+    "exclude": [
+        "dist",
+        "node_modules",
+        "**/*spec.ts"
+    ]
+}

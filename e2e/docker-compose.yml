@@ -24,7 +24,7 @@ services:
       "--",
       "node",
       "--max-old-space-size=256",
-      "entrypoint.js"
+      "service.js"
     ]
     scale: 3
     restart: 'no'
