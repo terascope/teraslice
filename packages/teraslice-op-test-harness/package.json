@@ -10,7 +10,7 @@
     "docs": "jsdoc -P package.json index.js",
     "lint": "eslint *.js spec",
     "lint:fix": "eslint --fix *.js spec",
-    "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
+    "test": "nyc -x spec/ --reporter=text-summary jasmine; nyc report --reporter=html",
     "coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov"
   },
   "nyc": {
