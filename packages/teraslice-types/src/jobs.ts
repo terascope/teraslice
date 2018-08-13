@@ -1,13 +1,5 @@
-export interface OperationConfig {
+export interface OpConfig {
     _op: string;
-}
-
-export interface Operations {
-    [index: number]: OperationConfig;
-}
-
-export interface Assets {
-    [index: number]: String;
 }
 
 export enum LifeCycle {
@@ -22,6 +14,6 @@ export interface JobConfig {
     maxRetries: number;
     analytics: boolean;
     lifecycle: LifeCycle;
-    assets: Assets;
-    operations: Operations;
+    assets: string[];
+    operations: OpConfig[];
 }

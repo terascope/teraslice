@@ -4,6 +4,7 @@
     "scripts": {
         "start": "node service.js",
         "bootstrap": "lerna bootstrap && ./scripts/build.sh",
+        "bootstrap:dev": "lerna bootstrap && ./scripts/build.sh && lerna link",
         "bootstrap:production": "lerna bootstrap -- --silent --no-progress --production=true",
         "build": "./scripts/build.sh",
         "test": "env FORCE_COLOR=1 lerna run test --stream",

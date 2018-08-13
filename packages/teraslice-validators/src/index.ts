@@ -1,9 +1,12 @@
-import { commonSchema, jobSchema } from './schemas/job';
+import { commonSchema, jobSchema } from './job-schemas';
+import { validateJobConfig, validateOpConfig } from './job-validators';
 
-export * from './config';
-export const schemas = {
-    job: {
-        commonSchema,
-        jobSchema,
-    },
+export const validators: any = {
+    validateJobConfig,
+    validateOpConfig,
+};
+
+export const schemas: any = {
+    commonSchema,
+    jobSchema,
 };

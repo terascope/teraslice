@@ -12,6 +12,7 @@
             "bail": false
         }
     },
+    "sort": true,
     "loglevel": "warn",
     "npmClient": "yarn",
     "useWorkspaces": true,

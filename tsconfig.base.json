@@ -6,17 +6,18 @@
         "lib": [
             "esnext"
         ],
+        "experimentalDecorators": true,
         "declaration": true,
-        "inlineSourceMap": true,
+        "composite": true,
+        "sourceMap": true,
         "strict": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "noImplicitReturns": true,
-        "preserveConstEnums": true
-    },
-    "exclude": [
-        "dist",
-        "node_modules",
-        "**/*spec.ts"
-    ]
+        "preserveConstEnums": true,
+        "typeRoots": [
+            "node_modules/@types",
+            "**/node_modules/@types"
+        ]
+    }
 }

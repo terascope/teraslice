@@ -5,6 +5,8 @@ const Promise = require('bluebird');
 const { EventEmitter } = require('events');
 const debug = require('debug')('teraslice-op-test-harness');
 
+const { validators, schemas } = require('@terascope/teraslice-validators');
+
 // load data
 const sampleDataArrayLike = require('./data/sampleDataArrayLike.json');
 const sampleDataEsLike = require('./data/sampleDataEsLike.json');
@@ -76,7 +78,7 @@ module.exports = (processor) => {
         }
     };
 
-    const jobSchema = require('teraslice/lib/config/schemas/job').jobSchema(context);
+    const jobSchema = schemas.jobSchema(context);
 
     /**
      * jobSpec returns a simple jobConfig object consisting of two operations,
@@ -95,8 +97,6 @@ module.exports = (processor) => {
             ],
         };
     }
-
-    const validator = require('teraslice/lib/config/validators/config');
 
     function run(data, extraOpConfig, extraContext) {
         return processFn(getProcessor(extraOpConfig, extraContext), data);
@@ -129,11 +129,11 @@ module.exports = (processor) => {
         }
         // run the jobConfig and opConfig through the validator to get
         // complete and convict validated configs
-        const jobConfig = validator.validateConfig(jobSchema, jobSpec(opConfig));
+        const jobConfig = validators.validateConfig(jobSchema, jobSpec(opConfig));
 
         return processor.newProcessor(
             _.assign({}, context, extraContext),
-            validator.validateConfig(processor.schema(), opConfig),
+            validators.validateConfig(processor.schema(), opConfig),
             jobConfig
         );
     }

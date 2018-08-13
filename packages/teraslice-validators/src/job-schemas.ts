@@ -1,14 +1,14 @@
 'use strict';
 
-import * as Convict from 'convict';
-import { Context } from '@terascope/teraslice-types';
+import * as convict from 'convict';
 import * as os from 'os';
 import * as _ from 'lodash';
+import { Context } from '@terascope/teraslice-types';
 
 const cpuCount = os.cpus().length;
 const workers = cpuCount < 5 ? cpuCount : 5;
 
-export function jobSchema(context: Context): Convict.Schema<any> {
+export function jobSchema(context: Context): convict.Schema<any> {
     return {
         name: {
             doc: 'Name for specific job',
@@ -20,22 +20,22 @@ export function jobSchema(context: Context): Convict.Schema<any> {
                     throw new Error(' name for job must be a string');
                 }
             },
-        },
+        } as convict.SchemaObj,
         lifecycle: {
             doc: 'Job lifecycle behavior, determines if it should exit '
-            + 'on completion or remain active',
+                + 'on completion or remain active',
             default: 'once',
             format: ['once', 'persistent'],
         },
         analytics: {
             doc: 'logs the time it took in milliseconds for each action, '
-            + 'as well as the number of docs it receives',
+                + 'as well as the number of docs it receives',
             default: true,
             format: Boolean,
         },
         max_retries: {
             doc: 'the number of times a worker will attempt to process '
-            + 'the same slice after a error has occurred',
+                + 'the same slice after a error has occurred',
             default: 3,
             format(val: any) {
                 if (isNaN(val)) {
@@ -69,7 +69,7 @@ export function jobSchema(context: Context): Convict.Schema<any> {
         },
         operations: {
             doc: 'An array of actions to execute, typically the first is a reader ' +
-            'and the last is a sender with '
+                'and the last is a sender with '
                 + 'any number of processing function in-between',
             default: [],
             format: function checkJobProcess(arr: any) {
@@ -122,8 +122,8 @@ export function jobSchema(context: Context): Convict.Schema<any> {
         },
         probation_window: {
             doc: 'time in ms that the execution controller checks for failed slices, '
-            + 'if there are none then it updates the state of the execution to running '
-            + '(this is only when lifecycle is set to persistent)',
+                + 'if there are none then it updates the state of the execution to running '
+                + '(this is only when lifecycle is set to persistent)',
             default: 300000,
             format(val: any) {
                 if (isNaN(val)) {
@@ -136,12 +136,10 @@ export function jobSchema(context: Context): Convict.Schema<any> {
     };
 }
 
-export function commonSchema() : object {
-    return {
-        _op: {
-            doc: 'Name of operation, it must reflect the name of the file',
-            default: '',
-            format: 'required_String',
-        },
-    };
-}
+export const commonSchema: convict.Schema<any> = {
+    _op: {
+        doc: 'Name of operation, it must reflect the name of the file',
+        default: '',
+        format: 'required_String',
+    },
+};

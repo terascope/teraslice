@@ -1,15 +1,11 @@
 {
     "extends": "./tsconfig.base.json",
     "compilerOptions": {
-        "baseUrl": "./packages",
+        "baseUrl": "./",
         "paths": {
             "@terascope/*": [
-                "./*/src"
-            ]
+                "packages/*/src"
+           ]
         }
-    },
-    "include": [
-        "packages/*/typings/**/*",
-        "packages/*/src/**/*"
-    ]
+    }
 }
