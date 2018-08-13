@@ -23,32 +23,29 @@ check_deps() {
 }
 
 publish() {
-    local dir="$1"
-    local dryRun="$2"
-    local suffix="$3"
+    local dryRun="$1"
+    local suffix="$2"
     local name targetVersion currentVersion isPrivate
 
-    pushd "$dir" > /dev/null || return
-        name="$(jq -r '.name' package.json)"
-        isPrivate="$(jq -r '.private' package.json)"
-        if [ "$isPrivate" == 'true' ]; then
-            echo "* $name is a private module skipping..."
-            return;
-        fi
-        targetVersion="$(jq -r '.version' package.json)${suffix}"
-        currentVersion="$(npm info --json 2> /dev/null | jq -r '.version // "0.0.0"')"
+    name="$(jq -r '.name' package.json)"
+    isPrivate="$(jq -r '.private' package.json)"
+    if [ "$isPrivate" == 'true' ]; then
+        echo "* $name is a private module skipping..."
+        return;
+    fi
+    targetVersion="$(jq -r '.version' package.json)${suffix}"
+    currentVersion="$(npm info --json 2> /dev/null | jq -r '.version // "0.0.0"')"
 
-        if [ -z "$currentVersion" ]; then
-            currentVersion="0.0.0"
-        fi
+    if [ -z "$currentVersion" ]; then
+        currentVersion="0.0.0"
+    fi
 
-        if [ "$currentVersion" != "$targetVersion" ]; then
-            echo "$name@$currentVersion -> $targetVersion"
-            if [ "$dryRun" == "false" ]; then
-                npm publish
-            fi
+    if [ "$currentVersion" != "$targetVersion" ]; then
+        echo "$name@$currentVersion -> $targetVersion"
+        if [ "$dryRun" == "false" ]; then
+            npm publish
         fi
-    popd "$dir" > /dev/null || return;
+    fi
 }
 
 main() {
@@ -78,10 +75,15 @@ main() {
         exit 1
     fi
 
-    projectDir="$(script_directory)/../"
+    projectDir="$(script_directory)../"
+    cd "${projectDir}" || return;
+
     for package in "${projectDir}/packages/"*; do
-        publish "$package" "$dryRun" "$suffix";
-    done
+        cd "$package" || continue;
+        publish "$dryRun" "$suffix";
+    done;
+
+    cd "${projectDir}" || return;
 }
 
 main "$@"

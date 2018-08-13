@@ -18,25 +18,27 @@ script_directory(){
 }
 
 build() {
-    local dir="$1"
     local buildScript name
 
-    pushd "$dir" > /dev/null
-        name="$(node -pe "require('./package.json').name")"
-        buildScript="$(node -pe "require('./package.json').scripts.build || null")"
-        if [ "$buildScript" != "null" ]; then
-            echo "* building ${name}"
-            env FORCE_COLOR=1 yarn build
-        fi
-    popd "$dir" > /dev/null
+    name="$(node -pe "require('./package.json').name")"
+    buildScript="$(node -pe "require('./package.json').scripts.build || null")"
+    if [ "$buildScript" != "null" ]; then
+        echo "* building ${name}"
+        env FORCE_COLOR=1 yarn build
+    fi
 }
 
 main() {
     local projectDir
     projectDir="$(script_directory)/../"
+    cd "${projectDir}" || return;
+
     for package in "${projectDir}/packages/"*; do
-        build "$package";
-    done
+        cd "$package" || continue;
+        build;
+    done;
+
+    cd "${projectDir}" || return;
 }
 
 main "$@"

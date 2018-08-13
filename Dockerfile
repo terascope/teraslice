@@ -21,7 +21,6 @@ COPY service.js lerna.json examples /app/source/
 COPY packages /app/source/packages
 COPY scripts /app/source/scripts
 
-RUN yarn build
 RUN yarn bootstrap:production
 
 EXPOSE 5678
