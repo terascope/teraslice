@@ -1,12 +1,12 @@
 'use strict';
 
-const convictUtils = require('../../lib/utils/convict_utils');
+import formats from '../src/formats';
 
-describe('convict-utils', () => {
+describe('Convict Formats', () => {
     function getSchema(name) {
         let results;
 
-        convictUtils.forEach((obj) => {
+        formats.forEach((obj) => {
             if (obj.name === name) {
                 results = obj;
             }
@@ -16,8 +16,8 @@ describe('convict-utils', () => {
     }
 
     it('returns an array with objects used for validations', () => {
-        expect(Array.isArray(convictUtils)).toBe(true);
-        expect(convictUtils.length >= 2).toBe(true);
+        expect(Array.isArray(formats)).toBe(true);
+        expect(formats.length >= 2).toBe(true);
     });
 
     it('required_String will throw if not given a string', () => {
@@ -37,7 +37,7 @@ describe('convict-utils', () => {
         }).toThrowError('This field is required and must by of type string');
     });
 
-    it('optional_String will throw if not given a string, but will not throw if its undefined', () => {
+    it('optional_String if not given a string it will not throw if its undefined', () => {
         const optional = getSchema('optional_String');
 
         expect(optional.name).toBeDefined();

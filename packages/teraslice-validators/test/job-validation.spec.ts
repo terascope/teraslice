@@ -1,26 +1,28 @@
 'use strict';
 
-const configValidator = require('../../../lib/config/validators/config');
+import { validateJobConfig } from '../src/job-validators';
+import { jobSchema } from '../src/job-schemas';
+import { JobConfig, Context } from '@terascope/teraslice-types';
 
 describe('When passed a valid jobSchema and jobConfig', () => {
     it('returns a completed and valid jobConfig', () => {
-        const context = {
+        const context: Context = {
             sysconfig: {
                 teraslice: {
-                    ops_directory: ''
-                }
-            }
-        };
-
-        const jobSchema = require('../../../lib/config/schemas/job').jobSchema(context);
-        const jobSpec = {
-            operations: [{
-                _op: 'noop'
+                    ops_directory: '',
+                },
             },
-            {
-                _op: 'noop'
-            }
-            ]
+        } as Context;
+
+        const schema = jobSchema(context);
+        const job = {
+            operations: [{
+                _op: 'noop',
+            },
+                {
+                    _op: 'noop',
+                },
+            ],
         };
         const validJob = {
             name: 'Custom Job',
@@ -31,15 +33,15 @@ describe('When passed a valid jobSchema and jobConfig', () => {
             recycle_worker: null,
             operations: [
                 { _op: 'noop' },
-                { _op: 'noop' }
+                { _op: 'noop' },
             ],
             assets: null,
-            probation_window: 300000
+            probation_window: 300000,
         };
 
-        const jobConfig = configValidator.validateConfig(jobSchema, jobSpec);
+        const jobConfig = validateJobConfig(schema, job);
         delete jobConfig.workers;
-        expect(jobConfig).toEqual(validJob);
+        expect(jobConfig as object).toEqual(validJob);
     });
 });
 
@@ -48,32 +50,32 @@ describe('When passed a job without a known connector', () => {
         const context = {
             sysconfig: {
                 teraslice: {
-                    ops_directory: ''
+                    ops_directory: '',
                 },
                 terafoundation: {
                     connectors: {
                         elasticsearch: {
                             t1: {
-                                host: ['1.1.1.1:9200']
-                            }
-                        }
-                    }
-                }
-            }
-        };
-        const jobSchema = require('../../../lib/config/schemas/job').jobSchema(context);
-        const jobSpec = {
+                                host: ['1.1.1.1:9200'],
+                            },
+                        },
+                    },
+                },
+            },
+        } as Context;
+        const schema = jobSchema(context);
+        const job = {
             operations: [{
                 _op: 'elasticsearch_reader',
-                connection: 'unknown'
+                connection: 'unknown',
             },
-            {
-                _op: 'noop'
-            }
-            ]
+                {
+                    _op: 'noop',
+                },
+            ],
         };
         expect(() => {
-            configValidator.validateConfig(jobSchema, jobSpec);
+            validateJobConfig(schema, job);
         }).toThrowError(/undefined connection/);
     });
 });

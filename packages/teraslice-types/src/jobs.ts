@@ -11,7 +11,8 @@ export interface JobConfig {
     name: string;
     workers: number;
     slicers: number;
-    maxRetries: number;
+    max_retries: number;
+    recycle_worker?: number;
     analytics: boolean;
     lifecycle: LifeCycle;
     assets: string[];

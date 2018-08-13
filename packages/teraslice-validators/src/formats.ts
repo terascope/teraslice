@@ -19,6 +19,7 @@ const formats : Format[] = [
     {
         name: 'optional_String',
         validate(val: any) {
+            if (!val) return;
             if (val && typeof val === 'string') return;
             throw new Error('This field is optional but if specified it must be of type string');
         },
