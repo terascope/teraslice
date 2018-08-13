@@ -9,8 +9,8 @@
         "coverage": "lerna run coverage --no-bail",
         "lint": "env FORCE_COLOR=1 lerna run lint --no-bail",
         "lint:fix": "env FORCE_COLOR=1 lerna run lint:fix --no-bail",
-        "publish:draft": "lerna publish --yes --canary=beta --skip-git",
-        "publish:release": "lerna publish --yes --skip-git from-git"
+        "publish:draft": "./scripts/publish.sh draft",
+        "publish:release": "./scripts/publish.sh release"
     },
     "dependencies": {
         "lerna": "^3.0.0-rc.0"
