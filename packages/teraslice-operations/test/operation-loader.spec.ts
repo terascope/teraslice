@@ -3,6 +3,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { OperationLoader } from '../src';
+import { JobConfig, TestContext, testJobConfig } from '@terascope/teraslice-types';
 
 describe('OperationLoader', () => {
     const assetId = '1234';
@@ -10,10 +11,11 @@ describe('OperationLoader', () => {
     const assetPath = path.join(testDir, assetId);
     const terasliceOpPath = path.join(__dirname, '../../teraslice/lib');
     const processorPath = path.join(terasliceOpPath, 'processors/noop.js');
+    const context = new TestContext('teraslice-op-loader');
 
     beforeAll(async () => {
         await fs.ensureDir(testDir);
-        await fs.copy(processorPath, `${assetPath}/noop.js`);
+        await fs.copy(processorPath, path.join(assetPath, 'noop.js'));
     });
 
     afterAll(() => fs.remove(testDir));
@@ -51,7 +53,7 @@ describe('OperationLoader', () => {
         expect(opSchema).toBeDefined();
         expect(typeof opSchema).toEqual('object');
 
-        const processor = results.newProcessor();
+        const processor = results.newProcessor(context, testJobConfig, { _op: 'noop' });
 
         expect(processor).toBeDefined();
         expect(typeof processor).toEqual('function');
@@ -66,7 +68,6 @@ describe('OperationLoader', () => {
             terasliceOpPath,
             opPath: '',
         });
-        opLoader.load('noop');
 
         expect(() => {
             opLoader.load('someOp');

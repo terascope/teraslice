@@ -2,14 +2,10 @@
 
 import * as _ from 'lodash';
 import * as convict from 'convict';
-import { Context, JobConfig, SysConfig, OpConfig } from '@terascope/teraslice-types';
+import { Context, OpConfig, crossValidation } from '@terascope/teraslice-types';
 import { OperationLoader, LoaderOptions } from '@terascope/teraslice-operations';
 import { opSchema, jobSchema } from './job-schemas';
 import { validateJobConfig, validateOpConfig } from './config-validators';
-
-interface crossValidation {
-    (job: JobConfig, sysconfig: SysConfig) : void;
-}
 
 export class JobValidator {
     private readonly context: Context;

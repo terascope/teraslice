@@ -1,7 +1,9 @@
 'use strict';
 
 import * as path from 'path';
-import * as fs from 'fs-extra';
+import * as fs from 'fs';
+import { pathExistsSync } from 'fs-extra';
+import { Operation } from '@terascope/teraslice-types';
 
 export interface LoaderOptions {
     terasliceOpPath: string;
@@ -20,7 +22,7 @@ export class OperationLoader {
         let filePath: string = '';
         let codeName: string = '';
 
-        if (!name.match(/.js/)) {
+        if (!name.match(/.js$/)) {
             codeName = `${name}.js`;
         }
 
@@ -32,6 +34,7 @@ export class OperationLoader {
                 if (filename === name || filename === codeName) {
                     filePath = nextPath;
                 }
+
                 if (filePath || filename === 'node_modules') return;
 
                 if (fs.statSync(nextPath).isDirectory()) {
@@ -42,12 +45,12 @@ export class OperationLoader {
 
         function findCodeByConvention(basePath?: string, subfolders?: string[]) {
             if (!basePath) return;
-            if (!fs.pathExistsSync(basePath)) return;
+            if (!pathExistsSync(basePath)) return;
             if (!subfolders || !subfolders.length) return;
 
             subfolders.forEach((folder: string) => {
-                const pathType = path.resolve(path.join(basePath, folder));
-                if (!filePath && fs.pathExistsSync(pathType)) {
+                const pathType = path.join(basePath, folder);
+                if (!filePath && pathExistsSync(pathType)) {
                     findCode(pathType);
                 }
             });
@@ -58,36 +61,42 @@ export class OperationLoader {
         // if found, don't do extra searches
         if (filePath) return filePath;
 
-        findCodeByConvention(this.options.terasliceOpPath, ['readers', 'processors']);
+        findCodeByConvention(path.resolve(this.options.terasliceOpPath), ['readers', 'processors']);
 
         // if found, don't do extra searches
         if (filePath) return filePath;
 
-        findCodeByConvention(this.options.opPath, ['readers', 'processors']);
+        findCodeByConvention(path.resolve(this.options.opPath), ['readers', 'processors']);
 
         return filePath;
     }
 
-    load(name: string, executionAssets?: string[]) : any {
+    load(name: string, executionAssets?: string[]): Operation {
         const codePath = this.find(name, executionAssets);
-        try {
-            return require(codePath);
-        } catch (error) {
+        let error: Error = null;
+
+        if (codePath) {
             try {
-                return require(name);
+                return require(codePath);
             } catch (err) {
-                // if it cant be required check first error to see if it exists
-                // or had an error loading
-                if (error.message !== 'missing path') {
-                    throw new Error(`Error loading module: ${name}, the following error occurred while attempting to load the code: ${error.message}`);
-                }
-
-                if (err.code && err.code === 'MODULE_NOT_FOUND') {
-                    throw new Error(`Could not retrieve code for: ${name} , error message: ${err}`);
-                }
-
-                throw new Error(`Error loading module: ${name} , error: ${err.stack}`);
+                error = err;
             }
+        }
+
+        try {
+            return require(name);
+        } catch (err) {
+            if (err.code && err.code === 'MODULE_NOT_FOUND') {
+                throw new Error(`Could not retrieve code for: ${name} , error message: ${err}`);
+            }
+
+            // if it cant be required check first error to see if it exists
+            // or had an error loading
+            if (error && error.message !== 'missing path') {
+                throw new Error(`Error loading module: ${name}, the following error occurred while attempting to load the code: ${error.message}`);
+            }
+
+            throw new Error(`Error loading module: ${name} , error: ${err.stack}`);
         }
     }
 }

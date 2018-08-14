@@ -1,7 +1,5 @@
 'use strict';
 
-const { jest: lernaAliases } = require('lerna-alias');
-
 module.exports = {
     verbose: true,
     testEnvironment: 'node',
@@ -18,9 +16,6 @@ module.exports = {
         'js',
         'json'
     ],
-    moduleNameMapper: lernaAliases({
-        mainFields: ['main'],
-    }),
     collectCoverage: true,
     coverageReporters: ['json', 'lcov', 'text', 'html'],
     coverageDirectory: 'coverage',
