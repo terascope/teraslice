@@ -136,7 +136,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
     };
 }
 
-export const commonSchema: convict.Schema<any> = {
+export const opSchema: convict.Schema<any> = {
     _op: {
         doc: 'Name of operation, it must reflect the name of the file',
         default: '',

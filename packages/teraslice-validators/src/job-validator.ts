@@ -1,9 +1,10 @@
 'use strict';
 
 import * as _ from 'lodash';
-import { Context, JobConfig, SysConfig } from '@terascope/teraslice-types';
-import { OperationLoader } from '@terascope/teraslice-operations';
-import { commonSchema, jobSchema } from './job-schemas';
+import * as convict from 'convict';
+import { Context, JobConfig, SysConfig, OpConfig } from '@terascope/teraslice-types';
+import { OperationLoader, LoaderOptions } from '@terascope/teraslice-operations';
+import { opSchema, jobSchema } from './job-schemas';
 import { validateJobConfig, validateOpConfig } from './config-validators';
 
 interface crossValidation {
@@ -12,31 +13,29 @@ interface crossValidation {
 
 export class JobValidator {
     private readonly context: Context;
-    private readonly terasliceOpPath: string;
     private readonly opLoader: OperationLoader;
+    schema: convict.Schema<any>;
 
-    constructor(context: Context, terasliceOpPath: string) {
+    constructor(context: Context, options: LoaderOptions) {
         this.context = context;
-        this.terasliceOpPath = terasliceOpPath;
-        this.opLoader = new OperationLoader({
-            terasliceOpPath: this.terasliceOpPath,
-            assetPath: context.sysconfig.teraslice.assets_directory,
-        });
+        this.opLoader = new OperationLoader(options);
+        this.schema = jobSchema(context);
     }
 
-    validate(job: JobConfig) {
+    validate(job: any) {
         let validJob = _.cloneDeep(job);
 
         // this is used if an operation needs to provide additional validation beyond its own scope
         const topLevelJobValidators : crossValidation[] = [];
 
         // top level job validation occurs, but not operations
-        validJob = validateJobConfig(jobSchema, validJob);
+        validJob = validateJobConfig(this.schema, validJob);
 
-        validJob.operations = job.operations.map((opConfig) => {
+        validJob.operations = job.operations.map((opConfig: OpConfig) => {
             const operation = this.opLoader.load(opConfig._op, job.assets);
+
             this.hasSchema(operation, opConfig._op);
-            const opSchema = _.assign({}, commonSchema, operation.schema());
+
             const validOP = validateOpConfig(opSchema, opConfig);
 
             if (operation.selfValidation) {

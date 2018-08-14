@@ -1,15 +1,15 @@
 import * as convict from 'convict';
-import { merge } from 'lodash';
+import { opSchema } from './job-schemas';
 import { OpConfig, JobConfig } from '@terascope/teraslice-types';
 
-const validateOptions: convict.ValidateOptions = { allowed: 'strict' };
+const validateOptions: convict.ValidateOptions = { allowed: true };
 
 /**
  * Merges the provided inputSchema with commonSchema and then validates the
  * provided opConfig against the resulting schema.
  */
 export function validateOpConfig(inputSchema: convict.Schema<any>, inputConfig: any): OpConfig {
-    const schema: convict.Schema<any> = merge(inputSchema, inputConfig);
+    const schema: convict.Schema<any> = Object.assign({}, opSchema, inputSchema);
     const config = convict(schema);
 
     try {

@@ -7,7 +7,12 @@ export interface TerasliceConfig {
     assets_directory?: string;
 }
 
+export interface TerafoundationConfig {
+    connectors: object;
+}
+
 export interface SysConfig {
+    terafoundation: TerafoundationConfig;
     teraslice: TerasliceConfig;
 }
 
@@ -73,6 +78,9 @@ export class TestContext implements Context {
         this.logger = debugnyan(`teraslice:${testName}`);
 
         this.sysconfig = {
+            terafoundation: {
+                connectors: {},
+            },
             teraslice: {
                 ops_directory: '',
             },

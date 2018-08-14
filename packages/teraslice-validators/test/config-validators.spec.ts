@@ -1,19 +1,13 @@
 'use strict';
 
-import { Context } from '@terascope/teraslice-types';
-import { validators, schemas } from '../src';
+import { Context, TestContext } from '@terascope/teraslice-types';
+import { jobSchema, validateJobConfig } from '../src';
 
 describe('When passed a valid jobSchema and jobConfig', () => {
     it('returns a completed and valid jobConfig', () => {
-        const context: Context = {
-            sysconfig: {
-                teraslice: {
-                    ops_directory: '',
-                },
-            },
-        } as Context;
+        const context = new TestContext('teraslice-validators');
 
-        const schema = schemas.jobSchema(context);
+        const schema = jobSchema(context);
         const job = {
             operations: [{
                 _op: 'noop',
@@ -38,7 +32,7 @@ describe('When passed a valid jobSchema and jobConfig', () => {
             probation_window: 300000,
         };
 
-        const jobConfig = validators.validateJobConfig(schema, job);
+        const jobConfig = validateJobConfig(schema, job);
         delete jobConfig.workers;
         expect(jobConfig as object).toEqual(validJob);
     });
@@ -46,23 +40,18 @@ describe('When passed a valid jobSchema and jobConfig', () => {
 
 describe('When passed a job without a known connector', () => {
     it('raises an exception', () => {
-        const context = {
-            sysconfig: {
-                teraslice: {
-                    ops_directory: '',
-                },
-                terafoundation: {
-                    connectors: {
-                        elasticsearch: {
-                            t1: {
-                                host: ['1.1.1.1:9200'],
-                            },
-                        },
+        const context = new TestContext('teraslice-validators');
+        context.sysconfig.terafoundation = {
+            connectors: {
+                elasticsearch: {
+                    t1: {
+                        host: ['1.1.1.1:9200'],
                     },
                 },
             },
         };
-        const schema = schemas.jobSchema(context);
+
+        const schema = jobSchema(context);
         const job = {
             operations: [{
                 _op: 'elasticsearch_reader',
@@ -74,7 +63,7 @@ describe('When passed a job without a known connector', () => {
             ],
         };
         expect(() => {
-            validators.validateJobConfig(schema, job);
+            validateJobConfig(schema, job);
         }).toThrowError(/undefined connection/);
     });
 });
