@@ -26,7 +26,7 @@
   "scripts": {
     "lint": "tslint --force --format verbose \"src/**/*.ts\"",
     "prepublishOnly": "npm run build",
-    "build": "rimraf lib && tsc --pretty --project tsconfig.build.json",
+    "build": "rimraf lib && tsc --pretty",
     "test": "jest",
     "watch": "npm run build -- --watch",
     "watch:test": "jest --watch"

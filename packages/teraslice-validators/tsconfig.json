@@ -1,6 +1,16 @@
 {
     "extends": "../../tsconfig",
     "compilerOptions": {
-        "baseUrl": "."
+        "baseUrl": ".",
+        "paths": {
+            "@terascope/*": [
+                "../*"
+            ],
+            "*": [
+                "*"
+            ]
+        },
+        "rootDir": "src",
+        "outDir": "lib",
     }
 }
