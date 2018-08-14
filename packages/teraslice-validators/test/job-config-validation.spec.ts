@@ -1,8 +1,8 @@
 'use strict';
 
-import { validateJobConfig } from '../src/job-validators';
+import { Context } from '@terascope/teraslice-types';
+import { validateJobConfig } from '../src/config-validators';
 import { jobSchema } from '../src/job-schemas';
-import { JobConfig, Context } from '@terascope/teraslice-types';
 
 describe('When passed a valid jobSchema and jobConfig', () => {
     it('returns a completed and valid jobConfig', () => {

@@ -1,5 +1,5 @@
 import { commonSchema, jobSchema } from './job-schemas';
-import { validateJobConfig, validateOpConfig } from './job-validators';
+import { validateJobConfig, validateOpConfig } from './config-validators';
 
 export * from './formats';
 
