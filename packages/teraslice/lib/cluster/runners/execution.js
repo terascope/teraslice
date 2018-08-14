@@ -5,13 +5,13 @@ const parseError = require('@terascope/error-parser');
 const moment = require('moment');
 const _ = require('lodash');
 const path = require('path');
+const { OperationLoader, registerApis } = require('@terascope/teraslice-operations');
 const { existsSync } = require('../../utils/file_utils');
 
 /*
  * This module defines the job execution context on the worker nodes.
  */
 module.exports = function module(context, config = {}) {
-    const opRunner = require('./op')(context);
     // used for testing so we dont have to pollute the process env in testing
     const {
         processAssignment = context.__test_assignment || process.env.assignment,
@@ -21,6 +21,15 @@ module.exports = function module(context, config = {}) {
     const isSlicer = processAssignment === 'execution_controller';
     const assetPath = execution.assets ? context.sysconfig.teraslice.assets_directory : null;
     const jobAssets = execution.assets ? execution.assets : [];
+
+    const opLoader = new OperationLoader({
+        assetPath,
+        terasliceOpPath: path.join(__dirname, '..', '..'),
+        opPath: _.get(context, 'sysconfig.teraslice.ops_directory'),
+    });
+
+    registerApis(context);
+
     /*
      * Returns the first op that matches name.
      */
@@ -58,7 +67,7 @@ module.exports = function module(context, config = {}) {
 
         if (isSlicer) {
             return Promise.resolve()
-                .then(() => opRunner.load(execution.operations[0]._op, assetPath, jobAssets))
+                .then(() => opLoader.load(execution.operations[0]._op, jobAssets))
                 .then((_op) => {
                     slicer = _op;
                     return executionApi();
@@ -66,7 +75,7 @@ module.exports = function module(context, config = {}) {
         }
 
         return Promise.map(execution.operations, (opConfig, index) => {
-            const op = opRunner.load(opConfig._op, assetPath, jobAssets);
+            const op = opLoader.load(opConfig._op, jobAssets);
             if (index === 0) {
                 return op.newReader(context, opConfig, execution);
             }

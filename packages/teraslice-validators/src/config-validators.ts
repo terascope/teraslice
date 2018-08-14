@@ -1,12 +1,6 @@
 import * as convict from 'convict';
 import { merge } from 'lodash';
-import formats from './formats';
 import { OpConfig, JobConfig } from '@terascope/teraslice-types';
-
-// Add custom teraslice formats
-formats.forEach((format: convict.Format) => {
-    convict.addFormat(format);
-});
 
 const validateOptions: convict.ValidateOptions = { allowed: 'strict' };
 

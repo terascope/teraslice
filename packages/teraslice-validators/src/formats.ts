@@ -1,6 +1,6 @@
 'use strict';
 
-import { Format } from 'convict';
+import { Format, addFormat } from 'convict';
 import * as moment from 'moment';
 import * as dateMath from 'datemath-parser';
 
@@ -50,5 +50,7 @@ const formats : Format[] = [
         },
     } as Format,
 ];
+
+formats.forEach(addFormat);
 
 export default formats;

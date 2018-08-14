@@ -1,8 +1,7 @@
 'use strict';
 
 import { Context } from '@terascope/teraslice-types';
-import { validateJobConfig } from '../src/config-validators';
-import { jobSchema } from '../src/job-schemas';
+import { validators, schemas } from '../src';
 
 describe('When passed a valid jobSchema and jobConfig', () => {
     it('returns a completed and valid jobConfig', () => {
@@ -14,7 +13,7 @@ describe('When passed a valid jobSchema and jobConfig', () => {
             },
         } as Context;
 
-        const schema = jobSchema(context);
+        const schema = schemas.jobSchema(context);
         const job = {
             operations: [{
                 _op: 'noop',
@@ -39,7 +38,7 @@ describe('When passed a valid jobSchema and jobConfig', () => {
             probation_window: 300000,
         };
 
-        const jobConfig = validateJobConfig(schema, job);
+        const jobConfig = validators.validateJobConfig(schema, job);
         delete jobConfig.workers;
         expect(jobConfig as object).toEqual(validJob);
     });
@@ -62,8 +61,8 @@ describe('When passed a job without a known connector', () => {
                     },
                 },
             },
-        } as Context;
-        const schema = jobSchema(context);
+        };
+        const schema = schemas.jobSchema(context);
         const job = {
             operations: [{
                 _op: 'elasticsearch_reader',
@@ -75,7 +74,7 @@ describe('When passed a job without a known connector', () => {
             ],
         };
         expect(() => {
-            validateJobConfig(schema, job);
+            validators.validateJobConfig(schema, job);
         }).toThrowError(/undefined connection/);
     });
 });

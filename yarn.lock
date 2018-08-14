@@ -1392,7 +1392,7 @@ bunyan-elasticsearch@1.0.1:
     elasticsearch "^12.1.0"
     moment "^2.11.1"
 
-bunyan@^1.8.12:
+bunyan@^1.8.1, bunyan@^1.8.12:
   version "1.8.12"
   resolved "https://registry.yarnpkg.com/bunyan/-/bunyan-1.8.12.tgz#f150f0f6748abdd72aeae84f04403be2ef113797"
   optionalDependencies:
@@ -2025,6 +2025,13 @@ debug@^3.1.0, debug@~3.1.0:
 debuglog@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/debuglog/-/debuglog-1.0.1.tgz#aa24ffb9ac3df9a2351837cfb2d279360cd78492"
+
+debugnyan@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/debugnyan/-/debugnyan-2.0.2.tgz#83138804167ab2733988b9b0b90f0d11c9d1e1a1"
+  dependencies:
+    bunyan "^1.8.1"
+    debug "^2.2.0"
 
 decamelize-keys@^1.0.0:
   version "1.1.0"
@@ -7726,10 +7733,6 @@ typeable-promisify@^2.0.1:
 typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
-
-typescript-workspace-plugin@^1.0.4:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/typescript-workspace-plugin/-/typescript-workspace-plugin-1.0.5.tgz#52376b710a7d2ea4b59596a91649319ba06cb21a"
 
 typescript@^3.0.1:
   version "3.0.1"

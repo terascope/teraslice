@@ -34,7 +34,9 @@
   "dependencies": {
     "@types/bunyan": "^1.8.4",
     "@types/convict": "^4.2.0",
-    "convict": "^4.3.2"
+    "bunyan": "^1.8.12",
+    "convict": "^4.3.2",
+    "debugnyan": "^2.0.2"
   },
   "devDependencies": {
     "@types/jest": "^23.3.1",
