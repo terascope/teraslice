@@ -42,9 +42,6 @@ This may not be appropriate for production environments.
 
 ### ConfigMaps
 
-TODO: New configMap names must match the cluster name set in  the config
-followed by `-worker`, e.g.: `teraslice-qa3-worker`
-
 Kubernetes ConfigMaps are used to configure Teraslice, you will need to
 substitute the appropriate Elasticsearch host and port number for the values:
 

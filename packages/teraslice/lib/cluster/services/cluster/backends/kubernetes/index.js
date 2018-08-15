@@ -203,8 +203,6 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
             imagePullSecret,
         };
 
-        logger.info(`c: ${JSON.stringify(jobConfig, null, 2)}`);
-
         const exJob = exJobTemplate(jobConfig);
 
         logger.debug(`exJob:\n\n${JSON.stringify(exJob, null, 2)}`);
