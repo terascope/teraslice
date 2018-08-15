@@ -4,7 +4,8 @@
     "version": "0.1.0",
     "description": "Teraslice integration test suite",
     "scripts": {
-        "test": "jasmine --fail-fast=true --stop-on-failure=true"
+        "test": "jasmine --fail-fast=true --stop-on-failure=true",
+        "logs": "docker-compose logs --no-color teraslice-worker teraslice-master | awk -F' [|] ' '{print $2}' | bunyan -o short"
     },
     "repository": {
         "type": "git",
@@ -24,6 +25,7 @@
     "devDependencies": {
         "@terascope/docker-compose-js": "^1.0.0",
         "bluebird": "^3.4.0",
+        "bunyan": "^1.8.12",
         "elasticsearch": "^14.1.0",
         "jasmine": "^3.1.0",
         "jasmine-expect": "^3.8.3",

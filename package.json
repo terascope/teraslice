@@ -8,6 +8,7 @@
         "build": "lerna run build",
         "test": "env FORCE_COLOR=1 lerna run test",
         "test:e2e": "yarn --cwd ./e2e test",
+        "test:e2e:logs": "yarn --cwd ./e2e logs",
         "coverage": "lerna run coverage --no-bail",
         "lint": "env FORCE_COLOR=1 lerna run lint --no-bail",
         "lint:fix": "env FORCE_COLOR=1 lerna run lint:fix --no-bail",

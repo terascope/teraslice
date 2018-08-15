@@ -39,7 +39,7 @@ jobs:
   - script:
     name: End-to-End Tests
     if: branch = master AND type = pull_request
-    script: yarn test:e2e
+    script: yarn test:e2e || yarn test:e2e:logs
 
   # if not tag is preset and is on master release a draft version
   - stage: Release (Draft)
