@@ -20,6 +20,7 @@ before_install:
 install:
   - yarn install
   - yarn bootstrap
+  - yarn build
 before_deploy:
 jobs:
   # stop if given a reason

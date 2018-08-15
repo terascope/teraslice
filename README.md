@@ -163,7 +163,8 @@ git clone https://github.com/terascope/teraslice.git
 cd teraslice
 # Make sure you bootstrap all of the projects together
 yarn bootstrap
-# Run yarn boostrap:dev to ensure the projects are linked together
+yarn build # this will compile the typescript modules
+# or run just yarn boostrap:dev to ensure the projects are built linked together
 ```
 
 ### Running tests ###

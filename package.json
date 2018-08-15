@@ -3,10 +3,10 @@
     "private": true,
     "scripts": {
         "start": "node service.js",
-        "bootstrap": "lerna bootstrap && ./scripts/build.sh",
-        "bootstrap:dev": "lerna bootstrap && ./scripts/build.sh && lerna link",
+        "bootstrap": "lerna bootstrap",
+        "bootstrap:dev": "lerna bootstrap && yarn build && lerna link",
         "bootstrap:production": "lerna bootstrap -- --silent --no-progress --production=true",
-        "build": "./scripts/build.sh",
+        "build": "env FORCE_COLOR=1 lerna run build",
         "test": "env FORCE_COLOR=1 lerna run test",
         "test:e2e": "yarn --cwd ./e2e test",
         "coverage": "lerna run coverage --no-bail",
@@ -16,7 +16,7 @@
         "publish:release": "./scripts/publish.sh release"
     },
     "dependencies": {
-        "lerna": "^3.0.0-rc.0"
+        "lerna": "^3.0.5"
     },
     "workspaces": [
         "packages/*",
