@@ -33,9 +33,12 @@ This may not be appropriate for production environments.
 
 ### Kubernetes Specific Configuration Settings
 
-|  Configuration   |                    Description                    |  Type  |  Notes   |
-|:----------------:|:-------------------------------------------------:|:------:|:--------:|
-| kubernetes_image | Name of docker image, default: `teraslice:k8sdev` | String | optional |
+|        Configuration         |                                                                         Description                                                                         |  Type  |  Notes   |
+|:----------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------:|:------:|:--------:|
+|       kubernetes_image       |                                                      Name of docker image, default: `teraslice:k8sdev`                                                      | String | optional |
+| kubernetes_image_pull_secret |                                                     Secret used to pull docker images from private repo                                                     | String | optional |
+|  kubernetes_config_map_name  | Name of the configmap used by worker and executcion_controller containers for config.  If this is not provided, the default will be `<CLUSTER_NAME>-worker` | String | optional |
+
 
 ### ConfigMaps
 

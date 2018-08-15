@@ -210,6 +210,16 @@ const schema = {
         doc: 'Specify a custom kubernetes namespace, this only applies to kubernetes systems',
         default: 'default',
         format: 'optional_String'
+    },
+    kubernetes_config_map_name: {
+        doc: 'Specify the name of the Kubernetes ConfigMap used to configure worker pods',
+        default: 'teraslice-worker',
+        format: 'optional_String'
+    },
+    kubernetes_image_pull_secret: {
+        doc: 'Name of Kubernetes secret used to pull docker images from private repository',
+        default: 'teraslice-image-pull-secret',
+        format: 'optional_String'
     }
 };
 

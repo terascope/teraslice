@@ -17,7 +17,7 @@ RUN yarn install \
     --no-progress \
     --production=true
 
-COPY entrypoint.js lerna.json examples /app/source/ 
+COPY entrypoint.js lerna.json examples /app/source/
 COPY packages /app/source/packages
 COPY scripts /app/source/scripts
 
