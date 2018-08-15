@@ -1,4 +1,4 @@
-import { Context, ConnectionConfig } from '@terascope/teraslice-types';
+import { ConnectionConfig, Context } from '@terascope/teraslice-types';
 import { has } from 'lodash';
 
 interface GetClientConfig {
@@ -14,9 +14,9 @@ export function registerApis(context: Context): void {
      */
     function getClient(config: GetClientConfig, type: string): any {
         const clientConfig: ConnectionConfig = {
-            type,
             cached: true,
             endpoint: 'default',
+            type,
         };
         const events = context.apis.foundation.getSystemEvents();
 

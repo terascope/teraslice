@@ -6,5 +6,7 @@
   ],
   "rules": {
     "interface-name": false,
+    "callable-types": false,
+    "no-namespace": false
   }
 }

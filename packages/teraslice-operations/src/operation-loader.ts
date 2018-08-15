@@ -94,7 +94,9 @@ export class OperationLoader {
     }
 
     private resolvePath(filePath: string): string|null {
-       if (pathExistsSync(filePath)) return filePath;
+       if (pathExistsSync(filePath)) {
+           return filePath;
+       }
 
        try {
            return require.resolve(filePath);

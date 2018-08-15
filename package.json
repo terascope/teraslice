@@ -4,7 +4,7 @@
     "scripts": {
         "start": "node service.js",
         "bootstrap": "lerna bootstrap",
-        "bootstrap:dev": "lerna bootstrap && yarn build && lerna link",
+        "bootstrap:dev": "lerna bootstrap && lerna link && lerna run build",
         "build": "lerna run build",
         "test": "env FORCE_COLOR=1 lerna run test",
         "test:e2e": "yarn --cwd ./e2e test",

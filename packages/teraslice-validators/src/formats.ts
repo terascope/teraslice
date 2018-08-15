@@ -1,8 +1,8 @@
 'use strict';
 
-import { Format, addFormat } from 'convict';
-import moment from 'moment';
+import { addFormat, Format } from 'convict';
 import dateMath from 'datemath-parser';
+import moment from 'moment';
 
 const formats : Format[] = [
     {
@@ -19,8 +19,8 @@ const formats : Format[] = [
     {
         name: 'optional_String',
         validate(val: any) {
-            if (!val) return;
-            if (val && typeof val === 'string') return;
+            if (!val) { return; }
+            if (val && typeof val === 'string') { return; }
             throw new Error('This field is optional but if specified it must be of type string');
         },
         coerce(val: any) {
@@ -30,9 +30,9 @@ const formats : Format[] = [
     {
         name: 'optional_Date',
         validate(val: any) {
-            if (!val) return;
+            if (!val) { return; }
             if (typeof val === 'string' || typeof val === 'number') {
-                if (moment(new Date(val)).isValid()) return;
+                if (moment(new Date(val)).isValid()) { return; }
                 try {
                     dateMath.parse(val);
                 } catch (err) {

@@ -11,54 +11,46 @@ export enum LifeCycle {
 }
 
 export interface JobConfig {
-    name: string;
-    workers: number;
-    slicers: number;
-    max_retries: number;
-    recycle_worker?: number;
     analytics: boolean;
-    lifecycle: LifeCycle;
     assets: string[];
+    lifecycle: LifeCycle;
+    max_retries: number;
+    name: string;
     operations: OpConfig[];
+    probation_window: number;
+    recycle_worker: number;
+    slicers: number;
+    workers: number;
 }
 
-export interface crossValidation {
-    (job: JobConfig, sysconfig: SysConfig): void;
-}
+export type crossValidation = (job: JobConfig, sysconfig: SysConfig) => void;
 
-export interface selfValidation {
-    (config: OpConfig): void;
-}
+export type selfValidation = (config: OpConfig) => void;
 
-export interface processor {
-    (...params: any[]): any[]|any;
-}
+export type processor = (...params: any[]) => any[]|any;
 
-export interface slicer {
-    (): any[]|null
-}
+export type slicer = () => any[]|null
 
-export interface slicers {
-    (...params: any[]): slicer[];
-}
+export type slicers = (...params: any[]) => slicer[];
 
 export interface Operation {
-    schema?(context?: Context): void;
     crossValidation?: crossValidation;
     selfValidation?: selfValidation;
+    schema?(context?: Context): void;
     newProcessor?(context: Context, opConfig: OpConfig, jobConfig: JobConfig): Promise<processor>|processor;
     newReader?(context: Context, opConfig: OpConfig, jobConfig: JobConfig): Promise<processor>|processor;
     newSlicer?(context: Context, executionContext: any, startingPoints: any, logger: bunyan): Promise<slicer>|slicer;
 }
 
-export const testJobConfig: JobConfig = {
-    name: 'test-job',
-    workers: 1,
-    slicers: 1,
-    max_retries: 1,
-    recycle_worker: 0,
+export const TestJobConfig: JobConfig = {
     analytics: false,
-    lifecycle: LifeCycle.Once,
     assets: [],
+    lifecycle: LifeCycle.Once,
+    max_retries: 1,
+    name: 'test-job',
     operations: [],
+    probation_window: 30000,
+    recycle_worker: 0,
+    slicers: 1,
+    workers: 1,
 };

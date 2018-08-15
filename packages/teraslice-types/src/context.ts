@@ -47,22 +47,20 @@ export interface Context {
     foundation: LegacyFoundationApis
 }
 
-class TestContextApis implements ContextApis {
-    public foundation: FoundationApis;
-
-    constructor(testName: string) {
-        const events = new EventEmitter();
-        this.foundation = {
+function testContextApis(testName: string): ContextApis {
+    const events = new EventEmitter();
+    return {
+        foundation: {
             makeLogger(...params: any[]): bunyan {
                 if (typeof params[0] === 'string') {
                     return debugnyan(`teraslice:${testName}`, {}, {
+                        simple: false,
                         suffix: params[0] as string,
-                        simple: false
                     });
                 } else {
-                    return debugnyan(`teraslice:${testName}`, params[0] as Object, {
+                    return debugnyan(`teraslice:${testName}`, params[0] as object, {
+                        simple: false,
                         suffix: params[0].module,
-                        simple: false
                     });
                 }
 
@@ -73,11 +71,10 @@ class TestContextApis implements ContextApis {
             getSystemEvents(): EventEmitter {
                 return events;
             },
-        };
-    }
-
-    public registerAPI(namespace: string, apis: any): void {
-        this[namespace] = apis;
+        },
+        registerAPI(namespace: string, apis: any): void {
+            this[namespace] = apis;
+        }
     }
 }
 
@@ -99,12 +96,12 @@ export class TestContext implements Context {
             },
         };
 
-        this.apis = new TestContextApis(testName);
+        this.apis = testContextApis(testName);
 
         this.foundation = {
-            makeLogger: this.apis.foundation.makeLogger,
             getConnection: this.apis.foundation.getConnection,
             getEventEmitter: this.apis.foundation.getSystemEvents,
+            makeLogger: this.apis.foundation.makeLogger,
         }
     }
 }

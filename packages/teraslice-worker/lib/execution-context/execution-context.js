@@ -5,7 +5,6 @@ const { terasliceOpPath } = require('teraslice');
 const { OperationLoader } = require('@terascope/teraslice-operations');
 const Assets = require('./assets');
 const { makeLogger } = require('../utils/context');
-const WrapError = require('../utils/wrap-error');
 const { analyzeOp } = require('../utils/ops');
 
 class ExectionContext {
@@ -35,6 +34,8 @@ class ExectionContext {
         Object.assign(this, executionContext);
 
         this.config = executionContext.job;
+        this.config.ex_id = executionContext.ex_id;
+        this.config.ex_id = executionContext.job_id;
         this.queue = [];
         this.reader = null;
         this.slicer = null;

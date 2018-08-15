@@ -1,6 +1,6 @@
+import { JobConfig, OpConfig } from '@terascope/teraslice-types';
 import convict from 'convict';
 import { opSchema } from './job-schemas';
-import { OpConfig, JobConfig } from '@terascope/teraslice-types';
 
 // @ts-ignore
 const validateOptions: convict.ValidateOptions = { allowed: true };

@@ -1,16 +1,16 @@
 'use strict';
 
-import * as _ from 'lodash';
+import { LoaderOptions, OperationLoader } from '@terascope/teraslice-operations';
+import { Context, crossValidation, OpConfig } from '@terascope/teraslice-types';
 import * as convict from 'convict';
-import { Context, OpConfig, crossValidation } from '@terascope/teraslice-types';
-import { OperationLoader, LoaderOptions } from '@terascope/teraslice-operations';
-import { opSchema, jobSchema } from './job-schemas';
+import * as _ from 'lodash';
 import { validateJobConfig, validateOpConfig } from './config-validators';
+import { jobSchema, opSchema } from './job-schemas';
 
 export class JobValidator {
+    public schema: convict.Schema<any>;
     private readonly context: Context;
     private readonly opLoader: OperationLoader;
-    schema: convict.Schema<any>;
 
     constructor(context: Context, options: LoaderOptions) {
         this.context = context;
@@ -18,7 +18,7 @@ export class JobValidator {
         this.schema = jobSchema(context);
     }
 
-    validate(job: any) {
+    public validate(job: any) {
         let validJob = _.cloneDeep(job);
 
         // this is used if an operation needs to provide additional validation beyond its own scope
@@ -52,7 +52,7 @@ export class JobValidator {
         return validJob;
     }
 
-    hasSchema(obj: any, name: string) {
+    public hasSchema(obj: any, name: string) {
         if (!obj.schema || typeof obj.schema !== 'function') {
             throw new Error(`${name} needs to have a method named "schema"`);
         } else if (typeof obj.schema() !== 'object') {

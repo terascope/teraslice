@@ -1,6 +1,5 @@
 'use strict';
 
-
 const WrapError = require('../../../lib/utils/wrap-error');
 
 describe('WrapError', () => {

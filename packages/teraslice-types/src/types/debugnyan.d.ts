@@ -3,15 +3,8 @@
 import * as bunyan from 'bunyan';
 export = debugnyan;
 
-declare function debugnyan(name: string, options?: Object, config?: debugnyan.options): bunyan;
-
-declare namespace debugnyan {
-    const prototype: {
-    };
-
-    interface options {
-        prefix?: string,
-        suffix?: string,
-        simple?: boolean,
-    }
-}
+declare function debugnyan(name: string, options?: object, config?: {
+    prefix?: string,
+    suffix?: string,
+    simple?: boolean,
+}): bunyan;

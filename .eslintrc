@@ -25,7 +25,6 @@
         "rest-spread-spacing": ["error"],
         "no-path-concat": "error",
         "no-debugger": "error",
-        "handle-callback-err": ["error", "error"],
-        "import/no-extraneous-dependencies": "off"
+        "handle-callback-err": ["error", "error"]
     }
 }

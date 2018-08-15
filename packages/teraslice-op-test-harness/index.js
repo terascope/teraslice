@@ -2,7 +2,6 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
-const { EventEmitter } = require('events');
 
 const { TestContext } = require('@terascope/teraslice-types');
 const { validateJobConfig, validateOpConfig, jobSchema } = require('@terascope/teraslice-validators');

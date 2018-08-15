@@ -19,8 +19,7 @@ before_install:
   - export FORCE_COLOR=1
 install:
   - yarn install
-  - yarn bootstrap
-  - yarn build
+  - yarn bootstrap:dev
 before_deploy:
 jobs:
   # stop if given a reason

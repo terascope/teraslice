@@ -20,6 +20,8 @@ class ExecutionRunner {
         Object.assign(this, executionContext);
 
         this.config = executionContext.job;
+        this.config.ex_id = executionContext.ex_id;
+        this.config.ex_id = executionContext.job_id;
         this.queue = [];
         this.reader = null;
         this.slicer = null;
