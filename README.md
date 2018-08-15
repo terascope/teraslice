@@ -61,34 +61,28 @@ Operations are nothing more than Javascript modules and writing your own is easy
 
 Teraslice is currently in alpha status. Single node deployment and clustering support are functional and being refined. APIs are usable but will still be evolving as we work toward a production release. See the list of open issues for other limitations.
 
-# Installation
+# Getting Started
 
 Teraslice is written in Node.js and has been tested on Linux and Mac OS X.
 
 ### Dependencies ###
 * Node.js 8 or above
-* Yarn
+* Yarn (development only)
 * At least one Elasticsearch 5 or above cluster
 
 ### Installation ###
 
 ```sh
-git clone https://github.com/terascope/teraslice.git
-cd teraslice
-# Make sure you bootstrap all of the projects together
-yarn bootstrap
-```
-## Customizing the Docker Image
+# Install teraslice globally
+npm install --global teraslice
+# Or with yarn, yarn global add teraslice
 
-```Dockerfile
-FROM terascope/teraslice:latest # or any tag
+# A teraslice CLI client
+npm install --global teraslice-job-manager
+# Or with yarn, yarn global add teraslice-job-manager
 
-# Add terafoundation connectors here
-RUN yarn add terascope/terafoundation_kafka_connector
-```
-
-```sh
-docker build -t custom-teraslice .
+# To add additional connectors, use
+# npm install --global terascope/terafoundation_kafka_connector
 ```
 
 # Configuration Single Node / Cluster Master
@@ -153,14 +147,61 @@ Once you have Teraslice installed you need a job specification and a configurati
 Starting the Teraslice service on the master node is simple. Just provide it a path to the configuration file.
 
 ```
-yarn start -c master-config.yaml
+teraslice -c master-config.yaml
 ```
 
 Starting a worker on a remote node is basically the same.
 
 ```
-yarn start -c worker-config.yaml
+teraslice -c worker-config.yaml
 ```
+
+# Development
+
+```sh
+git clone https://github.com/terascope/teraslice.git
+cd teraslice
+# Make sure you bootstrap all of the projects together
+yarn bootstrap
+# Run yarn boostrap:dev to ensure the projects are linked together
+```
+
+### Running tests ###
+
+```sh
+yarn test # this will run all of the tests
+cd packages/[package-name]; yarn test # this will run an individual test
+```
+
+### Running teraslice ###
+
+```sh
+yarn start -c path/to/config.yaml
+```
+
+### Customizing the Docker Image ###
+
+```Dockerfile
+# Use latest or any tag from https://hub.docker.com/r/terascope/teraslice/tags/
+FROM terascope/teraslice:latest
+
+# Add terafoundation connectors here
+RUN yarn add terascope/terafoundation_kafka_connector
+```
+
+### Building the docker image ###
+
+```sh
+docker build -t custom-teraslice .
+```
+
+### Running the docker image ###
+
+```sh
+docker run -it --rm -v ./teraslice-master.yaml:/app/config/teraslice.yml custom-teraslice
+```
+
+# REST API
 
 The master publishes a REST style API on port 5678.
 
@@ -168,12 +209,19 @@ To submit a job you just post to the /jobs endpoint.
 
 Assuming your job is in a file called 'job.json' it's as simple as
 
+```sh
+curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs" -d@job.json
 ```
-curl -XPOST YOUR_MASTER_IP:5678/v1/jobs -d@job.json
+
+or using `teraslice-job-manager`
+
+```sh
+tjm register -c="$YOUR_MASTER_IP:5678/v1/jobs"  ./job.json
 ```
 
 This will return the job_id (for access to the original job posted) and the job execution context id (the running instance of a job) which can then be used to manage the job. This will also start the job.
-```
+
+```json
 {
     "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
 }
@@ -186,8 +234,14 @@ Please check the api docs at the bottom for a comprehensive in-depth list of all
 
 This will retrieve the job configuration including '\_status' which indicates the execution status of the job.
 
+```sh
+curl "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/ex"
 ```
-curl YOU_MASTER_IP:5678/v1/jobs/{job_id}/ex
+
+or using `teraslice-job-manager`
+
+```sh
+tjm status ./job.json
 ```
 
 ### Stopping a job
@@ -195,23 +249,35 @@ curl YOU_MASTER_IP:5678/v1/jobs/{job_id}/ex
 Stopping a job stops all execution and frees the workers being consumed
 by the job on the cluster.
 
+```sh
+curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_stop"
 ```
-curl -XPOST YOU_MASTER_IP:5678/v1/jobs/{job_id}/_stop
+
+or using `teraslice-job-manager`
+
+```sh
+tjm stop ./job.json
 ```
 
 ### Starting a job
 
 Posting a new job will automatically start the job. If the job already exists then using the endpoint below will start a new one.
 
+```sh
+curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_start"
 ```
-curl -XPOST YOU_MASTER_IP:5678/v1/jobs/{JOB_ID}/_start
+
+or using `teraslice-job-manager`
+
+```sh
+tjm start ./job.json
 ```
 
 Starting a job with recover will attempt to replay any failed slices from previous runs and will then pickup where it left off. If there are no failed
 slices the job will simply resume from where it was stopped.
 
-```
-curl -XPOST YOU_MASTER_IP:5678/v1/jobs/{job_id}/_recover
+```sh
+curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_recover"
 ```
 
 ### Pausing a job
@@ -220,16 +286,28 @@ Pausing a job will stop execution of the job on the cluster but will not
 release the workers being used by the job. It simply pauses the slicer and
 stops allocating work to the workers. Workers will complete the work they're doing then just sit idle until the job is resumed.
 
+```sh
+curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_pause"
 ```
-curl -XPOST YOU_MASTER_IP:5678/v1/jobs/{job_id}/_pause
+
+or using `teraslice-job-manager`
+
+```sh
+tjm pause ./job.json
 ```
 
 ### Resuming a job
 
 Resuming a job restarts the slicer and the allocation of slices to workers.
 
+```sh
+curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_resume"
 ```
-curl -XPOST YOU_MASTER_IP:5678/v1/jobs/{job_id}/_resume
+
+or using `teraslice-job-manager`
+
+```sh
+tjm resume ./job.json
 ```
 
 ### Viewing Slicer statistics for a job
@@ -237,16 +315,16 @@ curl -XPOST YOU_MASTER_IP:5678/v1/jobs/{job_id}/_resume
 This provides information related to the execution of the slicer and can be useful
 in monitoring and optimizing the execution of the job.
 
-```
-curl YOU_MASTER_IP:5678/v1/jobs/{job_id}/slicer
+```sh
+curl "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/slicer"
 ```
 
 ### Viewing cluster state
 
 This will show you all the connected workers and the tasks that are currently assigned to them.
 
-```
-curl YOU_MASTER_IP:5678/v1/cluster/state
+```sh
+curl "$YOU_MASTER_IP:5678/v1/cluster/state"
 ```
 
 # Additional Documentation
@@ -264,7 +342,3 @@ curl YOU_MASTER_IP:5678/v1/cluster/state
 
  * [Teraslice configuration reference](./docs/configuration.md)
  * [Kubernetes Cluster Master](./docs/k8s-clustering.md)
-
-## Services
-
- * [additional services](./docs/services.md)
