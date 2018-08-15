@@ -2,7 +2,7 @@
 
 'use strict';
 
-const { formats } = require('@teracope/teraslice-validators');
+const { formats } = require('@terascope/teraslice-validators');
 const { configSchema } = require('./lib/config/schemas/system');
 const worker = require('./lib/cluster/worker');
 const executionController = require('./lib/cluster/execution_controller');
