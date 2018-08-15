@@ -4,6 +4,14 @@
         "e2e"
     ],
     "command": {
+        "bootstrap": {
+            "npmClientArgs": [
+                "--silent",
+                "--link-duplicates",
+                "--pure-lockfile",
+                "--no-progress"
+            ]
+        },
         "publish": {
             "npmClient": "npm"
         },

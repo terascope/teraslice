@@ -1,7 +1,6 @@
 .nyc_output
 *.log
 node_modules
-!packages/**/node_modules
 coverage
 assets
 tests
@@ -10,3 +9,5 @@ spec
 docs
 examples
 e2e
+packages/**/dist
+packages/**/dist

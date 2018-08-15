@@ -8,7 +8,7 @@ module.exports = {
     },
     testPathIgnorePatterns: [
         '/node_modules/',
-        '/lib/'
+        '/dist/'
     ],
     testRegex: '/test/.*spec\\.(ts|js)$',
     moduleFileExtensions: [

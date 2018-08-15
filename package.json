@@ -1,16 +1,16 @@
 {
-    "name": "teraslice-workspace",
+    "name": "teraslice",
     "private": true,
     "scripts": {
         "start": "node service.js",
         "bootstrap": "lerna bootstrap",
         "bootstrap:dev": "lerna bootstrap && yarn build && lerna link",
         "build": "lerna run build",
-        "test": "lerna run test",
+        "test": "env FORCE_COLOR=1 lerna run test",
         "test:e2e": "yarn --cwd ./e2e test",
         "coverage": "lerna run coverage --no-bail",
-        "lint": "lerna run lint --no-bail",
-        "lint:fix": "lerna run lint:fix --no-bail",
+        "lint": "env FORCE_COLOR=1 lerna run lint --no-bail",
+        "lint:fix": "env FORCE_COLOR=1 lerna run lint:fix --no-bail",
         "publish:draft": "./scripts/publish.sh draft",
         "publish:release": "./scripts/publish.sh release"
     },
