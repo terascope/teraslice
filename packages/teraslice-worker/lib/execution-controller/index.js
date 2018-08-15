@@ -7,16 +7,16 @@ const uuidv4 = require('uuid/v4');
 const retry = require('bluebird-retry');
 const Queue = require('@terascope/queue');
 const parseError = require('@terascope/error-parser');
-const ClusterMasterClient = require('./cluster-master-client');
-const ExecutionAnalytics = require('./analytics');
-const ExecutionControllerMessenger = require('./messenger');
 const {
     makeStateStore,
     makeExStore,
     makeSliceAnalytics,
     newFormatedDate,
     makeExecutionRecovery
-} = require('../teraslice');
+} = require('teraslice');
+const ClusterMasterClient = require('./cluster-master-client');
+const ExecutionAnalytics = require('./analytics');
+const ExecutionControllerMessenger = require('./messenger');
 const makeEngine = require('../teraslice/engine');
 const WrapError = require('../utils/wrap-error');
 const { makeLogger, generateWorkerId } = require('../utils/context');

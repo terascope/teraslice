@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const makeExecutionRunner = require('teraslice/lib/cluster/runners/execution');
+const { makeExecutionRunner } = require('teraslice');
 const { makeLogger } = require('../utils/context');
 const WrapError = require('../utils/wrap-error');
 const Assets = require('./assets');

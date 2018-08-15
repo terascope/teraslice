@@ -3,9 +3,9 @@
 const _ = require('lodash');
 const Promise = require('bluebird');
 const { EventEmitter } = require('events');
-const debug = require('debug')('teraslice-op-test-harness');
 
-const { validators, schemas } = require('@terascope/teraslice-validators');
+const { TestContext } = require('@terascope/teraslice-types');
+const { validateJobConfig, validateOpConfig, jobSchema } = require('@terascope/teraslice-validators');
 
 // load data
 const sampleDataArrayLike = require('./data/sampleDataArrayLike.json');
@@ -17,29 +17,6 @@ const simpleData = [
     { name: 'Hippy', age: 22 },
     { name: 'Dippy', age: 23 },
 ];
-
-const fakeLogger = {
-    logger: {
-        fatal(...args) {
-            debug('fatal:', ...args);
-        },
-        error(...args) {
-            debug('error:', ...args);
-        },
-        warn(...args) {
-            debug('warn:', ...args);
-        },
-        info(...args) {
-            debug('info:', ...args);
-        },
-        debug(...args) {
-            debug('debug:', ...args);
-        },
-        trace(...args) {
-            debug('trace:', ...args);
-        },
-    }
-};
 
 function runProcessorSpecs(processor) {
     // TODO: I'd like to refactor this out into a stand-alone spec file in a
@@ -57,28 +34,10 @@ function runProcessorSpecs(processor) {
 
 module.exports = (processor) => {
     /* A minimal context object */
-    const events = new EventEmitter();
-    const context = {
-        logger: fakeLogger.logger,
-        foundation: {
-            getEventEmitter: () => events, // Deprecated
-            getSystemEvents: () => events,
-            makeLogger: () => {},
-            getConnection: () => ({ client: {} }),
-            startWorkers: () => {}
-        },
-        sysconfig:
-            {
-                teraslice: {
-                    ops_directory: ''
-                }
-            },
-        apis: {
-            registerAPI() {},
-        }
-    };
+    const context = new TestContext('teraslice-op-test-harness');
+    const events = context.apis.foundation.getSystemEvents();
 
-    const jobSchema = schemas.jobSchema(context);
+    const schema = jobSchema(context);
 
     /**
      * jobSpec returns a simple jobConfig object consisting of two operations,
@@ -127,19 +86,24 @@ module.exports = (processor) => {
         if (opConfig == null) {
             opConfig = {}; // eslint-disable-line no-param-reassign
         }
+
+        if (!opConfig._op) {
+            opConfig._op = 'test-op-name';
+        }
+
         // run the jobConfig and opConfig through the validator to get
         // complete and convict validated configs
-        const jobConfig = validators.validateJobConfig(jobSchema, jobSpec(opConfig));
+        const jobConfig = validateJobConfig(schema, jobSpec(opConfig));
 
         return processor.newProcessor(
             _.assign({}, context, extraContext),
-            validators.validateOpConfig(processor.schema(), opConfig),
+            validateOpConfig(processor.schema(), opConfig),
             jobConfig
         );
     }
 
     function processFn(myProcessor, data) {
-        return myProcessor(data, fakeLogger.logger);
+        return myProcessor(data, context.logger);
     }
 
     function emulateShutdown() {
@@ -167,7 +131,7 @@ module.exports = (processor) => {
          *  Which are derived from bunyan's default levels:
          *    https://github.com/trentm/node-bunyan#levels
          */
-        fakeLogger,
+        fakeLogger: context.logger,
 
         /** Standard test data objects: arrayLike and esLike */
         data: {

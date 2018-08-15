@@ -1,8 +1,8 @@
 'use strict';
 
 import { Format, addFormat } from 'convict';
-import * as moment from 'moment';
-import * as dateMath from 'datemath-parser';
+import moment from 'moment';
+import dateMath from 'datemath-parser';
 
 const formats : Format[] = [
     {

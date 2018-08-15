@@ -3,7 +3,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { OperationLoader } from '../src';
-import { JobConfig, TestContext, testJobConfig } from '@terascope/teraslice-types';
+import { TestContext, testJobConfig, processor } from '@terascope/teraslice-types';
 
 describe('OperationLoader', () => {
     const assetId = '1234';
@@ -53,7 +53,7 @@ describe('OperationLoader', () => {
         expect(opSchema).toBeDefined();
         expect(typeof opSchema).toEqual('object');
 
-        const processor = results.newProcessor(context, testJobConfig, { _op: 'noop' });
+        const processor = results.newProcessor(context, { _op: 'noop' }, testJobConfig) as processor;
 
         expect(processor).toBeDefined();
         expect(typeof processor).toEqual('function');
@@ -61,6 +61,30 @@ describe('OperationLoader', () => {
         const someData = 'someData';
         const processorResults = processor(someData);
         expect(processorResults).toEqual(someData);
+    });
+
+    it('can load by file path', () => {
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            opPath: '',
+        });
+        const op = opLoader.load(path.join(__dirname, 'fixtures', 'test-op'));
+
+        expect(op).toBeDefined();
+        expect(typeof op).toEqual('object');
+        expect(op.newProcessor).toBeDefined();
+        expect(op.schema).toBeDefined();
+        expect(typeof op.newProcessor).toEqual('function');
+        expect(typeof op.schema).toEqual('function');
+
+        const reader = opLoader.load(path.join(__dirname, 'fixtures', 'test-reader'));
+
+        expect(reader).toBeDefined();
+        expect(typeof reader).toEqual('object');
+        expect(reader.newReader).toBeDefined();
+        expect(reader.schema).toBeDefined();
+        expect(typeof reader.newReader).toEqual('function');
+        expect(typeof reader.schema).toEqual('function');
     });
 
     it('can throw proper errors if op code does not exits', () => {

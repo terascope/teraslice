@@ -2,14 +2,20 @@
 
 const Promise = require('bluebird');
 const _ = require('lodash');
-const parseError = require('@terascope/error-parser');
 const util = require('util');
-
+const path = require('path');
+const parseError = require('@terascope/error-parser');
+const { JobValidator } = require('@terascope/teraslice-validators');
 
 module.exports = function module(context) {
     const executionService = context.services.execution;
     const logger = context.apis.foundation.makeLogger({ module: 'jobs_service' });
-    const jobValidator = require('../../config/validators/job')(context);
+
+    const jobValidator = new JobValidator(context, {
+        terasliceOpPath: path.join(__dirname, '..', '..'),
+        assetPath: _.get(context, 'sysconfig.teraslice.assets_directory'),
+        opPath: _.get(context, 'sysconfig.teraslice.ops_directory')
+    });
 
     let jobStore;
 

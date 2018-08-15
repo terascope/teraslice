@@ -229,6 +229,7 @@ function configSchema() {
 }
 
 module.exports = {
+    configSchema,
     config_schema: configSchema,
     schema
 };

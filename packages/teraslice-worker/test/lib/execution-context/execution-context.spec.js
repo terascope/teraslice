@@ -325,7 +325,7 @@ describe('Execution Context', () => {
             });
 
             it('should reject with a error', () => {
-                const errMsg = new RegExp('Could not retrieve code for: failing-asset-reader');
+                const errMsg = 'Failure loading module: failing-asset-reader, error: Error: Bad news bears';
                 return expect(executionContext.initialize()).rejects.toThrowError(errMsg);
             });
         });
@@ -564,8 +564,8 @@ describe('Execution Context', () => {
             });
 
             it('should reject with a error', () => {
-                const errMsg = new RegExp('Could not retrieve code for: failing-asset-reader');
-                return expect(executionContext.initialize()).rejects.toThrowError(errMsg);
+                const errorMsg = 'Failure loading module: failing-asset-reader, error: Error: Bad news bears';
+                return expect(executionContext.initialize()).rejects.toThrowError(errorMsg);
             });
         });
     });

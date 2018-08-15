@@ -1,11 +1,12 @@
 'use strict';
 
 const _ = require('lodash');
+const { terasliceOpPath } = require('teraslice');
+const { OperationLoader } = require('@terascope/teraslice-operations');
 const Assets = require('./assets');
 const { makeLogger } = require('../utils/context');
 const WrapError = require('../utils/wrap-error');
 const { analyzeOp } = require('../utils/ops');
-const { makeOpRunner } = require('../teraslice');
 
 class ExectionContext {
     constructor(context, executionContext) {
@@ -20,7 +21,11 @@ class ExectionContext {
             getOpConfig: this._getOpConfig,
         });
 
-        this._opRunner = makeOpRunner(context, { skipRegister: true });
+        this._opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: _.get(context, 'sysconfig.teraslice.assets_directory'),
+            opPath: _.get(context, 'sysconfig.teraslice.ops_directory')
+        });
 
         this._context = context;
         this._logger = makeLogger(context, executionContext, 'execution_context');
@@ -85,29 +90,8 @@ class ExectionContext {
     }
 
     async _loadOperation(opName) {
-        const { findOp } = this._opRunner;
-        const { assetIds, assetsDirectory } = this._assets;
-
-        const assetPath = !_.isEmpty(assetIds) ? assetsDirectory : null;
-        if (!_.isString(opName)) {
-            throw new WrapError('please verify that ops_directory in config and _op for each job operations are strings');
-        }
-
-        const codePath = findOp(opName, assetPath, assetIds);
-        try {
-            return require(codePath);
-        } catch (_error) {
-            const error = new WrapError(`Failed to module by path: ${opName}`, _error);
-            try {
-                return require(opName);
-            } catch (err) {
-                if (_.get(err, 'code') === 'MODULE_NOT_FOUND') {
-                    err.message = `Could not retrieve code for: ${opName}`;
-                }
-                const wrappedError = new WrapError(error.toString(), err);
-                throw new WrapError(`Failed to module: ${opName}`, wrappedError);
-            }
-        }
+        const { assetIds } = this._assets;
+        return this._opLoader.load(opName, assetIds);
     }
 
     async _setQueueLength() {

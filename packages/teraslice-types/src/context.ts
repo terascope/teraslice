@@ -1,5 +1,5 @@
 import * as bunyan from 'bunyan';
-import * as debugnyan from 'debugnyan';
+import debugnyan from 'debugnyan';
 import { EventEmitter } from 'events';
 
 export interface TerasliceConfig {
@@ -28,6 +28,12 @@ export interface FoundationApis {
     getConnection(config: ConnectionConfig): { client: any };
 }
 
+export interface LegacyFoundationApis {
+    makeLogger(...params: any[]): bunyan;
+    getEventEmitter(): EventEmitter;
+    getConnection(config: ConnectionConfig): { client: any };
+}
+
 export interface ContextApis {
     foundation: FoundationApis;
     registerAPI(namespace: string, apis: any): void;
@@ -38,22 +44,28 @@ export interface Context {
     logger: bunyan;
     sysconfig: SysConfig;
     apis: ContextApis;
+    foundation: LegacyFoundationApis
 }
 
 class TestContextApis implements ContextApis {
-    foundation: FoundationApis;
+    public foundation: FoundationApis;
 
     constructor(testName: string) {
         const events = new EventEmitter();
         this.foundation = {
             makeLogger(...params: any[]): bunyan {
-                let suffix: string = '';
                 if (typeof params[0] === 'string') {
-                    suffix = params[0];
+                    return debugnyan(`teraslice:${testName}`, {}, {
+                        suffix: params[0] as string,
+                        simple: false
+                    });
                 } else {
-                    suffix = params[0].module;
+                    return debugnyan(`teraslice:${testName}`, params[0] as Object, {
+                        suffix: params[0].module,
+                        simple: false
+                    });
                 }
-                return debugnyan(`teraslice:${testName}`, {}, { suffix, simple: false });
+
             },
             getConnection(config: ConnectionConfig): { client: any } {
                 return { client: config };
@@ -64,15 +76,16 @@ class TestContextApis implements ContextApis {
         };
     }
 
-    registerAPI(namespace: string, apis: any): void {
+    public registerAPI(namespace: string, apis: any): void {
         this[namespace] = apis;
     }
 }
 
 export class TestContext implements Context {
-    logger: bunyan;
-    sysconfig: SysConfig;
-    apis: ContextApis;
+    public logger: bunyan;
+    public sysconfig: SysConfig;
+    public apis: ContextApis;
+    public foundation: LegacyFoundationApis;
 
     constructor(testName: string) {
         this.logger = debugnyan(`teraslice:${testName}`);
@@ -87,5 +100,11 @@ export class TestContext implements Context {
         };
 
         this.apis = new TestContextApis(testName);
+
+        this.foundation = {
+            makeLogger: this.apis.foundation.makeLogger,
+            getConnection: this.apis.foundation.getConnection,
+            getEventEmitter: this.apis.foundation.getSystemEvents,
+        }
     }
 }

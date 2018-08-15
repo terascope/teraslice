@@ -1,21 +1,18 @@
 {
     "extends": "../../tsconfig",
     "compilerOptions": {
-        "baseUrl": "..",
+        "baseUrl": ".",
         "paths": {
-            "@terascope/teraslice-types": [
-                "teraslice-types"
+            "*": [
+                "../*",
+                "node_modules/*",
+                "src/types/*"
             ]
         },
-        "typeRoots": [
-            "./node_modules/@types"
-        ],
         "rootDir": "src",
         "outDir": "lib"
     },
-    "exclude": [
-        "lib",
-        "node_modules",
-        "test"
+    "include": [
+        "src/**/*"
     ]
 }

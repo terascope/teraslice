@@ -39,7 +39,7 @@ export class JobValidator {
             }
 
             if (operation.crossValidation) {
-                topLevelJobValidators.push(operation.crossValidation as crossValidation);
+                topLevelJobValidators.push(operation.crossValidation);
             }
 
             return validOP;

@@ -1,9 +1,9 @@
 'use strict';
 
-import * as path from 'path';
+import { Operation } from '@terascope/teraslice-types';
 import * as fs from 'fs';
 import { pathExistsSync } from 'fs-extra';
-import { Operation } from '@terascope/teraslice-types';
+import * as path from 'path';
 
 export interface LoaderOptions {
     terasliceOpPath: string;
@@ -18,24 +18,28 @@ export class OperationLoader {
         this.options = options;
     }
 
-    find(name: string, executionAssets?: string[]) : string {
-        let filePath: string = '';
+    public find(name: string, executionAssets?: string[]) : string|null {
+        this.verifyOpName(name);
+
+        let filePath: string|null = null;
         let codeName: string = '';
 
         if (!name.match(/.js$/)) {
             codeName = `${name}.js`;
         }
 
-        function findCode(rootDir: string): void {
+        const findCode = (rootDir: string): void => {
             fs.readdirSync(rootDir).forEach((filename: string) => {
                 const nextPath = path.join(rootDir, filename);
 
                 // if name is same as filename/dir then we found it
                 if (filename === name || filename === codeName) {
-                    filePath = nextPath;
+                    filePath = this.resolvePath(nextPath);
                 }
 
-                if (filePath || filename === 'node_modules') return;
+                if (filePath || filename === 'node_modules') {
+                    return;
+                }
 
                 if (fs.statSync(nextPath).isDirectory()) {
                     findCode(nextPath);
@@ -43,10 +47,10 @@ export class OperationLoader {
             });
         }
 
-        function findCodeByConvention(basePath?: string, subfolders?: string[]) {
-            if (!basePath) return;
-            if (!pathExistsSync(basePath)) return;
-            if (!subfolders || !subfolders.length) return;
+        const findCodeByConvention = (basePath?: string, subfolders?: string[]) => {
+            if (!basePath) { return; }
+            if (!pathExistsSync(basePath)) { return; }
+            if (!subfolders || !subfolders.length) { return; }
 
             subfolders.forEach((folder: string) => {
                 const pathType = path.join(basePath, folder);
@@ -58,45 +62,50 @@ export class OperationLoader {
 
         findCodeByConvention(this.options.assetPath, executionAssets);
 
-        // if found, don't do extra searches
-        if (filePath) return filePath;
+        if (!filePath) {
+            findCodeByConvention(path.resolve(this.options.terasliceOpPath), ['readers', 'processors']);
+        }
 
-        findCodeByConvention(path.resolve(this.options.terasliceOpPath), ['readers', 'processors']);
+        if (!filePath) {
+            findCodeByConvention(path.resolve(this.options.opPath), ['readers', 'processors']);
+        }
 
-        // if found, don't do extra searches
-        if (filePath) return filePath;
-
-        findCodeByConvention(path.resolve(this.options.opPath), ['readers', 'processors']);
+        if (!filePath) {
+            filePath = this.resolvePath(name);
+        }
 
         return filePath;
     }
 
-    load(name: string, executionAssets?: string[]): Operation {
+    public load(name: string, executionAssets?: string[]): Operation {
+        this.verifyOpName(name);
+
         const codePath = this.find(name, executionAssets);
-        let error: Error = null;
 
         if (codePath) {
             try {
                 return require(codePath);
             } catch (err) {
-                error = err;
+                throw new Error(`Failure loading module: ${name}, error: ${err.stack}`);
             }
         }
 
-        try {
-            return require(name);
-        } catch (err) {
-            if (err.code && err.code === 'MODULE_NOT_FOUND') {
-                throw new Error(`Could not retrieve code for: ${name} , error message: ${err}`);
-            }
+        throw new Error(`Unable to find module for operation: ${name}`);
+    }
 
-            // if it cant be required check first error to see if it exists
-            // or had an error loading
-            if (error && error.message !== 'missing path') {
-                throw new Error(`Error loading module: ${name}, the following error occurred while attempting to load the code: ${error.message}`);
-            }
+    private resolvePath(filePath: string): string|null {
+       if (pathExistsSync(filePath)) return filePath;
 
-            throw new Error(`Error loading module: ${name} , error: ${err.stack}`);
+       try {
+           return require.resolve(filePath);
+       } catch(err) {
+           return null
+       }
+    }
+
+    private verifyOpName(name: string): void {
+        if (typeof name !== 'string') {
+            throw new Error('please verify that ops_directory in config and _op for each job operations are strings');
         }
     }
 }

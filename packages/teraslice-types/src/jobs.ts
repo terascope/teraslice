@@ -1,3 +1,4 @@
+import * as bunyan from 'bunyan';
 import { Context, SysConfig } from './context';
 
 export interface OpConfig {
@@ -30,7 +31,15 @@ export interface selfValidation {
 }
 
 export interface processor {
-    (...params: any[]): any[];
+    (...params: any[]): any[]|any;
+}
+
+export interface slicer {
+    (): any[]|null
+}
+
+export interface slicers {
+    (...params: any[]): slicer[];
 }
 
 export interface Operation {
@@ -38,6 +47,8 @@ export interface Operation {
     crossValidation?: crossValidation;
     selfValidation?: selfValidation;
     newProcessor?(context: Context, opConfig: OpConfig, jobConfig: JobConfig): Promise<processor>|processor;
+    newReader?(context: Context, opConfig: OpConfig, jobConfig: JobConfig): Promise<processor>|processor;
+    newSlicer?(context: Context, executionContext: any, startingPoints: any, logger: bunyan): Promise<slicer>|slicer;
 }
 
 export const testJobConfig: JobConfig = {

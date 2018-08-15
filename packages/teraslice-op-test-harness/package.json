@@ -34,9 +34,9 @@
     "url": "https://github.com/terascope/teraslice/issues"
   },
   "dependencies": {
+    "@terascope/teraslice-types": "^0.1.0",
     "@terascope/teraslice-validators": "^0.1.0",
     "bluebird": "^3.5.1",
-    "debug": "^3.1.0",
     "lodash": "^4.17.4"
   },
   "devDependencies": {

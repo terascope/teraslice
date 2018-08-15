@@ -1,9 +1,10 @@
 {
+  "defaultSeverity": "error",
   "extends": [
-    "tslint-config-airbnb"
+    "tslint:recommended",
+    "tslint-config-prettier"
   ],
   "rules": {
-    "ter-indent": [true, 4],
-    "max-line-length": [true, 200]
+    "interface-name": false,
   }
 }

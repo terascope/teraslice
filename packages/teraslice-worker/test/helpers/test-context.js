@@ -7,16 +7,15 @@ const { createTempDirSync, cleanupTempDirs } = require('jest-fixtures');
 const ElasticsearchClient = require('elasticsearch').Client;
 const path = require('path');
 const fs = require('fs-extra');
-
 const {
     makeAssetStore,
     makeStateStore,
     makeAnalyticsStore,
     makeExStore,
     makeJobStore,
-    initializeJob,
-} = require('../../lib/teraslice');
+} = require('teraslice');
 
+const { initializeJob } = require('../../lib/teraslice');
 const makeExecutionContext = require('../../lib/execution-context');
 const newId = require('../../lib/utils/new-id');
 const { generateContext } = require('../../lib/utils/context');

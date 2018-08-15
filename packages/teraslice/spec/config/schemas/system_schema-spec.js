@@ -2,13 +2,9 @@
 
 const convict = require('convict');
 const sysSchema = require('../../../lib/config/schemas/system');
-const convictFormats = require('../../../lib/utils/convict_utils');
+require('@terascope/teraslice-validators');
 
 describe('system_schema', () => {
-    convictFormats.forEach((format) => {
-        convict.addFormat(format);
-    });
-
     const schema = sysSchema.config_schema({}).teraslice;
 
     function checkValidation(config) {

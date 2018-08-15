@@ -1,15 +1,12 @@
 'use strict';
 
 const _ = require('lodash');
-
-const Slice = require('./slice');
-const WorkerMessenger = require('./messenger');
-
 const {
     makeStateStore,
     makeAnalyticsStore
-} = require('../teraslice');
-
+} = require('teraslice');
+const Slice = require('./slice');
+const WorkerMessenger = require('./messenger');
 const { formatURL } = require('../utils');
 const { generateWorkerId, makeLogger } = require('../utils/context');
 
