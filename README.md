@@ -161,6 +161,8 @@ teraslice -c worker-config.yaml
 ```sh
 git clone https://github.com/terascope/teraslice.git
 cd teraslice
+# If install the root level depedencies
+yarn
 # Make sure you bootstrap all of the projects together
 yarn bootstrap
 yarn build # this will compile the typescript modules

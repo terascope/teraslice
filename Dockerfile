@@ -1,27 +1,28 @@
 FROM node:8
 LABEL MAINTAINER Terascope, LLC <info@terascope.io>
 
-ENV NODE_ENV production
-
 RUN mkdir -p /app/source
 WORKDIR /app/source
-COPY package.json yarn.lock /app/source/
 
-RUN yarn global add \
-    --silent \
-    --no-progress \
-    bunyan
+RUN yarn config set silent && \
+    yarn config set no-progress && \
+    yarn config set pure-lockfile && \
+    yarn config set prefer-offline
 
-RUN yarn install \
-    --silent \
-    --no-progress \
-    --production=true
+RUN yarn global add bunyan
 
-COPY service.js lerna.json examples /app/source/
+COPY package.json yarn.lock .yarnrc lerna.json tsconfig.json /app/source/
+RUN yarn install
+
+COPY service.js /app/source/
 COPY packages /app/source/packages
 COPY scripts /app/source/scripts
 
-RUN yarn bootstrap:production
+# Install and build dependecies
+RUN yarn bootstrap --loglevel=error --no-progress \
+    && yarn build --loglevel=error --no-progress
+
+ENV NODE_ENV production
 
 EXPOSE 5678
 
