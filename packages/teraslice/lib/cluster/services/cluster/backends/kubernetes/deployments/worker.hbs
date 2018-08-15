@@ -51,15 +51,15 @@
                 "volumes": [{
                     "name": "config",
                     "configMap": {
-                        "name": "teraslice-worker",
+                        "name": "{{configMapName}}",
                         "items": [{
-                            "key": "teraslice-worker.yaml",
+                            "key": "teraslice.yaml",
                             "path": "teraslice.yaml"
                         }]
                     }
                 }],
                 "terminationGracePeriodSeconds": {{shutdownTimeout}},
-                "imagePullSecrets": [{ "name": "docker-tera1-secret" }]
+                "imagePullSecrets": [{ "name": "{{imagePullSecret}}" }]
             }
         },
         "selector": {

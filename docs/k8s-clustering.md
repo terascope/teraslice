@@ -33,11 +33,17 @@ This may not be appropriate for production environments.
 
 ### Kubernetes Specific Configuration Settings
 
-|  Configuration   |                    Description                    |  Type  |  Notes   |
-|:----------------:|:-------------------------------------------------:|:------:|:--------:|
-| kubernetes_image | Name of docker image, default: `teraslice:k8sdev` | String | optional |
+|        Configuration         |                                                                         Description                                                                         |  Type  |  Notes   |
+|:----------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------:|:------:|:--------:|
+|       kubernetes_image       |                                                      Name of docker image, default: `teraslice:k8sdev`                                                      | String | optional |
+| kubernetes_image_pull_secret |                                                     Secret used to pull docker images from private repo                                                     | String | optional |
+|  kubernetes_config_map_name  | Name of the configmap used by worker and executcion_controller containers for config.  If this is not provided, the default will be `<CLUSTER_NAME>-worker` | String | optional |
+
 
 ### ConfigMaps
+
+TODO: New configMap names must match the cluster name set in  the config
+followed by `-worker`, e.g.: `teraslice-qa3-worker`
 
 Kubernetes ConfigMaps are used to configure Teraslice, you will need to
 substitute the appropriate Elasticsearch host and port number for the values:

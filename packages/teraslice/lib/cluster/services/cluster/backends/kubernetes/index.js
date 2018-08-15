@@ -32,6 +32,16 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
 
     const kubernetesImage = _.get(context, 'sysconfig.teraslice.kubernetes_image', 'teraslice:k8sdev');
     const kubernetesNamespace = _.get(context, 'sysconfig.teraslice.kubernetes_namespace', 'default');
+    const configMapName = _.get(
+        context,
+        'sysconfig.teraslice.kubernetes_config_map_name',
+        `${context.sysconfig.teraslice.name}-worker`
+    );
+    const imagePullSecret = _.get(
+        context,
+        'sysconfig.teraslice.kubernetes_image_pull_secret',
+        'teraslice-image-pull-secret'
+    );
 
     const clusterState = {};
     let clusterStateInterval = null;
@@ -189,7 +199,11 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
             nodeType: 'execution_controller',
             namespace: kubernetesNamespace,
             shutdownTimeout: shutdownTimeoutSeconds,
+            configMapName,
+            imagePullSecret,
         };
+
+        logger.info(`c: ${JSON.stringify(jobConfig, null, 2)}`);
 
         const exJob = exJobTemplate(jobConfig);
 
@@ -232,6 +246,8 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
             namespace: kubernetesNamespace,
             shutdownTimeout: shutdownTimeoutSeconds,
             replicas: numWorkers,
+            configMapName,
+            imagePullSecret,
         };
 
         const workerDeployment = workerDeploymentTemplate(deploymentConfig);
