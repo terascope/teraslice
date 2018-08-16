@@ -6,7 +6,7 @@ services:
     command: [
       "./scripts/wait-for-it.sh",
       "elasticsearch:49200",
-      "--timeout=30",
+      "--timeout=60",
       "--strict",
       "--",
       "node",
@@ -29,7 +29,7 @@ services:
     command: [
       "./scripts/wait-for-it.sh",
       "teraslice-master:45678",
-      "--timeout=30",
+      "--timeout=60",
       "--strict",
       "--",
       "node",

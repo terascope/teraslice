@@ -78,12 +78,12 @@ function forWorkersJoined(jobId, workerCount, iterations) {
         });
 }
 
-function waitForClusterMaster(timeoutMs = 30000) {
-    const endTime = Date.now() + timeoutMs;
+function waitForClusterMaster(timeoutMs = 60000) {
+    const endAt = Date.now() + timeoutMs;
     const { cluster } = misc.teraslice();
     function _try() {
-        if (endTime < Date.now()) {
-            return Promise.reject(new Error('Failure to communicate with the Cluster Master'));
+        if (Date.now() > endAt) {
+            return Promise.reject(new Error(`Failure to communicate with the Cluster Master as ${timeoutMs}ms`));
         }
         return cluster.state().catch(() => _try());
     }
