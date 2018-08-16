@@ -218,4 +218,13 @@ beforeAll((done) => {
         });
 });
 
-afterAll(() => misc.compose.stop());
+afterAll(() => {
+    signale.pending('Bringing docker-compose down...');
+    return misc.compose.down({
+        timeout: 5,
+    }).then(() => {
+        signale.success('Docker environment should be down');
+    }).catch(() => {
+        signale.success('Docker environment should be clean');
+    });
+});
