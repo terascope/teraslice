@@ -1,6 +1,7 @@
 'use strict';
 
 import { addFormat, Format } from 'convict';
+// @ts-ignore
 import dateMath from 'datemath-parser';
 import moment from 'moment';
 

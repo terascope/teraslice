@@ -19,6 +19,14 @@
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
         "resolveJsonModule": true,
-        "suppressImplicitAnyIndexErrors": true
+        "suppressImplicitAnyIndexErrors": true,
+        "paths": {
+            "*": [
+                "types/*",
+                "../*",
+                "node_modules/*",
+                "../../node_modules/*"
+            ]
+        }
     }
 }

@@ -1,9 +1,9 @@
 'use strict';
 
 import { Context } from '@terascope/teraslice-types';
-import * as convict from 'convict';
-import * as _ from 'lodash';
-import * as os from 'os';
+import convict from 'convict';
+import _ from 'lodash';
+import os from 'os';
 
 const cpuCount = os.cpus().length;
 const workers = cpuCount < 5 ? cpuCount : 5;
@@ -30,6 +30,11 @@ export function jobSchema(context: Context): convict.Schema<any> {
                     }
                 }
             },
+        },
+        lifecycle: {
+            default: 'once',
+            doc: 'Job lifecycle behavior, determines if it should exit on completion or remain active',
+            format: ['once', 'persistent']
         },
         max_retries: {
             default: 3,

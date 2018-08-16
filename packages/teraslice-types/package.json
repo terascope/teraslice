@@ -24,11 +24,12 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "lint": "tslint --force --format verbose \"src/**/*.ts\"",
-    "prepublishOnly": "npm run build",
+    "lint": "tslint --force --format verbose \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint:fix": "yarn lint --fix",
+    "prepublishOnly": "yarn build build",
     "build": "rimraf dist && tsc --pretty",
     "test": "jest",
-    "watch": "npm run build -- --watch",
+    "watch": "yarn build --watch",
     "watch:test": "jest --watch"
   },
   "dependencies": {

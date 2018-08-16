@@ -1,9 +1,9 @@
 'use strict';
 
 import { LoaderOptions, OperationLoader } from '@terascope/teraslice-operations';
-import { Context, crossValidation, OpConfig } from '@terascope/teraslice-types';
-import * as convict from 'convict';
-import * as _ from 'lodash';
+import { Context, crossValidationFn, OpConfig } from '@terascope/teraslice-types';
+import convict from 'convict';
+import _ from 'lodash';
 import { validateJobConfig, validateOpConfig } from './config-validators';
 import { jobSchema, opSchema } from './job-schemas';
 
@@ -22,7 +22,7 @@ export class JobValidator {
         let validJob = _.cloneDeep(job);
 
         // this is used if an operation needs to provide additional validation beyond its own scope
-        const topLevelJobValidators : crossValidation[] = [];
+        const topLevelJobValidators : crossValidationFn[] = [];
 
         // top level job validation occurs, but not operations
         validJob = validateJobConfig(this.schema, validJob);
@@ -32,7 +32,7 @@ export class JobValidator {
 
             this.hasSchema(operation, opConfig._op);
 
-            const validOP = validateOpConfig(opSchema, opConfig);
+            const validOP = validateOpConfig(operation.schema(), opConfig);
 
             if (operation.selfValidation) {
                 operation.selfValidation(validOP);

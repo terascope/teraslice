@@ -9,33 +9,3 @@ export function parse(expression: any, now?: any, roundUp?: any, timeZone?: any,
 export function parseTime(s: any, timeZone: any): any;
 
 export function roundDate(now: any, unit: any, roundUp: any, timeZone: any, useTimeZoneForRounding: any): any;
-
-export namespace calculate {
-    const prototype: {
-    };
-
-}
-
-export namespace evaluate {
-    const prototype: {
-    };
-
-}
-
-export namespace parse {
-    const prototype: {
-    };
-
-}
-
-export namespace parseTime {
-    const prototype: {
-    };
-
-}
-
-export namespace roundDate {
-    const prototype: {
-    };
-
-}

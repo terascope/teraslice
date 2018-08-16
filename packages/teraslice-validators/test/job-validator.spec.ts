@@ -1,13 +1,13 @@
-import * as path from 'path';
 import { TestContext } from '@terascope/teraslice-types';
+import * as path from 'path';
 import { JobValidator } from '../src';
 
 describe('JobValidator', () => {
     const context = new TestContext('teraslice-validators');
     const terasliceOpPath = path.join(__dirname, '../../teraslice/lib');
     const api = new JobValidator(context, {
-        terasliceOpPath,
         opPath: '',
+        terasliceOpPath,
     });
 
     it('returns a completed and valid jobConfig', () => {
@@ -50,8 +50,8 @@ describe('JobValidator', () => {
             operations: [
                 {
                     _op: 'elasticsearch_reader',
-                    index: 'some_index',
                     date_field_name: 'created',
+                    index: 'some_index',
                 },
                 {
                     _op: 'noop',
@@ -70,8 +70,8 @@ describe('JobValidator', () => {
             operations: [
                 {
                     _op: 'elasticsearch_reader',
-                    index: 'some_index',
                     date_field_name: 'created',
+                    index: 'some_index',
                     subslice_by_key: true,
                 },
                 {
@@ -92,10 +92,10 @@ describe('JobValidator', () => {
             operations: [
                 {
                     _op: 'elasticsearch_reader',
-                    index: 'some_index',
                     date_field_name: 'created',
-                    subslice_by_key: true,
+                    index: 'some_index',
                     interval: 'auto',
+                    subslice_by_key: true,
                 },
                 {
                     _op: 'noop',

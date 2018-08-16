@@ -1,4 +1,5 @@
-import * as bunyan from 'bunyan';
+import bunyan from 'bunyan';
+import { Schema } from 'convict';
 import { Context, SysConfig } from './context';
 
 export interface OpConfig {
@@ -23,34 +24,36 @@ export interface JobConfig {
     workers: number;
 }
 
-export type crossValidation = (job: JobConfig, sysconfig: SysConfig) => void;
+export type crossValidationFn = (job: JobConfig, sysconfig: SysConfig) => void;
 
-export type selfValidation = (config: OpConfig) => void;
+export type selfValidationFn = (config: OpConfig) => void;
 
-export type processor = (...params: any[]) => any[]|any;
+export type processorFn = (...params: any[]) => any[]|any;
 
-export type slicer = () => any[]|null
+export type slicerFn = () => any[]|null
 
-export type slicers = (...params: any[]) => slicer[];
+export type slicersFn = (...params: any[]) => slicerFn[];
 
 export interface Operation {
-    crossValidation?: crossValidation;
-    selfValidation?: selfValidation;
-    schema?(context?: Context): void;
-    newProcessor?(context: Context, opConfig: OpConfig, jobConfig: JobConfig): Promise<processor>|processor;
-    newReader?(context: Context, opConfig: OpConfig, jobConfig: JobConfig): Promise<processor>|processor;
-    newSlicer?(context: Context, executionContext: any, startingPoints: any, logger: bunyan): Promise<slicer>|slicer;
+    crossValidation?: crossValidationFn;
+    selfValidation?: selfValidationFn;
+    schema(context?: Context): Schema<any>;
+    newProcessor?(context: Context, opConfig: OpConfig, jobConfig: JobConfig): Promise<processorFn>|processorFn;
+    newReader?(context: Context, opConfig: OpConfig, jobConfig: JobConfig): Promise<processorFn>|processorFn;
+    newSlicer?(context: Context, executionContext: any, startingPoints: any, logger: bunyan): Promise<slicersFn>|slicersFn;
 }
 
-export const TestJobConfig: JobConfig = {
-    analytics: false,
-    assets: [],
-    lifecycle: LifeCycle.Once,
-    max_retries: 1,
-    name: 'test-job',
-    operations: [],
-    probation_window: 30000,
-    recycle_worker: 0,
-    slicers: 1,
-    workers: 1,
-};
+export function newTestJobConfig(): JobConfig {
+    return {
+        analytics: false,
+        assets: [],
+        lifecycle: LifeCycle.Once,
+        max_retries: 1,
+        name: 'test-job',
+        operations: [],
+        probation_window: 30000,
+        recycle_worker: 0,
+        slicers: 1,
+        workers: 1,
+    };
+}

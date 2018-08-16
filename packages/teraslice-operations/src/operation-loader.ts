@@ -1,9 +1,9 @@
 'use strict';
 
 import { Operation } from '@terascope/teraslice-types';
-import * as fs from 'fs';
+import fs from 'fs';
 import { pathExistsSync } from 'fs-extra';
-import * as path from 'path';
+import path from 'path';
 
 export interface LoaderOptions {
     terasliceOpPath: string;

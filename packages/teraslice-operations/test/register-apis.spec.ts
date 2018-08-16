@@ -21,19 +21,19 @@ describe('registerApis', () => {
             const { getClient } = context.apis.op_runner;
 
             expect(getClient({}, 'elasticsearch')).toEqual({
-                type: 'elasticsearch',
-                endpoint: 'default',
                 cached: true,
+                endpoint: 'default',
+                type: 'elasticsearch',
             });
             expect(getClient({ connection: 'someConnection' }, 'kafka')).toEqual({
-                type: 'kafka',
-                endpoint: 'someConnection',
                 cached: true,
+                endpoint: 'someConnection',
+                type: 'kafka',
             });
             expect(getClient({ connection_cache: false }, 'mongo')).toEqual({
-                type: 'mongo',
-                endpoint: 'default',
                 cached: true,
+                endpoint: 'default',
+                type: 'mongo',
             });
         });
 

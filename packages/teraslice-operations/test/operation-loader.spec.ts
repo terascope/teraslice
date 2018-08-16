@@ -1,9 +1,9 @@
 'use strict';
 
-import * as fs from 'fs-extra';
-import * as path from 'path';
+import { newTestJobConfig, processorFn, TestContext } from '@terascope/teraslice-types';
+import fs from 'fs-extra';
+import path from 'path';
 import { OperationLoader } from '../src';
-import { TestContext, testJobConfig, processor } from '@terascope/teraslice-types';
 
 describe('OperationLoader', () => {
     const assetId = '1234';
@@ -25,8 +25,8 @@ describe('OperationLoader', () => {
 
         expect(() => {
             opLoader = new OperationLoader({
-                terasliceOpPath,
                 opPath: '',
+                terasliceOpPath,
             });
         }).not.toThrowError();
 
@@ -37,8 +37,8 @@ describe('OperationLoader', () => {
 
     it('can load an operation', () => {
         const opLoader = new OperationLoader({
-            terasliceOpPath,
             opPath: '',
+            terasliceOpPath,
         });
         const results = opLoader.load('noop');
 
@@ -53,7 +53,8 @@ describe('OperationLoader', () => {
         expect(opSchema).toBeDefined();
         expect(typeof opSchema).toEqual('object');
 
-        const processor = results.newProcessor(context, { _op: 'noop' }, testJobConfig) as processor;
+        const jobConfig = newTestJobConfig()
+        const processor = results.newProcessor(context, { _op: 'noop' }, jobConfig) as processorFn;
 
         expect(processor).toBeDefined();
         expect(typeof processor).toEqual('function');
@@ -65,8 +66,8 @@ describe('OperationLoader', () => {
 
     it('can load by file path', () => {
         const opLoader = new OperationLoader({
-            terasliceOpPath,
             opPath: '',
+            terasliceOpPath,
         });
         const op = opLoader.load(path.join(__dirname, 'fixtures', 'test-op'));
 
@@ -89,8 +90,8 @@ describe('OperationLoader', () => {
 
     it('can throw proper errors if op code does not exits', () => {
         const opLoader = new OperationLoader({
-            terasliceOpPath,
             opPath: '',
+            terasliceOpPath,
         });
 
         expect(() => {
@@ -100,9 +101,9 @@ describe('OperationLoader', () => {
 
     it('can load asset ops', () => {
         const opLoader = new OperationLoader({
-            terasliceOpPath,
-            opPath: '',
             assetPath: testDir,
+            opPath: '',
+            terasliceOpPath,
         });
 
         let results;
@@ -122,7 +123,7 @@ describe('OperationLoader', () => {
         expect(opSchema).toBeDefined();
         expect(typeof opSchema).toEqual('object');
 
-        const processor = results.newProcessor();
+        const processor = results.newProcessor() as processorFn;
 
         expect(processor).toBeDefined();
         expect(typeof processor).toEqual('function');
