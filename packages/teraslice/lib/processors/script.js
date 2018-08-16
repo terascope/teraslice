@@ -2,7 +2,6 @@
 
 const { spawn } = require('child_process');
 const path = require('path');
-
 const Promise = require('bluebird');
 
 function newProcessor(context, opConfig) {
@@ -39,6 +38,7 @@ function newProcessor(context, opConfig) {
                 const errorMsg = 'failed to convert input data to string';
                 logger.error(errorMsg, error);
                 reject(errorMsg);
+                return;
             }
 
             let outErrors = '';
@@ -51,7 +51,9 @@ function newProcessor(context, opConfig) {
                 const errorMsg = 'when trying to run command';
                 logger.error(errorMsg, error);
                 reject(errorMsg);
+                return;
             }
+
             childProcess.stdin.setEncoding('utf-8');
             childProcess.stdin.write(`${inData}\n`);
             childProcess.stdin.end();
@@ -64,7 +66,6 @@ function newProcessor(context, opConfig) {
             childProcess.stdout.on('data', (outDataItem) => {
                 outData += outDataItem;
             });
-
 
             childProcess.stdout.on('end', () => {
                 if (outErrors) {

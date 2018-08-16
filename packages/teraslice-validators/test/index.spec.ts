@@ -1,3 +1,5 @@
+/// <reference types="jest-extended" />
+
 import * as index from '../src';
 
 it('should have validateJobConfig available', () => {

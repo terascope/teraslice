@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const { terasliceOpPath } = require('teraslice');
-const { OperationLoader } = require('@terascope/teraslice-operations');
+const { OperationLoader, registerApis } = require('@terascope/teraslice-operations');
 const Assets = require('./assets');
 const { makeLogger } = require('../utils/context');
 const { analyzeOp } = require('../utils/ops');
@@ -13,12 +13,7 @@ class ExectionContext {
             throw new Error('reporters are not functional at this time, please do not set one in the configuration');
         }
 
-        this._getOpConfig = this._getOpConfig.bind(this);
         this._loadOperation = this._loadOperation.bind(this);
-
-        context.apis.registerAPI('job_runner', {
-            getOpConfig: this._getOpConfig,
-        });
 
         this._opLoader = new OperationLoader({
             terasliceOpPath,
@@ -26,16 +21,18 @@ class ExectionContext {
             opPath: _.get(context, 'sysconfig.teraslice.ops_directory')
         });
 
-        this._context = context;
+        registerApis(context, executionContext.job);
+
         this._logger = makeLogger(context, executionContext, 'execution_context');
 
+        this._context = context;
         this._assets = new Assets(context, executionContext);
 
         Object.assign(this, executionContext);
 
         this.config = executionContext.job;
         this.config.ex_id = executionContext.ex_id;
-        this.config.ex_id = executionContext.job_id;
+        this.config.job_id = executionContext.job_id;
         this.queue = [];
         this.reader = null;
         this.slicer = null;
@@ -54,11 +51,6 @@ class ExectionContext {
             await this._initializeSlicer();
         }
         return this;
-    }
-
-    _getOpConfig(name) {
-        const operations = _.get(this.config, 'operations', []);
-        return _.find(operations, { _op: name });
     }
 
     async _initializeSlicer() {

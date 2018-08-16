@@ -7,23 +7,10 @@
   "description": "Node.js driver for controlling docker-compose testing environments.",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint *.js spec",
-    "lint:fix": "eslint --fix *.js spec",
-    "test": "nyc -x spec/ --reporter=text-summary jasmine; nyc report --reporter=html",
-    "coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov"
-  },
-  "nyc": {
-    "cache": true,
-    "all": true,
-    "include": [
-      "*.js"
-    ],
-    "reporter": [
-      "text-summary",
-      "html",
-      "lcov",
-      "json"
-    ]
+    "lint": "eslint *.js lib test",
+    "lint:fix": "eslint --fix *.js lib test",
+    "test": "jest",
+    "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
   },
   "keywords": [
     "docker",
@@ -45,8 +32,7 @@
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
-    "jasmine": "^3.1.0",
-    "jasmine-spec-reporter": "^4.2.1",
-    "nyc": "^12.0.2"
+    "jest": "^23.5.0",
+    "jest-extended": "^0.8.1"
   }
 }

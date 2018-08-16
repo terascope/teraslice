@@ -1,5 +1,7 @@
 'use strict';
 
+/// <reference types="jest-extended" />
+
 import formats from '../src/formats';
 
 describe('Convict Formats', () => {

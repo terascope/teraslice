@@ -25,22 +25,26 @@ export interface JobConfig {
 }
 
 export type crossValidationFn = (job: JobConfig, sysconfig: SysConfig) => void;
-
 export type selfValidationFn = (config: OpConfig) => void;
-
-export type processorFn = (...params: any[]) => any[]|any;
-
-export type slicerFn = () => any[]|null
-
-export type slicersFn = (...params: any[]) => slicerFn[];
 
 export interface Operation {
     crossValidation?: crossValidationFn;
     selfValidation?: selfValidationFn;
     schema(context?: Context): Schema<any>;
-    newProcessor?(context: Context, opConfig: OpConfig, jobConfig: JobConfig): Promise<processorFn>|processorFn;
-    newReader?(context: Context, opConfig: OpConfig, jobConfig: JobConfig): Promise<processorFn>|processorFn;
-    newSlicer?(context: Context, executionContext: any, startingPoints: any, logger: bunyan): Promise<slicersFn>|slicersFn;
+}
+
+export interface Reader extends Operation {
+    newReader(context: Context, opConfig: OpConfig, jobConfig: JobConfig): (...params: any[]) => any[] | any;
+}
+
+export interface Slicer extends Operation {
+    schema(context?: Context): Schema<any>;
+    newSlicer(context: Context, executionContext: any, startingPoints: any, logger: bunyan): () => any[] | null;
+}
+
+export interface Processor extends Operation {
+    schema(context?: Context): Schema<any>;
+    newProcessor(context: Context, opConfig: OpConfig, jobConfig: JobConfig): (...params: any[]) => any[] | any;
 }
 
 export function newTestJobConfig(): JobConfig {

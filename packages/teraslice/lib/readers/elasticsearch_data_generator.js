@@ -2,8 +2,8 @@
 
 const Promise = require('bluebird');
 const parseError = require('@terascope/error-parser');
+const { getOpConfig } = require('@terascope/teraslice-operations');
 const mocker = require('mocker-data-generator').default;
-const { getOpConfig } = require('../utils/config');
 const defaultSchema = require('../utils/data_utils');
 const { existsSync } = require('../utils/file_utils');
 
@@ -162,7 +162,7 @@ function crossValidation(job) {
     const opConfig = getOpConfig(job, 'elasticsearch_data_generator');
 
     if (opConfig.set_id) {
-        const indexSelectorConfig = job.operations.find(op => op._op === 'elasticsearch_index_selector');
+        const indexSelectorConfig = getOpConfig(job, 'elasticsearch_index_selector');
 
         if (!indexSelectorConfig.id_field) {
             throw new Error('elasticsearch_data_generator is mis-configured, set_id must be used in tandem with id_field which is set in elasticsearch_index_selector');

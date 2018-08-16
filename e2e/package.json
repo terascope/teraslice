@@ -4,7 +4,7 @@
     "version": "0.1.0",
     "description": "Teraslice integration test suite",
     "scripts": {
-        "test": "jasmine --fail-fast=true --stop-on-failure=true",
+        "test": "jest --runInBand",
         "logs": "docker-compose logs --no-color teraslice-worker teraslice-master | awk -F' [|] ' '{print $2}' | bunyan -o short"
     },
     "repository": {
@@ -27,9 +27,8 @@
         "bluebird": "^3.4.0",
         "bunyan": "^1.8.12",
         "elasticsearch": "^14.1.0",
-        "jasmine": "^3.1.0",
-        "jasmine-expect": "^3.8.3",
-        "jasmine-spec-reporter": "^4.1",
+        "jest": "^23.5.0",
+        "jest-extended": "^0.8.1",
         "lodash": "^4.13.1",
         "signale": "^1.1.0",
         "teraslice-client-js": "^0.1.0",

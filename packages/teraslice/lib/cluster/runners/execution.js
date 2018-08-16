@@ -28,23 +28,7 @@ module.exports = function module(context, config = {}) {
         opPath: _.get(context, 'sysconfig.teraslice.ops_directory'),
     });
 
-    registerApis(context);
-
-    /*
-     * Returns the first op that matches name.
-     */
-    function getOpConfig(name) {
-        return execution.operations.find(op => op._op === name);
-    }
-
-    /*
-     * This sets up the APIs intended for use by custom readers / processors.
-     */
-
-    context.apis.registerAPI('job_runner', {
-        getOpConfig
-    });
-
+    registerApis(context, execution);
 
     function _instantiateJob() {
         let slicer = null;

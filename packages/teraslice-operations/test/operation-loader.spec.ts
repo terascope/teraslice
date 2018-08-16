@@ -1,6 +1,8 @@
 'use strict';
 
-import { newTestJobConfig, processorFn, TestContext } from '@terascope/teraslice-types';
+/// <reference types="jest-extended" />
+
+import { newTestJobConfig, Processor, Reader, TestContext } from '@terascope/teraslice-types';
 import fs from 'fs-extra';
 import path from 'path';
 import { OperationLoader } from '../src';
@@ -21,14 +23,10 @@ describe('OperationLoader', () => {
     afterAll(() => fs.remove(testDir));
 
     it('can instantiate', () => {
-        let opLoader;
-
-        expect(() => {
-            opLoader = new OperationLoader({
-                opPath: '',
-                terasliceOpPath,
-            });
-        }).not.toThrowError();
+        const opLoader = new OperationLoader({
+            opPath: '',
+            terasliceOpPath,
+        });
 
         expect(typeof opLoader).toEqual('object');
         expect(opLoader.load).toBeDefined();
@@ -40,7 +38,7 @@ describe('OperationLoader', () => {
             opPath: '',
             terasliceOpPath,
         });
-        const results = opLoader.load('noop');
+        const results = opLoader.load('noop') as Processor;
 
         expect(results).toBeDefined();
         expect(typeof results).toEqual('object');
@@ -54,7 +52,7 @@ describe('OperationLoader', () => {
         expect(typeof opSchema).toEqual('object');
 
         const jobConfig = newTestJobConfig()
-        const processor = results.newProcessor(context, { _op: 'noop' }, jobConfig) as processorFn;
+        const processor = results.newProcessor(context, { _op: 'noop' }, jobConfig);
 
         expect(processor).toBeDefined();
         expect(typeof processor).toEqual('function');
@@ -69,7 +67,7 @@ describe('OperationLoader', () => {
             opPath: '',
             terasliceOpPath,
         });
-        const op = opLoader.load(path.join(__dirname, 'fixtures', 'test-op'));
+        const op = opLoader.load(path.join(__dirname, 'fixtures', 'test-op')) as Processor;
 
         expect(op).toBeDefined();
         expect(typeof op).toEqual('object');
@@ -78,7 +76,7 @@ describe('OperationLoader', () => {
         expect(typeof op.newProcessor).toEqual('function');
         expect(typeof op.schema).toEqual('function');
 
-        const reader = opLoader.load(path.join(__dirname, 'fixtures', 'test-reader'));
+        const reader = opLoader.load(path.join(__dirname, 'fixtures', 'test-reader')) as Reader;
 
         expect(reader).toBeDefined();
         expect(typeof reader).toEqual('object');
@@ -106,11 +104,7 @@ describe('OperationLoader', () => {
             terasliceOpPath,
         });
 
-        let results;
-
-        expect(() => {
-            results = opLoader.load('noop', [assetId]);
-        }).not.toThrowError();
+        const results = opLoader.load('noop', [assetId]) as Processor;
 
         expect(results).toBeDefined();
         expect(typeof results).toEqual('object');
@@ -123,7 +117,7 @@ describe('OperationLoader', () => {
         expect(opSchema).toBeDefined();
         expect(typeof opSchema).toEqual('object');
 
-        const processor = results.newProcessor() as processorFn;
+        const processor = results.newProcessor(context, {_op: 'hello'}, newTestJobConfig());
 
         expect(processor).toBeDefined();
         expect(typeof processor).toEqual('function');

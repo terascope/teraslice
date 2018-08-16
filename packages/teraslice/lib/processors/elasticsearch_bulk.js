@@ -3,7 +3,7 @@
 const Promise = require('bluebird');
 const _ = require('lodash');
 const util = require('util');
-const { getClient, getOpConfig } = require('../utils/config');
+const { getOpConfig, getClient } = require('@terascope/teraslice-operations');
 
 function newProcessor(context, opConfig) {
     let logger;

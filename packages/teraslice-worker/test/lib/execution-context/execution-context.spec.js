@@ -54,10 +54,6 @@ describe('Execution Context', () => {
         });
 
         it('getOpConfig should return the matching op', () => {
-            expect(executionContext._getOpConfig('example-op-one')).toEqual({
-                _op: 'example-op-one',
-            });
-
             const getOpConfig = get(testContext, 'context.apis.job_runner.getOpConfig');
             expect(getOpConfig('example-op-one')).toEqual({
                 _op: 'example-op-one',
@@ -65,8 +61,6 @@ describe('Execution Context', () => {
         });
 
         it('getOpConfig should return nothing if none found', () => {
-            expect(executionContext._getOpConfig('this-op-does-not-exist')).toBeNil();
-
             const getOpConfig = get(testContext, 'context.apis.job_runner.getOpConfig');
             expect(getOpConfig('this-op-does-not-exist')).toBeNil();
         });

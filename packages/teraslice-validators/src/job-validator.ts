@@ -1,11 +1,11 @@
 'use strict';
 
-import { LoaderOptions, OperationLoader } from '@terascope/teraslice-operations';
+import { LoaderOptions, OperationLoader, registerApis } from '@terascope/teraslice-operations';
 import { Context, crossValidationFn, OpConfig } from '@terascope/teraslice-types';
 import convict from 'convict';
 import _ from 'lodash';
 import { validateJobConfig, validateOpConfig } from './config-validators';
-import { jobSchema, opSchema } from './job-schemas';
+import { jobSchema } from './job-schemas';
 
 export class JobValidator {
     public schema: convict.Schema<any>;
@@ -44,6 +44,8 @@ export class JobValidator {
 
             return validOP;
         });
+
+        registerApis(this.context, job);
 
         topLevelJobValidators.forEach((fn) => {
             fn(validJob, this.context.sysconfig);

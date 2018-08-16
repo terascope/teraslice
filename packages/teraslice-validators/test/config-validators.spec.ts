@@ -1,5 +1,7 @@
 'use strict';
 
+/// <reference types="jest-extended" />
+
 import { TestContext } from '@terascope/teraslice-types';
 import { Schema } from 'convict';
 import { jobSchema, validateJobConfig, validateOpConfig } from '../src';

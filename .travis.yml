@@ -32,7 +32,6 @@ jobs:
     script: yarn test
     after_success:
       - yarn lint
-      - yarn coverage
       - bash <(curl -s https://codecov.io/bash)
 
   # test end-to-end tests, only on pull-requests

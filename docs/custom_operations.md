@@ -91,7 +91,7 @@ function op_validation(op) {
 
 //optional, used to validate settings across different ops
 function post_validation(job, sysconfig) {
-    var opConfig = getOpConfig(job, 'elasticsearch_data_generator');
+    var opConfig = job.operations.find(op => op._op === 'elasticsearch_data_generator');
 
     if (opConfig.set_id) {
         var indexSelectorConfig = job.operations.find(function(op) {
@@ -108,10 +108,10 @@ function post_validation(job, sysconfig) {
     }
 }
 
-//optional, used to change the slicer queue length 
+//optional, used to change the slicer queue length
 function slicerQueueLength(jobConfig){
     // the fully validated job configuration file
-    
+
    // should return a num >= 1
    //or return  'QUEUE_MINIMUM_SIZE' which will make the queue dynamic to the number of workers
 }
