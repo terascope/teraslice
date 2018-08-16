@@ -4,10 +4,9 @@ const fs = require('fs-extra');
 const path = require('path');
 const isEmpty = require('lodash/isEmpty');
 const get = require('lodash/get');
-const {
-    makeAssetStore,
-    saveAsset,
-} = require('teraslice');
+const { saveAsset } = require('teraslice');
+const { makeAssetStore } = require('../teraslice/stores');
+
 const WrapError = require('../utils/wrap-error');
 
 class Assets {

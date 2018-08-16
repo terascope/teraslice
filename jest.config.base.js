@@ -31,6 +31,6 @@ module.exports = {
         '<rootDir>/test/.*(?!spec)\\.(ts|js)$',
         '<rootDir>/node_modules'
     ],
-    coverageReporters: ['json', 'lcov', 'text', 'html'],
+    coverageReporters: ['lcov', 'text', 'html'],
     coverageDirectory: 'coverage'
 };

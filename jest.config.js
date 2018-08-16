@@ -7,6 +7,6 @@ module.exports = Object.assign({}, base, {
         '<rootDir>/packages/*/jest.config.js'
     ],
     collectCoverage: true,
-    coverageReporters: ['json', 'lcov', 'text', 'html'],
+    coverageReporters: ['lcov', 'text', 'html'],
     coverageDirectory: 'coverage'
 });

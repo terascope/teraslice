@@ -8,8 +8,6 @@ const retry = require('bluebird-retry');
 const Queue = require('@terascope/queue');
 const parseError = require('@terascope/error-parser');
 const {
-    makeStateStore,
-    makeExStore,
     makeSliceAnalytics,
     newFormatedDate,
     makeExecutionRecovery
@@ -18,6 +16,7 @@ const ClusterMasterClient = require('./cluster-master-client');
 const ExecutionAnalytics = require('./analytics');
 const ExecutionControllerMessenger = require('./messenger');
 const makeEngine = require('../teraslice/engine');
+const { makeStateStore, makeExStore } = require('../teraslice/stores');
 const WrapError = require('../utils/wrap-error');
 const { makeLogger, generateWorkerId } = require('../utils/context');
 const { formatURL } = require('../utils');

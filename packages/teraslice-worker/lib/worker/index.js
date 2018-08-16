@@ -4,7 +4,7 @@ const _ = require('lodash');
 const {
     makeStateStore,
     makeAnalyticsStore
-} = require('teraslice');
+} = require('../teraslice/stores');
 const Slice = require('./slice');
 const WorkerMessenger = require('./messenger');
 const { formatURL } = require('../utils');

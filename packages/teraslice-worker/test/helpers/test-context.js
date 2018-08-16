@@ -13,7 +13,7 @@ const {
     makeAnalyticsStore,
     makeExStore,
     makeJobStore,
-} = require('teraslice');
+} = require('../../lib/teraslice/stores');
 
 const { initializeJob } = require('../../lib/teraslice');
 const makeExecutionContext = require('../../lib/execution-context');
@@ -28,7 +28,7 @@ const { TERASLICE_CLUSTER_NAME, ELASTICSEARCH_HOST } = process.env;
 
 const cleanups = {};
 const tmpAssetDir = createTempDirSync();
-const clusterName = `${TERASLICE_CLUSTER_NAME}${newId('', true, 5)}`;
+const clusterName = `${TERASLICE_CLUSTER_NAME}`;
 const es = new ElasticsearchClient({
     host: ELASTICSEARCH_HOST,
     log: '' // This suppresses error logging from the ES library.
@@ -212,8 +212,6 @@ async function cleanupAll(withEs) {
         } catch (err) {
             console.error(err);
         }
-
-        await es.indices.delete({ index: `${clusterName}*` });
     }
 }
 
