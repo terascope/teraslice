@@ -4,4 +4,4 @@ require('jest-extended');
 
 global.Promise = require('bluebird');
 
-jest.setTimeout(10000);
+jest.setTimeout(30000);

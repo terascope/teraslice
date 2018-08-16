@@ -36,7 +36,7 @@ describe('cluster state', () => {
 
         // verify that the cluster master has the cluster master worker
         const activeWorkers = nodes[0].active;
-        expect(activeWorkers.length).toBeGreaterThanOrEqualTo(1);
+        expect(activeWorkers.length).toBeGreaterThanOrEqual(1);
         const cmWorkers = findWorkers(activeWorkers, 'cluster_master');
         expect(cmWorkers).toBeArrayOfSize(1);
         expect(cmWorkers[0].assignment).toEqual('cluster_master');

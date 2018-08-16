@@ -2,7 +2,6 @@
 
 /* eslint-disable no-console */
 
-const _ = require('lodash');
 const { EventEmitter } = require('events');
 const { Worker } = require('../../..');
 const ExecutionControllerMessenger = require('../../../lib/execution-controller/messenger');
@@ -15,8 +14,6 @@ describe('Worker', () => {
     async function setupTest(options = {}) {
         const slicerPort = await findPort();
         options.slicerPort = slicerPort;
-
-        options.useExecutionRunner = _.sample([true, false]);
 
         const testContext = new TestContext(options);
         await testContext.initialize();
@@ -44,8 +41,6 @@ describe('Worker', () => {
 
         return { exMessenger, worker, testContext };
     }
-
-    beforeAll(() => TestContext.cleanupAll(true));
 
     describe('when running forever', () => {
         let sliceConfig;

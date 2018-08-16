@@ -75,12 +75,11 @@ describe('registerApis', () => {
 
             events.once('client:initialization:error', (errMsg) => {
                 expect(errMsg.error.includes(errStr)).toEqual(true);
+                context.apis.foundation.getConnection = ogGetConnection;
                 done();
             });
 
             getClient();
-
-            context.apis.foundation.getConnection = ogGetConnection;
         });
 
         it('getClient returns client with certain defaults', () => {

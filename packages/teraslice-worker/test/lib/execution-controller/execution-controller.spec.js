@@ -20,7 +20,6 @@ describe('ExecutionController', () => {
                 body: { example: 'single-slice' },
                 count: 1,
                 analytics: _.sample([true, false]),
-                useExecutionRunner: _.sample([true, false]),
             }
         ],
         [
@@ -34,7 +33,6 @@ describe('ExecutionController', () => {
                 body: { request_worker: 'specific-worker-1', example: 'specific-worker' },
                 count: 1,
                 analytics: _.sample([true, false]),
-                useExecutionRunner: _.sample([true, false]),
             }
         ],
         [
@@ -52,7 +50,6 @@ describe('ExecutionController', () => {
                 count: 3,
                 body: { example: 'subslice' },
                 analytics: _.sample([true, false]),
-                useExecutionRunner: _.sample([true, false]),
             }
         ],
         [
@@ -69,7 +66,6 @@ describe('ExecutionController', () => {
                 body: { example: 'slice-disconnect' },
                 count: 4,
                 analytics: _.sample([true, false]),
-                useExecutionRunner: _.sample([true, false]),
             }
         ],
         [
@@ -88,7 +84,6 @@ describe('ExecutionController', () => {
                 count: 4,
                 workers: 2,
                 analytics: _.sample([true, false]),
-                useExecutionRunner: _.sample([true, false])
             }
         ],
         [
@@ -103,7 +98,6 @@ describe('ExecutionController', () => {
                 body: { example: 'slice-failure' },
                 count: 1,
                 analytics: _.sample([true, false]),
-                useExecutionRunner: _.sample([true, false]),
             }
         ],
         [
@@ -117,14 +111,13 @@ describe('ExecutionController', () => {
                 body: { example: 'slice-fail' },
                 count: 1,
                 analytics: _.sample([true, false]),
-                useExecutionRunner: _.sample([true, false])
             }
         ],
         [
-            'processing a slicer that emits a "slicer:execution:update" event',
+            'processing a slicer that emits slicer events',
             {
                 slicerResults: [
-                    { example: 'slice-execution-update' },
+                    { example: 'slicer-slice-range-expansion' },
                     null
                 ],
                 emitsExecutionUpdate: [
@@ -133,24 +126,10 @@ describe('ExecutionController', () => {
                         newData: true
                     }
                 ],
-                body: { example: 'slice-execution-update' },
-                count: 1,
-                analytics: _.sample([true, false]),
-                useExecutionRunner: _.sample([true, false])
-            }
-        ],
-        [
-            'processing a slicer that emits a "slicer:slice:range_expansion" event',
-            {
-                slicerResults: [
-                    { example: 'slicer-slice-range-expansion' },
-                    null
-                ],
                 emitSlicerRangeExpansion: true,
                 body: { example: 'slicer-slice-range-expansion' },
                 count: 1,
                 analytics: _.sample([true, false]),
-                useExecutionRunner: _.sample([true, false])
             }
         ],
         [
@@ -164,23 +143,22 @@ describe('ExecutionController', () => {
                 body: { example: 'slice-pause-and-resume' },
                 count: 1,
                 analytics: _.sample([true, false]),
-                useExecutionRunner: _.sample([true, false])
             }
         ],
-        [
-            'processing a slice and the execution is stopped',
-            {
-                slicerResults: [
-                    { example: 'slice-execution-stop' },
-                    null
-                ],
-                sendClusterStop: true,
-                body: { example: 'slice-execution-stop' },
-                count: 1,
-                analytics: _.sample([true, false]),
-                useExecutionRunner: _.sample([true, false])
-            }
-        ],
+        // disabled because this isn't being used currrently
+        // [
+        //     'processing a slice and the execution is stopped',
+        //     {
+        //         slicerResults: [
+        //             { example: 'slice-execution-stop' },
+        //             null
+        //         ],
+        //         sendClusterStop: true,
+        //         body: { example: 'slice-execution-stop' },
+        //         count: 1,
+        //         analytics: _.sample([true, false]),
+        //     }
+        // ],
         [
             'recovering a slicer with no cleanup type',
             {
@@ -218,7 +196,6 @@ describe('ExecutionController', () => {
                 body: { example: 'slice-recovery' },
                 count: 2,
                 analytics: _.sample([true, false]),
-                useExecutionRunner: _.sample([true, false])
             }
         ],
         [
@@ -259,7 +236,6 @@ describe('ExecutionController', () => {
                 body: { example: 'slice-recovery-error' },
                 count: 1,
                 analytics: _.sample([true, false]),
-                useExecutionRunner: _.sample([true, false])
             }
         ],
         [
@@ -300,7 +276,6 @@ describe('ExecutionController', () => {
                 body: { example: 'slice-recovery-all' },
                 count: 2,
                 analytics: _.sample([true, false]),
-                useExecutionRunner: _.sample([true, false])
             }
         ]
     ];
@@ -323,7 +298,6 @@ describe('ExecutionController', () => {
             emitsExecutionUpdate,
             emitSlicerRecursion = false,
             emitSlicerRangeExpansion = false,
-            useExecutionRunner = false,
             workerIds = [],
             cleanupType,
             recover = false,
@@ -349,7 +323,6 @@ describe('ExecutionController', () => {
                 lifecycle,
                 workers,
                 analytics,
-                useExecutionRunner,
             });
 
             await testContext.addClusterMaster();

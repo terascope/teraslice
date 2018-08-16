@@ -664,7 +664,7 @@ describe('messaging module', () => {
         const testContext1 = getContext({ env: { assignment: 'node_master' } });
         const messaging1 = messagingModule(testContext1, logger);
         messaging1.__test_context(io);
-        const spy = jasmine.createSpy('spy');
+        const spy = jest.fn();
 
         messaging1.registerChildOnlineHook(spy);
 
