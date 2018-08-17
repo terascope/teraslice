@@ -1,9 +1,9 @@
 'use strict';
 
 const _ = require('lodash');
-const reply = require('./cmd_functions/reply')();
-const dataChecks = require('./cmd_functions/data_checks');
 const Promise = require('bluebird');
+const reply = require('./cmd_functions/reply');
+const dataChecks = require('./cmd_functions/data_checks');
 
 exports.command = 'start <job_file>';
 exports.desc = 'Starts job on the cluster in the job file\n';
@@ -38,8 +38,8 @@ exports.handler = (argv, _testFunctions) => {
             return Promise.resolve();
         })
         .then((registerResult) => {
-            tjmConfig.job_id = registerResult ?
-                registerResult.id() : tjmConfig.job_file_content.tjm.job_id;
+            tjmConfig.job_id = registerResult
+                ? registerResult.id() : tjmConfig.job_file_content.tjm.job_id;
             if (tjmConfig.c) {
                 const jobContents = tjmConfig.job_file_content;
                 const jobFilePath = tjmConfig.job_file_path;

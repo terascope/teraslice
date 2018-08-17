@@ -1,9 +1,9 @@
 'use strict';
 
 const Promise = require('bluebird');
-const start = require('../cmds/start');
 const path = require('path');
 const fs = require('fs-extra');
+const start = require('../cmds/start');
 
 const argv = {
     job_file: 'spec/fixtures/test_job_file.json'

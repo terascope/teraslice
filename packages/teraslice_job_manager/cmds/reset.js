@@ -1,11 +1,11 @@
 'use strict';
 
 const _ = require('lodash');
-const reply = require('./cmd_functions/reply')();
+const fs = require('fs-extra');
+const reply = require('./cmd_functions/reply');
 const dataChecks = require('./cmd_functions/data_checks');
 
 // removes tjm data from json file
-const fs = require('fs-extra');
 
 exports.command = 'reset [job_file]';
 exports.desc = 'Removes tjm data from job or asset file';

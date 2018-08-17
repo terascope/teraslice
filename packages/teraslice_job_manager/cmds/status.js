@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const reply = require('./cmd_functions/reply')();
+const reply = require('./cmd_functions/reply');
 const dataChecks = require('./cmd_functions/data_checks');
 
 exports.command = 'status <job_file>';
@@ -11,7 +11,7 @@ exports.builder = (yargs) => {
 };
 exports.handler = (argv, _testFunctions) => {
     const tjmConfig = _.clone(argv);
-    dataChecks(tjmConfig).returnJobData();    
+    dataChecks(tjmConfig).returnJobData();
 
     const tjmFunctions = _testFunctions || require('./cmd_functions/functions')(tjmConfig);
 

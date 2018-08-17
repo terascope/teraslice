@@ -1,9 +1,9 @@
 'use strict';
 
 
-const reply = require('./cmd_functions/reply')();
-const dataChecks = require('./cmd_functions/data_checks');
 const _ = require('lodash');
+const reply = require('./cmd_functions/reply');
+const dataChecks = require('./cmd_functions/data_checks');
 
 exports.command = 'errors <job_file>';
 exports.desc = 'Shows the errors for a job\n';

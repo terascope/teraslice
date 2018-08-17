@@ -5,9 +5,8 @@ const fs = require('fs-extra');
 const path = require('path');
 const prompts = require('prompts');
 const Promise = require('bluebird');
-const reply = require('./cmd_functions/reply')();
+const reply = require('./cmd_functions/reply');
 const dataChecks = require('./cmd_functions/data_checks');
-
 
 exports.command = 'asset';
 exports.desc = 'Zip and post assets to a cluster';
@@ -52,10 +51,10 @@ exports.builder = (yargs) => {
             default: false,
             type: 'boolean'
         })
-        .example('tjm asset --deploy -c clustername (deploys asset to cluster)\n' +
-            'tjm asset -dc clustername (same as above, but shorthand)\n' +
-            'tjm asset --update -l (updates asset on localhost)\n' +
-            'tjm asset -ul (shorthand for above)\n');
+        .example('tjm asset --deploy -c clustername (deploys asset to cluster)\n'
+            + 'tjm asset -dc clustername (same as above, but shorthand)\n'
+            + 'tjm asset --update -l (updates asset on localhost)\n'
+            + 'tjm asset -ul (shorthand for above)\n');
 };
 exports.handler = (argv, _testTjmFunctions) => {
     const tjmConfig = _.clone(argv);
@@ -68,6 +67,7 @@ exports.handler = (argv, _testTjmFunctions) => {
         tjmConfig.asset_file_content = require(path.join(process.cwd(), assetPath));
     } catch (error) {
         reply.fatal(error);
+        return null;
     }
 
     dataChecks(tjmConfig).getAssetClusters();
@@ -76,35 +76,42 @@ exports.handler = (argv, _testTjmFunctions) => {
     function latestAssetVersion(cluster) {
         const assetName = tjmConfig.asset_file_content.name;
         const terasliceClient = require('teraslice-client-js')({
-            host: `${cluster}`
+            host: cluster
         });
 
         terasliceClient.cluster.txt(`assets/${assetName}`)
             .then((clientResponse) => {
+                if (!clientResponse) {
+                    return Promise.reject(new Error('Invalid response from /txt/assets'));
+                }
+
                 const byLine = clientResponse.split('\n');
-                const trimTop = byLine.slice(2);
-                trimTop.pop();
-                const latest = trimTop.map(item => item.split(' ')
-                    .filter(i => i !== ''))
-                    .reduce((high, item) => (parseInt(item[1].split('.').join(''), 10) > high ? item : high), 0);
+                const trimTop = byLine.slice(2); trimTop.pop();
+
+                const parts = _.map(trimTop, item => _.filter(_.split(item, ' ')));
+
+                const latest = _.reduce(parts, (high, item) => {
+                    const firstItem = _.join(_.split(_.nth(item, 1), '.'), '');
+                    return _.toInteger(firstItem) > high ? item : high;
+                }, 0);
+
+                if (!latest) {
+                    return Promise.reject(new Error(`Asset, ${assetName}, is not on the cluster or asset name is malformated`));
+                }
+
                 reply.green(`Cluster: ${cluster}, Name: ${latest[0]}, Version: ${latest[1]}`);
+                return null;
             })
             .catch((err) => {
-                if (err.message === 'Cannot read property \'split\' of undefined') {
-                    reply.fatal(`Asset, ${assetName}, is not on the cluster or asset name is malformated`);
-                    return;
-                } else if (err.name === 'RequestError') {
-                    reply.fatal(`Cannot connect to cluster: ${cluster}`);
-                    return;
-                }
                 reply.fatal(err);
             });
     }
+
     if (argv.deploy) {
         return Promise.resolve()
             .then(() => {
-                if (_.has(tjmConfig.asset_file_content.tjm, 'clusters') &&
-                    _.indexOf(tjmConfig.asset_file_content.tjm.clusters, tjmConfig.c) >= 0) {
+                if (_.has(tjmConfig.asset_file_content.tjm, 'clusters')
+                    && _.indexOf(tjmConfig.asset_file_content.tjm.clusters, tjmConfig.c) >= 0) {
                     return Promise.reject(new Error(`Assets have already been deployed to ${tjmConfig.c}, use update`));
                 }
                 return Promise.resolve();
@@ -116,7 +123,7 @@ exports.handler = (argv, _testTjmFunctions) => {
                 }
                 reply.fatal(err);
             });
-    } else if (argv.update) {
+    } if (argv.update) {
         return fs.emptyDir(path.join(process.cwd(), 'builds'))
             .then(() => tjmFunctions.zipAsset())
             .then((zipData) => {
@@ -127,7 +134,7 @@ exports.handler = (argv, _testTjmFunctions) => {
             .then((zippedFileData) => {
                 function postAssets(cluster) {
                     const terasliceClient = require('teraslice-client-js')({
-                        host: `${cluster}`
+                        host: cluster
                     });
                     return terasliceClient.assets.post(zippedFileData)
                         .then((postResponse) => {
@@ -145,12 +152,12 @@ exports.handler = (argv, _testTjmFunctions) => {
                 return postAssets(tjmConfig.cluster);
             })
             .catch(err => reply.fatal((err.message)));
-    } else if (argv.status) {
+    } if (argv.status) {
         if (_.has(tjmConfig, 'clusters')) {
             return Promise.each(tjmConfig.clusters, cluster => latestAssetVersion(cluster));
         }
         return latestAssetVersion(tjmConfig.cluster);
-    } else if (argv.replace) {
+    } if (argv.replace) {
         // for dev purposed only, in prod need to upload most recent version
         reply.yellow('*** Warning ***\nThis function is intended for asset development only.  Using it for production asset management is a bad idea.');
 

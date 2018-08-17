@@ -2,10 +2,13 @@
 
 const fs = require('fs-extra');
 
-const tjmConfig = {};
-let tjmFunctions = require('../cmds/cmd_functions/functions')(tjmConfig, 'localhost:5678');
+const tjmConfig = {
+    cluster: 'http://example.dev:5678'
+};
+
 const Promise = require('bluebird');
 const path = require('path');
+const TjmFunctions = require('../cmds/cmd_functions/functions');
 
 let jobContents;
 let someJobId;
@@ -57,19 +60,18 @@ describe('tjmFunctions testing', () => {
     it('alreadyRegisteredCheck should resolve if the job exists', (done) => {
         jobContents = {
             tjm: {
-                cluster: 'http://localhost:5678',
+                cluster: 'http://example.dev:5678',
                 job_id: 'jobYouAreLookingFor'
             }
         };
 
         tjmConfig.job_file_content = jobContents;
         tjmConfig.job_file_path = 'someFilePath';
-        tjmConfig.cluster = 'clustername';
+        tjmConfig.cluster = 'http://clustername.dev';
 
         someJobId = 'jobYouAreLookingFor';
 
-        tjmFunctions = require('../cmds/cmd_functions/functions')(tjmConfig);
-        tjmFunctions.__testContext(_terasliceClient);
+        const tjmFunctions = TjmFunctions(tjmConfig, _terasliceClient);
         tjmFunctions.alreadyRegisteredCheck()
             .then(result => expect(result).toBe(true))
             .catch(done.fail)
@@ -80,17 +82,16 @@ describe('tjmFunctions testing', () => {
         someJobId = 'notTheJobYouAreLookingFor';
         jobContents = {
             tjm: {
-                cluster: 'http://localhost:5678',
+                cluster: 'http://example.dev:5678',
                 job_id: 'jobYouAreLookingFor'
             }
         };
 
         tjmConfig.job_file_content = jobContents;
         tjmConfig.job_file_path = 'someFilePath';
-        tjmConfig.cluster = 'clustername';
+        tjmConfig.cluster = 'http://clustername.dev';
 
-        tjmFunctions = require('../cmds/cmd_functions/functions')(tjmConfig);
-        tjmFunctions.__testContext(_terasliceClient);
+        const tjmFunctions = TjmFunctions(tjmConfig, _terasliceClient);
         tjmFunctions.alreadyRegisteredCheck(jobContents)
             .catch(err => expect(err.message).toEqual('Job is not on the cluster'))
             .finally(() => done());
@@ -102,26 +103,26 @@ describe('tjmFunctions testing', () => {
         tjmConfig.job_file_path = 'someFilePath';
 
         someJobId = 'jobYouAreLookingFor';
-        tjmFunctions = require('../cmds/cmd_functions/functions')(tjmConfig);
+        const tjmFunctions = TjmFunctions(tjmConfig, _terasliceClient);
         tjmFunctions.alreadyRegisteredCheck()
             .catch(err => expect(err.message).toEqual('No cluster configuration for this job'))
             .finally(() => done());
     });
 
     it('meta data is being written to assets.json ', (done) => {
-        tjmConfig.cluster = 'http://localhost:5678';
+        tjmConfig.cluster = 'http://example.dev:5678';
         tjmConfig.asset_file_content = {
             name: 'testing_123',
             version: '0.0.01',
             description: 'dummy asset.json for testing'
         };
 
-        const tjmFuncs = require('../cmds/cmd_functions/functions')(tjmConfig);
+        const tjmFunctions = TjmFunctions(tjmConfig, _terasliceClient);
         return Promise.resolve()
-            .then(() => tjmFuncs.__testFunctions()._updateAssetMetadata())
+            .then(() => tjmFunctions.__testFunctions()._updateAssetMetadata())
             .then((jsonResult) => {
                 expect(jsonResult.tjm).toBeDefined();
-                expect(jsonResult.tjm.clusters[0]).toBe('http://localhost:5678');
+                expect(jsonResult.tjm.clusters[0]).toBe('http://example.dev:5678');
             })
             .catch(done.fail)
             .finally(() => done());
@@ -134,16 +135,16 @@ describe('tjmFunctions testing', () => {
             version: '0.0.01',
             description: 'dummy asset.json for testing',
             tjm: {
-                clusters: ['http://localhost:5678', 'http://newCluster:5678']
+                clusters: ['http://example.dev:5678', 'http://newCluster:5678']
             }
         };
 
-        tjmFunctions = require('../cmds/cmd_functions/functions')(tjmConfig);
+        const tjmFunctions = TjmFunctions(tjmConfig, _terasliceClient);
         return Promise.resolve()
             .then(() => tjmFunctions.__testFunctions()._updateAssetMetadata())
             .then((jsonResult) => {
                 expect(jsonResult.tjm).toBeDefined();
-                expect(jsonResult.tjm.clusters[0]).toBe('http://localhost:5678');
+                expect(jsonResult.tjm.clusters[0]).toBe('http://example.dev:5678');
                 expect(jsonResult.tjm.clusters[1]).toBe('http://newCluster:5678');
                 expect(jsonResult.tjm.clusters[2]).toBe('http://anotherCluster:5678');
             })
@@ -158,17 +159,17 @@ describe('tjmFunctions testing', () => {
             version: '0.0.01',
             description: 'dummy asset.json for testing',
             tjm: {
-                clusters: ['http://localhost:5678', 'http://newCluster:5678']
+                clusters: ['http://example.dev:5678', 'http://newCluster:5678']
             }
         };
 
-        tjmFunctions = require('../cmds/cmd_functions/functions')(tjmConfig);
+        const tjmFunctions = TjmFunctions(tjmConfig, _terasliceClient);
         return Promise.resolve()
             .then(() => tjmFunctions.__testFunctions()._updateAssetMetadata())
             .then((jsonResult) => {
                 expect(jsonResult.tjm).toBeDefined();
                 expect(jsonResult.tjm.clusters.length).toBe(2);
-                expect(jsonResult.tjm.clusters[0]).toBe('http://localhost:5678');
+                expect(jsonResult.tjm.clusters[0]).toBe('http://example.dev:5678');
                 expect(jsonResult.tjm.clusters[1]).toBe('http://newCluster:5678');
             })
             .catch(done.fail)
@@ -181,9 +182,11 @@ describe('tjmFunctions testing', () => {
             version: '0.0.01',
             description: 'dummy asset.json for testing',
             tjm: {
-                clusters: ['http://localhost:5678', 'http://newCluster:5678', 'http://anotherCluster:5678']
+                clusters: ['http://example.dev:5678', 'http://newCluster:5678', 'http://anotherCluster:5678']
             }
         };
+        const tjmFunctions = TjmFunctions(tjmConfig, _terasliceClient);
+
         return Promise.all([
             fs.writeFile(path.join(__dirname, '..', 'asset/asset.json'), JSON.stringify(assetJson, null, 4)),
             fs.emptyDir(path.join(__dirname, '..', 'builds'))
@@ -202,13 +205,11 @@ describe('tjmFunctions testing', () => {
             _id: '12345AssetId'
         });
 
+        const tjmFunctions = TjmFunctions(tjmConfig, _terasliceClient);
         Promise.resolve()
             .then(() => fs.emptyDir(path.join(__dirname, '..', 'builds')))
             .then(() => fs.writeFile(path.join(__dirname, '..', 'builds/processors.zip'), 'this is some sweet text'))
-            .then(() => {
-                tjmFunctions.__testContext(_terasliceClient);
-                return tjmFunctions.__testFunctions()._postAsset();
-            })
+            .then(() => tjmFunctions.__testFunctions()._postAsset())
             .then((response) => {
                 const parsedResponse = JSON.parse(response);
                 expect(parsedResponse.success).toBe('Asset was deployed');
@@ -220,10 +221,9 @@ describe('tjmFunctions testing', () => {
 
     it('load asset removes build, adds metadata to asset, zips asset, posts to cluster', (done) => {
         assetObject = JSON.stringify({ success: 'this worked', _id: '1235fakejob' });
-        tjmConfig.cluster = 'http://localhost:5678';
+        tjmConfig.cluster = 'http://example.dev:5678';
         tjmConfig.a = true;
-        tjmFunctions = require('../cmds/cmd_functions/functions')(tjmConfig);
-        tjmFunctions.__testContext(_terasliceClient);
+        const tjmFunctions = TjmFunctions(tjmConfig, _terasliceClient);
 
         const assetJson = {
             name: 'testing_123',
@@ -237,7 +237,7 @@ describe('tjmFunctions testing', () => {
             .then(() => tjmFunctions.loadAsset())
             .then(() => {
                 const updatedAssetJson = require(path.join(__dirname, '..', 'asset/asset.json'));
-                expect(updatedAssetJson.tjm.clusters[0]).toBe('http://localhost:5678');
+                expect(updatedAssetJson.tjm.clusters[0]).toBe('http://example.dev:5678');
                 expect(fs.pathExistsSync(path.join(__dirname, '..', 'builds/processors.zip'))).toBe(true);
                 expect(fs.pathExistsSync(path.join(__dirname, '..', 'asset/package.json'))).toBe(true);
             })

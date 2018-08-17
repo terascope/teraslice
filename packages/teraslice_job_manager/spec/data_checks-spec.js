@@ -184,4 +184,3 @@ describe('checks for job and asset file content', () => {
         fs.removeSync('fakeFile3.json');
     });
 });
-

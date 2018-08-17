@@ -51,7 +51,7 @@ describe('register should register job with cluster and follow options', () => {
             ]
         };
 
-        argv.c = 'http://localhost:5678';
+        argv.c = 'http://example.dev:5678';
         const jobPath = path.join(__dirname, 'fixtures/regJobFile2.json');
         fs.writeJsonSync(jobPath, regJobData, { spaces: 4 });
         argv.job_file = 'spec/fixtures/regJobFile2.json';

@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const path = require('path');
-const reply = require('./reply')();
+const reply = require('./reply');
 
 module.exports = (tjmConfig) => {
     function returnJobData() {
@@ -78,13 +78,14 @@ module.exports = (tjmConfig) => {
         if (tjmConfig.l) {
             tjmConfig.cluster = 'http://localhost:5678';
         }
-        if (!_.has(tjmConfig, 'cluster') && _.has(tjmConfig.asset_file_content, 'tjm.clusters')) {
-            tjmConfig.clusters = tjmConfig.asset_file_content.tjm.clusters;
+        if (!_.has(tjmConfig, 'cluster') && _.has(tjmConfig, 'asset_file_content.tjm.clusters')) {
+            tjmConfig.clusters = _.filter(_.get(tjmConfig, 'asset_file_content.tjm.clusters', []));
         }
         if (_.isEmpty(tjmConfig.clusters) && !_.has(tjmConfig, 'cluster')) {
             reply.fatal('Cluster data is missing from asset.json or not specified using -c.');
         }
     }
+
     return {
         returnJobData,
         jobFileHandler,

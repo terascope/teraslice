@@ -2,7 +2,7 @@
 
 
 const _ = require('lodash');
-const reply = require('./cmd_functions/reply')();
+const reply = require('./cmd_functions/reply');
 const dataChecks = require('./cmd_functions/data_checks');
 
 exports.command = 'pause <job_file>';

@@ -1,11 +1,12 @@
 'use strict';
 
-const view = require('../cmds/view');
 const Promise = require('bluebird');
+const view = require('../cmds/view');
 
 const argv = {
     job_file: 'spec/fixtures/test_job_file.json'
 };
+
 let registeredCheck;
 let specData;
 const _tjmTestFunctions = {

@@ -1,14 +1,14 @@
 {
   "name": "teraslice-job-manager",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "teraslice job manager",
   "main": "index.js",
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "lint": "eslint *.js cmd/**/*.js spec/**/*.js",
-    "lint:fix": "eslint --fix *.js cmd/**/*.js spec/**/*.js",
+    "lint": "eslint *.js spec cmds",
+    "lint:fix": "eslint --fix *.js spec cmds",
     "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
     "report-coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov && codecov"
   },
@@ -41,7 +41,7 @@
     "fs-extra": "^5.0.0",
     "lodash": "^4.17.5",
     "prompts": "^0.1.11",
-    "teraslice-client-js": "terascope/teraslice-client-js",
+    "teraslice-client-js": "^0.1.0",
     "yargs": "^11.0.0"
   },
   "devDependencies": {

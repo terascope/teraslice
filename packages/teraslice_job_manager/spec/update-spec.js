@@ -56,7 +56,7 @@ describe('should update job file with option to restart job', () => {
                 { _op: 'someop' }
             ],
             tjm: {
-                cluster: 'localhost:5678',
+                cluster: 'example.dev:5678',
                 job_id: 12345
             }
         };
@@ -75,7 +75,7 @@ describe('should update job file with option to restart job', () => {
                 { _op: 'someop' }
             ],
             tjm: {
-                cluster: 'localhost:5678',
+                cluster: 'example.dev:5678',
                 job_id: 12345
             }
         };

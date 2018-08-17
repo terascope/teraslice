@@ -1,9 +1,9 @@
 'use strict';
 
 const fs = require('fs-extra');
-const asset = require('../cmds/asset');
 const path = require('path');
 const Promise = require('bluebird');
+const asset = require('../cmds/asset');
 
 let deployMessage = 'default deployed message';
 let deployError = null;
@@ -49,7 +49,7 @@ describe('asset command testing', () => {
     let argv = {};
 
     it('deploy triggers load asset', (done) => {
-        argv.c = 'localhost:5678';
+        argv.c = 'example.dev:5678';
         argv.deploy = true;
         deployMessage = 'deployed';
 
@@ -64,7 +64,7 @@ describe('asset command testing', () => {
     });
 
     it('deploy should respond to a request error', () => {
-        argv.c = 'localhost:5678';
+        argv.c = 'example.dev:5678';
         argv.deploy = true;
         const error = new Error('This is an error');
         error.name = 'RequestError';
@@ -72,7 +72,7 @@ describe('asset command testing', () => {
 
         deployError = error;
         return asset.handler(argv, _tjmFunctions)
-            .catch(err => expect(err).toBe('Could not connect to http://localhost:5678'));
+            .catch(err => expect(err).toBe('Could not connect to http://example.dev:5678'));
     });
 
     it('deploy should throw an error if requested cluster already in cluster tjm data', (done) => {
@@ -82,21 +82,21 @@ describe('asset command testing', () => {
             description: 'dummy asset.json for testing',
             tjm: {
                 clusters: [
-                    'http://localhost:5678',
+                    'http://example.dev:5678',
                     'http://newCluster:5678',
                     'http://anotherCluster:5678'
                 ]
             }
         };
         argv.deploy = true;
-        argv.c = 'http://localhost:5678';
+        argv.c = 'http://example.dev:5678';
 
         return Promise.resolve()
             .then(() => fs.ensureFile(assetPath))
             .then(() => fs.writeJson(assetPath, testJson, { spaces: 4 }))
             .then(() => asset.handler(argv, _tjmFunctions))
             .catch((err) => {
-                expect(err).toBe('Assets have already been deployed to http://localhost:5678, use update');
+                expect(err).toBe('Assets have already been deployed to http://example.dev:5678, use update');
             })
             .finally(() => done());
     });

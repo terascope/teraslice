@@ -4,12 +4,13 @@ const _ = require('lodash');
 const fs = require('fs-extra');
 const archiver = require('archiver');
 const Promise = require('bluebird');
-const reply = require('./reply')();
 const path = require('path');
+const TerasliceClient = require('teraslice-client-js');
+const reply = require('./reply');
 
-module.exports = (tjmConfig) => {
-    let terasliceClient = require('teraslice-client-js')({
-        host: `${tjmConfig.cluster}`
+module.exports = (tjmConfig, _terasliceClient) => {
+    const terasliceClient = _terasliceClient || TerasliceClient({
+        host: tjmConfig.cluster
     });
 
     function alreadyRegisteredCheck() {
@@ -96,16 +97,16 @@ module.exports = (tjmConfig) => {
         const { cluster } = tjmConfig;
         const assetJson = tjmConfig.asset_file_content;
 
+        if (!cluster) {
+            throw new Error('Cluster configuration is invalid');
+        }
+
         if (!_.has(assetJson, 'tjm.clusters')) {
             _.set(assetJson, 'tjm.clusters', [cluster]);
         } else if (assetJson.tjm.clusters.indexOf(cluster) === -1) {
             assetJson.tjm.clusters.push(cluster);
         }
         return assetJson;
-    }
-
-    function __testContext(_terasliceClient) {
-        terasliceClient = _terasliceClient;
     }
 
     function __testFunctions() {
@@ -120,7 +121,6 @@ module.exports = (tjmConfig) => {
         loadAsset,
         createJsonFile,
         terasliceClient,
-        __testContext,
         __testFunctions,
         zipAsset,
     };
