@@ -21,15 +21,15 @@ describe('worker allocation', () => {
                 expect(job1Id).toBeDefined();
                 expect(job2Id).toBeDefined();
 
-                return job1.waitForStatus('running')
+                return job1.waitForStatus('running', 100)
                     .then(() => job1.pause())
-                    .then(() => job1.waitForStatus('paused'))
+                    .then(() => job1.waitForStatus('paused', 100))
                     .then(() => job1.resume())
-                    .then(() => job1.waitForStatus('running'))
+                    .then(() => job1.waitForStatus('running', 100))
                     .then(() => job1.stop())
-                    .then(() => job1.waitForStatus('stopped'))
+                    .then(() => job1.waitForStatus('stopped', 100))
                     .then(() => job2.stop())
-                    .then(() => job2.waitForStatus('stopped'));
+                    .then(() => job2.waitForStatus('stopped', 100));
             })
             .catch(fail)
             .finally(() => { done(); });

@@ -125,7 +125,7 @@ describe('cluster state', () => {
                 jobId = job.id();
                 // The job may run for a while so we have to wait for it to finish.
                 return job
-                    .waitForStatus('running')
+                    .waitForStatus('running', 100)
                     .then(() => teraslice.cluster.state())
                     .then((state) => {
                         const nodes = _.keys(state);
@@ -171,7 +171,7 @@ describe('cluster state', () => {
                 jobId = job.id();
 
                 return job
-                    .waitForStatus('running')
+                    .waitForStatus('running', 100)
                     .then(() => teraslice.cluster.state())
                     .then((state) => {
                         const nodes = _.keys(state);
