@@ -4,7 +4,7 @@ const base = require('./jest.config.base');
 
 module.exports = Object.assign({}, base, {
     projects: [
-        '<rootDir>/packages/*/jest.config.js'
+        '<rootDir>/packages/*'
     ],
     collectCoverage: true,
     coverageReporters: ['lcov', 'text', 'html'],
