@@ -24,8 +24,14 @@ check_deps() {
 
 publish() {
     local dryRun="$1"
-    local suffix="$2"
-    local name targetVersion currentVersion isPrivate
+    local releaseType="$2"
+    local name tag targetVersion currentVersion isPrivate
+
+    if [ "$releaseType" == 'draft' ]; then
+        tag='next'
+    else
+        tag='latest'
+    fi
 
     name="$(jq -r '.name' package.json)"
     isPrivate="$(jq -r '.private' package.json)"
@@ -41,9 +47,13 @@ publish() {
     fi
 
     if [ "$currentVersion" != "$targetVersion" ]; then
-        echo "$name@$currentVersion -> $targetVersion"
+        echo "$name@$currentVersion -> $targetVersion@$tag"
         if [ "$dryRun" == "false" ]; then
-            npm publish
+            yarn publish \
+                --tag "$tag" \
+                --non-interactive \
+                --new-version "$targetVersion" \
+                --no-git-tag-version
         fi
     fi
 }
@@ -51,7 +61,7 @@ publish() {
 main() {
     check_deps
 
-    local projectDir commitHash suffix releaseType='release' dryRun='false'
+    local projectDir suffix releaseType='release' dryRun='false'
 
     if [ "$1" == '--dry-run' ]; then
         dryRun='true'
@@ -64,23 +74,12 @@ main() {
         releaseType="$1"
     fi
 
-    commitHash="$(git log --pretty=format:'%h' -n 1)"
-
-    if [ "$releaseType" == "release" ]; then
-        suffix=""
-    elif [ "$releaseType" == "draft" ]; then
-        suffix="-beta.${commitHash}"
-    else
-        echo 'release type must be either draft or release'
-        exit 1
-    fi
-
-    projectDir="$(script_directory)../"
+    projectDir="$(script_directory)/../"
     cd "${projectDir}" || return;
 
     for package in "${projectDir}/packages/"*; do
         cd "$package" || continue;
-        publish "$dryRun" "$suffix";
+        publish "$dryRun" "$releaseType";
     done;
 
     cd "${projectDir}" || return;

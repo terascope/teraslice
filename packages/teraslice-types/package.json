@@ -26,7 +26,7 @@
   "scripts": {
     "lint": "tslint --force --format verbose \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint:fix": "yarn lint --fix",
-    "prepublishOnly": "yarn build build",
+    "prepublishOnly": "yarn build",
     "build": "rimraf dist && tsc --pretty",
     "test": "jest --forceExit",
     "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
