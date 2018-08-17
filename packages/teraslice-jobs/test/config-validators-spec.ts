@@ -8,7 +8,7 @@ import { jobSchema, validateJobConfig, validateOpConfig } from '../src';
 
 describe('When passed a valid jobSchema and jobConfig', () => {
     it('returns a completed and valid jobConfig', () => {
-        const context = new TestContext('teraslice-validators');
+        const context = new TestContext('teraslice-operations');
 
         const schema = jobSchema(context);
         const job = {
@@ -43,7 +43,7 @@ describe('When passed a valid jobSchema and jobConfig', () => {
 
 describe('When passed a job without a known connector', () => {
     it('raises an exception', () => {
-        const context = new TestContext('teraslice-validators');
+        const context = new TestContext('teraslice-operations');
         context.sysconfig.terafoundation = {
             connectors: {
                 elasticsearch: {

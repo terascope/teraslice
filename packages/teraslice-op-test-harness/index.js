@@ -4,7 +4,7 @@ const _ = require('lodash');
 const Promise = require('bluebird');
 
 const { TestContext } = require('@terascope/teraslice-types');
-const { validateJobConfig, validateOpConfig, jobSchema } = require('@terascope/teraslice-validators');
+const { validateJobConfig, validateOpConfig, jobSchema } = require('@terascope/teraslice-jobs');
 
 // load data
 const sampleDataArrayLike = require('./data/sampleDataArrayLike.json');

@@ -1,9 +1,11 @@
-import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
-import { Operation } from '../src/operation';
+/// <reference types="jest-extended" />
 
-describe('Operation', () => {
+import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
+import { TerasliceOperation } from '../../src';
+
+describe('TerasliceOperation', () => {
     describe('when constructed', () => {
-        let operation : Operation;
+        let operation: TerasliceOperation;
 
         beforeAll(() => {
             const context = new TestContext('teraslice-operations');
@@ -12,7 +14,8 @@ describe('Operation', () => {
                 _op: 'example-op',
             });
             const opConfig = jobConfig.operations[0];
-            operation = new Operation(context, jobConfig, opConfig);
+            const logger = context.apis.foundation.makeLogger('job-logger');
+            operation = new TerasliceOperation(context, jobConfig, opConfig, logger);
         });
 
         describe('->initialize', () => {
@@ -66,7 +69,7 @@ describe('Operation', () => {
 
     describe('#validate', () => {
         it('should fail when given invalid data', () => {
-            Operation.validate({
+            TerasliceOperation.validate({
                 _op: 'hello',
             });
         });

@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird');
 const parseError = require('@terascope/error-parser');
-const { getOpConfig } = require('@terascope/teraslice-operations');
+const { getOpConfig } = require('@terascope/teraslice-jobs');
 const mocker = require('mocker-data-generator').default;
 const defaultSchema = require('../utils/data_utils');
 const { existsSync } = require('../utils/file_utils');

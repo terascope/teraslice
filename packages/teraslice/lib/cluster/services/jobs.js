@@ -5,7 +5,7 @@ const _ = require('lodash');
 const util = require('util');
 const path = require('path');
 const parseError = require('@terascope/error-parser');
-const { JobValidator } = require('@terascope/teraslice-validators');
+const { JobValidator } = require('@terascope/teraslice-jobs');
 
 module.exports = function module(context) {
     const executionService = context.services.execution;

@@ -1,7 +1,7 @@
 'use strict';
 
 const get = require('lodash/get');
-const { JobValidator } = require('@terascope/teraslice-validators');
+const { JobValidator } = require('@terascope/teraslice-jobs');
 const { terasliceOpPath, makeJobStore, makeExStore } = require('teraslice');
 
 async function validateJob(context, jobSpec) {

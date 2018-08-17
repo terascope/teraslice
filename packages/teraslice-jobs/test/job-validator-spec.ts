@@ -5,7 +5,7 @@ import * as path from 'path';
 import { JobValidator } from '../src';
 
 describe('JobValidator', () => {
-    const context = new TestContext('teraslice-validators');
+    const context = new TestContext('teraslice-operations');
     const terasliceOpPath = path.join(__dirname, '../../teraslice/lib');
     const api = new JobValidator(context, {
         opPath: '',

@@ -2,7 +2,7 @@
 
 const convict = require('convict');
 const sysSchema = require('../../../lib/config/schemas/system');
-require('@terascope/teraslice-validators');
+require('@terascope/teraslice-jobs');
 
 describe('system_schema', () => {
     const schema = sysSchema.config_schema({}).teraslice;

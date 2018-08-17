@@ -1,6 +1,5 @@
-import bunyan from 'bunyan';
 import { Schema } from 'convict';
-import { Context, SysConfig } from './context';
+import { Context, Logger, SysConfig } from './context';
 
 export interface OpConfig {
     _op: string;
@@ -39,25 +38,10 @@ export interface Reader extends Operation {
 
 export interface Slicer extends Operation {
     schema(context?: Context): Schema<any>;
-    newSlicer(context: Context, executionContext: any, startingPoints: any, logger: bunyan): () => any[] | null;
+    newSlicer(context: Context, executionContext: any, startingPoints: any, logger: Logger): () => any[] | null;
 }
 
 export interface Processor extends Operation {
     schema(context?: Context): Schema<any>;
     newProcessor(context: Context, opConfig: OpConfig, jobConfig: JobConfig): (...params: any[]) => any[] | any;
-}
-
-export function newTestJobConfig(): JobConfig {
-    return {
-        analytics: false,
-        assets: [],
-        lifecycle: LifeCycle.Once,
-        max_retries: 1,
-        name: 'test-job',
-        operations: [],
-        probation_window: 30000,
-        recycle_worker: 0,
-        slicers: 1,
-        workers: 1,
-    };
 }
