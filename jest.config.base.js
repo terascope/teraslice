@@ -5,7 +5,6 @@ module.exports = {
     testEnvironment: 'node',
     roots: [
         '<rootDir>/src',
-        '<rootDir>/spec',
         '<rootDir>/test'
     ],
     setupTestFrameworkScriptFile: 'jest-extended',
@@ -15,7 +14,9 @@ module.exports = {
     testPathIgnorePatterns: [
         '/node_modules/',
         '/dist/',
-        '/fixtures/'
+        '/examples/',
+        '/fixtures/',
+        '\\.snap$',
     ],
     testRegex: '/test/.*spec\\.(ts|js)$',
     moduleFileExtensions: [
@@ -29,10 +30,11 @@ module.exports = {
     ],
     collectCoverage: true,
     coveragePathIgnorePatterns: [
-        '<rootDir>/test/helpers',
-        '<rootDir>/test/fixtures',
-        '<rootDir>/test/.*(?!spec)\\.(ts|js)$',
-        '<rootDir>/node_modules'
+        '**/test/helpers',
+        '**/test/fixtures',
+        '**/test/.*(?!spec)\\.(ts|js)$',
+        '**/node_modules',
+        '**/dist'
     ],
     coverageReporters: ['lcov', 'text', 'html'],
     coverageDirectory: 'coverage'

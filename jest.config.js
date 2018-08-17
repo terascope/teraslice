@@ -9,18 +9,16 @@ module.exports = Object.assign({}, base, {
     globalSetup: '<rootDir>/packages/teraslice-worker/test/global.setup.js',
     globalTeardown: '<rootDir>/packages/teraslice-worker/test/global.teardown.js',
     testPathIgnorePatterns: [
-        '/node_modules/',
-        '/examples/',
+        ...base.testPathIgnorePatterns,
         '/e2e/.*/test',
-        '\\.snap$',
-        '/packages/.*/dist',
+        '/packages/.*/dist'
     ],
     collectCoverage: true,
     collectCoverageFrom: [
-        '**/packages/*/**/*.js',
-        '**/packages/*/**/*.ts',
+        '**/packages/**/*.{js,ts}',
+        '!**/packages/**/dist/*.{js,ts}',
         '!**/examples/**',
         '!**/test/**',
-        '!e2e/**',
-    ]
+        '!e2e/**'
+    ],
 });

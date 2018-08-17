@@ -10,12 +10,10 @@ module.exports = Object.assign({}, base, {
     globalTeardown: '<rootDir>/test/global.teardown.js',
     setupTestFrameworkScriptFile: '<rootDir>/test/test.setup.js',
     coveragePathIgnorePatterns: [
+        ...base.coveragePathIgnorePatterns,
         '<rootDir>/lib/teraslice',
         '<rootDir>/lib/terafoundation',
-        '<rootDir>/test/helpers',
-        '<rootDir>/test/fixtures',
-        '<rootDir>/test/env-setup.js',
-        '<rootDir>/node_modules'
+        '<rootDir>/test/env-setup.js'
     ],
     coverageThreshold: {
         global: {
