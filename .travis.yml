@@ -49,8 +49,8 @@ jobs:
   - stage: Release (NPM)
     name: Release
     if: tag IS blank AND branch = master AND type != pull_request
-    before_install: npm config set //registry.npmjs.org/:_authToken=${NPM_TOKEN} -q
     script: cp README.md ./packages/teraslice/README.md
+    before_deploy: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
     deploy:
       - provider: script
         skip_cleanup: true
