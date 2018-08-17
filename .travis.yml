@@ -45,18 +45,18 @@ jobs:
     if: branch = master AND type = pull_request
     script: yarn test:e2e || (yarn test:e2e:logs; exit 1)
 
-  # if not tag is preset and is on master release a draft version
+  # if not tag is preset and is on master release any changed versions to NPM
   - stage: Release (NPM)
     name: Release
     if: tag IS blank AND branch = master AND type != pull_request
     before_install: npm config set //registry.npmjs.org/:_authToken=${NPM_TOKEN} -q
-    script: skip
+    script: cp README.md ./packages/teraslice/README.md
     deploy:
       - provider: script
         skip_cleanup: true
         script: yarn publish:changed
 
-  # if tag is present and is on master, release a new version
+  # if tag is present and is on master, release a new version to Github
   - stage: Release (Github)
     name: Release
     if: tag IS present AND tag =~ ^v AND branch = master AND type != pull_request
