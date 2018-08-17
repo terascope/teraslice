@@ -31,8 +31,6 @@ const newDebugLogger = (name, assignment = defaultAssignment) => ({
     flush: () => Promise.resolve()
 });
 
-let getConnection;
-
 function makeContext(cluster, config, sysconfig, useDebugLogger) {
     const context = {};
     let loggingConnection = 'default';
@@ -55,13 +53,6 @@ function makeContext(cluster, config, sysconfig, useDebugLogger) {
 
     // Initialize the API
     registerApis(context);
-    if (!getConnection) {
-        ({ getConnection } = context.foundation.getConnection);
-    } else {
-        context.foundation.getConnection = getConnection;
-    }
-    context.apis.foundation.getConnection = getConnection;
-
     delete context.apis.foundation.startWorkers;
     delete context.foundation.startWorkers;
 
