@@ -1,5 +1,13 @@
 'use strict';
 
+/**
+ * Export of internal components and functions of teraslice.
+ *
+ * WARNING:
+ *      Since these are internal components, breaking changes may occur if using them.
+ *      For best results teraslice with an exact semver match, i.e "0.38.0".
+*/
+
 const get = require('lodash/get');
 const path = require('path');
 const { formats } = require('@terascope/teraslice-validators');
