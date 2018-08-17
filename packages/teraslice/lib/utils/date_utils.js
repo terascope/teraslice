@@ -1,5 +1,7 @@
 'use strict';
 
+const moment = require('moment');
+
 function dateOptions(value) {
     const options = {
         year: 'y',
@@ -57,7 +59,12 @@ function timeseriesIndex(timeseriesFormat, index, dateStr) {
     return { index: `${index}-${dateString.slice(0, formatter[timeseriesFormat]).replace(/-/g, '.')}`, timestamp };
 }
 
+function newFormatedDate() {
+    return moment().format(dateFormat);
+}
+
 module.exports = {
+    newFormatedDate,
     dateOptions,
     dateFormat,
     dateFormatSeconds,

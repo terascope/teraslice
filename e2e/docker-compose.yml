@@ -3,6 +3,16 @@ services:
   teraslice-master:
     extends:
       service: teraslice-worker
+    command: [
+      "./scripts/wait-for-it.sh",
+      "elasticsearch:49200",
+      "--timeout=60",
+      "--strict",
+      "--",
+      "node",
+      "--max-old-space-size=512",
+      "service.js"
+    ]
     scale: 1
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:45678/cluster/state"]
@@ -18,16 +28,15 @@ services:
       context: ..
     command: [
       "./scripts/wait-for-it.sh",
-      "elasticsearch:49200",
-      "--timeout=30",
+      "teraslice-master:45678",
+      "--timeout=60",
       "--strict",
       "--",
       "node",
-      "--max-old-space-size=256",
-      "entrypoint.js"
+      "--max-old-space-size=512",
+      "service.js"
     ]
     scale: 3
-    restart: 'no'
     stop_grace_period: 30s
     environment:
       - TERAFOUNDATION_CONFIG=/app/config/processor-worker.yaml
@@ -37,13 +46,12 @@ services:
       - teraslice-assets:/app/assets
       - ./config:/app/config:cached
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.5.3
-    restart: 'no'
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.10
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:49200"]
       interval: 15s
       timeout: 10s
-      retries: 5
+      retries: 3
     ports:
       - "49200:49200"
       - "49300:49300"
@@ -53,8 +61,6 @@ services:
       - "http.port=49200"
       - "transport.tcp.port=49300"
       - "discovery.type=single-node"
-      - "bootstrap.memory_lock=true"
-      - "cluster.routing.allocation.disk.threshold_enabled=false"
       - "xpack.security.enabled=false"
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data

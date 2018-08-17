@@ -4,8 +4,8 @@ const dateMath = require('datemath-parser');
 const moment = require('moment');
 const _ = require('lodash');
 const util = require('util');
+const { getOpConfig, getClient } = require('@terascope/teraslice-operations');
 const { dateOptions } = require('../utils/date_utils');
-const { getClient, getOpConfig } = require('../utils/config');
 
 function newSlicer(context, executionContext, retryData, logger) {
     const opConfig = getOpConfig(executionContext.config, 'elasticsearch_reader');

@@ -1,16 +1,14 @@
 'use strict';
 
-module.exports = {
-    verbose: true,
-    testEnvironment: 'node',
-    bail: false,
+const base = require('../../jest.config.base');
+const { name } = require('./package.json');
+
+module.exports = Object.assign({}, base, {
+    name,
+    displayName: name,
     globalSetup: '<rootDir>/test/global.setup.js',
     globalTeardown: '<rootDir>/test/global.teardown.js',
-    setupFiles: ['<rootDir>/test/env.setup.js'],
     setupTestFrameworkScriptFile: '<rootDir>/test/test.setup.js',
-    collectCoverage: true,
-    coverageReporters: ['json', 'lcov', 'text', 'html'],
-    coverageDirectory: 'coverage',
     coveragePathIgnorePatterns: [
         '<rootDir>/lib/teraslice',
         '<rootDir>/lib/terafoundation',
@@ -26,4 +24,4 @@ module.exports = {
             lines: 80
         }
     }
-};
+});

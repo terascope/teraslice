@@ -1,6 +1,13 @@
+.nyc_output
+*.log
 node_modules
 coverage
 assets
 tests
+test
 spec
-./e2e
+docs
+examples
+e2e
+packages/**/dist
+packages/**/dist

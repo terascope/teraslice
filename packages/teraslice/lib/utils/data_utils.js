@@ -5,7 +5,7 @@
 const moment = require('moment');
 const { dateFormat } = require('./date_utils');
 
-module.exports = function module(opConfig, otherSchema) {
+module.exports = function dataUtils(opConfig, otherSchema) {
     let startDate = moment(0); // 01 January, 1970 UTC
     let endDate = moment();
     const nativeSchema = {

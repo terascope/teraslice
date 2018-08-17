@@ -9,7 +9,6 @@ const Promise = require('bluebird');
 const NodeCache = require('node-cache');
 const { dateFormat } = require('../../utils/date_utils');
 
-
 module.exports = function module(context, messaging, exStore, stateStore) {
     const start = moment();
     const events = context.apis.foundation.getSystemEvents();

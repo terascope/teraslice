@@ -2,15 +2,14 @@
 
 'use strict';
 
+const { formats } = require('@terascope/teraslice-validators');
+const { configSchema } = require('./lib/config/schemas/system');
 const worker = require('./lib/cluster/worker');
 const executionController = require('./lib/cluster/execution_controller');
 const assetsLoader = require('./lib/cluster/assets_loader');
 const assetsService = require('./lib/cluster/services/assets');
 const master = require('./lib/master');
 const clusterMaster = require('./lib/cluster/cluster_master');
-
-const configSchema = require('./lib/config/schemas/system').config_schema;
-const schemaFormats = require('./lib/utils/convict_utils');
 
 function opsDirectory(configFile) {
     if (configFile.teraslice && configFile.teraslice.ops_directory) {
@@ -52,7 +51,7 @@ require('terafoundation')({
     },
     start_workers: false,
     config_schema: configSchema,
-    schema_formats: schemaFormats,
+    schema_formats: formats,
     ops_directory: opsDirectory,
     cluster_name: clusterName,
     logging_connection: loggingConnection
