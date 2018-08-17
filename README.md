@@ -325,7 +325,7 @@ curl "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/slicer"
 This will show you all the connected workers and the tasks that are currently assigned to them.
 
 ```sh
-curl "$YOU_MASTER_IP:5678/v1/cluster/state"
+curl "$YOUR_MASTER_IP:5678/v1/cluster/state"
 ```
 
 # Additional Documentation
