@@ -1,9 +1,9 @@
 'use strict';
 
 const _ = require('lodash');
+const { getTerasliceConfig } = require('teraslice');
 const newId = require('./new-id');
 const { makeContext } = require('../terafoundation');
-const { getTerasliceConfig } = require('../teraslice');
 
 function generateContext(sysconfig, useDebugLogger) {
     if (!_.isPlainObject(sysconfig) || _.isEmpty(sysconfig)) {

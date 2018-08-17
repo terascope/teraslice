@@ -1,29 +1,16 @@
 {
   "name": "@terascope/docker-compose-js",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "publishConfig": {
     "access": "public"
   },
   "description": "Node.js driver for controlling docker-compose testing environments.",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint *.js spec",
-    "lint:fix": "eslint --fix *.js spec",
-    "test": "nyc -x spec/ --reporter=text-summary jasmine && nyc report --reporter=html",
-    "coverage": "nyc report --reporter=text-lcov > coverage/coverage.lcov"
-  },
-  "nyc": {
-    "cache": true,
-    "all": true,
-    "include": [
-      "*.js"
-    ],
-    "reporter": [
-      "text-summary",
-      "html",
-      "lcov",
-      "json"
-    ]
+    "lint": "eslint *.js lib test",
+    "lint:fix": "eslint --fix *.js lib test",
+    "test": "jest",
+    "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
   },
   "keywords": [
     "docker",
@@ -43,12 +30,9 @@
   },
   "devDependencies": {
     "eslint": "^4.19.1",
-    "eslint-config-airbnb": "^16.1.0",
-    "eslint-plugin-import": "^2.12.0",
-    "eslint-plugin-jsx-a11y": "^6.0.3",
-    "eslint-plugin-react": "^7.9.1",
-    "jasmine": "^3.1.0",
-    "jasmine-spec-reporter": "^4.2.1",
-    "nyc": "^12.0.2"
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "jest": "^23.5.0",
+    "jest-extended": "^0.8.1"
   }
 }

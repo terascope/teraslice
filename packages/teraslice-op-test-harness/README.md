@@ -8,7 +8,7 @@ operations.
 
 To start using it, require your processor and then pass it in as an argument to
 the harness module as shown below.  The code examples below assume you are using
-the harness in a `spec/` or `test/` subdirectory and your processor is
+the harness in a `test/` or `test/` subdirectory and your processor is
 implemented in `../index.js`, adjust paths accordingly.
 
 ```javascript

@@ -4,14 +4,25 @@
         "e2e"
     ],
     "command": {
+        "bootstrap": {
+            "npmClientArgs": [
+                "--silent",
+                "--link-duplicates",
+                "--pure-lockfile",
+                "--no-progress"
+            ]
+        },
         "publish": {
             "npmClient": "npm"
         },
         "run": {
             "ignore": "teraslice-e2e",
-            "bail": false
+            "concurrency": 6
         }
     },
+    "sort": true,
+    "loglevel": "warn",
+    "reject-cycles": true,
     "npmClient": "yarn",
     "useWorkspaces": true,
     "version": "independent"

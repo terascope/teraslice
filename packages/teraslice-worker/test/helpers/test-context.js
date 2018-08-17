@@ -4,19 +4,17 @@
 
 const _ = require('lodash');
 const { createTempDirSync, cleanupTempDirs } = require('jest-fixtures');
-const ElasticsearchClient = require('elasticsearch').Client;
 const path = require('path');
 const fs = require('fs-extra');
-
 const {
     makeAssetStore,
     makeStateStore,
     makeAnalyticsStore,
     makeExStore,
     makeJobStore,
-    initializeJob,
-} = require('../../lib/teraslice');
+} = require('../../lib/teraslice/stores');
 
+const { initializeJob } = require('../../lib/teraslice');
 const makeExecutionContext = require('../../lib/execution-context');
 const newId = require('../../lib/utils/new-id');
 const { generateContext } = require('../../lib/utils/context');
@@ -25,24 +23,22 @@ const zipDirectory = require('./zip-directory');
 const findPort = require('./find-port');
 const ClusterMasterServer = require('./cluster-master-server');
 
-const { TERASLICE_CLUSTER_NAME, ELASTICSEARCH_HOST } = process.env;
+const { TERASLICE_CLUSTER_NAME } = process.env;
 
 const cleanups = {};
-const clusterName = `${TERASLICE_CLUSTER_NAME}${newId('', true, 5)}`;
-const es = new ElasticsearchClient({
-    host: ELASTICSEARCH_HOST,
-    log: '' // This suppresses error logging from the ES library.
-});
+const tmpAssetDir = createTempDirSync();
+const clusterName = `${TERASLICE_CLUSTER_NAME}`;
+
+const stores = {};
 
 class TestContext {
     constructor(options = {}) {
         const {
             clusterMasterPort,
-            useExecutionRunner,
         } = options;
 
         this.setupId = newId('setup', true);
-        this.assetDir = createTempDirSync();
+        this.assetDir = tmpAssetDir;
 
         this.sysconfig = newSysConfig({
             clusterName,
@@ -50,14 +46,12 @@ class TestContext {
             clusterMasterPort,
         });
 
-        this.useExecutionRunner = useExecutionRunner;
         this.config = newConfig(options);
 
         this.context = generateContext(this.sysconfig, true);
 
         this.events = this.context.apis.foundation.getSystemEvents();
 
-        this.stores = {};
         this.clean = false;
         this._cleanupFns = [];
 
@@ -69,7 +63,7 @@ class TestContext {
             await this.addJobStore();
             await this.addExStore();
 
-            const { job, ex } = await initializeJob(this.context, this.config.job, this.stores);
+            const { job, ex } = await initializeJob(this.context, this.config.job, stores);
 
             this.config.job = job;
             this.config.job_id = ex.job_id;
@@ -79,12 +73,15 @@ class TestContext {
         this.executionContext = await makeExecutionContext(
             this.context,
             this.config,
-            this.useExecutionRunner
         );
 
         this.nodeId = this.executionContext.node_id;
         this.exId = this.executionContext.ex_id;
         this.jobId = this.executionContext.job_id;
+    }
+
+    get stores() { // eslint-disable-line
+        return stores;
     }
 
     async addClusterMaster() {
@@ -120,7 +117,7 @@ class TestContext {
             throw err;
         }
         const assetZip = await zipDirectory(assetDir);
-        const assetId = await this.stores.assetStore.save(assetZip);
+        const assetId = await stores.assetStore.save(assetZip);
         if (cleanup) await fs.remove(path.join(this.assetDir, assetId));
         return assetId;
     }
@@ -128,44 +125,44 @@ class TestContext {
     async newSlice() {
         const sliceConfig = newSliceConfig();
         await this.addStateStore();
-        await this.stores.stateStore.createState(this.exId, sliceConfig, 'start');
+        await stores.stateStore.createState(this.exId, sliceConfig, 'start');
         return sliceConfig;
     }
 
     async addAssetStore() {
-        if (this.stores.assetStore) return this.stores.assetStore;
+        if (stores.assetStore) return stores.assetStore;
 
-        this.stores.assetStore = await makeAssetStore(this.context);
+        stores.assetStore = await makeAssetStore(this.context);
         delete this.context.apis.assets;
-        return this.stores.assetStore;
+        return stores.assetStore;
     }
 
     async addStateStore() {
-        if (this.stores.stateStore) return this.stores.stateStore;
+        if (stores.stateStore) return stores.stateStore;
 
-        this.stores.stateStore = await makeStateStore(this.context);
-        return this.stores.stateStore;
+        stores.stateStore = await makeStateStore(this.context);
+        return stores.stateStore;
     }
 
     async addAnalyticsStore() {
-        if (this.stores.analyticsStore) return this.stores.analyticsStore;
+        if (stores.analyticsStore) return stores.analyticsStore;
 
-        this.stores.analyticsStore = await makeAnalyticsStore(this.context);
-        return this.stores.analyticsStore;
+        stores.analyticsStore = await makeAnalyticsStore(this.context);
+        return stores.analyticsStore;
     }
 
     async addJobStore() {
-        if (this.stores.jobStore) return this.stores.jobStore;
+        if (stores.jobStore) return stores.jobStore;
 
-        this.stores.jobStore = await makeJobStore(this.context);
-        return this.stores.jobStore;
+        stores.jobStore = await makeJobStore(this.context);
+        return stores.jobStore;
     }
 
     async addExStore() {
-        if (this.stores.exStore) return this.stores.exStore;
+        if (stores.exStore) return stores.exStore;
 
-        this.stores.exStore = await makeExStore(this.context);
-        return this.stores.exStore;
+        stores.exStore = await makeExStore(this.context);
+        return stores.exStore;
     }
 
     async cleanup() {
@@ -173,19 +170,6 @@ class TestContext {
 
         await Promise.map(this._cleanupFns, fn => fn());
         this._cleanupFns.length = 0;
-
-        const stores = Object.values(this.stores);
-        try {
-            await Promise.map(stores, store => store.shutdown(true));
-        } catch (err) {
-            console.error(err);
-        }
-
-        try {
-            cleanupTempDirs();
-        } catch (err) {
-            console.error(err);
-        }
 
         this.events.removeAllListeners();
 
@@ -210,8 +194,19 @@ async function cleanupAll(withEs) {
         delete cleanups[name];
     });
     await Promise.all(fns);
+
+    try {
+        cleanupTempDirs();
+    } catch (err) {
+        console.error(err);
+    }
+
     if (withEs) {
-        await es.indices.delete({ index: `${clusterName}*` });
+        try {
+            await Promise.map(stores, store => store.shutdown(true));
+        } catch (err) {
+            console.error(err);
+        }
     }
 }
 

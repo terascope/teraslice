@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird');
 const _ = require('lodash');
-const { getClient } = require('../../utils/config');
+const { getClient } = require('@terascope/teraslice-operations');
 
 module.exports = function module(context) {
     if (_.includes(context.sysconfig.terafoundation.logging, 'elasticsearch')) {

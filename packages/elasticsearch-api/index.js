@@ -11,13 +11,8 @@ const DOCUMENT_EXISTS = 409;
 module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     const warning = _warn(logger, 'The elasticsearch cluster queues are overloaded, resubmitting failed queries from bulk');
     const config = _opConfig || {};
-    let retryStart = 5000;
-    let retryLimit = 10000;
-
-    if (client.__testing) {
-        retryStart = client.__testing.start;
-        retryLimit = client.__testing.limit;
-    }
+    const retryStart = _.get(client, '__testing.start', 5000);
+    const retryLimit = _.get(client, '__testing.limit', 10000);
 
     function count(query) {
         query.size = 0;

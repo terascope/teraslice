@@ -5,8 +5,8 @@ const _ = require('lodash');
 const shortid = require('shortid');
 const parseError = require('@terascope/error-parser');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
+const { getClient } = require('@terascope/teraslice-operations');
 const { timeseriesIndex } = require('../../../utils/date_utils');
-const { getClient } = require('../../../utils/config.js');
 
 module.exports = function module(context, indexName, recordType, idField, _bulkSize, fullResponse) {
     const logger = context.apis.foundation.makeLogger({ module: 'elasticsearch_backend' });
@@ -355,9 +355,9 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
         const nameSize = indexName.length - 1;
         newIndex = timeseriesIndex(timeseriesFormat, indexName.slice(0, nameSize)).index;
     }
+
     return new Promise(((resolve, reject) => {
         const clientName = JSON.stringify(config.state);
-
         client = getClient(context, config.state, 'elasticsearch');
         let options = null;
 

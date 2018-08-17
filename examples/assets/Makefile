@@ -17,10 +17,10 @@ clean:
 	rm -f *.zip
 
 copy:
-	mkdir -p ../../e2e/spec/fixtures/assets
-	cp example_asset_1.zip ../../e2e/spec/fixtures/assets/
-	cp example_asset_2.zip ../../e2e/spec/fixtures/assets/
-	cp example_bad_asset_1.zip ../../e2e/spec/fixtures/assets/
+	mkdir -p ../../e2e/test/fixtures/assets
+	cp example_asset_1.zip ../../e2e/test/fixtures/assets/
+	cp example_asset_2.zip ../../e2e/test/fixtures/assets/
+	cp example_bad_asset_1.zip ../../e2e/test/fixtures/assets/
 
 example_asset_1.zip: example_asset_type1/example_assets/drop_property/index.js
 	@zip -qr $@ example_asset_type1/
