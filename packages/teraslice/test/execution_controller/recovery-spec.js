@@ -206,6 +206,6 @@ describe('execution recovery', () => {
                 expect(startingPoints).toEqual({ 0: '9999', 1: '9999' });
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 });

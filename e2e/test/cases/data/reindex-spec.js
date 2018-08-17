@@ -25,7 +25,7 @@ describe('reindex', () => {
                     expect(stats.deleted).toBe(0);
                 }))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should work when no data is returned with lucene query', (done) => {
@@ -52,7 +52,7 @@ describe('reindex', () => {
                     });
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should collect cluster level stats', (done) => {
@@ -69,7 +69,7 @@ describe('reindex', () => {
                 // exceptions?
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should complete after lifecycle changes', (done) => {
@@ -99,7 +99,7 @@ describe('reindex', () => {
                         }));
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can support different recovery scenarios', (done) => {
@@ -112,7 +112,7 @@ describe('reindex', () => {
             .then(() => misc.indexStats('test-recovery-300'))
             .then(stats => expect(stats.count).toEqual(300))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should support idempotency', (done) => {

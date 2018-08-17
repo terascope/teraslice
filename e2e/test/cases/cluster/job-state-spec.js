@@ -32,6 +32,6 @@ describe('worker allocation', () => {
                     .then(() => job2.waitForStatus('stopped'));
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 });

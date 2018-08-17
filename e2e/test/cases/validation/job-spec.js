@@ -14,7 +14,7 @@ describe('job validation', () => {
             .catch((err) => {
                 expect(err.error).toBe(500);
             })
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should be rejected with empty reader index name', (done) => {
@@ -25,7 +25,7 @@ describe('job validation', () => {
             .catch((err) => {
                 expect(err.error).toBe(500);
             })
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should be rejected with slicers = 0', (done) => {
@@ -39,7 +39,7 @@ describe('job validation', () => {
             .catch((err) => {
                 expect(err.error).toBe(500);
             })
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should be rejected with slicers < 0', (done) => {
@@ -53,7 +53,7 @@ describe('job validation', () => {
             .catch((err) => {
                 expect(err.error).toBe(500);
             })
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should be rejected with negative workers == 0', (done) => {
@@ -67,7 +67,7 @@ describe('job validation', () => {
             .catch((err) => {
                 expect(err.error).toBe(500);
             })
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should be rejected with invalid lifecycle', (done) => {
@@ -81,7 +81,7 @@ describe('job validation', () => {
             .catch((err) => {
                 expect(err.error).toBe(500);
             })
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should be rejected if empty', (done) => {
@@ -94,6 +94,6 @@ describe('job validation', () => {
             .catch((err) => {
                 expect(err.error).toBe(400);
             })
-            .finally(done);
+            .finally(() => { done(); });
     });
 });

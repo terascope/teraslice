@@ -93,7 +93,7 @@ describe('worker allocation', () => {
             .finally(() => {
                 // Scale back to a default worker count.
                 misc.scale(3)
-                    .finally(done);
+                    .finally(() => { done(); });
             });
     });
 });

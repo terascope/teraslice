@@ -217,7 +217,7 @@ describe('execution engine', () => {
             })
             .then(engine.shutdown())
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('registers messaging events', () => {
@@ -537,7 +537,7 @@ describe('execution engine', () => {
         Promise.all([executionRecovery(), sendEvent(150)])
             .spread(data => expect(data).toEqual({ starting: 'point' }))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('terminal error marks job as failed', (done) => {
@@ -555,7 +555,7 @@ describe('execution engine', () => {
                 });
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('failed slice can recover to running status in persistent mode', (done) => {
@@ -580,7 +580,7 @@ describe('execution engine', () => {
                 expect(exStatus).toEqual('running');
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('slicer init retry will attempt to create slicer', (done) => {
@@ -726,7 +726,7 @@ describe('execution engine', () => {
                 return true;
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can initialize, pause, resume and shutdown', (done) => {
@@ -832,7 +832,7 @@ describe('execution engine', () => {
                 expect(compareCounts(prevSecondCallCount, currSecondCallCount)).toEqual(true);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can complete when slicers are finished', (done) => {
@@ -867,7 +867,7 @@ describe('execution engine', () => {
                 expect(sentMsg.message).toEqual('execution:finished');
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('executionShutdown', (done) => {
@@ -885,7 +885,7 @@ describe('execution engine', () => {
                 expect(gotStopEvent).toEqual(true);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can log error counts at end of execution', (done) => {
@@ -900,7 +900,7 @@ describe('execution engine', () => {
                 expect(exStatus).toEqual('failed');
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can send slices to specific workers', (done) => {
@@ -974,7 +974,7 @@ describe('execution engine', () => {
                 expect(workerQueueList()).toEqual([worker2]);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should not send two slices to the same worker', (done) => {
@@ -1147,6 +1147,6 @@ describe('execution engine', () => {
                 expect(slicerQueue.size()).toEqual(2);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 });

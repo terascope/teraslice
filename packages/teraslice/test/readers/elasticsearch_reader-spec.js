@@ -326,7 +326,7 @@ describe('elasticsearch_reader', () => {
                     });
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('slicer can produce date slices', (done) => {
@@ -640,7 +640,7 @@ describe('elasticsearch_reader', () => {
                     })
                     .then(results => expect(results).toEqual(null))
                     .catch(fail)
-                    .finally(done);
+                    .finally(() => { done(); });
             });
     });
 

@@ -22,7 +22,7 @@ describe('id reader', () => {
                     expect(stats.deleted).toBe(0);
                 }))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should support reindexing by hex id', (done) => {
@@ -44,7 +44,7 @@ describe('id reader', () => {
                     expect(stats.deleted).toBe(0);
                 }))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should support reindexing by hex id + key_range', (done) => {
@@ -68,7 +68,7 @@ describe('id reader', () => {
                     expect(stats.deleted).toBe(0);
                 }))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should complete after stopping and restarting', (done) => {
@@ -97,6 +97,6 @@ describe('id reader', () => {
                         }));
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 });

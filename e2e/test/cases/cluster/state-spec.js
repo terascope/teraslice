@@ -73,7 +73,7 @@ describe('cluster state', () => {
                 verifyClusterState(state, 4);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should update after adding and removing a worker node', (done) => {
@@ -91,7 +91,7 @@ describe('cluster state', () => {
                 verifyClusterState(state, 4);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should update after adding and removing 10 worker nodes', (done) => {
@@ -109,7 +109,7 @@ describe('cluster state', () => {
                 verifyClusterState(state, 4);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should be correct for running job with 1 worker', (done) => {
@@ -153,7 +153,7 @@ describe('cluster state', () => {
             .catch((err) => {
                 fail(err);
             })
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should be correct for running job with 4 workers', (done) => {
@@ -195,6 +195,6 @@ describe('cluster state', () => {
                     expect(stats.deleted).toBe(0);
                 }))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 });

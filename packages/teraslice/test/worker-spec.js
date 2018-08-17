@@ -243,7 +243,7 @@ describe('Worker', () => {
                 expect(updatedSlice.type).toEqual('error');
                 expect(updatedSlice.errMsg).toEqual(error.stack);
             })
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can mark slices as completed', (done) => {
@@ -298,7 +298,7 @@ describe('Worker', () => {
                 expect(sentMsg).toEqual(endingMsg);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('will emit recycle after so many invocations', (done) => {
@@ -342,7 +342,7 @@ describe('Worker', () => {
                 expect(innerEventCalled).toEqual(true);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can process slices, and send back over allocated slices', (done) => {
@@ -406,7 +406,7 @@ describe('Worker', () => {
                 expect(respondingMsg).toEqual(sentBackMsg);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can keep track of last sent messages', (done) => {
@@ -460,7 +460,7 @@ describe('Worker', () => {
                 });
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can handle timeouts when marking slice as complete', (done) => {
@@ -515,7 +515,7 @@ describe('Worker', () => {
                 });
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can retry slice executions', (done) => {
@@ -543,7 +543,7 @@ describe('Worker', () => {
                 expect(updatedSlice.slice).toEqual(slice);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can get a network disconnect event', (done) => {
@@ -566,6 +566,6 @@ describe('Worker', () => {
                 expect(errorMsg).toEqual(finalErrorMessage);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 });

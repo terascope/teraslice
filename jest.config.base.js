@@ -25,7 +25,7 @@ module.exports = {
         'node'
     ],
     transformIgnorePatterns: [
-        '/node_modules/',
+        '/node_modules/'
     ],
     collectCoverage: true,
     coveragePathIgnorePatterns: [

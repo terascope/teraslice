@@ -29,7 +29,7 @@ describe('elasticsearch_data_generator', () => {
             })
             .then(results => expect(results.length).toEqual(20))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('slicer in "once" mode will return number based off total size ', (done) => {
@@ -78,7 +78,7 @@ describe('elasticsearch_data_generator', () => {
                 expect(slicer[0]()).toEqual(550);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('data generator will only return one slicer', () => {

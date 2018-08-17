@@ -180,6 +180,6 @@ describe('Node master', () => {
                 expect(processesAlive).toEqual(3);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 });

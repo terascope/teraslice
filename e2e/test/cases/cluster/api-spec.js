@@ -20,7 +20,7 @@ describe('api endpoint', () => {
                 });
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('should update job specs', (done) => {
@@ -50,7 +50,7 @@ describe('api endpoint', () => {
                     });
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('will not send lifecycle changes to executions that are not active', (done) => {
@@ -88,7 +88,7 @@ describe('api endpoint', () => {
                 ]);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('api end point /assets should return an array of json objects of asset metadata', done => teraslice.cluster.get('/assets')
@@ -101,7 +101,7 @@ describe('api endpoint', () => {
             expect(_.has(response[0], 'version')).toBe(true);
         })
         .catch(fail)
-        .finally(done));
+        .finally(() => { done(); }));
 
     it('api end point /assets/assetName should return an array of json objects of asset metadata', (done) => {
         teraslice.cluster.get('/assets/ex1')
@@ -114,7 +114,7 @@ describe('api endpoint', () => {
                 expect(_.has(response[0], 'version')).toBe(true);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('api end point /assets/assetName/version should return an array of json objects of asset metadata', (done) => {
@@ -128,7 +128,7 @@ describe('api endpoint', () => {
                 expect(_.has(response[0], 'version')).toBe(true);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('api end point /txt/assets should return a text table', (done) => {
@@ -138,7 +138,7 @@ describe('api endpoint', () => {
                 expect(typeof response).toBe('string');
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('api end point /txt/assets/assetName should return a text table', (done) => {
@@ -148,7 +148,7 @@ describe('api endpoint', () => {
                 expect(typeof response).toBe('string');
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('api end point /txt/assets/assetName/version should return a text table', (done) => {
@@ -158,6 +158,6 @@ describe('api endpoint', () => {
                 expect(typeof response).toBe('string');
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 });

@@ -4,7 +4,6 @@
 
 const _ = require('lodash');
 const { createTempDirSync, cleanupTempDirs } = require('jest-fixtures');
-const ElasticsearchClient = require('elasticsearch').Client;
 const path = require('path');
 const fs = require('fs-extra');
 const {
@@ -24,15 +23,11 @@ const zipDirectory = require('./zip-directory');
 const findPort = require('./find-port');
 const ClusterMasterServer = require('./cluster-master-server');
 
-const { TERASLICE_CLUSTER_NAME, ELASTICSEARCH_HOST } = process.env;
+const { TERASLICE_CLUSTER_NAME } = process.env;
 
 const cleanups = {};
 const tmpAssetDir = createTempDirSync();
 const clusterName = `${TERASLICE_CLUSTER_NAME}`;
-const es = new ElasticsearchClient({
-    host: ELASTICSEARCH_HOST,
-    log: '' // This suppresses error logging from the ES library.
-});
 
 const stores = {};
 

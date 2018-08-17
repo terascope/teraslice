@@ -348,7 +348,7 @@ describe('elasticsearch-api', () => {
             })
             .then(results => expect(results).toEqual(500))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can search', (done) => {
@@ -363,7 +363,7 @@ describe('elasticsearch-api', () => {
                 expect(results2).toEqual(getData());
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('search can handle rejection errors', (done) => {
@@ -382,7 +382,7 @@ describe('elasticsearch-api', () => {
             })
             .then(() => expect(queryFailed).toEqual(true))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('search can handle shard errors', (done) => {
@@ -414,7 +414,7 @@ describe('elasticsearch-api', () => {
             })
             .then(() => expect(queryFailed).toEqual(true))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can call mget', (done) => {
@@ -425,7 +425,7 @@ describe('elasticsearch-api', () => {
         Promise.resolve(api.mget(query))
             .then(results => expect(results).toEqual(getData()))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can call get', (done) => {
@@ -436,7 +436,7 @@ describe('elasticsearch-api', () => {
         Promise.resolve(api.get(query))
             .then(results => expect(results).toEqual(recordsReturned[0]._source))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can call index', (done) => {
@@ -446,7 +446,7 @@ describe('elasticsearch-api', () => {
         Promise.resolve(api.index(query))
             .then(results => expect(results.created).toEqual(true))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can call indexWithId', (done) => {
@@ -459,7 +459,7 @@ describe('elasticsearch-api', () => {
         Promise.resolve(api.indexWithId(query))
             .then(results => expect(results).toEqual(query.body))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can call create', (done) => {
@@ -469,7 +469,7 @@ describe('elasticsearch-api', () => {
         Promise.resolve(api.create(query))
             .then(results => expect(results).toEqual(query.body))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can call update', (done) => {
@@ -479,7 +479,7 @@ describe('elasticsearch-api', () => {
         Promise.resolve(api.update(query))
             .then(results => expect(results).toEqual(query.body.doc))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can call remove', (done) => {
@@ -489,7 +489,7 @@ describe('elasticsearch-api', () => {
         Promise.resolve(api.remove(query))
             .then(results => expect(results).toEqual(true))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can call indexExists', (done) => {
@@ -499,7 +499,7 @@ describe('elasticsearch-api', () => {
         Promise.resolve(api.indexExists(query))
             .then(results => expect(results).toEqual(true))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can call indexCreate', (done) => {
@@ -509,7 +509,7 @@ describe('elasticsearch-api', () => {
         Promise.resolve(api.indexCreate(query))
             .then(results => expect(results.acknowledged).toEqual(true))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can call indexRefresh', (done) => {
@@ -519,7 +519,7 @@ describe('elasticsearch-api', () => {
         Promise.resolve(api.indexRefresh(query))
             .then(results => expect(results).toBeTruthy())
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can call indexRecovery', (done) => {
@@ -529,7 +529,7 @@ describe('elasticsearch-api', () => {
         Promise.resolve(api.indexRecovery(query))
             .then(results => expect(results[query.index]).toBeTruthy())
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can call nodeInfo', (done) => {
@@ -538,7 +538,7 @@ describe('elasticsearch-api', () => {
         Promise.resolve(api.nodeInfo())
             .then(results => expect(results).toBeTruthy())
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can call nodeStats', (done) => {
@@ -547,7 +547,7 @@ describe('elasticsearch-api', () => {
         Promise.resolve(api.nodeStats())
             .then(results => expect(results).toBeTruthy())
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can call nodeStats', (done) => {
@@ -556,7 +556,7 @@ describe('elasticsearch-api', () => {
         Promise.resolve(api.nodeStats())
             .then(results => expect(results).toBeTruthy())
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can warn window size with version', (done) => {
@@ -565,7 +565,7 @@ describe('elasticsearch-api', () => {
         Promise.resolve(api.version())
             .then(() => expect(warnMsg).toBeTruthy())
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can call putTemplate', (done) => {
@@ -574,7 +574,7 @@ describe('elasticsearch-api', () => {
         Promise.resolve(api.putTemplate(template, 'somename'))
             .then(results => expect(results.acknowledged).toEqual(true))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can call bulkSend', (done) => {
@@ -588,7 +588,7 @@ describe('elasticsearch-api', () => {
         Promise.resolve(api.bulkSend(myBulkData))
             .then(results => expect(results).toBeTruthy())
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can call bulkSend with errors', (done) => {
@@ -615,7 +615,7 @@ describe('elasticsearch-api', () => {
             })
             .then(() => expect(queryFailed).toEqual(true))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can call buildQuery for geo queries', () => {
@@ -871,7 +871,7 @@ describe('elasticsearch-api', () => {
 
         api.indexSetup(clusterName, newIndex, migrantIndexName, template, recordType, clientName)
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can set up an index and wait for availability', (done) => {
@@ -896,7 +896,7 @@ describe('elasticsearch-api', () => {
             )
         ])
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can wait for elasticsearch availability', (done) => {
@@ -924,7 +924,7 @@ describe('elasticsearch-api', () => {
             waitFor(1200, () => { recoverError = false; }),
         ])
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can send template on state mapping changes, does not migrate', (done) => {
@@ -943,7 +943,7 @@ describe('elasticsearch-api', () => {
                 expect(reindexCalled).toEqual(false);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can migrate on mapping changes', (done) => {
@@ -964,6 +964,6 @@ describe('elasticsearch-api', () => {
                 expect(indicesPutAliasCalled).toEqual(true);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 });

@@ -21,6 +21,6 @@ describe('elasticsearch bulk', () => {
                     expect(stats.count).toBe(10000);
                 }))
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 });

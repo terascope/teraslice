@@ -96,7 +96,7 @@ describe('execution runner', () => {
                 expect(typeof results.slicer.schema).toEqual('function');
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('will fail if no assets are needed and it cant find the code', (done) => {
@@ -112,7 +112,7 @@ describe('execution runner', () => {
                 expect(err).toBeDefined();
                 expect(typeof err).toEqual('string');
             })
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('execution_controller can wait for an asset while initializing', (done) => {
@@ -140,7 +140,7 @@ describe('execution runner', () => {
                 expect(typeof results.slicer.schema).toEqual('function');
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('worker can wait for an asset while initializing', (done) => {
@@ -158,7 +158,7 @@ describe('execution runner', () => {
                 expect(results).toBeDefined();
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can fail if downloading asset failed', (done) => {
@@ -180,7 +180,7 @@ describe('execution runner', () => {
                 expect(err).toBeDefined();
                 expect(typeof err).toEqual('string');
             })
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('can fail if assets downloaded but fails to instantiate', (done) => {
@@ -198,7 +198,7 @@ describe('execution runner', () => {
                 expect(err).toBeDefined();
                 expect(typeof err).toEqual('string');
             })
-            .finally(done);
+            .finally(() => { done(); });
     });
 
 
@@ -235,7 +235,7 @@ describe('execution runner', () => {
                 expect(workerExe.slicer).toEqual(null);
             })
             .catch(fail)
-            .finally(done);
+            .finally(() => { done(); });
     });
 
     it('analyze returns a function what captures the time it took to complete a step, data in and data out', (done) => {
