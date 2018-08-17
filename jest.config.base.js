@@ -24,6 +24,9 @@ module.exports = {
         'json',
         'node'
     ],
+    transformIgnorePatterns: [
+        '/node_modules/',
+    ],
     collectCoverage: true,
     coveragePathIgnorePatterns: [
         '<rootDir>/test/helpers',
