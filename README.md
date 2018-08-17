@@ -164,7 +164,7 @@ cd teraslice
 # If install the root level depedencies
 yarn
 # Ensure the projects are installed, built and linked together
-yarn bootstrap:dev
+yarn setup
 ```
 
 ### Running tests ###

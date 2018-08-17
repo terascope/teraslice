@@ -21,7 +21,7 @@ RUN yarn install \
     --no-progress \
     --pure-lockfile \
     --link-duplicates \
-    && yarn bootstrap:dev \
+    && yarn setup \
     && yarn cache clean
 
 EXPOSE 5678

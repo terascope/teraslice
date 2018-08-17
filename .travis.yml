@@ -18,12 +18,13 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
   # install latest yarn
-  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version version-number
+  - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH="$HOME/.yarn/bin:$PATH"
+  # make it colorful
   - export FORCE_COLOR=1
 install:
   - yarn install
-  - yarn bootstrap:dev
+  - yarn setup
 before_deploy:
 jobs:
   # stop if given a reason
@@ -45,7 +46,7 @@ jobs:
     script: yarn test:e2e || (yarn test:e2e:logs; exit 1)
 
   # if not tag is preset and is on master release a draft version
-  - stage: Release (Draft)
+  - stage: Release (NPM)
     name: Release
     if: tag IS blank AND branch = master AND type != pull_request
     before_install: npm config set //registry.npmjs.org/:_authToken=${NPM_TOKEN} -q
@@ -53,22 +54,15 @@ jobs:
     deploy:
       - provider: script
         skip_cleanup: true
-        script: yarn publish:draft
-      - provider: releases
-        draft: true
-        api_key:
-          secure: "ikJIrNiYXy2kd2WvFMvG8zkKUI5uXUVTG1OJ9E7pQPRbp5tqmCsko9AQVx+51ChWi5a25CFbkhhG6FGZoukU9i70QyZ5WuQUFmjLrdSjjCw9uVPd9G+n0CyDUaFbRTsqY4gkt0E6Zb6P3ULpex5DU55Nvn+lhRkHxYKsQSSTVEe1tF7jdvaSXruCxRVssnc/goN8x43POS9veouC5of3nvUhUX/7mo4qER7P2vhm3yh5hjbf22+seNKcxP99dTrrVO9Cm2m9B41RW3p7tdzVrZ7q8RUdmPiY/SG/Al+8W2mj9NTOTd78JH6016GK/7gdiHbFungUbz0tYYizrNP6RahaZVRtUnz0nJMYtIEe2l7q/UStV2TlGngQAummxOhmBbrh7fjfSm+uu6SnKlhghicBIR91kscNpMHeCuhHXTedNZd/VD4zZFDUqTP0yLM+5toQByK7n9zg4CBdfTlJ8cC0ikf97xxr/KE5uK7gFOpNfC1z4nW4Ir+c9k8Xf97rT+kz26JzoN+BWxHGa1DlTCwpuTWz51+cgWG9w2OtUvWz3JdRpPb7sFQtCswiS+TkHtz/r9JKKmIMDnFhx4GAJbSfFxKM/KMvDOeMrRVbI6TVuzCa1aH1oLipXz6tFOQRDPCX80HIxloWYpYr/YofpvEeYiJkRMsEgrpVDJuHpq0="
+        script: yarn publish:changed
 
   # if tag is present and is on master, release a new version
-  - stage: Release
+  - stage: Release (Github)
     name: Release
     if: tag IS present AND tag =~ ^v AND branch = master AND type != pull_request
-    before_install: npm config set //registry.npmjs.org/:_authToken=${NPM_TOKEN} -q
+    before_install: skip
     script: skip
     deploy:
-      - provider: script
-        skip_cleanup: true
-        script: yarn publish:release
       - provider: releases
         name: "$TRAVIS_TAG"
         prerelease: true
