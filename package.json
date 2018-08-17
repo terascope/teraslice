@@ -6,7 +6,7 @@
         "bootstrap": "lerna bootstrap",
         "bootstrap:dev": "lerna bootstrap && lerna link && lerna run build",
         "build": "lerna run build",
-        "test": "jest --forceExit --maxWorkers=4",
+        "test": "jest --forceExit --maxWorkers=1",
         "test:e2e": "yarn --cwd ./e2e test",
         "test:e2e:logs": "yarn --cwd ./e2e logs",
         "lint": "env FORCE_COLOR=1 lerna run lint --no-bail",
