@@ -55,7 +55,7 @@ describe('Asset Tests', () => {
                     });
             })
             .catch(fail)
-            .finally(() => { done();  });
+            .finally(() => { done(); });
     });
 
 
@@ -70,7 +70,7 @@ describe('Asset Tests', () => {
         teraslice.assets.post(testStream)
             .then(result => expect(JSON.parse(result).error).toMatch('asset.json was not found'))
             .catch(fail)
-            .finally(() => { done();  });
+            .finally(() => { done(); });
     });
 
 
@@ -83,7 +83,7 @@ describe('Asset Tests', () => {
         const assetPath = 'test/fixtures/assets/example_asset_1.zip';
         submitAndValidateAssetJob('generator-asset', assetPath)
             .catch(fail)
-            .finally(() => { done();  });
+            .finally(() => { done(); });
     });
 
     // Type 2 Asset - asset.json in subdirectory of zipfile
@@ -95,6 +95,6 @@ describe('Asset Tests', () => {
         const assetPath = 'test/fixtures/assets/example_asset_2.zip';
         submitAndValidateAssetJob('generator-asset', assetPath)
             .catch(fail)
-            .finally(() => { done();  });
+            .finally(() => { done(); });
     });
 });
