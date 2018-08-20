@@ -5,13 +5,15 @@ const fs = require('fs-extra');
 
 module.exports = (projectDir) => {
     const name = path.basename(projectDir);
+    const workspaceName = name === 'e2e' ? 'e2e' : 'packages';
+    const rootDir = name === 'e2e' ? '../' : '../../';
+    const projectRoot = name === 'e2e' ? '<rootDir>/e2e' : `<rootDir>/${workspaceName}/${name}`;
     const isTypescript = fs.pathExistsSync(path.join(projectDir, 'tsconfig.json'));
-    const projectRoot = `<rootDir>/packages/${name}`;
 
     const config = {
-        name,
+        rootDir,
+        name: `${workspaceName}/${name}`,
         displayName: name,
-        rootDir: '../../',
         verbose: true,
         testEnvironment: 'node',
         transform: {
@@ -23,8 +25,8 @@ module.exports = (projectDir) => {
             `${projectRoot}/test/*-spec.{ts,js}`
         ],
         testPathIgnorePatterns: [
-            '<rootDir>/packages/*/node_modules',
-            '<rootDir>/packages/*/dist',
+            `<rootDir>/${workspaceName}/*/node_modules`,
+            `<rootDir>/${workspaceName}/*/dist`,
         ],
         moduleFileExtensions: [
             'ts',
@@ -56,7 +58,7 @@ module.exports = (projectDir) => {
     if (isTypescript) {
         config.globals = {
             'ts-jest': {
-                tsConfigFile: `./packages/${name}/tsconfig.json`,
+                tsConfigFile: `./${workspaceName}/${name}/tsconfig.json`,
                 enableTsDiagnostics: true
             }
         };

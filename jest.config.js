@@ -24,9 +24,9 @@ module.exports = {
         '<rootDir>/packages/*/lib/**/*.js',
         '<rootDir>/packages/*/src/**/*.ts',
         '<rootDir>/packages/*/src/*.ts',
-        '!<rootDir>packages/**/*.d.ts',
-        '!<rootDir>packages/**/dist/**',
-        '!<rootDir>packages/**/coverage/**',
+        '!<rootDir>/packages/**/*.d.ts',
+        '!<rootDir>/packages/**/dist/**',
+        '!<rootDir>/packages/**/coverage/**',
     ],
     coverageReporters: ['lcov', 'text-summary', 'html'],
     coverageDirectory: 'coverage'
