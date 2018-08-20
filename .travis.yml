@@ -23,7 +23,7 @@ before_install:
   # make it colorful
   - export FORCE_COLOR=1
 install:
-  - yarn install --pure-lockfile --link-duplicates
+  - yarn install --link-duplicates
   - yarn setup
 before_deploy:
 jobs:
