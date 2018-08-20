@@ -1,0 +1,9 @@
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: teraslice-all-ts-dev1
+  namespace: ts-dev1
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]
