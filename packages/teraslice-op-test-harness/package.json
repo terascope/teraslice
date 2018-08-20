@@ -8,8 +8,8 @@
   "main": "index.js",
   "scripts": {
     "docs": "jsdoc -P package.json index.js",
-    "lint": "eslint *.js lib test",
-    "lint:fix": "eslint --fix *.js lib test",
+    "lint": "eslint *.js test",
+    "lint:fix": "eslint --fix *.js test",
     "test": "jest --forceExit",
     "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
   },
