@@ -3,11 +3,9 @@
 node_modules
 coverage
 assets
-tests
 test
 spec
 docs
 examples
 e2e
-packages/**/dist
 packages/**/dist

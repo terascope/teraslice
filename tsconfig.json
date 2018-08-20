@@ -16,7 +16,6 @@
         "noImplicitReturns": true,
         "noImplicitThis": true,
         "preserveConstEnums": true,
-        "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
         "resolveJsonModule": true,
         "suppressImplicitAnyIndexErrors": true,

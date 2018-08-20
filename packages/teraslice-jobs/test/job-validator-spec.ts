@@ -1,6 +1,5 @@
-/// <reference types="jest-extended" />
-
 import { TestContext } from '@terascope/teraslice-types';
+import 'jest-extended'; // require for type definitions
 import * as path from 'path';
 import { JobValidator } from '../src';
 

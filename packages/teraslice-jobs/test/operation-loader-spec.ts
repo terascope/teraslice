@@ -1,9 +1,8 @@
 'use strict';
 
-/// <reference types="jest-extended" />
-
 import { newTestJobConfig, Processor, Reader, TestContext } from '@terascope/teraslice-types';
 import fs from 'fs-extra';
+import 'jest-extended'; // require for type definitions
 import path from 'path';
 import { OperationLoader } from '../src';
 
@@ -51,7 +50,7 @@ describe('OperationLoader', () => {
         expect(opSchema).toBeDefined();
         expect(typeof opSchema).toEqual('object');
 
-        const jobConfig = newTestJobConfig()
+        const jobConfig = newTestJobConfig();
         const processor = results.newProcessor(context, { _op: 'noop' }, jobConfig);
 
         expect(processor).toBeDefined();
@@ -117,7 +116,7 @@ describe('OperationLoader', () => {
         expect(opSchema).toBeDefined();
         expect(typeof opSchema).toEqual('object');
 
-        const processor = results.newProcessor(context, {_op: 'hello'}, newTestJobConfig());
+        const processor = results.newProcessor(context, { _op: 'hello' }, newTestJobConfig());
 
         expect(processor).toBeDefined();
         expect(typeof processor).toEqual('function');

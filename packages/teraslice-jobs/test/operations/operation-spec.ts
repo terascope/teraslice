@@ -1,6 +1,5 @@
-/// <reference types="jest-extended" />
-
 import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
+import 'jest-extended'; // require for type definitions
 import { TerasliceOperation } from '../../src';
 
 describe('TerasliceOperation', () => {
@@ -9,7 +8,7 @@ describe('TerasliceOperation', () => {
 
         beforeAll(() => {
             const context = new TestContext('teraslice-operations');
-            const jobConfig = newTestJobConfig()
+            const jobConfig = newTestJobConfig();
             jobConfig.operations.push({
                 _op: 'example-op',
             });
