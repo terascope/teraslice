@@ -61,7 +61,7 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
             workers_reconnected: 0
         }
     };
-    const k8s = new K8s(logger);
+    const k8s = new K8s(logger, null, kubernetesNamespace);
 
     // Under the hood this makes a node join a room so messaging is possible
     messaging.register({

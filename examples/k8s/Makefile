@@ -1,13 +1,13 @@
 .DEFAULT_GOAL := help
-.PHONY: help show destroy logs logs-master logs-ex logs-worker submit k8s-master build
+.PHONY: help build build-and-push start stop show destroy destroy-all logs logs-master logs-slicer logs-worker k8s-master setup setup-all rebuild elasticsearch deelasticsearch namespace delete-namespace role delete-role binding delete-binding auth deauth showauth
 SHELL := bash
 
-# defaults to my minikube teraslice master, override by setting the
-# TERASLICE_MASTER_URL env variable
+# ES_URL="http://192.168.99.1:9200" make rebuild
+ES_URL ?= http://192.168.99.100:30200
 TERASLICE_MASTER_URL ?= 192.168.99.100:30678
-TERASLICE_K8S_IMAGE ?= teraslice:k8sdev
-TERASLICE_WORKER_K8S_IMAGE ?= teraslice:k8sdev
-LOG_LENGTH ?= 10
+TERASLICE_K8S_IMAGE ?= teraslice-k8sdev
+NAMESPACE ?= default
+LOG_LENGTH ?= 1000
 
 help: ## show target summary
 	@grep -E '^\S+:.* ## .+$$' $(MAKEFILE_LIST) | sed 's/##/#/' | while IFS='#' read spec help; do \
@@ -19,29 +19,96 @@ help: ## show target summary
 	  done \
 	done
 
-show: ## show k8s deployments and services
-	kubectl get deployments,svc,po -o wide
+install:
+	yarn global add teraslice-job-manager
 
-destroy: ## delete k8s deployments and services
-	kubectl delete deployments,services -l app=teraslice
+show: ## show k8s deployments and services
+	kubectl get --namespace $(NAMESPACE) deployments,svc,po,jobs -o wide
+	@echo ""
+	curl $(ES_URL)/_cat/indices
 
 logs: ## show logs for k8s deployments and services
-	kubectl logs -l app=teraslice --tail=$(LOG_LENGTH) | bunyan
+	kubectl logs --namespace $(NAMESPACE) -l app=teraslice --tail=$(LOG_LENGTH) | bunyan
 
 logs-master: ## show logs for k8s teraslice master
-	kubectl logs -l app=teraslice,nodeType=master --tail=$(LOG_LENGTH) | bunyan
+	kubectl logs --namespace $(NAMESPACE) -l app=teraslice,nodeType=master --tail=$(LOG_LENGTH) | bunyan
 
-logs-ex: ## show logs for k8s teraslice execution_controllers
-	kubectl logs -l app=teraslice,nodeType=execution_controller --tail=$(LOG_LENGTH) | bunyan
+logs-slicer: ## show logs for k8s teraslice slicers
+	kubectl logs --namespace $(NAMESPACE) -l app=teraslice,nodeType=execution_controller --tail=$(LOG_LENGTH) | bunyan
 
 logs-worker: ## show logs for k8s teraslice workers
-	kubectl logs -l app=teraslice,nodeType=worker --tail=$(LOG_LENGTH) | bunyan
-
-submit: ## submit test job, override teraslice URL by setting TERASLICE_MASTER_URL
-	curl -sS -XPOST $(TERASLICE_MASTER_URL)/jobs -d@./sample-job.json
+	kubectl logs --namespace $(NAMESPACE) -l app=teraslice,nodeType=worker --tail=$(LOG_LENGTH) | bunyan
 
 k8s-master: ## start teraslice master in k8s
-	kubectl create -f ./masterDeployment.yaml
+	yq w masterDeployment.yaml spec.template.spec.containers[0].image $(TERASLICE_K8S_IMAGE) | kubectl create --namespace $(NAMESPACE) -f -
 
-build: ## build the teraslice:k8sdev container, override container name by setting TERASLICE_K8S_IMAGE
-	docker build -t $(TERASLICE_K8S_IMAGE) ../../
+elasticsearch: elasticsearchDeployment.yaml ## start elasticsearch in k8s
+	kubectl create --namespace $(NAMESPACE) -f ./elasticsearchDeployment.yaml
+
+deelasticsearch: elasticsearchDeployment.yaml ## start elasticsearch in k8s
+	kubectl delete --namespace $(NAMESPACE) -f ./elasticsearchDeployment.yaml
+
+namespace: ns.yaml ## create namespace
+	yq w ns.yaml metadata.name $(NAMESPACE) | kubectl create -f -
+
+delete-namespace:
+	kubectl delete namespace $(NAMESPACE)
+
+role: role.yaml ## create role with specified NAMESPACE
+	yq w role.yaml metadata.namespace $(NAMESPACE) | yq w - metadata.name teraslice-all-$(NAMESPACE) | kubectl create -f -
+
+delete-role:
+	kubectl delete --namespace $(NAMESPACE) roles teraslice-all-$(NAMESPACE)
+
+binding: roleBinding.yaml ## bind NAMESPACE default service acount to teraslice-all-NAMESPACE role
+	yq w roleBinding.yaml metadata.namespace $(NAMESPACE) | yq w - metadata.name teraslice-all-$(NAMESPACE) | yq w - subjects[0].namespace $(NAMESPACE) | yq w - roleRef.name teraslice-all-$(NAMESPACE) | kubectl create -f - || true
+
+delete-binding:
+	kubectl delete --namespace $(NAMESPACE) roleBindings teraslice-all-$(NAMESPACE)
+
+auth: role binding ## Setup k8s auth for teraslice in NAMESPACE
+
+deauth: delete-role delete-binding ## Delete the role and binding
+
+showauth: ## Show roles and roleBindings
+	kubectl get --namespace $(NAMESPACE) roles teraslice-all-$(NAMESPACE) -o yaml
+	kubectl get --namespace $(NAMESPACE) roleBindings teraslice-all-$(NAMESPACE) -o yaml
+
+configs: ## create the configmaps
+	yq w teraslice-master.yaml.tpl teraslice.kubernetes_image $(TERASLICE_K8S_IMAGE) | yq w - teraslice.kubernetes_namespace $(NAMESPACE) > teraslice.yaml
+	kubectl create --namespace $(NAMESPACE) configmap teraslice-master --from-file=teraslice.yaml
+	rm teraslice.yaml
+	yq w teraslice-worker.yaml.tpl teraslice.kubernetes_image $(TERASLICE_K8S_IMAGE) | yq w - teraslice.kubernetes_namespace $(NAMESPACE) > teraslice.yaml
+	kubectl create --namespace $(NAMESPACE) configmap teraslice-worker --from-file=teraslice.yaml
+	rm teraslice.yaml
+
+build: ## builds docker images
+	docker build -t $(TERASLICE_K8S_IMAGE) ../..
+
+push: ## push final docker image
+	docker push $(TERASLICE_K8S_IMAGE)
+
+setup-all: namespace elasticsearch auth setup ## setup EVERYTHING
+
+setup: configs k8s-master ## setup teraslice
+
+destroy: ## delete k8s deployments and services
+	kubectl delete --namespace $(NAMESPACE) deployments,jobs,services,pods -l app=teraslice
+	kubectl delete --namespace $(NAMESPACE) configmap teraslice-master || echo "* it is okay..."
+	kubectl delete --namespace $(NAMESPACE) configmap teraslice-worker || echo "* it is okay..."
+	curl -fsS -XDELETE "${ES_URL}/terak8s*"
+	tjm reset ./example-job.json
+
+destroy-all: destroy deauth deelasticsearch delete-namespace ## delete ALL things including the namespace
+
+rebuild: destroy setup ## destroys then re-runs things
+	sleep 20
+	make register
+
+register: ## creates asset and registers job
+	tjm asset --deploy -c $(TERASLICE_MASTER_URL) || echo '* it is okay'
+	tjm register -c $(TERASLICE_MASTER_URL) ./example-job.json
+
+example: ## runs example job
+	yes | tjm asset --replace -c $(TERASLICE_MASTER_URL) || echo '* it is okay'
+	tjm start ./example-job.json
