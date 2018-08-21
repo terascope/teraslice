@@ -133,19 +133,17 @@ class ExecutionControllerMessenger extends MessengerServer {
             const workerResponse = msg.payload;
             const sliceId = _.get(workerResponse, 'slice.slice_id');
             if (workerResponse.retry) {
-                const retryCacheKey = JSON.stringify(_.pick(workerResponse, ['slice', 'worker_id', 'retry']));
-                const retried = this.cache.get(retryCacheKey);
+                const retried = this.cache.get(`${sliceId}:retry`);
                 if (!retried) {
-                    this.cache.set(retryCacheKey, true);
+                    this.cache.set(`${sliceId}:retry`, true);
                     this.emit('worker:reconnect', workerResponse);
                 }
             }
 
-            const cachekey = JSON.stringify(_.pick(workerResponse, ['slice', 'worker_id']));
-            const alreadyCompleted = this.cache.get(cachekey);
+            const alreadyCompleted = this.cache.get(`${sliceId}:complete`);
 
             if (!alreadyCompleted) {
-                this.cache.set(cachekey, true);
+                this.cache.set(`${sliceId}:complete`, true);
 
                 if (workerResponse.error) {
                     this.events.emit('slice:failure', workerResponse);

@@ -20,7 +20,7 @@ const makeJobStore = require('./lib/cluster/storage/jobs');
 const makeSliceAnalytics = require('./lib/cluster/execution_controller/slice_analytics');
 const makeExecutionRecovery = require('./lib/cluster/execution_controller/recovery');
 const makeExecutionRunner = require('./lib/cluster/runners/execution');
-const { dateFormat, newFormatedDate } = require('./lib/utils/date_utils');
+const { dateFormat, newFormattedDate } = require('./lib/utils/date_utils');
 const { saveAsset } = require('./lib/utils/file_utils');
 
 const terasliceOpPath = path.join(__dirname, 'lib');
@@ -61,5 +61,5 @@ module.exports = {
     makeExecutionRecovery,
     makeExecutionRunner,
     saveAsset,
-    newFormatedDate,
+    newFormattedDate,
 };

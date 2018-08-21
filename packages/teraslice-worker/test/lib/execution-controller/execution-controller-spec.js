@@ -52,23 +52,22 @@ describe('ExecutionController', () => {
                 analytics: _.sample([true, false]),
             }
         ],
-        // this is slow
-        // [
-        //     'processing slices with multiple workers and one reconnects',
-        //     {
-        //         slicerResults: [
-        //             { example: 'slice-disconnect' },
-        //             { example: 'slice-disconnect' },
-        //             { example: 'slice-disconnect' },
-        //             { example: 'slice-disconnect' },
-        //             null
-        //         ],
-        //         reconnect: true,
-        //         body: { example: 'slice-disconnect' },
-        //         count: 4,
-        //         analytics: _.sample([true, false]),
-        //     }
-        // ],
+        [
+            'processing slices with multiple workers and one reconnects',
+            {
+                slicerResults: [
+                    { example: 'slice-disconnect' },
+                    { example: 'slice-disconnect' },
+                    { example: 'slice-disconnect' },
+                    { example: 'slice-disconnect' },
+                    null
+                ],
+                reconnect: true,
+                body: { example: 'slice-disconnect' },
+                count: 4,
+                analytics: _.sample([true, false]),
+            }
+        ],
         [
             'processing a slice with dynamic queue length',
             {
