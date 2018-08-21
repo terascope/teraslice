@@ -43,6 +43,12 @@ function indexStats(indexName) {
     }));
 }
 
+function cleanupIndex(indexName) {
+    return Promise.resolve()
+        .then(() => es().indices.delete({ index: indexName }))
+        .catch(() => Promise.resolve());
+}
+
 // Adds teraslice-workers to the environment
 function scale(count) {
     return compose.up({
@@ -55,6 +61,7 @@ function scale(count) {
 
 module.exports = {
     newJob,
+    cleanupIndex,
     teraslice: _.memoize(teraslice),
     es: _.memoize(es),
     indexStats,

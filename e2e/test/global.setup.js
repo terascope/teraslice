@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const signale = require('signale');
 const Promise = require('bluebird');
-const uuid = require('uuid');
+const uuid = require('uuid/v4');
 const { forNodes, waitForClusterMaster } = require('./wait');
 const misc = require('./misc');
 
@@ -48,23 +48,23 @@ function waitForTerasliceNodes() {
 function generateTestData() {
     signale.pending('Generating example data...');
 
-    function populateStateForRecoveryTests() {
+    function populateStateForRecoveryTests(textExId, indexName) {
         const exId = jobList.shift();
         if (!exId) return Promise.resolve(true);
         const client = misc.es();
         return misc.teraslice().cluster.get(`/ex/${exId}`)
             .then((exConfig) => {
-                exConfig.ex_id = 'testex';
+                exConfig.ex_id = textExId;
                 const date = new Date();
                 const iso = date.toISOString();
                 const index = `teracluster__state-${iso.split('-').slice(0, 2).join('.')}`;
                 const time = date.getTime();
                 const pastDate = new Date(time - 600000);
 
-                exConfig.operations[1].index = 'test-recovery-300';
+                exConfig.operations[1].index = indexName;
                 exConfig._status = 'failed';
                 exConfig._created = pastDate;
-                exConfig._created = pastDate;
+                exConfig._updated = pastDate;
 
                 const errored = {
                     _created: iso,
@@ -74,18 +74,18 @@ function generateTestData() {
                     slicer_id: 0,
                     request: 100,
                     state: 'error',
-                    ex_id: 'testex'
+                    ex_id: textExId
                 };
 
                 const notCompleted = {
                     _created: iso,
                     _updated: iso,
                     slice_id: uuid(),
-                    slicer_order: 1,
+                    slicer_order: 2,
                     slicer_id: 0,
                     request: 100,
                     state: 'start',
-                    ex_id: 'testex'
+                    ex_id: textExId
                 };
 
                 return Promise.all([
@@ -110,12 +110,6 @@ function generateTestData() {
                     jobList.push(exId);
                     return job;
                 }));
-    }
-
-    function cleanupIndex(indexName) {
-        return misc.es().indices.delete({ index: indexName })
-            .then(() => true)
-            .catch(() => Promise.resolve(true));
     }
 
     function generate(count, hex) {
@@ -145,7 +139,7 @@ function generateTestData() {
         };
 
         return Promise.resolve()
-            .then(() => cleanupIndex(indexName))
+            .then(() => misc.cleanupIndex(indexName))
             .then(() => {
                 if (!hex) return postJob(jobSpec);
                 jobSpec.operations[0].size = count / hex.length;
@@ -170,7 +164,8 @@ function generateTestData() {
         .then((jobs) => {
             const generatedJobs = jobs.map(job => job.waitForStatus('completed', 100));
             // we need fully active jobs so we can get proper meta data for recovery state tests
-            generatedJobs.push(populateStateForRecoveryTests());
+            generatedJobs.push(populateStateForRecoveryTests('testex-errors', 'test-recovery-100'));
+            generatedJobs.push(populateStateForRecoveryTests('testex-all', 'test-recovery-200'));
             return Promise.all(generatedJobs);
         })
         .then(() => {

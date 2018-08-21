@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const { terasliceOpPath } = require('teraslice');
-const { OperationLoader, registerApis } = require('@terascope/teraslice-jobs');
+const { OperationLoader, registerApis } = require('@terascope/job-components');
 const Assets = require('./assets');
 const { makeLogger } = require('../utils/context');
 const { analyzeOp } = require('../utils/ops');

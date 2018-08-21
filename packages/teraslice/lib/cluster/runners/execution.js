@@ -5,7 +5,7 @@ const parseError = require('@terascope/error-parser');
 const moment = require('moment');
 const _ = require('lodash');
 const path = require('path');
-const { OperationLoader, registerApis } = require('@terascope/teraslice-jobs');
+const { OperationLoader, registerApis } = require('@terascope/job-components');
 const { existsSync } = require('../../utils/file_utils');
 
 /*

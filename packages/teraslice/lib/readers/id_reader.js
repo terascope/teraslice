@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const util = require('util');
-const { getOpConfig, getClient } = require('@terascope/teraslice-jobs');
+const { getOpConfig, getClient } = require('@terascope/job-components');
 
 function newSlicer(context, executionContext, retryData, logger) {
     const opConfig = getOpConfig(executionContext.config, 'id_reader');

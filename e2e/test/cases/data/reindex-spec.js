@@ -72,7 +72,7 @@ describe('reindex', () => {
             .finally(() => { done(); });
     });
 
-    fit('should complete after lifecycle changes', (done) => {
+    it('should complete after lifecycle changes', (done) => {
         const jobSpec = misc.newJob('reindex');
         jobSpec.name = 'reindex after lifecycle changes';
         // Job needs to be able to run long enough to cycle
@@ -103,25 +103,25 @@ describe('reindex', () => {
     });
 
     it('can support different recovery mode cleanup=errors', (done) => {
-        const errorStates = '/ex/testex/_recover?cleanup=errors';
+        const errorStates = '/ex/testex-errors/_recover?cleanup=errors';
 
         teraslice.cluster.post(errorStates)
             .then(job => teraslice.jobs.wrap(job.job_id))
             .then(job => job.waitForStatus('completed', 100))
-            .then(() => misc.indexStats('test-recovery-300'))
+            .then(() => misc.indexStats('test-recovery-100'))
             .then(stats => expect(stats.count).toEqual(100))
             .catch(fail)
             .finally(() => { done(); });
     });
 
     it('can support different recovery mode cleanup=all', (done) => {
-        const allStates = '/ex/testex/_recover?cleanup=all';
+        const allStates = '/ex/testex-all/_recover?cleanup=all';
 
         teraslice.cluster.post(allStates)
             .then(job => teraslice.jobs.wrap(job.job_id))
             .then(job => job.waitForStatus('completed', 100))
-            .then(() => misc.indexStats('test-recovery-300'))
-            .then(stats => expect(stats.count).toEqual(300))
+            .then(() => misc.indexStats('test-recovery-200'))
+            .then(stats => expect(stats.count).toEqual(200))
             .catch(fail)
             .finally(() => { done(); });
     });

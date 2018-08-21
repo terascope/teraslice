@@ -4,7 +4,7 @@ const dateMath = require('datemath-parser');
 const moment = require('moment');
 const _ = require('lodash');
 const util = require('util');
-const { getOpConfig, getClient } = require('@terascope/teraslice-jobs');
+const { getOpConfig, getClient } = require('@terascope/job-components');
 const { dateOptions } = require('../utils/date_utils');
 
 function newSlicer(context, executionContext, retryData, logger) {
