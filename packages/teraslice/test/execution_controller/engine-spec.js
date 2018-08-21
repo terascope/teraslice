@@ -797,7 +797,7 @@ describe('execution engine', () => {
             .then(() => {
                 resume();
                 expect(_test.errMsg).toEqual('cannot call resume on a running execution');
-                return Promise.resolve();
+                return Promise.delay(10);
             })
             .then(() => {
                 currentSlicerCount = slicerQueue.size();
