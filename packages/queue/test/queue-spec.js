@@ -1,6 +1,6 @@
 'use strict';
 
-const Queue = require('../index');
+const Queue = require('..');
 
 describe('Queue', () => {
     it('has methods enqueue, dequeue and size', () => {

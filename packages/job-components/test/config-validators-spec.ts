@@ -1,20 +1,20 @@
 'use strict';
 
-/// <reference types="jest-extended" />
-
 import { TestContext } from '@terascope/teraslice-types';
 import { Schema } from 'convict';
+import 'jest-extended'; // require for type definitions
 import { jobSchema, validateJobConfig, validateOpConfig } from '../src';
 
 describe('When passed a valid jobSchema and jobConfig', () => {
     it('returns a completed and valid jobConfig', () => {
-        const context = new TestContext('teraslice-validators');
+        const context = new TestContext('teraslice-operations');
 
         const schema = jobSchema(context);
         const job = {
-            operations: [{
-                _op: 'noop',
-            },
+            operations: [
+                {
+                    _op: 'noop',
+                },
                 {
                     _op: 'noop',
                 },
@@ -26,10 +26,7 @@ describe('When passed a valid jobSchema and jobConfig', () => {
             lifecycle: 'once',
             max_retries: 3,
             name: 'Custom Job',
-            operations: [
-                { _op: 'noop' },
-                { _op: 'noop' },
-            ],
+            operations: [{ _op: 'noop' }, { _op: 'noop' }],
             probation_window: 300000,
             recycle_worker: null,
             slicers: 1,
@@ -43,7 +40,7 @@ describe('When passed a valid jobSchema and jobConfig', () => {
 
 describe('When passed a job without a known connector', () => {
     it('raises an exception', () => {
-        const context = new TestContext('teraslice-validators');
+        const context = new TestContext('teraslice-operations');
         context.sysconfig.terafoundation = {
             connectors: {
                 elasticsearch: {
@@ -77,7 +74,7 @@ describe('When validating opConfig', () => {
         example: {
             default: '',
             doc: 'some example value',
-            format: 'required_String'
+            format: 'required_String',
         },
         formatted_value: {
             default: 'hi',
@@ -91,39 +88,39 @@ describe('When validating opConfig', () => {
                 } else {
                     return obj[val];
                 }
-            }
+            },
         },
         test: {
             default: true,
             doc: 'some test value',
             format: 'Boolean',
         },
-    }
+    };
 
     it('should return a config when given valid input', () => {
         const op = {
             _op: 'some-op',
             example: 'example',
-            formatted_value: 'hi'
-        }
+            formatted_value: 'hi',
+        };
         const config = validateOpConfig(schema, op);
         expect(config as object).toEqual({
             _op: 'some-op',
             example: 'example',
             formatted_value: 'hi',
-            test: true
-        })
+            test: true,
+        });
     });
 
     it('should fail when given invalid input', () => {
         const op = {
             _op: 'some-op',
             example: 'example',
-            formatted_value: 'hello'
-        }
+            formatted_value: 'hello',
+        };
 
         expect(() => {
             validateOpConfig(schema, op);
-        }).toThrowError()
+        }).toThrowError();
     });
 });

@@ -1,11 +1,12 @@
 'use strict';
 
-import { LoaderOptions, OperationLoader, registerApis } from '@terascope/teraslice-operations';
 import { Context, crossValidationFn, OpConfig } from '@terascope/teraslice-types';
 import convict from 'convict';
 import _ from 'lodash';
 import { validateJobConfig, validateOpConfig } from './config-validators';
 import { jobSchema } from './job-schemas';
+import { LoaderOptions, OperationLoader, } from './operation-loader';
+import { registerApis } from './register-apis';
 
 export class JobValidator {
     public schema: convict.Schema<any>;

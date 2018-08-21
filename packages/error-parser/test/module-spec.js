@@ -1,6 +1,6 @@
 'use strict';
 
-const errorParser = require('../index.js');
+const errorParser = require('..');
 
 describe('error_parser', () => {
     it('returns a function', () => {

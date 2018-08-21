@@ -5,7 +5,7 @@ const _ = require('lodash');
 const shortid = require('shortid');
 const parseError = require('@terascope/error-parser');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
-const { getClient } = require('@terascope/teraslice-operations');
+const { getClient } = require('@terascope/job-components');
 const { timeseriesIndex } = require('../../../utils/date_utils');
 
 module.exports = function module(context, indexName, recordType, idField, _bulkSize, fullResponse) {

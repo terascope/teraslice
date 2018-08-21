@@ -10,7 +10,7 @@
 
 const get = require('lodash/get');
 const path = require('path');
-const { formats } = require('@terascope/teraslice-validators');
+const { formats } = require('@terascope/job-components');
 const { configSchema } = require('./lib/config/schemas/system');
 const makeExStore = require('./lib/cluster/storage/execution');
 const makeAssetStore = require('./lib/cluster/storage/assets');

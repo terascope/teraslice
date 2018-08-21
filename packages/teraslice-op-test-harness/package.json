@@ -8,8 +8,8 @@
   "main": "index.js",
   "scripts": {
     "docs": "jsdoc -P package.json index.js",
-    "lint": "eslint *.js lib test",
-    "lint:fix": "eslint --fix *.js lib test",
+    "lint": "eslint *.js test",
+    "lint:fix": "eslint --fix *.js test",
     "test": "jest --forceExit",
     "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
   },
@@ -21,13 +21,13 @@
     "url": "https://github.com/terascope/teraslice/issues"
   },
   "dependencies": {
+    "@terascope/job-components": "^0.1.0",
     "@terascope/teraslice-types": "^0.1.0",
-    "@terascope/teraslice-validators": "^0.1.0",
     "bluebird": "^3.5.1",
     "lodash": "^4.17.4"
   },
   "devDependencies": {
-    "eslint": "^4.19.1",
+    "eslint": "^5.4.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
     "jest": "^23.5.0",

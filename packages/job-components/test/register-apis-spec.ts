@@ -1,21 +1,20 @@
 'use strict';
 
-/// <reference types="jest-extended" />
-
 import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
+import 'jest-extended'; // require for type definitions
 import { registerApis } from '../src';
 
 describe('registerApis', () => {
     const context = new TestContext('teraslice-operations');
-    const jobConfig = newTestJobConfig()
+    const jobConfig = newTestJobConfig();
 
     jobConfig.operations.push({
-        _op: 'hello'
-    })
+        _op: 'hello',
+    });
 
     jobConfig.operations.push({
-        _op: 'hi'
-    })
+        _op: 'hi',
+    });
 
     registerApis(context, jobConfig);
 
@@ -31,14 +30,14 @@ describe('registerApis', () => {
 
         it('should return the given operation', () => {
             expect(getOpConfig('hello')).toEqual({
-                _op: 'hello'
-            })
-        })
+                _op: 'hello',
+            });
+        });
 
         it('should return undefined if not found', () => {
             expect(getOpConfig('unknown')).toBeUndefined();
-        })
-    })
+        });
+    });
 
     describe('->getClient', () => {
         const { getClient } = context.apis.op_runner;
@@ -61,17 +60,17 @@ describe('registerApis', () => {
             });
         });
 
-        it('getClient will error properly', (done) => {
+        it('getClient will error properly', done => {
             const failingContext = new TestContext('teraslice-operations');
-            const failJobConfig = newTestJobConfig()
+            const failJobConfig = newTestJobConfig();
 
             jobConfig.operations.push({
-                _op: 'hello'
-            })
+                _op: 'hello',
+            });
 
             jobConfig.operations.push({
-                _op: 'hi'
-            })
+                _op: 'hi',
+            });
 
             registerApis(failingContext, failJobConfig);
             const makeError = () => {
@@ -81,10 +80,11 @@ describe('registerApis', () => {
             failingContext.foundation.getConnection = makeError;
 
             const events = failingContext.apis.foundation.getSystemEvents();
-            const errStr = 'No configuration for endpoint default '
-                            + 'was found in the terafoundation connectors';
+            const errStr =
+                'No configuration for endpoint default ' +
+                'was found in the terafoundation connectors';
 
-            events.once('client:initialization:error', (errMsg) => {
+            events.once('client:initialization:error', errMsg => {
                 expect(errMsg.error.includes(errStr)).toEqual(true);
                 done();
             });
@@ -95,11 +95,11 @@ describe('registerApis', () => {
         it('getClient returns client with certain defaults', () => {
             const opConfig1 = {};
             const opConfig2 = {
-                connection: 'otherConnection'
+                connection: 'otherConnection',
             };
             const opConfig3 = {
                 connection: 'thirdConnection',
-                connection_cache: false
+                connection_cache: false,
             };
 
             const type = 'elasticsearch';
@@ -110,9 +110,17 @@ describe('registerApis', () => {
 
             expect(results1).toEqual({ endpoint: 'default', cached: true, type: 'elasticsearch' });
 
-            expect(results2).toEqual({ endpoint: 'otherConnection', cached: true, type: 'elasticsearch' });
+            expect(results2).toEqual({
+                cached: true,
+                endpoint: 'otherConnection',
+                type: 'elasticsearch',
+            });
 
-            expect(results3).toEqual({ endpoint: 'thirdConnection', cached: false, type: 'elasticsearch' });
+            expect(results3).toEqual({
+                cached: false,
+                endpoint: 'thirdConnection',
+                type: 'elasticsearch',
+            });
         });
     });
 });

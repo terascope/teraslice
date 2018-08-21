@@ -1,11 +1,10 @@
-/// <reference types="jest-extended" />
-
 import { TestContext } from '@terascope/teraslice-types';
+import 'jest-extended'; // require for type definitions
 import * as path from 'path';
 import { JobValidator } from '../src';
 
 describe('JobValidator', () => {
-    const context = new TestContext('teraslice-validators');
+    const context = new TestContext('teraslice-operations');
     const terasliceOpPath = path.join(__dirname, '../../teraslice/lib');
     const api = new JobValidator(context, {
         opPath: '',

@@ -7,8 +7,8 @@
   "description": "Node.js driver for controlling docker-compose testing environments.",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint *.js lib test",
-    "lint:fix": "eslint --fix *.js lib test",
+    "lint": "eslint *.js test",
+    "lint:fix": "eslint --fix *.js test",
     "test": "jest",
     "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
   },
@@ -29,7 +29,7 @@
     "debug": "^3.1.0"
   },
   "devDependencies": {
-    "eslint": "^4.19.1",
+    "eslint": "^5.4.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
     "jest": "^23.5.0",

@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const Promise = require('bluebird');
 const debug = require('debug')('elasticsearch-api');
-const esApi = require('../index');
+const esApi = require('..');
 
 describe('elasticsearch-api', () => {
     let recordsReturned = [];

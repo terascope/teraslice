@@ -46,8 +46,9 @@ describe('Operation Analytics', () => {
 
                 expect(analyticsData).toContainAllKeys(['time', 'size', 'memory']);
 
-                const expectedTime = count * count;
-                expect(analyticsData.time[i]).toBeWithin(expectedTime - 10, expectedTime + TIME_DIFF);
+                const timeLower = count * count - 10;
+                const timeUpper = count * count + TIME_DIFF;
+                expect(analyticsData.time[i]).toBeWithin(timeLower, timeUpper);
 
                 expect(analyticsData.size[i]).toEqual(count);
 
@@ -92,8 +93,9 @@ describe('Operation Analytics', () => {
 
                 expect(analyticsData).toContainAllKeys(['time', 'size', 'memory']);
 
-                const expectedTime = count * count;
-                expect(analyticsData.time[i]).toBeWithin(expectedTime - 10, expectedTime + TIME_DIFF);
+                const timeLower = count * count - 10;
+                const timeUpper = count * count + TIME_DIFF;
+                expect(analyticsData.time[i]).toBeWithin(timeLower, timeUpper);
 
                 expect(analyticsData.size[i]).toEqual(count);
 
