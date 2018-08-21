@@ -91,7 +91,7 @@ module.exports = function module(context, messaging, exStore, stateStore) {
             const workerResponse = msg.payload;
             const sliceId = _.get(workerResponse, 'slice.slice_id');
 
-            const cachekey = JSON.stringify(_.pick(workerResponse, ['slice', 'worker_id']));
+            const cachekey = JSON.stringify(_.pick(workerResponse, ['slice', 'worker_id', 'error']));
             const alreadyCompleted = cache.get(cachekey);
             const shouldEnqueue = !workerResponse.isShuttingDown;
 
@@ -426,6 +426,7 @@ module.exports = function module(context, messaging, exStore, stateStore) {
                         logger.error(errMsg);
                         // stop the engine since we are shutting down
                         clearInterval(engine);
+                        engineFnRunning = false;
 
                         exStore.setStatus(exId, 'failed', errorMeta)
                             .then(() => {
@@ -444,10 +445,15 @@ module.exports = function module(context, messaging, exStore, stateStore) {
         logger.info(`execution: ${exId} has received a pause notice`);
         engineCanRun = false;
         clearInterval(engine);
+        engineFnRunning = false;
     }
 
     function _resume() {
         logger.info(`slicer for execution: ${exId} has received a resume notice`);
+        if (engineCanRun) {
+            logger.error('cannot call resume on a running execution');
+            return;
+        }
         engineCanRun = true;
         engine = setInterval(engineFn, 1);
     }
@@ -601,6 +607,7 @@ module.exports = function module(context, messaging, exStore, stateStore) {
         isShuttingDown = true;
         engineCanRun = false;
         clearInterval(engine);
+        engineFnRunning = false;
         events.emit('execution:stop');
         _.forEach(watchDogTimeouts, clearTimeout);
         return Promise.resolve()

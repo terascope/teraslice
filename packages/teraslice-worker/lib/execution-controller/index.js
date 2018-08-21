@@ -9,7 +9,7 @@ const Queue = require('@terascope/queue');
 const parseError = require('@terascope/error-parser');
 const {
     makeSliceAnalytics,
-    newFormatedDate,
+    newFormattedDate,
     makeExecutionRecovery
 } = require('teraslice');
 const ClusterMasterClient = require('./cluster-master-client');
@@ -277,7 +277,7 @@ class ExecutionController {
         this.events.emit('slicers:finished');
 
         this.logger.info(`all slicers for execution: ${exId} have been completed, waiting for slices in slicerQueue to be processed`);
-        this.executionAnalytics.set('queuing_complete', newFormatedDate());
+        this.executionAnalytics.set('queuing_complete', newFormattedDate());
     }
 
     recoveryComplete() {

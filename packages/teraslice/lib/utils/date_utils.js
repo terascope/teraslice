@@ -59,12 +59,12 @@ function timeseriesIndex(timeseriesFormat, index, dateStr) {
     return { index: `${index}-${dateString.slice(0, formatter[timeseriesFormat]).replace(/-/g, '.')}`, timestamp };
 }
 
-function newFormatedDate() {
+function newFormattedDate() {
     return moment().format(dateFormat);
 }
 
 module.exports = {
-    newFormatedDate,
+    newFormattedDate,
     dateOptions,
     dateFormat,
     dateFormatSeconds,

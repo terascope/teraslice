@@ -1,8 +1,7 @@
 'use strict';
 
-const moment = require('moment');
 const _ = require('lodash');
-const { dateFormat } = require('../../utils/date_utils');
+const { newFormattedDate } = require('../../utils/date_utils');
 
 module.exports = function module(context, messaging) {
     const events = context.apis.foundation.getSystemEvents();
@@ -23,7 +22,7 @@ module.exports = function module(context, messaging) {
         processed: 0,
         slicers: 0,
         subslice_by_key: 0,
-        started: moment().format(dateFormat)
+        started: newFormattedDate()
     };
 
     // a place for tracking differences so collector (cluster master) does not have to

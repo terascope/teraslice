@@ -141,7 +141,7 @@ class ExecutionControllerMessenger extends MessengerServer {
                 }
             }
 
-            const cachekey = JSON.stringify(_.pick(workerResponse, ['slice', 'worker_id']));
+            const cachekey = JSON.stringify(_.pick(workerResponse, ['slice', 'worker_id', 'error']));
             const alreadyCompleted = this.cache.get(cachekey);
 
             if (!alreadyCompleted) {

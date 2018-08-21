@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const { newFormatedDate } = require('teraslice');
+const { newFormattedDate } = require('teraslice');
 const { makeLogger } = require('../utils/context');
 
 class ExecutionAnalytics {
@@ -33,7 +33,7 @@ class ExecutionAnalytics {
             processed: 0,
             slicers: 0,
             subslice_by_key: 0,
-            started: newFormatedDate(),
+            started: newFormattedDate(),
         };
 
         this.pushedAnalytics = {
