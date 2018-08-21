@@ -16,17 +16,17 @@ describe('execution engine', () => {
         } = testConfig;
 
         const _test = {};
-        _test.loggerErrMsg = null;
+        _test.errMsg = null;
         _test.debugMsg = null;
-        _test.logInfo = null;
+        _test.infoMsg = null;
         _test.warnMsg = null;
 
         const logger = {
             error(err) {
-                _test.loggerErrMsg = err;
+                _test.errMsg = err;
             },
             info(info) {
-                _test.logInfo = info;
+                _test.infoMsg = info;
             },
             warn(msg) {
                 _test.warnMsg = msg;
@@ -213,7 +213,7 @@ describe('execution engine', () => {
 
         engine.initialize()
             .then(() => {
-                expect(_test.logInfo).toEqual('execution: 1234 has initialized and is listening on port 3000');
+                expect(_test.infoMsg).toEqual('execution: 1234 has initialized and is listening on port 3000');
             })
             .then(engine.shutdown())
             .catch(fail)
@@ -260,7 +260,7 @@ describe('execution engine', () => {
 
         engineContext._setQueueLength(errExEnv);
 
-        expect(_test.loggerErrMsg).toEqual('slicerQueueLength on the reader must be a function, defaulting to 10000');
+        expect(_test.errMsg).toEqual('slicerQueueLength on the reader must be a function, defaulting to 10000');
         expect(engineContext._getQueueLength()).toEqual(10000);
         // Expect not to change while errExEnv is in use
         engineContext._adjustSlicerQueueLength();
@@ -407,11 +407,7 @@ describe('execution engine', () => {
             }
         });
 
-        const cachekey = JSON.stringify({
-            slice: slice1.payload.slice,
-            worker_id: slice1.payload.worker_id,
-        });
-        expect(cache.get(cachekey)).toEqual(true);
+        expect(cache.get(`${slice1.payload.slice.slice_id}:complete`)).toEqual(true);
 
         expect(workerQueue.size()).toEqual(1);
 
@@ -459,11 +455,7 @@ describe('execution engine', () => {
 
         sliceComplete(slice, slice.payload.worker_id);
 
-        const cachekey = JSON.stringify({
-            slice: slice.payload.slice,
-            worker_id: slice.payload.worker_id,
-        });
-        expect(cache.get(cachekey)).toEqual(true);
+        expect(cache.get(`${slice.payload.slice.slice_id}:complete`)).toEqual(true);
 
         expect(workerQueue.size()).toEqual(1);
 
@@ -668,7 +660,7 @@ describe('execution engine', () => {
                     ex_id: 1234,
                     payload: { set_status: true }
                 });
-                expect(_test.loggerErrMsg).toEqual(`A worker has not connected to a slicer for ex: ${exId}, shutting down execution`);
+                expect(_test.errMsg).toEqual(`A worker has not connected to a slicer for ex: ${exId}, shutting down execution`);
                 return Promise.all([
                     startWorkerDisconnectWatchDog(),
                     Promise.delay(750),
@@ -687,7 +679,7 @@ describe('execution engine', () => {
                     ex_id: 1234,
                     payload: { set_status: true }
                 });
-                expect(_test.loggerErrMsg).toEqual(`all workers from slicer #${exId} have disconnected`);
+                expect(_test.errMsg).toEqual(`all workers from slicer #${exId} have disconnected`);
             })
             .catch(fail)
             .finally(() => {
@@ -803,6 +795,11 @@ describe('execution engine', () => {
                 return Promise.delay(10);
             })
             .then(() => {
+                resume();
+                expect(_test.errMsg).toEqual('cannot call resume on a running execution');
+                return Promise.resolve();
+            })
+            .then(() => {
                 currentSlicerCount = slicerQueue.size();
                 expect(currentSlicerCount).toBeGreaterThan(prevSlicerCount);
                 prevSlicerCount = currentSlicerCount;
@@ -904,7 +901,7 @@ describe('execution engine', () => {
 
         Promise.all([executionShutdown(), Promise.delay(50)])
             .then(() => {
-                expect(_test.logInfo).toEqual(`slicer for execution: ${exId} has received a shutdown notice`);
+                expect(_test.infoMsg).toEqual(`slicer for execution: ${exId} has received a shutdown notice`);
                 expect(gotStopEvent).toEqual(true);
             })
             .catch(fail)
@@ -919,7 +916,7 @@ describe('execution engine', () => {
 
         Promise.all([executionCompleted(), Promise.delay(50)])
             .then(() => {
-                expect(_test.loggerErrMsg).toEqual(`execution: ${exId} had 2 slice failures during processing`);
+                expect(_test.errMsg).toEqual(`execution: ${exId} had 2 slice failures during processing`);
                 expect(_test.exStatus).toEqual('failed');
             })
             .catch(fail)

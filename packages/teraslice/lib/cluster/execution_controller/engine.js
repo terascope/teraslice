@@ -91,20 +91,24 @@ module.exports = function module(context, messaging, exStore, stateStore) {
             const workerResponse = msg.payload;
             const sliceId = _.get(workerResponse, 'slice.slice_id');
 
-            const cachekey = JSON.stringify(_.pick(workerResponse, ['slice', 'worker_id', 'error']));
-            const alreadyCompleted = cache.get(cachekey);
             const shouldEnqueue = !workerResponse.isShuttingDown;
 
-            cache.set(cachekey, true);
-
             if (workerResponse.retry) {
-                logger.warn(`worker: ${workerId} has rejoined slicer: ${exId}`);
-                executionAnalytics.increment('workers_reconnected');
+                const retried = cache.get(`${sliceId}:retry`);
+                if (!retried) {
+                    cache.set(`${sliceId}:retry`, true);
+                    logger.warn(`worker: ${workerId} has rejoined slicer: ${exId}`);
+                    executionAnalytics.increment('workers_reconnected');
+                }
             }
+
+            const alreadyCompleted = cache.get(`${sliceId}:complete`);
 
             if (alreadyCompleted) {
                 logger.warn(`worker: ${workerId} already marked slice ${sliceId} as complete`);
             } else {
+                cache.set(`${sliceId}:complete`, true);
+
                 executionAnalytics.increment('processed');
 
                 if (workerResponse.error) {
