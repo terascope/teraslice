@@ -63,4 +63,36 @@ describe('Convict Formats', () => {
             optional.validate(undefined);
         }).not.toThrowError();
     });
+
+    it('optional_Date if not given a date it will not throw if its undefined', () => {
+        const optional = getSchema('optional_Date');
+        if (!optional) {
+            expect(optional).not.toBeUndefined();
+            return;
+        }
+
+        expect(optional.name).toBeDefined();
+        expect(typeof optional.validate).toEqual('function');
+        expect(typeof optional.coerce).toEqual('function');
+        expect(() => {
+            // @ts-ignore
+            optional.validate(Date.now());
+        }).not.toThrowError();
+        expect(() => {
+            // @ts-ignore
+            optional.validate('now+1h');
+        }).not.toThrowError();
+        expect(() => {
+            // @ts-ignore
+            optional.validate({ hi: 'there' });
+        }).toThrowError('parameter must be a string or number IF specified');
+        expect(() => {
+            // @ts-ignore
+            optional.validate('idk');
+        }).toThrowError(/^value: \"idk"\ cannot be coerced into a proper date/);
+        expect(() => {
+            // @ts-ignore
+            optional.validate(undefined);
+        }).not.toThrowError();
+    });
 });

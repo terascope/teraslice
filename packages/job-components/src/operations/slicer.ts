@@ -1,9 +1,6 @@
 import { OperationCore } from './operation-core';
 
-// Make a generic SliceData interface
-export interface SliceData {
-    [prop: string]: any;
-}
+export type SlicerResult = object | object[] | null;
 
 /**
  * Slicer Base Class [DRAFT]
@@ -19,7 +16,8 @@ export class Slicer extends OperationCore {
         super.initialize();
     }
 
-    public async slice(): Promise<SliceData[]> {
-        return [];
+    // @ts-ignore
+    public async slice(slicerId: number): Promise<SlicerResult> {
+        throw new Error('Slicer must implement a "slice" method');
     }
 }

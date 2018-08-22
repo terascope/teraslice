@@ -29,5 +29,5 @@ module.exports = {
         '!<rootDir>/packages/**/coverage/**',
     ],
     coverageReporters: ['lcov', 'text-summary', 'html'],
-    coverageDirectory: 'coverage'
+    coverageDirectory: '<rootDir>/coverage'
 };

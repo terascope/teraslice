@@ -23,7 +23,7 @@ before_install:
   # make it colorful
   - export FORCE_COLOR=1
 install:
-  - yarn install --link-duplicates
+  - yarn install --pure-lockfile --link-duplicates
   - yarn setup
 before_deploy:
 jobs:
@@ -36,8 +36,8 @@ jobs:
     if: branch = master
     script: yarn test
     after_success:
-      - yarn lint
       - bash <(curl -s https://codecov.io/bash)
+      - yarn lint
 
   # test end-to-end tests, only on pull-requests
   - script:

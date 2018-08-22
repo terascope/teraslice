@@ -1,16 +1,20 @@
 import { Context, JobConfig, Logger, OpConfig } from '@terascope/teraslice-types';
+import convict from 'convict';
 import _ from 'lodash';
 import { DataEntity } from './data-entity';
+import { validateOpConfig } from '../config-validators';
 
 /**
- * Operation Core Base Class [DRAFT]
- * @description The core base class common functionality between
- *              all of the different types of operations.
+ * OperationCore Base Class [DRAFT]
+ * @description The core base class for operation subclasses,
+ *              that supports the job execution lifecycle events.
+ *              This class will likely not be used externally
+ *              since Teraslice only supports a few subclass varients.
  */
 
 export class OperationCore {
-    public static async validate(input: any): Promise<object> {
-        return input;
+    public static async validate(inputSchema: convict.Schema<any>, inputConfig: any): Promise<OpConfig> {
+        return validateOpConfig(inputSchema, inputConfig);
     }
 
     protected readonly context: Context;
@@ -31,9 +35,7 @@ export class OperationCore {
     }
 
     public async shutdown(): Promise<void> {
-        this.context.logger.debug(
-            `${this.jobConfig.name}->${this.opConfig._op} is shutting down...`,
-        );
+        this.context.logger.debug(`${this.jobConfig.name}->${this.opConfig._op} is shutting down...`);
         return;
     }
 

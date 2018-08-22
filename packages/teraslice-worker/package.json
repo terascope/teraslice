@@ -31,7 +31,7 @@
   "dependencies": {
     "@terascope/error-parser": "^1.0.0",
     "@terascope/queue": "^1.1.3",
-    "@terascope/job-components": "^0.2.0",
+    "@terascope/job-components": "^0.3.0",
     "bluebird": "^3.5.1",
     "bluebird-retry": "^0.11.0",
     "debug": "^3.1.0",
