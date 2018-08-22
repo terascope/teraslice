@@ -40,7 +40,7 @@ module.exports = (projectDir) => {
             '/test/',
         ],
         coverageReporters: ['lcov', 'text', 'html'],
-        coverageDirectory: 'coverage'
+        coverageDirectory: `${projectRoot}/coverage`
     };
 
     if (fs.pathExistsSync(path.join(projectDir, 'test/global.setup.js'))) {
