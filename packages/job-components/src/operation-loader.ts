@@ -1,6 +1,6 @@
 'use strict';
 
-import { Operation } from '@terascope/teraslice-types';
+import { LegacyOperation } from '@terascope/teraslice-types';
 import fs from 'fs';
 import { pathExistsSync } from 'fs-extra';
 import path from 'path';
@@ -18,10 +18,10 @@ export class OperationLoader {
         this.options = options;
     }
 
-    public find(name: string, executionAssets?: string[]) : string|null {
+    public find(name: string, executionAssets?: string[]): string | null {
         this.verifyOpName(name);
 
-        let filePath: string|null = null;
+        let filePath: string | null = null;
         let codeName: string = '';
 
         if (!name.match(/.js$/)) {
@@ -45,12 +45,18 @@ export class OperationLoader {
                     findCode(nextPath);
                 }
             });
-        }
+        };
 
         const findCodeByConvention = (basePath?: string, subfolders?: string[]) => {
-            if (!basePath) { return; }
-            if (!pathExistsSync(basePath)) { return; }
-            if (!subfolders || !subfolders.length) { return; }
+            if (!basePath) {
+                return;
+            }
+            if (!pathExistsSync(basePath)) {
+                return;
+            }
+            if (!subfolders || !subfolders.length) {
+                return;
+            }
 
             subfolders.forEach((folder: string) => {
                 const pathType = path.join(basePath, folder);
@@ -58,12 +64,15 @@ export class OperationLoader {
                     findCode(pathType);
                 }
             });
-        }
+        };
 
         findCodeByConvention(this.options.assetPath, executionAssets);
 
         if (!filePath) {
-            findCodeByConvention(path.resolve(this.options.terasliceOpPath), ['readers', 'processors']);
+            findCodeByConvention(path.resolve(this.options.terasliceOpPath), [
+                'readers',
+                'processors',
+            ]);
         }
 
         if (!filePath) {
@@ -77,7 +86,7 @@ export class OperationLoader {
         return filePath;
     }
 
-    public load(name: string, executionAssets?: string[]): Operation {
+    public load(name: string, executionAssets?: string[]): LegacyOperation {
         this.verifyOpName(name);
 
         const codePath = this.find(name, executionAssets);
@@ -93,21 +102,23 @@ export class OperationLoader {
         throw new Error(`Unable to find module for operation: ${name}`);
     }
 
-    private resolvePath(filePath: string): string|null {
-       if (pathExistsSync(filePath)) {
-           return filePath;
-       }
+    private resolvePath(filePath: string): string | null {
+        if (pathExistsSync(filePath)) {
+            return filePath;
+        }
 
-       try {
-           return require.resolve(filePath);
-       } catch(err) {
-           return null
-       }
+        try {
+            return require.resolve(filePath);
+        } catch (err) {
+            return null;
+        }
     }
 
     private verifyOpName(name: string): void {
         if (typeof name !== 'string') {
-            throw new Error('please verify that ops_directory in config and _op for each job operations are strings');
+            throw new Error(
+                'please verify that ops_directory in config and _op for each job operations are strings',
+            );
         }
     }
 }

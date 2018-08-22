@@ -1,10 +1,10 @@
 import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { TerasliceOperation } from '../../src';
+import { DataEntity, OperationCore } from '../../src';
 
-describe('TerasliceOperation', () => {
+describe('Operation Core Base Class', () => {
     describe('when constructed', () => {
-        let operation: TerasliceOperation;
+        let operation: OperationCore;
 
         beforeAll(() => {
             const context = new TestContext('teraslice-operations');
@@ -14,7 +14,7 @@ describe('TerasliceOperation', () => {
             });
             const opConfig = jobConfig.operations[0];
             const logger = context.apis.foundation.makeLogger('job-logger');
-            operation = new TerasliceOperation(context, jobConfig, opConfig, logger);
+            operation = new OperationCore(context, jobConfig, opConfig, logger);
         });
 
         describe('->initialize', () => {
@@ -64,11 +64,39 @@ describe('TerasliceOperation', () => {
                 return expect(operation.onSliceRetry('slice-id')).resolves.toBeUndefined();
             });
         });
+
+        describe('->convertDataToDataEntity', () => {
+            it('should return a single data entity', () => {
+                const dataEntity = operation.convertDataToDataEntity({
+                    hello: 'there',
+                });
+                expect(dataEntity).toBeInstanceOf(DataEntity);
+                expect(dataEntity).toHaveProperty('hello', 'there');
+            });
+        });
+
+        describe('->convertBatchToDataEntity', () => {
+            it('should return a batch of data entities', () => {
+                const dataEntities = operation.convertBatchToDataEntity([
+                    {
+                        hello: 'there',
+                    },
+                    {
+                        howdy: 'partner',
+                    },
+                ]);
+                expect(dataEntities).toBeArrayOfSize(2);
+                expect(dataEntities[0]).toBeInstanceOf(DataEntity);
+                expect(dataEntities[0]).toHaveProperty('hello', 'there');
+                expect(dataEntities[1]).toBeInstanceOf(DataEntity);
+                expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
+            });
+        });
     });
 
     describe('#validate', () => {
         it('should fail when given invalid data', () => {
-            TerasliceOperation.validate({
+            OperationCore.validate({
                 _op: 'hello',
             });
         });

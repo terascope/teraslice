@@ -1,10 +1,10 @@
 import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { Fetcher } from '../../src';
+import { Slicer } from '../../src';
 
-describe('Fetch Operation Base Class', () => {
+describe('Slicer Operation Base Class', () => {
     describe('when constructed', () => {
-        let operation: Fetcher;
+        let operation: Slicer;
 
         beforeAll(() => {
             const context = new TestContext('teraslice-operations');
@@ -14,12 +14,12 @@ describe('Fetch Operation Base Class', () => {
             });
             const opConfig = jobConfig.operations[0];
             const logger = context.apis.foundation.makeLogger('job-logger');
-            operation = new Fetcher(context, jobConfig, opConfig, logger);
+            operation = new Slicer(context, jobConfig, opConfig, logger);
         });
 
-        describe('->fetch', () => {
+        describe('->slice', () => {
             it('should resolve an empty array', () => {
-                return expect(operation.fetch()).resolves.toBeArrayOfSize(0);
+                return expect(operation.slice()).resolves.toBeArrayOfSize(0);
             });
         });
     });

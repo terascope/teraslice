@@ -1,10 +1,15 @@
 import { Context, JobConfig, Logger, OpConfig } from '@terascope/teraslice-types';
+import _ from 'lodash';
+import { DataEntity } from './data-entity';
 
-export class TerasliceOperation {
-    public static schema: object = {};
+/**
+ * Operation Core Base Class [DRAFT]
+ * @description The core base class common functionality between
+ *              all of the different types of operations.
+ */
 
-    public static async validate(input: object): Promise<object> {
-
+export class OperationCore {
+    public static async validate(input: any): Promise<object> {
         return input;
     }
 
@@ -54,5 +59,13 @@ export class TerasliceOperation {
 
     public async onSliceRetry(sliceId: string): Promise<void> {
         this.context.logger.debug(`slice retry: ${sliceId}`);
+    }
+
+    public convertDataToDataEntity(data: object): DataEntity {
+        return new DataEntity(data);
+    }
+
+    public convertBatchToDataEntity(batch: object[]): DataEntity[] {
+        return _.map(batch, this.convertDataToDataEntity);
     }
 }
