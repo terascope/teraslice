@@ -16,7 +16,7 @@ describe('Data Entity', () => {
         });
 
         it('should have the input properties top-level', () => {
-            expect(dataEntity).toHaveProperty('teal', 'neal')
+            expect(dataEntity).toHaveProperty('teal', 'neal');
             expect(dataEntity).toHaveProperty('blue', 'green');
             expect(dataEntity).toHaveProperty('metadata', {
                 uh: 'oh',
@@ -26,7 +26,7 @@ describe('Data Entity', () => {
 
         it('should only convert non-metadata properties with stringified', () => {
             const object = JSON.parse(JSON.stringify(dataEntity));
-            expect(object).toHaveProperty('teal', 'neal')
+            expect(object).toHaveProperty('teal', 'neal');
             expect(object).toHaveProperty('blue', 'green');
             expect(object).toHaveProperty('metadata', {
                 uh: 'oh',
@@ -36,7 +36,7 @@ describe('Data Entity', () => {
 
         it('should be able to get the metadata', () => {
             const metadata = dataEntity.getMetadata();
-            expect(metadata).toHaveProperty('fetchedAt');
+            expect(metadata).toHaveProperty('createdAt');
         });
 
         it('should be able to set and get a metadata property', () => {
@@ -45,8 +45,14 @@ describe('Data Entity', () => {
         });
 
         it('should be able to get the metadata by key', () => {
-            const fetchedAt = dataEntity.getMetadata('fetchedAt');
-            expect(fetchedAt).toBeDate();
+            const createdAt = dataEntity.getMetadata('createdAt');
+            expect(createdAt).toBeDate();
+        });
+
+        it('should not be able to set createdAt', () => {
+            expect(() => {
+                dataEntity.setMetadata('createdAt', 'hello')
+            }).toThrowError('Cannot set readonly metadata property createdAt')
         });
 
         it('should be return undefined if getting a metadata that does not exist', () => {
@@ -55,10 +61,10 @@ describe('Data Entity', () => {
 
         it('should be both metadata and data', () => {
             const metadata = dataEntity.getMetadata();
-            const object = JSON.parse(JSON.stringify(dataEntity))
-            expect(dataEntity.getMetadataAndData()).toEqual({
-               data: object,
-               metadata,
+            const object = JSON.parse(JSON.stringify(dataEntity));
+            expect(dataEntity.toJSON(true)).toEqual({
+                data: object,
+                metadata,
             });
         });
     });

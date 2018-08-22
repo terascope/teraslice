@@ -1,32 +1,28 @@
 /* tslint:disable:variable-name */
 
-import get from 'lodash/get';
-import has from 'lodash/has';
-import set from 'lodash/set';
+import _ from 'lodash';
 
-export interface DataEntityMetadata {
-    // Time set by the fetcher at the point when the data is initially brought into the Teraslice pipeline.
-    fetchedAt: Date;
+interface DataEntityMetadata {
+    // The date at which this entity was created
+    readonly createdAt: Date;
     // Add the ability to specify any additional properties
     [prop: string]: any;
 }
 
-interface DataEntityMetadataAndData {
-    metadata: object;
-    data: object;
-}
+const readonlyMetadataKeys: string[] = ['createdAt'];
 
 export class DataEntity {
     protected __metadata: DataEntityMetadata;
+    // Add the ability to specify any additional properties
     [prop: string]: any;
 
     constructor(data: object) {
-        if (has(data, '__metadata')) {
+        if (_.has(data, '__metadata')) {
             throw new Error('DataEntity cannot be constructed with a __metadata property');
         }
 
         this.__metadata = {
-            fetchedAt: new Date(),
+            createdAt: new Date(),
         };
 
         Object.assign(this, data);
@@ -34,19 +30,30 @@ export class DataEntity {
 
     public getMetadata(key?: string): any {
         if (key) {
-            return get(this.__metadata, key);
+            return _.get(this.__metadata, key);
         }
         return this.__metadata;
     }
 
     public setMetadata(key: string, value: any): void {
-        set(this.__metadata, key, value);
+        if (_.includes(readonlyMetadataKeys, key)) {
+            throw new Error(`Cannot set readonly metadata property ${key}`);
+        }
+
+        _.set(this.__metadata, key, value);
     }
 
-    public getMetadataAndData(): DataEntityMetadataAndData {
-        return {
-            data: JSON.parse(JSON.stringify(this)),
-            metadata: this.__metadata,
-        };
+    public toJSON(withMetadata?: boolean): object {
+        const keys = Object.getOwnPropertyNames(this);
+        const data = _.pick(this, _.without(keys, '__metadata'));
+
+        if (withMetadata) {
+            return {
+                data,
+                metadata: this.__metadata,
+            };
+        }
+
+        return data;
     }
 }
