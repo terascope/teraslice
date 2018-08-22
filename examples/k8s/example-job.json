@@ -1,0 +1,31 @@
+{
+    "name": "example-data-generator-job",
+    "lifecycle": "once",
+    "workers": 2,
+    "assets": [
+        "example"
+    ],
+    "operations": [
+        {
+            "_op": "elasticsearch_data_generator",
+            "size": 5000000
+        },
+        {
+            "_op": "example-op"
+        },
+        {
+            "_op": "elasticsearch_index_selector",
+            "index": "terak8s-example-data",
+            "type": "events"
+        },
+        {
+            "_op": "elasticsearch_bulk",
+            "size": 5000
+        }
+    ],
+    "tjm": {
+        "cluster": "http://192.168.99.100:30678",
+        "version": "0.0.1",
+        "job_id": "0fa9f6b4-6205-47c5-a825-c7a4f4dcdcd0"
+    }
+}
