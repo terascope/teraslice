@@ -31,9 +31,7 @@ export class OperationCore {
     }
 
     public async shutdown(): Promise<void> {
-        this.context.logger.debug(
-            `${this.jobConfig.name}->${this.opConfig._op} is shutting down...`,
-        );
+        this.context.logger.debug(`${this.jobConfig.name}->${this.opConfig._op} is shutting down...`);
         return;
     }
 

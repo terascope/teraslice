@@ -7,8 +7,8 @@ describe('JobValidator', () => {
     const context = new TestContext('teraslice-operations');
     const terasliceOpPath = path.join(__dirname, '../../teraslice/lib');
     const api = new JobValidator(context, {
-        opPath: '',
         terasliceOpPath,
+        opPath: '',
     });
 
     it('returns a completed and valid jobConfig', () => {

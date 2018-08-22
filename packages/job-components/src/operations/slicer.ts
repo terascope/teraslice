@@ -1,10 +1,5 @@
 import { OperationCore } from './operation-core';
 
-// Make a generic SliceData interface
-export interface SliceData {
-    [prop: string]: any;
-}
-
 /**
  * Slicer Base Class [DRAFT]
  * @description A core operation for slicing large sets of data
@@ -19,7 +14,7 @@ export class Slicer extends OperationCore {
         super.initialize();
     }
 
-    public async slice(): Promise<SliceData[]> {
-        return [];
+    public async slice(): Promise<object[] | null> {
+        throw new Error('Slicer must implement a "slice" method');
     }
 }
