@@ -1,10 +1,10 @@
 import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { FetchOperation } from '../../src';
+import { Fetcher } from '../../src';
 
 describe('Fetch Operation Base Class', () => {
     describe('when constructed', () => {
-        let operation: FetchOperation;
+        let operation: Fetcher;
 
         beforeAll(() => {
             const context = new TestContext('teraslice-operations');
@@ -14,7 +14,7 @@ describe('Fetch Operation Base Class', () => {
             });
             const opConfig = jobConfig.operations[0];
             const logger = context.apis.foundation.makeLogger('job-logger');
-            operation = new FetchOperation(context, jobConfig, opConfig, logger);
+            operation = new Fetcher(context, jobConfig, opConfig, logger);
         });
 
         describe('->fetch', () => {

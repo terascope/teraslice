@@ -11,6 +11,12 @@ interface DataEntityMetadata {
 
 const readonlyMetadataKeys: string[] = ['createdAt'];
 
+/**
+ * DataEntity [DRAFT]
+ *  @description A wrapper for data that can hold additional metadata properties.
+ *               The DataEntity should be essentially transparent to use within operations
+ */
+
 export class DataEntity {
     protected __metadata: DataEntityMetadata;
     // Add the ability to specify any additional properties

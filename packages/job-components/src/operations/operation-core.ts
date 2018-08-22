@@ -1,10 +1,12 @@
 import { Context, JobConfig, Logger, OpConfig } from '@terascope/teraslice-types';
 
 /**
- * Operation Base Class [DRAFT]
+ * Operation Core Base Class [DRAFT]
+ * @description The core base class common functionality between
+ *              all of the different types of operations.
  */
 
-export class Operation {
+export class OperationCore {
     public static async validate(input: any): Promise<object> {
         return input;
     }
