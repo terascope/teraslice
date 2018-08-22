@@ -2,7 +2,7 @@ import * as bunyan from 'bunyan';
 import { EventEmitter } from 'events';
 
 export interface Logger extends bunyan {
-    flush(): Promise<void>
+    flush(): Promise<void>;
 }
 
 export interface TerasliceConfig {

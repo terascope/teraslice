@@ -34,7 +34,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
         lifecycle: {
             default: 'once',
             doc: 'Job lifecycle behavior, determines if it should exit on completion or remain active',
-            format: ['once', 'persistent']
+            format: ['once', 'persistent'],
         },
         max_retries: {
             default: 3,

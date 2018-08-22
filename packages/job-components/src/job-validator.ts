@@ -5,7 +5,7 @@ import convict from 'convict';
 import _ from 'lodash';
 import { validateJobConfig, validateOpConfig } from './config-validators';
 import { jobSchema } from './job-schemas';
-import { LoaderOptions, OperationLoader, } from './operation-loader';
+import { LoaderOptions, OperationLoader } from './operation-loader';
 import { registerApis } from './register-apis';
 
 export class JobValidator {
