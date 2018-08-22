@@ -1,10 +1,12 @@
 import { Context, JobConfig, Logger, OpConfig } from '@terascope/teraslice-types';
 
-export class TerasliceOperation {
-    public static schema: object = {};
+/**
+ * FetchOperation Base Class [DRAFT]
+ */
 
-    public static async validate(input: object): Promise<object> {
 
+export class Operation {
+    public static async validate(input: any): Promise<object> {
         return input;
     }
 

@@ -2,7 +2,7 @@ import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
 import { FetchOperation } from '../../src';
 
-describe('FetchOperation', () => {
+describe('Fetch Operation Base Class', () => {
     describe('when constructed', () => {
         let operation: FetchOperation;
 
