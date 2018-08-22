@@ -1,2 +1,2 @@
 # chunked-file-reader
-Abstracted reader logic for use with various Teraslice file readers
+This module is an abstracted reader for use in various Teraslice readers. 

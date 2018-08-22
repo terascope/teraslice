@@ -1,0 +1,12 @@
+{
+  "name": "chunked-file-reader",
+  "version": "0.1.0",
+  "main": "index.js",
+  "repository": "https://github.com/terascope/chunked-file-reader.git",
+  "author": "Zach Burnham <zburnham@terascope.io>",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "eslint-config-airbnb-base": "^13.1.0"
+  }
+}
