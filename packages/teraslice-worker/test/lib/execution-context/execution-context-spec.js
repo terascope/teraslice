@@ -157,7 +157,7 @@ describe('Execution Context', () => {
                 await testContext.cleanup();
             });
 
-            it('should resolve an execution api', () => {
+            fit('should resolve an execution api', () => {
                 const { executionContext } = testContext;
 
                 expect(executionContext.queue).toBeArrayOfSize(2);

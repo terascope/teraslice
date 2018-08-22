@@ -24,7 +24,12 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return _searchES(query)
             .then((data) => {
                 if (config.full_response) {
-                    return data;
+                    return _.map(data.hits.hits, (doc) => {
+                        const record = doc._source;
+                        record._type = doc._type;
+                        record._id = doc._id;
+                        return record;
+                    });
                 }
                 return _.map(data.hits.hits, doc => doc._source);
             });

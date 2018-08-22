@@ -351,16 +351,16 @@ describe('elasticsearch-api', () => {
             .finally(() => { done(); });
     });
 
-    it('can search', (done) => {
+    it('can search and return records', (done) => {
         const query = { body: 'someQuery' };
         const api = esApi(client, logger);
         const apiFullResponse = esApi(client, logger, { full_response: true });
-        recordsReturned = [{ _source: { some: 'data' } }];
+        recordsReturned = [{ _id: 'someId', _type: 'someType', _source: { some: 'data' } }];
 
         Promise.all([api.search(query), apiFullResponse.search(query)])
             .spread((results1, results2) => {
                 expect(results1).toEqual([recordsReturned[0]._source]);
-                expect(results2).toEqual(getData());
+                expect(results2).toEqual([{ _id: 'someId', _type: 'someType', some: 'data' }]);
             })
             .catch(fail)
             .finally(() => { done(); });
