@@ -2,7 +2,7 @@ import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
 import { DataEntity, OperationCore } from '../../src';
 
-describe('Operation Core Base Class', () => {
+describe('OperationCore', () => {
     describe('when constructed', () => {
         let operation: OperationCore;
 
