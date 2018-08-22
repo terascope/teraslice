@@ -1,24 +1,14 @@
-/* tslint:disable:variable-name */
-
 import _ from 'lodash';
-
-interface DataEntityMetadata {
-    // The date at which this entity was created
-    readonly createdAt: Date;
-    // Add the ability to specify any additional properties
-    [prop: string]: any;
-}
-
-const readonlyMetadataKeys: string[] = ['createdAt'];
 
 /**
  * DataEntity [DRAFT]
  *  @description A wrapper for data that can hold additional metadata properties.
  *               The DataEntity should be essentially transparent to use within operations
  */
-
 export class DataEntity {
+    /* tslint:disable-next-line:variable-name */
     protected __metadata: DataEntityMetadata;
+
     // Add the ability to specify any additional properties
     [prop: string]: any;
 
@@ -42,6 +32,7 @@ export class DataEntity {
     }
 
     public setMetadata(key: string, value: any): void {
+        const readonlyMetadataKeys: string[] = ['createdAt'];
         if (_.includes(readonlyMetadataKeys, key)) {
             throw new Error(`Cannot set readonly metadata property ${key}`);
         }
@@ -62,4 +53,11 @@ export class DataEntity {
 
         return data;
     }
+}
+
+interface DataEntityMetadata {
+    // The date at which this entity was created
+    readonly createdAt: Date;
+    // Add the ability to specify any additional properties
+    [prop: string]: any;
 }

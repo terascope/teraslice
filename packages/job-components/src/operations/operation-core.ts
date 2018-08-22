@@ -1,4 +1,6 @@
 import { Context, JobConfig, Logger, OpConfig } from '@terascope/teraslice-types';
+import _ from 'lodash';
+import { DataEntity } from './data-entity';
 
 /**
  * Operation Core Base Class [DRAFT]
@@ -57,5 +59,13 @@ export class OperationCore {
 
     public async onSliceRetry(sliceId: string): Promise<void> {
         this.context.logger.debug(`slice retry: ${sliceId}`);
+    }
+
+    public convertDataToDataEntity(data: object): DataEntity {
+        return new DataEntity(data);
+    }
+
+    public convertBatchToDataEntity(batch: object[]): DataEntity[] {
+        return _.map(batch, this.convertDataToDataEntity);
     }
 }

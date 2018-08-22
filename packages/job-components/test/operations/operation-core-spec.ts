@@ -1,6 +1,6 @@
 import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { OperationCore } from '../../src';
+import { DataEntity, OperationCore } from '../../src';
 
 describe('Operation Core Base Class', () => {
     describe('when constructed', () => {
@@ -62,6 +62,34 @@ describe('Operation Core Base Class', () => {
         describe('->onSliceRetry', () => {
             it('should resolve undefined', () => {
                 return expect(operation.onSliceRetry('slice-id')).resolves.toBeUndefined();
+            });
+        });
+
+        describe('->convertDataToDataEntity', () => {
+            it('should return a single data entity', () => {
+                const dataEntity = operation.convertDataToDataEntity({
+                    hello: 'there',
+                });
+                expect(dataEntity).toBeInstanceOf(DataEntity);
+                expect(dataEntity).toHaveProperty('hello', 'there');
+            });
+        });
+
+        describe('->convertBatchToDataEntity', () => {
+            it('should return a batch of data entities', () => {
+                const dataEntities = operation.convertBatchToDataEntity([
+                    {
+                        hello: 'there',
+                    },
+                    {
+                        howdy: 'partner',
+                    },
+                ]);
+                expect(dataEntities).toBeArrayOfSize(2);
+                expect(dataEntities[0]).toBeInstanceOf(DataEntity);
+                expect(dataEntities[0]).toHaveProperty('hello', 'there');
+                expect(dataEntities[1]).toBeInstanceOf(DataEntity);
+                expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
             });
         });
     });
