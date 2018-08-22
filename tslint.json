@@ -1,13 +1,16 @@
 {
   "defaultSeverity": "error",
   "extends": [
-    "tslint:recommended",
-    "tslint-config-prettier"
+    "tslint-config-airbnb"
   ],
   "rules": {
-    "interface-name": false,
-    "callable-types": false,
-    "no-namespace": false,
-    "no-reference": false
+    "indent": [ true, "spaces" ],
+    "ter-indent": [ true, 4, { "SwitchCase": 1 }],
+    "no-unused-variable": false,
+    "import-name": false,
+    "max-line-length": [ true, 200 ],
+    "no-debugger": true,
+    "trailing-comma": false,
+    "comma-dangle": false
   }
 }

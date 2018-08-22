@@ -20,9 +20,9 @@ export function getOpConfig(job: JobConfig, name: string): OpConfig|undefined {
 */
 export function getClient(context: Context, config: GetClientConfig, type: string): any {
     const clientConfig: ConnectionConfig = {
+        type,
         cached: true,
         endpoint: 'default',
-        type,
     };
     const events = context.apis.foundation.getSystemEvents();
 
@@ -56,7 +56,7 @@ export function registerApis(context: Context, job: JobConfig): void {
     delete context.apis.job_runner;
     context.apis.registerAPI('job_runner', {
         getOpConfig(name: string): OpConfig|undefined {
-            return getOpConfig(job, name)
+            return getOpConfig(job, name);
         },
     });
 }

@@ -48,15 +48,9 @@ export class OperationLoader {
         };
 
         const findCodeByConvention = (basePath?: string, subfolders?: string[]) => {
-            if (!basePath) {
-                return;
-            }
-            if (!pathExistsSync(basePath)) {
-                return;
-            }
-            if (!subfolders || !subfolders.length) {
-                return;
-            }
+            if (!basePath) return;
+            if (!pathExistsSync(basePath)) return;
+            if (!subfolders || !subfolders.length) return;
 
             subfolders.forEach((folder: string) => {
                 const pathType = path.join(basePath, folder);
@@ -69,10 +63,7 @@ export class OperationLoader {
         findCodeByConvention(this.options.assetPath, executionAssets);
 
         if (!filePath) {
-            findCodeByConvention(path.resolve(this.options.terasliceOpPath), [
-                'readers',
-                'processors',
-            ]);
+            findCodeByConvention(path.resolve(this.options.terasliceOpPath), ['readers', 'processors']);
         }
 
         if (!filePath) {
@@ -103,9 +94,7 @@ export class OperationLoader {
     }
 
     private resolvePath(filePath: string): string | null {
-        if (pathExistsSync(filePath)) {
-            return filePath;
-        }
+        if (pathExistsSync(filePath)) return filePath;
 
         try {
             return require.resolve(filePath);
@@ -116,9 +105,7 @@ export class OperationLoader {
 
     private verifyOpName(name: string): void {
         if (typeof name !== 'string') {
-            throw new Error(
-                'please verify that ops_directory in config and _op for each job operations are strings',
-            );
+            throw new Error('please verify that ops_directory in config and _op for each job operations are strings');
         }
     }
 }
