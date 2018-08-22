@@ -1,6 +1,6 @@
 import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { Slicer } from '../../src';
+import { Slicer, SlicerResult } from '../../src';
 
 describe('Slicer', () => {
     describe('when constructed', () => {
@@ -26,7 +26,7 @@ describe('Slicer', () => {
 
     describe('when extending the base class', () => {
         class ExampleSlicer extends Slicer {
-            public async slice(slicerId: number): Promise<object[] | null> {
+            public async slice(slicerId: number): Promise<SlicerResult> {
                 this.logger.debug(`got slicer_id: ${slicerId}`);
                 return [
                    { hi: true }

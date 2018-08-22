@@ -1,5 +1,7 @@
 import { OperationCore } from './operation-core';
 
+export type SlicerResult = object | object[] | null;
+
 /**
  * Slicer Base Class [DRAFT]
  * @description A core operation for slicing large sets of data
@@ -15,7 +17,7 @@ export class Slicer extends OperationCore {
     }
 
     // @ts-ignore
-    public async slice(slicerId: number): Promise<object[] | null> {
+    public async slice(slicerId: number): Promise<SlicerResult> {
         throw new Error('Slicer must implement a "slice" method');
     }
 }
