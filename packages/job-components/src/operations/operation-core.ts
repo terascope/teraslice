@@ -3,9 +3,11 @@ import _ from 'lodash';
 import { DataEntity } from './data-entity';
 
 /**
- * Operation Core Base Class [DRAFT]
- * @description The core base class common functionality between
- *              all of the different types of operations.
+ * OperationCore Base Class [DRAFT]
+ * @description The core base class for operation subclasses,
+ *              that supports the job execution lifecycle events.
+ *              This class will likely not be used externally
+ *              since Teraslice only supports a few subclass varients.
  */
 
 export class OperationCore {

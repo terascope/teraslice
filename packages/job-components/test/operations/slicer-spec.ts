@@ -19,14 +19,15 @@ describe('Slicer', () => {
 
         describe('->slice', () => {
             it('should reject with an implementation warning', () => {
-                return expect(operation.slice()).rejects.toThrowError('Slicer must implement a "slice" method');
+                return expect(operation.slice(0)).rejects.toThrowError('Slicer must implement a "slice" method');
             });
         });
     });
 
     describe('when extending the base class', () => {
         class ExampleSlicer extends Slicer {
-            public async slice(): Promise<object[] | null> {
+            public async slice(slicerId: number): Promise<object[] | null> {
+                this.logger.debug(`got slicer_id: ${slicerId}`);
                 return [
                    { hi: true }
                 ];
@@ -49,7 +50,7 @@ describe('Slicer', () => {
 
         describe('->slice', () => {
             it('should resolve with data entries', () => {
-                return expect(operation.slice()).resolves.toBeArrayOfSize(1);
+                return expect(operation.slice(0)).resolves.toBeArrayOfSize(1);
             });
         });
     });

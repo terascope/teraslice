@@ -14,7 +14,8 @@ export class Slicer extends OperationCore {
         super.initialize();
     }
 
-    public async slice(): Promise<object[] | null> {
+    // @ts-ignore
+    public async slice(slicerId: number): Promise<object[] | null> {
         throw new Error('Slicer must implement a "slice" method');
     }
 }
