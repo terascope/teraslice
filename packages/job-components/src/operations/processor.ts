@@ -1,5 +1,5 @@
-import { DataEntity } from '@terascope/job-components/src/operations/data-entity';
-import { OperationCore } from '@terascope/job-components/src/operations/operation-core';
+import { DataEntity } from './data-entity';
+import { OperationCore } from './operation-core';
 
 /**
  * Processor Base Class [DRAFT]
