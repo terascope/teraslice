@@ -1,6 +1,8 @@
 import { Context, JobConfig, Logger, OpConfig } from '@terascope/teraslice-types';
+import convict from 'convict';
 import _ from 'lodash';
 import { DataEntity } from './data-entity';
+import { validateOpConfig } from '../config-validators';
 
 /**
  * OperationCore Base Class [DRAFT]
@@ -11,8 +13,8 @@ import { DataEntity } from './data-entity';
  */
 
 export class OperationCore {
-    public static async validate(input: any): Promise<object> {
-        return input;
+    public static async validate(inputSchema: convict.Schema<any>, inputConfig: any): Promise<OpConfig> {
+        return validateOpConfig(inputSchema, inputConfig);
     }
 
     protected readonly context: Context;
