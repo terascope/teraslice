@@ -17,5 +17,4 @@ teraslice:
     master_hostname: "127.0.0.1"
     name: "teraslice"
     hostname: "127.0.0.1"
-    moderator: true
     shutdown_timeout: 8000
