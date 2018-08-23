@@ -37,10 +37,14 @@ describe('k8sDeployment', () => {
     });
 
     describe('with a single value in node_labels', () => {
-        it('should render a deployment with a required affinity', () => {
-            ex.node_labels = [{ key: 'zone', value: 'west' }];
-            const deployment = k8sDeployment.gen(ex, config);
+        let deployment;
 
+        beforeEach(() => {
+            ex.node_labels = [{ key: 'zone', value: 'west' }];
+            deployment = k8sDeployment.gen(ex, config);
+        });
+
+        it('should render a deployment with a required affinity', () => {
             expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
             expect(deployment.spec.template.spec.affinity).toEqual(yaml.load(`
                 nodeAffinity:
@@ -55,13 +59,17 @@ describe('k8sDeployment', () => {
     });
 
     describe('with multiple single node_labels', () => {
-        it('should render a deployment with a required affinity', () => {
+        let deployment;
+
+        beforeEach(() => {
             ex.node_labels = [
                 { key: 'zone', value: 'west' },
                 { key: 'region', value: '42' }
             ];
-            const deployment = k8sDeployment.gen(ex, config);
+            deployment = k8sDeployment.gen(ex, config);
+        });
 
+        it('should render a deployment with a required affinity', () => {
             expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
             expect(deployment.spec.template.spec.affinity).toEqual(yaml.load(`
                 nodeAffinity:
