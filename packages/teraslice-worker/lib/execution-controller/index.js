@@ -90,12 +90,12 @@ class ExecutionController {
         this.stores.stateStore = await stateStore;
         this.stores.exStore = await exStore;
 
-        await this._verifyExecution();
-
         await Promise.all([
             this.clusterMasterClient.start(),
             this.messenger.start()
         ]);
+
+        await this._verifyExecution();
 
         this.messenger.on('worker:online', () => {
             this._adjustSlicerQueueLength();
@@ -668,12 +668,18 @@ class ExecutionController {
         const { ex_id: exId } = this.executionContext;
         const { exStore } = this.stores;
 
-        const terminalStatus = exStore.getTerminalStatuses();
-        const statusQuery = terminalStatus.map(state => ` _status:${state} `).join('OR');
-        const query = `ex_id: ${exId} NOT (${statusQuery.trim()})`;
-        const result = await exStore.search(query, null, 1, '_created:desc');
-        if (_.isEmpty(result)) {
-            throw new Error(`No active execution context was found for execution: ${exId}`);
+        const terminalStatuses = exStore.getTerminalStatuses();
+        const runningStatuses = exStore.getRunningStatuses();
+        const result = await exStore.get(exId);
+
+        if (_.includes(terminalStatuses, result._status)) {
+            this.logger.warn('Execution was starting in terminal status, sending executionTerminal event');
+            await this.clusterMasterClient.executionTerminal(exId);
+        }
+
+        if (_.includes(runningStatuses, result._status)) {
+            this.logger.warn('Execution was starting in running status, sending executionFinished event');
+            await this.clusterMasterClient.executionFinished(exId);
         }
     }
 
