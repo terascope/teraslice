@@ -17,5 +17,5 @@ const es = new ElasticsearchClient({
 });
 
 module.exports = async () => {
-    await es.indices.delete({ index: `${TERASLICE_CLUSTER_NAME}*` });
+    await es.indices.delete({ index: 'test-teraworker*' });
 };

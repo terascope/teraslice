@@ -94,15 +94,15 @@ class ExecutionControllerMessenger extends MessengerServer {
         };
     }
 
-    availableWorkers() {
+    get availableWorkers() {
         return this.queue.size();
     }
 
-    activeWorkers() {
-        return this.connectedWorkers() - this.availableWorkers();
+    get activeWorkers() {
+        return this.connectedWorkers - this.availableWorkers;
     }
 
-    connectedWorkers() {
+    get connectedWorkers() {
         return _.get(this.server, 'eio.clientsCount', 0);
     }
 

@@ -145,20 +145,20 @@ describe('ExecutionController', () => {
                 analytics: _.sample([true, false]),
             }
         ],
-        // disabled because this isn't being used currrently
-        // [
-        //     'processing a slice and the execution is stopped',
-        //     {
-        //         slicerResults: [
-        //             { example: 'slice-execution-stop' },
-        //             null
-        //         ],
-        //         sendClusterStop: true,
-        //         body: { example: 'slice-execution-stop' },
-        //         count: 1,
-        //         analytics: _.sample([true, false]),
-        //     }
-        // ],
+        [
+            'processing slices and the execution gets shutdown early',
+            {
+                slicerResults: [
+                    { example: 'slice-shutdown-early' },
+                    { example: 'slice-shutdown-early' },
+                ],
+                lifecycle: 'persistent',
+                shutdownEarly: true,
+                body: { example: 'slice-shutdown-early' },
+                count: 2,
+                analytics: _.sample([true, false]),
+            }
+        ],
         [
             'recovering a slicer with no cleanup type',
             {
@@ -280,8 +280,8 @@ describe('ExecutionController', () => {
         ]
     ];
 
-    // fdescribe.each([testCases[10]])('when %s', (m, options) => {
-    describe.each(testCases)('when %s', (m, options) => {
+    fdescribe.each([testCases[9]])('when %s', (m, options) => {
+    // describe.each(testCases)('when %s', (m, options) => {
         const {
             slicerResults,
             slicerQueueLength,
@@ -292,6 +292,7 @@ describe('ExecutionController', () => {
             analytics = false,
             workers = 1,
             pauseAndResume = false,
+            shutdownEarly = false,
             sendClusterStop = false,
             sliceFails = false,
             slicerFails = false,
@@ -354,7 +355,10 @@ describe('ExecutionController', () => {
                 action_timeout: actionTimeout,
             } = testContext.context.sysconfig.teraslice;
 
-            testContext.attachCleanup(() => exController.shutdown());
+            const shutdown = _.once(() => exController.shutdown());
+            const shutdownAfter = _.after(count, () => shutdown());
+
+            testContext.attachCleanup(() => shutdown());
 
             const opCount = testContext.executionContext.config.operations.length;
 
@@ -400,9 +404,9 @@ describe('ExecutionController', () => {
                 }
 
                 async function process() {
-                    if (exController.isDone()) return;
+                    if (exController.isDone) return;
 
-                    const slice = await workerMessenger.waitForSlice(() => exController.isDone());
+                    const slice = await workerMessenger.waitForSlice(() => exController.isDone);
 
                     if (!slice) return;
 
@@ -448,6 +452,10 @@ describe('ExecutionController', () => {
 
                         await Promise.delay(0);
                         await workerMessenger.sliceComplete(msg);
+
+                        if (shutdownEarly) {
+                            shutdownAfter();
+                        }
                     }
 
                     await Promise.all([

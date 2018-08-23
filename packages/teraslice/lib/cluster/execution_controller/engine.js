@@ -31,7 +31,7 @@ module.exports = function module(context, messaging, exStore, stateStore) {
     const workerQueue = new Queue();
     const slicerQueue = new Queue();
 
-    const watchDogTimeouts = [];
+    const watchDogTimeouts = {};
 
     const cache = new NodeCache({
         stdTTL: 30 * 60 * 1000, // 30 minutes
@@ -568,7 +568,9 @@ module.exports = function module(context, messaging, exStore, stateStore) {
     }
 
     function _watchDog(checkFn, timeout, errMsg, logMsg) {
+        const timerId = _.uniqueId('watch-dog-timer-');
         const timer = setTimeout(() => {
+            delete watchDogTimeouts[timerId];
             if (!checkFn()) return;
             // if after a a set time there are still no workers, it will shutdown
             logger.error(logMsg);
@@ -586,7 +588,7 @@ module.exports = function module(context, messaging, exStore, stateStore) {
         }, timeout);
 
         // store timeouts to make sure we don't have dangling async requests
-        watchDogTimeouts.push(timer);
+        watchDogTimeouts[timerId] = timer;
     }
 
     function _startWorkerDisconnectWatchDog() {
@@ -613,7 +615,10 @@ module.exports = function module(context, messaging, exStore, stateStore) {
         clearInterval(engine);
         engineFnRunning = false;
         events.emit('execution:stop');
-        _.forEach(watchDogTimeouts, clearTimeout);
+        _.forEach(watchDogTimeouts, (timeout, key) => {
+            clearTimeout(timeout);
+            delete watchDogTimeouts[key];
+        });
         return Promise.resolve()
             .then(executionAnalytics.shutdown)
             .then(() => logger.flush())
