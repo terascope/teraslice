@@ -4,8 +4,10 @@
     "version": "0.1.0",
     "description": "Teraslice integration test suite",
     "scripts": {
-        "test": "jest --runInBand",
-        "logs": "docker-compose logs --no-color teraslice-worker teraslice-master | awk -F' [|] ' '{print $2}' | bunyan -o short"
+        "test": "jest --runInBand; echo '\n\n[WARN] Make sure to remember to run yarn clean or yarn test:e2e:clean to remove the docker containers'",
+        "test:ci": "jest --runInBand || (yarn logs; exit 1); yarn clean",
+        "logs": "docker-compose logs --no-color teraslice-worker teraslice-master | awk -F' [|] ' '{print $2}' | bunyan -o short",
+        "clean": "docker-compose down --volumes --remove-orphans --timeout=5"
     },
     "repository": {
         "type": "git",

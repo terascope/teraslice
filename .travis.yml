@@ -43,7 +43,7 @@ jobs:
   - script:
     name: End-to-End Tests
     if: branch = master AND type = pull_request
-    script: yarn test:e2e || (yarn test:e2e:logs; exit 1)
+    script: yarn test:e2e:ci
 
   # if not tag is preset and is on master release any changed versions to NPM
   - stage: Release (NPM)
