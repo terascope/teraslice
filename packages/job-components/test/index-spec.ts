@@ -20,3 +20,11 @@ it('should have a getOpConfig function', () => {
 it('should have a getClient function', () => {
     expect(index.getClient).toBeFunction();
 });
+
+it('should have a formats array', () => {
+    expect(index.formats).toBeArray();
+});
+
+it('should have a addFormats function', () => {
+    expect(index.addFormats).toBeFunction();
+});

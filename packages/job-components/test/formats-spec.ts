@@ -2,7 +2,7 @@
 
 import { Format } from 'convict';
 import 'jest-extended'; // require for type definitions
-import formats from '../src/formats';
+import { formats } from '../src/formats';
 
 describe('Convict Formats', () => {
     function getSchema(name: string): Format | undefined {
