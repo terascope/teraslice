@@ -299,6 +299,7 @@ class ExecutionController {
         if (this.isPaused) return false;
         if (this.slicersDone) return true;
         if (!this.recoveryComplete) return false;
+<<<<<<< HEAD
         return false;
     }
 
@@ -319,6 +320,28 @@ class ExecutionController {
         return false;
     }
 
+=======
+        return false;
+    }
+
+    get isExecutionComplete() {
+        this.logger.info(JSON.stringify({
+            isShuttingDown: this.isShuttingDown,
+            isSlicersComplete: this.isSlicersComplete,
+            remainingSlices: this.remainingSlices,
+            availableWorkers: this.activeWorkers,
+            connectedWorkers: this.connectedWorkers,
+            slicerFailed: this.slicerFailed,
+            recoveryComplete: this.recoveryComplete
+        }));
+        if (this.isShuttingDown && this.isSlicersComplete) return true;
+        if (this.slicerFailed) return true;
+        if (this.isPaused) return true;
+        if (!this.recoveryComplete) return false;
+        return false;
+    }
+
+>>>>>>> WIP: fix execution-controller
     get isSlicersComplete() {
         const workersCompleted = this.availableWorkers >= this.connectedWorkers;
         const slicesFinished = this.remainingSlices === 0;
