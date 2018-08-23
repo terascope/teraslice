@@ -16,12 +16,12 @@ const workerCount = require('os').cpus().length;
 const schema = {
     ops_directory: {
         doc: 'directory to look for more readers and processors',
-        default: path.join(__dirname, '/lib'),
+        default: null,
         format: 'optional_String'
     },
     assets_directory: {
         doc: 'directory to look for assets',
-        default: path.join(__dirname, '../../../assets'),
+        default: path.join(process.cwd(), './assets'),
         format: 'optional_String'
     },
     shutdown_timeout: {

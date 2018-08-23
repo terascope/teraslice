@@ -7,7 +7,7 @@ import path from 'path';
 
 export interface LoaderOptions {
     terasliceOpPath: string;
-    opPath: string;
+    opPath: string|null|undefined;
     assetPath?: string;
 }
 
@@ -47,27 +47,28 @@ export class OperationLoader {
             });
         };
 
-        const findCodeByConvention = (basePath?: string, subfolders?: string[]) => {
+        const findCodeByConvention = (basePath: string|null|undefined, subfolders?: string[], resolvePath?: boolean) => {
             if (!basePath) return;
             if (!pathExistsSync(basePath)) return;
             if (!subfolders || !subfolders.length) return;
+            const folderPath = resolvePath ? path.resolve(basePath) : basePath;
 
             subfolders.forEach((folder: string) => {
-                const pathType = path.join(basePath, folder);
+                const pathType = path.join(folderPath, folder);
                 if (!filePath && pathExistsSync(pathType)) {
                     findCode(pathType);
                 }
             });
         };
 
-        findCodeByConvention(this.options.assetPath, executionAssets);
+        findCodeByConvention(this.options.assetPath || null, executionAssets);
 
         if (!filePath) {
-            findCodeByConvention(path.resolve(this.options.terasliceOpPath), ['readers', 'processors']);
+            findCodeByConvention(this.options.terasliceOpPath, ['readers', 'processors']);
         }
 
         if (!filePath) {
-            findCodeByConvention(path.resolve(this.options.opPath), ['readers', 'processors']);
+            findCodeByConvention(this.options.opPath, ['readers', 'processors']);
         }
 
         if (!filePath) {
