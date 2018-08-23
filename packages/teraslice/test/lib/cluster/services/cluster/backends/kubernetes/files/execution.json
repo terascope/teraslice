@@ -1,0 +1,66 @@
+{
+  "analytics": true,
+  "assets": [
+    "15d3ba729634c152ffe43d6c3d2a8c3c2581c82e"
+  ],
+  "lifecycle": "once",
+  "max_retries": 3,
+  "name": "example-data-generator-job",
+  "operations": [
+    {
+      "_op": "elasticsearch_data_generator",
+      "json_schema": "",
+      "size": 5000000,
+      "start": "",
+      "end": "",
+      "format": "",
+      "stress_test": false,
+      "date_key": "created",
+      "set_id": "",
+      "id_start_key": ""
+    },
+    {
+      "_op": "example-op"
+    },
+    {
+      "_op": "elasticsearch_index_selector",
+      "index": "terak8s-example-data",
+      "type": "events",
+      "preserve_id": false,
+      "id_field": "",
+      "timeseries": "",
+      "index_prefix": "",
+      "date_field": "",
+      "delete": false,
+      "update": false,
+      "update_retry_on_conflict": 0,
+      "update_fields": [],
+      "upsert": false,
+      "create": false,
+      "script_file": "",
+      "script": "",
+      "script_params": {}
+    },
+    {
+      "_op": "elasticsearch_bulk",
+      "size": 5000,
+      "connection_map": {
+        "*": "default"
+      },
+      "multisend": false,
+      "multisend_index_append": false,
+      "connection": "default"
+    }
+  ],
+  "probation_window": 300000,
+  "recycle_worker": null,
+  "slicers": 1,
+  "workers": 2,
+  "job_id": "7ba9afb0-417a-4936-adc5-b15e31d1edd1",
+  "_context": "ex",
+  "_created": "2018-08-22T19:46:15.820Z",
+  "_updated": "2018-08-22T19:46:15.820Z",
+  "ex_id": "e76a0278-d9bc-4d78-bf14-431bcd97528c",
+  "slicer_port": 45680,
+  "slicer_hostname": "teraslice-execution-controller-e76a0278-d9bc-4d78-bf14-431bcd97"
+}
