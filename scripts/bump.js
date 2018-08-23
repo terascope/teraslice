@@ -52,9 +52,10 @@ if (!fse.pathExistsSync(pkgPath)) {
 }
 
 const pkgJSON = fse.readJsonSync(pkgPath);
+const realPkgName = pkgJSON.name;
 
 const newVersion = semver.inc(pkgJSON.version, release);
-console.log(`* Updating ${pkgName} to version ${newVersion} from ${pkgJSON.version}`);
+console.log(`* Updating ${realPkgName} to version ${pkgJSON.version} to ${newVersion}`);
 
 pkgJSON.version = newVersion;
 
@@ -68,10 +69,10 @@ fs.readdirSync(packagesPath).forEach((fileName) => {
     if (fs.statSync(otherPkgDir).isDirectory()) {
         const otherPkgJSON = fse.readJsonSync(otherPkgPath);
 
-        if (otherPkgJSON.dependencies[pkgName]) {
-            otherPkgJSON.dependencies[pkgName] = `^${newVersion}`;
-        } else if (otherPkgJSON.devDependencies[pkgName]) {
-            otherPkgJSON.devDependencies[pkgName] = `^${newVersion}`;
+        if (otherPkgJSON.dependencies[realPkgName]) {
+            otherPkgJSON.dependencies[realPkgName] = `^${newVersion}`;
+        } else if (otherPkgJSON.devDependencies[realPkgName]) {
+            otherPkgJSON.devDependencies[realPkgName] = `^${newVersion}`;
         } else {
             return;
         }
@@ -82,3 +83,5 @@ fs.readdirSync(packagesPath).forEach((fileName) => {
         });
     }
 });
+
+console.log('DONE! Don\'t forget to run "yarn" to update your yarn.lock');

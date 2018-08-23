@@ -5,7 +5,7 @@ import { addFormat, Format } from 'convict';
 import dateMath from 'datemath-parser';
 import moment from 'moment';
 
-const formats : Format[] = [
+export const formats : Format[] = [
     {
         name: 'required_String',
         validate(val: any) {
@@ -52,6 +52,8 @@ const formats : Format[] = [
     } as Format,
 ];
 
-formats.forEach(addFormat);
+export function addFormats() {
+    formats.forEach(addFormat);
+}
 
-export default formats;
+addFormats();
