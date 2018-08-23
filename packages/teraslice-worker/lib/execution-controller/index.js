@@ -67,7 +67,7 @@ class ExecutionController {
         this.actionTimeout = actionTimeout;
 
         this.stores = {};
-        this.slicerDone = 0;
+        this.slicersDoneCount = 0;
         this.isRecovery = false;
         this.isPaused = false;
         this.isShuttingDown = false;
@@ -264,7 +264,7 @@ class ExecutionController {
     async slicerCompleted() {
         const { ex_id: exId } = this.executionContext;
 
-        this.slicerDone += 1;
+        this.slicersDoneCount += 1;
 
         this.logger.info(`a slicer for execution: ${exId} has completed its range`);
 
@@ -297,26 +297,18 @@ class ExecutionController {
         if (this.isShuttingDown) return true;
         if (this.slicerFailed) return true;
         if (this.isPaused) return false;
-        if (this.slicersDone) return true;
+        if (this.slicers != null && this.slicersDone) return true;
         if (!this.recoveryComplete) return false;
 <<<<<<< HEAD
         return false;
     }
 
     get isExecutionComplete() {
-        this.logger.info(JSON.stringify({
-            isShuttingDown: this.isShuttingDown,
-            isSlicersComplete: this.isSlicersComplete,
-            remainingSlices: this.remainingSlices,
-            availableWorkers: this.activeWorkers,
-            connectedWorkers: this.connectedWorkers,
-            slicerFailed: this.slicerFailed,
-            recoveryComplete: this.recoveryComplete
-        }));
-        if (this.isShuttingDown && this.isSlicersComplete) return true;
-        if (this.slicerFailed) return true;
-        if (this.isPaused) return true;
+        if (!this.isSlicersComplete) return false;
+        if (this.slicers == null) return false;
+        if (this.slicersDoneCount !== _.size(this.slicers)) return false;
         if (!this.recoveryComplete) return false;
+        if (!this.slicerFailed) return false;
         return false;
     }
 
@@ -345,12 +337,12 @@ class ExecutionController {
     get isSlicersComplete() {
         const workersCompleted = this.availableWorkers >= this.connectedWorkers;
         const slicesFinished = this.remainingSlices === 0;
-        return workersCompleted && slicesFinished && this.slicersDone;
+        return workersCompleted && slicesFinished;
     }
 
     get slicersDone() {
         if (this.slicers == null) return false;
-        return this.slicerDone === _.size(this.slicers);
+        return this.slicersDoneCount === _.size(this.slicers);
     }
 
     get isOnce() {
@@ -376,7 +368,7 @@ class ExecutionController {
         clearTimeout(this.workerConnectTimeout);
         clearTimeout(this.workerDisconnectTimeout);
 
-        if (!this._executionCompleted) {
+        if (!this.isExecutionComplete) {
             try {
                 await this._doneProcessing();
             } catch (err) {
@@ -493,9 +485,7 @@ class ExecutionController {
     }
 
     async _dispatchSlices() {
-        if (this.isPaused) return;
-        if (this.isDone) return;
-        if (!this.remainingSlices) return;
+        if (this.isExecutionComplete || this.isPaused) return;
 
         if (!this.availableWorkers) {
             const foundWorker = await this.messenger.onceWithTimeout('worker:enqueue', null, true);
@@ -503,14 +493,15 @@ class ExecutionController {
         }
 
         const slice = this.slicerQueue.dequeue();
+        if (slice) {
+            const { dispatched, workerId } = await this.messenger.dispatchSlice(slice);
 
-        const { dispatched, workerId } = await this.messenger.dispatchSlice(slice);
-
-        if (dispatched) {
-            this.logger.debug(`dispatched slice ${slice.slice_id} to worker ${workerId}`);
-        } else {
-            this.slicerQueue.unshift(slice);
-            this.logger.debug(`worker ${workerId} is not available to process slice ${slice.slice_id}`);
+            if (dispatched) {
+                this.logger.debug(`dispatched slice ${slice.slice_id} to worker ${workerId}`);
+            } else {
+                this.slicerQueue.unshift(slice);
+                this.logger.debug(`worker ${workerId} is not available to process slice ${slice.slice_id}`);
+            }
         }
 
         await immediate();
@@ -602,23 +593,15 @@ class ExecutionController {
     }
 
     async _doneProcessing() {
-        const { events } = this;
         const { ex_id: exId } = this.executionContext;
 
         await new Promise((resolve) => {
             const id = setInterval(() => {
                 if (this.isExecutionComplete) {
-                    slicersFinished();
+                    clearInterval(id);
+                    resolve();
                 }
             }, 100).unref(); // unref so we don't stop the process from shutting down
-
-            function slicersFinished() {
-                clearInterval(id);
-                events.removeListener('slicers:finished', slicersFinished);
-                resolve();
-            }
-
-            events.once('slicers:finished', slicersFinished);
         });
 
         await this._waitForSlicesToComplete();
@@ -670,13 +653,16 @@ class ExecutionController {
         }
 
         const metaData = exStore.executionMetaData(executionStats);
+
         if (!this.isExecutionComplete) {
             logger.info(`execution ${exId} received shutdown before the slicer could complete`);
-            await exStore.setStatus(exId, 'running', metaData);
-        } else {
-            logger.info(`execution ${exId} has completed`);
-            await exStore.setStatus(exId, 'completed', metaData);
+            await exStore.update(exId, metaData);
+            return;
         }
+
+        logger.info(`execution ${exId} has completed`);
+        await exStore.setStatus(exId, 'completed', metaData);
+
         await this.clusterMasterClient.executionFinished(exId);
     }
 
@@ -698,12 +684,19 @@ class ExecutionController {
         if (_.includes(terminalStatuses, result._status)) {
             this.logger.warn('Execution was starting in terminal status, sending executionTerminal event');
             await this.clusterMasterClient.executionTerminal(exId);
-        }
-
-        if (_.includes(runningStatuses, result._status)) {
+        } else if (_.includes(runningStatuses, result._status)) {
             this.logger.warn('Execution was starting in running status, sending executionFinished event');
             await this.clusterMasterClient.executionFinished(exId);
+        } else {
+            return;
         }
+
+        const maxDelay = 30 * 1000;
+        const delay = this.actionTimeout > maxDelay ? maxDelay : this.actionTimeout;
+        await Promise.delay(delay);
+
+        this.logger.error('Execution is shutdown because it started in a invalid state');
+        await this.shutdown();
     }
 
     _startWorkConnectWatchDog() {

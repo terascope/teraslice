@@ -155,7 +155,7 @@ describe('ExecutionController', () => {
                 lifecycle: 'persistent',
                 shutdownEarly: true,
                 body: { example: 'slice-shutdown-early' },
-                count: 2,
+                count: 1,
                 analytics: _.sample([true, false]),
             }
         ],
@@ -345,6 +345,10 @@ describe('ExecutionController', () => {
                 });
             }
 
+            if (shutdownEarly) {
+                testContext.executionContext.queueLength = 1;
+            }
+
             exController = new ExecutionController(
                 testContext.context,
                 testContext.executionContext,
@@ -428,6 +432,8 @@ describe('ExecutionController', () => {
                     if (sliceFails) {
                         msg.error = 'Oh no, slice failure';
                         await stateStore.updateState(slice, 'error', msg.error);
+                    } else if (shutdownEarly) {
+                        await stateStore.updateState(slice, 'running');
                     } else {
                         await stateStore.updateState(slice, 'completed');
                     }

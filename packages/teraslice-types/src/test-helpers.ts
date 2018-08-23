@@ -1,27 +1,30 @@
 import debugnyan from 'debugnyan';
+import bunyan from 'bunyan';
 import { EventEmitter } from 'events';
 import * as c from './context';
 import * as j from './jobs';
 
 export function debugLogger(testName: string, ...params: any[]): c.Logger {
     let logger: c.Logger;
+    const options = {};
 
     if (params.length === 0) {
-        logger = debugnyan(`teraslice:${testName}`) as c.Logger;
+        logger = debugnyan(`teraslice:${testName}`, options) as c.Logger;
     } else if (typeof params[0] === 'string') {
         logger = debugnyan(
             `teraslice:${testName}`,
-            {},
+            options,
             { simple: false, suffix: params[0] as string },
         ) as c.Logger;
     } else {
-        logger = debugnyan(`teraslice:${testName}`, params[0] as object, {
+        logger = debugnyan(`teraslice:${testName}`, options, {
             simple: false,
             suffix: params[0].module,
         }) as c.Logger;
     }
 
     logger.flush = () => Promise.resolve();
+    logger.level(bunyan.TRACE);
 
     return logger;
 }
