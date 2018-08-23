@@ -8,6 +8,8 @@
         "build": "lerna run build",
         "test": "jest --forceExit --ci --maxWorkers=4",
         "test:e2e": "yarn --cwd ./e2e test",
+        "test:e2e:ci": "yarn --cwd ./e2e test:ci",
+        "test:e2e:clean": "yarn --cwd ./e2e clean",
         "test:e2e:logs": "yarn --cwd ./e2e logs",
         "lint": "env FORCE_COLOR=1 lerna run lint",
         "lint:fix": "env FORCE_COLOR=1 lerna run lint:fix",
