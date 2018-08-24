@@ -3,16 +3,17 @@
 const _ = require('lodash');
 const { makeTemplate } = require('./utils');
 
-const workerDeploymentTemplate = makeTemplate('deployments', 'worker');
-
 /**
  * Generate the kubernetes worker deployment for a teraslice job worker
  * from the execution (job instance definition) and the config context
- * @param  {Object} execution Teraslice Execution object
- * @param  {Object} config    Configuration object with calling context info
- * @return {Object}           Worker Deployment Object
+ * @param  {[type]} templateType 'deployments' or 'jobs'
+ * @param  {[type]} templateName 'worker' or 'execution_controller'
+ * @param  {Object} execution    Teraslice Execution object
+ * @param  {Object} config       Configuration object with calling context info
+ * @return {Object}              Worker Deployment Object
  */
-function gen(execution, config) {
+function gen(templateType, templateName, execution, config) {
+    const workerDeploymentTemplate = makeTemplate(templateType, templateName);
     const workerDeployment = workerDeploymentTemplate(config);
 
     // Apply job `node_labels` setting as k8s nodeAffinity

@@ -6,23 +6,27 @@ const _execution = require('./files/execution.json');
 const k8sDeployment = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8sDeployment');
 const { base64EncodeObject } = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/utils');
 
-const _name = `teraslice-worker-${_execution.ex_id}`.substring(0, 63);
-const _config = {
-    name: _name,
-    exId: _execution.ex_id,
-    jobId: _execution.job_id,
-    dockerImage: 'teraslice-k8sdev:1',
-    execution: base64EncodeObject(_execution),
-    nodeType: 'worker',
-    namespace: 'ts-dev1',
-    shutdownTimeout: 30000,
-    replicas: 1,
-    configMapName: 'teraslice-worker',
-    imagePullSecret: 'teraslice-secret',
-};
+// NOTE: Right now there is no difference in the handling of deployments and
+// jobs, so at the moment, most of the functionality is tested in the
+// k8k8sDeployment test.
+describe('k8sJob', () => {
+    const _name = `teraslice-execution-controller-${_execution.ex_id}`.substring(0, 63);
+    const _config = {
+        name: _name,
+        jobName: 'test-job',
+        clusterName: 'test-cluster',
+        exId: _execution.ex_id,
+        jobId: _execution.job_id,
+        dockerImage: 'teraslice-k8sdev:1',
+        execution: base64EncodeObject(_execution),
+        nodeType: 'execution_controller',
+        namespace: 'ts-dev1',
+        shutdownTimeout: 30000,
+        replicas: 1,
+        configMapName: 'teraslice-worker',
+        imagePullSecret: 'teraslice-secret',
+    };
 
-
-describe('k8sDeployment', () => {
     let ex;
     let config;
 
@@ -31,18 +35,52 @@ describe('k8sDeployment', () => {
         config = _.cloneDeep(_config);
     });
 
-    it('should render a simple deployment with the expected exId', () => {
-        const deployment = k8sDeployment.gen(ex, config);
+    it('should render a simple job with the expected exId', () => {
+        const job = k8sDeployment.gen('jobs', 'execution_controller', ex, config);
+        expect(job.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+        expect(job.metadata.labels.nodeType).toEqual('execution_controller');
+    });
+});
+
+describe('k8sDeployment', () => {
+    const _name = `teraslice-worker-${_execution.ex_id}`.substring(0, 63);
+    const _config = {
+        name: _name,
+        jobName: 'test-job',
+        clusterName: 'test-cluster',
+        exId: _execution.ex_id,
+        jobId: _execution.job_id,
+        dockerImage: 'teraslice-k8sdev:1',
+        execution: base64EncodeObject(_execution),
+        nodeType: 'worker',
+        namespace: 'ts-dev1',
+        shutdownTimeout: 30000,
+        replicas: 1,
+        configMapName: 'teraslice-worker',
+        imagePullSecret: 'teraslice-secret',
+    };
+
+    let ex;
+    let config;
+
+    beforeEach(() => {
+        ex = _.cloneDeep(_execution);
+        config = _.cloneDeep(_config);
+    });
+
+    it('should render a simple worker deployment with the expected exId', () => {
+        const deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
         expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+        expect(deployment.metadata.labels.nodeType).toEqual('worker');
     });
 
     it('should not have an affinity property', () => {
-        const deployment = k8sDeployment.gen(ex, config);
+        const deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
         expect(deployment).not.toHaveProperty('spec.template.spec.affinity');
     });
 
     it('should not have an resource property', () => {
-        const deployment = k8sDeployment.gen(ex, config);
+        const deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
         expect(deployment).not.toHaveProperty('spec.template.spec.resource');
     });
 
@@ -51,7 +89,7 @@ describe('k8sDeployment', () => {
 
         beforeEach(() => {
             ex.node_labels = [{ key: 'zone', value: 'west' }];
-            deployment = k8sDeployment.gen(ex, config);
+            deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
         });
 
         it('should render a deployment with a required affinity', () => {
@@ -76,7 +114,7 @@ describe('k8sDeployment', () => {
                 { key: 'zone', value: 'west' },
                 { key: 'region', value: '42' }
             ];
-            deployment = k8sDeployment.gen(ex, config);
+            deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
         });
 
         it('should render a deployment with a required affinity', () => {
@@ -105,7 +143,7 @@ describe('k8sDeployment', () => {
                 minimum: { cpu: 1, memory: 2147483648 },
                 limit: { cpu: 2, memory: 4294967296 }
             };
-            deployment = k8sDeployment.gen(ex, config);
+            deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
         });
 
         it('should render a deployment with a required resources', () => {
@@ -127,7 +165,7 @@ describe('k8sDeployment', () => {
             ex.resources = {
                 minimum: { cpu: 1, memory: 2147483648 }
             };
-            deployment = k8sDeployment.gen(ex, config);
+            deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
         });
 
         it('should render a deployment with just requests set in the deployment', () => {
@@ -146,7 +184,7 @@ describe('k8sDeployment', () => {
             ex.resources = {
                 limit: { cpu: 2, memory: 4294967296 }
             };
-            deployment = k8sDeployment.gen(ex, config);
+            deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
         });
 
         it('should render a deployment with a required resources', () => {
@@ -165,7 +203,7 @@ describe('k8sDeployment', () => {
             ex.volumes = [
                 { name: 'teraslice-data1', path: '/data' }
             ];
-            deployment = k8sDeployment.gen(ex, config);
+            deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
         });
 
         it('should render a deployment with a two volumes and volumeMounts', () => {
@@ -205,7 +243,7 @@ describe('k8sDeployment', () => {
                 { name: 'teraslice-data1', path: '/data' },
                 { name: 'tmp', path: '/tmp' }
             ];
-            deployment = k8sDeployment.gen(ex, config);
+            deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
         });
 
         it('should render a deployment with a two volumes and volumeMounts', () => {

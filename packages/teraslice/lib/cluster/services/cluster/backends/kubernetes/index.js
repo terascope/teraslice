@@ -255,7 +255,9 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
             imagePullSecret,
         };
 
-        const workerDeployment = k8sDeployment.gen(execution, deploymentConfig);
+        const workerDeployment = k8sDeployment.gen(
+            'deployments', 'worker', execution, deploymentConfig
+        );
 
         return k8s.post(workerDeployment, 'deployment')
             .then(result => logger.debug(`k8s worker deployment submitted: ${JSON.stringify(result)}`))
