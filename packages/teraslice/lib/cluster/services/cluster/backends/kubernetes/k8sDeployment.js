@@ -28,8 +28,24 @@ function gen(execution, config) {
         _setResources(workerDeployment, execution);
     }
 
+    if (_.has(execution, 'volumes')) {
+        _setVolumes(workerDeployment, execution);
+    }
 
     return workerDeployment;
+}
+
+function _setVolumes(workerDeployment, execution) {
+    _.forEach(execution.volumes, (volume) => {
+        workerDeployment.spec.template.spec.volumes.push({
+            name: volume.name,
+            persistentVolumeClaim: { claimName: volume.name }
+        });
+        workerDeployment.spec.template.spec.containers[0].volumeMounts.push({
+            name: volume.name,
+            mountPath: volume.path
+        });
+    });
 }
 
 function _setResources(workerDeployment, execution) {

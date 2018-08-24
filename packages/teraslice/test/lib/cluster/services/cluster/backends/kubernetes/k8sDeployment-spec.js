@@ -157,4 +157,93 @@ describe('k8sDeployment', () => {
                     cpu: 2`));
         });
     });
+
+    describe('with single volume set', () => {
+        let deployment;
+
+        beforeEach(() => {
+            ex.volumes = [
+                { name: 'teraslice-data1', path: '/data' }
+            ];
+            deployment = k8sDeployment.gen(ex, config);
+        });
+
+        it('should render a deployment with a two volumes and volumeMounts', () => {
+            expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+
+            // First check the configMap volumes, which should be present on all
+            // deployments
+            expect(deployment.spec.template.spec.volumes[0]).toEqual(yaml.load(`
+                  name: config
+                  configMap:
+                   name: teraslice-worker
+                   items:
+                     - key: teraslice.yaml
+                       path: teraslice.yaml`));
+            expect(deployment.spec.template.spec.containers[0].volumeMounts[0])
+                .toEqual(yaml.load(`
+                    mountPath: /app/config
+                    name: config`));
+
+            // Now check for the volume added via config
+            expect(deployment.spec.template.spec.volumes[1]).toEqual(yaml.load(`
+                  name: teraslice-data1
+                  persistentVolumeClaim:
+                    claimName: teraslice-data1`));
+            expect(deployment.spec.template.spec.containers[0].volumeMounts[1])
+                .toEqual(yaml.load(`
+                    name: teraslice-data1
+                    mountPath: /data`));
+        });
+    });
+
+    describe('with two volumes set', () => {
+        let deployment;
+
+        beforeEach(() => {
+            ex.volumes = [
+                { name: 'teraslice-data1', path: '/data' },
+                { name: 'tmp', path: '/tmp' }
+            ];
+            deployment = k8sDeployment.gen(ex, config);
+        });
+
+        it('should render a deployment with a two volumes and volumeMounts', () => {
+            expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+
+            // First check the configMap volumes, which should be present on all
+            // deployments
+            expect(deployment.spec.template.spec.volumes[0]).toEqual(yaml.load(`
+                  name: config
+                  configMap:
+                   name: teraslice-worker
+                   items:
+                     - key: teraslice.yaml
+                       path: teraslice.yaml`));
+            expect(deployment.spec.template.spec.containers[0].volumeMounts[0])
+                .toEqual(yaml.load(`
+                    mountPath: /app/config
+                    name: config`));
+
+            // Now check for the first volume added via config
+            expect(deployment.spec.template.spec.volumes[1]).toEqual(yaml.load(`
+                  name: teraslice-data1
+                  persistentVolumeClaim:
+                    claimName: teraslice-data1`));
+            expect(deployment.spec.template.spec.containers[0].volumeMounts[1])
+                .toEqual(yaml.load(`
+                    name: teraslice-data1
+                    mountPath: /data`));
+
+            // Now check for the second volume added via config
+            expect(deployment.spec.template.spec.volumes[2]).toEqual(yaml.load(`
+                  name: tmp
+                  persistentVolumeClaim:
+                    claimName: tmp`));
+            expect(deployment.spec.template.spec.containers[0].volumeMounts[2])
+                .toEqual(yaml.load(`
+                    name: tmp
+                    mountPath: /tmp`));
+        });
+    });
 });
