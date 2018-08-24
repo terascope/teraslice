@@ -30,6 +30,7 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
     const shutdownTimeoutMs = _.get(context, 'sysconfig.teraslice.shutdown_timeout', 60000);
     const shutdownTimeoutSeconds = Math.round(shutdownTimeoutMs / 1000);
 
+    const clusterName = _.get(context, 'sysconfig.teraslice.name');
     const kubernetesImage = _.get(context, 'sysconfig.teraslice.kubernetes_image', 'teraslice:k8sdev');
     const kubernetesNamespace = _.get(context, 'sysconfig.teraslice.kubernetes_namespace', 'default');
     const configMapName = _.get(
@@ -177,8 +178,10 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
 
         const serviceConfig = {
             name,
+            clusterName,
             exId: execution.ex_id,
             jobId: execution.job_id,
+            jobName: execution.name,
             nodeType: 'execution_controller',
             namespace: kubernetesNamespace
         };
@@ -192,8 +195,10 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
 
         const jobConfig = {
             name,
+            clusterName,
             exId: execution.ex_id,
             jobId: execution.job_id,
+            jobName: execution.name,
             dockerImage: kubernetesImage,
             execution: base64EncodeObject(execution),
             nodeType: 'execution_controller',
@@ -236,8 +241,10 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
 
         const deploymentConfig = {
             name,
+            clusterName,
             exId: execution.ex_id,
             jobId: execution.job_id,
+            jobName: execution.name,
             dockerImage: kubernetesImage,
             execution: base64EncodeObject(execution),
             nodeType: 'worker',
