@@ -97,7 +97,7 @@ const newSysConfig = (options = {}) => {
         },
         teraslice: {
             assets_directory: assetDir,
-            shutdown_timeout: timeout,
+            shutdown_timeout: timeout * 2,
             action_timeout: actionTimeout,
             network_latency_buffer: 100,
             slicer_timeout: timeout,

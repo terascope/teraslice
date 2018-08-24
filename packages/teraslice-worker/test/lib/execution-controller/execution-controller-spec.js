@@ -94,7 +94,7 @@ describe('ExecutionController', () => {
                     new Error('Slice failure'),
                     null
                 ],
-                slicerFails: true,
+                slicerFais: true,
                 body: { example: 'slice-failure' },
                 count: 1,
                 analytics: _.sample([true, false]),
@@ -280,8 +280,8 @@ describe('ExecutionController', () => {
         ]
     ];
 
-    fdescribe.each([testCases[9]])('when %s', (m, options) => {
-    // describe.each(testCases)('when %s', (m, options) => {
+    // fdescribe.each(_.take(testCases, 1))('when %s', (m, options) => {
+    describe.each(testCases)('when %s', (m, options) => {
         const {
             slicerResults,
             slicerQueueLength,
@@ -359,10 +359,7 @@ describe('ExecutionController', () => {
                 action_timeout: actionTimeout,
             } = testContext.context.sysconfig.teraslice;
 
-            const shutdown = _.once(() => exController.shutdown());
-            const shutdownAfter = _.after(count, () => shutdown());
-
-            testContext.attachCleanup(() => shutdown());
+            testContext.attachCleanup(() => exController.shutdown());
 
             const opCount = testContext.executionContext.config.operations.length;
 
@@ -407,10 +404,12 @@ describe('ExecutionController', () => {
                     ]);
                 }
 
-                async function process() {
-                    if (exController.isDone) return;
+                const isDone = () => exController.isExecutionFinished;
 
-                    const slice = await workerMessenger.waitForSlice(() => exController.isDone);
+                async function process() {
+                    if (isDone()) return;
+
+                    const slice = await workerMessenger.waitForSlice(isDone);
 
                     if (!slice) return;
 
@@ -432,8 +431,6 @@ describe('ExecutionController', () => {
                     if (sliceFails) {
                         msg.error = 'Oh no, slice failure';
                         await stateStore.updateState(slice, 'error', msg.error);
-                    } else if (shutdownEarly) {
-                        await stateStore.updateState(slice, 'running');
                     } else {
                         await stateStore.updateState(slice, 'completed');
                     }
@@ -459,13 +456,17 @@ describe('ExecutionController', () => {
                         await Promise.delay(0);
                         await workerMessenger.sliceComplete(msg);
 
-                        shutdownAfter();
+                        if (shutdownEarly) {
+                            await Promise.delay(100);
+                            exController.shutdown();
+                        }
                     }
 
                     await Promise.all([
                         waitForReconnect(),
                         completeSlice(),
                     ]);
+
 
                     await process();
                 }
@@ -595,14 +596,19 @@ describe('ExecutionController', () => {
             testContext = new TestContext({
                 assignment: 'execution_controller',
                 slicerPort: port,
+                timeout: 100,
+                actionTimeout: 100
             });
 
             await testContext.initialize(true);
+            await testContext.addClusterMaster();
 
             exController = new ExecutionController(
                 testContext.context,
                 testContext.executionContext,
             );
+
+            exController.isExecutionFinished = true;
 
             await testContext.addExStore();
             ({ exStore } = testContext.stores);
@@ -623,7 +629,22 @@ describe('ExecutionController', () => {
                 try {
                     await exController.initialize();
                 } catch (err) {
-                    expect(err.message).toEqual(`No active execution context was found for execution: ${testContext.exId}`);
+                    expect(err.message).toStartWith(`Unable to get execution using the exId: ${testContext.exId}`);
+                }
+            });
+        });
+
+        describe('when the execution is set to running', () => {
+            beforeEach(async () => {
+                await exStore.setStatus(testContext.exId, 'running');
+            });
+
+            it('should throw an error on initialize', async () => {
+                expect.hasAssertions();
+                try {
+                    await exController.initialize();
+                } catch (err) {
+                    expect(err.message).toEqual(`Execution ${testContext.exId} was starting in running status, sending executionFinished event to cluster master`);
                 }
             });
         });
@@ -638,7 +659,7 @@ describe('ExecutionController', () => {
                 try {
                     await exController.initialize();
                 } catch (err) {
-                    expect(err.message).toEqual(`No active execution context was found for execution: ${testContext.exId}`);
+                    expect(err.message).toEqual(`Execution ${testContext.exId} was starting in terminal status, sending executionTerminal event to cluster master`);
                 }
             });
         });
@@ -682,8 +703,7 @@ describe('ExecutionController', () => {
 
             describe('when everything errors', () => {
                 beforeEach(() => {
-                    exController.isDone = () => false;
-                    exController._doneProcessing = () => Promise.reject(new Error('Slicer Finish Error'));
+                    exController.isExecutionFinished = true;
 
                     exController.stores = {};
                     exController.stores.someStore = {
@@ -700,7 +720,6 @@ describe('ExecutionController', () => {
                     exController.clusterMasterClient.shutdown = () => Promise.reject(new Error('Cluster Master Client Error'));
 
                     exController.messenger = {};
-                    exController.messenger.executionFinished = () => Promise.reject(new Error('Messenger Execution Finished Error'));
                     exController.messenger.shutdown = () => Promise.reject(new Error('Messenger Error'));
                 });
 
@@ -711,12 +730,10 @@ describe('ExecutionController', () => {
                     } catch (err) {
                         const errMsg = err.toString();
                         expect(errMsg).toStartWith('Error: Failed to shutdown correctly');
-                        expect(errMsg).toInclude('Slicer Finish Error');
                         expect(errMsg).toInclude('Store Error');
                         expect(errMsg).toInclude('Recover Error');
                         expect(errMsg).toInclude('Execution Analytics Error');
                         expect(errMsg).toInclude('Cluster Master Client Error');
-                        expect(errMsg).toInclude('Messenger Execution Finished Error');
                         expect(errMsg).toInclude('Messenger Error');
                     }
                 });
