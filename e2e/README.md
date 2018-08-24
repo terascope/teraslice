@@ -35,8 +35,12 @@ recommended workflow is:
 The environment is managed by `docker-compose`. See the `ps` & `log`
 sub-commands to diagnose potential issues in the containers. Here is a recipe to
 prettify the teraslice logs:
-```
-docker-compose logs --no-color teraslice-worker | awk -F' [|] ' '{print $2}' | bunyan -o short
+
+```sh
+# from this directory
+yarn logs
+# from the parent directory
+yarn test:e2e:logs
 ```
 
 ## Notes

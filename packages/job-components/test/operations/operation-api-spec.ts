@@ -1,10 +1,10 @@
 import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { Fetcher, DataEntity } from '../../src';
+import { OperationAPI, OpAPIInstance } from '../../src';
 
-describe('Fetch Operation Base Class', () => {
+describe('OperationAPI', () => {
     describe('when constructed', () => {
-        let operation: Fetcher;
+        let operation: OperationAPI;
 
         beforeAll(() => {
             const context = new TestContext('teraslice-operations');
@@ -14,26 +14,30 @@ describe('Fetch Operation Base Class', () => {
             });
             const opConfig = jobConfig.operations[0];
             const logger = context.apis.foundation.makeLogger('job-logger');
-            operation = new Fetcher(context, jobConfig, opConfig, logger);
+            operation = new OperationAPI(context, jobConfig, opConfig, logger);
         });
 
-        describe('->fetch', () => {
+        describe('->createAPI', () => {
             it('should reject with an implementation warning', () => {
-                return expect(operation.fetch()).rejects.toThrowError('Fetcher must implement a "fetch" method');
+                return expect(operation.createAPI()).rejects.toThrowError('OperationAPI must implement a "createAPI" method');
             });
         });
     });
 
     describe('when extending the base class', () => {
-        class ExampleFetcher extends Fetcher {
-            public async fetch(): Promise<DataEntity[]> {
-                return [
-                    new DataEntity({ hi: true })
-                ];
+        interface ExampleAPI extends OpAPIInstance {
+            hi(): string;
+        }
+
+        class ExampleOperationAPI extends OperationAPI {
+            public async createAPI(): Promise<ExampleAPI> {
+                return {
+                    hi: () => 'hello'
+                };
             }
         }
 
-        let operation: ExampleFetcher;
+        let operation: ExampleOperationAPI;
 
         beforeAll(() => {
             const context = new TestContext('teraslice-operations');
@@ -43,12 +47,13 @@ describe('Fetch Operation Base Class', () => {
             });
             const opConfig = jobConfig.operations[0];
             const logger = context.apis.foundation.makeLogger('job-logger');
-            operation = new ExampleFetcher(context, jobConfig, opConfig, logger);
+            operation = new ExampleOperationAPI(context, jobConfig, opConfig, logger);
         });
 
-        describe('->fetch', () => {
-            it('should resolve with data entries', () => {
-                return expect(operation.fetch()).resolves.toBeArrayOfSize(1);
+        describe('->createAPI', () => {
+            it('should resolve the data entity which are passed in', async () => {
+                const result = await operation.createAPI();
+                expect(result.hi()).toEqual('hello');
             });
         });
     });

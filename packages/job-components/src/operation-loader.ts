@@ -1,13 +1,13 @@
 'use strict';
 
-import { Operation } from '@terascope/teraslice-types';
+import { LegacyOperation } from '@terascope/teraslice-types';
 import fs from 'fs';
 import { pathExistsSync } from 'fs-extra';
 import path from 'path';
 
 export interface LoaderOptions {
     terasliceOpPath: string;
-    opPath: string;
+    opPath: string|null|undefined;
     assetPath?: string;
 }
 
@@ -18,10 +18,10 @@ export class OperationLoader {
         this.options = options;
     }
 
-    public find(name: string, executionAssets?: string[]) : string|null {
+    public find(name: string, executionAssets?: string[]): string | null {
         this.verifyOpName(name);
 
-        let filePath: string|null = null;
+        let filePath: string | null = null;
         let codeName: string = '';
 
         if (!name.match(/.js$/)) {
@@ -45,29 +45,30 @@ export class OperationLoader {
                     findCode(nextPath);
                 }
             });
-        }
+        };
 
-        const findCodeByConvention = (basePath?: string, subfolders?: string[]) => {
-            if (!basePath) { return; }
-            if (!pathExistsSync(basePath)) { return; }
-            if (!subfolders || !subfolders.length) { return; }
+        const findCodeByConvention = (basePath: string|null|undefined, subfolders?: string[], resolvePath?: boolean) => {
+            if (!basePath) return;
+            if (!pathExistsSync(basePath)) return;
+            if (!subfolders || !subfolders.length) return;
+            const folderPath = resolvePath ? path.resolve(basePath) : basePath;
 
             subfolders.forEach((folder: string) => {
-                const pathType = path.join(basePath, folder);
+                const pathType = path.join(folderPath, folder);
                 if (!filePath && pathExistsSync(pathType)) {
                     findCode(pathType);
                 }
             });
-        }
+        };
 
-        findCodeByConvention(this.options.assetPath, executionAssets);
-
-        if (!filePath) {
-            findCodeByConvention(path.resolve(this.options.terasliceOpPath), ['readers', 'processors']);
-        }
+        findCodeByConvention(this.options.assetPath || null, executionAssets);
 
         if (!filePath) {
-            findCodeByConvention(path.resolve(this.options.opPath), ['readers', 'processors']);
+            findCodeByConvention(this.options.terasliceOpPath, ['readers', 'processors']);
+        }
+
+        if (!filePath) {
+            findCodeByConvention(this.options.opPath, ['readers', 'processors']);
         }
 
         if (!filePath) {
@@ -77,7 +78,7 @@ export class OperationLoader {
         return filePath;
     }
 
-    public load(name: string, executionAssets?: string[]): Operation {
+    public load(name: string, executionAssets?: string[]): LegacyOperation {
         this.verifyOpName(name);
 
         const codePath = this.find(name, executionAssets);
@@ -93,16 +94,14 @@ export class OperationLoader {
         throw new Error(`Unable to find module for operation: ${name}`);
     }
 
-    private resolvePath(filePath: string): string|null {
-       if (pathExistsSync(filePath)) {
-           return filePath;
-       }
+    private resolvePath(filePath: string): string | null {
+        if (pathExistsSync(filePath)) return filePath;
 
-       try {
-           return require.resolve(filePath);
-       } catch(err) {
-           return null
-       }
+        try {
+            return require.resolve(filePath);
+        } catch (err) {
+            return null;
+        }
     }
 
     private verifyOpName(name: string): void {

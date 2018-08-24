@@ -1,6 +1,6 @@
 'use strict';
 
-import { newTestJobConfig, Processor, Reader, TestContext } from '@terascope/teraslice-types';
+import { LegacyProcessor, LegacyReader, newTestJobConfig, TestContext } from '@terascope/teraslice-types';
 import fs from 'fs-extra';
 import 'jest-extended'; // require for type definitions
 import path from 'path';
@@ -37,7 +37,7 @@ describe('OperationLoader', () => {
             opPath: '',
             terasliceOpPath,
         });
-        const results = opLoader.load('noop') as Processor;
+        const results = opLoader.load('noop') as LegacyProcessor;
 
         expect(results).toBeDefined();
         expect(typeof results).toEqual('object');
@@ -66,7 +66,7 @@ describe('OperationLoader', () => {
             opPath: '',
             terasliceOpPath,
         });
-        const op = opLoader.load(path.join(__dirname, 'fixtures', 'test-op')) as Processor;
+        const op = opLoader.load(path.join(__dirname, 'fixtures', 'test-op')) as LegacyProcessor;
 
         expect(op).toBeDefined();
         expect(typeof op).toEqual('object');
@@ -75,7 +75,7 @@ describe('OperationLoader', () => {
         expect(typeof op.newProcessor).toEqual('function');
         expect(typeof op.schema).toEqual('function');
 
-        const reader = opLoader.load(path.join(__dirname, 'fixtures', 'test-reader')) as Reader;
+        const reader = opLoader.load(path.join(__dirname, 'fixtures', 'test-reader')) as LegacyReader;
 
         expect(reader).toBeDefined();
         expect(typeof reader).toEqual('object');
@@ -103,7 +103,7 @@ describe('OperationLoader', () => {
             terasliceOpPath,
         });
 
-        const results = opLoader.load('noop', [assetId]) as Processor;
+        const results = opLoader.load('noop', [assetId]) as LegacyProcessor;
 
         expect(results).toBeDefined();
         expect(typeof results).toEqual('object');

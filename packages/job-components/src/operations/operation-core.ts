@@ -1,11 +1,20 @@
 import { Context, JobConfig, Logger, OpConfig } from '@terascope/teraslice-types';
+import convict from 'convict';
+import _ from 'lodash';
+import { DataEntity } from './data-entity';
+import { validateOpConfig } from '../config-validators';
 
-export class TerasliceOperation {
-    public static schema: object = {};
+/**
+ * OperationCore Base Class [DRAFT]
+ * @description The core base class for operation subclasses,
+ *              that supports the job execution lifecycle events.
+ *              This class will likely not be used externally
+ *              since Teraslice only supports a few subclass varients.
+ */
 
-    public static async validate(input: object): Promise<object> {
-
-        return input;
+export class OperationCore {
+    public static async validate(inputSchema: convict.Schema<any>, inputConfig: any): Promise<OpConfig> {
+        return validateOpConfig(inputSchema, inputConfig);
     }
 
     protected readonly context: Context;
@@ -26,9 +35,7 @@ export class TerasliceOperation {
     }
 
     public async shutdown(): Promise<void> {
-        this.context.logger.debug(
-            `${this.jobConfig.name}->${this.opConfig._op} is shutting down...`,
-        );
+        this.context.logger.debug(`${this.jobConfig.name}->${this.opConfig._op} is shutting down...`);
         return;
     }
 
@@ -54,5 +61,13 @@ export class TerasliceOperation {
 
     public async onSliceRetry(sliceId: string): Promise<void> {
         this.context.logger.debug(`slice retry: ${sliceId}`);
+    }
+
+    public convertDataToDataEntity(data: object): DataEntity {
+        return new DataEntity(data);
+    }
+
+    public convertBatchToDataEntity(batch: object[]): DataEntity[] {
+        return _.map(batch, this.convertDataToDataEntity);
     }
 }

@@ -1,10 +1,10 @@
 import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { Fetcher, DataEntity } from '../../src';
+import { Slicer, SlicerResult } from '../../src';
 
-describe('Fetch Operation Base Class', () => {
+describe('Slicer', () => {
     describe('when constructed', () => {
-        let operation: Fetcher;
+        let operation: Slicer;
 
         beforeAll(() => {
             const context = new TestContext('teraslice-operations');
@@ -14,28 +14,29 @@ describe('Fetch Operation Base Class', () => {
             });
             const opConfig = jobConfig.operations[0];
             const logger = context.apis.foundation.makeLogger('job-logger');
-            operation = new Fetcher(context, jobConfig, opConfig, logger);
+            operation = new Slicer(context, jobConfig, opConfig, logger);
         });
 
-        describe('->fetch', () => {
+        describe('->slice', () => {
             it('should reject with an implementation warning', () => {
-                return expect(operation.fetch()).rejects.toThrowError('Fetcher must implement a "fetch" method');
+                return expect(operation.slice(0)).rejects.toThrowError('Slicer must implement a "slice" method');
             });
         });
     });
 
     describe('when extending the base class', () => {
-        class ExampleFetcher extends Fetcher {
-            public async fetch(): Promise<DataEntity[]> {
+        class ExampleSlicer extends Slicer {
+            public async slice(slicerId: number): Promise<SlicerResult> {
+                this.logger.debug(`got slicer_id: ${slicerId}`);
                 return [
-                    new DataEntity({ hi: true })
+                   { hi: true }
                 ];
             }
         }
 
-        let operation: ExampleFetcher;
+        let operation: ExampleSlicer;
 
-        beforeAll(() => {
+        beforeAll(async () => {
             const context = new TestContext('teraslice-operations');
             const jobConfig = newTestJobConfig();
             jobConfig.operations.push({
@@ -43,12 +44,13 @@ describe('Fetch Operation Base Class', () => {
             });
             const opConfig = jobConfig.operations[0];
             const logger = context.apis.foundation.makeLogger('job-logger');
-            operation = new ExampleFetcher(context, jobConfig, opConfig, logger);
+            operation = new ExampleSlicer(context, jobConfig, opConfig, logger);
+            await operation.initialize({ hello: true });
         });
 
-        describe('->fetch', () => {
+        describe('->slice', () => {
             it('should resolve with data entries', () => {
-                return expect(operation.fetch()).resolves.toBeArrayOfSize(1);
+                return expect(operation.slice(0)).resolves.toBeArrayOfSize(1);
             });
         });
     });

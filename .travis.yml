@@ -23,7 +23,7 @@ before_install:
   # make it colorful
   - export FORCE_COLOR=1
 install:
-  - yarn install --link-duplicates
+  - yarn install --pure-lockfile --link-duplicates
   - yarn setup
 before_deploy:
 jobs:
@@ -36,14 +36,14 @@ jobs:
     if: branch = master
     script: yarn test
     after_success:
-      - yarn lint
       - bash <(curl -s https://codecov.io/bash)
+      - yarn lint
 
   # test end-to-end tests, only on pull-requests
   - script:
     name: End-to-End Tests
     if: branch = master AND type = pull_request
-    script: yarn test:e2e || (yarn test:e2e:logs; exit 1)
+    script: yarn test:e2e:ci
 
   # if not tag is preset and is on master release any changed versions to NPM
   - stage: Release (NPM)

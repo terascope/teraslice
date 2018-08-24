@@ -1,6 +1,6 @@
 {
   "name": "@terascope/job-components",
-  "version": "0.1.0",
+  "version": "0.3.1",
   "publishConfig": {
     "access": "public"
   },
@@ -24,7 +24,7 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "lint": "tslint --force --format verbose \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint": "tslint --project tsconfig.json --force --format verbose \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint:fix": "yarn lint --fix",
     "prepublishOnly": "yarn build",
     "build": "rimraf dist && tsc --pretty",
@@ -49,10 +49,9 @@
     "babel-jest": "^23.4.2",
     "jest": "^23.5.0",
     "jest-extended": "^0.8.1",
-    "prettier": "^1.14.2",
     "ts-jest": "^23.1.4",
     "tslint": "^5.0.0",
-    "tslint-config-prettier": "^1.15.0"
+    "tslint-config-airbnb": "^5.10.0"
   },
   "engines": {
     "node": ">=8.0.0"

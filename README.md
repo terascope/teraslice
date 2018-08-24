@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/terascope/teraslice.svg?branch=master)](https://travis-ci.org/terascope/teraslice)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/292c293875764b98bb014375298c165a)](https://www.codacy.com/app/terascope/teraslice?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=terascope/teraslice&amp;utm_campaign=Badge_Grade)
+[![codecov](https://codecov.io/gh/terascope/teraslice/branch/master/graph/badge.svg)](https://codecov.io/gh/terascope/teraslice)
 
 Teraslice is an open source, distributed computing platform for processing JSON data stored in Elasticsearch. It can be used for many tasks but is particularly adept at migrating and transforming data within and between Elasticsearch clusters and other data stores. It was born and bred in an environment that regularly sees billions of pieces of data per day and is capable of processing millions of records per second.
 
@@ -16,8 +17,6 @@ Here are a few tasks it can help you with:
   * Periodic processing of data stored in an index
 
 In Teraslice you define jobs that specify a pipeline of work to be applied to a slice of data. That work will execute concurrently across many workers to achieve very high re-processing throughput.
-
-[Watch the overview and getting started video](https://www.youtube.com/watch?v=TG7flPTZeeg)
 
 [![Overview and Getting Started](https://raw.github.com/terascope/teraslice/master/docs/images/reindexing-id-71B.png)](https://www.youtube.com/watch?v=TG7flPTZeeg)
 
@@ -100,10 +99,9 @@ nodes available. The workers will connect to the master on localhost and do work
 teraslice:
     ops_directory: '/path/to/ops/'
     workers: 8
-    cluster:
-        master: true
-        master_hostname: "127.0.0.1"
-        name: "teracluster"
+    master: true
+    master_hostname: "127.0.0.1"
+    name: "teracluster"
 
 terafoundation:
     environment: 'development'
@@ -124,10 +122,9 @@ Configuration for a worker node is very similar. You just set 'master' to false 
 teraslice:
     ops_directory: '/path/to/ops/'
     workers: 8
-    cluster:
-        master: false
-        master_hostname: "YOUR_MASTER_IP"
-        name: "teracluster"
+    master: false
+    master_hostname: "YOUR_MASTER_IP"
+    name: "teracluster"
 
 terafoundation:
     environment: 'development'

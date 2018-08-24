@@ -1,6 +1,6 @@
 {
   "name": "@terascope/teraslice-op-test-harness",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "publishConfig": {
     "access": "public"
   },
@@ -21,7 +21,7 @@
     "url": "https://github.com/terascope/teraslice/issues"
   },
   "dependencies": {
-    "@terascope/job-components": "^0.1.0",
+    "@terascope/job-components": "^0.3.1",
     "@terascope/teraslice-types": "^0.1.0",
     "bluebird": "^3.5.1",
     "lodash": "^4.17.4"

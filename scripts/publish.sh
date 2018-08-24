@@ -1,20 +1,5 @@
 #!/bin/bash
 
-script_directory(){
-  local source="${BASH_SOURCE[0]}"
-  local dir=""
-
-  while [ -h "$source" ]; do # resolve $source until the file is no longer a symlink
-    dir="$( cd -P "$( dirname "$source" )" && pwd )"
-    source="$(readlink "$source")"
-    [[ $source != /* ]] && source="$dir/$source" # if $source was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-  done
-
-  dir="$( cd -P "$( dirname "$source" )" && pwd )"
-
-  echo "$dir"
-}
-
 check_deps() {
     if [ -z "$(command -v jq)" ]; then
         echo "./publish.sh requires jq installed"
@@ -57,8 +42,7 @@ main() {
         dryRun='true'
     fi
 
-    projectDir="$(script_directory)/../"
-    cd "${projectDir}" || return;
+    projectDir="$(pwd)"
 
     for package in "${projectDir}/packages/"*; do
         cd "$package" || continue;

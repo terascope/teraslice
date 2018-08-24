@@ -68,7 +68,7 @@ export class TestContext implements c.Context {
     public foundation: c.LegacyFoundationApis;
 
     constructor(testName: string) {
-        this.logger = debugLogger(`teraslice:${testName}`);
+        this.logger = debugLogger(testName);
 
         this.sysconfig = {
             terafoundation: {

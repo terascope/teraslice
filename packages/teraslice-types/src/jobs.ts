@@ -26,22 +26,35 @@ export interface JobConfig {
 export type crossValidationFn = (job: JobConfig, sysconfig: SysConfig) => void;
 export type selfValidationFn = (config: OpConfig) => void;
 
-export interface Operation {
+export interface LegacyOperation {
     crossValidation?: crossValidationFn;
     selfValidation?: selfValidationFn;
     schema(context?: Context): Schema<any>;
 }
 
-export interface Reader extends Operation {
-    newReader(context: Context, opConfig: OpConfig, jobConfig: JobConfig): (...params: any[]) => any[] | any;
+export interface LegacyReader extends LegacyOperation {
+    newReader(
+        context: Context,
+        opConfig: OpConfig,
+        jobConfig: JobConfig,
+    ): (...params: any[]) => any[] | any;
 }
 
-export interface Slicer extends Operation {
+export interface LegacySlicer extends LegacyOperation {
     schema(context?: Context): Schema<any>;
-    newSlicer(context: Context, executionContext: any, startingPoints: any, logger: Logger): () => any[] | null;
+    newSlicer(
+        context: Context,
+        executionContext: any,
+        startingPoints: any,
+        logger: Logger,
+    ): () => any[] | null;
 }
 
-export interface Processor extends Operation {
+export interface LegacyProcessor extends LegacyOperation {
     schema(context?: Context): Schema<any>;
-    newProcessor(context: Context, opConfig: OpConfig, jobConfig: JobConfig): (...params: any[]) => any[] | any;
+    newProcessor(
+        context: Context,
+        opConfig: OpConfig,
+        jobConfig: JobConfig,
+    ): (...params: any[]) => any[] | any;
 }
