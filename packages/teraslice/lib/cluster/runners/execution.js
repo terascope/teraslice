@@ -147,9 +147,7 @@ module.exports = function module(context, config = {}) {
                     obj.time[index] = (end - start);
                     obj.memory[index] = compareMemoryUsage();
                     if (result) {
-                        if (result.hits && result.hits.hits) {
-                            obj.size[index] = result.hits.hits.length;
-                        } else if (result.length) {
+                        if (result.length) {
                             obj.size[index] = result.length;
                         } else {
                             // need to account for senders

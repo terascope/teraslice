@@ -98,7 +98,7 @@ module.exports = function module(context) {
         if (metaData.length === 1 || metaData[1] === 'latest') {
             return search(`name:${metaData[0]}`, null, 1, '_created:desc')
                 .then((assetRecord) => {
-                    const record = assetRecord.hits.hits[0];
+                    const [record] = assetRecord;
                     if (!record) {
                         return Promise.reject(`asset: ${metaData.join(' ')} was not found`);
                     }
@@ -109,9 +109,9 @@ module.exports = function module(context) {
         // has wildcard in version
         return search(`name:${metaData[0]} AND version:${metaData[1]}`, null, 10000, '_created:desc', ['version'])
             .then((assetRecords) => {
-                const records = assetRecords.hits.hits.map(record => ({
+                const records = assetRecords.map(record => ({
                     id: record._id,
-                    version: record._source.version
+                    version: record.version
                 }));
 
                 const versionID = metaData[1];
@@ -166,7 +166,7 @@ module.exports = function module(context) {
     function _metaIsUnqiue(meta) {
         return search(`name:${meta.name} AND version:${meta.version}`, null, 10000)
             .then((results) => {
-                if (results.hits.hits.length === 0) {
+                if (results.length === 0) {
                     return meta;
                 }
 

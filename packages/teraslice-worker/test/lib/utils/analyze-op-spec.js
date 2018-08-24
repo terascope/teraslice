@@ -63,51 +63,6 @@ describe('Operation Analytics', () => {
         });
     });
 
-    describe('when using hit.hits', () => {
-        it('should mutate the analytics object being passed', async () => {
-            const count = 10;
-            const input = {
-                hits: {
-                    hits: times(count)
-                }
-            };
-            const op = (data) => {
-                const add = n => Promise.delay(count).then(() => n * 2);
-                return Promise.mapSeries(data.hits.hits, add)
-                    .then(hits => ({ hits: { hits } }));
-            };
-            const analyticsData = { time: [], size: [], memory: [] };
-            const numberOfOps = 5;
-            const expectedMem = getMemoryUsage() + MEM_DIFF;
-
-            await Promise.each(times(numberOfOps), async (i) => {
-                const analyzedFn = analyzeOp(op, i);
-
-                const result = await analyzedFn(analyticsData, input);
-                const expectedResult = {
-                    hits: {
-                        hits: times(count, n => n * 2)
-                    }
-                };
-                expect(result).toEqual(expectedResult);
-
-                expect(analyticsData).toContainAllKeys(['time', 'size', 'memory']);
-
-                const timeLower = count * count - 10;
-                const timeUpper = count * count + TIME_DIFF;
-                expect(analyticsData.time[i]).toBeWithin(timeLower, timeUpper);
-
-                expect(analyticsData.size[i]).toEqual(count);
-
-                expect(analyticsData.memory[i]).toBeWithin(-expectedMem, expectedMem);
-            });
-
-            expect(analyticsData.time).toBeArrayOfSize(numberOfOps);
-            expect(analyticsData.size).toBeArrayOfSize(numberOfOps);
-            expect(analyticsData.memory).toBeArrayOfSize(numberOfOps);
-        });
-    });
-
     it('should return size of 0 if returning a non-array as the result', async () => {
         const analyticsData = { time: [], size: [], memory: [] };
         const op = () => 'hello';

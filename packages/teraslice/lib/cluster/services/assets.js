@@ -142,14 +142,11 @@ module.exports = function module(context) {
         const handleApiError = handleError(res, logger, 500, 'Could not get assets');
 
         return assetsStore.search(query, null, 10000, '_created:desc', ['_created', 'name', 'version', 'description'])
-            .then((results) => {
-                const data = results.hits.hits;
-                return _.map(data, (asset) => {
-                    const record = asset._source;
-                    record.id = asset._id;
-                    return record;
-                });
-            })
+            .then(results => _.map(results, (asset) => {
+                // TODO: look into this use
+                asset.id = asset._id;
+                return asset;
+            }))
             .catch(handleApiError);
     }
 };
