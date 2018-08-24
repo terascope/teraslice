@@ -179,7 +179,7 @@ class ExecutionController {
             exStore.setStatus(exId, 'running'),
             this._initializeSlicer(),
             this._processSlices(),
-            this._doneProcessing(),
+            this._waitAndFinishedExecution(),
         ]);
     }
 
@@ -293,56 +293,31 @@ class ExecutionController {
         return this.recover.recoveryComplete();
     }
 
-    get isDone() {
-        if (this.isShuttingDown) return true;
-        if (this.slicerFailed) return true;
-        if (this.isPaused) return false;
-        if (this.slicers != null && this.slicersDone) return true;
-        if (!this.recoveryComplete) return false;
-<<<<<<< HEAD
+    get isDoneCreatingSlices() {
+        return this.isShuttingDown
+            || this.isExecutionFinished
+            || this.slicerFailed
+            || this.isPaused
+            || (this.slicersDone && this.recoveryComplete);
+    }
+
+    get isDoneProcessing() {
+        if (this.isExecutionFinished) return true;
+        if (this.isDoneCreatingSlices) {
+            return this.isSlicersComplete;
+        }
         return false;
     }
 
-    get isExecutionComplete() {
-        if (!this.isSlicersComplete) return false;
-        if (this.slicers == null) return false;
-        if (this.slicersDoneCount !== _.size(this.slicers)) return false;
-        if (!this.recoveryComplete) return false;
-        if (!this.slicerFailed) return false;
-        return false;
-    }
-
-=======
-        return false;
-    }
-
-    get isExecutionComplete() {
-        this.logger.info(JSON.stringify({
-            isShuttingDown: this.isShuttingDown,
-            isSlicersComplete: this.isSlicersComplete,
-            remainingSlices: this.remainingSlices,
-            availableWorkers: this.activeWorkers,
-            connectedWorkers: this.connectedWorkers,
-            slicerFailed: this.slicerFailed,
-            recoveryComplete: this.recoveryComplete
-        }));
-        if (this.isShuttingDown && this.isSlicersComplete) return true;
-        if (this.slicerFailed) return true;
-        if (this.isPaused) return true;
-        if (!this.recoveryComplete) return false;
-        return false;
-    }
-
->>>>>>> WIP: fix execution-controller
     get isSlicersComplete() {
         const workersCompleted = this.availableWorkers >= this.connectedWorkers;
         const slicesFinished = this.remainingSlices === 0;
-        return workersCompleted && slicesFinished;
+        return workersCompleted && slicesFinished && this.slicers != null;
     }
 
     get slicersDone() {
-        if (this.slicers == null) return false;
-        return this.slicersDoneCount === _.size(this.slicers);
+        const count = this.slicers == null ? -1 : _.size(this.slicers);
+        return this.slicersDoneCount === count;
     }
 
     get isOnce() {
@@ -357,7 +332,6 @@ class ExecutionController {
     async shutdown() {
         if (!this.isInitialized) return;
         if (this.isShuttingDown) return;
-        const { ex_id: exId } = this.executionContext;
 
         this.isShuttingDown = true;
         this.logger.info('execution controller is shutting down...');
@@ -368,9 +342,9 @@ class ExecutionController {
         clearTimeout(this.workerConnectTimeout);
         clearTimeout(this.workerDisconnectTimeout);
 
-        if (!this.isExecutionComplete) {
+        if (!this.isExecutionFinished) {
             try {
-                await this._doneProcessing();
+                await this._waitForExecutionFinished();
             } catch (err) {
                 shutdownErrs.push(err);
             }
@@ -382,12 +356,6 @@ class ExecutionController {
             } catch (err) {
                 shutdownErrs.push(err);
             }
-        }
-
-        try {
-            await this.messenger.executionFinished(exId);
-        } catch (err) {
-            shutdownErrs.push(err);
         }
 
         try {
@@ -459,7 +427,7 @@ class ExecutionController {
             return;
         }
 
-        if (this.isExecutionComplete) return;
+        if (this.isDoneProcessing) return;
 
         const {
             slicerQueue,
@@ -485,7 +453,7 @@ class ExecutionController {
     }
 
     async _dispatchSlices() {
-        if (this.isExecutionComplete || this.isPaused) return;
+        if (this.isDoneProcessing || this.isPaused) return;
 
         if (!this.availableWorkers) {
             const foundWorker = await this.messenger.onceWithTimeout('worker:enqueue', null, true);
@@ -493,15 +461,15 @@ class ExecutionController {
         }
 
         const slice = this.slicerQueue.dequeue();
-        if (slice) {
-            const { dispatched, workerId } = await this.messenger.dispatchSlice(slice);
+        if (!slice) return;
 
-            if (dispatched) {
-                this.logger.debug(`dispatched slice ${slice.slice_id} to worker ${workerId}`);
-            } else {
-                this.slicerQueue.unshift(slice);
-                this.logger.debug(`worker ${workerId} is not available to process slice ${slice.slice_id}`);
-            }
+        const { dispatched, workerId } = await this.messenger.dispatchSlice(slice);
+
+        if (dispatched) {
+            this.logger.debug(`dispatched slice ${slice.slice_id} to worker ${workerId}`);
+        } else {
+            this.slicerQueue.unshift(slice);
+            this.logger.debug(`worker ${workerId} is not available to process slice ${slice.slice_id}`);
         }
 
         await immediate();
@@ -511,8 +479,8 @@ class ExecutionController {
 
     async _createSlices() {
         if (this.isPaused) return;
+        if (this.isDoneCreatingSlices) return;
         if (!this.scheduler) return;
-        if (this.isDone) return;
 
         // If all slicers are not done, the slicer queue is not overflown and the scheduler
         // is set, then attempt to provision more slices
@@ -592,12 +560,28 @@ class ExecutionController {
         return true;
     }
 
-    async _doneProcessing() {
+    async _waitForExecutionFinished() {
+        if (this.isExecutionFinished) return;
+        if (!this.isInitialized) return;
+
+        await new Promise((resolve) => {
+            const id = setInterval(() => {
+                if (this.isExecutionFinished) {
+                    clearInterval(id);
+                    resolve();
+                }
+            }, 100).unref(); // unref so we don't stop the process from shutting down
+        });
+
+        this.logger.debug('Exeuction is finished');
+    }
+
+    async _waitAndFinishedExecution() {
         const { ex_id: exId } = this.executionContext;
 
         await new Promise((resolve) => {
             const id = setInterval(() => {
-                if (this.isExecutionComplete) {
+                if (this.isDoneCreatingSlices) {
                     clearInterval(id);
                     resolve();
                 }
@@ -607,7 +591,7 @@ class ExecutionController {
         await this._waitForSlicesToComplete();
 
         try {
-            await this._executionCompleted();
+            await this._markExecutionCompleted();
         } catch (err) {
             /* istanbul ignore next */
             const errMsg = parseError(err);
@@ -615,6 +599,10 @@ class ExecutionController {
         }
 
         await this._logFinishedJob();
+
+        await this.messenger.executionFinished(exId);
+
+        this.isExecutionFinished = true;
     }
 
     async _waitForSlicesToComplete() {
@@ -624,7 +612,7 @@ class ExecutionController {
 
         this.logger.trace(`worker queue: ${this.availableWorkers}, connected clients ${this.connectedWorkers}, slicer queue: ${this.remainingSlices}`);
 
-        if (this.isSlicersComplete) {
+        if (this.isDoneProcessing) {
             this.logger.info(`all work for execution: ${exId} has completed, starting cleanup`);
             return;
         }
@@ -632,7 +620,7 @@ class ExecutionController {
         await this._waitForSlicesToComplete();
     }
 
-    async _executionCompleted() {
+    async _markExecutionCompleted() {
         // if this.slicerFailed is true, slicer has already been marked as failed
         if (this.slicerFailed) return;
 
@@ -654,7 +642,7 @@ class ExecutionController {
 
         const metaData = exStore.executionMetaData(executionStats);
 
-        if (!this.isExecutionComplete) {
+        if (!this.isDoneProcessing) {
             logger.info(`execution ${exId} received shutdown before the slicer could complete`);
             await exStore.update(exId, metaData);
             return;

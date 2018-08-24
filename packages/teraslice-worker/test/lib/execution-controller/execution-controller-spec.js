@@ -459,9 +459,7 @@ describe('ExecutionController', () => {
                         await Promise.delay(0);
                         await workerMessenger.sliceComplete(msg);
 
-                        if (shutdownEarly) {
-                            shutdownAfter();
-                        }
+                        shutdownAfter();
                     }
 
                     await Promise.all([
