@@ -13,8 +13,8 @@ const { makeTemplate } = require('./utils');
  * @return {Object}              Worker Deployment Object
  */
 function gen(templateType, templateName, execution, config) {
-    const workerDeploymentTemplate = makeTemplate(templateType, templateName);
-    const workerDeployment = workerDeploymentTemplate(config);
+    const templateGenerator = makeTemplate(templateType, templateName);
+    const k8sObject = templateGenerator(config);
 
     // Apply job `node_labels` setting as k8s nodeAffinity
     // We assume that multiple node_labels require both to match ...
@@ -22,52 +22,52 @@ function gen(templateType, templateName, execution, config) {
     // `nodeSelectorTerms`, then the pod can be scheduled onto a node
     // only if *all* `matchExpressions` can be satisfied.
     if (_.has(execution, 'node_labels')) {
-        _setAffinity(workerDeployment, execution);
+        _setAffinity(k8sObject, execution);
     }
 
     if (_.has(execution, 'resources')) {
-        _setResources(workerDeployment, execution);
+        _setResources(k8sObject, execution);
     }
 
     if (_.has(execution, 'volumes')) {
-        _setVolumes(workerDeployment, execution);
+        _setVolumes(k8sObject, execution);
     }
 
-    return workerDeployment;
+    return k8sObject;
 }
 
-function _setVolumes(workerDeployment, execution) {
+function _setVolumes(k8sObject, execution) {
     _.forEach(execution.volumes, (volume) => {
-        workerDeployment.spec.template.spec.volumes.push({
+        k8sObject.spec.template.spec.volumes.push({
             name: volume.name,
             persistentVolumeClaim: { claimName: volume.name }
         });
-        workerDeployment.spec.template.spec.containers[0].volumeMounts.push({
+        k8sObject.spec.template.spec.containers[0].volumeMounts.push({
             name: volume.name,
             mountPath: volume.path
         });
     });
 }
 
-function _setResources(workerDeployment, execution) {
-    workerDeployment.spec.template.spec.resources = {};
+function _setResources(k8sObject, execution) {
+    k8sObject.spec.template.spec.resources = {};
     if (_.has(execution.resources, 'minimum')) {
-        workerDeployment.spec.template.spec.resources.requests = {
+        k8sObject.spec.template.spec.resources.requests = {
             cpu: execution.resources.minimum.cpu,
             memory: execution.resources.minimum.memory
         };
     }
 
     if (_.has(execution.resources, 'limit')) {
-        workerDeployment.spec.template.spec.resources.limits = {
+        k8sObject.spec.template.spec.resources.limits = {
             cpu: execution.resources.limit.cpu,
             memory: execution.resources.limit.memory
         };
     }
 }
 
-function _setAffinity(workerDeployment, execution) {
-    workerDeployment.spec.template.spec.affinity = {
+function _setAffinity(k8sObject, execution) {
+    k8sObject.spec.template.spec.affinity = {
         nodeAffinity: {
             requiredDuringSchedulingIgnoredDuringExecution: {
                 nodeSelectorTerms: [{ matchExpressions: [] }]
@@ -76,7 +76,7 @@ function _setAffinity(workerDeployment, execution) {
     };
 
     _.forEach(execution.node_labels, (label) => {
-        workerDeployment.spec.template.spec.affinity.nodeAffinity
+        k8sObject.spec.template.spec.affinity.nodeAffinity
             .requiredDuringSchedulingIgnoredDuringExecution
             .nodeSelectorTerms[0].matchExpressions.push({
                 key: label.key,
