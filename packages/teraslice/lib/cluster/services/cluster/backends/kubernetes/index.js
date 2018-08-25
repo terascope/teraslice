@@ -5,12 +5,11 @@ const parseError = require('@terascope/error-parser');
 const Promise = require('bluebird');
 const K8s = require('./k8s');
 const k8sState = require('./k8sState');
-const k8sDeployment = require('./k8sDeployment');
+const k8sObject = require('./k8sObject');
 const stateUtils = require('../state-utils');
 const { makeTemplate, base64EncodeObject } = require('./utils');
 
 const exServiceTemplate = makeTemplate('services', 'execution_controller');
-const exJobTemplate = makeTemplate('jobs', 'execution_controller');
 
 /*
  Execution Life Cycle for _status
@@ -208,7 +207,9 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
             imagePullSecret,
         };
 
-        const exJob = exJobTemplate(jobConfig);
+        const exJob = k8sObject.gen(
+            'jobs', 'execution_controller', execution, jobConfig
+        );
 
         logger.debug(`exJob:\n\n${JSON.stringify(exJob, null, 2)}`);
 
@@ -255,7 +256,7 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
             imagePullSecret,
         };
 
-        const workerDeployment = k8sDeployment.gen(
+        const workerDeployment = k8sObject.gen(
             'deployments', 'worker', execution, deploymentConfig
         );
 

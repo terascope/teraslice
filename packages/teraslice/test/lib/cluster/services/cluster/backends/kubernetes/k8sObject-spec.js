@@ -3,12 +3,12 @@
 const _ = require('lodash');
 const yaml = require('js-yaml');
 const _execution = require('./files/execution.json');
-const k8sDeployment = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8sDeployment');
+const k8sObject = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8sObject');
 const { base64EncodeObject } = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/utils');
 
 // NOTE: Right now there is no difference in the handling of deployments and
 // jobs, so at the moment, most of the functionality is tested in the
-// k8k8sDeployment test.
+// k8k8sObject test.
 describe('k8sJob', () => {
     const _name = `teraslice-execution-controller-${_execution.ex_id}`.substring(0, 63);
     const _config = {
@@ -36,7 +36,7 @@ describe('k8sJob', () => {
     });
 
     it('should render a simple job with the expected exId', () => {
-        const job = k8sDeployment.gen('jobs', 'execution_controller', ex, config);
+        const job = k8sObject.gen('jobs', 'execution_controller', ex, config);
         expect(job.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
         expect(job.metadata.labels.nodeType).toEqual('execution_controller');
     });
@@ -69,18 +69,18 @@ describe('k8sDeployment', () => {
     });
 
     it('should render a simple worker deployment with the expected exId', () => {
-        const deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
+        const deployment = k8sObject.gen('deployments', 'worker', ex, config);
         expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
         expect(deployment.metadata.labels.nodeType).toEqual('worker');
     });
 
     it('should not have an affinity property', () => {
-        const deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
+        const deployment = k8sObject.gen('deployments', 'worker', ex, config);
         expect(deployment).not.toHaveProperty('spec.template.spec.affinity');
     });
 
     it('should not have an resource property', () => {
-        const deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
+        const deployment = k8sObject.gen('deployments', 'worker', ex, config);
         expect(deployment).not.toHaveProperty('spec.template.spec.resource');
     });
 
@@ -89,7 +89,7 @@ describe('k8sDeployment', () => {
 
         beforeEach(() => {
             ex.node_labels = [{ key: 'zone', value: 'west' }];
-            deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
+            deployment = k8sObject.gen('deployments', 'worker', ex, config);
         });
 
         it('should render a deployment with a required affinity', () => {
@@ -114,7 +114,7 @@ describe('k8sDeployment', () => {
                 { key: 'zone', value: 'west' },
                 { key: 'region', value: '42' }
             ];
-            deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
+            deployment = k8sObject.gen('deployments', 'worker', ex, config);
         });
 
         it('should render a deployment with a required affinity', () => {
@@ -143,7 +143,7 @@ describe('k8sDeployment', () => {
                 minimum: { cpu: 1, memory: 2147483648 },
                 limit: { cpu: 2, memory: 4294967296 }
             };
-            deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
+            deployment = k8sObject.gen('deployments', 'worker', ex, config);
         });
 
         it('should render a deployment with a required resources', () => {
@@ -165,7 +165,7 @@ describe('k8sDeployment', () => {
             ex.resources = {
                 minimum: { cpu: 1, memory: 2147483648 }
             };
-            deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
+            deployment = k8sObject.gen('deployments', 'worker', ex, config);
         });
 
         it('should render a deployment with just requests set in the deployment', () => {
@@ -184,7 +184,7 @@ describe('k8sDeployment', () => {
             ex.resources = {
                 limit: { cpu: 2, memory: 4294967296 }
             };
-            deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
+            deployment = k8sObject.gen('deployments', 'worker', ex, config);
         });
 
         it('should render a deployment with a required resources', () => {
@@ -203,7 +203,7 @@ describe('k8sDeployment', () => {
             ex.volumes = [
                 { name: 'teraslice-data1', path: '/data' }
             ];
-            deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
+            deployment = k8sObject.gen('deployments', 'worker', ex, config);
         });
 
         it('should render a deployment with a two volumes and volumeMounts', () => {
@@ -243,7 +243,7 @@ describe('k8sDeployment', () => {
                 { name: 'teraslice-data1', path: '/data' },
                 { name: 'tmp', path: '/tmp' }
             ];
-            deployment = k8sDeployment.gen('deployments', 'worker', ex, config);
+            deployment = k8sObject.gen('deployments', 'worker', ex, config);
         });
 
         it('should render a deployment with a two volumes and volumeMounts', () => {
