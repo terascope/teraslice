@@ -11,6 +11,16 @@
     "max-line-length": [ true, 200 ],
     "no-debugger": true,
     "trailing-comma": false,
-    "comma-dangle": false
+    "comma-dangle": false,
+    "function-name": [
+      true,
+      {
+        "function-regex": "/^[_a-z$][\\w\\d]+$/",
+        "method-regex": "/^[_a-z$][\\w\\d]+$/",
+        "private-method-regex": "/^[_a-z$][\\w\\d]+$/",
+        "protected-method-regex": "/^[_a-z$][\\w\\d]+$/",
+        "static-method-regex": "/^[_a-z$][\\w\\d]+$/",
+      }
+    ]
   }
 }

@@ -75,3 +75,16 @@ export interface LegacyProcessor extends LegacyOperation {
         jobConfig: JobConfig,
     ): (...params: any[]) => any[] | any;
 }
+
+export interface SliceRequest {
+    request_worker?: string;
+    [prop: string]: any;
+}
+
+export interface Slice {
+    slice_id: number;
+    slicer_id: number;
+    slicer_order: number;
+    request: SliceRequest;
+    _created: string;
+}
