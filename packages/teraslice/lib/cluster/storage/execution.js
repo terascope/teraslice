@@ -6,7 +6,7 @@ const Promise = require('bluebird');
 const _ = require('lodash');
 
 const INIT_STATUS = ['pending', 'scheduling', 'initializing'];
-const RUNNING_STATUS = ['running', 'failing', 'paused'];
+const RUNNING_STATUS = ['running', 'failing', 'paused', 'stopping'];
 const TERMINAL_STATUS = ['completed', 'stopped', 'rejected', 'failed', 'terminated'];
 
 const VALID_STATUS = INIT_STATUS.concat(RUNNING_STATUS).concat(TERMINAL_STATUS);

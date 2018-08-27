@@ -119,8 +119,17 @@ module.exports = function module(context) {
 
     function stopExecution(exId, timeout, _status, excludeNode) {
         const status = _status || 'stopped';
-        return clusterService.stopExecution(exId, timeout, excludeNode)
-            .then(() => setExecutionStatus(exId, status))
+        return setExecutionStatus(exId, 'stopping')
+            .then(() => clusterService.stopExecution(exId, timeout, excludeNode))
+            .then(() => getExecutionContext(exId))
+            .then((execution) => {
+                const terminalStatuses = exStore.getTerminalStatuses();
+                const isTerminal = terminalStatuses.find(tStatus => tStatus === execution._status);
+                if (!isTerminal) {
+                    return setExecutionStatus(exId, status);
+                }
+                return true;
+            })
             .then(() => ({ status }));
     }
 
