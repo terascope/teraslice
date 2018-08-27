@@ -50,16 +50,16 @@ function _setVolumes(k8sObject, execution) {
 }
 
 function _setResources(k8sObject, execution) {
-    k8sObject.spec.template.spec.resources = {};
+    k8sObject.spec.template.spec.containers[0].resources = {};
     if (_.has(execution.resources, 'minimum')) {
-        k8sObject.spec.template.spec.resources.requests = {
+        k8sObject.spec.template.spec.containers[0].resources.requests = {
             cpu: execution.resources.minimum.cpu,
             memory: execution.resources.minimum.memory
         };
     }
 
     if (_.has(execution.resources, 'limit')) {
-        k8sObject.spec.template.spec.resources.limits = {
+        k8sObject.spec.template.spec.containers[0].resources.limits = {
             cpu: execution.resources.limit.cpu,
             memory: execution.resources.limit.memory
         };

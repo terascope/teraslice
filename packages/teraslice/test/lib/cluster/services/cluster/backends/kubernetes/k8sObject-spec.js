@@ -148,7 +148,7 @@ describe('k8sDeployment', () => {
 
         it('should render a deployment with a required resources', () => {
             expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
-            expect(deployment.spec.template.spec.resources).toEqual(yaml.load(`
+            expect(deployment.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
                   requests:
                     memory: 2147483648
                     cpu: 1
@@ -170,7 +170,7 @@ describe('k8sDeployment', () => {
 
         it('should render a deployment with just requests set in the deployment', () => {
             expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
-            expect(deployment.spec.template.spec.resources).toEqual(yaml.load(`
+            expect(deployment.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
                   requests:
                     memory: 2147483648
                     cpu: 1`));
@@ -189,7 +189,7 @@ describe('k8sDeployment', () => {
 
         it('should render a deployment with a required resources', () => {
             expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
-            expect(deployment.spec.template.spec.resources).toEqual(yaml.load(`
+            expect(deployment.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
                   limits:
                     memory: 4294967296
                     cpu: 2`));

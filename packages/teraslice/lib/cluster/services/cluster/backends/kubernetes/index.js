@@ -260,6 +260,8 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
             'deployments', 'worker', execution, deploymentConfig
         );
 
+        logger.debug(`workerDeployment:\n\n${JSON.stringify(workerDeployment, null, 2)}`);
+
         return k8s.post(workerDeployment, 'deployment')
             .then(result => logger.debug(`k8s worker deployment submitted: ${JSON.stringify(result)}`))
             .catch((err) => {
