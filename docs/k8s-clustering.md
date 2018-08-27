@@ -39,6 +39,69 @@ This may not be appropriate for production environments.
 | kubernetes_image_pull_secret |                                                     Secret used to pull docker images from private repo                                                     | String | optional |
 |  kubernetes_config_map_name  | Name of the configmap used by worker and executcion_controller containers for config.  If this is not provided, the default will be `<CLUSTER_NAME>-worker` | String | optional |
 
+# Teraslice Job Properties
+
+Support for Kubernetes based clustering adds additional properties to a
+Teraslice job definition.  These are outlined below.
+
+## Resources
+
+It is possible to set resource constraints for your Teraslice workers that
+translate to Kubernetes resource constraints.
+
+```
+"resources": {
+    "minimum": {"cpu": 1, "memory": 2147483648},
+    "limit": {"cpu": 2, "memory": 4294967296}
+},
+```
+
+The `resources.minimum` translate to Kubernetes' `resources.requests` and
+`resources.limit` is the same as a Kubernetes `resources.limits`.  See
+the [Kubernetes Resource docs](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
+for further details.
+
+## Node Affinity by Labels
+
+If you need the workers (and execution controller) of your job to execute on
+specific set of nodes, you can use the Teraslice `node_labels` property on your
+job. You can specify one or more labels that will use [Kubernetes Node Affinity](
+https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity)
+to force nodes onto specific nodes.  The labels specified here will be required
+using `requiredDuringSchedulingIgnoredDuringExecution`.
+
+```
+"node_labels": [
+    {"key": "zone", "value": "west"}
+],
+```
+
+For each `node_label` you specify, there will be a corresponding Kubernetes
+constraint, like the one shown below, added to your workers.
+
+```
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: <KEY>
+            operator: In
+            values:
+            - <VALUE>
+```
+
+## Attach existing volumes
+
+One or more volumes can be specified on your job and these volumes will be
+attached to your worker and execution controller pods at runtime.  The volumes
+and their volume claims must exist prior to job execution.  Note that the `name`
+property should be the name of the Kubernetes `persistentVolumeClaim`.  The
+`path` is where the volume will be mounted within the containers in your pod.
+
+```
+"volumes": [
+    {"name": "teraslice-data1", "path": "/data"}
+],
+```
+
 # Makefile
 
 There is a `Makefile` I use to help bootstrap Teraslice and do repetitive tasks,
