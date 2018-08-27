@@ -80,6 +80,7 @@ class ExecutionController {
         this.isInitialized = false;
         this.isStarted = false;
         this.isExecutionFinished = false;
+        this.forceShutdown = false;
 
         this._dispatchSlices = this._dispatchSlices.bind(this);
         this.setFailingStatus = this.setFailingStatus.bind(this);
@@ -164,6 +165,11 @@ class ExecutionController {
     }
 
     async run() {
+        if (this.isShuttingDown || this.forceShutdown) {
+            this.logger.error('Cannot run execution while shutting down');
+            return;
+        }
+
         const { ex_id: exId } = this.executionContext;
         const errors = [];
 
@@ -292,23 +298,12 @@ class ExecutionController {
         clearTimeout(this.workerConnectTimeoutId);
         clearTimeout(this.workerDisconnectTimeoutId);
 
-        const shutdownAt = this.shutdownTimeout + Date.now();
+        const error = await this._waitForExecutionFinished();
+        if (error) {
+            shutdownErrs.push(error);
+        }
 
-        const checkExecution = async () => {
-            if (this.isExecutionFinished) return;
-            const now = Date.now();
-            if (now > shutdownAt) {
-                const timeoutError = new Error(`${now - shutdownAt}ms timeout waiting for the execution to finish...`);
-                shutdownErrs.push(timeoutError);
-                return;
-            }
-
-            this.logger.debug('shutdown is waiting for execution to finish...');
-            await Promise.delay(1000);
-            await checkExecution();
-        };
-
-        await checkExecution();
+        await this._finishExecution();
 
         this.events.emit('worker:shutdown');
 
@@ -361,7 +356,8 @@ class ExecutionController {
     }
 
     get isDoneCreatingSlices() {
-        return this.isShuttingDown
+        return this.forceShutdown
+            || this.isShuttingDown
             || this.isExecutionFinished
             || this.slicerFailed
             || this.isPaused
@@ -369,8 +365,13 @@ class ExecutionController {
     }
 
     get isDoneProcessing() {
-        return this.isDoneCreatingSlices
-            && this.isSlicersComplete;
+        return this.forceShutdown
+           || (
+               this.isDoneCreatingSlices
+                && this.slicersDone
+                && this.recoveryComplete
+                && this.isSlicersComplete
+           );
     }
 
     get isSlicersComplete() {
@@ -572,7 +573,7 @@ class ExecutionController {
         if (this.isExecutionFinished) return;
 
         try {
-            await this._markExecutionCompleted();
+            await this._updateExecutionStatus();
         } catch (err) {
             /* istanbul ignore next */
             const errMsg = parseError(err);
@@ -582,13 +583,18 @@ class ExecutionController {
         await this._logFinishedJob();
 
         await this.messenger.executionFinished(exId);
-        await this.clusterMasterClient.executionFinished(exId);
+
+        if (!this.isDoneProcessing || this.forceShutdown) {
+            await this.clusterMasterClient.executionTerminal(exId);
+        } else {
+            await this.clusterMasterClient.executionFinished(exId);
+        }
 
         this.isExecutionFinished = true;
         this.logger.debug(`execution ${exId} is finished`);
     }
 
-    async _markExecutionCompleted() {
+    async _updateExecutionStatus() {
         // if this.slicerFailed is true, slicer has already been marked as failed
         if (this.slicerFailed) return;
 
@@ -601,21 +607,22 @@ class ExecutionController {
         const executionStats = this.executionAnalytics.getAnalytics();
 
         if (errCount > 0) {
-            const message = `execution: ${exId} had ${errCount} slice failures during processing`;
-            const errorMeta = exStore.executionMetaData(executionStats, message);
-            logger.error(message);
+            const errMsg = `execution: ${exId} had ${errCount} slice failures during processing`;
+            const errorMeta = exStore.executionMetaData(executionStats, errMsg);
+            logger.error(errMsg);
             await exStore.setStatus(exId, 'failed', errorMeta);
             return;
         }
 
-        const metaData = exStore.executionMetaData(executionStats);
-
-        if (!this.isDoneProcessing) {
-            logger.info(`execution ${exId} received shutdown before the slicer could complete`);
-            await exStore.update(exId, metaData);
+        if (!this.isDoneProcessing || this.forceShutdown) {
+            const errMsg = `execution ${exId} received shutdown before the slicer could complete, setting status to "terminated"`;
+            const metaData = exStore.executionMetaData(executionStats, errMsg);
+            logger.error(errMsg);
+            await exStore.setStatus(exId, 'terminated', metaData);
             return;
         }
 
+        const metaData = exStore.executionMetaData(executionStats);
         logger.info(`execution ${exId} has completed`);
         await exStore.setStatus(exId, 'completed', metaData);
     }
@@ -640,6 +647,32 @@ class ExecutionController {
 
         const query = `ex_id:${exId} AND (state:error OR state:start)`;
         return this.stores.stateStore.count(query, 0);
+    }
+
+    _waitForExecutionFinished() {
+        const timeout = Math.round(this.shutdownTimeout * 0.8);
+        const shutdownAt = timeout + Date.now();
+
+        // hoist this error to get a better stack trace
+        const timeoutError = new Error(`${this.shutdownTimeout}ms timeout waiting for the execution to finish...`);
+        const forcedError = new Error('Execution was forced to shutdown');
+
+        const checkExecution = async () => {
+            if (this.isExecutionFinished) return null;
+            if (this.forceShutdown) return forcedError;
+
+            const now = Date.now();
+            if (now > shutdownAt) {
+                this.forceShutdown = true;
+                return timeoutError;
+            }
+
+            this.logger.debug('shutdown is waiting for execution to finish...');
+            await Promise.delay(1000);
+            return checkExecution();
+        };
+
+        return checkExecution();
     }
 
     async _verifyExecution() {
@@ -671,6 +704,8 @@ class ExecutionController {
         const maxDelay = 30 * 1000;
         const delay = this.actionTimeout > maxDelay ? maxDelay : this.actionTimeout;
         await Promise.delay(delay);
+
+        this.forceShutdown = true;
 
         throw error;
     }

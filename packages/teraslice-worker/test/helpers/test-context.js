@@ -35,6 +35,9 @@ class TestContext {
     constructor(options = {}) {
         const {
             clusterMasterPort,
+            shutdownTimeout,
+            actionTimeout,
+            timeout,
         } = options;
 
         this.setupId = newId('setup', true);
@@ -44,6 +47,9 @@ class TestContext {
             clusterName,
             assetDir: this.assetDir,
             clusterMasterPort,
+            actionTimeout,
+            timeout,
+            shutdownTimeout,
         });
 
         this.config = newConfig(options);
