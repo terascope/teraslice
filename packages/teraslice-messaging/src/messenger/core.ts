@@ -1,16 +1,9 @@
 import _ from 'lodash';
 import { EventEmitter } from 'events';
 import { newMsgId } from '../utils';
-import * as m from './interfaces';
+import * as i from './interfaces';
 
-export interface MessengerCoreOptions {
-    networkLatencyBuffer?: number;
-    actionTimeout: number;
-    source: string;
-    to: string;
-}
-
-export class MessengerCore extends EventEmitter {
+export class Core extends EventEmitter {
     public closed: boolean = false;
     public socket?: SocketIOClient.Socket;
     public server?: SocketIO.Server;
@@ -20,7 +13,7 @@ export class MessengerCore extends EventEmitter {
     protected source: string;
     protected to: string;
 
-    constructor(opts: MessengerCoreOptions) {
+    constructor(opts: i.CoreOptions) {
         super();
 
         this.networkLatencyBuffer = opts.networkLatencyBuffer || 0;
@@ -43,13 +36,13 @@ export class MessengerCore extends EventEmitter {
         this.removeAllListeners();
     }
 
-    public send(msg: m.InputMessage) {
+    public send(msg: i.InputMessage) {
         const message = this._buildMessage(msg);
 
         return this._sendMessage(message);
     }
 
-    public async sendWithResponse(msg: m.InputMessage, options: m.SendWithResponseOptions = {}) {
+    public async sendWithResponse(msg: i.InputMessage, options: i.SendWithResponseOptions = {}) {
         const msgId = msg.__msgId || newMsgId();
 
         const message = this._buildMessage(msg, {
@@ -66,8 +59,8 @@ export class MessengerCore extends EventEmitter {
             await this._sendMessage(retryMsg);
         };
 
-        const _waitForResponse = async (): Promise<object|undefined> => {
-            const response = await this.onceWithTimeout(msgId, options.timeoutMs, true) as m.Message;
+        const _waitForResponse = async (): Promise<object | undefined> => {
+            const response = await this.onceWithTimeout(msgId, options.timeoutMs, true) as i.Message;
             if (response == null) {
                 if (shouldRetry) {
                     shouldRetry = false;
@@ -105,8 +98,8 @@ export class MessengerCore extends EventEmitter {
         return response;
     }
 
-    public respond(incoming: m.InputMessage, outgoing?: object) {
-        const response: m.Message = Object.assign({}, outgoing, {
+    public respond(incoming: i.InputMessage, outgoing?: object) {
+        const response: i.Message = Object.assign({}, outgoing, {
             __msgId: incoming.__msgId,
             __source: incoming.__source,
             to: incoming.__source || this.to,
@@ -127,7 +120,7 @@ export class MessengerCore extends EventEmitter {
                 }
                 const error = new Error(`Timed out after ${timeoutMs}ms, waiting for event "${eventName}"`);
                 reject(error);
-            },                       timeoutMs);
+            }, timeoutMs);
 
             function onMessage(msg: object) {
                 clearTimeout(timer);
@@ -139,13 +132,13 @@ export class MessengerCore extends EventEmitter {
     }
 
 
-    private _sendMessage(message: m.InputMessage, override?: string): void {
+    private _sendMessage(message: i.InputMessage, override?: string): void {
         if (this.server) {
             const room = override || message.address;
             if (!room) {
                 throw new Error('Unable to send message');
             }
-                // this is madness but we it needs to be backwards compatible (for now)
+            // this is madness but we it needs to be backwards compatible (for now)
             const event = this.source === 'cluster_master' ? 'networkMessage' : message.message;
             this.server.sockets.in(room).emit(event, message);
         }
@@ -168,7 +161,7 @@ export class MessengerCore extends EventEmitter {
         return (timeout || this.actionTimeout) + this.networkLatencyBuffer;
     }
 
-    protected _buildMessage(msg: m.InputMessage, override?: object): m.Message {
+    protected _buildMessage(msg: i.InputMessage, override?: object): i.Message {
         return Object.assign({
             __source: this.source,
             to: this.to,

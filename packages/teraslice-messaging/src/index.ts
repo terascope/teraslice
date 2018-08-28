@@ -1,5 +1,11 @@
-export * from './messenger';
-export * from './cluster-master';
-export * from './worker-messenger';
-export * from './execution-controller-messenger';
+
+import * as ClusterMaster from './cluster-master';
+import * as ExecutionController from './execution-controller';
+import * as Messenger from './messenger';
+
 export * from './utils';
+export {
+    ClusterMaster,
+    ExecutionController,
+    Messenger,
+}

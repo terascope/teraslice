@@ -2,26 +2,15 @@ import _ from 'lodash';
 import Queue from '@terascope/queue';
 import { Slice } from '@terascope/teraslice-types';
 import NodeCache from 'node-cache';
-import * as m from './messenger/interfaces';
-import { getWorkerId } from './utils';
-import { MessengerServer } from './messenger/server';
+import { getWorkerId } from '../utils';
+import * as core from '../messenger';
+import * as i from './interfaces';
 
-interface Worker {
-    worker_id: string;
-}
-
-export interface ExecutionControllerMessengerOptions {
-    port: number;
-    controllerId: string;
-    networkLatencyBuffer?: number;
-    actionTimeout: number;
-}
-
-export class ExecutionControllerMessenger extends MessengerServer {
+export class Server extends core.Server {
     cache: NodeCache;
     queue: Queue;
 
-    constructor(opts: ExecutionControllerMessengerOptions) {
+    constructor(opts: i.ServerOptions) {
         const {
             port,
             actionTimeout,
@@ -64,7 +53,7 @@ export class ExecutionControllerMessenger extends MessengerServer {
     }
 
     async shutdown() {
-        this.queue.each((worker: Worker) => {
+        this.queue.each((worker: i.Worker) => {
             this.queue.remove(worker.worker_id, 'worker_id');
         });
 
@@ -74,12 +63,12 @@ export class ExecutionControllerMessenger extends MessengerServer {
         await super.shutdown();
     }
 
-    async sendNewSlice(workerId: string, slice: object, timeoutMs?: number) {
+    async sendNewSlice(workerId: string, slice: object, timeoutMs?: number): Promise<i.SliceResponseMessage> {
         const msg = await this.sendWithResponse({
             address: workerId,
             message: 'slicer:slice:new',
             payload: slice,
-        }, { timeoutMs }) as m.SliceResponseMessage;
+        }, { timeoutMs }) as i.SliceResponseMessage;
 
         if (!msg.willProcess) {
             throw new Error(`Worker ${workerId} will not process new slice`);
@@ -88,7 +77,7 @@ export class ExecutionControllerMessenger extends MessengerServer {
         return msg;
     }
 
-    async dispatchSlice(slice: Slice, timeoutMs?: number) {
+    async dispatchSlice(slice: Slice, timeoutMs?: number): Promise<i.DispatchSliceResult> {
         const requestedWorkerId = slice.request.request_worker;
         const workerId = this._workerDequeue(requestedWorkerId);
         if (!workerId) {
@@ -99,9 +88,9 @@ export class ExecutionControllerMessenger extends MessengerServer {
             address: workerId,
             message: 'slicer:slice:new',
             payload: slice
-        }, { timeoutMs }) as m.SliceResponseMessage;
+        }, { timeoutMs }) as i.SliceResponseMessage;
 
-        const dispatched = response && response.willProcess;
+        const dispatched = _.get(response, 'willProcess') || false;
 
         return {
             dispatched,
@@ -109,20 +98,20 @@ export class ExecutionControllerMessenger extends MessengerServer {
         };
     }
 
-    availableWorkers() {
+    availableWorkers(): number {
         return this.queue.size();
     }
 
-    activeWorkers() {
+    activeWorkers(): number {
         return this.connectedWorkers() - this.availableWorkers();
     }
 
-    connectedWorkers() {
+    connectedWorkers(): number {
         return _.get(this.server, 'eio.clientsCount', 0);
     }
 
     executionFinished(exId: string) {
-        return this.server.sockets.emit('execution:finished', { ex_id: exId });
+        this.server.sockets.emit('execution:finished', { ex_id: exId });
     }
 
     private _onConnection(socket: SocketIO.Socket) {
@@ -194,7 +183,7 @@ export class ExecutionControllerMessenger extends MessengerServer {
         return exists;
     }
 
-    private _workerDequeue(arg?: string | object): string|null {
+    private _workerDequeue(arg?: string | object): string | null {
         let workerId;
         if (arg) {
             const worker = this.queue.extract('worker_id', getWorkerId(arg));

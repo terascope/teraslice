@@ -1,13 +1,17 @@
-export interface WorkerSocket extends SocketIO.Socket {
-    workerId: string;
+export interface CoreOptions {
+    networkLatencyBuffer?: number;
+    actionTimeout: number;
+    source: string;
+    to: string;
 }
 
-export interface ControllerSocket extends SocketIO.Socket {
-    controllerId: string;
+export interface ClientOptions extends CoreOptions {
+    hostUrl: string;
+    socketOptions: SocketIOClient.ConnectOpts;
 }
 
-export interface NodeMasterSocket extends SocketIO.Socket {
-    nodeId: string;
+export interface ServerOptions extends CoreOptions {
+    port: number;
 }
 
 export interface MessagePayload {
@@ -43,8 +47,4 @@ export interface MessageResponse {
 export interface SendWithResponseOptions {
     timeoutMs?: number;
     retry?: boolean;
-}
-
-export interface SliceResponseMessage {
-    willProcess?: boolean;
 }

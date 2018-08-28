@@ -1,21 +1,13 @@
 import isString from 'lodash/isString';
 import pickBy from 'lodash/pickBy';
-import * as m from './messenger/interfaces';
-import { MessengerClient } from './messenger/client';
+import * as core from '../messenger';
+import * as i from './interfaces'
 
-export interface WorkerMessengerClientOptions {
-    executionControllerUrl: string;
-    workerId: string;
-    socketOptions: SocketIOClient.ConnectOpts;
-    networkLatencyBuffer?: number;
-    actionTimeout: number;
-}
-
-export class WorkerMessenger extends MessengerClient {
+export class Client extends core.Client {
     public workerId: string;
     public available: boolean;
 
-    constructor(opts: WorkerMessengerClientOptions) {
+    constructor(opts: i.ClientOptions) {
         const {
             executionControllerUrl,
             socketOptions: _socketOptions,
@@ -25,11 +17,11 @@ export class WorkerMessenger extends MessengerClient {
         } = opts;
 
         if (!isString(executionControllerUrl)) {
-            throw new Error('WorkerMessenger requires a valid executionControllerUrl');
+            throw new Error('ExecutionController.Client requires a valid executionControllerUrl');
         }
 
         if (!isString(workerId)) {
-            throw new Error('WorkerMessenger requires a valid workerId');
+            throw new Error('ExecutionController.Client requires a valid workerId');
         }
 
         const socketOptions = Object.assign({
@@ -59,7 +51,7 @@ export class WorkerMessenger extends MessengerClient {
             throw new Error(`Unable to connect to execution controller, caused by error: ${err.message}`);
         }
 
-        this.socket.on('slicer:slice:new', (msg: m.Message) => {
+        this.socket.on('slicer:slice:new', (msg: core.Message) => {
             this.respond(msg, {
                 payload: {
                     willProcess: this.available
@@ -70,7 +62,7 @@ export class WorkerMessenger extends MessengerClient {
             }
         });
 
-        this.socket.on('execution:finished', (msg: m.Message) => {
+        this.socket.on('execution:finished', (msg: core.Message) => {
             this.emit('worker:shutdown', msg);
         });
 
@@ -108,7 +100,7 @@ export class WorkerMessenger extends MessengerClient {
                     resolve();
                 }
             }, interval);
-            const onMessage = (msg: m.Message) => {
+            const onMessage = (msg: core.Message) => {
                 clearInterval(intervalId);
                 resolve(msg);
                 this.available = false;

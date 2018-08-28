@@ -1,12 +1,11 @@
 import _ from 'lodash';
-import * as m from '../messenger/interfaces';
-import { ClusterAnalytics, ClusterAnalyticsMessage } from './interfaces';
-import { MessengerServer, MessengerServerOptions } from '../messenger/server';
+import * as i from './interfaces';
+import * as core from '../messenger';
 
-export class ClusterMasterServer extends MessengerServer {
-    private clusterAnalytics: ClusterAnalytics;
+export class Server extends core.Server {
+    private clusterAnalytics: i.ClusterAnalytics;
 
-    constructor(opts: MessengerServerOptions) {
+    constructor(opts: i.ServerOptions) {
         const {
             port,
             actionTimeout,
@@ -44,9 +43,9 @@ export class ClusterMasterServer extends MessengerServer {
                 controller_id: controllerId
             } = socket.handshake.query;
 
-            const _socket = socket as m.ControllerSocket;
-            _socket.controllerId = controllerId;
-            _socket.join(controllerId, next);
+            // @ts-ignore
+            socket.controllerId = controllerId;
+            socket.join(controllerId, next);
         });
 
         this.server.on('connection', this._onConnection);
@@ -93,15 +92,15 @@ export class ClusterMasterServer extends MessengerServer {
     }
 
     connectedNodes() {
-        // @ts-ignore
-        return this.server.eio.clientsCount;
+        return this.getClientCounts();
     }
 
     getClusterAnalytics() {
         return _.cloneDeep(this.clusterAnalytics);
     }
 
-    _onConnection(socket: m.ControllerSocket) {
+    _onConnection(socket: SocketIO.Socket) {
+        // @ts-ignore
         const { controllerId } = socket;
 
         socket.on('error', (err: Error) => {
@@ -112,8 +111,8 @@ export class ClusterMasterServer extends MessengerServer {
             this._emit('controller:offline', err, [controllerId]);
         });
 
-        socket.on('cluster:analytics', (msg: m.Message) => {
-            const data = msg.payload as ClusterAnalyticsMessage;
+        socket.on('cluster:analytics', (msg: core.Message) => {
+            const data = msg.payload as i.ClusterAnalyticsMessage;
             if (!this.clusterAnalytics[data.kind]) {
                 return;
             }

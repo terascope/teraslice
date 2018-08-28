@@ -1,5 +1,19 @@
 import { Message } from '../messenger/interfaces';
 
+export interface ClientOptions {
+    clusterMasterUrl: string;
+    controllerId: string;
+    socketOptions: SocketIOClient.ConnectOpts;
+    networkLatencyBuffer?: number;
+    actionTimeout: number;
+}
+
+export interface ServerOptions {
+    port: number;
+    networkLatencyBuffer?: number;
+    actionTimeout: number;
+}
+
 export interface SlicerAnalytics {
     processed: number;
     failed: number;

@@ -1,19 +1,11 @@
 import _ from 'lodash';
-import { SlicerAnalytics } from './interfaces';
-import { MessengerClient } from '../messenger/client';
+import * as i from './interfaces';
+import * as core from '../messenger';
 
-export interface ClusterMasterClientOptions {
-    clusterMasterUrl: string;
-    controllerId: string;
-    socketOptions: SocketIOClient.ConnectOpts;
-    networkLatencyBuffer?: number;
-    actionTimeout: number;
-}
-
-export class ClusterMasterClient extends MessengerClient {
+export class Client extends core.Client {
     public controllerId: string;
 
-    constructor(opts: ClusterMasterClientOptions) {
+    constructor(opts: i.ClientOptions) {
         const {
             clusterMasterUrl,
             socketOptions: _socketOptions,
@@ -23,11 +15,11 @@ export class ClusterMasterClient extends MessengerClient {
         } = opts;
 
         if (!clusterMasterUrl || !_.isString(clusterMasterUrl)) {
-            throw new Error('ClusterMasterClient requires a valid clusterMasterUrl');
+            throw new Error('ClusterMaster.Client requires a valid clusterMasterUrl');
         }
 
         if (!controllerId || !_.isString(controllerId)) {
-            throw new Error('ClusterMasterClient requires a valid controllerId');
+            throw new Error('ClusterMaster.Client requires a valid controllerId');
         }
 
         const socketOptions = Object.assign({
@@ -65,7 +57,7 @@ export class ClusterMasterClient extends MessengerClient {
         this.handleResponses(this.socket);
     }
 
-    updateAnalytics(stats: SlicerAnalytics) {
+    updateAnalytics(stats: i.SlicerAnalytics) {
         return this.send({
             message: 'cluster:analytics',
             payload: {
@@ -89,5 +81,3 @@ export class ClusterMasterClient extends MessengerClient {
         });
     }
 }
-
-module.exports = ClusterMasterClient;

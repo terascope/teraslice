@@ -1,29 +1,25 @@
 'use strict';
 
 import _ from 'lodash';
-import Server from 'socket.io';
+import SocketIOServer from 'socket.io';
 import porty from 'porty';
-import * as m from './interfaces';
-import { MessengerCore, MessengerCoreOptions } from './core';
+import * as i from './interfaces';
+import { Core } from './core';
 
-export interface MessengerServerOptions extends MessengerCoreOptions {
-    port: number;
-}
-
-export class MessengerServer extends MessengerCore {
+export class Server extends Core {
     public port: number;
     public server: SocketIO.Server;
 
-    constructor(opts: MessengerServerOptions) {
+    constructor(opts: i.ServerOptions) {
         const { port } = opts;
         super(opts);
 
         if (!_.isNumber(port)) {
-            throw new Error('MessengerServer requires a valid port');
+            throw new Error('Messenger.Server requires a valid port');
         }
 
         this.port = port;
-        this.server = Server();
+        this.server = SocketIOServer();
     }
 
     async listen() {
@@ -33,6 +29,10 @@ export class MessengerServer extends MessengerCore {
         }
 
         this.server.listen(this.port);
+    }
+
+    getClientCounts(): number {
+        return _.get(this.server, 'eio.clientsCount', 0);
     }
 
     async shutdown() {
@@ -45,7 +45,7 @@ export class MessengerServer extends MessengerCore {
     }
 
     public handleResponses(socket: SocketIO.Socket): void {
-        const emitResponse = (msg: m.Message) => {
+        const emitResponse = (msg: i.Message) => {
                 /* istanbul ignore if */
             if (!msg.__msgId) {
                 console.error('Messaging response requires an a msgId'); // eslint-disable-line
@@ -57,7 +57,7 @@ export class MessengerServer extends MessengerCore {
         socket.on('messaging:response', emitResponse);
 
         if (this.to === 'cluster_master') {
-            socket.on('networkMessage', (msg: m.Message) => {
+            socket.on('networkMessage', (msg: i.Message) => {
                 if (msg.message === 'messaging:response') {
                     emitResponse(msg);
                     return;

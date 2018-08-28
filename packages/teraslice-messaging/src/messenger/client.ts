@@ -1,17 +1,12 @@
 import { isEmpty, isString } from 'lodash';
 import SocketIOClient from 'socket.io-client';
-import { Message } from './interfaces';
-import { MessengerCore, MessengerCoreOptions } from './core';
+import { Message, ClientOptions } from './interfaces';
+import { Core } from './core';
 
-export interface MessengerClientOptions extends MessengerCoreOptions {
-    hostUrl: string;
-    socketOptions: SocketIOClient.ConnectOpts;
-}
-
-export class MessengerClient extends MessengerCore {
+export class Client extends Core {
     public socket: SocketIOClient.Socket;
 
-    constructor(opts: MessengerClientOptions) {
+    constructor(opts: ClientOptions) {
         super(opts);
         const {
             hostUrl,
@@ -19,11 +14,11 @@ export class MessengerClient extends MessengerCore {
         } = opts;
 
         if (!isString(hostUrl)) {
-            throw new Error('MessengerClient requires a valid hostUrl');
+            throw new Error('Messenger.Client requires a valid hostUrl');
         }
 
         if (isEmpty(socketOptions)) {
-            throw new Error('MessengerClient requires a valid socketOptions');
+            throw new Error('Messenger.Client requires a valid socketOptions');
         }
 
         const options = Object.assign({}, socketOptions, { forceNew: true });
@@ -43,8 +38,8 @@ export class MessengerClient extends MessengerCore {
             return Promise.resolve();
         }
         return new Promise((resolve, reject) => {
-            let connectErr: Error|undefined;
-            let connectInterval: NodeJS.Timer|undefined;
+            let connectErr: Error | undefined;
+            let connectInterval: NodeJS.Timer | undefined;
 
             const cleanup = () => {
                 if (connectInterval) {
@@ -89,7 +84,7 @@ export class MessengerClient extends MessengerCore {
 
     public handleResponses(socket: SocketIOClient.Socket): void {
         const emitResponse = (msg: Message) => {
-                /* istanbul ignore if */
+            /* istanbul ignore if */
             if (!msg.__msgId) {
                 console.error('Messaging response requires an a msgId'); // eslint-disable-line
                 return;
