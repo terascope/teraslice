@@ -84,6 +84,21 @@ describe('k8sDeployment', () => {
         expect(deployment).not.toHaveProperty('spec.template.spec.resource');
     });
 
+    describe('with a empty array in node_labels', () => {
+        let deployment;
+
+        beforeEach(() => {
+            ex.node_labels = [];
+            deployment = k8sObject.gen('deployments', 'worker', ex, config);
+        });
+
+        it('should render a deployment with a required affinity', () => {
+            expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+            expect(deployment.spec.template.spec).not.toHaveProperty('affinity');
+        });
+    });
+
+
     describe('with a single value in node_labels', () => {
         let deployment;
 
@@ -163,7 +178,8 @@ describe('k8sDeployment', () => {
 
         beforeEach(() => {
             ex.resources = {
-                minimum: { cpu: 1, memory: 2147483648 }
+                minimum: { cpu: 1, memory: 2147483648 },
+                limit: { cpu: -1, memory: -1 }
             };
             deployment = k8sObject.gen('deployments', 'worker', ex, config);
         });
@@ -182,6 +198,7 @@ describe('k8sDeployment', () => {
 
         beforeEach(() => {
             ex.resources = {
+                minimum: { cpu: -1, memory: -1 },
                 limit: { cpu: 2, memory: 4294967296 }
             };
             deployment = k8sObject.gen('deployments', 'worker', ex, config);
@@ -193,6 +210,23 @@ describe('k8sDeployment', () => {
                   limits:
                     memory: 4294967296
                     cpu: 2`));
+        });
+    });
+
+    describe('with resources.limit and resouces.minimum set to -1', () => {
+        let deployment;
+
+        beforeEach(() => {
+            ex.resources = {
+                minimum: { cpu: -1, memory: -1 },
+                limit: { cpu: -1, memory: -1 }
+            };
+            deployment = k8sObject.gen('deployments', 'worker', ex, config);
+        });
+
+        it('should render a deployment with a required resources', () => {
+            expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+            expect(deployment.spec.template.spec.containers[0]).not.toHaveProperty('resources');
         });
     });
 

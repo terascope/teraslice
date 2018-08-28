@@ -21,11 +21,11 @@ function gen(templateType, templateName, execution, config) {
     // NOTE: If you specify multiple `matchExpressions` associated with
     // `nodeSelectorTerms`, then the pod can be scheduled onto a node
     // only if *all* `matchExpressions` can be satisfied.
-    if (_.has(execution, 'node_labels') && (execution.node_labels != null)) {
+    if (_.has(execution, 'node_labels') && (!_.isEmpty(execution.node_labels))) {
         _setAffinity(k8sObject, execution);
     }
 
-    if (_.has(execution, 'resources') && (execution.resources != null)) {
+    if (_.has(execution, 'resources')) {
         _setResources(k8sObject, execution);
     }
 
@@ -50,30 +50,37 @@ function _setVolumes(k8sObject, execution) {
 }
 
 function _setResources(k8sObject, execution) {
-    k8sObject.spec.template.spec.containers[0].resources = {};
-    if (_.has(execution.resources, 'minimum')) {
-        k8sObject.spec.template.spec.containers[0].resources.requests = {
-            cpu: execution.resources.minimum.cpu,
-            memory: execution.resources.minimum.memory
-        };
+    if (_.has(execution.resources, 'minimum.cpu') && execution.resources.minimum.cpu !== -1) {
+        _.set(k8sObject.spec.template.spec.containers[0],
+            'resources.requests.cpu', execution.resources.minimum.cpu);
     }
 
-    if (_.has(execution.resources, 'limit')) {
-        k8sObject.spec.template.spec.containers[0].resources.limits = {
-            cpu: execution.resources.limit.cpu,
-            memory: execution.resources.limit.memory
-        };
+    if (_.has(execution.resources, 'minimum.memory') && execution.resources.minimum.memory !== -1) {
+        _.set(k8sObject.spec.template.spec.containers[0],
+            'resources.requests.memory', execution.resources.minimum.memory);
+    }
+
+    if (_.has(execution.resources, 'limit.cpu') && execution.resources.limit.cpu !== -1) {
+        _.set(k8sObject.spec.template.spec.containers[0],
+            'resources.limits.cpu', execution.resources.limit.cpu);
+    }
+
+    if (_.has(execution.resources, 'limit.memory') && execution.resources.limit.memory !== -1) {
+        _.set(k8sObject.spec.template.spec.containers[0],
+            'resources.limits.memory', execution.resources.limit.memory);
     }
 }
 
 function _setAffinity(k8sObject, execution) {
-    k8sObject.spec.template.spec.affinity = {
-        nodeAffinity: {
-            requiredDuringSchedulingIgnoredDuringExecution: {
-                nodeSelectorTerms: [{ matchExpressions: [] }]
+    if (!_.has(k8sObject, 'spec.template.spec.affinity')) {
+        k8sObject.spec.template.spec.affinity = {
+            nodeAffinity: {
+                requiredDuringSchedulingIgnoredDuringExecution: {
+                    nodeSelectorTerms: [{ matchExpressions: [] }]
+                }
             }
-        }
-    };
+        };
+    }
 
     _.forEach(execution.node_labels, (label) => {
         k8sObject.spec.template.spec.affinity.nodeAffinity
