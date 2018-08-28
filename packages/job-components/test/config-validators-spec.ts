@@ -26,10 +26,13 @@ describe('When passed a valid jobSchema and jobConfig', () => {
             lifecycle: 'once',
             max_retries: 3,
             name: 'Custom Job',
+            node_labels: null,
             operations: [{ _op: 'noop' }, { _op: 'noop' }],
             probation_window: 300000,
             recycle_worker: null,
+            resources: null,
             slicers: 1,
+            volumes: null
         };
 
         const jobConfig = validateJobConfig(schema, job);

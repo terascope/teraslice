@@ -59,6 +59,28 @@ export function jobSchema(context: Context): convict.Schema<any> {
                 }
             },
         },
+        node_labels: {
+            default: null,
+            doc: 'array of key/value labels used for targetting teraslice jobs to nodes (k8s)',
+            format: function checkNodeLabels(arr: any) {
+                if (arr != null) {
+                    if (!(Array.isArray(arr) && arr.length >= 1)) {
+                        throw new Error('node_labels needs to be of type array ' +
+                            'with at least one or more node_label in it');
+                    }
+
+                    arr.forEach((label) => {
+                        if (!_.has(label, 'key')) {
+                            throw new Error(`node_labels need to have a key: ${label}`);
+                        }
+
+                        if (!_.has(label, 'value')) {
+                            throw new Error(`node_labels need to have a value: ${label}`);
+                        }
+                    });
+                }
+            }
+        },
         operations: {
             default: [],
             doc: 'An array of actions to execute, typically the first is a reader ' +
@@ -110,6 +132,29 @@ export function jobSchema(context: Context): convict.Schema<any> {
                 }
             },
         },
+        resources: {
+            default: null,
+            doc: 'array of volumes to be mounted by job workers (k8s)',
+            format: function checkResources(resources: any) {
+                if (resources != null) {
+                    if (!(_.has(resources, 'minimum') || _.has(resources, 'limit'))) {
+                        throw new Error(`resources should specify either a 'minimum' or a 'limit': ${resources}`);
+                    }
+
+                    if (_.has(resources, 'minimum')) {
+                        if (!(_.has(resources, 'minimum.cpu') && _.has(resources, 'minimum.memory'))) {
+                            throw new Error(`resources.minimum must specify both cpu and memory: ${_.get(resources, 'minimum')}`);
+                        }
+                    }
+
+                    if (_.has(resources, 'limit')) {
+                        if (!(_.has(resources, 'limit.cpu') && _.has(resources, 'limit.memory'))) {
+                            throw new Error(`resources.limit must specify both cpu and memory: ${_.get(resources, 'limit')}`);
+                        }
+                    }
+                }
+            }
+        },
         slicers: {
             default: 1,
             doc: 'how many parallel slicer contexts that will run within the slicer',
@@ -120,6 +165,28 @@ export function jobSchema(context: Context): convict.Schema<any> {
                     throw new Error('slicers for job must be >= one');
                 }
             },
+        },
+        volumes: {
+            default: null,
+            doc: 'array of volumes to be mounted by job workers (k8s)',
+            format: function checkVolumes(arr: any) {
+                if (arr != null) {
+                    if (!(Array.isArray(arr) && arr.length >= 1)) {
+                        throw new Error('volumes need to be of type array ' +
+                            'with at least one or more volumes in it');
+                    }
+
+                    arr.forEach((volume) => {
+                        if (!_.has(volume, 'name')) {
+                            throw new Error(`volumes need to have a name: ${volume}`);
+                        }
+
+                        if (!_.has(volume, 'path')) {
+                            throw new Error(`volumes need to have a path: ${volume}`);
+                        }
+                    });
+                }
+            }
         },
         workers: {
             default: workers,
