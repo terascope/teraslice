@@ -78,7 +78,7 @@ export class Client extends core.Client {
         });
     }
 
-    sliceComplete(input: object) {
+    sendSliceComplete(input: i.SliceCompletePayload) {
         const payload = pickBy(Object.assign({
             worker_id: this.workerId
         }, input));

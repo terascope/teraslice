@@ -114,6 +114,22 @@ export class Server extends core.Server {
         this.server.sockets.emit('execution:finished', { ex_id: exId });
     }
 
+    onWorkerOffline(fn: i.OnWorkerOfflineFn) {
+        this.on('worker:offline', fn);
+    }
+
+    onWorkerOnline(fn: i.OnWorkerOnlineFn) {
+        this.on('worker:online', fn);
+    }
+
+    onWorkerReconnect(fn: i.OnWorkerOnlineFn) {
+        this.on('worker:reconnect', fn);
+    }
+
+    onWorkerReady(fn: i.OnWorkerReadyFn) {
+        this.on('worker:enqueue', fn);
+    }
+
     private _onConnection(socket: SocketIO.Socket) {
         // @ts-ignore
         const { workerId } = socket;
@@ -124,9 +140,7 @@ export class Server extends core.Server {
 
         socket.on('disconnect', (err) => {
             this._workerRemove(workerId);
-
-            this._emit('worker:disconnect', err, [workerId]);
-            this.emit('worker:offline');
+            this.emit('worker:offline', workerId, err);
         });
 
         socket.on('worker:ready', (msg) => {

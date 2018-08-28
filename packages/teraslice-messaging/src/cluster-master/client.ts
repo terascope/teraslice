@@ -3,7 +3,10 @@ import * as i from './interfaces';
 import * as core from '../messenger';
 
 export class Client extends core.Client {
-    public controllerId: string;
+    public readonly controllerId: string;
+    public readonly exId: string;
+    public readonly jobId: string;
+    public readonly jobName: string;
 
     constructor(opts: i.ClientOptions) {
         const {
@@ -12,6 +15,9 @@ export class Client extends core.Client {
             networkLatencyBuffer,
             actionTimeout,
             controllerId,
+            exId,
+            jobId,
+            jobName,
         } = opts;
 
         if (!clusterMasterUrl || !_.isString(clusterMasterUrl)) {
@@ -20,6 +26,18 @@ export class Client extends core.Client {
 
         if (!controllerId || !_.isString(controllerId)) {
             throw new Error('ClusterMaster.Client requires a valid controllerId');
+        }
+
+        if (!exId || !_.isString(exId)) {
+            throw new Error('ClusterMaster.Client requires a valid exId');
+        }
+
+        if (!jobId || !_.isString(jobId)) {
+            throw new Error('ClusterMaster.Client requires a valid jobId');
+        }
+
+        if (!jobName || !_.isString(jobName)) {
+            throw new Error('ClusterMaster.Client requires a valid jobName');
         }
 
         const socketOptions = Object.assign({
@@ -39,6 +57,9 @@ export class Client extends core.Client {
         });
 
         this.controllerId = controllerId;
+        this.exId = exId;
+        this.jobId = jobId;
+        this.jobName = jobName;
     }
 
     async start() {
@@ -67,17 +88,52 @@ export class Client extends core.Client {
         });
     }
 
-    executionTerminal(exId: string) {
+    executionTerminal() {
         return this.send({
             message: 'execution:error:terminal',
-            ex_id: exId
+            ex_id: this.exId
         });
     }
 
-    executionFinished(exId: string) {
+    executionFinished() {
         return this.send({
             message: 'execution:finished',
-            ex_id: exId
+            ex_id: this.exId
         });
+    }
+
+    onClusterAnalytics(fn: i.OnClusterAnalyticsFn) {
+        this.socket.on('cluster:slicer:analytics', async (msg: core.Message) => {
+            const stats = await fn();
+            this.respond(msg, {
+                job_id: this.jobId,
+                ex_id: this.exId,
+                payload: {
+                    name: this.jobName,
+                    stats,
+                }
+            })
+        })
+    }
+
+    onStopExecution(fn: i.OnStateChangeFn) {
+        this.socket.on('cluster:execution:stop', async (msg: core.Message) => {
+            await fn();
+            this.respond(msg)
+        })
+    }
+
+    onPauseExecution(fn: i.OnStateChangeFn) {
+        this.socket.on('cluster:execution:pause', async (msg: core.Message) => {
+            await fn();
+            this.respond(msg)
+        })
+    }
+
+    onResumeExecution(fn: i.OnStateChangeFn) {
+        this.socket.on('cluster:execution:resume', async (msg: core.Message) => {
+            await fn();
+            this.respond(msg)
+        })
     }
 }

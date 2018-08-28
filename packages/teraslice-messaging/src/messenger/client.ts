@@ -72,6 +72,7 @@ export class Client extends Core {
         });
     }
 
+    // For testing purposes
     forceReconnect() {
         return new Promise((resolve) => {
             this.socket.io.once('reconnect', () => {

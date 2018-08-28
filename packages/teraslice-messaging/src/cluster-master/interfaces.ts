@@ -1,8 +1,11 @@
 import { Message } from '../messenger/interfaces';
 
 export interface ClientOptions {
-    clusterMasterUrl: string;
+    exId: string;
+    jobId: string;
+    jobName: string;
     controllerId: string;
+    clusterMasterUrl: string;
     socketOptions: SocketIOClient.ConnectOpts;
     networkLatencyBuffer?: number;
     actionTimeout: number;
@@ -30,4 +33,28 @@ export interface ClusterAnalytics {
 
 export interface ClusterAnalyticsMessage extends Message {
     kind: string;
+}
+
+export interface ExecutionAnalytics {
+    workers_available: number;
+    workers_active: number;
+    workers_joined: number;
+    workers_reconnected: number;
+    workers_disconnected: number;
+    failed: number;
+    subslices: number;
+    queued: number;
+    slice_range_expansion: number;
+    processed: number;
+    slicers: number;
+    subslice_by_key: number;
+    started: string;
+}
+
+export interface OnClusterAnalyticsFn {
+    (): Promise<ExecutionAnalytics>|ExecutionAnalytics
+}
+
+export interface OnStateChangeFn {
+    (): Promise<void> | void;
 }

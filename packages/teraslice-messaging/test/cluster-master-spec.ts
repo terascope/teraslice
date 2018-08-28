@@ -13,7 +13,7 @@ describe('ClusterMaster', () => {
             });
         });
 
-        describe('when constructed without a workerId', () => {
+        describe('when constructed without a controllerId', () => {
             it('should throw an error', () => {
                 expect(() => {
                     // @ts-ignore
@@ -24,12 +24,54 @@ describe('ClusterMaster', () => {
             });
         });
 
+        describe('when constructed without a exId', () => {
+            it('should throw an error', () => {
+                expect(() => {
+                    // @ts-ignore
+                    new ClusterMaster.Client({
+                        clusterMasterUrl: 'example.com',
+                        controllerId: 'controller-id'
+                    });
+                }).toThrowError('ClusterMaster.Client requires a valid exId');
+            });
+        });
+
+        describe('when constructed without a jobId', () => {
+            it('should throw an error', () => {
+                expect(() => {
+                    // @ts-ignore
+                    new ClusterMaster.Client({
+                        clusterMasterUrl: 'example.com',
+                        controllerId: 'controller-id',
+                        exId: 'ex-id'
+                    });
+                }).toThrowError('ClusterMaster.Client requires a valid jobId');
+            });
+        });
+
+        describe('when constructed without a jobName', () => {
+            it('should throw an error', () => {
+                expect(() => {
+                    // @ts-ignore
+                    new ClusterMaster.Client({
+                        clusterMasterUrl: 'example.com',
+                        controllerId: 'controller-id',
+                        jobId: 'job-id',
+                        exId: 'ex-id'
+                    });
+                }).toThrowError('ClusterMaster.Client requires a valid jobName');
+            });
+        });
+
         describe('when constructed with an invalid clusterMasterUrl', () => {
             let clusterMaster: ClusterMaster.Client;
 
             beforeEach(() => {
                 clusterMaster = new ClusterMaster.Client({
                     clusterMasterUrl: 'http://idk.example.com',
+                    jobId: 'job',
+                    exId: 'ex',
+                    jobName: 'name',
                     controllerId: 'hello',
                     actionTimeout: 1000,
                     socketOptions: {

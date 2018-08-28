@@ -88,3 +88,9 @@ export interface Slice {
     request: SliceRequest;
     _created: string;
 }
+
+export interface SliceAnalyticsData {
+    time: number[];
+    size: number[];
+    memory: number[];
+}

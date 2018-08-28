@@ -1,3 +1,5 @@
+import { Slice, SliceAnalyticsData } from '@terascope/teraslice-types';
+
 export interface ClientOptions {
     executionControllerUrl: string;
     workerId: string;
@@ -24,4 +26,28 @@ export interface SliceResponseMessage {
 export interface DispatchSliceResult {
     dispatched: boolean;
     workerId: string;
+}
+
+export interface OnWorkerOnlineFn {
+    (workerId: string): void;
+}
+
+export interface OnWorkerOfflineFn {
+    (workerId: string, err?: Error): void;
+}
+
+export interface OnWorkerReconnectFn {
+    (workerId: string): void;
+}
+
+export interface OnWorkerReadyFn {
+    (workerId: string): void;
+}
+
+export interface SliceCompletePayload {
+    slice: Slice;
+    analytics: SliceAnalyticsData,
+    isShuttingDown?: boolean;
+    retry?: boolean;
+    error?: string;
 }
