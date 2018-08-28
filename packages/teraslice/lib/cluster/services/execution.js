@@ -69,7 +69,7 @@ module.exports = function module(context) {
                     // need to exclude sending a stop to cluster master host, the shutdown event
                     // has already been propagated this can cause a condition of it waiting for
                     // stop to return but it already has which pauses this service shutdown
-                    return stopExecution(execution.ex_id, null, 'terminated', context.sysconfig.teraslice.hostname);
+                    return stopExecution(execution.ex_id, null, 'terminated', context.sysconfig.teraslice.hostname, true);
                 }
                 return true;
             })
@@ -117,10 +117,26 @@ module.exports = function module(context) {
         return clusterService.removeWorkers(exId, workerNum);
     }
 
-    function stopExecution(exId, timeout, _status, excludeNode) {
-        const status = _status || 'stopped';
-        return setExecutionStatus(exId, 'stopping')
-            .then(() => clusterService.stopExecution(exId, timeout, excludeNode))
+    function _waitForStop(exId) {
+        return new Promise((resolve) => {
+            function checkCluster() {
+                const state = getClusterState();
+                const results = _.flatten(_.map(
+                    state,
+                    node => _.map(node.active, worker => worker.ex_id)
+                ));
+                if (results.find(id => id === exId)) {
+                    setTimeout(checkCluster, 3000);
+                    return;
+                }
+                resolve(true);
+            }
+            checkCluster();
+        });
+    }
+
+    function _stopExecution(exId, status) {
+        return _waitForStop(exId)
             .then(() => getExecutionContext(exId))
             .then((execution) => {
                 const terminalStatuses = exStore.getTerminalStatuses();
@@ -129,8 +145,26 @@ module.exports = function module(context) {
                     return setExecutionStatus(exId, status);
                 }
                 return true;
+            });
+    }
+
+    function stopExecution(exId, timeout, _status, excludeNode, blocking) {
+        const status = _status || 'stopped';
+        const isBlocking = blocking === true;
+
+        return setExecutionStatus(exId, 'stopping')
+            .then(() => clusterService.stopExecution(exId, timeout, excludeNode))
+            .then(() => {
+                if (isBlocking) {
+                    return _stopExecution(exId, status);
+                }
+                _stopExecution(exId, status).catch(err => logger.error(err));
+                return null;
             })
-            .then(() => ({ status }));
+            .then(() => {
+                const responseStatus = isBlocking ? status : 'stopping';
+                return { status: responseStatus };
+            });
     }
 
     function pauseExecution(exId) {

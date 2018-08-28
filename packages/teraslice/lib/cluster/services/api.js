@@ -137,11 +137,12 @@ module.exports = function module(context, app) {
     });
 
     v1routes.post('/jobs/:job_id/_stop', (req, res) => {
-        const { query: { timeout }, params: { job_id: jobId } } = req;
+        const { query: { timeout, blocking = true }, params: { job_id: jobId } } = req;
         logger.trace(`POST /jobs/:job_id/_stop endpoint has been called, job_id: ${jobId}, removing any pending workers for the job`);
-        const handleApiError = handleError(res, logger, 500, `Could not stop execution for job: ${jobId}`);
 
-        jobsService.stopJob(jobId, timeout)
+        const handleApiError = handleError(res, logger, 500, `Could not stop execution for job: ${jobId}`);
+        console.log('what is blocking', blocking, typeof blocking)
+        jobsService.stopJob(jobId, timeout, blocking)
             .then(status => res.status(200).json({ status }))
             .catch(handleApiError);
     });
@@ -254,12 +255,12 @@ module.exports = function module(context, app) {
     });
 
     v1routes.post('/ex/:ex_id/_stop', (req, res) => {
-        const { params: { ex_id: exId }, query: { timeout } } = req;
+        const { params: { ex_id: exId }, query: { timeout, blocking = true } } = req;
         logger.trace(`POST /ex/:ex_id/_stop endpoint has been called, ex_id: ${exId}, removing any pending workers for the job`);
         const handleApiError = handleError(res, logger, 500, `Could not stop execution: ${exId}`);
         // for lifecyle events, we need to ensure that the execution is alive first
         executionService.getActiveExecution(exId)
-            .then(() => executionService.stopExecution(exId, timeout))
+            .then(() => executionService.stopExecution(exId, timeout, blocking))
             .then(() => res.status(200).json({ status: 'stopped' }))
             .catch(handleApiError);
     });

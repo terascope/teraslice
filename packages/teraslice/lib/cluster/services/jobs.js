@@ -107,9 +107,9 @@ module.exports = function module(context) {
             .catch(err => Promise.reject(parseError(err)));
     }
 
-    function stopJob(jobId, timeout) {
+    function stopJob(jobId, timeout, blocking) {
         return getLatestExecutionId(jobId)
-            .then(exId => executionService.stopExecution(exId, timeout))
+            .then(exId => executionService.stopExecution(exId, timeout, null, null, blocking))
             .catch(err => Promise.reject(parseError(err)));
     }
 

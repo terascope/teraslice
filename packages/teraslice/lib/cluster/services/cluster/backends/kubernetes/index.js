@@ -335,25 +335,7 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
      */
 
     async function stopExecution(exId) {
-        await k8s.deleteExecution(exId);
-
-        return new Promise((resolve) => {
-            function checkCluster() {
-                _getClusterState()
-                    .then((state) => {
-                        const results = _.flatten(_.map(
-                            state,
-                            node => _.map(node.active, worker => worker.ex_id)
-                        ));
-                        if (results.find(exId)) {
-                            setTimeout(checkCluster, 3000);
-                        }
-                        resolve(true);
-                    })
-                    .catch(() => setTimeout(checkCluster, 3000));
-            }
-            checkCluster();
-        });
+        return k8s.deleteExecution(exId);
     }
 
     function pauseExecution(exId) {
