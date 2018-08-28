@@ -1,0 +1,32 @@
+{
+    "name": "example-data-generator-job-labels",
+    "lifecycle": "once",
+    "workers": 2,
+    "assets": [
+        "example"
+    ],
+    "node_labels": [
+        {
+            "key": "zone",
+            "value": "west"
+        }
+    ],
+    "operations": [
+        {
+            "_op": "elasticsearch_data_generator",
+            "size": 5000000
+        },
+        {
+            "_op": "example-op"
+        },
+        {
+            "_op": "elasticsearch_index_selector",
+            "index": "terak8s-example-data",
+            "type": "events"
+        },
+        {
+            "_op": "elasticsearch_bulk",
+            "size": 5000
+        }
+    ]
+}
