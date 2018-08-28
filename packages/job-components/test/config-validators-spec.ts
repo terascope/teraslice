@@ -127,3 +127,138 @@ describe('When validating opConfig', () => {
         }).toThrowError();
     });
 });
+
+describe('When passed a jobConfig with resources', () => {
+    it('returns a completed and valid jobConfig', () => {
+        const context = new TestContext('teraslice-operations');
+
+        const schema = jobSchema(context);
+        const job = {
+            resources: {
+                minimum: {
+                    cpu: 1,
+                    memory: 805306368
+                },
+                limit: {
+                    cpu: 2,
+                    memory: 4294967296
+                }
+            },
+            operations: [
+                {
+                    _op: 'noop',
+                },
+                {
+                    _op: 'noop',
+                },
+            ],
+        };
+        const validJob = {
+            analytics: true,
+            assets: null,
+            lifecycle: 'once',
+            max_retries: 3,
+            name: 'Custom Job',
+            node_labels: null,
+            operations: [{ _op: 'noop' }, { _op: 'noop' }],
+            probation_window: 300000,
+            recycle_worker: null,
+            resources: null,
+            slicers: 1,
+            volumes: null
+        };
+
+        const jobConfig = validateJobConfig(schema, job);
+        delete jobConfig.workers;
+        expect(jobConfig as object).toEqual(validJob);
+    });
+});
+
+describe('When passed a jobConfig with node_labels', () => {
+    it('returns a completed and valid jobConfig', () => {
+        const context = new TestContext('teraslice-operations');
+
+        const schema = jobSchema(context);
+        const job = {
+            node_labels: [
+                {
+                    key: 'zone',
+                    value: 'west'
+                }
+            ],
+            operations: [
+                {
+                    _op: 'noop',
+                },
+                {
+                    _op: 'noop',
+                },
+            ],
+        };
+        const validJob = {
+            analytics: true,
+            assets: null,
+            lifecycle: 'once',
+            max_retries: 3,
+            name: 'Custom Job',
+            node_labels: [
+                { key: 'zone', value: 'west' }
+            ],
+            operations: [{ _op: 'noop' }, { _op: 'noop' }],
+            probation_window: 300000,
+            recycle_worker: null,
+            resources: null,
+            slicers: 1,
+            volumes: null
+        };
+
+        const jobConfig = validateJobConfig(schema, job);
+        delete jobConfig.workers;
+        expect(jobConfig as object).toEqual(validJob);
+    });
+});
+
+
+describe('When passed a jobConfig with volumes', () => {
+    it('returns a completed and valid jobConfig', () => {
+        const context = new TestContext('teraslice-operations');
+
+        const schema = jobSchema(context);
+        const job = {
+            volumes: [
+                {
+                    name: 'pvc-name',
+                    path: '/srv'
+                }
+            ],
+            operations: [
+                {
+                    _op: 'noop',
+                },
+                {
+                    _op: 'noop',
+                },
+            ],
+        };
+        const validJob = {
+            analytics: true,
+            assets: null,
+            lifecycle: 'once',
+            max_retries: 3,
+            name: 'Custom Job',
+            node_labels: null,
+            operations: [{ _op: 'noop' }, { _op: 'noop' }],
+            probation_window: 300000,
+            recycle_worker: null,
+            resources: null,
+            slicers: 1,
+            volumes: [
+                { name: 'pvc-name', path: '/srv' }
+            ]
+        };
+
+        const jobConfig = validateJobConfig(schema, job);
+        delete jobConfig.workers;
+        expect(jobConfig as object).toEqual(validJob);
+    });
+});
