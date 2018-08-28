@@ -1,6 +1,6 @@
 {
   "name": "@terascope/job-components",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "publishConfig": {
     "access": "public"
   },
@@ -34,7 +34,7 @@
     "watch:test": "jest --watch"
   },
   "dependencies": {
-    "@terascope/teraslice-types": "^0.1.0",
+    "@terascope/teraslice-types": "^0.1.1",
     "@types/fs-extra": "^5.0.4",
     "@types/lodash": "^4.14.116",
     "@types/node": "^10.7.1",

@@ -8,6 +8,7 @@ export interface Logger extends bunyan {
 export interface TerasliceConfig {
     ops_directory?: string;
     assets_directory?: string;
+    cluster_manager_type?: string;
 }
 
 export interface TerafoundationConfig {

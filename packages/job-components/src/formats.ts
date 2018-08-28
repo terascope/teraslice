@@ -1,5 +1,6 @@
 'use strict';
 
+import _ from 'lodash';
 import { addFormat, Format } from 'convict';
 // @ts-ignore
 import dateMath from 'datemath-parser';

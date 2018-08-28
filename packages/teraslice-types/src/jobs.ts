@@ -10,6 +10,11 @@ export enum LifeCycle {
     Persistent = 'persistent',
 }
 
+export interface JobResource {
+    cpu?: number;
+    memory?: number;
+}
+
 export interface JobConfig {
     analytics: boolean;
     assets: string[];
@@ -21,6 +26,27 @@ export interface JobConfig {
     recycle_worker: number;
     slicers: number;
     workers: number;
+}
+
+export interface JobResources {
+    limit?: JobResource;
+    minimum?: JobResource;
+}
+
+export interface NodeLabel {
+    key: string;
+    value: string;
+}
+
+export interface Volume {
+    name: string;
+    path: string;
+}
+
+export interface K8sJobConfig extends JobConfig {
+    node_labels: NodeLabel[];
+    resources: JobResources;
+    volumes: Volume[];
 }
 
 export type crossValidationFn = (job: JobConfig, sysconfig: SysConfig) => void;
