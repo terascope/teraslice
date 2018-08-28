@@ -21,15 +21,15 @@ function gen(templateType, templateName, execution, config) {
     // NOTE: If you specify multiple `matchExpressions` associated with
     // `nodeSelectorTerms`, then the pod can be scheduled onto a node
     // only if *all* `matchExpressions` can be satisfied.
-    if (_.has(execution, 'node_labels')) {
+    if (_.has(execution, 'node_labels') && (execution.node_labels != null)) {
         _setAffinity(k8sObject, execution);
     }
 
-    if (_.has(execution, 'resources')) {
+    if (_.has(execution, 'resources') && (execution.resources != null)) {
         _setResources(k8sObject, execution);
     }
 
-    if (_.has(execution, 'volumes')) {
+    if (_.has(execution, 'volumes') && (execution.volumes != null)) {
         _setVolumes(k8sObject, execution);
     }
 
