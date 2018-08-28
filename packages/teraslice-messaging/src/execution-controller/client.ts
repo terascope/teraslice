@@ -1,3 +1,4 @@
+import { Slice } from '@terascope/teraslice-types';
 import isString from 'lodash/isString';
 import pickBy from 'lodash/pickBy';
 import * as core from '../messenger';
@@ -65,8 +66,6 @@ export class Client extends core.Client {
         this.socket.on('execution:finished', (msg: core.Message) => {
             this.emit('worker:shutdown', msg);
         });
-
-        this.handleResponses(this.socket);
     }
 
     async ready() {
@@ -78,7 +77,11 @@ export class Client extends core.Client {
         });
     }
 
-    sendSliceComplete(input: i.SliceCompletePayload) {
+    onWorkerShutdown(fn: i.WorkerShutdownFn) {
+        this.once('worker:shutdown', fn);
+    }
+
+    sliceComplete(input: i.SliceCompletePayload) {
         const payload = pickBy(Object.assign({
             worker_id: this.workerId
         }, input));
@@ -89,7 +92,7 @@ export class Client extends core.Client {
         }, { retry: true });
     }
 
-    async waitForSlice(fn = () => { }, interval = 100) {
+    async waitForSlice(fn = () => { }, interval = 100): Promise<Slice|undefined> {
         this.ready();
         this.available = true;
 
@@ -100,7 +103,7 @@ export class Client extends core.Client {
                     resolve();
                 }
             }, interval);
-            const onMessage = (msg: core.Message) => {
+            const onMessage = (msg: Slice) => {
                 clearInterval(intervalId);
                 resolve(msg);
                 this.available = false;
@@ -110,6 +113,8 @@ export class Client extends core.Client {
 
         this.available = false;
 
-        return slice;
+        if (!slice) return;
+
+        return slice as Slice;
     }
 }

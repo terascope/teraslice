@@ -4,7 +4,7 @@ import random from 'lodash/random';
 
 const usedPorts: number[] = [];
 
-export async function findPort(): Promise<number> {
+export default async function findPort(): Promise<number> {
     const min = random(8000, 40000);
     const max = min + 100;
 

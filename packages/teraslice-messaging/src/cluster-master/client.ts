@@ -74,8 +74,6 @@ export class Client extends core.Client {
             controller_id: this.controllerId,
             payload: {},
         });
-
-        this.handleResponses(this.socket);
     }
 
     updateAnalytics(stats: i.SlicerAnalytics) {

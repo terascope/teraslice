@@ -28,20 +28,16 @@ export interface DispatchSliceResult {
     workerId: string;
 }
 
-export interface OnWorkerOnlineFn {
+export interface WorkerEventFn {
     (workerId: string): void;
 }
 
-export interface OnWorkerOfflineFn {
+export interface WorkerErrorEventFn {
     (workerId: string, err?: Error): void;
 }
 
-export interface OnWorkerReconnectFn {
-    (workerId: string): void;
-}
-
-export interface OnWorkerReadyFn {
-    (workerId: string): void;
+export interface WorkerShutdownFn {
+    (error?: null): void;
 }
 
 export interface SliceCompletePayload {

@@ -1,7 +1,6 @@
 import 'jest-extended';
 
-import { Message } from '../src/messenger';
-import { findPort } from './helpers/find-port';
+import findPort from './helpers/find-port';
 import {
     formatURL,
     newMsgId,
@@ -31,10 +30,10 @@ describe('ExecutionController', () => {
         });
 
         describe('when constructed with an invalid executionControllerUrl', () => {
-            let worker: ExecutionController.Client;
+            let client: ExecutionController.Client;
 
-            beforeEach(() => {
-                worker = new ExecutionController.Client({
+            beforeAll(() => {
+                client = new ExecutionController.Client({
                     executionControllerUrl: 'http://idk.example.com',
                     workerId: 'hello',
                     actionTimeout: 1000,
@@ -47,30 +46,49 @@ describe('ExecutionController', () => {
 
             it('start should throw an error', () => {
                 const errMsg = /^Unable to connect to execution controller/;
-                return expect(worker.start()).rejects.toThrowError(errMsg);
+                return expect(client.start()).rejects.toThrowError(errMsg);
             });
         });
     })
 
     describe('Client & Server', () => {
-        let worker: ExecutionController.Client;
-        let exMessenger: ExecutionController.Server;
+        let client: ExecutionController.Client;
+        let server: ExecutionController.Server;
         let workerId: string;
+        let workerOnlineFn: ExecutionController.WorkerEventFn;
+        let workerReadyFn: ExecutionController.WorkerEventFn;
+        let workerReconnectFn: ExecutionController.WorkerEventFn;
+        let workerOfflineFn: ExecutionController.WorkerErrorEventFn;
+        let workerErrorFn: ExecutionController.WorkerErrorEventFn;
+        let workerShutdownFn: ExecutionController.WorkerShutdownFn;
 
-        beforeEach(async () => {
+        beforeAll(async () => {
+            workerOnlineFn = jest.fn();
+            workerReadyFn = jest.fn();
+            workerOfflineFn = jest.fn();
+            workerReconnectFn = jest.fn();
+            workerErrorFn = jest.fn();
+            workerShutdownFn = jest.fn();
+
             const slicerPort = await findPort();
             const executionControllerUrl = formatURL('localhost', slicerPort);
-            exMessenger = new ExecutionController.Server({
+            server = new ExecutionController.Server({
                 controllerId: newMsgId(),
                 port: slicerPort,
                 networkLatencyBuffer: 0,
                 actionTimeout: 1000,
             });
 
-            await exMessenger.start();
+            await server.start();
+
+            server.onWorkerOnline(workerOnlineFn);
+            server.onWorkerReady(workerReadyFn);
+            server.onWorkerReconnect(workerReconnectFn);
+            server.onWorkerOffline(workerOfflineFn);
+            server.onWorkerError(workerErrorFn);
 
             workerId = newMsgId();
-            worker = new ExecutionController.Client({
+            client = new ExecutionController.Client({
                 workerId,
                 executionControllerUrl,
                 networkLatencyBuffer: 0,
@@ -81,180 +99,141 @@ describe('ExecutionController', () => {
                 },
             });
 
-            await worker.start();
+            await client.start();
         });
 
-        afterEach(async () => {
-            await exMessenger.shutdown();
-            await worker.shutdown();
+        afterAll(async () => {
+            await server.shutdown();
+            await client.shutdown();
         });
 
-        describe('when calling start on the worker again', () => {
-            it('should not throw an error', () => expect(worker.start()).resolves.toBeNil());
+        describe('when calling start on the client again', () => {
+            it('should not throw an error', () => {
+                return expect(client.start()).resolves.toBeNil()
+            });
         });
 
         it('should have no available workers', () => {
-            expect(exMessenger.availableWorkers()).toEqual(0);
+            expect(server.availableWorkers()).toEqual(0);
         });
 
-        describe('when the worker is ready', () => {
-            let enqueuedMsg: object | undefined;
+        it('should call server.onWorkerOnline', () => {
+            expect(workerOnlineFn).toHaveBeenCalledWith(workerId);
+        })
 
-            beforeEach(async () => {
-                worker.ready();
-                enqueuedMsg = await exMessenger.onceWithTimeout(`worker:enqueue:${workerId}`);
+        it('should not call server.onWorkerReady', () => {
+            expect(workerReadyFn).not.toHaveBeenCalledWith(workerId);
+        })
+
+        it('should not call server.onWorkerOffline', () => {
+            expect(workerOfflineFn).not.toHaveBeenCalledWith(workerId);
+        })
+
+        it('should not call server.onWorkerReconnect', () => {
+            expect(workerReconnectFn).not.toHaveBeenCalledWith(workerId);
+        })
+
+        it('should not call client.onWorkerShutdown', () => {
+            expect(workerShutdownFn).not.toHaveBeenCalled();
+        })
+
+        describe('when the client is ready', () => {
+            beforeAll((done) => {
+                server.onWorkerReady(() => { done() });
+                client.ready();
             });
 
-            it('should call worker ready on the exMessenger', () => {
-                expect(enqueuedMsg).toEqual({ worker_id: workerId });
+            it('should call client ready on the server', () => {
+                expect(workerReadyFn).toHaveBeenCalledWith(workerId);
             });
 
             it('should have one client connected', async () => {
-                expect(exMessenger.availableWorkers()).toEqual(1);
-                expect(exMessenger.connectedWorkers()).toEqual(1);
+                expect(server.availableWorkers()).toEqual(1);
+                expect(server.connectedWorkers()).toEqual(1);
             });
 
-            describe('when sending worker:slice:complete', () => {
-                it('should emit worker:slice:complete on the exMessenger', async () => {
-                    const msg = await worker.sliceComplete({
+            describe('when sending client:slice:complete', () => {
+                it('should emit client:slice:complete on the server', async () => {
+                    const msg = await client.sliceComplete({
                         slice: {
-                            slice_id: 'worker-slice-complete'
+                            slicer_order: 0,
+                            slicer_id: 1,
+                            request: {},
+                            slice_id: 'client-slice-complete',
+                            _created: 'hello'
                         },
-                        analytics: 'hello',
+                        analytics: {
+                            time: [],
+                            memory: [],
+                            size: []
+                        },
                         error: 'hello'
                     });
 
                     expect(msg).toEqual({
-                        slice_id: 'worker-slice-complete',
+                        slice_id: 'client-slice-complete',
                         recorded: true,
                     });
-                    expect(exMessenger.queue.exists('worker_id', workerId)).toBeTrue();
+                    expect(server.queue.exists('worker_id', workerId)).toBeTrue();
                 });
             });
 
             describe('when receiving finished', () => {
-                let msg: object | undefined;
-
-                beforeEach((done) => {
-                    exMessenger.executionFinished('some-ex-id');
-
-                    const timeout = setTimeout(() => {
-                        worker.removeAllListeners('worker:shutdown');
-                        done();
-                    }, 1000);
-
-                    worker.once('worker:shutdown', (_msg: Message) => {
-                        clearTimeout(timeout);
-                        msg = _msg;
-                        done();
-                    });
+                beforeAll((done) => {
+                    client.onWorkerShutdown(() => { done() } );
+                    server.executionFinished('some-ex-id');
                 });
 
-                it('should receive the message on the worker', () => {
-                    expect(msg).toEqual({
-                        ex_id: 'some-ex-id',
-                    });
+                it('should call client.onWorkerShutdown', () => {
+                    expect(workerShutdownFn).toHaveBeenCalled();
                 });
             });
 
             describe('when receiving slicer:slice:new', () => {
-                describe('when the worker is set as available', () => {
-                    beforeEach(() => {
-                        worker.available = true;
+                describe('when the client is set as available', () => {
+                    beforeAll(() => {
+                        client.available = true;
                     });
 
                     it('should resolve with correct messages', async () => {
-                        const response = exMessenger.sendNewSlice(workerId, {
-                            example: 'slice-new-message'
-                        });
+                        const newSlice = {
+                            slicer_order: 0,
+                            slicer_id: 1,
+                            request: {},
+                            slice_id: 'client-slice-complete',
+                            _created: 'hello'
+                        }
 
-                        const slice = worker.onceWithTimeout('slicer:slice:new');
+                        const response = server.sendNewSlice(workerId, newSlice);
+
+                        const slice = client.waitForSlice();
 
                         await expect(response).resolves.toEqual({ willProcess: true });
-                        await expect(slice).resolves.toEqual({ example: 'slice-new-message' });
+                        await expect(slice).resolves.toEqual(newSlice);
                     });
                 });
 
-                describe('when the worker is set as unavailable', () => {
-                    beforeEach(() => {
-                        worker.available = false;
+                describe('when the client is set as unavailable', () => {
+                    beforeAll(() => {
+                        client.available = false;
                     });
 
                     it('should reject with the correct error messages', async () => {
-                        const response = exMessenger.sendNewSlice(workerId, {
-                            example: 'slice-new-message'
-                        });
+                        const newSlice = {
+                            slicer_order: 0,
+                            slicer_id: 1,
+                            request: {},
+                            slice_id: 'client-slice-complete',
+                            _created: 'hello'
+                        }
 
-                        const slice = worker.onceWithTimeout('slicer:slice:new');
+                        const response = server.sendNewSlice(workerId, newSlice);
+
+                        const slice = client.onceWithTimeout('slicer:slice:new');
 
                         await expect(response).rejects.toThrowError(`Worker ${workerId} will not process new slice`);
                         await expect(slice).rejects.toThrowError('Timed out after 1000ms, waiting for event "slicer:slice:new"');
                     });
-                });
-            });
-
-            describe('when waiting for message that will never come', () => {
-                it('should throw a timeout error', async () => {
-                    expect.hasAssertions();
-                    try {
-                        await worker.onceWithTimeout('mystery:message');
-                    } catch (err) {
-                        expect(err).not.toBeNil();
-                        expect(err.message).toEqual('Timed out after 1000ms, waiting for event "mystery:message"');
-                    }
-                });
-            });
-
-            describe('when the worker responds with an error', () => {
-                let responseMsg: Message | object | undefined;
-                let responseErr: Error | undefined;
-
-                beforeEach(async () => {
-                    worker.socket.on('some:message', (msg: Message) => {
-                        worker.socket.emit('messaging:response', {
-                            __msgId: msg.__msgId,
-                            __source: 'execution_controller',
-                            error: 'this should fail'
-                        });
-                    });
-                    try {
-                        responseMsg = await exMessenger.sendWithResponse({
-                            address: workerId,
-                            message: 'some:message',
-                            payload: { hello: true }
-                        });
-                    } catch (err) {
-                        responseErr = err;
-                    }
-                });
-
-                it('exMessenger should get an error back', () => {
-                    // @ts-ignore
-                    expect(responseMsg).toBeNil();
-                    expect(responseErr && responseErr.toString()).toEqual('Error: this should fail');
-                });
-            });
-
-            describe('when the worker takes too long to respond', () => {
-                let responseMsg: Message | object | undefined;
-                let responseErr: Error | undefined;
-
-                beforeEach(async () => {
-                    try {
-                        responseMsg = await exMessenger.sendWithResponse({
-                            address: workerId,
-                            message: 'some:message',
-                            payload: { hello: true }
-                        });
-                    } catch (err) {
-                        responseErr = err;
-                    }
-                });
-
-                it('exMessenger should get an error back', () => {
-                    // @ts-ignore
-                    expect(responseMsg).toBeNil();
-                    expect(responseErr && responseErr.toString()).toStartWith(`Error: Timeout error while communicating with ${workerId}, with message:`);
                 });
             });
         });

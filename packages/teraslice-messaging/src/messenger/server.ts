@@ -29,6 +29,9 @@ export class Server extends Core {
         }
 
         this.server.listen(this.port);
+        this.server.on('connection', (socket) => {
+            this.handleResponses(socket);
+        });
     }
 
     getClientCounts(): number {

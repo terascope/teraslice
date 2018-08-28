@@ -33,11 +33,12 @@ export class Client extends Core {
         this.close();
     }
 
-    connect() {
+    async connect() {
         if (this.socket.connected) {
-            return Promise.resolve();
+            return;
         }
-        return new Promise((resolve, reject) => {
+
+        await new Promise((resolve, reject) => {
             let connectErr: Error | undefined;
             let connectInterval: NodeJS.Timer | undefined;
 
@@ -70,6 +71,8 @@ export class Client extends Core {
                 reject(connectErr);
             }, this.actionTimeout);
         });
+
+        this.handleResponses(this.socket);
     }
 
     // For testing purposes

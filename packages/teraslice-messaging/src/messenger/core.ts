@@ -131,7 +131,6 @@ export class Core extends EventEmitter {
         });
     }
 
-
     private _sendMessage(message: i.InputMessage, override?: string): void {
         if (this.server) {
             const room = override || message.address;
@@ -146,15 +145,6 @@ export class Core extends EventEmitter {
         if (this.socket) {
             this.socket.emit(message.message, message);
         }
-    }
-
-    // do this to make it easier to listen for a specific messages
-    protected _emit(eventName: string, msg: any, keys: string[] = []): void {
-        _.forEach(_.compact(keys), (key) => {
-            this.emit(`${eventName}:${key}`, msg);
-        });
-
-        this.emit(`${eventName}`, msg);
     }
 
     protected _getTimeout(timeout?: number): number {

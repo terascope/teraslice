@@ -82,7 +82,7 @@ export interface SliceRequest {
 }
 
 export interface Slice {
-    slice_id: number;
+    slice_id: string;
     slicer_id: number;
     slicer_order: number;
     request: SliceRequest;

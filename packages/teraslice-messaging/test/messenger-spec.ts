@@ -1,6 +1,8 @@
 import 'jest-extended';
 
-import { Messenger } from '../src';
+import { Message } from '../src/messenger';
+import { Messenger, formatURL } from '../src';
+import findPort from './helpers/find-port';
 
 describe('Messenger', () => {
     describe('->Core', () => {
@@ -63,6 +65,104 @@ describe('Messenger', () => {
                         networkLatencyBuffer: 0
                     });
                 }).toThrowError('Messenger.Server requires a valid port');
+            });
+        });
+    })
+
+    describe('Client & Server', () => {
+        let client: Messenger.Client;
+        let server: Messenger.Server;
+
+        beforeAll(async () => {
+            const port = await findPort();
+            const hostUrl = formatURL('localhost', port);
+            server = new Messenger.Server({
+                port,
+                networkLatencyBuffer: 0,
+                actionTimeout: 1000,
+                source: 'example',
+                to: 'example',
+            });
+
+            server.server.use((socket, next) => {
+                socket.join('example-room', next);
+            });
+
+            await server.listen();
+
+            client = new Messenger.Client({
+                source: 'example',
+                to: 'example',
+                hostUrl,
+                networkLatencyBuffer: 0,
+                actionTimeout: 1000,
+                socketOptions: {
+                    timeout: 1000,
+                    reconnection: false,
+                },
+            });
+
+            await client.connect();
+        })
+
+        describe('when waiting for message that will never come', () => {
+            it('should throw a timeout error', async () => {
+                expect.hasAssertions();
+                try {
+                    await client.onceWithTimeout('mystery:message');
+                } catch (err) {
+                    expect(err).not.toBeNil();
+                    expect(err.message).toEqual('Timed out after 1000ms, waiting for event "mystery:message"');
+                }
+            });
+        });
+
+        describe('when the client responds with an error', () => {
+            let responseMsg: Message | object | undefined;
+            let responseErr: Error | undefined;
+
+            beforeAll(async () => {
+                client.socket.once('failure:message', (msg: Message) => {
+                    client.respond(msg, { error: "this should fail" })
+                });
+                try {
+                    responseMsg = await server.sendWithResponse({
+                        address: 'example-room',
+                        message: 'failure:message',
+                        payload: { hello: true }
+                    });
+                } catch (err) {
+                    responseErr = err;
+                }
+            });
+
+            it('server should get an error back', () => {
+                // @ts-ignore
+                expect(responseMsg).toBeNil();
+                expect(responseErr && responseErr.toString()).toEqual('Error: this should fail');
+            });
+        });
+
+        describe('when the client takes too long to respond', () => {
+            let responseMsg: Message | object | undefined;
+            let responseErr: Error | undefined;
+
+            beforeAll(async () => {
+                try {
+                    responseMsg = await server.sendWithResponse({
+                        address: 'example-room',
+                        message: 'some:message',
+                        payload: { hello: true }
+                    });
+                } catch (err) {
+                    responseErr = err;
+                }
+            });
+
+            it('server should get an error back', () => {
+                // @ts-ignore
+                expect(responseMsg).toBeNil();
+                expect(responseErr && responseErr.toString()).toStartWith(`Error: Timeout error while communicating with example-room, with message:`);
             });
         });
     })

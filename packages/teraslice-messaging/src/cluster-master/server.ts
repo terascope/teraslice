@@ -104,11 +104,11 @@ export class Server extends core.Server {
         const { controllerId } = socket;
 
         socket.on('error', (err: Error) => {
-            this._emit('controller:error', err, [controllerId]);
+            this.emit('controller:error', err, [controllerId]);
         });
 
         socket.on('disconnect', (err: Error) => {
-            this._emit('controller:offline', err, [controllerId]);
+            this.emit('controller:offline', err, [controllerId]);
         });
 
         socket.on('cluster:analytics', (msg: core.Message) => {
@@ -123,7 +123,6 @@ export class Server extends core.Server {
             });
         });
 
-        this.handleResponses(socket);
         this.emit('controller:online');
     }
 }

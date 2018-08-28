@@ -63,7 +63,7 @@ export class Server extends core.Server {
         await super.shutdown();
     }
 
-    async sendNewSlice(workerId: string, slice: object, timeoutMs?: number): Promise<i.SliceResponseMessage> {
+    async sendNewSlice(workerId: string, slice: Slice, timeoutMs?: number): Promise<i.SliceResponseMessage> {
         const msg = await this.sendWithResponse({
             address: workerId,
             message: 'slicer:slice:new',
@@ -114,20 +114,24 @@ export class Server extends core.Server {
         this.server.sockets.emit('execution:finished', { ex_id: exId });
     }
 
-    onWorkerOffline(fn: i.OnWorkerOfflineFn) {
+    onWorkerOffline(fn: i.WorkerErrorEventFn) {
         this.on('worker:offline', fn);
     }
 
-    onWorkerOnline(fn: i.OnWorkerOnlineFn) {
+    onWorkerOnline(fn: i.WorkerEventFn) {
         this.on('worker:online', fn);
     }
 
-    onWorkerReconnect(fn: i.OnWorkerOnlineFn) {
+    onWorkerReconnect(fn: i.WorkerEventFn) {
         this.on('worker:reconnect', fn);
     }
 
-    onWorkerReady(fn: i.OnWorkerReadyFn) {
+    onWorkerReady(fn: i.WorkerEventFn) {
         this.on('worker:enqueue', fn);
+    }
+
+    onWorkerError(fn: i.WorkerErrorEventFn) {
+        this.on('worker:error', fn);
     }
 
     private _onConnection(socket: SocketIO.Socket) {
@@ -135,7 +139,7 @@ export class Server extends core.Server {
         const { workerId } = socket;
 
         socket.on('error', (err) => {
-            this._emit('worker:error', err, [workerId]);
+            this.emit('worker:error', workerId, err);
         });
 
         socket.on('disconnect', (err) => {
@@ -147,8 +151,7 @@ export class Server extends core.Server {
             this._workerEnqueue(msg);
         });
 
-        this.handleResponses(socket);
-        this.emit('worker:online');
+        this.emit('worker:online', workerId);
 
         socket.on('worker:slice:complete', (msg) => {
             const workerResponse = msg.payload;
@@ -193,7 +196,7 @@ export class Server extends core.Server {
             this.queue.enqueue({ worker_id: workerId });
         }
 
-        this._emit('worker:enqueue', { worker_id: workerId }, [workerId]);
+        this.emit('worker:enqueue', workerId);
         return exists;
     }
 
@@ -213,7 +216,7 @@ export class Server extends core.Server {
             return null;
         }
 
-        this._emit('worker:dequeue', { worker_id: workerId }, [workerId]);
+        this.emit('worker:dequeue', workerId);
         return workerId;
     }
 
@@ -223,8 +226,7 @@ export class Server extends core.Server {
 
         this.queue.remove(workerId, 'worker_id');
 
-        this._emit('worker:dequeue', { worker_id: workerId }, [workerId]);
-        this._emit('worker:remove', { worker_id: workerId }, [workerId]);
+        this.emit('worker:dequeue', workerId);
         return true;
     }
 }
