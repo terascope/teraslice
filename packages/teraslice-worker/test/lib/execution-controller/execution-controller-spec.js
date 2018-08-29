@@ -95,7 +95,7 @@ describe('ExecutionController', () => {
                     new Error('Slice failure'),
                     null
                 ],
-                slicerFais: true,
+                slicerFails: true,
                 body: { example: 'slice-failure' },
                 count: 1,
                 analytics: _.sample([true, false]),
@@ -284,6 +284,7 @@ describe('ExecutionController', () => {
         ]
     ];
 
+    // for testing enable the next line and a "only" property to the test cases you want
     // fdescribe.each(_.filter(testCases, ts => ts[1].only))('when %s', (m, options) => {
     describe.each(testCases)('when %s', (m, options) => {
         const {
@@ -653,7 +654,7 @@ describe('ExecutionController', () => {
                 try {
                     await exController.initialize();
                 } catch (err) {
-                    expect(err.message).toStartWith(`Unable to get execution using the exId: ${testContext.exId}`);
+                    expect(err.message).toStartWith(`Cannot get execution status ${testContext.exId}, caused by invoking elasticsearch-api _runRequest resulted in a runtime error: Not Found`);
                 }
             });
         });

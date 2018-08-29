@@ -67,7 +67,14 @@ fs.readdirSync(packagesPath).forEach((fileName) => {
     const otherPkgDir = path.join(packagesPath, fileName);
     const otherPkgPath = path.join(otherPkgDir, 'package.json');
     if (fs.statSync(otherPkgDir).isDirectory()) {
-        const otherPkgJSON = fse.readJsonSync(otherPkgPath);
+        let otherPkgJSON;
+
+        try {
+            otherPkgJSON = fse.readJsonSync(otherPkgPath);
+        } catch (err) {
+            console.error(`Unable to read package.json for package ${fileName}`);
+            return;
+        }
 
         if (otherPkgJSON.dependencies[realPkgName]) {
             otherPkgJSON.dependencies[realPkgName] = `^${newVersion}`;

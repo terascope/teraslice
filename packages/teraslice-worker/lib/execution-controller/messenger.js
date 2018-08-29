@@ -182,7 +182,7 @@ class ExecutionControllerMessenger extends MessengerServer {
             const workerResponse = msg.payload;
             const sliceId = _.get(workerResponse, 'slice.slice_id');
 
-            if (workerResponse.retry) {
+            if (workerResponse.retry && !workerResponse.isShuttingDown) {
                 const retried = this.cache.get(`${sliceId}:retry`);
                 if (!retried) {
                     this._workers[workerId] = {

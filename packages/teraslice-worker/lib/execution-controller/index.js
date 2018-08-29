@@ -82,6 +82,14 @@ class ExecutionController {
         this.isExecutionFinished = false;
         this.forceShutdown = false;
 
+        this.logDoneCreatingSlices = _.once(() => {
+            this.logger.debug('done creating slices');
+        });
+
+        this.logDoneProcessingSlices = _.once(() => {
+            this.logger.debug('done processing slices');
+        });
+
         this._dispatchSlices = this._dispatchSlices.bind(this);
         this.setFailingStatus = this.setFailingStatus.bind(this);
         this.terminalError = this.terminalError.bind(this);
@@ -258,6 +266,8 @@ class ExecutionController {
         const { ex_id: exId } = this.executionContext;
         const { exStore } = this.stores;
 
+        this.slicerFailed = true;
+
         const error = new WrapError(`slicer for ex ${exId} had an error, shutting down execution`, err);
         this.logger.error(error);
 
@@ -267,8 +277,6 @@ class ExecutionController {
         await exStore.setStatus(exId, 'failed', errorMeta);
 
         await this.clusterMasterClient.executionTerminal(exId);
-
-        this.slicerFailed = true;
     }
 
     async slicerCompleted() {
@@ -351,45 +359,59 @@ class ExecutionController {
         this.logger.debug('execution controller is shutdown');
     }
 
+    // this is used to indicate that recovery is complete
+    // if there is no recovery, this is returns true.
     get recoveryComplete() {
         return this.recover == null || this.recover.recoveryComplete();
     }
 
+    // this is used to determine when slicers should stop creating slices
     get isDoneCreatingSlices() {
-        return this.forceShutdown
+        const isDone = this.forceShutdown
             || this.isShuttingDown
             || this.isExecutionFinished
             || this.slicerFailed
             || this.isPaused
             || (this.slicersDone && this.recoveryComplete);
+
+        if (isDone) this.logDoneCreatingSlices();
+        return isDone;
     }
 
+    // this is used to determine when slices should stop be dispatched to the workers
+    // in most cases this will only return true after the slices are done being created
     get isDoneProcessing() {
-        return this.forceShutdown
-           || (
-               this.isDoneCreatingSlices
-                && this.slicersDone
-                && this.recoveryComplete
-                && this.isSlicersComplete
-           );
+        const isDone = this.isDoneCreatingSlices
+            && this.slicersDone
+            && this.recoveryComplete
+            && this.isSlicersComplete;
+
+        const isDoneOrShutdown = this.forceShutdown || this.slicerFailed || isDone;
+
+        if (isDoneOrShutdown) this.logDoneProcessingSlices();
+        return isDoneOrShutdown;
     }
 
+    // this is used to determine when the slicers are done the work is done processing
     get isSlicersComplete() {
         const workersCompleted = this.messenger.readyWorkers >= this.messenger.connectedWorkers;
         const slicesFinished = this.remainingSlices === 0;
         return this.isStarted && workersCompleted && slicesFinished;
     }
 
+    // this is used to determine when all slices are done creating slices
     get slicersDone() {
         if (this.slicers == null) return false;
         return this.slicersDoneCount === _.size(this.slicers) && this.recoveryComplete;
     }
 
+    // this is used to determine when the slices are done
     get isOnce() {
         const { lifecycle } = this.executionContext.config;
         return (lifecycle === 'once') && this.recoveryComplete;
     }
 
+    // this is used to indicate the number of slices pending slices
     get remainingSlices() {
         return this.slicerQueue.size();
     }
@@ -602,23 +624,34 @@ class ExecutionController {
         const { exStore } = this.stores;
         const { ex_id: exId } = this.executionContext;
 
-        const errCount = await this._checkExecutionState();
-
         const executionStats = this.executionAnalytics.getAnalytics();
 
+        const isShutdownEarly = !this.isDoneProcessing || this.forceShutdown;
+
+        if (isShutdownEarly) {
+            // if status is stopping or stopped, only update the execution metadata
+            const status = await exStore.getStatus(exId);
+            const isStopping = status === 'stopping' || status === 'stopped';
+            if (isStopping) {
+                const metaData = exStore.executionMetaData(executionStats);
+                logger.debug(`execution is set to ${status}, status will not be updated`);
+                await exStore.update(exId, metaData);
+                return;
+            }
+
+            const errMsg = `execution ${exId} received shutdown before the slicer could complete, setting status to "terminated"`;
+            const metaData = exStore.executionMetaData(executionStats, errMsg);
+            logger.error(errMsg);
+            await exStore.setStatus(exId, 'terminated', metaData);
+            return;
+        }
+
+        const errCount = await this._checkExecutionState();
         if (errCount > 0) {
             const errMsg = `execution: ${exId} had ${errCount} slice failures during processing`;
             const errorMeta = exStore.executionMetaData(executionStats, errMsg);
             logger.error(errMsg);
             await exStore.setStatus(exId, 'failed', errorMeta);
-            return;
-        }
-
-        if (!this.isDoneProcessing || this.forceShutdown) {
-            const errMsg = `execution ${exId} received shutdown before the slicer could complete, setting status to "terminated"`;
-            const metaData = exStore.executionMetaData(executionStats, errMsg);
-            logger.error(errMsg);
-            await exStore.setStatus(exId, 'terminated', metaData);
             return;
         }
 
@@ -675,6 +708,7 @@ class ExecutionController {
         return checkExecution();
     }
 
+    // verify the execution can be set to running
     async _verifyExecution() {
         const { ex_id: exId } = this.executionContext;
         const { exStore } = this.stores;
@@ -682,17 +716,12 @@ class ExecutionController {
 
         const terminalStatuses = exStore.getTerminalStatuses();
         const runningStatuses = exStore.getRunningStatuses();
-        let result;
-        try {
-            result = await exStore.get(exId);
-        } catch (err) {
-            throw new Error(`Unable to get execution using the exId: ${exId}: ${_.toString(err)}`);
-        }
+        const status = await exStore.getStatus(exId);
 
-        if (_.includes(terminalStatuses, result._status)) {
+        if (_.includes(terminalStatuses, status)) {
             error = new Error(`Execution ${exId} was starting in terminal status, sending executionTerminal event to cluster master`);
             await this.clusterMasterClient.executionTerminal(exId);
-        } else if (_.includes(runningStatuses, result._status)) {
+        } else if (_.includes(runningStatuses, status)) {
             error = new Error(`Execution ${exId} was starting in running status, sending executionFinished event to cluster master`);
             await this.clusterMasterClient.executionFinished(exId);
         } else {
