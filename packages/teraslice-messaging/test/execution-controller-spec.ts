@@ -99,6 +99,8 @@ describe('ExecutionController', () => {
                 },
             });
 
+            client.onWorkerShutdown(workerShutdownFn);
+
             await client.start();
         });
 
