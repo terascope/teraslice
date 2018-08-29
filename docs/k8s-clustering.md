@@ -63,23 +63,23 @@ will result in the Kubernetes `resources.requests.memory` and
 [Kubernetes Resource docs](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
 for further details on how Kubernetes interprets these values.
 
-## Node Affinity by Labels
+## Node Affinity by Targets
 
 If you need the workers (and execution controller) of your job to execute on
-specific set of nodes, you can use the Teraslice `node_labels` property on your
-job. You can specify one or more labels that will use [Kubernetes Node Affinity](
+specific set of nodes, you can use the Teraslice `targets` property on your
+job. You can specify one or more targets that will use [Kubernetes Node Affinity](
 https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity)
-to force nodes onto specific nodes.  The labels specified here will be required
+to force nodes onto specific nodes.  The targets specified here will be required
 using `requiredDuringSchedulingIgnoredDuringExecution`.
 
 ```
-"node_labels": [
+"targets": [
     {"key": "zone", "value": "west"}
 ],
 ```
 
-For each `node_label` you specify, there will be a corresponding Kubernetes
-constraint, like the one shown below, added to your workers.
+For each entry in `targets` you provide, there will be a corresponding
+Kubernetes constraint, like the one shown below, added to your workers.
 
 ```
         nodeSelectorTerms:

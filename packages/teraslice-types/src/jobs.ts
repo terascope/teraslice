@@ -23,7 +23,7 @@ export interface JobConfig {
     workers: number;
 }
 
-export interface NodeLabel {
+export interface Targets {
     key: string;
     value: string;
 }
@@ -34,7 +34,7 @@ export interface Volume {
 }
 
 export interface K8sJobConfig extends JobConfig {
-    node_labels: NodeLabel[];
+    targets: Targets[];
     cpu: number;
     memory: number;
     volumes: Volume[];

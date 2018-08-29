@@ -16,12 +16,12 @@ function gen(templateType, templateName, execution, config) {
     const templateGenerator = makeTemplate(templateType, templateName);
     const k8sObject = templateGenerator(config);
 
-    // Apply job `node_labels` setting as k8s nodeAffinity
-    // We assume that multiple node_labels require both to match ...
+    // Apply job `targets` setting as k8s nodeAffinity
+    // We assume that multiple targets require both to match ...
     // NOTE: If you specify multiple `matchExpressions` associated with
     // `nodeSelectorTerms`, then the pod can be scheduled onto a node
     // only if *all* `matchExpressions` can be satisfied.
-    if (_.has(execution, 'node_labels') && (!_.isEmpty(execution.node_labels))) {
+    if (_.has(execution, 'targets') && (!_.isEmpty(execution.targets))) {
         _setAffinity(k8sObject, execution);
     }
 
@@ -74,13 +74,13 @@ function _setAffinity(k8sObject, execution) {
         };
     }
 
-    _.forEach(execution.node_labels, (label) => {
+    _.forEach(execution.targets, (target) => {
         k8sObject.spec.template.spec.affinity.nodeAffinity
             .requiredDuringSchedulingIgnoredDuringExecution
             .nodeSelectorTerms[0].matchExpressions.push({
-                key: label.key,
+                key: target.key,
                 operator: 'In',
-                values: [label.value]
+                values: [target.value]
             });
     });
 }

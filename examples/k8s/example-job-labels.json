@@ -5,7 +5,7 @@
     "assets": [
         "example"
     ],
-    "node_labels": [
+    "targets": [
         {
             "key": "zone",
             "value": "west"

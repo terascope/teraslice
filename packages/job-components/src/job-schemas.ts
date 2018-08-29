@@ -137,17 +137,17 @@ export function jobSchema(context: Context): convict.Schema<any> {
     const clusteringType = context.sysconfig.teraslice.cluster_manager_type;
 
     if (clusteringType === 'kubernetes') {
-        schemas.node_labels = {
+        schemas.targets = {
             default: [],
             doc: 'array of key/value labels used for targetting teraslice jobs to nodes',
             format(arr: any) {
                 _.forEach(arr, (label) => {
                     if (!_.has(label, 'key')) {
-                        throw new Error(`node_labels need to have a key: ${label}`);
+                        throw new Error(`targets need to have a key: ${label}`);
                     }
 
                     if (!_.has(label, 'value')) {
-                        throw new Error(`node_labels need to have a value: ${label}`);
+                        throw new Error(`targets need to have a value: ${label}`);
                     }
                 });
             }

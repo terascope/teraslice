@@ -155,11 +155,11 @@ describe('When validating k8s clustering', () => {
         });
     });
 
-    describe('When passed a jobConfig with node_labels', () => {
+    describe('When passed a jobConfig with targets', () => {
         it('returns a completed and valid jobConfig', () => {
             const schema = jobSchema(context);
             const job = {
-                node_labels: [
+                targets: [
                     {
                         key: 'zone',
                         value: 'west'
@@ -187,7 +187,7 @@ describe('When validating k8s clustering', () => {
                 probation_window: 300000,
                 recycle_worker: null,
                 slicers: 1,
-                node_labels: [
+                targets: [
                     {
                         key: 'zone',
                         value: 'west'
@@ -232,7 +232,7 @@ describe('When validating k8s clustering', () => {
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],
                 probation_window: 300000,
                 recycle_worker: null,
-                node_labels: [],
+                targets: [],
                 volumes: [
                     {
                         name: 'pvc-name',

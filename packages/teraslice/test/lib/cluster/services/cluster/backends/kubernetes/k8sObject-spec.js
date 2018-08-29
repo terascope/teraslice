@@ -84,11 +84,11 @@ describe('k8sDeployment', () => {
         expect(deployment).not.toHaveProperty('spec.template.spec.resource');
     });
 
-    describe('with a empty array in node_labels', () => {
+    describe('with a empty array in targets', () => {
         let deployment;
 
         beforeEach(() => {
-            ex.node_labels = [];
+            ex.targets = [];
             deployment = k8sObject.gen('deployments', 'worker', ex, config);
         });
 
@@ -99,11 +99,11 @@ describe('k8sDeployment', () => {
     });
 
 
-    describe('with a single value in node_labels', () => {
+    describe('with a single value in targets', () => {
         let deployment;
 
         beforeEach(() => {
-            ex.node_labels = [{ key: 'zone', value: 'west' }];
+            ex.targets = [{ key: 'zone', value: 'west' }];
             deployment = k8sObject.gen('deployments', 'worker', ex, config);
         });
 
@@ -121,11 +121,11 @@ describe('k8sDeployment', () => {
         });
     });
 
-    describe('with multiple single node_labels', () => {
+    describe('with multiple single targets', () => {
         let deployment;
 
         beforeEach(() => {
-            ex.node_labels = [
+            ex.targets = [
                 { key: 'zone', value: 'west' },
                 { key: 'region', value: '42' }
             ];
