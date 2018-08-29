@@ -25,9 +25,7 @@ function gen(templateType, templateName, execution, config) {
         _setAffinity(k8sObject, execution);
     }
 
-    if (_.has(execution, 'resources')) {
-        _setResources(k8sObject, execution);
-    }
+    _setResources(k8sObject, execution);
 
     if (_.has(execution, 'volumes') && (execution.volumes != null)) {
         _setVolumes(k8sObject, execution);
@@ -50,24 +48,18 @@ function _setVolumes(k8sObject, execution) {
 }
 
 function _setResources(k8sObject, execution) {
-    if (_.has(execution.resources, 'minimum.cpu') && execution.resources.minimum.cpu !== -1) {
+    if (_.has(execution, 'cpu') && execution.cpu !== -1) {
         _.set(k8sObject.spec.template.spec.containers[0],
-            'resources.requests.cpu', execution.resources.minimum.cpu);
+            'resources.requests.cpu', execution.cpu);
+        _.set(k8sObject.spec.template.spec.containers[0],
+            'resources.limits.cpu', execution.cpu);
     }
 
-    if (_.has(execution.resources, 'minimum.memory') && execution.resources.minimum.memory !== -1) {
+    if (_.has(execution, 'memory') && execution.memory !== -1) {
         _.set(k8sObject.spec.template.spec.containers[0],
-            'resources.requests.memory', execution.resources.minimum.memory);
-    }
-
-    if (_.has(execution.resources, 'limit.cpu') && execution.resources.limit.cpu !== -1) {
+            'resources.requests.memory', execution.memory);
         _.set(k8sObject.spec.template.spec.containers[0],
-            'resources.limits.cpu', execution.resources.limit.cpu);
-    }
-
-    if (_.has(execution.resources, 'limit.memory') && execution.resources.limit.memory !== -1) {
-        _.set(k8sObject.spec.template.spec.containers[0],
-            'resources.limits.memory', execution.resources.limit.memory);
+            'resources.limits.memory', execution.memory);
     }
 }
 

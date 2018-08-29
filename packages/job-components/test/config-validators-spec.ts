@@ -185,8 +185,10 @@ describe('When validating k8s clustering', () => {
             const validJob = {
                 analytics: true,
                 assets: null,
+                cpu: -1,
                 lifecycle: 'once',
                 max_retries: 3,
+                memory: -1,
                 name: 'Custom Job',
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],
                 probation_window: 300000,
@@ -198,16 +200,6 @@ describe('When validating k8s clustering', () => {
                         value: 'west'
                     }
                 ],
-                resources: {
-                    minimum: {
-                        cpu: -1,
-                        memory: -1,
-                    },
-                    limit: {
-                        cpu: -1,
-                        memory: -1,
-                    }
-                },
                 volumes: [],
             };
 
@@ -239,23 +231,15 @@ describe('When validating k8s clustering', () => {
             const validJob = {
                 analytics: true,
                 assets: null,
+                cpu: -1,
                 lifecycle: 'once',
                 max_retries: 3,
+                memory: -1,
                 name: 'Custom Job',
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],
                 probation_window: 300000,
                 recycle_worker: null,
                 node_labels: [],
-                resources: {
-                    minimum: {
-                        cpu: -1,
-                        memory: -1,
-                    },
-                    limit: {
-                        cpu: -1,
-                        memory: -1,
-                    }
-                },
                 volumes: [
                     {
                         name: 'pvc-name',

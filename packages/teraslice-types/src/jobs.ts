@@ -10,11 +10,6 @@ export enum LifeCycle {
     Persistent = 'persistent',
 }
 
-export interface JobResource {
-    cpu?: number;
-    memory?: number;
-}
-
 export interface JobConfig {
     analytics: boolean;
     assets: string[];
@@ -26,11 +21,6 @@ export interface JobConfig {
     recycle_worker: number;
     slicers: number;
     workers: number;
-}
-
-export interface JobResources {
-    limit?: JobResource;
-    minimum?: JobResource;
 }
 
 export interface NodeLabel {
@@ -45,7 +35,8 @@ export interface Volume {
 
 export interface K8sJobConfig extends JobConfig {
     node_labels: NodeLabel[];
-    resources: JobResources;
+    cpu: number;
+    memory: number;
     volumes: Volume[];
 }
 

@@ -153,31 +153,16 @@ export function jobSchema(context: Context): convict.Schema<any> {
             }
         };
 
-        schemas.resources = {
-            minimum: {
-                cpu: {
-                    doc: 'minimum cpu value for teraslice workers in kubernetes',
-                    default: -1,
-                    format: 'Number'
-                },
-                memory: {
-                    doc: 'minimum cpu value for teraslice workers in kubernetes.',
-                    default: -1,
-                    format: 'Number'
-                }
-            },
-            limit: {
-                cpu: {
-                    doc: 'maximum cpu limit for teraslice workers in kubernetes',
-                    default: -1,
-                    format: 'Number'
-                },
-                memory: {
-                    doc: 'maximum memory limit for teraslice workers in kubernetes',
-                    default: -1,
-                    format: 'Number'
-                }
-            }
+        schemas.cpu = {
+            doc: 'minimum cpu value for teraslice workers in kubernetes',
+            default: -1,
+            format: 'Number'
+        };
+
+        schemas.memory = {
+            doc: 'minimum cpu value for teraslice workers in kubernetes.',
+            default: -1,
+            format: 'Number'
         };
 
         schemas.volumes = {

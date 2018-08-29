@@ -150,14 +150,12 @@ describe('k8sDeployment', () => {
         });
     });
 
-    describe('with resouces.minimum and resources.limit set', () => {
+    describe('with cpu and memory set', () => {
         let deployment;
 
         beforeEach(() => {
-            ex.resources = {
-                minimum: { cpu: 1, memory: 2147483648 },
-                limit: { cpu: 2, memory: 4294967296 }
-            };
+            ex.cpu = 1;
+            ex.memory = 2147483648;
             deployment = k8sObject.gen('deployments', 'worker', ex, config);
         });
 
@@ -168,67 +166,107 @@ describe('k8sDeployment', () => {
                     memory: 2147483648
                     cpu: 1
                   limits:
-                    memory: 4294967296
-                    cpu: 2`));
-        });
-    });
-
-    describe('with just resouces.minimum set', () => {
-        let deployment;
-
-        beforeEach(() => {
-            ex.resources = {
-                minimum: { cpu: 1, memory: 2147483648 },
-                limit: { cpu: -1, memory: -1 }
-            };
-            deployment = k8sObject.gen('deployments', 'worker', ex, config);
-        });
-
-        it('should render a deployment with just requests set in the deployment', () => {
-            expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
-            expect(deployment.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
-                  requests:
                     memory: 2147483648
                     cpu: 1`));
         });
     });
 
-    describe('with just resources.limit set', () => {
+    describe('with cpu set and memory -1', () => {
         let deployment;
 
         beforeEach(() => {
-            ex.resources = {
-                minimum: { cpu: -1, memory: -1 },
-                limit: { cpu: 2, memory: 4294967296 }
-            };
+            ex.cpu = 1;
+            ex.memory = -1;
             deployment = k8sObject.gen('deployments', 'worker', ex, config);
         });
 
         it('should render a deployment with a required resources', () => {
             expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
             expect(deployment.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
+                  requests:
+                    cpu: 1
                   limits:
-                    memory: 4294967296
-                    cpu: 2`));
+                    cpu: 1`));
         });
     });
 
-    describe('with resources.limit and resouces.minimum set to -1', () => {
+
+    describe('with memory set and cpu -1', () => {
         let deployment;
 
         beforeEach(() => {
-            ex.resources = {
-                minimum: { cpu: -1, memory: -1 },
-                limit: { cpu: -1, memory: -1 }
-            };
+            ex.cpu = -1;
+            ex.memory = 2147483648;
             deployment = k8sObject.gen('deployments', 'worker', ex, config);
         });
 
         it('should render a deployment with a required resources', () => {
             expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
-            expect(deployment.spec.template.spec.containers[0]).not.toHaveProperty('resources');
+            expect(deployment.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
+                  requests:
+                    memory: 2147483648
+                  limits:
+                    memory: 2147483648`));
         });
     });
+
+
+    // describe('with just resouces.minimum set', () => {
+    //     let deployment;
+    //
+    //     beforeEach(() => {
+    //         ex.resources = {
+    //             minimum: { cpu: 1, memory: 2147483648 },
+    //             limit: { cpu: -1, memory: -1 }
+    //         };
+    //         deployment = k8sObject.gen('deployments', 'worker', ex, config);
+    //     });
+    //
+    //     it('should render a deployment with just requests set in the deployment', () => {
+    //         expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+    //         expect(deployment.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
+    //               requests:
+    //                 memory: 2147483648
+    //                 cpu: 1`));
+    //     });
+    // });
+    //
+    // describe('with just resources.limit set', () => {
+    //     let deployment;
+    //
+    //     beforeEach(() => {
+    //         ex.resources = {
+    //             minimum: { cpu: -1, memory: -1 },
+    //             limit: { cpu: 2, memory: 4294967296 }
+    //         };
+    //         deployment = k8sObject.gen('deployments', 'worker', ex, config);
+    //     });
+    //
+    //     it('should render a deployment with a required resources', () => {
+    //         expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+    //         expect(deployment.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
+    //               limits:
+    //                 memory: 4294967296
+    //                 cpu: 2`));
+    //     });
+    // });
+    //
+    // describe('with resources.limit and resouces.minimum set to -1', () => {
+    //     let deployment;
+    //
+    //     beforeEach(() => {
+    //         ex.resources = {
+    //             minimum: { cpu: -1, memory: -1 },
+    //             limit: { cpu: -1, memory: -1 }
+    //         };
+    //         deployment = k8sObject.gen('deployments', 'worker', ex, config);
+    //     });
+    //
+    //     it('should render a deployment with a required resources', () => {
+    //         expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+    //         expect(deployment.spec.template.spec.containers[0]).not.toHaveProperty('resources');
+    //     });
+    // });
 
     describe('with single volume set', () => {
         let deployment;

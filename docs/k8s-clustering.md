@@ -46,20 +46,22 @@ Teraslice job definition.  These are outlined below.
 
 ## Resources
 
-It is possible to set resource constraints for your Teraslice workers that
-translate to Kubernetes resource constraints.
+It is possible to set CPU and memory resource constraints for your Teraslice
+workers that translate to Kubernetes resource constraints.  Currently you
+can specify optional integer values on your job as shown below. The `cpu`
+setting is in vcores and the `memory` setting is in bytes.
 
 ```
-"resources": {
-    "minimum": {"cpu": 1, "memory": 2147483648},
-    "limit": {"cpu": 2, "memory": 4294967296}
-},
+"cpu": 1,
+"memory": 2147483648
 ```
 
-The `resources.minimum` translate to Kubernetes' `resources.requests` and
-`resources.limit` is the same as a Kubernetes `resources.limits`.  See
-the [Kubernetes Resource docs](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
-for further details.
+Setting `cpu` will result in the Kubernetes `resources.requests.cpu` and
+`resources.limit.cpu` being set to `cpu` value provided.  Setting `memory`
+will result in the Kubernetes `resources.requests.memory` and
+`resources.limit.memory` being set to the `memory` value provided. See the
+[Kubernetes Resource docs](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
+for further details on how Kubernetes interprets these values.
 
 ## Node Affinity by Labels
 
