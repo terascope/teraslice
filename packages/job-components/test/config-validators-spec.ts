@@ -137,16 +137,8 @@ describe('When validating k8s clustering', () => {
 
             const schema = jobSchema(context);
             const job = {
-                resources: {
-                    minimum: {
-                        cpu: 1,
-                        memory: 805306368
-                    },
-                    limit: {
-                        cpu: 2,
-                        memory: 4294967296
-                    }
-                },
+                cpu: 1,
+                memory: 805306368,
                 operations: [
                     {
                         _op: 'noop',
@@ -158,7 +150,8 @@ describe('When validating k8s clustering', () => {
             };
 
             const jobConfig = validateJobConfig(schema, job) as K8sJobConfig;
-            expect(jobConfig.resources).toEqual(job.resources);
+            expect(jobConfig.cpu).toEqual(job.cpu);
+            expect(jobConfig.memory).toEqual(job.memory);
         });
     });
 
