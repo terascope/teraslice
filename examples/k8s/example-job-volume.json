@@ -1,5 +1,5 @@
 {
-    "name": "example-data-generator-job",
+    "name": "example-data-generator-job-volume",
     "lifecycle": "once",
     "workers": 2,
     "assets": [
