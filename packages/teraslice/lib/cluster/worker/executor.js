@@ -137,7 +137,7 @@ module.exports = function module(context, messaging, stateStore, analyticsStore,
         sentMessage = { worker_id: ID, slice, error: errMsg };
         events.emit('slice:failure', slice);
         return stateStore.updateState(slice, 'error', errMsg)
-            .then(() => sliceLogger.error(`failed to process ${JSON.stringify(sentMessage)}, slice state has been marked as error`))
+            .then(() => sliceLogger.error(sentMessage, 'slice state has been marked as error'))
             .catch((updateError) => {
                 const updateErrorMsg = parseError(updateError);
                 sliceLogger.error(`An error has occurred while marking slice as failed: ${updateErrorMsg} , message: `, slice);
