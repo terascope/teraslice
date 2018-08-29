@@ -61,7 +61,9 @@ module.exports = function compose(composeFile) {
             cmd.on('close', (code) => {
                 debug('close with code', code);
                 if (code !== 0) {
-                    reject(`Command exited: ${code}\n${stderr}`);
+                    const error = new Error(`Command exited: ${code}\n${stderr}`);
+                    error.stdout = stdout;
+                    reject(error);
                 } else {
                     resolve(stdout);
                 }
@@ -74,6 +76,7 @@ module.exports = function compose(composeFile) {
             options.d = '';
             return run('up', options);
         },
+        build: options => run('build', options),
         down: options => run('down', options),
         ps: options => run('ps', options),
         start: (services, options) => run('start', options, services),

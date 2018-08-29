@@ -99,7 +99,12 @@ module.exports = function module(context) {
                 }
                 return update(exId, statusObj);
             })
-            .then(() => exId);
+            .then(() => exId)
+            .catch((err) => {
+                const error = _.isString(err) ? new Error(err) : err;
+                logger.error(`Unable to set execution ${exId} status code to ${status}`, error);
+                return error;
+            });
     }
 
     function remove(exId) {

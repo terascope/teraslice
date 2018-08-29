@@ -46,7 +46,7 @@ services:
       - teraslice-assets:/app/assets
       - ./config:/app/config:cached
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.10
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.11
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:49200"]
       interval: 15s

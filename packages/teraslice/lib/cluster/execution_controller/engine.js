@@ -270,7 +270,7 @@ module.exports = function module(context, messaging, exStore, stateStore) {
         const errorMeta = exStore.executionMetaData(executionStats, errMsg);
         logger.error(errMsg);
 
-        exStore.setStatus(exId, 'failed', errorMeta)
+        return exStore.setStatus(exId, 'failed', errorMeta)
             .then(() => {
                 messaging.send({
                     to: 'cluster_master',
@@ -432,7 +432,7 @@ module.exports = function module(context, messaging, exStore, stateStore) {
                         clearInterval(engine);
                         engineFnRunning = false;
 
-                        exStore.setStatus(exId, 'failed', errorMeta)
+                        return exStore.setStatus(exId, 'failed', errorMeta)
                             .then(() => {
                                 messaging.send({
                                     to: 'cluster_master',
@@ -649,25 +649,25 @@ module.exports = function module(context, messaging, exStore, stateStore) {
         }
         _checkExecutionState(executionConfig)
             .then((errCount) => {
-                const msg = {
-                    to: 'cluster_master',
-                    message: 'execution:finished',
-                    ex_id: executionConfig.ex_id
-                };
                 const executionStats = executionAnalytics.getAnalytics();
 
                 if (errCount > 0) {
                     const message = `execution: ${exId} had ${errCount} slice failures during processing`;
                     const errorMeta = exStore.executionMetaData(executionStats, message);
                     logger.error(message);
-                    exStore.setStatus(exId, 'failed', errorMeta);
-                } else {
-                    logger.info(`execution ${exId} has completed`);
-                    const metaData = exStore.executionMetaData(executionStats);
-                    exStore.setStatus(exId, 'completed', metaData);
+                    return exStore.setStatus(exId, 'failed', errorMeta);
                 }
-
-                messaging.send(msg);
+                logger.info(`execution ${exId} has completed`);
+                const metaData = exStore.executionMetaData(executionStats);
+                return exStore.setStatus(exId, 'completed', metaData);
+            })
+            .then(() => {
+                const msg = {
+                    to: 'cluster_master',
+                    message: 'execution:finished',
+                    ex_id: executionConfig.ex_id
+                };
+                return messaging.send(msg);
             })
             .catch((err) => {
                 const errMsg = parseError(err);
