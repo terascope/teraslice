@@ -1,7 +1,7 @@
 import 'jest-extended';
 
 import { Message } from '../src/messenger';
-import { Messenger, formatURL } from '../src';
+import { Messenger, formatURL, newMsgId } from '../src';
 import findPort from './helpers/find-port';
 
 describe('Messenger', () => {
@@ -41,16 +41,16 @@ describe('Messenger', () => {
             });
         });
 
-        describe('when constructed without a valid socketOptions', () => {
+        describe('when constructed without a valid clientId', () => {
             it('should throw an error', () => {
                 expect(() => {
                     // @ts-ignore
                     new Messenger.Client({
-                        hostUrl: '',
                         actionTimeout: 1,
-                        networkLatencyBuffer: 0
+                        networkLatencyBuffer: 0,
+                        hostUrl: 'some-host',
                     });
-                }).toThrowError('Messenger.Client requires a valid socketOptions');
+                }).toThrowError('Messenger.Client requires a valid clientId');
             });
         });
     })
@@ -70,6 +70,7 @@ describe('Messenger', () => {
     })
 
     describe('Client & Server', () => {
+        const clientId = newMsgId();
         let client: Messenger.Client;
         let server: Messenger.Server;
 
@@ -93,6 +94,7 @@ describe('Messenger', () => {
             client = new Messenger.Client({
                 source: 'example',
                 to: 'example',
+                clientId,
                 hostUrl,
                 networkLatencyBuffer: 0,
                 actionTimeout: 1000,

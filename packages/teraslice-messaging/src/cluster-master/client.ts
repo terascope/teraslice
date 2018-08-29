@@ -10,7 +10,7 @@ export class Client extends core.Client {
     constructor(opts: i.ClientOptions) {
         const {
             clusterMasterUrl,
-            socketOptions: _socketOptions,
+            socketOptions,
             networkLatencyBuffer,
             actionTimeout,
             exId,
@@ -34,13 +34,9 @@ export class Client extends core.Client {
             throw new Error('ClusterMaster.Client requires a valid jobName');
         }
 
-        const socketOptions = Object.assign({
-            autoConnect: false,
-            query: { exId }
-        }, _socketOptions);
-
         super({
             hostUrl: clusterMasterUrl,
+            clientId: exId,
             socketOptions,
             networkLatencyBuffer,
             actionTimeout,
@@ -60,14 +56,10 @@ export class Client extends core.Client {
             throw new Error(`Unable to connect to cluster master, caused by error: ${err.message}`);
         }
 
-        await this.send({
-            message: 'execution:ready',
-            exId: this.exId,
-            payload: {},
-        });
+        await this.ready();
     }
 
-    updateAnalytics(stats: i.SlicerAnalytics) {
+    sendExecutionAnalyticsDiffs(stats: i.SlicerAnalytics) {
         return this.send({
             message: 'execution:analytics',
             payload: {
@@ -77,18 +69,16 @@ export class Client extends core.Client {
         });
     }
 
-    executionTerminal() {
-        return this.send({
-            message: 'execution:error:terminal',
-            exId: this.exId
-        });
-    }
-
-    executionFinished() {
-        return this.send({
+    sendExecutionFinished(error?: Error|string) {
+        const msg: core.InputMessage = {
             message: 'execution:finished',
-            exId: this.exId
-        });
+        }
+
+        if (error) {
+            msg.error = _.isString(error) ? error : error.stack;
+        }
+
+        return this.send(msg);
     }
 
     onExecutionAnalytics(fn: i.OnExecutionAnalyticsFn) {

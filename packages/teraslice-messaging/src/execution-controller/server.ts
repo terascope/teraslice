@@ -14,7 +14,7 @@ export class Server extends core.Server {
         const {
             port,
             actionTimeout,
-            networkLatencyBuffer
+            networkLatencyBuffer,
         } = opts;
 
         super({
@@ -32,22 +32,13 @@ export class Server extends core.Server {
         });
 
         this.queue = new Queue();
-
-        this._onConnection = this._onConnection.bind(this);
+        this.onConnection = this.onConnection.bind(this);
     }
 
     async start() {
         await this.listen();
 
-        this.server.use((socket, next) => {
-            const { workerId } = socket.handshake.query;
-
-            // @ts-ignore
-            socket.workerId = workerId;
-            socket.join(workerId, next);
-        });
-
-        this.server.on('connection', this._onConnection);
+        this.server.on('connection', this.onConnection);
     }
 
     async shutdown() {
@@ -68,7 +59,7 @@ export class Server extends core.Server {
             payload: slice,
         }, { timeoutMs }) as i.SliceResponseMessage;
 
-        if (!msg.willProcess) {
+        if (!_.get(msg, 'willProcess')) {
             throw new Error(`Worker ${workerId} will not process new slice`);
         }
 
@@ -101,55 +92,27 @@ export class Server extends core.Server {
     }
 
     activeWorkers(): number {
-        return this.connectedWorkers() - this.availableWorkers();
-    }
-
-    connectedWorkers(): number {
-        return _.get(this.server, 'eio.clientsCount', 0);
+        return this.getClientCounts() - this.availableWorkers();
     }
 
     executionFinished(exId: string) {
         this.server.sockets.emit('execution:finished', { exId: exId });
     }
 
-    onWorkerOffline(fn: i.WorkerErrorEventFn) {
-        this.on('worker:offline', fn);
-    }
-
-    onWorkerOnline(fn: i.WorkerEventFn) {
-        this.on('worker:online', fn);
-    }
-
-    onWorkerReconnect(fn: i.WorkerEventFn) {
+    onWorkerReconnect(fn: core.ClientEventFn) {
         this.on('worker:reconnect', fn);
     }
 
-    onWorkerReady(fn: i.WorkerEventFn) {
-        this.on('worker:enqueue', fn);
-    }
+    private onConnection(socket: SocketIO.Socket) {
+        const workerId = this.getClientId(socket);
 
-    onWorkerError(fn: i.WorkerErrorEventFn) {
-        this.on('worker:error', fn);
-    }
-
-    private _onConnection(socket: SocketIO.Socket) {
-        // @ts-ignore
-        const { workerId } = socket;
-
-        socket.on('error', (err) => {
-            this.emit('worker:error', workerId, err);
-        });
-
-        socket.on('disconnect', (err) => {
+        socket.on('disconnect', () => {
             this._workerRemove(workerId);
-            this.emit('worker:offline', workerId, err);
         });
 
         socket.on('worker:ready', (msg) => {
             this._workerEnqueue(msg);
         });
-
-        this.emit('worker:online', workerId);
 
         socket.on('worker:slice:complete', (msg) => {
             const workerResponse = msg.payload;
@@ -158,7 +121,7 @@ export class Server extends core.Server {
                 const retried = this.cache.get(`${sliceId}:retry`);
                 if (!retried) {
                     this.cache.set(`${sliceId}:retry`, true);
-                    this.emit('worker:reconnect', workerResponse);
+                    this.emit('worker:reconnect', workerId, workerResponse);
                 }
             }
 

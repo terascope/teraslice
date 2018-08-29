@@ -11,7 +11,7 @@ export class Client extends core.Client {
     constructor(opts: i.ClientOptions) {
         const {
             executionControllerUrl,
-            socketOptions: _socketOptions,
+            socketOptions,
             workerId,
             networkLatencyBuffer,
             actionTimeout,
@@ -25,13 +25,9 @@ export class Client extends core.Client {
             throw new Error('ExecutionController.Client requires a valid workerId');
         }
 
-        const socketOptions = Object.assign({
-            autoConnect: false,
-            query: { workerId }
-        }, _socketOptions);
-
         super({
             hostUrl: executionControllerUrl,
+            clientId: workerId,
             socketOptions,
             networkLatencyBuffer,
             actionTimeout,
@@ -63,15 +59,6 @@ export class Client extends core.Client {
 
         this.socket.on('execution:finished', (msg: core.Message) => {
             this.emit('worker:shutdown', msg);
-        });
-    }
-
-    async ready() {
-        return this.send({
-            message: 'worker:ready',
-            payload: {
-                workerId: this.workerId,
-            }
         });
     }
 

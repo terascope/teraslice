@@ -20,6 +20,7 @@ export class Server extends Core {
 
         this.port = port;
         this.server = SocketIOServer();
+        this._onConnection = this._onConnection.bind(this);
     }
 
     async listen() {
@@ -29,13 +30,33 @@ export class Server extends Core {
         }
 
         this.server.listen(this.port);
-        this.server.on('connection', (socket) => {
-            this.handleResponses(socket);
+
+        this.server.use((socket, next) => {
+            const { clientId } = socket.handshake.query;
+            socket.join(clientId, next);
         });
+
+        this.server.on('connection', this._onConnection);
     }
 
     getClientCounts(): number {
         return _.get(this.server, 'eio.clientsCount', 0);
+    }
+
+    onClientOnline(fn: i.ClientEventFn) {
+        this.on('client:online', fn);
+    }
+
+    onClientReady(fn: i.ClientEventFn) {
+        this.on('client:ready', fn);
+    }
+
+    onClientOffline(fn: i.ClientEventFn) {
+        this.on('client:offline', fn);
+    }
+
+    onClientError(fn: i.ClientEventFn) {
+        this.on('client:error', fn);
     }
 
     async shutdown() {
@@ -47,26 +68,38 @@ export class Server extends Core {
         super.close();
     }
 
-    public handleResponses(socket: SocketIO.Socket): void {
-        const emitResponse = (msg: i.Message) => {
-                /* istanbul ignore if */
-            if (!msg.__msgId) {
-                console.error('Messaging response requires an a msgId'); // eslint-disable-line
-                return;
-            }
-            this.emit(msg.__msgId, msg);
-        };
+    emit(eventName: string, clientId: string, param?: any) {
+        return super.emit(eventName, clientId, param);
+    }
 
-        socket.on('messaging:response', emitResponse);
+    on(eventName: string, fn: i.ClientEventFn) {
+        return super.on(eventName, fn);
+    }
 
-        if (this.to === 'cluster_master') {
-            socket.on('networkMessage', (msg: i.Message) => {
-                if (msg.message === 'messaging:response') {
-                    emitResponse(msg);
-                    return;
-                }
-                this.emit(msg.message, msg);
-            });
-        }
+    protected getClientId(socket: SocketIO.Socket):string {
+        return socket.handshake.query.clientId;
+    }
+
+    private _onConnection(socket: SocketIO.Socket) {
+        const clientId = this.getClientId(socket);
+        console.log({ clientId })
+
+        socket.on('error', (err: Error) => {
+            this.emit('client:error', clientId, err);
+        });
+
+        socket.on('disconnect', (err: Error) => {
+            this.emit('client:offline', clientId, err);
+        });
+
+        socket.on('client:ready', () => {
+            this.emit('client:ready', clientId);
+        });
+
+        socket.on('messaging:response', (msg: i.Message) => {
+            this.emit(msg.__msgId, clientId, msg)
+        });
+
+        this.emit('client:online', clientId)
     }
 }

@@ -32,34 +32,16 @@ export class Server extends core.Server {
             }
         };
 
-        this._onConnection = this._onConnection.bind(this);
+        this.onConnection = this.onConnection.bind(this);
     }
 
     async start() {
         await this.listen();
 
-        this.server.use((socket, next) => {
-            const { exId } = socket.handshake.query;
-
-            // @ts-ignore
-            socket.exId = exId;
-            socket.join(exId, next);
-        });
-
-        this.server.on('connection', this._onConnection);
+        this.server.on('connection', this.onConnection);
     }
 
-    stopExecution(exId: string, timeoutMs?: number) {
-        return this.sendWithResponse({
-            address: exId,
-            message: 'execution:stop',
-            payload: {
-                exId: exId
-            }
-        }, { timeoutMs });
-    }
-
-    pauseExecution(exId: string, timeoutMs?: number) {
+    sendPauseExecution(exId: string, timeoutMs?: number) {
         return this.sendWithResponse({
             address: exId,
             message: 'execution:pause',
@@ -69,7 +51,7 @@ export class Server extends core.Server {
         }, { timeoutMs });
     }
 
-    resumeExecution(exId: string, timeoutMs?: number) {
+    sendResumeExecution(exId: string, timeoutMs?: number) {
         return this.sendWithResponse({
             address: exId,
             message: 'execution:resume',
@@ -79,7 +61,7 @@ export class Server extends core.Server {
         }, { timeoutMs });
     }
 
-    requestAnalytics(exId: string, timeoutMs?: number) {
+    sendRequestAnalytics(exId: string, timeoutMs?: number) {
         return this.sendWithResponse({
             address: exId,
             message: 'execution:analytics',
@@ -97,37 +79,16 @@ export class Server extends core.Server {
         return _.cloneDeep(this.clusterAnalytics);
     }
 
-    onExecutionOffline(fn: i.ExecutionErrorEventFn) {
-        this.on('execution:offline', fn);
+    onExecutionFinished(fn: core.ClientEventFn) {
+        this.on('execution:finished', fn);
     }
 
-    onExecutionOnline(fn: i.ExecutionEventFn) {
-        this.on('execution:online', fn);
-    }
+    private onConnection(socket: SocketIO.Socket) {
+        const exId = this.getClientId(socket);
 
-    onExecutionReady(fn: i.ExecutionEventFn) {
-        this.on('execution:ready', fn);
-    }
-
-    onExecutionError(fn: i.ExecutionErrorEventFn) {
-        this.on('execution:error', fn);
-    }
-
-    _onConnection(socket: SocketIO.Socket) {
-        // @ts-ignore
-        const { exId } = socket;
-
-        socket.on('error', (err: Error) => {
-            this.emit('execution:error', exId, err);
-        });
-
-        socket.on('disconnect', (err: Error) => {
-            this.emit('execution:offline', exId, err);
-        });
-
-        socket.on('execution:ready', () => {
-            this.emit('execution:ready', exId);
-        });
+        socket.on('execution:finished', () => {
+            this.emit('execution:finished', exId)
+        })
 
         socket.on('execution:analytics', (msg: core.Message) => {
             const data = msg.payload as i.ExecutionAnalyticsMessage;
@@ -140,7 +101,5 @@ export class Server extends core.Server {
                 }
             });
         });
-
-        this.emit('execution:online', exId);
     }
 }

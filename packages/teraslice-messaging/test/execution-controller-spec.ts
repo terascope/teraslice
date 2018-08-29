@@ -1,6 +1,7 @@
 import 'jest-extended';
 
 import findPort from './helpers/find-port';
+import * as core from '../src/messenger'
 import {
     formatURL,
     newMsgId,
@@ -54,22 +55,15 @@ describe('ExecutionController', () => {
     describe('Client & Server', () => {
         let client: ExecutionController.Client;
         let server: ExecutionController.Server;
-        let workerId: string;
-        let workerOnlineFn: ExecutionController.WorkerEventFn;
-        let workerReadyFn: ExecutionController.WorkerEventFn;
-        let workerReconnectFn: ExecutionController.WorkerEventFn;
-        let workerOfflineFn: ExecutionController.WorkerErrorEventFn;
-        let workerErrorFn: ExecutionController.WorkerErrorEventFn;
-        let workerShutdownFn: ExecutionController.WorkerShutdownFn;
+        const workerId: string = newMsgId();
+        const clientOnlineFn: core.ClientEventFn = jest.fn();
+        const clientReadyFn: core.ClientEventFn = jest.fn();
+        const clientOfflineFn: core.ClientEventFn = jest.fn();
+        const clientErrorFn: core.ClientEventFn = jest.fn();
+        const workerReconnectFn: core.ClientEventFn = jest.fn();
+        const workerShutdownFn: ExecutionController.WorkerShutdownFn = jest.fn();
 
         beforeAll(async () => {
-            workerOnlineFn = jest.fn();
-            workerReadyFn = jest.fn();
-            workerOfflineFn = jest.fn();
-            workerReconnectFn = jest.fn();
-            workerErrorFn = jest.fn();
-            workerShutdownFn = jest.fn();
-
             const slicerPort = await findPort();
             const executionControllerUrl = formatURL('localhost', slicerPort);
             server = new ExecutionController.Server({
@@ -81,13 +75,12 @@ describe('ExecutionController', () => {
 
             await server.start();
 
-            server.onWorkerOnline(workerOnlineFn);
-            server.onWorkerReady(workerReadyFn);
+            server.onClientOnline(clientOnlineFn);
+            server.onClientReady(clientReadyFn);
             server.onWorkerReconnect(workerReconnectFn);
-            server.onWorkerOffline(workerOfflineFn);
-            server.onWorkerError(workerErrorFn);
+            server.onClientOffline(clientOfflineFn);
+            server.onClientError(clientErrorFn);
 
-            workerId = newMsgId();
             client = new ExecutionController.Client({
                 workerId,
                 executionControllerUrl,
@@ -119,16 +112,16 @@ describe('ExecutionController', () => {
             expect(server.availableWorkers()).toEqual(0);
         });
 
-        it('should call server.onWorkerOnline', () => {
-            expect(workerOnlineFn).toHaveBeenCalledWith(workerId);
+        it('should call server.onClientOnline', () => {
+            expect(clientOnlineFn).toHaveBeenCalledWith(workerId);
         })
 
-        it('should not call server.onWorkerReady', () => {
-            expect(workerReadyFn).not.toHaveBeenCalledWith(workerId);
+        it('should not call server.onClientReady', () => {
+            expect(clientReadyFn).not.toHaveBeenCalledWith(workerId);
         })
 
-        it('should not call server.onWorkerOffline', () => {
-            expect(workerOfflineFn).not.toHaveBeenCalledWith(workerId);
+        it('should not call server.onClientOffline', () => {
+            expect(clientOfflineFn).not.toHaveBeenCalledWith(workerId);
         })
 
         it('should not call server.onWorkerReconnect', () => {
@@ -141,17 +134,17 @@ describe('ExecutionController', () => {
 
         describe('when the client is ready', () => {
             beforeAll((done) => {
-                server.onWorkerReady(() => { done() });
+                server.onClientReady(() => { done() });
                 client.ready();
             });
 
             it('should call client ready on the server', () => {
-                expect(workerReadyFn).toHaveBeenCalledWith(workerId);
+                expect(clientReadyFn).toHaveBeenCalledWith(workerId);
             });
 
             it('should have one client connected', async () => {
                 expect(server.availableWorkers()).toEqual(1);
-                expect(server.connectedWorkers()).toEqual(1);
+                expect(server.getClientCounts()).toEqual(1);
             });
 
             describe('when sending client:slice:complete', () => {

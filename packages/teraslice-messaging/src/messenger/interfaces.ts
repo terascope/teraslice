@@ -7,7 +7,8 @@ export interface CoreOptions {
 
 export interface ClientOptions extends CoreOptions {
     hostUrl: string;
-    socketOptions: SocketIOClient.ConnectOpts;
+    clientId: string;
+    socketOptions?: SocketIOClient.ConnectOpts;
 }
 
 export interface ServerOptions extends CoreOptions {
@@ -19,8 +20,8 @@ export interface MessagePayload {
 }
 
 export interface Message {
-    __msgId?: string;
-    __source?: string;
+    __msgId: string;
+    __source: string;
     to: string;
     address?: string;
     message: string;
@@ -47,4 +48,8 @@ export interface MessageResponse {
 export interface SendWithResponseOptions {
     timeoutMs?: number;
     retry?: boolean;
+}
+
+export interface ClientEventFn {
+    (clientId: string, param?: any): void;
 }

@@ -1,29 +1,36 @@
-import { isEmpty, isString } from 'lodash';
+import { isString } from 'lodash';
 import SocketIOClient from 'socket.io-client';
 import { Message, ClientOptions } from './interfaces';
 import { Core } from './core';
 
 export class Client extends Core {
-    public socket: SocketIOClient.Socket;
+    readonly socket: SocketIOClient.Socket;
+    readonly clientId: string;
 
     constructor(opts: ClientOptions) {
         super(opts);
         const {
             hostUrl,
-            socketOptions,
+            clientId,
+            socketOptions={},
         } = opts;
 
         if (!isString(hostUrl)) {
             throw new Error('Messenger.Client requires a valid hostUrl');
         }
 
-        if (isEmpty(socketOptions)) {
-            throw new Error('Messenger.Client requires a valid socketOptions');
+        if (!isString(clientId)) {
+            throw new Error('Messenger.Client requires a valid clientId');
         }
 
-        const options = Object.assign({}, socketOptions, { forceNew: true });
+        const options = Object.assign({}, socketOptions, {
+            autoConnect: false,
+            forceNew: true,
+            query: { clientId }
+        });
 
         this.socket = SocketIOClient(hostUrl, options);
+        this.clientId = clientId;
     }
 
     shutdown() {
@@ -72,7 +79,13 @@ export class Client extends Core {
             }, this.actionTimeout);
         });
 
-        this.handleResponses(this.socket);
+        this.socket.on('messaging:response', (msg: Message) => {
+            this.emit(msg.__msgId, msg)
+        });
+    }
+
+    async ready() {
+        return this.send({ message: 'client:ready' });
     }
 
     // For testing purposes
@@ -84,28 +97,5 @@ export class Client extends Core {
             // @ts-ignore
             this.socket.io.engine.close();
         });
-    }
-
-    public handleResponses(socket: SocketIOClient.Socket): void {
-        const emitResponse = (msg: Message) => {
-            /* istanbul ignore if */
-            if (!msg.__msgId) {
-                console.error('Messaging response requires an a msgId'); // eslint-disable-line
-                return;
-            }
-            this.emit(msg.__msgId, msg);
-        };
-
-        socket.on('messaging:response', emitResponse);
-
-        if (this.to === 'cluster_master') {
-            socket.on('networkMessage', (msg: Message) => {
-                if (msg.message === 'messaging:response') {
-                    emitResponse(msg);
-                    return;
-                }
-                this.emit(msg.message, msg);
-            });
-        }
     }
 }

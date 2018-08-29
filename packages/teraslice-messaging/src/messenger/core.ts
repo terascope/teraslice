@@ -43,12 +43,10 @@ export class Core extends EventEmitter {
     }
 
     public async sendWithResponse(msg: i.InputMessage, options: i.SendWithResponseOptions = {}) {
-        const msgId = msg.__msgId || newMsgId();
-
         const message = this._buildMessage(msg, {
-            __msgId: msgId,
             response: true,
         });
+        const msgId = message.__msgId;
 
         let shouldRetry = false;
 
@@ -137,9 +135,7 @@ export class Core extends EventEmitter {
             if (!room) {
                 throw new Error('Unable to send message');
             }
-            // this is madness but we it needs to be backwards compatible (for now)
-            const event = this.source === 'cluster_master' ? 'networkMessage' : message.message;
-            this.server.sockets.in(room).emit(event, message);
+            this.server.sockets.in(room).emit(message.message, message);
         }
 
         if (this.socket) {
@@ -153,6 +149,7 @@ export class Core extends EventEmitter {
 
     protected _buildMessage(msg: i.InputMessage, override?: object): i.Message {
         return Object.assign({
+            __msgId: newMsgId(),
             __source: this.source,
             to: this.to,
         }, msg, override);

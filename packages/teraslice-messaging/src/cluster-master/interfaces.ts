@@ -58,14 +58,6 @@ export interface OnStateChangeFn {
     (): Promise<void> | void;
 }
 
-export interface ExecutionEventFn {
-    (exId: string): void;
-}
-
-export interface ExecutionErrorEventFn {
-    (exId: string, err?: Error): void;
-}
-
 export interface WorkerShutdownFn {
     (error?: null): void;
 }

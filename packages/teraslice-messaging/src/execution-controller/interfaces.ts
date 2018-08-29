@@ -28,14 +28,6 @@ export interface DispatchSliceResult {
     workerId: string;
 }
 
-export interface WorkerEventFn {
-    (workerId: string): void;
-}
-
-export interface WorkerErrorEventFn {
-    (workerId: string, err?: Error): void;
-}
-
 export interface WorkerShutdownFn {
     (error?: null): void;
 }
