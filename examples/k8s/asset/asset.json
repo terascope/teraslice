@@ -1,10 +1,4 @@
 {
     "name": "example",
-    "version": "1.0.0",
-    "tjm": {
-        "clusters": [
-            "http://192.168.99.100:30678",
-            "http://ts-qa3.tera1.terascope.io:80"
-        ]
-    }
+    "version": "1.0.0"
 }

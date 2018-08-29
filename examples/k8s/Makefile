@@ -96,11 +96,11 @@ destroy: ## delete k8s deployments and services
 	kubectl delete --namespace $(NAMESPACE) deployments,jobs,services,pods -l app=teraslice
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-master || echo "* it is okay..."
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-worker || echo "* it is okay..."
-	curl -fsS -XDELETE "${ES_URL}/terak8s*"
-	tjm reset ./example-job.json
-	tjm reset ./example-job-labels.json
-	tjm reset ./example-job-resource.json
-	tjm reset ./example-job-volume.json
+	curl -fsS -XDELETE "${ES_URL}/terak8s*" || echo '* it is okay'
+	tjm reset ./example-job.json || echo '* it is okay'
+	tjm reset ./example-job-labels.json || echo '* it is okay'
+	tjm reset ./example-job-resource.json || echo '* it is okay'
+	tjm reset ./example-job-volume.json || echo '* it is okay'
 
 destroy-all: destroy deauth deelasticsearch delete-namespace ## delete ALL things including the namespace
 
