@@ -176,7 +176,7 @@ describe('ExecutionController', () => {
                         slice_id: 'client-slice-complete',
                         recorded: true,
                     });
-                    expect(server.queue.exists('worker_id', workerId)).toBeTrue();
+                    expect(server.queue.exists('workerId', workerId)).toBeTrue();
                 });
             });
 

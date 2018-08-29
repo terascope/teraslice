@@ -5,6 +5,7 @@
   ],
   "rules": {
     "indent": [ true, "spaces" ],
+    "semicolon": [true, "always"],
     "ter-indent": [ true, 4, { "SwitchCase": 1 }],
     "no-unused-variable": false,
     "import-name": false,

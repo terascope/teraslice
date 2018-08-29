@@ -3,7 +3,6 @@ import * as i from './interfaces';
 import * as core from '../messenger';
 
 export class Client extends core.Client {
-    public readonly controllerId: string;
     public readonly exId: string;
     public readonly jobId: string;
     public readonly jobName: string;
@@ -14,7 +13,6 @@ export class Client extends core.Client {
             socketOptions: _socketOptions,
             networkLatencyBuffer,
             actionTimeout,
-            controllerId,
             exId,
             jobId,
             jobName,
@@ -22,10 +20,6 @@ export class Client extends core.Client {
 
         if (!clusterMasterUrl || !_.isString(clusterMasterUrl)) {
             throw new Error('ClusterMaster.Client requires a valid clusterMasterUrl');
-        }
-
-        if (!controllerId || !_.isString(controllerId)) {
-            throw new Error('ClusterMaster.Client requires a valid controllerId');
         }
 
         if (!exId || !_.isString(exId)) {
@@ -42,9 +36,7 @@ export class Client extends core.Client {
 
         const socketOptions = Object.assign({
             autoConnect: false,
-            query: {
-                controller_id: controllerId,
-            }
+            query: { exId }
         }, _socketOptions);
 
         super({
@@ -53,10 +45,9 @@ export class Client extends core.Client {
             networkLatencyBuffer,
             actionTimeout,
             to: 'cluster_master',
-            source: controllerId
+            source: exId
         });
 
-        this.controllerId = controllerId;
         this.exId = exId;
         this.jobId = jobId;
         this.jobName = jobName;
@@ -70,15 +61,15 @@ export class Client extends core.Client {
         }
 
         await this.send({
-            message: 'execution:online',
-            controller_id: this.controllerId,
+            message: 'execution:ready',
+            exId: this.exId,
             payload: {},
         });
     }
 
     updateAnalytics(stats: i.SlicerAnalytics) {
         return this.send({
-            message: 'cluster:analytics',
+            message: 'execution:analytics',
             payload: {
                 kind: 'slicer',
                 stats,
@@ -89,23 +80,23 @@ export class Client extends core.Client {
     executionTerminal() {
         return this.send({
             message: 'execution:error:terminal',
-            ex_id: this.exId
+            exId: this.exId
         });
     }
 
     executionFinished() {
         return this.send({
             message: 'execution:finished',
-            ex_id: this.exId
+            exId: this.exId
         });
     }
 
-    onClusterAnalytics(fn: i.OnClusterAnalyticsFn) {
-        this.socket.on('cluster:slicer:analytics', async (msg: core.Message) => {
+    onExecutionAnalytics(fn: i.OnExecutionAnalyticsFn) {
+        this.socket.on('execution:analytics', async (msg: core.Message) => {
             const stats = await fn();
             this.respond(msg, {
                 job_id: this.jobId,
-                ex_id: this.exId,
+                exId: this.exId,
                 payload: {
                     name: this.jobName,
                     stats,
@@ -114,22 +105,15 @@ export class Client extends core.Client {
         })
     }
 
-    onStopExecution(fn: i.OnStateChangeFn) {
-        this.socket.on('cluster:execution:stop', async (msg: core.Message) => {
+    onExecutionPause(fn: i.OnStateChangeFn) {
+        this.socket.on('execution:pause', async (msg: core.Message) => {
             await fn();
             this.respond(msg)
         })
     }
 
-    onPauseExecution(fn: i.OnStateChangeFn) {
-        this.socket.on('cluster:execution:pause', async (msg: core.Message) => {
-            await fn();
-            this.respond(msg)
-        })
-    }
-
-    onResumeExecution(fn: i.OnStateChangeFn) {
-        this.socket.on('cluster:execution:resume', async (msg: core.Message) => {
+    onExecutionResume(fn: i.OnStateChangeFn) {
+        this.socket.on('execution:resume', async (msg: core.Message) => {
             await fn();
             this.respond(msg)
         })

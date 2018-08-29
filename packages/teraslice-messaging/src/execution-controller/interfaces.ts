@@ -16,7 +16,7 @@ export interface ServerOptions {
 }
 
 export interface Worker {
-    worker_id: string;
+    workerId: string;
 }
 
 export interface SliceResponseMessage {

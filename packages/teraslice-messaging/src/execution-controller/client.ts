@@ -27,9 +27,7 @@ export class Client extends core.Client {
 
         const socketOptions = Object.assign({
             autoConnect: false,
-            query: {
-                worker_id: workerId,
-            }
+            query: { workerId }
         }, _socketOptions);
 
         super({
@@ -72,7 +70,7 @@ export class Client extends core.Client {
         return this.send({
             message: 'worker:ready',
             payload: {
-                worker_id: this.workerId
+                workerId: this.workerId,
             }
         });
     }
@@ -83,7 +81,7 @@ export class Client extends core.Client {
 
     sliceComplete(input: i.SliceCompletePayload) {
         const payload = pickBy(Object.assign({
-            worker_id: this.workerId
+            workerId: this.workerId
         }, input));
 
         return this.sendWithResponse({

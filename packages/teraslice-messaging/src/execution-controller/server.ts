@@ -40,9 +40,7 @@ export class Server extends core.Server {
         await this.listen();
 
         this.server.use((socket, next) => {
-            const {
-                worker_id: workerId
-            } = socket.handshake.query;
+            const { workerId } = socket.handshake.query;
 
             // @ts-ignore
             socket.workerId = workerId;
@@ -54,7 +52,7 @@ export class Server extends core.Server {
 
     async shutdown() {
         this.queue.each((worker: i.Worker) => {
-            this.queue.remove(worker.worker_id, 'worker_id');
+            this.queue.remove(worker.workerId, 'workerId');
         });
 
         this.cache.flushAll();
@@ -111,7 +109,7 @@ export class Server extends core.Server {
     }
 
     executionFinished(exId: string) {
-        this.server.sockets.emit('execution:finished', { ex_id: exId });
+        this.server.sockets.emit('execution:finished', { exId: exId });
     }
 
     onWorkerOffline(fn: i.WorkerErrorEventFn) {
@@ -191,9 +189,9 @@ export class Server extends core.Server {
             throw new Error('Failed to enqueue invalid worker');
         }
 
-        const exists = this.queue.exists('worker_id', workerId);
+        const exists = this.queue.exists('workerId', workerId);
         if (!exists) {
-            this.queue.enqueue({ worker_id: workerId });
+            this.queue.enqueue({ workerId: workerId });
         }
 
         this.emit('worker:enqueue', workerId);
@@ -203,13 +201,13 @@ export class Server extends core.Server {
     private _workerDequeue(arg?: string | object): string | null {
         let workerId;
         if (arg) {
-            const worker = this.queue.extract('worker_id', getWorkerId(arg));
-            if (worker) workerId = worker.worker_id;
+            const worker = this.queue.extract('workerId', getWorkerId(arg));
+            if (worker) workerId = worker.workerId;
         }
 
         if (!workerId) {
             const worker = this.queue.dequeue();
-            if (worker) workerId = worker.worker_id;
+            if (worker) workerId = worker.workerId;
         }
 
         if (!workerId) {
@@ -224,7 +222,7 @@ export class Server extends core.Server {
         const workerId = getWorkerId(arg);
         if (!workerId) return false;
 
-        this.queue.remove(workerId, 'worker_id');
+        this.queue.remove(workerId, 'workerId');
 
         this.emit('worker:dequeue', workerId);
         return true;

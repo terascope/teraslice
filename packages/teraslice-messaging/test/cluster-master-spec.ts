@@ -1,6 +1,11 @@
 import 'jest-extended';
 
-import { ClusterMaster } from '../src';
+import findPort from './helpers/find-port';
+import {
+    formatURL,
+    newMsgId,
+    ClusterMaster
+} from '../src';
 
 describe('ClusterMaster', () => {
     describe('->Client', () => {
@@ -13,24 +18,12 @@ describe('ClusterMaster', () => {
             });
         });
 
-        describe('when constructed without a controllerId', () => {
-            it('should throw an error', () => {
-                expect(() => {
-                    // @ts-ignore
-                    new ClusterMaster.Client({
-                        clusterMasterUrl: 'example.com'
-                    });
-                }).toThrowError('ClusterMaster.Client requires a valid controllerId');
-            });
-        });
-
         describe('when constructed without a exId', () => {
             it('should throw an error', () => {
                 expect(() => {
                     // @ts-ignore
                     new ClusterMaster.Client({
                         clusterMasterUrl: 'example.com',
-                        controllerId: 'controller-id'
                     });
                 }).toThrowError('ClusterMaster.Client requires a valid exId');
             });
@@ -42,7 +35,6 @@ describe('ClusterMaster', () => {
                     // @ts-ignore
                     new ClusterMaster.Client({
                         clusterMasterUrl: 'example.com',
-                        controllerId: 'controller-id',
                         exId: 'ex-id'
                     });
                 }).toThrowError('ClusterMaster.Client requires a valid jobId');
@@ -55,7 +47,6 @@ describe('ClusterMaster', () => {
                     // @ts-ignore
                     new ClusterMaster.Client({
                         clusterMasterUrl: 'example.com',
-                        controllerId: 'controller-id',
                         jobId: 'job-id',
                         exId: 'ex-id'
                     });
@@ -70,9 +61,8 @@ describe('ClusterMaster', () => {
                 clusterMaster = new ClusterMaster.Client({
                     clusterMasterUrl: 'http://idk.example.com',
                     jobId: 'job',
-                    exId: 'ex',
                     jobName: 'name',
-                    controllerId: 'hello',
+                    exId: 'hello',
                     actionTimeout: 1000,
                     socketOptions: {
                         timeout: 1000,
@@ -86,5 +76,86 @@ describe('ClusterMaster', () => {
                 return expect(clusterMaster.start()).rejects.toThrowError(errMsg);
             });
         });
+    })
+
+    describe('Client & Server', () => {
+        let client: ClusterMaster.Client;
+        let server: ClusterMaster.Server;
+        let exId: string;
+        let exOnlineFn: ClusterMaster.ExecutionEventFn = jest.fn();
+        let exReadyFn: ClusterMaster.ExecutionEventFn = jest.fn();
+        let exOfflineFn: ClusterMaster.ExecutionErrorEventFn = jest.fn();
+        let exErrorFn: ClusterMaster.ExecutionErrorEventFn = jest.fn();
+
+        beforeAll(async () => {
+            exOnlineFn = jest.fn();
+            exReadyFn = jest.fn();
+            exOfflineFn = jest.fn();
+            exErrorFn = jest.fn();
+
+            const slicerPort = await findPort();
+            const clusterMasterUrl = formatURL('localhost', slicerPort);
+            server = new ClusterMaster.Server({
+                port: slicerPort,
+                networkLatencyBuffer: 0,
+                actionTimeout: 1000,
+            });
+
+            await server.start();
+
+            server.onExecutionOnline(exOnlineFn);
+            server.onExecutionReady(exReadyFn);
+            server.onExecutionOffline(exOfflineFn);
+            server.onExecutionError(exErrorFn);
+
+            exId = newMsgId();
+            client = new ClusterMaster.Client({
+                jobId: newMsgId(),
+                jobName: 'job-name',
+                exId,
+                clusterMasterUrl,
+                networkLatencyBuffer: 0,
+                actionTimeout: 1000,
+                socketOptions: {
+                    timeout: 1000,
+                    reconnection: false,
+                },
+            });
+
+            // TODO Test all of the events
+
+            await client.start();
+        });
+
+        beforeAll((done) => {
+            server.onExecutionReady(() => { done() });
+        })
+
+        afterAll(async () => {
+            await server.shutdown();
+            await client.shutdown();
+        });
+
+        describe('when calling start on the client again', () => {
+            it('should not throw an error', () => {
+                return expect(client.start()).resolves.toBeNil()
+            });
+        });
+
+        it('should have one connected executions', () => {
+            expect(server.connectedExecutions()).toEqual(1);
+        });
+
+        it('should call server.onWorkerOnline', () => {
+            expect(exOnlineFn).toHaveBeenCalledWith(exId);
+        })
+
+        it('should not call server.onWorkerReady', () => {
+            expect(exReadyFn).toHaveBeenCalledWith(exId);
+        })
+
+        it('should not call server.onWorkerOffline', () => {
+            expect(exOfflineFn).not.toHaveBeenCalledWith(exId);
+        })
     })
 });

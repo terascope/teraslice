@@ -4,7 +4,6 @@ export interface ClientOptions {
     exId: string;
     jobId: string;
     jobName: string;
-    controllerId: string;
     clusterMasterUrl: string;
     socketOptions: SocketIOClient.ConnectOpts;
     networkLatencyBuffer?: number;
@@ -31,7 +30,7 @@ export interface ClusterAnalytics {
     slicer: SlicerAnalytics;
 }
 
-export interface ClusterAnalyticsMessage extends Message {
+export interface ExecutionAnalyticsMessage extends Message {
     kind: string;
 }
 
@@ -51,10 +50,22 @@ export interface ExecutionAnalytics {
     started: string;
 }
 
-export interface OnClusterAnalyticsFn {
+export interface OnExecutionAnalyticsFn {
     (): Promise<ExecutionAnalytics>|ExecutionAnalytics
 }
 
 export interface OnStateChangeFn {
     (): Promise<void> | void;
+}
+
+export interface ExecutionEventFn {
+    (exId: string): void;
+}
+
+export interface ExecutionErrorEventFn {
+    (exId: string, err?: Error): void;
+}
+
+export interface WorkerShutdownFn {
+    (error?: null): void;
 }

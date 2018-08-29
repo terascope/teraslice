@@ -37,10 +37,10 @@ export function getWorkerId(arg: string|object): string|undefined {
         workerId = arg;
     }
     if (!workerId) {
-        workerId = _.get(arg, 'worker_id', _.get(arg, 'workerId'));
+        workerId = _.get(arg, 'workerId', _.get(arg, 'workerId'));
     }
     if (!workerId) {
-        workerId = _.get(arg, 'payload.worker_id', _.get(arg, 'payload.workerId'));
+        workerId = _.get(arg, 'payload.workerId', _.get(arg, 'payload.workerId'));
     }
     return workerId;
 }

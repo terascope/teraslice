@@ -39,59 +39,57 @@ export class Server extends core.Server {
         await this.listen();
 
         this.server.use((socket, next) => {
-            const {
-                controller_id: controllerId
-            } = socket.handshake.query;
+            const { exId } = socket.handshake.query;
 
             // @ts-ignore
-            socket.controllerId = controllerId;
-            socket.join(controllerId, next);
+            socket.exId = exId;
+            socket.join(exId, next);
         });
 
         this.server.on('connection', this._onConnection);
     }
 
-    stopExecution(controllerId: string, exId: string, timeoutMs?: number) {
+    stopExecution(exId: string, timeoutMs?: number) {
         return this.sendWithResponse({
-            address: controllerId,
-            message: 'cluster:execution:stop',
+            address: exId,
+            message: 'execution:stop',
             payload: {
-                ex_id: exId
+                exId: exId
             }
         }, { timeoutMs });
     }
 
-    pauseExecution(controllerId: string, exId: string, timeoutMs?: number) {
+    pauseExecution(exId: string, timeoutMs?: number) {
         return this.sendWithResponse({
-            address: controllerId,
-            message: 'cluster:execution:pause',
+            address: exId,
+            message: 'execution:pause',
             payload: {
-                ex_id: exId
+                exId: exId
             }
         }, { timeoutMs });
     }
 
-    resumeExecution(controllerId: string, exId: string, timeoutMs?: number) {
+    resumeExecution(exId: string, timeoutMs?: number) {
         return this.sendWithResponse({
-            address: controllerId,
-            message: 'cluster:execution:resume',
+            address: exId,
+            message: 'execution:resume',
             payload: {
-                ex_id: exId
+                exId: exId
             }
         }, { timeoutMs });
     }
 
-    requestAnalytics(controllerId: string, exId: string, timeoutMs?: number) {
+    requestAnalytics(exId: string, timeoutMs?: number) {
         return this.sendWithResponse({
-            address: controllerId,
-            message: 'cluster:slicer:analytics',
+            address: exId,
+            message: 'execution:analytics',
             payload: {
-                ex_id: exId
+                exId: exId
             }
         }, { timeoutMs });
     }
 
-    connectedNodes() {
+    connectedExecutions() {
         return this.getClientCounts();
     }
 
@@ -99,20 +97,40 @@ export class Server extends core.Server {
         return _.cloneDeep(this.clusterAnalytics);
     }
 
+    onExecutionOffline(fn: i.ExecutionErrorEventFn) {
+        this.on('execution:offline', fn);
+    }
+
+    onExecutionOnline(fn: i.ExecutionEventFn) {
+        this.on('execution:online', fn);
+    }
+
+    onExecutionReady(fn: i.ExecutionEventFn) {
+        this.on('execution:ready', fn);
+    }
+
+    onExecutionError(fn: i.ExecutionErrorEventFn) {
+        this.on('execution:error', fn);
+    }
+
     _onConnection(socket: SocketIO.Socket) {
         // @ts-ignore
-        const { controllerId } = socket;
+        const { exId } = socket;
 
         socket.on('error', (err: Error) => {
-            this.emit('controller:error', err, [controllerId]);
+            this.emit('execution:error', exId, err);
         });
 
         socket.on('disconnect', (err: Error) => {
-            this.emit('controller:offline', err, [controllerId]);
+            this.emit('execution:offline', exId, err);
         });
 
-        socket.on('cluster:analytics', (msg: core.Message) => {
-            const data = msg.payload as i.ClusterAnalyticsMessage;
+        socket.on('execution:ready', () => {
+            this.emit('execution:ready', exId);
+        });
+
+        socket.on('execution:analytics', (msg: core.Message) => {
+            const data = msg.payload as i.ExecutionAnalyticsMessage;
             if (!this.clusterAnalytics[data.kind]) {
                 return;
             }
@@ -123,6 +141,6 @@ export class Server extends core.Server {
             });
         });
 
-        this.emit('controller:online');
+        this.emit('execution:online', exId);
     }
 }
