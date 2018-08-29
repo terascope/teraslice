@@ -1,35 +1,13 @@
 'use strict';
 
-const _ = require('lodash');
-const debug = require('debug');
 const { EventEmitter } = require('events');
+const { debugLogger } = require('@terascope/teraslice-types');
 const validateConfigs = require('terafoundation/lib/validate_configs');
 const { loggerClient } = require('terafoundation/lib/logger_utils');
 const registerApis = require('terafoundation/lib/api');
 const readSysConfig = require('terafoundation/lib/sysconfig');
 
-const defaultAssignment = process.env.NODE_TYPE || 'worker';
-
-const newDebugLogger = (name, assignment = defaultAssignment) => ({
-    error: (...args) => {
-        debug(`teraslice-${assignment}:${name}:error`)(...args);
-    },
-    warn: (...args) => {
-        debug(`teraslice-${assignment}:${name}:warn`)(...args);
-    },
-    info: (...args) => {
-        debug(`teraslice-${assignment}:${name}:info`)(...args);
-    },
-    trace: (...args) => {
-        debug(`teraslice-${assignment}:${name}:trace`)(...args);
-    },
-    debug: (...args) => {
-        debug(`teraslice-${assignment}:${name}:debug`)(...args);
-    },
-    child: () => {},
-    streams: [],
-    flush: () => Promise.resolve()
-});
+const assignment = process.env.NODE_TYPE || 'worker';
 
 function makeContext(cluster, config, sysconfig, useDebugLogger) {
     const context = {};
@@ -56,29 +34,17 @@ function makeContext(cluster, config, sysconfig, useDebugLogger) {
     delete context.apis.foundation.startWorkers;
     delete context.foundation.startWorkers;
 
-    delete context.apis.foundation.getSystemEvents;
-    delete context.foundation.getEventEmitter;
-
     const events = new EventEmitter();
     context.apis.foundation.getSystemEvents = () => events;
     context.foundation.getEventEmitter = () => events;
 
     if (useDebugLogger) {
-        context.apis.foundation.makeLogger = (arg) => {
-            const workerId = cluster.worker.id;
-            if (_.isString(arg)) {
-                return newDebugLogger(`${workerId}:${arg}`);
-            }
-            if (_.isPlainObject(arg)) {
-                const { module: moduleName } = arg;
-                return newDebugLogger(`${workerId}:${moduleName}`);
-            }
-            return newDebugLogger(`${workerId}:unknown`);
-        };
+        context.apis.foundation.makeLogger = (...args) => debugLogger('worker', ...args);
+        context.foundation.makeLogger = context.apis.foundation.makeLogger;
     }
 
     // Bootstrap the top level logger
-    context.logger = context.apis.foundation.makeLogger(context.name, context.name);
+    context.logger = context.apis.foundation.makeLogger(assignment, context.name);
 
     // FIXME: this should probably be refactored to actually create the
     // logger as it stands this function is very confusing
@@ -90,5 +56,4 @@ function makeContext(cluster, config, sysconfig, useDebugLogger) {
 module.exports = {
     readSysConfig,
     makeContext,
-    newDebugLogger,
 };

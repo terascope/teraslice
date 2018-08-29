@@ -11,7 +11,8 @@ class ExecutionControllerMessenger extends MessengerServer {
         const {
             port,
             actionTimeout,
-            networkLatencyBuffer
+            networkLatencyBuffer,
+            workerDisconnectTimeout
         } = opts;
 
         super({
@@ -22,6 +23,7 @@ class ExecutionControllerMessenger extends MessengerServer {
             to: 'worker'
         });
 
+        this.workerDisconnectTimeout = workerDisconnectTimeout;
         this.events = opts.events;
         this.cache = new NodeCache({
             stdTTL: 30 * 60 * 1000, // 30 minutes
@@ -29,6 +31,7 @@ class ExecutionControllerMessenger extends MessengerServer {
             useClones: false,
         });
         this.queue = new Queue();
+        this._workers = {};
 
         this._onConnection = this._onConnection.bind(this);
     }
@@ -55,7 +58,6 @@ class ExecutionControllerMessenger extends MessengerServer {
 
         this.cache.flushAll();
         this.cache.close();
-
         await super.shutdown();
     }
 
@@ -88,22 +90,43 @@ class ExecutionControllerMessenger extends MessengerServer {
 
         const dispatched = response && response.willProcess;
 
+        if (dispatched) {
+            this._workers[workerId] = {
+                status: 'active',
+                workerId,
+            };
+        }
+
         return {
             dispatched,
             workerId,
         };
     }
 
-    availableWorkers() {
+    get activeWorkers() {
+        return _.filter(this._workers, { status: 'active' }).length;
+    }
+
+    get availableWorkers() {
         return this.queue.size();
     }
 
-    activeWorkers() {
-        return this.connectedWorkers() - this.availableWorkers();
+    get connectedWorkers() {
+        return _.filter(this._workers, (worker) => {
+            if (worker.status === 'disconnected') {
+                // make sure the worker is not disconnecting
+                return worker.disconnectAt > Date.now();
+            }
+            return true;
+        }).length;
     }
 
-    connectedWorkers() {
-        return _.get(this.server, 'eio.clientsCount', 0);
+    get idleWorkers() {
+        return _.filter(this._workers, { status: 'idle' }).length;
+    }
+
+    get readyWorkers() {
+        return _.filter(this._workers, { status: 'ready' }).length;
     }
 
     executionFinished(exId) {
@@ -111,19 +134,45 @@ class ExecutionControllerMessenger extends MessengerServer {
     }
 
     _onConnection(socket) {
+        const { workerId } = socket;
+
+        this._workers[workerId] = {
+            status: 'connected',
+            workerId,
+        };
+
         socket.on('error', (err) => {
-            this._emit('worker:error', err, [socket.workerId]);
+            this._emit('worker:error', err, [workerId]);
         });
 
         socket.on('disconnect', (err) => {
-            this._workerRemove(socket.workerId);
+            this._workerRemove(workerId);
 
-            this._emit('worker:disconnect', err, [socket.workerId]);
+            this._emit('worker:disconnect', err, [workerId]);
             this.emit('worker:offline');
+            const lastStatus = _.get(this._workers, [workerId, 'status']);
+            const disconnectAt = Date.now() + this.workerDisconnectTimeout;
+            this._workers[workerId] = {
+                workerId,
+                disconnectAt,
+                lastStatus,
+                status: 'disconnected',
+            };
+        });
+
+        socket.on('reconnect', () => {
+            this._workers[workerId] = {
+                status: 'reconnected',
+                workerId
+            };
         });
 
         socket.on('worker:ready', (msg) => {
             this._workerEnqueue(msg);
+            this._workers[workerId] = {
+                status: 'ready',
+                workerId
+            };
         });
 
         this.handleResponses(socket);
@@ -132,9 +181,14 @@ class ExecutionControllerMessenger extends MessengerServer {
         socket.on('worker:slice:complete', (msg) => {
             const workerResponse = msg.payload;
             const sliceId = _.get(workerResponse, 'slice.slice_id');
-            if (workerResponse.retry) {
+
+            if (workerResponse.retry && !workerResponse.isShuttingDown) {
                 const retried = this.cache.get(`${sliceId}:retry`);
                 if (!retried) {
+                    this._workers[workerId] = {
+                        status: 'reconnected',
+                        workerId
+                    };
                     this.cache.set(`${sliceId}:retry`, true);
                     this.emit('worker:reconnect', workerResponse);
                 }
@@ -143,6 +197,10 @@ class ExecutionControllerMessenger extends MessengerServer {
             const alreadyCompleted = this.cache.get(`${sliceId}:complete`);
 
             if (!alreadyCompleted) {
+                this._workers[workerId] = {
+                    status: 'idle',
+                    workerId
+                };
                 this.cache.set(`${sliceId}:complete`, true);
 
                 if (workerResponse.error) {

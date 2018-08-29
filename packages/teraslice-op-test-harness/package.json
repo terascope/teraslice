@@ -10,7 +10,7 @@
     "docs": "jsdoc -P package.json index.js",
     "lint": "eslint *.js test",
     "lint:fix": "eslint --fix *.js test",
-    "test": "jest --forceExit",
+    "test": "jest",
     "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
   },
   "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-op-test-harness#readme",

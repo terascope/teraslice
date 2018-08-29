@@ -9,46 +9,68 @@ const misc = require('./misc');
 
 const jobList = [];
 
+function getElapsed(time) {
+    const elapsed = Date.now() - time;
+    if (elapsed < 1000) {
+        return `took ${elapsed}ms`;
+    }
+    return `took ${_.round(elapsed / 1000, 2)}s`;
+}
+
+function dockerBuild() {
+    const startTime = Date.now();
+    signale.pending('Building Docker environment...');
+
+    return misc.compose
+        .build()
+        .then(() => {
+            signale.success('Docker environment is built', getElapsed(startTime));
+        });
+}
+
 function dockerUp() {
+    const startTime = Date.now();
     signale.pending('Bringing Docker environment up...');
 
     return misc.compose
-        .up({
-            build: '',
-            timeout: 5,
-        })
+        .up()
         .then(() => waitForClusterMaster())
         .then(() => {
-            signale.success('Docker environment is good to go');
+            signale.success('Docker environment is good to go', getElapsed(startTime));
         });
 }
 
 // ensure docker-compose stack is down before starting it
 function dockerDown() {
+    const startTime = Date.now();
     signale.pending('Ensuring docker environment is in a clean slate...');
 
     return misc.compose.down({
         'remove-orphans': '',
         timeout: 5,
     }).then(() => {
-        signale.success('Docker environment is clean');
+        signale.success('Docker environment is clean', getElapsed(startTime));
     }).catch(() => {
-        signale.success('Docker environment should be clean');
+        signale.success('Docker environment should be clean', getElapsed(startTime));
     });
 }
 
 function waitForTerasliceNodes() {
+    const startTime = Date.now();
     signale.pending('Waiting for Teraslice...');
 
     return forNodes(4).then(() => {
-        signale.success('Teraslice is ready');
+        signale.success('Teraslice is ready', getElapsed(startTime));
     });
 }
 
 function generateTestData() {
+    const startTime = Date.now();
     signale.pending('Generating example data...');
 
     function populateStateForRecoveryTests(textExId, indexName) {
+        const recoveryStartTime = Date.now();
+        signale.info(`Populating recovery state for exId: ${textExId}`);
         const exId = jobList.shift();
         if (!exId) return Promise.resolve(true);
         const client = misc.es();
@@ -98,8 +120,9 @@ function generateTestData() {
                     client.index({
                         index: 'teracluster__ex', type: 'ex', id: exConfig.ex_id, body: exConfig
                     })
-                ])
-                    .catch(err => Promise.reject(err));
+                ]);
+            }).then(() => {
+                signale.info(`Populated recovery state for exId: ${textExId}`, getElapsed(recoveryStartTime));
             });
     }
 
@@ -113,10 +136,12 @@ function generateTestData() {
     }
 
     function generate(count, hex) {
+        const genStartTime = Date.now();
         let indexName = `example-logs-${count}`;
         if (hex) {
             indexName += '-hex';
         }
+        signale.info(`Generating ${indexName} example data`);
         const jobSpec = {
             name: `Generate: ${indexName}`,
             lifecycle: 'once',
@@ -138,6 +163,8 @@ function generateTestData() {
             ]
         };
 
+        const timeout = 2 * 60 * 1000;
+
         return Promise.resolve()
             .then(() => misc.cleanupIndex(indexName))
             .then(() => {
@@ -150,6 +177,15 @@ function generateTestData() {
                     jobSpec.operations[0].id_start_key = letter;
                     return postJob(jobSpec);
                 });
+            })
+            .then(result => _.castArray(result))
+            .then(jobs => Promise.map(jobs, job => job.waitForStatus('completed', 100, timeout)))
+            .then(() => {
+                signale.info(`Generated ${indexName} example data`, getElapsed(genStartTime));
+            })
+            .catch((err) => {
+                signale.error(`Failure to generate example data ${indexName}`, err);
+                return Promise.reject(err);
             });
     }
 
@@ -159,20 +195,16 @@ function generateTestData() {
         generate(10000),
         generate(10000, ['d', '3'])
     ])
-        .then(_.filter)
-        .then(_.flatten)
-        .then((jobs) => {
-            const generatedJobs = jobs.map(job => job.waitForStatus('completed', 100));
-            // we need fully active jobs so we can get proper meta data for recovery state tests
-            generatedJobs.push(populateStateForRecoveryTests('testex-errors', 'test-recovery-100'));
-            generatedJobs.push(populateStateForRecoveryTests('testex-all', 'test-recovery-200'));
-            return Promise.all(generatedJobs);
-        })
+        // we need fully active jobs so we can get proper meta data for recovery state tests
+        .then(() => Promise.all([
+            populateStateForRecoveryTests('testex-errors', 'test-recovery-100'),
+            populateStateForRecoveryTests('testex-all', 'test-recovery-200')
+        ]))
         .then(() => {
-            signale.success('Data generation is done');
+            signale.success('Data generation is done', getElapsed(startTime));
         })
         .catch((err) => {
-            signale.error('Data generation failed');
+            signale.error('Data generation failed', getElapsed(startTime));
             return Promise.reject(err);
         });
 }
@@ -181,6 +213,7 @@ module.exports = async () => {
     process.stdout.write('\n');
     signale.time('global setup');
     await dockerDown();
+    await dockerBuild();
     await dockerUp();
     try {
         await waitForTerasliceNodes();

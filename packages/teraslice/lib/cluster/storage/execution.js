@@ -4,7 +4,6 @@
 const uuid = require('uuid');
 const Promise = require('bluebird');
 const _ = require('lodash');
-const parseError = require('@terascope/error-parser');
 
 const INIT_STATUS = ['pending', 'scheduling', 'initializing'];
 const RUNNING_STATUS = ['running', 'failing', 'paused'];
@@ -24,6 +23,7 @@ module.exports = function module(context) {
     let backend;
 
     function getExecution(exId) {
+        if (!exId) return Promise.reject(new Error('Execution.get() requires a exId'));
         return backend.get(exId);
     }
 
@@ -56,22 +56,55 @@ module.exports = function module(context) {
         return metaData;
     }
 
-    function setStatus(exId, status, metaData) {
-        if (_isValidStatus(status)) {
-            const statusObj = { _status: status };
-            if (metaData) {
-                _.assign(statusObj, metaData);
-            }
-            return update(exId, statusObj)
-                .then(() => exId)
-                .catch((err) => {
-                    const errMsg = parseError(err);
-                    logger.error(`was not able to change status to ${JSON.stringify(statusObj)} on ex: ${exId}, error: ${errMsg}`);
-                    return Promise.reject(new Error(errMsg));
-                });
+    function getStatus(exId) {
+        return getExecution(exId)
+            .then(result => result._status)
+            .catch((err) => {
+                const error = new Error(`Cannot get execution status ${exId}, caused by ${err.toString()}`);
+                return Promise.reject(error);
+            });
+    }
+
+    // verify the current status to make sure it can be updated to the desired status
+    function verifyStatusUpdate(exId, desiredStatus) {
+        if (!desiredStatus || !_isValidStatus(desiredStatus)) {
+            return Promise.reject(new Error(`Invalid Job status: "${desiredStatus}"`));
         }
 
-        return Promise.reject(new Error(`Invalid Job status: ${status}`));
+        return getStatus(exId)
+            .then((status) => {
+                // when the current status is running it cannot be set to an init status
+                if (_isRunningStatus(status) && _isInitStatus(desiredStatus)) {
+                    const error = new Error(`Cannot update running job status of "${status}" to init status of "${desiredStatus}"`);
+                    return Promise.reject(error);
+                }
+
+                // when the status is a terminal status, it cannot be set to again
+                if (_isTerminalStatus(status)) {
+                    const error = new Error(`Cannot update terminal job status of "${status}" to "${desiredStatus}"`);
+                    return Promise.reject(error);
+                }
+
+                // otherwise allow the update
+                return Promise.resolve(status);
+            });
+    }
+
+    function setStatus(exId, status, metaData) {
+        return verifyStatusUpdate(exId, status)
+            .then(() => {
+                const statusObj = { _status: status };
+                if (metaData) {
+                    _.assign(statusObj, metaData);
+                }
+                return update(exId, statusObj);
+            })
+            .then(() => exId)
+            .catch((err) => {
+                const error = _.isString(err) ? new Error(err) : err;
+                logger.error(`Unable to set execution ${exId} status code to ${status}`, error);
+                return error;
+            });
     }
 
     function remove(exId) {
@@ -96,7 +129,19 @@ module.exports = function module(context) {
     }
 
     function _isValidStatus(status) {
-        return _.find(VALID_STATUS, valid => valid === status) !== undefined;
+        return _.includes(VALID_STATUS, status);
+    }
+
+    function _isRunningStatus(status) {
+        return _.includes(RUNNING_STATUS, status);
+    }
+
+    function _isTerminalStatus(status) {
+        return _.includes(TERMINAL_STATUS, status);
+    }
+
+    function _isInitStatus(status) {
+        return _.includes(INIT_STATUS, status);
     }
 
     const api = {
@@ -110,7 +155,9 @@ module.exports = function module(context) {
         getRunningStatuses,
         getLivingStatuses,
         setStatus,
-        executionMetaData
+        getStatus,
+        executionMetaData,
+        verifyStatusUpdate,
     };
 
     return require('./backends/elasticsearch_store')(context, jobsIndex, 'ex', 'ex_id')

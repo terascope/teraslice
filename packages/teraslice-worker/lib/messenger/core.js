@@ -62,7 +62,7 @@ class MessengerCore extends EventEmitter {
 
                 if (this.closed) return null;
 
-                throw new Error(`Timeout error while communicating with ${message.address}, with message: ${JSON.stringify(message)}`);
+                throw new Error(`Timeout error while communicating with ${message.address || message.to}, with message: ${JSON.stringify(message)}`);
             }
 
             if (response.error) {

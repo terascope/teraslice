@@ -72,17 +72,13 @@ module.exports = function makeEngine(controller) {
     }
 
     function _getScheduler(slicerArray) {
-        const { lifecycle } = executionConfig;
-        return slicerArray.map((slicerFn, index) => _createSlices(slicerFn, index, lifecycle));
+        return slicerArray.map((slicerFn, index) => _createSlices(slicerFn, index));
     }
 
-    function _createSlices(slicerFn, slicerId, lifecycle) {
+    function _createSlices(slicerFn, slicerId) {
         let hasCompleted = false;
         let isProcessing = false;
         let slicerOrder = 0;
-
-        // checking if lifecycle is 'once' and not in recovery mode
-        const isOnce = (lifecycle === 'once') && controller.recoveryComplete();
 
         return async function createSliceFn() {
             if (!isProcessing && !hasCompleted) {
@@ -104,7 +100,7 @@ module.exports = function makeEngine(controller) {
                             slicerId,
                             slicerOrder
                         );
-                    } else if (isOnce) {
+                    } else if (controller.isOnce) {
                         logger.trace(`slicer ${slicerId} finished`);
                         // slicer => a single slicer has finished
                         events.emit('slicer:finished');

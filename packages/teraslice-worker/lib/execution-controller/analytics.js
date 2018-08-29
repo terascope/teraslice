@@ -74,11 +74,11 @@ class ExecutionAnalytics {
     }
 
     set(key, value) {
-        this.executionAnalytics[key] = value;
+        _.get(this.executionAnalytics, key, value);
     }
 
     increment(key) {
-        this.executionAnalytics[key] += 1;
+        _.update(this.executionAnalytics, key, c => c + 1);
     }
 
     get() {
@@ -100,8 +100,8 @@ class ExecutionAnalytics {
         const diffs = {};
         const copy = {};
         _.forOwn(this.pushedAnalytics, (value, field) => {
-            diffs[field] = this.executionAnalytics[field] - value;
-            copy[field] = this.executionAnalytics[field];
+            diffs[field] = _.get(this.executionAnalytics, field) - value;
+            copy[field] = _.get(this.executionAnalytics, field);
         });
 
         await this.clusterMasterClient.updateAnalytics(diffs);

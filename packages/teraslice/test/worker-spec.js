@@ -13,6 +13,7 @@ describe('Worker', () => {
     let updatedSlice;
     let sentMsg;
     let errorMsg;
+    let errorMsgSecondArg;
     let analyticsData; // eslint-disable-line
     let debugMsg; // eslint-disable-line
     let logMsg; // eslint-disable-line
@@ -22,8 +23,9 @@ describe('Worker', () => {
     let messageResponse;
 
     const logger = {
-        error(err) {
+        error(err, secondArg) {
             errorMsg = err;
+            errorMsgSecondArg = secondArg;
         },
         info(info) {
             logMsg = info;
@@ -140,6 +142,7 @@ describe('Worker', () => {
         updatedSlice = null;
         sentMsg = null;
         errorMsg = null;
+        errorMsgSecondArg = null;
         analyticsData = null;
         debugMsg = null;
         logMsg = null;
@@ -237,7 +240,8 @@ describe('Worker', () => {
         waitFor(10)
             .then(() => {
                 expect(innerEventCalled).toEqual(true);
-                expect(errorMsg).toEqual(`failed to process ${JSON.stringify(lastMessage())}, slice state has been marked as error`);
+                expect(errorMsg).toEqual(lastMessage());
+                expect(errorMsgSecondArg).toEqual('slice state has been marked as error');
                 expect(updatedSlice).toBeDefined();
                 expect(updatedSlice.slice).toEqual(slice);
                 expect(updatedSlice.type).toEqual('error');

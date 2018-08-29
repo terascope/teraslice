@@ -1,25 +1,36 @@
+import _ from 'lodash';
 import debugnyan from 'debugnyan';
 import { EventEmitter } from 'events';
 import * as c from './context';
 import * as j from './jobs';
 
-export function debugLogger(testName: string, ...params: any[]): c.Logger {
-    let logger: c.Logger;
+interface debugParamObj {
+    module: string;
+    assignment?: string;
+}
 
-    if (params.length === 0) {
-        logger = debugnyan(`teraslice:${testName}`) as c.Logger;
-    } else if (typeof params[0] === 'string') {
-        logger = debugnyan(
-            `teraslice:${testName}`,
-            {},
-            { simple: false, suffix: params[0] as string },
-        ) as c.Logger;
-    } else {
-        logger = debugnyan(`teraslice:${testName}`, params[0] as object, {
-            simple: false,
-            suffix: params[0].module,
-        }) as c.Logger;
+type debugParam = debugParamObj | string;
+
+export function debugLogger(testName: string, param?: debugParam, otherName?: string): c.Logger {
+    let logger: c.Logger;
+    const options = {};
+    const parts: string[] = ['teraslice', testName];
+    if (param) {
+        if (_.isString(param)) {
+            parts.push(param as string);
+        } else if (_.isPlainObject(param)) {
+            parts.push(param.module);
+            if (param.assignment) {
+                parts.push(param.assignment);
+            }
+        }
     }
+
+    if (otherName) {
+        parts.push(otherName);
+    }
+
+    logger = debugnyan(_.uniq(parts).join(':'), options) as c.Logger;
 
     logger.flush = () => Promise.resolve();
 

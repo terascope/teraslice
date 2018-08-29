@@ -199,7 +199,7 @@ describe('Messenger', () => {
         });
 
         it('should have no available workers', () => {
-            expect(exMessenger.availableWorkers()).toEqual(0);
+            expect(exMessenger.availableWorkers).toEqual(0);
         });
 
         describe('when the worker is ready', () => {
@@ -215,8 +215,8 @@ describe('Messenger', () => {
             });
 
             it('should have one client connected', async () => {
-                expect(exMessenger.availableWorkers()).toEqual(1);
-                expect(exMessenger.connectedWorkers()).toEqual(1);
+                expect(exMessenger.availableWorkers).toEqual(1);
+                expect(exMessenger.connectedWorkers).toEqual(1);
             });
 
             describe('when sending worker:slice:complete', () => {

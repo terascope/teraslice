@@ -18,6 +18,12 @@ describe('compose', () => {
             .catch(fail);
     });
 
+    it('should be able to call compose.build()', (done) => {
+        sut.build()
+            .then(() => { done(); })
+            .catch(fail);
+    });
+
     it('should be able to call compose.version()', (done) => {
         sut.version()
             .then((result) => {
@@ -100,8 +106,9 @@ describe('compose', () => {
             sut.start('something wrong')
                 .then(fail)
                 .catch((err) => {
-                    expect(err).toContain('Command exited: 1');
-                    expect(err).toContain('No such service: something wrong');
+                    expect(err.message).toContain('Command exited: 1');
+                    expect(err.message).toContain('No such service: something wrong');
+                    expect(err.stdout).toBeDefined();
                     done();
                 });
         });

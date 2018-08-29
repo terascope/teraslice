@@ -78,6 +78,7 @@ const newSysConfig = (options = {}) => {
         clusterName = 'test-teraslice-cluster',
         timeout = 3000,
         actionTimeout = 2000,
+        shutdownTimeout = 4000,
         assetDir,
         clusterMasterPort,
     } = options;
@@ -97,7 +98,7 @@ const newSysConfig = (options = {}) => {
         },
         teraslice: {
             assets_directory: assetDir,
-            shutdown_timeout: timeout,
+            shutdown_timeout: shutdownTimeout,
             action_timeout: actionTimeout,
             network_latency_buffer: 100,
             slicer_timeout: timeout,

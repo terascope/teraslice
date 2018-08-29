@@ -31,7 +31,7 @@ module.exports = function module(context, messaging, exStore, stateStore) {
     const workerQueue = new Queue();
     const slicerQueue = new Queue();
 
-    const watchDogTimeouts = [];
+    const watchDogTimeouts = {};
 
     const cache = new NodeCache({
         stdTTL: 30 * 60 * 1000, // 30 minutes
@@ -270,7 +270,7 @@ module.exports = function module(context, messaging, exStore, stateStore) {
         const errorMeta = exStore.executionMetaData(executionStats, errMsg);
         logger.error(errMsg);
 
-        exStore.setStatus(exId, 'failed', errorMeta)
+        return exStore.setStatus(exId, 'failed', errorMeta)
             .then(() => {
                 messaging.send({
                     to: 'cluster_master',
@@ -432,7 +432,7 @@ module.exports = function module(context, messaging, exStore, stateStore) {
                         clearInterval(engine);
                         engineFnRunning = false;
 
-                        exStore.setStatus(exId, 'failed', errorMeta)
+                        return exStore.setStatus(exId, 'failed', errorMeta)
                             .then(() => {
                                 messaging.send({
                                     to: 'cluster_master',
@@ -568,7 +568,9 @@ module.exports = function module(context, messaging, exStore, stateStore) {
     }
 
     function _watchDog(checkFn, timeout, errMsg, logMsg) {
+        const timerId = _.uniqueId('watch-dog-timer-');
         const timer = setTimeout(() => {
+            delete watchDogTimeouts[timerId];
             if (!checkFn()) return;
             // if after a a set time there are still no workers, it will shutdown
             logger.error(logMsg);
@@ -586,7 +588,7 @@ module.exports = function module(context, messaging, exStore, stateStore) {
         }, timeout);
 
         // store timeouts to make sure we don't have dangling async requests
-        watchDogTimeouts.push(timer);
+        watchDogTimeouts[timerId] = timer;
     }
 
     function _startWorkerDisconnectWatchDog() {
@@ -613,7 +615,10 @@ module.exports = function module(context, messaging, exStore, stateStore) {
         clearInterval(engine);
         engineFnRunning = false;
         events.emit('execution:stop');
-        _.forEach(watchDogTimeouts, clearTimeout);
+        _.forEach(watchDogTimeouts, (timeout, key) => {
+            clearTimeout(timeout);
+            delete watchDogTimeouts[key];
+        });
         return Promise.resolve()
             .then(executionAnalytics.shutdown)
             .then(() => logger.flush())
@@ -644,25 +649,25 @@ module.exports = function module(context, messaging, exStore, stateStore) {
         }
         _checkExecutionState(executionConfig)
             .then((errCount) => {
-                const msg = {
-                    to: 'cluster_master',
-                    message: 'execution:finished',
-                    ex_id: executionConfig.ex_id
-                };
                 const executionStats = executionAnalytics.getAnalytics();
 
                 if (errCount > 0) {
                     const message = `execution: ${exId} had ${errCount} slice failures during processing`;
                     const errorMeta = exStore.executionMetaData(executionStats, message);
                     logger.error(message);
-                    exStore.setStatus(exId, 'failed', errorMeta);
-                } else {
-                    logger.info(`execution ${exId} has completed`);
-                    const metaData = exStore.executionMetaData(executionStats);
-                    exStore.setStatus(exId, 'completed', metaData);
+                    return exStore.setStatus(exId, 'failed', errorMeta);
                 }
-
-                messaging.send(msg);
+                logger.info(`execution ${exId} has completed`);
+                const metaData = exStore.executionMetaData(executionStats);
+                return exStore.setStatus(exId, 'completed', metaData);
+            })
+            .then(() => {
+                const msg = {
+                    to: 'cluster_master',
+                    message: 'execution:finished',
+                    ex_id: executionConfig.ex_id
+                };
+                return messaging.send(msg);
             })
             .catch((err) => {
                 const errMsg = parseError(err);

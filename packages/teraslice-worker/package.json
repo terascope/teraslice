@@ -1,14 +1,14 @@
 {
   "name": "teraslice-worker",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Teraslice worker",
   "main": "index.js",
   "scripts": {
     "start": "node service.js",
     "lint": "eslint *.js lib test",
     "lint:fix": "eslint --fix *.js lib test",
-    "test": "jest --forceExit",
-    "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+    "test": "jest",
+    "test:debug": "env DEBUG='*teraslice*' jest --forceExit --detectOpenHandles --coverage=false --runInBand"
   },
   "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-worker#readme",
   "repository": "git@github.com:terascope/teraslice.git",
@@ -34,18 +34,17 @@
     "@terascope/job-components": "^0.3.2",
     "bluebird": "^3.5.1",
     "bluebird-retry": "^0.11.0",
-    "debug": "^3.1.0",
     "fs-extra": "^7.0.0",
     "lodash": "^4.17.10",
     "moment": "^2.22.2",
-    "nanoid": "^1.2.1",
+    "nanoid": "^1.2.2",
     "nested-error-stacks": "^2.1.0",
     "node-cache": "^4.2.0",
     "porty": "^3.1.1",
-    "socket.io": "^2.1.1",
-    "socket.io-client": "^2.1.1",
+    "socket.io": "~2.1.1",
+    "socket.io-client": "~2.1.1",
     "terafoundation": "^0.2.1",
-    "teraslice": "^0.39.1",
+    "teraslice": "^0.39.2",
     "uuid": "^3.3.2",
     "yargs": "^12.0.1"
   }

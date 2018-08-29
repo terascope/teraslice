@@ -5,6 +5,7 @@ const { EventEmitter } = require('events');
 const { ExecutionController } = require('../../..');
 const WorkerMessenger = require('../../../lib/worker/messenger');
 const { TestContext, findPort } = require('../../helpers');
+const { makeShutdownEarlyFn } = require('../../helpers/execution-controller-helper');
 const newId = require('../../../lib/utils/new-id');
 
 describe('ExecutionController', () => {
@@ -145,20 +146,23 @@ describe('ExecutionController', () => {
                 analytics: _.sample([true, false]),
             }
         ],
-        // disabled because this isn't being used currrently
-        // [
-        //     'processing a slice and the execution is stopped',
-        //     {
-        //         slicerResults: [
-        //             { example: 'slice-execution-stop' },
-        //             null
-        //         ],
-        //         sendClusterStop: true,
-        //         body: { example: 'slice-execution-stop' },
-        //         count: 1,
-        //         analytics: _.sample([true, false]),
-        //     }
-        // ],
+        [
+            'processing slices and the execution gets shutdown early',
+            {
+                shutdownTimeout: 2000,
+                slicerResults: [
+                    { example: 'slice-shutdown-early' },
+                    { example: 'slice-shutdown-early' },
+                    { example: 'slice-shutdown-early' },
+                    { example: 'slice-shutdown-early' },
+                ],
+                lifecycle: 'persistent',
+                shutdownEarly: true,
+                body: { example: 'slice-shutdown-early' },
+                count: 1,
+                analytics: _.sample([true, false]),
+            }
+        ],
         [
             'recovering a slicer with no cleanup type',
             {
@@ -280,7 +284,8 @@ describe('ExecutionController', () => {
         ]
     ];
 
-    // fdescribe.each([testCases[10]])('when %s', (m, options) => {
+    // for testing enable the next line and a "only" property to the test cases you want
+    // fdescribe.each(_.filter(testCases, ts => ts[1].only))('when %s', (m, options) => {
     describe.each(testCases)('when %s', (m, options) => {
         const {
             slicerResults,
@@ -292,6 +297,8 @@ describe('ExecutionController', () => {
             analytics = false,
             workers = 1,
             pauseAndResume = false,
+            shutdownTimeout = 4000,
+            shutdownEarly = false,
             sendClusterStop = false,
             sliceFails = false,
             slicerFails = false,
@@ -309,6 +316,7 @@ describe('ExecutionController', () => {
         let slices;
         let exStore;
         let stateStore;
+        let shutdownEarlyFn;
 
         beforeEach(async () => {
             slices = [];
@@ -320,6 +328,7 @@ describe('ExecutionController', () => {
                 slicerPort: port,
                 slicerQueueLength,
                 slicerResults,
+                shutdownTimeout,
                 lifecycle,
                 workers,
                 analytics,
@@ -342,6 +351,10 @@ describe('ExecutionController', () => {
                     const { slice, state } = recoverySlice;
                     return stateStore.createState(exId, slice, state);
                 });
+            }
+
+            if (shutdownEarly) {
+                testContext.executionContext.queueLength = 1;
             }
 
             exController = new ExecutionController(
@@ -373,6 +386,11 @@ describe('ExecutionController', () => {
 
             let firedReconnect = false;
 
+            shutdownEarlyFn = makeShutdownEarlyFn({
+                enabled: shutdownEarly,
+                exController,
+            });
+
             async function startWorker(n) {
                 const workerId = workerIds[n] || newId('worker');
                 const workerMessenger = new WorkerMessenger({
@@ -399,10 +417,12 @@ describe('ExecutionController', () => {
                     ]);
                 }
 
-                async function process() {
-                    if (exController.isDone()) return;
+                const isDone = () => exController.isExecutionFinished;
 
-                    const slice = await workerMessenger.waitForSlice(() => exController.isDone());
+                async function process() {
+                    if (isDone()) return;
+
+                    const slice = await workerMessenger.waitForSlice(isDone);
 
                     if (!slice) return;
 
@@ -448,6 +468,8 @@ describe('ExecutionController', () => {
 
                         await Promise.delay(0);
                         await workerMessenger.sliceComplete(msg);
+
+                        await shutdownEarlyFn.shutdown();
                     }
 
                     await Promise.all([
@@ -502,6 +524,7 @@ describe('ExecutionController', () => {
             testContext.attachCleanup(() => clearTimeout(requestAnayltics));
 
             await Promise.all([
+                shutdownEarlyFn.wait(),
                 startWorkers(),
                 exController.run(),
             ]);
@@ -514,6 +537,10 @@ describe('ExecutionController', () => {
         it('should process the execution correctly', async () => {
             const { ex_id: exId } = testContext.executionContext;
 
+            if (shutdownEarly) {
+                expect(shutdownEarlyFn.error().message).toStartWith('Failed to shutdown correctly: Error:');
+            }
+
             expect(slices).toBeArrayOfSize(count);
             _.times(count, (i) => {
                 const slice = slices[i];
@@ -525,22 +552,33 @@ describe('ExecutionController', () => {
             expect(exStatus).toBeObject();
             expect(exStatus).toHaveProperty('_slicer_stats');
 
-            if (sliceFails || slicerFails) {
+            if (sliceFails || slicerFails || shutdownEarly) {
                 if (sliceFails) {
                     expect(exStatus).toHaveProperty('_failureReason', `execution: ${exId} had 1 slice failures during processing`);
                     expect(exStatus._slicer_stats.failed).toEqual(count);
                     const query = `ex_id:${exId} AND state:error`;
                     const actualCount = await stateStore.count(query, 0);
                     expect(actualCount).toEqual(count);
+
+                    expect(exStatus).toHaveProperty('_has_errors', true);
+                    expect(exStatus).toHaveProperty('_status', 'failed');
                 }
 
                 if (slicerFails) {
                     expect(exStatus._failureReason).toStartWith(`Error: slicer for ex ${exId} had an error, shutting down execution, caused by Error: Slice failure`);
                     expect(exStatus._slicer_stats.failed).toEqual(0);
+
+                    expect(exStatus).toHaveProperty('_has_errors', true);
+                    expect(exStatus).toHaveProperty('_status', 'failed');
                 }
 
-                expect(exStatus).toHaveProperty('_has_errors', true);
-                expect(exStatus).toHaveProperty('_status', 'failed');
+                if (shutdownEarly) {
+                    expect(exStatus).toHaveProperty('_failureReason', `execution ${exId} received shutdown before the slicer could complete, setting status to "terminated"`);
+                    expect(exStatus._slicer_stats.failed).toEqual(0);
+
+                    expect(exStatus).toHaveProperty('_has_errors', true);
+                    expect(exStatus).toHaveProperty('_status', 'terminated');
+                }
             } else {
                 expect(exStatus).toHaveProperty('_status', 'completed');
                 expect(exStatus).toHaveProperty('_has_errors', false);
@@ -583,14 +621,19 @@ describe('ExecutionController', () => {
             testContext = new TestContext({
                 assignment: 'execution_controller',
                 slicerPort: port,
+                timeout: 100,
+                actionTimeout: 100
             });
 
             await testContext.initialize(true);
+            await testContext.addClusterMaster();
 
             exController = new ExecutionController(
                 testContext.context,
                 testContext.executionContext,
             );
+
+            exController.isExecutionFinished = true;
 
             await testContext.addExStore();
             ({ exStore } = testContext.stores);
@@ -611,7 +654,22 @@ describe('ExecutionController', () => {
                 try {
                     await exController.initialize();
                 } catch (err) {
-                    expect(err.message).toEqual(`No active execution context was found for execution: ${testContext.exId}`);
+                    expect(err.message).toStartWith(`Cannot get execution status ${testContext.exId}, caused by invoking elasticsearch-api _runRequest resulted in a runtime error: Not Found`);
+                }
+            });
+        });
+
+        describe('when the execution is set to running', () => {
+            beforeEach(async () => {
+                await exStore.setStatus(testContext.exId, 'running');
+            });
+
+            it('should throw an error on initialize', async () => {
+                expect.hasAssertions();
+                try {
+                    await exController.initialize();
+                } catch (err) {
+                    expect(err.message).toEqual(`Execution ${testContext.exId} was starting in running status, sending executionFinished event to cluster master`);
                 }
             });
         });
@@ -626,7 +684,7 @@ describe('ExecutionController', () => {
                 try {
                     await exController.initialize();
                 } catch (err) {
-                    expect(err.message).toEqual(`No active execution context was found for execution: ${testContext.exId}`);
+                    expect(err.message).toEqual(`Execution ${testContext.exId} was starting in terminal status, sending executionTerminal event to cluster master`);
                 }
             });
         });
@@ -670,8 +728,7 @@ describe('ExecutionController', () => {
 
             describe('when everything errors', () => {
                 beforeEach(() => {
-                    exController.isDone = () => false;
-                    exController._doneProcessing = () => Promise.reject(new Error('Slicer Finish Error'));
+                    exController.isExecutionFinished = true;
 
                     exController.stores = {};
                     exController.stores.someStore = {
@@ -688,7 +745,6 @@ describe('ExecutionController', () => {
                     exController.clusterMasterClient.shutdown = () => Promise.reject(new Error('Cluster Master Client Error'));
 
                     exController.messenger = {};
-                    exController.messenger.executionFinished = () => Promise.reject(new Error('Messenger Execution Finished Error'));
                     exController.messenger.shutdown = () => Promise.reject(new Error('Messenger Error'));
                 });
 
@@ -699,12 +755,10 @@ describe('ExecutionController', () => {
                     } catch (err) {
                         const errMsg = err.toString();
                         expect(errMsg).toStartWith('Error: Failed to shutdown correctly');
-                        expect(errMsg).toInclude('Slicer Finish Error');
                         expect(errMsg).toInclude('Store Error');
                         expect(errMsg).toInclude('Recover Error');
                         expect(errMsg).toInclude('Execution Analytics Error');
                         expect(errMsg).toInclude('Cluster Master Client Error');
-                        expect(errMsg).toInclude('Messenger Execution Finished Error');
                         expect(errMsg).toInclude('Messenger Error');
                     }
                 });
