@@ -98,6 +98,9 @@ destroy: ## delete k8s deployments and services
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-worker || echo "* it is okay..."
 	curl -fsS -XDELETE "${ES_URL}/terak8s*"
 	tjm reset ./example-job.json
+	tjm reset ./example-job-labels.json
+	tjm reset ./example-job-resource.json
+	tjm reset ./example-job-volume.json
 
 destroy-all: destroy deauth deelasticsearch delete-namespace ## delete ALL things including the namespace
 
@@ -108,6 +111,9 @@ rebuild: destroy setup ## destroys then re-runs things
 register: ## creates asset and registers job
 	tjm asset --deploy -c $(TERASLICE_MASTER_URL) || echo '* it is okay'
 	tjm register -c $(TERASLICE_MASTER_URL) ./example-job.json
+	tjm register -c $(TERASLICE_MASTER_URL) ./example-job-labels.json
+	tjm register -c $(TERASLICE_MASTER_URL) ./example-job-resource.json
+	tjm register -c $(TERASLICE_MASTER_URL) ./example-job-volume.json
 
 example: ## runs example job
 	yes | tjm asset --replace -c $(TERASLICE_MASTER_URL) || echo '* it is okay'

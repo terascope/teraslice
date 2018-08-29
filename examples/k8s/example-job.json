@@ -22,10 +22,5 @@
             "_op": "elasticsearch_bulk",
             "size": 5000
         }
-    ],
-    "tjm": {
-        "cluster": "http://192.168.99.100:30678",
-        "version": "0.0.1",
-        "job_id": "0fa9f6b4-6205-47c5-a825-c7a4f4dcdcd0"
-    }
+    ]
 }
