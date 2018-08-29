@@ -8,6 +8,8 @@ describe('K8s Utils', () => {
             const exServiceTemplate = makeTemplate('services', 'execution_controller');
             const config = {
                 name: 'example',
+                jobName: 'example-job',
+                clusterName: 'example-cluster',
                 exId: 'some-ex-id',
                 jobId: 'some-job-id',
                 nodeType: 'execution_controller',
@@ -20,7 +22,9 @@ describe('K8s Utils', () => {
                     app: 'teraslice',
                     nodeType: config.nodeType,
                     exId: config.exId,
-                    jobId: config.jobId
+                    jobId: config.jobId,
+                    jobName: config.jobName,
+                    clusterName: config.clusterName
                 },
                 name: config.name,
                 namespace: config.namespace
@@ -37,6 +41,8 @@ describe('K8s Utils', () => {
             const exJobTemplate = makeTemplate('jobs', 'execution_controller');
             const config = {
                 name: 'example',
+                jobName: 'example-job',
+                clusterName: 'example-cluster',
                 exId: 'some-ex-id',
                 jobId: 'some-job-id',
                 nodeType: 'execution_controller',
@@ -53,7 +59,9 @@ describe('K8s Utils', () => {
                     app: 'teraslice',
                     nodeType: config.nodeType,
                     exId: config.exId,
-                    jobId: config.jobId
+                    jobId: config.jobId,
+                    jobName: config.jobName,
+                    clusterName: config.clusterName
                 },
                 name: config.name,
                 namespace: config.namespace
@@ -90,6 +98,8 @@ describe('K8s Utils', () => {
             const workerDeploymentTemplate = makeTemplate('deployments', 'worker');
             const config = {
                 name: 'example',
+                jobName: 'example-job',
+                clusterName: 'example-cluster',
                 exId: 'some-ex-id',
                 jobId: 'some-job-id',
                 nodeType: 'worker',
@@ -107,7 +117,9 @@ describe('K8s Utils', () => {
                     app: 'teraslice',
                     nodeType: config.nodeType,
                     exId: config.exId,
-                    jobId: config.jobId
+                    jobId: config.jobId,
+                    jobName: config.jobName,
+                    clusterName: config.clusterName
                 },
                 name: config.name,
                 namespace: config.namespace

@@ -5,12 +5,11 @@ const parseError = require('@terascope/error-parser');
 const Promise = require('bluebird');
 const K8s = require('./k8s');
 const k8sState = require('./k8sState');
+const k8sObject = require('./k8sObject');
 const stateUtils = require('../state-utils');
 const { makeTemplate, base64EncodeObject } = require('./utils');
 
 const exServiceTemplate = makeTemplate('services', 'execution_controller');
-const exJobTemplate = makeTemplate('jobs', 'execution_controller');
-const workerDeploymentTemplate = makeTemplate('deployments', 'worker');
 
 /*
  Execution Life Cycle for _status
@@ -30,6 +29,7 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
     const shutdownTimeoutMs = _.get(context, 'sysconfig.teraslice.shutdown_timeout', 60000);
     const shutdownTimeoutSeconds = Math.round(shutdownTimeoutMs / 1000);
 
+    const clusterName = _.get(context, 'sysconfig.teraslice.name');
     const kubernetesImage = _.get(context, 'sysconfig.teraslice.kubernetes_image', 'teraslice:k8sdev');
     const kubernetesNamespace = _.get(context, 'sysconfig.teraslice.kubernetes_namespace', 'default');
     const configMapName = _.get(
@@ -177,8 +177,10 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
 
         const serviceConfig = {
             name,
+            clusterName,
             exId: execution.ex_id,
             jobId: execution.job_id,
+            jobName: execution.name,
             nodeType: 'execution_controller',
             namespace: kubernetesNamespace
         };
@@ -192,8 +194,10 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
 
         const jobConfig = {
             name,
+            clusterName,
             exId: execution.ex_id,
             jobId: execution.job_id,
+            jobName: execution.name,
             dockerImage: kubernetesImage,
             execution: base64EncodeObject(execution),
             nodeType: 'execution_controller',
@@ -203,7 +207,9 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
             imagePullSecret,
         };
 
-        const exJob = exJobTemplate(jobConfig);
+        const exJob = k8sObject.gen(
+            'jobs', 'execution_controller', execution, jobConfig
+        );
 
         logger.debug(`exJob:\n\n${JSON.stringify(exJob, null, 2)}`);
 
@@ -236,8 +242,10 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
 
         const deploymentConfig = {
             name,
+            clusterName,
             exId: execution.ex_id,
             jobId: execution.job_id,
+            jobName: execution.name,
             dockerImage: kubernetesImage,
             execution: base64EncodeObject(execution),
             nodeType: 'worker',
@@ -248,7 +256,11 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
             imagePullSecret,
         };
 
-        const workerDeployment = workerDeploymentTemplate(deploymentConfig);
+        const workerDeployment = k8sObject.gen(
+            'deployments', 'worker', execution, deploymentConfig
+        );
+
+        logger.debug(`workerDeployment:\n\n${JSON.stringify(workerDeployment, null, 2)}`);
 
         return k8s.post(workerDeployment, 'deployment')
             .then(result => logger.debug(`k8s worker deployment submitted: ${JSON.stringify(result)}`))

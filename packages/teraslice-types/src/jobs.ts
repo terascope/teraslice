@@ -23,6 +23,23 @@ export interface JobConfig {
     workers: number;
 }
 
+export interface Targets {
+    key: string;
+    value: string;
+}
+
+export interface Volume {
+    name: string;
+    path: string;
+}
+
+export interface K8sJobConfig extends JobConfig {
+    targets: Targets[];
+    cpu: number;
+    memory: number;
+    volumes: Volume[];
+}
+
 export type crossValidationFn = (job: JobConfig, sysconfig: SysConfig) => void;
 export type selfValidationFn = (config: OpConfig) => void;
 

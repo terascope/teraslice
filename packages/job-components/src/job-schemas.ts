@@ -9,7 +9,7 @@ const cpuCount = os.cpus().length;
 const workers = cpuCount < 5 ? cpuCount : 5;
 
 export function jobSchema(context: Context): convict.Schema<any> {
-    return {
+    const schemas: convict.Schema<any> = {
         analytics: {
             default: true,
             doc: 'logs the time it took in milliseconds for each action, '
@@ -133,6 +133,56 @@ export function jobSchema(context: Context): convict.Schema<any> {
             },
         },
     };
+
+    const clusteringType = context.sysconfig.teraslice.cluster_manager_type;
+
+    if (clusteringType === 'kubernetes') {
+        schemas.targets = {
+            default: [],
+            doc: 'array of key/value labels used for targetting teraslice jobs to nodes',
+            format(arr: any) {
+                _.forEach(arr, (label) => {
+                    if (!_.has(label, 'key')) {
+                        throw new Error(`targets need to have a key: ${label}`);
+                    }
+
+                    if (!_.has(label, 'value')) {
+                        throw new Error(`targets need to have a value: ${label}`);
+                    }
+                });
+            }
+        };
+
+        schemas.cpu = {
+            doc: 'minimum cpu value for teraslice workers in kubernetes',
+            default: -1,
+            format: 'Number'
+        };
+
+        schemas.memory = {
+            doc: 'minimum cpu value for teraslice workers in kubernetes.',
+            default: -1,
+            format: 'Number'
+        };
+
+        schemas.volumes = {
+            default: [],
+            doc: 'array of volumes to be mounted by job workers',
+            format(arr: any) {
+                _.forEach(arr, (volume) => {
+                    if (!_.has(volume, 'name')) {
+                        throw new Error(`volumes need to have a name: ${volume}`);
+                    }
+
+                    if (!_.has(volume, 'path')) {
+                        throw new Error(`volumes need to have a path: ${volume}`);
+                    }
+                });
+            }
+        };
+    }
+
+    return schemas;
 }
 
 export const opSchema: convict.Schema<any> = {

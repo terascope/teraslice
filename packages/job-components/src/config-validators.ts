@@ -1,4 +1,4 @@
-import { JobConfig, OpConfig } from '@terascope/teraslice-types';
+import { JobConfig, OpConfig, K8sJobConfig } from '@terascope/teraslice-types';
 import convict from 'convict';
 import { opSchema } from './job-schemas';
 
@@ -20,22 +20,22 @@ export function validateOpConfig(inputSchema: convict.Schema<any>, inputConfig: 
         throw new Error(`Validation failed for opConfig: ${inputConfig._op} - ${err.message}`);
     }
 
-    return config.getProperties() as OpConfig;
+    return config.getProperties();
 }
 
 /**
  * Merges the provided inputSchema with commonSchema and then validates the
  * provided jobConfig against the resulting schema.
  */
-export function validateJobConfig(inputSchema: convict.Schema<any>, inputConfig: any): JobConfig {
+export function validateJobConfig(inputSchema: convict.Schema<any>, inputConfig: any): JobConfig | K8sJobConfig {
     const config = convict(inputSchema);
 
     try {
         config.load(inputConfig);
         config.validate(validateOptions);
     } catch (err) {
-        throw new Error(`Validation failed for jobConfig: ${inputConfig.name} - ${err.message}`);
+        throw new Error(`Validation failed for jobConfig: ${inputConfig.name} - ${err.stack}`);
     }
 
-    return config.getProperties() as JobConfig;
+    return config.getProperties();
 }

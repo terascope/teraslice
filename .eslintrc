@@ -22,6 +22,7 @@
         "no-restricted-globals": ["error", "isFinite"],
         "func-names": ["error", "as-needed"],
         "semi-spacing": "error",
+        "function-paren-newline": ["error", "consistent"],
         "rest-spread-spacing": ["error"],
         "no-path-concat": "error",
         "no-debugger": "error",
