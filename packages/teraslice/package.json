@@ -8,7 +8,7 @@
     "start": "node service.js",
     "lint": "eslint *.js lib test",
     "lint:fix": "eslint --fix *.js lib test",
-    "test": "jest --forceExit",
+    "test": "jest",
     "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
   },
   "directories": {

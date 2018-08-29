@@ -28,7 +28,7 @@
     "lint:fix": "yarn lint --fix",
     "prepublishOnly": "yarn build",
     "build": "rimraf dist && tsc --pretty",
-    "test": "jest --forceExit",
+    "test": "jest",
     "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
     "watch": "yarn build --watch",
     "watch:test": "jest --watch"

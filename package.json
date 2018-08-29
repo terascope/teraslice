@@ -7,7 +7,7 @@
         "bootstrap": "lerna bootstrap",
         "build": "lerna run build",
         "bump": "./scripts/bump.js",
-        "test": "jest --forceExit --ci --maxWorkers=4",
+        "test": "jest --ci --maxWorkers=4",
         "test:e2e": "yarn --cwd ./e2e test",
         "test:e2e:ci": "yarn --cwd ./e2e test:ci",
         "test:e2e:clean": "yarn --cwd ./e2e clean",

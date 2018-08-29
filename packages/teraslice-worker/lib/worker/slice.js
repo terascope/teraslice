@@ -125,7 +125,7 @@ class Slice {
             throw new WrapError('Failure to update failed state', _err);
         }
 
-        logger.error(`Slice failed processing: ${errMsg}, message: `, slice);
+        logger.error(err, 'slice state has been marked as error');
 
         events.emit('slice:failure', slice);
 
