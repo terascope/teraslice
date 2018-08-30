@@ -1,7 +1,7 @@
 'use strict';
 
 import { LegacyProcessor, LegacyReader, newTestJobConfig, TestContext } from '@terascope/teraslice-types';
-import fs from 'fs-extra';
+import fse from 'fs-extra';
 import 'jest-extended'; // require for type definitions
 import path from 'path';
 import { OperationLoader } from '../src';
@@ -15,15 +15,14 @@ describe('OperationLoader', () => {
     const context = new TestContext('teraslice-op-loader');
 
     beforeAll(async () => {
-        await fs.ensureDir(testDir);
-        await fs.copy(processorPath, path.join(assetPath, 'noop.js'));
+        await fse.ensureDir(testDir);
+        await fse.copy(processorPath, path.join(assetPath, 'noop.js'));
     });
 
-    afterAll(() => fs.remove(testDir));
+    afterAll(() => fse.remove(testDir));
 
     it('can instantiate', () => {
         const opLoader = new OperationLoader({
-            opPath: '',
             terasliceOpPath,
         });
 
@@ -34,7 +33,6 @@ describe('OperationLoader', () => {
 
     it('can load an operation', () => {
         const opLoader = new OperationLoader({
-            opPath: '',
             terasliceOpPath,
         });
         const results = opLoader.load('noop') as LegacyProcessor;
@@ -63,7 +61,6 @@ describe('OperationLoader', () => {
 
     it('can load by file path', () => {
         const opLoader = new OperationLoader({
-            opPath: '',
             terasliceOpPath,
         });
         const op = opLoader.load(path.join(__dirname, 'fixtures', 'test-op')) as LegacyProcessor;
@@ -87,7 +84,6 @@ describe('OperationLoader', () => {
 
     it('can throw proper errors if op code does not exits', () => {
         const opLoader = new OperationLoader({
-            opPath: '',
             terasliceOpPath,
         });
 
@@ -98,9 +94,8 @@ describe('OperationLoader', () => {
 
     it('can load asset ops', () => {
         const opLoader = new OperationLoader({
-            assetPath: testDir,
-            opPath: '',
             terasliceOpPath,
+            assetPath: testDir,
         });
 
         const results = opLoader.load('noop', [assetId]) as LegacyProcessor;

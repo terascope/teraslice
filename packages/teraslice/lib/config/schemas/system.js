@@ -14,11 +14,6 @@ const ip = _.chain(require('os').networkInterfaces())
 const workerCount = require('os').cpus().length;
 
 const schema = {
-    ops_directory: {
-        doc: 'directory to look for more readers and processors',
-        default: null,
-        format: 'optional_String'
-    },
     assets_directory: {
         doc: 'directory to look for assets',
         default: path.join(process.cwd(), './assets'),

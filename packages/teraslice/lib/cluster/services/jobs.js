@@ -14,7 +14,6 @@ module.exports = function module(context) {
     const jobValidator = new JobValidator(context, {
         terasliceOpPath: path.join(__dirname, '..', '..'),
         assetPath: _.get(context, 'sysconfig.teraslice.assets_directory'),
-        opPath: _.get(context, 'sysconfig.teraslice.ops_directory')
     });
 
     let jobStore;

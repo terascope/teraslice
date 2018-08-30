@@ -8,7 +8,6 @@ async function validateJob(context, jobSpec) {
     const jobValidator = new JobValidator(context, {
         terasliceOpPath,
         assetPath: get(context, 'sysconfig.teraslice.assets_directory'),
-        opPath: get(context, 'sysconfig.teraslice.ops_directory')
     });
 
     try {

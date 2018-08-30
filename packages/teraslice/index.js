@@ -25,10 +25,6 @@ const { saveAsset } = require('./lib/utils/file_utils');
 
 const terasliceOpPath = path.join(__dirname, 'lib');
 
-function opsDirectory(configFile) {
-    return get(configFile, 'teraslice.ops_directory', null);
-}
-
 function clusterName(configFile) {
     return get(configFile, 'teraslice.name', null);
 }
@@ -42,7 +38,6 @@ function getTerasliceConfig(sysconfig) {
         name: 'teraslice',
         config_schema: configSchema,
         schema_formats: formats,
-        ops_directory: opsDirectory,
         cluster_name: clusterName,
         logging_connection: loggingConnection
     }, sysconfig);

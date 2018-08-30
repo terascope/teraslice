@@ -18,7 +18,6 @@ class ExectionContext {
         this._opLoader = new OperationLoader({
             terasliceOpPath,
             assetPath: _.get(context, 'sysconfig.teraslice.assets_directory'),
-            opPath: _.get(context, 'sysconfig.teraslice.ops_directory')
         });
 
         registerApis(context, executionContext.job);
