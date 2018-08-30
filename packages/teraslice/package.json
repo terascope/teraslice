@@ -9,6 +9,7 @@
     "lint": "eslint *.js lib test",
     "lint:fix": "eslint --fix *.js lib test",
     "test": "jest",
+    "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
     "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
   },
   "directories": {

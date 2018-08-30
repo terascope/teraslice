@@ -10,6 +10,7 @@
     "lint": "eslint *.js test",
     "lint:fix": "eslint --fix *.js test",
     "test": "jest",
+    "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
     "test:debug": "env DEBUG='*docker-compose-js*' jest --detectOpenHandles --coverage=false --runInBand"
   },
   "keywords": [

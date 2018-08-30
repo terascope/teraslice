@@ -28,6 +28,7 @@
     "lint:fix": "yarn lint --fix",
     "prepublishOnly": "yarn build",
     "build": "rimraf dist && tsc --pretty",
+    "build:watch": "tsc --pretty --watch",
     "test": "jest",
     "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
     "watch": "yarn build --watch",
