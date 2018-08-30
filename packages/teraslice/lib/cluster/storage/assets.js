@@ -47,7 +47,8 @@ module.exports = function module(context) {
                                     return id;
                                 });
                         }
-                        return Promise.reject(`error checking asset index, could not get asset with id: ${id}, error: ${parseError(err)}`);
+                        const error = new Error(`Failure checking asset index, could not get asset with id: ${id}, error: ${parseError(err)}`);
+                        return Promise.reject(error);
                     });
             })
             .catch((fileError) => {
@@ -63,9 +64,8 @@ module.exports = function module(context) {
                             return id;
                         })
                         .catch((err) => {
-                            const errMsg = parseError(err);
-                            logger.error(errMsg);
-                            return Promise.reject(errMsg);
+                            logger.error(err);
+                            return Promise.reject(err);
                         });
                 }
 
@@ -100,7 +100,8 @@ module.exports = function module(context) {
                 .then((assetRecord) => {
                     const record = assetRecord.hits.hits[0];
                     if (!record) {
-                        return Promise.reject(`asset: ${metaData.join(' ')} was not found`);
+                        const error = new Error(`asset: ${metaData.join(' ')} was not found`);
+                        return Promise.reject(error);
                     }
                     return record._id;
                 });
@@ -121,7 +122,8 @@ module.exports = function module(context) {
                 const versionSlice = versionTransform.filter(chars => chars !== '*').join('.');
 
                 if (records.length === 0) {
-                    return Promise.reject(`No asset with the provided name and version could be located, asset: ${metaData.join(':')}`);
+                    const error = new Error(`No asset with the provided name and version could be located, asset: ${metaData.join(':')}`);
+                    return Promise.reject(error);
                 }
 
                 return records.reduce((prev, curr) => _compareVersions(
@@ -137,7 +139,6 @@ module.exports = function module(context) {
     function parseAssetsArray(assetsArray) {
         return Promise.map(assetsArray, _getAssetId);
     }
-
 
     function _compareVersions(prev, curr, wildcardPlacement, versionSlice, versionWithWildcard) {
         const prevBool = prev.version.slice(0, wildcardPlacement) === versionSlice;
@@ -169,8 +170,8 @@ module.exports = function module(context) {
                 if (results.hits.hits.length === 0) {
                     return meta;
                 }
-
-                return Promise.reject(`asset name:${meta.name} and version:${meta.version} already exists, please increment the version and send again`);
+                const error = new Error(`asset name:${meta.name} and version:${meta.version} already exists, please increment the version and send again`);
+                return Promise.reject(error);
             });
     }
 
@@ -200,6 +201,18 @@ module.exports = function module(context) {
         return Promise.all([backend.remove(assetId), fse.remove(`${assetsPath}/${assetId}`)]);
     }
 
+    function ensureAssetDir() {
+        if (!assetsPath || !_.isString(assetsPath)) {
+            return Promise.reject(new Error('Asset Store requires a valid assetsPath'));
+        }
+
+        return fse.ensureDir(assetsPath)
+            .catch((err) => {
+                const error = new Error(`Failure to the ensure assets directory ${assetsPath}, for reason ${err.message}`);
+                return Promise.reject(error);
+            });
+    }
+
     const api = {
         save,
         search,
@@ -209,7 +222,8 @@ module.exports = function module(context) {
         shutdown
     };
 
-    return elasticsearchBackend(context, indexName, 'asset', '_id', null, true)
+    return ensureAssetDir()
+        .then(() => elasticsearchBackend(context, indexName, 'asset', '_id', null, true))
         .then((elasticsearch) => {
             backend = elasticsearch;
 

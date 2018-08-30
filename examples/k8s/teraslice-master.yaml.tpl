@@ -11,7 +11,6 @@ teraslice:
     node_disconnect_timeout: 120000
     slicer_timeout: 60000
     shutdown_timeout: 30000
-    ops_directory: '/app/source/examples/ops/'
     assets_directory: '/app/assets/'
     cluster_manager_type: "kubernetes"
     master: true

@@ -11,7 +11,6 @@ Example Config
     "network_timeout": 20000,
     "master_hostname": "SomeIP",
     "name": "teracluster",
-    "ops_directory": "/Some/path/to/ops",
     "assets_directory": "/Some/path/to/assets_ops",
     "workers": 8,
     "shutdown_timeout": 60000
@@ -51,7 +50,6 @@ The configuration file essentially has two main fields, configuration for terasl
 
 | Configuration | Description | Type |  Notes
 |:---------: | :--------: | :------: | :------:
-ops_directory | 'path/to/directory', to look for more readers and processors. Usually this is where you place your custom code not part of core, unless you want to leave your code in place. The directory should have a "readers" and "processors" folder mirroring teraslice| String | optional
 assets_directory | 'path/to/directory', to look for more custom readers and processors. Usually this is where you place your custom code not part of core, unless you want to leave your code in place. | String | optional
 action_timeout | time in milliseconds for waiting for a action ( pause/stop job, etc) to complete before throwing an error | Number | optional, defaults to 300000 ms
 network_latency_buffer | time in milliseconds buffer which is combined with action_timeout to determine how long the cluster master will wait till it throws an error | Number | optional, defaults to 15000 ms

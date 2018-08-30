@@ -11,8 +11,6 @@ terafoundation:
                     - "127.0.0.1:9200"
 
 teraslice:
-    ops_directory: '/app/source/examples/ops/'
-
     master: true
     master_hostname: "127.0.0.1"
     name: "teracluster"

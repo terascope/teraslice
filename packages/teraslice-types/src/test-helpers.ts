@@ -86,7 +86,6 @@ export class TestContext implements c.Context {
                 connectors: {},
             },
             teraslice: {
-                ops_directory: '',
             },
         };
 

@@ -6,7 +6,6 @@ terafoundation:
                 host:
                     - "<ELASTICSEARCH_HOST>:<ELASTICSEARCH_PORT>"
 teraslice:
-    ops_directory: '/app/source/examples/ops/'
     assets_directory: '/app/assets/'
     cluster_manager_type: "kubernetes"
     master: true

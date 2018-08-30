@@ -28,8 +28,10 @@ module.exports = function assetLoader(context) {
                 clearInterval(shutDownInterval);
                 if (counter <= 0) {
                     logger.error(`shut down time limit has been reached, asset_loader for execution ${exId} will exit while its loading assets ${JSON.stringify(job.assets)}`);
-                } else {
+                } else if (exId) {
                     logger.info(`asset_loader for execution ${exId} has finished loading`);
+                } else {
+                    logger.info('asset_loader has finished preloading');
                 }
 
                 Promise.resolve()
@@ -75,10 +77,11 @@ module.exports = function assetLoader(context) {
     Promise.resolve(require('./storage/assets')(context))
         .then(assetStore => loadAssets(assetStore, job.assets))
         .then((assetArray) => {
-            logger.info(`finished loading assets ${assetArray.join(', ')} for execution: ${exId} on node ${context.sysconfig._nodeName}`);
             if (process.env.preload) {
+                logger.info(`finished preloading loading assets ${job.assets.join(', ')} on node ${context.sysconfig._nodeName}`);
                 messaging.respond(respondingData, { message: 'assets:preloaded', meta: assetArray });
             } else {
+                logger.info(`finished loading assets ${job.assets.join(', ')} for execution: ${exId} on node ${context.sysconfig._nodeName}`);
                 messaging.send({
                     to: 'execution', message: 'assets:loaded', ex_id: exId, meta: assetArray
                 });

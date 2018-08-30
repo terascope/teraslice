@@ -4,10 +4,10 @@ import { LegacyOperation } from '@terascope/teraslice-types';
 import fs from 'fs';
 import { pathExistsSync } from 'fs-extra';
 import path from 'path';
+import { isString } from 'lodash';
 
 export interface LoaderOptions {
     terasliceOpPath: string;
-    opPath: string|null|undefined;
     assetPath?: string;
 }
 
@@ -47,7 +47,7 @@ export class OperationLoader {
             });
         };
 
-        const findCodeByConvention = (basePath: string|null|undefined, subfolders?: string[], resolvePath?: boolean) => {
+        const findCodeByConvention = (basePath?: string, subfolders?: string[], resolvePath?: boolean) => {
             if (!basePath) return;
             if (!pathExistsSync(basePath)) return;
             if (!subfolders || !subfolders.length) return;
@@ -61,14 +61,10 @@ export class OperationLoader {
             });
         };
 
-        findCodeByConvention(this.options.assetPath || null, executionAssets);
+        findCodeByConvention(this.options.assetPath, executionAssets);
 
         if (!filePath) {
             findCodeByConvention(this.options.terasliceOpPath, ['readers', 'processors']);
-        }
-
-        if (!filePath) {
-            findCodeByConvention(this.options.opPath, ['readers', 'processors']);
         }
 
         if (!filePath) {
@@ -105,8 +101,8 @@ export class OperationLoader {
     }
 
     private verifyOpName(name: string): void {
-        if (typeof name !== 'string') {
-            throw new Error('please verify that ops_directory in config and _op for each job operations are strings');
+        if (!isString(name)) {
+            throw new Error('Please verify that the "_op" name exists for each operation');
         }
     }
 }

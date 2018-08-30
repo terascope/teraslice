@@ -5,18 +5,18 @@ and utilize them in your Teraslice jobs.
 
 The first step to utilizing custom operations is to configure your Teraslice
 nodes to point to the directory containing your custom code, this is done by
-setting the `ops_directory` setting in the `teraslice` section of your
+setting the `assets_directory` setting in the `teraslice` section of your
 configuration file as shown below.
 
 ```yaml
 ...
 teraslice:
-    ops_directory: '/app/source/examples/ops/'
+    assets_directory: '/app/source/assets/'
 ...
 ```
 
-This directory must contain a `package.json`, a `processors` directory with your
-custom processor code, and the `node_modules` required by your custom code.  It
+This directory must contain a `package.json`, a `assets` directory with your
+custom operations, and the `node_modules` required by your custom code. It
 will look something like this:
 
 ```
@@ -24,8 +24,21 @@ will look something like this:
 ├── node_modules
 │   └── lodash
 ├── package.json
-└── processors
+└── assets
+    ├── asset.json
     └── count.js
+```
+
+In order to decrease the size of your asset bundle keepy the `devDependencies` and any test files at the top-level of the asset bundle
+and not within the `assets` directory.
+
+An `asset.json` is used to define a bundle of operations, it contains a name and version.
+
+```json
+{
+    "name": "example",
+    "version": "1.0.0"
+}
 ```
 
 A job configuration that makes use of a custom operator would simply call the
@@ -123,5 +136,4 @@ module.exports = {
   post_validation: post_validation,
   slicerQueueLength: slicerQueueLength
 }
-
 ```

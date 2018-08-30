@@ -19,7 +19,6 @@ describe('system_schema', () => {
     }
 
     it('schema has defaults', () => {
-        expect(schema.ops_directory).toBeDefined();
         expect(schema.shutdown_timeout).toBeDefined();
         expect(schema.reporter).toBeDefined();
         expect(schema.hostname).toBeDefined();
@@ -29,7 +28,7 @@ describe('system_schema', () => {
         expect(schema.state.default).toEqual({ connection: 'default' });
     });
 
-    it('ops_directory is optional but requires a string', () => {
-        expect(checkValidation({ ops_directory: 234 })).toEqual('ops_directory: This field is optional but if specified it must be of type string: value was 234');
+    it('assets_directory is optional but requires a string', () => {
+        expect(checkValidation({ assets_directory: 234 })).toEqual('assets_directory: This field is optional but if specified it must be of type string: value was 234');
     });
 });

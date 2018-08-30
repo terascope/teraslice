@@ -88,7 +88,7 @@ describe('Execution Context', () => {
             });
 
             it('should reject with an error', () => {
-                const errMsg = 'please verify that ops_directory in config and _op for each job operations are strings';
+                const errMsg = 'Please verify that the "_op" name exists for each operation';
                 return expect(executionContext.initialize()).rejects.toThrow(errMsg);
             });
         });
@@ -346,7 +346,7 @@ describe('Execution Context', () => {
             });
 
             it('should reject with an error', () => {
-                const errMsg = 'please verify that ops_directory in config and _op for each job operations are strings';
+                const errMsg = 'Please verify that the "_op" name exists for each operation';
                 return expect(executionContext.initialize()).rejects.toThrow(errMsg);
             });
         });

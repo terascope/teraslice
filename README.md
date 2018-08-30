@@ -88,7 +88,7 @@ npm install --global teraslice-job-manager
 
 Teraslice requires a configuration file in order to run. The configuration file defines your service connections and system level configurations.
 
-This configuration example defines a single connection to Elasticsearch on localhost with 8 workers available to Teraslice. The *teraslice.ops_directory* setting tells Teraslice where it can find custom operation implementations.
+This configuration example defines a single connection to Elasticsearch on localhost with 8 workers available to Teraslice.
 
 The cluster configuration defines this node as a master node. The node will still have workers
 available and this configuration is sufficient to do useful work if you don't have multiple
@@ -97,7 +97,6 @@ nodes available. The workers will connect to the master on localhost and do work
 
 ```
 teraslice:
-    ops_directory: '/path/to/ops/'
     workers: 8
     master: true
     master_hostname: "127.0.0.1"
@@ -120,7 +119,6 @@ Configuration for a worker node is very similar. You just set 'master' to false 
 
 ```
 teraslice:
-    ops_directory: '/path/to/ops/'
     workers: 8
     master: false
     master_hostname: "YOUR_MASTER_IP"

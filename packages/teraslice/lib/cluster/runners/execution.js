@@ -25,7 +25,6 @@ module.exports = function module(context, config = {}) {
     const opLoader = new OperationLoader({
         assetPath,
         terasliceOpPath: path.join(__dirname, '..', '..'),
-        opPath: _.get(context, 'sysconfig.teraslice.ops_directory'),
     });
 
     registerApis(context, execution);

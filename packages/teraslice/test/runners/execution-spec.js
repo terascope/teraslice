@@ -35,7 +35,6 @@ describe('execution runner', () => {
     const context = {
         sysconfig: {
             teraslice: {
-                ops_directory: null,
                 assets_directory: testDir
             }
         },
