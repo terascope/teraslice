@@ -13,6 +13,7 @@ export interface ClientOptions extends CoreOptions {
 
 export interface ServerOptions extends CoreOptions {
     port: number;
+    pingTimeout: number;
 }
 
 export interface MessagePayload {

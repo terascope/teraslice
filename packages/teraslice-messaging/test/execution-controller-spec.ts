@@ -1,7 +1,7 @@
 import 'jest-extended';
 
 import findPort from './helpers/find-port';
-import * as core from '../src/messenger'
+import * as core from '../src/messenger';
 import {
     formatURL,
     newMsgId,
@@ -50,16 +50,26 @@ describe('ExecutionController', () => {
                 return expect(client.start()).rejects.toThrowError(errMsg);
             });
         });
-    })
+    });
+
+    describe('->Server', () => {
+        describe('when constructed without a valid workerDisconnectTimeout', () => {
+            it('should throw an error', () => {
+                expect(() => {
+                    // @ts-ignore
+                    new ExecutionController.Server({
+                        actionTimeout: 1,
+                        networkLatencyBuffer: 0,
+                    });
+                }).toThrowError('ExecutionController.Server requires a valid workerDisconnectTimeout');
+            });
+        });
+    });
 
     describe('Client & Server', () => {
         let client: ExecutionController.Client;
         let server: ExecutionController.Server;
         const workerId: string = newMsgId();
-        const clientOnlineFn: core.ClientEventFn = jest.fn();
-        const clientReadyFn: core.ClientEventFn = jest.fn();
-        const clientOfflineFn: core.ClientEventFn = jest.fn();
-        const clientErrorFn: core.ClientEventFn = jest.fn();
         const workerReconnectFn: core.ClientEventFn = jest.fn();
         const workerShutdownFn: ExecutionController.WorkerShutdownFn = jest.fn();
 
@@ -71,15 +81,12 @@ describe('ExecutionController', () => {
                 port: slicerPort,
                 networkLatencyBuffer: 0,
                 actionTimeout: 1000,
+                workerDisconnectTimeout: 3000,
             });
 
-            await server.start();
-
-            server.onClientOnline(clientOnlineFn);
-            server.onClientReady(clientReadyFn);
             server.onWorkerReconnect(workerReconnectFn);
-            server.onClientOffline(clientOfflineFn);
-            server.onClientError(clientErrorFn);
+
+            await server.start();
 
             client = new ExecutionController.Client({
                 workerId,
@@ -104,7 +111,7 @@ describe('ExecutionController', () => {
 
         describe('when calling start on the client again', () => {
             it('should not throw an error', () => {
-                return expect(client.start()).resolves.toBeNil()
+                return expect(client.start()).resolves.toBeNil();
             });
         });
 
@@ -112,34 +119,18 @@ describe('ExecutionController', () => {
             expect(server.availableWorkers()).toEqual(0);
         });
 
-        it('should call server.onClientOnline', () => {
-            expect(clientOnlineFn).toHaveBeenCalledWith(workerId);
-        })
-
-        it('should not call server.onClientReady', () => {
-            expect(clientReadyFn).not.toHaveBeenCalledWith(workerId);
-        })
-
-        it('should not call server.onClientOffline', () => {
-            expect(clientOfflineFn).not.toHaveBeenCalledWith(workerId);
-        })
-
         it('should not call server.onWorkerReconnect', () => {
             expect(workerReconnectFn).not.toHaveBeenCalledWith(workerId);
-        })
+        });
 
         it('should not call client.onWorkerShutdown', () => {
             expect(workerShutdownFn).not.toHaveBeenCalled();
-        })
+        });
 
         describe('when the client is ready', () => {
             beforeAll((done) => {
-                server.onClientReady(() => { done() });
+                server.onClientReady(() => { done(); });
                 client.ready();
-            });
-
-            it('should call client ready on the server', () => {
-                expect(clientReadyFn).toHaveBeenCalledWith(workerId);
             });
 
             it('should have one client connected', async () => {
@@ -175,7 +166,7 @@ describe('ExecutionController', () => {
 
             describe('when receiving finished', () => {
                 beforeAll((done) => {
-                    client.onWorkerShutdown(() => { done() } );
+                    client.onWorkerShutdown(() => { done(); });
                     server.executionFinished('some-ex-id');
                 });
 
@@ -197,7 +188,7 @@ describe('ExecutionController', () => {
                             request: {},
                             slice_id: 'client-slice-complete',
                             _created: 'hello'
-                        }
+                        };
 
                         const response = server.sendNewSlice(workerId, newSlice);
 
@@ -220,7 +211,7 @@ describe('ExecutionController', () => {
                             request: {},
                             slice_id: 'client-slice-complete',
                             _created: 'hello'
-                        }
+                        };
 
                         const response = server.sendNewSlice(workerId, newSlice);
 
@@ -232,5 +223,5 @@ describe('ExecutionController', () => {
                 });
             });
         });
-    })
+    });
 });

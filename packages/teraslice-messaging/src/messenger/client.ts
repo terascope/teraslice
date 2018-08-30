@@ -12,7 +12,7 @@ export class Client extends Core {
         const {
             hostUrl,
             clientId,
-            socketOptions={},
+            socketOptions= {},
         } = opts;
 
         if (!isString(hostUrl)) {
@@ -76,11 +76,11 @@ export class Client extends Core {
             connectInterval = setInterval(() => {
                 cleanup();
                 reject(connectErr);
-            }, this.actionTimeout);
+            },                            this.actionTimeout);
         });
 
         this.socket.on('messaging:response', (msg: Message) => {
-            this.emit(msg.__msgId, msg)
+            this.emit(msg.__msgId, msg);
         });
     }
 

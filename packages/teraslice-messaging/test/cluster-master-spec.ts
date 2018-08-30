@@ -1,7 +1,7 @@
 import 'jest-extended';
 
 import findPort from './helpers/find-port';
-import * as core from '../src/messenger';
+// import * as core from '../src/messenger';
 import {
     formatURL,
     newMsgId,
@@ -77,53 +77,55 @@ describe('ClusterMaster', () => {
                 return expect(clusterMaster.start()).rejects.toThrowError(errMsg);
             });
         });
-    })
+    });
+
+    describe('->Server', () => {
+        describe('when constructed without a valid nodeDisconnectTimeout', () => {
+            it('should throw an error', () => {
+                expect(() => {
+                    // @ts-ignore
+                    new ClusterMaster.Server({
+                        actionTimeout: 1,
+                        networkLatencyBuffer: 0,
+                    });
+                }).toThrowError('ClusterMaster.Server requires a valid nodeDisconnectTimeout');
+            });
+        });
+    });
 
     describe('Client & Server', () => {
         let client: ClusterMaster.Client;
         let server: ClusterMaster.Server;
         const exId = newMsgId();
-        const clientOnlineFn: core.ClientEventFn = jest.fn();
-        const clientReadyFn: core.ClientEventFn = jest.fn();
-        const clientOfflineFn: core.ClientEventFn = jest.fn();
-        const clientErrorFn: core.ClientEventFn = jest.fn();
 
-        beforeAll((done) => {
-            const prepare = async () => {
-                const slicerPort = await findPort();
-                const clusterMasterUrl = formatURL('localhost', slicerPort);
-                server = new ClusterMaster.Server({
-                    port: slicerPort,
-                    networkLatencyBuffer: 0,
-                    actionTimeout: 1000,
-                });
+        beforeAll(async () => {
+            const slicerPort = await findPort();
+            const clusterMasterUrl = formatURL('localhost', slicerPort);
+            server = new ClusterMaster.Server({
+                port: slicerPort,
+                networkLatencyBuffer: 0,
+                actionTimeout: 1000,
+                nodeDisconnectTimeout: 3000
+            });
 
-                await server.start();
+            await server.start();
 
-                server.onClientOnline(clientOnlineFn);
-                server.onClientReady(clientReadyFn);
-                server.onClientOffline(clientOfflineFn);
-                server.onClientError(clientErrorFn);
+            client = new ClusterMaster.Client({
+                jobId: newMsgId(),
+                jobName: 'job-name',
+                exId,
+                clusterMasterUrl,
+                networkLatencyBuffer: 0,
+                actionTimeout: 1000,
+                socketOptions: {
+                    timeout: 1000,
+                    reconnection: false,
+                },
+            });
 
-                client = new ClusterMaster.Client({
-                    jobId: newMsgId(),
-                    jobName: 'job-name',
-                    exId,
-                    clusterMasterUrl,
-                    networkLatencyBuffer: 0,
-                    actionTimeout: 1000,
-                    socketOptions: {
-                        timeout: 1000,
-                        reconnection: false,
-                    },
-                });
-
-                await client.start();
-            }
+            await client.start();
 
             // TODO Test all of the events
-
-            server.onClientReady(() => { done() });
         });
 
         afterAll(async () => {
@@ -131,30 +133,14 @@ describe('ClusterMaster', () => {
             await client.shutdown();
         });
 
-        it('should call server.onClientReady', () => {
-            expect(clientReadyFn).toHaveBeenCalledWith(exId);
-        })
-
         describe('when calling start on the client again', () => {
             it('should not throw an error', () => {
-                return expect(client.start()).resolves.toBeNil()
+                return expect(client.start()).resolves.toBeNil();
             });
         });
 
         it('should have one connected executions', () => {
             expect(server.connectedExecutions()).toEqual(1);
         });
-
-        it('should call server.onClientOnline', () => {
-            expect(clientOnlineFn).toHaveBeenCalledWith(exId);
-        })
-
-        it('should not call server.onClientOffline', () => {
-            expect(clientOfflineFn).not.toHaveBeenCalledWith(exId);
-        })
-
-        it('should not call server.onClientError', () => {
-            expect(clientErrorFn).not.toHaveBeenCalledWith(exId);
-        })
-    })
+    });
 });

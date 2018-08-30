@@ -26,7 +26,7 @@ describe('Messenger', () => {
                 }).toThrowError('Messenger requires a valid networkLatencyBuffer');
             });
         });
-    })
+    });
 
     describe('->Client', () => {
         describe('when constructed without a valid hostUrl', () => {
@@ -53,7 +53,7 @@ describe('Messenger', () => {
                 }).toThrowError('Messenger.Client requires a valid clientId');
             });
         });
-    })
+    });
 
     describe('->Server', () => {
         describe('when constructed without a valid port', () => {
@@ -67,45 +67,91 @@ describe('Messenger', () => {
                 }).toThrowError('Messenger.Server requires a valid port');
             });
         });
-    })
+
+        describe('when constructed without a valid pingTimeout', () => {
+            it('should throw an error', () => {
+                expect(() => {
+                    // @ts-ignore
+                    new Messenger.Server({
+                        actionTimeout: 1,
+                        networkLatencyBuffer: 0,
+                        port: 80,
+                    });
+                }).toThrowError('Messenger.Server requires a valid pingTimeout');
+            });
+        });
+    });
 
     describe('Client & Server', () => {
         const clientId = newMsgId();
         let client: Messenger.Client;
         let server: Messenger.Server;
+        let clientReadyFn: Messenger.ClientEventFn;
+        const clientOnlineFn: Messenger.ClientEventFn = jest.fn();
+        const clientOfflineFn: Messenger.ClientEventFn = jest.fn();
+        const clientErrorFn: Messenger.ClientEventFn = jest.fn();
 
-        beforeAll(async () => {
-            const port = await findPort();
-            const hostUrl = formatURL('localhost', port);
-            server = new Messenger.Server({
-                port,
-                networkLatencyBuffer: 0,
-                actionTimeout: 1000,
-                source: 'example',
-                to: 'example',
-            });
+        beforeAll((done) => {
+            clientReadyFn = jest.fn(() => { done(); });
 
-            server.server.use((socket, next) => {
-                socket.join('example-room', next);
-            });
+            async function setup() {
+                const port = await findPort();
+                const hostUrl = formatURL('localhost', port);
+                server = new Messenger.Server({
+                    port,
+                    networkLatencyBuffer: 0,
+                    actionTimeout: 1000,
+                    pingTimeout: 3000,
+                    source: 'example',
+                    to: 'example',
+                });
 
-            await server.listen();
+                server.server.use((socket, next) => {
+                    socket.join('example-room', next);
+                });
 
-            client = new Messenger.Client({
-                source: 'example',
-                to: 'example',
-                clientId,
-                hostUrl,
-                networkLatencyBuffer: 0,
-                actionTimeout: 1000,
-                socketOptions: {
-                    timeout: 1000,
-                    reconnection: false,
-                },
-            });
+                server.onClientOnline(clientOnlineFn);
+                server.onClientReady(clientReadyFn);
+                server.onClientOffline(clientOfflineFn);
+                server.onClientError(clientErrorFn);
 
-            await client.connect();
-        })
+                await server.listen();
+
+                client = new Messenger.Client({
+                    source: 'example',
+                    to: 'example',
+                    clientId,
+                    hostUrl,
+                    networkLatencyBuffer: 0,
+                    actionTimeout: 1000,
+                    socketOptions: {
+                        timeout: 1000,
+                        reconnection: false,
+                    },
+                });
+
+                await client.connect();
+                await client.ready();
+            }
+
+            setup();
+        });
+
+        it('should call server.onClientReady', () => {
+            expect(clientReadyFn).toHaveBeenCalledWith(clientId, undefined);
+        });
+
+        it('should call server.onClientOnline', () => {
+            expect(clientOnlineFn).toHaveBeenCalledWith(clientId);
+        });
+
+        it('should not call server.onClientOffline', () => {
+            expect(clientOfflineFn).not.toHaveBeenCalledWith(clientId, undefined);
+        });
+
+        it('should not call server.onClientError', () => {
+            expect(clientErrorFn).not.toHaveBeenCalledWith(clientId);
+        });
 
         describe('when waiting for message that will never come', () => {
             it('should throw a timeout error', async () => {
@@ -125,7 +171,7 @@ describe('Messenger', () => {
 
             beforeAll(async () => {
                 client.socket.once('failure:message', (msg: Message) => {
-                    client.respond(msg, { error: "this should fail" })
+                    client.respond(msg, { error: 'this should fail' });
                 });
                 try {
                     responseMsg = await server.sendWithResponse({
@@ -167,5 +213,5 @@ describe('Messenger', () => {
                 expect(responseErr && responseErr.toString()).toStartWith(`Error: Timeout error while communicating with example-room, with message:`);
             });
         });
-    })
+    });
 });

@@ -11,15 +11,21 @@ export class Server extends Core {
     public server: SocketIO.Server;
 
     constructor(opts: i.ServerOptions) {
-        const { port } = opts;
+        const { port, pingTimeout } = opts;
         super(opts);
 
         if (!_.isNumber(port)) {
             throw new Error('Messenger.Server requires a valid port');
         }
 
+        if (!_.isNumber(pingTimeout)) {
+            throw new Error('Messenger.Server requires a valid pingTimeout');
+        }
+
         this.port = port;
-        this.server = SocketIOServer();
+        this.server = SocketIOServer({
+            pingTimeout,
+        });
         this._onConnection = this._onConnection.bind(this);
     }
 
@@ -82,7 +88,7 @@ export class Server extends Core {
 
     private _onConnection(socket: SocketIO.Socket) {
         const clientId = this.getClientId(socket);
-        console.log({ clientId })
+        console.log({ clientId });
 
         socket.on('error', (err: Error) => {
             this.emit('client:error', clientId, err);
@@ -97,9 +103,9 @@ export class Server extends Core {
         });
 
         socket.on('messaging:response', (msg: i.Message) => {
-            this.emit(msg.__msgId, clientId, msg)
+            this.emit(msg.__msgId, clientId, msg);
         });
 
-        this.emit('client:online', clientId)
+        this.emit('client:online', clientId);
     }
 }

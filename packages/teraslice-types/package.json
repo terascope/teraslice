@@ -24,15 +24,14 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "lint": "tslint --project tsconfig.json --force --format verbose \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint": "tslint --project tsconfig.json --format verbose",
     "lint:fix": "yarn lint --fix",
     "prepublishOnly": "yarn build",
-    "build": "rimraf dist && tsc --pretty",
-    "build:watch": "tsc --pretty --watch",
+    "build": "rimraf dist && tsc --project tsconfig.build.json --pretty",
+    "build:watch": "yarn build --watch",
     "test": "jest",
-    "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
-    "watch": "yarn build --watch",
-    "watch:test": "jest --watch"
+    "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
+    "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
   },
   "dependencies": {
     "@types/bunyan": "^1.8.4",

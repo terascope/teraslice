@@ -118,7 +118,7 @@ export class Core extends EventEmitter {
                 }
                 const error = new Error(`Timed out after ${timeoutMs}ms, waiting for event "${eventName}"`);
                 reject(error);
-            }, timeoutMs);
+            },                       timeoutMs);
 
             function onMessage(msg: object) {
                 clearTimeout(timer);
@@ -152,6 +152,6 @@ export class Core extends EventEmitter {
             __msgId: newMsgId(),
             __source: this.source,
             to: this.to,
-        }, msg, override);
+        },                   msg, override);
     }
 }

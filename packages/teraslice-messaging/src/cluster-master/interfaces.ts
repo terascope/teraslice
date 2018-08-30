@@ -12,6 +12,7 @@ export interface ClientOptions {
 
 export interface ServerOptions {
     port: number;
+    nodeDisconnectTimeout: number;
     networkLatencyBuffer?: number;
     actionTimeout: number;
 }
@@ -51,7 +52,7 @@ export interface ExecutionAnalytics {
 }
 
 export interface OnExecutionAnalyticsFn {
-    (): Promise<ExecutionAnalytics>|ExecutionAnalytics
+    (): Promise<ExecutionAnalytics>|ExecutionAnalytics;
 }
 
 export interface OnStateChangeFn {

@@ -11,6 +11,7 @@ export interface ClientOptions {
 export interface ServerOptions {
     port: number;
     controllerId: string;
+    workerDisconnectTimeout: number;
     networkLatencyBuffer?: number;
     actionTimeout: number;
 }
@@ -34,7 +35,7 @@ export interface WorkerShutdownFn {
 
 export interface SliceCompletePayload {
     slice: Slice;
-    analytics: SliceAnalyticsData,
+    analytics: SliceAnalyticsData;
     isShuttingDown?: boolean;
     retry?: boolean;
     error?: string;

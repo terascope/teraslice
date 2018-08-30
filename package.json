@@ -3,10 +3,10 @@
     "private": true,
     "scripts": {
         "start": "node service.js",
-        "setup": "lerna bootstrap && lerna run build",
+        "setup": "lerna bootstrap && yarn link --force-local && lerna run build",
         "bootstrap": "lerna bootstrap",
         "build": "lerna run build",
-        "build:watch": "lerna run build:watch",
+        "build:watch": "lerna run build:watch --parallel --stream --prefix",
         "bump": "./scripts/bump.js",
         "test": "jest --ci --maxWorkers=4",
         "test:watch": "jest --coverage=false --notify --onlyChanged --watch",

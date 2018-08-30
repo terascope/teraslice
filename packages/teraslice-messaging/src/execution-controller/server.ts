@@ -15,12 +15,18 @@ export class Server extends core.Server {
             port,
             actionTimeout,
             networkLatencyBuffer,
+            workerDisconnectTimeout,
         } = opts;
+
+        if (!_.isNumber(workerDisconnectTimeout)) {
+            throw new Error('ExecutionController.Server requires a valid workerDisconnectTimeout');
+        }
 
         super({
             port,
             actionTimeout,
             networkLatencyBuffer,
+            pingTimeout: workerDisconnectTimeout,
             source: 'execution_controller',
             to: 'worker'
         });
@@ -57,7 +63,7 @@ export class Server extends core.Server {
             address: workerId,
             message: 'slicer:slice:new',
             payload: slice,
-        }, { timeoutMs }) as i.SliceResponseMessage;
+        },                                      { timeoutMs }) as i.SliceResponseMessage;
 
         if (!_.get(msg, 'willProcess')) {
             throw new Error(`Worker ${workerId} will not process new slice`);
@@ -77,7 +83,7 @@ export class Server extends core.Server {
             address: workerId,
             message: 'slicer:slice:new',
             payload: slice
-        }, { timeoutMs }) as i.SliceResponseMessage;
+        },                                           { timeoutMs }) as i.SliceResponseMessage;
 
         const dispatched = _.get(response, 'willProcess') || false;
 
@@ -96,7 +102,7 @@ export class Server extends core.Server {
     }
 
     executionFinished(exId: string) {
-        this.server.sockets.emit('execution:finished', { exId: exId });
+        this.server.sockets.emit('execution:finished', { exId });
     }
 
     onWorkerReconnect(fn: core.ClientEventFn) {
@@ -154,7 +160,7 @@ export class Server extends core.Server {
 
         const exists = this.queue.exists('workerId', workerId);
         if (!exists) {
-            this.queue.enqueue({ workerId: workerId });
+            this.queue.enqueue({ workerId });
         }
 
         this.emit('worker:enqueue', workerId);

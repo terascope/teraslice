@@ -2,7 +2,7 @@ import { Slice } from '@terascope/teraslice-types';
 import isString from 'lodash/isString';
 import pickBy from 'lodash/pickBy';
 import * as core from '../messenger';
-import * as i from './interfaces'
+import * as i from './interfaces';
 
 export class Client extends core.Client {
     public workerId: string;
@@ -26,11 +26,11 @@ export class Client extends core.Client {
         }
 
         super({
-            hostUrl: executionControllerUrl,
-            clientId: workerId,
             socketOptions,
             networkLatencyBuffer,
             actionTimeout,
+            hostUrl: executionControllerUrl,
+            clientId: workerId,
             source: workerId,
             to: 'execution_controller'
         });
@@ -55,11 +55,17 @@ export class Client extends core.Client {
             if (this.available) {
                 this.emit('slicer:slice:new', msg.payload);
             }
+            this.available = false;
         });
 
         this.socket.on('execution:finished', (msg: core.Message) => {
             this.emit('worker:shutdown', msg);
         });
+    }
+
+    async ready() {
+        await super.ready();
+        this.available = true;
     }
 
     onWorkerShutdown(fn: i.WorkerShutdownFn) {
@@ -72,14 +78,13 @@ export class Client extends core.Client {
         }, input));
 
         return this.sendWithResponse({
+            payload,
             message: 'worker:slice:complete',
-            payload
         }, { retry: true });
     }
 
     async waitForSlice(fn = () => { }, interval = 100): Promise<Slice|undefined> {
         this.ready();
-        this.available = true;
 
         const slice = await new Promise((resolve) => {
             const intervalId = setInterval(() => {
@@ -91,12 +96,9 @@ export class Client extends core.Client {
             const onMessage = (msg: Slice) => {
                 clearInterval(intervalId);
                 resolve(msg);
-                this.available = false;
-            }
+            };
             this.once('slicer:slice:new', onMessage);
         });
-
-        this.available = false;
 
         if (!slice) return;
 

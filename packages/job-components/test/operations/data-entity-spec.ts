@@ -51,8 +51,8 @@ describe('Data Entity', () => {
 
         it('should not be able to set createdAt', () => {
             expect(() => {
-                dataEntity.setMetadata('createdAt', 'hello')
-            }).toThrowError('Cannot set readonly metadata property createdAt')
+                dataEntity.setMetadata('createdAt', 'hello');
+            }).toThrowError('Cannot set readonly metadata property createdAt');
         });
 
         it('should be return undefined if getting a metadata that does not exist', () => {

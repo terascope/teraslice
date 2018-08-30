@@ -9,13 +9,19 @@ export class Server extends core.Server {
         const {
             port,
             actionTimeout,
-            networkLatencyBuffer
+            networkLatencyBuffer,
+            nodeDisconnectTimeout,
         } = opts;
+
+        if (!_.isNumber(nodeDisconnectTimeout)) {
+            throw new Error('ClusterMaster.Server requires a valid nodeDisconnectTimeout');
+        }
 
         super({
             port,
             actionTimeout,
             networkLatencyBuffer,
+            pingTimeout: nodeDisconnectTimeout,
             source: 'cluster_master',
             to: 'execution_controller'
         });
@@ -46,9 +52,9 @@ export class Server extends core.Server {
             address: exId,
             message: 'execution:pause',
             payload: {
-                exId: exId
+                exId
             }
-        }, { timeoutMs });
+        },                           { timeoutMs });
     }
 
     sendResumeExecution(exId: string, timeoutMs?: number) {
@@ -56,9 +62,9 @@ export class Server extends core.Server {
             address: exId,
             message: 'execution:resume',
             payload: {
-                exId: exId
+                exId
             }
-        }, { timeoutMs });
+        },                           { timeoutMs });
     }
 
     sendRequestAnalytics(exId: string, timeoutMs?: number) {
@@ -66,9 +72,9 @@ export class Server extends core.Server {
             address: exId,
             message: 'execution:analytics',
             payload: {
-                exId: exId
+                exId
             }
-        }, { timeoutMs });
+        },                           { timeoutMs });
     }
 
     connectedExecutions() {
@@ -87,8 +93,8 @@ export class Server extends core.Server {
         const exId = this.getClientId(socket);
 
         socket.on('execution:finished', () => {
-            this.emit('execution:finished', exId)
-        })
+            this.emit('execution:finished', exId);
+        });
 
         socket.on('execution:analytics', (msg: core.Message) => {
             const data = msg.payload as i.ExecutionAnalyticsMessage;

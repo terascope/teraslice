@@ -35,11 +35,11 @@ export class Client extends core.Client {
         }
 
         super({
-            hostUrl: clusterMasterUrl,
-            clientId: exId,
             socketOptions,
             networkLatencyBuffer,
             actionTimeout,
+            hostUrl: clusterMasterUrl,
+            clientId: exId,
             to: 'cluster_master',
             source: exId
         });
@@ -63,8 +63,8 @@ export class Client extends core.Client {
         return this.send({
             message: 'execution:analytics',
             payload: {
-                kind: 'slicer',
                 stats,
+                kind: 'slicer',
             }
         });
     }
@@ -72,7 +72,7 @@ export class Client extends core.Client {
     sendExecutionFinished(error?: Error|string) {
         const msg: core.InputMessage = {
             message: 'execution:finished',
-        }
+        };
 
         if (error) {
             msg.error = _.isString(error) ? error : error.stack;
@@ -91,21 +91,21 @@ export class Client extends core.Client {
                     name: this.jobName,
                     stats,
                 }
-            })
-        })
+            });
+        });
     }
 
     onExecutionPause(fn: i.OnStateChangeFn) {
         this.socket.on('execution:pause', async (msg: core.Message) => {
             await fn();
-            this.respond(msg)
-        })
+            this.respond(msg);
+        });
     }
 
     onExecutionResume(fn: i.OnStateChangeFn) {
         this.socket.on('execution:resume', async (msg: core.Message) => {
             await fn();
-            this.respond(msg)
-        })
+            this.respond(msg);
+        });
     }
 }
