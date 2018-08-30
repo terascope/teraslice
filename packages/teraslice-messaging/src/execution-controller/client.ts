@@ -6,7 +6,6 @@ import * as i from './interfaces';
 
 export class Client extends core.Client {
     public workerId: string;
-    public available: boolean;
 
     constructor(opts: i.ClientOptions) {
         const {
@@ -31,8 +30,7 @@ export class Client extends core.Client {
             actionTimeout,
             hostUrl: executionControllerUrl,
             clientId: workerId,
-            source: workerId,
-            to: 'execution_controller'
+            serverName: 'ExecutionController'
         });
 
         this.workerId = workerId;
@@ -46,50 +44,37 @@ export class Client extends core.Client {
             throw new Error(`Unable to connect to execution controller, caused by error: ${err.message}`);
         }
 
-        this.socket.on('slicer:slice:new', (msg: core.Message) => {
-            this.respond(msg, {
-                payload: {
-                    willProcess: this.available
-                },
-            });
-            if (this.available) {
-                this.emit('slicer:slice:new', msg.payload);
+        this.socket.on('execution:slice:new', this.handleResponse((msg: core.Message) => {
+            const willProcess = this.available;
+            if (willProcess) {
+                this.emit('execution:slice:new', msg.payload);
             }
-            this.available = false;
-        });
+
+            return {
+                willProcess,
+            };
+        }));
 
         this.socket.on('execution:finished', (msg: core.Message) => {
-            this.emit('worker:shutdown', msg);
+            this.emit('execution:finished', msg);
         });
     }
 
-    async ready() {
-        await super.ready();
-        this.available = true;
+    onExecutionFinished(fn: core.ClientEventFn) {
+        this.once('execution:finished', fn);
     }
 
-    onWorkerShutdown(fn: i.WorkerShutdownFn) {
-        this.once('worker:shutdown', fn);
+    sendSliceComplete(payload: i.SliceCompletePayload) {
+        return this.send('worker:slice:complete', pickBy(payload));
     }
 
-    sliceComplete(input: i.SliceCompletePayload) {
-        const payload = pickBy(Object.assign({
-            workerId: this.workerId
-        }, input));
-
-        return this.sendWithResponse({
-            payload,
-            message: 'worker:slice:complete',
-        }, { retry: true });
-    }
-
-    async waitForSlice(fn = () => { }, interval = 100): Promise<Slice|undefined> {
-        this.ready();
+    async waitForSlice(fn: i.WaitUntilFn = () => false, interval = 100): Promise<Slice|undefined> {
+        await this.sendAvailable();
 
         const slice = await new Promise((resolve) => {
             const intervalId = setInterval(() => {
                 if (this.closed || fn()) {
-                    this.removeListener('slicer:slice:new', onMessage);
+                    this.removeListener('execution:slice:new', onMessage);
                     resolve();
                 }
             }, interval);
@@ -97,10 +82,12 @@ export class Client extends core.Client {
                 clearInterval(intervalId);
                 resolve(msg);
             };
-            this.once('slicer:slice:new', onMessage);
+            this.once('execution:slice:new', onMessage);
         });
 
         if (!slice) return;
+
+        await this.sendUnavailable();
 
         return slice as Slice;
     }

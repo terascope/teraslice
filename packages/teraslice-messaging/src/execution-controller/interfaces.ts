@@ -10,7 +10,6 @@ export interface ClientOptions {
 
 export interface ServerOptions {
     port: number;
-    controllerId: string;
     workerDisconnectTimeout: number;
     networkLatencyBuffer?: number;
     actionTimeout: number;
@@ -39,4 +38,8 @@ export interface SliceCompletePayload {
     isShuttingDown?: boolean;
     retry?: boolean;
     error?: string;
+}
+
+export interface WaitUntilFn {
+    (): boolean;
 }

@@ -17,7 +17,7 @@ export interface ServerOptions {
     actionTimeout: number;
 }
 
-export interface SlicerAnalytics {
+export interface ClusterExecutionAnalytics {
     processed: number;
     failed: number;
     queued: number;
@@ -28,11 +28,7 @@ export interface SlicerAnalytics {
 }
 
 export interface ClusterAnalytics {
-    slicer: SlicerAnalytics;
-}
-
-export interface ExecutionAnalyticsMessage extends Message {
-    kind: string;
+    slicer: ClusterExecutionAnalytics;
 }
 
 export interface ExecutionAnalytics {
@@ -49,6 +45,11 @@ export interface ExecutionAnalytics {
     slicers: number;
     subslice_by_key: number;
     started: string;
+}
+
+export interface ExecutionAnalyticsMessage extends Message {
+    kind: string;
+    stats: ExecutionAnalytics;
 }
 
 export interface OnExecutionAnalyticsFn {

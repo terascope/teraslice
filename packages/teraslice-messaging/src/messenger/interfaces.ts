@@ -1,56 +1,70 @@
+import 'socket.io-client';
+
 export interface CoreOptions {
     networkLatencyBuffer?: number;
     actionTimeout: number;
-    source: string;
-    to: string;
 }
 
 export interface ClientOptions extends CoreOptions {
     hostUrl: string;
     clientId: string;
+    serverName: string;
     socketOptions?: SocketIOClient.ConnectOpts;
 }
 
 export interface ServerOptions extends CoreOptions {
     port: number;
+    serverName: string;
     pingTimeout: number;
 }
 
-export interface MessagePayload {
+export interface Payload {
     [prop: string]: any;
 }
 
 export interface Message {
-    __msgId: string;
-    __source: string;
+    id: string;
+    from: string;
     to: string;
-    address?: string;
-    message: string;
-    payload?: MessagePayload;
-    response?: boolean;
-    error?: string;
-    [prop: string]: any;
+    eventName: string;
+    payload: Payload;
 }
 
-export interface InputMessage {
-    to?: string;
-    address?: string;
-    message: string;
-    payload?: MessagePayload;
-    error?: string;
-    [prop: string]: any;
-}
-
-export interface MessageResponse {
-    timeoutMs?: number;
-    retry?: boolean;
-}
-
-export interface SendWithResponseOptions {
-    timeoutMs?: number;
-    retry?: boolean;
+export interface ConnectedClient {
+    readonly clientId: string;
+    readonly socketId: string;
+    isOnline: boolean;
+    isAvailable: boolean;
+    onlineAt: Date;
+    offlineAt: Date|null;
+    availableAt: Date|null;
+    unavailableAt: Date|null;
+    metadata: object;
 }
 
 export interface ClientEventFn {
     (clientId: string, param?: any): void;
 }
+
+export interface CallbackFn {
+    (err?: ResponseError, message?: Message): void;
+}
+
+export interface ResponseHandler {
+    (msg: Message, callback: CallbackFn): Promise<void>;
+}
+
+export interface SendHandler {
+    (err: ResponseError, response: any): void;
+}
+
+export interface MessageHandler {
+    (msg: Message): Promise<Payload|void>|Payload|void;
+}
+
+export interface ErrorObj {
+    message: string;
+    stack?: string;
+}
+
+export type ResponseError = string|null|undefined;

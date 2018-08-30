@@ -1,5 +1,6 @@
 import 'jest-extended';
 
+import bluebird from 'bluebird';
 import findPort from './helpers/find-port';
 import * as core from '../src/messenger';
 import {
@@ -71,13 +72,12 @@ describe('ExecutionController', () => {
         let server: ExecutionController.Server;
         const workerId: string = newMsgId();
         const workerReconnectFn: core.ClientEventFn = jest.fn();
-        const workerShutdownFn: ExecutionController.WorkerShutdownFn = jest.fn();
+        const executionFinishedFn: core.ClientEventFn = jest.fn();
 
         beforeAll(async () => {
             const slicerPort = await findPort();
             const executionControllerUrl = formatURL('localhost', slicerPort);
             server = new ExecutionController.Server({
-                controllerId: newMsgId(),
                 port: slicerPort,
                 networkLatencyBuffer: 0,
                 actionTimeout: 1000,
@@ -99,7 +99,7 @@ describe('ExecutionController', () => {
                 },
             });
 
-            client.onWorkerShutdown(workerShutdownFn);
+            client.onExecutionFinished(executionFinishedFn);
 
             await client.start();
         });
@@ -116,31 +116,31 @@ describe('ExecutionController', () => {
         });
 
         it('should have no available workers', () => {
-            expect(server.availableWorkers()).toEqual(0);
+            expect(server.availableWorkers).toEqual(0);
         });
 
         it('should not call server.onWorkerReconnect', () => {
             expect(workerReconnectFn).not.toHaveBeenCalledWith(workerId);
         });
 
-        it('should not call client.onWorkerShutdown', () => {
-            expect(workerShutdownFn).not.toHaveBeenCalled();
+        it('should not call client.onExecutionFinished', () => {
+            expect(executionFinishedFn).not.toHaveBeenCalled();
         });
 
         describe('when the client is ready', () => {
             beforeAll((done) => {
-                server.onClientReady(() => { done(); });
-                client.ready();
+                server.onClientAvailable(() => { done(); });
+                client.sendAvailable();
             });
 
             it('should have one client connected', async () => {
-                expect(server.availableWorkers()).toEqual(1);
-                expect(server.getClientCounts()).toEqual(1);
+                expect(server.availableClientCount).toEqual(1);
+                expect(server.onlineClientCount).toEqual(1);
             });
 
             describe('when sending client:slice:complete', () => {
                 it('should emit client:slice:complete on the server', async () => {
-                    const msg = await client.sliceComplete({
+                    const msg = await client.sendSliceComplete({
                         slice: {
                             slicer_order: 0,
                             slicer_id: 1,
@@ -156,31 +156,28 @@ describe('ExecutionController', () => {
                         error: 'hello'
                     });
 
-                    expect(msg).toEqual({
+                    expect(msg.payload).toEqual({
                         slice_id: 'client-slice-complete',
                         recorded: true,
                     });
+
                     expect(server.queue.exists('workerId', workerId)).toBeTrue();
                 });
             });
 
             describe('when receiving finished', () => {
                 beforeAll((done) => {
-                    client.onWorkerShutdown(() => { done(); });
-                    server.executionFinished('some-ex-id');
+                    client.onExecutionFinished(() => { done(); });
+                    server.sendExecutionFinished('some-ex-id');
                 });
 
-                it('should call client.onWorkerShutdown', () => {
-                    expect(workerShutdownFn).toHaveBeenCalled();
+                it('should call client.onExecutionFinished', () => {
+                    expect(executionFinishedFn).toHaveBeenCalled();
                 });
             });
 
-            describe('when receiving slicer:slice:new', () => {
+            describe('when receiving execution:slice:new', () => {
                 describe('when the client is set as available', () => {
-                    beforeAll(() => {
-                        client.available = true;
-                    });
-
                     it('should resolve with correct messages', async () => {
                         const newSlice = {
                             slicer_order: 0,
@@ -190,21 +187,29 @@ describe('ExecutionController', () => {
                             _created: 'hello'
                         };
 
-                        const response = server.sendNewSlice(workerId, newSlice);
+                        const stopAt = Date.now() + 2000;
+                        const slice = client.waitForSlice(() => (Date.now() - stopAt) > 0);
 
-                        const slice = client.waitForSlice();
+                        await bluebird.delay(500);
 
-                        await expect(response).resolves.toEqual({ willProcess: true });
+                        expect(server.queue.exists('workerId', workerId)).toBeTrue();
+
+                        const response = server.dispatchSlice(newSlice);
+
+                        await expect(response).resolves.toEqual({
+                            dispatched: true,
+                            workerId,
+                        });
                         await expect(slice).resolves.toEqual(newSlice);
                     });
                 });
 
                 describe('when the client is set as unavailable', () => {
-                    beforeAll(() => {
-                        client.available = false;
+                    beforeAll(async () => {
+                        await client.sendUnavailable();
                     });
 
-                    it('should reject with the correct error messages', async () => {
+                    it('should reject with the correct error messages', () => {
                         const newSlice = {
                             slicer_order: 0,
                             slicer_id: 1,
@@ -213,12 +218,7 @@ describe('ExecutionController', () => {
                             _created: 'hello'
                         };
 
-                        const response = server.sendNewSlice(workerId, newSlice);
-
-                        const slice = client.onceWithTimeout('slicer:slice:new');
-
-                        await expect(response).rejects.toThrowError(`Worker ${workerId} will not process new slice`);
-                        await expect(slice).rejects.toThrowError('Timed out after 1000ms, waiting for event "slicer:slice:new"');
+                        return expect(server.dispatchSlice(newSlice)).rejects.toThrowError('No available workers to dispatch slice to');
                     });
                 });
             });

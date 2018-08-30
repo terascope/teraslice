@@ -4,8 +4,6 @@ import * as core from '../messenger';
 
 export class Client extends core.Client {
     public readonly exId: string;
-    public readonly jobId: string;
-    public readonly jobName: string;
 
     constructor(opts: i.ClientOptions) {
         const {
@@ -14,8 +12,6 @@ export class Client extends core.Client {
             networkLatencyBuffer,
             actionTimeout,
             exId,
-            jobId,
-            jobName,
         } = opts;
 
         if (!clusterMasterUrl || !_.isString(clusterMasterUrl)) {
@@ -26,27 +22,16 @@ export class Client extends core.Client {
             throw new Error('ClusterMaster.Client requires a valid exId');
         }
 
-        if (!jobId || !_.isString(jobId)) {
-            throw new Error('ClusterMaster.Client requires a valid jobId');
-        }
-
-        if (!jobName || !_.isString(jobName)) {
-            throw new Error('ClusterMaster.Client requires a valid jobName');
-        }
-
         super({
             socketOptions,
             networkLatencyBuffer,
             actionTimeout,
             hostUrl: clusterMasterUrl,
             clientId: exId,
-            to: 'cluster_master',
-            source: exId
+            serverName: 'ClusterMaster',
         });
 
         this.exId = exId;
-        this.jobId = jobId;
-        this.jobName = jobName;
     }
 
     async start() {
@@ -55,57 +40,28 @@ export class Client extends core.Client {
         } catch (err) {
             throw new Error(`Unable to connect to cluster master, caused by error: ${err.message}`);
         }
-
-        await this.ready();
     }
 
-    sendExecutionAnalyticsDiffs(stats: i.SlicerAnalytics) {
-        return this.send({
-            message: 'execution:analytics',
-            payload: {
-                stats,
-                kind: 'slicer',
-            }
+    sendClusterAnalytics(stats: i.ClusterExecutionAnalytics) {
+        return this.send('cluster:analytics', {
+            stats,
+            kind: 'slicer',
         });
     }
 
     sendExecutionFinished(error?: Error|string) {
-        const msg: core.InputMessage = {
-            message: 'execution:finished',
-        };
-
-        if (error) {
-            msg.error = _.isString(error) ? error : error.stack;
-        }
-
-        return this.send(msg);
+        return this.send('execution:finished', { error });
     }
 
-    onExecutionAnalytics(fn: i.OnExecutionAnalyticsFn) {
-        this.socket.on('execution:analytics', async (msg: core.Message) => {
-            const stats = await fn();
-            this.respond(msg, {
-                job_id: this.jobId,
-                exId: this.exId,
-                payload: {
-                    name: this.jobName,
-                    stats,
-                }
-            });
-        });
+    onExecutionAnalytics(fn: core.MessageHandler) {
+        this.socket.on('execution:analytics', this.handleResponse(fn));
     }
 
-    onExecutionPause(fn: i.OnStateChangeFn) {
-        this.socket.on('execution:pause', async (msg: core.Message) => {
-            await fn();
-            this.respond(msg);
-        });
+    onExecutionPause(fn: core.MessageHandler) {
+        this.socket.on('execution:pause', this.handleResponse(fn));
     }
 
-    onExecutionResume(fn: i.OnStateChangeFn) {
-        this.socket.on('execution:resume', async (msg: core.Message) => {
-            await fn();
-            this.respond(msg);
-        });
+    onExecutionResume(fn: core.MessageHandler) {
+        this.socket.on('execution:resume', this.handleResponse(fn));
     }
 }

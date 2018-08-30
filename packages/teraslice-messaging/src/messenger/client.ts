@@ -1,17 +1,21 @@
 import { isString } from 'lodash';
 import SocketIOClient from 'socket.io-client';
-import { Message, ClientOptions } from './interfaces';
+import { Message, ClientOptions, Payload } from './interfaces';
 import { Core } from './core';
+import { newMsgId } from '@terascope/teraslice-messaging/src/utils';
 
 export class Client extends Core {
     readonly socket: SocketIOClient.Socket;
     readonly clientId: string;
+    readonly serverName: string;
+    available: boolean;
 
     constructor(opts: ClientOptions) {
         super(opts);
         const {
             hostUrl,
             clientId,
+            serverName,
             socketOptions= {},
         } = opts;
 
@@ -23,6 +27,10 @@ export class Client extends Core {
             throw new Error('Messenger.Client requires a valid clientId');
         }
 
+        if (!isString(serverName)) {
+            throw new Error('Messenger.Client requires a valid serverName');
+        }
+
         const options = Object.assign({}, socketOptions, {
             autoConnect: false,
             forceNew: true,
@@ -31,13 +39,8 @@ export class Client extends Core {
 
         this.socket = SocketIOClient(hostUrl, options);
         this.clientId = clientId;
-    }
-
-    shutdown() {
-        if (this.socket.connected) {
-            this.socket.close();
-        }
-        this.close();
+        this.serverName = serverName;
+        this.available = false;
     }
 
     async connect() {
@@ -76,16 +79,41 @@ export class Client extends Core {
             connectInterval = setInterval(() => {
                 cleanup();
                 reject(connectErr);
-            },                            this.actionTimeout);
-        });
-
-        this.socket.on('messaging:response', (msg: Message) => {
-            this.emit(msg.__msgId, msg);
+            }, this.actionTimeout);
         });
     }
 
-    async ready() {
-        return this.send({ message: 'client:ready' });
+    async sendAvailable(payload?: Payload) {
+        this.available = true;
+        return this.send('client:available', payload);
+    }
+
+    async sendUnavailable(payload?: Payload) {
+        this.available = false;
+        return this.send('client:unavailable', payload);
+    }
+
+    protected async send(eventName: string, payload: Payload = {}): Promise<Message> {
+        const message: Message = {
+            id: newMsgId(),
+            payload,
+            eventName,
+            to: this.serverName,
+            from: this.clientId,
+        };
+
+        const response = await new Promise((resolve, reject) => {
+            this.socket.emit(eventName, message, this.handleSendResponse(resolve, reject));
+        });
+
+        return response as Message;
+    }
+
+    shutdown() {
+        if (this.socket.connected) {
+            this.socket.close();
+        }
+        this.close();
     }
 
     // For testing purposes

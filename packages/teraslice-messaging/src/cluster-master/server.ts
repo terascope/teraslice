@@ -22,8 +22,7 @@ export class Server extends core.Server {
             actionTimeout,
             networkLatencyBuffer,
             pingTimeout: nodeDisconnectTimeout,
-            source: 'cluster_master',
-            to: 'execution_controller'
+            serverName: 'ClusterMaster',
         });
 
         this.clusterAnalytics = {
@@ -47,38 +46,16 @@ export class Server extends core.Server {
         this.server.on('connection', this.onConnection);
     }
 
-    sendPauseExecution(exId: string, timeoutMs?: number) {
-        return this.sendWithResponse({
-            address: exId,
-            message: 'execution:pause',
-            payload: {
-                exId
-            }
-        },                           { timeoutMs });
+    sendExecutionPause(exId: string) {
+        return this.send(exId, 'execution:pause');
     }
 
-    sendResumeExecution(exId: string, timeoutMs?: number) {
-        return this.sendWithResponse({
-            address: exId,
-            message: 'execution:resume',
-            payload: {
-                exId
-            }
-        },                           { timeoutMs });
+    sendExecutionResume(exId: string) {
+        return this.send(exId, 'execution:resume');
     }
 
-    sendRequestAnalytics(exId: string, timeoutMs?: number) {
-        return this.sendWithResponse({
-            address: exId,
-            message: 'execution:analytics',
-            payload: {
-                exId
-            }
-        },                           { timeoutMs });
-    }
-
-    connectedExecutions() {
-        return this.getClientCounts();
+    sendExecutionAnalyticsRequest(exId: string) {
+        return this.send(exId, 'execution:analytics');
     }
 
     getClusterAnalytics() {
@@ -92,11 +69,11 @@ export class Server extends core.Server {
     private onConnection(socket: SocketIO.Socket) {
         const exId = this.getClientId(socket);
 
-        socket.on('execution:finished', () => {
+        socket.on('execution:finished', this.handleResponse(() => {
             this.emit('execution:finished', exId);
-        });
+        }));
 
-        socket.on('execution:analytics', (msg: core.Message) => {
+        socket.on('cluster:analytics', this.handleResponse((msg: core.Message) => {
             const data = msg.payload as i.ExecutionAnalyticsMessage;
             if (!this.clusterAnalytics[data.kind]) {
                 return;
@@ -106,6 +83,6 @@ export class Server extends core.Server {
                     this.clusterAnalytics[data.kind][field] += value;
                 }
             });
-        });
+        }));
     }
 }

@@ -30,31 +30,6 @@ describe('ClusterMaster', () => {
             });
         });
 
-        describe('when constructed without a jobId', () => {
-            it('should throw an error', () => {
-                expect(() => {
-                    // @ts-ignore
-                    new ClusterMaster.Client({
-                        clusterMasterUrl: 'example.com',
-                        exId: 'ex-id'
-                    });
-                }).toThrowError('ClusterMaster.Client requires a valid jobId');
-            });
-        });
-
-        describe('when constructed without a jobName', () => {
-            it('should throw an error', () => {
-                expect(() => {
-                    // @ts-ignore
-                    new ClusterMaster.Client({
-                        clusterMasterUrl: 'example.com',
-                        jobId: 'job-id',
-                        exId: 'ex-id'
-                    });
-                }).toThrowError('ClusterMaster.Client requires a valid jobName');
-            });
-        });
-
         describe('when constructed with an invalid clusterMasterUrl', () => {
             let clusterMaster: ClusterMaster.Client;
 
@@ -140,7 +115,77 @@ describe('ClusterMaster', () => {
         });
 
         it('should have one connected executions', () => {
-            expect(server.connectedExecutions()).toEqual(1);
+            expect(server.onlineClientCount).toEqual(1);
+        });
+
+        it('should be able to handle execution analytics', () => {
+            const analytics = {
+                workers_available: 1,
+                workers_active: 1,
+                workers_joined: 1,
+                workers_reconnected: 1,
+                workers_disconnected: 1,
+                failed: 1,
+                subslices: 1,
+                queued: 1,
+                slice_range_expansion: 1,
+                processed: 1,
+                slicers: 1,
+                subslice_by_key: 1,
+                started: 'hellothere'
+            };
+
+            client.onExecutionAnalytics(() => analytics);
+
+            return expect(server.sendExecutionAnalyticsRequest(exId)).resolves.toHaveProperty('payload', analytics);
+        });
+
+        it('should be able to handle cluster analytics', async () => {
+            const analytics = {
+                processed: 1,
+                failed: 1,
+                queued: 1,
+                job_duration: 1,
+                workers_joined: 1,
+                workers_disconnected: 1,
+                workers_reconnected: 1,
+            };
+
+            const previousAnalytics = server.getClusterAnalytics();
+
+            await client.sendClusterAnalytics(analytics);
+
+            expect(server.getClusterAnalytics()).not.toEqual(previousAnalytics);
+        });
+
+        it('should be able to handle execution finished', async () => {
+            const onExecutionFinished = jest.fn();
+
+            server.onExecutionFinished(onExecutionFinished);
+
+            await client.sendExecutionFinished();
+
+            expect(onExecutionFinished).toHaveBeenCalled();
+        });
+
+        it('should be able to handle exection pause', async () => {
+            const onExecutionPause = jest.fn();
+
+            client.onExecutionPause(onExecutionPause);
+
+            await server.sendExecutionPause(exId);
+
+            expect(onExecutionPause).toHaveBeenCalled();
+        });
+
+        it('should be able to handle exection resume', async () => {
+            const onExecutionResume = jest.fn();
+
+            client.onExecutionResume(onExecutionResume);
+
+            await server.sendExecutionResume(exId);
+
+            expect(onExecutionResume).toHaveBeenCalled();
         });
     });
 });

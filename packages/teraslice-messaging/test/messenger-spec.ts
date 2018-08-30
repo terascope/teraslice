@@ -1,5 +1,6 @@
 import 'jest-extended';
 
+import http from 'http';
 import { Message } from '../src/messenger';
 import { Messenger, formatURL, newMsgId } from '../src';
 import findPort from './helpers/find-port';
@@ -53,6 +54,20 @@ describe('Messenger', () => {
                 }).toThrowError('Messenger.Client requires a valid clientId');
             });
         });
+
+        describe('when constructed without a valid serverName', () => {
+            it('should throw an error', () => {
+                expect(() => {
+                    // @ts-ignore
+                    new Messenger.Client({
+                        actionTimeout: 1,
+                        networkLatencyBuffer: 0,
+                        hostUrl: 'some-host',
+                        clientId: 'hello'
+                    });
+                }).toThrowError('Messenger.Client requires a valid serverName');
+            });
+        });
     });
 
     describe('->Server', () => {
@@ -80,19 +95,59 @@ describe('Messenger', () => {
                 }).toThrowError('Messenger.Server requires a valid pingTimeout');
             });
         });
+
+        describe('when constructed without a valid serverName', () => {
+            it('should throw an error', () => {
+                expect(() => {
+                    // @ts-ignore
+                    new Messenger.Server({
+                        actionTimeout: 1,
+                        networkLatencyBuffer: 0,
+                        port: 80,
+                        pingTimeout: 1,
+                    });
+                }).toThrowError('Messenger.Server requires a valid serverName');
+            });
+        });
+
+        describe('when the port is already in-use', () => {
+            let port: number;
+
+            beforeAll((done) => {
+                findPort().then((_port) => {
+                    port = _port;
+                    http.createServer((req, res) => {
+                        res.end(req.url);
+                    }).listen(port, done);
+                });
+            });
+
+            it('should throw error', () => {
+                const server = new Messenger.Server({
+                    actionTimeout: 1,
+                    networkLatencyBuffer: 0,
+                    port,
+                    pingTimeout: 1,
+                    serverName: 'hello'
+                });
+                const error = `Port ${port} is already in-use`;
+                return expect(server.listen()).rejects.toThrowError(error);
+            });
+        });
     });
 
     describe('Client & Server', () => {
         const clientId = newMsgId();
         let client: Messenger.Client;
         let server: Messenger.Server;
-        let clientReadyFn: Messenger.ClientEventFn;
+        let clientAvailableFn: Messenger.ClientEventFn;
+        const clientUnavailableFn: Messenger.ClientEventFn = jest.fn();
         const clientOnlineFn: Messenger.ClientEventFn = jest.fn();
         const clientOfflineFn: Messenger.ClientEventFn = jest.fn();
         const clientErrorFn: Messenger.ClientEventFn = jest.fn();
 
         beforeAll((done) => {
-            clientReadyFn = jest.fn(() => { done(); });
+            clientAvailableFn = jest.fn(() => { done(); });
 
             async function setup() {
                 const port = await findPort();
@@ -102,8 +157,7 @@ describe('Messenger', () => {
                     networkLatencyBuffer: 0,
                     actionTimeout: 1000,
                     pingTimeout: 3000,
-                    source: 'example',
-                    to: 'example',
+                    serverName: 'example'
                 });
 
                 server.server.use((socket, next) => {
@@ -111,15 +165,15 @@ describe('Messenger', () => {
                 });
 
                 server.onClientOnline(clientOnlineFn);
-                server.onClientReady(clientReadyFn);
+                server.onClientAvailable(clientAvailableFn);
+                server.onClientUnavailable(clientUnavailableFn);
                 server.onClientOffline(clientOfflineFn);
                 server.onClientError(clientErrorFn);
 
                 await server.listen();
 
                 client = new Messenger.Client({
-                    source: 'example',
-                    to: 'example',
+                    serverName: 'example',
                     clientId,
                     hostUrl,
                     networkLatencyBuffer: 0,
@@ -131,36 +185,65 @@ describe('Messenger', () => {
                 });
 
                 await client.connect();
-                await client.ready();
+                await client.sendAvailable();
             }
 
             setup();
         });
 
-        it('should call server.onClientReady', () => {
-            expect(clientReadyFn).toHaveBeenCalledWith(clientId, undefined);
+        it('should have the correct client properties', () => {
+            expect(server.onlineClientCount).toEqual(1);
+            expect(server.onlineClients).toBeArrayOfSize(1);
+            expect(server.availableClientCount).toEqual(1);
+            expect(server.availableClients).toBeArrayOfSize(1);
+            expect(server.offlineClientCount).toEqual(0);
+            expect(server.offlineClients).toBeArrayOfSize(0);
+            expect(server.unavailableClientCount).toEqual(0);
+            expect(server.unavailableClients).toBeArrayOfSize(0);
         });
 
         it('should call server.onClientOnline', () => {
-            expect(clientOnlineFn).toHaveBeenCalledWith(clientId);
+            expect(clientOnlineFn).toHaveBeenCalledWith(clientId, undefined);
+        });
+
+        it('should call server.onClientAvailable', () => {
+            expect(clientAvailableFn).toHaveBeenCalledWith(clientId, undefined);
+        });
+
+        it('should not call server.onClientAvailable', () => {
+            expect(clientUnavailableFn).not.toHaveBeenCalled();
         });
 
         it('should not call server.onClientOffline', () => {
-            expect(clientOfflineFn).not.toHaveBeenCalledWith(clientId, undefined);
+            expect(clientOfflineFn).not.toHaveBeenCalled();
         });
 
         it('should not call server.onClientError', () => {
-            expect(clientErrorFn).not.toHaveBeenCalledWith(clientId);
+            expect(clientErrorFn).not.toHaveBeenCalled();
+        });
+
+        describe('when sending a message to client that does not exist', () => {
+            it('should throw a timeout error', async () => {
+                expect.hasAssertions();
+                try {
+                    // @ts-ignore
+                    await server.send('mystery-client', 'hello');
+                } catch (err) {
+                    expect(err).not.toBeNil();
+                    expect(err.message).toEqual(`No client found by that id "mystery-client"`);
+                }
+            });
         });
 
         describe('when waiting for message that will never come', () => {
             it('should throw a timeout error', async () => {
                 expect.hasAssertions();
                 try {
-                    await client.onceWithTimeout('mystery:message');
+                    // @ts-ignore
+                    await client.send('mystery:message');
                 } catch (err) {
                     expect(err).not.toBeNil();
-                    expect(err.message).toEqual('Timed out after 1000ms, waiting for event "mystery:message"');
+                    expect(err.message).toEqual('Timed out after 1000ms, waiting for message');
                 }
             });
         });
@@ -170,15 +253,13 @@ describe('Messenger', () => {
             let responseErr: Error | undefined;
 
             beforeAll(async () => {
-                client.socket.once('failure:message', (msg: Message) => {
-                    client.respond(msg, { error: 'this should fail' });
+                // @ts-ignore
+                client.socket.once('failure:message', (msg: Message, callback: Function) => {
+                    callback('this sould fail');
                 });
                 try {
-                    responseMsg = await server.sendWithResponse({
-                        address: 'example-room',
-                        message: 'failure:message',
-                        payload: { hello: true }
-                    });
+                    // @ts-ignore
+                    responseMsg = await server.send(clientId, 'failure:message');
                 } catch (err) {
                     responseErr = err;
                 }
@@ -187,30 +268,7 @@ describe('Messenger', () => {
             it('server should get an error back', () => {
                 // @ts-ignore
                 expect(responseMsg).toBeNil();
-                expect(responseErr && responseErr.toString()).toEqual('Error: this should fail');
-            });
-        });
-
-        describe('when the client takes too long to respond', () => {
-            let responseMsg: Message | object | undefined;
-            let responseErr: Error | undefined;
-
-            beforeAll(async () => {
-                try {
-                    responseMsg = await server.sendWithResponse({
-                        address: 'example-room',
-                        message: 'some:message',
-                        payload: { hello: true }
-                    });
-                } catch (err) {
-                    responseErr = err;
-                }
-            });
-
-            it('server should get an error back', () => {
-                // @ts-ignore
-                expect(responseMsg).toBeNil();
-                expect(responseErr && responseErr.toString()).toStartWith(`Error: Timeout error while communicating with example-room, with message:`);
+                expect(responseErr && responseErr.toString()).toEqual('Error: Message Response Failure: this sould fail');
             });
         });
     });

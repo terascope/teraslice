@@ -27,8 +27,7 @@ export class Server extends core.Server {
             actionTimeout,
             networkLatencyBuffer,
             pingTimeout: workerDisconnectTimeout,
-            source: 'execution_controller',
-            to: 'worker'
+            serverName: 'ExecutionController',
         });
 
         this.cache = new NodeCache({
@@ -58,34 +57,16 @@ export class Server extends core.Server {
         await super.shutdown();
     }
 
-    async sendNewSlice(workerId: string, slice: Slice, timeoutMs?: number): Promise<i.SliceResponseMessage> {
-        const msg = await this.sendWithResponse({
-            address: workerId,
-            message: 'slicer:slice:new',
-            payload: slice,
-        },                                      { timeoutMs }) as i.SliceResponseMessage;
-
-        if (!_.get(msg, 'willProcess')) {
-            throw new Error(`Worker ${workerId} will not process new slice`);
-        }
-
-        return msg;
-    }
-
-    async dispatchSlice(slice: Slice, timeoutMs?: number): Promise<i.DispatchSliceResult> {
+    async dispatchSlice(slice: Slice): Promise<i.DispatchSliceResult> {
         const requestedWorkerId = slice.request.request_worker;
         const workerId = this._workerDequeue(requestedWorkerId);
         if (!workerId) {
             throw new Error('No available workers to dispatch slice to');
         }
 
-        const response = await this.sendWithResponse({
-            address: workerId,
-            message: 'slicer:slice:new',
-            payload: slice
-        },                                           { timeoutMs }) as i.SliceResponseMessage;
+        const response = await this.send(workerId, 'execution:slice:new', slice);
 
-        const dispatched = _.get(response, 'willProcess') || false;
+        const dispatched = _.get(response, 'payload.willProcess', false);
 
         return {
             dispatched,
@@ -93,16 +74,16 @@ export class Server extends core.Server {
         };
     }
 
-    availableWorkers(): number {
+    get availableWorkers(): number {
         return this.queue.size();
     }
 
-    activeWorkers(): number {
-        return this.getClientCounts() - this.availableWorkers();
+    get activeWorkers(): number {
+        return this.onlineClientCount - this.unavailableClientCount;
     }
 
-    executionFinished(exId: string) {
-        this.server.sockets.emit('execution:finished', { exId });
+    sendExecutionFinished(exId: string) {
+        return this.broadcast('execution:finished', { exId });
     }
 
     onWorkerReconnect(fn: core.ClientEventFn) {
@@ -112,15 +93,15 @@ export class Server extends core.Server {
     private onConnection(socket: SocketIO.Socket) {
         const workerId = this.getClientId(socket);
 
-        socket.on('disconnect', () => {
+        this.on('client:offline', () => {
             this._workerRemove(workerId);
         });
 
-        socket.on('worker:ready', (msg) => {
+        this.on('client:available', (msg) => {
             this._workerEnqueue(msg);
         });
 
-        socket.on('worker:slice:complete', (msg) => {
+        socket.on('worker:slice:complete', this.handleResponse((msg) => {
             const workerResponse = msg.payload;
             const sliceId = _.get(workerResponse, 'slice.slice_id');
             if (workerResponse.retry) {
@@ -137,19 +118,17 @@ export class Server extends core.Server {
                 this.cache.set(`${sliceId}:complete`, true);
 
                 if (workerResponse.error) {
-                    this.emit('slice:failure', workerResponse);
+                    this.emit('slice:failure', workerId, workerResponse);
                 } else {
-                    this.emit('slice:success', workerResponse);
+                    this.emit('slice:success', workerId, workerResponse);
                 }
             }
 
-            this.respond(msg, {
-                payload: {
-                    recorded: true,
-                    slice_id: sliceId,
-                }
-            });
-        });
+            return {
+                recorded: true,
+                slice_id: sliceId,
+            };
+        }));
     }
 
     private _workerEnqueue(arg: string | object): boolean {
