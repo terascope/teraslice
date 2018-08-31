@@ -21,23 +21,53 @@ in both the `teraslice-master` and `teraslice-worker` ConfigMaps.
 
 ### `default` ServiceAccount Binding
 
-As a development workaround, cluster admin privileges should be added to the
-default ServiceAccount in the default namespace using the following command:
+In order to run Teraslice Jobs in your Kubernetes cluster the Teraslice master
+node will need the ability create, list and delete Kubernetes Jobs, Deployments,
+Services and Pods.  Teraslice has the ability to run in an isolated Kubernetes
+namespace so users don't have to grant broad permissions to the Teraslice
+master.  Users can configure the Teraslice master to use a specific namespace
+with the `kubernetes_namespace` configuration option.  Users would then have
+to create a Kubernetes `Role` and `RoleBinding` as shown below:
 
-```
-cd example/k8s
-kubectl create -f teraslice-default-binding.yaml
+```yaml
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: teraslice-all-<NAMESPACE>
+  namespace: <NAMESPACE>
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]
 ```
 
-This may not be appropriate for production environments.
+```yaml
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: teraslice-all-<NAMESPACE>
+  namespace: <NAMESPACE>
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: <NAMESPACE>
+roleRef:
+  kind: Role
+  name: teraslice-all-<NAMESPACE>
+  apiGroup: "rbac.authorization.k8s.io"
+```
+
+Currently, Teraslice interacts with Kubernetes using the
+`default ServiceAccount` in the configured namespace.
 
 ### Kubernetes Specific Configuration Settings
 
-|        Configuration         |                                                                         Description                                                                         |  Type  |  Notes   |
-|:----------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------:|:------:|:--------:|
-|       kubernetes_image       |                                                      Name of docker image, default: `teraslice:k8sdev`                                                      | String | optional |
-| kubernetes_image_pull_secret |                                                     Secret used to pull docker images from private repo                                                     | String | optional |
-|  kubernetes_config_map_name  | Name of the configmap used by worker and executcion_controller containers for config.  If this is not provided, the default will be `<CLUSTER_NAME>-worker` | String | optional |
+|        Configuration         |                                                                        Description                                                                         |  Type  |  Notes   |
+|:----------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------:|:------:|:--------:|
+|       kubernetes_image       |                                                     Name of docker image, default: `teraslice:k8sdev`                                                      | String | optional |
+| kubernetes_image_pull_secret |                                                    Secret used to pull docker images from private repo                                                     | String | optional |
+|  kubernetes_config_map_name  | Name of the configmap used by worker and execution_controller containers for config.  If this is not provided, the default will be `<CLUSTER_NAME>-worker` | String | optional |
+|     kubernetes_namespace     |                                       Kubernetes Namespace that Teraslice will run in, default namespace: 'default'                                        | String | optional |
 
 # Teraslice Job Properties
 
