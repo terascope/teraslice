@@ -14,7 +14,12 @@ export class Server extends Core {
     protected _clients: i.ConnectedClient[];
 
     constructor(opts: i.ServerOptions) {
-        const { port, pingTimeout, serverName } = opts;
+        const {
+            port,
+            pingTimeout,
+            pingInterval,
+            serverName
+        } = opts;
         super(opts);
 
         if (!_.isNumber(port)) {
@@ -35,6 +40,7 @@ export class Server extends Core {
 
         this.server = SocketIOServer({
             pingTimeout,
+            pingInterval,
         });
 
         this._onConnection = this._onConnection.bind(this);
@@ -108,6 +114,10 @@ export class Server extends Core {
         this.on('client:offline', fn);
     }
 
+    onClientReconnect(fn: i.ClientEventFn) {
+        this.on('client:reconnect', fn);
+    }
+
     onClientError(fn: i.ClientEventFn) {
         this.on('client:error', fn);
     }
@@ -127,6 +137,41 @@ export class Server extends Core {
 
     on(eventName: string, fn: i.ClientEventFn) {
         return super.on(eventName, fn);
+    }
+
+    async onceWithTimeout(eventName: string, timeout?: number): Promise<any>;
+    async onceWithTimeout(eventName: string, forClientId: string, timeout?: number): Promise<any>;
+    async onceWithTimeout(eventName: string, ...params: any[]): Promise<any> {
+        let timeoutMs: number = this.getTimeout();
+        let forClientId: string|undefined;
+
+        if (_.isNumber(params[0])) {
+            timeoutMs = this.getTimeout(params[0]);
+        } else if (_.isString(params[0])) {
+            forClientId = params[0];
+            if (_.isNumber(params[1])) {
+                timeoutMs = this.getTimeout(params[1]);
+            }
+        }
+
+        return new Promise((resolve) => {
+            const timer = setTimeout(() => {
+                this.removeListener(eventName, _onceWithTimeout);
+                resolve();
+            }, timeoutMs);
+
+            function _onceWithTimeout(clientId: string, param?: any) {
+                if (forClientId && forClientId !== clientId) return;
+                clearTimeout(timer);
+                if (!param) {
+                    resolve(clientId);
+                } else {
+                    resolve(param);
+                }
+            }
+
+            this.on(eventName, _onceWithTimeout);
+        });
     }
 
     protected broadcast(eventName: string, payload: i.Payload) {
@@ -175,14 +220,27 @@ export class Server extends Core {
         const clientId = this.getClientId(socket);
         const client = this.getClient(clientId);
 
-        if (client) return client;
+        if (client) {
+            client.isOnline = true;
+            client.isAvailable = false;
+            client.isReconnected = true;
+            client.reconnectedAt = new Date();
+            client.onlineAt = new Date();
+            client.unavailableAt = null;
+            client.availableAt = null;
+            client.socketId = socket.id;
+            client.metadata = {};
+            return client;
+        }
 
         const newClient: i.ConnectedClient = {
             clientId,
             isOnline: true,
             isAvailable: false,
+            isReconnected: false,
             onlineAt: new Date(),
             offlineAt: null,
+            reconnectedAt: null,
             unavailableAt: null,
             availableAt: null,
             socketId: socket.id,
@@ -195,6 +253,12 @@ export class Server extends Core {
 
     private _onConnection(socket: SocketIO.Socket) {
         const client = this.ensureClient(socket);
+
+        if (client.isReconnected) {
+            this.emit('client:reconnect', client.clientId);
+        } else {
+            this.emit('client:online', client.clientId);
+        }
 
         socket.on('error', (err: Error) => {
             this.emit('client:error', client.clientId, err);
@@ -221,7 +285,5 @@ export class Server extends Core {
             client.availableAt = null;
             this.emit('client:unavailable', client.clientId);
         }));
-
-        this.emit('client:online', client.clientId);
     }
 }

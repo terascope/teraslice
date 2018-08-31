@@ -86,10 +86,6 @@ export class Server extends core.Server {
         return this.broadcast('execution:finished', { exId });
     }
 
-    onWorkerReconnect(fn: core.ClientEventFn) {
-        this.on('worker:reconnect', fn);
-    }
-
     private onConnection(socket: SocketIO.Socket) {
         const workerId = this.getClientId(socket);
 
@@ -104,14 +100,6 @@ export class Server extends core.Server {
         socket.on('worker:slice:complete', this.handleResponse((msg) => {
             const workerResponse = msg.payload;
             const sliceId = _.get(workerResponse, 'slice.slice_id');
-            if (workerResponse.retry) {
-                const retried = this.cache.get(`${sliceId}:retry`);
-                if (!retried) {
-                    this.cache.set(`${sliceId}:retry`, true);
-                    this.emit('worker:reconnect', workerId, workerResponse);
-                }
-            }
-
             const alreadyCompleted = this.cache.get(`${sliceId}:complete`);
 
             if (!alreadyCompleted) {

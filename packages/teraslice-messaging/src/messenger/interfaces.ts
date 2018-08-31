@@ -16,6 +16,7 @@ export interface ServerOptions extends CoreOptions {
     port: number;
     serverName: string;
     pingTimeout: number;
+    pingInterval?: number;
 }
 
 export interface Payload {
@@ -32,13 +33,15 @@ export interface Message {
 
 export interface ConnectedClient {
     readonly clientId: string;
-    readonly socketId: string;
+    socketId: string;
     isOnline: boolean;
     isAvailable: boolean;
-    onlineAt: Date;
+    isReconnected: boolean;
+    onlineAt: Date|null;
     offlineAt: Date|null;
     availableAt: Date|null;
     unavailableAt: Date|null;
+    reconnectedAt: Date|null;
     metadata: object;
 }
 

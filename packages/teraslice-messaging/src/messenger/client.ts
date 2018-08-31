@@ -116,6 +116,24 @@ export class Client extends Core {
         this.close();
     }
 
+    async onceWithTimeout(eventName: string, timeout?: number): Promise<any> {
+        const timeoutMs = this.getTimeout(timeout);
+
+        return new Promise((resolve) => {
+            const timer = setTimeout(() => {
+                this.removeListener(eventName, _onceWithTimeout);
+                resolve();
+            }, timeoutMs);
+
+            function _onceWithTimeout(param?: any) {
+                clearTimeout(timer);
+                resolve(param);
+            }
+
+            this.once(eventName, _onceWithTimeout);
+        });
+    }
+
     // For testing purposes
     forceReconnect() {
         return new Promise((resolve) => {

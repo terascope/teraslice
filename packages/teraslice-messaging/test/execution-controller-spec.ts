@@ -71,7 +71,6 @@ describe('ExecutionController', () => {
         let client: ExecutionController.Client;
         let server: ExecutionController.Server;
         const workerId: string = newMsgId();
-        const workerReconnectFn: core.ClientEventFn = jest.fn();
         const executionFinishedFn: core.ClientEventFn = jest.fn();
 
         beforeAll(async () => {
@@ -83,8 +82,6 @@ describe('ExecutionController', () => {
                 actionTimeout: 1000,
                 workerDisconnectTimeout: 3000,
             });
-
-            server.onWorkerReconnect(workerReconnectFn);
 
             await server.start();
 
@@ -117,10 +114,6 @@ describe('ExecutionController', () => {
 
         it('should have no available workers', () => {
             expect(server.availableWorkers).toEqual(0);
-        });
-
-        it('should not call server.onWorkerReconnect', () => {
-            expect(workerReconnectFn).not.toHaveBeenCalledWith(workerId);
         });
 
         it('should not call client.onExecutionFinished', () => {

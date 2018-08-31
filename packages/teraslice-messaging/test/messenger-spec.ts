@@ -144,6 +144,7 @@ describe('Messenger', () => {
         const clientUnavailableFn: Messenger.ClientEventFn = jest.fn();
         const clientOnlineFn: Messenger.ClientEventFn = jest.fn();
         const clientOfflineFn: Messenger.ClientEventFn = jest.fn();
+        const clientReconnectFn: Messenger.ClientEventFn = jest.fn();
         const clientErrorFn: Messenger.ClientEventFn = jest.fn();
 
         beforeAll((done) => {
@@ -157,6 +158,7 @@ describe('Messenger', () => {
                     networkLatencyBuffer: 0,
                     actionTimeout: 1000,
                     pingTimeout: 3000,
+                    pingInterval: 1000,
                     serverName: 'example'
                 });
 
@@ -168,6 +170,7 @@ describe('Messenger', () => {
                 server.onClientAvailable(clientAvailableFn);
                 server.onClientUnavailable(clientUnavailableFn);
                 server.onClientOffline(clientOfflineFn);
+                server.onClientReconnect(clientReconnectFn);
                 server.onClientError(clientErrorFn);
 
                 await server.listen();
@@ -180,7 +183,6 @@ describe('Messenger', () => {
                     actionTimeout: 1000,
                     socketOptions: {
                         timeout: 1000,
-                        reconnection: false,
                     },
                 });
 
@@ -218,6 +220,10 @@ describe('Messenger', () => {
             expect(clientOfflineFn).not.toHaveBeenCalled();
         });
 
+        it('should not call server.onClientReconnect', () => {
+            expect(clientReconnectFn).not.toHaveBeenCalled();
+        });
+
         it('should not call server.onClientError', () => {
             expect(clientErrorFn).not.toHaveBeenCalled();
         });
@@ -232,6 +238,49 @@ describe('Messenger', () => {
                     expect(err).not.toBeNil();
                     expect(err.message).toEqual(`No client found by that id "mystery-client"`);
                 }
+            });
+        });
+
+        describe('when testing server.onceWithTimeout', () => {
+            it('should be able to handle timeouts', () => {
+                const once = server.onceWithTimeout('timeout:event', 500);
+                return expect(once).resolves.toBeUndefined();
+            });
+
+            it('should be able to handle timeouts when given a specific clientId', () => {
+                const once = server.onceWithTimeout('timeout:event', clientId, 500);
+                return expect(once).resolves.toBeUndefined();
+            });
+
+            it('should be able to resolve the message', () => {
+                const once = server.onceWithTimeout('success:event', 500);
+                server.emit('success:event', clientId, { hello: true });
+                return expect(once).resolves.toEqual({
+                    hello: true
+                });
+            });
+
+            it('should be able to resolve the message when given a specific clientId', () => {
+                const once = server.onceWithTimeout('success:event', clientId, 500);
+                server.emit('success:event', clientId, { hello: true });
+                return expect(once).resolves.toEqual({
+                    hello: true
+                });
+            });
+        });
+
+        describe('when testing client.onceWithTimeout', () => {
+            it('should be able to handle timeouts', () => {
+                const once = client.onceWithTimeout('timeout:event', 500);
+                return expect(once).resolves.toBeUndefined();
+            });
+
+            it('should be able to resolve the message', () => {
+                const once = client.onceWithTimeout('success:event', 500);
+                client.emit('success:event', { hello: true });
+                return expect(once).resolves.toEqual({
+                    hello: true
+                });
             });
         });
 
@@ -269,6 +318,16 @@ describe('Messenger', () => {
                 // @ts-ignore
                 expect(responseMsg).toBeNil();
                 expect(responseErr && responseErr.toString()).toEqual('Error: Message Response Failure: this sould fail');
+            });
+        });
+
+        describe('when testing reconnect', () => {
+            it('should call server.onClientReconnect', (done) => {
+                server.onClientReconnect(() => {
+                    done();
+                });
+
+                client.forceReconnect();
             });
         });
     });
