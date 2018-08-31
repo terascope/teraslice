@@ -45,6 +45,10 @@ export class Core extends EventEmitter {
 
     protected handleResponse(fn: i.MessageHandler): i.ResponseHandler {
         return async (msg: i.Message, callback: i.CallbackFn): Promise<void> => {
+            if (msg.volatile) {
+                await fn(msg);
+            }
+
             try {
                 const payload = await fn(msg);
                 callback(null, {

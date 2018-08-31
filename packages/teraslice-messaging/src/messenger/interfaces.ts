@@ -29,6 +29,7 @@ export interface Message {
     to: string;
     eventName: string;
     payload: Payload;
+    volatile?: boolean;
 }
 
 export interface ConnectedClient {

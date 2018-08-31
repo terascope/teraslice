@@ -131,37 +131,99 @@ describe('ExecutionController', () => {
                 expect(server.onlineClientCount).toEqual(1);
             });
 
-            describe('when sending client:slice:complete', () => {
-                it('should emit client:slice:complete on the server', async () => {
-                    const msg = await client.sendSliceComplete({
-                        slice: {
-                            slicer_order: 0,
-                            slicer_id: 1,
-                            request: {},
-                            slice_id: 'client-slice-complete',
-                            _created: 'hello'
-                        },
-                        analytics: {
-                            time: [],
-                            memory: [],
-                            size: []
-                        },
-                        error: 'hello'
+            describe('when sending worker:slice:complete', () => {
+                describe('when the slice succeed', () => {
+                    it('should respond with a slice recorded and emit slice succeeds', (done) => {
+                        server.onSliceSuccess(() => { done(); });
+                        client.sendSliceComplete({
+                            slice: {
+                                slicer_order: 0,
+                                slicer_id: 1,
+                                request: {},
+                                slice_id: 'success-slice-complete',
+                                _created: 'hello'
+                            },
+                            analytics: {
+                                time: [],
+                                memory: [],
+                                size: []
+                            },
+                        }).then((msg) => {
+                            expect(msg.payload).toEqual({
+                                slice_id: 'success-slice-complete',
+                                recorded: true,
+                            });
+                            expect(server.queue.exists('workerId', workerId)).toBeTrue();
+                        });
                     });
-
-                    expect(msg.payload).toEqual({
-                        slice_id: 'client-slice-complete',
-                        recorded: true,
-                    });
-
-                    expect(server.queue.exists('workerId', workerId)).toBeTrue();
                 });
+
+                describe('when the slice fails', () => {
+                    it('should respond with a slice recorded and emit slice failure', (done) => {
+                        server.onSliceFailure(() => { done(); });
+                        client.sendSliceComplete({
+                            slice: {
+                                slicer_order: 0,
+                                slicer_id: 1,
+                                request: {},
+                                slice_id: 'failure-slice-complete',
+                                _created: 'hello'
+                            },
+                            analytics: {
+                                time: [],
+                                memory: [],
+                                size: []
+                            },
+                            error: 'hello'
+                        }).then((msg) => {
+                            expect(msg.payload).toEqual({
+                                slice_id: 'failure-slice-complete',
+                                recorded: true,
+                            });
+                            expect(server.queue.exists('workerId', workerId)).toBeTrue();
+                        });
+                    });
+                });
+
+                describe('when the slice is double recorded', () => {
+                    it('should respond with a ', () => {
+                        const onSliceSuccessFn = jest.fn();
+                        server.onSliceSuccess(onSliceSuccessFn);
+                        const slice = {
+                            slice: {
+                                slicer_order: 0,
+                                slicer_id: 1,
+                                request: {},
+                                slice_id: 'duplicate-slice-complete',
+                                _created: 'hello'
+                            },
+                            analytics: {
+                                time: [],
+                                memory: [],
+                                size: []
+                            },
+                        };
+
+                        return client.sendSliceComplete(slice)
+                            .then(() => client.sendSliceComplete(slice))
+                            .then((msg) => {
+                                expect(msg.payload).toEqual({
+                                    slice_id: 'duplicate-slice-complete',
+                                    recorded: true,
+                                    duplicate: true,
+                                });
+                                expect(onSliceSuccessFn).toHaveBeenCalledTimes(1);
+                                expect(server.queue.exists('workerId', workerId)).toBeTrue();
+                            });
+                    });
+                });
+
             });
 
             describe('when receiving finished', () => {
                 beforeAll((done) => {
                     client.onExecutionFinished(() => { done(); });
-                    server.sendExecutionFinished('some-ex-id');
+                    server.broadcastExecutionFinished('some-ex-id');
                 });
 
                 it('should call client.onExecutionFinished', () => {

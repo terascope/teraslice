@@ -45,11 +45,11 @@ export class Client extends core.Client {
     sendClusterAnalytics(stats: i.ClusterExecutionAnalytics) {
         return this.send('cluster:analytics', {
             stats,
-            kind: 'slicer',
-        });
+            kind: 'slicer'
+        }, true);
     }
 
-    sendExecutionFinished(error?: Error|string) {
+    sendExecutionFinished(error?: string) {
         return this.send('execution:finished', { error });
     }
 

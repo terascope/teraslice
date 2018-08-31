@@ -74,6 +74,14 @@ export class Server extends core.Server {
         };
     }
 
+    onSliceSuccess(fn: core.ClientEventFn) {
+        this.on('slice:success', fn);
+    }
+
+    onSliceFailure(fn: core.ClientEventFn) {
+        this.on('slice:failure', fn);
+    }
+
     get availableWorkers(): number {
         return this.queue.size();
     }
@@ -82,7 +90,7 @@ export class Server extends core.Server {
         return this.onlineClientCount - this.unavailableClientCount;
     }
 
-    sendExecutionFinished(exId: string) {
+    broadcastExecutionFinished(exId: string) {
         return this.broadcast('execution:finished', { exId });
     }
 
@@ -113,6 +121,7 @@ export class Server extends core.Server {
             }
 
             return {
+                duplicate: alreadyCompleted,
                 recorded: true,
                 slice_id: sliceId,
             };

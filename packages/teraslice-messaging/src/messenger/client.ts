@@ -93,11 +93,12 @@ export class Client extends Core {
         return this.send('client:unavailable', payload);
     }
 
-    protected async send(eventName: string, payload: Payload = {}): Promise<Message> {
+    protected async send(eventName: string, payload: Payload = {}, volatile?: boolean): Promise<Message> {
         const message: Message = {
             id: newMsgId(),
             payload,
             eventName,
+            volatile,
             to: this.serverName,
             from: this.clientId,
         };

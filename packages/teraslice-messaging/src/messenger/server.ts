@@ -186,9 +186,29 @@ export class Server extends Core {
         this.server.sockets.emit(eventName, message);
     }
 
-    protected async send(clientId: string, eventName: string, payload: i.Payload = {}): Promise<i.Message> {
+    protected sendVolatile(clientId: string, eventName: string, payload: i.Payload = {}) {
+        const client = this.getClient(clientId);
+        if (!client) return;
+
+        const message: i.Message = {
+            id: newMsgId(),
+            payload,
+            eventName,
+            to: this.serverName,
+            from: this.serverName,
+            volatile: true,
+        };
+
+        const socket = _.get(this.server, ['sockets', 'sockets', client.socketId]);
+        if (!socket) return;
+
+        socket.volatile.emit(eventName, message);
+    }
+
+    protected async send(clientId: string, eventName: string, payload: i.Payload = {}, volatile?: boolean): Promise<i.Message|null> {
         const client = this.getClient(clientId);
         if (!client) {
+            if (volatile) return null;
             throw new Error(`No client found by that id "${clientId}"`);
         }
 
@@ -198,17 +218,26 @@ export class Server extends Core {
             payload,
             to: clientId,
             from: this.serverName,
+            volatile
         };
 
         const socket = _.get(this.server, ['sockets', 'sockets', client.socketId]);
         if (!socket) {
+            if (volatile) return null;
             throw new Error(`Unable to find socket by socket id ${client.socketId}`);
         }
 
         const response = await new Promise((resolve, reject) => {
-            socket.emit(eventName, message, this.handleSendResponse(resolve, reject));
+            if (volatile) {
+                socket.volatile.emit(eventName, message, this.handleSendResponse(resolve, () => {
+                    resolve();
+                }));
+            } else {
+                socket.emit(eventName, message, this.handleSendResponse(resolve, reject));
+            }
         });
 
+        if (!response) return null;
         return response as i.Message;
     }
 
