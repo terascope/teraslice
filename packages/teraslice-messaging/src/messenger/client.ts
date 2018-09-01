@@ -34,7 +34,8 @@ export class Client extends Core {
         const options = Object.assign({}, socketOptions, {
             autoConnect: false,
             forceNew: true,
-            query: { clientId }
+            query: { clientId },
+            transports: ['websocket'],
         });
 
         this.socket = SocketIOClient(hostUrl, options);

@@ -13,6 +13,8 @@ export interface ServerOptions {
     workerDisconnectTimeout: number;
     networkLatencyBuffer?: number;
     actionTimeout: number;
+    pingInterval?: number;
+    pingTimeout?: number;
 }
 
 export interface Worker {
@@ -25,7 +27,7 @@ export interface SliceResponseMessage {
 
 export interface DispatchSliceResult {
     dispatched: boolean;
-    workerId: string;
+    workerId: string|null;
 }
 
 export interface WorkerShutdownFn {

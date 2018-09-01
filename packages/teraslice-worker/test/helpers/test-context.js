@@ -6,6 +6,8 @@ const _ = require('lodash');
 const { createTempDirSync, cleanupTempDirs } = require('jest-fixtures');
 const path = require('path');
 const fs = require('fs-extra');
+const { ClusterMaster } = require('@terascope/teraslice-messaging');
+
 const {
     makeAssetStore,
     makeStateStore,
@@ -21,7 +23,6 @@ const { generateContext } = require('../../lib/utils/context');
 const { newConfig, newSysConfig, newSliceConfig } = require('./configs');
 const zipDirectory = require('./zip-directory');
 const findPort = require('./find-port');
-const ClusterMasterServer = require('./cluster-master-server');
 
 const { TERASLICE_CLUSTER_NAME } = process.env;
 
@@ -96,11 +97,13 @@ class TestContext {
         const port = await findPort();
         const networkLatencyBuffer = _.get(this.context, 'sysconfig.teraslice.network_latency_buffer');
         const actionTimeout = _.get(this.context, 'sysconfig.teraslice.action_timeout');
+        const nodeDisconnectTimeout = _.get(this.context, 'sysconfig.teraslice.node_disconnect_timeout');
 
-        this.clusterMaster = new ClusterMasterServer({
+        this.clusterMaster = new ClusterMaster.Server({
             port,
             networkLatencyBuffer,
             actionTimeout,
+            nodeDisconnectTimeout,
         });
 
         await this.clusterMaster.start();

@@ -2,7 +2,9 @@
 
 function makeShutdownEarlyFn({ exController, enabled = false }) {
     let resolve;
-    let shutdownErr;
+    let shutdownErr = {
+        message: 'Shutdown never triggered'
+    };
 
     const deferred = new Promise((_resolve) => {
         resolve = _resolve;

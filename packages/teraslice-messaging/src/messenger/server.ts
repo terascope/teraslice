@@ -11,14 +11,17 @@ export class Server extends Core {
     readonly port: number;
     readonly server: SocketIO.Server;
     readonly serverName: string;
-    protected _clients: i.ConnectedClient[];
+    readonly clientDisconnectTimeout: number;
+    private _cleanupClients: NodeJS.Timer|undefined;
+    protected _clients: i.ConnectedClients;
 
     constructor(opts: i.ServerOptions) {
         const {
             port,
             pingTimeout,
             pingInterval,
-            serverName
+            serverName,
+            clientDisconnectTimeout
         } = opts;
         super(opts);
 
@@ -26,23 +29,27 @@ export class Server extends Core {
             throw new Error('Messenger.Server requires a valid port');
         }
 
-        if (!_.isNumber(pingTimeout)) {
-            throw new Error('Messenger.Server requires a valid pingTimeout');
-        }
-
         if (!_.isString(serverName)) {
             throw new Error('Messenger.Server requires a valid serverName');
         }
 
+        if (!_.isNumber(clientDisconnectTimeout)) {
+            throw new Error('Messenger.Server requires a valid clientDisconnectTimeout');
+        }
+
         this.port = port;
         this.serverName = serverName;
-        this._clients = [];
+        this.clientDisconnectTimeout = clientDisconnectTimeout;
 
         this.server = SocketIOServer({
             pingTimeout,
             pingInterval,
+            transports: ['websocket'],
+            allowUpgrades: false,
+            serveClient: false,
         });
 
+        this._clients = {};
         this._onConnection = this._onConnection.bind(this);
     }
 
@@ -55,19 +62,52 @@ export class Server extends Core {
         this.server.listen(this.port);
 
         this.server.use((socket, next) => {
-            const { clientId } = socket.handshake.query;
-            socket.join(clientId, next);
+            socket.join(socket.handshake.query.clientId, next);
         });
 
         this.server.on('connection', this._onConnection);
+
+        this._cleanupClients = setInterval(() => {
+            this._clients = _.omitBy(this._clients, (client: i.ConnectedClient) => {
+                if (!client.isOnline && client.offlineAt) {
+                    if (client.offlineAt.getTime() > Date.now()) {
+                        this.emit('client:offline', client.clientId);
+                        return false;
+                    }
+                }
+                return true;
+            });
+        }, 1000);
     }
 
     getClient(clientId: string): i.ConnectedClient|undefined {
-        return _.clone(_.find(this._clients, { clientId }));
+        return _.cloneDeep(this._clients[clientId]);
+    }
+
+    async shutdown() {
+        if (this._cleanupClients != null) {
+            clearInterval(this._cleanupClients);
+        }
+
+        await new Promise((resolve) => {
+            this.server.close(() => {
+                resolve();
+            });
+        });
+
+        super.close();
+    }
+
+    get connectedClients(): i.ConnectedClient[] {
+        return _.cloneDeep(_.values(this._clients));
+    }
+
+    get connectedClientCount(): number {
+        return _.size(this._clients);
     }
 
     get onlineClients(): i.ConnectedClient[] {
-        return _.clone(_.filter(this._clients, { isOnline: true }));
+        return _.cloneDeep(_.filter(this._clients, { isOnline: true }));
     }
 
     get onlineClientCount(): number {
@@ -75,7 +115,7 @@ export class Server extends Core {
     }
 
     get offlineClients(): i.ConnectedClient[] {
-        return _.clone(_.filter(this._clients, { isOnline: false }));
+        return _.cloneDeep(_.filter(this._clients, { isOnline: false }));
     }
 
     get offlineClientCount(): number {
@@ -83,15 +123,15 @@ export class Server extends Core {
     }
 
     get availableClients(): i.ConnectedClient[] {
-        return _.clone(_.filter(this._clients, { isAvailable: true }));
+        return _.cloneDeep(_.filter(this._clients, { isAvailable: true, isOnline: true }));
     }
 
     get availableClientCount(): number {
-        return _.size(_.filter(this._clients, { isAvailable: true }));
+        return _.size(_.filter(this._clients, { isAvailable: true, isOnline: true }));
     }
 
     get unavailableClients(): i.ConnectedClient[] {
-        return _.clone(_.filter(this._clients, { isAvailable: false }));
+        return _.cloneDeep(_.filter(this._clients, { isAvailable: false }));
     }
 
     get unavailableClientCount(): number {
@@ -114,21 +154,16 @@ export class Server extends Core {
         this.on('client:offline', fn);
     }
 
+    onClientDisconnect(fn: i.ClientEventFn) {
+        this.on('client:disconnect', fn);
+    }
+
     onClientReconnect(fn: i.ClientEventFn) {
         this.on('client:reconnect', fn);
     }
 
     onClientError(fn: i.ClientEventFn) {
         this.on('client:error', fn);
-    }
-
-    async shutdown() {
-        await new Promise((resolve) => {
-            this.server.close(() => {
-                resolve();
-            });
-        });
-        super.close();
     }
 
     emit(eventName: string, clientId: string, param?: any) {
@@ -186,30 +221,18 @@ export class Server extends Core {
         this.server.sockets.emit(eventName, message);
     }
 
-    protected sendVolatile(clientId: string, eventName: string, payload: i.Payload = {}) {
-        const client = this.getClient(clientId);
-        if (!client) return;
-
-        const message: i.Message = {
-            id: newMsgId(),
-            payload,
-            eventName,
-            to: this.serverName,
-            from: this.serverName,
-            volatile: true,
-        };
-
-        const socket = _.get(this.server, ['sockets', 'sockets', client.socketId]);
-        if (!socket) return;
-
-        socket.volatile.emit(eventName, message);
-    }
-
     protected async send(clientId: string, eventName: string, payload: i.Payload = {}, volatile?: boolean): Promise<i.Message|null> {
-        const client = this.getClient(clientId);
+        const client = this._clients[clientId];
         if (!client) {
             if (volatile) return null;
             throw new Error(`No client found by that id "${clientId}"`);
+        }
+
+        if (!client.isOnline && client.offlineAt) {
+            if (volatile) return null;
+            const timeleft = client.offlineAt.getTime() - Date.now();
+            const result = await this.onceWithTimeout('client:reconnect', clientId, timeleft);
+            if (!result) return null;
         }
 
         const message: i.Message = {
@@ -221,44 +244,48 @@ export class Server extends Core {
             volatile
         };
 
-        const socket = _.get(this.server, ['sockets', 'sockets', client.socketId]);
-        if (!socket) {
-            if (volatile) return null;
-            throw new Error(`Unable to find socket by socket id ${client.socketId}`);
-        }
-
         const response = await new Promise((resolve, reject) => {
-            if (volatile) {
-                socket.volatile.emit(eventName, message, this.handleSendResponse(resolve, () => {
-                    resolve();
-                }));
-            } else {
-                socket.emit(eventName, message, this.handleSendResponse(resolve, reject));
+            const socket = this.getClientSocket(clientId);
+            if (!socket) {
+                reject(new Error(`Unable to find socket for client ${clientId}`));
+                return;
             }
+            socket.emit(eventName, message, this.handleSendResponse(resolve, reject));
         });
 
         if (!response) return null;
         return response as i.Message;
     }
 
-    protected getClientId(socket: SocketIO.Socket):string {
+    protected getClientSocket(clientId: string): SocketIO.Socket {
+        const socketId = _.get(this._clients, [clientId, 'socketId']);
+        return _.get(this.server, ['sockets', 'connected', socketId]);
+    }
+
+    protected getClientIdFromSocket(socket: SocketIO.Socket):string {
         return socket.handshake.query.clientId;
     }
 
+    protected updateClient(clientId: string, updateWith: object) {
+        const pairs = _.toPairs(updateWith);
+        _.forEach(pairs, ([key, value]) => {
+            _.set(this._clients, [clientId, key], value);
+        });
+    }
+
     protected ensureClient(socket: SocketIO.Socket) : i.ConnectedClient {
-        const clientId = this.getClientId(socket);
-        const client = this.getClient(clientId);
+        const clientId = this.getClientIdFromSocket(socket);
+        const client = this._clients[clientId];
 
         if (client) {
-            client.isOnline = true;
-            client.isAvailable = false;
-            client.isReconnected = true;
-            client.reconnectedAt = new Date();
-            client.onlineAt = new Date();
-            client.unavailableAt = null;
-            client.availableAt = null;
-            client.socketId = socket.id;
-            client.metadata = {};
+            this.updateClient(clientId, {
+                isReconnected: true,
+                isNewConnection: client.socketId !== socket.id,
+                isOnline: true,
+                onlineAt: new Date(),
+                offlineAt: null,
+                socketId: socket.id,
+            });
             return client;
         }
 
@@ -269,50 +296,62 @@ export class Server extends Core {
             isReconnected: false,
             onlineAt: new Date(),
             offlineAt: null,
-            reconnectedAt: null,
             unavailableAt: null,
             availableAt: null,
+            isNewConnection: true,
             socketId: socket.id,
             metadata: {},
         };
 
-        this._clients.push(newClient);
+        this._clients[clientId] = newClient;
         return newClient;
     }
 
     private _onConnection(socket: SocketIO.Socket) {
         const client = this.ensureClient(socket);
+        const { clientId, isReconnected, isNewConnection } = client;
 
-        if (client.isReconnected) {
-            this.emit('client:reconnect', client.clientId);
+        if (isReconnected) {
+            this.emit('client:reconnect', clientId);
         } else {
-            this.emit('client:online', client.clientId);
+            this.emit('client:online', clientId);
         }
 
         socket.on('error', (err: Error) => {
-            this.emit('client:error', client.clientId, err);
+            this.emit('client:error', clientId, err);
         });
 
         socket.on('disconnect', (err: Error) => {
-            client.isOnline = false;
-            client.isAvailable = false;
-            client.unavailableAt = null;
-            client.availableAt = null;
-            this.emit('client:offline', client.clientId, err);
+            this.emit('client:disconnect', clientId, err);
+            const offlineAt = Date.now() + this.clientDisconnectTimeout;
+            this.updateClient(clientId, {
+                isOnline: true,
+                isAvailable: false,
+                onlineAt: null,
+                offlineAt,
+            });
         });
 
-        socket.on('client:available', this.handleResponse(() => {
-            client.isAvailable = true;
-            client.availableAt = new Date();
-            client.unavailableAt = new Date();
-            this.emit('client:available', client.clientId);
+        socket.on('client:available', this.handleResponse((msg: i.Message) => {
+            this.updateClient(clientId, {
+                isAvailable: true,
+                availableAt: new Date(),
+                unavailableAt: null,
+            });
+            this.emit('client:available', clientId, msg.payload);
         }));
 
-        socket.on('client:unavailable', this.handleResponse(() => {
-            client.isAvailable = false;
-            client.unavailableAt = new Date();
-            client.availableAt = null;
-            this.emit('client:unavailable', client.clientId);
+        socket.on('client:unavailable', this.handleResponse((msg: i.Message) => {
+            this.updateClient(clientId, {
+                isAvailable: false,
+                availableAt: null,
+                unavailableAt: new Date(),
+            });
+            this.emit('client:unavailable', clientId, msg.payload);
         }));
+
+        if (isNewConnection) {
+            this.emit('connection', clientId, socket);
+        }
     }
 }

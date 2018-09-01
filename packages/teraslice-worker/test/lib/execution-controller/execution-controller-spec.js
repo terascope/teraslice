@@ -1,12 +1,14 @@
 'use strict';
 
 const _ = require('lodash');
-const { EventEmitter } = require('events');
+const Messaging = require('@terascope/teraslice-messaging');
 const { ExecutionController } = require('../../..');
-const WorkerMessenger = require('../../../lib/worker/messenger');
 const { TestContext, findPort } = require('../../helpers');
 const { makeShutdownEarlyFn } = require('../../helpers/execution-controller-helper');
 const newId = require('../../../lib/utils/new-id');
+
+const ExecutionControllerClient = Messaging.ExecutionController.Client;
+process.env.BLUEBIRD_LONG_STACK_TRACES = '1';
 
 describe('ExecutionController', () => {
     // [ message, config ]
@@ -149,6 +151,7 @@ describe('ExecutionController', () => {
         [
             'processing slices and the execution gets shutdown early',
             {
+                only: true,
                 shutdownTimeout: 2000,
                 slicerResults: [
                     { example: 'slice-shutdown-early' },
@@ -299,7 +302,6 @@ describe('ExecutionController', () => {
             pauseAndResume = false,
             shutdownTimeout = 4000,
             shutdownEarly = false,
-            sendClusterStop = false,
             sliceFails = false,
             slicerFails = false,
             emitsExecutionUpdate,
@@ -329,6 +331,7 @@ describe('ExecutionController', () => {
                 slicerQueueLength,
                 slicerResults,
                 shutdownTimeout,
+                timeout: reconnect ? 5000 : 3000,
                 lifecycle,
                 workers,
                 analytics,
@@ -338,7 +341,7 @@ describe('ExecutionController', () => {
 
             await testContext.initialize(true);
 
-            const { clusterMaster, exId, nodeId } = testContext;
+            const { clusterMaster, exId } = testContext;
 
             stateStore = await testContext.addStateStore();
             exStore = await testContext.addExStore();
@@ -393,18 +396,17 @@ describe('ExecutionController', () => {
 
             async function startWorker(n) {
                 const workerId = workerIds[n] || newId('worker');
-                const workerMessenger = new WorkerMessenger({
+                const workerClient = new ExecutionControllerClient({
                     executionControllerUrl: `http://localhost:${port}`,
                     workerId,
                     networkLatencyBuffer,
                     actionTimeout,
-                    events: new EventEmitter(),
                     socketOptions
                 });
 
-                testContext.attachCleanup(() => workerMessenger.shutdown());
+                testContext.attachCleanup(() => workerClient.shutdown());
 
-                await workerMessenger.start();
+                await workerClient.start();
 
                 async function waitForReconnect() {
                     if (!reconnect) return;
@@ -412,8 +414,8 @@ describe('ExecutionController', () => {
 
                     firedReconnect = true;
                     await Promise.all([
-                        workerMessenger.forceReconnect(),
-                        exController.messenger.onceWithTimeout('worker:reconnect', 5 * 1000)
+                        workerClient.forceReconnect(),
+                        exController.server.onceWithTimeout('client:reconnect', 5 * 1000)
                     ]);
                 }
 
@@ -422,7 +424,7 @@ describe('ExecutionController', () => {
                 async function process() {
                     if (isDone()) return;
 
-                    const slice = await workerMessenger.waitForSlice(isDone);
+                    const slice = await workerClient.waitForSlice(isDone);
 
                     if (!slice) return;
 
@@ -451,23 +453,15 @@ describe('ExecutionController', () => {
                     async function completeSlice() {
                         if (pauseAndResume) {
                             await Promise.all([
-                                clusterMaster.pauseExecution(nodeId, exId)
-                                    .then(() => clusterMaster.resumeExecution(nodeId, exId)),
-                                workerMessenger.sliceComplete(msg),
-                            ]);
-                            return;
-                        }
-
-                        if (sendClusterStop) {
-                            await Promise.all([
-                                clusterMaster.stopExecution(nodeId, exId),
-                                workerMessenger.sliceComplete(msg)
+                                clusterMaster.sendExecutionPause(exId)
+                                    .then(() => clusterMaster.sendExecutionResume(exId)),
+                                workerClient.sendSliceComplete(msg),
                             ]);
                             return;
                         }
 
                         await Promise.delay(0);
-                        await workerMessenger.sliceComplete(msg);
+                        await workerClient.sendSliceComplete(msg);
 
                         await shutdownEarlyFn.shutdown();
                     }
@@ -482,40 +476,32 @@ describe('ExecutionController', () => {
 
                 await process();
 
-                await workerMessenger.shutdown();
+                await workerClient.shutdown();
             }
 
             function startWorkers() {
                 return Promise.all(_.times(workers, startWorker));
             }
 
-            if (!_.isEmpty(emitsExecutionUpdate)) {
-                setImmediate(() => {
-                    if (!exController) return;
+            clusterMaster.onClientAvailable(() => {
+                if (emitSlicerRecursion) {
+                    exController.events.emit('slicer:slice:recursion');
+                }
 
+                if (emitSlicerRangeExpansion) {
+                    exController.events.emit('slicer:slice:range_expansion');
+                }
+
+                if (!_.isEmpty(emitsExecutionUpdate)) {
                     exController.events.emit('slicer:execution:update', {
                         update: emitsExecutionUpdate
                     });
-                });
-            }
-
-            if (emitSlicerRangeExpansion) {
-                setImmediate(() => {
-                    if (!exController) return;
-                    exController.events.emit('slicer:slice:range_expansion');
-                });
-            }
-
-            if (emitSlicerRecursion) {
-                setImmediate(() => {
-                    if (!exController) return;
-                    exController.events.emit('slicer:slice:recursion');
-                });
-            }
+                }
+            });
 
             const requestAnayltics = setTimeout(async () => {
                 try {
-                    await clusterMaster.requestAnalytics(nodeId, exId);
+                    await clusterMaster.sendExecutionAnalyticsRequest(exId);
                 } catch (err) {
                     // it shouldn't matter
                 }
@@ -621,8 +607,6 @@ describe('ExecutionController', () => {
             testContext = new TestContext({
                 assignment: 'execution_controller',
                 slicerPort: port,
-                timeout: 100,
-                actionTimeout: 100
             });
 
             await testContext.initialize(true);
@@ -741,11 +725,11 @@ describe('ExecutionController', () => {
                     exController.executionAnalytics = {};
                     exController.executionAnalytics.shutdown = () => Promise.reject(new Error('Execution Analytics Error'));
 
-                    exController.clusterMasterClient = {};
-                    exController.clusterMasterClient.shutdown = () => Promise.reject(new Error('Cluster Master Client Error'));
+                    exController.server = {};
+                    exController.server.shutdown = () => Promise.reject(new Error('Execution Controller Server Error'));
 
-                    exController.messenger = {};
-                    exController.messenger.shutdown = () => Promise.reject(new Error('Messenger Error'));
+                    exController.client = {};
+                    exController.client.shutdown = () => Promise.reject(new Error('Cluster Master Client Error'));
                 });
 
                 it('should reject with all of the errors', async () => {
@@ -758,8 +742,8 @@ describe('ExecutionController', () => {
                         expect(errMsg).toInclude('Store Error');
                         expect(errMsg).toInclude('Recover Error');
                         expect(errMsg).toInclude('Execution Analytics Error');
+                        expect(errMsg).toInclude('Execution Controller Server Error');
                         expect(errMsg).toInclude('Cluster Master Client Error');
-                        expect(errMsg).toInclude('Messenger Error');
                     }
                 });
             });

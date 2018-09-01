@@ -5,11 +5,11 @@ const { newFormattedDate } = require('teraslice');
 const { makeLogger } = require('../utils/context');
 
 class ExecutionAnalytics {
-    constructor(context, executionContext, clusterMasterClient) {
+    constructor(context, executionContext, client) {
         this.logger = makeLogger(context, executionContext, 'execution_analytics');
         this.events = context.apis.foundation.getSystemEvents();
         this.executionContext = executionContext;
-        this.clusterMasterClient = clusterMasterClient;
+        this.client = client;
         this.analyticsRate = _.get(context, 'sysconfig.teraslice.analytics_rate');
     }
 
@@ -48,29 +48,30 @@ class ExecutionAnalytics {
 
         this.events.on('slicer:slice:recursion', () => {
             this.logger.trace('id subslicing has occurred');
-            this.executionAnalytics.subslices += 1;
+            this.increment('subslices');
         });
 
         this.events.on('slicer:slice:range_expansion', () => {
             this.logger.trace('a slice range expansion has occurred');
-            this.executionAnalytics.slice_range_expansion += 1;
+            this.increment('slice_range_expansion');
         });
 
-        this.clusterMasterClient.on('cluster:slicer:analytics', (msg) => {
-            this.clusterMasterClient.respond(msg, {
-                node_id: msg.node_id,
-                job_id: jobId,
-                ex_id: exId,
-                payload: {
-                    name,
-                    stats: this.executionAnalytics
-                }
-            });
-        });
+        this.client.onExecutionAnalytics(() => ({
+            name,
+            ex_id: exId,
+            job_id: jobId,
+            stats: this.executionAnalytics
+        }));
 
-        this.analyticsTimer = setInterval(() => {
-            this._pushAnalytics();
-        }, this.analyticsRate);
+        this.sendingAnalytics = true;
+
+        const sendAnalytics = async () => {
+            if (!this.sendingAnalytics) return;
+            await Promise.delay(this.analyticsRate);
+            await this._pushAnalytics();
+        };
+
+        sendAnalytics();
     }
 
     set(key, value) {
@@ -90,7 +91,7 @@ class ExecutionAnalytics {
     }
 
     async shutdown() {
-        clearInterval(this.analyticsTimer);
+        this.sendingAnalytics = false;
 
         await this._pushAnalytics();
     }
@@ -104,7 +105,7 @@ class ExecutionAnalytics {
             copy[field] = _.get(this.executionAnalytics, field);
         });
 
-        await this.clusterMasterClient.updateAnalytics(diffs);
+        await this.client.sendClusterAnalytics(diffs);
 
         this.pushedAnalytics = copy;
     }

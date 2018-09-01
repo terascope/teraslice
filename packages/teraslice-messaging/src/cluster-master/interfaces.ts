@@ -15,6 +15,8 @@ export interface ServerOptions {
     nodeDisconnectTimeout: number;
     networkLatencyBuffer?: number;
     actionTimeout: number;
+    pingTimeout?: number;
+    pingInterval?: number;
 }
 
 export interface ClusterExecutionAnalytics {

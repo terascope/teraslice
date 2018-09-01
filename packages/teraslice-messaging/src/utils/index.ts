@@ -30,17 +30,3 @@ export function formatURL(hostname = os.hostname(), port: number): string {
 
     return url.format(formatOptions);
 }
-
-export function getWorkerId(arg: string|object): string|undefined {
-    let workerId;
-    if (_.isString(arg)) {
-        workerId = arg;
-    }
-    if (!workerId) {
-        workerId = _.get(arg, 'workerId', _.get(arg, 'workerId'));
-    }
-    if (!workerId) {
-        workerId = _.get(arg, 'payload.workerId', _.get(arg, 'payload.worker_id'));
-    }
-    return workerId;
-}

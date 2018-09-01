@@ -2,9 +2,8 @@
 
 /* eslint-disable no-console */
 
-const { EventEmitter } = require('events');
+const { ExecutionController } = require('@terascope/teraslice-messaging');
 const { Worker } = require('../../..');
-const ExecutionControllerMessenger = require('../../../lib/execution-controller/messenger');
 const {
     TestContext,
     findPort,
@@ -18,19 +17,16 @@ describe('Worker', () => {
         const testContext = new TestContext(options);
         await testContext.initialize();
 
-        const exMessenger = new ExecutionControllerMessenger({
+        const server = new ExecutionController.Server({
             port: slicerPort,
             networkLatencyBuffer: 0,
             actionTimeout: 1000,
-            events: new EventEmitter()
+            workerDisconnectTimeout: 3000
         });
 
-        testContext.attachCleanup(() => {
-            exMessenger.events.removeAllListeners();
-            return exMessenger.shutdown();
-        });
+        testContext.attachCleanup(() => server.shutdown());
 
-        await exMessenger.start();
+        await server.start();
 
         const worker = new Worker(
             testContext.context,
@@ -39,42 +35,39 @@ describe('Worker', () => {
 
         testContext.attachCleanup(() => worker.shutdown());
 
-        return { exMessenger, worker, testContext };
+        return { server, worker, testContext };
     }
 
     describe('when running forever', () => {
         let sliceConfig;
         let worker;
         let testContext;
-        let exMessenger;
+        let server;
         let sliceSuccess;
         let sliceFailure;
 
         beforeEach(async () => {
-            ({ worker, testContext, exMessenger } = await setupTest());
+            ({ worker, testContext, server } = await setupTest());
 
             await worker.initialize();
 
-            const workerStart = worker.run();
-
             sliceConfig = await testContext.newSlice();
 
-            exMessenger.events.once('slice:success', (_msg) => {
+            server.onClientAvailable(() => {
+                server.dispatchSlice(sliceConfig);
+            });
+
+            server.onSliceSuccess((workerId, _msg) => {
                 sliceSuccess = _msg;
-                worker.messenger.emit('worker:shutdown');
+                worker.client.emit('execution:finished');
             });
 
-            exMessenger.events.once('slice:failure', (_msg) => {
+            server.onSliceFailure((workerId, _msg) => {
                 sliceFailure = _msg;
-                worker.messenger.emit('worker:shutdown');
+                worker.client.emit('execution:finished');
             });
 
-            await exMessenger.sendNewSlice(
-                worker.workerId,
-                sliceConfig
-            );
-
-            await workerStart;
+            await worker.run();
         });
 
         afterEach(async () => {
@@ -83,7 +76,6 @@ describe('Worker', () => {
 
         it('should complete the slice', () => {
             expect(sliceSuccess).toMatchObject({
-                worker_id: worker.workerId,
                 slice: sliceConfig,
             });
 
@@ -95,33 +87,30 @@ describe('Worker', () => {
         let sliceConfig;
         let worker;
         let testContext;
-        let exMessenger;
+        let server;
         let sliceSuccess;
         let sliceFailure;
 
         beforeEach(async () => {
-            ({ worker, testContext, exMessenger } = await setupTest());
+            ({ worker, testContext, server } = await setupTest());
 
             await worker.initialize();
 
-            const workerStart = worker.runOnce();
-
             sliceConfig = await testContext.newSlice();
 
-            exMessenger.events.once('slice:success', (_msg) => {
+            server.onClientAvailable(() => {
+                server.dispatchSlice(sliceConfig);
+            });
+
+            server.onSliceSuccess((workerId, _msg) => {
                 sliceSuccess = _msg;
             });
 
-            exMessenger.events.once('slice:failure', (_msg) => {
+            server.onSliceFailure((workerId, _msg) => {
                 sliceFailure = _msg;
             });
 
-            await exMessenger.sendNewSlice(
-                worker.workerId,
-                sliceConfig
-            );
-
-            await workerStart;
+            await worker.runOnce();
         });
 
         afterEach(async () => {
@@ -130,7 +119,6 @@ describe('Worker', () => {
 
         it('should complete the slice', () => {
             expect(sliceSuccess).toMatchObject({
-                worker_id: worker.workerId,
                 slice: sliceConfig,
             });
 
@@ -143,24 +131,24 @@ describe('Worker', () => {
         let sliceConfig;
         let worker;
         let testContext;
-        let exMessenger;
+        let server;
         let sliceFailure;
         let sliceSuccess;
 
         beforeEach(async () => {
-            ({ worker, testContext, exMessenger } = await setupTest());
+            ({ worker, testContext, server } = await setupTest());
             await worker.initialize();
 
 
-            exMessenger.events.once('slice:success', (_msg) => {
+            server.onSliceSuccess((workerId, _msg) => {
                 sliceSuccess = _msg;
             });
 
-            exMessenger.events.once('slice:failure', (_msg) => {
+            server.onSliceFailure((workerId, _msg) => {
                 sliceFailure = _msg;
             });
 
-            exMessenger.once('worker:enqueue', (_msg) => {
+            server.once('worker:enqueue', (_msg) => {
                 msg = _msg;
             });
 
@@ -169,10 +157,7 @@ describe('Worker', () => {
             await Promise.delay(500);
             sliceConfig = await testContext.newSlice();
 
-            await exMessenger.sendNewSlice(
-                worker.workerId,
-                sliceConfig
-            );
+            await server.dispatchSlice(sliceConfig);
 
             await workerStart;
 
@@ -184,11 +169,8 @@ describe('Worker', () => {
         });
 
         it('should re-enqueue the worker after receiving the slice complete message', () => {
-            expect(msg).toMatchObject({
-                worker_id: worker.workerId,
-            });
+            expect(msg).toEndWith(worker.workerId);
             expect(sliceSuccess).toMatchObject({
-                worker_id: worker.workerId,
                 slice: sliceConfig,
             });
             expect(sliceFailure).toBeNil();
@@ -198,37 +180,34 @@ describe('Worker', () => {
     describe('when a slice errors', () => {
         let worker;
         let testContext;
-        let exMessenger;
+        let server;
         let sliceFailure;
         let sliceSuccess;
         let msg;
 
         beforeEach(async () => {
-            ({ worker, testContext, exMessenger } = await setupTest());
+            ({ worker, testContext, server } = await setupTest());
 
             await worker.initialize();
 
             worker.executionContext.queue[1] = jest.fn().mockRejectedValue(new Error('Bad news bears'));
 
-            exMessenger.events.once('slice:success', (_msg) => {
+            server.onSliceSuccess((workerId, _msg) => {
                 sliceSuccess = _msg;
             });
 
-            exMessenger.events.once('slice:failure', (_msg) => {
+            server.onSliceFailure((workerId, _msg) => {
                 sliceFailure = _msg;
             });
 
-            exMessenger.once('worker:enqueue', (_msg) => {
+            server.once('worker:enqueue', (_msg) => {
                 msg = _msg;
             });
 
             const sliceConfig = await testContext.newSlice();
 
-            exMessenger.sendNewSlice(
-                worker.workerId,
-                sliceConfig
-            ).catch((_err) => {
-                expect(_err).not.toBeNil();
+            server.onClientAvailable(() => {
+                server.dispatchSlice(sliceConfig);
             });
 
             await worker.runOnce();
@@ -254,33 +233,31 @@ describe('Worker', () => {
         let shutdownErr;
         let worker;
         let testContext;
-        let exMessenger;
+        let server;
 
         beforeEach(async () => {
-            ({ worker, testContext, exMessenger } = await setupTest());
+            ({ worker, testContext, server } = await setupTest());
             await worker.initialize();
 
             workerShutdownEvent = jest.fn();
-            worker.events.on('worker:shutdown', workerShutdownEvent);
+            worker.events.once('worker:shutdown', workerShutdownEvent);
 
             worker.shutdownTimeout = 1000;
-            worker.slice.run = jest.fn(() => Promise.delay(500));
+            worker.slice.run = jest.fn(() => {
+                worker.shutdown()
+                    .catch((err) => {
+                        shutdownErr = err;
+                    });
+                return Promise.delay(500);
+            });
 
-            const workerStart = worker.runOnce();
             const sliceConfig = await testContext.newSlice();
 
-            await exMessenger.sendNewSlice(
-                worker.workerId,
-                sliceConfig
-            );
+            server.onClientAvailable(() => {
+                server.dispatchSlice(sliceConfig);
+            });
 
-            try {
-                await worker.shutdown();
-            } catch (err) {
-                shutdownErr = err;
-            }
-
-            await workerStart;
+            await worker.runOnce();
         });
 
         afterEach(async () => {
@@ -297,22 +274,22 @@ describe('Worker', () => {
         let shutdownErr;
         let worker;
         let testContext;
-        let exMessenger;
+        let server;
 
         beforeEach(async () => {
-            ({ worker, testContext, exMessenger } = await setupTest());
+            ({ worker, testContext, server } = await setupTest());
             await worker.initialize();
 
             worker.shutdownTimeout = 500;
 
             worker.slice.run = jest.fn(() => Promise.delay(1000));
             const sliceConfig = await testContext.newSlice();
-            const runOnce = worker.runOnce();
 
-            await exMessenger.sendNewSlice(
-                worker.workerId,
-                sliceConfig
-            );
+            server.onClientAvailable(() => {
+                server.dispatchSlice(sliceConfig);
+            });
+
+            const runOnce = worker.runOnce();
 
             await Promise.delay(100);
 
@@ -383,8 +360,8 @@ describe('Worker', () => {
                     worker.slice = {};
                     worker.slice.shutdown = () => Promise.reject(new Error('Slice Error'));
 
-                    worker.messenger = {};
-                    worker.messenger.shutdown = () => Promise.reject(new Error('Messenger Error'));
+                    worker.client = {};
+                    worker.client.shutdown = () => Promise.reject(new Error('Messenger Error'));
                 });
 
                 it('should reject with all of the errors', async () => {

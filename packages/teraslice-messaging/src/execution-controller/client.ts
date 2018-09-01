@@ -69,7 +69,7 @@ export class Client extends core.Client {
     }
 
     async waitForSlice(fn: i.WaitUntilFn = () => false, interval = 100): Promise<Slice|undefined> {
-        await this.sendAvailable();
+        this.sendAvailable();
 
         const slice = await new Promise((resolve) => {
             const intervalId = setInterval(() => {

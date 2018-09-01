@@ -69,8 +69,6 @@ class Slice {
 
     async shutdown() {
         this._isShutdown = true;
-        this.slice = null;
-        this.executionContext = null;
     }
 
     async _logAnalytics() {

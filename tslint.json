@@ -37,6 +37,7 @@
         "protected-method-regex": "^[_]?[a-z][\\w\\d]+$",
         "static-method-regex": "^[a-z][\\w\\d]+$"
       }
-    ]
+    ],
+    "no-console": [true, "log", "info", "dir", "count", "time", "timeEnd"]
   }
 }

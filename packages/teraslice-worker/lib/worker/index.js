@@ -1,12 +1,12 @@
 'use strict';
 
 const _ = require('lodash');
+const { ExecutionController } = require('@terascope/teraslice-messaging');
 const {
     makeStateStore,
     makeAnalyticsStore
 } = require('../teraslice/stores');
 const Slice = require('./slice');
-const WorkerMessenger = require('./messenger');
 const { formatURL } = require('../utils');
 const { generateWorkerId, makeLogger } = require('../utils/context');
 
@@ -25,7 +25,7 @@ class Worker {
         const actionTimeout = _.get(context, 'sysconfig.teraslice.action_timeout');
         const shutdownTimeout = _.get(context, 'sysconfig.teraslice.shutdown_timeout');
 
-        this.messenger = new WorkerMessenger({
+        this.client = new ExecutionController.Client({
             executionControllerUrl: formatURL(slicerHostname, slicerPort),
             workerId,
             networkLatencyBuffer,
@@ -58,10 +58,10 @@ class Worker {
         this.stores.stateStore = await stateStore;
         this.stores.analyticsStore = await analyticsStore;
 
-        await this.messenger.start();
+        await this.client.start();
 
-        this.messenger.once('worker:shutdown', async () => {
-            this.logger.warn('shutdown event received...');
+        this.client.onExecutionFinished(() => {
+            this.logger.warn('execution finished event received...');
             this.shouldShutdown = true;
         });
     }
@@ -84,7 +84,7 @@ class Worker {
     }
 
     async runOnce() {
-        const msg = await this.messenger.waitForSlice(() => this.isShuttingDown);
+        const msg = await this.client.waitForSlice(() => this.isShuttingDown);
 
         if (!msg) return;
 
@@ -95,7 +95,7 @@ class Worker {
 
             await this.slice.run();
 
-            await this.messenger.sliceComplete({
+            await this.client.sendSliceComplete({
                 slice: this.slice.slice,
                 analytics: this.slice.analyticsData,
                 isShuttingDown: this.isShuttingDown,
@@ -103,7 +103,7 @@ class Worker {
         } catch (err) {
             this.logger.error(err);
 
-            await this.messenger.sliceComplete({
+            await this.client.sendSliceComplete({
                 slice: this.slice.slice,
                 analytics: this.slice.analyticsData,
                 isShuttingDown: this.isShuttingDown,
@@ -123,6 +123,7 @@ class Worker {
 
         const shutdownErrs = [];
 
+        this.logger.warn('Shutdown was called');
         this.events.emit('worker:shutdown');
 
         try {
@@ -148,12 +149,12 @@ class Worker {
         }
 
         try {
-            await this.messenger.shutdown();
+            await this.client.shutdown();
         } catch (err) {
             shutdownErrs.push(err);
         }
 
-        this.stores = {};
+        this.logger.warn(`worker ${this.workerId} is shutdown`);
 
         if (shutdownErrs.length) {
             const errMsg = shutdownErrs.map(e => e.stack).join(', and');

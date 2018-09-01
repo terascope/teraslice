@@ -28,39 +28,46 @@ export class Core extends EventEmitter {
         this.removeAllListeners();
     }
 
-    protected handleSendResponse(resolve: (val?: i.Message) => void, reject: (err: Error) => void): i.SendHandler {
-        const timeout = setTimeout(() => {
-            reject(new Error('Timed out after 1000ms, waiting for message'));
-        }, this.getTimeout());
+    protected handleSendResponse(resolve: (val?: i.Message) => void, reject: (err: Error) => void) {
+        const timeoutMs = this.getTimeout();
+        const timeoutError = new Error(`Timed out after ${timeoutMs}ms, waiting for message`);
 
-        return (err: i.ResponseError, response: any) => {
+        const timeout = setTimeout(() => {
+            reject(timeoutError);
+        }, timeoutMs);
+
+        const responseError = new Error(`Message Response Failure`);
+        return (response: i.Message) => {
             clearTimeout(timeout);
-            if (err) {
-                reject(new Error(`Message Response Failure: ${err}`));
+            if (response.error) {
+                responseError.message += `: ${response.error}`;
+                // @ts-ignore
+                responseError.response = response;
+                reject(responseError);
             } else {
                 resolve(response);
             }
         };
     }
 
-    protected handleResponse(fn: i.MessageHandler): i.ResponseHandler {
-        return async (msg: i.Message, callback: i.CallbackFn): Promise<void> => {
-            if (msg.volatile) {
-                await fn(msg);
-            }
+    protected handleResponse(fn: i.MessageHandler) {
+        return async (msg: i.Message, callback: (msg?: i.Message) => void) => {
+            const message: i.Message = Object.assign({}, msg, {
+                from: msg.to,
+                to: msg.from,
+                payload: {},
+            });
 
             try {
                 const payload = await fn(msg);
-                callback(null, {
-                    id: msg.id,
-                    from: msg.to,
-                    to: msg.from,
-                    eventName: msg.eventName,
-                    payload: payload || {},
-                });
+                if (payload) {
+                    message.payload = payload;
+                }
             } catch (err) {
-                callback(_.toString(err));
+                message.error = _.toString(err);
             }
+
+            callback(message);
         };
     }
 

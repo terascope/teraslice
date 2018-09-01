@@ -113,7 +113,7 @@ module.exports = function makeEngine(controller) {
                     logger.trace(`slicer ${slicerId} failure`);
                     // retries are handled internally by slicer
                     isProcessing = false;
-                    controller.terminalError(err);
+                    await controller.terminalError(err);
                 }
             }
         };

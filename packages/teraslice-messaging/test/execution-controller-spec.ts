@@ -112,8 +112,8 @@ describe('ExecutionController', () => {
             });
         });
 
-        it('should have no available workers', () => {
-            expect(server.availableWorkers).toEqual(0);
+        it('should have no active client workers', () => {
+            expect(server.activeWorkerCount).toEqual(0);
         });
 
         it('should not call client.onExecutionFinished', () => {
@@ -273,7 +273,10 @@ describe('ExecutionController', () => {
                             _created: 'hello'
                         };
 
-                        return expect(server.dispatchSlice(newSlice)).rejects.toThrowError('No available workers to dispatch slice to');
+                        return expect(server.dispatchSlice(newSlice)).resolves.toEqual({
+                            dispatched: false,
+                            workerId: null,
+                        });
                     });
                 });
             });

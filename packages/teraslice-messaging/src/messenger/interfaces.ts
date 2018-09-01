@@ -15,13 +15,21 @@ export interface ClientOptions extends CoreOptions {
 export interface ServerOptions extends CoreOptions {
     port: number;
     serverName: string;
-    pingTimeout: number;
+    clientDisconnectTimeout: number;
+    pingTimeout?: number;
     pingInterval?: number;
 }
 
 export interface Payload {
     [prop: string]: any;
 }
+
+export interface ErrorObj {
+    message: string;
+    stack?: string;
+}
+
+export type ResponseError = ErrorObj|string;
 
 export interface Message {
     id: string;
@@ -30,6 +38,7 @@ export interface Message {
     eventName: string;
     payload: Payload;
     volatile?: boolean;
+    error?: ResponseError;
 }
 
 export interface ConnectedClient {
@@ -37,38 +46,23 @@ export interface ConnectedClient {
     socketId: string;
     isOnline: boolean;
     isAvailable: boolean;
-    isReconnected: boolean;
+    isReconnected?: boolean;
+    isNewConnection?: boolean;
     onlineAt: Date|null;
     offlineAt: Date|null;
     availableAt: Date|null;
     unavailableAt: Date|null;
-    reconnectedAt: Date|null;
     metadata: object;
+}
+
+export interface ConnectedClients {
+    [clientId: string]: ConnectedClient;
 }
 
 export interface ClientEventFn {
     (clientId: string, param?: any): void;
 }
 
-export interface CallbackFn {
-    (err?: ResponseError, message?: Message): void;
-}
-
-export interface ResponseHandler {
-    (msg: Message, callback: CallbackFn): Promise<void>;
-}
-
-export interface SendHandler {
-    (err: ResponseError, response: any): void;
-}
-
 export interface MessageHandler {
     (msg: Message): Promise<Payload|void>|Payload|void;
 }
-
-export interface ErrorObj {
-    message: string;
-    stack?: string;
-}
-
-export type ResponseError = string|null|undefined;

@@ -11,6 +11,8 @@ export class Server extends core.Server {
             actionTimeout,
             networkLatencyBuffer,
             nodeDisconnectTimeout,
+            pingInterval,
+            pingTimeout,
         } = opts;
 
         if (!_.isNumber(nodeDisconnectTimeout)) {
@@ -20,8 +22,10 @@ export class Server extends core.Server {
         super({
             port,
             actionTimeout,
+            pingInterval,
+            pingTimeout,
             networkLatencyBuffer,
-            pingTimeout: nodeDisconnectTimeout,
+            clientDisconnectTimeout: nodeDisconnectTimeout,
             serverName: 'ClusterMaster',
         });
 
@@ -37,13 +41,14 @@ export class Server extends core.Server {
             }
         };
 
-        this.onConnection = this.onConnection.bind(this);
     }
 
     async start() {
-        await this.listen();
+        this.on('connection', (clientId: string, socket: SocketIO.Socket) => {
+            this.onConnection(clientId, socket);
+        });
 
-        this.server.on('connection', this.onConnection);
+        await this.listen();
     }
 
     sendExecutionPause(exId: string) {
@@ -66,11 +71,9 @@ export class Server extends core.Server {
         this.on('execution:finished', fn);
     }
 
-    private onConnection(socket: SocketIO.Socket) {
-        const exId = this.getClientId(socket);
-
-        socket.on('execution:finished', this.handleResponse(() => {
-            this.emit('execution:finished', exId);
+    private onConnection(exId: string, socket: SocketIO.Socket) {
+        socket.on('execution:finished', this.handleResponse((err) => {
+            this.emit('execution:finished', exId, err);
         }));
 
         socket.on('cluster:analytics', this.handleResponse((msg: core.Message) => {
