@@ -91,7 +91,7 @@ describe('Node master', () => {
         }
 
         send(processMsg) {
-            if (delayRemoval && processMsg.message === 'worker:shutdown') {
+            if (delayRemoval && processMsg.message === 'SIGTERM') {
                 setTimeout(() => eventEmitter.emit('deleteWorker', this.id), 500);
             }
         }

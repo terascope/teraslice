@@ -26,6 +26,7 @@ module.exports = (projectDir) => {
             `${projectRoot}/test/*-spec.{ts,js}`
         ],
         testPathIgnorePatterns: [
+            '<rootDir>/assets',
             `<rootDir>/${workspaceName}/*/node_modules`,
             `<rootDir>/${workspaceName}/*/dist`,
         ],

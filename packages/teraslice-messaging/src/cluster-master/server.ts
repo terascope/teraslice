@@ -11,6 +11,8 @@ export class Server extends core.Server {
             actionTimeout,
             networkLatencyBuffer,
             nodeDisconnectTimeout,
+            requestListener,
+            serverTimeout,
             pingInterval,
             pingTimeout,
         } = opts;
@@ -26,6 +28,8 @@ export class Server extends core.Server {
             pingTimeout,
             networkLatencyBuffer,
             clientDisconnectTimeout: nodeDisconnectTimeout,
+            requestListener,
+            serverTimeout,
             serverName: 'ClusterMaster',
         });
 

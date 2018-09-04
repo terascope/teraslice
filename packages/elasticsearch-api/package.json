@@ -22,13 +22,13 @@
   },
   "dependencies": {
     "@terascope/error-parser": "^1.0.0",
-    "bluebird": "^3.5.0",
+    "bluebird": "^3.5.2",
     "lodash": "^4.17.4",
     "uuid": "^3.0.1"
   },
   "devDependencies": {
     "debug": "^3.1.0",
-    "eslint": "^5.4.0",
+    "eslint": "^5.5.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
     "jest": "^23.5.0",

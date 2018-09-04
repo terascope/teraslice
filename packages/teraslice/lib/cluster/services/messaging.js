@@ -10,8 +10,7 @@ const clusterMasterMessages = {
     ipc: {
         'process:SIGTERM': 'SIGTERM',
         'process:SIGINT': 'SIGINT',
-        'worker:shutdown': 'worker:shutdown',
-        shutdown: 'worker:shutdown'
+        shutdown: 'SIGTERM'
     },
     intraProcess: {
         'network:disconnect': 'disconnect',
@@ -54,14 +53,9 @@ const nodeMasterMessages = {
 
 const slicerMessages = {
     ipc: {
-        'cluster:execution:pause': 'cluster:execution:pause',
-        'cluster:execution:resume': 'cluster:execution:resume',
-        'cluster:slicer:analytics': 'cluster:slicer:analytics',
-        'worker:shutdown': 'worker:shutdown',
-        shutdown: 'worker:shutdown',
+        shutdown: 'SIGTERM',
         'process:SIGTERM': 'SIGTERM',
-        'process:SIGINT': 'SIGINT',
-        'assets:loaded': 'assets:loaded'
+        'process:SIGINT': 'SIGINT'
     },
     intraProcess: {
         'network:disconnect': 'disconnect',
@@ -74,8 +68,7 @@ const slicerMessages = {
 
 const workerMessages = {
     ipc: {
-        'worker:shutdown': 'worker:shutdown',
-        shutdown: 'worker:shutdown',
+        shutdown: 'SIGTERM',
         'process:SIGTERM': 'SIGTERM',
         'process:SIGINT': 'SIGINT',
         'assets:loaded': 'assets:loaded'
@@ -92,28 +85,43 @@ const workerMessages = {
 
 const assetServiceMessages = {
     ipc: {
-        'worker:shutdown': 'worker:shutdown'
+        shutdown: 'SIGTERM',
+        'process:SIGTERM': 'SIGTERM',
+        'process:SIGINT': 'SIGINT',
     },
     network: {}
 };
 
 const assetLoaderMessages = {
     ipc: {
-        'worker:shutdown': 'worker:shutdown'
+        shutdown: 'SIGTERM',
+        'process:SIGTERM': 'SIGTERM',
+        'process:SIGINT': 'SIGINT',
     },
     network: {}
 };
 
 // messaging destination relative towards each process type
 const routing = {
-    cluster_master: { execution_controller: 'network', node_master: 'network', assets_loader: 'ipc' },
-    node_master: {
-        cluster_process: 'ipc', cluster_master: 'network', execution_controller: 'ipc', worker: 'ipc', assets_loader: 'ipc', execution: 'ipc'
+    cluster_master: {
+        node_master: 'network',
+        assets_loader: 'ipc'
     },
-    execution_controller: { worker: 'network', cluster_master: 'ipc', node_master: 'ipc' },
-    worker: { execution_controller: 'network', cluster_master: 'ipc', node_master: 'ipc' },
-    assets_loader: { execution: 'ipc', cluster_master: 'ipc' },
-    assets_service: { cluster_master: 'ipc' }
+    node_master: {
+        cluster_process: 'ipc',
+        cluster_master: 'network',
+        execution_controller: 'ipc',
+        worker: 'ipc',
+        assets_loader: 'ipc',
+        execution: 'ipc'
+    },
+    assets_loader: {
+        execution: 'ipc',
+        cluster_master: 'ipc'
+    },
+    assets_service: {
+        cluster_master: 'ipc'
+    }
 };
 
 module.exports = function messaging(context, logger) {
@@ -314,7 +322,8 @@ module.exports = function messaging(context, logger) {
             // node_master, worker
             io = require('socket.io-client')(hostURL, {
                 forceNew: true,
-                query
+                path: '/native-clustering',
+                query,
             });
             _registerFns(io);
             if (self === 'node_master') {
@@ -332,7 +341,9 @@ module.exports = function messaging(context, logger) {
             logger.debug('client network connection is online');
         } else if (server) {
             // cluster_master
-            io = require('socket.io')(server);
+            io = require('socket.io')(server, {
+                path: '/native-clustering'
+            });
             _attachRoomsSocketIO();
 
             io.on('connection', (socket) => {
@@ -340,7 +351,6 @@ module.exports = function messaging(context, logger) {
                 _registerFns(socket);
             });
         } else {
-            // execution_controller
             io = require('socket.io')();
             _attachRoomsSocketIO();
 

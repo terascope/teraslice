@@ -1,9 +1,7 @@
-import { Message } from '../messenger/interfaces';
+import { Message, RequestListener } from '../messenger/interfaces';
 
 export interface ClientOptions {
     exId: string;
-    jobId: string;
-    jobName: string;
     clusterMasterUrl: string;
     socketOptions: SocketIOClient.ConnectOpts;
     networkLatencyBuffer?: number;
@@ -13,8 +11,10 @@ export interface ClientOptions {
 export interface ServerOptions {
     port: number;
     nodeDisconnectTimeout: number;
-    networkLatencyBuffer?: number;
     actionTimeout: number;
+    serverTimeout?: number;
+    networkLatencyBuffer?: number;
+    requestListener?: RequestListener;
     pingTimeout?: number;
     pingInterval?: number;
 }

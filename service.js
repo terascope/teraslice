@@ -4,10 +4,10 @@
 
 const path = require('path');
 
-const useTerasliceWorker = !!process.env.POD_IP;
-const nodeType = process.env.NODE_TYPE;
+// const useTerasliceWorker = !!process.env.POD_IP;
+const nodeType = process.env.NODE_TYPE || process.env.assignment;
 
-if (useTerasliceWorker && (nodeType === 'execution_controller' || nodeType === 'worker')) {
+if ((nodeType === 'execution_controller' || nodeType === 'worker')) {
     const workerPath = path.join(__dirname, 'packages/teraslice-worker');
     require(path.join(workerPath, 'service.js')); /* eslint-disable-line */
 } else {

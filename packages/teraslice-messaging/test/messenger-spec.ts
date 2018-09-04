@@ -56,6 +56,20 @@ describe('Messenger', () => {
             });
         });
 
+        describe('when constructed without a valid clientType', () => {
+            it('should throw an error', () => {
+                expect(() => {
+                    // @ts-ignore
+                    new Messenger.Client({
+                        actionTimeout: 1,
+                        networkLatencyBuffer: 0,
+                        hostUrl: 'some-host',
+                        clientId: newMsgId(),
+                    });
+                }).toThrowError('Messenger.Client requires a valid clientType');
+            });
+        });
+
         describe('when constructed without a valid serverName', () => {
             it('should throw an error', () => {
                 expect(() => {
@@ -64,7 +78,8 @@ describe('Messenger', () => {
                         actionTimeout: 1,
                         networkLatencyBuffer: 0,
                         hostUrl: 'some-host',
-                        clientId: 'hello'
+                        clientId: 'hello',
+                        clientType: 'some-client'
                     });
                 }).toThrowError('Messenger.Client requires a valid serverName');
             });
@@ -168,10 +183,6 @@ describe('Messenger', () => {
                     serverName: 'example'
                 });
 
-                server.server.use((socket, next) => {
-                    socket.join('example-room', next);
-                });
-
                 server.onClientOnline(clientOnlineFn);
                 server.onClientAvailable(clientAvailableFn);
                 server.onClientUnavailable(clientUnavailableFn);
@@ -185,6 +196,7 @@ describe('Messenger', () => {
                 client = new Messenger.Client({
                     serverName: 'example',
                     clientId,
+                    clientType: 'example',
                     hostUrl,
                     networkLatencyBuffer: 0,
                     actionTimeout: 1000,

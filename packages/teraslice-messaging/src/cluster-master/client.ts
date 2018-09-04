@@ -27,6 +27,7 @@ export class Client extends core.Client {
             networkLatencyBuffer,
             actionTimeout,
             hostUrl: clusterMasterUrl,
+            clientType: 'execution-controller',
             clientId: exId,
             serverName: 'ClusterMaster',
         });

@@ -22,6 +22,7 @@ const makeExecutionRecovery = require('./lib/cluster/execution_controller/recove
 const makeExecutionRunner = require('./lib/cluster/runners/execution');
 const { dateFormat, newFormattedDate } = require('./lib/utils/date_utils');
 const { saveAsset } = require('./lib/utils/file_utils');
+const shutdownHandler = require('./lib/cluster/shutdown-handler');
 
 const terasliceOpPath = path.join(__dirname, 'lib');
 
@@ -57,4 +58,5 @@ module.exports = {
     makeExecutionRunner,
     saveAsset,
     newFormattedDate,
+    shutdownHandler,
 };

@@ -2,6 +2,7 @@
 
 import _ from 'lodash';
 import SocketIOServer from 'socket.io';
+import http from 'http';
 import porty from 'porty';
 import { newMsgId } from '../utils';
 import * as i from './interfaces';
@@ -10,6 +11,7 @@ import { Core } from './core';
 export class Server extends Core {
     readonly port: number;
     readonly server: SocketIO.Server;
+    readonly httpServer: http.Server;
     readonly serverName: string;
     readonly clientDisconnectTimeout: number;
     private _cleanupClients: NodeJS.Timer|undefined;
@@ -21,7 +23,9 @@ export class Server extends Core {
             pingTimeout,
             pingInterval,
             serverName,
-            clientDisconnectTimeout
+            serverTimeout,
+            clientDisconnectTimeout,
+            requestListener = defaultRequestListener
         } = opts;
         super(opts);
 
@@ -49,6 +53,12 @@ export class Server extends Core {
             serveClient: false,
         });
 
+        this.httpServer = http.createServer(requestListener);
+
+        if (serverTimeout) {
+            this.httpServer.timeout = serverTimeout;
+        }
+
         this._clients = {};
         this._onConnection = this._onConnection.bind(this);
     }
@@ -59,10 +69,20 @@ export class Server extends Core {
             throw new Error(`Port ${this.port} is already in-use`);
         }
 
-        this.server.listen(this.port);
+        await new Promise((resolve, reject) => {
+            this.httpServer.listen(this.port, (err?: Error) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
+
+        this.server.attach(this.httpServer);
 
         this.server.use((socket, next) => {
-            socket.join(socket.handshake.query.clientId, next);
+            socket.join(socket.handshake.query.clientType, next);
         });
 
         this.server.on('connection', this._onConnection);
@@ -91,6 +111,12 @@ export class Server extends Core {
 
         await new Promise((resolve) => {
             this.server.close(() => {
+                resolve();
+            });
+        });
+
+        await new Promise((resolve) => {
+            this.httpServer.close(() => {
                 resolve();
             });
         });
@@ -221,6 +247,14 @@ export class Server extends Core {
         this.server.sockets.emit(eventName, message);
     }
 
+    protected sendToGroup(eventName: string, query: object, payload?: i.Payload) {
+        const clients = _.filter(this._clients, query);
+        const promises = _.map(clients, (client) => {
+            return this.send(client.clientId, eventName, payload);
+        });
+        return Promise.all(promises);
+    }
+
     protected async send(clientId: string, eventName: string, payload: i.Payload = {}, volatile?: boolean): Promise<i.Message|null> {
         const client = this._clients[clientId];
         if (!client) {
@@ -262,8 +296,8 @@ export class Server extends Core {
         return _.get(this.server, ['sockets', 'connected', socketId]);
     }
 
-    protected getClientIdFromSocket(socket: SocketIO.Socket):string {
-        return socket.handshake.query.clientId;
+    protected getClientMetadataFromSocket(socket: SocketIO.Socket): i.ClientSocketMetadata {
+        return socket.handshake.query;
     }
 
     protected updateClient(clientId: string, updateWith: object) {
@@ -274,7 +308,7 @@ export class Server extends Core {
     }
 
     protected ensureClient(socket: SocketIO.Socket) : i.ConnectedClient {
-        const clientId = this.getClientIdFromSocket(socket);
+        const { clientId, clientType } = this.getClientMetadataFromSocket(socket);
         const client = this._clients[clientId];
 
         if (client) {
@@ -291,6 +325,7 @@ export class Server extends Core {
 
         const newClient: i.ConnectedClient = {
             clientId,
+            clientType,
             isOnline: true,
             isAvailable: false,
             isReconnected: false,
@@ -354,4 +389,10 @@ export class Server extends Core {
             this.emit('connection', clientId, socket);
         }
     }
+}
+
+// @ts-ignore
+function defaultRequestListener(req: http.IncomingMessage, res: http.ServerResponse) {
+    res.writeHead(501);
+    res.end('Not Implemented');
 }

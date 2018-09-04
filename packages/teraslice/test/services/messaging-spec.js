@@ -262,9 +262,9 @@ describe('messaging module', () => {
         const sendToProcesses = messaging.__test_context()._sendToProcesses;
         const firstMsg = { to: 'execution_controller', ex_id: testExId, message: 'execution:stop' };
         const secondMsg = { to: 'worker', ex_id: testExId, message: 'execution:stop' };
-        const thirdMsg = { to: 'worker', message: 'worker:shutdown' };
+        const thirdMsg = { to: 'worker', message: 'SIGTERM' };
         const executionMsg = {
-            to: 'execution', meta: 'someData', ex_id: testExId, message: 'worker:shutdown'
+            to: 'execution', meta: 'someData', ex_id: testExId, message: 'SIGTERM'
         };
 
         expect(firstWorkerMsg).toEqual(null);

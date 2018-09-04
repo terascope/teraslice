@@ -3,7 +3,7 @@
     "private": true,
     "scripts": {
         "start": "node service.js",
-        "setup": "lerna bootstrap && yarn link --force-local && lerna run build",
+        "setup": "lerna bootstrap && lerna link --force-local && lerna run build",
         "bootstrap": "lerna bootstrap",
         "build": "lerna run build",
         "build:watch": "lerna run build:watch --parallel --stream --prefix",
@@ -25,7 +25,7 @@
         "@types/jest": "^23.3.1",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.4.2",
-        "eslint": "^5.4.0",
+        "eslint": "^5.5.0",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "^2.14.0",
         "fs-extra": "^7.0.0",
@@ -35,7 +35,7 @@
         "semver": "^5.5.1",
         "ts-jest": "^23.1.4",
         "tslint": "^5.0.0",
-        "typescript": "^3.0.0"
+        "typescript": "^3.0.3"
     },
     "workspaces": [
         "packages/*",

@@ -1,4 +1,5 @@
 import 'socket.io-client';
+import http from 'http';
 
 export interface CoreOptions {
     networkLatencyBuffer?: number;
@@ -8,6 +9,7 @@ export interface CoreOptions {
 export interface ClientOptions extends CoreOptions {
     hostUrl: string;
     clientId: string;
+    clientType: string;
     serverName: string;
     socketOptions?: SocketIOClient.ConnectOpts;
 }
@@ -16,8 +18,14 @@ export interface ServerOptions extends CoreOptions {
     port: number;
     serverName: string;
     clientDisconnectTimeout: number;
+    serverTimeout?: number;
     pingTimeout?: number;
     pingInterval?: number;
+    requestListener?: RequestListener;
+}
+
+export interface RequestListener {
+    (request: http.IncomingMessage, response: http.ServerResponse): void;
 }
 
 export interface Payload {
@@ -43,6 +51,7 @@ export interface Message {
 
 export interface ConnectedClient {
     readonly clientId: string;
+    readonly clientType: string;
     socketId: string;
     isOnline: boolean;
     isAvailable: boolean;
@@ -53,6 +62,11 @@ export interface ConnectedClient {
     availableAt: Date|null;
     unavailableAt: Date|null;
     metadata: object;
+}
+
+export interface ClientSocketMetadata {
+    clientId: string;
+    clientType: string;
 }
 
 export interface ConnectedClients {

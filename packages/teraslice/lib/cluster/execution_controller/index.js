@@ -17,10 +17,8 @@ module.exports = function module(contextConfig) {
     let engine;
 
     // to catch signal propagation, but cleanup through msg sent from master
-    messaging.register({ event: 'process:SIGTERM', callback: () => {} });
-    messaging.register({ event: 'process:SIGINT', callback: () => {} });
-    messaging.register({ event: 'worker:shutdown', callback: executionShutdown });
-
+    messaging.register({ event: 'process:SIGTERM', callback: executionShutdown });
+    messaging.register({ event: 'process:SIGINT', callback: executionShutdown });
 
     events.on('client:initialization:error', terminalShutdown);
     // emitted after final cleanup of execution is complete

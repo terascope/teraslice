@@ -74,7 +74,7 @@ module.exports = function module(context) {
 
         return getStatus(exId)
             .then((status) => {
-                // when setting the same status to shouldn't throw an error and allow the metadata to be updated again
+                // when setting the same status to shouldn't throw an error
                 if (desiredStatus === status) {
                     return Promise.resolve();
                 }

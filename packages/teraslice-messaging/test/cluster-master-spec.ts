@@ -1,7 +1,6 @@
 import 'jest-extended';
 
 import findPort from './helpers/find-port';
-// import * as core from '../src/messenger';
 import {
     formatURL,
     newMsgId,
@@ -31,13 +30,11 @@ describe('ClusterMaster', () => {
         });
 
         describe('when constructed with an invalid clusterMasterUrl', () => {
-            let clusterMaster: ClusterMaster.Client;
+            let client: ClusterMaster.Client;
 
             beforeEach(() => {
-                clusterMaster = new ClusterMaster.Client({
+                client = new ClusterMaster.Client({
                     clusterMasterUrl: 'http://idk.example.com',
-                    jobId: 'job',
-                    jobName: 'name',
                     exId: 'hello',
                     actionTimeout: 1000,
                     socketOptions: {
@@ -49,7 +46,7 @@ describe('ClusterMaster', () => {
 
             it('start should throw an error', () => {
                 const errMsg = /^Unable to connect to cluster master/;
-                return expect(clusterMaster.start()).rejects.toThrowError(errMsg);
+                return expect(client.start()).rejects.toThrowError(errMsg);
             });
         });
     });
@@ -68,7 +65,7 @@ describe('ClusterMaster', () => {
         });
     });
 
-    describe('Client & Server', () => {
+    describe('Client & AssetClient & Server', () => {
         let client: ClusterMaster.Client;
         let server: ClusterMaster.Server;
         const exId = newMsgId();
@@ -86,8 +83,6 @@ describe('ClusterMaster', () => {
             await server.start();
 
             client = new ClusterMaster.Client({
-                jobId: newMsgId(),
-                jobName: 'job-name',
                 exId,
                 clusterMasterUrl,
                 networkLatencyBuffer: 0,
@@ -99,8 +94,8 @@ describe('ClusterMaster', () => {
             });
 
             await client.start();
+            await client.sendAvailable();
 
-            // TODO Test all of the events
         });
 
         afterAll(async () => {

@@ -2,11 +2,12 @@ import { isString } from 'lodash';
 import SocketIOClient from 'socket.io-client';
 import { Message, ClientOptions, Payload } from './interfaces';
 import { Core } from './core';
-import { newMsgId } from '@terascope/teraslice-messaging/src/utils';
+import { newMsgId } from '../utils';
 
 export class Client extends Core {
     readonly socket: SocketIOClient.Socket;
     readonly clientId: string;
+    readonly clientType: string;
     readonly serverName: string;
     available: boolean;
 
@@ -15,6 +16,7 @@ export class Client extends Core {
         const {
             hostUrl,
             clientId,
+            clientType,
             serverName,
             socketOptions= {},
         } = opts;
@@ -27,6 +29,10 @@ export class Client extends Core {
             throw new Error('Messenger.Client requires a valid clientId');
         }
 
+        if (!isString(clientType)) {
+            throw new Error('Messenger.Client requires a valid clientType');
+        }
+
         if (!isString(serverName)) {
             throw new Error('Messenger.Client requires a valid serverName');
         }
@@ -34,12 +40,13 @@ export class Client extends Core {
         const options = Object.assign({}, socketOptions, {
             autoConnect: false,
             forceNew: true,
-            query: { clientId },
+            query: { clientId, clientType },
             transports: ['websocket'],
         });
 
         this.socket = SocketIOClient(hostUrl, options);
         this.clientId = clientId;
+        this.clientType = clientType;
         this.serverName = serverName;
         this.available = false;
     }

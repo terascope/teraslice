@@ -30,6 +30,7 @@ export class Client extends core.Client {
             actionTimeout,
             hostUrl: executionControllerUrl,
             clientId: workerId,
+            clientType: 'worker',
             serverName: 'ExecutionController'
         });
 

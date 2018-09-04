@@ -8,12 +8,12 @@ const _ = require('lodash');
 const path = require('path');
 const yargs = require('yargs');
 const get = require('lodash/get');
+const { shutdownHandler } = require('teraslice');
 
 const { Worker, ExecutionController } = require('.');
 const makeExecutionContext = require('./lib/execution-context');
 const { readSysConfig } = require('./lib/terafoundation');
 const { generateContext } = require('./lib/utils/context');
-const processHandler = require('./process-handler');
 
 class Service {
     constructor() {
@@ -48,6 +48,8 @@ class Service {
     }
 
     async initialize() {
+        this.registerExitHandler();
+
         this.executionContext = await makeExecutionContext(this.context, this.executionContext);
 
         if (this.executionContext.assignment === 'worker') {
@@ -114,19 +116,7 @@ class Service {
     }
 
     registerExitHandler() {
-        processHandler(
-            async (signal, err) => {
-                if (err) {
-                    await this.shutdown(`${signal} was caught, exiting... ${err.stack}`);
-                    return;
-                }
-
-                if (signal === 'SIGTERM' || signal === 'SIGINT') {
-                    await this.shutdown(`Exit called due to signal ${signal}, shutting down...`);
-                }
-            },
-            this.shutdownTimeout
-        );
+        shutdownHandler(this.context, this.logger, () => this.shutdown('Unexpected shutdown was called'));
     }
 
     _parseArgs() {
@@ -158,11 +148,11 @@ class Service {
             })
             .option('n', {
                 alias: 'nodeType',
-                default: process.env.NODE_TYPE,
+                default: process.env.NODE_TYPE || process.env.assignment,
                 demandOption: true,
                 choices: ['execution_controller', 'worker'],
                 describe: `Node Type assignment of worker.
-                Defaults to env NODE_TYPE`,
+                Defaults to env NODE_TYPE or process.env.assignment`,
             })
             .option('c', {
                 alias: 'configfile',
@@ -188,7 +178,6 @@ class Service {
 
 async function runService() {
     const cmd = new Service();
-    await cmd.registerExitHandler();
     await cmd.initialize();
     await cmd.run();
 }

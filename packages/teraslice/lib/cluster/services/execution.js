@@ -14,10 +14,8 @@ const parseError = require('@terascope/error-parser');
  aborted - when a execution was running at the point when the cluster shutsdown
  */
 
-module.exports = function module(context) {
-    const { messaging } = context;
+module.exports = function module(context, { clusterMasterServer }) {
     const logger = context.apis.foundation.makeLogger({ module: 'execution_service' });
-    const masterNodeId = _parseNodeId(context.sysconfig._nodeName);
     const pendingExecutionQueue = new Queue();
 
     let exStore;
@@ -28,26 +26,7 @@ module.exports = function module(context) {
     }
 
     function getClusterStats() {
-        return clusterService.getClusterStats();
-    }
-
-    function _parseNodeId(str) {
-        const parsed = str.match(/\.\d+/);
-        const length = str.length - parsed[0].length;
-        return str.slice(0, length);
-    }
-
-    function verifyAssets(assetNames) {
-        // this is to node_master since asset_loader is not spawned unless asked to
-        const message = {
-            to: 'node_master',
-            address: masterNodeId,
-            message: 'execution_service:verify_assets',
-            payload: { assets: assetNames },
-            response: true
-        };
-
-        return messaging.send(message);
+        return clusterMasterServer.getClusterAnalytics();
     }
 
     // designed to allocate additional workers, not any future slicers
@@ -126,14 +105,14 @@ module.exports = function module(context) {
 
     function pauseExecution(exId) {
         const status = 'paused';
-        return clusterService.pauseExecution(exId)
+        return clusterMasterServer.sendExecutionPause(exId)
             .then(() => setExecutionStatus(exId, status))
             .then(() => ({ status }));
     }
 
     function resumeExecution(exId) {
         const status = 'running';
-        return clusterService.resumeExecution(exId)
+        return clusterMasterServer.sendExecutionResume(exId)
             .then(() => setExecutionStatus(exId, status))
             .then(() => ({ status }));
     }
@@ -142,7 +121,43 @@ module.exports = function module(context) {
         // if no exId is provided it returns all running executions
         const specificId = exId || false;
         return getRunningExecutions(exId)
-            .then(exIds => clusterService.getSlicerStats(exIds, specificId));
+            .then((exIds) => {
+                const clients = _.filter(clusterMasterServer.availableClients, ({ clientId }) => {
+                    if (specificId && clientId === specificId) return true;
+                    return _.includes(exIds, clientId);
+                });
+
+                function formatResponse(msg) {
+                    const payload = _.get(msg, 'payload', {});
+                    const identifiers = {
+                        ex_id: payload.ex_id,
+                        job_id: payload.job_id,
+                        name: payload.name
+                    };
+                    return Object.assign(identifiers, payload.stats);
+                }
+
+                if (_.isEmpty(clients)) {
+                    if (specificId) {
+                        const error = new Error(`Could not find active slicer for ex_id: ${specificId}`);
+                        error.code = 404;
+                        return Promise.reject(error);
+                    }
+                    return Promise.resolve([]);
+                }
+
+                const promises = _.map(clients, (client) => {
+                    const { clientId } = client;
+                    return clusterMasterServer
+                        .sendExecutionAnalyticsRequest(clientId)
+                        .then(formatResponse);
+                });
+
+                return Promise.all(promises);
+            }).then((results) => {
+                const sortedData = _.sortBy(results, ['name', 'started']);
+                return _.reverse(sortedData);
+            });
     }
 
     function createExecutionContext(job) {
@@ -281,7 +296,6 @@ module.exports = function module(context) {
         searchExecutionContexts,
         setExecutionStatus,
         terminalStatusList,
-        verifyAssets,
         executionMetaData
     };
 
@@ -369,7 +383,7 @@ module.exports = function module(context) {
         .then((ex) => {
             logger.info('Initializing');
             exStore = ex;
-            return require('./cluster')(context, messaging, api);
+            return require('./cluster')(context, clusterMasterServer, api);
         })
         .then((cluster) => {
             clusterService = cluster;

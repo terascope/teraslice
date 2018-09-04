@@ -5,6 +5,7 @@ const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
 const parseError = require('@terascope/error-parser');
 const stateUtils = require('./state-utils');
+const Messaging = require('../../messaging');
 
 /*
  Execution Life Cycle for _status
@@ -15,7 +16,7 @@ const stateUtils = require('./state-utils');
  aborted - when a job was running at the point when the cluster shutsdown
  */
 
-module.exports = function module(context, messaging, executionService) {
+module.exports = function module(context, clusterMasterServer, executionService) {
     const events = context.apis.foundation.getSystemEvents();
     const logger = context.apis.foundation.makeLogger({ module: 'native_cluster_service' });
     const pendingWorkerRequests = new Queue();
@@ -23,17 +24,7 @@ module.exports = function module(context, messaging, executionService) {
     const nodeStateInterval = context.sysconfig.teraslice.node_state_interval;
     const slicerAllocationAttempts = context.sysconfig.teraslice.slicer_allocation_attempts;
     const clusterState = {};
-    const clusterStats = {
-        slicer: {
-            processed: 0,
-            failed: 0,
-            queued: 0,
-            job_duration: 0,
-            workers_joined: 0,
-            workers_disconnected: 0,
-            workers_reconnected: 0
-        }
-    };
+    const messaging = Messaging(context, logger);
 
     // temporary holding spot used to attach nodes that are non responsive or
     // disconnect before final cleanup
@@ -75,28 +66,12 @@ module.exports = function module(context, messaging, executionService) {
         }
     });
 
-    messaging.register({
-        event: 'execution:finished',
-        callback: (msgData) => {
-            // remove any pending worker request on completed jobs
-            logger.debug(`execution for ex_id: ${msgData.ex_id} has finished, removing any from pending queue`, msgData);
-            pendingWorkerRequests.remove(msgData.ex_id);
-            messaging.broadcast('cluster:execution:stop', { ex_id: msgData.ex_id });
+    clusterMasterServer.onExecutionFinished((exId, err) => {
+        if (err) {
+            logger.error(`terminal error for execution: ${exId}, shutting down execution`);
         }
-    });
-
-    messaging.register({
-        event: 'execution:error:terminal',
-        callback: (msgData) => {
-            const alreadySaved = _.get(msgData, 'payload.set_status', false);
-            logger.error(`terminal error for execution: ${msgData.ex_id}, shutting down execution`);
-            pendingWorkerRequests.remove(msgData.ex_id);
-            messaging.broadcast('cluster:execution:stop', { ex_id: msgData.ex_id });
-            if (!alreadySaved) {
-                const metaData = executionService.executionMetaData(null, msgData.error);
-                executionService.setExecutionStatus(msgData.ex_id, 'failed', metaData);
-            }
-        }
+        pendingWorkerRequests.remove(exId);
+        messaging.broadcast('cluster:execution:stop', { ex_id: exId });
     });
 
     messaging.register({
@@ -119,22 +94,6 @@ module.exports = function module(context, messaging, executionService) {
 
                 droppedNodes[nodeId] = timer;
             }
-        }
-    });
-
-    messaging.register({
-        event: 'cluster:analytics',
-        callback: (msg) => {
-            const data = msg.payload;
-            if (!clusterStats[data.kind]) {
-                logger.warn(`unrecognized cluster stats: ${data.kind}`);
-                return;
-            }
-            _.forOwn(data.stats, (value, field) => {
-                if (clusterStats[data.kind][field] !== undefined) {
-                    clusterStats[data.kind][field] += value;
-                }
-            });
         }
     });
 
@@ -176,10 +135,6 @@ module.exports = function module(context, messaging, executionService) {
 
     function getClusterState() {
         return _.cloneDeep(clusterState);
-    }
-
-    function getClusterStats() {
-        return _.cloneDeep(clusterStats);
     }
 
     function _checkNode(node) {
@@ -543,10 +498,9 @@ module.exports = function module(context, messaging, executionService) {
             });
     }
 
-    function _notifyNodesWithExecution(exId, messageData, slicerOnly, excludeNode) {
+    function _notifyNodesWithExecution(exId, messageData, excludeNode) {
         return new Promise(((resolve, reject) => {
-            const destination = slicerOnly ? 'execution_controller' : 'node_master';
-            let nodes = _findNodesForExecution(exId, slicerOnly);
+            let nodes = _findNodesForExecution(exId);
             if (excludeNode) {
                 nodes = nodes.filter(node => node.hostname !== excludeNode);
             } else if (messageData.message !== 'cluster:execution:stop' && nodes.length === 0) {
@@ -558,7 +512,7 @@ module.exports = function module(context, messaging, executionService) {
 
             return Promise.map(nodes, (node) => {
                 const sendingMsg = Object.assign({}, messageData, {
-                    to: destination,
+                    to: 'node_master',
                     address: node.node_id,
                     ex_id: exId,
                     response: true
@@ -590,29 +544,15 @@ module.exports = function module(context, messaging, executionService) {
         if (timeout) {
             sendingMessage.timeout = timeout;
         }
-        return _notifyNodesWithExecution(exId, sendingMessage, false, excludeNode);
+        return _notifyNodesWithExecution(exId, sendingMessage, excludeNode);
     }
-
-    function pauseExecution(exId) {
-        return _notifyNodesWithExecution(exId, { message: 'cluster:execution:pause' }, true, null);
-    }
-
-    function resumeExecution(exId) {
-        return _notifyNodesWithExecution(exId, { message: 'cluster:execution:resume' }, true, null);
-    }
-
-    const getSlicerStats = stateUtils.newGetSlicerStats(clusterState, context, messaging);
 
     const api = {
         getClusterState,
-        getClusterStats,
-        getSlicerStats,
         allocateWorkers,
         allocateSlicer,
         shutdown,
         stopExecution,
-        pauseExecution,
-        resumeExecution,
         removeWorkers,
         addWorkers,
         setWorkers,
@@ -622,7 +562,10 @@ module.exports = function module(context, messaging, executionService) {
 
     function _initialize() {
         logger.info('Initializing');
-        return Promise.resolve(api);
+        const server = clusterMasterServer.httpServer;
+        return Promise.resolve()
+            .then(() => messaging.listen({ server }))
+            .then(() => Promise.resolve(api));
     }
 
     return _initialize();

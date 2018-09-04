@@ -1,10 +1,12 @@
 'use strict';
 
+const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
 const _ = require('lodash');
 const parseError = require('@terascope/error-parser');
 const messageModule = require('./services/messaging');
-const { deleteDir } = require('../utils/file_utils');
+const spawnAssetsLoader = require('./assets/spawn');
+const { safeEncode } = require('../utils/encoding_utils');
 
 const nodeVersion = process.version;
 const terasliceVersion = require('../../package.json').version;
@@ -16,7 +18,6 @@ module.exports = function module(context) {
     const logger = context.apis.foundation.makeLogger({ module: 'node_master' });
     const configWorkerLimit = context.sysconfig.teraslice.workers;
     const config = context.sysconfig.teraslice;
-    const assetsPath = config.assets_directory;
     const events = context.apis.foundation.getSystemEvents();
     const systemPorts = portAllocator();
 
@@ -56,38 +57,14 @@ module.exports = function module(context) {
     });
 
     messaging.register({
-        event: 'assets:delete',
-        callback: (deleteMsg) => {
-            const assetId = deleteMsg.payload;
-            deleteDir(`${assetsPath}/${assetId}`)
-                .catch((err) => {
-                    const errMsg = parseError(err);
-                    logger.error(errMsg);
-                });
-        }
-    });
-
-    messaging.register({
-        event: 'execution_service:verify_assets',
-        callback: (loadMsg) => {
-            context.foundation.startWorkers(1, {
-                assignment: 'assets_loader',
-                node_id: context.sysconfig._nodeName,
-                preload: true,
-                __msgId: loadMsg.__msgId,
-                job: JSON.stringify(loadMsg.payload)
-            });
-        }
-    });
-
-    messaging.register({
         event: 'cluster:execution_controller:create',
         callback: (createSlicerRequest) => {
             const createSlicerMsg = createSlicerRequest.payload;
-            const needAssets = jobNeedsAssets(createSlicerMsg.job);
 
             const controllerContext = {
                 assignment: 'execution_controller',
+                NODE_TYPE: 'execution_controller',
+                EX: safeEncode(createSlicerMsg.job),
                 job: createSlicerMsg.job,
                 node_id: context.sysconfig._nodeName,
                 ex_id: createSlicerMsg.ex_id,
@@ -95,26 +72,28 @@ module.exports = function module(context) {
                 slicer_port: createSlicerMsg.slicer_port
             };
 
-            logger.trace('starting a execution controller', controllerContext);
-            context.foundation.startWorkers(1, controllerContext);
-
-            if (needAssets) {
-                logger.info(`node ${context.sysconfig._nodeName} is checking assets for job ${createSlicerMsg.ex_id}`);
-                context.foundation.startWorkers(1, {
-                    assignment: 'assets_loader',
-                    node_id: context.sysconfig._nodeName,
-                    job: createSlicerMsg.job,
-                    ex_id: createSlicerMsg.ex_id
+            preloadAssetsIfNeeded(createSlicerMsg.job, createSlicerMsg.ex_id)
+                .then(() => {
+                    logger.trace('starting a execution controller', controllerContext);
+                    context.foundation.startWorkers(1, controllerContext);
+                    return messaging.respond(createSlicerRequest);
+                })
+                .catch((err) => {
+                    logger.error('error loading assets', err);
+                    return messaging.respond(createSlicerRequest, {
+                        error: parseError(err),
+                    });
+                }).finally(() => {
+                    // need to update cluster_master immediately so it can balance workers correctly
+                    // and prevent wrong allocations
+                    const state = getNodeState();
+                    messaging.send({
+                        to: 'cluster_master',
+                        message: 'node:state',
+                        node_id: state.node_id,
+                        payload: state
+                    });
                 });
-            }
-
-            // need to update cluster_master immediately so it can balance workers correctly
-            // and prevent wrong allocations
-            const state = getNodeState();
-            messaging.send({
-                to: 'cluster_master', message: 'node:state', node_id: state.node_id, payload: state
-            });
-            messaging.respond(createSlicerRequest);
         }
     });
 
@@ -123,7 +102,6 @@ module.exports = function module(context) {
         callback: (createWorkerRequest) => {
             const createWorkerMsg = createWorkerRequest.payload;
             const numOfCurrentWorkers = Object.keys(context.cluster.workers).length;
-            const needAssets = jobNeedsAssets(createWorkerMsg.job);
             let newWorkers = createWorkerMsg.workers;
             logger.info(`Attempting to allocate ${newWorkers} workers.`);
 
@@ -136,29 +114,30 @@ module.exports = function module(context) {
                 messaging.send({ to: 'cluster_master', message: 'node:workers:over_allocated', payload: createWorkerMsg });
                 logger.warn(`Worker allocation request would exceed maximum number of workers - ${configWorkerLimit}`);
                 logger.warn(`Reducing allocation to ${newWorkers} workers.`);
+                return;
             }
+
             logger.trace(`starting ${newWorkers} workers`, createWorkerMsg.ex_id);
 
-            context.foundation.startWorkers(newWorkers, {
-                assignment: 'worker',
-                node_id: context.sysconfig._nodeName,
-                job: createWorkerMsg.job,
-                ex_id: createWorkerMsg.ex_id,
-                job_id: createWorkerMsg.job_id
-            });
-
-            // for workers on nodes that don't have the asset loading process already going
-            if (needAssets && !assetIsLoading(createWorkerMsg.ex_id)) {
-                logger.info(`node ${context.sysconfig._nodeName} is checking assets for job ${createWorkerMsg.ex_id}`);
-                context.foundation.startWorkers(1, {
-                    assignment: 'assets_loader',
-                    node_id: context.sysconfig._nodeName,
-                    job: createWorkerMsg.job,
-                    ex_id: createWorkerMsg.ex_id
+            preloadAssetsIfNeeded(createWorkerMsg.job, createWorkerMsg.ex_id)
+                .then(() => {
+                    context.foundation.startWorkers(newWorkers, {
+                        NODE_TYPE: 'worker',
+                        EX: safeEncode(createWorkerMsg.job),
+                        assignment: 'worker',
+                        node_id: context.sysconfig._nodeName,
+                        job: createWorkerMsg.job,
+                        ex_id: createWorkerMsg.ex_id,
+                        job_id: createWorkerMsg.job_id
+                    });
+                    return messaging.respond(createWorkerRequest);
+                })
+                .catch((err) => {
+                    logger.error('error loading assets', err);
+                    return messaging.respond(createWorkerRequest, {
+                        error: parseError(err),
+                    });
                 });
-            }
-
-            messaging.respond(createWorkerRequest);
         }
     });
 
@@ -240,32 +219,27 @@ module.exports = function module(context) {
         callback: () => sendNodeState()
     });
 
-    function assetIsLoading(exId) {
-        const { workers } = context.cluster;
-        const assetWorker = _.filter(workers, worker => worker.assignment === 'assets_loader' && worker.ex_id === exId);
-        return assetWorker.length === 1;
+    function getAssetsFromJob(jobStr) {
+        const job = typeof jobStr === 'string' ? JSON.parse(jobStr) : jobStr;
+        return job.assets || [];
     }
 
-    function messageWorkers(clusterMsg, processMsg, filterFn) {
-        // sharing the unique msg id for each message sent
-        processMsg.__msgId = clusterMsg.__msgId;
+    function preloadAssetsIfNeeded(job, exId) {
+        const assets = getAssetsFromJob(job);
+        if (assets.length > 0) {
+            logger.info(`node ${context.sysconfig._nodeName} is checking assets for job, exId: ${exId}`);
+            return Promise.resolve(spawnAssetsLoader(assets));
+        }
+        return Promise.resolve();
+    }
+
+    function sendSignalToWorkers(signal, filterFn) {
         const allWorkersForJob = filterFn();
         _.each(allWorkersForJob, (worker) => {
             const workerID = worker.worker_id || worker.id;
             if (context.cluster.workers[workerID]) {
-                logger.trace(`sending message to worker ${workerID}, ex_id: ${worker.ex_id}, msg:`, processMsg);
-                context.cluster.workers[workerID].send(processMsg);
-            }
-        });
-    }
-
-    function killWorkers(filterFn) {
-        const allWorkersForJob = filterFn();
-        _.each(allWorkersForJob, (worker) => {
-            const workerID = worker.worker_id || worker.id;
-            if (context.cluster.workers[workerID]) {
-                logger.warn(`sending SIGKILL to process ${worker.pid}, assignment: ${worker.assignment}, ex_id: ${worker.ex_id}`);
-                context.cluster.workers[workerID].process.kill('SIGKILL');
+                logger.warn(`sending ${signal} to process ${worker.id}, assignment: ${worker.assignment}, ex_id: ${worker.ex_id}`);
+                context.cluster.workers[workerID].process.kill(signal);
             }
         });
     }
@@ -275,7 +249,9 @@ module.exports = function module(context) {
         const needsResponse = message.response && message.to;
         let stopTime = stoppingTime;
 
-        if (!alreadySent) messageWorkers(message, { message: 'worker:shutdown' }, filterFn);
+        if (!alreadySent) {
+            sendSignalToWorkers('SIGTERM', filterFn);
+        }
         const stop = setInterval(() => {
             if (isActionCompleteFn()) {
                 clearInterval(stop);
@@ -283,17 +259,12 @@ module.exports = function module(context) {
             }
             if (stopTime <= 0) {
                 clearInterval(stop);
-                killWorkers(filterFn);
+                sendSignalToWorkers('SIGKILL', filterFn);
                 if (needsResponse) messaging.respond(message);
             }
 
             stopTime -= intervalTime;
         }, intervalTime);
-    }
-
-    function jobNeedsAssets(jobStr) {
-        const job = typeof jobStr === 'string' ? JSON.parse(jobStr) : jobStr;
-        return job.assets && job.assets.length > 0;
     }
 
     function portAllocator() {
@@ -400,44 +371,5 @@ module.exports = function module(context) {
             port: assetsPort,
             node_id: context.sysconfig._nodeName
         });
-    }
-
-    if (context.sysconfig.teraslice.cluster_manager_type === 'kubernetes'
-        && !context.sysconfig.teraslice.master) {
-        const workerType = process.env.node_type;
-        const jobStr = process.env.EX;
-        let ex;
-
-        try {
-            ex = JSON.parse(jobStr);
-        } catch (err) {
-            const errMsg = parseError(err);
-            logger.error(`error while loading EX from enviroment, error: ${errMsg}`);
-            // give it time to log before exiting
-            setTimeout(() => process.exit(), 100);
-        }
-
-        const needAssets = jobNeedsAssets(ex);
-
-        const childContext = {
-            assignment: workerType,
-            job: jobStr,
-            node_id: context.sysconfig._nodeName,
-            ex_id: ex.ex_id,
-            job_id: ex.job_id,
-            slicer_port: ex.slicer_port
-        };
-
-        context.foundation.startWorkers(1, childContext);
-
-        if (needAssets) {
-            logger.info(`node ${context.sysconfig._nodeName} is checking assets for job ${ex.ex_id}`);
-            context.foundation.startWorkers(1, {
-                assignment: 'assets_loader',
-                node_id: context.sysconfig._nodeName,
-                job: ex.job,
-                ex_id: ex.ex_id
-            });
-        }
     }
 };

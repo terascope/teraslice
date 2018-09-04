@@ -3,6 +3,7 @@
 const Promise = require('bluebird');
 const _ = require('lodash');
 const { makeTable, handleError } = require('../../utils/api_utils');
+const shutdownHandler = require('../shutdown-handler');
 
 module.exports = function module(context) {
     const logger = context.apis.foundation.makeLogger({ module: 'assets_service' });
@@ -13,18 +14,7 @@ module.exports = function module(context) {
 
     let assetsStore;
 
-    messaging.register({
-        event: 'worker:shutdown',
-        callback: () => {
-            Promise.resolve(assetsStore.shutdown())
-                .then(() => process.exit)
-                .catch((err) => {
-                    const errMsg = parseError(err);
-                    logger.error(`error while shutting down asset_service, error: ${errMsg}`);
-                    setTimeout(() => process.exit(), 100);
-                });
-        }
-    });
+    shutdownHandler(context, logger, () => assetsStore.shutdown());
 
     app.post('/assets', (req, res) => {
         logger.info('loading an asset');
