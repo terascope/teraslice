@@ -21,7 +21,10 @@ class MessengerClient extends MessengerCore {
             throw new Error('MessengerClient requires a valid socketOptions');
         }
 
-        const socketOptions = Object.assign({}, _socketOptions, { forceNew: true });
+        const socketOptions = Object.assign({}, _socketOptions, {
+            autoConnect: false,
+            forceNew: true
+        });
 
         this.socket = new SocketIOClient(hostUrl, socketOptions);
     }

@@ -6,7 +6,6 @@ const { EventEmitter } = require('events');
 const newId = require('../../../lib/utils/new-id');
 const { formatURL } = require('../../../lib/utils');
 const { findPort } = require('../../helpers');
-const MessengerServer = require('../../../lib/messenger/server');
 const MessengerCore = require('../../../lib/messenger/core');
 const MessengerClient = require('../../../lib/messenger/client');
 const WorkerMessenger = require('../../../lib/worker/messenger');
@@ -359,47 +358,6 @@ describe('Messenger', () => {
                     expect(responseMsg).toBeNil();
                     expect(responseErr.toString()).toStartWith(`Error: Timeout error while communicating with ${workerId}, with message:`);
                 });
-            });
-        });
-    });
-
-    describe('when testing server close', () => {
-        describe('when close errors', () => {
-            it('should reject with the error', () => {
-                const messenger = new MessengerServer({
-                    port: 123,
-                    actionTimeout: 1000
-                });
-                messenger.server = {
-                    close: jest.fn(done => done(new Error('oh no')))
-                };
-                return expect(messenger.shutdown()).rejects.toThrowError('oh no');
-            });
-        });
-
-        describe('when close errors with Not running', () => {
-            it('should resolve', () => {
-                const messenger = new MessengerServer({
-                    port: 123,
-                    actionTimeout: 1000
-                });
-                messenger.server = {
-                    close: jest.fn(done => done(new Error('Not running')))
-                };
-                return expect(messenger.shutdown()).resolves.toBeNil();
-            });
-        });
-
-        describe('when close succeeds', () => {
-            it('should resolve', () => {
-                const messenger = new MessengerServer({
-                    port: 123,
-                    actionTimeout: 1000
-                });
-                messenger.server = {
-                    close: jest.fn(done => done())
-                };
-                return expect(messenger.shutdown()).resolves.toBeNil();
             });
         });
     });

@@ -31,19 +31,7 @@ class MessengerServer extends MessengerCore {
     }
 
     async shutdown() {
-        await new Promise((resolve, reject) => {
-            this.server.close((err) => {
-                if (err && err.toString() === 'Error: Not running') {
-                    resolve();
-                    return;
-                }
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve();
-            });
-        });
+        this.server.close();
         super.close();
     }
 }
