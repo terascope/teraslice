@@ -4,7 +4,7 @@ const Promise = require('bluebird');
 const workers = require('../cmds/job/workers');
 
 const argv = {
-    job_file: 'spec/fixtures/test_job_file.json'
+    job_file: 'test/fixtures/test_job_file.json'
 };
 
 let registeredCheck;

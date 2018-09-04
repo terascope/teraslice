@@ -77,8 +77,8 @@ npm install --global teraslice
 # Or with yarn, yarn global add teraslice
 
 # A teraslice CLI client
-npm install --global teraslice-job-manager
-# Or with yarn, yarn global add teraslice-job-manager
+npm install --global teraslice-cli
+# Or with yarn, yarn global add teraslice-cli
 
 # To add additional connectors, use
 # npm install --global terascope/terafoundation_kafka_connector
@@ -209,7 +209,7 @@ Assuming your job is in a file called 'job.json' it's as simple as
 curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs" -d@job.json
 ```
 
-or using `teraslice-job-manager`
+or using `teraslice-cli`
 
 ```sh
 tjm register -c="$YOUR_MASTER_IP:5678/v1/jobs"  ./job.json
@@ -234,7 +234,7 @@ This will retrieve the job configuration including '\_status' which indicates th
 curl "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/ex"
 ```
 
-or using `teraslice-job-manager`
+or using `teraslice-cli`
 
 ```sh
 tjm status ./job.json
@@ -249,7 +249,7 @@ by the job on the cluster.
 curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_stop"
 ```
 
-or using `teraslice-job-manager`
+or using `teraslice-cli`
 
 ```sh
 tjm stop ./job.json
@@ -263,7 +263,7 @@ Posting a new job will automatically start the job. If the job already exists th
 curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_start"
 ```
 
-or using `teraslice-job-manager`
+or using `teraslice-cli`
 
 ```sh
 tjm start ./job.json
@@ -286,7 +286,7 @@ stops allocating work to the workers. Workers will complete the work they're doi
 curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_pause"
 ```
 
-or using `teraslice-job-manager`
+or using `teraslice-cli`
 
 ```sh
 tjm pause ./job.json
@@ -300,7 +300,7 @@ Resuming a job restarts the slicer and the allocation of slices to workers.
 curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_resume"
 ```
 
-or using `teraslice-job-manager`
+or using `teraslice-cli`
 
 ```sh
 tjm resume ./job.json

@@ -150,7 +150,7 @@ describe('checks for job and asset file content', () => {
     it('should throw an error if -c and tjm cluster in jobs file', () => {
         const tjmConfig = {
             c: true,
-            job_file: 'spec/fixtures/regJobFile.json'
+            job_file: 'test/fixtures/regJobFile.json'
         };
         const jobFileFunctions = require('../cmds/cmd_functions/data_checks')(tjmConfig);
         expect(jobFileFunctions.jobFileHandler).toThrow('Command specified a cluster via -c but the job is already associated with a cluster');

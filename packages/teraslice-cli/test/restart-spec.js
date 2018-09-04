@@ -4,7 +4,7 @@ const Promise = require('bluebird');
 const restart = require('../cmds/job/restart');
 
 const argv = {
-    job_file: 'spec/fixtures/test_job_file.json'
+    job_file: 'test/fixtures/test_job_file.json'
 };
 
 let registeredCheck;

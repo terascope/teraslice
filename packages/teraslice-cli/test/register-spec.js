@@ -54,7 +54,7 @@ describe('register should register job with cluster and follow options', () => {
         argv.c = 'http://example.dev:5678';
         const jobPath = path.join(__dirname, 'fixtures/regJobFile2.json');
         fs.writeJsonSync(jobPath, regJobData, { spaces: 4 });
-        argv.job_file = 'spec/fixtures/regJobFile2.json';
+        argv.job_file = 'test/fixtures/regJobFile2.json';
         return register.handler(argv, _testTJMFunctions)
             .then(() => {
                 const registeredJob = require(jobPath);

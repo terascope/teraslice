@@ -20,7 +20,7 @@ help: ## show target summary
 	done
 
 install:
-	yarn global add teraslice-job-manager
+	yarn global add teraslice-cli
 
 show: ## show k8s deployments and services
 	kubectl get --namespace $(NAMESPACE) deployments,svc,po,jobs -o wide

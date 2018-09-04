@@ -6,7 +6,7 @@ const fs = require('fs-extra');
 const start = require('../cmds/job/start');
 
 const argv = {
-    job_file: 'spec/fixtures/test_job_file.json'
+    job_file: 'test/fixtures/test_job_file.json'
 };
 
 let registeredCheck;
@@ -42,8 +42,8 @@ describe('start should start a job', () => {
                 }
             ]
         };
-        const filePath = path.join(process.cwd(), 'spec/fixtures/start_job.json');
-        argv.job_file = 'spec/fixtures/start_job.json';
+        const filePath = path.join(process.cwd(), 'test/fixtures/start_job.json');
+        argv.job_file = 'test/fixtures/start_job.json';
         argv.c = 'thisIsACluster';
         registeredCheck = Promise.resolve();
         startResponse = { job_id: 'success' };
@@ -77,8 +77,8 @@ describe('start should start a job', () => {
                 job_id: 'jobIdOne'
             }
         };
-        const filePath = path.join(process.cwd(), 'spec/fixtures/start_job.json');
-        argv.job_file = 'spec/fixtures/start_job.json';
+        const filePath = path.join(process.cwd(), 'test/fixtures/start_job.json');
+        argv.job_file = 'test/fixtures/start_job.json';
         argv.c = 'clusterTwo';
         argv.m = true;
         registeredCheck = Promise.resolve();
