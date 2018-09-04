@@ -2,7 +2,7 @@
 
 const fs = require('fs-extra');
 const path = require('path');
-const reset = require('../cmds/reset');
+const reset = require('../cmds/job/reset');
 
 describe('reset should remove tjm data from file', () => {
     const jobPath = path.join(__dirname, '/fixtures/resetJobFile.json');

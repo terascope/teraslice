@@ -2,8 +2,8 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
-const reply = require('./cmd_functions/reply');
-const dataChecks = require('./cmd_functions/data_checks');
+const reply = require('../cmd_functions/reply');
+const dataChecks = require('../cmd_functions/data_checks');
 
 exports.command = 'start <job_file>';
 exports.desc = 'Starts job on the cluster in the job file\n';
@@ -25,7 +25,7 @@ exports.handler = (argv, _testFunctions) => {
     const tjmConfig = _.clone(argv);
     dataChecks(tjmConfig).returnJobData();
 
-    const tjmFunctions = _testFunctions || require('./cmd_functions/functions')(tjmConfig);
+    const tjmFunctions = _testFunctions || require('../cmd_functions/functions')(tjmConfig);
 
     return Promise.resolve()
         .then(() => {

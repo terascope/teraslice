@@ -2,8 +2,8 @@
 
 
 const _ = require('lodash');
-const reply = require('./cmd_functions/reply');
-const dataChecks = require('./cmd_functions/data_checks');
+const reply = require('../cmd_functions/reply');
+const dataChecks = require('../cmd_functions/data_checks');
 
 exports.command = 'pause <job_file>';
 exports.desc = 'pauses job on the specified cluster\n';
@@ -14,7 +14,7 @@ exports.handler = (argv, _testFunctions) => {
     const tjmConfig = _.clone(argv);
     dataChecks(tjmConfig).returnJobData();
     // teraslice client functions or test functions
-    const tjmFunctions = _testFunctions || require('./cmd_functions/functions')(tjmConfig);
+    const tjmFunctions = _testFunctions || require('../cmd_functions/functions')(tjmConfig);
 
     const jobId = tjmConfig.job_file_content.tjm.job_id;
     const { cluster } = tjmConfig;

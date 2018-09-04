@@ -1,7 +1,7 @@
 'use strict';
 
 const Promise = require('bluebird');
-const restart = require('../cmds/restart');
+const restart = require('../cmds/job/restart');
 
 const argv = {
     job_file: 'spec/fixtures/test_job_file.json'

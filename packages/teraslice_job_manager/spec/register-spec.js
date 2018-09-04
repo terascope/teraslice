@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const _ = require('lodash');
 const Promise = require('bluebird');
-const register = require('../cmds/register');
+const register = require('../cmds/job/register');
 
 describe('register should register job with cluster and follow options', () => {
     const argv = {};

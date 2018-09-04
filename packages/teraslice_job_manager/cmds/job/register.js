@@ -1,8 +1,8 @@
 'use strict';
 
 const _ = require('lodash');
-const reply = require('./cmd_functions/reply');
-const dataChecks = require('./cmd_functions/data_checks');
+const reply = require('../cmd_functions/reply');
+const dataChecks = require('../cmd_functions/data_checks');
 
 exports.command = 'register [job_file]';
 exports.desc = 'Registers job with a cluster.  Specify the cluster with -c.\nAdds metadata to job file on completion\n';
@@ -27,7 +27,7 @@ exports.builder = (yargs) => {
 exports.handler = (argv, _testTjmFunctions) => {
     const tjmConfig = _.clone(argv);
     dataChecks(tjmConfig).returnJobData(true);
-    const tjmFunctions = _testTjmFunctions || require('./cmd_functions/functions')(tjmConfig);
+    const tjmFunctions = _testTjmFunctions || require('../cmd_functions/functions')(tjmConfig);
     const jobContents = tjmConfig.job_file_content;
     const jobFilePath = tjmConfig.job_file_path;
 

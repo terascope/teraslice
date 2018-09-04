@@ -2,8 +2,8 @@
 
 const _ = require('lodash');
 const fs = require('fs-extra');
-const reply = require('./cmd_functions/reply');
-const dataChecks = require('./cmd_functions/data_checks');
+const reply = require('../cmd_functions/reply');
+const dataChecks = require('../cmd_functions/data_checks');
 
 // removes tjm data from json file
 

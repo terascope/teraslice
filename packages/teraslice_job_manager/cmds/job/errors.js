@@ -2,8 +2,8 @@
 
 
 const _ = require('lodash');
-const reply = require('./cmd_functions/reply');
-const dataChecks = require('./cmd_functions/data_checks');
+const reply = require('../cmd_functions/reply');
+const dataChecks = require('../cmd_functions/data_checks');
 
 exports.command = 'errors <job_file>';
 exports.desc = 'Shows the errors for a job\n';
@@ -14,7 +14,7 @@ exports.builder = (yargs) => {
 exports.handler = (argv, _testFunctions) => {
     const tjmConfig = _.clone(argv);
     dataChecks(tjmConfig).returnJobData();
-    const tjmFunctions = _testFunctions || require('./cmd_functions/functions')(tjmConfig);
+    const tjmFunctions = _testFunctions || require('../cmd_functions/functions')(tjmConfig);
 
     const jobId = tjmConfig.job_file_content.tjm.job_id;
 

@@ -3,7 +3,7 @@
 const Promise = require('bluebird');
 const path = require('path');
 const fs = require('fs-extra');
-const start = require('../cmds/start');
+const start = require('../cmds/job/start');
 
 const argv = {
     job_file: 'spec/fixtures/test_job_file.json'

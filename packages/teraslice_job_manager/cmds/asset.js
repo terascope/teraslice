@@ -8,7 +8,7 @@ const Promise = require('bluebird');
 const reply = require('./cmd_functions/reply');
 const dataChecks = require('./cmd_functions/data_checks');
 
-exports.command = 'asset';
+exports.command = 'asset <command>';
 exports.desc = 'Zip and post assets to a cluster';
 exports.builder = (yargs) => {
     yargs

@@ -1,8 +1,8 @@
 'use strict';
 
 const _ = require('lodash');
-const reply = require('./cmd_functions/reply');
-const dataChecks = require('./cmd_functions/data_checks');
+const reply = require('../cmd_functions/reply');
+const dataChecks = require('../cmd_functions/data_checks');
 
 exports.command = 'update [job_file]';
 exports.desc = 'Updates the job on the cluster listed in the job file\nUse -r to run or restart the job after the update\n';
@@ -19,7 +19,7 @@ exports.handler = (argv, _testFunctions) => {
     const tjmConfig = _.clone(argv);
     dataChecks(tjmConfig).returnJobData();
 
-    const tjmFunctions = _testFunctions || require('./cmd_functions/functions')(tjmConfig);
+    const tjmFunctions = _testFunctions || require('../cmd_functions/functions')(tjmConfig);
     const jobId = tjmConfig.job_file_content.tjm.job_id;
     const { cluster } = tjmConfig;
 

@@ -1,7 +1,7 @@
 {
-  "name": "teraslice-job-manager",
-  "version": "1.2.3",
-  "description": "teraslice job manager",
+  "name": "teraslice-cli",
+  "version": "1.2.4",
+  "description": "teraslice command line interface",
   "main": "index.js",
   "publishConfig": {
     "access": "public"

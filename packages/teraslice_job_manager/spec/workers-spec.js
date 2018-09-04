@@ -1,7 +1,7 @@
 'use strict';
 
 const Promise = require('bluebird');
-const workers = require('../cmds/workers');
+const workers = require('../cmds/job/workers');
 
 const argv = {
     job_file: 'spec/fixtures/test_job_file.json'
