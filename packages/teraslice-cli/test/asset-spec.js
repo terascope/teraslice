@@ -3,6 +3,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const Promise = require('bluebird');
+const { createTempDirSync } = require('jest-fixtures');
 const asset = require('../cmds/asset');
 
 let deployMessage = 'default deployed message';
@@ -14,7 +15,8 @@ const assetJson = {
     description: 'dummy asset.json for testing'
 };
 
-const assetPath = path.join(__dirname, '..', 'asset/assetTest.json');
+const tmpDir = createTempDirSync();
+const assetPath = path.join(tmpDir, 'asset/asset.json');
 
 const _tjmFunctions = {
     loadAsset: () => {
@@ -46,17 +48,20 @@ describe('asset command testing', () => {
         deployError = null;
         deployMessage = 'default deployed message';
     });
-    let argv = {};
 
     it('deploy triggers load asset', (done) => {
-        argv.c = 'example.dev:5678';
-        argv.deploy = true;
+        const tjmConfig = {
+            baseDir: tmpDir,
+            c: 'example.dev:5678',
+            deploy: true,
+        };
+
         deployMessage = 'deployed';
 
         return Promise.resolve()
             .then(() => fs.ensureFile(assetPath))
             .then(() => fs.writeJson(assetPath, assetJson, { spaces: 4 }))
-            .then(() => asset.handler(argv, _tjmFunctions))
+            .then(() => asset.handler(tjmConfig, _tjmFunctions))
             .then(result => expect(result).toEqual('deployed'))
             .then(() => fs.remove(assetPath))
             .catch(done.fail)
@@ -64,14 +69,18 @@ describe('asset command testing', () => {
     });
 
     it('deploy should respond to a request error', () => {
-        argv.c = 'example.dev:5678';
-        argv.deploy = true;
+        const tjmConfig = {
+            baseDir: tmpDir,
+            c: 'example.dev:5678',
+            deploy: true,
+        };
+
         const error = new Error('This is an error');
         error.name = 'RequestError';
         error.message = 'This is an error';
 
         deployError = error;
-        return asset.handler(argv, _tjmFunctions)
+        return asset.handler(tjmConfig, _tjmFunctions)
             .catch(err => expect(err).toBe('Could not connect to http://example.dev:5678'));
     });
 
@@ -88,13 +97,17 @@ describe('asset command testing', () => {
                 ]
             }
         };
-        argv.deploy = true;
-        argv.c = 'http://example.dev:5678';
+
+        const tjmConfig = {
+            baseDir: tmpDir,
+            deploy: true,
+            c: 'http://example.dev:5678'
+        };
 
         return Promise.resolve()
             .then(() => fs.ensureFile(assetPath))
             .then(() => fs.writeJson(assetPath, testJson, { spaces: 4 }))
-            .then(() => asset.handler(argv, _tjmFunctions))
+            .then(() => asset.handler(tjmConfig, _tjmFunctions))
             .catch((err) => {
                 expect(err).toBe('Assets have already been deployed to http://example.dev:5678, use update');
             })
@@ -103,15 +116,18 @@ describe('asset command testing', () => {
 
 
     it('update should throw an error if no cluster data', () => {
-        argv = {};
-        argv.update = true;
+        const tjmConfig = {
+            baseDir: tmpDir,
+            update: true,
+        };
 
-        expect(() => asset.handler(argv, _tjmFunctions))
+        expect(() => asset.handler(tjmConfig, _tjmFunctions))
             .toThrow('Cluster data is missing from asset.json or not specified using -c.');
     });
 
     it('replace should delete and replace asset by name', (done) => {
-        argv = {
+        const tjmConfig = {
+            baseDir: tmpDir,
             replace: true,
             l: true,
         };
@@ -121,14 +137,15 @@ describe('asset command testing', () => {
         return Promise.resolve()
             .then(() => fs.ensureFile(assetPath))
             .then(() => fs.writeJson(assetPath, assetJson, { spaces: 4 }))
-            .then(() => asset.handler(argv, _tjmFunctions))
+            .then(() => asset.handler(tjmConfig, _tjmFunctions))
             .then(result => expect(result).toBe('default deployed message'))
             .catch(done.fail)
             .finally(() => done());
     });
 
     it('replace should exit if continue is false', (done) => {
-        argv = {
+        const tjmConfig = {
+            baseDir: tmpDir,
             replace: true,
             l: true,
         };
@@ -138,7 +155,7 @@ describe('asset command testing', () => {
         return Promise.resolve()
             .then(() => fs.ensureFile(assetPath))
             .then(() => fs.writeJson(assetPath, assetJson, { spaces: 4 }))
-            .then(() => asset.handler(argv, _tjmFunctions))
+            .then(() => asset.handler(tjmConfig, _tjmFunctions))
             .catch((err) => {
                 expect(err).toBe('Exiting tjm');
             })

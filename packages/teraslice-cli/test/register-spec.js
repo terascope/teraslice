@@ -4,10 +4,15 @@ const fs = require('fs-extra');
 const path = require('path');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const { createTempDirSync } = require('jest-fixtures');
 const register = require('../cmds/job/register');
 
+const tmpDir = createTempDirSync();
+
 describe('register should register job with cluster and follow options', () => {
-    const argv = {};
+    const argv = {
+        baseDir: tmpDir,
+    };
 
     const _testTJMFunctions = {
         terasliceClient: {
@@ -52,9 +57,9 @@ describe('register should register job with cluster and follow options', () => {
         };
 
         argv.c = 'http://example.dev:5678';
-        const jobPath = path.join(__dirname, 'fixtures/regJobFile2.json');
+        const jobPath = path.join(tmpDir, 'regJobFile2.json');
         fs.writeJsonSync(jobPath, regJobData, { spaces: 4 });
-        argv.job_file = 'test/fixtures/regJobFile2.json';
+        argv.job_file = jobPath;
         return register.handler(argv, _testTJMFunctions)
             .then(() => {
                 const registeredJob = require(jobPath);

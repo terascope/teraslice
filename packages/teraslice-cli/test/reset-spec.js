@@ -2,27 +2,25 @@
 
 const fs = require('fs-extra');
 const path = require('path');
+const { createTempDirSync } = require('jest-fixtures');
 const reset = require('../cmds/job/reset');
 
-describe('reset should remove tjm data from file', () => {
-    const jobPath = path.join(__dirname, '/fixtures/resetJobFile.json');
-    beforeEach(() => {
-        const fakeJobData = require('./fixtures/test_job_file.json');
-        return fs.writeJson(jobPath, fakeJobData, { spaces: 4 });
-    });
-    afterEach(() => fs.remove(jobPath));
+const tmpDir = createTempDirSync();
 
+const jobFile = path.join(tmpDir, 'resetJobFile.json');
+
+describe('reset should remove tjm data from file', () => {
     it('tjm data should be pulled from file', () => {
+        fs.copyFileSync(path.join(__dirname, 'fixtures/test_job_file.json'), jobFile);
         // copy fixture file
         const argv = {
-            job_file: 'test/fixtures/resetJobFile.json'
+            baseDir: tmpDir,
+            job_file: jobFile
         };
 
-        const fakeJobData = require('./fixtures/test_job_file.json');
-        return fs.writeJson(jobPath, fakeJobData, { spaces: 4 })
-            .then(() => reset.handler(argv))
+        reset.handler(argv)
             .then(() => {
-                const updatedJobData = fs.readJson(jobPath);
+                const updatedJobData = fs.readJsonSync(jobFile);
                 expect(updatedJobData.tjm).toBeUndefined();
             });
     });

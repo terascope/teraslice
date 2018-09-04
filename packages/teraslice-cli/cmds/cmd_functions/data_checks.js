@@ -4,7 +4,10 @@ const _ = require('lodash');
 const path = require('path');
 const reply = require('./reply');
 
-module.exports = (tjmConfig) => {
+module.exports = (tjmConfig = {}) => {
+    if (!tjmConfig.baseDir) {
+        tjmConfig.baseDir = process.cwd();
+    }
     function returnJobData() {
         // add job data to the tjmConfig object for easy reference
         jobFileHandler();
@@ -32,7 +35,7 @@ module.exports = (tjmConfig) => {
             fName += '.json';
         }
 
-        const jobFilePath = path.join(process.cwd(), fName);
+        const jobFilePath = path.isAbsolute(fName) ? fName : path.join(tjmConfig.baseDir, fName);
         let jobContents;
 
         try {

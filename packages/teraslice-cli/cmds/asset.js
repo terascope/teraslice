@@ -12,6 +12,11 @@ exports.command = 'asset <command>';
 exports.desc = 'Zip and post assets to a cluster';
 exports.builder = (yargs) => {
     yargs
+        .option('baseDir', {
+            describe: 'specify the base directory to use, defaults to cwd',
+            default: process.cwd(),
+            type: 'string'
+        })
         .option('c', {
             describe: 'cluster where assets will be deployed, updated or checked',
             default: ''
@@ -60,11 +65,10 @@ exports.handler = (argv, _testTjmFunctions) => {
     const tjmConfig = _.clone(argv);
 
     // rename the asset file for testing to avoid naming collisions
-    let assetPath = 'asset/asset.json';
-    if (_testTjmFunctions) assetPath = 'asset/assetTest.json';
+    const assetPath = 'asset/asset.json';
 
     try {
-        tjmConfig.asset_file_content = require(path.join(process.cwd(), assetPath));
+        tjmConfig.asset_file_content = require(path.join(tjmConfig.baseDir, assetPath));
     } catch (error) {
         reply.fatal(error);
         return null;
@@ -124,13 +128,13 @@ exports.handler = (argv, _testTjmFunctions) => {
                 reply.fatal(err);
             });
     } if (argv.update) {
-        return fs.emptyDir(path.join(process.cwd(), 'builds'))
+        return fs.emptyDir(path.join(tjmConfig.baseDir, 'builds'))
             .then(() => tjmFunctions.zipAsset())
             .then((zipData) => {
                 reply.green(zipData.bytes);
                 reply.green(zipData.success);
             })
-            .then(() => fs.readFile(`${process.cwd()}/builds/processors.zip`))
+            .then(() => fs.readFile(path.join(tjmConfig.baseDir, 'builds/processors.zip')))
             .then((zippedFileData) => {
                 function postAssets(cluster) {
                     const terasliceClient = require('teraslice-client-js')({

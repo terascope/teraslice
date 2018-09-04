@@ -9,6 +9,10 @@ const TerasliceClient = require('teraslice-client-js');
 const reply = require('./reply');
 
 module.exports = (tjmConfig, _terasliceClient) => {
+    if (!tjmConfig.baseDir) {
+        tjmConfig.baseDir = process.cwd();
+    }
+
     const terasliceClient = _terasliceClient || TerasliceClient({
         host: tjmConfig.cluster
     });
@@ -30,7 +34,7 @@ module.exports = (tjmConfig, _terasliceClient) => {
 
     function _postAsset() {
         return Promise.resolve()
-            .then(() => fs.readFile(path.join(process.cwd(), 'builds', 'processors.zip')))
+            .then(() => fs.readFile(path.join(tjmConfig.baseDir, 'builds', 'processors.zip')))
             .then(zipFile => terasliceClient.assets.post(zipFile))
             .then(assetPostResponse => assetPostResponse);
     }
@@ -39,7 +43,7 @@ module.exports = (tjmConfig, _terasliceClient) => {
         if (!tjmConfig.a) {
             return Promise.resolve();
         }
-        return fs.emptyDir(path.join(process.cwd(), 'builds'))
+        return fs.emptyDir(path.join(tjmConfig.baseDir, 'builds'))
             .then(() => zipAsset())
             .then((zipData) => {
                 reply.green(zipData.bytes);
@@ -56,7 +60,7 @@ module.exports = (tjmConfig, _terasliceClient) => {
             })
             .then(() => {
                 const assetJson = _updateAssetMetadata();
-                return createJsonFile(path.join(process.cwd(), 'asset/asset.json'), assetJson);
+                return createJsonFile(path.join(tjmConfig.baseDir, 'asset/asset.json'), assetJson);
             })
             .then(() => reply.green('TJM data added to asset.json'))
             .then(() => reply.green(`Asset has successfully been deployed to ${tjmConfig.cluster}`));
@@ -70,7 +74,7 @@ module.exports = (tjmConfig, _terasliceClient) => {
         const zipMessage = {};
 
         return new Promise((resolve, reject) => {
-            const output = fs.createWriteStream(path.join(process.cwd(), 'builds', 'processors.zip'));
+            const output = fs.createWriteStream(path.join(tjmConfig.baseDir, 'builds', 'processors.zip'));
             const archive = archiver('zip', {
                 zlib: { level: 9 } // Sets the compression level.
             });
@@ -87,7 +91,7 @@ module.exports = (tjmConfig, _terasliceClient) => {
 
             archive.pipe(output);
             archive
-                .directory(path.join(process.cwd(), 'asset'), 'asset')
+                .directory(path.join(tjmConfig.baseDir, 'asset'), 'asset')
                 .finalize();
         });
     }

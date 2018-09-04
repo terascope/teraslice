@@ -1,10 +1,20 @@
 'use strict';
 
 const Promise = require('bluebird');
+const path = require('path');
+const fs = require('fs-extra');
+const { createTempDirSync } = require('jest-fixtures');
 const update = require('../cmds/job/update');
 
+const tmpDir = createTempDirSync();
+
+const jobFile = path.join(tmpDir, 'update-spec-job-file.json');
+
+fs.copyFileSync(path.join(__dirname, 'fixtures', 'test_job_file.json'), jobFile);
+
 const argv = {
-    job_file: 'test/fixtures/test_job_file.json'
+    baseDir: tmpDir,
+    job_file: jobFile
 };
 
 let registeredCheck;

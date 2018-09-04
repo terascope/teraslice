@@ -3,11 +3,10 @@
 const Promise = require('bluebird');
 const path = require('path');
 const fs = require('fs-extra');
+const { createTempDirSync } = require('jest-fixtures');
 const start = require('../cmds/job/start');
 
-const argv = {
-    job_file: 'test/fixtures/test_job_file.json'
-};
+const tmpDir = createTempDirSync();
 
 let registeredCheck;
 let startResponse;
@@ -31,6 +30,10 @@ const _tjmTestFunctions = {
 
 describe('start should start a job', () => {
     it('should register and start a job if no tjm data', (done) => {
+        const jobFile = path.join(tmpDir, 'start-job-1.json');
+
+        fs.copyFileSync(path.join(__dirname, 'fixtures', 'start_job.json'), jobFile);
+
         const jobFileData = {
             name: 'fakeJobe',
             lifecycle: 'once',
@@ -42,25 +45,30 @@ describe('start should start a job', () => {
                 }
             ]
         };
-        const filePath = path.join(process.cwd(), 'test/fixtures/start_job.json');
-        argv.job_file = 'test/fixtures/start_job.json';
-        argv.c = 'thisIsACluster';
+        const argv = {
+            baseDir: tmpDir,
+            job_file: jobFile,
+            c: 'thisIsACluster'
+        };
         registeredCheck = Promise.resolve();
         startResponse = { job_id: 'success' };
         return Promise.resolve()
-            .then(() => fs.writeJson(filePath, jobFileData))
+            .then(() => fs.writeJson(jobFile, jobFileData))
             .then(() => start.handler(argv, _tjmTestFunctions))
             .then(response => expect(response.job_id).toEqual('success'))
-            .then(() => fs.readJson(filePath))
+            .then(() => fs.readJson(jobFile))
             .then(jsonData => expect(jsonData.tjm.cluster).toBeDefined())
             .catch(() => done.fail)
             .finally(() => {
-                fs.removeSync(filePath);
                 done();
             });
     });
 
     it('should move a job to a new cluster', (done) => {
+        const jobFile = path.join(tmpDir, 'start-job-2.json');
+
+        fs.copyFileSync(path.join(__dirname, 'fixtures', 'start_job.json'), jobFile);
+
         const jobFileData = {
             name: 'fakeJobe',
             lifecycle: 'once',
@@ -77,41 +85,55 @@ describe('start should start a job', () => {
                 job_id: 'jobIdOne'
             }
         };
-        const filePath = path.join(process.cwd(), 'test/fixtures/start_job.json');
-        argv.job_file = 'test/fixtures/start_job.json';
-        argv.c = 'clusterTwo';
-        argv.m = true;
+        const argv = {
+            baseDir: tmpDir,
+            job_file: jobFile,
+            c: 'clusterTwo',
+            m: true,
+        };
+
         registeredCheck = Promise.resolve();
         startResponse = { job_id: 'success' };
         return Promise.resolve()
-            .then(() => fs.writeJson(filePath, jobFileData))
+            .then(() => fs.writeJson(jobFile, jobFileData))
             .then(() => start.handler(argv, _tjmTestFunctions))
             .then(response => expect(response.job_id).toEqual('success'))
-            .then(() => fs.readJson(filePath))
+            .then(() => fs.readJson(jobFile))
             .then((jsonData) => {
                 expect(jsonData.tjm.cluster).toBe('http://clusterTwo');
                 expect(jsonData.tjm.job_id).toBe('jobId');
             })
             .catch(() => done.fail)
             .finally(() => {
-                fs.removeSync(filePath);
                 done();
             });
     });
 
     it('should start job', (done) => {
+        const jobFile = path.join(tmpDir, 'start-job-3.json');
+
+        fs.copyFileSync(path.join(__dirname, 'fixtures', 'start_job.json'), jobFile);
+
         registeredCheck = Promise.resolve();
         startResponse = { job_id: 'success' };
-        return start.handler(argv, _tjmTestFunctions)
+        return start.handler({
+            job_file: jobFile,
+        }, _tjmTestFunctions)
             .then(response => expect(response.job_id).toEqual('success'))
             .catch(() => done.fail)
             .finally(() => done());
     });
 
     it('should throw error if start response does not have the job_id', (done) => {
+        const jobFile = path.join(tmpDir, 'start-job-3.json');
+
+        fs.copyFileSync(path.join(__dirname, 'fixtures', 'start_job.json'), jobFile);
+
         registeredCheck = Promise.resolve();
         startResponse = { };
-        return start.handler(argv, _tjmTestFunctions)
+        return start.handler({
+            job_file: jobFile,
+        }, _tjmTestFunctions)
             .then(done.fail)
             .catch(() => done());
     });

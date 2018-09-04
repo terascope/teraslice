@@ -1,16 +1,19 @@
 'use strict';
 
+const _ = require('lodash');
 const fs = require('fs-extra');
+const path = require('path');
+const { createTempDirSync } = require('jest-fixtures');
+const Promise = require('bluebird');
+const TjmFunctions = require('../cmds/cmd_functions/functions');
 
-const tjmConfig = {
+const tmpDir = createTempDirSync();
+
+const baseTjmConfig = {
+    baseDir: tmpDir,
     cluster: 'http://example.dev:5678'
 };
 
-const Promise = require('bluebird');
-const path = require('path');
-const TjmFunctions = require('../cmds/cmd_functions/functions');
-
-let jobContents;
 let someJobId;
 let assetObject;
 
@@ -27,6 +30,7 @@ const _terasliceClient = {
     }
 };
 
+
 const packageJson = {
     name: 'common_processors',
     version: '0.0.29',
@@ -35,10 +39,11 @@ const packageJson = {
 };
 
 function createNewAsset() {
-    const assetPath = path.join(__dirname, '..', 'asset/asset.json');
-    const packagePath = path.join(__dirname, '..', 'asset/package.json');
+    const assetPath = path.join(tmpDir, 'asset/asset.json');
+    const packagePath = path.join(tmpDir, 'asset/package.json');
     return Promise.resolve()
-        .then(() => fs.emptyDir(path.join(__dirname, '..', 'asset')))
+        .then(() => fs.ensureDir(path.join(tmpDir, 'asset')))
+        .then(() => fs.emptyDir(path.join(tmpDir, 'asset')))
         .then(() => Promise.all([
             fs.writeJson(assetPath, {
                 name: 'testing_123',
@@ -50,15 +55,11 @@ function createNewAsset() {
 }
 
 describe('tjmFunctions testing', () => {
-    afterAll(() => Promise.all([
-        fs.remove(path.join(__dirname, '..', 'builds')),
-        fs.remove(path.join(__dirname, '..', 'asset'))
-    ]));
-
     beforeEach(() => createNewAsset());
 
     it('alreadyRegisteredCheck should resolve if the job exists', (done) => {
-        jobContents = {
+        const tjmConfig = _.clone(baseTjmConfig);
+        const jobContents = {
             tjm: {
                 cluster: 'http://example.dev:5678',
                 job_id: 'jobYouAreLookingFor'
@@ -79,8 +80,10 @@ describe('tjmFunctions testing', () => {
     });
 
     it('alreadyRegisteredCheck should reject if the job exists', (done) => {
+        const tjmConfig = _.clone(baseTjmConfig);
+
         someJobId = 'notTheJobYouAreLookingFor';
-        jobContents = {
+        const jobContents = {
             tjm: {
                 cluster: 'http://example.dev:5678',
                 job_id: 'jobYouAreLookingFor'
@@ -98,7 +101,9 @@ describe('tjmFunctions testing', () => {
     });
 
     it('alreadyRegisteredCheck should reject if the job contents are empty', (done) => {
-        jobContents = {};
+        const tjmConfig = _.clone(baseTjmConfig);
+        const jobContents = {};
+
         tjmConfig.job_file_content = jobContents;
         tjmConfig.job_file_path = 'someFilePath';
 
@@ -110,6 +115,8 @@ describe('tjmFunctions testing', () => {
     });
 
     it('meta data is being written to assets.json ', (done) => {
+        const tjmConfig = _.clone(baseTjmConfig);
+
         tjmConfig.cluster = 'http://example.dev:5678';
         tjmConfig.asset_file_content = {
             name: 'testing_123',
@@ -129,6 +136,8 @@ describe('tjmFunctions testing', () => {
     });
 
     it('cluster is added to array in asset.json if a new cluster', (done) => {
+        const tjmConfig = _.clone(baseTjmConfig);
+
         tjmConfig.cluster = 'http://anotherCluster:5678';
         tjmConfig.asset_file_content = {
             name: 'testing_123',
@@ -153,6 +162,8 @@ describe('tjmFunctions testing', () => {
     });
 
     it('cluster is not added to array in asset.json it is already there', (done) => {
+        const tjmConfig = _.clone(baseTjmConfig);
+
         tjmConfig.cluster = 'http://newCluster:5678';
         tjmConfig.asset_file_content = {
             name: 'testing_123',
@@ -177,6 +188,8 @@ describe('tjmFunctions testing', () => {
     });
 
     it('check that assets are zipped', (done) => {
+        const tjmConfig = _.clone(baseTjmConfig);
+
         const assetJson = {
             name: 'testing_123',
             version: '0.0.01',
@@ -188,18 +201,20 @@ describe('tjmFunctions testing', () => {
         const tjmFunctions = TjmFunctions(tjmConfig, _terasliceClient);
 
         return Promise.all([
-            fs.writeFile(path.join(__dirname, '..', 'asset/asset.json'), JSON.stringify(assetJson, null, 4)),
-            fs.emptyDir(path.join(__dirname, '..', 'builds'))
+            fs.writeFile(path.join(tmpDir, 'asset/asset.json'), JSON.stringify(assetJson, null, 4)),
+            fs.emptyDir(path.join(tmpDir, 'builds'))
         ])
             .then(() => tjmFunctions.zipAsset())
             .then(zipMessage => expect(zipMessage.success).toBe('Assets have been zipped to builds/processors.zip'))
-            .then(() => fs.pathExists(path.join(__dirname, '..', 'builds/processors.zip')))
+            .then(() => fs.pathExists(path.join(tmpDir, 'builds/processors.zip')))
             .then(exists => expect(exists).toBe(true))
             .catch(done.fail)
             .finally(() => done());
     });
 
     it('add assets returns post asset message', (done) => {
+        const tjmConfig = _.clone(baseTjmConfig);
+
         assetObject = JSON.stringify({
             success: 'Asset was deployed',
             _id: '12345AssetId'
@@ -207,8 +222,8 @@ describe('tjmFunctions testing', () => {
 
         const tjmFunctions = TjmFunctions(tjmConfig, _terasliceClient);
         Promise.resolve()
-            .then(() => fs.emptyDir(path.join(__dirname, '..', 'builds')))
-            .then(() => fs.writeFile(path.join(__dirname, '..', 'builds/processors.zip'), 'this is some sweet text'))
+            .then(() => fs.emptyDir(path.join(tmpDir, 'builds')))
+            .then(() => fs.writeFile(path.join(tmpDir, 'builds/processors.zip'), 'this is some sweet text'))
             .then(() => tjmFunctions.__testFunctions()._postAsset())
             .then((response) => {
                 const parsedResponse = JSON.parse(response);
@@ -220,6 +235,8 @@ describe('tjmFunctions testing', () => {
     });
 
     it('load asset removes build, adds metadata to asset, zips asset, posts to cluster', (done) => {
+        const tjmConfig = _.clone(baseTjmConfig);
+
         assetObject = JSON.stringify({ success: 'this worked', _id: '1235fakejob' });
         tjmConfig.cluster = 'http://example.dev:5678';
         tjmConfig.a = true;
@@ -230,16 +247,19 @@ describe('tjmFunctions testing', () => {
             version: '0.0.01',
             description: 'dummy asset.json for testing'
         };
+
+        tjmConfig.asset_file_content = assetJson;
+
         return Promise.all([
-            fs.writeFile(path.join(__dirname, '..', 'asset/asset.json'), JSON.stringify(assetJson, null, 4)),
-            fs.emptyDir(path.join(__dirname, '..', 'builds'))
+            fs.writeJson(path.join(tmpDir, 'asset/asset.json'), assetJson),
+            fs.emptyDir(path.join(tmpDir, 'builds'))
         ])
             .then(() => tjmFunctions.loadAsset())
             .then(() => {
-                const updatedAssetJson = require(path.join(__dirname, '..', 'asset/asset.json'));
+                const updatedAssetJson = fs.readJsonSync(path.join(tmpDir, 'asset/asset.json'));
                 expect(updatedAssetJson.tjm.clusters[0]).toBe('http://example.dev:5678');
-                expect(fs.pathExistsSync(path.join(__dirname, '..', 'builds/processors.zip'))).toBe(true);
-                expect(fs.pathExistsSync(path.join(__dirname, '..', 'asset/package.json'))).toBe(true);
+                expect(fs.pathExistsSync(path.join(tmpDir, 'builds/processors.zip'))).toBe(true);
+                expect(fs.pathExistsSync(path.join(tmpDir, 'asset/package.json'))).toBe(true);
             })
             .catch(done.fail)
             .finally(() => done());
