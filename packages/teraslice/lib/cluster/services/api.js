@@ -141,9 +141,17 @@ module.exports = function module(context, app) {
         logger.trace(`POST /jobs/:job_id/_stop endpoint has been called, job_id: ${jobId}, removing any pending workers for the job`);
 
         const handleApiError = handleError(res, logger, 500, `Could not stop execution for job: ${jobId}`);
-        console.log('what is blocking', blocking, typeof blocking)
-        jobsService.stopJob(jobId, timeout, blocking)
-            .then(status => res.status(200).json({ status }))
+
+        jobsService.getLatestExecutionId(jobId)
+            .then(exId => executionService.stopExecution(exId, timeout)
+                .then(() => {
+                    if (blocking) {
+                        return _waitForStop(exId)
+                            .then(() => res.status(200).json({ status: 'stopped' }));
+                    }
+                    _waitForStop(exId);
+                    return res.status(200).json({ status: 'stopping' });
+                }))
             .catch(handleApiError);
     });
 
@@ -260,8 +268,15 @@ module.exports = function module(context, app) {
         const handleApiError = handleError(res, logger, 500, `Could not stop execution: ${exId}`);
         // for lifecyle events, we need to ensure that the execution is alive first
         executionService.getActiveExecution(exId)
-            .then(() => executionService.stopExecution(exId, timeout, blocking))
-            .then(() => res.status(200).json({ status: 'stopped' }))
+            .then(() => executionService.stopExecution(exId, timeout))
+            .then(() => {
+                if (blocking) {
+                    return _waitForStop(exId)
+                        .then(() => res.status(200).json({ status: 'stopped' }));
+                }
+                _waitForStop(exId);
+                return res.status(200).json({ status: 'stopping' });
+            })
             .catch(handleApiError);
     });
 
@@ -497,6 +512,19 @@ module.exports = function module(context, app) {
 
     function _initialize() {
         return Promise.resolve(api);
+    }
+
+    function _waitForStop(exId) {
+        return executionService.executionHasStopped(exId)
+            .then(() => executionService.getExecutionContext(exId))
+            .then((execution) => {
+                const terminalStatuses = executionService.terminalStatusList();
+                const isTerminal = terminalStatuses.find(tStatus => tStatus === execution._status);
+                if (!isTerminal) {
+                    return executionService.setExecutionStatus(exId, 'stopped');
+                }
+                return true;
+            });
     }
 
     return require('../storage/state')(context)

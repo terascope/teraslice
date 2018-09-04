@@ -107,12 +107,6 @@ module.exports = function module(context) {
             .catch(err => Promise.reject(parseError(err)));
     }
 
-    function stopJob(jobId, timeout, blocking) {
-        return getLatestExecutionId(jobId)
-            .then(exId => executionService.stopExecution(exId, timeout, null, null, blocking))
-            .catch(err => Promise.reject(parseError(err)));
-    }
-
     function pauseJob(jobId) {
         return getLatestExecutionId(jobId)
             .then(exId => executionService.pauseExecution(exId))
@@ -239,7 +233,6 @@ module.exports = function module(context) {
         submitJob,
         updateJob,
         startJob,
-        stopJob,
         pauseJob,
         resumeJob,
         recoverJob: util.deprecate(recoverJob, depMsg),
