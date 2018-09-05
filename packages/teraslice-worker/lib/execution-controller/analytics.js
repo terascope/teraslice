@@ -74,7 +74,7 @@ class ExecutionAnalytics {
     }
 
     set(key, value) {
-        _.get(this.executionAnalytics, key, value);
+        _.update(this.executionAnalytics, key, value);
     }
 
     increment(key) {
