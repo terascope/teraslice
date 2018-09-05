@@ -43,7 +43,9 @@ describe('Node master', () => {
         __test_assignment: 'worker'
     };
 
-    const fakeClusterMaster = require('socket.io')();
+    const fakeClusterMaster = require('socket.io')({
+        path: '/native-clustering'
+    });
 
     fakeClusterMaster.on('connection', (socket) => {
         socket.on('node:state', (data) => {
@@ -86,14 +88,14 @@ describe('Node master', () => {
             this.process = {
                 pid: processCounter,
                 _msgSent: null,
-                kill: () => eventEmitter.emit('deleteWorker', this.id)
+                kill: (signal) => {
+                    if (delayRemoval && signal === 'SIGTERM') {
+                        setTimeout(() => eventEmitter.emit('deleteWorker', this.id), 500);
+                    } else {
+                        eventEmitter.emit('deleteWorker', this.id);
+                    }
+                }
             };
-        }
-
-        send(processMsg) {
-            if (delayRemoval && processMsg.message === 'SIGTERM') {
-                setTimeout(() => eventEmitter.emit('deleteWorker', this.id), 500);
-            }
         }
     }
 
@@ -154,6 +156,8 @@ describe('Node master', () => {
     beforeEach(() => {
         delayRemoval = false;
     });
+
+    afterAll(() => fakeClusterMaster.close());
 
     it('can load without throwing', () => {
         expect(() => setUpNodeMaster()).not.toThrowError();

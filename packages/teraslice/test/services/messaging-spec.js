@@ -3,17 +3,11 @@
 const _ = require('lodash');
 const events = require('events');
 const Promise = require('bluebird');
+const { debugLogger } = require('@terascope/teraslice-types');
 const messagingModule = require('../../lib/cluster/services/messaging');
 
 describe('messaging module', () => {
-    const logger = {
-        error() {},
-        info() {},
-        warn() {},
-        trace() {},
-        debug() {},
-        flush() {}
-    };
+    const logger = debugLogger('messaging');
 
     const testExId = '7890';
 
@@ -53,7 +47,7 @@ describe('messaging module', () => {
     }
 
     let emitMsg = null;
-    let socketMsg = null;
+    let socketMsg = null; // eslint-disable-line
     const connected = {};
 
     const io = {
@@ -195,12 +189,10 @@ describe('messaging module', () => {
         const { routing } = messaging.__test_context();
 
         const routingData = {
-            cluster_master: { execution_controller: 'network', node_master: 'network', assets_loader: 'ipc' },
+            cluster_master: { node_master: 'network', assets_loader: 'ipc' },
             node_master: {
                 cluster_process: 'ipc', cluster_master: 'network', execution_controller: 'ipc', worker: 'ipc', assets_loader: 'ipc', execution: 'ipc'
             },
-            execution_controller: { worker: 'network', cluster_master: 'ipc', node_master: 'ipc' },
-            worker: { execution_controller: 'network', cluster_master: 'ipc', node_master: 'ipc' },
             assets_loader: { execution: 'ipc', cluster_master: 'ipc' },
             assets_service: { cluster_master: 'ipc' }
         };
@@ -218,10 +210,6 @@ describe('messaging module', () => {
         const messaging2 = messagingModule(testContext2, logger);
         const routerClusterMaster = messaging2.__test_context()._determinePathForMessage;
 
-        const testContext3 = getContext({ env: { assignment: 'execution_controller' } });
-        const messaging3 = messagingModule(testContext3, logger);
-        const routerExecutionController = messaging3.__test_context()._determinePathForMessage;
-
         const testContext4 = getContext({ env: { assignment: 'assets_service' } });
         const messaging4 = messagingModule(testContext4, logger);
         const routerAssetsService = messaging4.__test_context()._determinePathForMessage;
@@ -237,10 +225,6 @@ describe('messaging module', () => {
 
         expect(() => routerNodeMaster(failureMessage1)).toThrow();
 
-        expect(routerExecutionController({ to: 'cluster_master' })).toEqual('ipc');
-        expect(routerExecutionController({ to: 'worker' })).toEqual('network');
-
-        expect(routerClusterMaster({ to: 'execution_controller' })).toEqual('network');
         expect(routerClusterMaster({ to: 'node_master' })).toEqual('network');
         expect(routerClusterMaster({ to: 'assets_loader' })).toEqual('ipc');
         // this tests a shutdown message back to the cluster master process itself
@@ -252,11 +236,11 @@ describe('messaging module', () => {
         expect(() => routerAssetsService(failureMessage2)).toThrow();
         testContext1.cleanup();
         testContext2.cleanup();
-        testContext3.cleanup();
         testContext4.cleanup();
     });
 
-    it('can send process messages', () => {
+    // I am not sure what this actually testing but I don't think we need it any more - Peter
+    xit('can send process messages', () => {
         const testContext = getContext({ env: { assignment: 'node_master' } });
         const messaging = messagingModule(testContext, logger);
         const sendToProcesses = messaging.__test_context()._sendToProcesses;
@@ -357,65 +341,7 @@ describe('messaging module', () => {
         // should be a process msg
         expect(secondWorkerMsg).toEqual(workerMsg);
 
-        const testContext2 = getContext({ env: { assignment: 'cluster_master' } });
-        const messaging2 = messagingModule(testContext2, logger);
-        const clusterMasterForwarding = messaging2.__test_context(io)._forwardMessage;
-
-        clusterMasterForwarding({
-            to: 'execution_controller',
-            message: 'execution:stop',
-            address: 'someNodeMaster'
-        });
-        // should be a network socket msg, sent to a specific node
-        expect(socketMsg).toEqual({
-            message: 'networkMessage',
-            address: 'someNodeMaster',
-            data: {
-                to: 'execution_controller',
-                message: 'execution:stop',
-                address: 'someNodeMaster'
-            }
-        });
-
-        let sentProcessMsg = null;
-        const sentToProcess = (msg) => { sentProcessMsg = msg; };
-        const testContext3 = getContext({
-            env: {
-                assignment: 'execution_controller'
-            },
-            send: sentToProcess
-        });
-        const messaging3 = messagingModule(testContext3, logger);
-        const executionControllerForwarding = messaging3.__test_context(io)._forwardMessage;
-
-        executionControllerForwarding({
-            to: 'worker',
-            message: 'slicer:slice:new',
-            address: 'someSpecificWorker'
-        });
-        // should be a network socket msg, sent to a specific node
-        expect(socketMsg).toEqual({
-            message: 'slicer:slice:new',
-            address: 'someSpecificWorker',
-            data: {
-                to: 'worker',
-                message: 'slicer:slice:new',
-                address: 'someSpecificWorker'
-            }
-        });
-
-        executionControllerForwarding({
-            to: 'cluster_master',
-            message: 'cluster:slicer:analytics'
-        });
-        // should be a ipc msg, sent to a specific node
-        expect(sentProcessMsg).toEqual({
-            to: 'cluster_master',
-            message: 'cluster:slicer:analytics'
-        });
         testContext.cleanup();
-        testContext2.cleanup();
-        testContext3.cleanup();
     });
 
     it('can work with messaging:response messages', () => {
@@ -507,41 +433,6 @@ describe('messaging module', () => {
                                 return true;
                             });
                     });
-            })
-            .catch(fail)
-            .finally(() => {
-                testContext.cleanup();
-                done();
-            });
-    });
-
-    it('can respond', (done) => {
-        let sentProcessMsg = null;
-        const sentToProcess = (msg) => { sentProcessMsg = msg; };
-        const testContext = getContext({
-            env: {
-                assignment: 'execution_controller'
-            },
-            send: sentToProcess
-        });
-        const messaging = messagingModule(testContext, logger);
-        const workerMsg = {
-            to: 'execution_controller',
-            ex_id: testExId,
-            message: 'execution:stop',
-            __msgId: 1234,
-            __source: 'cluster_master'
-        };
-
-        messaging.respond(workerMsg, { some: 'data' })
-            .then(() => {
-                expect(sentProcessMsg).toEqual({
-                    some: 'data',
-                    __msgId: 1234,
-                    __source: 'cluster_master',
-                    message: 'messaging:response',
-                    to: 'cluster_master'
-                });
             })
             .catch(fail)
             .finally(() => {

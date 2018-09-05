@@ -4,12 +4,12 @@ import { EventEmitter } from 'events';
 import * as c from './context';
 import * as j from './jobs';
 
-interface debugParamObj {
+interface DebugParamObj {
     module: string;
     assignment?: string;
 }
 
-type debugParam = debugParamObj | string;
+type debugParam = DebugParamObj | string;
 
 export function debugLogger(testName: string, param?: debugParam, otherName?: string): c.Logger {
     let logger: c.Logger;
