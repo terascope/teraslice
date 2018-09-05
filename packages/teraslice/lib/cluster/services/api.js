@@ -145,11 +145,10 @@ module.exports = function module(context, app) {
         jobsService.getLatestExecutionId(jobId)
             .then(exId => executionService.stopExecution(exId, timeout)
                 .then(() => {
-                    if (blocking) {
+                    if (blocking === true) {
                         return _waitForStop(exId)
                             .then(() => res.status(200).json({ status: 'stopped' }));
                     }
-                    _waitForStop(exId);
                     return res.status(200).json({ status: 'stopping' });
                 }))
             .catch(handleApiError);
@@ -270,11 +269,10 @@ module.exports = function module(context, app) {
         executionService.getActiveExecution(exId)
             .then(() => executionService.stopExecution(exId, timeout))
             .then(() => {
-                if (blocking) {
+                if (blocking === true) {
                     return _waitForStop(exId)
                         .then(() => res.status(200).json({ status: 'stopped' }));
                 }
-                _waitForStop(exId);
                 return res.status(200).json({ status: 'stopping' });
             })
             .catch(handleApiError);
@@ -515,7 +513,23 @@ module.exports = function module(context, app) {
     }
 
     function _waitForStop(exId) {
-        return executionService.executionHasStopped(exId)
+        return new Promise((resolve) => {
+            function checkExecution() {
+                executionService.getExecutionContext(exId)
+                    .then((execution) => {
+                        const terminalStatuses = executionService.terminalStatusList();
+                        const isTerminal = terminalStatuses.find(tStatus => tStatus === execution._status);
+                        if (isTerminal) resolve(true);
+                        else setTimeout(checkExecution, 3000);
+                    })
+                    .catch((err) => {
+                        logger.error(err);
+                        setTimeout(checkExecution, 3000);
+                    });
+            }
+
+            checkExecution();
+        })
             .then(() => executionService.getExecutionContext(exId))
             .then((execution) => {
                 const terminalStatuses = executionService.terminalStatusList();

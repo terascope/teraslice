@@ -59,7 +59,9 @@ module.exports = function module(context) {
         return clusterService.allocateSlicer(execution);
     }
 
-    function executionHasStopped(exId) {
+    function executionHasStopped(exId, _status) {
+        const status = _status || 'stopped';
+
         return new Promise((resolve) => {
             function checkCluster() {
                 const state = getClusterState();
@@ -70,13 +72,14 @@ module.exports = function module(context) {
                         dict[worker.ex_id] = true;
                     }),
                 );
-
+                // if found, do not resolve
                 if (dict[exId]) {
-                    //TODO: what should timeout be?
                     setTimeout(checkCluster, 3000);
                     return;
                 }
-                resolve(true);
+                Promise.resolve()
+                    .then(() => setExecutionStatus(exId, status))
+                    .finally(() => resolve(true));
             }
             checkCluster();
         });
@@ -95,8 +98,7 @@ module.exports = function module(context) {
                     // has already been propagated this can cause a condition of it waiting for
                     // stop to return but it already has which pauses this service shutdown
                     return stopExecution(exId, null, hostname)
-                        .then(() => executionHasStopped(exId))
-                        .then((() => setExecutionStatus(exId, 'terminated')));
+                        .then(() => executionHasStopped(exId, 'terminated'));
                 }
                 return true;
             })
@@ -146,7 +148,12 @@ module.exports = function module(context) {
 
     function stopExecution(exId, timeout, excludeNode) {
         return setExecutionStatus(exId, 'stopping')
-            .then(() => clusterService.stopExecution(exId, timeout, excludeNode));
+            .then(() => clusterService.stopExecution(exId, timeout, excludeNode))
+            .then(() => {
+                // we are kicking this off in the background, not part of the promise chain
+                executionHasStopped(exId);
+                return true;
+            });
     }
 
     function pauseExecution(exId) {
