@@ -29,7 +29,8 @@ build/Release
 node_modules
 
 # teraslice assets
-assets
+assets/*/
+packages/*/assets/*/
 
 # package dist directory
 packages/**/dist

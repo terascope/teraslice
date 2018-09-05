@@ -17,8 +17,7 @@ function safeDecode(str) {
         return str;
     }
     try {
-        const parsed = JSON.parse(str);
-        return Buffer.from(parsed, 'base64').toString('utf-8');
+        return JSON.parse(Buffer.from(str, 'base64').toString('utf-8'));
     } catch (err) {
         throw new Error(`Unable to decode ${str}`);
     }
