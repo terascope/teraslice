@@ -24,6 +24,11 @@ RUN yarn install \
     && yarn setup \
     && yarn cache clean
 
+RUN export WITH_SASL=0 && \
+    yarn add -W terascope/terafoundation_kafka_connector && \
+    yarn add -W terascope/teraslice_kafka_reader && \
+    yarn add -W terascope/teraslice_kafka_sender
+
 EXPOSE 5678
 
 VOLUME /app/config /app/logs /app/assets
