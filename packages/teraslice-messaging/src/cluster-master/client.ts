@@ -51,7 +51,7 @@ export class Client extends core.Client {
     }
 
     sendExecutionFinished(error?: string) {
-        return this.send('execution:finished', { error });
+        return this.send('execution:finished', { error }, true);
     }
 
     onExecutionAnalytics(fn: core.MessageHandler) {
