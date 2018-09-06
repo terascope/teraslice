@@ -304,7 +304,8 @@ describe('Messenger', () => {
                     await client.send('hello');
                 } catch (err) {
                     expect(err).not.toBeNil();
-                    expect(err.message).toEqual('Timed out after 1000ms, waiting for message "hello"');
+                    expect(err.message).toStartWith('Timed out after');
+                    expect(err.message).toEndWith('waiting for message "hello"');
                 }
             });
         });

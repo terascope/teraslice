@@ -38,6 +38,34 @@ module.exports = function module(context, { clusterMasterServer }) {
         return clusterService.allocateSlicer(execution);
     }
 
+    function executionHasStopped(exId, _status) {
+        const status = _status || 'stopped';
+
+        return new Promise((resolve) => {
+            function checkCluster() {
+                const state = getClusterState();
+                const dict = {};
+                _.each(
+                    state,
+                    node => _.each(node.active, (worker) => {
+                        dict[worker.ex_id] = true;
+                    }),
+                );
+                // if found, do not resolve
+                if (dict[exId]) {
+                    setTimeout(checkCluster, 3000);
+                    return;
+                }
+                Promise.resolve()
+                    .then(() => exStore.verifyStatusUpdate(exId, status))
+                    .then(() => setExecutionStatus(exId, status))
+                    .catch(err => logger.error(err))
+                    .finally(() => resolve(true));
+            }
+            checkCluster();
+        });
+    }
+
     function shutdown() {
         logger.info('shutting down');
         const query = exStore.getLivingStatuses().map(str => `_status:${str}`).join(' OR ');
@@ -45,10 +73,13 @@ module.exports = function module(context, { clusterMasterServer }) {
             .map((execution) => {
                 if (context.sysconfig.teraslice.cluster_manager_type === 'native') {
                     logger.warn(`marking execution ex_id: ${execution.ex_id}, job_id: ${execution.job_id} as terminated`);
+                    const exId = execution.ex_id;
+                    const { hostname } = context.sysconfig.teraslice;
                     // need to exclude sending a stop to cluster master host, the shutdown event
                     // has already been propagated this can cause a condition of it waiting for
                     // stop to return but it already has which pauses this service shutdown
-                    return stopExecution(execution.ex_id, null, 'terminated', context.sysconfig.teraslice.hostname);
+                    return stopExecution(exId, null, hostname)
+                        .then(() => executionHasStopped(exId, 'terminated'));
                 }
                 return true;
             })
@@ -96,11 +127,24 @@ module.exports = function module(context, { clusterMasterServer }) {
         return clusterService.removeWorkers(exId, workerNum);
     }
 
-    function stopExecution(exId, timeout, _status, excludeNode) {
-        const status = _status || 'stopped';
-        return clusterService.stopExecution(exId, timeout, excludeNode)
-            .then(() => setExecutionStatus(exId, status))
-            .then(() => ({ status }));
+    function _isTerminalStatus(execution) {
+        const terminalList = terminalStatusList();
+        return terminalList.find(tStat => tStat === execution._status) !== undefined;
+    }
+
+    function stopExecution(exId, timeout, excludeNode) {
+        return getExecutionContext(exId)
+            .then((execution) => {
+                const isTerminal = _isTerminalStatus(execution);
+                if (isTerminal) return true;
+                return setExecutionStatus(exId, 'stopping')
+                    .then(() => clusterService.stopExecution(exId, timeout, excludeNode))
+                    .then(() => {
+                        // we are kicking this off in the background, not part of the promise chain
+                        executionHasStopped(exId);
+                        return true;
+                    });
+            });
     }
 
     function pauseExecution(exId) {
@@ -296,7 +340,8 @@ module.exports = function module(context, { clusterMasterServer }) {
         searchExecutionContexts,
         setExecutionStatus,
         terminalStatusList,
-        executionMetaData
+        executionMetaData,
+        executionHasStopped
     };
 
     function _executionAllocator() {

@@ -498,7 +498,7 @@ module.exports = function module(context, clusterMasterServer, executionService)
             });
     }
 
-    function _notifyNodesWithExecution(exId, messageData, excludeNode) {
+    function _notifyNodesWithExecution(exId, messageData, excludeNode, response) {
         return new Promise(((resolve, reject) => {
             let nodes = _findNodesForExecution(exId);
             if (excludeNode) {
@@ -515,7 +515,7 @@ module.exports = function module(context, clusterMasterServer, executionService)
                     to: 'node_master',
                     address: node.node_id,
                     ex_id: exId,
-                    response: true
+                    response
                 });
 
                 return messaging.send(sendingMsg);
@@ -538,13 +538,15 @@ module.exports = function module(context, clusterMasterServer, executionService)
     function clusterAvailable() {}
 
     function stopExecution(exId, timeout, exclude) {
+        // we are allowing stopExecution to be non blocking, we block at api level
+        const response = false;
         const excludeNode = exclude || null;
         pendingWorkerRequests.remove(exId);
         const sendingMessage = { message: 'cluster:execution:stop' };
         if (timeout) {
             sendingMessage.timeout = timeout;
         }
-        return _notifyNodesWithExecution(exId, sendingMessage, excludeNode);
+        return _notifyNodesWithExecution(exId, sendingMessage, excludeNode, response);
     }
 
     const api = {
