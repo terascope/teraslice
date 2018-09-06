@@ -517,8 +517,8 @@ module.exports = function module(context, app) {
             function checkExecution() {
                 executionService.getExecutionContext(exId)
                     .then((execution) => {
-                        const terminalStatuses = executionService.terminalStatusList();
-                        const isTerminal = terminalStatuses.find(tStatus => tStatus === execution._status);
+                        const terminalList = executionService.terminalStatusList();
+                        const isTerminal = terminalList.find(tStat => tStat === execution._status);
                         if (isTerminal) resolve(true);
                         else setTimeout(checkExecution, 3000);
                     })
