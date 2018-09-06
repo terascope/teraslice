@@ -78,7 +78,9 @@ module.exports = function module(context) {
                     return;
                 }
                 Promise.resolve()
+                    .then(() => exStore.verifyStatusUpdate(exId, status))
                     .then(() => setExecutionStatus(exId, status))
+                    .catch(err => logger.error(err))
                     .finally(() => resolve(true));
             }
             checkCluster();
@@ -146,13 +148,23 @@ module.exports = function module(context) {
         return clusterService.removeWorkers(exId, workerNum);
     }
 
+    function _isTerminalStatus(execution) {
+        const terminalList = terminalStatusList();
+        return terminalList.find(tStat => tStat === execution._status) !== undefined;
+    }
+
     function stopExecution(exId, timeout, excludeNode) {
-        return setExecutionStatus(exId, 'stopping')
-            .then(() => clusterService.stopExecution(exId, timeout, excludeNode))
-            .then(() => {
-                // we are kicking this off in the background, not part of the promise chain
-                executionHasStopped(exId);
-                return true;
+        return getExecutionContext(exId)
+            .then((execution) => {
+                const isTerminal = _isTerminalStatus(execution);
+                if (isTerminal) return true;
+                return setExecutionStatus(exId, 'stopping')
+                    .then(() => clusterService.stopExecution(exId, timeout, excludeNode))
+                    .then(() => {
+                        // we are kicking this off in the background, not part of the promise chain
+                        executionHasStopped(exId);
+                        return true;
+                    });
             });
     }
 
