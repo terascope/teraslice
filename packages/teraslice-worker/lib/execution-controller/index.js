@@ -406,7 +406,7 @@ class ExecutionController {
 
     // this is used to determine when the slicers are done the work is done processing
     get isSlicersComplete() {
-        const workersCompleted = this.server.activeWorkerCount >= this.server.onlineClientCount;
+        const workersCompleted = this.server.availableClientCount === this.server.connectedClientCount;
         return this.isStarted && workersCompleted;
     }
 
@@ -493,7 +493,7 @@ class ExecutionController {
 
         this.executionAnalytics.set('workers_available', this.server.availableClientCount);
         this.executionAnalytics.set('queued', this.slicerQueue.size());
-        this.executionAnalytics.set('workers_active', this.server.activeWorkerCount);
+        this.executionAnalytics.set('workers_active', this.server.unavailableClientCount);
 
         await immediate();
 

@@ -8,7 +8,6 @@ import * as i from './interfaces';
 export class Server extends core.Server {
     private cache: NodeCache;
     queue: Queue;
-    private _activeWorkers: string[];
 
     constructor(opts: i.ServerOptions) {
         const {
@@ -41,7 +40,6 @@ export class Server extends core.Server {
         });
 
         this.queue = new Queue();
-        this._activeWorkers = [];
     }
 
     async start() {
@@ -54,7 +52,6 @@ export class Server extends core.Server {
         });
 
         this.onClientDisconnect((workerId) => {
-            _.pull(this._activeWorkers, workerId);
             this._workerRemove(workerId);
         });
 
@@ -88,8 +85,6 @@ export class Server extends core.Server {
 
         const response = await this.send(workerId, 'execution:slice:new', slice);
 
-        this._activeWorkers = _.union(this._activeWorkers, [workerId]);
-
         const dispatched = _.get(response, 'payload.willProcess', false);
 
         return {
@@ -104,14 +99,6 @@ export class Server extends core.Server {
 
     onSliceFailure(fn: core.ClientEventFn) {
         this.on('slice:failure', fn);
-    }
-
-    get activeWorkers(): string[] {
-        return this._activeWorkers;
-    }
-
-    get activeWorkerCount(): number {
-        return _.size(this._activeWorkers);
     }
 
     broadcastExecutionFinished(exId: string) {
