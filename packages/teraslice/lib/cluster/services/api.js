@@ -529,16 +529,7 @@ module.exports = function module(context, app) {
             }
 
             checkExecution();
-        })
-            .then(() => executionService.getExecutionContext(exId))
-            .then((execution) => {
-                const terminalStatuses = executionService.terminalStatusList();
-                const isTerminal = terminalStatuses.find(tStatus => tStatus === execution._status);
-                if (!isTerminal) {
-                    return executionService.setExecutionStatus(exId, 'stopped');
-                }
-                return true;
-            });
+        });
     }
 
     return require('../storage/state')(context)
