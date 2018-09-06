@@ -374,14 +374,14 @@ module.exports = function module(context, { clusterMasterServer }) {
                 }
                 const errMsg = parseError(err);
                 logger.error('Error initializing, ', errMsg);
-                return Promise.reject(errMsg);
+                return Promise.reject(err);
             });
     }
 
 
     return require('../storage/execution')(context)
         .then((ex) => {
-            logger.info('Initializing');
+            logger.info('execution service is initializing...');
             exStore = ex;
             return require('./cluster')(context, clusterMasterServer, api);
         })

@@ -114,7 +114,6 @@ module.exports = function module(context) {
                 messaging.send({ to: 'cluster_master', message: 'node:workers:over_allocated', payload: createWorkerMsg });
                 logger.warn(`Worker allocation request would exceed maximum number of workers - ${configWorkerLimit}`);
                 logger.warn(`Reducing allocation to ${newWorkers} workers.`);
-                return;
             }
 
             logger.trace(`starting ${newWorkers} workers`, createWorkerMsg.ex_id);
@@ -238,7 +237,7 @@ module.exports = function module(context) {
         _.each(allWorkersForJob, (worker) => {
             const workerID = worker.worker_id || worker.id;
             if (context.cluster.workers[workerID]) {
-                logger.warn(`sending ${signal} to process ${worker.id}, assignment: ${worker.assignment}, ex_id: ${worker.ex_id}`);
+                logger.warn(`sending ${signal} to worker ${workerID}, assignment: ${worker.assignment}, ex_id: ${worker.ex_id}`);
                 context.cluster.workers[workerID].process.kill(signal);
             }
         });

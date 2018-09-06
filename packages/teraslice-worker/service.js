@@ -116,7 +116,7 @@ class Service {
     }
 
     registerExitHandler() {
-        shutdownHandler(this.context, this.logger, () => this.shutdown('Unexpected shutdown was called'));
+        shutdownHandler(this.context, this.logger, () => this.shutdown());
     }
 
     _parseArgs() {

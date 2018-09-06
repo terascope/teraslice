@@ -256,11 +256,12 @@ export class Server extends Core {
     }
 
     protected async send(clientId: string, eventName: string, payload: i.Payload = {}, volatile?: boolean): Promise<i.Message|null> {
-        const client = this._clients[clientId];
-        if (!client) {
+        if (!_.has(this._clients, clientId)) {
             if (volatile) return null;
             throw new Error(`No client found by that id "${clientId}"`);
         }
+
+        const client = this._clients[clientId];
 
         if (!client.isOnline && client.offlineAt) {
             if (volatile) return null;

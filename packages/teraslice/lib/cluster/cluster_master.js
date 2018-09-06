@@ -55,12 +55,13 @@ module.exports = function _clusterMaster(context) {
 
     function isAssetServiceUp() {
         return new Promise((resolve) => {
-            request.get(assetsUrl, { timeout: 900 }, (err, response) => {
-                if (err || response.statusCode >= 500) {
-                    resolve(false);
-                } else {
-                    resolve(true);
-                }
+            request.get({
+                baseUrl: assetsUrl,
+                uri: '/status',
+                json: true,
+                timeout: 900
+            }, (err, response) => {
+                resolve(_.get(response, 'body.available', false));
             });
         });
     }
@@ -79,27 +80,27 @@ module.exports = function _clusterMaster(context) {
     Promise.resolve()
         .then(() => clusterMasterServer.start())
         .then(() => {
-            logger.info(`ClusterMaster listening on port ${clusterConfig.port}`);
+            logger.info(`cluster master listening on port ${clusterConfig.port}`);
             return ExecutionService(context, { clusterMasterServer });
         })
         .then((executionService) => {
-            logger.trace('ExecutionService has been instantiated');
+            logger.debug('execution service has been instantiated');
             context.services.execution = executionService;
             return JobService(context);
         })
         .then((jobsService) => {
-            logger.trace('JobService has been instantiated');
+            logger.debug('job service has been instantiated');
             context.services.jobs = jobsService;
             // give the assets service 5 minutes to come up
             return waitForAssetsService(Date.now() + 5 * 60 * 1000);
         })
         .then(() => APIService(context, app, { assetsUrl, clusterMasterServer }))
         .then((apiService) => {
-            logger.trace('APIService has been instantiated');
+            logger.debug('api service has been instantiated');
             context.services.api = apiService;
             return makeLogs(context);
         })
-        .then(() => logger.info('Ready'))
+        .then(() => logger.info('cluster master is ready!'))
         .catch((err) => {
             logger.error('error during service initialization', err);
             process.exit(0);

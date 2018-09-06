@@ -24,12 +24,12 @@ module.exports = (context, logger, fn) => {
     };
 
     process.on('SIGINT', () => {
-        logger.error('Got a SIGINT');
+        logger.error('Recieved process:SIGINT');
         exit('SIGINT');
     });
 
     process.on('SIGTERM', () => {
-        logger.error('Got a SIGTERM');
+        logger.error('Recieved process:SIGTERM');
         exit('SIGTERM');
     });
 

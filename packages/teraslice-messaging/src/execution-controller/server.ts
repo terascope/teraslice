@@ -134,6 +134,10 @@ export class Server extends core.Server {
                 }
             }
 
+            if (workerResponse.isShuttingDown) {
+                socket.disconnect();
+            }
+
             return {
                 duplicate: alreadyCompleted,
                 recorded: true,

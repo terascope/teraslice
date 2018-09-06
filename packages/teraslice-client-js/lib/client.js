@@ -20,6 +20,7 @@ class Client {
             },
             simple: false,
             resolveWithFullResponse: true,
+            timeout: config.timeout,
             json: true
         });
     }

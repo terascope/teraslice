@@ -47,21 +47,20 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
 
     const k8s = new K8s(logger, null, kubernetesNamespace);
 
-    // Under the hood this makes a node join a room so messaging is possible
     clusterMasterServer.onClientOnline((exId) => {
         logger.info(`execution ${exId} is connected`);
     });
 
-    clusterMasterServer.onExecutionFinished((exId, error) => {
-        if (error) {
-            logger.error(`terminal error for execution: ${exId}, shutting down execution...`, error);
+    clusterMasterServer.onExecutionFinished((exId, err) => {
+        if (err) {
+            logger.error(`terminal error for execution: ${exId}, shutting down execution...`, err);
         } else {
             logger.debug(`execution ${exId} has finished...`);
         }
 
         stopExecution(exId)
-            .catch((err) => {
-                logger.error(`Unable to stop execution ${exId}`, err);
+            .catch((error) => {
+                logger.error(`Unable to stop execution ${exId}`, error);
             });
     });
 

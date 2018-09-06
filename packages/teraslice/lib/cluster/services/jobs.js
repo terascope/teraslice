@@ -252,7 +252,7 @@ module.exports = function module(context) {
     };
 
     function _initialize() {
-        logger.info('Initializing');
+        logger.info('job service is initializing...');
         return Promise.resolve(api);
     }
 

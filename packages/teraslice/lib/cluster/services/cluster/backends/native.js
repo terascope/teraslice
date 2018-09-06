@@ -68,7 +68,7 @@ module.exports = function module(context, clusterMasterServer, executionService)
 
     clusterMasterServer.onExecutionFinished((exId, err) => {
         if (err) {
-            logger.error(`terminal error for execution: ${exId}, shutting down execution`);
+            logger.error(`terminal error for execution: ${exId}, shutting down execution`, err);
         }
         pendingWorkerRequests.remove(exId);
         messaging.broadcast('cluster:execution:stop', { ex_id: exId });
@@ -561,7 +561,7 @@ module.exports = function module(context, clusterMasterServer, executionService)
     };
 
     function _initialize() {
-        logger.info('Initializing');
+        logger.info('Native clustering initializing');
         const server = clusterMasterServer.httpServer;
         return Promise.resolve()
             .then(() => messaging.listen({ server }))

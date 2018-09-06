@@ -2,19 +2,23 @@
 
 const Promise = require('bluebird');
 const _ = require('lodash');
+const express = require('express');
+const parseError = require('@terascope/error-parser');
 const { makeTable, handleError } = require('../../utils/api_utils');
 const shutdownHandler = require('../shutdown-handler');
 
 module.exports = function module(context) {
     const logger = context.apis.foundation.makeLogger({ module: 'assets_service' });
-    const messageModule = require('./messaging');
-    const messaging = messageModule(context, logger);
-    const parseError = require('@terascope/error-parser');
-    const app = require('express')();
+    const app = express();
 
     let assetsStore;
+    let available = false;
 
     shutdownHandler(context, logger, () => assetsStore.shutdown());
+
+    app.get('/status', (req, res) => {
+        res.send({ available });
+    });
 
     app.post('/assets', (req, res) => {
         logger.info('loading an asset');
@@ -94,12 +98,12 @@ module.exports = function module(context) {
             const { port } = process.env;
             logger.info(`assets_service is listening on port ${port}`);
             app.listen(port);
-            messaging.send({ to: 'cluster_master', message: 'assets:service:available' });
+            available = true;
         })
         .catch((err) => {
             const errMsg = parseError(err);
             logger.error(`Error while creating assets_service, error: ${errMsg}`);
-            messaging.send({ to: 'cluster_master', message: 'assets:service:available', error: errMsg });
+            available = false;
             setTimeout(() => process.exit(0), 100);
         });
 

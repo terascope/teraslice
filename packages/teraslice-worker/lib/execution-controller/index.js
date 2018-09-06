@@ -116,6 +116,7 @@ class ExecutionController {
 
         await this._verifyExecution();
 
+
         this.server.onClientOnline((workerId) => {
             this.logger.debug(`worker ${workerId} is online`);
             this._adjustSlicerQueueLength();
@@ -406,8 +407,7 @@ class ExecutionController {
     // this is used to determine when the slicers are done the work is done processing
     get isSlicersComplete() {
         const workersCompleted = this.server.activeWorkerCount >= this.server.onlineClientCount;
-        const slicesFinished = this.remainingSlices === 0;
-        return this.isStarted && workersCompleted && slicesFinished;
+        return this.isStarted && workersCompleted;
     }
 
     // this is used to determine when all slices are done creating slices
@@ -441,6 +441,7 @@ class ExecutionController {
         const { ex_id: exId } = this.executionContext;
 
         const { exStore } = this.stores;
+        this._startWorkConnectWatchDog();
 
         this.slicerAnalytics = makeSliceAnalytics(this.context, this.executionContext);
 
@@ -454,7 +455,6 @@ class ExecutionController {
             this.client.sendAvailable()
         ]);
 
-        this._startWorkConnectWatchDog();
 
         if (this.recoverExecution) {
             await this._recoverSlicesInit();

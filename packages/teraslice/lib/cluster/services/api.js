@@ -496,7 +496,7 @@ module.exports = function module(context, app, { assetsUrl }) {
 
     return require('../storage/state')(context)
         .then((state) => {
-            logger.info('Initializing');
+            logger.info('api service is initializing...');
             stateStore = state;
             return _initialize(); // Load the initial pendingJobs state.
         });

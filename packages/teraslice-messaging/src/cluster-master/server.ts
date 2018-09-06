@@ -76,8 +76,8 @@ export class Server extends core.Server {
     }
 
     private onConnection(exId: string, socket: SocketIO.Socket) {
-        socket.on('execution:finished', this.handleResponse((err) => {
-            this.emit('execution:finished', exId, err);
+        socket.on('execution:finished', this.handleResponse((msg: core.Message) => {
+            this.emit('execution:finished', exId, msg.payload.error);
         }));
 
         socket.on('cluster:analytics', this.handleResponse((msg: core.Message) => {

@@ -1,6 +1,5 @@
 'use strict';
 
-// TODO make messaging worker with clusterMasterServer
 module.exports = function module(context, clusterMasterServer, executionService) {
     const clusterType = context.sysconfig.teraslice.cluster_manager_type;
 
