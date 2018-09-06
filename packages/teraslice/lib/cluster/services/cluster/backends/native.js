@@ -543,7 +543,7 @@ module.exports = function module(context, messaging, executionService) {
             });
     }
 
-    function _notifyNodesWithExecution(exId, messageData, slicerOnly, excludeNode) {
+    function _notifyNodesWithExecution(exId, messageData, slicerOnly, excludeNode, response) {
         return new Promise(((resolve, reject) => {
             const destination = slicerOnly ? 'execution_controller' : 'node_master';
             let nodes = _findNodesForExecution(exId, slicerOnly);
@@ -561,7 +561,7 @@ module.exports = function module(context, messaging, executionService) {
                     to: destination,
                     address: node.node_id,
                     ex_id: exId,
-                    response: true
+                    response
                 });
 
                 return messaging.send(sendingMsg);
@@ -584,21 +584,32 @@ module.exports = function module(context, messaging, executionService) {
     function clusterAvailable() {}
 
     function stopExecution(exId, timeout, exclude) {
+        // we are allowing stopExecution to be non blocking, we block at api level
+        const response = false;
+        const slicerOnly = false;
         const excludeNode = exclude || null;
         pendingWorkerRequests.remove(exId);
         const sendingMessage = { message: 'cluster:execution:stop' };
         if (timeout) {
             sendingMessage.timeout = timeout;
         }
-        return _notifyNodesWithExecution(exId, sendingMessage, false, excludeNode);
+        return _notifyNodesWithExecution(exId, sendingMessage, slicerOnly, excludeNode, response);
     }
 
     function pauseExecution(exId) {
-        return _notifyNodesWithExecution(exId, { message: 'cluster:execution:pause' }, true, null);
+        const response = true;
+        const slicerOnly = true;
+        const excludeNode = null;
+        const sendingMessage = { message: 'cluster:execution:pause' };
+        return _notifyNodesWithExecution(exId, sendingMessage, slicerOnly, excludeNode, response);
     }
 
     function resumeExecution(exId) {
-        return _notifyNodesWithExecution(exId, { message: 'cluster:execution:resume' }, true, null);
+        const response = true;
+        const slicerOnly = true;
+        const excludeNode = null;
+        const sendingMessage = { message: 'cluster:execution:resume' };
+        return _notifyNodesWithExecution(exId, sendingMessage, slicerOnly, excludeNode, response);
     }
 
     const getSlicerStats = stateUtils.newGetSlicerStats(clusterState, context, messaging);

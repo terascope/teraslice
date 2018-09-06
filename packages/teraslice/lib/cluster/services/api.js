@@ -116,8 +116,7 @@ module.exports = function module(context, app) {
         logger.trace(`GET /jobs/:job_id endpoint has been called, job_id: ${jobId}`);
         const handleApiError = handleError(res, logger, 500, 'Could not retrieve list of execution contexts');
 
-        jobsService.getLatestExecutionId(jobId)
-            .then(exId => executionService.getExecutionContext(exId))
+        jobsService.getLatestExecution(jobId)
             .then(execution => res.status(200).json(execution))
             .catch(handleApiError);
     });
@@ -137,12 +136,15 @@ module.exports = function module(context, app) {
     });
 
     v1routes.post('/jobs/:job_id/_stop', (req, res) => {
-        const { query: { timeout }, params: { job_id: jobId } } = req;
+        const { query: { timeout, blocking = true }, params: { job_id: jobId } } = req;
         logger.trace(`POST /jobs/:job_id/_stop endpoint has been called, job_id: ${jobId}, removing any pending workers for the job`);
+
         const handleApiError = handleError(res, logger, 500, `Could not stop execution for job: ${jobId}`);
 
-        jobsService.stopJob(jobId, timeout)
-            .then(status => res.status(200).json({ status }))
+        jobsService.getLatestExecutionId(jobId)
+            .then(exId => executionService.stopExecution(exId, timeout)
+                .then(() => _waitForStop(exId, blocking))
+                .then(status => res.status(200).json({ status })))
             .catch(handleApiError);
     });
 
@@ -254,13 +256,13 @@ module.exports = function module(context, app) {
     });
 
     v1routes.post('/ex/:ex_id/_stop', (req, res) => {
-        const { params: { ex_id: exId }, query: { timeout } } = req;
+        const { params: { ex_id: exId }, query: { timeout, blocking = true } } = req;
         logger.trace(`POST /ex/:ex_id/_stop endpoint has been called, ex_id: ${exId}, removing any pending workers for the job`);
         const handleApiError = handleError(res, logger, 500, `Could not stop execution: ${exId}`);
-        // for lifecyle events, we need to ensure that the execution is alive first
-        executionService.getActiveExecution(exId)
-            .then(() => executionService.stopExecution(exId, timeout))
-            .then(() => res.status(200).json({ status: 'stopped' }))
+
+        return executionService.stopExecution(exId, timeout)
+            .then(() => _waitForStop(exId, blocking))
+            .then(status => res.status(200).json({ status }))
             .catch(handleApiError);
     });
 
@@ -496,6 +498,26 @@ module.exports = function module(context, app) {
 
     function _initialize() {
         return Promise.resolve(api);
+    }
+
+    function _waitForStop(exId, blocking) {
+        return new Promise((resolve) => {
+            function checkExecution() {
+                executionService.getExecutionContext(exId)
+                    .then((execution) => {
+                        const terminalList = executionService.terminalStatusList();
+                        const isTerminal = terminalList.find(tStat => tStat === execution._status);
+                        if (isTerminal || !(blocking === true || blocking === 'true')) resolve(execution._status);
+                        else setTimeout(checkExecution, 3000);
+                    })
+                    .catch((err) => {
+                        logger.error(err);
+                        setTimeout(checkExecution, 3000);
+                    });
+            }
+
+            checkExecution();
+        });
     }
 
     return require('../storage/state')(context)

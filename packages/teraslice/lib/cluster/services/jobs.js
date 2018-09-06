@@ -107,12 +107,6 @@ module.exports = function module(context) {
             .catch(err => Promise.reject(parseError(err)));
     }
 
-    function stopJob(jobId, timeout) {
-        return getLatestExecutionId(jobId)
-            .then(exId => executionService.stopExecution(exId, timeout))
-            .catch(err => Promise.reject(parseError(err)));
-    }
-
     function pauseJob(jobId) {
         return getLatestExecutionId(jobId)
             .then(exId => executionService.pauseExecution(exId))
@@ -133,7 +127,7 @@ module.exports = function module(context) {
         return jobStore.search('job_id:*', from, size, sort);
     }
 
-    function _getLatestExecution(jobId, _query, allowZero) {
+    function getLatestExecution(jobId, _query, allowZero) {
         const allowZeroResults = allowZero || false;
         let query = `job_id: ${jobId}`;
         if (_query) query = _query;
@@ -149,7 +143,7 @@ module.exports = function module(context) {
     function _getActiveExecution(jobId, allowZeroResults) {
         const str = executionService.terminalStatusList().map(state => ` _status:${state} `).join('OR');
         const query = `job_id: ${jobId} AND _context:ex NOT (${str.trim()})`;
-        return _getLatestExecution(jobId, query, allowZeroResults);
+        return getLatestExecution(jobId, query, allowZeroResults);
     }
 
     function _getActiveExecutionId(jobId) {
@@ -158,7 +152,7 @@ module.exports = function module(context) {
     }
 
     function getLatestExecutionId(jobId) {
-        return _getLatestExecution(jobId)
+        return getLatestExecution(jobId)
             .then(ex => ex.ex_id);
     }
 
@@ -239,7 +233,6 @@ module.exports = function module(context) {
         submitJob,
         updateJob,
         startJob,
-        stopJob,
         pauseJob,
         resumeJob,
         recoverJob: util.deprecate(recoverJob, depMsg),
@@ -249,6 +242,7 @@ module.exports = function module(context) {
         removeWorkers,
         setWorkers,
         getLatestExecutionId,
+        getLatestExecution,
         shutdown
     };
 

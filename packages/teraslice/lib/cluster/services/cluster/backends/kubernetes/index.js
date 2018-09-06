@@ -333,6 +333,7 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
      * @param  {string} exId    The execution ID of the Execution to stop
      * @return {Promise}
      */
+
     async function stopExecution(exId) {
         return k8s.deleteExecution(exId);
     }
