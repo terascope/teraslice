@@ -116,8 +116,7 @@ module.exports = function module(context, app) {
         logger.trace(`GET /jobs/:job_id endpoint has been called, job_id: ${jobId}`);
         const handleApiError = handleError(res, logger, 500, 'Could not retrieve list of execution contexts');
 
-        jobsService.getLatestExecutionId(jobId)
-            .then(exId => executionService.getExecutionContext(exId))
+        jobsService.getLatestExecution(jobId)
             .then(execution => res.status(200).json(execution))
             .catch(handleApiError);
     });
@@ -142,15 +141,19 @@ module.exports = function module(context, app) {
 
         const handleApiError = handleError(res, logger, 500, `Could not stop execution for job: ${jobId}`);
 
-        jobsService.getLatestExecutionId(jobId)
-            .then(exId => executionService.stopExecution(exId, timeout)
-                .then(() => {
-                    if (blocking === true) {
-                        return _waitForStop(exId)
-                            .then(() => res.status(200).json({ status: 'stopped' }));
-                    }
-                    return res.status(200).json({ status: 'stopping' });
-                }))
+        jobsService.getLatestExecution(jobId)
+            .then((execution) => {
+                const isTerminal = _isTerminalStatus(execution);
+                if (isTerminal) return res.status(200).json({ status: execution._status });
+                return executionService.stopExecution(execution.ex_id, timeout)
+                    .then(() => {
+                        if (blocking === true || blocking === 'true') {
+                            return _waitForStop(execution.ex_id)
+                                .then(() => res.status(200).json({ status: 'stopped' }));
+                        }
+                        return res.status(200).json({ status: 'stopping' });
+                    });
+            })
             .catch(handleApiError);
     });
 
@@ -265,15 +268,19 @@ module.exports = function module(context, app) {
         const { params: { ex_id: exId }, query: { timeout, blocking = true } } = req;
         logger.trace(`POST /ex/:ex_id/_stop endpoint has been called, ex_id: ${exId}, removing any pending workers for the job`);
         const handleApiError = handleError(res, logger, 500, `Could not stop execution: ${exId}`);
-        // for lifecyle events, we need to ensure that the execution is alive first
-        executionService.getActiveExecution(exId)
-            .then(() => executionService.stopExecution(exId, timeout))
-            .then(() => {
-                if (blocking === true) {
-                    return _waitForStop(exId)
-                        .then(() => res.status(200).json({ status: 'stopped' }));
-                }
-                return res.status(200).json({ status: 'stopping' });
+
+        executionService.getExecutionContext(exId)
+            .then((execution) => {
+                const isTerminal = _isTerminalStatus(execution);
+                if (isTerminal) return res.status(200).json({ status: execution._status });
+                return executionService.stopExecution(execution.ex_id, timeout)
+                    .then(() => {
+                        if (blocking === true || blocking === 'true') {
+                            return _waitForStop(execution.ex_id)
+                                .then(() => res.status(200).json({ status: 'stopped' }));
+                        }
+                        return res.status(200).json({ status: 'stopping' });
+                    });
             })
             .catch(handleApiError);
     });
@@ -497,6 +504,11 @@ module.exports = function module(context, app) {
 
     function _slicerStats(exId) {
         return executionService.getSlicerStats(exId);
+    }
+
+    function _isTerminalStatus(execution) {
+        const terminalList = executionService.terminalStatusList();
+        return terminalList.find(tStat => tStat === execution._status) !== undefined;
     }
 
     function shutdown() {
