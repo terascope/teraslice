@@ -45,6 +45,7 @@ export interface Message {
     to: string;
     eventName: string;
     payload: Payload;
+    respondBy: number;
     volatile?: boolean;
     error?: ResponseError;
 }
@@ -53,15 +54,27 @@ export interface ConnectedClient {
     readonly clientId: string;
     readonly clientType: string;
     socketId: string;
-    isOnline: boolean;
-    isAvailable: boolean;
-    isReconnected?: boolean;
-    isNewConnection?: boolean;
-    onlineAt: Date|null;
+    state: ClientState;
+    createdAt: Date;
+    updatedAt: Date;
     offlineAt: Date|null;
-    availableAt: Date|null;
-    unavailableAt: Date|null;
     metadata: object;
+}
+
+export interface UpdateClientState {
+    state: ClientState;
+    socketId?: string;
+    metadata?: object;
+    error?: Error|string;
+    payload?: Payload;
+}
+
+export enum ClientState {
+    Offline = 'offline',
+    Online = 'online',
+    Disconnected = 'disconnected',
+    Available = 'available',
+    Unavailable = 'unavailable'
 }
 
 export interface ClientSocketMetadata {
@@ -71,6 +84,10 @@ export interface ClientSocketMetadata {
 
 export interface ConnectedClients {
     [clientId: string]: ConnectedClient;
+}
+
+export interface ClientSendFns {
+    [clientId: string]: (eventName: string, payload?: Payload, volatile?: boolean) => Promise<Message|null>;
 }
 
 export interface ClientEventFn {

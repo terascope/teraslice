@@ -55,14 +55,14 @@ export class Client extends core.Client {
     }
 
     onExecutionAnalytics(fn: core.MessageHandler) {
-        this.socket.on('execution:analytics', this.handleResponse(fn));
+        this.socket.on('execution:analytics', this.handleResponse('execution:analytics', fn));
     }
 
     onExecutionPause(fn: core.MessageHandler) {
-        this.socket.on('execution:pause', this.handleResponse(fn));
+        this.socket.on('execution:pause', this.handleResponse('execution:pause', fn));
     }
 
     onExecutionResume(fn: core.MessageHandler) {
-        this.socket.on('execution:resume', this.handleResponse(fn));
+        this.socket.on('execution:resume', this.handleResponse('execution:resume', fn));
     }
 }

@@ -21,6 +21,10 @@ export interface Worker {
     workerId: string;
 }
 
+export interface ActiveWorkers {
+    [workerId: string]: string;
+}
+
 export interface SliceResponseMessage {
     willProcess?: boolean;
 }

@@ -230,6 +230,8 @@ describe('Messenger', () => {
             expect(server.availableClients).toBeArrayOfSize(1);
             expect(server.offlineClientCount).toEqual(0);
             expect(server.offlineClients).toBeArrayOfSize(0);
+            expect(server.disconectedClientCount).toEqual(0);
+            expect(server.disconnectedClients).toBeArrayOfSize(0);
             expect(server.unavailableClientCount).toEqual(0);
             expect(server.unavailableClients).toBeArrayOfSize(0);
         });
@@ -242,12 +244,16 @@ describe('Messenger', () => {
             expect(clientAvailableFn).toHaveBeenCalledWith(clientId, {});
         });
 
-        it('should not call server.onClientAvailable', () => {
+        it('should not call server.onClientUnavailable', () => {
             expect(clientUnavailableFn).not.toHaveBeenCalled();
         });
 
         it('should not call server.onClientOffline', () => {
             expect(clientOfflineFn).not.toHaveBeenCalled();
+        });
+
+        it('should not call server.onClientDisconnect', () => {
+            expect(clientDisconnectFn).not.toHaveBeenCalled();
         });
 
         it('should not call server.onClientReconnect', () => {
@@ -258,7 +264,7 @@ describe('Messenger', () => {
             expect(clientErrorFn).not.toHaveBeenCalled();
         });
 
-        describe('when testing server.onceWithTimeout', () => {
+        describe('when testing onceWithTimeout', () => {
             it('should be able to handle timeouts', () => {
                 const once = server.onceWithTimeout('timeout:event', 500);
                 return expect(once).resolves.toBeUndefined();
@@ -286,21 +292,6 @@ describe('Messenger', () => {
             });
         });
 
-        describe('when testing client.onceWithTimeout', () => {
-            it('should be able to handle timeouts', () => {
-                const once = client.onceWithTimeout('timeout:event', 500);
-                return expect(once).resolves.toBeUndefined();
-            });
-
-            it('should be able to resolve the message', () => {
-                const once = client.onceWithTimeout('success:event', 500);
-                client.emit('success:event', { hello: true });
-                return expect(once).resolves.toEqual({
-                    hello: true
-                });
-            });
-        });
-
         describe('when waiting for message that will never come', () => {
             it('should throw a timeout error', async () => {
                 expect.hasAssertions();
@@ -313,7 +304,7 @@ describe('Messenger', () => {
                     await client.send('hello');
                 } catch (err) {
                     expect(err).not.toBeNil();
-                    expect(err.message).toEqual('Timed out after 1000ms, waiting for message');
+                    expect(err.message).toEqual('Timed out after 1000ms, waiting for message "hello"');
                 }
             });
         });
@@ -326,7 +317,7 @@ describe('Messenger', () => {
                     await server.send('mystery-client', 'hello');
                 } catch (err) {
                     expect(err).not.toBeNil();
-                    expect(err.message).toEqual(`No client found by that id "mystery-client"`);
+                    expect(err.message).toEqual('No client found by that id "mystery-client"');
                 }
             });
         });

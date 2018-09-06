@@ -112,8 +112,12 @@ describe('ExecutionController', () => {
             });
         });
 
-        it('should have no active client workers', () => {
-            expect(server.activeWorkerCount).toEqual(0);
+        it('should have no active workers', () => {
+            expect(server.activeWorkers).toBeArrayOfSize(0);
+        });
+
+        it('should have no pending slices', () => {
+            expect(server.pendingSlices).toBeArrayOfSize(0);
         });
 
         it('should not call client.onExecutionFinished', () => {

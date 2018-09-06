@@ -85,7 +85,10 @@ function waitForClusterMaster(timeoutMs = 60000) {
         if (Date.now() > endAt) {
             return Promise.reject(new Error(`Failure to communicate with the Cluster Master as ${timeoutMs}ms`));
         }
-        return cluster.state().catch(() => _try());
+        return cluster.get('/cluster/state', {
+            timeout: 1000,
+            json: true,
+        }).catch(() => _try());
     }
 
     return _try();

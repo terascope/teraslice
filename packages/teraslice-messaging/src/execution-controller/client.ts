@@ -45,7 +45,7 @@ export class Client extends core.Client {
             throw new Error(`Unable to connect to execution controller, caused by error: ${err.message}`);
         }
 
-        this.socket.on('execution:slice:new', this.handleResponse((msg: core.Message) => {
+        this.socket.on('execution:slice:new', this.handleResponse('execution:slice:new', (msg: core.Message) => {
             const willProcess = this.available;
             if (willProcess) {
                 this.emit('execution:slice:new', msg.payload);

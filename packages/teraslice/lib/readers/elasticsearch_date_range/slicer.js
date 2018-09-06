@@ -30,6 +30,7 @@ function newSlicer(context, opConfig, executionContext, retryData, logger, clien
                     + '[number][letter\'s] format, e.g. "12s"');
             }
 
+            logger.error('HERE', { str, interval });
             // dont need first parameter, its the full string
             interval.shift();
             interval[1] = dateOptions(interval[1]);

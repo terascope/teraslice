@@ -76,11 +76,11 @@ export class Server extends core.Server {
     }
 
     private onConnection(exId: string, socket: SocketIO.Socket) {
-        socket.on('execution:finished', this.handleResponse((msg: core.Message) => {
+        socket.on('execution:finished', this.handleResponse('execution:finished', (msg: core.Message) => {
             this.emit('execution:finished', exId, msg.payload.error);
         }));
 
-        socket.on('cluster:analytics', this.handleResponse((msg: core.Message) => {
+        socket.on('cluster:analytics', this.handleResponse('cluster:analytics', (msg: core.Message) => {
             const data = msg.payload as i.ExecutionAnalyticsMessage;
             if (!this.clusterAnalytics[data.kind]) {
                 return;

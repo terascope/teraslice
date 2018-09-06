@@ -1,12 +1,12 @@
 import _ from 'lodash';
 import Queue from '@terascope/queue';
 import { Slice } from '@terascope/teraslice-types';
-import NodeCache from 'node-cache';
 import * as core from '../messenger';
 import * as i from './interfaces';
 
 export class Server extends core.Server {
-    private cache: NodeCache;
+    private _activeWorkers: string[];
+    private _pendingSlices: string[];
     queue: Queue;
 
     constructor(opts: i.ServerOptions) {
@@ -33,13 +33,9 @@ export class Server extends core.Server {
             serverName: 'ExecutionController',
         });
 
-        this.cache = new NodeCache({
-            stdTTL: 30 * 60 * 1000, // 30 minutes
-            checkperiod: 10 * 60 * 1000, // 10 minutes
-            useClones: false,
-        });
-
         this.queue = new Queue();
+        this._activeWorkers = [];
+        this._pendingSlices = [];
     }
 
     async start() {
@@ -67,8 +63,8 @@ export class Server extends core.Server {
             this.queue.remove(worker.workerId, 'workerId');
         });
 
-        this.cache.flushAll();
-        this.cache.close();
+        this._activeWorkers = [];
+        this._pendingSlices = [];
 
         await super.shutdown();
     }
@@ -86,6 +82,11 @@ export class Server extends core.Server {
         const response = await this.send(workerId, 'execution:slice:new', slice);
 
         const dispatched = _.get(response, 'payload.willProcess', false);
+
+        if (dispatched) {
+            this._activeWorkers = _.union(this._activeWorkers, [workerId]);
+            this._pendingSlices = _.union(this._pendingSlices, [slice.slice_id]);
+        }
 
         return {
             dispatched,
@@ -105,8 +106,20 @@ export class Server extends core.Server {
         return this.broadcast('execution:finished', { exId });
     }
 
+    get activeWorkers(): string[] {
+        return this._activeWorkers.slice();
+    }
+
+    get pendingSlices(): string[] {
+        return this._pendingSlices.slice();
+    }
+
+    get workerQueueSize(): number {
+        return this.queue.size();
+    }
+
     private onConnection(workerId: string, socket: SocketIO.Socket) {
-        socket.on('worker:slice:complete', this.handleResponse((msg) => {
+        socket.on('worker:slice:complete', this.handleResponse('worker:slice:complete', (msg) => {
             const workerResponse = msg.payload;
             const sliceId = _.get(workerResponse, 'slice.slice_id');
             const alreadyCompleted = this.cache.get(`${sliceId}:complete`);
@@ -121,9 +134,8 @@ export class Server extends core.Server {
                 }
             }
 
-            if (workerResponse.isShuttingDown) {
-                socket.disconnect();
-            }
+            _.pull(this._activeWorkers, workerId);
+            _.pull(this._pendingSlices, sliceId);
 
             return {
                 duplicate: alreadyCompleted,
@@ -159,6 +171,7 @@ export class Server extends core.Server {
         }
 
         if (workerId != null) {
+            _.pull(this._activeWorkers, workerId);
             this.emit('worker:dequeue', workerId);
         }
 
@@ -170,6 +183,7 @@ export class Server extends core.Server {
 
         this.queue.remove(workerId, 'workerId');
 
+        _.pull(this._activeWorkers, workerId);
         this.emit('worker:dequeue', workerId);
         return true;
     }

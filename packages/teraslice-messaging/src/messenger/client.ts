@@ -1,8 +1,11 @@
+import debugFn from 'debug';
 import { isString } from 'lodash';
 import SocketIOClient from 'socket.io-client';
-import { Message, ClientOptions, Payload } from './interfaces';
+import { Message, ClientOptions, Payload, ClientState } from './interfaces';
 import { Core } from './core';
 import { newMsgId } from '../utils';
+
+const debug = debugFn('teraslice-messaging:client');
 
 export class Client extends Core {
     readonly socket: SocketIOClient.Socket;
@@ -10,6 +13,7 @@ export class Client extends Core {
     readonly clientType: string;
     readonly serverName: string;
     available: boolean;
+    protected ready: boolean;
 
     constructor(opts: ClientOptions) {
         super(opts);
@@ -49,6 +53,7 @@ export class Client extends Core {
         this.clientType = clientType;
         this.serverName = serverName;
         this.available = false;
+        this.ready = false;
     }
 
     async connect() {
@@ -89,21 +94,75 @@ export class Client extends Core {
                 reject(connectErr);
             }, this.actionTimeout);
         });
+
+        this.socket.on('reconnecting', () => {
+            debug(`client ${this.clientId} is reconnecting`);
+            this.ready = false;
+        });
+
+        this.socket.on('reconnect', async () => {
+            debug(`client ${this.clientId} reconnected`);
+            this.ready = true;
+            this.emit('ready', this.serverName);
+
+            try {
+                if (this.available) {
+                    await this.sendAvailable();
+                } else {
+                    await this.sendUnavailable();
+                }
+            } catch (err) {
+                debug('update availablilty on reconnect error', err);
+            }
+        });
+
+        this.socket.on('disconnect', () => {
+            debug(`client ${this.clientId} disconnected`);
+            this.ready = false;
+        });
+
+        this.socket.on('connect', async () => {
+            debug(`client ${this.clientId} connected`);
+            this.ready = true;
+            this.emit('ready', this.serverName);
+
+            try {
+                if (this.available) {
+                    await this.sendAvailable();
+                } else {
+                    await this.sendUnavailable();
+                }
+            } catch (err) {
+                debug('update availablilty on connect error', err);
+            }
+        });
+
+        this.ready = true;
+        this.emit('ready', this.serverName);
+
+        debug(`client ${this.clientId} initial connect`);
     }
 
     async sendAvailable(payload?: Payload) {
         this.available = true;
-        return this.send('client:available', payload);
+        return this.send(`client:${ClientState.Available}`, payload);
     }
 
     async sendUnavailable(payload?: Payload) {
         this.available = false;
-        return this.send('client:unavailable', payload);
+        return this.send(`client:${ClientState.Unavailable}`, payload);
     }
 
     protected async send(eventName: string, payload: Payload = {}, volatile?: boolean): Promise<Message> {
+        if (!this.ready) {
+            const connected = this.socket.connected ? 'connected' : 'not-connected';
+            debug(`server is not ready and ${connected}, waiting for the ready event`);
+            await this.onceWithTimeout('ready');
+        }
+
         const message: Message = {
             id: newMsgId(),
+            respondBy: Date.now() + this.getTimeout(),
             payload,
             eventName,
             volatile,
@@ -112,35 +171,19 @@ export class Client extends Core {
         };
 
         const response = await new Promise((resolve, reject) => {
-            this.socket.emit(eventName, message, this.handleSendResponse(resolve, reject));
+            this.socket.emit(eventName, message, this.handleSendResponse(message, resolve, reject));
         });
 
         return response as Message;
     }
 
-    shutdown() {
-        if (this.socket.connected) {
-            this.socket.close();
-        }
-        this.close();
+    isClientReady() {
+        return this.ready;
     }
 
-    async onceWithTimeout(eventName: string, timeout?: number): Promise<any> {
-        const timeoutMs = this.getTimeout(timeout);
-
-        return new Promise((resolve) => {
-            const timer = setTimeout(() => {
-                this.removeListener(eventName, _onceWithTimeout);
-                resolve();
-            }, timeoutMs);
-
-            function _onceWithTimeout(param?: any) {
-                clearTimeout(timer);
-                resolve(param);
-            }
-
-            this.once(eventName, _onceWithTimeout);
-        });
+    shutdown() {
+        this.socket.close();
+        this.close();
     }
 
     // For testing purposes

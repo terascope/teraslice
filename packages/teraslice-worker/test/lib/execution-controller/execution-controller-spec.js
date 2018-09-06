@@ -151,7 +151,6 @@ describe('ExecutionController', () => {
         [
             'processing slices and the execution gets shutdown early',
             {
-                only: true,
                 shutdownTimeout: 2000,
                 slicerResults: [
                     { example: 'slice-shutdown-early' },
@@ -415,7 +414,7 @@ describe('ExecutionController', () => {
                     firedReconnect = true;
                     await Promise.all([
                         workerClient.forceReconnect(),
-                        exController.server.onceWithTimeout('client:reconnect', 5 * 1000)
+                        exController.server.waitForClientReady(workerId),
                     ]);
                 }
 
@@ -577,6 +576,8 @@ describe('ExecutionController', () => {
                 const actualCount = await stateStore.count(query, 0);
                 expect(actualCount).toEqual(count);
             }
+
+            expect(exStatus._slicer_stats.workers_joined).toBeGreaterThanOrEqual(1);
 
             if (reconnect && slicerQueueLength !== 'QUEUE_MINIMUM_SIZE') {
                 expect(exStatus._slicer_stats.workers_reconnected).toBeGreaterThan(0);

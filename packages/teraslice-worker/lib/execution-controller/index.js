@@ -83,6 +83,7 @@ class ExecutionController {
         this.isStarted = false;
         this.isExecutionFinished = false;
         this.forceShutdown = false;
+        this.workersHaveConnected = false;
 
         this.logDoneCreatingSlices = _.once(() => {
             this.logger.debug('done creating slices');
@@ -120,11 +121,13 @@ class ExecutionController {
         this.server.onClientOnline((workerId) => {
             this.logger.debug(`worker ${workerId} is online`);
             this._adjustSlicerQueueLength();
+            this.workersHaveConnected = true;
             clearTimeout(this.workerConnectTimeoutId);
         });
 
         this.server.onClientAvailable((workerId) => {
             this.logger.debug(`worker ${workerId} is available`);
+            this.executionAnalytics.increment('workers_joined');
         });
 
         this.server.onClientDisconnect((workerId) => {
@@ -379,35 +382,54 @@ class ExecutionController {
 
     // this is used to determine when slicers should stop creating slices
     get isDoneCreatingSlices() {
-        const isDone = this.forceShutdown
-            || this.isShuttingDown
-            || this.isExecutionFinished
-            || this.slicerFailed
-            || this.isPaused
-            || (this.slicersDone && this.recoveryComplete);
+        if (this.isExecutionDone) {
+            this.logDoneCreatingSlices();
+            return true;
+        }
 
-        if (isDone) this.logDoneCreatingSlices();
-        return isDone;
+        const slicersDone = this.slicersDone && this.recoveryComplete;
+        const isDone = this.isShuttingDown || this.isPaused || slicersDone;
+
+        if (isDone) {
+            this.logDoneCreatingSlices();
+            return true;
+        }
+        return false;
     }
 
     // this is used to determine when slices should stop be dispatched to the workers
     // in most cases this will only return true after the slices are done being created
     get isDoneProcessing() {
+        if (this.isExecutionDone) {
+            this.logDoneProcessingSlices();
+            return true;
+        }
+
+        const noPendingSlices = this.isStarted && !this.server.pendingSlices.length;
+
         const isDone = this.isDoneCreatingSlices
             && this.slicersDone
             && this.recoveryComplete
-            && this.isSlicersComplete;
+            && noPendingSlices;
 
-        const isDoneOrShutdown = this.forceShutdown || this.slicerFailed || isDone;
-
-        if (isDoneOrShutdown) this.logDoneProcessingSlices();
-        return isDoneOrShutdown;
+        if (isDone) {
+            this.logDoneProcessingSlices();
+            return true;
+        }
+        return false;
     }
 
-    // this is used to determine when the slicers are done the work is done processing
-    get isSlicersComplete() {
-        const workersCompleted = this.server.availableClientCount === this.server.connectedClientCount;
-        return this.isStarted && workersCompleted;
+    get isExecutionDone() {
+        if (this.forceShutdown) return true;
+        if (this.slicerFailed) return true;
+        if (this.isExecutionFinished) return true;
+        if (this.allWorkersDisconnected) return true;
+
+        return false;
+    }
+
+    get allWorkersDisconnected() {
+        return this.isStarted && this.workersHaveConnected && !this.server.onlineClientCount;
     }
 
     // this is used to determine when all slices are done creating slices
@@ -493,7 +515,7 @@ class ExecutionController {
 
         this.executionAnalytics.set('workers_available', this.server.availableClientCount);
         this.executionAnalytics.set('queued', this.slicerQueue.size());
-        this.executionAnalytics.set('workers_active', this.server.unavailableClientCount);
+        this.executionAnalytics.set('workers_active', this.server.activeWorkers.length);
 
         await immediate();
 
@@ -501,10 +523,13 @@ class ExecutionController {
     }
 
     async _dispatchSlices() {
+        if (this.isPaused) return;
         if (this.isDoneProcessing) return;
 
-        if (!this.server.availableClientCount) {
-            const found = await this.server.onceWithTimeout('worker:enqueue');
+        if (!this.server.workerQueueSize) {
+            const maxTimeout = 5000;
+            const timeout = this.actionTimeout > maxTimeout ? maxTimeout : this.actionTimeout;
+            const found = await this.server.onceWithTimeout('worker:enqueue', timeout);
             if (!found) return;
         }
 
@@ -543,23 +568,26 @@ class ExecutionController {
         const {
             logger,
             context,
-            executionContext,
-            startingPoints
         } = this;
 
-        const maxRetries = _.get(executionContext, 'config.max_retries', 3);
+        const maxRetries = _.get(this.executionContext, 'config.max_retries', 3);
         const retryOptions = {
             max_tries: maxRetries,
             throw_original: true,
             interval: 100,
         };
 
-        this.slicers = await retry(() => this.executionContext.slicer.newSlicer(
-            context,
-            executionContext,
-            startingPoints,
-            logger
-        ), retryOptions);
+        this.slicers = await retry(() => {
+            const executionContext = _.cloneDeep(this.executionContext);
+            const startingPoints = this.startingPoints ? _.cloneDeep(this.startingPoints) : {};
+
+            return this.executionContext.slicer.newSlicer(
+                context,
+                executionContext,
+                startingPoints,
+                logger
+            );
+        }, retryOptions);
 
         logger.debug(`initialized ${this.slicers.length} slices`);
         this.scheduler = await this.engine.registerSlicers(this.slicers);
@@ -677,7 +705,8 @@ class ExecutionController {
         const { ex_id: exId } = this.executionContext;
 
         const endTime = Date.now();
-        const time = (endTime - this.startTime) / 1000;
+        const elapsed = endTime - this.startTime;
+        const time = elapsed < 1000 ? 1 : Math.round((elapsed) / 1000);
 
         this.executionAnalytics.set('job_duration', time);
 
@@ -696,6 +725,8 @@ class ExecutionController {
     }
 
     _waitForExecutionFinished() {
+        if (!this.isStarted) return null;
+
         const timeout = Math.round(this.shutdownTimeout * 0.8);
         const shutdownAt = timeout + Date.now();
 
@@ -755,7 +786,7 @@ class ExecutionController {
         clearTimeout(this.workerConnectTimeoutId);
 
         if (this.isShuttingDown) return;
-        if (this.server.onlineClientCount > 0) return;
+        if (this.workersHaveConnected) return;
 
         const { ex_id: exId } = this.executionContext;
 
@@ -765,7 +796,7 @@ class ExecutionController {
         this.workerConnectTimeoutId = setTimeout(() => {
             clearTimeout(this.workerConnectTimeoutId);
 
-            if (this.server.onlineClientCount > 0) return;
+            if (this.workersHaveConnected) return;
 
             this.logger.warn(`A worker has not connected to a slicer for ex: ${exId}, shutting down execution`);
 

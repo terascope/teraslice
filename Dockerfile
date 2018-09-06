@@ -11,18 +11,20 @@ RUN yarn global add \
     --no-progress \
     bunyan
 
-COPY package.json yarn.lock .yarnrc lerna.json tsconfig.json /app/source/
-COPY service.js /app/source/
-COPY packages /app/source/packages
-COPY scripts /app/source/scripts
+COPY package.json yarn.lock .yarnrc /app/source/
 
 RUN yarn install \
     --silent \
     --no-progress \
-    --pure-lockfile \
+    --frozen-lockfile \
     --link-duplicates \
-    && yarn setup \
     && yarn cache clean
+
+COPY lerna.json tsconfig.json service.js /app/source/
+COPY packages /app/source/packages
+COPY scripts /app/source/scripts
+
+RUN yarn setup
 
 EXPOSE 5678
 
