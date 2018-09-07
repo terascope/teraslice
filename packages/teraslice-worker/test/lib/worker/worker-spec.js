@@ -33,7 +33,10 @@ describe('Worker', () => {
             testContext.executionContext,
         );
 
-        testContext.attachCleanup(() => worker.shutdown());
+        testContext.attachCleanup(() => {
+            worker.shouldShutdown = true;
+            return worker.shutdown();
+        });
 
         return { server, worker, testContext };
     }
@@ -230,7 +233,6 @@ describe('Worker', () => {
 
     describe('when a slice is in-progress and shutdown is called', () => {
         let workerShutdownEvent;
-        let shutdownErr;
         let worker;
         let testContext;
         let server;
@@ -242,31 +244,26 @@ describe('Worker', () => {
             workerShutdownEvent = jest.fn();
             worker.events.once('worker:shutdown', workerShutdownEvent);
 
+            worker.context.sysconfig.teraslice.shutdown_timeout = 1000;
             worker.shutdownTimeout = 1000;
-            worker.slice.run = jest.fn(() => {
-                worker.shutdown()
-                    .catch((err) => {
-                        shutdownErr = err;
-                    });
-                return Promise.delay(500);
-            });
+            worker.slice.run = jest.fn(async () => Promise.delay(500));
 
             const sliceConfig = await testContext.newSlice();
 
             server.onClientAvailable(() => {
                 server.dispatchSlice(sliceConfig);
             });
-
-            await worker.runOnce();
         });
 
         afterEach(async () => {
             await testContext.cleanup();
         });
 
-        it('should not have a shutdown err', () => {
-            expect(shutdownErr).toBeNil();
+        it('should not have a shutdown err', async () => {
+            const promise = server.sendExecutionFinishedToAll(testContext.exId);
+            await expect(worker.shutdown()).resolves.toBeNil();
             expect(workerShutdownEvent).toHaveBeenCalled();
+            await promise;
         });
     });
 
@@ -280,6 +277,7 @@ describe('Worker', () => {
             ({ worker, testContext, server } = await setupTest());
             await worker.initialize();
 
+            worker.context.sysconfig.teraslice.shutdown_timeout = 500;
             worker.shutdownTimeout = 500;
 
             worker.slice.run = jest.fn(() => Promise.delay(1000));
@@ -292,6 +290,8 @@ describe('Worker', () => {
             const runOnce = worker.runOnce();
 
             await Promise.delay(100);
+
+            worker.shouldShutdown = true;
 
             try {
                 await worker.shutdown();
@@ -345,11 +345,24 @@ describe('Worker', () => {
                     worker.isShuttingDown = true;
                 });
 
-                it('should resolve', () => expect(worker.shutdown()).resolves.toBeNil());
+                it('should resolve when shutdown passes', async () => {
+                    setImmediate(() => {
+                        worker.events.emit('worker:shutdown:complete');
+                    });
+                    await expect(worker.shutdown()).resolves.toBeNil();
+                });
+
+                it('should reject when shutdown fails', async () => {
+                    setImmediate(() => {
+                        worker.events.emit('worker:shutdown:complete', new Error('Uh oh'));
+                    });
+                    await expect(worker.shutdown()).rejects.toThrowError('Uh oh');
+                });
             });
 
             describe('when everything errors', () => {
                 beforeEach(() => {
+                    worker._waitForExecutionFinished = () => Promise.reject(new Error('Execution Finish Error'));
                     worker._waitForSliceToFinish = () => Promise.reject(new Error('Slice Finish Error'));
 
                     worker.stores = {};
@@ -371,6 +384,7 @@ describe('Worker', () => {
                     } catch (err) {
                         const errMsg = err.toString();
                         expect(errMsg).toStartWith('Error: Failed to shutdown correctly');
+                        expect(errMsg).toInclude('Execution Finish Error');
                         expect(errMsg).toInclude('Slice Finish Error');
                         expect(errMsg).toInclude('Store Error');
                         expect(errMsg).toInclude('Slice Error');

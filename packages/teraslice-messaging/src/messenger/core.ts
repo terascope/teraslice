@@ -105,7 +105,7 @@ export class Core extends EventEmitter {
                 message.error = _.toString(err);
             }
 
-            if (msg.volatile) {
+            if (!msg.volatile) {
                 const remaining = msg.respondBy - Date.now();
                 await this.waitForClientReady(message.to, remaining);
             }
@@ -134,7 +134,12 @@ export class Core extends EventEmitter {
         return isReady;
     }
 
-    protected getTimeout(timeout?: number): number {
+    getTimeoutWithMax(maxTimeout: number): number {
+        const timeout = this.getTimeout();
+        return timeout > maxTimeout ? maxTimeout : timeout;
+    }
+
+    getTimeout(timeout?: number): number {
         return (timeout || this.actionTimeout) + this.networkLatencyBuffer;
     }
 

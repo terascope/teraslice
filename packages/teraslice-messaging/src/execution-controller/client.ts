@@ -56,9 +56,9 @@ export class Client extends core.Client {
             };
         }));
 
-        this.socket.on('execution:finished', (msg: core.Message) => {
-            this.emit('execution:finished', msg);
-        });
+        this.socket.on('execution:finished', this.handleResponse('execution:finished', (msg: core.Message) => {
+            this.emit('execution:finished', msg.payload);
+        }));
     }
 
     onExecutionFinished(fn: core.ClientEventFn) {

@@ -41,7 +41,6 @@ export interface WorkerShutdownFn {
 export interface SliceCompletePayload {
     slice: Slice;
     analytics: SliceAnalyticsData;
-    isShuttingDown?: boolean;
     retry?: boolean;
     error?: string;
 }

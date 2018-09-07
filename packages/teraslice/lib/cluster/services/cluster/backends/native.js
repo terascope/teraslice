@@ -508,9 +508,10 @@ module.exports = function module(context, clusterMasterServer, executionService)
                 // already receives the shutdown notice so it can be empty, in all other
                 // circumstances if the node list length is zero then reject
                 reject({ message: `Could not find active execution processes for ex_id: ${exId}`, code: 404 });
+                return;
             }
 
-            return Promise.map(nodes, (node) => {
+            Promise.map(nodes, (node) => {
                 const sendingMsg = Object.assign({}, messageData, {
                     to: 'node_master',
                     address: node.node_id,

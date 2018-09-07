@@ -22,6 +22,7 @@ services:
     ports:
       - "45678:45678"
     environment:
+      - BLUEBIRD_LONG_STACK_TRACES=1
       - TERAFOUNDATION_CONFIG=/app/config/processor-master.yaml
   teraslice-worker:
     build:
@@ -39,6 +40,7 @@ services:
     scale: 3
     stop_grace_period: 30s
     environment:
+      - BLUEBIRD_LONG_STACK_TRACES=1
       - TERAFOUNDATION_CONFIG=/app/config/processor-worker.yaml
     networks:
       - cluster

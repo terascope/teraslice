@@ -103,8 +103,12 @@ class Slice {
         } catch (_err) {
             throw new WrapError('Failure to update success state', _err);
         }
+
+
         events.emit('slice:success', slice);
-        logger.info('completed slice: ', slice);
+
+        const { ex_id: exId } = this.executionContext;
+        logger.info(`completed slice for execution: ${exId}`, slice);
     }
 
     async _markFailed(err) {
@@ -115,6 +119,7 @@ class Slice {
             logger
         } = this;
 
+        const { ex_id: exId } = this.executionContext;
         const errMsg = err ? parseError(err) : new Error('Unknown error occurred');
 
         try {
@@ -123,7 +128,7 @@ class Slice {
             throw new WrapError('Failure to update failed state', _err);
         }
 
-        logger.error(err, 'slice state has been marked as error');
+        logger.error(err, `slice state for ${exId} has been marked as error`);
 
         events.emit('slice:failure', slice);
 

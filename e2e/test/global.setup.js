@@ -4,7 +4,7 @@ const _ = require('lodash');
 const signale = require('signale');
 const Promise = require('bluebird');
 const uuid = require('uuid/v4');
-const { forNodes, waitForClusterMaster } = require('./wait');
+const { forNodes, waitForClusterMaster, waitForJobStatus } = require('./wait');
 const misc = require('./misc');
 
 const jobList = [];
@@ -163,8 +163,6 @@ function generateTestData() {
             ]
         };
 
-        const timeout = 2 * 60 * 1000;
-
         return Promise.resolve()
             .then(() => misc.cleanupIndex(indexName))
             .then(() => {
@@ -179,7 +177,7 @@ function generateTestData() {
                 });
             })
             .then(result => _.castArray(result))
-            .then(jobs => Promise.map(jobs, job => job.waitForStatus('completed', 100, timeout)))
+            .then(jobs => Promise.map(jobs, job => waitForJobStatus(job, 'completed')))
             .then(() => {
                 signale.info(`Generated ${indexName} example data`, getElapsed(genStartTime));
             })

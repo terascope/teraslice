@@ -28,6 +28,17 @@ describe('Messenger', () => {
                 }).toThrowError('Messenger requires a valid networkLatencyBuffer');
             });
         });
+
+        it('should throw an error when calling isClientReady', () => {
+            const errorMsg = 'isClientReady should be implemented on the server and client class';
+            const core = new Messenger.Core({
+                actionTimeout: 10,
+                networkLatencyBuffer: 0,
+            });
+            expect(() => {
+                core.isClientReady();
+            }).toThrowError(errorMsg);
+        });
     });
 
     describe('->Client', () => {
@@ -165,6 +176,7 @@ describe('Messenger', () => {
         const clientOfflineFn: Messenger.ClientEventFn = jest.fn();
         const clientDisconnectFn: Messenger.ClientEventFn = jest.fn();
         const clientReconnectFn: Messenger.ClientEventFn = jest.fn();
+        const clientShutdownFn: Messenger.ClientEventFn = jest.fn();
         const clientErrorFn: Messenger.ClientEventFn = jest.fn();
 
         beforeAll((done) => {
@@ -189,6 +201,7 @@ describe('Messenger', () => {
                 server.onClientOffline(clientOfflineFn);
                 server.onClientDisconnect(clientDisconnectFn);
                 server.onClientReconnect(clientReconnectFn);
+                server.onClientShutdown(clientShutdownFn);
                 server.onClientError(clientErrorFn);
 
                 await server.listen();
@@ -216,9 +229,13 @@ describe('Messenger', () => {
             setup();
         });
 
-        afterAll(async () => {
-            await client.shutdown();
-            await server.shutdown();
+        afterAll((done) => {
+            server.onClientShutdown(() => {
+                server.shutdown()
+                    .then(() => { done(); })
+                    .catch(fail);
+            });
+            client.shutdown().catch(fail);
         });
 
         it('should have the correct client properties', () => {
@@ -254,6 +271,10 @@ describe('Messenger', () => {
 
         it('should not call server.onClientDisconnect', () => {
             expect(clientDisconnectFn).not.toHaveBeenCalled();
+        });
+
+        it('should not call server.onClientShutdown', () => {
+            expect(clientShutdownFn).not.toHaveBeenCalled();
         });
 
         it('should not call server.onClientReconnect', () => {

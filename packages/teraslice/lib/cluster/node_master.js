@@ -144,6 +144,7 @@ module.exports = function module(context) {
 
     // this fires when entire server will be shutdown
     events.once('terafoundation:shutdown', () => {
+        logger.debug('Received shutdown notice from terafoundation');
         const filterFn = () => context.cluster.workers;
         const alreadySentShutdownMessage = true;
         function actionCompleteFn() {
@@ -157,6 +158,8 @@ module.exports = function module(context) {
     messaging.register({
         event: 'cluster:execution:stop',
         callback: (networkMsg) => {
+            logger.debug('Received cluster execution stop', networkMsg);
+
             const filterFn = () => _.filter(
                 context.cluster.workers,
                 worker => worker.ex_id === networkMsg.ex_id
@@ -238,7 +241,7 @@ module.exports = function module(context) {
             const workerID = worker.worker_id || worker.id;
             if (context.cluster.workers[workerID]) {
                 logger.warn(`sending ${signal} to worker ${workerID}, assignment: ${worker.assignment}, ex_id: ${worker.ex_id}`);
-                context.cluster.workers[workerID].process.kill(signal);
+                context.cluster.workers[workerID].kill(signal);
             }
         });
     }

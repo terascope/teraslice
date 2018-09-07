@@ -94,10 +94,50 @@ function waitForClusterMaster(timeoutMs = 60000) {
     return _try();
 }
 
+function waitForJobStatus(job, status) {
+    const jobId = job._jobId;
+
+    function logExErrors() {
+        return job.errors()
+            .then((errors) => {
+                if (_.isEmpty(errors)) {
+                    return null;
+                }
+                // eslint-disable-next-line no-console
+                console.error(`${jobId} errors`, { errors });
+                return null;
+            })
+            .catch(() => null);
+    }
+
+    function logExStatus() {
+        return job.get(`/jobs/${jobId}/ex`)
+            .then((exStatus) => {
+                if (_.isEmpty(exStatus)) {
+                    return null;
+                }
+                // eslint-disable-next-line no-console
+                console.error(`${jobId} status`, exStatus);
+                return null;
+            })
+            .catch(() => null);
+    }
+
+    return job.waitForStatus(status, 100, 60 * 1000)
+        .catch((err) => {
+            const error = new Error(`Job: ${jobId} waitForStatus error ${_.toString(err)}`);
+            return Promise.all([
+                logExErrors(),
+                logExStatus(),
+            ]).then(() => Promise.reject(error));
+        });
+}
+
 module.exports = {
     forValue,
     forLength,
     forNodes,
     forWorkersJoined,
+    waitForJobStatus,
     waitForClusterMaster
 };

@@ -190,7 +190,7 @@ describe('ExecutionController', () => {
                 });
 
                 describe('when the slice is double recorded', () => {
-                    it('should respond with a ', () => {
+                    it('should respond with a duplicate message', () => {
                         const onSliceSuccessFn = jest.fn();
                         server.onSliceSuccess(onSliceSuccessFn);
                         const slice = {
@@ -221,13 +221,12 @@ describe('ExecutionController', () => {
                             });
                     });
                 });
-
             });
 
             describe('when receiving finished', () => {
                 beforeAll((done) => {
                     client.onExecutionFinished(() => { done(); });
-                    server.broadcastExecutionFinished('some-ex-id');
+                    server.sendExecutionFinishedToAll('some-ex-id');
                 });
 
                 it('should call client.onExecutionFinished', () => {

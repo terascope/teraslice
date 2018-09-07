@@ -39,16 +39,21 @@ function analyzeOp(fn, index) {
 }
 
 function logOpStats(logger, slice, analyticsData) {
-    const str = 'analytics for slice ';
+    const str = 'analytics for slice: ';
     let dataStr = '';
 
-    if (typeof slice === 'string') {
+    if (_.isString(slice)) {
         dataStr = `${slice}, `;
     } else {
         _.forOwn(slice, (value, key) => {
-            dataStr += `${key} : ${value} `;
+            if (_.isString(value)) {
+                dataStr += `${key} : ${value} `;
+            } else {
+                dataStr += `${key} : ${JSON.stringify(value)} `;
+            }
         });
     }
+
     _.forOwn(analyticsData, (value, key) => {
         dataStr += `${key} : ${value} `;
     });

@@ -83,12 +83,16 @@ class Job extends Client {
             // watching for these then we need to stop waiting as the job
             // status won't change further.
             if (terminal[result]) {
-                throw new Error(`Job cannot reach the target status, "${target}", because it is in the terminal state, "${result}"`);
+                const error = new Error(`Job cannot reach the target status, "${target}", because it is in the terminal state, "${result}"`);
+                error.lastStatus = result;
+                throw error;
             }
 
             const elapsed = Date.now() - startTime;
             if (timeoutMs > 0 && elapsed >= timeoutMs) {
-                throw new Error(`Job status failed to change from status "${result}" within ${timeoutMs}ms`);
+                const error = new Error(`Job status failed to change from status "${result}" within ${timeoutMs}ms`);
+                error.lastStatus = result;
+                throw error;
             }
 
             await Promise.delay(intervalMs);

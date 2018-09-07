@@ -37,7 +37,28 @@ function getWorkerId(arg) {
     return workerId;
 }
 
+function waitForWorkerShutdown(context, eventName) {
+    const shutdownTimeout = _.get(context, 'sysconfig.teraslice.shutdown_timeout', 30000);
+    const events = context.apis.foundation.getSystemEvents();
+    return new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+            events.removeListener(eventName, handler);
+            reject(new Error('Timeout waiting for worker to shutdown'));
+        }, shutdownTimeout);
+        function handler(err) {
+            clearTimeout(timeoutId);
+            if (_.isError(err)) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        }
+        events.once(eventName, handler);
+    });
+}
+
 module.exports = {
+    waitForWorkerShutdown,
     getWorkerId,
     formatURL,
 };

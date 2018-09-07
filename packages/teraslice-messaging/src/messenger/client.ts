@@ -181,7 +181,14 @@ export class Client extends Core {
         return this.ready;
     }
 
-    shutdown() {
+    async shutdown() {
+        if (this.socket.connected) {
+            try {
+                await this.send(`client:${ClientState.Shutdown}`, {}, true);
+            } catch (err) {
+                debug(`client send shutdown error ${err}`);
+            }
+        }
         this.socket.close();
         this.close();
     }

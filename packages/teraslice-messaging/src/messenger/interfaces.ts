@@ -74,7 +74,8 @@ export enum ClientState {
     Online = 'online',
     Disconnected = 'disconnected',
     Available = 'available',
-    Unavailable = 'unavailable'
+    Unavailable = 'unavailable',
+    Shutdown = 'shutdown'
 }
 
 export interface ClientSocketMetadata {

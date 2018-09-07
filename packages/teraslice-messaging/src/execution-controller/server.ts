@@ -102,8 +102,8 @@ export class Server extends core.Server {
         this.on('slice:failure', fn);
     }
 
-    broadcastExecutionFinished(exId: string) {
-        return this.broadcast('execution:finished', { exId });
+    sendExecutionFinishedToAll(exId: string) {
+        return this.sendToAll('execution:finished', { exId });
     }
 
     get activeWorkers(): string[] {

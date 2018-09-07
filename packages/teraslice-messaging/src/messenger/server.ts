@@ -13,7 +13,8 @@ const debug = debugFn('teraslice-messaging:server');
 
 const disconnectedStates = [
     i.ClientState.Offline,
-    i.ClientState.Disconnected
+    i.ClientState.Disconnected,
+    i.ClientState.Shutdown,
 ];
 
 const unavailableStates = [
@@ -123,15 +124,18 @@ export class Server extends Core {
 
         this._cleanupClients = setInterval(() => {
             _.forEach(this._clients, (client: i.ConnectedClient) => {
+                if (client.state === i.ClientState.Shutdown) {
+                    this.updateClientState(client.clientId, {
+                        state: i.ClientState.Offline,
+                    });
+                }
                 if (client.state === i.ClientState.Disconnected && client.offlineAt) {
                     if (client.offlineAt.getTime() > Date.now()) {
                         this.updateClientState(client.clientId, {
                             state: i.ClientState.Offline,
                         });
-                        return false;
                     }
                 }
-                return true;
             });
         }, 1000);
     }
@@ -243,6 +247,10 @@ export class Server extends Core {
         this.on(`client:${i.ClientState.Disconnected}`, fn);
     }
 
+    onClientShutdown(fn: i.ClientEventFn) {
+        this.on(`client:${i.ClientState.Shutdown}`, fn);
+    }
+
     onClientReconnect(fn: i.ClientEventFn) {
         this.on('client:reconnect', fn);
     }
@@ -277,10 +285,18 @@ export class Server extends Core {
         this.server.sockets.emit(eventName, message);
     }
 
-    protected sendToGroup(eventName: string, query: object, payload?: i.Payload) {
+    protected sendToAll(eventName: string, payload?: i.Payload) {
+        const clients = this.filterClientsByState(onlineStates);
+        const promises = _.map(clients, (client) => {
+            return this.send(client.clientId, eventName, payload, true);
+        });
+        return Promise.all(promises);
+    }
+
+    protected sendToGroup(eventName: string, query: object, payload?: i.Payload, volatile?: boolean) {
         const clients = _.filter(this._clients, query);
         const promises = _.map(clients, (client) => {
-            return this.send(client.clientId, eventName, payload);
+            return this.send(client.clientId, eventName, payload, volatile);
         });
         return Promise.all(promises);
     }
@@ -315,6 +331,7 @@ export class Server extends Core {
             debug(`${clientId} state of ${currentState} is the same, skipping update`);
             return false;
         }
+
         const updatedAt = new Date();
         const debugObj = _.pickBy({
             payload: update.payload,
@@ -350,16 +367,25 @@ export class Server extends Core {
                 this.emit(`client:${update.state}`, clientId, update.payload);
                 return true;
 
+            case i.ClientState.Shutdown:
+                this.emit(`client:${update.state}`, clientId, update.payload);
+                return true;
+
             case i.ClientState.Disconnected:
                 if (currentState === i.ClientState.Available) {
                     debug(`${clientId} is unavailable because it was marked as disconnected`);
                     this.emit(`client:${i.ClientState.Unavailable}`, clientId);
                 }
 
-                const offlineAtMs = Date.now() + this.clientDisconnectTimeout;
-                this._clients[clientId].offlineAt = new Date(offlineAtMs);
+                if (currentState !== i.ClientState.Shutdown) {
+                    const offlineAtMs = Date.now() + this.clientDisconnectTimeout;
+                    this._clients[clientId].offlineAt = new Date(offlineAtMs);
 
-                debug(`${clientId} is disconnected will be considered offline in ${this.clientDisconnectTimeout}`);
+                    debug(`${clientId} is disconnected will be considered offline in ${this.clientDisconnectTimeout}`);
+                } else {
+                    debug(`${clientId} has been marked to shutdown no need to wait for disconnect`);
+                }
+
                 this.emit(`client:${update.state}`, clientId, update.error);
                 return true;
 
@@ -457,6 +483,13 @@ export class Server extends Core {
         socket.on(`client:${i.ClientState.Unavailable}`, this.handleResponse(`client:${i.ClientState.Unavailable}`, (msg: i.Message) => {
             this.updateClientState(clientId, {
                 state: i.ClientState.Unavailable,
+                payload: msg.payload,
+            });
+        }));
+
+        socket.on(`client:${i.ClientState.Shutdown}`, this.handleResponse(`client:${i.ClientState.Shutdown}`, (msg: i.Message) => {
+            this.updateClientState(clientId, {
+                state: i.ClientState.Shutdown,
                 payload: msg.payload,
             });
         }));
