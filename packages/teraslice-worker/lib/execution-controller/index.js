@@ -694,6 +694,9 @@ class ExecutionController {
             if (this.isExecutionFinished) return null;
             if (this.forceShutdown) return forcedError;
 
+            this.logger.debug(`connected workers: ${this.messenger.connectedWorkers}, active workers: ${this.messenger.activeWorkers}`);
+            if (this.messenger.activeWorkers === 0) return null
+
             const now = Date.now();
             if (now > shutdownAt) {
                 this.forceShutdown = true;
