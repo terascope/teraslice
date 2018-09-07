@@ -66,14 +66,6 @@ module.exports = function module(context, clusterMasterServer, executionService)
         }
     });
 
-    clusterMasterServer.onExecutionFinished((exId, err) => {
-        if (err) {
-            logger.error(`terminal error for execution: ${exId}, shutting down execution`, err);
-        }
-        pendingWorkerRequests.remove(exId);
-        messaging.broadcast('cluster:execution:stop', { ex_id: exId });
-    });
-
     messaging.register({
         event: 'network:error',
         callback: err => logger.error(`Error : cluster_master had an error with one of its connections, error: ${parseError(err)}`)

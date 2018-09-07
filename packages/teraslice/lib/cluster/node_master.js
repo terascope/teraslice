@@ -158,16 +158,17 @@ module.exports = function module(context) {
     messaging.register({
         event: 'cluster:execution:stop',
         callback: (networkMsg) => {
-            logger.debug('Received cluster execution stop', networkMsg);
+            const exId = networkMsg.ex_id;
+            logger.debug('Received cluster execution stop', { exId });
 
             const filterFn = () => _.filter(
                 context.cluster.workers,
-                worker => worker.ex_id === networkMsg.ex_id
+                worker => worker.ex_id === exId
             );
             function actionCompleteFn() {
                 const children = getNodeState().active;
-                const workers = _.filter(children, worker => worker.ex_id === networkMsg.ex_id);
-                logger.debug(`waiting for ${workers.length} to stop for ex: ${networkMsg.ex_id}`);
+                const workers = _.filter(children, worker => worker.ex_id === exId);
+                logger.debug(`waiting for ${workers.length} to stop for ex: ${exId}`);
                 return workers.length === 0;
             }
             const stopTime = networkMsg.timeout || config.action_timeout;
@@ -202,8 +203,9 @@ module.exports = function module(context) {
     messaging.register({
         event: 'cluster:node:get_port',
         callback: (msg) => {
-            logger.debug(`assigning port ${msg.port} for new job`);
-            messaging.respond(msg, { port: systemPorts.getPort() });
+            const port = systemPorts.getPort();
+            logger.debug(`assigning port ${port} for new job`);
+            messaging.respond(msg, { port });
         }
     });
 
@@ -239,9 +241,11 @@ module.exports = function module(context) {
         const allWorkersForJob = filterFn();
         _.each(allWorkersForJob, (worker) => {
             const workerID = worker.worker_id || worker.id;
-            if (context.cluster.workers[workerID]) {
-                logger.warn(`sending ${signal} to worker ${workerID}, assignment: ${worker.assignment}, ex_id: ${worker.ex_id}`);
-                context.cluster.workers[workerID].kill(signal);
+            const clusterWorker = context.cluster.workers[workerID];
+            if (clusterWorker) {
+                const processId = clusterWorker.process.pid;
+                logger.warn(`sending ${signal} to process ${processId}, assignment: ${worker.assignment}, ex_id: ${worker.ex_id}`);
+                clusterWorker.process.kill(signal);
             }
         });
     }

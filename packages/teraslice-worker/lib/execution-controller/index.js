@@ -16,7 +16,6 @@ const Messaging = require('@terascope/teraslice-messaging');
 const ExecutionAnalytics = require('./analytics');
 const makeEngine = require('../teraslice/engine');
 const { makeStateStore, makeExStore } = require('../teraslice/stores');
-const WrapError = require('../utils/wrap-error');
 const { makeLogger, generateWorkerId } = require('../utils/context');
 const { waitForWorkerShutdown } = require('../utils');
 
@@ -71,29 +70,38 @@ class ExecutionController {
         this.context = context;
         this.executionContext = executionContext;
         this.collectAnalytics = this.executionContext.config.analytics;
-        this.actionTimeout = actionTimeout;
         this.shutdownTimeout = shutdownTimeout;
         this.workerDisconnectTimeout = workerDisconnectTimeout;
         this.recoverExecution = recoverExecution;
+        this.recoveryComplete = !recoverExecution;
         this.slicerReady = false;
+        this.slicesEnqueued = 0;
 
         this.stores = {};
         this.slicers = [];
         this.slicersDoneCount = 0;
         this.isPaused = false;
+        this.isShutdown = false;
         this.isShuttingDown = false;
         this.isInitialized = false;
         this.isStarted = false;
         this.isExecutionFinished = false;
-        this.forceShutdown = false;
         this.workersHaveConnected = false;
 
-        this.logDoneCreatingSlices = _.once(() => {
+        this.logDoneCreating = _.once(() => {
             this.logger.debug('done creating slices');
         });
 
-        this.logDoneProcessingSlices = _.once(() => {
+        this.logDoneProcessing = _.once(() => {
             this.logger.debug('done processing slices');
+        });
+
+        this.logDoneDispatching = _.once(() => {
+            this.logger.debug('done dispatching slices');
+        });
+
+        this.logExecutionDone = _.once(() => {
+            this.logger.debug('execution is done');
         });
 
         this._dispatchSlices = this._dispatchSlices.bind(this);
@@ -105,20 +113,25 @@ class ExecutionController {
         const { context } = this;
         const { ex_id: exId } = this.executionContext;
 
-        this.isInitialized = true;
-
-        const stateStore = makeStateStore(context);
         const exStore = makeExStore(context);
-
-        this.stores.stateStore = await stateStore;
         this.stores.exStore = await exStore;
 
-        await Promise.all([
-            this.client.start(),
-            this.server.start()
-        ]);
+        await this.client.start();
 
-        await this._verifyExecution();
+        const verified = await this._verifyExecution();
+        if (!verified) {
+            this.isShutdown = true;
+            await this.stores.exStore.shutdown(true);
+            await this.client.shutdown();
+            return;
+        }
+
+        const stateStore = makeStateStore(context);
+        this.stores.stateStore = await stateStore;
+
+        await this.server.start();
+
+        this.isInitialized = true;
 
         this.server.onClientOnline((workerId) => {
             this.logger.debug(`worker ${workerId} is online`);
@@ -188,8 +201,13 @@ class ExecutionController {
     }
 
     async run() {
-        if (this.isShuttingDown || this.forceShutdown) {
+        if (this.isShuttingDown) {
             this.logger.error('Cannot run execution while shutting down');
+            return;
+        }
+
+        if (!this.isInitialized) {
+            this.logger.error('Cannot run execution is not initialized');
             return;
         }
 
@@ -224,6 +242,8 @@ class ExecutionController {
 
         this.logger.info(`execution ${exId} is resuming...`);
         this.isPaused = false;
+
+        await Promise.delay(1000);
     }
 
     async pause() {
@@ -233,6 +253,7 @@ class ExecutionController {
 
         this.logger.info(`execution ${exId} is pausing...`);
         this.isPaused = true;
+        await Promise.delay(1000);
     }
 
     async allocateSlice(request, slicerId, startingOrder) {
@@ -259,6 +280,7 @@ class ExecutionController {
                 logger.trace('enqueuing slice', slice);
             }
 
+            this.slicesEnqueued += 1;
             slicerQueue.enqueue(slice);
         });
 
@@ -285,15 +307,17 @@ class ExecutionController {
 
         this.slicerFailed = true;
 
-        const error = new WrapError(`slicer for ex ${exId} had an error, shutting down execution`, err);
-        this.logger.error(error);
+        const msg = `slicer for ex ${exId} had an error, shutting down execution`;
+        this.logger.error(msg, err);
+
+        const errMsg = `${msg}, caused by ${err.stack ? err.stack : _.toString(err)}`;
 
         const executionStats = this.executionAnalytics.getAnalytics();
-        const errorMeta = await exStore.executionMetaData(executionStats, error.toString());
+        const errorMeta = await exStore.executionMetaData(executionStats, errMsg);
 
         await exStore.setStatus(exId, 'failed', errorMeta);
 
-        await this.client.sendExecutionFinished(error.stack);
+        await this.client.sendExecutionFinished(errMsg);
     }
 
     async slicerCompleted() {
@@ -322,9 +346,9 @@ class ExecutionController {
             return;
         }
 
-
         this.logger.debug(`execution shutdown was called for ex ${exId}`);
         this.isShuttingDown = true;
+        this.isPaused = false;
 
         const shutdownErrs = [];
 
@@ -367,11 +391,7 @@ class ExecutionController {
         }
 
         try {
-            await Promise.map(Object.values(this.stores), (store) => {
-                // attempt to shutdown but if it takes longer than shutdown_timeout, cleanup
-                const forceShutdown = true;
-                return store.shutdown(forceShutdown);
-            });
+            await Promise.map(Object.values(this.stores), store => store.shutdown(true));
         } catch (err) {
             shutdownErrs.push(err);
         }
@@ -389,17 +409,12 @@ class ExecutionController {
         this.events.emit(this.context, 'worker:shutdown:complete');
     }
 
-    // this is used to indicate that recovery is complete
-    // if there is no recovery, this is returns true.
-    get recoveryComplete() {
-        return this.recover == null || this.recover.recoveryComplete();
-    }
-
     // this is used to determine when slicers should stop creating slices
     get isDoneCreatingSlices() {
-        const isDone = this.slicersDone;
-        if (this.isExecutionDone || isDone) {
-            this.logDoneCreatingSlices();
+        if (this.isExecutionDone) return true;
+        if (this.isPaused) return true;
+        if (this.slicersDone) {
+            this.logDoneCreating();
             return true;
         }
         return false;
@@ -407,51 +422,61 @@ class ExecutionController {
 
     // this is used to determine when slices should stop be dispatched to the workers
     // in most cases this will only return true after the slices are done being created
+    get isDoneDispatching() {
+        if (this.isExecutionDone) return true;
+        if (this.isPaused) return false;
+        if (!this.isDoneCreatingSlices) return false;
+        if (this.slicersDone) {
+            this.logDoneDispatching();
+            return true;
+        }
+        return false;
+    }
+
+    // this is used to determine when slices are done being created
+    // and dispatched and are marked complete
     get isDoneProcessing() {
-        const isDone = this.isDoneCreatingSlices && this.slicesAreComplete;
-        if (this.isExecutionDone || isDone) {
-            this.logDoneProcessingSlices();
+        if (this.isExecutionDone) return true;
+        if (this.isPaused) return false;
+        if (!this.isDoneDispatching) return false;
+        if (this.slicesAreComplete) {
+            this.logDoneProcessing();
             return true;
         }
         return false;
     }
 
     get isExecutionDone() {
-        if (this.forceShutdown) return true;
-        if (this.slicerFailed) return true;
-        if (this.isExecutionFinished) return true;
-        if (this.allWorkersDisconnected) return true;
-
+        const isDone = this.isExecutionFinished || this.slicerFailed || this.isShutdown;
+        if (isDone) {
+            this.logExecutionDone();
+            return true;
+        }
         return false;
     }
 
-    get allWorkersDisconnected() {
-        return this.isStarted && this.workersHaveConnected && !this.server.onlineClientCount;
-    }
-
     get slicesAreComplete() {
-        if (!this.isStarted || !this.workersHaveConnected) return false;
-        const hasOnlineWorkers = this.server.onlineClientCount > 0;
-        if (!hasOnlineWorkers) return true;
-        return this.server.pendingSlices.length === 0;
+        if (!this.isStarted) return false;
+        if (!this.recoveryComplete) return false;
+
+        const noPendingSlices = this.server.pendingSlices.length === 0;
+        const noActiveWorkers = this.server.activeWorkers.length === 0;
+        return this.slicesEnqueued > 0 && noPendingSlices && noActiveWorkers;
     }
 
     // this is used to determine when all slices are done creating slices
     get slicersDone() {
         if (!this.isStarted) return false;
-        if (!this.slicerReady) return false;
-        return this.slicersDoneCount === _.size(this.slicers) && this.recoveryComplete;
+        if (!this.recoveryComplete) return false;
+
+        const noRemaingSlicers = this.slicerReady && this.slicersDoneCount === _.size(this.slicers);
+        return this.slicesEnqueued > 0 && noRemaingSlicers;
     }
 
     // this is used to determine when the slices are done
     get isOnce() {
         const { lifecycle } = this.executionContext.config;
         return (lifecycle === 'once') && this.recoveryComplete;
-    }
-
-    // this is used to indicate the number of slices pending slices
-    get remainingSlices() {
-        return this.slicerQueue.size();
     }
 
     async _adjustSlicerQueueLength() {
@@ -482,19 +507,15 @@ class ExecutionController {
             this.client.sendAvailable()
         ]);
 
-
         if (this.recoverExecution) {
             await this._recoverSlicesInit();
 
-            this.isStarted = true;
             await Promise.all([
                 this._waitForRecovery(),
                 this._processSlices(),
             ]);
         } else {
             await this._slicerInit();
-
-            this.isStarted = true;
             await this._processSlices();
         }
 
@@ -502,20 +523,25 @@ class ExecutionController {
     }
 
     async _processSlices() {
+        this.isStarted = true;
+        const { ex_id: exId } = this.executionContext;
+
         if (this.isPaused) {
-            await Promise.delay(100);
-            await this._processSlices();
-            return;
+            this.logger.debug('execution is paused, wait for resume...');
+            await this.client.onceWithTimeout('execution:resume', 1000);
+            return this._processSlices();
         }
 
-        if (this.isDoneProcessing) return;
+        if (this.isDoneProcessing) {
+            this.logger.debug(`execution ${exId} is done processing`);
+            return true;
+        }
 
         try {
             await this._createSlices();
             await this._dispatchSlices();
         } catch (err) {
-            const error = new WrapError('Run failed but worker is not done processing', err);
-            this.logger.warn(error.toString());
+            this.logger.error('Run failed dispatching slices but this is likely not fatal', err);
         }
 
         this.executionAnalytics.set('workers_available', this.server.availableClientCount);
@@ -524,12 +550,11 @@ class ExecutionController {
 
         await immediate();
 
-        await this._processSlices();
+        return this._processSlices();
     }
 
     async _dispatchSlices() {
-        if (this.isPaused) return;
-        if (this.isDoneProcessing) return;
+        if (this.isPaused || this.isDoneDispatching) return;
 
         if (!this.server.workerQueueSize) {
             const timeout = this.server.getTimeoutWithMax(5000);
@@ -557,14 +582,12 @@ class ExecutionController {
     }
 
     async _createSlices() {
-        if (this.isShuttingDown) return;
-        if (this.isPaused) return;
-        if (this.isDoneCreatingSlices) return;
+        if (this.isShuttingDown || this.isDoneCreatingSlices) return;
         if (!this.scheduler) return;
 
         // If all slicers are not done, the slicer queue is not overflown and the scheduler
         // is set, then attempt to provision more slices
-        if (this.remainingSlices < this.executionContext.queueLength) {
+        if (this.slicerQueue.size() < this.executionContext.queueLength) {
             await Promise.map(this.scheduler, slicerFn => slicerFn());
         }
     }
@@ -633,6 +656,13 @@ class ExecutionController {
             });
         });
 
+        this.recoveryComplete = true;
+        // reset the slicers
+        this.slicers = [];
+        this.scheduler = null;
+        this.slicersDoneCount = -1;
+        this.slicersReady = false;
+
         if (_.get(this.startingPoints, '_exit') === true) {
             this.logger.warn('execution recovery has been marked as completed');
             return;
@@ -657,11 +687,7 @@ class ExecutionController {
 
         await this.server.sendExecutionFinishedToAll(exId);
 
-        if (!this.isDoneProcessing || this.forceShutdown) {
-            await this.client.sendExecutionFinished('Unable to finish execution');
-        } else {
-            await this.client.sendExecutionFinished();
-        }
+        await this.client.sendExecutionFinished();
 
         this.isExecutionFinished = true;
         this.logger.debug(`execution ${exId} is finished`);
@@ -677,9 +703,7 @@ class ExecutionController {
 
         const executionStats = this.executionAnalytics.getAnalytics();
 
-        const isShutdownEarly = !this.isDoneProcessing || this.forceShutdown;
-
-        if (isShutdownEarly) {
+        if (!this.isDoneProcessing) {
             // if status is stopping or stopped, only update the execution metadata
             const status = await exStore.getStatus(exId);
             const isStopping = status === 'stopping' || status === 'stopped';
@@ -724,7 +748,7 @@ class ExecutionController {
             this.slicerAnalytics.analyzeStats();
         }
 
-        this.logger.info(`execution ${exId} has finished in ${time} seconds`);
+        this.logger.info(`execution ${exId} has finished in ${time} seconds, enqueued ${this.slicesEnqueued} slices`);
     }
 
     _checkExecutionState() {
@@ -742,15 +766,12 @@ class ExecutionController {
 
         // hoist this error to get a better stack trace
         const timeoutError = new Error(`${this.shutdownTimeout}ms timeout waiting for the execution to finish...`);
-        const forcedError = new Error('Execution was forced to shutdown');
 
         const checkExecution = async () => {
-            if (this.isExecutionFinished) return null;
-            if (this.forceShutdown) return forcedError;
+            if (this.isExecutionDone) return null;
 
             const now = Date.now();
             if (now > shutdownAt) {
-                this.forceShutdown = true;
                 return timeoutError;
             }
 
@@ -773,22 +794,17 @@ class ExecutionController {
         const status = await exStore.getStatus(exId);
 
         if (_.includes(terminalStatuses, status)) {
-            error = new Error(`Execution ${exId} was starting in terminal status, sending executionTerminal event to cluster master`);
+            error = new Error(`Execution ${exId} was starting in terminal status, sending execution:finished event to cluster master`);
         } else if (_.includes(runningStatuses, status)) {
-            error = new Error(`Execution ${exId} was starting in running status, sending executionFinished event to cluster master`);
+            error = new Error(`Execution ${exId} was starting in running status, sending execution:finished event to cluster master`);
         } else {
-            return;
+            return true;
         }
 
         await this.client.sendExecutionFinished(error.message);
-        this.logger.error(error.message);
 
-        const delay = this.server.getTimeoutWithMax(30000);
-        await Promise.delay(delay);
-
-        this.forceShutdown = true;
-
-        throw error;
+        this.logger.warn('Unable to verify execution on initialization', error.stack);
+        return false;
     }
 
     _startWorkConnectWatchDog() {

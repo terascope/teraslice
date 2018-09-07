@@ -15,7 +15,7 @@ function newJob(name) {
 function teraslice() {
     return TerasliceClient({
         host: `http://${DOCKER_IP}:45678`,
-        timeout: 60000
+        timeout: 2 * 60 * 1000
     });
 }
 

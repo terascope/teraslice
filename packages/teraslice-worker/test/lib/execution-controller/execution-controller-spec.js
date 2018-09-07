@@ -550,7 +550,7 @@ describe('ExecutionController', () => {
                 }
 
                 if (slicerFails) {
-                    expect(exStatus._failureReason).toStartWith(`Error: slicer for ex ${exId} had an error, shutting down execution, caused by Error: Slice failure`);
+                    expect(exStatus._failureReason).toStartWith(`slicer for ex ${exId} had an error, shutting down execution, caused by Error: Slice failure`);
                     expect(exStatus._slicer_stats.failed).toEqual(0);
 
                     expect(exStatus).toHaveProperty('_has_errors', true);
@@ -651,11 +651,9 @@ describe('ExecutionController', () => {
 
             it('should throw an error on initialize', async () => {
                 expect.hasAssertions();
-                try {
-                    await exController.initialize();
-                } catch (err) {
-                    expect(err.message).toEqual(`Execution ${testContext.exId} was starting in running status, sending executionFinished event to cluster master`);
-                }
+                await exController.initialize();
+                expect(exController.isInitialized).toBeFalse();
+                expect(exController.isShutdown).toBeTrue();
             });
         });
 
@@ -666,11 +664,9 @@ describe('ExecutionController', () => {
 
             it('should throw an error on initialize', async () => {
                 expect.hasAssertions();
-                try {
-                    await exController.initialize();
-                } catch (err) {
-                    expect(err.message).toEqual(`Execution ${testContext.exId} was starting in terminal status, sending executionTerminal event to cluster master`);
-                }
+                await exController.initialize();
+                expect(exController.isInitialized).toBeFalse();
+                expect(exController.isShutdown).toBeTrue();
             });
         });
     });

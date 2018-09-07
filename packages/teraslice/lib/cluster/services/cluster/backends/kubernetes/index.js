@@ -51,19 +51,6 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         logger.info(`execution ${exId} is connected`);
     });
 
-    clusterMasterServer.onExecutionFinished((exId, err) => {
-        if (err) {
-            logger.error(`terminal error for execution: ${exId}, shutting down execution...`, err);
-        } else {
-            logger.debug(`execution ${exId} has finished...`);
-        }
-
-        stopExecution(exId)
-            .catch((error) => {
-                logger.error(`Unable to stop execution ${exId}`, error);
-            });
-    });
-
     // Periodically update cluster state, update period controlled by:
     //  context.sysconfig.teraslice.node_state_interval
     clusterStateInterval = setInterval(() => {

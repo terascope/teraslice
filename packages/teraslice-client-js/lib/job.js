@@ -73,7 +73,20 @@ class Job extends Client {
         const startTime = Date.now();
 
         const checkStatus = async () => {
-            const result = await this.status();
+            let result;
+            try {
+                const ex = await this.get(`/jobs/${this._jobId}/ex`, {
+                    json: true,
+                    timeout: intervalMs
+                });
+                result = ex._status;
+            } catch (err) {
+                if (_.toString(err).includes('TIMEDOUT')) {
+                    await Promise.delay(intervalMs);
+                    return checkStatus();
+                }
+                throw err;
+            }
 
             if (result === target) {
                 return result;

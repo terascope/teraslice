@@ -384,6 +384,7 @@ export class Server extends Core {
                     debug(`${clientId} is disconnected will be considered offline in ${this.clientDisconnectTimeout}`);
                 } else {
                     debug(`${clientId} has been marked to shutdown no need to wait for disconnect`);
+                    this._clients[clientId].offlineAt = new Date();
                 }
 
                 this.emit(`client:${update.state}`, clientId, update.error);

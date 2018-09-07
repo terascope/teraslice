@@ -17,6 +17,7 @@ const parseError = require('@terascope/error-parser');
 module.exports = function module(context, { clusterMasterServer }) {
     const logger = context.apis.foundation.makeLogger({ module: 'execution_service' });
     const pendingExecutionQueue = new Queue();
+    const isNative = context.sysconfig.teraslice.cluster_manager_type === 'native';
 
     let exStore;
     let clusterService;
@@ -71,7 +72,7 @@ module.exports = function module(context, { clusterMasterServer }) {
         const query = exStore.getLivingStatuses().map(str => `_status:${str}`).join(' OR ');
         return searchExecutionContexts(query)
             .map((execution) => {
-                if (context.sysconfig.teraslice.cluster_manager_type === 'native') {
+                if (isNative) {
                     logger.warn(`marking execution ex_id: ${execution.ex_id}, job_id: ${execution.job_id} as terminated`);
                     const exId = execution.ex_id;
                     const { hostname } = context.sysconfig.teraslice;
@@ -130,6 +131,28 @@ module.exports = function module(context, { clusterMasterServer }) {
     function _isTerminalStatus(execution) {
         const terminalList = terminalStatusList();
         return terminalList.find(tStat => tStat === execution._status) !== undefined;
+    }
+
+    // safely stop the execution without setting the ex status to stopping or stopped
+    function finishExecution(exId, err) {
+        if (err) {
+            logger.error(`terminal error for execution: ${exId}, shutting down execution`, err);
+        } else {
+            logger.debug(`execution ${exId} finished, shutting down execution`);
+        }
+        return getExecutionContext(exId)
+            .then((execution) => {
+                const isTerminal = _isTerminalStatus(execution);
+                if (isTerminal) return null;
+
+                // native cluster can handle itself pretty well
+                if (!isNative) {
+                    return clusterService.stopExecution(exId);
+                }
+                return null;
+            }).catch((error) => {
+                logger.error(`error stopping execution ${error}`);
+            });
     }
 
     function stopExecution(exId, timeout, excludeNode) {
@@ -380,6 +403,9 @@ module.exports = function module(context, { clusterMasterServer }) {
     }
 
     function _initialize() {
+        // listen for an execution finished events
+        clusterMasterServer.onExecutionFinished(finishExecution);
+
         // Reschedule any persistent jobs that were running.
         // There may be some additional subtlety required here.
         return searchExecutionContexts('running').each((execution) => {
