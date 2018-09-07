@@ -113,6 +113,7 @@ class ExecutionControllerMessenger extends MessengerServer {
 
     get connectedWorkers() {
         return _.filter(this._workers, (worker) => {
+            if (worker.isShuttingDown) return true;
             if (worker.status === 'disconnected') {
                 // make sure the worker is not disconnecting
                 return worker.disconnectAt > Date.now();
@@ -192,6 +193,10 @@ class ExecutionControllerMessenger extends MessengerServer {
                     this.cache.set(`${sliceId}:retry`, true);
                     this.emit('worker:reconnect', workerResponse);
                 }
+            }
+            
+            if (workerResponse.isShuttingDown) {
+                this._workers[workerId].isShuttingDown = true;
             }
 
             const alreadyCompleted = this.cache.get(`${sliceId}:complete`);

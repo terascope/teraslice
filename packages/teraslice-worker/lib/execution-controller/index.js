@@ -395,8 +395,7 @@ class ExecutionController {
     // this is used to determine when the slicers are done the work is done processing
     get isSlicersComplete() {
         const workersCompleted = this.messenger.readyWorkers >= this.messenger.connectedWorkers;
-        const slicesFinished = this.remainingSlices === 0;
-        return this.isStarted && workersCompleted && slicesFinished;
+        return this.isStarted && workersCompleted;
     }
 
     // this is used to determine when all slices are done creating slices
