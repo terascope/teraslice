@@ -4,6 +4,8 @@ const fs = require('fs');
 const misc = require('../../misc');
 const wait = require('../../wait');
 
+const { waitForJobStatus } = wait;
+
 describe('Asset Tests', () => {
     const teraslice = misc.teraslice();
 
@@ -29,7 +31,7 @@ describe('Asset Tests', () => {
                 // assigned by teraslice and not it's name.
                 jobSpec.assets = [JSON.parse(result)._id];
                 return teraslice.jobs.submit(jobSpec)
-                    .then(job => job.waitForStatus('running', 100)
+                    .then(job => waitForJobStatus(job, 'running')
                         .then(() => wait.forWorkersJoined(job.id(), workers, 20))
                         .then((r) => {
                             expect(r).toEqual(workers);

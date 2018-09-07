@@ -4,6 +4,8 @@ const _ = require('lodash');
 const misc = require('../../misc');
 const wait = require('../../wait');
 
+const { waitForJobStatus } = wait;
+
 describe('cluster state', () => {
     const teraslice = misc.teraslice();
 
@@ -125,7 +127,7 @@ describe('cluster state', () => {
                 jobId = job.id();
                 // The job may run for a while so we have to wait for it to finish.
                 return job
-                    .waitForStatus('running', 100)
+                    .waitForStatus('running')
                     .then(() => teraslice.cluster.state())
                     .then((state) => {
                         const nodes = _.keys(state);
@@ -143,7 +145,7 @@ describe('cluster state', () => {
                             expect(checkState(state, null, jobId)).toBe(2);
                         });
                     })
-                    .then(() => job.waitForStatus('completed', 100));
+                    .then(() => waitForJobStatus(job, 'completed'));
             })
             .then(() => misc.indexStats('test-clusterstate-job-1-1000')
                 .then((stats) => {
@@ -171,7 +173,7 @@ describe('cluster state', () => {
                 jobId = job.id();
 
                 return job
-                    .waitForStatus('running', 100)
+                    .waitForStatus('running')
                     .then(() => teraslice.cluster.state())
                     .then((state) => {
                         const nodes = _.keys(state);
@@ -187,7 +189,7 @@ describe('cluster state', () => {
                             expect(checkState(state, null, jobId)).toBe(5);
                         });
                     })
-                    .then(() => job.waitForStatus('completed', 100));
+                    .then(() => waitForJobStatus(job, 'completed'));
             })
             .then(() => misc.indexStats('test-clusterstate-job-4-1000')
                 .then((stats) => {

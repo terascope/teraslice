@@ -37,7 +37,7 @@ describe('id reader', () => {
             .then((job) => {
                 expect(job).toBeDefined();
                 expect(job.id()).toBeDefined();
-                return waitForJobStatus('completed', 100);
+                return waitForJobStatus(job, 'completed');
             })
             .then(() => misc.indexStats('test-hexadecimal-logs')
                 .then((stats) => {

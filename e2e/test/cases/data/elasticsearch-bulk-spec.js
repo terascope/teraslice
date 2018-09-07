@@ -1,6 +1,7 @@
 'use strict';
 
 const misc = require('../../misc');
+const { waitForJobStatus } = require('../../wait');
 
 const teraslice = misc.teraslice();
 
@@ -14,7 +15,7 @@ describe('elasticsearch bulk', () => {
             .then((job) => {
                 expect(job).toBeDefined();
                 expect(job.id()).toBeDefined();
-                return job.waitForStatus('completed', 100);
+                return waitForJobStatus(job, 'completed');
             })
             .then(() => misc.indexStats('test-multisend-10000')
                 .then((stats) => {

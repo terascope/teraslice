@@ -4,6 +4,8 @@ const fs = require('fs');
 const _ = require('lodash');
 const misc = require('../../misc');
 
+const { waitForJobStatus } = require('../../wait');
+
 describe('api endpoint', () => {
     const teraslice = misc.teraslice();
     it('submitted jobs are not saved in validated form', (done) => {
@@ -73,7 +75,7 @@ describe('api endpoint', () => {
                 expect(job.id()).toBeDefined();
                 jobId = job.id();
 
-                return job.waitForStatus('completed', 100);
+                return waitForJobStatus(job, 'completed');
             })
             .then(() => teraslice.cluster.get(`/jobs/${jobId}/ex`))
             .then((ex) => {

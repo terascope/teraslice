@@ -3,6 +3,7 @@
 const Promise = require('bluebird');
 const _ = require('lodash');
 const misc = require('../../misc');
+const { waitForJobStatus } = require('../../wait');
 
 const teraslice = misc.teraslice();
 
@@ -17,7 +18,7 @@ describe('reindex', () => {
                 expect(job).toBeDefined();
                 expect(job.id()).toBeDefined();
 
-                return job.waitForStatus('completed', 100);
+                return waitForJobStatus(job, 'completed');
             })
             .then(() => misc.indexStats('test-reindex-10')
                 .then((stats) => {
@@ -39,7 +40,7 @@ describe('reindex', () => {
                 expect(job).toBeDefined();
                 expect(job.id()).toBeDefined();
 
-                return job.waitForStatus('completed', 100);
+                return waitForJobStatus(job, 'completed');
             })
             .then((status) => {
                 expect(status).toEqual('completed');
@@ -83,15 +84,15 @@ describe('reindex', () => {
             .then((job) => {
                 expect(job.id()).toBeDefined();
 
-                return job.waitForStatus('running', 100)
+                return waitForJobStatus(job, 'running')
                     .then(() => job.pause())
-                    .then(() => job.waitForStatus('paused', 100))
+                    .then(() => waitForJobStatus(job, 'paused'))
                     .then(() => job.resume())
-                    .then(() => job.waitForStatus('running', 100))
+                    .then(() => waitForJobStatus(job, 'running'))
                     .then(() => job.stop())
-                    .then(() => job.waitForStatus('stopped', 100))
+                    .then(() => waitForJobStatus(job, 'stopped'))
                     .then(() => job.recover())
-                    .then(() => job.waitForStatus('completed', 100))
+                    .then(() => waitForJobStatus(job, 'completed'))
                     .then(() => misc.indexStats('test-reindex-lifecycle')
                         .then((stats) => {
                             expect(stats.count).toBe(10000);
@@ -107,7 +108,7 @@ describe('reindex', () => {
 
         teraslice.cluster.post(errorStates)
             .then(job => teraslice.jobs.wrap(job.job_id))
-            .then(job => job.waitForStatus('completed', 100))
+            .then(job => waitForJobStatus(job, 'completed'))
             .then(() => misc.indexStats('test-recovery-100'))
             .then(stats => expect(stats.count).toEqual(100))
             .catch(fail)
@@ -119,7 +120,7 @@ describe('reindex', () => {
 
         teraslice.cluster.post(allStates)
             .then(job => teraslice.jobs.wrap(job.job_id))
-            .then(job => job.waitForStatus('completed', 100))
+            .then(job => waitForJobStatus(job, 'completed'))
             .then(() => misc.indexStats('test-recovery-200'))
             .then(stats => expect(stats.count).toEqual(200))
             .catch(fail)
@@ -143,7 +144,7 @@ describe('reindex', () => {
                 expect(job).toBeDefined();
                 expect(job.id()).toBeDefined();
 
-                return job.waitForStatus('completed', 100);
+                return waitForJobStatus(job, 'completed');
             })
             .all()
             .then(() => misc.indexStats('test-reindex-10times')
