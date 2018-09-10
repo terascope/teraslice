@@ -137,9 +137,10 @@ describe('ExecutionController', () => {
 
             describe('when sending worker:slice:complete', () => {
                 describe('when the slice succeed', () => {
-                    it('should respond with a slice recorded and emit slice succeeds', (done) => {
-                        server.onSliceSuccess(() => { done(); });
-                        client.sendSliceComplete({
+                    it('should respond with a slice recorded and emit slice succeeds', () => {
+                        const sliceComplete = jest.fn();
+                        server.onSliceSuccess(sliceComplete);
+                        return client.sendSliceComplete({
                             slice: {
                                 slicer_order: 0,
                                 slicer_id: 1,
@@ -153,6 +154,7 @@ describe('ExecutionController', () => {
                                 size: []
                             },
                         }).then((msg) => {
+                            expect(sliceComplete).toHaveBeenCalled();
                             if (msg == null) {
                                 expect(msg).not.toBeNull();
                                 return;
@@ -167,9 +169,10 @@ describe('ExecutionController', () => {
                 });
 
                 describe('when the slice fails', () => {
-                    it('should respond with a slice recorded and emit slice failure', (done) => {
-                        server.onSliceFailure(() => { done(); });
-                        client.sendSliceComplete({
+                    it('should respond with a slice recorded and emit slice failure', () => {
+                        const sliceFailure = jest.fn();
+                        server.onSliceFailure(sliceFailure);
+                        return client.sendSliceComplete({
                             slice: {
                                 slicer_order: 0,
                                 slicer_id: 1,
@@ -184,6 +187,7 @@ describe('ExecutionController', () => {
                             },
                             error: 'hello'
                         }).then((msg) => {
+                            expect(sliceFailure).toHaveBeenCalled();
                             if (msg == null) {
                                 expect(msg).not.toBeNull();
                                 return;

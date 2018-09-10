@@ -9,7 +9,7 @@ const executionCode = require('../../lib/cluster/runners/execution');
 
 const eventEmitter = new events.EventEmitter();
 
-describe('execution runner', () => {
+xdescribe('execution runner', () => {
     const logger = {
         error() {},
         info() {},

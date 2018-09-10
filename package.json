@@ -20,17 +20,17 @@
         "publish:changed": "./scripts/publish.sh"
     },
     "dependencies": {
-        "lerna": "^3.2.1"
+        "lerna": "^3.3.0"
     },
     "devDependencies": {
-        "@types/jest": "^23.3.1",
+        "@types/jest": "^23.3.2",
         "babel-core": "^6.0.0",
-        "babel-jest": "^23.4.2",
+        "babel-jest": "^23.6.0",
         "eslint": "^5.5.0",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "^2.14.0",
         "fs-extra": "^7.0.0",
-        "jest": "^23.5.0",
+        "jest": "^23.6.0",
         "jest-extended": "^0.8.1",
         "lerna-alias": "^3.0.2",
         "semver": "^5.5.1",

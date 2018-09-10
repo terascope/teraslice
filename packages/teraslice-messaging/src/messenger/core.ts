@@ -50,15 +50,13 @@ export class Core extends EventEmitter {
             resolve();
             return;
         }
-        let replied = false;
         debug('waiting for response from message', sent);
 
         const remaining = sent.respondBy - Date.now();
         const timeoutError = new Error(`Timed out after ${remaining}ms, waiting for message "${sent.eventName}"`);
 
         const timeout = setTimeout(() => {
-            replied = true;
-            if (sent.volatile) {
+            if (sent.volatile || this.closed) {
                 resolve();
             } else {
                 reject(timeoutError);
@@ -68,12 +66,6 @@ export class Core extends EventEmitter {
         const responseError = new Error(`${sent.eventName} Message Response Failure`);
         return (response: i.Message) => {
             clearTimeout(timeout);
-            if (replied) {
-                debug('got response after the the reply was sent', responseError);
-                return;
-            }
-
-            replied = true;
 
             if (response.error) {
                 responseError.message += `: ${response.error}`;
