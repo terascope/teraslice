@@ -9,7 +9,7 @@
         "build": "lerna run build",
         "build:watch": "lerna run build:watch --parallel --stream --prefix",
         "bump": "./scripts/bump.js",
-        "test": "jest --ci --maxWorkers=4",
+        "test": "jest --ci",
         "test:watch": "jest --coverage=false --notify --onlyChanged --watch",
         "test:e2e": "yarn --cwd ./e2e test",
         "test:e2e:ci": "yarn --cwd ./e2e test:ci",

@@ -1,7 +1,7 @@
 import debugFn from 'debug';
 import { isString } from 'lodash';
 import SocketIOClient from 'socket.io-client';
-import { Message, ClientOptions, Payload, ClientState } from './interfaces';
+import { Message, ClientOptions, Payload, ClientState, SendOptions } from './interfaces';
 import { Core } from './core';
 import { newMsgId } from '../utils';
 
@@ -153,28 +153,32 @@ export class Client extends Core {
         return this.send(`client:${ClientState.Unavailable}`, payload);
     }
 
-    protected async send(eventName: string, payload: Payload = {}, volatile?: boolean): Promise<Message> {
-        if (!this.ready && !volatile) {
+    protected async send(eventName: string, payload: Payload = {}, options: SendOptions = { response: true }): Promise<Message|null> {
+        if (!this.ready && !options.volatile) {
             const connected = this.socket.connected ? 'connected' : 'not-connected';
             debug(`server is not ready and ${connected}, waiting for the ready event`);
             await this.onceWithTimeout('ready');
         }
 
+        const response = options.response != null ? options.response : true;
+
         const message: Message = {
             id: newMsgId(),
-            respondBy: Date.now() + this.getTimeout(),
+            respondBy: Date.now() + this.getTimeout(options.timeout),
             payload,
             eventName,
-            volatile,
+            volatile: options.volatile,
+            response,
             to: this.serverName,
             from: this.clientId,
         };
 
-        const response = await new Promise((resolve, reject) => {
+        const responseMsg = await new Promise((resolve, reject) => {
             this.socket.emit(eventName, message, this.handleSendResponse(message, resolve, reject));
         });
 
-        return response as Message;
+        if (!responseMsg) return null;
+        return responseMsg as Message;
     }
 
     isClientReady() {
@@ -184,7 +188,10 @@ export class Client extends Core {
     async shutdown() {
         if (this.socket.connected) {
             try {
-                await this.send(`client:${ClientState.Shutdown}`, {}, true);
+                await this.send(`client:${ClientState.Shutdown}`, {}, {
+                    volatile: true,
+                    response: false,
+                });
             } catch (err) {
                 debug(`client send shutdown error ${err}`);
             }

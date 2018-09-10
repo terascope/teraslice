@@ -86,7 +86,7 @@ export class Server extends core.Server {
                 return;
             }
             _.forOwn(data.stats, (value, field) => {
-                if (this.clusterAnalytics[data.kind][field] !== undefined) {
+                if (this.clusterAnalytics[data.kind][field] != null) {
                     this.clusterAnalytics[data.kind][field] += value;
                 }
             });

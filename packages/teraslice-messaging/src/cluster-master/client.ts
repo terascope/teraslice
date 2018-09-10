@@ -47,11 +47,16 @@ export class Client extends core.Client {
         return this.send('cluster:analytics', {
             stats,
             kind: 'slicer'
-        }, true);
+        }, {
+            volatile: true,
+            response: true,
+        });
     }
 
     sendExecutionFinished(error?: string) {
-        return this.send('execution:finished', { error }, true);
+        return this.send('execution:finished', { error }, {
+            volatile: true,
+        });
     }
 
     onExecutionAnalytics(fn: core.MessageHandler) {

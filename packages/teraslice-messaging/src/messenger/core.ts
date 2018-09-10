@@ -46,6 +46,10 @@ export class Core extends EventEmitter {
     }
 
     protected handleSendResponse(sent: i.Message, resolve: (val?: i.Message) => void, reject: (err: Error) => void) {
+        if (!sent.response) {
+            resolve();
+            return;
+        }
         let replied = false;
         debug('waiting for response from message', sent);
 
@@ -103,6 +107,10 @@ export class Core extends EventEmitter {
                 }
             } catch (err) {
                 message.error = _.toString(err);
+            }
+
+            if (!msg.response) {
+                return;
             }
 
             if (!msg.volatile) {

@@ -153,6 +153,10 @@ describe('ExecutionController', () => {
                                 size: []
                             },
                         }).then((msg) => {
+                            if (msg == null) {
+                                expect(msg).not.toBeNull();
+                                return;
+                            }
                             expect(msg.payload).toEqual({
                                 slice_id: 'success-slice-complete',
                                 recorded: true,
@@ -180,6 +184,10 @@ describe('ExecutionController', () => {
                             },
                             error: 'hello'
                         }).then((msg) => {
+                            if (msg == null) {
+                                expect(msg).not.toBeNull();
+                                return;
+                            }
                             expect(msg.payload).toEqual({
                                 slice_id: 'failure-slice-complete',
                                 recorded: true,
@@ -211,6 +219,10 @@ describe('ExecutionController', () => {
                         return client.sendSliceComplete(slice)
                             .then(() => client.sendSliceComplete(slice))
                             .then((msg) => {
+                                if (msg == null) {
+                                    expect(msg).not.toBeNull();
+                                    return;
+                                }
                                 expect(msg.payload).toEqual({
                                     slice_id: 'duplicate-slice-complete',
                                     recorded: true,

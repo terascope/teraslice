@@ -318,11 +318,15 @@ describe('Messenger', () => {
                 expect.hasAssertions();
                 // @ts-ignore
                 server.server.to(clientId).on('hello', server.handleResponse(async () => {
-                    await bluebird.delay(3000);
+                    await bluebird.delay(1000);
                 }));
                 try {
                     // @ts-ignore
-                    await client.send('hello');
+                    await client.send('hello', {}, {
+                        response: true,
+                        volatile: false,
+                        timeout: 500
+                    });
                 } catch (err) {
                     expect(err).not.toBeNil();
                     expect(err.message).toStartWith('Timed out after');

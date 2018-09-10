@@ -208,21 +208,14 @@ class ExecutionController {
             return;
         }
 
-        const errors = [];
-
         try {
-            await this._startExecution();
+            await this._runExecution();
         } catch (err) {
-            errors.push(err);
+            this.logger.error('Run execution error', err);
         }
 
         this.events.emit('worker:shutdown');
         this.logger.debug(`execution ${this.exId} is done`);
-
-        if (errors.length) {
-            const errMsg = errors.map(e => e.stack).join(', and');
-            throw new Error(`Execution run failure: ${errMsg}`);
-        }
     }
 
     async resume() {
@@ -396,7 +389,6 @@ class ExecutionController {
     }
 
     get slicesAreComplete() {
-        if (!this.isStarted) return false;
         if (!this.recoveryComplete) return false;
 
         const noPendingSlices = this.server.pendingSlices.length === 0;
@@ -420,7 +412,7 @@ class ExecutionController {
         }
     }
 
-    async _startExecution() {
+    async _runExecution() {
         const { exStore } = this.stores;
         this._startWorkConnectWatchDog();
 
@@ -717,11 +709,6 @@ class ExecutionController {
     }
 
     _logFinishedJob() {
-        if (this.startTime == null) {
-            this.logger.debug('no start time, cannot log finished job');
-            return;
-        }
-
         const endTime = Date.now();
         const elapsed = endTime - this.startTime;
         const time = elapsed < 1000 ? 1 : Math.round((elapsed) / 1000);
@@ -798,15 +785,13 @@ class ExecutionController {
     _startWorkConnectWatchDog() {
         clearTimeout(this.workerConnectTimeoutId);
 
-        if (this.isShuttingDown) return;
-        if (this.workersHaveConnected) return;
-
         const timeout = this.context.sysconfig.teraslice.slicer_timeout;
         const err = new Error(`No workers have connected to slicer in the allotted time: ${timeout} ms`);
 
         this.workerConnectTimeoutId = setTimeout(() => {
             clearTimeout(this.workerConnectTimeoutId);
 
+            if (this.isShuttingDown) return;
             if (this.workersHaveConnected) return;
 
             this.logger.warn(`A worker has not connected to a slicer for ex: ${this.exId}, shutting down execution`);
@@ -826,6 +811,7 @@ class ExecutionController {
         this.workerDisconnectTimeoutId = setTimeout(() => {
             clearTimeout(this.workerDisconnectTimeoutId);
 
+            if (this.isShuttingDown) return;
             if (this.server.onlineClientCount > 0) return;
 
             this.terminalError(err);

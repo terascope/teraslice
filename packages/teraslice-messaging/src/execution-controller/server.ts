@@ -103,7 +103,10 @@ export class Server extends core.Server {
     }
 
     sendExecutionFinishedToAll(exId: string) {
-        return this.sendToAll('execution:finished', { exId });
+        return this.sendToAll('execution:finished', { exId }, {
+            response: false,
+            volatile: false,
+        });
     }
 
     get activeWorkers(): string[] {
@@ -137,11 +140,11 @@ export class Server extends core.Server {
             _.pull(this._activeWorkers, workerId);
             _.pull(this._pendingSlices, sliceId);
 
-            return {
+            return _.pickBy({
                 duplicate: alreadyCompleted,
                 recorded: true,
                 slice_id: sliceId,
-            };
+            });
         }));
     }
 

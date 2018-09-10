@@ -6,7 +6,7 @@ const _ = require('lodash');
 const { newFormattedDate } = require('../../lib/utils/date_utils');
 const engineCode = require('../../lib/cluster/execution_controller/engine');
 
-describe('execution engine', () => {
+xdescribe('execution engine', () => {
     function makeTestContext(testConfig = {}) {
         const {
             lifecycle = 'once',

@@ -66,7 +66,10 @@ export class Client extends core.Client {
     }
 
     sendSliceComplete(payload: i.SliceCompletePayload) {
-        return this.send('worker:slice:complete', pickBy(payload));
+        return this.send('worker:slice:complete', pickBy(payload), {
+            response: true,
+            volatile: false,
+        });
     }
 
     async waitForSlice(fn: i.WaitUntilFn = () => false, interval = 100): Promise<Slice|undefined> {

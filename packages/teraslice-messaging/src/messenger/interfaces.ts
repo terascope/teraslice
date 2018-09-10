@@ -46,8 +46,15 @@ export interface Message {
     eventName: string;
     payload: Payload;
     respondBy: number;
+    response?: boolean;
     volatile?: boolean;
     error?: ResponseError;
+}
+
+export interface SendOptions {
+    volatile?: boolean;
+    response?: boolean;
+    timeout?: number;
 }
 
 export interface ConnectedClient {
@@ -88,7 +95,7 @@ export interface ConnectedClients {
 }
 
 export interface ClientSendFns {
-    [clientId: string]: (eventName: string, payload?: Payload, volatile?: boolean) => Promise<Message|null>;
+    [clientId: string]: (eventName: string, payload?: Payload, options?: SendOptions) => Promise<Message|null>;
 }
 
 export interface ClientEventFn {

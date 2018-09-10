@@ -140,10 +140,6 @@ export class Server extends Core {
         }, 1000);
     }
 
-    getClient(clientId: string): i.ConnectedClient|undefined {
-        return _.cloneDeep(this._clients[clientId]);
-    }
-
     async shutdown() {
         if (this._cleanupClients != null) {
             clearInterval(this._cleanupClients);
@@ -272,41 +268,20 @@ export class Server extends Core {
         return onlineStates.includes(clientState);
     }
 
-    protected broadcast(eventName: string, payload: i.Payload) {
-        const message: i.Message = {
-            id: newMsgId(),
-            respondBy: Date.now() + this.getTimeout(),
-            eventName,
-            payload,
-            to: '*',
-            from: this.serverName,
-        };
-
-        this.server.sockets.emit(eventName, message);
-    }
-
-    protected sendToAll(eventName: string, payload?: i.Payload) {
+    protected sendToAll(eventName: string, payload?: i.Payload, options: i.SendOptions = { volatile: true, response: true }) {
         const clients = this.filterClientsByState(onlineStates);
         const promises = _.map(clients, (client) => {
-            return this.send(client.clientId, eventName, payload, true);
+            return this.send(client.clientId, eventName, payload, options);
         });
         return Promise.all(promises);
     }
 
-    protected sendToGroup(eventName: string, query: object, payload?: i.Payload, volatile?: boolean) {
-        const clients = _.filter(this._clients, query);
-        const promises = _.map(clients, (client) => {
-            return this.send(client.clientId, eventName, payload, volatile);
-        });
-        return Promise.all(promises);
-    }
-
-    protected async send(clientId: string, eventName: string, payload: i.Payload = {}, volatile?: boolean): Promise<i.Message|null> {
+    protected async send(clientId: string, eventName: string, payload: i.Payload = {}, options?: i.SendOptions): Promise<i.Message|null> {
         if (!_.has(this._clientSendFns, clientId)) {
             throw new Error(`No client found by that id "${clientId}"`);
         }
 
-        return this._clientSendFns[clientId](eventName, payload, volatile);
+        return this._clientSendFns[clientId](eventName, payload, options);
     }
 
     protected getClientMetadataFromSocket(socket: SocketIO.Socket): i.ClientSocketMetadata {
@@ -401,6 +376,7 @@ export class Server extends Core {
                 }
 
                 this.emit(`client:${update.state}`, clientId, update.error);
+                delete this._clientSendFns[clientId];
                 return true;
 
             default:
@@ -441,27 +417,30 @@ export class Server extends Core {
         const client = this.ensureClient(socket);
         const { clientId } = client;
 
-        this._clientSendFns[clientId] = async (eventName, payload = {}, volatile = false) => {
-            if (!volatile) {
+        this._clientSendFns[clientId] = async (eventName, payload = {}, options: i.SendOptions = { response: true }) => {
+            if (!options.volatile) {
                 await this.waitForClientReady(clientId);
             }
 
+            const response = options.response != null ? options.response : true;
+
             const message: i.Message = {
                 id: newMsgId(),
-                respondBy: Date.now() + this.getTimeout(),
+                respondBy: Date.now() + this.getTimeout(options.timeout),
                 eventName,
                 payload,
                 to: clientId,
                 from: this.serverName,
-                volatile
+                volatile: options.volatile,
+                response,
             };
 
-            const response = await new Promise((resolve, reject) => {
+            const responseMsg = await new Promise((resolve, reject) => {
                 socket.emit(eventName, message, this.handleSendResponse(message, resolve, reject));
             });
 
-            if (!response) return null;
-            return response as i.Message;
+            if (!responseMsg) return null;
+            return responseMsg as i.Message;
         };
 
         socket.on('error', (err: Error|string) => {

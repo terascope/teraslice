@@ -6,7 +6,7 @@ const Promise = require('bluebird');
 
 const eventEmitter = new eventsModule.EventEmitter();
 
-describe('Worker', () => {
+xdescribe('Worker', () => {
     const workerExecutorModule = require('../lib/cluster/worker/executor');
     const messagingEvents = {};
 
