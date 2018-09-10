@@ -150,9 +150,8 @@ module.exports = function module(context) {
         function actionCompleteFn() {
             return getNodeState().active.length === 0;
         }
-        const stopTime = config.shutdown_timeout;
 
-        shutdownProcesses({}, stopTime, filterFn, actionCompleteFn, alreadySentShutdownMessage);
+        shutdownProcesses({}, filterFn, actionCompleteFn, alreadySentShutdownMessage);
     });
 
     messaging.register({
@@ -171,9 +170,8 @@ module.exports = function module(context) {
                 logger.debug(`waiting for ${workers.length} to stop for ex: ${exId}`);
                 return workers.length === 0;
             }
-            const stopTime = networkMsg.timeout || config.action_timeout;
 
-            shutdownProcesses(networkMsg, stopTime, filterFn, actionCompleteFn);
+            shutdownProcesses(networkMsg, filterFn, actionCompleteFn);
         }
     });
 
@@ -183,7 +181,6 @@ module.exports = function module(context) {
             const numberToRemove = networkMsg.payload.workers;
             const children = getNodeState().active;
             const startingWorkerCount = _.filter(children, worker => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker').length;
-            const stopTime = config.shutdown_timeout;
             const filterFn = () => _.filter(
                 children,
                 worker => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker'
@@ -195,7 +192,7 @@ module.exports = function module(context) {
                 return currentWorkersForJob + numberToRemove <= startingWorkerCount;
             }
 
-            shutdownProcesses(networkMsg, stopTime, filterFn, actionCompleteFn);
+            shutdownProcesses(networkMsg, filterFn, actionCompleteFn);
         }
     });
 
@@ -250,10 +247,12 @@ module.exports = function module(context) {
         });
     }
 
-    function shutdownProcesses(message, stoppingTime, filterFn, isActionCompleteFn, alreadySent) {
+    function shutdownProcesses(message, filterFn, isActionCompleteFn, alreadySent) {
         const intervalTime = 200;
         const needsResponse = message.response && message.to;
-        let stopTime = stoppingTime;
+
+        // give a little extra time to finish shutting down
+        let stopTime = config.shutdown_timeout + 3000;
 
         if (!alreadySent) {
             sendSignalToWorkers('SIGTERM', filterFn);

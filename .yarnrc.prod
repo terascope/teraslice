@@ -1,0 +1,9 @@
+workspaces-experimental true
+--install.no-optional true
+--install.no-progress true
+--install.silent true
+--install.production true
+--add.no-optional true
+--add.no-progress true
+--add.silent true
+--add.production true

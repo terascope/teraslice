@@ -79,6 +79,7 @@ class ExecutionController {
         this.stores = {};
         this.slicers = [];
         this.slicersDoneCount = 0;
+        this.totalSlicers = 0;
         this.isPaused = false;
         this.isShutdown = false;
         this.isShuttingDown = false;
@@ -308,10 +309,10 @@ class ExecutionController {
     async slicerCompleted() {
         this.slicersDoneCount += 1;
 
-        const remainingSlicers = _.size(this.slicers) - this.slicersDoneCount;
-        this.logger.info(`a slicer for execution: ${this.exId} has completed its range, ${remainingSlicers} remainging slicers`);
+        const remaining = this.totalSlicers - this.slicersDoneCount;
+        this.logger.info(`a slicer for execution: ${this.exId} has completed its range, ${remaining} remaining slicers`);
 
-        if (remainingSlicers > 0) return;
+        if (remaining > 0 && this.recoveryComplete) return;
         this.slicersDone = true;
 
         this.events.emit('slicers:finished');
@@ -400,7 +401,7 @@ class ExecutionController {
 
         const noPendingSlices = this.server.pendingSlices.length === 0;
         const noActiveWorkers = this.server.activeWorkers.length === 0;
-        return this.slicesEnqueued > 0 && noPendingSlices && noActiveWorkers;
+        return noPendingSlices && noActiveWorkers;
     }
 
     // this is used to determine when the slices are done
@@ -583,7 +584,6 @@ class ExecutionController {
             interval: 100,
         };
 
-        this.slicersDoneCount = 0;
         this.slicers = await retry(() => {
             const executionContext = _.cloneDeep(this.executionContext);
             const startingPoints = this.startingPoints ? _.cloneDeep(this.startingPoints) : [];
@@ -596,10 +596,13 @@ class ExecutionController {
             );
         }, retryOptions);
 
-        logger.debug(`initialized ${this.slicers.length} slices`);
         this.scheduler = await this.engine.registerSlicers(this.slicers);
 
+        this.slicersDoneCount = 0;
+        this.totalSlicers = _.size(this.slicers);
         this.slicersReady = true;
+
+        logger.debug(`initialized ${this.totalSlicers} slices`);
     }
 
     async _recoverSlicesInit() {
@@ -614,8 +617,9 @@ class ExecutionController {
 
         this.logger.info(`execution: ${this.exId} is starting in recovery mode`);
 
-        this.slicersDoneCount = 0;
         this.slicers = await this.recover.newSlicer();
+        this.slicersDoneCount = 0;
+        this.totalSlicers = _.size(this.slicers);
 
         this.scheduler = await this.engine.registerSlicers(this.slicers, true);
         this.slicersReady = true;
@@ -632,19 +636,19 @@ class ExecutionController {
             });
         });
 
-        this.recoveryComplete = true;
-        // reset the slicers
-        this.slicers = [];
-        this.scheduler = null;
-        this.slicersDoneCount = -1;
-        this.slicersReady = false;
-
         if (_.get(this.startingPoints, '_exit') === true) {
+            this.recoveryComplete = true;
             this.logger.warn('execution recovery has been marked as completed');
             return;
         }
 
+        this.scheduler = null;
+        this.slicersReady = false;
+
         await this._slicerInit();
+
+        this.logger.info(`execution ${this.exId} finished its recovery`);
+        this.recoveryComplete = true;
     }
 
     async _finishExecution() {
@@ -743,7 +747,7 @@ class ExecutionController {
         const shutdownAt = timeout + Date.now();
 
         // hoist this error to get a better stack trace
-        const timeoutError = new Error(`Shutdown timeout of ${this.shutdownTimeout}ms waiting for the execution to finish...`);
+        const timeoutError = new Error(`Shutdown timeout of ${timeout}ms waiting for the execution to finish...`);
         const logShuttingDown = _.throttle(() => {
             this.logger.debug('shutdown is waiting for execution to finish...');
         }, 1000);

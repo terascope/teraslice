@@ -490,7 +490,7 @@ module.exports = function module(context, clusterMasterServer, executionService)
             });
     }
 
-    function _notifyNodesWithExecution(exId, messageData, excludeNode, response) {
+    function _notifyNodesWithExecution(exId, messageData, excludeNode) {
         return new Promise(((resolve, reject) => {
             let nodes = _findNodesForExecution(exId);
             if (excludeNode) {
@@ -499,7 +499,9 @@ module.exports = function module(context, clusterMasterServer, executionService)
                 // exclude node is only in regards to a shutdown on the cluster_master, which
                 // already receives the shutdown notice so it can be empty, in all other
                 // circumstances if the node list length is zero then reject
-                reject({ message: `Could not find active execution processes for ex_id: ${exId}`, code: 404 });
+                const error = new Error(`Could not find active execution processes for ex_id: ${exId}`);
+                error.code = 404;
+                reject(error);
                 return;
             }
 
@@ -508,8 +510,10 @@ module.exports = function module(context, clusterMasterServer, executionService)
                     to: 'node_master',
                     address: node.node_id,
                     ex_id: exId,
-                    response
+                    response: false
                 });
+
+                logger.trace(`notifying node ${node.node_id} to stop execution ${exId}`, sendingMsg);
 
                 return messaging.send(sendingMsg);
             })
@@ -517,9 +521,9 @@ module.exports = function module(context, clusterMasterServer, executionService)
                     resolve(true);
                 })
                 .catch((err) => {
-                    const errMsg = parseError(err);
-                    logger.error('could not notify cluster', errMsg);
-                    reject(errMsg);
+                    const error = new Error(`Failure to notify node with execution ${exId}, caused by ${err.message}`);
+                    logger.error(error);
+                    reject(error);
                 });
         }));
     }
@@ -532,14 +536,13 @@ module.exports = function module(context, clusterMasterServer, executionService)
 
     function stopExecution(exId, timeout, exclude) {
         // we are allowing stopExecution to be non blocking, we block at api level
-        const response = false;
         const excludeNode = exclude || null;
         pendingWorkerRequests.remove(exId);
         const sendingMessage = { message: 'cluster:execution:stop' };
         if (timeout) {
             sendingMessage.timeout = timeout;
         }
-        return _notifyNodesWithExecution(exId, sendingMessage, excludeNode, response);
+        return _notifyNodesWithExecution(exId, sendingMessage, excludeNode);
     }
 
     const api = {

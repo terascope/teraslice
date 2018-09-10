@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
+const signale = require('signale');
 const misc = require('./misc');
 
 /*
@@ -103,8 +104,7 @@ function waitForJobStatus(job, status) {
                 if (_.isEmpty(errors)) {
                     return null;
                 }
-                // eslint-disable-next-line no-console
-                console.error(`${jobId} errors`, { errors });
+                signale.debug(`waitForStatus: ${jobId} errors`, errors);
                 return null;
             })
             .catch(() => null);
@@ -116,8 +116,7 @@ function waitForJobStatus(job, status) {
                 if (_.isEmpty(exStatus)) {
                     return null;
                 }
-                // eslint-disable-next-line no-console
-                console.error(`${jobId} status`, exStatus);
+                signale.debug(`waitForStatus: ${jobId} ex status`, exStatus);
                 return null;
             })
             .catch(() => null);

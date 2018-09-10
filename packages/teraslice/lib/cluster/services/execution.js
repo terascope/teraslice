@@ -145,11 +145,7 @@ module.exports = function module(context, { clusterMasterServer }) {
                 const isTerminal = _isTerminalStatus(execution);
                 if (isTerminal) return null;
 
-                // native cluster can handle itself pretty well
-                if (!isNative) {
-                    return clusterService.stopExecution(exId);
-                }
-                return null;
+                return clusterService.stopExecution(exId);
             }).catch((error) => {
                 logger.error(`error stopping execution ${error}`);
             });
