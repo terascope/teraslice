@@ -1,6 +1,6 @@
 terafoundation:
     environment: 'development'
-    log_level: debug
+    log_level: trace
     connectors:
         # ***********************
         # Elastic Search Configuration

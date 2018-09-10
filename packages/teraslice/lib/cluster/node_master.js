@@ -158,7 +158,7 @@ module.exports = function module(context) {
         event: 'cluster:execution:stop',
         callback: (networkMsg) => {
             const exId = networkMsg.ex_id;
-            logger.debug('Received cluster execution stop', { exId });
+            logger.debug('received cluster execution stop', { exId });
 
             const filterFn = () => _.filter(
                 context.cluster.workers,

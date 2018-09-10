@@ -323,6 +323,7 @@ module.exports = function messaging(context, logger) {
             io = require('socket.io-client')(hostURL, {
                 forceNew: true,
                 path: '/native-clustering',
+                transports: ['websocket'],
                 query,
             });
             _registerFns(io);
@@ -342,7 +343,10 @@ module.exports = function messaging(context, logger) {
         } else if (server) {
             // cluster_master
             io = require('socket.io')(server, {
-                path: '/native-clustering'
+                path: '/native-clustering',
+                transports: ['websocket'],
+                allowUpgrades: false,
+                serveClient: false,
             });
             _attachRoomsSocketIO();
 

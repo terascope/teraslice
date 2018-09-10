@@ -6,7 +6,7 @@
     "scripts": {
         "test": "jest --runInBand $JEST_ARGS; echo '\n\n[WARN] Make sure to remember to run yarn clean or yarn test:e2e:clean to remove the docker containers'",
         "test:ci": "jest --runInBand --bail=true $JEST_ARGS || (yarn logs; yarn clean; exit 1)",
-        "test:dev": "jest --runInBand --bail=true $JEST_ARGS || (yarn logs > ./failed-tests.log; yarn clean; exit 1)",
+        "test:dev": "jest --runInBand $JEST_ARGS || (yarn logs > ./failed-tests.log; yarn clean; exit 1)",
         "logs": "docker-compose logs --no-color teraslice-worker teraslice-master | awk -F' [|] ' '{print $2}' | bunyan -o short",
         "logs-follow": "docker-compose logs --follow --no-color teraslice-worker teraslice-master | awk -F' [|] ' '{print $2}' | bunyan -o short",
         "clean": "docker-compose down --volumes --remove-orphans --timeout=5"

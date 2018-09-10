@@ -23,8 +23,7 @@ function forLength(func, value, iterations) {
  * time for the value to match before the returned promise will
  * reject.
  */
-function forValue(func, value, _iterations) {
-    const iterations = _iterations || 100;
+function forValue(func, value, iterations = 100) {
     let counter = 0;
 
     return new Promise(((resolve, reject) => {
@@ -37,7 +36,13 @@ function forValue(func, value, _iterations) {
                         return;
                     }
                     if (counter > iterations) {
-                        reject(`forValue didn't find target value after ${iterations} iterations.`);
+                        signale.debug('forValue last target value', {
+                            actual: result,
+                            expected: value,
+                            iterations,
+                            counter
+                        });
+                        reject(new Error(`forValue didn't find target value after ${iterations} iterations.`));
                     } else {
                         setTimeout(checkValue, 500);
                     }

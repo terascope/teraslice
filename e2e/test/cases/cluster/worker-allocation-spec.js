@@ -36,7 +36,7 @@ function workersTest(workers, workersExpected, records, done) {
         });
 }
 
-describe('worker allocation', () => {
+xdescribe('worker allocation', () => {
     it('with 1 worker', (done) => {
         workersTest(1, 1, 1000, done);
     });

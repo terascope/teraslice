@@ -8,7 +8,7 @@ module.exports = (context, logger, fn) => {
     const events = context.apis.foundation.getSystemEvents();
 
     const exit = (signal, err) => {
-        logger.info(`will exiting in ${shutdownTimeout}ms...`);
+        logger.info(`shutdownHandler will exit in ${shutdownTimeout}ms...`);
 
         const startTime = Date.now();
         Promise.race([

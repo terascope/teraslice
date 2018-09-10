@@ -4,7 +4,7 @@
     "scripts": {
         "start": "node service.js",
         "setup": "lerna bootstrap && lerna link --force-local && lerna run build",
-        "bootstrap:prod": "lerna bootstrap -- --use-yarnrc .yarnrc.prod",
+        "bootstrap:prod": "lerna bootstrap -- --production=true",
         "bootstrap": "lerna bootstrap",
         "build": "lerna run build",
         "build:watch": "lerna run build:watch --parallel --stream --prefix",
