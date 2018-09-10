@@ -332,6 +332,11 @@ export class Server extends Core {
             return false;
         }
 
+        if (currentState === i.ClientState.Shutdown && update.state !== i.ClientState.Offline) {
+            debug(`${clientId} state of ${currentState} can only be updated to offline`);
+            return false;
+        }
+
         const updatedAt = new Date();
         const debugObj = _.pickBy({
             payload: update.payload,
@@ -377,16 +382,10 @@ export class Server extends Core {
                     this.emit(`client:${i.ClientState.Unavailable}`, clientId);
                 }
 
-                if (currentState !== i.ClientState.Shutdown) {
-                    const offlineAtMs = Date.now() + this.clientDisconnectTimeout;
-                    this._clients[clientId].offlineAt = new Date(offlineAtMs);
+                const offlineAtMs = Date.now() + this.clientDisconnectTimeout;
+                this._clients[clientId].offlineAt = new Date(offlineAtMs);
 
-                    debug(`${clientId} is disconnected will be considered offline in ${this.clientDisconnectTimeout}`);
-                } else {
-                    debug(`${clientId} has been marked to shutdown no need to wait for disconnect`);
-                    this._clients[clientId].offlineAt = new Date();
-                }
-
+                debug(`${clientId} is disconnected will be considered offline in ${this.clientDisconnectTimeout}`);
                 this.emit(`client:${update.state}`, clientId, update.error);
                 return true;
 
@@ -443,7 +442,9 @@ export class Server extends Core {
         const { clientId } = client;
 
         this._clientSendFns[clientId] = async (eventName, payload = {}, volatile = false) => {
-            await this.waitForClientReady(clientId);
+            if (!volatile) {
+                await this.waitForClientReady(clientId);
+            }
 
             const message: i.Message = {
                 id: newMsgId(),

@@ -81,40 +81,41 @@ module.exports = function makeEngine(controller) {
         let slicerOrder = 0;
 
         return async function createSliceFn() {
-            if (!isProcessing && !hasCompleted) {
-                logger.trace(`slicer ${slicerId} is being called`);
-                isProcessing = true;
-                try {
-                    const sliceRequest = await slicerFn();
-                    logger.trace(`slicer ${slicerId} was called`, { sliceRequest });
+            if (isProcessing) return;
+            if (hasCompleted) return;
 
-                    // not null or undefined
-                    if (sliceRequest != null) {
-                        if (_.isArray(sliceRequest)) {
-                            logger.warn(`slicer for execution: ${exId} is subslicing by key`);
-                            controller.executionAnalytics.increment('subslice_by_key');
-                        }
+            logger.trace(`slicer ${slicerId} is being called`);
+            isProcessing = true;
+            try {
+                const sliceRequest = await slicerFn();
+                logger.trace(`slicer ${slicerId} was called`, { sliceRequest });
 
-                        slicerOrder = await controller.allocateSlice(
-                            sliceRequest,
-                            slicerId,
-                            slicerOrder
-                        );
-                    } else if (controller.isOnce) {
-                        logger.trace(`slicer ${slicerId} finished`);
-                        // slicer => a single slicer has finished
-                        events.emit('slicer:finished');
-                        hasCompleted = true;
-                        await controller.slicerCompleted();
+                // not null or undefined
+                if (sliceRequest != null) {
+                    if (_.isArray(sliceRequest)) {
+                        logger.warn(`slicer for execution: ${exId} is subslicing by key`);
+                        controller.executionAnalytics.increment('subslice_by_key');
                     }
 
-                    isProcessing = false;
-                } catch (err) {
-                    logger.trace(`slicer ${slicerId} failure`);
-                    // retries are handled internally by slicer
-                    isProcessing = false;
-                    await controller.terminalError(err);
+                    slicerOrder = await controller.allocateSlice(
+                        sliceRequest,
+                        slicerId,
+                        slicerOrder
+                    );
+                } else if (controller.isOnce) {
+                    logger.trace(`slicer ${slicerId} finished`);
+                    // slicer => a single slicer has finished
+                    events.emit('slicer:finished');
+                    hasCompleted = true;
+                    await controller.slicerCompleted();
                 }
+
+                isProcessing = false;
+            } catch (err) {
+                logger.trace(`slicer ${slicerId} failure`);
+                // retries are handled internally by slicer
+                isProcessing = false;
+                await controller.terminalError(err);
             }
         };
     }

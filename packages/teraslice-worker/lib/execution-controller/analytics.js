@@ -75,11 +75,23 @@ class ExecutionAnalytics {
     }
 
     set(key, value) {
-        _.set(this.executionAnalytics, key, value);
+        _.update(this.executionAnalytics, key, (c) => {
+            if (_.isFinite(c) && !_.isFinite(value)) {
+                this.logger.warn(`cannot set ${key} because to "${value}" it is not a valid number`);
+                return c;
+            }
+            return value;
+        });
     }
 
     increment(key) {
-        _.update(this.executionAnalytics, key, c => c + 1);
+        _.update(this.executionAnalytics, key, (c) => {
+            if (!_.isFinite(c)) {
+                this.logger.warn(`cannot increment ${key} because it is not a valid number`);
+                return c;
+            }
+            return c + 1;
+        });
     }
 
     get() {

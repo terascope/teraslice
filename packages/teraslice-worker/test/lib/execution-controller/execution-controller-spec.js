@@ -151,7 +151,6 @@ describe('ExecutionController', () => {
         [
             'processing slices and the execution gets shutdown early',
             {
-                shutdownTimeout: 2000,
                 slicerResults: [
                     { example: 'slice-shutdown-early' },
                     { example: 'slice-shutdown-early' },
@@ -159,9 +158,10 @@ describe('ExecutionController', () => {
                     { example: 'slice-shutdown-early' },
                 ],
                 lifecycle: 'persistent',
+                shutdownTimeout: 2000,
                 shutdownEarly: true,
                 body: { example: 'slice-shutdown-early' },
-                count: 1,
+                count: 2,
                 analytics: _.sample([true, false]),
             }
         ],
@@ -686,6 +686,9 @@ describe('ExecutionController', () => {
                 testContext.context,
                 testContext.executionContext
             );
+
+            testContext.attachCleanup(() => exController.shutdown()
+                .catch(() => { /* ignore-error */ }));
         });
 
         afterEach(() => testContext.cleanup());

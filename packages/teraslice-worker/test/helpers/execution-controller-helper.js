@@ -5,12 +5,17 @@ function makeShutdownEarlyFn({ exController, enabled = false }) {
     let shutdownErr = {
         message: 'Shutdown never triggered'
     };
+    let alreadyCalled = false;
 
     const deferred = new Promise((_resolve) => {
         resolve = _resolve;
     });
 
     const catchShutdown = async () => {
+        if (alreadyCalled) return;
+        alreadyCalled = true;
+
+        shutdownErr.message = 'Shutdown trigger but did not error';
         try {
             await exController.shutdown();
         } catch (err) {

@@ -154,7 +154,7 @@ export class Client extends Core {
     }
 
     protected async send(eventName: string, payload: Payload = {}, volatile?: boolean): Promise<Message> {
-        if (!this.ready) {
+        if (!this.ready && !volatile) {
             const connected = this.socket.connected ? 'connected' : 'not-connected';
             debug(`server is not ready and ${connected}, waiting for the ready event`);
             await this.onceWithTimeout('ready');
