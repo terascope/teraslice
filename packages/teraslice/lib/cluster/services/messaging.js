@@ -23,7 +23,6 @@ const clusterMasterMessages = {
         'execution:finished': 'execution:finished',
         'cluster:analytics': 'cluster:analytics',
         'execution:error:terminal': 'execution:error:terminal',
-        'node:workers:over_allocated': 'node:workers:over_allocated',
         'assets:preloaded': 'assets:preloaded',
         'assets:service:available': 'assets:service:available'
     }

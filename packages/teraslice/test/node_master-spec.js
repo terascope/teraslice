@@ -44,7 +44,7 @@ describe('Node master', () => {
     };
 
     const fakeClusterMaster = require('socket.io')({
-        path: '/native-clustering'
+        path: '/native-clustering',
     });
 
     fakeClusterMaster.on('connection', (socket) => {
@@ -53,9 +53,6 @@ describe('Node master', () => {
         });
         socket.on('node:online', (data) => {
             eventEmitter.emit('node:online', data);
-        });
-        socket.on('node:workers:over_allocated', (data) => {
-            eventEmitter.emit('node:workers:over_allocated', data);
         });
         socket.on('messaging:response', (data) => {
             eventEmitter.emit('messaging:response', data);
@@ -81,6 +78,7 @@ describe('Node master', () => {
 
     class ProcessWorker {
         constructor(obj) {
+            this._isDead = false;
             processCounter += 1;
             _.forOwn(obj, (value, key) => {
                 this[key] = value;
@@ -89,6 +87,7 @@ describe('Node master', () => {
                 pid: processCounter,
                 _msgSent: null,
                 kill: (signal) => {
+                    this._isDead = true;
                     if (delayRemoval && signal === 'SIGTERM') {
                         setTimeout(() => eventEmitter.emit('deleteWorker', this.id), 500);
                     } else {
@@ -96,6 +95,14 @@ describe('Node master', () => {
                     }
                 }
             };
+        }
+
+        kill(signal) {
+            this.process.kill(signal);
+        }
+
+        isDead() {
+            return this._isDead;
         }
     }
 

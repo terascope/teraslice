@@ -4,6 +4,7 @@ const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
 const _ = require('lodash');
 const parseError = require('@terascope/error-parser');
+const { Mutex } = require('async-mutex');
 const messageModule = require('./services/messaging');
 const spawnAssetsLoader = require('./assets/spawn');
 const { safeEncode } = require('../utils/encoding_utils');
@@ -14,12 +15,14 @@ const terasliceVersion = require('../../package.json').version;
 // setting assignment
 process.env.assignment = 'node_master';
 
+
 module.exports = function module(context) {
     const logger = context.apis.foundation.makeLogger({ module: 'node_master' });
     const configWorkerLimit = context.sysconfig.teraslice.workers;
     const config = context.sysconfig.teraslice;
     const events = context.apis.foundation.getSystemEvents();
     const systemPorts = portAllocator();
+    const mutex = new Mutex();
 
     const messaging = messageModule(context, logger);
     const host = messaging.getHostUrl();
@@ -27,9 +30,16 @@ module.exports = function module(context) {
     logger.info(`node ${context.sysconfig._nodeName} is attempting to connect to cluster_master: ${host}`);
 
     const sendNodeState = _.debounce(() => {
+        if (mutex.isLocked()) {
+            logger.debug('skipping state update because the state is changed');
+            return;
+        }
         const state = getNodeState();
         messaging.send({
-            to: 'cluster_master', message: 'node:state', node_id: state.node_id, payload: state
+            to: 'cluster_master',
+            message: 'node:state',
+            node_id: state.node_id,
+            payload: state
         });
     }, 500, { leading: false, trailing: true });
 
@@ -62,39 +72,31 @@ module.exports = function module(context) {
             const createSlicerMsg = createSlicerRequest.payload;
             logger.info(`Allocating execution controller for execution ${createSlicerMsg.ex_id}`);
 
-            const controllerContext = {
-                assignment: 'execution_controller',
-                NODE_TYPE: 'execution_controller',
-                EX: safeEncode(createSlicerMsg.job),
-                job: createSlicerMsg.job,
-                node_id: context.sysconfig._nodeName,
-                ex_id: createSlicerMsg.ex_id,
-                job_id: createSlicerMsg.job_id,
-                slicer_port: createSlicerMsg.slicer_port
-            };
 
-            preloadAssetsIfNeeded(createSlicerMsg.job, createSlicerMsg.ex_id)
-                .then(() => {
-                    logger.trace('starting a execution controller', controllerContext);
-                    context.foundation.startWorkers(1, controllerContext);
-                    return messaging.respond(createSlicerRequest);
-                })
-                .catch((err) => {
-                    logger.error('error loading assets', err);
-                    return messaging.respond(createSlicerRequest, {
-                        error: parseError(err),
+            mutex.runExclusive(() => {
+                const controllerContext = {
+                    assignment: 'execution_controller',
+                    NODE_TYPE: 'execution_controller',
+                    EX: safeEncode(createSlicerMsg.job),
+                    job: createSlicerMsg.job,
+                    node_id: context.sysconfig._nodeName,
+                    ex_id: createSlicerMsg.ex_id,
+                    job_id: createSlicerMsg.job_id,
+                    slicer_port: createSlicerMsg.slicer_port
+                };
+                return preloadAssetsIfNeeded(createSlicerMsg.job, createSlicerMsg.ex_id)
+                    .then(() => {
+                        logger.trace('starting a execution controller', controllerContext);
+                        context.foundation.startWorkers(1, controllerContext);
+                        return messaging.respond(createSlicerRequest);
+                    })
+                    .catch((err) => {
+                        logger.error('error loading assets', err);
+                        return messaging.respond(createSlicerRequest, {
+                            error: parseError(err),
+                        });
                     });
-                }).finally(() => {
-                    // need to update cluster_master immediately so it can balance workers correctly
-                    // and prevent wrong allocations
-                    const state = getNodeState();
-                    messaging.send({
-                        to: 'cluster_master',
-                        message: 'node:state',
-                        node_id: state.node_id,
-                        payload: state
-                    });
-                });
+            });
         }
     });
 
@@ -103,53 +105,49 @@ module.exports = function module(context) {
         callback: (createWorkerRequest) => {
             const createWorkerMsg = createWorkerRequest.payload;
             const numOfCurrentWorkers = Object.keys(context.cluster.workers).length;
-            let newWorkers = createWorkerMsg.workers;
-            let overallocated = false;
-            logger.info(`Attempting to allocate ${newWorkers} workers.`);
 
-            // if there is an over allocation, send back rest to be enqueued
-            if (configWorkerLimit < numOfCurrentWorkers + newWorkers) {
-                overallocated = true;
-                newWorkers = configWorkerLimit - numOfCurrentWorkers;
+            mutex.runExclusive(() => {
+                const requestedWorkers = createWorkerMsg.workers;
+                logger.info(`Attempting to allocate ${requestedWorkers} workers.`);
+                return preloadAssetsIfNeeded(createWorkerMsg.job, createWorkerMsg.ex_id)
+                    .then(() => {
+                        // if there is an over allocation, send back rest to be enqueued
+                        if (configWorkerLimit < numOfCurrentWorkers + requestedWorkers) {
+                            const newWorkers = configWorkerLimit - numOfCurrentWorkers;
+                            logger.warn(`Worker allocation request would exceed maximum number of workers - ${configWorkerLimit}`);
+                            logger.warn(`Reducing allocation to ${newWorkers} workers.`);
+                            return newWorkers;
+                        }
 
-                // mutative
-                createWorkerMsg.workers -= newWorkers;
-                logger.warn(`Worker allocation request would exceed maximum number of workers - ${configWorkerLimit}`);
-                logger.warn(`Reducing allocation to ${newWorkers} workers.`);
-            }
+                        // else return the requested workers
+                        return requestedWorkers;
+                    })
+                    .catch((err) => {
+                        logger.error('error loading assets', err);
+                        // if the assets fail, we couldn't load any workers
+                        return 0;
+                    })
+                    .then((newWorkers) => {
+                        if (newWorkers > 0) {
+                            logger.trace(`starting ${newWorkers} workers`, createWorkerMsg.ex_id);
+                            context.foundation.startWorkers(newWorkers, {
+                                NODE_TYPE: 'worker',
+                                EX: safeEncode(createWorkerMsg.job),
+                                assignment: 'worker',
+                                node_id: context.sysconfig._nodeName,
+                                job: createWorkerMsg.job,
+                                ex_id: createWorkerMsg.ex_id,
+                                job_id: createWorkerMsg.job_id
+                            });
+                        }
 
-            function sendOverallocated() {
-                if (!overallocated) return;
-                messaging.send({
-                    to: 'cluster_master',
-                    message: 'node:workers:over_allocated',
-                    payload: createWorkerMsg
-                });
-            }
-
-            logger.trace(`starting ${newWorkers} workers`, createWorkerMsg.ex_id);
-
-            preloadAssetsIfNeeded(createWorkerMsg.job, createWorkerMsg.ex_id)
-                .then(() => {
-                    sendOverallocated();
-                    context.foundation.startWorkers(newWorkers, {
-                        NODE_TYPE: 'worker',
-                        EX: safeEncode(createWorkerMsg.job),
-                        assignment: 'worker',
-                        node_id: context.sysconfig._nodeName,
-                        job: createWorkerMsg.job,
-                        ex_id: createWorkerMsg.ex_id,
-                        job_id: createWorkerMsg.job_id
+                        return messaging.respond(createWorkerRequest, {
+                            payload: {
+                                createdWorkers: newWorkers,
+                            }
+                        });
                     });
-                    return messaging.respond(createWorkerRequest);
-                })
-                .catch((err) => {
-                    sendOverallocated();
-                    logger.error('error loading assets', err);
-                    return messaging.respond(createWorkerRequest, {
-                        error: parseError(err),
-                    });
-                });
+            });
         }
     });
 
@@ -313,18 +311,7 @@ module.exports = function module(context) {
     }
 
     function getNodeState() {
-        let nodeId;
-
-        if (context.sysconfig.teraslice.cluster_manager_type === 'kubernetes') {
-            if (process.env.POD_IP === undefined) {
-                nodeId = context.sysconfig._nodeName;
-            } else {
-                // this enviroment variable needs to be set by the deployment
-                nodeId = process.env.POD_IP;
-            }
-        } else {
-            nodeId = context.sysconfig._nodeName;
-        }
+        const nodeId = context.sysconfig._nodeName;
 
         const state = {
             node_id: nodeId,

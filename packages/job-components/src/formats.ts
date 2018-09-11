@@ -39,8 +39,8 @@ export const formats : Format[] = [
                     dateMath.parse(val);
                 } catch (err) {
                     throw new Error(
-                        `value: "${val}" cannot be coerced into a proper date \n` +
-                        'the error: ' + err.stack,
+                        `value: "${val}" cannot be coerced into a proper date
+                        the error: ${err.stack}`
                     );
                 }
             } else {

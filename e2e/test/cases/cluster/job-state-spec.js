@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird');
 const misc = require('../../misc');
-
+const { waitForJobStatus } = require('../../wait');
 
 describe('worker allocation', () => {
     const teraslice = misc.teraslice();
@@ -21,15 +21,15 @@ describe('worker allocation', () => {
                 expect(job1Id).toBeDefined();
                 expect(job2Id).toBeDefined();
 
-                return job1.waitForStatus('running')
+                return waitForJobStatus(job1, 'running')
                     .then(() => job1.pause())
-                    .then(() => job1.waitForStatus('paused'))
+                    .then(() => waitForJobStatus(job1, 'paused'))
                     .then(() => job1.resume())
-                    .then(() => job1.waitForStatus('running'))
+                    .then(() => waitForJobStatus(job1, 'running'))
                     .then(() => job1.stop())
-                    .then(() => job1.waitForStatus('stopped'))
+                    .then(() => waitForJobStatus(job1, 'stopped'))
                     .then(() => job2.stop())
-                    .then(() => job2.waitForStatus('stopped'));
+                    .then(() => waitForJobStatus(job2, 'stopped'));
             })
             .catch(fail)
             .finally(() => { done(); });

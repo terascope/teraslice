@@ -59,14 +59,6 @@ module.exports = function module(context, clusterMasterServer, executionService)
     });
 
     messaging.register({
-        event: 'node:workers:over_allocated',
-        callback: (requestData) => {
-            logger.debug('over-allocated workers, returning them to pending worker request queue');
-            pendingWorkerRequests.enqueue(requestData.payload);
-        }
-    });
-
-    messaging.register({
         event: 'network:error',
         callback: err => logger.error(`Error : cluster_master had an error with one of its connections, error: ${parseError(err)}`)
     });
@@ -304,17 +296,32 @@ module.exports = function module(context, clusterMasterServer, executionService)
                 assignment: 'worker'
             };
 
-            results.push(messaging.send({
+            const createRequest = messaging.send({
                 to: 'node_master',
                 address: nodeId,
                 message: 'cluster:workers:create',
                 payload: requestedWorkersData,
                 response: true
-            })
-                .catch(() => {
-                    logger.error(`An error has occurred in allocating : ${workerCount} workers to node : ${nodeId} , the worker request has been enqueued`);
-                    pendingWorkerRequests.enqueue(requestedWorkersData);
-                }));
+            }).then((msg) => {
+                const createdWorkers = _.get(msg, 'payload.createdWorkers');
+                if (!_.isInteger(createdWorkers)) {
+                    logger.error(`malformed response from create workers request to node ${nodeId}`, msg);
+                    return;
+                }
+                if (createdWorkers < workerCount) {
+                    logger.warn(`node ${nodeId} was only able to allocate ${createdWorkers} the request worker count of ${workerCount}, enqueing the remainder`);
+                    const newWorkersRequest = _.cloneDeep(requestedWorkersData);
+                    newWorkersRequest.workers = workerCount - createdWorkers;
+                    pendingWorkerRequests.enqueue(newWorkersRequest);
+                } else {
+                    logger.debug(`node ${nodeId} allocated ${createdWorkers}`);
+                }
+            }).catch((err) => {
+                logger.error(`An error has occurred in allocating : ${workerCount} workers to node : ${nodeId} , the worker request has been enqueued`, err);
+                pendingWorkerRequests.enqueue(requestedWorkersData);
+            });
+
+            results.push(createRequest);
         });
 
         // this will resolve successfully if one worker was actually allocated

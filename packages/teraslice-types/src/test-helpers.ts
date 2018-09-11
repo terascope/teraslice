@@ -1,3 +1,6 @@
+
+/// <reference path="../types/debugnyan.d.ts" />
+
 import _ from 'lodash';
 import debugnyan from 'debugnyan';
 import { EventEmitter } from 'events';

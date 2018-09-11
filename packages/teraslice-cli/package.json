@@ -11,8 +11,8 @@
     "access": "public"
   },
   "scripts": {
-    "lint": "eslint *.js **/*.js",
-    "lint:fix": "eslint --fix **/*.js",
+    "lint": "eslint cmds/**/*.js test/**/*.js *.js",
+    "lint:fix": "eslint cmds/**/*.js test/**/*.js *.js --fix",
     "test": "jest",
     "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
   },
