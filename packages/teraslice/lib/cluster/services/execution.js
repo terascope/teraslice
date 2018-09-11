@@ -146,7 +146,8 @@ module.exports = function module(context, { clusterMasterServer }) {
                 if (isTerminal) return null;
 
                 return clusterService.stopExecution(exId);
-            }).catch((error) => {
+            })
+            .catch((error) => {
                 logger.error(`error stopping execution ${error}`);
             });
     }

@@ -181,13 +181,16 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
     }
 
     function shutdown(forceShutdown) {
+        const startTime = Date.now();
         clearInterval(flushInterval);
         if (forceShutdown !== true) {
             return _flush();
         }
         return new Promise((resolve) => {
-            logger.info(`attempting to shutdown, will destroy in ${config.shutdown_timeout}`);
+            logger.trace(`attempting to shutdown, will destroy in ${config.shutdown_timeout}`);
+
             const _destroy = () => {
+                logger.debug(`shutdown store, took ${Date.now() - startTime}ms`);
                 bulkQueue.length = 0;
                 Object.values(destroyFns).forEach((fn) => { fn(); });
                 destroyFns = {};

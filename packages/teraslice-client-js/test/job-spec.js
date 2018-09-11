@@ -522,7 +522,7 @@ describe('Teraslice Job', () => {
 
             beforeEach((done) => {
                 scope.get('/jobs/some-job-id/ex')
-                    .delay(150)
+                    .delay(1100)
                     .reply(200, {
                         ex_id: 'example-ex-id',
                         _status: 'example'
@@ -536,7 +536,7 @@ describe('Teraslice Job', () => {
 
 
                 new Job({ baseUrl }, 'some-job-id')
-                    .waitForStatus('example', 100, 1000)
+                    .waitForStatus('example', 100, 1500)
                     .then(() => {
                         done();
                     }).catch((err) => {

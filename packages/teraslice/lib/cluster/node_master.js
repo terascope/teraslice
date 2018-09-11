@@ -104,23 +104,34 @@ module.exports = function module(context) {
             const createWorkerMsg = createWorkerRequest.payload;
             const numOfCurrentWorkers = Object.keys(context.cluster.workers).length;
             let newWorkers = createWorkerMsg.workers;
+            let overallocated = false;
             logger.info(`Attempting to allocate ${newWorkers} workers.`);
 
             // if there is an over allocation, send back rest to be enqueued
             if (configWorkerLimit < numOfCurrentWorkers + newWorkers) {
+                overallocated = true;
                 newWorkers = configWorkerLimit - numOfCurrentWorkers;
 
                 // mutative
                 createWorkerMsg.workers -= newWorkers;
-                messaging.send({ to: 'cluster_master', message: 'node:workers:over_allocated', payload: createWorkerMsg });
                 logger.warn(`Worker allocation request would exceed maximum number of workers - ${configWorkerLimit}`);
                 logger.warn(`Reducing allocation to ${newWorkers} workers.`);
+            }
+
+            function sendOverallocated() {
+                if (!overallocated) return;
+                messaging.send({
+                    to: 'cluster_master',
+                    message: 'node:workers:over_allocated',
+                    payload: createWorkerMsg
+                });
             }
 
             logger.trace(`starting ${newWorkers} workers`, createWorkerMsg.ex_id);
 
             preloadAssetsIfNeeded(createWorkerMsg.job, createWorkerMsg.ex_id)
                 .then(() => {
+                    sendOverallocated();
                     context.foundation.startWorkers(newWorkers, {
                         NODE_TYPE: 'worker',
                         EX: safeEncode(createWorkerMsg.job),
@@ -133,6 +144,7 @@ module.exports = function module(context) {
                     return messaging.respond(createWorkerRequest);
                 })
                 .catch((err) => {
+                    sendOverallocated();
                     logger.error('error loading assets', err);
                     return messaging.respond(createWorkerRequest, {
                         error: parseError(err),
@@ -147,12 +159,11 @@ module.exports = function module(context) {
     events.once('terafoundation:shutdown', () => {
         logger.debug('Received shutdown notice from terafoundation');
         const filterFn = () => context.cluster.workers;
-        const alreadySentShutdownMessage = true;
         function actionCompleteFn() {
             return getNodeState().active.length === 0;
         }
 
-        shutdownProcesses({}, filterFn, actionCompleteFn, alreadySentShutdownMessage);
+        shutdownProcesses({}, filterFn, actionCompleteFn);
     });
 
     messaging.register({
@@ -235,29 +246,30 @@ module.exports = function module(context) {
         return Promise.resolve();
     }
 
-    function sendSignalToWorkers(signal, filterFn) {
+    function shutdownWorkers(filterFn) {
         const allWorkersForJob = filterFn();
         _.each(allWorkersForJob, (worker) => {
             const workerID = worker.worker_id || worker.id;
-            const clusterWorker = context.cluster.workers[workerID];
-            if (clusterWorker) {
+            if (_.has(context.cluster.workers, workerID)) {
+                const clusterWorker = context.cluster.workers[workerID];
                 const processId = clusterWorker.process.pid;
+                // if the worker has already been sent a SIGTERM signal it should send a SIGKILL
+                const signal = clusterWorker.isDead() ? 'SIGKILL' : 'SIGTERM';
                 logger.warn(`sending ${signal} to process ${processId}, assignment: ${worker.assignment}, ex_id: ${worker.ex_id}`);
-                clusterWorker.process.kill(signal);
+                clusterWorker.kill(signal);
             }
         });
     }
 
-    function shutdownProcesses(message, filterFn, isActionCompleteFn, alreadySent) {
+    function shutdownProcesses(message, filterFn, isActionCompleteFn) {
         const intervalTime = 200;
         const needsResponse = message.response && message.to;
 
         // give a little extra time to finish shutting down
         let stopTime = config.shutdown_timeout + 3000;
 
-        if (!alreadySent) {
-            sendSignalToWorkers('SIGTERM', filterFn);
-        }
+        shutdownWorkers(filterFn);
+
         const stop = setInterval(() => {
             if (isActionCompleteFn()) {
                 clearInterval(stop);
@@ -265,7 +277,7 @@ module.exports = function module(context) {
             }
             if (stopTime <= 0) {
                 clearInterval(stop);
-                sendSignalToWorkers('SIGKILL', filterFn);
+                shutdownWorkers(filterFn);
                 if (needsResponse) messaging.respond(message);
             }
 

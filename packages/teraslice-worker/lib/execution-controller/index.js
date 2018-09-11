@@ -23,12 +23,13 @@ const ExecutionControllerServer = Messaging.ExecutionController.Server;
 const ClusterMasterClient = Messaging.ClusterMaster.Client;
 const { formatURL } = Messaging;
 
+const immediate = Promise.promisify(setImmediate);
+
 class ExecutionController {
     constructor(context, executionContext) {
         const workerId = generateWorkerId(context);
         const logger = makeLogger(context, executionContext, 'execution_controller');
         const events = context.apis.foundation.getSystemEvents();
-
         const slicerPort = executionContext.slicer_port;
         const networkLatencyBuffer = _.get(context, 'sysconfig.teraslice.network_latency_buffer');
         const actionTimeout = _.get(context, 'sysconfig.teraslice.action_timeout');
@@ -302,6 +303,8 @@ class ExecutionController {
     }
 
     async slicerCompleted() {
+        if (!this.slicersReady) return;
+
         this.slicersDoneCount += 1;
 
         const remaining = this.totalSlicers - this.slicersDoneCount;
@@ -344,6 +347,7 @@ class ExecutionController {
             this.isExecutionDone = true;
             this.logger.fatal(`execution ${this.exId} is being marked as done even though it didn't finish when shutdown was called`);
         }
+
 
         if (this.recover) {
             try {
@@ -448,6 +452,9 @@ class ExecutionController {
         }
 
         await this._finishExecution();
+
+        await this.server.sendExecutionFinishedToAll(this.exId);
+        await this.client.sendExecutionFinished();
     }
 
     async _processSlices() {
@@ -487,7 +494,7 @@ class ExecutionController {
             return true;
         }
 
-        await Promise.delay(0);
+        await immediate();
 
         if (this.isPaused) {
             this.logger.debug('execution is paused, wait for resume...');
@@ -523,7 +530,7 @@ class ExecutionController {
             return true;
         }
 
-        await Promise.delay(0);
+        await immediate();
 
         if (this.isPaused) {
             this.logger.debug('execution is paused, wait for resume...');
@@ -631,7 +638,7 @@ class ExecutionController {
         });
 
         if (_.get(this.startingPoints, '_exit') === true) {
-            this.recoveryComplete = true;
+            this.recoveryComplete = this.recover.recoveryComplete;
             this.logger.warn('execution recovery has been marked as completed');
             return;
         }
@@ -641,8 +648,12 @@ class ExecutionController {
 
         await this._slicerInit();
 
-        this.logger.info(`execution ${this.exId} finished its recovery`);
-        this.recoveryComplete = true;
+        if (this.recover.recoveryComplete) {
+            this.logger.info(`execution ${this.exId} finished its recovery`);
+        } else {
+            this.logger.warn(`execution ${this.exId} failed to finish its recovery`);
+        }
+        this.recoveryComplete = this.recover.recoveryComplete;
     }
 
     async _finishExecution() {
@@ -658,10 +669,6 @@ class ExecutionController {
 
         this._logFinishedJob();
 
-        await Promise.all([
-            this.server.sendExecutionFinishedToAll(this.exId),
-            this.client.sendExecutionFinished()
-        ]);
 
         this.isExecutionFinished = true;
         this.isExecutionDone = true;

@@ -28,6 +28,8 @@ class Service {
 
         this.context = generateContext(sysconfig, useDebugLogger);
 
+        this.shutdownHandler = shutdownHandler(this.context, () => this.instance.shutdown());
+
         this.executionContext = {
             assignment: nodeType,
             job: _.omit(ex, [
@@ -51,8 +53,6 @@ class Service {
         const { assignment, ex_id: exId } = this.executionContext;
         this.logger.trace(`Initializing ${assignment} for execution ${exId}...`, this.executionContext);
 
-        this.registerExitHandler();
-
         this.executionContext = await makeExecutionContext(this.context, this.executionContext);
 
         if (assignment === 'worker') {
@@ -61,71 +61,19 @@ class Service {
             this.instance = new ExecutionController(this.context, this.executionContext);
         }
 
+
         await this.instance.initialize();
 
         this.logger.trace(`Initialized ${assignment} for execution ${exId}`);
     }
 
-    async run() {
-        try {
-            await this.instance.run();
-        } catch (err) {
-            await this.shutdown(err);
-            process.exit(1);
-        }
-
-        await this.shutdown();
-        process.exit(0);
+    run() {
+        return this.instance.run();
     }
 
-    async shutdown(err) {
-        const { assignment, ex_id: exId } = this.executionContext;
-
-        if (err) {
-            this.logError(err);
-        } else {
-            this.logger.trace(`Shutting down ${assignment} for execution ${exId}`);
-        }
-
-        try {
-            await this.instance.shutdown();
-        } catch (shutdowErr) {
-            this.logError(shutdowErr);
-        }
-
-        try {
-            await this.logger.flush();
-            // hack for logger to flush
-            await Promise.delay(600);
-        } catch (flushErr) {
-            this.logError(flushErr);
-        }
-    }
-
-    logError(err) {
-        if (err.message) {
-            this.log('error', err.message);
-        } else {
-            this.log('error', err);
-        }
-
-        if (err.stack) {
-            this.log('error', err.stack);
-        }
-    }
-
-    log(level = 'info', ...args) {
-        if (_.isFunction(this.logger[level])) {
-            this.logger[level](...args);
-        } else if (console[level]) {
-            console[level](...args);
-        } else {
-            console.error(...args);
-        }
-    }
-
-    registerExitHandler() {
-        shutdownHandler(this.context, () => this.shutdown());
+    shutdown(err) {
+        if (this.shutdownHandler.exiting) return;
+        this.shutdownHandler.exit('error', err);
     }
 
     _parseArgs() {
@@ -185,10 +133,9 @@ class Service {
     }
 }
 
-async function runService() {
-    const cmd = new Service();
-    await cmd.initialize();
-    await cmd.run();
-}
-
-runService();
+const cmd = new Service();
+Promise.resolve()
+    .then(() => cmd.initialize())
+    .then(() => cmd.run())
+    .then(() => cmd.shutdown())
+    .catch(err => cmd.shutdown(err));

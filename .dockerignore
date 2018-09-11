@@ -5,13 +5,14 @@
 **/*.md
 **/node_modules
 **/coverage
-assets
 **/test
 **/spec
 **/docs
 **/examples
 **/e2e
 **/dist
+assets
+docker-base
 packages/*/assets
 packages/docker-compose-js
 packages/teraslice-op-test-harness

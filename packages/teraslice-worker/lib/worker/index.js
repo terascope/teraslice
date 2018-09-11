@@ -1,5 +1,6 @@
 'use strict';
 
+const Promise = require('bluebird');
 const _ = require('lodash');
 const { ExecutionController, formatURL } = require('@terascope/teraslice-messaging');
 const {
@@ -9,6 +10,8 @@ const {
 const Slice = require('./slice');
 const { waitForWorkerShutdown } = require('../utils');
 const { generateWorkerId, makeLogger } = require('../utils/context');
+
+const immediate = Promise.promisify(setImmediate);
 
 class Worker {
     constructor(context, executionContext) {
@@ -80,16 +83,22 @@ class Worker {
                 /* istanbul ignore next */
                 this.logger.warn('Slice failed but worker is not done processing');
             }
+
+            await immediate();
             await runForever();
         };
 
         await runForever();
+
+        return this.shutdown();
     }
 
     async runOnce() {
         const msg = await this.client.waitForSlice(() => this.isShuttingDown);
 
-        if (!msg) return;
+        if (!msg) {
+            return;
+        }
 
         this.isProcessing = true;
 

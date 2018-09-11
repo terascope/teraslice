@@ -77,7 +77,7 @@ class Job extends Client {
             try {
                 const ex = await this.get(`/jobs/${this._jobId}/ex`, {
                     json: true,
-                    timeout: intervalMs
+                    timeout: intervalMs < 1000 ? 1000 : intervalMs,
                 });
                 result = ex._status;
             } catch (err) {

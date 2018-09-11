@@ -78,7 +78,7 @@ export class Client extends core.Client {
 
         const slice = await new Promise((resolve) => {
             const intervalId = setInterval(() => {
-                if (this.closed || fn()) {
+                if (!this.ready || fn()) {
                     this.removeListener('execution:slice:new', onMessage);
                     resolve();
                 }

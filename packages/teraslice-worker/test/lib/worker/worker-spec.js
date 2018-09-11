@@ -287,24 +287,21 @@ describe('Worker', () => {
                 server.dispatchSlice(sliceConfig);
             });
 
-            const runOnce = worker.runOnce();
+            worker.events.once('slice:initalize', () => {
+                worker.shouldShutdown = true;
+                worker.shutdown().catch((err) => {
+                    shutdownErr = err;
+                });
+            });
 
-            await Promise.delay(100);
-
-            worker.shouldShutdown = true;
-
-            try {
-                await worker.shutdown();
-                await runOnce;
-            } catch (err) {
-                shutdownErr = err;
-            }
+            await worker.run();
         });
 
         afterEach(() => testContext.cleanup());
 
         it('shutdown should throw an error', () => {
             const errMsg = 'Error: Failed to shutdown correctly: Error: Worker shutdown timeout after 0.5 seconds, forcing shutdown';
+            expect(shutdownErr).not.toBeNil();
             expect(shutdownErr.toString()).toStartWith(errMsg);
         });
     });

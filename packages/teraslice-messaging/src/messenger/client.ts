@@ -187,6 +187,8 @@ export class Client extends Core {
     }
 
     async shutdown() {
+        this.ready = false;
+
         if (this.socket.connected) {
             try {
                 await this.send(`client:${ClientState.Shutdown}`, {}, {
@@ -197,6 +199,7 @@ export class Client extends Core {
                 debug(`client send shutdown error ${err}`);
             }
         }
+
         this.socket.close();
         this.close();
     }
