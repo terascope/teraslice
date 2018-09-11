@@ -346,7 +346,7 @@ module.exports = function module(context) {
             active.push(child);
         });
 
-        state.available = mutex.isLocked() || state.total - active.length;
+        state.available = !mutex.isLocked() && state.total - active.length;
         state.active = active;
 
         return state;
