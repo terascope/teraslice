@@ -296,6 +296,7 @@ module.exports = function module(context, clusterMasterServer, executionService)
                 assignment: 'worker'
             };
 
+
             const createRequest = messaging.send({
                 to: 'node_master',
                 address: nodeId,

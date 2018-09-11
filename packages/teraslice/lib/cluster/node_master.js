@@ -29,11 +29,7 @@ module.exports = function module(context) {
 
     logger.info(`node ${context.sysconfig._nodeName} is attempting to connect to cluster_master: ${host}`);
 
-    const sendNodeState = _.debounce(() => {
-        if (mutex.isLocked()) {
-            logger.debug('skipping state update because the state is changed');
-            return;
-        }
+    function sendNodeStateNow() {
         const state = getNodeState();
         messaging.send({
             to: 'cluster_master',
@@ -41,7 +37,9 @@ module.exports = function module(context) {
             node_id: state.node_id,
             payload: state
         });
-    }, 500, { leading: false, trailing: true });
+    }
+
+    const sendNodeState = _.debounce(sendNodeStateNow, 500, { leading: false, trailing: true });
 
     messaging.registerChildOnlineHook(sendNodeState);
 
@@ -72,8 +70,8 @@ module.exports = function module(context) {
             const createSlicerMsg = createSlicerRequest.payload;
             logger.info(`Allocating execution controller for execution ${createSlicerMsg.ex_id}`);
 
-
             mutex.runExclusive(() => {
+                logger.trace('mutex unlocked for execution controller allocation');
                 const controllerContext = {
                     assignment: 'execution_controller',
                     NODE_TYPE: 'execution_controller',
@@ -84,7 +82,7 @@ module.exports = function module(context) {
                     job_id: createSlicerMsg.job_id,
                     slicer_port: createSlicerMsg.slicer_port
                 };
-                return preloadAssetsIfNeeded(createSlicerMsg.job, createSlicerMsg.ex_id)
+                return loadAssetsIfNeeded(createSlicerMsg.job, createSlicerMsg.ex_id)
                     .then(() => {
                         logger.trace('starting a execution controller', controllerContext);
                         context.foundation.startWorkers(1, controllerContext);
@@ -96,7 +94,7 @@ module.exports = function module(context) {
                             error: parseError(err),
                         });
                     });
-            });
+            }).then(() => sendNodeStateNow());
         }
     });
 
@@ -104,13 +102,14 @@ module.exports = function module(context) {
         event: 'cluster:workers:create',
         callback: (createWorkerRequest) => {
             const createWorkerMsg = createWorkerRequest.payload;
-            const numOfCurrentWorkers = Object.keys(context.cluster.workers).length;
+            const requestedWorkers = createWorkerMsg.workers;
+            logger.info(`Attempting to allocate ${requestedWorkers} workers.`);
 
             mutex.runExclusive(() => {
-                const requestedWorkers = createWorkerMsg.workers;
-                logger.info(`Attempting to allocate ${requestedWorkers} workers.`);
-                return preloadAssetsIfNeeded(createWorkerMsg.job, createWorkerMsg.ex_id)
+                logger.trace('mutex unlocked for worker allocation');
+                return loadAssetsIfNeeded(createWorkerMsg.job, createWorkerMsg.ex_id)
                     .then(() => {
+                        const numOfCurrentWorkers = Object.keys(context.cluster.workers).length;
                         // if there is an over allocation, send back rest to be enqueued
                         if (configWorkerLimit < numOfCurrentWorkers + requestedWorkers) {
                             const newWorkers = configWorkerLimit - numOfCurrentWorkers;
@@ -147,7 +146,7 @@ module.exports = function module(context) {
                             }
                         });
                     });
-            });
+            }).then(() => sendNodeStateNow());
         }
     });
 
@@ -235,7 +234,7 @@ module.exports = function module(context) {
         return job.assets || [];
     }
 
-    function preloadAssetsIfNeeded(job, exId) {
+    function loadAssetsIfNeeded(job, exId) {
         const assets = getAssetsFromJob(job);
         if (assets.length > 0) {
             logger.info(`node ${context.sysconfig._nodeName} is checking assets for job, exId: ${exId}`);
@@ -347,7 +346,7 @@ module.exports = function module(context) {
             active.push(child);
         });
 
-        state.available = state.total - active.length;
+        state.available = mutex.isLocked() || state.total - active.length;
         state.active = active;
 
         return state;
