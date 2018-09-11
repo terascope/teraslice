@@ -40,7 +40,7 @@ module.exports = function _clusterMaster(context) {
 
     context.services = {};
 
-    shutdownHandler(context, logger, shutdown);
+    shutdownHandler(context, shutdown);
 
     function shutdown() {
         logger.info('cluster_master is shutting down');

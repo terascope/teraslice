@@ -43,8 +43,6 @@
     "nested-error-stacks": "^2.1.0",
     "node-cache": "^4.2.0",
     "porty": "^3.1.1",
-    "socket.io": "~1.4.8",
-    "socket.io-client": "~1.4.8",
     "terafoundation": "^0.2.1",
     "teraslice": "^0.40.1",
     "uuid": "^3.3.2",

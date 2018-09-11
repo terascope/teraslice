@@ -33,6 +33,7 @@ class ExecutionController {
         const networkLatencyBuffer = _.get(context, 'sysconfig.teraslice.network_latency_buffer');
         const actionTimeout = _.get(context, 'sysconfig.teraslice.action_timeout');
         const workerDisconnectTimeout = _.get(context, 'sysconfig.teraslice.worker_disconnect_timeout');
+        const nodeDisconnectTimeout = _.get(context, 'sysconfig.teraslice.node_disconnect_timeout');
         const shutdownTimeout = _.get(context, 'sysconfig.teraslice.shutdown_timeout');
         const recoverExecution = _.get(executionContext.config, 'recovered_execution', false);
 
@@ -51,6 +52,7 @@ class ExecutionController {
             executionContext,
             networkLatencyBuffer,
             actionTimeout,
+            connectTimeout: nodeDisconnectTimeout,
             exId: executionContext.ex_id,
         });
 

@@ -3,22 +3,23 @@
 const Promise = require('bluebird');
 const _ = require('lodash');
 
-module.exports = (context, logger, fn) => {
+module.exports = (context, fn) => {
     const shutdownTimeout = _.get(context, 'sysconfig.teraslice.shutdown_timeout', 20 * 1000);
     const events = context.apis.foundation.getSystemEvents();
+    const logger = context.apis.foundation.makeLogger({ module: 'shutdown_handler' });
 
     const exit = (signal, err) => {
-        logger.info(`shutdownHandler will exit in ${shutdownTimeout}ms...`);
+        logger.info(`Exiting in ${shutdownTimeout}ms...`);
 
         const startTime = Date.now();
         Promise.race([
             fn(signal, err),
             Promise.delay(shutdownTimeout)
         ]).then(() => {
-            logger.debug(`Exiting... took ${Date.now() - startTime}ms`);
+            logger.debug(`Shutdown took ${Date.now() - startTime}ms`);
             process.exit(process.exitCode || 0);
         }).catch((error) => {
-            logger.error(error.stack ? error.stack : error.toString());
+            logger.error('Error while shutting down', error);
             process.exit(process.exitCode || 1);
         });
     };

@@ -14,7 +14,7 @@ module.exports = function module(context) {
     let assetsStore;
     let available = false;
 
-    shutdownHandler(context, logger, () => assetsStore.shutdown());
+    shutdownHandler(context, () => assetsStore.shutdown());
 
     app.get('/status', (req, res) => {
         res.send({ available });

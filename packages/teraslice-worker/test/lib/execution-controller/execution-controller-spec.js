@@ -376,13 +376,11 @@ describe('ExecutionController', () => {
             await exController.initialize();
 
             const socketOptions = reconnect ? {
-                timeout: 1000,
                 reconnection: true,
                 reconnectionAttempts: 10,
                 reconnectionDelay: 500,
                 reconnectionDelayMax: 500
             } : {
-                timeout: 1000,
                 reconnection: false
             };
 
@@ -400,6 +398,7 @@ describe('ExecutionController', () => {
                     workerId,
                     networkLatencyBuffer,
                     actionTimeout,
+                    connectTimeout: 1000,
                     socketOptions
                 });
 

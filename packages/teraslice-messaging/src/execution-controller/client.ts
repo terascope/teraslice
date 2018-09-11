@@ -1,6 +1,5 @@
 import { Slice } from '@terascope/teraslice-types';
-import isString from 'lodash/isString';
-import pickBy from 'lodash/pickBy';
+import { isString, pickBy } from 'lodash';
 import * as core from '../messenger';
 import * as i from './interfaces';
 
@@ -14,6 +13,7 @@ export class Client extends core.Client {
             workerId,
             networkLatencyBuffer,
             actionTimeout,
+            connectTimeout,
         } = opts;
 
         if (!isString(executionControllerUrl)) {
@@ -28,6 +28,7 @@ export class Client extends core.Client {
             socketOptions,
             networkLatencyBuffer,
             actionTimeout,
+            connectTimeout,
             hostUrl: executionControllerUrl,
             clientId: workerId,
             clientType: 'worker',

@@ -48,17 +48,22 @@ class Service {
     }
 
     async initialize() {
+        const { assignment, ex_id: exId } = this.executionContext;
+        this.logger.trace(`Initializing ${assignment} for execution ${exId}...`, this.executionContext);
+
         this.registerExitHandler();
 
         this.executionContext = await makeExecutionContext(this.context, this.executionContext);
 
-        if (this.executionContext.assignment === 'worker') {
+        if (assignment === 'worker') {
             this.instance = new Worker(this.context, this.executionContext);
-        } else if (this.executionContext.assignment === 'execution_controller') {
+        } else if (assignment === 'execution_controller') {
             this.instance = new ExecutionController(this.context, this.executionContext);
         }
 
         await this.instance.initialize();
+
+        this.logger.trace(`Initialized ${assignment} for execution ${exId}`);
     }
 
     async run() {
@@ -74,8 +79,12 @@ class Service {
     }
 
     async shutdown(err) {
+        const { assignment, ex_id: exId } = this.executionContext;
+
         if (err) {
             this.logError(err);
+        } else {
+            this.logger.trace(`Shutting down ${assignment} for execution ${exId}`);
         }
 
         try {
@@ -116,7 +125,7 @@ class Service {
     }
 
     registerExitHandler() {
-        shutdownHandler(this.context, this.logger, () => this.shutdown());
+        shutdownHandler(this.context, () => this.shutdown());
     }
 
     _parseArgs() {

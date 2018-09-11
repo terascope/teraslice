@@ -23,12 +23,14 @@ class Worker {
 
         const networkLatencyBuffer = _.get(context, 'sysconfig.teraslice.network_latency_buffer');
         const actionTimeout = _.get(context, 'sysconfig.teraslice.action_timeout');
+        const workerDisconnectTimeout = _.get(context, 'sysconfig.teraslice.worker_disconnect_timeout');
         const shutdownTimeout = _.get(context, 'sysconfig.teraslice.shutdown_timeout');
 
         this.client = new ExecutionController.Client({
             executionControllerUrl: formatURL(slicerHostname, slicerPort),
             workerId,
             networkLatencyBuffer,
+            connectTimeout: workerDisconnectTimeout,
             actionTimeout,
         });
 

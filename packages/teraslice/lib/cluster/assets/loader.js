@@ -13,6 +13,7 @@ const makeAssetStore = require('../storage/assets');
 class AssetLoader {
     constructor(context, assets = []) {
         this.context = context;
+        this.logger = context.apis.foundation.makeLogger({ module: 'assets_loader' });
         this.assets = assets;
         this.assetsDirectory = _.get(context, 'sysconfig.teraslice.assets_directory');
         this.assetIds = [];
@@ -25,6 +26,8 @@ class AssetLoader {
             assetsDirectory
         } = this;
         const { logger } = context;
+
+        this.logger.info('Loading assets...');
 
         // no need to load assets
         if (_.isEmpty(assets)) return [];

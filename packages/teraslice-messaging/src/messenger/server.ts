@@ -74,8 +74,8 @@ export class Server extends Core {
         this.server = SocketIOServer({
             pingTimeout,
             pingInterval,
-            transports: ['websocket'],
-            allowUpgrades: false,
+            // transports: ['websocket'],
+            // allowUpgrades: false,
             serveClient: false,
         });
 

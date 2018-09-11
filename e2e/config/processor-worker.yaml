@@ -15,6 +15,7 @@ teraslice:
     node_disconnect_timeout: 120000
     slicer_timeout: 60000
     shutdown_timeout: 30000
+    action_timeout: 30000
     assets_directory: '/tmp/'
     workers: 5
     master: false

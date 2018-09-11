@@ -37,8 +37,8 @@ describe('ClusterMaster', () => {
                     clusterMasterUrl: 'http://idk.example.com',
                     exId: 'hello',
                     actionTimeout: 1000,
+                    connectTimeout: 1000,
                     socketOptions: {
-                        timeout: 1000,
                         reconnection: false,
                     }
                 });
@@ -87,8 +87,8 @@ describe('ClusterMaster', () => {
                 clusterMasterUrl,
                 networkLatencyBuffer: 0,
                 actionTimeout: 1000,
+                connectTimeout: 1000,
                 socketOptions: {
-                    timeout: 1000,
                     reconnection: false,
                 },
             });

@@ -60,6 +60,7 @@ module.exports = function module(context) {
         event: 'cluster:execution_controller:create',
         callback: (createSlicerRequest) => {
             const createSlicerMsg = createSlicerRequest.payload;
+            logger.info(`Allocating execution controller for execution ${createSlicerMsg.ex_id}`);
 
             const controllerContext = {
                 assignment: 'execution_controller',
@@ -229,7 +230,7 @@ module.exports = function module(context) {
         const assets = getAssetsFromJob(job);
         if (assets.length > 0) {
             logger.info(`node ${context.sysconfig._nodeName} is checking assets for job, exId: ${exId}`);
-            return Promise.resolve(spawnAssetsLoader(assets));
+            return Promise.resolve().then(() => spawnAssetsLoader(assets));
         }
         return Promise.resolve();
     }

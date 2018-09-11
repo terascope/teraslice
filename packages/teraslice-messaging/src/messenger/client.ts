@@ -1,5 +1,5 @@
 import debugFn from 'debug';
-import { isString } from 'lodash';
+import { isString, isInteger } from 'lodash';
 import SocketIOClient from 'socket.io-client';
 import { Message, ClientOptions, Payload, ClientState, SendOptions } from './interfaces';
 import { Core } from './core';
@@ -12,6 +12,8 @@ export class Client extends Core {
     readonly clientId: string;
     readonly clientType: string;
     readonly serverName: string;
+    readonly connectTimeout: number;
+    readonly hostUrl: string;
     available: boolean;
     protected ready: boolean;
 
@@ -23,6 +25,7 @@ export class Client extends Core {
             clientType,
             serverName,
             socketOptions= {},
+            connectTimeout,
         } = opts;
 
         if (!isString(hostUrl)) {
@@ -41,14 +44,22 @@ export class Client extends Core {
             throw new Error('Messenger.Client requires a valid serverName');
         }
 
-        const options = Object.assign({}, socketOptions, {
+        if (!isInteger(connectTimeout)) {
+            throw new Error('Messenger.Client requires a valid connectTimeout');
+        }
+
+        const options: SocketIOClient.ConnectOpts = Object.assign({}, socketOptions, {
             autoConnect: false,
             forceNew: true,
             query: { clientId, clientType },
-            transports: ['websocket'],
+            // transports: ['websocket'],
+            timeout: connectTimeout
         });
 
         this.socket = SocketIOClient(hostUrl, options);
+
+        this.hostUrl = hostUrl;
+        this.connectTimeout = connectTimeout;
         this.clientId = clientId;
         this.clientType = clientType;
         this.serverName = serverName;
@@ -62,16 +73,13 @@ export class Client extends Core {
         }
 
         await new Promise((resolve, reject) => {
-            let connectErr: Error | undefined;
-            let connectInterval: NodeJS.Timer | undefined;
+            let connectTimeout: NodeJS.Timer | undefined;
 
             const cleanup = () => {
-                if (connectInterval) {
-                    clearInterval(connectInterval);
+                if (connectTimeout) {
+                    clearTimeout(connectTimeout);
                 }
                 this.socket.removeListener('connect', connect);
-                this.socket.removeListener('connect_error', connectError);
-                this.socket.removeListener('connect_timeout', connectError);
             };
 
             const connect = () => {
@@ -79,20 +87,13 @@ export class Client extends Core {
                 resolve();
             };
 
-            const connectError = (err: Error) => {
-                connectErr = err;
-            };
-
-            this.socket.on('connect', connect);
-            this.socket.on('connect_error', connectError);
-            this.socket.on('connect_timeout', connectError);
-
+            this.socket.once('connect', connect);
             this.socket.connect();
 
-            connectInterval = setInterval(() => {
+            connectTimeout = setTimeout(() => {
                 cleanup();
-                reject(connectErr);
-            }, this.actionTimeout);
+                reject(new Error(`Unable to connecting to ${this.hostUrl}`));
+            }, this.connectTimeout);
         });
 
         this.socket.on('reconnecting', () => {

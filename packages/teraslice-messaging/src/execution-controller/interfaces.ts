@@ -6,6 +6,7 @@ export interface ClientOptions {
     socketOptions: SocketIOClient.ConnectOpts;
     networkLatencyBuffer?: number;
     actionTimeout: number;
+    connectTimeout: number;
 }
 
 export interface ServerOptions {

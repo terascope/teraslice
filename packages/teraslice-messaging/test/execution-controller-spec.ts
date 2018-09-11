@@ -39,8 +39,8 @@ describe('ExecutionController', () => {
                     executionControllerUrl: 'http://idk.example.com',
                     workerId: 'hello',
                     actionTimeout: 1000,
+                    connectTimeout: 1000,
                     socketOptions: {
-                        timeout: 1000,
                         reconnection: false,
                     }
                 });
@@ -90,8 +90,8 @@ describe('ExecutionController', () => {
                 executionControllerUrl,
                 networkLatencyBuffer: 0,
                 actionTimeout: 1000,
+                connectTimeout: 1000,
                 socketOptions: {
-                    timeout: 1000,
                     reconnection: false,
                 },
             });

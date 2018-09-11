@@ -12,6 +12,7 @@ export class Client extends core.Client {
             networkLatencyBuffer,
             actionTimeout,
             exId,
+            connectTimeout
         } = opts;
 
         if (!clusterMasterUrl || !_.isString(clusterMasterUrl)) {
@@ -26,6 +27,7 @@ export class Client extends core.Client {
             socketOptions,
             networkLatencyBuffer,
             actionTimeout,
+            connectTimeout,
             hostUrl: clusterMasterUrl,
             clientType: 'execution-controller',
             clientId: exId,

@@ -95,6 +95,22 @@ describe('Messenger', () => {
                 }).toThrowError('Messenger.Client requires a valid serverName');
             });
         });
+
+        describe('when constructed without a valid connectTimeout', () => {
+            it('should throw an error', () => {
+                expect(() => {
+                    // @ts-ignore
+                    new Messenger.Client({
+                        actionTimeout: 1,
+                        networkLatencyBuffer: 0,
+                        hostUrl: 'some-host',
+                        clientId: 'hello',
+                        clientType: 'some-client',
+                        serverName: 'some-server-name'
+                    });
+                }).toThrowError('Messenger.Client requires a valid connectTimeout');
+            });
+        });
     });
 
     describe('->Server', () => {
@@ -213,8 +229,8 @@ describe('Messenger', () => {
                     hostUrl,
                     networkLatencyBuffer: 0,
                     actionTimeout: 1000,
+                    connectTimeout: 2000,
                     socketOptions: {
-                        timeout: 1000,
                         reconnection: true,
                         reconnectionAttempts: 10,
                         reconnectionDelay: 500,
