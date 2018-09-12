@@ -148,12 +148,12 @@ class ExecutionController {
         this.server.onClientDisconnect((workerId) => {
             this.logger.trace(`worker ${workerId} is disconnected but it may reconnect`);
             this.executionAnalytics.increment('workers_disconnected');
+            this._startWorkerDisconnectWatchDog();
         });
 
         this.server.onClientOffline((workerId) => {
             this.logger.trace(`worker ${workerId} is offline`);
             this._adjustSlicerQueueLength();
-            this._startWorkerDisconnectWatchDog();
         });
 
         this.server.onClientReconnect((workerId) => {
@@ -763,6 +763,12 @@ class ExecutionController {
             if (this.isExecutionDone) {
                 this.logger.trace('execution finished while shutting down');
                 return null;
+            }
+            
+            if (!this.server.onlineClientCount) {
+                this.logger.trace('workers have disconnected during shutdown');
+                this.isExecutionDone = true;
+                await Promise.delay(1000);
             }
 
             const now = Date.now();
