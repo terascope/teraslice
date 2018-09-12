@@ -212,7 +212,7 @@ curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs" -d@job.json
 or using `teraslice-cli`
 
 ```sh
-tjm register -c="$YOUR_MASTER_IP:5678/v1/jobs"  ./job.json
+tjm job register -c="$YOUR_MASTER_IP:5678/v1/jobs"  ./job.json
 ```
 
 This will return the job_id (for access to the original job posted) and the job execution context id (the running instance of a job) which can then be used to manage the job. This will also start the job.
@@ -237,7 +237,7 @@ curl "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/ex"
 or using `teraslice-cli`
 
 ```sh
-tjm status ./job.json
+tjm job status ./job.json
 ```
 
 ### Stopping a job
@@ -252,7 +252,7 @@ curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_stop"
 or using `teraslice-cli`
 
 ```sh
-tjm stop ./job.json
+tjm job stop ./job.json
 ```
 
 ### Starting a job
@@ -266,7 +266,7 @@ curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_start"
 or using `teraslice-cli`
 
 ```sh
-tjm start ./job.json
+tjm job start ./job.json
 ```
 
 Starting a job with recover will attempt to replay any failed slices from previous runs and will then pickup where it left off. If there are no failed
@@ -289,7 +289,7 @@ curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_pause"
 or using `teraslice-cli`
 
 ```sh
-tjm pause ./job.json
+tjm job pause ./job.json
 ```
 
 ### Resuming a job
@@ -303,7 +303,7 @@ curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_resume"
 or using `teraslice-cli`
 
 ```sh
-tjm resume ./job.json
+tjm job resume ./job.json
 ```
 
 ### Viewing Slicer statistics for a job
@@ -333,6 +333,7 @@ curl "$YOUR_MASTER_IP:5678/v1/cluster/state"
 
  * [Job configuration and operations reference](./docs/ops-reference.md)
  * [Custom operations](./docs/custom_operations.md)
+ * [Teraslice Command Line Tool](./packages/teraslicse-cli/README.md)
 
 ## Configuration
 
