@@ -296,8 +296,6 @@ class ExecutionController {
 
         await exStore.setStatus(this.exId, 'failed', errorMeta);
 
-        await this.client.sendExecutionFinished(errMsg);
-
         this.isExecutionDone = true;
         this.logger.fatal(`execution ${this.exId} is done because of slice failure`);
     }
@@ -450,9 +448,10 @@ class ExecutionController {
             await this._processSlices();
         }
 
+        await this.server.sendExecutionFinishedToAll(this.exId);
+
         await this._finishExecution();
 
-        await this.server.sendExecutionFinishedToAll(this.exId);
         await this.client.sendExecutionFinished();
     }
 
@@ -681,7 +680,6 @@ class ExecutionController {
         }
 
         this._logFinishedJob();
-
 
         this.isExecutionFinished = true;
         this.isExecutionDone = true;

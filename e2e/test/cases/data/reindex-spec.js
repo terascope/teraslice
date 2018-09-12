@@ -1,6 +1,7 @@
 'use strict';
 
 const Promise = require('bluebird');
+const signale = require('signale');
 const _ = require('lodash');
 const misc = require('../../misc');
 const { waitForJobStatus } = require('../../wait');
@@ -20,11 +21,15 @@ describe('reindex', () => {
 
                 return waitForJobStatus(job, 'completed');
             })
-            .then(() => misc.indexStats('test-reindex-10')
-                .then((stats) => {
-                    expect(stats.count).toBe(10);
-                    expect(stats.deleted).toBe(0);
-                }))
+            .then(() => misc.indexStats('test-reindex-10'))
+            .catch((err) => {
+                signale.error(err);
+                expect('The index test-reindex-10').not.toBeNil();
+            })
+            .then((stats) => {
+                expect(stats.count).toBe(10);
+                expect(stats.deleted).toBe(0);
+            })
             .catch(fail)
             .finally(() => { done(); });
     });
