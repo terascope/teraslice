@@ -3,7 +3,8 @@
 const Promise = require('bluebird');
 const get = require('lodash/get');
 const { JobValidator } = require('@terascope/job-components');
-const { terasliceOpPath, makeJobStore, makeExStore } = require('teraslice');
+const { terasliceOpPath } = require('../../config');
+const { makeJobStore, makeExStore } = require('../../cluster/storage');
 
 async function validateJob(context, jobSpec) {
     const jobValidator = new JobValidator(context, {

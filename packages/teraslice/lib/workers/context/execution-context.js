@@ -2,8 +2,8 @@
 
 const Promise = require('bluebird');
 const _ = require('lodash');
-const { terasliceOpPath } = require('teraslice');
 const { OperationLoader, registerApis } = require('@terascope/job-components');
+const { terasliceOpPath } = require('../../config');
 const spawnAssetLoader = require('../assets/spawn');
 const { makeLogger } = require('../helpers/terafoundation');
 const { analyzeOp } = require('../helpers/op-analytics');

@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird');
 const _ = require('lodash');
-const { newFormattedDate } = require('teraslice');
+const { newFormattedDate } = require('../../utils/date_utils');
 const { makeLogger } = require('../helpers/terafoundation');
 
 class ExecutionAnalytics {
