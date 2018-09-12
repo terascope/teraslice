@@ -293,12 +293,7 @@ describe('ExecutionController', () => {
                         };
 
                         const id = server.dequeueWorker(newSlice);
-                        if (!id) {
-                            expect(id).not.toBeNull();
-                            return;
-                        }
-
-                        return expect(server.dispatchSlice(newSlice, id)).resolves.toBeTrue();
+                        expect(id).toBeNull();
                     });
                 });
             });
