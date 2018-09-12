@@ -12,7 +12,7 @@ if (nodeType === 'execution_controller' || nodeType === 'worker') {
     process.env.NODE_TYPE = nodeType || 'worker';
 
     if (process.env.EX) {
-        process.env.job = safeDecode(process.env.EX);
+        process.env.job = JSON.stringify(safeDecode(process.env.EX));
     } else {
         process.env.EX = safeEncode(JSON.parse(process.env.job));
     }
@@ -21,6 +21,7 @@ if (nodeType === 'execution_controller' || nodeType === 'worker') {
 } else {
     process.env.assignment = nodeType || 'node_master';
     process.env.NODE_TYPE = nodeType || 'node_master';
+
     const nodeMaster = require('./lib/cluster/node_master');
     const clusterMaster = require('./lib/cluster/cluster_master');
     const assetService = require('./lib/cluster/services/assets');
