@@ -8,7 +8,7 @@ const Promise = require('bluebird');
 const _ = require('lodash');
 const get = require('lodash/get');
 const { shutdownHandler } = require('./helpers/worker-shutdown');
-const safeDecode = require('../utils/encoding_utils');
+const { safeDecode } = require('../utils/encoding_utils');
 const Worker = require('./worker');
 const ExecutionController = require('./execution-controller');
 const ExecutionContext = require('./context/execution-context');
@@ -20,7 +20,10 @@ class Service {
 
         this.context = makeTerafoundationContext();
 
-        this.shutdownHandler = shutdownHandler(this.context, () => this.instance.shutdown());
+        this.shutdownHandler = shutdownHandler(this.context, () => {
+            if (!this.instance) return Promise.resolve();
+            return this.instance.shutdown();
+        });
 
         this.executionConfig = {
             assignment: this.context.assignment,
@@ -64,6 +67,9 @@ class Service {
     }
 
     shutdown(err) {
+        if (err) {
+            this.logger.error('Teraslice Worker shutting down due to failure!', err);
+        }
         if (this.shutdownHandler.exiting) return;
         this.shutdownHandler.exit('error', err);
     }

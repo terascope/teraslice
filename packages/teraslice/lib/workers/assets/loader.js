@@ -6,7 +6,6 @@ const _ = require('lodash');
 const Promise = require('bluebird');
 const parseError = require('@terascope/error-parser');
 const { saveAsset } = require('../../utils/file_utils');
-const { shutdownHandler } = require('../helpers/worker-shutdown');
 const makeTerafoundationContext = require('../context/terafoundation-context');
 const { safeDecode } = require('../../utils/encoding_utils');
 const makeAssetStore = require('../../cluster/storage/assets');
@@ -74,13 +73,21 @@ class AssetLoader {
     }
 }
 
+async function loadAssets(context, assets) {
+    const assetLoader = new AssetLoader(context, assets);
+    try {
+        return assetLoader.load();
+    } catch (err) {
+        await assetLoader.shutdown();
+        return [];
+    }
+}
+
 if (require.main === module) {
     const context = makeTerafoundationContext();
     const assets = safeDecode(process.env.ASSETS);
-    const assetLoader = new AssetLoader(context, assets);
-    const { exit } = shutdownHandler(context, () => assetLoader.shutdown());
 
-    Promise.resolve(assetLoader.load())
+    Promise.resolve(loadAssets(context, assets))
         .then((assetIds) => {
             process.send({
                 assetIds,
@@ -92,12 +99,13 @@ if (require.main === module) {
                 error: parseError(err),
                 success: false,
             });
+            process.exitCode = 1;
         })
         .finally(() => {
             setTimeout(() => {
-                exit('done');
+                process.exit();
             }, 500);
         });
 } else {
-    module.exports = AssetLoader;
+    module.exports = loadAssets;
 }

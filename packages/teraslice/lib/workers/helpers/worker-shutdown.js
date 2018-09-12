@@ -23,6 +23,7 @@ function waitForWorkerShutdown(context, eventName) {
     });
 }
 
+/* istanbul ignore next */
 function shutdownHandler(context, shutdownFn) {
     const assignment = process.env.NODE_TYPE || process.env.assignment || 'unknown-assignment';
     const isProcessRestart = process.env.process_restart;
@@ -59,7 +60,8 @@ function shutdownHandler(context, shutdownFn) {
             logger.debug(`${assignment} shutdown took ${Date.now() - startTime}ms`);
         }).catch((error) => {
             logger.error(`${assignment} while shutting down`, error);
-        }).then((code) => {
+        }).then(() => {
+            const code = process.exitCode || 0;
             logger.trace(`flushing log and exiting with code ${code}`);
             return flushLogs()
                 .finally(() => {
@@ -70,37 +72,49 @@ function shutdownHandler(context, shutdownFn) {
 
     process.on('SIGINT', () => {
         logger.warn('Received process:SIGINT');
-        process.exitCode = 0;
+        if (!api.exiting) {
+            process.exitCode = 0;
+        }
         exit('SIGINT');
     });
 
     process.on('SIGTERM', () => {
         logger.warn(`${assignment} received process:SIGTERM`);
-        process.exitCode = 0;
+        if (!api.exiting) {
+            process.exitCode = 0;
+        }
         exit('SIGTERM');
     });
 
     process.on('uncaughtException', (err) => {
         logger.fatal(`${assignment} received an uncaughtException`, err);
-        process.exitCode = restartOnFailure ? 1 : 0;
+        if (!api.exiting) {
+            process.exitCode = restartOnFailure ? 1 : 0;
+        }
         exit('uncaughtException', err);
     });
 
     process.on('unhandledRejection', (err) => {
         logger.fatal(`${assignment} received an unhandledRejection`, err);
-        process.exitCode = restartOnFailure ? 1 : 0;
+        if (!api.exiting) {
+            process.exitCode = restartOnFailure ? 1 : 0;
+        }
         exit('unhandledRejection', err);
     });
 
     // event is fired from terafoundation when an error occurs during instantiation of a client
     events.on('client:initialization:error', (err) => {
         logger.fatal(`${assignment} received a client initialization error`, err);
-        process.exitCode = restartOnFailure ? 1 : 0;
+        if (!api.exiting) {
+            process.exitCode = restartOnFailure ? 1 : 0;
+        }
         exit('client:initialization:error', err);
     });
 
     events.once('worker:shutdown:complete', (err) => {
-        process.exitCode = 0;
+        if (!api.exiting) {
+            process.exitCode = 0;
+        }
         if (err) {
             logger.fatal(`${assignment} shutdown error`, err);
         } else {

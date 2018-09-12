@@ -5,7 +5,7 @@ const path = require('path');
 const { formats } = require('@terascope/job-components');
 const { configSchema } = require('./schemas/system');
 
-const terasliceOpPath = path.join(__dirname, '..', 'lib');
+const terasliceOpPath = path.join(__dirname, '..');
 
 function clusterName(configFile) {
     return get(configFile, 'teraslice.name', null);

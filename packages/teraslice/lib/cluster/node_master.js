@@ -35,6 +35,20 @@ module.exports = function module(context) {
         });
     }
 
+    let pendingAllocations = 0;
+    function allocateWorkers(count, fn) {
+        if (mutex.isLocked()) {
+            logger.trace('waiting for allocation lock');
+        }
+        pendingAllocations = count;
+        return Promise.resolve(mutex.runExclusive(() => {
+            logger.info(`allocating ${count} workers`);
+            return Promise.resolve(fn());
+        }))
+            .then(() => sendNodeStateNow())
+            .finally(() => { pendingAllocations = 0; });
+    }
+
     const sendNodeState = _.debounce(sendNodeStateNow, 500, { leading: false, trailing: true });
 
     messaging.registerChildOnlineHook(sendNodeState);
@@ -66,8 +80,7 @@ module.exports = function module(context) {
             const createSlicerMsg = createSlicerRequest.payload;
             logger.info(`Allocating execution controller for execution ${createSlicerMsg.ex_id}`);
 
-            mutex.runExclusive(() => {
-                logger.trace('mutex unlocked for execution controller allocation');
+            allocateWorkers(1, () => {
                 const controllerContext = {
                     assignment: 'execution_controller',
                     NODE_TYPE: 'execution_controller',
@@ -90,7 +103,7 @@ module.exports = function module(context) {
                             error: parseError(err),
                         });
                     });
-            }).then(() => sendNodeStateNow());
+            });
         }
     });
 
@@ -101,9 +114,9 @@ module.exports = function module(context) {
             const requestedWorkers = createWorkerMsg.workers;
             logger.info(`Attempting to allocate ${requestedWorkers} workers.`);
 
-            mutex.runExclusive(() => {
-                logger.trace('mutex unlocked for worker allocation');
-                return loadAssetsIfNeeded(createWorkerMsg.job, createWorkerMsg.ex_id)
+            allocateWorkers(requestedWorkers, () => {
+                const { job, ex_id: exId } = createWorkerMsg;
+                return loadAssetsIfNeeded(job, exId)
                     .then(() => {
                         const numOfCurrentWorkers = Object.keys(context.cluster.workers).length;
                         // if there is an over allocation, send back rest to be enqueued
@@ -142,7 +155,7 @@ module.exports = function module(context) {
                             }
                         });
                     });
-            }).then(() => sendNodeStateNow());
+            });
         }
     });
 
@@ -342,7 +355,7 @@ module.exports = function module(context) {
             active.push(child);
         });
 
-        state.available = !mutex.isLocked() && state.total - active.length;
+        state.available = state.total - active.length - pendingAllocations;
         state.active = active;
 
         return state;
