@@ -69,16 +69,12 @@ export class Server extends core.Server {
         await super.shutdown();
     }
 
-    async dispatchSlice(slice: Slice): Promise<i.DispatchSliceResult> {
+    dequeueWorker(slice: Slice): string|null {
         const requestedWorkerId = slice.request.request_worker;
-        const workerId = this._workerDequeue(requestedWorkerId);
-        if (!workerId) {
-            return {
-                dispatched: false,
-                workerId: null,
-            };
-        }
+        return this._workerDequeue(requestedWorkerId);
+    }
 
+    async dispatchSlice(slice: Slice, workerId: string): Promise<boolean> {
         const response = await this.send(workerId, 'execution:slice:new', slice);
 
         const dispatched = _.get(response, 'payload.willProcess', false);
@@ -88,10 +84,7 @@ export class Server extends core.Server {
             this._pendingSlices = _.union(this._pendingSlices, [slice.slice_id]);
         }
 
-        return {
-            dispatched,
-            workerId,
-        };
+        return dispatched;
     }
 
     onSliceSuccess(fn: core.ClientEventFn) {

@@ -29,12 +29,6 @@ export interface ActiveWorkers {
 export interface SliceResponseMessage {
     willProcess?: boolean;
 }
-
-export interface DispatchSliceResult {
-    dispatched: boolean;
-    workerId: string|null;
-}
-
 export interface WorkerShutdownFn {
     (error?: null): void;
 }

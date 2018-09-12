@@ -58,7 +58,7 @@ describe('Worker', () => {
             sliceConfig = await testContext.newSlice();
 
             server.onClientAvailable(() => {
-                server.dispatchSlice(sliceConfig);
+                server.dispatchSlice(sliceConfig, worker.workerId);
             });
 
             server.onSliceSuccess((workerId, _msg) => {
@@ -103,7 +103,7 @@ describe('Worker', () => {
             sliceConfig = await testContext.newSlice();
 
             server.onClientAvailable(() => {
-                server.dispatchSlice(sliceConfig);
+                server.dispatchSlice(sliceConfig, worker.workerId);
             });
 
             server.onSliceSuccess((workerId, _msg) => {
@@ -161,7 +161,7 @@ describe('Worker', () => {
             await Promise.delay(500);
             sliceConfig = await testContext.newSlice();
 
-            await server.dispatchSlice(sliceConfig);
+            await server.dispatchSlice(sliceConfig, worker.workerId);
 
             await workerStart;
 
@@ -211,7 +211,7 @@ describe('Worker', () => {
             const sliceConfig = await testContext.newSlice();
 
             server.onClientAvailable(() => {
-                server.dispatchSlice(sliceConfig);
+                server.dispatchSlice(sliceConfig, worker.workerId);
             });
 
             await worker.runOnce();
@@ -252,7 +252,7 @@ describe('Worker', () => {
             const sliceConfig = await testContext.newSlice();
 
             server.onClientAvailable(() => {
-                server.dispatchSlice(sliceConfig);
+                server.dispatchSlice(sliceConfig, worker.workerId);
             });
         });
 
@@ -285,7 +285,7 @@ describe('Worker', () => {
             const sliceConfig = await testContext.newSlice();
 
             server.onClientAvailable(() => {
-                server.dispatchSlice(sliceConfig);
+                server.dispatchSlice(sliceConfig, worker.workerId);
             });
 
             worker.events.once('slice:initalize', () => {

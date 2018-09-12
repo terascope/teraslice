@@ -268,12 +268,12 @@ describe('ExecutionController', () => {
 
                         expect(server.queue.exists('workerId', workerId)).toBeTrue();
 
-                        const response = server.dispatchSlice(newSlice);
-
-                        await expect(response).resolves.toEqual({
-                            dispatched: true,
-                            workerId,
-                        });
+                        const id = server.dequeueWorker(newSlice);
+                        if (!id) {
+                            expect(id).not.toBeNull();
+                            return;
+                        }
+                        await expect(server.dispatchSlice(newSlice, id)).resolves.toBeTrue();
                         await expect(slice).resolves.toEqual(newSlice);
                     });
                 });
@@ -292,10 +292,13 @@ describe('ExecutionController', () => {
                             _created: 'hello'
                         };
 
-                        return expect(server.dispatchSlice(newSlice)).resolves.toEqual({
-                            dispatched: false,
-                            workerId: null,
-                        });
+                        const id = server.dequeueWorker(newSlice);
+                        if (!id) {
+                            expect(id).not.toBeNull();
+                            return;
+                        }
+
+                        return expect(server.dispatchSlice(newSlice, id)).resolves.toBeTrue();
                     });
                 });
             });

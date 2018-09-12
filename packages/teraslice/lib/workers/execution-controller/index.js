@@ -96,6 +96,7 @@ class ExecutionController {
         this.workersHaveConnected = false;
 
         this._dispatchSlices = this._dispatchSlices.bind(this);
+        this._dispatchSlice = this._dispatchSlice.bind(this);
         this.setFailingStatus = this.setFailingStatus.bind(this);
         this.terminalError = this.terminalError.bind(this);
     }
@@ -347,7 +348,6 @@ class ExecutionController {
             this.logger.fatal(`execution ${this.exId} is being marked as done even though it didn't finish when shutdown was called`);
         }
 
-
         if (this.recover) {
             try {
                 await this.recover.shutdown();
@@ -546,29 +546,43 @@ class ExecutionController {
             }
         }
 
-        const slice = this.slicerQueue.dequeue();
-        if (!slice) {
-            return this._dispatchSlices();
+        const slices = [];
+        while (slices.length < this.server.workerQueueSize) {
+            const slice = this.slicerQueue.dequeue();
+            if (!slice) break;
+
+            const workerId = this.server.dequeueWorker(slice);
+            if (!workerId) {
+                this.slicerQueue.enqueue(slice);
+            } else {
+                slices.push({
+                    slice,
+                    workerId,
+                });
+            }
         }
 
+        await Promise.map(slices, this._dispatchSlice);
+
+        return this._dispatchSlices();
+    }
+
+    async _dispatchSlice({ slice, workerId }) {
         let dispatched;
-        let workerId;
 
         try {
-            ({ dispatched, workerId } = await this.server.dispatchSlice(slice));
+            dispatched = await this.server.dispatchSlice(slice, workerId);
         } catch (err) {
             this.logger.error('Error dispatching slices to worker', err);
-            return this._dispatchSlices();
+            return;
         }
 
-        if (!workerId || !dispatched) {
+        if (!dispatched) {
             this.slicerQueue.unshift(slice);
-            this.logger.debug(`worker "${workerId}" is not available to process slice ${slice.slice_id}`);
+            this.logger.warn(`worker "${workerId}" is not available to process slice ${slice.slice_id}`);
         } else {
             this.logger.debug(`dispatched slice ${slice.slice_id} to worker ${workerId}`);
         }
-
-        return this._dispatchSlices();
     }
 
     async _slicerInit() {
