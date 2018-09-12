@@ -12,9 +12,6 @@ const { safeEncode } = require('../utils/encoding_utils');
 const nodeVersion = process.version;
 const terasliceVersion = require('../../package.json').version;
 
-// setting assignment
-process.env.assignment = 'node_master';
-
 module.exports = function module(context) {
     const logger = context.apis.foundation.makeLogger({ module: 'node_master' });
     const configWorkerLimit = context.sysconfig.teraslice.workers;

@@ -7,6 +7,8 @@ const _ = require('lodash');
 const Promise = require('bluebird');
 const nodeModule = require('../lib/cluster/node_master');
 
+process.env.assignment = 'node_master';
+
 describe('Node master', () => {
     let eventEmitter = {};
 
