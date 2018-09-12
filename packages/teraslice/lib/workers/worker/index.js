@@ -67,7 +67,7 @@ class Worker {
         await this.client.start();
 
         this.client.onExecutionFinished(() => {
-            this.logger.warn(`exId ${exId} recieved a execution finished event`);
+            this.logger.warn(`exId ${exId} received a execution finished event`);
             this.shouldShutdown = true;
         });
     }

@@ -169,6 +169,9 @@ module.exports = function module(context, { clusterMasterServer }) {
 
     function pauseExecution(exId) {
         const status = 'paused';
+        if (!clusterMasterServer.isClientReady(exId)) {
+            return Promise.reject(new Error(`Execution ${exId} is not available to pause`));
+        }
         return clusterMasterServer.sendExecutionPause(exId)
             .then(() => setExecutionStatus(exId, status))
             .then(() => ({ status }));
@@ -176,6 +179,9 @@ module.exports = function module(context, { clusterMasterServer }) {
 
     function resumeExecution(exId) {
         const status = 'running';
+        if (!clusterMasterServer.isClientReady(exId)) {
+            return Promise.reject(new Error(`Execution ${exId} is not available to resume`));
+        }
         return clusterMasterServer.sendExecutionResume(exId)
             .then(() => setExecutionStatus(exId, status))
             .then(() => ({ status }));
