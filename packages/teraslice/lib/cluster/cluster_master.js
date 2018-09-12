@@ -91,8 +91,9 @@ module.exports = function _clusterMaster(context) {
         .then((jobsService) => {
             logger.debug('job service has been instantiated');
             context.services.jobs = jobsService;
-            // give the assets service 5 minutes to come up
-            return waitForAssetsService(Date.now() + 5 * 60 * 1000);
+            // give the assets service a bit to come up
+            const fiveMinutes = 5 * 60 * 1000;
+            return waitForAssetsService(Date.now() + fiveMinutes);
         })
         .then(() => APIService(context, app, { assetsUrl, clusterMasterServer }))
         .then((apiService) => {
