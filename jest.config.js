@@ -2,6 +2,7 @@
 
 module.exports = {
     rootDir: '.',
+    verbose: true,
     projects: ['<rootDir>/packages/*'],
     globalSetup: '<rootDir>/packages/teraslice-worker/test/global.setup.js',
     globalTeardown: '<rootDir>/packages/teraslice-worker/test/global.teardown.js',

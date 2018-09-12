@@ -1,44 +1,44 @@
 {
-  "name": "teraslice-client-js",
-  "version": "0.1.3",
-  "publishConfig": {
-    "access": "public"
-  },
-  "description": "Javascript client library for working with Teraslice",
-  "main": "index.js",
-  "scripts": {
-    "lint": "eslint *.js lib test",
-    "lint:fix": "eslint --fix *.js lib test",
-    "test": "jest",
-    "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-    "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
-  },
-  "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-client-js#readme",
-  "repository": "git@github.com:terascope/teraslice.git",
-  "author": "Terascope, LLC <info@terascope.io>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/terascope/teraslice/issues"
-  },
-  "keywords": [
-    "javascript",
-    "teraslice",
-    "nodejs",
-    "elasticsearch"
-  ],
-  "dependencies": {
-    "auto-bind": "^1.2.1",
-    "bluebird": "^3.5.2",
-    "lodash": "^4.13.1",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.2"
-  },
-  "devDependencies": {
-    "eslint": "^5.5.0",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.14.0",
-    "jest": "^23.6.0",
-    "jest-extended": "^0.8.1",
-    "nock": "^9.6.1"
-  }
+    "name": "teraslice-client-js",
+    "version": "0.1.3",
+    "publishConfig": {
+        "access": "public"
+    },
+    "description": "Javascript client library for working with Teraslice",
+    "main": "index.js",
+    "scripts": {
+        "lint": "eslint *.js lib test",
+        "lint:fix": "eslint --fix *.js lib test",
+        "test": "jest",
+        "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
+        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+    },
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-client-js#readme",
+    "repository": "git@github.com:terascope/teraslice.git",
+    "author": "Terascope, LLC <info@terascope.io>",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "keywords": [
+        "javascript",
+        "teraslice",
+        "nodejs",
+        "elasticsearch"
+    ],
+    "dependencies": {
+        "auto-bind": "^1.2.1",
+        "bluebird": "^3.5.2",
+        "lodash": "^4.17.10",
+        "request": "^2.88.0",
+        "request-promise": "^4.2.2"
+    },
+    "devDependencies": {
+        "eslint": "^5.5.0",
+        "eslint-config-airbnb-base": "^13.1.0",
+        "eslint-plugin-import": "^2.14.0",
+        "jest": "^23.6.0",
+        "jest-extended": "^0.8.1",
+        "nock": "^9.6.1"
+    }
 }

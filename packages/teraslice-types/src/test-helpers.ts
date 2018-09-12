@@ -1,12 +1,9 @@
 
-/// <reference path="../types/debugnyan.d.ts" />
-
 import _ from 'lodash';
 import debugnyan from 'debugnyan';
 import { EventEmitter } from 'events';
 import * as c from './context';
 import * as j from './jobs';
-
 interface DebugParamObj {
     module: string;
     assignment?: string;
