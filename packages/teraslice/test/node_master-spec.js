@@ -1,11 +1,13 @@
 'use strict';
 
+require('./helpers/set-global-job-env');
+
 const eventsModule = require('events');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const nodeModule = require('../lib/cluster/node_master');
 
 describe('Node master', () => {
-    const nodeModule = require('../lib/cluster/node_master');
     let eventEmitter = {};
 
     const logger = {
@@ -63,7 +65,7 @@ describe('Node master', () => {
 
     function waitForEvent(eventName, fn) {
         return new Promise((resolve) => {
-            eventEmitter.on(eventName, (data) => {
+            eventEmitter.once(eventName, (data) => {
                 resolve(data);
             });
             if (fn) {

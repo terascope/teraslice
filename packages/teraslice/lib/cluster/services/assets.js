@@ -5,7 +5,7 @@ const _ = require('lodash');
 const express = require('express');
 const parseError = require('@terascope/error-parser');
 const { makeTable, handleError } = require('../../utils/api_utils');
-const shutdownHandler = require('../shutdown-handler');
+const { shutdownHandler } = require('../../workers/helpers/worker-shutdown');
 
 module.exports = function module(context) {
     const logger = context.apis.foundation.makeLogger({ module: 'assets_service' });

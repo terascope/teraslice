@@ -4,7 +4,7 @@ const _ = require('lodash');
 const events = require('events');
 const Promise = require('bluebird');
 const { debugLogger } = require('@terascope/teraslice-types');
-const messagingModule = require('../../lib/cluster/services/messaging');
+const messagingModule = require('../../lib/cluster/services/cluster/backends/native/messaging');
 
 describe('messaging module', () => {
     const logger = debugLogger('messaging');

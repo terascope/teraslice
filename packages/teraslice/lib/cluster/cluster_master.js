@@ -8,7 +8,7 @@ const { ClusterMaster } = require('@terascope/teraslice-messaging');
 const ExecutionService = require('./services/execution');
 const APIService = require('./services/api');
 const JobService = require('./services/jobs');
-const shutdownHandler = require('./shutdown-handler');
+const { shutdownHandler } = require('../workers/helpers/worker-shutdown');
 const makeLogs = require('./storage/logs');
 
 module.exports = function _clusterMaster(context) {

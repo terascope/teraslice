@@ -5,8 +5,8 @@ const Queue = require('@terascope/queue');
 const _ = require('lodash');
 const parseError = require('@terascope/error-parser');
 const { Mutex } = require('async-mutex');
-const messageModule = require('./services/messaging');
-const spawnAssetsLoader = require('./assets/spawn');
+const messageModule = require('./services/cluster/backends/native/messaging');
+const spawnAssetsLoader = require('../workers/assets/spawn');
 const { safeEncode } = require('../utils/encoding_utils');
 
 const nodeVersion = process.version;
@@ -14,7 +14,6 @@ const terasliceVersion = require('../../package.json').version;
 
 // setting assignment
 process.env.assignment = 'node_master';
-
 
 module.exports = function module(context) {
     const logger = context.apis.foundation.makeLogger({ module: 'node_master' });

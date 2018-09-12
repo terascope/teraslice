@@ -1,5 +1,7 @@
 'use strict';
 
+require('../helpers/set-global-job-env');
+
 const indexer = require('../../lib/processors/elasticsearch_index_selector');
 
 describe('elasticsearch index selector', () => {

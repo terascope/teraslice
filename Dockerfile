@@ -5,6 +5,7 @@ COPY package.json yarn.lock /app/source/
 RUN yarn --frozen-lockfile --link-duplicates
 
 COPY lerna.json tsconfig.json service.js /app/source/
+COPY types /app/source/types
 COPY packages /app/source/packages
 COPY scripts /app/source/scripts
 

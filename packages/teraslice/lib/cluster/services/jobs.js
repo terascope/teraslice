@@ -6,7 +6,7 @@ const util = require('util');
 const path = require('path');
 const parseError = require('@terascope/error-parser');
 const { JobValidator } = require('@terascope/job-components');
-const spawnAssetsLoader = require('../assets/spawn');
+const spawnAssetsLoader = require('../../workers/assets/spawn');
 
 module.exports = function module(context) {
     const executionService = context.services.execution;
