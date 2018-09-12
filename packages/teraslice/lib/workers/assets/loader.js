@@ -16,7 +16,6 @@ class AssetLoader {
         this.logger = context.apis.foundation.makeLogger({ module: 'assets_loader' });
         this.assets = assets;
         this.assetsDirectory = _.get(context, 'sysconfig.teraslice.assets_directory');
-        this.assetIds = [];
         this.isShuttingDown = false;
     }
 
@@ -58,7 +57,11 @@ class AssetLoader {
             return saveAsset(logger, assetsDirectory, assetIdentifier, buff);
         });
 
-        await this.shutdown();
+        try {
+            await this.shutdown();
+        } catch (err) {
+            logger.error('assets loading shutdown error', err);
+        }
 
         return idArray;
     }
@@ -78,7 +81,12 @@ async function loadAssets(context, assets) {
     try {
         return assetLoader.load();
     } catch (err) {
-        await assetLoader.shutdown();
+        /* istanbul ignore next */
+        try {
+            await assetLoader.shutdown();
+        } catch (shutdownErr) {
+            return [];
+        }
         return [];
     }
 }

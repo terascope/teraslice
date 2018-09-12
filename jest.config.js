@@ -23,6 +23,8 @@ module.exports = {
         '<rootDir>/packages/*/index.js',
         '<rootDir>/packages/*/lib/*.js',
         '<rootDir>/packages/*/lib/**/*.js',
+        '<rootDir>/packages/*/cmds/*.js',
+        '<rootDir>/packages/*/cmds/**/*.js',
         '<rootDir>/packages/*/src/**/*.ts',
         '<rootDir>/packages/*/src/*.ts',
         '!<rootDir>/packages/**/*.d.ts',

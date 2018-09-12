@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 'use strict';
 
 /* eslint-disable class-methods-use-this, no-console */
@@ -7,12 +5,12 @@
 const Promise = require('bluebird');
 const _ = require('lodash');
 const get = require('lodash/get');
-const { shutdownHandler } = require('./helpers/worker-shutdown');
-const { safeDecode } = require('../utils/encoding_utils');
-const Worker = require('./worker');
-const ExecutionController = require('./execution-controller');
-const ExecutionContext = require('./context/execution-context');
-const makeTerafoundationContext = require('./context/terafoundation-context');
+const { shutdownHandler } = require('./lib/workers/helpers/worker-shutdown');
+const { safeDecode } = require('./lib/utils/encoding_utils');
+const Worker = require('./lib/workers/worker');
+const ExecutionController = require('./lib/workers/execution-controller');
+const ExecutionContext = require('./lib/workers/context/execution-context');
+const makeTerafoundationContext = require('./lib/workers/context/terafoundation-context');
 
 class Service {
     constructor() {

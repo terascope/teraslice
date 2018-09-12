@@ -44,6 +44,7 @@ function spawnAssetLoader(assets) {
     });
 }
 
+/* istanbul ignore if */
 if (require.main === module) {
     spawnAssetLoader(process.argv.slice(2))
         .then((assetIds) => {
