@@ -333,6 +333,7 @@ curl "$YOUR_MASTER_IP:5678/v1/cluster/state"
 
  * [Job configuration and operations reference](./docs/ops-reference.md)
  * [Custom operations](./docs/custom_operations.md)
+ * [Teraslice Command Line Tool](./packages/teraslicse-cli/README.md)
 
 ## Configuration
 
