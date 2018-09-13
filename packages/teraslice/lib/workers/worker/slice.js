@@ -110,7 +110,7 @@ class Slice {
         events.emit('slice:success', slice);
 
         const { ex_id: exId } = this.executionContext;
-        logger.info(`completed slice for execution: ${exId}`, slice);
+        logger.trace(`completed slice for execution: ${exId}`, slice);
     }
 
     async _markFailed(err) {

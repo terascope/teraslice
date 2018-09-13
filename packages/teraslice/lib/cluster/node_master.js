@@ -330,6 +330,7 @@ module.exports = function module(context) {
             total: context.sysconfig.teraslice.workers,
             state: 'connected'
         };
+
         const clusterWorkers = context.cluster.workers;
         const active = [];
 

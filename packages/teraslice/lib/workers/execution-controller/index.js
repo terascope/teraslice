@@ -546,19 +546,12 @@ class ExecutionController {
             }
         }
 
-        if (!this.server.workerQueueSize) {
-            const found = await this.server.onceWithTimeout('worker:enqueue', 1000);
-            if (found == null) {
-                return this._dispatchSlices();
-            }
-        }
-
         // add a few checks to make sure we don't get stuck forever
         const maxDispatches = this.server.workerQueueSize;
         let dispatched = 0;
         let gotShutdown = false;
 
-        while (!gotShutdown && this.slicerQueue.size() > 0 && dispatched < maxDispatches) {
+        while (!gotShutdown && this.slicerQueue.size() > 0 && dispatched <= maxDispatches) {
             const slice = this.slicerQueue.dequeue();
 
             const workerId = this.server.dequeueWorker(slice);

@@ -162,7 +162,7 @@ describe('ExecutionController', () => {
                 shutdownTimeout: 2000,
                 shutdownEarly: true,
                 body: { example: 'slice-shutdown-early' },
-                count: 2,
+                count: 4,
                 analytics: _.sample([true, false]),
             }
         ],
