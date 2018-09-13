@@ -84,6 +84,7 @@ module.exports = function module(context, { clusterMasterServer }) {
                 }
                 return true;
             })
+            .then(() => clusterService.shutdown())
             .then(() => exStore.shutdown())
             .catch((err) => {
                 const errMsg = parseError(err);

@@ -25,6 +25,7 @@ module.exports = function module(context, clusterMasterServer, executionService)
     const slicerAllocationAttempts = context.sysconfig.teraslice.slicer_allocation_attempts;
     const clusterState = {};
     const messaging = Messaging(context, logger);
+    let isShutdown = false;
 
     // temporary holding spot used to attach nodes that are non responsive or
     // disconnect before final cleanup
@@ -81,7 +82,11 @@ module.exports = function module(context, clusterMasterServer, executionService)
         }
     });
 
-    setInterval(() => {
+    const clusterStateInterval = setInterval(() => {
+        if (isShutdown) {
+            clearInterval(clusterStateInterval);
+            return;
+        }
         logger.trace('cluster_master requesting state update for all nodes');
         messaging.broadcast('cluster:node:state');
     }, nodeStateInterval);
@@ -410,7 +415,11 @@ module.exports = function module(context, clusterMasterServer, executionService)
 
     function shutdown() {
         logger.info('shutting down');
-        return Promise.resolve(true);
+        isShutdown = true;
+        if (messaging) {
+            return messaging.shutdown();
+        }
+        return Promise.delay(100);
     }
 
     function addWorkers(execution, workerNum) {

@@ -21,7 +21,9 @@ function getTerasliceConfig(sysconfig) {
         config_schema: configSchema,
         schema_formats: formats,
         cluster_name: clusterName,
-        logging_connection: loggingConnection
+        logging_connection: loggingConnection,
+        shutdownMessaging: true,
+        start_workers: false,
     }, sysconfig);
 }
 

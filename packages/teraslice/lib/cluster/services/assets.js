@@ -4,23 +4,18 @@ const Promise = require('bluebird');
 const _ = require('lodash');
 const express = require('express');
 const parseError = require('@terascope/error-parser');
+const makeAssetsStore = require('../storage/assets');
 const { makeTable, handleError } = require('../../utils/api_utils');
-const { shutdownHandler } = require('../../workers/helpers/worker-shutdown');
 
 module.exports = function module(context) {
     const logger = context.apis.foundation.makeLogger({ module: 'assets_service' });
     const app = express();
 
     let assetsStore;
-    let available = false;
-
-    shutdownHandler(context, () => {
-        if (!assetsStore) return Promise.resolve();
-        return assetsStore.shutdown(true);
-    });
+    let running = false;
 
     app.get('/status', (req, res) => {
-        res.send({ available });
+        res.send({ available: running });
     });
 
     app.post('/assets', (req, res) => {
@@ -95,21 +90,6 @@ module.exports = function module(context) {
             .then(results => res.status(200).send(JSON.stringify(results, null, 4)));
     });
 
-    Promise.resolve(require('../storage/assets')(context))
-        .then((store) => {
-            assetsStore = store;
-            const { port } = process.env;
-            logger.info(`assets_service is listening on port ${port}`);
-            app.listen(port);
-            available = true;
-        })
-        .catch((err) => {
-            const errMsg = parseError(err);
-            logger.error(`Error while creating assets_service, error: ${errMsg}`);
-            available = false;
-            setTimeout(() => process.exit(0), 100);
-        });
-
     function createAssetTable(query, req, res) {
         const defaults = [
             'name',
@@ -149,4 +129,37 @@ module.exports = function module(context) {
             })
             .catch(handleApiError);
     }
+
+    return {
+        initialize() {
+            return Promise.resolve(makeAssetsStore(context))
+                .then((store) => {
+                    assetsStore = store;
+                    const { port } = process.env;
+                    logger.info(`assets_service is listening on port ${port}`);
+                    app.listen(port);
+                    running = true;
+                })
+                .catch((err) => {
+                    const errMsg = parseError(err);
+                    logger.error(`Error while creating assets_service, error: ${errMsg}`);
+                    running = false;
+                });
+        },
+        run() {
+            return new Promise((resolve) => {
+                const runningInterval = setInterval(() => {
+                    if (!running) {
+                        clearInterval(runningInterval);
+                        resolve();
+                    }
+                }, 1000);
+            });
+        },
+        shutdown() {
+            running = false;
+            if (!assetsStore) return Promise.resolve();
+            return assetsStore.shutdown(true);
+        }
+    };
 };

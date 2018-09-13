@@ -468,11 +468,10 @@ class ExecutionController {
         }, 500);
 
         try {
-            const result = await Promise.all([
+            await Promise.all([
                 this._createSlices(),
                 this._dispatchSlices(),
             ]);
-            this.logger.debug('processing result', result);
         } catch (err) {
             this.logger.error('Error processing slices', err);
         }

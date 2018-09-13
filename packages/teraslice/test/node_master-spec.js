@@ -88,10 +88,12 @@ describe('Node master', () => {
                 this[key] = value;
             });
             this.process = {
+                connected: this.connected,
                 pid: processCounter,
                 _msgSent: null,
                 kill: (signal) => {
                     this._isDead = true;
+                    this.connected = false;
                     if (delayRemoval && signal === 'SIGTERM') {
                         setTimeout(() => eventEmitter.emit('deleteWorker', this.id), 500);
                     } else {
@@ -99,6 +101,8 @@ describe('Node master', () => {
                     }
                 }
             };
+
+            this.connected = true;
         }
 
         kill(signal) {

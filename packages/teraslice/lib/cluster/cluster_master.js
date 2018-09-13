@@ -8,7 +8,6 @@ const { ClusterMaster } = require('@terascope/teraslice-messaging');
 const ExecutionService = require('./services/execution');
 const APIService = require('./services/api');
 const JobService = require('./services/jobs');
-const { shutdownHandler } = require('../workers/helpers/worker-shutdown');
 const makeLogs = require('./storage/logs');
 
 module.exports = function _clusterMaster(context) {
@@ -16,6 +15,7 @@ module.exports = function _clusterMaster(context) {
     const clusterConfig = context.sysconfig.teraslice;
     const assetsPort = process.env.assets_port;
     const assetsUrl = `http://127.0.0.1:${assetsPort}`;
+    let running = false;
 
     // Initialize the HTTP service for handling incoming requests.
     const app = express();
@@ -39,19 +39,6 @@ module.exports = function _clusterMaster(context) {
     });
 
     context.services = {};
-
-    shutdownHandler(context, shutdown);
-
-    function shutdown() {
-        logger.info('cluster_master is shutting down');
-        const services = _.values(context.services);
-        return Promise.map(services, service => service.shutdown())
-            .then(() => clusterMasterServer.shutdown())
-            .then(() => logger.flush())
-            .catch((err) => {
-                logger.error('Error while cluster_master shutting down, error:', err);
-            });
-    }
 
     function isAssetServiceUp() {
         return new Promise((resolve) => {
@@ -77,33 +64,57 @@ module.exports = function _clusterMaster(context) {
         });
     }
 
-    Promise.resolve()
-        .then(() => clusterMasterServer.start())
-        .then(() => {
-            logger.info(`cluster master listening on port ${clusterConfig.port}`);
-            return ExecutionService(context, { clusterMasterServer });
-        })
-        .then((executionService) => {
-            logger.debug('execution service has been instantiated');
-            context.services.execution = executionService;
-            return JobService(context);
-        })
-        .then((jobsService) => {
-            logger.debug('job service has been instantiated');
-            context.services.jobs = jobsService;
-            // give the assets service a bit to come up
-            const fiveMinutes = 5 * 60 * 1000;
-            return waitForAssetsService(Date.now() + fiveMinutes);
-        })
-        .then(() => APIService(context, app, { assetsUrl, clusterMasterServer }))
-        .then((apiService) => {
-            logger.debug('api service has been instantiated');
-            context.services.api = apiService;
-            return makeLogs(context);
-        })
-        .then(() => logger.info('cluster master is ready!'))
-        .catch((err) => {
-            logger.error('error during service initialization', err);
-            process.exit(0);
-        });
+    return {
+        initialize() {
+            return Promise.resolve()
+                .then(() => clusterMasterServer.start())
+                .then(() => {
+                    logger.info(`cluster master listening on port ${clusterConfig.port}`);
+                    return ExecutionService(context, { clusterMasterServer });
+                })
+                .then((executionService) => {
+                    logger.debug('execution service has been instantiated');
+                    context.services.execution = executionService;
+                    return JobService(context);
+                })
+                .then((jobsService) => {
+                    logger.debug('job service has been instantiated');
+                    context.services.jobs = jobsService;
+                    // give the assets service a bit to come up
+                    const fiveMinutes = 5 * 60 * 1000;
+                    return waitForAssetsService(Date.now() + fiveMinutes);
+                })
+                .then(() => APIService(context, app, { assetsUrl, clusterMasterServer }))
+                .then((apiService) => {
+                    logger.debug('api service has been instantiated');
+                    context.services.api = apiService;
+                    return makeLogs(context);
+                })
+                .then(() => {
+                    logger.info('cluster master is ready!');
+                    running = true;
+                })
+                .catch((err) => {
+                    logger.error('error during service initialization', err);
+                    running = false;
+                });
+        },
+        run() {
+            return new Promise((resolve) => {
+                const runningInterval = setInterval(() => {
+                    if (!running) {
+                        clearInterval(runningInterval);
+                        resolve();
+                    }
+                }, 1000);
+            });
+        },
+        shutdown() {
+            running = false;
+            logger.info('cluster_master is shutting down');
+            const services = _.values(context.services);
+            return Promise.map(services, service => service.shutdown())
+                .then(() => clusterMasterServer.shutdown());
+        }
+    };
 };

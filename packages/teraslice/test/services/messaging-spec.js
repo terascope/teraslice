@@ -24,6 +24,7 @@ describe('messaging module', () => {
                 first: {
                     ex_id: testExId,
                     assignment: 'execution_controller',
+                    connected: true,
                     send: (msg) => { firstWorkerMsg = msg; },
                     on: (key, fn) => { clusterFn = fn; },
                     removeListener: () => {}
@@ -31,6 +32,7 @@ describe('messaging module', () => {
                 second: {
                     ex_id: testExId,
                     assignment: 'worker',
+                    connected: true,
                     send: (msg) => { secondWorkerMsg = msg; },
                     on: (key, fn) => { clusterFn = fn; },
                     removeListener: () => {}
@@ -38,6 +40,7 @@ describe('messaging module', () => {
                 third: {
                     ex_id: 'somethingElse',
                     assignment: 'worker',
+                    connected: true,
                     send: (msg) => { thirdWorkerMsg = msg; },
                     on: (key, fn) => { clusterFn = fn; },
                     removeListener: () => {}

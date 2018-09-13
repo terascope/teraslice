@@ -25,7 +25,8 @@ function waitForWorkerShutdown(context, eventName) {
 
 /* istanbul ignore next */
 function shutdownHandler(context, shutdownFn) {
-    const assignment = process.env.NODE_TYPE || process.env.assignment || 'unknown-assignment';
+    const assignment = context.assignment || process.env.NODE_TYPE || process.env.assignment || 'unknown-assignment';
+
     const isProcessRestart = process.env.process_restart;
     const restartOnFailure = assignment !== 'exectution_controller';
     const api = {
@@ -34,8 +35,9 @@ function shutdownHandler(context, shutdownFn) {
     };
 
     const shutdownTimeout = _.get(context, 'sysconfig.teraslice.shutdown_timeout', 20 * 1000);
+
     const events = context.apis.foundation.getSystemEvents();
-    const logger = context.apis.foundation.makeLogger({ module: 'shutdown_handler' });
+    const logger = context.apis.foundation.makeLogger({ module: `${assignment}:shutdown_handler` });
 
     if (assignment === 'execution_controller' && isProcessRestart) {
         logger.fatal('Execution Controller runtime error led to a restart, terminating execution with failed status, please use the recover api to return slicer to a consistent state');
@@ -70,7 +72,7 @@ function shutdownHandler(context, shutdownFn) {
         });
     }
 
-    process.on('SIGINT', () => {
+    process.once('SIGINT', () => {
         logger.warn('Received process:SIGINT');
         if (!api.exiting) {
             process.exitCode = 0;
@@ -78,7 +80,7 @@ function shutdownHandler(context, shutdownFn) {
         exit('SIGINT');
     });
 
-    process.on('SIGTERM', () => {
+    process.once('SIGTERM', () => {
         logger.warn(`${assignment} received process:SIGTERM`);
         if (!api.exiting) {
             process.exitCode = 0;
@@ -86,7 +88,7 @@ function shutdownHandler(context, shutdownFn) {
         exit('SIGTERM');
     });
 
-    process.on('uncaughtException', (err) => {
+    process.once('uncaughtException', (err) => {
         logger.fatal(`${assignment} received an uncaughtException`, err);
         if (!api.exiting) {
             process.exitCode = restartOnFailure ? 1 : 0;
@@ -94,7 +96,7 @@ function shutdownHandler(context, shutdownFn) {
         exit('uncaughtException', err);
     });
 
-    process.on('unhandledRejection', (err) => {
+    process.once('unhandledRejection', (err) => {
         logger.fatal(`${assignment} received an unhandledRejection`, err);
         if (!api.exiting) {
             process.exitCode = restartOnFailure ? 1 : 0;
@@ -103,7 +105,7 @@ function shutdownHandler(context, shutdownFn) {
     });
 
     // event is fired from terafoundation when an error occurs during instantiation of a client
-    events.on('client:initialization:error', (err) => {
+    events.once('client:initialization:error', (err) => {
         logger.fatal(`${assignment} received a client initialization error`, err);
         if (!api.exiting) {
             process.exitCode = restartOnFailure ? 1 : 0;

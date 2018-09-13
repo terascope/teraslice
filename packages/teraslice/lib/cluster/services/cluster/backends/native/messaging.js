@@ -184,7 +184,9 @@ module.exports = function messaging(context, logger) {
         }
         children.forEach((childProcess) => {
             if (msgHookFn) msgHookFn(childProcess);
-            childProcess.send(msg);
+            if (childProcess.connected) {
+                childProcess.send(msg);
+            }
         });
     }
 
@@ -394,8 +396,12 @@ module.exports = function messaging(context, logger) {
             }
         } else if (self === 'node_master') {
             _sendToProcesses(messageSent);
-        } else {
-            processContext.send(messageSent);
+        } else if (processContext) {
+            if (processContext.connected) {
+                processContext.send(messageSent);
+            } else {
+                logger.warn('cannot send to process because it is');
+            }
         }
     }
 
@@ -624,6 +630,14 @@ module.exports = function messaging(context, logger) {
         };
     }
 
+    function shutdown() {
+        if (io) {
+            io.close();
+            return Promise.delay(100);
+        }
+        return Promise.resolve();
+    }
+
     return {
         register,
         listen,
@@ -634,6 +648,7 @@ module.exports = function messaging(context, logger) {
         respond,
         broadcast,
         registerChildOnlineHook,
+        shutdown,
         __test_context: testContext
     };
 };
