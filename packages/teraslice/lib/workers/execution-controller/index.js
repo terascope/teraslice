@@ -546,25 +546,26 @@ class ExecutionController {
             }
         }
 
-        // add a few checks to make sure we don't get stuck forever
-        const maxDispatches = this.server.workerQueueSize;
-        let dispatched = 0;
-        let gotShutdown = false;
+        // dispatch only up to 10 at time but if there are less workers available
+        const count = this.server.workerQueueSize < 10 ? this.server.workerQueueSize : 10;
+        const reenqueueSlices = [];
 
-        while (!gotShutdown && this.slicerQueue.size() > 0 && dispatched <= maxDispatches) {
-            const slice = this.slicerQueue.dequeue();
+        _.times(count, () => {
+            if (this.slicerQueue.size() > 0 && this.server.workerQueueSize > 0) {
+                const slice = this.slicerQueue.dequeue();
 
-            const workerId = this.server.dequeueWorker(slice);
-            if (!workerId) {
-                _.defer(() => {
-                    this.slicerQueue.enqueue(slice);
-                });
-            } else {
-                this._dispatchSlice(slice, workerId);
+                const workerId = this.server.dequeueWorker(slice);
+                if (!workerId) {
+                    reenqueueSlices.push(slice);
+                } else {
+                    this._dispatchSlice(slice, workerId);
+                }
             }
-            gotShutdown = this.isShuttingDown;
-            dispatched += 1;
-        }
+        });
+
+        _.forEach(reenqueueSlices, (slice) => {
+            this.slicerQueue.enqueue(slice);
+        });
 
         return this._dispatchSlices();
     }
