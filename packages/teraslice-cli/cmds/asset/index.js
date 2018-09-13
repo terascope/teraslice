@@ -75,7 +75,7 @@ exports.handler = (argv, _testTjmFunctions) => {
     }
 
     dataChecks(cliConfig).getAssetClusters();
-    const tjmFunctions = _testTjmFunctions || require('./cmd_functions/functions')(cliConfig);
+    const tjmFunctions = _testTjmFunctions || require('../cmd_functions/functions')(cliConfig);
 
     function latestAssetVersion(cluster) {
         const assetName = cliConfig.asset_file_content.name;
