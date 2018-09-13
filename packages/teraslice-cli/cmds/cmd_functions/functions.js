@@ -8,17 +8,17 @@ const path = require('path');
 const TerasliceClient = require('teraslice-client-js');
 const reply = require('./reply');
 
-module.exports = (tjmConfig, _terasliceClient) => {
-    if (!tjmConfig.baseDir) {
-        tjmConfig.baseDir = process.cwd();
+module.exports = (cliConfig, _terasliceClient) => {
+    if (!cliConfig.baseDir) {
+        cliConfig.baseDir = process.cwd();
     }
 
     const terasliceClient = _terasliceClient || TerasliceClient({
-        host: tjmConfig.cluster
+        host: cliConfig.cluster
     });
 
     function alreadyRegisteredCheck() {
-        const jobContents = tjmConfig.job_file_content;
+        const jobContents = cliConfig.job_file_content;
         if (_.has(jobContents, 'tjm.cluster')) {
             return terasliceClient.jobs.wrap(jobContents.tjm.job_id).spec()
                 .then((jobSpec) => {
@@ -34,16 +34,16 @@ module.exports = (tjmConfig, _terasliceClient) => {
 
     function _postAsset() {
         return Promise.resolve()
-            .then(() => fs.readFile(path.join(tjmConfig.baseDir, 'builds', 'processors.zip')))
+            .then(() => fs.readFile(path.join(cliConfig.baseDir, 'builds', 'processors.zip')))
             .then(zipFile => terasliceClient.assets.post(zipFile))
             .then(assetPostResponse => assetPostResponse);
     }
 
     function loadAsset() {
-        if (!tjmConfig.a) {
+        if (!cliConfig.a) {
             return Promise.resolve();
         }
-        return fs.emptyDir(path.join(tjmConfig.baseDir, 'builds'))
+        return fs.emptyDir(path.join(cliConfig.baseDir, 'builds'))
             .then(() => zipAsset())
             .then((zipData) => {
                 reply.green(zipData.bytes);
@@ -55,15 +55,15 @@ module.exports = (tjmConfig, _terasliceClient) => {
                 if (postResponseJson.error) {
                     return Promise.reject(new Error(postResponseJson.error));
                 }
-                reply.green(`Asset posted to ${tjmConfig.cluster} with id ${postResponseJson._id}`);
+                reply.green(`Asset posted to ${cliConfig.cluster} with id ${postResponseJson._id}`);
                 return Promise.resolve();
             })
             .then(() => {
                 const assetJson = _updateAssetMetadata();
-                return createJsonFile(path.join(tjmConfig.baseDir, 'asset/asset.json'), assetJson);
+                return createJsonFile(path.join(cliConfig.baseDir, 'asset/asset.json'), assetJson);
             })
             .then(() => reply.green('TJM data added to asset.json'))
-            .then(() => reply.green(`Asset has successfully been deployed to ${tjmConfig.cluster}`));
+            .then(() => reply.green(`Asset has successfully been deployed to ${cliConfig.cluster}`));
     }
 
     function createJsonFile(filePath, jsonObject) {
@@ -74,7 +74,7 @@ module.exports = (tjmConfig, _terasliceClient) => {
         const zipMessage = {};
 
         return new Promise((resolve, reject) => {
-            const output = fs.createWriteStream(path.join(tjmConfig.baseDir, 'builds', 'processors.zip'));
+            const output = fs.createWriteStream(path.join(cliConfig.baseDir, 'builds', 'processors.zip'));
             const archive = archiver('zip', {
                 zlib: { level: 9 } // Sets the compression level.
             });
@@ -91,15 +91,15 @@ module.exports = (tjmConfig, _terasliceClient) => {
 
             archive.pipe(output);
             archive
-                .directory(path.join(tjmConfig.baseDir, 'asset'), 'asset')
+                .directory(path.join(cliConfig.baseDir, 'asset'), 'asset')
                 .finalize();
         });
     }
 
     function _updateAssetMetadata() {
         // writes asset metadata to asset.json
-        const { cluster } = tjmConfig;
-        const assetJson = tjmConfig.asset_file_content;
+        const { cluster } = cliConfig;
+        const assetJson = cliConfig.asset_file_content;
 
         if (!cluster) {
             throw new Error('Cluster configuration is invalid');

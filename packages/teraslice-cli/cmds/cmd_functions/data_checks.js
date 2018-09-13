@@ -4,28 +4,28 @@ const _ = require('lodash');
 const path = require('path');
 const reply = require('./reply');
 
-module.exports = (tjmConfig = {}) => {
-    if (!tjmConfig.baseDir) {
-        tjmConfig.baseDir = process.cwd();
+module.exports = (cliConfig = {}) => {
+    if (!cliConfig.baseDir) {
+        cliConfig.baseDir = process.cwd();
     }
     function returnJobData() {
-        // add job data to the tjmConfig object for easy reference
+        // add job data to the cliConfig object for easy reference
         jobFileHandler();
         // explicitly state the cluster that the code will reference for the job
-        if (_.has(tjmConfig.job_file_content, 'tjm.cluster') && !tjmConfig.m) {
-            tjmConfig.cluster = tjmConfig.job_file_content.tjm.cluster;
+        if (_.has(cliConfig.job_file_content, 'tjm.cluster') && !cliConfig.m) {
+            cliConfig.cluster = cliConfig.job_file_content.tjm.cluster;
             return;
         }
 
-        tjmConfig.cluster = tjmConfig.l ? 'http://localhost:5678' : _urlCheck(tjmConfig.c);
+        cliConfig.cluster = cliConfig.l ? 'http://localhost:5678' : _urlCheck(cliConfig.c);
 
-        if (!tjmConfig.cluster) {
+        if (!cliConfig.cluster) {
             reply.fatal('Use -c to specify a cluster or use -l for localhost');
         }
     }
 
     function jobFileHandler() {
-        let fName = tjmConfig.job_file;
+        let fName = cliConfig.job_file;
 
         if (!fName) {
             reply.fatal('Missing the job file!');
@@ -35,7 +35,7 @@ module.exports = (tjmConfig = {}) => {
             fName += '.json';
         }
 
-        const jobFilePath = path.isAbsolute(fName) ? fName : path.join(tjmConfig.baseDir, fName);
+        const jobFilePath = path.isAbsolute(fName) ? fName : path.join(cliConfig.baseDir, fName);
         let jobContents;
 
         try {
@@ -49,19 +49,19 @@ module.exports = (tjmConfig = {}) => {
         }
 
         // conflicting cluster information
-        if (tjmConfig.c && !tjmConfig.m && _tjmDataCheck(jobContents)) {
+        if (cliConfig.c && !cliConfig.m && _tjmDataCheck(jobContents)) {
             reply.fatal('Command specified a cluster via -c but the job is already associated with a cluster');
         }
         // no cluster specified
-        if (!tjmConfig.c && !_tjmDataCheck(jobContents) && !tjmConfig.l) {
+        if (!cliConfig.c && !_tjmDataCheck(jobContents) && !cliConfig.l) {
             reply.fatal('Please specify a cluster with -c');
         }
         // -m but no -c to move job to
-        if (tjmConfig.m && !tjmConfig.c) {
+        if (cliConfig.m && !cliConfig.c) {
             reply.fatal('Specify a cluster to move the jobe to with -c');
         }
-        tjmConfig.job_file_path = jobFilePath;
-        tjmConfig.job_file_content = jobContents;
+        cliConfig.job_file_path = jobFilePath;
+        cliConfig.job_file_content = jobContents;
     }
 
     function _tjmDataCheck(jsonData) {
@@ -74,17 +74,17 @@ module.exports = (tjmConfig = {}) => {
     }
 
     function getAssetClusters() {
-        if (tjmConfig.c) {
-            const cluster = _urlCheck(tjmConfig.c);
-            tjmConfig.cluster = cluster;
+        if (cliConfig.c) {
+            const cluster = _urlCheck(cliConfig.c);
+            cliConfig.cluster = cluster;
         }
-        if (tjmConfig.l) {
-            tjmConfig.cluster = 'http://localhost:5678';
+        if (cliConfig.l) {
+            cliConfig.cluster = 'http://localhost:5678';
         }
-        if (!_.has(tjmConfig, 'cluster') && _.has(tjmConfig, 'asset_file_content.tjm.clusters')) {
-            tjmConfig.clusters = _.filter(_.get(tjmConfig, 'asset_file_content.tjm.clusters', []));
+        if (!_.has(cliConfig, 'cluster') && _.has(cliConfig, 'asset_file_content.tjm.clusters')) {
+            cliConfig.clusters = _.filter(_.get(cliConfig, 'asset_file_content.tjm.clusters', []));
         }
-        if (_.isEmpty(tjmConfig.clusters) && !_.has(tjmConfig, 'cluster')) {
+        if (_.isEmpty(cliConfig.clusters) && !_.has(cliConfig, 'cluster')) {
             reply.fatal('Cluster data is missing from asset.json or not specified using -c.');
         }
     }

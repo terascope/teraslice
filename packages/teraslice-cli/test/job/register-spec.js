@@ -5,7 +5,7 @@ const path = require('path');
 const _ = require('lodash');
 const Promise = require('bluebird');
 const { createTempDirSync } = require('jest-fixtures');
-const register = require('../cmds/job/register');
+const register = require('../../cmds/job/register');
 
 const tmpDir = createTempDirSync();
 

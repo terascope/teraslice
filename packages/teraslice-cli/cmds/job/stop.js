@@ -10,18 +10,18 @@ exports.builder = (yargs) => {
     yargs.example('tjm stop jobfile.prod.json');
 };
 exports.handler = (argv, _testFunctions) => {
-    const tjmConfig = _.clone(argv);
-    dataChecks(tjmConfig).returnJobData();
-    const tjmFunctions = _testFunctions || require('../cmd_functions/functions')(tjmConfig);
+    const cliConfig = _.clone(argv);
+    dataChecks(cliConfig).returnJobData();
+    const tjmFunctions = _testFunctions || require('../cmd_functions/functions')(cliConfig);
 
-    const jobId = tjmConfig.job_file_content.tjm.job_id;
+    const jobId = cliConfig.job_file_content.tjm.job_id;
     return tjmFunctions.alreadyRegisteredCheck()
         .then(() => tjmFunctions.terasliceClient.jobs.wrap(jobId).stop())
         .then((stopResponse) => {
             if (!stopResponse.status.status === 'stopped') {
                 return Promise.reject(new Error('Job could not be stopped'));
             }
-            reply.green(`Stopped job ${jobId} on ${tjmConfig.cluster}`);
+            reply.green(`Stopped job ${jobId} on ${cliConfig.cluster}`);
             return stopResponse;
         })
         .catch(err => reply.fatal(err));

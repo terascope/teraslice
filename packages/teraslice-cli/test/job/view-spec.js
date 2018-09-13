@@ -4,13 +4,13 @@ const Promise = require('bluebird');
 const path = require('path');
 const fs = require('fs-extra');
 const { createTempDirSync } = require('jest-fixtures');
-const status = require('../cmds/job/status');
+const view = require('../../cmds/job/view');
 
 const tmpDir = createTempDirSync();
 
-const jobFile = path.join(tmpDir, 'status-spec-job-file.json');
+const jobFile = path.join(tmpDir, 'view-spec-job-file.json');
 
-fs.copyFileSync(path.join(__dirname, 'fixtures', 'test_job_file.json'), jobFile);
+fs.copyFileSync(path.join(__dirname, '../fixtures', 'test_job_file.json'), jobFile);
 
 const argv = {
     baseDir: tmpDir,
@@ -18,14 +18,14 @@ const argv = {
 };
 
 let registeredCheck;
-let statusResponse;
+let specData;
 const _tjmTestFunctions = {
     alreadyRegisteredCheck: () => registeredCheck,
     terasliceClient: {
         jobs: {
             wrap: () => {
                 const functions = {
-                    status: () => statusResponse
+                    spec: () => Promise.resolve(specData)
                 };
                 return functions;
             }
@@ -33,20 +33,20 @@ const _tjmTestFunctions = {
     }
 };
 
-describe('status displays the current status for a job', () => {
+describe('view should display the job saved in the cluster', () => {
     it('should throw an error if alreadyRegisteredCheck fails', (done) => {
         registeredCheck = Promise.reject(new Error('Job is not on the cluster'));
-        return status.handler(argv, _tjmTestFunctions)
+        return view.handler(argv, _tjmTestFunctions)
             .then(done.fail)
             .catch(() => done());
     });
 
-    it('returns the status for a job', (done) => {
+    it('should display save job data from cluster', (done) => {
         registeredCheck = Promise.resolve();
-        statusResponse = 'running';
-        return status.handler(argv, _tjmTestFunctions)
-            .then(response => expect(response).toEqual('running'))
-            .catch(() => done.fail)
+        specData = 'job spec goes here';
+        return view.handler(argv, _tjmTestFunctions)
+            .then(jobSpec => expect(jobSpec).toEqual('job spec goes here'))
+            .catch(done.fail)
             .finally(() => done());
     });
 });

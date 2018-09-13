@@ -16,12 +16,12 @@ exports.builder = (yargs) => {
         .example('tjm update jobfile.prod.json -r');
 };
 exports.handler = (argv, _testFunctions) => {
-    const tjmConfig = _.clone(argv);
-    dataChecks(tjmConfig).returnJobData();
+    const cliConfig = _.clone(argv);
+    dataChecks(cliConfig).returnJobData();
 
-    const tjmFunctions = _testFunctions || require('../cmd_functions/functions')(tjmConfig);
-    const jobId = tjmConfig.job_file_content.tjm.job_id;
-    const { cluster } = tjmConfig;
+    const tjmFunctions = _testFunctions || require('../cmd_functions/functions')(cliConfig);
+    const jobId = cliConfig.job_file_content.tjm.job_id;
+    const { cluster } = cliConfig;
 
     function restartJob() {
         return tjmFunctions.terasliceClient.jobs.wrap(jobId).status()
@@ -46,7 +46,7 @@ exports.handler = (argv, _testFunctions) => {
     }
 
     return tjmFunctions.alreadyRegisteredCheck()
-        .then(() => tjmFunctions.terasliceClient.cluster.put(`/jobs/${jobId}`, tjmConfig.job_file_content))
+        .then(() => tjmFunctions.terasliceClient.cluster.put(`/jobs/${jobId}`, cliConfig.job_file_content))
         .then((updateResponse) => {
             if (_.isEmpty(updateResponse)) {
                 return Promise.reject(new Error('Could not update job'));
@@ -56,7 +56,7 @@ exports.handler = (argv, _testFunctions) => {
             return Promise.resolve();
         })
         .then(() => {
-            if (!tjmConfig.r) {
+            if (!cliConfig.r) {
                 return Promise.resolve();
             }
             return restartJob();

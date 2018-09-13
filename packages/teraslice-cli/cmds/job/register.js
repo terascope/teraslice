@@ -25,26 +25,26 @@ exports.builder = (yargs) => {
         .example('tjm register jobfile.prod -c clusterDomain -a');
 };
 exports.handler = (argv, _testTjmFunctions) => {
-    const tjmConfig = _.clone(argv);
-    dataChecks(tjmConfig).returnJobData(true);
-    const tjmFunctions = _testTjmFunctions || require('../cmd_functions/functions')(tjmConfig);
-    const jobContents = tjmConfig.job_file_content;
-    const jobFilePath = tjmConfig.job_file_path;
+    const cliConfig = _.clone(argv);
+    dataChecks(cliConfig).returnJobData(true);
+    const tjmFunctions = _testTjmFunctions || require('../cmd_functions/functions')(cliConfig);
+    const jobContents = cliConfig.job_file_content;
+    const jobFilePath = cliConfig.job_file_path;
 
     return tjmFunctions.loadAsset()
-        .then(() => tjmFunctions.terasliceClient.jobs.submit(jobContents, !tjmConfig.r))
+        .then(() => tjmFunctions.terasliceClient.jobs.submit(jobContents, !cliConfig.r))
         .then((result) => {
             const jobId = result.id();
-            reply.green(`Successfully registered job: ${jobId} on ${tjmConfig.cluster}`);
-            _.set(jobContents, 'tjm.cluster', tjmConfig.cluster);
+            reply.green(`Successfully registered job: ${jobId} on ${cliConfig.cluster}`);
+            _.set(jobContents, 'tjm.cluster', cliConfig.cluster);
             _.set(jobContents, 'tjm.version', '0.0.1');
             _.set(jobContents, 'tjm.job_id', jobId);
             tjmFunctions.createJsonFile(jobFilePath, jobContents);
             reply.green('Updated job file with tjm data');
         })
         .then(() => {
-            if (tjmConfig.r) {
-                reply.green(`New job started on ${tjmConfig.cluster}`);
+            if (cliConfig.r) {
+                reply.green(`New job started on ${cliConfig.cluster}`);
             }
         })
         .catch(err => reply.fatal(err));

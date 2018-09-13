@@ -4,7 +4,7 @@ const Promise = require('bluebird');
 const path = require('path');
 const fs = require('fs-extra');
 const { createTempDirSync } = require('jest-fixtures');
-const start = require('../cmds/job/start');
+const start = require('../../cmds/job/start');
 
 const tmpDir = createTempDirSync();
 
@@ -32,7 +32,7 @@ describe('start should start a job', () => {
     it('should register and start a job if no tjm data', (done) => {
         const jobFile = path.join(tmpDir, 'start-job-1.json');
 
-        fs.copyFileSync(path.join(__dirname, 'fixtures', 'start_job.json'), jobFile);
+        fs.copyFileSync(path.join(__dirname, '../fixtures', 'start_job.json'), jobFile);
 
         const jobFileData = {
             name: 'fakeJobe',
@@ -67,7 +67,7 @@ describe('start should start a job', () => {
     it('should move a job to a new cluster', (done) => {
         const jobFile = path.join(tmpDir, 'start-job-2.json');
 
-        fs.copyFileSync(path.join(__dirname, 'fixtures', 'start_job.json'), jobFile);
+        fs.copyFileSync(path.join(__dirname, '../fixtures', 'start_job.json'), jobFile);
 
         const jobFileData = {
             name: 'fakeJobe',
@@ -112,7 +112,7 @@ describe('start should start a job', () => {
     it('should start job', (done) => {
         const jobFile = path.join(tmpDir, 'start-job-3.json');
 
-        fs.copyFileSync(path.join(__dirname, 'fixtures', 'start_job.json'), jobFile);
+        fs.copyFileSync(path.join(__dirname, '../fixtures', 'start_job.json'), jobFile);
 
         registeredCheck = Promise.resolve();
         startResponse = { job_id: 'success' };
@@ -127,7 +127,7 @@ describe('start should start a job', () => {
     it('should throw error if start response does not have the job_id', (done) => {
         const jobFile = path.join(tmpDir, 'start-job-3.json');
 
-        fs.copyFileSync(path.join(__dirname, 'fixtures', 'start_job.json'), jobFile);
+        fs.copyFileSync(path.join(__dirname, '../fixtures', 'start_job.json'), jobFile);
 
         registeredCheck = Promise.resolve();
         startResponse = { };

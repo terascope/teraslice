@@ -4,13 +4,13 @@ const Promise = require('bluebird');
 const path = require('path');
 const fs = require('fs-extra');
 const { createTempDirSync } = require('jest-fixtures');
-const restart = require('../cmds/job/restart');
+const restart = require('../../cmds/job/restart');
 
 const tmpDir = createTempDirSync();
 
 const jobFile = path.join(tmpDir, 'restart-spec-job-file.json');
 
-fs.copyFileSync(path.join(__dirname, 'fixtures', 'test_job_file.json'), jobFile);
+fs.copyFileSync(path.join(__dirname, '../fixtures', 'test_job_file.json'), jobFile);
 
 const argv = {
     baseDir: tmpDir,

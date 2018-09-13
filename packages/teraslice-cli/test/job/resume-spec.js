@@ -4,13 +4,13 @@ const Promise = require('bluebird');
 const path = require('path');
 const fs = require('fs-extra');
 const { createTempDirSync } = require('jest-fixtures');
-const resume = require('../cmds/job/resume');
+const resume = require('../../cmds/job/resume');
 
 const tmpDir = createTempDirSync();
 
 const jobFile = path.join(tmpDir, 'resume-spec-job-file.json');
 
-fs.copyFileSync(path.join(__dirname, 'fixtures', 'test_job_file.json'), jobFile);
+fs.copyFileSync(path.join(__dirname, '../fixtures', 'test_job_file.json'), jobFile);
 
 const argv = {
     job_file: jobFile

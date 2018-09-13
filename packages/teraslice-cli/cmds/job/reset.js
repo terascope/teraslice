@@ -13,10 +13,10 @@ exports.builder = (yargs) => {
     yargs.example('tjm reset jobfile.prod');
 };
 exports.handler = (argv) => {
-    const tjmConfig = _.clone(argv);
-    dataChecks(tjmConfig).returnJobData(true);
-    delete tjmConfig.job_file_content.tjm;
-    return fs.writeJson(tjmConfig.job_file_path, tjmConfig.job_file_content, { spaces: 4 })
-        .then(() => reply.green(`TJM data was removed from ${tjmConfig.job_file}`))
+    const cliConfig = _.clone(argv);
+    dataChecks(cliConfig).returnJobData(true);
+    delete cliConfig.job_file_content.tjm;
+    return fs.writeJson(cliConfig.job_file_path, cliConfig.job_file_content, { spaces: 4 })
+        .then(() => reply.green(`TJM data was removed from ${cliConfig.job_file}`))
         .catch(err => reply.fatal(err.message));
 };

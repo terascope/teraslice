@@ -12,19 +12,19 @@ exports.builder = (yargs) => {
         .example('tjm workers add 5 jobfile.prod');
 };
 exports.handler = (argv, _testFunctions) => {
-    const tjmConfig = _.clone(argv);
-    dataChecks(tjmConfig).returnJobData();
+    const cliConfig = _.clone(argv);
+    dataChecks(cliConfig).returnJobData();
 
-    const tjmFunctions = _testFunctions || require('../cmd_functions/functions')(tjmConfig);
+    const tjmFunctions = _testFunctions || require('../cmd_functions/functions')(cliConfig);
 
-    const jobId = tjmConfig.job_file_content.tjm.job_id;
+    const jobId = cliConfig.job_file_content.tjm.job_id;
     return tjmFunctions.alreadyRegisteredCheck()
         .then(() => {
             if (argv.num <= 0 || _.isNaN(argv.num)) {
                 return Promise.reject(new Error('Number of workers must be a positive number'));
             }
             return tjmFunctions.terasliceClient.jobs.wrap(jobId)
-                .changeWorkers(tjmConfig.param, tjmConfig.num);
+                .changeWorkers(cliConfig.param, cliConfig.num);
         })
         .then((workersChange) => {
             reply.green(workersChange);
