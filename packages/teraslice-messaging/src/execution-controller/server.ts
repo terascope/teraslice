@@ -1,8 +1,11 @@
 import _ from 'lodash';
+import debugFn from 'debug';
 import Queue from '@terascope/queue';
 import { Slice } from '@terascope/teraslice-types';
 import * as core from '../messenger';
 import * as i from './interfaces';
+
+const debug = debugFn('teraslice-messaging:execution-controller:server');
 
 export class Server extends core.Server {
     private _activeWorkers: string[];
@@ -75,13 +78,36 @@ export class Server extends core.Server {
     }
 
     async dispatchSlice(slice: Slice, workerId: string): Promise<boolean> {
-        const response = await this.send(workerId, 'execution:slice:new', slice);
+        const isAvailable = _.get(this._clients, [workerId, 'state']) === core.ClientState.Available;
+        if (!isAvailable) {
+            debug(`worker ${workerId} is not available`);
+            return false;
+        }
 
-        const dispatched = _.get(response, 'payload.willProcess', false);
+        const sliceId = slice.slice_id;
 
-        if (dispatched) {
-            this._activeWorkers = _.union(this._activeWorkers, [workerId]);
-            this._pendingSlices = _.union(this._pendingSlices, [slice.slice_id]);
+        // first assume the slice is dispatched
+        this._pendingSlices = _.union(this._pendingSlices, [sliceId]);
+        this._activeWorkers = _.union(this._activeWorkers, [workerId]);
+
+        let dispatched = false;
+        let error : Error|undefined;
+
+        try {
+            const response = await this.send(workerId, 'execution:slice:new', slice);
+            dispatched = _.get(response, 'payload.willProcess', false);
+        } catch (err) {
+            error = err;
+        }
+
+        if (!dispatched) {
+            debug(`failure to dispatch slice ${sliceId} to worker ${workerId}`);
+            _.pull(this._activeWorkers, workerId);
+            _.pull(this._pendingSlices, sliceId);
+        }
+
+        if (error) {
+            throw error;
         }
 
         return dispatched;
@@ -103,11 +129,11 @@ export class Server extends core.Server {
     }
 
     get activeWorkers(): string[] {
-        return this._activeWorkers.slice();
+        return _.clone(this._activeWorkers);
     }
 
     get pendingSlices(): string[] {
-        return this._pendingSlices.slice();
+        return _.clone(this._pendingSlices);
     }
 
     get workerQueueSize(): number {
@@ -130,8 +156,12 @@ export class Server extends core.Server {
                 }
             }
 
-            _.pull(this._activeWorkers, workerId);
-            _.pull(this._pendingSlices, sliceId);
+            this._workerRemove(workerId);
+
+            // give the execution controller time to consider the slice is no longer pending
+            _.delay(() => {
+                _.pull(this._pendingSlices, sliceId);
+            }, 100);
 
             return _.pickBy({
                 duplicate: alreadyCompleted,
@@ -177,9 +207,11 @@ export class Server extends core.Server {
     private _workerRemove(workerId: string): boolean {
         if (!workerId) return false;
 
+        _.pull(this._activeWorkers, workerId);
+
+        if (!this.queue.exists(workerId, 'workerId')) return false;
         this.queue.remove(workerId, 'workerId');
 
-        _.pull(this._activeWorkers, workerId);
         this.emit('worker:dequeue', workerId);
         return true;
     }

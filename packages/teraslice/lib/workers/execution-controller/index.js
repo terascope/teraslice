@@ -300,7 +300,7 @@ class ExecutionController {
         this.logger.fatal(`execution ${this.exId} is done because of slice failure`);
     }
 
-    async slicerCompleted() {
+    slicerCompleted() {
         if (!this.slicersReady) return;
 
         this.slicersDoneCount += 1;
@@ -458,15 +458,24 @@ class ExecutionController {
     async _processSlices() {
         this.isProcessing = true;
         const statsInterval = setInterval(() => {
+            if (this.isShuttingDown) {
+                clearInterval(statsInterval);
+                return;
+            }
             this.executionAnalytics.set('workers_available', this.server.availableClientCount);
-            this.executionAnalytics.set('queued', this.slicerQueue.size());
             this.executionAnalytics.set('workers_active', this.server.activeWorkers.length);
+            this.executionAnalytics.set('queued', this.slicerQueue.size());
         }, 500);
 
-        await Promise.all([
-            this._createSlices(),
-            this._dispatchSlices(),
-        ]);
+        try {
+            const result = await Promise.all([
+                this._createSlices(),
+                this._dispatchSlices(),
+            ]);
+            this.logger.debug('processing result', result);
+        } catch (err) {
+            this.logger.error('Error processing slices', err);
+        }
 
         clearInterval(statsInterval);
 
@@ -522,8 +531,8 @@ class ExecutionController {
             return false;
         }
 
-        if (this.slicesAreComplete && this.isDoneCreating) {
-            this.logger.trace(`execution ${this.exId} is done dispatching slices`);
+        if (this.isDoneCreating && this.slicesAreComplete) {
+            this.logger.debug(`execution ${this.exId} is done dispatching slices`);
             this.isDoneDispatching = true;
             return true;
         }
@@ -545,28 +554,30 @@ class ExecutionController {
             }
         }
 
-        const slices = [];
-        while (slices.length < this.server.workerQueueSize) {
+        // add a few checks to make sure we don't get stuck forever
+        const maxDispatches = this.server.workerQueueSize;
+        let dispatched = 0;
+        let gotShutdown = false;
+
+        while (!gotShutdown && this.slicerQueue.size() > 0 && dispatched < maxDispatches) {
             const slice = this.slicerQueue.dequeue();
-            if (!slice) break;
 
             const workerId = this.server.dequeueWorker(slice);
             if (!workerId) {
-                this.slicerQueue.enqueue(slice);
-            } else {
-                slices.push({
-                    slice,
-                    workerId,
+                _.defer(() => {
+                    this.slicerQueue.enqueue(slice);
                 });
+            } else {
+                this._dispatchSlice(slice, workerId);
             }
+            gotShutdown = this.isShuttingDown;
+            dispatched += 1;
         }
-
-        await Promise.map(slices, this._dispatchSlice);
 
         return this._dispatchSlices();
     }
 
-    async _dispatchSlice({ slice, workerId }) {
+    async _dispatchSlice(slice, workerId) {
         let dispatched;
 
         try {
@@ -757,14 +768,17 @@ class ExecutionController {
         const timeoutError = new Error(`Shutdown timeout of ${timeout}ms waiting for the execution to finish...`);
         const logShuttingDown = _.throttle(() => {
             this.logger.debug('shutdown is waiting for execution to finish...');
-        }, 1000);
+        }, 1000, {
+            leading: true,
+            trailing: true,
+        });
 
         const checkExecution = async () => {
             if (this.isExecutionDone) {
                 this.logger.trace('execution finished while shutting down');
                 return null;
             }
-            
+
             if (!this.server.onlineClientCount) {
                 this.logger.trace('workers have disconnected during shutdown');
                 this.isExecutionDone = true;

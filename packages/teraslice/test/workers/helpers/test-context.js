@@ -57,6 +57,7 @@ class TestContext {
         this.config = newConfig(options);
 
         this.context = makeTerafoundationContext({ sysconfig: this.sysconfig });
+        this.context.assignment = options.assignment;
 
         this.events = this.context.apis.foundation.getSystemEvents();
 

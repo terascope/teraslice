@@ -50,7 +50,7 @@ function makeContext(cluster, config, sysconfig) {
     context.foundation.getEventEmitter = () => events;
 
     if (useDebugLogger) {
-        context.apis.foundation.makeLogger = (...args) => debugLogger(contextName, ...args);
+        context.apis.foundation.makeLogger = (...args) => debugLogger(context.assignment, ...args);
         context.foundation.makeLogger = context.apis.foundation.makeLogger;
     }
 

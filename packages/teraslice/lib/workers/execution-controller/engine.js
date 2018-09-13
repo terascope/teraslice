@@ -108,7 +108,7 @@ module.exports = function makeEngine(controller) {
                     // slicer => a single slicer has finished
                     events.emit('slicer:finished');
                     hasCompleted = true;
-                    await controller.slicerCompleted();
+                    controller.slicerCompleted();
                 }
 
                 isProcessing = false;

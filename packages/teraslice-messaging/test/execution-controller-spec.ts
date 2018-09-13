@@ -273,8 +273,29 @@ describe('ExecutionController', () => {
                             expect(id).not.toBeNull();
                             return;
                         }
-                        await expect(server.dispatchSlice(newSlice, id)).resolves.toBeTrue();
+                        const dispatchedPromise = server.dispatchSlice(newSlice, id);
+                        expect(server.activeWorkers).toBeArrayOfSize(1);
+                        expect(server.pendingSlices).toBeArrayOfSize(1);
+
+                        const dispatched = await dispatchedPromise;
                         await expect(slice).resolves.toEqual(newSlice);
+                        expect(dispatched).toBeTrue();
+
+                        await client.sendSliceComplete({
+                            slice: newSlice,
+                            analytics: {
+                                time: [],
+                                memory: [],
+                                size: []
+                            }
+                        });
+
+                        expect(server.activeWorkers).toBeArrayOfSize(0);
+
+                        await bluebird.delay(100);
+
+                        expect(server.pendingSlices).toBeArrayOfSize(0);
+                        expect(server.activeWorkers).toBeArrayOfSize(0);
                     });
                 });
 
