@@ -57,7 +57,7 @@ class Worker {
     async initialize() {
         const { context } = this;
         this.isInitialized = true;
-        const { ex_id: exId } = this.executionContext;
+        // const { ex_id: exId } = this.executionContext;
 
         const stateStore = makeStateStore(context);
         const analyticsStore = makeAnalyticsStore(context);
@@ -65,11 +65,6 @@ class Worker {
         this.stores.analyticsStore = await analyticsStore;
 
         await this.client.start();
-
-        this.client.onExecutionFinished(() => {
-            this.logger.debug(`exId ${exId} received a execution finished event`);
-            this.shouldShutdown = true;
-        });
     }
 
     async run() {
@@ -146,11 +141,11 @@ class Worker {
 
         this.logger.warn(`worker shutdown was called for execution ${exId}`);
 
-        try {
-            await this._waitForExecutionFinished();
-        } catch (err) {
-            shutdownErrs.push(err);
-        }
+        // try {
+        //     await this._waitForExecutionFinished();
+        // } catch (err) {
+        //     shutdownErrs.push(err);
+        // }
 
         try {
             await this._waitForSliceToFinish();

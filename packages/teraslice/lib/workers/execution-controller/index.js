@@ -173,7 +173,7 @@ class ExecutionController {
                 this.slicerAnalytics.addStats(response.analytics);
             }
 
-            this.logger.debug(`worker ${workerId} has completed its slice`, response);
+            this.logger.info(`worker ${workerId} has completed its slice`, response);
             this.events.emit('slice:success', response);
         });
 
@@ -448,7 +448,7 @@ class ExecutionController {
             await this._processSlices();
         }
 
-        await this.server.sendExecutionFinishedToAll(this.exId);
+        // await this.server.sendExecutionFinishedToAll(this.exId);
 
         await this._finishExecution();
 
