@@ -174,13 +174,14 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
      */
     function allocateSlicer(execution, recoverExecution) {
         const name = `teraslice-execution-controller-${execution.ex_id}`.substring(0, 63);
+        const jobNameLabel = execution.name.replace(/[^a-zA-Z_\-.]/g, '_');
 
         const serviceConfig = {
             name,
             clusterName,
             exId: execution.ex_id,
             jobId: execution.job_id,
-            jobName: execution.name,
+            jobNameLabel,
             nodeType: 'execution_controller',
             namespace: kubernetesNamespace
         };
@@ -197,7 +198,7 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
             clusterName,
             exId: execution.ex_id,
             jobId: execution.job_id,
-            jobName: execution.name,
+            jobNameLabel,
             dockerImage: kubernetesImage,
             execution: base64EncodeObject(execution),
             nodeType: 'execution_controller',
@@ -239,13 +240,14 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
      */
     function allocateWorkers(execution, numWorkers) {
         const name = `teraslice-worker-${execution.ex_id}`.substring(0, 63);
+        const jobNameLabel = execution.name.replace(/[^a-zA-Z_\-.]/g, '_');
 
         const deploymentConfig = {
             name,
             clusterName,
             exId: execution.ex_id,
             jobId: execution.job_id,
-            jobName: execution.name,
+            jobNameLabel,
             dockerImage: kubernetesImage,
             execution: base64EncodeObject(execution),
             nodeType: 'worker',
