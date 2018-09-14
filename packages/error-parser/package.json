@@ -21,7 +21,7 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "dependencies": {
-        "lodash": "^4.17.10"
+        "lodash": "^4.17.11"
     },
     "devDependencies": {
         "eslint": "^5.5.0",

@@ -3,16 +3,6 @@ services:
   teraslice-master:
     extends:
       service: teraslice-worker
-    command: [
-      "./scripts/wait-for-it.sh",
-      "elasticsearch:49200",
-      "--timeout=60",
-      "--strict",
-      "--",
-      "node",
-      "--max-old-space-size=512",
-      "service.js"
-    ]
     scale: 1
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:45678/cluster/state"]
@@ -29,7 +19,7 @@ services:
       context: ..
     command: [
       "./scripts/wait-for-it.sh",
-      "teraslice-master:45678",
+      "elasticsearch:49200",
       "--timeout=60",
       "--strict",
       "--",

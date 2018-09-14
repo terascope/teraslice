@@ -22,7 +22,7 @@ module.exports = function module(context) {
 
     const messaging = messageModule(context, logger);
     const host = messaging.getHostUrl();
-    const isShuttingDown = true;
+    const isShuttingDown = false;
 
     logger.info(`node ${context.sysconfig._nodeName} is attempting to connect to cluster_master: ${host}`);
 
@@ -37,21 +37,54 @@ module.exports = function module(context) {
         });
     }
 
+    const sendNodeState = _.debounce(sendNodeStateNow, 500, { leading: false, trailing: true });
+
     let pendingAllocations = 0;
-    function allocateWorkers(count, fn) {
-        if (mutex.isLocked()) {
-            logger.trace('waiting for allocation lock');
-        }
-        pendingAllocations = count;
-        return Promise.resolve(mutex.runExclusive(() => {
-            logger.info(`allocating ${count} workers`);
-            return Promise.resolve(fn());
-        }))
-            .then(() => sendNodeStateNow())
-            .finally(() => { pendingAllocations = 0; });
+
+    function allocateWorkers(count, exConfig, fn) {
+        pendingAllocations += count;
+        sendNodeStateNow();
+
+        return loadAssetsIfNeeded(exConfig.job, exConfig.ex_id)
+            .then(() => {
+                if (mutex.isLocked()) {
+                    logger.warn('waiting for allocation lock');
+                }
+                return mutex.runExclusive(() => {
+                    logger.info(`allocating ${count} workers`);
+                    return Promise.resolve(fn());
+                });
+            })
+            // IF we want to make sure the process is online
+            // .then((workers) => {
+            //     const promises = _.map(workers, (worker) => {
+            //         if (worker.isConnected()) {
+            //             return Promise.resolve();
+            //         }
+            //         return new Promise(resolve => worker.once('online', () => resolve()));
+            //     });
+            //     return Promise.all(promises);
+            // })
+            .then((workers) => {
+                pendingAllocations -= count;
+                sendNodeStateNow();
+                return workers.length;
+            })
+            .catch((err) => {
+                pendingAllocations -= count;
+                sendNodeStateNow();
+                return Promise.reject(err);
+            });
     }
 
-    const sendNodeState = _.debounce(sendNodeStateNow, 500, { leading: false, trailing: true });
+    function canAllocateWorkers(requestedWorkers) {
+        const numOfCurrentWorkers = Object.keys(context.cluster.workers).length;
+        // if there is an over allocation, send back rest to be enqueued
+        if (configWorkerLimit < numOfCurrentWorkers + requestedWorkers) {
+            return configWorkerLimit - numOfCurrentWorkers > 0;
+        }
+        return true;
+    }
 
     messaging.registerChildOnlineHook(sendNodeState);
 
@@ -82,7 +115,7 @@ module.exports = function module(context) {
             const createSlicerMsg = createSlicerRequest.payload;
             logger.info(`Allocating execution controller for execution ${createSlicerMsg.ex_id}`);
 
-            allocateWorkers(1, () => {
+            allocateWorkers(1, createSlicerMsg, () => {
                 const controllerContext = {
                     assignment: 'execution_controller',
                     NODE_TYPE: 'execution_controller',
@@ -93,19 +126,15 @@ module.exports = function module(context) {
                     job_id: createSlicerMsg.job_id,
                     slicer_port: createSlicerMsg.slicer_port
                 };
-                return loadAssetsIfNeeded(createSlicerMsg.job, createSlicerMsg.ex_id)
-                    .then(() => {
-                        logger.trace('starting a execution controller', controllerContext);
-                        context.foundation.startWorkers(1, controllerContext);
-                        return messaging.respond(createSlicerRequest);
-                    })
-                    .catch((err) => {
-                        logger.error('error loading assets', err);
-                        return messaging.respond(createSlicerRequest, {
-                            error: parseError(err),
-                        });
+                logger.trace('starting a execution controller', controllerContext);
+                return context.foundation.startWorkers(1, controllerContext);
+            })
+                .then(() => messaging.respond(createSlicerRequest))
+                .catch((error) => {
+                    messaging.respond(createSlicerRequest, {
+                        error: parseError(error),
                     });
-            });
+                });
         }
     });
 
@@ -116,48 +145,52 @@ module.exports = function module(context) {
             const requestedWorkers = createWorkerMsg.workers;
             logger.info(`Attempting to allocate ${requestedWorkers} workers.`);
 
-            allocateWorkers(requestedWorkers, () => {
-                const { job, ex_id: exId } = createWorkerMsg;
-                return loadAssetsIfNeeded(job, exId)
-                    .then(() => {
-                        const numOfCurrentWorkers = Object.keys(context.cluster.workers).length;
-                        // if there is an over allocation, send back rest to be enqueued
-                        if (configWorkerLimit < numOfCurrentWorkers + requestedWorkers) {
-                            const newWorkers = configWorkerLimit - numOfCurrentWorkers;
-                            logger.warn(`Worker allocation request would exceed maximum number of workers - ${configWorkerLimit}`);
-                            logger.warn(`Reducing allocation to ${newWorkers} workers.`);
-                            return newWorkers;
-                        }
+            if (!canAllocateWorkers(requestedWorkers)) {
+                logger.warn(`Worker is overallocated, maximum number of workers of ${configWorkerLimit}`);
+                messaging.respond(createWorkerRequest, {
+                    payload: {
+                        createdWorkers: 0,
+                    }
+                });
+                return;
+            }
 
-                        // else return the requested workers
-                        return requestedWorkers;
-                    })
-                    .catch((err) => {
-                        logger.error('error loading assets', err);
-                        // if the assets fail, we couldn't load any workers
-                        return 0;
-                    })
-                    .then((newWorkers) => {
-                        if (newWorkers > 0) {
-                            logger.trace(`starting ${newWorkers} workers`, createWorkerMsg.ex_id);
-                            context.foundation.startWorkers(newWorkers, {
-                                NODE_TYPE: 'worker',
-                                EX: safeEncode(createWorkerMsg.job),
-                                assignment: 'worker',
-                                node_id: context.sysconfig._nodeName,
-                                job: createWorkerMsg.job,
-                                ex_id: createWorkerMsg.ex_id,
-                                job_id: createWorkerMsg.job_id
-                            });
-                        }
+            allocateWorkers(requestedWorkers, createWorkerMsg, () => {
+                let newWorkers = requestedWorkers;
+                const numOfCurrentWorkers = Object.keys(context.cluster.workers).length;
+                // if there is an over allocation, send back rest to be enqueued
+                if (configWorkerLimit < numOfCurrentWorkers + requestedWorkers) {
+                    newWorkers = configWorkerLimit - numOfCurrentWorkers;
+                    logger.warn(`Worker allocation request would exceed maximum number of workers of ${configWorkerLimit}`);
+                    logger.warn(`Reducing allocation to ${newWorkers} workers.`);
+                }
 
-                        return messaging.respond(createWorkerRequest, {
-                            payload: {
-                                createdWorkers: newWorkers,
-                            }
-                        });
+                let workers = [];
+                if (newWorkers > 0) {
+                    logger.trace(`starting ${newWorkers} workers`, createWorkerMsg.ex_id);
+                    workers = context.foundation.startWorkers(newWorkers, {
+                        NODE_TYPE: 'worker',
+                        EX: safeEncode(createWorkerMsg.job),
+                        assignment: 'worker',
+                        node_id: context.sysconfig._nodeName,
+                        job: createWorkerMsg.job,
+                        ex_id: createWorkerMsg.ex_id,
+                        job_id: createWorkerMsg.job_id
                     });
-            });
+                }
+
+                return workers;
+            })
+                .then(createdWorkers => messaging.respond(createWorkerRequest, {
+                    payload: {
+                        createdWorkers,
+                    }
+                }))
+                .catch(() => messaging.respond(createWorkerRequest, {
+                    payload: {
+                        createdWorkers: 0,
+                    }
+                }));
         }
     });
 

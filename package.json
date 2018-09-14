@@ -20,7 +20,7 @@
         "publish:changed": "./scripts/publish.sh"
     },
     "dependencies": {
-        "lerna": "^3.3.0"
+        "lerna": "^3.3.2"
     },
     "devDependencies": {
         "@types/jest": "^23.3.2",

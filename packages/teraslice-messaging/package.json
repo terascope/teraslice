@@ -47,7 +47,7 @@
         "@types/socket.io": "^1.4.38",
         "@types/socket.io-client": "^1.4.32",
         "bluebird": "^3.5.2",
-        "debug": "^4.0.0",
+        "debug": "^4.0.1",
         "nanoid": "^1.2.3",
         "node-cache": "^4.2.0",
         "porty": "^3.1.1",

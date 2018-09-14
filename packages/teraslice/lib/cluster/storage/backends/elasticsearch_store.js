@@ -190,7 +190,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
             logger.trace(`attempting to shutdown, will destroy in ${config.shutdown_timeout}`);
 
             const _destroy = () => {
-                logger.debug(`shutdown store, took ${Date.now() - startTime}ms`);
+                logger.trace(`shutdown store, took ${Date.now() - startTime}ms`);
                 bulkQueue.length = 0;
                 Object.values(destroyFns).forEach((fn) => { fn(); });
                 destroyFns = {};

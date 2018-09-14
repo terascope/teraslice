@@ -25,7 +25,7 @@
         "@terascope/job-components": "^0.4.1",
         "@terascope/teraslice-types": "^0.1.1",
         "bluebird": "^3.5.2",
-        "lodash": "^4.17.10"
+        "lodash": "^4.17.11"
     },
     "devDependencies": {
         "eslint": "^5.5.0",

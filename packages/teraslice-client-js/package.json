@@ -29,7 +29,7 @@
     "dependencies": {
         "auto-bind": "^1.2.1",
         "bluebird": "^3.5.2",
-        "lodash": "^4.17.10",
+        "lodash": "^4.17.11",
         "request": "^2.88.0",
         "request-promise": "^4.2.2"
     },
