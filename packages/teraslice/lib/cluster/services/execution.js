@@ -60,7 +60,10 @@ module.exports = function module(context, { clusterMasterServer }) {
                 Promise.resolve()
                     .then(() => exStore.verifyStatusUpdate(exId, status))
                     .then(() => setExecutionStatus(exId, status))
-                    .catch(err => logger.error(err))
+                    .catch((err) => {
+                        logger.error(err.message);
+                        logger.trace(err.stack);
+                    })
                     .finally(() => resolve(true));
             }
             checkCluster();

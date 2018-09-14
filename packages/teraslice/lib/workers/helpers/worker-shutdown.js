@@ -51,6 +51,8 @@ function shutdownHandler(context, shutdownFn) {
     }
 
     function exit(event, err) {
+        if (api.exiting) return;
+
         api.exiting = true;
         logger.warn(`${assignment} exiting in ${shutdownTimeout}ms...`);
 

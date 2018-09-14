@@ -125,7 +125,7 @@ function recovery(context, executionFailed, stateStore, executionContext) {
                                 .then(() => retrieveSlices(slicerID));
                         }
                     })
-                    .catch(err => reject(parseError(err)));
+                    .catch(err => reject(new Error(parseError(err))));
             }
 
             retrieveSlices(startingID);
@@ -148,11 +148,11 @@ function recovery(context, executionFailed, stateStore, executionContext) {
 
     function newSlicer() {
         return Promise.resolve([() => new Promise((resolve) => {
-            if (recoveryQueue.size()) {
+            if (recoveryQueue.size() > 0) {
                 resolve(recoveryQueue.dequeue());
             } else {
                 const checkingQueue = setInterval(() => {
-                    if (recoveryQueue.size()) {
+                    if (recoveryQueue.size() > 0) {
                         clearInterval(checkingQueue);
                         resolve(recoveryQueue.dequeue());
                         return;

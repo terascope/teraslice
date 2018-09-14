@@ -92,7 +92,7 @@ export class Client extends core.Client {
 
         if (!slice) return;
 
-        await this.sendUnavailable();
+        this.available = false;
 
         return slice as Slice;
     }

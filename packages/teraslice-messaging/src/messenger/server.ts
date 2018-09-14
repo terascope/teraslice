@@ -34,6 +34,7 @@ const connectedStates = [
 ];
 
 export class Server extends Core {
+    isShuttingDown: boolean;
     readonly port: number;
     readonly server: SocketIO.Server;
     readonly httpServer: http.Server;
@@ -84,6 +85,8 @@ export class Server extends Core {
         if (serverTimeout) {
             this.httpServer.timeout = serverTimeout;
         }
+
+        this.isShuttingDown = false;
 
         this._clients = {};
         this._clientSendFns = {};
@@ -141,6 +144,8 @@ export class Server extends Core {
     }
 
     async shutdown() {
+        this.isShuttingDown = true;
+
         if (this._cleanupClients != null) {
             clearInterval(this._cleanupClients);
         }
@@ -448,10 +453,17 @@ export class Server extends Core {
         });
 
         socket.on('disconnect', (error: Error|string) => {
-            this.updateClientState(clientId, {
-                state: i.ClientState.Disconnected,
-                error,
-            });
+            if (this.isShuttingDown) {
+                this.updateClientState(clientId, {
+                    state: i.ClientState.Shutdown,
+                    error,
+                });
+            } else {
+                this.updateClientState(clientId, {
+                    state: i.ClientState.Disconnected,
+                    error,
+                });
+            }
         });
 
         socket.on(`client:${i.ClientState.Available}`, this.handleResponse(`client:${i.ClientState.Available}`, (msg: i.Message) => {

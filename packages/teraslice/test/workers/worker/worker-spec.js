@@ -34,10 +34,7 @@ describe('Worker', () => {
             testContext.executionContext,
         );
 
-        testContext.attachCleanup(() => {
-            worker.shouldShutdown = true;
-            return worker.shutdown();
-        });
+        testContext.attachCleanup(() => worker.shutdown());
 
         return { server, worker, testContext };
     }
@@ -60,18 +57,20 @@ describe('Worker', () => {
             server.onClientAvailable(() => {
                 server.dispatchSlice(sliceConfig, worker.workerId);
             });
+            let shutdownPromise;
 
             server.onSliceSuccess((workerId, _msg) => {
                 sliceSuccess = _msg;
-                worker.client.emit('execution:finished');
+                shutdownPromise = worker.shutdown();
             });
 
             server.onSliceFailure((workerId, _msg) => {
                 sliceFailure = _msg;
-                worker.client.emit('execution:finished');
+                shutdownPromise = worker.shutdown();
             });
 
             await worker.run();
+            await shutdownPromise;
         });
 
         afterEach(async () => {
@@ -289,7 +288,6 @@ describe('Worker', () => {
             });
 
             worker.events.once('slice:initalize', () => {
-                worker.shouldShutdown = true;
                 worker.shutdown().catch((err) => {
                     shutdownErr = err;
                 });
@@ -360,7 +358,6 @@ describe('Worker', () => {
 
             describe('when everything errors', () => {
                 beforeEach(() => {
-                    worker._waitForExecutionFinished = () => Promise.reject(new Error('Execution Finish Error'));
                     worker._waitForSliceToFinish = () => Promise.reject(new Error('Slice Finish Error'));
 
                     worker.stores = {};
@@ -382,7 +379,6 @@ describe('Worker', () => {
                     } catch (err) {
                         const errMsg = err.toString();
                         expect(errMsg).toStartWith('Error: Failed to shutdown correctly');
-                        expect(errMsg).toInclude('Execution Finish Error');
                         expect(errMsg).toInclude('Slice Finish Error');
                         expect(errMsg).toInclude('Store Error');
                         expect(errMsg).toInclude('Slice Error');

@@ -10,7 +10,7 @@ const { newId } = require('../../../lib/utils/id_utils');
 const ExecutionControllerClient = Messaging.ExecutionController.Client;
 process.env.BLUEBIRD_LONG_STACK_TRACES = '1';
 
-describe('ExecutionController', () => {
+describe('ExecutionController Recovery Tests', () => {
     // [ message, config ]
     const testCases = [
         [
@@ -182,6 +182,14 @@ describe('ExecutionController', () => {
 
             let firedReconnect = false;
 
+            const workerClients = [];
+
+            clusterMaster.onExecutionFinished(() => {
+                workerClients.forEach((workerClient) => {
+                    workerClient.shutdown();
+                });
+            });
+
             async function startWorker() {
                 const workerId = newId('worker');
                 const workerClient = new ExecutionControllerClient({
@@ -192,6 +200,8 @@ describe('ExecutionController', () => {
                     connectTimeout: 1000,
                     socketOptions
                 });
+
+                workerClients.push(workerClient);
 
                 testContext.attachCleanup(() => workerClient.shutdown());
 
@@ -208,9 +218,9 @@ describe('ExecutionController', () => {
                     ]);
                 }
 
-                const isDone = () => exController.isExecutionFinished;
+                const isDone = () => exController.isExecutionDone;
 
-                async function process() {
+                async function processWork() {
                     if (isDone()) return;
 
                     const slice = await workerClient.waitForSlice(isDone);
@@ -244,12 +254,10 @@ describe('ExecutionController', () => {
                         completeSlice(),
                     ]);
 
-                    await process();
+                    await processWork();
                 }
 
-                await process();
-
-                await workerClient.shutdown();
+                await processWork();
             }
 
             function startWorkers() {

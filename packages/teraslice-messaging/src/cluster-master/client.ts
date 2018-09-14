@@ -56,6 +56,8 @@ export class Client extends core.Client {
     }
 
     sendExecutionFinished(error?: string) {
+        if (!this.isClientReady()) return;
+
         return this.send('execution:finished', { error }, {
             volatile: true,
         });

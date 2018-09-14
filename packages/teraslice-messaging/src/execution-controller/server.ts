@@ -156,12 +156,10 @@ export class Server extends core.Server {
                 }
             }
 
-            this._workerRemove(workerId);
-
-            // give the execution controller time to consider the slice is no longer pending
-            _.delay(() => {
-                _.pull(this._pendingSlices, sliceId);
-            }, 100);
+            this.updateClientState(workerId, {
+                state: core.ClientState.Unavailable,
+            });
+            _.pull(this._pendingSlices, sliceId);
 
             return _.pickBy({
                 duplicate: alreadyCompleted,
@@ -209,7 +207,6 @@ export class Server extends core.Server {
 
         _.pull(this._activeWorkers, workerId);
 
-        if (!this.queue.exists(workerId, 'workerId')) return false;
         this.queue.remove(workerId, 'workerId');
 
         this.emit('worker:dequeue', workerId);

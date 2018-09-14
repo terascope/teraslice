@@ -48,7 +48,6 @@ class Worker {
         this.events = events;
 
         this.isShuttingDown = false;
-        this.shouldShutdown = false;
         this.isProcessing = false;
         this.isInitialized = false;
         this.slicesProcessed = 0;
@@ -57,7 +56,6 @@ class Worker {
     async initialize() {
         const { context } = this;
         this.isInitialized = true;
-        // const { ex_id: exId } = this.executionContext;
 
         const stateStore = makeStateStore(context);
         const analyticsStore = makeAnalyticsStore(context);
@@ -70,7 +68,6 @@ class Worker {
     async run() {
         const runForever = async () => {
             if (this.isShuttingDown) return;
-            if (this.shouldShutdown) return;
 
             try {
                 await this.runOnce();
@@ -85,7 +82,7 @@ class Worker {
 
         await runForever();
 
-        return this.shutdown();
+        return this.shutdown(false);
     }
 
     async runOnce() {
@@ -124,10 +121,10 @@ class Worker {
         this.slicesProcessed += 1;
     }
 
-    async shutdown() {
+    async shutdown(block = true) {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
-        if (this.isShuttingDown) {
+        if (this.isShuttingDown && block) {
             this.logger.debug('worker shutdown was called but it was already shutting down, will block until done');
             await waitForWorkerShutdown(this.context, 'worker:shutdown:complete');
             return;
@@ -140,12 +137,6 @@ class Worker {
         const shutdownErrs = [];
 
         this.logger.warn(`worker shutdown was called for execution ${exId}`);
-
-        // try {
-        //     await this._waitForExecutionFinished();
-        // } catch (err) {
-        //     shutdownErrs.push(err);
-        // }
 
         try {
             await this._waitForSliceToFinish();
@@ -188,23 +179,6 @@ class Worker {
         }
 
         this.events.emit(this.context, 'worker:shutdown:complete');
-    }
-
-    async _waitForExecutionFinished() {
-        if (this.shouldShutdown) return;
-        if (!this.client.isClientReady) return;
-
-        const { ex_id: exId } = this.executionContext;
-
-        this.logger.info(`Worker ${this.workerId} for execution ${exId} will wait for exection:finished event from the execution controller`);
-
-        const timeout = this.client.getTimeoutWithMax(30000);
-        const finished = await this.client.onceWithTimeout('execution:finished', timeout);
-        if (finished == null) {
-            this.logger.warn(`Worker ${this.workerId} for execution ${exId} expected to receive an execution:finished message when shutting down`);
-        } else {
-            this.logger.debug(`Worker ${this.workerId} for execution ${exId} receive an execution:finished message when shutting down`);
-        }
     }
 
     _waitForSliceToFinish() {

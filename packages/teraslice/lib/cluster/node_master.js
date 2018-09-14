@@ -164,12 +164,16 @@ module.exports = function module(context) {
     // this fires when entire server will be shutdown
     events.once('terafoundation:shutdown', () => {
         logger.debug('Received shutdown notice from terafoundation');
-        // const filterFn = () => context.cluster.workers;
-        // function actionCompleteFn() {
-        //     return getNodeState().active.length === 0;
-        // }
+        const filterFn = () => context.cluster.workers;
+        function actionCompleteFn() {
+            const complete = getNodeState().active.length === 0;
+            if (complete) {
+                messaging.shutdown();
+            }
+            return complete;
+        }
 
-        // shutdownProcesses({}, filterFn, actionCompleteFn);
+        shutdownProcesses({}, filterFn, actionCompleteFn);
     });
 
     messaging.register({

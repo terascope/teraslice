@@ -101,6 +101,10 @@ module.exports = function _clusterMaster(context) {
         },
         run() {
             return new Promise((resolve) => {
+                if (!running) {
+                    resolve();
+                    return;
+                }
                 const runningInterval = setInterval(() => {
                     if (!running) {
                         clearInterval(runningInterval);
@@ -112,9 +116,12 @@ module.exports = function _clusterMaster(context) {
         shutdown() {
             running = false;
             logger.info('cluster_master is shutting down');
-            const services = _.values(context.services);
-            return Promise.map(services, service => service.shutdown())
-                .then(() => clusterMasterServer.shutdown());
+            return Promise.resolve()
+                .then(() => clusterMasterServer.shutdown())
+                .then(() => {
+                    const services = _.values(context.services);
+                    return Promise.map(services, service => service.shutdown());
+                });
         }
     };
 };

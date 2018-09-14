@@ -153,7 +153,12 @@ describe('ExecutionController', () => {
                                 memory: [],
                                 size: []
                             },
-                        }).then((msg) => {
+                        })
+                        .then(async (msg) => {
+                            await bluebird.delay(100);
+                            return msg;
+                        })
+                        .then((msg) => {
                             expect(sliceComplete).toHaveBeenCalled();
                             if (msg == null) {
                                 expect(msg).not.toBeNull();
@@ -163,7 +168,7 @@ describe('ExecutionController', () => {
                                 slice_id: 'success-slice-complete',
                                 recorded: true,
                             });
-                            expect(server.queue.exists('workerId', workerId)).toBeTrue();
+                            expect(server.queue.exists('workerId', workerId)).toBeFalse();
                         });
                     });
                 });
@@ -186,7 +191,12 @@ describe('ExecutionController', () => {
                                 size: []
                             },
                             error: 'hello'
-                        }).then((msg) => {
+                        })
+                        .then(async (msg) => {
+                            await bluebird.delay(100);
+                            return msg;
+                        })
+                        .then((msg) => {
                             expect(sliceFailure).toHaveBeenCalled();
                             if (msg == null) {
                                 expect(msg).not.toBeNull();
@@ -196,7 +206,7 @@ describe('ExecutionController', () => {
                                 slice_id: 'failure-slice-complete',
                                 recorded: true,
                             });
-                            expect(server.queue.exists('workerId', workerId)).toBeTrue();
+                            expect(server.queue.exists('workerId', workerId)).toBeFalse();
                         });
                     });
                 });
@@ -222,6 +232,10 @@ describe('ExecutionController', () => {
 
                         return client.sendSliceComplete(slice)
                             .then(() => client.sendSliceComplete(slice))
+                            .then(async (msg) => {
+                                await bluebird.delay(100);
+                                return msg;
+                            })
                             .then((msg) => {
                                 if (msg == null) {
                                     expect(msg).not.toBeNull();
@@ -233,7 +247,7 @@ describe('ExecutionController', () => {
                                     duplicate: true,
                                 });
                                 expect(onSliceSuccessFn).toHaveBeenCalledTimes(1);
-                                expect(server.queue.exists('workerId', workerId)).toBeTrue();
+                                expect(server.queue.exists('workerId', workerId)).toBeFalse();
                             });
                     });
                 });
@@ -262,6 +276,7 @@ describe('ExecutionController', () => {
                         };
 
                         const stopAt = Date.now() + 2000;
+
                         const slice = client.waitForSlice(() => (Date.now() - stopAt) > 0);
 
                         await bluebird.delay(500);
@@ -274,12 +289,13 @@ describe('ExecutionController', () => {
                             return;
                         }
                         const dispatchedPromise = server.dispatchSlice(newSlice, id);
-                        expect(server.activeWorkers).toBeArrayOfSize(1);
-                        expect(server.pendingSlices).toBeArrayOfSize(1);
 
                         const dispatched = await dispatchedPromise;
                         await expect(slice).resolves.toEqual(newSlice);
                         expect(dispatched).toBeTrue();
+
+                        expect(server.pendingSlices).toBeArrayOfSize(1);
+                        expect(server.activeWorkers).toBeArrayOfSize(1);
 
                         await client.sendSliceComplete({
                             slice: newSlice,
@@ -289,8 +305,6 @@ describe('ExecutionController', () => {
                                 size: []
                             }
                         });
-
-                        expect(server.activeWorkers).toBeArrayOfSize(0);
 
                         await bluebird.delay(100);
 

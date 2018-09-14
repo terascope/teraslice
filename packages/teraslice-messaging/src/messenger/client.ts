@@ -187,9 +187,7 @@ export class Client extends Core {
     }
 
     async shutdown() {
-        this.ready = false;
-
-        if (this.socket.connected) {
+        if (this.isClientReady()) {
             try {
                 await this.send(`client:${ClientState.Shutdown}`, {}, {
                     volatile: true,
@@ -199,6 +197,8 @@ export class Client extends Core {
                 debug(`client send shutdown error ${err}`);
             }
         }
+
+        this.ready = false;
 
         this.socket.close();
         this.close();
