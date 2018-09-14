@@ -81,8 +81,6 @@ class Worker {
         };
 
         await runForever();
-
-        return this.shutdown(false);
     }
 
     async runOnce() {

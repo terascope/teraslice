@@ -144,9 +144,6 @@ describe('ExecutionController', () => {
                     exController.recover = {};
                     exController.recover.shutdown = () => Promise.reject(new Error('Recover Error'));
 
-                    exController.executionAnalytics = {};
-                    exController.executionAnalytics.shutdown = () => Promise.reject(new Error('Execution Analytics Error'));
-
                     exController.server = {};
                     exController.server.shutdown = () => Promise.reject(new Error('Execution Controller Server Error'));
 
@@ -163,7 +160,6 @@ describe('ExecutionController', () => {
                         expect(errMsg).toStartWith('Error: Failed to shutdown correctly');
                         expect(errMsg).toInclude('Store Error');
                         expect(errMsg).toInclude('Recover Error');
-                        expect(errMsg).toInclude('Execution Analytics Error');
                         expect(errMsg).toInclude('Execution Controller Server Error');
                         expect(errMsg).toInclude('Cluster Master Client Error');
                     }

@@ -215,8 +215,17 @@ class ExecutionController {
         }
 
         await this._waitForPendingSlices();
+
+        this.server.isShuttingDown = true;
+
         await this._finishExecution();
         await this.client.sendExecutionFinished();
+
+        try {
+            await this.executionAnalytics.shutdown(1000);
+        } catch (err) {
+            this.logger.error('execution analytics error');
+        }
 
         this.events.emit('worker:shutdown');
         this.logger.debug(`execution ${this.exId} is done`);
@@ -333,8 +342,6 @@ class ExecutionController {
         this.logger.debug(`execution shutdown was called for ex ${this.exId}`);
         this.server.isShuttingDown = true;
 
-        // this.slicerQueue = new Queue();
-
         this.isShuttingDown = true;
         this.isPaused = false;
 
@@ -359,12 +366,6 @@ class ExecutionController {
             } catch (err) {
                 shutdownErrs.push(err);
             }
-        }
-
-        try {
-            await this.executionAnalytics.shutdown();
-        } catch (err) {
-            shutdownErrs.push(err);
         }
 
         try {

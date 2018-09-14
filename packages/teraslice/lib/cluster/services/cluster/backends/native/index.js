@@ -68,6 +68,8 @@ module.exports = function module(context, clusterMasterServer, executionService)
         event: 'network:disconnect',
         identifier: 'node_id',
         callback: (msg, nodeId) => {
+            if (!clusterState[nodeId]) return;
+
             if (clusterState[nodeId].active.length === 0) {
                 logger.warn(`node ${nodeId} has disconnected`);
                 delete clusterState[nodeId];
@@ -414,7 +416,7 @@ module.exports = function module(context, clusterMasterServer, executionService)
     events.on('cluster:available_workers', schedulePendingRequests);
 
     function shutdown() {
-        logger.info('shutting down');
+        logger.info('native clustering shutting down');
         isShutdown = true;
         if (messaging) {
             return messaging.shutdown();

@@ -45,7 +45,6 @@ class Service {
         if (err) {
             this.logger.error('Cluster Worker shutting down due to failure!', err);
         }
-        if (this.shutdownHandler.exiting) return;
         this.shutdownHandler.exit('error', err);
     }
 }

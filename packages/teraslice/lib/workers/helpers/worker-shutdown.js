@@ -51,7 +51,10 @@ function shutdownHandler(context, shutdownFn) {
     }
 
     function exit(event, err) {
-        if (api.exiting) return;
+        if (api.exiting) {
+            logger.debug(`${assignment} already shutting down`);
+            return;
+        }
 
         api.exiting = true;
         logger.warn(`${assignment} exiting in ${shutdownTimeout}ms...`);
@@ -74,7 +77,7 @@ function shutdownHandler(context, shutdownFn) {
         });
     }
 
-    process.once('SIGINT', () => {
+    process.on('SIGINT', () => {
         logger.warn('Received process:SIGINT');
         if (!api.exiting) {
             process.exitCode = 0;
@@ -82,7 +85,7 @@ function shutdownHandler(context, shutdownFn) {
         exit('SIGINT');
     });
 
-    process.once('SIGTERM', () => {
+    process.on('SIGTERM', () => {
         logger.warn(`${assignment} received process:SIGTERM`);
         if (!api.exiting) {
             process.exitCode = 0;
@@ -90,7 +93,7 @@ function shutdownHandler(context, shutdownFn) {
         exit('SIGTERM');
     });
 
-    process.once('uncaughtException', (err) => {
+    process.on('uncaughtException', (err) => {
         logger.fatal(`${assignment} received an uncaughtException`, err);
         if (!api.exiting) {
             process.exitCode = restartOnFailure ? 1 : 0;

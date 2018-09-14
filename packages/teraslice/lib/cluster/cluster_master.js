@@ -97,6 +97,7 @@ module.exports = function _clusterMaster(context) {
                 .catch((err) => {
                     logger.error('error during service initialization', err);
                     running = false;
+                    return Promise.reject(err);
                 });
         },
         run() {
@@ -116,12 +117,13 @@ module.exports = function _clusterMaster(context) {
         shutdown() {
             running = false;
             logger.info('cluster_master is shutting down');
+            clusterMasterServer.isShuttingDown = true;
             return Promise.resolve()
-                .then(() => clusterMasterServer.shutdown())
                 .then(() => {
                     const services = _.values(context.services);
                     return Promise.map(services, service => service.shutdown());
-                });
+                })
+                .then(() => clusterMasterServer.shutdown());
         }
     };
 };

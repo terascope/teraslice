@@ -144,10 +144,15 @@ module.exports = function module(context) {
                     const errMsg = parseError(err);
                     logger.error(`Error while creating assets_service, error: ${errMsg}`);
                     running = false;
+                    return Promise.reject(err);
                 });
         },
         run() {
             return new Promise((resolve) => {
+                if (!running) {
+                    resolve();
+                    return;
+                }
                 const runningInterval = setInterval(() => {
                     if (!running) {
                         clearInterval(runningInterval);

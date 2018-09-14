@@ -122,6 +122,12 @@ export class Client extends Core {
             this.ready = false;
         });
 
+        this.socket.on('shutdown', () => {
+            debug(`server ${this.serverName} shutdown`);
+            this.ready = false;
+            this.socket.close();
+        });
+
         this.socket.on('connect', async () => {
             debug(`client ${this.clientId} connected`);
             this.ready = true;
@@ -159,6 +165,8 @@ export class Client extends Core {
     }
 
     protected async send(eventName: string, payload: Payload = {}, options: SendOptions = { response: true }): Promise<Message|null> {
+        if (this.closed) return null;
+
         if (!this.ready && !options.volatile) {
             const connected = this.socket.connected ? 'connected' : 'not-connected';
             debug(`server is not ready and ${connected}, waiting for the ready event`);
@@ -196,6 +204,7 @@ export class Client extends Core {
                 await this.send(`client:${ClientState.Shutdown}`, {}, {
                     volatile: true,
                     response: false,
+                    timeout: 100,
                 });
             } catch (err) {
                 debug(`client send shutdown error ${err}`);

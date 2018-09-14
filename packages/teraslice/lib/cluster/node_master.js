@@ -22,10 +22,12 @@ module.exports = function module(context) {
 
     const messaging = messageModule(context, logger);
     const host = messaging.getHostUrl();
+    const isShuttingDown = true;
 
     logger.info(`node ${context.sysconfig._nodeName} is attempting to connect to cluster_master: ${host}`);
 
     function sendNodeStateNow() {
+        if (isShuttingDown) return;
         const state = getNodeState();
         messaging.send({
             to: 'cluster_master',
@@ -164,16 +166,10 @@ module.exports = function module(context) {
     // this fires when entire server will be shutdown
     events.once('terafoundation:shutdown', () => {
         logger.debug('Received shutdown notice from terafoundation');
-        const filterFn = () => context.cluster.workers;
-        function actionCompleteFn() {
-            const complete = getNodeState().active.length === 0;
-            if (complete) {
-                messaging.shutdown();
-            }
-            return complete;
-        }
 
-        shutdownProcesses({}, filterFn, actionCompleteFn);
+        const filterFn = () => context.cluster.workers;
+        const isActionCompleteFn = () => _.isEmpty(getNodeState().active);
+        shutdownProcesses({}, filterFn, isActionCompleteFn, true);
     });
 
     messaging.register({
@@ -256,29 +252,31 @@ module.exports = function module(context) {
         return Promise.resolve();
     }
 
-    function shutdownWorkers(filterFn) {
+    function shutdownWorkers(signal, filterFn) {
         const allWorkersForJob = filterFn();
         _.each(allWorkersForJob, (worker) => {
             const workerID = worker.worker_id || worker.id;
             if (_.has(context.cluster.workers, workerID)) {
                 const clusterWorker = context.cluster.workers[workerID];
                 const processId = clusterWorker.process.pid;
+                if (clusterWorker.isDead()) return;
                 // if the worker has already been sent a SIGTERM signal it should send a SIGKILL
-                const signal = clusterWorker.isDead() ? 'SIGKILL' : 'SIGTERM';
                 logger.warn(`sending ${signal} to process ${processId}, assignment: ${worker.assignment}, ex_id: ${worker.ex_id}`);
                 clusterWorker.kill(signal);
             }
         });
     }
 
-    function shutdownProcesses(message, filterFn, isActionCompleteFn) {
+    function shutdownProcesses(message, filterFn, isActionCompleteFn, onlySigKill = false) {
         const intervalTime = 200;
         const needsResponse = message.response && message.to;
 
         // give a little extra time to finish shutting down
         let stopTime = config.shutdown_timeout + 3000;
 
-        shutdownWorkers(filterFn);
+        if (!onlySigKill) {
+            shutdownWorkers('SIGTERM', filterFn);
+        }
 
         const stop = setInterval(() => {
             if (isActionCompleteFn()) {
@@ -287,7 +285,7 @@ module.exports = function module(context) {
             }
             if (stopTime <= 0) {
                 clearInterval(stop);
-                shutdownWorkers(filterFn);
+                shutdownWorkers('SIGKILL', filterFn);
                 if (needsResponse) messaging.respond(message);
             }
 

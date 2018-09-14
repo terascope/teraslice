@@ -10,7 +10,6 @@ const clusterMasterMessages = {
     ipc: {
         'process:SIGTERM': 'SIGTERM',
         'process:SIGINT': 'SIGINT',
-        shutdown: 'SIGTERM'
     },
     intraProcess: {
         'network:disconnect': 'disconnect',
@@ -45,55 +44,11 @@ const nodeMasterMessages = {
         'cluster:node:state': 'cluster:node:state',
         'cluster:execution:stop': 'cluster:execution:stop',
         'cluster:node:get_port': 'cluster:node:get_port',
-        'assets:delete': 'assets:delete',
-        'execution_service:verify_assets': 'execution_service:verify_assets'
-    }
-};
-
-const slicerMessages = {
-    ipc: {
-        shutdown: 'SIGTERM',
-        'process:SIGTERM': 'SIGTERM',
-        'process:SIGINT': 'SIGINT'
-    },
-    intraProcess: {
-        'network:disconnect': 'disconnect',
-    },
-    network: {
-        'worker:ready': 'worker:ready',
-        'worker:slice:complete': 'worker:slice:complete'
-    }
-};
-
-const workerMessages = {
-    ipc: {
-        shutdown: 'SIGTERM',
-        'process:SIGTERM': 'SIGTERM',
-        'process:SIGINT': 'SIGINT',
-        'assets:loaded': 'assets:loaded'
-    },
-    intraProcess: {
-        'network:connect': 'connect',
-        'network:disconnect': 'disconnect',
-        'network:error': 'error',
-    },
-    network: {
-        'slicer:slice:new': 'slicer:slice:new',
     }
 };
 
 const assetServiceMessages = {
     ipc: {
-        shutdown: 'SIGTERM',
-        'process:SIGTERM': 'SIGTERM',
-        'process:SIGINT': 'SIGINT',
-    },
-    network: {}
-};
-
-const assetLoaderMessages = {
-    ipc: {
-        shutdown: 'SIGTERM',
         'process:SIGTERM': 'SIGTERM',
         'process:SIGINT': 'SIGINT',
     },
@@ -104,19 +59,10 @@ const assetLoaderMessages = {
 const routing = {
     cluster_master: {
         node_master: 'network',
-        assets_loader: 'ipc'
     },
     node_master: {
         cluster_process: 'ipc',
         cluster_master: 'network',
-        execution_controller: 'ipc',
-        worker: 'ipc',
-        assets_loader: 'ipc',
-        execution: 'ipc'
-    },
-    assets_loader: {
-        execution: 'ipc',
-        cluster_master: 'ipc'
     },
     assets_service: {
         cluster_master: 'ipc'
@@ -168,12 +114,6 @@ module.exports = function messaging(context, logger) {
         return send(outgoingResponse);
     }
 
-    function isExecutionProcess(process, exId) {
-        const { assignment } = process;
-        const executionProcess = assignment === 'worker' || assignment === 'execution_controller';
-        return process.ex_id === exId && executionProcess;
-    }
-
     function _findAndSend(filterFn, msg, msgHookFn) {
         const childProcesses = context.cluster.workers;
         const children = _.filter(childProcesses, filterFn);
@@ -186,21 +126,15 @@ module.exports = function messaging(context, logger) {
             if (msgHookFn) msgHookFn(childProcess);
             if (childProcess.connected) {
                 childProcess.send(msg);
+            } else {
+                logger.warn('cannot send message to process', msg);
             }
         });
     }
 
     function _sendToProcesses(msg) {
         const msgExId = msg.ex_id || _.get(msg, 'payload.ex_id');
-        if (msg.to === 'execution') {
-            const filterFn = process => isExecutionProcess(process, msgExId);
-            const msgHookFn = (process) => {
-                msg.to = process.assignment;
-                // needed for node state so it can show assets
-                if (msg.meta) process.assets = msg.meta;
-            };
-            _findAndSend(filterFn, msg, msgHookFn);
-        } else if (msgExId) {
+        if (msgExId) {
             // all processes that have the same assignment and exId
             const filterFn = process => process.assignment === msg.to && process.ex_id === msgExId;
             _findAndSend(filterFn, msg);
@@ -250,7 +184,7 @@ module.exports = function messaging(context, logger) {
                     }
                     // if network host (slicer, cluster_master) and connection
                     // or retry event, join room
-                    if (key === 'worker:ready' || key === 'node:online' || (msg.retry && key === 'worker:slice:complete')) {
+                    if (key === 'node:online') {
                         const rooms = Object.keys(socket.rooms);
                         const hasRoom = _.some(rooms, r => r === id);
                         if (!hasRoom) {
@@ -298,14 +232,8 @@ module.exports = function messaging(context, logger) {
         // middleware
         io.use((socket, next) => {
             const {
-                worker_id: workerId,
                 node_id: nodeId,
             } = socket.handshake.query;
-
-            if (workerId) {
-                logger.info(`Worker ${workerId} joining room on connect`);
-                socket.join(workerId);
-            }
 
             if (nodeId) {
                 logger.info(`Node ${nodeId} joining room on connect`);
@@ -316,7 +244,7 @@ module.exports = function messaging(context, logger) {
         });
     }
 
-    function listen({ port, server, query } = {}) {
+    function listen({ server, query } = {}) {
         messsagingOnline = true;
 
         if (config.clients.networkClient) {
@@ -345,8 +273,6 @@ module.exports = function messaging(context, logger) {
             // cluster_master
             io = require('socket.io')(server, {
                 path: '/native-clustering',
-                // transports: ['websocket'],
-                // allowUpgrades: false,
                 serveClient: false,
             });
             _attachRoomsSocketIO();
@@ -355,17 +281,6 @@ module.exports = function messaging(context, logger) {
                 logger.debug('a connection to cluster_master has been made');
                 _registerFns(socket);
             });
-        } else {
-            io = require('socket.io')();
-            _attachRoomsSocketIO();
-
-            io.on('connection', (socket) => {
-                logger.debug('a worker has connected');
-                _registerFns(socket);
-            });
-
-            io.listen(port);
-            logger.debug(`execution_controller is online and listening on port ${port}`);
         }
 
         // TODO: message queuing will be used until formal process lifecycles are implemented
@@ -387,7 +302,7 @@ module.exports = function messaging(context, logger) {
         const messageType = _determinePathForMessage(messageSent);
         if (messageType === 'network') {
             // worker and node_master communicate through broadcast to slicer/cluster_master
-            if (self === 'worker' || self === 'node_master') {
+            if (self === 'node_master') {
                 io.emit(messageSent.message, messageSent);
             } else if (self === 'cluster_master') {
                 io.sockets.in(messageSent.address).emit('networkMessage', messageSent);
@@ -400,7 +315,7 @@ module.exports = function messaging(context, logger) {
             if (processContext.connected) {
                 processContext.send(messageSent);
             } else {
-                logger.warn('cannot send to process because it is');
+                logger.warn('cannot send to process because it is not connected', messageSent);
             }
         }
     }
@@ -423,7 +338,7 @@ module.exports = function messaging(context, logger) {
             events.once(msgID, (nodeMasterData) => {
                 clearTimeout(timer);
                 if (nodeMasterData.error) {
-                    reject(`Error: ${nodeMasterData.error} occurred on node: ${nodeMasterData.__source}`);
+                    reject(new Error(`${nodeMasterData.error} occurred on node: ${nodeMasterData.__source}`));
                 } else {
                     resolve(nodeMasterData);
                 }
@@ -433,7 +348,7 @@ module.exports = function messaging(context, logger) {
             timer = setTimeout(() => {
                 // remove listener to prevent memory leaks
                 events.removeAllListeners(msgID);
-                reject(`timeout error while communicating with ${messageSent.to}, msg: ${messageSent.message}, data: ${JSON.stringify(messageSent)}`);
+                reject(new Error(`timeout error while communicating with ${messageSent.to}, msg: ${messageSent.message}, data: ${JSON.stringify(messageSent)}`));
             }, messageTimeout);
         });
     }
@@ -446,7 +361,6 @@ module.exports = function messaging(context, logger) {
             cluster_master: { networkClient: false, ipcClient: true },
             execution_controller: { networkClient: false, ipcClient: true },
             worker: { networkClient: true, ipcClient: true },
-            assets_loader: { networkClient: false, ipcClient: true },
             assets_service: { networkClient: true, ipcClient: true }
         };
 
@@ -466,11 +380,6 @@ module.exports = function messaging(context, logger) {
             if (env.assignment === 'node_master' || env.assignment === 'assets_service') {
                 host = context.sysconfig.teraslice.master_hostname;
                 ({ port } = context.sysconfig.teraslice);
-            }
-            if (env.assignment === 'worker') {
-                const job = JSON.parse(processContext.env.job);
-                host = job.slicer_hostname;
-                port = job.slicer_port;
             }
             processConfig.hostURL = _makeHostName(host, port);
         }
@@ -506,10 +415,7 @@ module.exports = function messaging(context, logger) {
     function _getMessages(type) {
         if (type === 'cluster_master') return clusterMasterMessages;
         if (type === 'node_master') return nodeMasterMessages;
-        if (type === 'execution_controller') return slicerMessages;
-        if (type === 'worker') return workerMessages;
         if (type === 'assets_service') return assetServiceMessages;
-        if (type === 'assets_loader') return assetLoaderMessages;
         return new Error(`could not find message model for type: ${type}`);
     }
 
@@ -586,7 +492,7 @@ module.exports = function messaging(context, logger) {
         process.on('message', handleIpcMessages());
     } else {
         processContext.on('online', (worker) => {
-            logger.debug('worker has come online');
+            logger.debug('worker process has come online');
             if (childHookFn) {
                 childHookFn();
             }
@@ -631,7 +537,7 @@ module.exports = function messaging(context, logger) {
     }
 
     function shutdown() {
-        if (io) {
+        if (io && _.isFunction(io.close)) {
             io.close();
             return Promise.delay(100);
         }

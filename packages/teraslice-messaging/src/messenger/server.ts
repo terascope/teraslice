@@ -150,8 +150,7 @@ export class Server extends Core {
             clearInterval(this._cleanupClients);
         }
 
-        this._clients = {};
-        this._clientSendFns = {};
+        this.server.volatile.emit('shutdown');
 
         await new Promise((resolve) => {
             this.server.close(() => {
@@ -164,6 +163,9 @@ export class Server extends Core {
                 resolve();
             });
         });
+
+        this._clients = {};
+        this._clientSendFns = {};
 
         super.close();
     }
@@ -423,6 +425,12 @@ export class Server extends Core {
         const { clientId } = client;
 
         this._clientSendFns[clientId] = async (eventName, payload = {}, options: i.SendOptions = { response: true }) => {
+            if (this.closed) return null;
+
+            if (this.isShuttingDown) {
+                options.volatile = true;
+            }
+
             if (!options.volatile) {
                 await this.waitForClientReady(clientId);
             }

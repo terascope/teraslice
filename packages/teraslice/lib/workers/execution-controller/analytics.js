@@ -103,13 +103,13 @@ class ExecutionAnalytics {
         return _.cloneDeep(this.executionAnalytics);
     }
 
-    async shutdown() {
+    async shutdown(timeout) {
         this.sendingAnalytics = false;
 
-        await this._pushAnalytics();
+        await this._pushAnalytics(timeout);
     }
 
-    async _pushAnalytics() {
+    async _pushAnalytics(timeout = Math.round(this.analyticsRate / 2)) {
         // save a copy of what we push so we can emit diffs
         const diffs = {};
         const copy = {};
@@ -118,7 +118,7 @@ class ExecutionAnalytics {
             copy[field] = _.get(this.executionAnalytics, field);
         });
 
-        await this.client.sendClusterAnalytics(diffs);
+        await this.client.sendClusterAnalytics(diffs, timeout);
 
         this.pushedAnalytics = copy;
     }

@@ -22,7 +22,7 @@ function getTerasliceConfig(sysconfig) {
         schema_formats: formats,
         cluster_name: clusterName,
         logging_connection: loggingConnection,
-        shutdownMessaging: true,
+        shutdownMessaging: false,
         start_workers: false,
     }, sysconfig);
 }

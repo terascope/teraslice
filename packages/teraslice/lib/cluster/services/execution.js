@@ -79,6 +79,7 @@ module.exports = function module(context, { clusterMasterServer }) {
                     logger.warn(`marking execution ex_id: ${execution.ex_id}, job_id: ${execution.job_id} as terminated`);
                     const exId = execution.ex_id;
                     const { hostname } = context.sysconfig.teraslice;
+
                     // need to exclude sending a stop to cluster master host, the shutdown event
                     // has already been propagated this can cause a condition of it waiting for
                     // stop to return but it already has which pauses this service shutdown
