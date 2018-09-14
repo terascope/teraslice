@@ -388,7 +388,7 @@ module.exports = function module(context, clusterMasterServer, executionService)
                     .catch(() => {
                         retryCount += 1;
                         if (retryCount >= slicerAllocationAttempts) {
-                            reject(`failed to allocate execution_controller to nodes: ${JSON.stringify(errorNodes)}`);
+                            reject(new Error(`failed to allocate execution_controller to nodes: ${JSON.stringify(errorNodes)}`));
                         } else {
                             retry(errorNodes);
                         }

@@ -75,10 +75,10 @@ class ExecutionController {
         this.workerDisconnectTimeout = workerDisconnectTimeout;
         this.recoverExecution = recoverExecution;
         this.recoveryComplete = !recoverExecution;
+        this.stores = {};
+
         this.slicersReady = false;
         this.slicesEnqueued = 0;
-
-        this.stores = {};
         this.slicers = [];
         this.slicersDoneCount = 0;
         this.totalSlicers = 0;
@@ -87,7 +87,6 @@ class ExecutionController {
         this.isShuttingDown = false;
         this.isInitialized = false;
         this.isStarted = false;
-        this.isProcessing = false;
         this.isDoneProcessing = false;
         this.isExecutionFinished = false;
         this.isExecutionDone = false;
@@ -216,14 +215,13 @@ class ExecutionController {
         }
 
         await this._waitForPendingSlices();
-        await this.client.sendExecutionFinished();
-        await this._waitForWorkersToExit();
         await this._finishExecution();
+        await this.client.sendExecutionFinished();
 
         this.events.emit('worker:shutdown');
         this.logger.debug(`execution ${this.exId} is done`);
 
-        // await this.shutdown(true);
+        await this._waitForWorkersToExit();
     }
 
     async resume() {
@@ -417,7 +415,6 @@ class ExecutionController {
     }
 
     async _runExecution() {
-        const { exStore } = this.stores;
         this._startWorkConnectWatchDog();
 
         this.slicerAnalytics = makeSliceAnalytics(this.context, this.executionContext);
@@ -426,11 +423,6 @@ class ExecutionController {
         this.startTime = Date.now();
 
         this.executionAnalytics.start();
-
-        await Promise.all([
-            exStore.setStatus(this.exId, 'running'),
-            this.client.sendAvailable()
-        ]);
 
         if (this.recoverExecution) {
             await this._recoverSlicesInit();
@@ -451,7 +443,6 @@ class ExecutionController {
     }
 
     async _processSlices() {
-        this.isProcessing = true;
         const statsInterval = setInterval(() => {
             if (this.isShuttingDown) {
                 clearInterval(statsInterval);
@@ -462,21 +453,27 @@ class ExecutionController {
             this.executionAnalytics.set('queued', this.slicerQueue.size());
         }, 500);
 
+        const loop = this._processLoop();
+
+        await Promise.all([
+            this.stores.exStore.setStatus(this.exId, 'running'),
+            this.client.sendAvailable(),
+        ]);
+
         try {
-            await this._processLoop();
+            await loop;
         } catch (err) {
             this.logger.error('Error processing slices', err);
         }
 
         clearInterval(statsInterval);
 
-        this.isProcessing = false;
         this.logger.debug(`execution ${this.exId} is done processing slices`);
     }
 
     async _processLoop() {
         if (this.isExecutionDone) {
-            return false;
+            return null;
         }
 
         await immediate();
@@ -519,6 +516,7 @@ class ExecutionController {
         }
 
         if (this.slicersDone && this.slicerQueue.size() === 0) {
+            this.isDoneProcessing = true;
             return true;
         }
 
@@ -681,7 +679,7 @@ class ExecutionController {
 
         const executionStats = this.executionAnalytics.getAnalytics();
 
-        if (this.isShuttingDown) {
+        if (!this.isDoneProcessing) {
             // if status is stopping or stopped, only update the execution metadata
             const status = await exStore.getStatus(this.exId);
             const isStopping = status === 'stopping' || status === 'stopped';
@@ -772,7 +770,9 @@ class ExecutionController {
     }
 
     async _waitForPendingSlices() {
-        if (!this.server.pendingSlices.length) return;
+        if (!this.server.pendingSlices.length) {
+            return Promise.delay(50);
+        }
 
         const logPendingSlices = _.throttle(() => {
             this.logger.debug(`waiting for ${this.server.pendingSlices.length} slices to finish`);
@@ -796,6 +796,7 @@ class ExecutionController {
         };
 
         await checkPendingSlices();
+        return Promise.delay(50);
     }
 
     _waitForExecutionFinished() {

@@ -146,12 +146,16 @@ export class Client extends Core {
 
     async sendAvailable(payload?: Payload) {
         this.available = true;
-        return this.send(`client:${ClientState.Available}`, payload);
+        return this.send(`client:${ClientState.Available}`, payload, {
+            volatile: true,
+        });
     }
 
     async sendUnavailable(payload?: Payload) {
         this.available = false;
-        return this.send(`client:${ClientState.Unavailable}`, payload);
+        return this.send(`client:${ClientState.Unavailable}`, payload, {
+            volatile: true,
+        });
     }
 
     protected async send(eventName: string, payload: Payload = {}, options: SendOptions = { response: true }): Promise<Message|null> {
