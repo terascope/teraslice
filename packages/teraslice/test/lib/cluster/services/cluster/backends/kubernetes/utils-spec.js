@@ -8,7 +8,7 @@ describe('K8s Utils', () => {
             const exServiceTemplate = makeTemplate('services', 'execution_controller');
             const config = {
                 name: 'example',
-                jobName: 'example-job',
+                jobNameLabel: 'example-job',
                 clusterName: 'example-cluster',
                 exId: 'some-ex-id',
                 jobId: 'some-job-id',
@@ -23,7 +23,7 @@ describe('K8s Utils', () => {
                     nodeType: config.nodeType,
                     exId: config.exId,
                     jobId: config.jobId,
-                    jobName: config.jobName,
+                    jobName: config.jobNameLabel,
                     clusterName: config.clusterName
                 },
                 name: config.name,
@@ -41,7 +41,7 @@ describe('K8s Utils', () => {
             const exJobTemplate = makeTemplate('jobs', 'execution_controller');
             const config = {
                 name: 'example',
-                jobName: 'example-job',
+                jobNameLabel: 'example-job',
                 clusterName: 'example-cluster',
                 exId: 'some-ex-id',
                 jobId: 'some-job-id',
@@ -60,7 +60,7 @@ describe('K8s Utils', () => {
                     nodeType: config.nodeType,
                     exId: config.exId,
                     jobId: config.jobId,
-                    jobName: config.jobName,
+                    jobName: config.jobNameLabel,
                     clusterName: config.clusterName
                 },
                 name: config.name,
@@ -98,7 +98,7 @@ describe('K8s Utils', () => {
             const workerDeploymentTemplate = makeTemplate('deployments', 'worker');
             const config = {
                 name: 'example',
-                jobName: 'example-job',
+                jobNameLabel: 'example-job',
                 clusterName: 'example-cluster',
                 exId: 'some-ex-id',
                 jobId: 'some-job-id',
@@ -118,7 +118,7 @@ describe('K8s Utils', () => {
                     nodeType: config.nodeType,
                     exId: config.exId,
                     jobId: config.jobId,
-                    jobName: config.jobName,
+                    jobName: config.jobNameLabel,
                     clusterName: config.clusterName
                 },
                 name: config.name,
