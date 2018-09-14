@@ -1164,29 +1164,6 @@ base@^0.11.1:
     mixin-deep "^1.2.0"
     pascalcase "^0.1.1"
 
-baucis-json@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/baucis-json/-/baucis-json-1.0.0.tgz#bfc7111c62c25c2c45cbfc655a6dcf2575410029"
-  dependencies:
-    event-stream "~3.2.2"
-
-baucis-links@^1.0.0:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/baucis-links/-/baucis-links-1.0.1.tgz#b955ffea824036038fbbfb6403ff6a78dc4d9a87"
-  dependencies:
-    deco "^0.12.3"
-
-baucis@1.6.5:
-  version "1.6.5"
-  resolved "https://registry.yarnpkg.com/baucis/-/baucis-1.6.5.tgz#c5e3e2f80bc1d734680e6d0d3aad4870b45904ab"
-  dependencies:
-    baucis-json "^1.0.0"
-    baucis-links "^1.0.0"
-    deco "^0.12.0"
-    event-stream "^3.3.0"
-    rest-error "^1.2.0"
-    semver "^4.3.4"
-
 bcrypt-pbkdf@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/bcrypt-pbkdf/-/bcrypt-pbkdf-1.0.2.tgz#a4301d389b6a43f9b67ff3ca11a3f6637e360e9e"
@@ -1845,7 +1822,7 @@ convert-source-map@^1.4.0, convert-source-map@^1.5.1:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/convert-source-map/-/convert-source-map-1.5.1.tgz#b8278097b9bc229365de5c62cf5fcaed8b5599e5"
 
-convict@^4.1.0, convict@^4.3.2:
+convict@^4.3.2:
   version "4.3.2"
   resolved "https://registry.yarnpkg.com/convict/-/convict-4.3.2.tgz#0b3ff1e96114983a7266d599d2e028bb4cdc5692"
   dependencies:
@@ -2039,12 +2016,6 @@ decamelize@^2.0.0:
   resolved "https://registry.yarnpkg.com/decamelize/-/decamelize-2.0.0.tgz#656d7bbc8094c4c788ea53c5840908c9c7d063c7"
   dependencies:
     xregexp "4.0.0"
-
-deco@^0.12.0, deco@^0.12.3, deco@~0.12.0:
-  version "0.12.3"
-  resolved "https://registry.yarnpkg.com/deco/-/deco-0.12.3.tgz#2d6dfe1d182d9a9141f66cd993916fc3636875bb"
-  dependencies:
-    requireindex "~1.1.0"
 
 decode-uri-component@^0.2.0:
   version "0.2.0"
@@ -2297,7 +2268,7 @@ duplexer3@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/duplexer3/-/duplexer3-0.1.4.tgz#ee01dd1cac0ed3cbc7fdbea37dc0a8f1ce002ce2"
 
-duplexer@^0.1.1, duplexer@~0.1.1:
+duplexer@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/duplexer/-/duplexer-0.1.1.tgz#ace6ff808c1ce66b57d1ebf97977acb02334cfc1"
 
@@ -2639,30 +2610,6 @@ esutils@^2.0.2:
 etag@~1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
-
-event-stream@^3.3.0:
-  version "3.3.4"
-  resolved "http://registry.npmjs.org/event-stream/-/event-stream-3.3.4.tgz#4ab4c9a0f5a54db9338b4c34d86bfce8f4b35571"
-  dependencies:
-    duplexer "~0.1.1"
-    from "~0"
-    map-stream "~0.1.0"
-    pause-stream "0.0.11"
-    split "0.3"
-    stream-combiner "~0.0.4"
-    through "~2.3.1"
-
-event-stream@~3.2.2:
-  version "3.2.2"
-  resolved "http://registry.npmjs.org/event-stream/-/event-stream-3.2.2.tgz#f79f9984c07ee3fd9b44ffb3cd0422b13e24084d"
-  dependencies:
-    duplexer "~0.1.1"
-    from "~0"
-    map-stream "~0.1.0"
-    pause-stream "0.0.11"
-    split "0.3"
-    stream-combiner "~0.0.4"
-    through "~2.3.1"
 
 exec-sh@^0.2.0:
   version "0.2.2"
@@ -3038,10 +2985,6 @@ from2@^2.1.0, from2@^2.1.1:
   dependencies:
     inherits "^2.0.1"
     readable-stream "^2.0.0"
-
-from@~0:
-  version "0.1.7"
-  resolved "https://registry.yarnpkg.com/from/-/from-0.1.7.tgz#83c60afc58b9c56997007ed1a768b3ab303a44fe"
 
 fs-constants@^1.0.0:
   version "1.0.0"
@@ -4789,11 +4732,11 @@ lodash@2.4.2:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-2.4.2.tgz#fadd834b9683073da179b3eae6d9c0d15053f73e"
 
-lodash@4.x, lodash@^4.12.0, lodash@^4.13.1, lodash@^4.14.0, lodash@^4.17.10, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.2.1, lodash@~4.17.5:
+lodash@4.x, lodash@^4.12.0, lodash@^4.13.1, lodash@^4.14.0, lodash@^4.17.10, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.2.1:
   version "4.17.10"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.10.tgz#1b7793cf7259ea38fb3661d4d38b3260af8ae4e7"
 
-lodash@^4.17.11:
+lodash@^4.17.11, lodash@~4.17.11:
   version "4.17.11"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
 
@@ -4882,10 +4825,6 @@ map-obj@^1.0.0, map-obj@^1.0.1:
 map-obj@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/map-obj/-/map-obj-2.0.0.tgz#a65cd29087a92598b8791257a523e021222ac1f9"
-
-map-stream@~0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/map-stream/-/map-stream-0.1.0.tgz#e56aa94c4c8055a16404a0674b78f215f7c8e194"
 
 map-visit@^1.0.0:
   version "1.0.0"
@@ -5929,12 +5868,6 @@ pathval@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/pathval/-/pathval-1.1.0.tgz#b942e6d4bde653005ef6b71361def8727d0645e0"
 
-pause-stream@0.0.11:
-  version "0.0.11"
-  resolved "https://registry.yarnpkg.com/pause-stream/-/pause-stream-0.0.11.tgz#fe5a34b0cbce12b5aa6a2b403ee2e73b602f1445"
-  dependencies:
-    through "~2.3"
-
 pend@~1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/pend/-/pend-1.2.0.tgz#7a57eb550a6783f9115331fcf4663d5c8e007a50"
@@ -6501,10 +6434,6 @@ require_optional@~1.0.0:
     resolve-from "^2.0.0"
     semver "^5.1.0"
 
-requireindex@~1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/requireindex/-/requireindex-1.1.0.tgz#e5404b81557ef75db6e49c5a72004893fe03e162"
-
 requizzle@~0.2.1:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/requizzle/-/requizzle-0.2.1.tgz#6943c3530c4d9a7e46f1cddd51c158fc670cdbde"
@@ -6552,12 +6481,6 @@ responselike@1.0.2:
   resolved "https://registry.yarnpkg.com/responselike/-/responselike-1.0.2.tgz#918720ef3b631c5642be068f15ade5a46f4ba1e7"
   dependencies:
     lowercase-keys "^1.0.0"
-
-rest-error@^1.2.0:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/rest-error/-/rest-error-1.3.1.tgz#7c159dfc8855630a8b7d4f77e2d73c9f43b86b6e"
-  dependencies:
-    deco "~0.12.0"
 
 restore-cursor@^2.0.0:
   version "2.0.0"
@@ -6668,10 +6591,6 @@ seek-bzip@^1.0.5:
 "semver@2 || 3 || 4 || 5", "semver@2.x || 3.x || 4 || 5", semver@^5.1.0, semver@^5.3.0, semver@^5.4.1, semver@^5.5.0:
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.5.0.tgz#dc4bbc7a6ca9d916dee5d43516f0092b58f7b8ab"
-
-semver@^4.3.4:
-  version "4.3.6"
-  resolved "https://registry.yarnpkg.com/semver/-/semver-4.3.6.tgz#300bc6e0e86374f7ba61068b5b1ecd57fc6532da"
 
 semver@^5.5.1:
   version "5.5.1"
@@ -6970,12 +6889,6 @@ split2@^2.0.0:
   dependencies:
     through2 "^2.0.2"
 
-split@0.3:
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/split/-/split-0.3.3.tgz#cd0eea5e63a211dfff7eb0f091c4133e2d0dd28f"
-  dependencies:
-    through "2"
-
 split@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/split/-/split-1.0.1.tgz#605bd9be303aa59fb35f9229fbea0ddec9ea07d9"
@@ -7033,12 +6946,6 @@ statuses@~1.4.0:
 stealthy-require@^1.1.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/stealthy-require/-/stealthy-require-1.1.1.tgz#35b09875b4ff49f26a777e509b3090a3226bf24b"
-
-stream-combiner@~0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/stream-combiner/-/stream-combiner-0.0.4.tgz#4d5e433c185261dde623ca3f44c586bcf5c4ad14"
-  dependencies:
-    duplexer "~0.1.1"
 
 stream-each@^1.1.0:
   version "1.2.3"
@@ -7227,25 +7134,23 @@ temp-write@^3.4.0:
     uuid "^3.0.1"
 
 terafoundation@terascope/terafoundation#shutdown-improvements:
-  version "0.2.1"
-  resolved "https://codeload.github.com/terascope/terafoundation/tar.gz/9075959421d69f5fbeb8693d1bb23fefef333727"
+  version "0.3.0"
+  resolved "https://codeload.github.com/terascope/terafoundation/tar.gz/f688ec437042608f2b9e281242aedd538848d8df"
   dependencies:
     agentkeepalive "^3.4.1"
-    baucis "1.6.5"
-    bluebird "^3.5.1"
+    bluebird "^3.5.2"
     bunyan "^1.8.12"
     bunyan-elasticsearch "1.0.1"
-    convict "^4.1.0"
+    convict "^4.3.2"
     elasticsearch "^14.2.1"
-    express "^4.16.3"
     js-yaml "^3.11.0"
-    lodash "~4.17.5"
+    lodash "~4.17.11"
     moment "^2.21.0"
     mongoose "~4.13.12"
     node-statsd "0.1.1"
     node-webhdfs "^0.2.1"
     redis "^2.8.0"
-    yargs "^11.0.0"
+    yargs "^12.0.2"
 
 test-exclude@^4.2.1:
   version "4.2.1"
@@ -7276,7 +7181,7 @@ through2@^2.0.0, through2@^2.0.2:
     readable-stream "^2.1.5"
     xtend "~4.0.1"
 
-through@2, "through@>=2.2.7 <3", through@^2.3.4, through@^2.3.6, through@~2.3, through@~2.3.1:
+through@2, "through@>=2.2.7 <3", through@^2.3.4, through@^2.3.6:
   version "2.3.8"
   resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
 

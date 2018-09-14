@@ -106,7 +106,6 @@ class Slice {
             throw new Error(prependErrorMsg('Failure to update success state', _err));
         }
 
-
         events.emit('slice:success', slice);
 
         const { ex_id: exId } = this.executionContext;

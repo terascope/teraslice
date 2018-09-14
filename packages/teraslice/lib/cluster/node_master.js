@@ -43,37 +43,31 @@ module.exports = function module(context) {
 
     function allocateWorkers(count, exConfig, fn) {
         pendingAllocations += count;
-        sendNodeStateNow();
+        sendNodeState();
 
         return loadAssetsIfNeeded(exConfig.job, exConfig.ex_id)
             .then(() => {
                 if (mutex.isLocked()) {
                     logger.warn('waiting for allocation lock');
                 }
-                return mutex.runExclusive(() => {
+                return mutex.runExclusive(async () => {
                     logger.info(`allocating ${count} workers`);
-                    return Promise.resolve(fn());
+                    const workers = await fn();
+                    pendingAllocations -= count;
+                    sendNodeState();
+                    logger.info(`allocated ${count} workers`);
+                    return workers;
                 });
             })
-            // IF we want to make sure the process is online
-            // .then((workers) => {
-            //     const promises = _.map(workers, (worker) => {
-            //         if (worker.isConnected()) {
-            //             return Promise.resolve();
-            //         }
-            //         return new Promise(resolve => worker.once('online', () => resolve()));
-            //     });
-            //     return Promise.all(promises);
-            // })
-            .then((workers) => {
-                pendingAllocations -= count;
-                sendNodeStateNow();
+            .then(async (workers) => {
+                const promises = _.map(workers, async (worker) => {
+                    if (worker.isConnected()) {
+                        return true;
+                    }
+                    return new Promise(resolve => worker.once('online', () => resolve(true)));
+                });
+                await Promise.all(promises);
                 return workers.length;
-            })
-            .catch((err) => {
-                pendingAllocations -= count;
-                sendNodeStateNow();
-                return Promise.reject(err);
             });
     }
 

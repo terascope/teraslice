@@ -81,6 +81,7 @@ class ExecutionController {
         this.slicesEnqueued = 0;
         this.slicers = [];
         this.slicersDoneCount = 0;
+        this.dispatching = 0;
         this.totalSlicers = 0;
         this.isPaused = false;
         this.isShutdown = false;
@@ -216,21 +217,19 @@ class ExecutionController {
 
         await this._waitForPendingSlices();
 
-        this.server.isShuttingDown = true;
+        this.events.emit('worker:shutdown');
 
+        // help the workers go offline
+        this.server.isShuttingDown = true;
         await this._finishExecution();
-        await this.client.sendExecutionFinished();
 
         try {
-            await this.executionAnalytics.shutdown(1000);
+            await this.executionAnalytics.shutdown();
         } catch (err) {
             this.logger.error('execution analytics error');
         }
 
-        this.events.emit('worker:shutdown');
         this.logger.debug(`execution ${this.exId} is done`);
-
-        await this._waitForWorkersToExit();
     }
 
     async resume() {
@@ -353,6 +352,15 @@ class ExecutionController {
         const error = await this._waitForExecutionFinished();
         if (error) {
             shutdownErrs.push(error);
+        }
+
+        try {
+            await Promise.all([
+                this.client.sendExecutionFinished(),
+                this._waitForWorkersToExit(),
+            ]);
+        } catch (err) {
+            shutdownErrs.push(err);
         }
 
         if (!this.isExecutionDone) {
@@ -516,7 +524,7 @@ class ExecutionController {
             return this._processLoop();
         }
 
-        if (this.slicersDone && this.slicerQueue.size() === 0) {
+        if (!this.dispatching && this.slicersDone && this.slicerQueue.size() === 0) {
             this.isDoneProcessing = true;
             return true;
         }
@@ -551,14 +559,8 @@ class ExecutionController {
     }
 
     async _dispatchSlice(slice, workerId) {
-        let dispatched;
-
-        try {
-            dispatched = await this.server.dispatchSlice(slice, workerId);
-        } catch (err) {
-            this.logger.error('Error dispatching slices to worker', err);
-            return;
-        }
+        this.dispatching += 1;
+        const dispatched = await this.server.dispatchSlice(slice, workerId);
 
         if (!dispatched) {
             this.slicerQueue.unshift(slice);
@@ -566,6 +568,7 @@ class ExecutionController {
         } else {
             this.logger.debug(`dispatched slice ${slice.slice_id} to worker ${workerId}`);
         }
+        this.dispatching -= 1;
     }
 
     async _slicerInit() {
@@ -771,8 +774,9 @@ class ExecutionController {
     }
 
     async _waitForPendingSlices() {
+        const delay = process.env.NODE_ENV === 'test' ? 100 : 1000;
         if (!this.server.pendingSlices.length) {
-            return Promise.delay(50);
+            return Promise.delay(delay);
         }
 
         const logPendingSlices = _.throttle(() => {
@@ -786,7 +790,7 @@ class ExecutionController {
             if (this.isShuttingDown) return;
 
             if (!this.server.pendingSlices.length) {
-                this.logger.trace('workers all workers have disconnected');
+                this.logger.debug('all pending slices are done');
                 return;
             }
 
@@ -797,7 +801,7 @@ class ExecutionController {
         };
 
         await checkPendingSlices();
-        return Promise.delay(50);
+        return Promise.delay(delay);
     }
 
     _waitForExecutionFinished() {

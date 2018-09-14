@@ -91,23 +91,18 @@ export class Server extends core.Server {
         this._activeWorkers = _.union(this._activeWorkers, [workerId]);
 
         let dispatched = false;
-        let error : Error|undefined;
 
         try {
             const response = await this.send(workerId, 'execution:slice:new', slice);
             dispatched = _.get(response, 'payload.willProcess', false);
-        } catch (err) {
-            error = err;
+        } catch (error) {
+            debug('got error when dispatching slice', error, slice);
         }
 
         if (!dispatched) {
             debug(`failure to dispatch slice ${sliceId} to worker ${workerId}`);
             _.pull(this._activeWorkers, workerId);
             _.pull(this._pendingSlices, sliceId);
-        }
-
-        if (error) {
-            throw error;
         }
 
         return dispatched;

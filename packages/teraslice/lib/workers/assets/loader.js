@@ -27,14 +27,14 @@ class AssetLoader {
         } = this;
         const { logger } = context;
 
-        this.logger.info('Loading assets...');
-
         // no need to load assets
         if (_.isEmpty(assets)) return [];
 
+        this.logger.info('Loading assets...');
+
         this.assetStore = await makeAssetStore(context);
 
-        let idArray;
+        let idArray = [];
 
         try {
             idArray = await this.assetStore.parseAssetsArray(assets);

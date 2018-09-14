@@ -145,16 +145,10 @@ module.exports = function module(context, { clusterMasterServer }) {
         } else {
             logger.debug(`execution ${exId} finished, shutting down execution`);
         }
-        return getExecutionContext(exId)
-            .then((execution) => {
-                const isTerminal = _isTerminalStatus(execution);
-                if (isTerminal) return null;
 
-                return clusterService.stopExecution(exId);
-            })
-            .catch((error) => {
-                logger.error(`error stopping execution ${error}`);
-            });
+        return clusterService.stopExecution(exId).catch((error) => {
+            logger.error(`error finishing the execution ${error}`);
+        });
     }
 
     function stopExecution(exId, timeout, excludeNode) {

@@ -49,6 +49,7 @@ export class Client extends core.Client {
         this.socket.on('execution:slice:new', this.handleResponse('execution:slice:new', (msg: core.Message) => {
             const willProcess = this.available;
             if (willProcess) {
+                this.available = false;
                 this.emit('execution:slice:new', msg.payload);
             }
 
@@ -91,8 +92,6 @@ export class Client extends core.Client {
         });
 
         if (!slice) return;
-
-        this.available = false;
 
         return slice as Slice;
     }
