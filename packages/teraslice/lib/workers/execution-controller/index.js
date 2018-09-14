@@ -774,9 +774,8 @@ class ExecutionController {
     }
 
     async _waitForPendingSlices() {
-        const delay = process.env.NODE_ENV === 'test' ? 100 : 1000;
         if (!this.server.pendingSlices.length) {
-            return Promise.delay(delay);
+            return Promise.delay(100);
         }
 
         const logPendingSlices = _.throttle(() => {
@@ -801,7 +800,7 @@ class ExecutionController {
         };
 
         await checkPendingSlices();
-        return Promise.delay(delay);
+        return Promise.delay(100);
     }
 
     _waitForExecutionFinished() {
