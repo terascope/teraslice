@@ -52,7 +52,8 @@ class Slice {
             interval: 100,
         };
 
-        await this._checkSlice();
+        // We may not need to check this
+        // await this._checkSlice();
         let result;
 
         try {

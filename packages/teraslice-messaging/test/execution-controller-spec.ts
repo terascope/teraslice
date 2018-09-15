@@ -116,10 +116,6 @@ describe('ExecutionController', () => {
             expect(server.activeWorkers).toBeArrayOfSize(0);
         });
 
-        it('should have no pending slices', () => {
-            expect(server.pendingSlices).toBeArrayOfSize(0);
-        });
-
         it('should not call client.onExecutionFinished', () => {
             expect(executionFinishedFn).not.toHaveBeenCalled();
         });
@@ -294,7 +290,6 @@ describe('ExecutionController', () => {
                         await expect(slice).resolves.toEqual(newSlice);
                         expect(dispatched).toBeTrue();
 
-                        expect(server.pendingSlices).toBeArrayOfSize(1);
                         expect(server.activeWorkers).toBeArrayOfSize(1);
 
                         await client.sendSliceComplete({
@@ -308,7 +303,6 @@ describe('ExecutionController', () => {
 
                         await bluebird.delay(100);
 
-                        expect(server.pendingSlices).toBeArrayOfSize(0);
                         expect(server.activeWorkers).toBeArrayOfSize(0);
                     });
                 });

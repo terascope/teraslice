@@ -9,7 +9,6 @@ const debug = debugFn('teraslice-messaging:execution-controller:server');
 
 export class Server extends core.Server {
     private _activeWorkers: string[];
-    private _pendingSlices: string[];
     queue: Queue;
 
     constructor(opts: i.ServerOptions) {
@@ -38,7 +37,6 @@ export class Server extends core.Server {
 
         this.queue = new Queue();
         this._activeWorkers = [];
-        this._pendingSlices = [];
     }
 
     async start() {
@@ -67,7 +65,6 @@ export class Server extends core.Server {
         });
 
         this._activeWorkers = [];
-        this._pendingSlices = [];
 
         await super.shutdown();
     }
@@ -87,7 +84,6 @@ export class Server extends core.Server {
         const sliceId = slice.slice_id;
 
         // first assume the slice is dispatched
-        this._pendingSlices = _.union(this._pendingSlices, [sliceId]);
         this._activeWorkers = _.union(this._activeWorkers, [workerId]);
 
         let dispatched = false;
@@ -102,7 +98,6 @@ export class Server extends core.Server {
         if (!dispatched) {
             debug(`failure to dispatch slice ${sliceId} to worker ${workerId}`);
             _.pull(this._activeWorkers, workerId);
-            _.pull(this._pendingSlices, sliceId);
         }
 
         return dispatched;
@@ -125,10 +120,6 @@ export class Server extends core.Server {
 
     get activeWorkers(): string[] {
         return _.clone(this._activeWorkers);
-    }
-
-    get pendingSlices(): string[] {
-        return _.clone(this._pendingSlices);
     }
 
     get workerQueueSize(): number {
@@ -154,7 +145,6 @@ export class Server extends core.Server {
             this.updateClientState(workerId, {
                 state: core.ClientState.Unavailable,
             });
-            _.pull(this._pendingSlices, sliceId);
 
             return _.pickBy({
                 duplicate: alreadyCompleted,

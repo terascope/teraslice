@@ -44,31 +44,27 @@ module.exports = function module(context) {
     function allocateWorkers(count, exConfig, fn) {
         pendingAllocations += count;
         sendNodeState();
+        if (mutex.isLocked()) {
+            logger.warn('waiting for allocation lock');
+        }
+        return mutex.runExclusive(async () => {
+            pendingAllocations -= count;
 
-        return loadAssetsIfNeeded(exConfig.job, exConfig.ex_id)
-            .then(() => {
-                if (mutex.isLocked()) {
-                    logger.warn('waiting for allocation lock');
-                }
-                return mutex.runExclusive(async () => {
-                    logger.info(`allocating ${count} workers`);
-                    const workers = await fn();
-                    pendingAllocations -= count;
-                    sendNodeState();
-                    logger.info(`allocated ${count} workers`);
-                    return workers;
-                });
-            })
-            .then(async (workers) => {
-                const promises = _.map(workers, async (worker) => {
-                    if (worker.isConnected()) {
-                        return true;
-                    }
-                    return new Promise(resolve => worker.once('online', () => resolve(true)));
-                });
-                await Promise.all(promises);
-                return workers.length;
-            });
+            logger.info(`allocating ${count} workers...`);
+            let workers = [];
+
+            try {
+                await loadAssetsIfNeeded(exConfig.job, exConfig.ex_id);
+                workers = await fn();
+            } catch (err) {
+                throw err;
+            } finally {
+                sendNodeStateNow();
+            }
+
+            logger.info(`allocated ${workers.length} out of the requested ${count} workers`);
+            return workers.length;
+        });
     }
 
     function canAllocateWorkers(requestedWorkers) {

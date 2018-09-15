@@ -210,7 +210,7 @@ describe('Slice', () => {
         });
     });
 
-    describe('when given a completed slice', () => {
+    xdescribe('when given a completed slice', () => {
         let slice;
         let testContext;
 

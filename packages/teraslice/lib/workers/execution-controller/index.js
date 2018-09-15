@@ -83,6 +83,7 @@ class ExecutionController {
         this.slicersDoneCount = 0;
         this.dispatching = 0;
         this.totalSlicers = 0;
+        this.pendingSlices = 0;
         this.isPaused = false;
         this.isShutdown = false;
         this.isShuttingDown = false;
@@ -173,6 +174,7 @@ class ExecutionController {
 
             this.logger.info(`worker ${workerId} has completed its slice`, response);
             this.events.emit('slice:success', response);
+            this.pendingSlices -= 1;
         });
 
         this.server.onSliceFailure((workerId, response) => {
@@ -181,6 +183,7 @@ class ExecutionController {
 
             this.logger.error(`worker: ${workerId} has failure completing its slice`, response);
             this.events.emit('slice:failure', response);
+            this.pendingSlices -= 1;
         });
 
         this.events.on('slicer:execution:update', ({ update }) => {
@@ -223,11 +226,6 @@ class ExecutionController {
         this.server.isShuttingDown = true;
         await this._finishExecution();
 
-        try {
-            await this.executionAnalytics.shutdown();
-        } catch (err) {
-            this.logger.error('execution analytics error');
-        }
 
         this.logger.debug(`execution ${this.exId} is done`);
     }
@@ -374,6 +372,12 @@ class ExecutionController {
             } catch (err) {
                 shutdownErrs.push(err);
             }
+        }
+
+        try {
+            await this.executionAnalytics.shutdown();
+        } catch (err) {
+            this.logger.error('execution analytics error');
         }
 
         try {
@@ -567,6 +571,7 @@ class ExecutionController {
             this.logger.warn(`worker "${workerId}" is not available to process slice ${slice.slice_id}`);
         } else {
             this.logger.debug(`dispatched slice ${slice.slice_id} to worker ${workerId}`);
+            this.pendingSlices += 1;
         }
         this.dispatching -= 1;
     }
@@ -642,9 +647,6 @@ class ExecutionController {
             return;
         }
 
-        this.scheduler = null;
-        this.slicersReady = false;
-
         await this._slicerInit();
 
         if (this.recover.recoveryComplete) {
@@ -652,6 +654,7 @@ class ExecutionController {
         } else {
             this.logger.warn(`execution ${this.exId} failed to finish its recovery`);
         }
+
         this.recoveryComplete = this.recover.recoveryComplete;
     }
 
@@ -774,12 +777,12 @@ class ExecutionController {
     }
 
     async _waitForPendingSlices() {
-        if (!this.server.pendingSlices.length) {
+        if (!this.pendingSlices) {
             return Promise.delay(100);
         }
 
         const logPendingSlices = _.throttle(() => {
-            this.logger.debug(`waiting for ${this.server.pendingSlices.length} slices to finish`);
+            this.logger.debug(`waiting for ${this.pendingSlices} slices to finish`);
         }, 1000, {
             leading: true,
             trailing: true,
@@ -788,7 +791,7 @@ class ExecutionController {
         const checkPendingSlices = async () => {
             if (this.isShuttingDown) return;
 
-            if (!this.server.pendingSlices.length) {
+            if (!this.pendingSlices) {
                 this.logger.debug('all pending slices are done');
                 return;
             }
