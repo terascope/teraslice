@@ -31,7 +31,22 @@ function gen(templateType, templateName, execution, config) {
         _setVolumes(k8sObject, execution);
     }
 
+    if ((config.assetsDirectory !== '') && (config.assetsVolume !== '')) {
+        _setAssetsVolume(k8sObject, config);
+    }
+
     return k8sObject;
+}
+
+function _setAssetsVolume(k8sObject, config) {
+    k8sObject.spec.template.spec.volumes.push({
+        name: config.assetsVolume,
+        persistentVolumeClaim: { claimName: config.assetsVolume }
+    });
+    k8sObject.spec.template.spec.containers[0].volumeMounts.push({
+        name: config.assetsVolume,
+        mountPath: config.assetsDirectory
+    });
 }
 
 function _setVolumes(k8sObject, execution) {

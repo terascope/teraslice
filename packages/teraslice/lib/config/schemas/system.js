@@ -19,6 +19,11 @@ const schema = {
         default: path.join(process.cwd(), './assets'),
         format: 'optional_String'
     },
+    assets_volume: {
+        doc: 'name of shared asset volume (k8s)',
+        default: '',
+        format: 'optional_String'
+    },
     shutdown_timeout: {
         doc: 'time in milliseconds, to allow workers and slicers to finish operations before forcefully shutting down',
         default: 60000,
