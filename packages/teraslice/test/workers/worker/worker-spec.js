@@ -5,10 +5,8 @@
 const Promise = require('bluebird');
 const { ExecutionController } = require('@terascope/teraslice-messaging');
 const Worker = require('../../../lib/workers/worker');
-const {
-    TestContext,
-    findPort,
-} = require('../helpers');
+const { TestContext } = require('../helpers');
+const { findPort } = require('../../../lib/utils/port_utils');
 
 describe('Worker', () => {
     async function setupTest(options = {}) {

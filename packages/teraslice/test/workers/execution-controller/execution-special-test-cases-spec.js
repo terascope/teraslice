@@ -3,9 +3,10 @@
 const Promise = require('bluebird');
 const _ = require('lodash');
 const Messaging = require('@terascope/teraslice-messaging');
-const { TestContext, findPort } = require('../helpers');
+const { TestContext } = require('../helpers');
 const { makeShutdownEarlyFn } = require('../helpers/execution-controller-helper');
 const ExecutionController = require('../../../lib/workers/execution-controller');
+const { findPort } = require('../../../lib/utils/port_utils');
 const { newId } = require('../../../lib/utils/id_utils');
 
 const ExecutionControllerClient = Messaging.ExecutionController.Client;

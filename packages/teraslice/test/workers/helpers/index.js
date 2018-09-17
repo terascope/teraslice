@@ -1,7 +1,6 @@
 'use strict';
 
 const TestContext = require('./test-context');
-const findPort = require('./find-port');
 const {
     newSliceConfig,
     newConfig,
@@ -12,7 +11,6 @@ const {
 
 
 module.exports = {
-    findPort,
     newConfig,
     newSliceConfig,
     opsPath,

@@ -1,7 +1,8 @@
 'use strict';
 
 const Promise = require('bluebird');
-const { TestContext, findPort } = require('../helpers');
+const { TestContext } = require('../helpers');
+const { findPort } = require('../../../lib/utils/port_utils');
 const ExecutionController = require('../../../lib/workers/execution-controller');
 
 process.env.BLUEBIRD_LONG_STACK_TRACES = '1';

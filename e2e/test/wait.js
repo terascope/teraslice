@@ -133,7 +133,7 @@ function waitForJobStatus(job, status) {
             .catch(() => null);
     }
 
-    return job.waitForStatus(status, 100, 60 * 1000)
+    return job.waitForStatus(status, 100, 60000)
         .catch(async (err) => {
             err.message = `Job: ${jobId}: ${err.message}`;
             await logExErrors();

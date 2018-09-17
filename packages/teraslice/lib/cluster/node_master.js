@@ -1,28 +1,28 @@
 'use strict';
 
 const Promise = require('bluebird');
-const Queue = require('@terascope/queue');
 const _ = require('lodash');
 const parseError = require('@terascope/error-parser');
 const { Mutex } = require('async-mutex');
 const messageModule = require('./services/cluster/backends/native/messaging');
 const spawnAssetsLoader = require('../workers/assets/spawn');
 const { safeEncode } = require('../utils/encoding_utils');
+const { findPort, getPorts } = require('../utils/port_utils');
 
 const nodeVersion = process.version;
 const terasliceVersion = require('../../package.json').version;
 
-module.exports = function module(context) {
+module.exports = async function nodeMaster(context) {
     const logger = context.apis.foundation.makeLogger({ module: 'node_master' });
     const configWorkerLimit = context.sysconfig.teraslice.workers;
     const config = context.sysconfig.teraslice;
     const events = context.apis.foundation.getSystemEvents();
-    const systemPorts = portAllocator();
     const mutex = new Mutex();
 
     const messaging = messageModule(context, logger);
     const host = messaging.getHostUrl();
     const isShuttingDown = false;
+    const ports = getPorts(context);
 
     logger.info(`node ${context.sysconfig._nodeName} is attempting to connect to cluster_master: ${host}`);
 
@@ -243,8 +243,8 @@ module.exports = function module(context) {
     // used to find an open port for slicer
     messaging.register({
         event: 'cluster:node:get_port',
-        callback: (msg) => {
-            const port = systemPorts.getPort();
+        callback: async (msg) => {
+            const port = await findPort(ports);
             logger.debug(`assigning port ${port} for new job`);
             messaging.respond(msg, { port });
         }
@@ -319,33 +319,6 @@ module.exports = function module(context) {
         }, intervalTime);
     }
 
-    function portAllocator() {
-        const portConfig = config.slicer_port_range;
-        const dataArray = _.split(portConfig, ':');
-        const start = _.toInteger(dataArray[0]);
-        // range end is non-inclusive, so we need to add one
-        const end = _.toInteger(dataArray[1]) + 1;
-        const portQueue = new Queue();
-
-        // shuffle all of the ports at random
-        const ports = _.shuffle(_.range(start, end));
-        _.forEach(ports, (i) => {
-            portQueue.enqueue(i);
-        });
-
-        function getPort(preventEnqueing) {
-            const port = portQueue.dequeue();
-            if (!preventEnqueing) {
-                portQueue.enqueue(port);
-            }
-            return port;
-        }
-
-        return {
-            getPort
-        };
-    }
-
     function getNodeState() {
         const nodeId = context.sysconfig._nodeName;
 
@@ -397,20 +370,19 @@ module.exports = function module(context) {
     });
 
     if (context.sysconfig.teraslice.master) {
-        const assetsPort = systemPorts.getPort(true);
-
         logger.debug(`node ${context.sysconfig._nodeName} is creating the cluster_master`);
         context.foundation.startWorkers(1, {
             assignment: 'cluster_master',
-            assets_port: assetsPort,
+            assets_port: ports.assetsPort,
             node_id: context.sysconfig._nodeName
         });
 
-        logger.debug(`node ${context.sysconfig._nodeName} is creating assets endpoint on port ${assetsPort}`);
+        logger.debug(`node ${context.sysconfig._nodeName} is creating assets endpoint on port ${ports.assetsPort}`);
+
         context.foundation.startWorkers(1, {
             assignment: 'assets_service',
             // key needs to be called port to bypass cluster port sharing
-            port: assetsPort,
+            port: ports.assetsPort,
             node_id: context.sysconfig._nodeName
         });
     }

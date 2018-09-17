@@ -21,9 +21,9 @@ const { initializeJob } = require('../../../lib/workers/helpers/job');
 const makeTerafoundationContext = require('../../../lib/workers/context/terafoundation-context');
 const ExecutionContext = require('../../../lib/workers/context/execution-context');
 const { newId } = require('../../../lib/utils/id_utils');
+const { findPort } = require('../../../lib/utils/port_utils');
 const { newConfig, newSysConfig, newSliceConfig } = require('./configs');
 const zipDirectory = require('./zip-directory');
-const findPort = require('./find-port');
 
 const { TERASLICE_CLUSTER_NAME } = process.env;
 
