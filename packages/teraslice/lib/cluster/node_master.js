@@ -61,8 +61,11 @@ module.exports = function module(context) {
             } finally {
                 sendNodeStateNow();
             }
-
-            logger.info(`allocated ${workers.length} out of the requested ${count} workers`);
+            if (workers.length === count) {
+                logger.info(`allocated ${workers.length} workers`);
+            } else {
+                logger.info(`allocated ${workers.length} out of the requested ${count} workers`);
+            }
             return workers.length;
         });
     }
@@ -103,7 +106,7 @@ module.exports = function module(context) {
         event: 'cluster:execution_controller:create',
         callback: (createSlicerRequest) => {
             const createSlicerMsg = createSlicerRequest.payload;
-            logger.info(`Allocating execution controller for execution ${createSlicerMsg.ex_id}`);
+            logger.info(`Starting execution_controller for execution ${createSlicerMsg.ex_id}...`);
 
             allocateWorkers(1, createSlicerMsg, () => {
                 const controllerContext = {
@@ -133,7 +136,7 @@ module.exports = function module(context) {
         callback: (createWorkerRequest) => {
             const createWorkerMsg = createWorkerRequest.payload;
             const requestedWorkers = createWorkerMsg.workers;
-            logger.info(`Attempting to allocate ${requestedWorkers} workers.`);
+            logger.info(`Starting ${requestedWorkers} workers for execution ${createWorkerMsg.ex_id}...`);
 
             if (!canAllocateWorkers(requestedWorkers)) {
                 logger.warn(`Worker is overallocated, maximum number of workers of ${configWorkerLimit}`);
@@ -285,7 +288,7 @@ module.exports = function module(context) {
                 if (clusterWorker.isDead()) return;
                 // if the worker has already been sent a SIGTERM signal it should send a SIGKILL
                 logger.warn(`sending ${signal} to process ${processId}, assignment: ${worker.assignment}, ex_id: ${worker.ex_id}`);
-                clusterWorker.process.kill(signal);
+                clusterWorker.kill(signal);
             }
         });
     }

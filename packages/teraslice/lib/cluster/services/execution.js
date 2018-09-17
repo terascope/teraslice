@@ -145,7 +145,8 @@ module.exports = function module(context, { clusterMasterServer }) {
         }
         return getExecutionContext(exId)
             .then((execution) => {
-                if (execution._status === 'stopping') {
+                const status = execution._status;
+                if (['stopping', 'stopped'].includes(status)) {
                     logger.debug(`execution ${exId} is already stopping which means there is no need to stop the execution`);
                     return true;
                 }

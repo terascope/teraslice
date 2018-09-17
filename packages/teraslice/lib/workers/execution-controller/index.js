@@ -420,18 +420,18 @@ class ExecutionController {
 
             await Promise.all([
                 this._waitForRecovery(),
-                this._processSlices(),
+                this._process(),
             ]);
         } else {
             await this._slicerInit();
 
             this.isStarted = true;
 
-            await this._processSlices();
+            await this._process();
         }
     }
 
-    async _processSlices() {
+    async _process() {
         const statsInterval = setInterval(() => {
             if (this.isShuttingDown) {
                 clearInterval(statsInterval);
@@ -524,8 +524,8 @@ class ExecutionController {
     }
 
     async _dispatchSlices() {
-        // dispatch only up to 10 at time but if there are less workers available
-        const count = this.server.workerQueueSize < 10 ? this.server.workerQueueSize : 10;
+        // dispatch only up to 10 at time but if there are less work available
+        const count = _.min([this.server.workerQueueSize, this.slicerQueue.size(), 10]);
         const reenqueueSlices = [];
 
         await Promise.all(_.times(count, async () => {
@@ -533,6 +533,9 @@ class ExecutionController {
             if (!this.server.workerQueueSize) return;
 
             const slice = this.slicerQueue.dequeue();
+            if (!slice) return; // this probably won't happen but lets make sure
+
+            this.pendingSlices += 1;
 
             const workerId = this.server.dequeueWorker(slice);
             if (!workerId) {
@@ -542,7 +545,6 @@ class ExecutionController {
 
                 if (dispatched) {
                     this.logger.debug(`dispatched slice ${slice.slice_id} to worker ${workerId}`);
-                    this.pendingSlices += 1;
                 } else {
                     reenqueueSlices.push(slice);
                     this.logger.warn(`worker "${workerId}" is not available to process slice ${slice.slice_id}`);
@@ -553,6 +555,7 @@ class ExecutionController {
         if (reenqueueSlices.length > 0) {
             this.logger.debug(`re-enqueing ${reenqueueSlices.length} slices because they were unable to be dispatched`);
             _.forEach(reenqueueSlices, (slice) => {
+                this.pendingSlices -= 1;
                 this.slicerQueue.unshift(slice);
             });
         }
@@ -741,8 +744,6 @@ class ExecutionController {
 
         this.isExecutionFinished = true;
         this.isExecutionDone = true;
-
-        this.logger.debug(`execution ${this.exId} is successfully finished`);
     }
 
     async _updateExecutionStatus() {

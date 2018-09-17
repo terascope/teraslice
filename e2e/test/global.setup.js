@@ -33,7 +33,9 @@ function dockerUp() {
     signale.pending('Bringing Docker environment up...');
 
     return misc.compose
-        .up()
+        .up({
+            'force-recreate': ''
+        })
         .then(() => waitForClusterMaster())
         .then(() => {
             signale.success('Docker environment is good to go', getElapsed(startTime));
@@ -47,7 +49,7 @@ function dockerDown() {
 
     return misc.compose.down({
         'remove-orphans': '',
-        timeout: 5,
+        volumes: ''
     }).then(() => {
         signale.success('Docker environment is clean', getElapsed(startTime));
     }).catch(() => {

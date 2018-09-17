@@ -94,7 +94,13 @@ function waitForClusterMaster(timeoutMs = 60000) {
         return cluster.get('/cluster/state', {
             timeout: 1000,
             json: true,
-        }).catch(() => _try());
+        })
+            .then((result) => {
+                const nodes = _.size(_.keys(result));
+                if (nodes > 1) return null;
+                return _try();
+            })
+            .catch(() => _try());
     }
 
     return _try();
