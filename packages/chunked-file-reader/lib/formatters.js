@@ -2,15 +2,26 @@
 
 const Promise = require('bluebird');
 
+// No parsing, leaving to reader or a downstream op.
+function pass(data) {
+    return data;
+}
 
-// jsonLines will format the array of data into an array of JSON objects
+// Each item parsed as JSON.
 function json(data, logger) {
-    return Promise.map(data, record => JSON.parse(record))
-        .filter(element => element !== undefined).catch((err) => {
-            logger.error(`There was an error processing the record: ${err}`);
-        });
+    return Promise.map(data, (record) => {
+        try {
+            return JSON.parse(record);
+        } catch (err) {
+            logger.error(err, 'failed to parse record');
+            return undefined;
+        }
+    })
+        .filter(element => element !== undefined)
+        .catch(logger.error);
 }
 
 module.exports = {
+    pass,
     json
 };
