@@ -142,20 +142,29 @@ module.exports = function module(context, { clusterMasterServer }) {
     function finishExecution(exId, err) {
         if (err) {
             logger.error(`terminal error for execution: ${exId}, shutting down execution`, err);
-        } else {
-            logger.debug(`execution ${exId} finished, shutting down execution`);
         }
-
-        return clusterService.stopExecution(exId).catch((error) => {
-            logger.error(`error finishing the execution ${error}`);
-        });
+        return getExecutionContext(exId)
+            .then((execution) => {
+                if (execution._status === 'stopping') {
+                    logger.debug(`execution ${exId} is already stopping which means there is no need to stop the execution`);
+                    return true;
+                }
+                logger.debug(`execution ${exId} finished, shutting down execution`);
+                return clusterService.stopExecution(exId).catch((error) => {
+                    logger.error(`error finishing the execution ${error}`);
+                });
+            });
     }
 
     function stopExecution(exId, timeout, excludeNode) {
         return getExecutionContext(exId)
             .then((execution) => {
                 const isTerminal = _isTerminalStatus(execution);
-                if (isTerminal) return true;
+                if (isTerminal) {
+                    logger.info(`execution ${exId} is in terminal status "${execution._status}", it cannot be stopped`);
+                    return true;
+                }
+                logger.debug(`stopping execution ${exId}...`, _.pickBy({ timeout, excludeNode }));
                 return setExecutionStatus(exId, 'stopping')
                     .then(() => clusterService.stopExecution(exId, timeout, excludeNode))
                     .then(() => {

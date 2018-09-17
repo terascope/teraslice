@@ -199,7 +199,7 @@ module.exports = function module(context) {
         event: 'cluster:execution:stop',
         callback: (networkMsg) => {
             const exId = networkMsg.ex_id;
-            logger.debug('received cluster execution stop', { exId });
+            logger.debug(`received cluster execution stop for execution ${exId}`);
 
             const filterFn = () => _.filter(
                 context.cluster.workers,
@@ -285,7 +285,7 @@ module.exports = function module(context) {
                 if (clusterWorker.isDead()) return;
                 // if the worker has already been sent a SIGTERM signal it should send a SIGKILL
                 logger.warn(`sending ${signal} to process ${processId}, assignment: ${worker.assignment}, ex_id: ${worker.ex_id}`);
-                clusterWorker.kill(signal);
+                clusterWorker.process.kill(signal);
             }
         });
     }

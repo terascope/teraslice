@@ -291,9 +291,8 @@ module.exports = function messaging(context, logger) {
         }
     }
 
-    function broadcast(eventName, sentData) {
-        logger.debug('emitting a network message', eventName, sentData);
-        const payload = sentData || {};
+    function broadcast(eventName, payload = {}) {
+        logger.trace('broadcasting a network message', { eventName, payload });
         if (!payload.message) payload.message = eventName;
         io.emit('networkMessage', payload);
     }

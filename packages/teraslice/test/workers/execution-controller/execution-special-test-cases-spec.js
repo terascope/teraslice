@@ -4,13 +4,14 @@ const Promise = require('bluebird');
 const _ = require('lodash');
 const Messaging = require('@terascope/teraslice-messaging');
 const { TestContext, findPort } = require('../helpers');
+const { makeShutdownEarlyFn } = require('../helpers/execution-controller-helper');
 const ExecutionController = require('../../../lib/workers/execution-controller');
 const { newId } = require('../../../lib/utils/id_utils');
 
 const ExecutionControllerClient = Messaging.ExecutionController.Client;
 process.env.BLUEBIRD_LONG_STACK_TRACES = '1';
 
-describe('ExecutionController Recovery Tests', () => {
+describe('ExecutionController Special Tests', () => {
     // [ message, config ]
     const testCases = [
         [
@@ -92,7 +93,24 @@ describe('ExecutionController Recovery Tests', () => {
                 count: 2,
                 analytics: _.sample([true, false]),
             }
-        ]
+        ],
+        [
+            'processing slices and the execution gets shutdown early',
+            {
+                slicerResults: [
+                    { example: 'slice-shutdown-early' },
+                    { example: 'slice-shutdown-early' },
+                    { example: 'slice-shutdown-early' },
+                    { example: 'slice-shutdown-early' },
+                ],
+                lifecycle: 'persistent',
+                shutdownTimeout: 2000,
+                shutdownEarly: true,
+                body: { example: 'slice-shutdown-early' },
+                count: 1,
+                analytics: _.sample([true, false]),
+            }
+        ],
     ];
 
     // for testing enable the next line and a "only" property to the test cases you want
@@ -108,6 +126,7 @@ describe('ExecutionController Recovery Tests', () => {
             analytics = false,
             workers = 1,
             shutdownTimeout = 4000,
+            shutdownEarly = false,
             cleanupType,
             recover = false,
             recoverySlices = [],
@@ -118,6 +137,7 @@ describe('ExecutionController Recovery Tests', () => {
         let slices;
         let exStore;
         let stateStore;
+        let shutdownEarlyFn;
 
         beforeEach(async () => {
             slices = [];
@@ -144,6 +164,10 @@ describe('ExecutionController Recovery Tests', () => {
 
             stateStore = await testContext.addStateStore();
             exStore = await testContext.addExStore();
+
+            if (shutdownEarly) {
+                testContext.executionContext.queueLength = 1;
+            }
 
             if (recover) {
                 testContext.executionContext.config.recovered_slice_type = cleanupType;
@@ -181,6 +205,11 @@ describe('ExecutionController Recovery Tests', () => {
             };
 
             let firedReconnect = false;
+
+            shutdownEarlyFn = makeShutdownEarlyFn({
+                enabled: shutdownEarly,
+                exController,
+            });
 
             const workerClients = [];
 
@@ -247,6 +276,8 @@ describe('ExecutionController Recovery Tests', () => {
                     async function completeSlice() {
                         await Promise.delay(0);
                         await workerClient.sendSliceComplete(msg);
+
+                        await shutdownEarlyFn.shutdown();
                     }
 
                     await Promise.all([
@@ -275,6 +306,7 @@ describe('ExecutionController Recovery Tests', () => {
             testContext.attachCleanup(() => clearTimeout(requestAnayltics));
 
             await Promise.all([
+                shutdownEarlyFn.wait(),
                 startWorkers(),
                 exController.run(),
             ]);
@@ -293,21 +325,28 @@ describe('ExecutionController Recovery Tests', () => {
                 expect(slice).toHaveProperty('request');
                 expect(slice.request).toEqual(body);
             });
-
             const exStatus = await exStore.get(exId);
             expect(exStatus).toBeObject();
             expect(exStatus).toHaveProperty('_slicer_stats');
 
-            expect(exStatus).toHaveProperty('_status', 'completed');
-            expect(exStatus).toHaveProperty('_has_errors', false);
+            if (shutdownEarly) {
+                expect(exStatus).toHaveProperty('_failureReason', `execution ${exId} received shutdown before the slicer could complete, setting status to "terminated"`);
+                expect(exStatus._slicer_stats.failed).toEqual(0);
 
-            if (slicerQueueLength !== 'QUEUE_MINIMUM_SIZE') {
-                expect(exStatus._slicer_stats.processed).toEqual(count);
+                expect(exStatus).toHaveProperty('_has_errors', true);
+                expect(exStatus).toHaveProperty('_status', 'terminated');
+            } else {
+                expect(exStatus).toHaveProperty('_status', 'completed');
+                expect(exStatus).toHaveProperty('_has_errors', false);
+
+                if (slicerQueueLength !== 'QUEUE_MINIMUM_SIZE') {
+                    expect(exStatus._slicer_stats.processed).toEqual(count);
+                }
+
+                const query = `ex_id:${exId} AND state:completed`;
+                const actualCount = await stateStore.count(query, 0);
+                expect(actualCount).toEqual(count);
             }
-
-            const query = `ex_id:${exId} AND state:completed`;
-            const actualCount = await stateStore.count(query, 0);
-            expect(actualCount).toEqual(count);
 
             expect(exStatus._slicer_stats.workers_joined).toBeGreaterThanOrEqual(1);
 

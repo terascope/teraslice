@@ -128,10 +128,10 @@ function waitForJobStatus(job, status) {
     }
 
     return job.waitForStatus(status, 100, 60 * 1000)
-        .catch((err) => {
+        .catch(async (err) => {
             err.message = `Job: ${jobId}: ${err.message}`;
-            logExErrors();
-            logExStatus();
+            await logExErrors();
+            await logExStatus();
             return Promise.reject(err);
         });
 }

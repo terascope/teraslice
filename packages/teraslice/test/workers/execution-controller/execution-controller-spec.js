@@ -148,9 +148,7 @@ describe('ExecutionController', () => {
                     exController.server.shutdown = () => Promise.reject(new Error('Execution Controller Server Error'));
 
                     exController.client = {};
-                    exController.client.sendExecutionFinished = () => Promise.reject(new Error('Send Execution Finished Error'));
                     exController.client.shutdown = () => Promise.reject(new Error('Cluster Master Client Error'));
-                    exController._waitForWorkersToExit = () => Promise.resolve();
                 });
 
                 it('should reject with all of the errors', async () => {

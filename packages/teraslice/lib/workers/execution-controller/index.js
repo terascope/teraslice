@@ -12,7 +12,6 @@ const Messaging = require('@terascope/teraslice-messaging');
 const makeExecutionRecovery = require('./recovery');
 const makeSliceAnalytics = require('./slice-analytics');
 const ExecutionAnalytics = require('./analytics');
-const makeEngine = require('./engine');
 const { newFormattedDate } = require('../../utils/date_utils');
 const { makeStateStore, makeExStore } = require('../../cluster/storage');
 const { makeLogger, generateWorkerId } = require('../helpers/terafoundation');
@@ -81,7 +80,6 @@ class ExecutionController {
         this.slicesEnqueued = 0;
         this.slicers = [];
         this.slicersDoneCount = 0;
-        this.dispatching = 0;
         this.totalSlicers = 0;
         this.pendingSlices = 0;
         this.isPaused = false;
@@ -94,8 +92,6 @@ class ExecutionController {
         this.isExecutionDone = false;
         this.workersHaveConnected = false;
 
-        this._dispatchSlices = this._dispatchSlices.bind(this);
-        this._dispatchSlice = this._dispatchSlice.bind(this);
         this.setFailingStatus = this.setFailingStatus.bind(this);
         this.terminalError = this.terminalError.bind(this);
     }
@@ -194,8 +190,6 @@ class ExecutionController {
             this.stores.exStore.update(this.exId, { operations: update });
         });
 
-        this.engine = makeEngine(this);
-
         this.logger.debug(`execution ${this.exId} is initialized`);
 
         this.isInitialized = true;
@@ -218,14 +212,21 @@ class ExecutionController {
             this.logger.error('Run execution error', err);
         }
 
-        await this._waitForPendingSlices();
-
         this.events.emit('worker:shutdown');
 
         // help the workers go offline
         this.server.isShuttingDown = true;
+
         await this._finishExecution();
 
+        try {
+            await Promise.all([
+                this.client.sendExecutionFinished(),
+                this._waitForWorkersToExit(),
+            ]);
+        } catch (err) {
+            this.logger.error('Failure sending execution finished', err);
+        }
 
         this.logger.debug(`execution ${this.exId} is done`);
     }
@@ -309,23 +310,6 @@ class ExecutionController {
         this.logger.fatal(`execution ${this.exId} is done because of slice failure`);
     }
 
-    slicerCompleted() {
-        if (!this.slicersReady) return;
-
-        this.slicersDoneCount += 1;
-
-        const remaining = this.totalSlicers - this.slicersDoneCount;
-        this.logger.info(`a slicer for execution: ${this.exId} has completed its range, ${remaining} remaining slicers`);
-
-        if (remaining > 0 && this.recoveryComplete) return;
-        this.slicersDone = true;
-
-        this.events.emit('slicers:finished');
-
-        this.logger.info(`all slicers for execution: ${this.exId} have been completed, waiting for slices in slicerQueue to be processed`);
-        this.executionAnalytics.set('queuing_complete', newFormattedDate());
-    }
-
     async shutdown(block = true) {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
@@ -344,21 +328,13 @@ class ExecutionController {
 
         const shutdownErrs = [];
 
+        clearInterval(this.watcher);
         clearTimeout(this.workerConnectTimeoutId);
         clearTimeout(this.workerDisconnectTimeoutId);
 
         const error = await this._waitForExecutionFinished();
         if (error) {
             shutdownErrs.push(error);
-        }
-
-        try {
-            await Promise.all([
-                this.client.sendExecutionFinished(),
-                this._waitForWorkersToExit(),
-            ]);
-        } catch (err) {
-            shutdownErrs.push(err);
         }
 
         if (!this.isExecutionDone) {
@@ -466,26 +442,26 @@ class ExecutionController {
             this.executionAnalytics.set('queued', this.slicerQueue.size());
         }, 500);
 
-        const loop = this._processLoop();
-
         await Promise.all([
             this.stores.exStore.setStatus(this.exId, 'running'),
             this.client.sendAvailable(),
         ]);
 
         try {
-            await loop;
+            await this._processLoop();
         } catch (err) {
             this.logger.error('Error processing slices', err);
         }
 
         clearInterval(statsInterval);
 
-        this.logger.debug(`execution ${this.exId} is done processing slices`);
+        if (this.isDoneProcessing) {
+            this.logger.debug(`execution ${this.exId} is done processing slices`);
+        }
     }
 
     async _processLoop() {
-        if (this.isExecutionDone) {
+        if (this.isExecutionDone || this.isShuttingDown) {
             return null;
         }
 
@@ -499,36 +475,33 @@ class ExecutionController {
             }
         }
 
-        const create = async () => {
-            // If all slicers are not done, the slicer queue is not overflown and the scheduler
-            // is set, then attempt to provision more slices
-            const needsMoreSlices = this.slicerQueue.size() < this.executionContext.queueLength;
-            if (!this.isShuttingDown && this.slicersReady && needsMoreSlices) {
-                try {
-                    return Promise.map(this.scheduler, slicerFn => slicerFn());
-                } catch (err) {
-                    this.logger.error('Error creating slicer', err);
-                }
-            }
-            return null;
+        let scheduling = false;
+        const schedule = async () => {
+            if (scheduling) return;
+            if (!this.slicersReady || this.slicersDone) return;
+
+            scheduling = true;
+            await this._scheduleSlices();
+            scheduling = false;
         };
 
+        let dispatching = false;
         const dispatch = async () => {
-            if (this.slicerQueue.size() > 0) {
-                await this._dispatchSlices();
-            }
+            if (dispatching) return;
+            if (!this.slicerQueue.size()) return;
+
+            dispatching = true;
+            await this._dispatchSlices();
+            dispatching = false;
         };
 
         await Promise.race([
-            create(),
+            schedule(),
             dispatch()
         ]);
 
-        if (this.isShuttingDown) {
-            return this._processLoop();
-        }
-
-        if (!this.dispatching && this.slicersDone && this.slicerQueue.size() === 0) {
+        if (!dispatching && !scheduling && this.slicersDone && !this.slicerQueue.size()) {
+            await this._waitForPendingSlices();
             this.isDoneProcessing = true;
             return true;
         }
@@ -536,44 +509,55 @@ class ExecutionController {
         return this._processLoop();
     }
 
+    async _scheduleSlices() {
+        // If all slicers are not done, the slicer queue is not overflown and the scheduler
+        // is set, then attempt to provision more slices
+        const needsMoreSlices = this.slicerQueue.size() < this.executionContext.queueLength;
+        if (!needsMoreSlices) return immediate();
+
+        try {
+            await Promise.map(this.scheduler, slicerFn => slicerFn());
+        } catch (err) {
+            this.logger.error('Failure scheduling slice', err);
+        }
+        return null;
+    }
+
     async _dispatchSlices() {
         // dispatch only up to 10 at time but if there are less workers available
         const count = this.server.workerQueueSize < 10 ? this.server.workerQueueSize : 10;
         const reenqueueSlices = [];
 
-        const promises = _.times(count, () => {
-            if (this.slicerQueue.size() > 0 && this.server.workerQueueSize > 0) {
-                const slice = this.slicerQueue.dequeue();
+        await Promise.all(_.times(count, async () => {
+            if (!this.slicerQueue.size()) return;
+            if (!this.server.workerQueueSize) return;
 
-                const workerId = this.server.dequeueWorker(slice);
-                if (!workerId) {
-                    reenqueueSlices.push(slice);
+            const slice = this.slicerQueue.dequeue();
+
+            const workerId = this.server.dequeueWorker(slice);
+            if (!workerId) {
+                reenqueueSlices.push(slice);
+            } else {
+                const dispatched = await this.server.dispatchSlice(slice, workerId);
+
+                if (dispatched) {
+                    this.logger.debug(`dispatched slice ${slice.slice_id} to worker ${workerId}`);
+                    this.pendingSlices += 1;
                 } else {
-                    return this._dispatchSlice(slice, workerId);
+                    reenqueueSlices.push(slice);
+                    this.logger.warn(`worker "${workerId}" is not available to process slice ${slice.slice_id}`);
                 }
             }
-            return Promise.resolve();
-        });
+        }));
 
-        _.forEach(reenqueueSlices, (slice) => {
-            this.slicerQueue.enqueue(slice);
-        });
-
-        return Promise.all(promises);
-    }
-
-    async _dispatchSlice(slice, workerId) {
-        this.dispatching += 1;
-        const dispatched = await this.server.dispatchSlice(slice, workerId);
-
-        if (!dispatched) {
-            this.slicerQueue.unshift(slice);
-            this.logger.warn(`worker "${workerId}" is not available to process slice ${slice.slice_id}`);
-        } else {
-            this.logger.debug(`dispatched slice ${slice.slice_id} to worker ${workerId}`);
-            this.pendingSlices += 1;
+        if (reenqueueSlices.length > 0) {
+            this.logger.debug(`re-enqueing ${reenqueueSlices.length} slices because they were unable to be dispatched`);
+            _.forEach(reenqueueSlices, (slice) => {
+                this.slicerQueue.unshift(slice);
+            });
         }
-        this.dispatching -= 1;
+
+        return immediate();
     }
 
     async _slicerInit() {
@@ -601,13 +585,99 @@ class ExecutionController {
             );
         }, retryOptions);
 
-        this.scheduler = await this.engine.registerSlicers(this.slicers);
+        this.scheduler = await this._registerSlicers(this.slicers);
+    }
 
-        this.slicersDoneCount = 0;
-        this.totalSlicers = _.size(this.slicers);
+    async _registerSlicers(slicers = [], isRecovery = false) {
+        const { config } = this.executionContext;
+        if (!Array.isArray(slicers)) {
+            throw new Error(`newSlicer from module ${config.operations[0]._op} needs to return an array of slicers`);
+        }
+
+        this.slicersReady = false;
+        this.totalSlicers += _.size(slicers);
+        this.executionAnalytics.set('slicers', slicers.length);
+
+        const scheduler = slicers.map((slicerFn, index) => this._registerSlicerFn(slicerFn, index));
+
+        // Recovery has it own error listening logic internally
+        if (!isRecovery) {
+            if (config.lifecycle === 'once') {
+                this.events.once('slice:failure', this.setFailingStatus);
+            } else {
+                // in persistent mode we set watchdogs to monitor
+                // when failing can be set back to running
+                this.events.on('slice:failure', this._checkAndUpdateExecutionState());
+            }
+        }
+
+        this.logger.debug(`registered ${_.size(slicers)} slicers`);
         this.slicersReady = true;
 
-        logger.debug(`initialized ${this.totalSlicers} slices`);
+        return scheduler;
+    }
+
+    async _registerSlicerFn(slicerFn, slicerId) {
+        let hasCompleted = false;
+        let isProcessing = false;
+        let slicerOrder = 0;
+
+        return async () => {
+            if (isProcessing) return;
+            if (hasCompleted) return;
+
+            this.logger.trace(`slicer ${slicerId} is being called`);
+            isProcessing = true;
+            try {
+                const sliceRequest = await slicerFn();
+                this.logger.trace(`slicer ${slicerId} was called`, { sliceRequest });
+
+                // not null or undefined
+                if (sliceRequest != null) {
+                    if (_.isArray(sliceRequest)) {
+                        this.logger.warn(`slicer for execution: ${this.exId} is subslicing by key`);
+                        this.executionAnalytics.increment('subslice_by_key');
+                    }
+
+                    slicerOrder = await this.allocateSlice(
+                        sliceRequest,
+                        slicerId,
+                        slicerOrder
+                    );
+                } else if (this.isOnce) {
+                    hasCompleted = true;
+                    this._slicerCompleted(slicerId);
+                }
+
+                isProcessing = false;
+            } catch (err) {
+                this.logger.trace(`slicer ${slicerId} failure`);
+                // retries are handled internally by slicer
+                isProcessing = false;
+                await this.terminalError(err);
+            }
+        };
+    }
+
+    _slicerCompleted(slicerId) {
+        this.slicersDoneCount += 1;
+
+        this.logger.trace(`slicer ${slicerId} finished`);
+        // slicer => a single slicer has finished
+        this.events.emit('slicer:finished');
+
+        const remaining = this.totalSlicers - this.slicersDoneCount;
+
+        if (remaining > 0) {
+            this.logger.info(`a slicer for execution: ${this.exId} has completed its range, ${remaining} remaining slicers`);
+            return;
+        }
+
+        this.slicersDone = true;
+        this.logger.info(`all slicers for execution: ${this.exId} have been completed, waiting for slices in slicerQueue to be processed`);
+
+        this.events.emit('slicers:finished');
+        this.executionAnalytics.set('queuing_complete', newFormattedDate());
     }
 
     async _recoverSlicesInit() {
@@ -623,10 +693,8 @@ class ExecutionController {
         this.logger.info(`execution: ${this.exId} is starting in recovery mode`);
 
         this.slicers = await this.recover.newSlicer();
-        this.slicersDoneCount = 0;
-        this.totalSlicers = _.size(this.slicers);
 
-        this.scheduler = await this.engine.registerSlicers(this.slicers, true);
+        this.scheduler = await this._registerSlicers(this.slicers, true);
         this.slicersReady = true;
     }
 
@@ -661,6 +729,8 @@ class ExecutionController {
     async _finishExecution() {
         if (this.isExecutionFinished) return;
 
+        this._logFinishedJob();
+
         try {
             await this._updateExecutionStatus();
         } catch (err) {
@@ -668,8 +738,6 @@ class ExecutionController {
             const errMsg = parseError(err);
             this.logger.error(`execution ${this.exId} has run to completion but the process has failed while updating the execution status, slicer will soon exit, error: ${errMsg}`);
         }
-
-        this._logFinishedJob();
 
         this.isExecutionFinished = true;
         this.isExecutionDone = true;
@@ -777,10 +845,6 @@ class ExecutionController {
     }
 
     async _waitForPendingSlices() {
-        if (!this.pendingSlices) {
-            return Promise.delay(100);
-        }
-
         const logPendingSlices = _.throttle(() => {
             this.logger.debug(`waiting for ${this.pendingSlices} slices to finish`);
         }, 1000, {
@@ -803,7 +867,6 @@ class ExecutionController {
         };
 
         await checkPendingSlices();
-        return Promise.delay(100);
     }
 
     _waitForExecutionFinished() {
@@ -811,7 +874,7 @@ class ExecutionController {
         const shutdownAt = timeout + Date.now();
 
         // hoist this error to get a better stack trace
-        const timeoutError = new Error(`Shutdown timeout of ${timeout}ms waiting for the execution to finish...`);
+        const timeoutError = new Error(`Shutdown timeout of ${timeout}ms waiting for execution ${this.exId} to finish...`);
         const logShuttingDown = _.throttle(() => {
             this.logger.debug('shutdown is waiting for execution to finish...');
         }, 1000, {
@@ -862,6 +925,41 @@ class ExecutionController {
 
         this.logger.warn('Unable to verify execution on initialization', error.stack);
         return false;
+    }
+
+    _checkAndUpdateExecutionState() {
+        const probationWindow = this.executionContext.config.probation_window;
+        let watchDogSet = false;
+        let errorCount;
+        let processedCount;
+
+        return async () => {
+            if (watchDogSet) return;
+            watchDogSet = true;
+            const analyticsData = this.executionAnalytics.getAnalytics();
+            // keep track of how many slices have been processed and failed
+            errorCount = analyticsData.failed;
+            processedCount = analyticsData.processed;
+            await this.setFailingStatus();
+            const { exStore } = this.stores;
+
+            this.watcher = setInterval(() => {
+                const currentAnalyticsData = this.executionAnalytics.getAnalytics();
+                const currentErrorCount = currentAnalyticsData.failed;
+                const currentProcessedCount = currentAnalyticsData.processed;
+                const errorCountTheSame = currentErrorCount === errorCount;
+                const slicesHaveProcessedSinceError = currentProcessedCount > processedCount;
+
+                if (errorCountTheSame && slicesHaveProcessedSinceError) {
+                    clearInterval(this.watcher);
+                    this.logger.info(`No slice errors have occurred within execution: ${this.exId} will be set back to 'running' state`);
+                    exStore.setStatus(this.exId, 'running');
+                    return;
+                }
+                errorCount = currentErrorCount;
+                processedCount = currentProcessedCount;
+            }, probationWindow);
+        };
     }
 
     _startWorkConnectWatchDog() {

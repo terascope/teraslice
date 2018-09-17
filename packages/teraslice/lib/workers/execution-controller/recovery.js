@@ -108,7 +108,7 @@ function recovery(context, executionFailed, stateStore, executionContext) {
                             const nextID = slicerID + 1;
                             // all slicers have been recovered
                             if (nextID > numOfSlicersToRecover) {
-                                logger.warn(`The recovered data for execution: ${exId} has successfully been enqueued`);
+                                logger.warn(`recovered data for execution: ${exId} has successfully been enqueued`);
                                 _waitForRecoveryBatchCompletion()
                                     .then((isComplete) => {
                                         if (isComplete) {
@@ -131,7 +131,7 @@ function recovery(context, executionFailed, stateStore, executionContext) {
             retrieveSlices(startingID);
         }).then(async (isComplete) => {
             if (!isComplete) {
-                logger.warn(`The recovered data for execution: ${exId} was shutdown before it could finish`);
+                logger.warn(`recovered data for execution: ${exId} was shutdown before it could finish`);
                 return;
             }
             recoverComplete = true;

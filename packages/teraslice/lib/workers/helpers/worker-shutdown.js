@@ -78,7 +78,7 @@ function shutdownHandler(context, shutdownFn) {
     }
 
     process.on('SIGINT', () => {
-        logger.warn('Received process:SIGINT');
+        logger.info('Received process:SIGINT');
         if (!api.exiting) {
             process.exitCode = 0;
         }
@@ -86,7 +86,7 @@ function shutdownHandler(context, shutdownFn) {
     });
 
     process.on('SIGTERM', () => {
-        logger.warn(`${assignment} received process:SIGTERM`);
+        logger.info(`${assignment} received process:SIGTERM`);
         if (!api.exiting) {
             process.exitCode = 0;
         }
@@ -125,7 +125,7 @@ function shutdownHandler(context, shutdownFn) {
         if (err) {
             logger.fatal(`${assignment} shutdown error`, err);
         } else {
-            logger.warn(`${assignment} shutdown`);
+            logger.info(`${assignment} shutdown`);
         }
         exit('worker:shutdown:complete', err);
     });
