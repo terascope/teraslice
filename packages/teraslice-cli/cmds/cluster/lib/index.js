@@ -7,6 +7,7 @@
 const yaml = require('node-yaml');
 const _ = require('lodash');
 const display = require('../../lib/display')();
+const reply = require('../../lib/reply')();
 
 async function displayClusters(clusters, style) {
     const header = ['cluster', 'host', 'port', 'env'];
@@ -55,10 +56,10 @@ async function parseClustersTxt(header, clusters) {
 module.exports = (cliConfig) => {
     async function alias() {
         if (cliConfig.remove) {
-            console.log(`> Remove cluster alias ${cliConfig.cluster}`);
+            reply.green(`> Remove cluster alias ${cliConfig.cluster}`);
             delete cliConfig.config.clusters[cliConfig.cluster];
         } else {
-            console.log(`> Added cluster alias ${cliConfig.cluster}`);
+            reply.green(`> Added cluster alias ${cliConfig.cluster}`);
             const newClusterAlias = {};
             newClusterAlias[cliConfig.cluster] = {
                 host: cliConfig.host,

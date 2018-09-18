@@ -75,8 +75,7 @@ module.exports = (cliConfig = {}) => {
 
     function getAssetClusters() {
         if (cliConfig.c) {
-            const cluster = _urlCheck(cliConfig.c);
-            cliConfig.cluster = cluster;
+            cliConfig.cluster = _urlCheck(cliConfig.c);
         }
         if (cliConfig.l) {
             cliConfig.cluster = 'http://localhost:5678';

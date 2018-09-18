@@ -39,4 +39,3 @@ exports.handler = (argv, _testFunctions) => {
     return libCluster.alias()
         .catch(err => reply.fatal(err.message));
 };
-

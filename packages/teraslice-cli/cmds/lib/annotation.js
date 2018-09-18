@@ -1,6 +1,7 @@
 'use strict';
 
 const request = require('request-promise');
+const reply = require('./display')();
 
 async function send(host, key, tags, text) {
     const timestamp = +new Date();
@@ -23,11 +24,11 @@ async function send(host, key, tags, text) {
     request(options)
         .then((response) => {
             if (response.message === 'Annotation added') {
-                console.log(`> Annotation: "${text}" Added`);
+                reply.green(`> Annotation: "${text}" Added`);
             }
         })
         .catch((err) => {
-            console.log(`> Annotation failed: ${err}`);
+            reply.fatal(`> Annotation failed: ${err}`);
         });
 }
 

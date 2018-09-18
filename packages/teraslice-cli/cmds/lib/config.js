@@ -44,7 +44,7 @@ module.exports = (cliConfig, command) => {
             if (cliConfig.status) {
                 cliConfig.statusList = _.split(cliConfig.status, ':');
             }
-            if (cliConfig.deets.cluster) {
+            if (_.has(cliConfig, 'deets.cluster')) {
                 cliConfig.cluster = cliConfig.deets.cluster;
                 cliConfig.cluster_url = getClusterHost(cliConfig);
             } else {
@@ -60,8 +60,8 @@ module.exports = (cliConfig, command) => {
             } else {
                 cliConfig.state_file = path.join(cliConfig.config.paths.job_state_dir, `${cliConfig.cluster}-state.json`);
             }
-
-            if (cliConfig.env === '') {
+            // env isn't always needed
+            if (cliConfig.env === '' && cliConfig.config.clusters[cliConfig.cluster]) {
                 cliConfig.env = cliConfig.config.clusters[cliConfig.cluster].env;
             }
         }
