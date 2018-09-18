@@ -115,17 +115,6 @@ module.exports = function module(config) {
         // logger as it stands this function is very confusing
         loggerClient(context, context.logger, loggingConnection);
 
-        // The master shouldn't need these connections.
-        if (!context.cluster.isMaster) {
-            // We have to load this here so it uses the same mongoose instance
-            // This is really a teraserver dependency and doesn't belong here.
-            // It's a problem when teraserver is loaded from node_modules.
-            if (config.baucis) {
-                logger.info('Loading module Baucis');
-                context.baucis = require('baucis');
-            }
-        }
-
         if (config.script) {
             config.script(context);
         /**

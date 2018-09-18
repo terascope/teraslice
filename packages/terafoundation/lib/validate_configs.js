@@ -1,10 +1,10 @@
 'use strict';
 
-const sysSchema = require('../system_schema');
 const _ = require('lodash');
 const convict = require('convict');
 const { getModule } = require('./file_utils');
 const os = require('os');
+const sysSchema = require('../system_schema');
 
 function getConnectorSchema(name, context) {
     const paths = {};
@@ -41,7 +41,7 @@ function validateConfig(cluster, _schema, configFile) {
 function extractSchema(fn, configFile) {
     if (fn && typeof fn === 'function') {
         return fn(configFile);
-    } else if (fn && typeof fn === 'object') {
+    } if (fn && typeof fn === 'object') {
         return fn;
     }
 
@@ -72,8 +72,7 @@ module.exports = function module(cluster, context, configFile) {
 
                 // iterate over endpoints in connectors
                 _.forOwn(configFile[key].connectors[connector], (name, endpoint) => {
-                    config[key].connectors[connector][endpoint] =
-                        validateConfig(cluster, innerSchema, name);
+                    config[key].connectors[connector][endpoint] = validateConfig(cluster, innerSchema, name);
                 });
             });
         } else {

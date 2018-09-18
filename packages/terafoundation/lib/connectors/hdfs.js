@@ -1,17 +1,17 @@
 'use strict';
 
-var events = require('events');
+const events = require('events');
 
 function create(customConfig, logger) {
-    var hdfsClient = require('node-webhdfs').WebHDFSClient;
-    logger.info("Using hdfs hosts: " + customConfig.host);
+    const hdfsClient = require('node-webhdfs').WebHDFSClient;
+    logger.info(`Using hdfs hosts: ${customConfig.host}`);
 
     // TODO: there's no error handling here at all???
-    var client = new hdfsClient(customConfig);
+    const client = new hdfsClient(customConfig);
 
     return {
-        client: client
-    }
+        client
+    };
 }
 
 function config_schema() {
@@ -32,10 +32,10 @@ function config_schema() {
             doc: '',
             default: '/webhdfs/v1'
         }
-    }
+    };
 }
 
 module.exports = {
-    create: create,
-    config_schema: config_schema
+    create,
+    config_schema
 };

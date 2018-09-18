@@ -1,17 +1,17 @@
 'use strict';
 
-var _ = require('lodash');
-var redis = require('redis');
-var events = require('events');
+const _ = require('lodash');
+const redis = require('redis');
+const events = require('events');
 
 function create(customConfig, logger) {
-    logger.info("Using redis host: " + customConfig.host);
+    logger.info(`Using redis host: ${customConfig.host}`);
 
-    var client = redis.createClient(customConfig.port, customConfig.host);
+    const client = redis.createClient(customConfig.port, customConfig.host);
 
     return {
-        client: client
-    }
+        client
+    };
 }
 
 function config_schema() {
@@ -24,11 +24,10 @@ function config_schema() {
             doc: '',
             default: 6379
         }
-    }
+    };
 }
 
 module.exports = {
-    create: create,
-    config_schema: config_schema
+    create,
+    config_schema
 };
-

@@ -22,32 +22,60 @@ module.exports = function module(context, moduleConfig) {
     function shutdown() {
         logger.info('Shutting down.');
         shuttingDown = true;
-        // optional hook for shutdown sequences
-        events.emit('terafoundation:shutdown');
+
+        const ids = Object.keys(cluster.workers);
 
         logger.info('Notifying workers to stop.');
-        logger.info(`Waiting for ${_.keys(cluster.workers).length} workers to stop.`);
-        _.forOwn(cluster.workers, (value, id) => {
-            if (moduleConfig.shutdownMessaging) {
-                cluster.workers[id].send({ message: 'shutdown' });
-            } else {
-                cluster.workers[id].kill('SIGINT');
-            }
+        logger.info(`Waiting for ${ids.length} workers to stop.`);
+        const workers = ids.map(id => cluster.workers[id]).filter(v => v);
+
+        let workersAlive = 0;
+        let funcRun = 0;
+        let shutdownInterval;
+
+        const emitShutdown = _.once(() => {
+            // optional hook for shutdown sequences
+            events.emit('terafoundation:shutdown');
         });
 
-        setInterval(() => {
-            if (shuttingDown && _.keys(cluster.workers).length === 0) {
-                logger.info('All workers have exited. Ending.');
-                // sending kill signal allows for master process above to exit as it pleases
+        function shutdownWorkers() {
+            workersAlive = 0;
+            funcRun += 1;
 
-                logger.flush()
-                    .then(() => {
-                        process.exit();
-                    });
-            } else if (shuttingDown) {
-                logger.info(`Waiting for workers to stop: ${_.keys(cluster.workers).length} pending.`);
+            emitShutdown();
+
+            workers.forEach((worker) => {
+                if (worker.isDead()) return;
+                workersAlive += 1;
+
+                // On the first execution of the function,
+                // send the received signal to all the workers
+                if (funcRun > 1) return;
+
+                // use process.isConnected() to ensure the process will receive the IPC message
+                if (moduleConfig.shutdownMessaging && worker.isConnected()) {
+                    worker.send({ message: 'shutdown' });
+                } else {
+                    worker.kill();
+                }
+            });
+
+            logger.info(`Waiting for workers to stop: ${workersAlive} pending.`);
+            if (workersAlive === 0) {
+                clearInterval(shutdownInterval);
+                logAndFinish();
             }
-        }, 1000);
+        }
+
+        shutdownInterval = setInterval(shutdownWorkers, 1000);
+
+        function logAndFinish() {
+            logger.info('All workers have exited. Ending.');
+            logger.flush()
+                .then(() => {
+                    process.exit();
+                });
+        }
     }
 
     process.on('SIGTERM', shutdown);

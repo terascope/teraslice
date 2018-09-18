@@ -1,6 +1,6 @@
 {
   "name": "terafoundation",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "scripts": {
     "lint": "eslint *.js lib",
     "lint:fix": "eslint --fix *.js lib",
@@ -29,32 +29,27 @@
   "license": "Apache-2.0",
   "dependencies": {
     "agentkeepalive": "^3.4.1",
-    "baucis": "1.6.5",
-    "bluebird": "^3.5.1",
+    "bluebird": "^3.5.2",
     "bunyan": "^1.8.12",
     "bunyan-elasticsearch": "1.0.1",
-    "convict": "^4.1.0",
+    "convict": "^4.3.2",
     "elasticsearch": "^14.2.1",
-    "express": "^4.16.3",
     "js-yaml": "^3.11.0",
-    "lodash": "~4.17.5",
+    "lodash": "~4.17.11",
     "moment": "^2.21.0",
     "mongoose": "~4.13.12",
     "node-statsd": "0.1.1",
     "node-webhdfs": "^0.2.1",
     "redis": "^2.8.0",
-    "yargs": "^11.0.0"
+    "yargs": "^12.0.2"
   },
   "devDependencies": {
-    "codecov": "^3.0.2",
-    "eslint": "^4.19.0",
-    "eslint-config-airbnb": "^16.1.0",
-    "eslint-plugin-import": "^2.9.0",
-    "eslint-plugin-jasmine": "^2.9.3",
-    "eslint-plugin-jsx-a11y": "^6.0.3",
-    "eslint-plugin-react": "^7.7.0",
-    "jasmine": "^3.1.0",
+    "codecov": "^3.1.0",
+    "eslint": "^5.5.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "jasmine": "^3.2.0",
     "jasmine-spec-reporter": "^4.2.1",
-    "nyc": "^11.6.0"
+    "nyc": "^13.0.1"
   }
 }

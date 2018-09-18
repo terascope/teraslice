@@ -1,49 +1,48 @@
 'use strict';
 
-var Promise = require('bluebird');
+const Promise = require('bluebird');
 
 function logWrapper(logger) {
-
-    return function() {
+    return function () {
         this.error = logger.error.bind(logger);
         this.warning = logger.warn.bind(logger);
         this.info = logger.info.bind(logger);
         this.debug = logger.debug.bind(logger);
-        this.trace = function(method, requestUrl, body, responseBody, responseStatus) {
+        this.trace = function (method, requestUrl, body, responseBody, responseStatus) {
             logger.trace({
-                method: method,
-                requestUrl: requestUrl,
-                body: body,
-                responseBody: responseBody,
-                responseStatus: responseStatus
+                method,
+                requestUrl,
+                body,
+                responseBody,
+                responseStatus
             });
         };
-        this.close = function() {
+        this.close = function () {
         };
-    }
+    };
 }
 
 function create(customConfig, logger) {
-    var elasticsearch = require('elasticsearch');
+    const elasticsearch = require('elasticsearch');
 
-    logger.info("Using elasticsearch hosts: " + customConfig.host);
+    logger.info(`Using elasticsearch hosts: ${customConfig.host}`);
 
     customConfig.defer = function () {
         return Promise.defer();
     };
-    var client = new elasticsearch.Client(customConfig);
+    const client = new elasticsearch.Client(customConfig);
 
     return {
-        client: client,
+        client,
         log: logWrapper(logger)
-    }
+    };
 }
 
 function config_schema() {
     return {
         host: {
             doc: '',
-            default: ["127.0.0.1:9200"]
+            default: ['127.0.0.1:9200']
         },
         sniffOnStart: {
             doc: '',
@@ -65,10 +64,10 @@ function config_schema() {
             doc: '',
             default: 3
         }
-    }
+    };
 }
 
 module.exports = {
-    create: create,
-    config_schema: config_schema
+    create,
+    config_schema
 };

@@ -1,16 +1,16 @@
 'use strict';
 
-var events = require('events');
+const events = require('events');
 
 function create(customConfig, logger) {
-    var mongoose = require("mongoose");
+    const mongoose = require('mongoose');
     // TODO: rework configuration to allow incoming config to be a full mongo config
-    logger.info("Using mongo connection string: " + customConfig.servers);
+    logger.info(`Using mongo connection string: ${customConfig.servers}`);
 
-    var serverConfig = {
+    const serverConfig = {
         server: {
             auto_reconnect: true,
-            socketOptions: {keepAlive: 1, connectTimeoutMS: 30000}
+            socketOptions: { keepAlive: 1, connectTimeoutMS: 30000 }
         }
     };
 
@@ -25,27 +25,27 @@ function create(customConfig, logger) {
         };
     }
 
-    mongoose.connect(customConfig.servers, serverConfig, function(error) {
+    mongoose.connect(customConfig.servers, serverConfig, (error) => {
         if (error) {
-            logger.error("Could not connect to Mongo DB: " + error);
+            logger.error(`Could not connect to Mongo DB: ${error}`);
         }
     });
 
     return {
         client: mongoose
-    }
+    };
 }
 
 function config_schema() {
     return {
         servers: {
             doc: '',
-            default: "mongodb://localhost:27017/test"
+            default: 'mongodb://localhost:27017/test'
         }
-    }
+    };
 }
 
 module.exports = {
-    create: create,
-    config_schema: config_schema
+    create,
+    config_schema
 };

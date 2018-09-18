@@ -1,16 +1,16 @@
 'use strict';
 
-var events = require('events');
+const events = require('events');
 
 function create(customConfig, logger) {
-    var StatsD = require('node-statsd').StatsD;
-    logger.info("Using statsd host: " + customConfig.host);
+    const StatsD = require('node-statsd').StatsD;
+    logger.info(`Using statsd host: ${customConfig.host}`);
 
-    var client = new StatsD(customConfig);
+    const client = new StatsD(customConfig);
 
     return {
-        client: client
-    }
+        client
+    };
 }
 
 function config_schema() {
@@ -23,11 +23,11 @@ function config_schema() {
             doc: '',
             default: false
         }
-    }
+    };
 }
 
 module.exports = {
-    create: create,
-    config_schema: config_schema
+    create,
+    config_schema
 
 };
