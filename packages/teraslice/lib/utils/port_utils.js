@@ -10,8 +10,9 @@ async function findPort(ports = {}) {
         assetsPort = 8003
     } = ports;
 
-    const min = _.random(start, end);
-    const max = min + 100;
+    const range = 100;
+    const min = _.random(start, end - range);
+    const max = _.min([end, (min + range)]);
 
     const port = await porty.find({
         min,

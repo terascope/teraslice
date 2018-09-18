@@ -1,6 +1,6 @@
 terafoundation:
     environment: 'development'
-    log_level: info
+    log_level: debug
     connectors:
         # ***********************
         # Elastic Search Configuration
@@ -17,7 +17,7 @@ teraslice:
     shutdown_timeout: 30000
     action_timeout: 30000
     assets_directory: '/tmp/'
-    workers: 5
+    workers: 8
     master: true
     master_hostname: "127.0.0.1"
     port: 45678

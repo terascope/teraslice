@@ -4,7 +4,7 @@ const _ = require('lodash');
 const signale = require('signale');
 const Promise = require('bluebird');
 const uuid = require('uuid/v4');
-const { forNodes, waitForClusterMaster, waitForJobStatus } = require('./wait');
+const { waitForClusterState, waitForJobStatus } = require('./wait');
 const misc = require('./misc');
 
 const jobList = [];
@@ -36,7 +36,6 @@ function dockerUp() {
         .up({
             'force-recreate': ''
         })
-        .then(() => waitForClusterMaster())
         .then(() => {
             signale.success('Docker environment is good to go', getElapsed(startTime));
         });
@@ -57,13 +56,14 @@ function dockerDown() {
     });
 }
 
-function waitForTerasliceNodes() {
+function waitForTeraslice() {
     const startTime = Date.now();
     signale.pending('Waiting for Teraslice...');
 
-    return forNodes(4).then(() => {
-        signale.success('Teraslice is ready', getElapsed(startTime));
-    });
+    return waitForClusterState()
+        .then((nodes) => {
+            signale.success(`Teraslice is ready to go with ${nodes} nodes`, getElapsed(startTime));
+        });
 }
 
 function generateTestData() {
@@ -215,8 +215,9 @@ module.exports = async () => {
     await dockerDown();
     await dockerBuild();
     await dockerUp();
+    await waitForTeraslice();
+
     try {
-        await waitForTerasliceNodes();
         await generateTestData();
     } catch (err) {
         signale.error('Setup failed, `docker-compose logs` may provide clues');

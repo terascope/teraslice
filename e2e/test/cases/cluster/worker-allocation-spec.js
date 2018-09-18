@@ -45,8 +45,8 @@ describe('worker allocation', () => {
         workersTest(5, 5, 10000, done);
     });
 
-    it('with 17 out of requested 20 workers', (done) => {
-        workersTest(20, 17, 10000, done);
+    it('with 27 out of requested 30 workers', (done) => {
+        workersTest(30, 27, 10000, done);
     });
 
     // TODO: Debug this test

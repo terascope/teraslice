@@ -54,12 +54,12 @@ describe('cluster state', () => {
 
         // verify each node
         _.forEach(state, (node) => {
-            expect(node.total).toBe(5);
+            expect(node.total).toBe(8);
             expect(node.node_id).toBeDefined();
             expect(node.hostname).toBeDefined();
 
-            // Nodes should have 1-5 workers available.
-            expect(node.available).toBeWithin(0, 6);
+            // Nodes should have 1-8 workers available.
+            expect(node.available).toBeWithin(0, 9);
 
             const expectActiveLength = node.total - node.available;
             expect(node.active).toBeArrayOfSize(expectActiveLength);
@@ -68,6 +68,10 @@ describe('cluster state', () => {
         // verify cluster master
         verifyClusterMaster(state);
     }
+
+    // make sure we end in a clean state
+    afterAll(() => misc.scale(3)
+        .then(() => wait.forNodes(4)));
 
     it('should match default configuration', (done) => {
         teraslice.cluster.state()
@@ -131,10 +135,10 @@ describe('cluster state', () => {
                     .then((state) => {
                         const nodes = _.keys(state);
                         nodes.forEach((node) => {
-                            expect(state[node].total).toBe(5);
+                            expect(state[node].total).toBe(8);
 
-                            // / Nodes should have 1-5 workers available.
-                            expect(state[node].available).toBeWithin(0, 6);
+                            // / Nodes should have 1-8 workers available.
+                            expect(state[node].available).toBeWithin(0, 9);
 
                             // The node with more than one worker should have the actual worker
                             // and there should only be one.
@@ -176,10 +180,10 @@ describe('cluster state', () => {
                     .then((state) => {
                         const nodes = _.keys(state);
                         nodes.forEach((node) => {
-                            expect(state[node].total).toBe(5);
+                            expect(state[node].total).toBe(8);
 
-                            // Nodes should have 1-5 workers available.
-                            expect(state[node].available).toBeWithin(0, 6);
+                            // Nodes should have 1-8 workers available.
+                            expect(state[node].available).toBeWithin(0, 9);
 
                             // Both nodes should have at least one worker.
                             expect(findWorkers(state[node].active, 'worker', jobId).length).toBeGreaterThan(0);

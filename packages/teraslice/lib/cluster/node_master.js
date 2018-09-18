@@ -42,31 +42,34 @@ module.exports = async function nodeMaster(context) {
     let pendingAllocations = 0;
 
     function allocateWorkers(count, exConfig, fn) {
+        const startTime = Date.now();
         pendingAllocations += count;
-        sendNodeState();
-        if (mutex.isLocked()) {
-            logger.warn('waiting for allocation lock');
-        }
+        sendNodeStateNow();
+        logger.info(`allocating ${count} workers...`);
+
         return mutex.runExclusive(async () => {
-            pendingAllocations -= count;
-
-            logger.info(`allocating ${count} workers...`);
-            let workers = [];
-
             try {
                 await loadAssetsIfNeeded(exConfig.job, exConfig.ex_id);
-                workers = await fn();
             } catch (err) {
+                logger.error(`Failure to allocated assets for execution ${exConfig.ex_id}`);
                 throw err;
             } finally {
-                sendNodeStateNow();
+                pendingAllocations -= count;
             }
-            if (workers.length === count) {
-                logger.info(`allocated ${workers.length} workers`);
-            } else {
-                logger.info(`allocated ${workers.length} out of the requested ${count} workers`);
+
+            try {
+                const workers = await fn();
+                const elapsed = Date.now() - startTime;
+                if (workers.length === count) {
+                    logger.info(`allocated ${workers.length} workers, took ${elapsed}ms`);
+                } else {
+                    logger.info(`allocated ${workers.length} out of the requested ${count} workers, took ${elapsed}ms`);
+                }
+                return workers.length;
+            } catch (err) {
+                logger.error(`Failure to allocate workers for execution ${exConfig.ex_id}`);
+                throw err;
             }
-            return workers.length;
         });
     }
 

@@ -84,7 +84,7 @@ function forWorkersJoined(jobId, workerCount, iterations) {
         });
 }
 
-function waitForClusterMaster(timeoutMs = 60000) {
+function waitForClusterState(timeoutMs = 60000) {
     const endAt = Date.now() + timeoutMs;
     const { cluster } = misc.teraslice();
     function _try() {
@@ -97,7 +97,9 @@ function waitForClusterMaster(timeoutMs = 60000) {
         })
             .then((result) => {
                 const nodes = _.size(_.keys(result));
-                if (nodes > 1) return null;
+                if (nodes > 2) {
+                    return nodes;
+                }
                 return _try();
             })
             .catch(() => _try());
@@ -148,5 +150,5 @@ module.exports = {
     forNodes,
     forWorkersJoined,
     waitForJobStatus,
-    waitForClusterMaster
+    waitForClusterState
 };
