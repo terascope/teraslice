@@ -43,6 +43,8 @@ module.exports = (cliConfig, command) => {
         } else {
             if (cliConfig.status) {
                 cliConfig.statusList = _.split(cliConfig.status, ':');
+            } else {
+                cliConfig.statusList = ['running', 'failing'];
             }
             if (_.has(cliConfig, 'deets.cluster')) {
                 cliConfig.cluster = cliConfig.deets.cluster;

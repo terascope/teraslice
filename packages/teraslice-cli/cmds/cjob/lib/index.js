@@ -81,18 +81,7 @@ module.exports = (cliConfig) => {
 
         return allJobsStopped;
     }
-    /*
-    async function submitJob() {
 
-        const jobContents = cliConfig.job_file_content;
-        let registerResult = await tsSubmitJob(jobContents);
-        if (registerResult) {
-
-        }
-
-
-    }
-    */
     async function submit() {
         const jobContents = cliConfig.job_file_content;
         const registerResult = await terasliceClient.jobs.submit(jobContents, true);
@@ -102,7 +91,7 @@ module.exports = (cliConfig) => {
         _.set(jobContents, 'tjm.cluster', cliConfig.cluster);
         _.set(jobContents, 'tjm.version', cliConfig.version);
         _.set(jobContents, 'tjm.job_id', cliConfig.job_id);
-        tsuFunctions.createJsonFile(jobFilePath, jobContents);
+        cliFunctions.createJsonFile(jobFilePath, jobContents);
         reply.green('Updated job file with tjm data');
         // alreadyRegisteredCheck();
         // tjmFunctions.terasliceClient.jobs.wrap(cliConfig.job_id).start())
@@ -214,12 +203,11 @@ module.exports = (cliConfig) => {
     }
 
 
-    async function list(save = false, showInfo = true, showJobs = true) {
+    async function list(saveState = false, showInfo = true, showJobs = true) {
         const jobs = [];
         if (showInfo) {
             await displayInfo();
         }
-        // const statusList = ['running', 'failing'];
         for (const status of cliConfig.statusList) {
             let jobsTemp = '';
             const exResult = await terasliceClient.jobs.list(status);
@@ -234,7 +222,7 @@ module.exports = (cliConfig) => {
             if (showJobs) {
                 await displayJobs(jobs);
             }
-            if (save) {
+            if (saveState) {
                 await fs.writeJson(cliConfig.state_file, jobs, { spaces: 4 });
             }
         }
@@ -254,7 +242,7 @@ module.exports = (cliConfig) => {
     }
 
     async function displayInfo() {
-        const header = ['host', 'state_file']
+        const header = ['host', 'state_file'];
         const rows = [];
         if (cliConfig.output_style === 'txt') {
             const row = {};
@@ -344,9 +332,9 @@ module.exports = (cliConfig) => {
         const jobs = [];
         for (const item of result) {
             if (status === 'running' || status === 'failing') {
-                const slicer = await terasliceClient.jobs.wrap(item.job_id).slicer()
+                const slicer = await terasliceClient.jobs.wrap(item.job_id).slicer();
                 // only add first slicer
-                item.slicer = slicer[0];
+                _.set(item, 'slicer', slicer[0]);
             } else {
                 item.slicer = 0;
             }
@@ -355,45 +343,8 @@ module.exports = (cliConfig) => {
         return jobs;
     }
 
-    async function tsClusterState() {
-        return terasliceClient.cluster.state();
-    }
-
-    async function tsJobPause(jobId) {
-        return terasliceClient.jobs.wrap(jobId).pause();
-    }
-
-    async function tsJobResume(jobId) {
-        return terasliceClient.jobs.wrap(jobId).Resume();
-    }
-
-    async function tsJobRecover(exId) {
-        // todo pass options
-        return terasliceClient.jobs.wrap(exId).Recover();
-    }
-
-    async function tsRemoveWorkers(jobId, workersToRemove) {
-        return terasliceClient.jobs.wrap(jobId).changeWorkers('remove', workersToRemove);
-    }
-
-    async function tsExStatus(status) {
-        return terasliceClient.jobs.list(status);
-    }
-
-    async function tsWorkers(jobId) {
-        return terasliceClient.jobs.wrap(jobId).workers();
-    }
-
-    async function tsListTxt(type) {
-        return terasliceClient.cluster.txt(type);
-    }
-
-    async function tsSubmitJob(contents) {
-        return terasliceClient.jobs.submit(contents, true);
-    }
-
     async function recover() {
-        return
+        return;
     }
 
 
@@ -405,7 +356,6 @@ module.exports = (cliConfig) => {
         restart,
         pause,
         resume,
-        recover,
-        terasliceClient,
+        recover
     };
 };

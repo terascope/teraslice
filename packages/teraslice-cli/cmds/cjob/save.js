@@ -17,6 +17,6 @@ exports.handler = (argv, _testFunctions) => {
     configChecks(cliConfig).returnConfigData();
     const job = _testFunctions || require('./lib')(cliConfig);
 
-    return tsuFunctions.save()
+    return job.save()
         .catch(err => reply.fatal(err.message));
 };
