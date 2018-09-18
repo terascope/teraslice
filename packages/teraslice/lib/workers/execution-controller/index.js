@@ -131,16 +131,25 @@ class ExecutionController {
             this._adjustSlicerQueueLength();
             this.workersHaveConnected = true;
             clearTimeout(this.workerConnectTimeoutId);
+            this.executionAnalytics.increment('workers_joined');
         });
 
         this.server.onClientAvailable((workerId) => {
             this.logger.trace(`worker ${workerId} is available`);
-            this.executionAnalytics.increment('workers_joined');
+            this.executionAnalytics.set('workers_available', this.server.availableClientCount);
+            this.executionAnalytics.set('workers_active', this.server.activeWorkers.length);
+        });
+
+        this.server.onClientUnavailable(() => {
+            this.executionAnalytics.set('workers_active', this.server.activeWorkers.length);
+            this.executionAnalytics.set('workers_available', this.server.availableClientCount);
         });
 
         this.server.onClientDisconnect((workerId) => {
             this.logger.trace(`worker ${workerId} is disconnected but it may reconnect`);
             this.executionAnalytics.increment('workers_disconnected');
+            this.executionAnalytics.set('workers_active', this.server.activeWorkers.length);
+
             this._startWorkerDisconnectWatchDog();
         });
 
@@ -272,6 +281,8 @@ class ExecutionController {
             this.slicesEnqueued += 1;
             slicerQueue.enqueue(slice);
         });
+
+        this.executionAnalytics.set('queued', this.slicerQueue.size());
 
         return slicerOrder;
     }
@@ -422,16 +433,6 @@ class ExecutionController {
     }
 
     async _process() {
-        const statsInterval = setInterval(() => {
-            if (this.isShuttingDown) {
-                clearInterval(statsInterval);
-                return;
-            }
-            this.executionAnalytics.set('workers_available', this.server.availableClientCount);
-            this.executionAnalytics.set('workers_active', this.server.activeWorkers.length);
-            this.executionAnalytics.set('queued', this.slicerQueue.size());
-        }, 500);
-
         await Promise.all([
             this.stores.exStore.setStatus(this.exId, 'running'),
             this.client.sendAvailable(),
@@ -442,8 +443,6 @@ class ExecutionController {
         } catch (err) {
             this.logger.error('Error processing slices', err);
         }
-
-        clearInterval(statsInterval);
 
         if (this.isDoneProcessing) {
             this.logger.debug(`execution ${this.exId} is done processing slices`);
@@ -549,6 +548,8 @@ class ExecutionController {
                 this.slicerQueue.unshift(slice);
             });
         }
+
+        this.executionAnalytics.set('queued', this.slicerQueue.size());
 
         return Promise.delay(0);
     }

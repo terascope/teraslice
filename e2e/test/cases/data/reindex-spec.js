@@ -136,30 +136,27 @@ describe('reindex', () => {
     });
 
     it('should support idempotency', (done) => {
+        const iterations = 3;
+
         const jobSpec = misc.newJob('reindex');
-        jobSpec.name = 'reindex 10 times';
-        jobSpec.operations[1].index = 'test-reindex-10times';
+        jobSpec.name = `reindex ${iterations} times`;
+        jobSpec.operations[1].index = `test-reindex-${iterations}times`;
 
-        const iterations = 10;
-        const jobs = [];
+        const jobs = _.times(iterations, () => jobSpec);
 
-        for (let i = 0; i < iterations; i += 1) {
-            jobs.push(teraslice.jobs.submit(jobSpec));
-        }
+        Promise.map(jobs, async (spec) => {
+            const job = await teraslice.jobs.submit(spec);
+            expect(job).toBeDefined();
+            expect(job.id()).toBeDefined();
 
-        Promise
-            .map(jobs, (job) => {
-                expect(job).toBeDefined();
-                expect(job.id()).toBeDefined();
-
-                return waitForJobStatus(job, 'completed');
+            return waitForJobStatus(job, 'completed');
+        })
+            .then(async () => {
+                const stats = await misc.indexStats(`test-reindex-${iterations}times`);
+                expect(stats.count).toBe(10 * iterations);
+                expect(stats.deleted).toBe(0);
             })
-            .all()
-            .then(() => misc.indexStats('test-reindex-10times')
-                .then((stats) => {
-                    expect(stats.count).toBe(10 * iterations);
-                    expect(stats.deleted).toBe(0);
-                    done();
-                }));
+            .catch(fail)
+            .finally(() => { done(); });
     });
 }, 60 * 1000);
