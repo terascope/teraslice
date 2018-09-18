@@ -499,17 +499,24 @@ class ExecutionController {
     }
 
     async _scheduleSlices() {
-        // If all slicers are not done, the slicer queue is not overflown and the scheduler
-        // is set, then attempt to provision more slices
-        const needsMoreSlices = this.slicerQueue.size() < this.executionContext.queueLength;
-        if (!needsMoreSlices) return Promise.delay(0);
+        const remaining = this.executionContext.queueLength - this.slicerQueue.size();
+        if (remaining <= 0) return;
 
-        try {
-            await Promise.map(this.scheduler, slicerFn => slicerFn());
-        } catch (err) {
-            this.logger.error('Failure scheduling slice', err);
-        }
-        return null;
+        // schedule up to 10 slices at once
+        const count = _.min([remaining, 10]);
+
+        const schedule = async () => {
+            const needsMoreSlices = this.slicerQueue.size() < this.executionContext.queueLength;
+            if (!needsMoreSlices) return;
+
+            try {
+                await Promise.map(this.scheduler, slicerFn => slicerFn());
+            } catch (err) {
+                this.logger.error('Failure scheduling slice', err);
+            }
+        };
+
+        await Promise.map(_.times(count), schedule);
     }
 
     async _dispatchSlices() {
@@ -550,8 +557,6 @@ class ExecutionController {
         }
 
         this.executionAnalytics.set('queued', this.slicerQueue.size());
-
-        return Promise.delay(0);
     }
 
     async _slicerInit() {
