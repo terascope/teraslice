@@ -86,7 +86,7 @@ fs.readdirSync(packagesPath).forEach((fileName) => {
 
         console.log(`* Updating ${otherPkgJSON.name} dependency version to ^${newVersion}`);
         fse.writeJSONSync(otherPkgPath, otherPkgJSON, {
-            spaces: 2,
+            spaces: 4,
         });
     }
 });
