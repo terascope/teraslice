@@ -83,7 +83,11 @@ export class TestContext implements c.Context {
 
         this.sysconfig = {
             terafoundation: {
-                connectors: {},
+                connectors: {
+                    elasticsearch: {
+                        default: {}
+                    }
+                },
             },
             teraslice: {
             },

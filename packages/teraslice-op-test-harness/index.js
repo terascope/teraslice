@@ -48,7 +48,8 @@ class Operation {
         logger,
         retryData,
         executionConfig,
-        executionContext
+        executionContext,
+        type
     }) {
         this.operationFn = op;
         this.context = context;
@@ -59,8 +60,8 @@ class Operation {
         this.opConfig = opConfig;
 
         this.isProcessor = op.newProcessor !== undefined;
-        this.isReader = op.newReader !== undefined;
-        this.isSlicer = op.newSlicer !== undefined;
+        this.isReader = type === 'reader' && op.newReader !== undefined;
+        this.isSlicer = type === 'slicer' && op.newSlicer !== undefined;
         this._hasInit = false;
         bindThis(this, Operation);
     }
@@ -81,6 +82,8 @@ class Operation {
                 this.operation = await op.newProcessor(context, opConfig, executionConfig);
             }
             if (this.isReader) {
+                // readers and slicers are currently mixed in the same file,
+                // this will change with the new operations
                 this.operation = await op.newReader(context, opConfig, executionConfig);
             }
             if (this.isSlicer) {
@@ -91,19 +94,23 @@ class Operation {
         return this;
     }
 
-    async run(slice) {
+    async run(data) {
         if (!this._hasInit) await this.init();
         if (this.isSlicer) {
             // if just one slicer, return one value
             if (this.operation.length === 1) {
-                return this.operation[0]();
+                return this.operation[0](data);
             }
-            const invocations = this.operation.map(fn => fn());
+            const invocations = this.operation.map((fn, ind) => {
+                const respData = _.get(data, ind) || data;
+                return fn(respData);
+            });
             return Promise.all(invocations);
         }
-        return this.operation(slice);
+        return this.operation(data, this.logger);
     }
 }
+
 // TODO: cleanup extra parameters that this does not need
 class TestHarness {
     constructor(op) {
@@ -118,21 +125,58 @@ class TestHarness {
         bindThis(this, TestHarness);
     }
 
-    async init(_opConfig = { _op: 'test-op-name' }) {
+    async processData(opConfig, data) {
+        const op = await this.init({ opConfig });
+        return op.run(data);
+    }
+
+    // TODO: Im not sure this should be here, maybe this should all be in init
+    async init({
+        opConfig: newOpConfig = null,
+        executionConfig: newExecutionConfig = null,
+        context: newContext = null,
+        retryData = [],
+        client = null,
+        type = 'slicer'
+    }) {
         const {
-            context,
+            context: _context,
             logger,
-            retryData = [],
-            executionContext,
             operationFn: op,
         } = this;
 
-        let { opConfig, executionConfig } = this;
+        let opConfig;
+        let executionConfig;
+        let executionContext;
+        let context = _context;
 
-        if (!opConfig) {
-            opConfig = _opConfig._op === 'test-op-name' ? _opConfig : validateOpConfig(op.schema(), _opConfig);
+        if (newOpConfig) opConfig = validateOpConfig(op.schema(), newOpConfig);
+        if (!newOpConfig) opConfig = { _op: 'test-op-name' };
+
+        if (newExecutionConfig) {
+            executionConfig = newExecutionConfig;
+            this.executionConfig = executionConfig;
+            executionContext = { config: _.cloneDeep(executionConfig) };
+            this.executionContext = executionContext;
         }
-        if (!executionConfig) executionConfig = validateJobConfig(this.schema, jobSpec(opConfig));
+        if (!newExecutionConfig) {
+            executionConfig = validateJobConfig(this.schema, jobSpec(opConfig));
+            this.executionConfig = executionConfig;
+            executionContext = { config: _.cloneDeep(executionConfig) };
+            this.executionContext = executionContext;
+        }
+        this.retryData = retryData;
+
+        if (newContext) {
+            context = Object.assign({}, _context, newContext);
+            this.context = context;
+        }
+        if (client) {
+            // this first one is for backwards compatability
+            this.client = client;
+            this.context.foundation.getConnection = () => ({ client });
+            this.context.apis.foundation.getConnnection = () => ({ client });
+        }
 
         const instance = new Operation({
             op,
@@ -141,41 +185,11 @@ class TestHarness {
             logger,
             retryData,
             executionConfig,
-            executionContext
+            executionContext,
+            type
         });
 
         return instance.init();
-    }
-
-    async processData(opConfig, data) {
-        const op = await this.init(opConfig);
-        return op.run(data);
-    }
-    // TODO: Im not sure this should be here, maybe this should all be in init
-
-    async setup({
-        opConfig = null,
-        executionConfig = null,
-        context = null,
-        retryData = null
-    }) {
-        const _opConfig = this.opConfig || {};
-        const _executionConfig = this.executionConfig || {};
-        const _context = this.context || {};
-
-        if (opConfig) this.opConfig = Object.assign({}, _opConfig, opConfig);
-
-        if (retryData) this.retryData = retryData;
-
-        if (executionConfig) {
-            const newExecutionConfig = Object.assign({}, _executionConfig, executionConfig);
-            this.executionConfig = newExecutionConfig;
-            this.executionContext = { config: _.cloneDeep(newExecutionConfig) };
-        }
-
-        if (context) this.context = Object.assign({}, _context, context);
-
-        return this.init();
     }
 
     // This and below is for all backward compatible code
@@ -209,14 +223,19 @@ class TestHarness {
     }
 
     getProcessor(_opConfig, extraContext) {
-        const isOp = _.get(_opConfig, '_op');
-        const opConfig = isOp ? _opConfig : { _op: 'test-op-name' };
+        let opConfig = _opConfig;
+        if (_opConfig == null) {
+            opConfig = {};
+        }
+
+        if (!opConfig._op) {
+            opConfig._op = 'test-op-name';
+        }
         const operation = this.operationFn;
         const { schema, context } = this;
         // run the jobConfig and opConfig through the validator to get
         // complete and convict validated configs
         const jobConfig = validateJobConfig(schema, jobSpec(opConfig));
-
         return operation.newProcessor(
             _.assign({}, context, extraContext),
             validateOpConfig(operation.schema(), opConfig),
