@@ -3,6 +3,20 @@ services:
   teraslice-master:
     extends:
       service: teraslice-worker
+    scale: 1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:45678/cluster/state"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    ports:
+      - "45678:45678"
+    environment:
+      - BLUEBIRD_LONG_STACK_TRACES=1
+      - TERAFOUNDATION_CONFIG=/app/config/processor-master.yaml
+  teraslice-worker:
+    build:
+      context: ..
     command: [
       "./scripts/wait-for-it.sh",
       "elasticsearch:49200",
@@ -13,32 +27,10 @@ services:
       "--max-old-space-size=512",
       "service.js"
     ]
-    scale: 1
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:45678/cluster/state"]
-      interval: 15s
-      timeout: 10s
-      retries: 5
-    ports:
-      - "45678:45678"
-    environment:
-      - TERAFOUNDATION_CONFIG=/app/config/processor-master.yaml
-  teraslice-worker:
-    build:
-      context: ..
-    command: [
-      "./scripts/wait-for-it.sh",
-      "teraslice-master:45678",
-      "--timeout=60",
-      "--strict",
-      "--",
-      "node",
-      "--max-old-space-size=512",
-      "service.js"
-    ]
-    scale: 3
+    scale: 2
     stop_grace_period: 30s
     environment:
+      - BLUEBIRD_LONG_STACK_TRACES=1
       - TERAFOUNDATION_CONFIG=/app/config/processor-worker.yaml
     networks:
       - cluster

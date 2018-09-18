@@ -1,10 +1,14 @@
 'use strict';
 
 const misc = require('../../misc');
+const { waitForJobStatus } = require('../../wait');
+const { resetState } = require('../../helpers');
 
 const teraslice = misc.teraslice();
 
 describe('id reader', () => {
+    beforeAll(() => resetState());
+
     it('should support reindexing', (done) => {
         const jobSpec = misc.newJob('id');
         jobSpec.name = 'reindex by id';
@@ -14,7 +18,7 @@ describe('id reader', () => {
             .then((job) => {
                 expect(job).toBeDefined();
                 expect(job.id()).toBeDefined();
-                return job.waitForStatus('completed', 100);
+                return waitForJobStatus(job, 'completed');
             })
             .then(() => misc.indexStats('test-id_reindex-10000')
                 .then((stats) => {
@@ -36,7 +40,7 @@ describe('id reader', () => {
             .then((job) => {
                 expect(job).toBeDefined();
                 expect(job.id()).toBeDefined();
-                return job.waitForStatus('completed', 100);
+                return waitForJobStatus(job, 'completed');
             })
             .then(() => misc.indexStats('test-hexadecimal-logs')
                 .then((stats) => {
@@ -60,7 +64,7 @@ describe('id reader', () => {
             .then((job) => {
                 expect(job).toBeDefined();
                 expect(job.id()).toBeDefined();
-                return job.waitForStatus('completed', 100);
+                return waitForJobStatus(job, 'completed');
             })
             .then(() => misc.indexStats('test-keyrange-logs')
                 .then((stats) => {
@@ -81,15 +85,15 @@ describe('id reader', () => {
             .then((job) => {
                 expect(job.id()).toBeDefined();
 
-                return job.waitForStatus('running', 100)
+                return waitForJobStatus(job, 'running')
                     .then(() => job.pause())
-                    .then(() => job.waitForStatus('paused', 100))
+                    .then(() => waitForJobStatus(job, 'paused'))
                     .then(() => job.resume())
-                    .then(() => job.waitForStatus('running', 100))
+                    .then(() => waitForJobStatus(job, 'running'))
                     .then(() => job.stop())
-                    .then(() => job.waitForStatus('stopped', 100))
+                    .then(() => waitForJobStatus(job, 'stopped'))
                     .then(() => job.recover())
-                    .then(() => job.waitForStatus('completed', 100))
+                    .then(() => waitForJobStatus(job, 'completed'))
                     .then(() => misc.indexStats('test-id_reindex-lifecycle-10000')
                         .then((stats) => {
                             expect(stats.count).toBe(10000);

@@ -42,7 +42,7 @@ function dateOptions(value) {
         return options[value];
     }
 
-    throw new Error('the time descriptor for the interval is malformed');
+    throw new Error(`the time descriptor of "${value}" for the interval is malformed`);
 }
 
 

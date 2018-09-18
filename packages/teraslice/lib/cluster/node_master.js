@@ -1,36 +1,86 @@
 'use strict';
 
-const Queue = require('@terascope/queue');
+const Promise = require('bluebird');
 const _ = require('lodash');
 const parseError = require('@terascope/error-parser');
-const messageModule = require('./services/messaging');
-const { deleteDir } = require('../utils/file_utils');
+const { Mutex } = require('async-mutex');
+const messageModule = require('./services/cluster/backends/native/messaging');
+const spawnAssetsLoader = require('../workers/assets/spawn');
+const { safeEncode } = require('../utils/encoding_utils');
+const { findPort, getPorts } = require('../utils/port_utils');
 
 const nodeVersion = process.version;
 const terasliceVersion = require('../../package.json').version;
 
-// setting assignment
-process.env.assignment = 'node_master';
-
-module.exports = function module(context) {
+module.exports = async function nodeMaster(context) {
     const logger = context.apis.foundation.makeLogger({ module: 'node_master' });
     const configWorkerLimit = context.sysconfig.teraslice.workers;
     const config = context.sysconfig.teraslice;
-    const assetsPath = config.assets_directory;
     const events = context.apis.foundation.getSystemEvents();
-    const systemPorts = portAllocator();
+    const mutex = new Mutex();
 
     const messaging = messageModule(context, logger);
     const host = messaging.getHostUrl();
+    const isShuttingDown = false;
+    const ports = getPorts(context);
 
     logger.info(`node ${context.sysconfig._nodeName} is attempting to connect to cluster_master: ${host}`);
 
-    const sendNodeState = _.debounce(() => {
+    function sendNodeStateNow() {
+        if (isShuttingDown) return;
         const state = getNodeState();
         messaging.send({
-            to: 'cluster_master', message: 'node:state', node_id: state.node_id, payload: state
+            to: 'cluster_master',
+            message: 'node:state',
+            node_id: state.node_id,
+            payload: state
         });
-    }, 500, { leading: false, trailing: true });
+    }
+
+    const sendNodeState = _.debounce(sendNodeStateNow, 500, { leading: false, trailing: true });
+
+    let pendingAllocations = 0;
+
+    function allocateWorkers(count, exConfig, fn) {
+        const startTime = Date.now();
+        pendingAllocations += count;
+        sendNodeStateNow();
+        logger.info(`allocating ${count} workers...`);
+
+        return mutex.runExclusive(async () => {
+            try {
+                await loadAssetsIfNeeded(exConfig.job, exConfig.ex_id);
+            } catch (err) {
+                logger.error(`Failure to allocated assets for execution ${exConfig.ex_id}`);
+                throw err;
+            } finally {
+                pendingAllocations -= count;
+            }
+
+            try {
+                const workers = await fn();
+                const elapsed = Date.now() - startTime;
+                if (workers.length === count) {
+                    logger.info(`allocated ${workers.length} workers, took ${elapsed}ms`);
+                } else {
+                    logger.info(`allocated ${workers.length} out of the requested ${count} workers, took ${elapsed}ms`);
+                }
+                return workers.length;
+            } catch (err) {
+                logger.error(`Failure to allocate workers for execution ${exConfig.ex_id}`);
+                throw err;
+            }
+        });
+    }
+
+    function canAllocateWorkers(requestedWorkers) {
+        const numOfCurrentWorkers = Object.keys(context.cluster.workers).length;
+        // if there is an over allocation, send back rest to be enqueued
+        if (configWorkerLimit < numOfCurrentWorkers + requestedWorkers) {
+            return configWorkerLimit - numOfCurrentWorkers > 0;
+        }
+        return true;
+    }
 
     messaging.registerChildOnlineHook(sendNodeState);
 
@@ -56,65 +106,31 @@ module.exports = function module(context) {
     });
 
     messaging.register({
-        event: 'assets:delete',
-        callback: (deleteMsg) => {
-            const assetId = deleteMsg.payload;
-            deleteDir(`${assetsPath}/${assetId}`)
-                .catch((err) => {
-                    const errMsg = parseError(err);
-                    logger.error(errMsg);
-                });
-        }
-    });
-
-    messaging.register({
-        event: 'execution_service:verify_assets',
-        callback: (loadMsg) => {
-            context.foundation.startWorkers(1, {
-                assignment: 'assets_loader',
-                node_id: context.sysconfig._nodeName,
-                preload: true,
-                __msgId: loadMsg.__msgId,
-                job: JSON.stringify(loadMsg.payload)
-            });
-        }
-    });
-
-    messaging.register({
         event: 'cluster:execution_controller:create',
         callback: (createSlicerRequest) => {
             const createSlicerMsg = createSlicerRequest.payload;
-            const needAssets = jobNeedsAssets(createSlicerMsg.job);
+            logger.info(`Starting execution_controller for execution ${createSlicerMsg.ex_id}...`);
 
-            const controllerContext = {
-                assignment: 'execution_controller',
-                job: createSlicerMsg.job,
-                node_id: context.sysconfig._nodeName,
-                ex_id: createSlicerMsg.ex_id,
-                job_id: createSlicerMsg.job_id,
-                slicer_port: createSlicerMsg.slicer_port
-            };
-
-            logger.trace('starting a execution controller', controllerContext);
-            context.foundation.startWorkers(1, controllerContext);
-
-            if (needAssets) {
-                logger.info(`node ${context.sysconfig._nodeName} is checking assets for job ${createSlicerMsg.ex_id}`);
-                context.foundation.startWorkers(1, {
-                    assignment: 'assets_loader',
-                    node_id: context.sysconfig._nodeName,
+            allocateWorkers(1, createSlicerMsg, () => {
+                const controllerContext = {
+                    assignment: 'execution_controller',
+                    NODE_TYPE: 'execution_controller',
+                    EX: safeEncode(createSlicerMsg.job),
                     job: createSlicerMsg.job,
-                    ex_id: createSlicerMsg.ex_id
+                    node_id: context.sysconfig._nodeName,
+                    ex_id: createSlicerMsg.ex_id,
+                    job_id: createSlicerMsg.job_id,
+                    slicer_port: createSlicerMsg.slicer_port
+                };
+                logger.trace('starting a execution controller', controllerContext);
+                return context.foundation.startWorkers(1, controllerContext);
+            })
+                .then(() => messaging.respond(createSlicerRequest))
+                .catch((error) => {
+                    messaging.respond(createSlicerRequest, {
+                        error: parseError(error),
+                    });
                 });
-            }
-
-            // need to update cluster_master immediately so it can balance workers correctly
-            // and prevent wrong allocations
-            const state = getNodeState();
-            messaging.send({
-                to: 'cluster_master', message: 'node:state', node_id: state.node_id, payload: state
-            });
-            messaging.respond(createSlicerRequest);
         }
     });
 
@@ -122,43 +138,55 @@ module.exports = function module(context) {
         event: 'cluster:workers:create',
         callback: (createWorkerRequest) => {
             const createWorkerMsg = createWorkerRequest.payload;
-            const numOfCurrentWorkers = Object.keys(context.cluster.workers).length;
-            const needAssets = jobNeedsAssets(createWorkerMsg.job);
-            let newWorkers = createWorkerMsg.workers;
-            logger.info(`Attempting to allocate ${newWorkers} workers.`);
+            const requestedWorkers = createWorkerMsg.workers;
+            logger.info(`Starting ${requestedWorkers} workers for execution ${createWorkerMsg.ex_id}...`);
 
-            // if there is an over allocation, send back rest to be enqueued
-            if (configWorkerLimit < numOfCurrentWorkers + newWorkers) {
-                newWorkers = configWorkerLimit - numOfCurrentWorkers;
-
-                // mutative
-                createWorkerMsg.workers -= newWorkers;
-                messaging.send({ to: 'cluster_master', message: 'node:workers:over_allocated', payload: createWorkerMsg });
-                logger.warn(`Worker allocation request would exceed maximum number of workers - ${configWorkerLimit}`);
-                logger.warn(`Reducing allocation to ${newWorkers} workers.`);
-            }
-            logger.trace(`starting ${newWorkers} workers`, createWorkerMsg.ex_id);
-
-            context.foundation.startWorkers(newWorkers, {
-                assignment: 'worker',
-                node_id: context.sysconfig._nodeName,
-                job: createWorkerMsg.job,
-                ex_id: createWorkerMsg.ex_id,
-                job_id: createWorkerMsg.job_id
-            });
-
-            // for workers on nodes that don't have the asset loading process already going
-            if (needAssets && !assetIsLoading(createWorkerMsg.ex_id)) {
-                logger.info(`node ${context.sysconfig._nodeName} is checking assets for job ${createWorkerMsg.ex_id}`);
-                context.foundation.startWorkers(1, {
-                    assignment: 'assets_loader',
-                    node_id: context.sysconfig._nodeName,
-                    job: createWorkerMsg.job,
-                    ex_id: createWorkerMsg.ex_id
+            if (!canAllocateWorkers(requestedWorkers)) {
+                logger.warn(`Worker is overallocated, maximum number of workers of ${configWorkerLimit}`);
+                messaging.respond(createWorkerRequest, {
+                    payload: {
+                        createdWorkers: 0,
+                    }
                 });
+                return;
             }
 
-            messaging.respond(createWorkerRequest);
+            allocateWorkers(requestedWorkers, createWorkerMsg, () => {
+                let newWorkers = requestedWorkers;
+                const numOfCurrentWorkers = Object.keys(context.cluster.workers).length;
+                // if there is an over allocation, send back rest to be enqueued
+                if (configWorkerLimit < numOfCurrentWorkers + requestedWorkers) {
+                    newWorkers = configWorkerLimit - numOfCurrentWorkers;
+                    logger.warn(`Worker allocation request would exceed maximum number of workers of ${configWorkerLimit}`);
+                    logger.warn(`Reducing allocation to ${newWorkers} workers.`);
+                }
+
+                let workers = [];
+                if (newWorkers > 0) {
+                    logger.trace(`starting ${newWorkers} workers`, createWorkerMsg.ex_id);
+                    workers = context.foundation.startWorkers(newWorkers, {
+                        NODE_TYPE: 'worker',
+                        EX: safeEncode(createWorkerMsg.job),
+                        assignment: 'worker',
+                        node_id: context.sysconfig._nodeName,
+                        job: createWorkerMsg.job,
+                        ex_id: createWorkerMsg.ex_id,
+                        job_id: createWorkerMsg.job_id
+                    });
+                }
+
+                return workers;
+            })
+                .then(createdWorkers => messaging.respond(createWorkerRequest, {
+                    payload: {
+                        createdWorkers,
+                    }
+                }))
+                .catch(() => messaging.respond(createWorkerRequest, {
+                    payload: {
+                        createdWorkers: 0,
+                    }
+                }));
         }
     });
 
@@ -166,32 +194,31 @@ module.exports = function module(context) {
 
     // this fires when entire server will be shutdown
     events.once('terafoundation:shutdown', () => {
-        const filterFn = () => context.cluster.workers;
-        const alreadySentShutdownMessage = true;
-        function actionCompleteFn() {
-            return getNodeState().active.length === 0;
-        }
-        const stopTime = config.shutdown_timeout;
+        logger.debug('Received shutdown notice from terafoundation');
 
-        shutdownProcesses({}, stopTime, filterFn, actionCompleteFn, alreadySentShutdownMessage);
+        const filterFn = () => context.cluster.workers;
+        const isActionCompleteFn = () => _.isEmpty(getNodeState().active);
+        shutdownProcesses({}, filterFn, isActionCompleteFn, true);
     });
 
     messaging.register({
         event: 'cluster:execution:stop',
         callback: (networkMsg) => {
+            const exId = networkMsg.ex_id;
+            logger.debug(`received cluster execution stop for execution ${exId}`);
+
             const filterFn = () => _.filter(
                 context.cluster.workers,
-                worker => worker.ex_id === networkMsg.ex_id
+                worker => worker.ex_id === exId
             );
             function actionCompleteFn() {
                 const children = getNodeState().active;
-                const workers = _.filter(children, worker => worker.ex_id === networkMsg.ex_id);
-                logger.debug(`waiting for ${workers.length} to stop for ex: ${networkMsg.ex_id}`);
+                const workers = _.filter(children, worker => worker.ex_id === exId);
+                logger.debug(`waiting for ${workers.length} to stop for ex: ${exId}`);
                 return workers.length === 0;
             }
-            const stopTime = networkMsg.timeout || config.action_timeout;
 
-            shutdownProcesses(networkMsg, stopTime, filterFn, actionCompleteFn);
+            shutdownProcesses(networkMsg, filterFn, actionCompleteFn);
         }
     });
 
@@ -201,7 +228,6 @@ module.exports = function module(context) {
             const numberToRemove = networkMsg.payload.workers;
             const children = getNodeState().active;
             const startingWorkerCount = _.filter(children, worker => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker').length;
-            const stopTime = config.shutdown_timeout;
             const filterFn = () => _.filter(
                 children,
                 worker => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker'
@@ -213,16 +239,17 @@ module.exports = function module(context) {
                 return currentWorkersForJob + numberToRemove <= startingWorkerCount;
             }
 
-            shutdownProcesses(networkMsg, stopTime, filterFn, actionCompleteFn);
+            shutdownProcesses(networkMsg, filterFn, actionCompleteFn);
         }
     });
 
     // used to find an open port for slicer
     messaging.register({
         event: 'cluster:node:get_port',
-        callback: (msg) => {
-            logger.debug(`assigning port ${msg.port} for new job`);
-            messaging.respond(msg, { port: systemPorts.getPort() });
+        callback: async (msg) => {
+            const port = await findPort(ports);
+            logger.debug(`assigning port ${port} for new job`);
+            messaging.respond(msg, { port });
         }
     });
 
@@ -240,42 +267,46 @@ module.exports = function module(context) {
         callback: () => sendNodeState()
     });
 
-    function assetIsLoading(exId) {
-        const { workers } = context.cluster;
-        const assetWorker = _.filter(workers, worker => worker.assignment === 'assets_loader' && worker.ex_id === exId);
-        return assetWorker.length === 1;
+    function getAssetsFromJob(jobStr) {
+        const job = typeof jobStr === 'string' ? JSON.parse(jobStr) : jobStr;
+        return job.assets || [];
     }
 
-    function messageWorkers(clusterMsg, processMsg, filterFn) {
-        // sharing the unique msg id for each message sent
-        processMsg.__msgId = clusterMsg.__msgId;
+    function loadAssetsIfNeeded(job, exId) {
+        const assets = getAssetsFromJob(job);
+        if (assets.length > 0) {
+            logger.info(`node ${context.sysconfig._nodeName} is checking assets for job, exId: ${exId}`);
+            return Promise.resolve().then(() => spawnAssetsLoader(assets));
+        }
+        return Promise.resolve();
+    }
+
+    function shutdownWorkers(signal, filterFn) {
         const allWorkersForJob = filterFn();
         _.each(allWorkersForJob, (worker) => {
             const workerID = worker.worker_id || worker.id;
-            if (context.cluster.workers[workerID]) {
-                logger.trace(`sending message to worker ${workerID}, ex_id: ${worker.ex_id}, msg:`, processMsg);
-                context.cluster.workers[workerID].send(processMsg);
+            if (_.has(context.cluster.workers, workerID)) {
+                const clusterWorker = context.cluster.workers[workerID];
+                const processId = clusterWorker.process.pid;
+                if (clusterWorker.isDead()) return;
+                // if the worker has already been sent a SIGTERM signal it should send a SIGKILL
+                logger.warn(`sending ${signal} to process ${processId}, assignment: ${worker.assignment}, ex_id: ${worker.ex_id}`);
+                clusterWorker.kill(signal);
             }
         });
     }
 
-    function killWorkers(filterFn) {
-        const allWorkersForJob = filterFn();
-        _.each(allWorkersForJob, (worker) => {
-            const workerID = worker.worker_id || worker.id;
-            if (context.cluster.workers[workerID]) {
-                logger.warn(`sending SIGKILL to process ${worker.pid}, assignment: ${worker.assignment}, ex_id: ${worker.ex_id}`);
-                context.cluster.workers[workerID].process.kill('SIGKILL');
-            }
-        });
-    }
-
-    function shutdownProcesses(message, stoppingTime, filterFn, isActionCompleteFn, alreadySent) {
+    function shutdownProcesses(message, filterFn, isActionCompleteFn, onlySigKill = false) {
         const intervalTime = 200;
         const needsResponse = message.response && message.to;
-        let stopTime = stoppingTime;
 
-        if (!alreadySent) messageWorkers(message, { message: 'worker:shutdown' }, filterFn);
+        // give a little extra time to finish shutting down
+        let stopTime = config.shutdown_timeout + 3000;
+
+        if (!onlySigKill) {
+            shutdownWorkers('SIGTERM', filterFn);
+        }
+
         const stop = setInterval(() => {
             if (isActionCompleteFn()) {
                 clearInterval(stop);
@@ -283,7 +314,7 @@ module.exports = function module(context) {
             }
             if (stopTime <= 0) {
                 clearInterval(stop);
-                killWorkers(filterFn);
+                shutdownWorkers('SIGKILL', filterFn);
                 if (needsResponse) messaging.respond(message);
             }
 
@@ -291,51 +322,8 @@ module.exports = function module(context) {
         }, intervalTime);
     }
 
-    function jobNeedsAssets(jobStr) {
-        const job = typeof jobStr === 'string' ? JSON.parse(jobStr) : jobStr;
-        return job.assets && job.assets.length > 0;
-    }
-
-    function portAllocator() {
-        const portConfig = config.slicer_port_range;
-        const dataArray = _.split(portConfig, ':');
-        const start = _.toInteger(dataArray[0]);
-        // range end is non-inclusive, so we need to add one
-        const end = _.toInteger(dataArray[1]) + 1;
-        const portQueue = new Queue();
-
-        // shuffle all of the ports at random
-        const ports = _.shuffle(_.range(start, end));
-        _.forEach(ports, (i) => {
-            portQueue.enqueue(i);
-        });
-
-        function getPort(preventEnqueing) {
-            const port = portQueue.dequeue();
-            if (!preventEnqueing) {
-                portQueue.enqueue(port);
-            }
-            return port;
-        }
-
-        return {
-            getPort
-        };
-    }
-
     function getNodeState() {
-        let nodeId;
-
-        if (context.sysconfig.teraslice.cluster_manager_type === 'kubernetes') {
-            if (process.env.POD_IP === undefined) {
-                nodeId = context.sysconfig._nodeName;
-            } else {
-                // this enviroment variable needs to be set by the deployment
-                nodeId = process.env.POD_IP;
-            }
-        } else {
-            nodeId = context.sysconfig._nodeName;
-        }
+        const nodeId = context.sysconfig._nodeName;
 
         const state = {
             node_id: nodeId,
@@ -346,6 +334,7 @@ module.exports = function module(context) {
             total: context.sysconfig.teraslice.workers,
             state: 'connected'
         };
+
         const clusterWorkers = context.cluster.workers;
         const active = [];
 
@@ -371,7 +360,7 @@ module.exports = function module(context) {
             active.push(child);
         });
 
-        state.available = state.total - active.length;
+        state.available = state.total - active.length - pendingAllocations;
         state.active = active;
 
         return state;
@@ -384,60 +373,20 @@ module.exports = function module(context) {
     });
 
     if (context.sysconfig.teraslice.master) {
-        const assetsPort = systemPorts.getPort(true);
-
         logger.debug(`node ${context.sysconfig._nodeName} is creating the cluster_master`);
         context.foundation.startWorkers(1, {
             assignment: 'cluster_master',
-            assets_port: assetsPort,
+            assets_port: ports.assetsPort,
             node_id: context.sysconfig._nodeName
         });
 
-        logger.debug(`node ${context.sysconfig._nodeName} is creating assets endpoint on port ${assetsPort}`);
+        logger.debug(`node ${context.sysconfig._nodeName} is creating assets endpoint on port ${ports.assetsPort}`);
+
         context.foundation.startWorkers(1, {
             assignment: 'assets_service',
             // key needs to be called port to bypass cluster port sharing
-            port: assetsPort,
+            port: ports.assetsPort,
             node_id: context.sysconfig._nodeName
         });
-    }
-
-    if (context.sysconfig.teraslice.cluster_manager_type === 'kubernetes'
-        && !context.sysconfig.teraslice.master) {
-        const workerType = process.env.node_type;
-        const jobStr = process.env.EX;
-        let ex;
-
-        try {
-            ex = JSON.parse(jobStr);
-        } catch (err) {
-            const errMsg = parseError(err);
-            logger.error(`error while loading EX from enviroment, error: ${errMsg}`);
-            // give it time to log before exiting
-            setTimeout(() => process.exit(), 100);
-        }
-
-        const needAssets = jobNeedsAssets(ex);
-
-        const childContext = {
-            assignment: workerType,
-            job: jobStr,
-            node_id: context.sysconfig._nodeName,
-            ex_id: ex.ex_id,
-            job_id: ex.job_id,
-            slicer_port: ex.slicer_port
-        };
-
-        context.foundation.startWorkers(1, childContext);
-
-        if (needAssets) {
-            logger.info(`node ${context.sysconfig._nodeName} is checking assets for job ${ex.ex_id}`);
-            context.foundation.startWorkers(1, {
-                assignment: 'assets_loader',
-                node_id: context.sysconfig._nodeName,
-                job: ex.job,
-                ex_id: ex.ex_id
-            });
-        }
     }
 };

@@ -3,8 +3,13 @@
 const fs = require('fs');
 const _ = require('lodash');
 const misc = require('../../misc');
+const { resetState } = require('../../helpers');
+
+const { waitForJobStatus } = require('../../wait');
 
 describe('api endpoint', () => {
+    beforeAll(() => resetState());
+
     const teraslice = misc.teraslice();
     it('submitted jobs are not saved in validated form', (done) => {
         const assetPath = 'test/fixtures/assets/example_asset_1.zip';
@@ -73,7 +78,7 @@ describe('api endpoint', () => {
                 expect(job.id()).toBeDefined();
                 jobId = job.id();
 
-                return job.waitForStatus('completed', 100);
+                return waitForJobStatus(job, 'completed');
             })
             .then(() => teraslice.cluster.get(`/jobs/${jobId}/ex`))
             .then((ex) => {

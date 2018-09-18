@@ -1,5 +1,7 @@
 'use strict';
 
+require('../helpers/set-global-job-env');
+
 const Promise = require('bluebird');
 const moment = require('moment');
 const _ = require('lodash');

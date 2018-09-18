@@ -1,8 +1,11 @@
 'use strict';
 
 const misc = require('../../misc');
+const { resetState } = require('../../helpers');
 
 describe('job validation', () => {
+    beforeAll(() => resetState());
+
     it('should be rejected with empty index selector index name', (done) => {
         const jobSpec = misc.newJob('reindex');
         jobSpec.operations[1].index = ''; // index selector

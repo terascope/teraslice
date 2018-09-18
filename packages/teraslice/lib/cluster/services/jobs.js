@@ -3,16 +3,17 @@
 const Promise = require('bluebird');
 const _ = require('lodash');
 const util = require('util');
-const path = require('path');
 const parseError = require('@terascope/error-parser');
 const { JobValidator } = require('@terascope/job-components');
+const { terasliceOpPath } = require('../../config');
+const spawnAssetsLoader = require('../../workers/assets/spawn');
 
 module.exports = function module(context) {
     const executionService = context.services.execution;
     const logger = context.apis.foundation.makeLogger({ module: 'jobs_service' });
 
     const jobValidator = new JobValidator(context, {
-        terasliceOpPath: path.join(__dirname, '..', '..'),
+        terasliceOpPath,
         assetPath: _.get(context, 'sysconfig.teraslice.assets_directory'),
     });
 
@@ -202,18 +203,16 @@ module.exports = function module(context) {
                 resolve(jobConfig);
             } else {
                 // convert asset references to their id's
-                executionService.verifyAssets(jobAssets)
-                    .then((assetMsg) => {
-                        const assetIds = assetMsg.meta.map(metaObj => metaObj.id);
-                        if (assetMsg.error) {
-                            reject(assetMsg.error);
-                        }
-                        if (assetIds === 0) {
-                            reject(`no asset id's were found for assets: ${JSON.stringify(jobAssets)}`);
+                spawnAssetsLoader(jobAssets)
+                    .then((assetIds) => {
+                        if (assetIds.length === 0) {
+                            reject(new Error(`no asset id's were found for assets: ${JSON.stringify(jobAssets)}`));
+                            return;
                         }
 
                         if (jobAssets.length !== assetIds.length) {
-                            reject(`job specified ${jobAssets.length} assets: ${jobAssets.assets} but only ${assetIds.length} where found, assets: ${assetIds}`);
+                            reject(new Error(`job specified ${jobAssets.length} assets: ${jobAssets.assets} but only ${assetIds.length} where found, assets: ${assetIds}`));
+                            return;
                         }
 
                         // need to normalize asset identifiers to their id form
@@ -222,7 +221,7 @@ module.exports = function module(context) {
                         parsedAssetJob.assets = assetIds;
                         resolve(parsedAssetJob);
                     })
-                    .catch(err => reject(`could not parse assets for their id's, error: ${parseError(err)}`));
+                    .catch(err => reject(err));
             }
         });
     }
@@ -247,7 +246,7 @@ module.exports = function module(context) {
     };
 
     function _initialize() {
-        logger.info('Initializing');
+        logger.info('job service is initializing...');
         return Promise.resolve(api);
     }
 

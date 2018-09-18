@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
+const signale = require('signale');
 const misc = require('./misc');
 
 /*
@@ -22,8 +23,7 @@ function forLength(func, value, iterations) {
  * time for the value to match before the returned promise will
  * reject.
  */
-function forValue(func, value, _iterations) {
-    const iterations = _iterations || 100;
+function forValue(func, value, iterations = 100) {
     let counter = 0;
 
     return new Promise(((resolve, reject) => {
@@ -36,7 +36,13 @@ function forValue(func, value, _iterations) {
                         return;
                     }
                     if (counter > iterations) {
-                        reject(`forValue didn't find target value after ${iterations} iterations.`);
+                        signale.debug('forValue last target value', {
+                            actual: result,
+                            expected: value,
+                            iterations,
+                            counter
+                        });
+                        reject(new Error(`forValue didn't find target value after ${iterations} iterations.`));
                     } else {
                         setTimeout(checkValue, 500);
                     }
@@ -50,10 +56,23 @@ function forValue(func, value, _iterations) {
 /*
  * Wait for 'node_count' nodes to be available.
  */
-function forNodes(nodeCount) {
+function forNodes(nodeCount = misc.DEFAULT_NODES) {
     return forLength(() => misc.teraslice().cluster
         .state()
         .then(state => _.keys(state)), nodeCount);
+}
+
+function forWorkers(workerCount = misc.DEFAULT_WORKERS) {
+    return forLength(() => misc.teraslice().cluster
+        .state()
+        .then(state => _.keys(state)), workerCount + 1);
+}
+
+function scaleWorkersAndWait(workersToAdd = 0) {
+    const workerCount = misc.DEFAULT_WORKERS + workersToAdd;
+    return misc.scaleWorkers(workersToAdd)
+        .then(() => forWorkers(workerCount))
+        .then(() => misc.teraslice().cluster.state());
 }
 
 /*
@@ -78,23 +97,73 @@ function forWorkersJoined(jobId, workerCount, iterations) {
         });
 }
 
-function waitForClusterMaster(timeoutMs = 60000) {
+function waitForClusterState(timeoutMs = 60000) {
     const endAt = Date.now() + timeoutMs;
     const { cluster } = misc.teraslice();
     function _try() {
         if (Date.now() > endAt) {
             return Promise.reject(new Error(`Failure to communicate with the Cluster Master as ${timeoutMs}ms`));
         }
-        return cluster.state().catch(() => _try());
+        return cluster.get('/cluster/state', {
+            timeout: 1000,
+            json: true,
+        })
+            .then((result) => {
+                const nodes = _.size(_.keys(result));
+                if (nodes >= misc.DEFAULT_NODES) {
+                    return nodes;
+                }
+                return _try();
+            })
+            .catch(() => _try());
     }
 
     return _try();
+}
+
+function waitForJobStatus(job, status) {
+    const jobId = job._jobId;
+
+    function logExErrors() {
+        return job.errors()
+            .then((errors) => {
+                if (_.isEmpty(errors)) {
+                    return null;
+                }
+                signale.debug(`waitForStatus: ${jobId} errors`, errors);
+                return null;
+            })
+            .catch(() => null);
+    }
+
+    function logExStatus() {
+        return job.get(`/jobs/${jobId}/ex`)
+            .then((exStatus) => {
+                if (_.isEmpty(exStatus)) {
+                    return null;
+                }
+                signale.debug(`waitForStatus: ${jobId} ex status`, exStatus);
+                return null;
+            })
+            .catch(() => null);
+    }
+
+    return job.waitForStatus(status, 100, 2 * 60 * 1000)
+        .catch(async (err) => {
+            err.message = `Job: ${jobId}: ${err.message}`;
+            await logExErrors();
+            await logExStatus();
+            return Promise.reject(err);
+        });
 }
 
 module.exports = {
     forValue,
     forLength,
     forNodes,
+    forWorkers,
+    scaleWorkersAndWait,
     forWorkersJoined,
-    waitForClusterMaster
+    waitForJobStatus,
+    waitForClusterState
 };

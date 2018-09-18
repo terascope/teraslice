@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const parseError = require('@terascope/error-parser');
 
 function retryModule(logger, numOfRetries) {
@@ -22,6 +23,15 @@ function retryModule(logger, numOfRetries) {
     };
 }
 
+function prependErrorMsg(msg, err, withStack = false) {
+    const errorMsg = `${msg}, caused by `;
+    if (!withStack && !_.isString(err)) {
+        delete err.stack;
+    }
+    return errorMsg + parseError(err);
+}
+
 module.exports = {
+    prependErrorMsg,
     retryModule
 };

@@ -2,9 +2,10 @@
 
 module.exports = {
     rootDir: '.',
+    verbose: true,
     projects: ['<rootDir>/packages/*'],
-    globalSetup: '<rootDir>/packages/teraslice-worker/test/global.setup.js',
-    globalTeardown: '<rootDir>/packages/teraslice-worker/test/global.teardown.js',
+    globalSetup: '<rootDir>/packages/teraslice/test/global.setup.js',
+    globalTeardown: '<rootDir>/packages/teraslice/test/global.teardown.js',
     testMatch: [
         '<rootDir>/packages/*/test/**/*-spec.{ts,js}',
         '<rootDir>/packages/*/test/*-spec.{ts,js}'
@@ -22,6 +23,8 @@ module.exports = {
         '<rootDir>/packages/*/index.js',
         '<rootDir>/packages/*/lib/*.js',
         '<rootDir>/packages/*/lib/**/*.js',
+        '<rootDir>/packages/*/cmds/*.js',
+        '<rootDir>/packages/*/cmds/**/*.js',
         '<rootDir>/packages/*/src/**/*.ts',
         '<rootDir>/packages/*/src/*.ts',
         '!<rootDir>/packages/**/*.d.ts',

@@ -517,6 +517,38 @@ describe('Teraslice Job', () => {
             });
         });
 
+        describe('when called and it times out', () => {
+            let status;
+
+            beforeEach((done) => {
+                scope.get('/jobs/some-job-id/ex')
+                    .delay(1100)
+                    .reply(200, {
+                        ex_id: 'example-ex-id',
+                        _status: 'example'
+                    });
+
+                scope.get('/jobs/some-job-id/ex')
+                    .reply(200, {
+                        ex_id: 'example-ex-id',
+                        _status: 'example'
+                    });
+
+
+                new Job({ baseUrl }, 'some-job-id')
+                    .waitForStatus('example', 100, 1500)
+                    .then(() => {
+                        done();
+                    }).catch((err) => {
+                        fail(err);
+                    });
+            });
+
+            it('should resolve with the correct status', () => {
+                expect(status).toEqual(status);
+            });
+        });
+
         describe('when called and returns a terminal status', () => {
             let err;
 

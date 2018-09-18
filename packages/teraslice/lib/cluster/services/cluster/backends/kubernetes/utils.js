@@ -15,8 +15,4 @@ function makeTemplate(folder, fileName) {
     };
 }
 
-function base64EncodeObject(obj) {
-    return Buffer.from(JSON.stringify(obj), 'utf-8').toString('base64');
-}
-
-module.exports = { makeTemplate, base64EncodeObject };
+module.exports = { makeTemplate };

@@ -4,7 +4,7 @@ const _ = require('lodash');
 const yaml = require('js-yaml');
 const _execution = require('./files/execution.json');
 const k8sObject = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8sObject');
-const { base64EncodeObject } = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/utils');
+const { safeEncode } = require('../../../../../../../lib/utils/encoding_utils');
 
 // NOTE: Right now there is no difference in the handling of deployments and
 // jobs, so at the moment, most of the functionality is tested in the
@@ -18,7 +18,7 @@ describe('k8sJob', () => {
         exId: _execution.ex_id,
         jobId: _execution.job_id,
         dockerImage: 'teraslice-k8sdev:1',
-        execution: base64EncodeObject(_execution),
+        execution: safeEncode(_execution),
         nodeType: 'execution_controller',
         namespace: 'ts-dev1',
         shutdownTimeout: 30000,
@@ -51,7 +51,7 @@ describe('k8sDeployment', () => {
         exId: _execution.ex_id,
         jobId: _execution.job_id,
         dockerImage: 'teraslice-k8sdev:1',
-        execution: base64EncodeObject(_execution),
+        execution: safeEncode(_execution),
         nodeType: 'worker',
         namespace: 'ts-dev1',
         shutdownTimeout: 30000,

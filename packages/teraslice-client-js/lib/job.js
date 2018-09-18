@@ -73,7 +73,20 @@ class Job extends Client {
         const startTime = Date.now();
 
         const checkStatus = async () => {
-            const result = await this.status();
+            let result;
+            try {
+                const ex = await this.get(`/jobs/${this._jobId}/ex`, {
+                    json: true,
+                    timeout: intervalMs < 1000 ? 1000 : intervalMs,
+                });
+                result = ex._status;
+            } catch (err) {
+                if (_.toString(err).includes('TIMEDOUT')) {
+                    await Promise.delay(intervalMs);
+                    return checkStatus();
+                }
+                throw err;
+            }
 
             if (result === target) {
                 return result;
@@ -83,12 +96,16 @@ class Job extends Client {
             // watching for these then we need to stop waiting as the job
             // status won't change further.
             if (terminal[result]) {
-                throw new Error(`Job cannot reach the target status, "${target}", because it is in the terminal state, "${result}"`);
+                const error = new Error(`Job cannot reach the target status, "${target}", because it is in the terminal state, "${result}"`);
+                error.lastStatus = result;
+                throw error;
             }
 
             const elapsed = Date.now() - startTime;
             if (timeoutMs > 0 && elapsed >= timeoutMs) {
-                throw new Error(`Job status failed to change from status "${result}" within ${timeoutMs}ms`);
+                const error = new Error(`Job status failed to change from status "${result}" within ${timeoutMs}ms`);
+                error.lastStatus = result;
+                throw error;
             }
 
             await Promise.delay(intervalMs);
