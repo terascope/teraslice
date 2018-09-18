@@ -6,7 +6,8 @@ const Promise = require('bluebird');
 const K8s = require('./k8s');
 const k8sState = require('./k8sState');
 const k8sObject = require('./k8sObject');
-const { makeTemplate, base64EncodeObject } = require('./utils');
+const { makeTemplate } = require('./utils');
+const { safeEncode } = require('../../../../../utils/encoding_utils');
 
 const exServiceTemplate = makeTemplate('services', 'execution_controller');
 
@@ -135,7 +136,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
             jobId: execution.job_id,
             jobName: execution.name,
             dockerImage: kubernetesImage,
-            execution: base64EncodeObject(execution),
+            execution: safeEncode(execution),
             nodeType: 'execution_controller',
             namespace: kubernetesNamespace,
             shutdownTimeout: shutdownTimeoutSeconds,
@@ -183,7 +184,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
             jobId: execution.job_id,
             jobName: execution.name,
             dockerImage: kubernetesImage,
-            execution: base64EncodeObject(execution),
+            execution: safeEncode(execution),
             nodeType: 'worker',
             namespace: kubernetesNamespace,
             shutdownTimeout: shutdownTimeoutSeconds,

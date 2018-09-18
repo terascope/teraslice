@@ -1,6 +1,7 @@
 'use strict';
 
-const { makeTemplate, base64EncodeObject } = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/utils');
+const { makeTemplate } = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/utils');
+const { safeEncode } = require('../../../../../../../lib/utils/encoding_utils');
 
 describe('K8s Utils', () => {
     describe('->makeTemplate', () => {
@@ -48,7 +49,7 @@ describe('K8s Utils', () => {
                 nodeType: 'execution_controller',
                 namespace: 'some-namespace',
                 dockerImage: 'some/docker-image',
-                execution: base64EncodeObject({ example: 'hello' }),
+                execution: safeEncode({ example: 'hello' }),
                 shutdownTimeout: 12345
             };
             const exJob = exJobTemplate(config);
@@ -105,7 +106,7 @@ describe('K8s Utils', () => {
                 nodeType: 'worker',
                 namespace: 'some-namespace',
                 dockerImage: 'some/docker-image',
-                execution: base64EncodeObject({ example: 'hello' }),
+                execution: safeEncode({ example: 'hello' }),
                 replicas: 1,
                 shutdownTimeout: 12345
             };
