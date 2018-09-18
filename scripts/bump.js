@@ -60,7 +60,7 @@ console.log(`* Updating ${realPkgName} to version ${pkgJSON.version} to ${newVer
 pkgJSON.version = newVersion;
 
 fse.writeJSONSync(pkgPath, pkgJSON, {
-    spaces: 2,
+    spaces: 4,
 });
 
 fs.readdirSync(packagesPath).forEach((fileName) => {
