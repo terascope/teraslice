@@ -56,10 +56,23 @@ function forValue(func, value, iterations = 100) {
 /*
  * Wait for 'node_count' nodes to be available.
  */
-function forNodes(nodeCount) {
+function forNodes(nodeCount = misc.DEFAULT_NODES) {
     return forLength(() => misc.teraslice().cluster
         .state()
         .then(state => _.keys(state)), nodeCount);
+}
+
+function forWorkers(workerCount = misc.DEFAULT_WORKERS) {
+    return forLength(() => misc.teraslice().cluster
+        .state()
+        .then(state => _.keys(state)), workerCount + 1);
+}
+
+function scaleWorkersAndWait(workersToAdd = 0) {
+    const workerCount = misc.DEFAULT_WORKERS + workersToAdd;
+    return misc.scaleWorkers(workersToAdd)
+        .then(() => forWorkers(workerCount))
+        .then(() => misc.teraslice().cluster.state());
 }
 
 /*
@@ -97,7 +110,7 @@ function waitForClusterState(timeoutMs = 60000) {
         })
             .then((result) => {
                 const nodes = _.size(_.keys(result));
-                if (nodes > 2) {
+                if (nodes >= misc.DEFAULT_NODES) {
                     return nodes;
                 }
                 return _try();
@@ -135,7 +148,7 @@ function waitForJobStatus(job, status) {
             .catch(() => null);
     }
 
-    return job.waitForStatus(status, 100, 60000)
+    return job.waitForStatus(status, 100, 2 * 60 * 1000)
         .catch(async (err) => {
             err.message = `Job: ${jobId}: ${err.message}`;
             await logExErrors();
@@ -148,6 +161,8 @@ module.exports = {
     forValue,
     forLength,
     forNodes,
+    forWorkers,
+    scaleWorkersAndWait,
     forWorkersJoined,
     waitForJobStatus,
     waitForClusterState

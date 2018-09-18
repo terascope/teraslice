@@ -21,8 +21,6 @@ const ExecutionControllerServer = Messaging.ExecutionController.Server;
 const ClusterMasterClient = Messaging.ClusterMaster.Client;
 const { formatURL } = Messaging;
 
-const immediate = Promise.promisify(setImmediate);
-
 class ExecutionController {
     constructor(context, executionContext) {
         const workerId = generateWorkerId(context);
@@ -332,15 +330,7 @@ class ExecutionController {
         clearTimeout(this.workerConnectTimeoutId);
         clearTimeout(this.workerDisconnectTimeoutId);
 
-        const error = await this._waitForExecutionFinished();
-        if (error) {
-            shutdownErrs.push(error);
-        }
-
-        if (!this.isExecutionDone) {
-            this.isExecutionDone = true;
-            this.logger.fatal(`execution ${this.exId} is being marked as done even though it didn't finish when shutdown was called`);
-        }
+        await this._waitForExecutionFinished();
 
         if (this.recover) {
             try {
@@ -465,7 +455,7 @@ class ExecutionController {
             return null;
         }
 
-        await immediate();
+        await Promise.delay(0);
 
         if (this.isPaused) {
             this.logger.debug('execution is paused, wait for resume...');
@@ -513,7 +503,7 @@ class ExecutionController {
         // If all slicers are not done, the slicer queue is not overflown and the scheduler
         // is set, then attempt to provision more slices
         const needsMoreSlices = this.slicerQueue.size() < this.executionContext.queueLength;
-        if (!needsMoreSlices) return immediate();
+        if (!needsMoreSlices) return Promise.delay(0);
 
         try {
             await Promise.map(this.scheduler, slicerFn => slicerFn());
@@ -560,7 +550,7 @@ class ExecutionController {
             });
         }
 
-        return immediate();
+        return Promise.delay(0);
     }
 
     async _slicerInit() {
@@ -874,8 +864,6 @@ class ExecutionController {
         const timeout = Math.round(this.shutdownTimeout * 0.8);
         const shutdownAt = timeout + Date.now();
 
-        // hoist this error to get a better stack trace
-        const timeoutError = new Error(`Shutdown timeout of ${timeout}ms waiting for execution ${this.exId} to finish...`);
         const logShuttingDown = _.throttle(() => {
             this.logger.debug('shutdown is waiting for execution to finish...');
         }, 1000, {
@@ -893,8 +881,8 @@ class ExecutionController {
 
             const now = Date.now();
             if (now > shutdownAt) {
-                this.logger.error(timeoutError.message);
-                return timeoutError;
+                this.logger.error(`Shutdown timeout of ${timeout}ms waiting for execution ${this.exId} to finish...`);
+                return null;
             }
 
             logShuttingDown();

@@ -3,8 +3,11 @@
 const Promise = require('bluebird');
 const misc = require('../../misc');
 const { waitForJobStatus } = require('../../wait');
+const { resetState } = require('../../helpers');
 
 describe('worker allocation', () => {
+    beforeAll(() => resetState());
+
     const teraslice = misc.teraslice();
 
     it('should cycle through after state changes with other jobs running', (done) => {

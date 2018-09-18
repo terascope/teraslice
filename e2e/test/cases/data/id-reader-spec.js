@@ -2,10 +2,13 @@
 
 const misc = require('../../misc');
 const { waitForJobStatus } = require('../../wait');
+const { resetState } = require('../../helpers');
 
 const teraslice = misc.teraslice();
 
 describe('id reader', () => {
+    beforeAll(() => resetState());
+
     it('should support reindexing', (done) => {
         const jobSpec = misc.newJob('id');
         jobSpec.name = 'reindex by id';

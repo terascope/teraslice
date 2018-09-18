@@ -3,10 +3,13 @@
 const fs = require('fs');
 const misc = require('../../misc');
 const wait = require('../../wait');
+const { resetState } = require('../../helpers');
 
 const { waitForJobStatus } = wait;
 
 describe('Asset Tests', () => {
+    beforeAll(() => resetState());
+
     const teraslice = misc.teraslice();
 
     /**

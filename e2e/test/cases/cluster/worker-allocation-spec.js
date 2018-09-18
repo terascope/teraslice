@@ -2,6 +2,7 @@
 
 const misc = require('../../misc');
 const wait = require('../../wait');
+const { resetState } = require('../../helpers');
 
 const { waitForJobStatus } = wait;
 
@@ -37,6 +38,8 @@ function workersTest(workers, workersExpected, records, done) {
 }
 
 describe('worker allocation', () => {
+    beforeAll(() => resetState());
+
     it('with 1 worker', (done) => {
         workersTest(1, 1, 1000, done);
     });
@@ -45,8 +48,9 @@ describe('worker allocation', () => {
         workersTest(5, 5, 10000, done);
     });
 
-    it('with 27 out of requested 30 workers', (done) => {
-        workersTest(30, 27, 10000, done);
+    it('with more workers than available', (done) => {
+        const total = misc.WORKERS_PER_NODE * misc.DEFAULT_NODES;
+        workersTest(total + 2, total - 3, 10000, done);
     });
 
     // TODO: Debug this test
@@ -74,7 +78,7 @@ describe('worker allocation', () => {
                     expect(runningWorkers.length).toBe(13);
 
                     // We want 2 workers in the environment
-                    return misc.scale(2);
+                    return misc.scaleWorkers(2);
                 })
                 .then(() => wait.forLength(job.workers, 20, 100))
                 .then((workerCount) => {
@@ -94,7 +98,7 @@ describe('worker allocation', () => {
             .catch(fail)
             .finally(() => {
                 // Scale back to a default worker count.
-                misc.scale(3)
+                misc.scaleWorkers(3)
                     .finally(() => { done(); });
             });
     });

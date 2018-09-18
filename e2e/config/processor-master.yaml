@@ -13,11 +13,11 @@ terafoundation:
 teraslice:
     worker_disconnect_timeout: 120000
     node_disconnect_timeout: 120000
-    slicer_timeout: 60000
+    slicer_timeout: 120000
     shutdown_timeout: 30000
     action_timeout: 30000
     assets_directory: '/tmp/'
-    workers: 8
+    workers: 12
     master: true
     master_hostname: "127.0.0.1"
     port: 45678

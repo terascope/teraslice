@@ -5,10 +5,13 @@ const signale = require('signale');
 const _ = require('lodash');
 const misc = require('../../misc');
 const { waitForJobStatus } = require('../../wait');
+const { resetState } = require('../../helpers');
 
 const teraslice = misc.teraslice();
 
 describe('reindex', () => {
+    beforeAll(() => resetState());
+
     it('should work for simple case', (done) => {
         const jobSpec = misc.newJob('reindex');
         jobSpec.name = 'basic reindex';

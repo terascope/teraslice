@@ -27,7 +27,7 @@ services:
       "--max-old-space-size=512",
       "service.js"
     ]
-    scale: 3
+    scale: 2
     stop_grace_period: 30s
     environment:
       - BLUEBIRD_LONG_STACK_TRACES=1
