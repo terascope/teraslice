@@ -27,18 +27,12 @@ module.exports = () => {
     function parse(str) {
         /*
         cluster:#  implies cluster:ex_id
-        ts_gen1:59654d64-95a8-4dd5-9634-1734c2f62f37
         cluster:ex:# ex_id
-        ts_gen1:ex:59654d64-95a8-4dd5-9634-1734c2f62f37
         cluster:job:# job
-        ts_gen1:job:d0cd6381-488f-4fa7-ab7b-59388cc7728c
         cluster:job:* implies all jobs
-        ts_gen1:job:*
         cluster:* context of which command was used implies job or ex?  Leaning towards ex
-        ts_gen1:*
-        * implies all clusters
-        TODO add context job/ex etc should lead to a simplification
-         */
+            * implies all clusters
+        */
         const types = ['asset', 'job', 'ex'];
         const hand = {};
         let pos = 1;
