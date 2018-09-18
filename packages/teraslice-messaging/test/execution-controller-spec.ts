@@ -284,9 +284,8 @@ describe('ExecutionController', () => {
                             expect(id).not.toBeNull();
                             return;
                         }
-                        const dispatchedPromise = server.dispatchSlice(newSlice, id);
 
-                        const dispatched = await dispatchedPromise;
+                        const dispatched = await server.dispatchSlice(newSlice, id);
                         await expect(slice).resolves.toEqual(newSlice);
                         expect(dispatched).toBeTrue();
 

@@ -49,6 +49,7 @@ export class Server extends core.Server {
         });
 
         this.onClientDisconnect((workerId) => {
+            _.pull(this._activeWorkers, workerId);
             this._workerRemove(workerId);
         });
 
@@ -98,6 +99,10 @@ export class Server extends core.Server {
         if (!dispatched) {
             debug(`failure to dispatch slice ${sliceId} to worker ${workerId}`);
             _.pull(this._activeWorkers, workerId);
+        } else {
+            this.updateClientState(workerId, {
+                state: core.ClientState.Unavailable,
+            });
         }
 
         return dispatched;
@@ -142,6 +147,7 @@ export class Server extends core.Server {
                 }
             }
 
+            _.pull(this._activeWorkers, workerId);
             this.updateClientState(workerId, {
                 state: core.ClientState.Unavailable,
             });
@@ -189,8 +195,6 @@ export class Server extends core.Server {
 
     private _workerRemove(workerId: string): boolean {
         if (!workerId) return false;
-
-        _.pull(this._activeWorkers, workerId);
 
         this.queue.remove(workerId, 'workerId');
 

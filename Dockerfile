@@ -11,6 +11,6 @@ COPY scripts /app/source/scripts
 
 RUN yarn bootstrap:prod && yarn build && rm -rf node_modules/typescript
 
-ENV MAX_OLD_SPACE_SIZE 2048
+ENV NODE_OPTIONS "--max-old-space-size=2048"
 
-CMD ["node", "--max-old-space-size=${MAX_OLD_SPACE_SIZE}", "service.js"]
+CMD ["node", "service.js"]
