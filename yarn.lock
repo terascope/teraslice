@@ -7182,9 +7182,9 @@ temp-write@^3.4.0:
     temp-dir "^1.0.0"
     uuid "^3.0.1"
 
-terafoundation@terascope/terafoundation#shutdown-improvements:
+terafoundation@^0.3.0:
   version "0.3.0"
-  resolved "https://codeload.github.com/terascope/terafoundation/tar.gz/b846ba78c48bdba12381647d68c13be200bb7f09"
+  resolved "https://registry.yarnpkg.com/terafoundation/-/terafoundation-0.3.0.tgz#adc595becb84af9a8dedeaf49bf819bb05d4995a"
   dependencies:
     agentkeepalive "^3.4.1"
     bluebird "^3.5.2"

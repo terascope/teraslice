@@ -801,11 +801,10 @@ class ExecutionController {
 
         const timeoutOutAt = this.workerDisconnectTimeout + Date.now();
 
-        const logWaitingForWorkers = _.throttle(() => {
+        const logWaitingForWorkers = _.debounce(() => {
             this.logger.debug(`waiting for ${this.server.onlineClientCount} to go offline`);
         }, 1000, {
             leading: true,
-            trailing: true,
         });
 
         const checkOnlineCount = async () => {
@@ -836,11 +835,10 @@ class ExecutionController {
     }
 
     async _waitForPendingSlices() {
-        const logPendingSlices = _.throttle(() => {
+        const logPendingSlices = _.debounce(() => {
             this.logger.debug(`waiting for ${this.pendingSlices} slices to finish`);
         }, 1000, {
             leading: true,
-            trailing: true,
         });
 
         const checkPendingSlices = async () => {
@@ -864,11 +862,10 @@ class ExecutionController {
         const timeout = Math.round(this.shutdownTimeout * 0.8);
         const shutdownAt = timeout + Date.now();
 
-        const logShuttingDown = _.throttle(() => {
+        const logShuttingDown = _.debounce(() => {
             this.logger.debug('shutdown is waiting for execution to finish...');
         }, 1000, {
             leading: true,
-            trailing: true,
         });
 
         const checkExecution = async () => {
