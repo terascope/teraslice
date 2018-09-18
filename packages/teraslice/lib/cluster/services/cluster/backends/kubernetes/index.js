@@ -6,8 +6,8 @@ const Promise = require('bluebird');
 const K8s = require('./k8s');
 const k8sState = require('./k8sState');
 const k8sObject = require('./k8sObject');
-const stateUtils = require('../state-utils');
-const { makeTemplate, base64EncodeObject } = require('./utils');
+const { makeTemplate } = require('./utils');
+const { safeEncode } = require('../../../../../utils/encoding_utils');
 
 const exServiceTemplate = makeTemplate('services', 'execution_controller');
 
@@ -22,7 +22,7 @@ const exServiceTemplate = makeTemplate('services', 'execution_controller');
 
 // FIXME: See Jared's comment regarding executionService, will leave this
 // as a known issue: https://github.com/terascope/teraslice/issues/750
-module.exports = function kubernetesClusterBackend(context, messaging) {
+module.exports = function kubernetesClusterBackend(context, clusterMasterServer) {
     const logger = context.apis.foundation.makeLogger({ module: 'kubernetes_cluster_service' });
     // const slicerAllocationAttempts = context.sysconfig.teraslice.slicer_allocation_attempts;
 
@@ -46,68 +46,10 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
     const clusterState = {};
     let clusterStateInterval = null;
 
-    // FIXME: clusterStats stores aggregated stats about what gets processed,
-    // when a slice on any job fails, it gets recorded here.  What should this
-    // do in the k8s case?
-    // See issue: https://github.com/terascope/teraslice/issues/751
-    const clusterStats = {
-        slicer: {
-            processed: 0,
-            failed: 0,
-            queued: 0,
-            job_duration: 0,
-            workers_joined: 0,
-            workers_disconnected: 0,
-            workers_reconnected: 0
-        }
-    };
     const k8s = new K8s(logger, null, kubernetesNamespace);
 
-    // Under the hood this makes a node join a room so messaging is possible
-    messaging.register({
-        event: 'node:online',
-        identifier: 'node_id',
-        callback: (data, nodeId) => {
-            logger.info(`node ${nodeId} has connected`);
-        }
-    });
-
-    messaging.register({
-        event: 'cluster:analytics',
-        callback: (msg) => {
-            const data = msg.payload;
-            if (!clusterStats[data.kind]) {
-                logger.warn(`unrecognized cluster stats: ${data.kind}`);
-                return;
-            }
-            _.forOwn(data.stats, (value, field) => {
-                if (clusterStats[data.kind][field] !== undefined) {
-                    clusterStats[data.kind][field] += value;
-                }
-            });
-        }
-    });
-
-    messaging.register({
-        event: 'execution:finished',
-        callback: ({ ex_id: exId } = {}) => {
-            logger.debug(`execution ${exId} has finished...`);
-            stopExecution(exId)
-                .catch((err) => {
-                    logger.error(`Unable to stop execution ${exId}`, err);
-                });
-        }
-    });
-
-    messaging.register({
-        event: 'execution:error:terminal',
-        callback: ({ ex_id: exId } = {}) => {
-            logger.error(`terminal error for execution: ${exId}, shutting down execution...`);
-            stopExecution(exId)
-                .catch((err) => {
-                    logger.error(`Unable to stop execution ${exId}`, err);
-                });
-        }
+    clusterMasterServer.onClientOnline((exId) => {
+        logger.info(`execution ${exId} is connected`);
     });
 
     // Periodically update cluster state, update period controlled by:
@@ -142,11 +84,6 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
                 logger.error(`Error listing teraslice pods in k8s: ${err}`);
             });
     }
-
-    function getClusterStats() {
-        return _.cloneDeep(clusterStats);
-    }
-
 
     /**
      * Return value indicates whether the cluster has enough workers to start
@@ -199,7 +136,7 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
             jobId: execution.job_id,
             jobName: execution.name,
             dockerImage: kubernetesImage,
-            execution: base64EncodeObject(execution),
+            execution: safeEncode(execution),
             nodeType: 'execution_controller',
             namespace: kubernetesNamespace,
             shutdownTimeout: shutdownTimeoutSeconds,
@@ -247,7 +184,7 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
             jobId: execution.job_id,
             jobName: execution.name,
             dockerImage: kubernetesImage,
-            execution: base64EncodeObject(execution),
+            execution: safeEncode(execution),
             nodeType: 'worker',
             namespace: kubernetesNamespace,
             shutdownTimeout: shutdownTimeoutSeconds,
@@ -294,40 +231,6 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
         return { action: 'set', ex_id: executionContext.ex_id, workerNum: numWorkers };
     }
 
-
-    /**
-     * Sends specified message to workers with exId.
-     * TODO: In the kubernetes case it's a bit redundant to provide both a list
-     * of workers and exId, since there is only one execution per worker node.
-     * I should probably rethink this.
-     * @param       {string} exId        Execution ID
-     * @param       {string} messageData A 'cluster:execution:*' message
-     * @param       {[type]} workers
-     * @return      {Promise}
-     */
-    function _msgWorkersWithExId(exId, messageData) {
-        const workers = stateUtils._iterateState(
-            clusterState,
-            worker => worker.assignment === 'execution_controller' && worker.ex_id === exId
-        );
-
-        return Promise.map(workers, (worker) => {
-            const sendingMsg = Object.assign({}, messageData, {
-                to: 'execution_controller',
-                address: worker.pod_ip,
-                ex_id: exId,
-                response: true
-            });
-
-            return messaging.send(sendingMsg);
-        })
-            .catch((err) => {
-                const errMsg = parseError(err);
-                logger.error('could not notify cluster', errMsg);
-                return Promise.reject(errMsg);
-            });
-    }
-
     /**
      * Stops all workers for exId
      * @param  {string} exId    The execution ID of the Execution to stop
@@ -338,30 +241,16 @@ module.exports = function kubernetesClusterBackend(context, messaging) {
         return k8s.deleteExecution(exId);
     }
 
-    function pauseExecution(exId) {
-        return _msgWorkersWithExId(exId, { message: 'cluster:execution:pause' });
-    }
-
-    function resumeExecution(exId) {
-        return _msgWorkersWithExId(exId, { message: 'cluster:execution:resume' });
-    }
-
     async function shutdown() {
         clearInterval(clusterStateInterval);
     }
 
-    const getSlicerStats = stateUtils.newGetSlicerStats(clusterState, context, messaging);
-
     const api = {
         getClusterState,
-        getClusterStats,
-        getSlicerStats,
         allocateWorkers,
         allocateSlicer,
         shutdown,
         stopExecution,
-        pauseExecution,
-        resumeExecution,
         removeWorkers,
         addWorkers,
         setWorkers,

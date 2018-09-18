@@ -7,12 +7,10 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const { makeTable, sendError, handleError } = require('../../utils/api_utils');
 
-module.exports = function module(context, app) {
+module.exports = function module(context, app, { assetsUrl }) {
     const logger = context.apis.foundation.makeLogger({ module: 'api_service' });
     const executionService = context.services.execution;
     const jobsService = context.services.jobs;
-    const { messaging } = context;
-    const assetsUrl = `http://127.0.0.1:${process.env.assets_port}`;
     const v1routes = new Router();
     let stateStore;
 
@@ -38,8 +36,6 @@ module.exports = function module(context, app) {
 
     v1routes.route('/assets*')
         .delete((req, res) => {
-            const { asset_id: assetId } = req.params;
-            messaging.broadcast('assets:delete', { payload: assetId });
             _redirect(req, res);
         })
         .post((req, res) => {
@@ -522,7 +518,7 @@ module.exports = function module(context, app) {
 
     return require('../storage/state')(context)
         .then((state) => {
-            logger.info('Initializing');
+            logger.info('api service is initializing...');
             stateStore = state;
             return _initialize(); // Load the initial pendingJobs state.
         });

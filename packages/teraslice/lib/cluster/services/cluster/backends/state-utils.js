@@ -2,9 +2,6 @@
 
 const _ = require('lodash');
 
-const parseError = require('@terascope/error-parser');
-
-
 function _iterateState(clusterState, cb) {
     // I clone here, because the code below accidentally modifies clusterState.
     // Not sure if this is the best chouice.
@@ -44,82 +41,9 @@ function findSlicersByExecutionID(clusterState, exIdDict) {
     );
 }
 
-function newGetSlicerStats(clusterState, context, messaging) {
-    return function getSlicerStats(exIds, specificId) {
-        return new Promise(((resolve, reject) => {
-            let timer;
-            const nodeQueries = [];
-            const exIdDict = exIds.reduce((prev, curr) => {
-                prev[curr] = curr;
-                return prev;
-            }, {});
-            const list = findSlicersByExecutionID(clusterState, exIdDict);
-            const numberOfCalls = list.length;
-
-            if (numberOfCalls === 0) {
-                if (specificId) {
-                    reject({ message: `Could not find active slicer for ex_id: ${specificId}`, code: 404 });
-                } else {
-                    // for the general slicer stats query, just return a empty array
-                    resolve([]);
-                }
-                return;
-            }
-            const rooms = messaging.listRooms();
-
-            _.each(list, (slicer) => {
-                // use pod_ip as address (k8s), otherwise, use node_id
-                const address = _.get(slicer, 'pod_ip', slicer.node_id);
-
-                // if the socket.io room is not available
-                if (!_.includes(rooms, address)) {
-                    return;
-                }
-
-                const msg = {
-                    to: 'execution_controller',
-                    address,
-                    message: 'cluster:slicer:analytics',
-                    payload: { ex_id: slicer.ex_id },
-                    response: true
-                };
-                nodeQueries.push(messaging.send(msg));
-            });
-
-            function formatResponse(msg) {
-                const payload = _.get(msg, 'payload', {});
-                const identifiers = { ex_id: msg.ex_id, job_id: msg.job_id, name: payload.name };
-                return Object.assign(identifiers, payload.stats);
-            }
-
-            Promise.all(nodeQueries)
-                .then((results) => {
-                    clearTimeout(timer);
-                    const formatedData = results.map(formatResponse);
-                    const sortedData = _.sortBy(formatedData, ['name', 'started']);
-                    const reversedData = sortedData.reduce((prev, curr) => {
-                        prev.push(curr);
-                        return prev;
-                    }, []);
-                    resolve(reversedData);
-                })
-                .catch((err) => {
-                    clearTimeout(timer);
-                    reject({ message: parseError(err), code: 500 });
-                });
-
-            timer = setTimeout(() => {
-                reject({ message: 'Timeout has occurred for query', code: 500 });
-            }, context.sysconfig.teraslice.action_timeout);
-        }));
-    };
-}
-
-
 module.exports = {
     _iterateState, // Exporting so it can be tested
     findAllSlicers,
     findWorkersByExecutionID,
     findSlicersByExecutionID,
-    newGetSlicerStats
 };

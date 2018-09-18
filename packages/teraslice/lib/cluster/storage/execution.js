@@ -71,8 +71,14 @@ module.exports = function module(context) {
             return Promise.reject(new Error(`Invalid Job status: "${desiredStatus}"`));
         }
 
+
         return getStatus(exId)
             .then((status) => {
+                // when setting the same status to shouldn't throw an error
+                if (desiredStatus === status) {
+                    return Promise.resolve();
+                }
+
                 // when the current status is running it cannot be set to an init status
                 if (_isRunningStatus(status) && _isInitStatus(desiredStatus)) {
                     const error = new Error(`Cannot update running job status of "${status}" to init status of "${desiredStatus}"`);

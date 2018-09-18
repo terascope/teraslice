@@ -1,5 +1,7 @@
 'use strict';
 
+require('../helpers/set-global-job-env');
+
 const Promise = require('bluebird');
 const events = require('events');
 const idReader = require('../../lib/readers/id_reader');

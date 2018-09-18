@@ -1,11 +1,15 @@
 'use strict';
 
+require('./helpers/set-global-job-env');
+
 const eventsModule = require('events');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const nodeModule = require('../lib/cluster/node_master');
+
+process.env.assignment = 'node_master';
 
 describe('Node master', () => {
-    const nodeModule = require('../lib/cluster/node_master');
     let eventEmitter = {};
 
     const logger = {
@@ -43,7 +47,9 @@ describe('Node master', () => {
         __test_assignment: 'worker'
     };
 
-    const fakeClusterMaster = require('socket.io')();
+    const fakeClusterMaster = require('socket.io')({
+        path: '/native-clustering',
+    });
 
     fakeClusterMaster.on('connection', (socket) => {
         socket.on('node:state', (data) => {
@@ -51,9 +57,6 @@ describe('Node master', () => {
         });
         socket.on('node:online', (data) => {
             eventEmitter.emit('node:online', data);
-        });
-        socket.on('node:workers:over_allocated', (data) => {
-            eventEmitter.emit('node:workers:over_allocated', data);
         });
         socket.on('messaging:response', (data) => {
             eventEmitter.emit('messaging:response', data);
@@ -64,7 +67,7 @@ describe('Node master', () => {
 
     function waitForEvent(eventName, fn) {
         return new Promise((resolve) => {
-            eventEmitter.on(eventName, (data) => {
+            eventEmitter.once(eventName, (data) => {
                 resolve(data);
             });
             if (fn) {
@@ -79,21 +82,35 @@ describe('Node master', () => {
 
     class ProcessWorker {
         constructor(obj) {
+            this._isDead = false;
             processCounter += 1;
             _.forOwn(obj, (value, key) => {
                 this[key] = value;
             });
             this.process = {
+                connected: this.connected,
                 pid: processCounter,
                 _msgSent: null,
-                kill: () => eventEmitter.emit('deleteWorker', this.id)
+                kill: (signal) => {
+                    this._isDead = true;
+                    this.connected = false;
+                    if (delayRemoval && signal === 'SIGTERM') {
+                        setTimeout(() => eventEmitter.emit('deleteWorker', this.id), 500);
+                    } else {
+                        eventEmitter.emit('deleteWorker', this.id);
+                    }
+                }
             };
+
+            this.connected = true;
         }
 
-        send(processMsg) {
-            if (delayRemoval && processMsg.message === 'worker:shutdown') {
-                setTimeout(() => eventEmitter.emit('deleteWorker', this.id), 500);
-            }
+        kill(signal) {
+            this.process.kill(signal);
+        }
+
+        isDead() {
+            return this._isDead;
         }
     }
 
@@ -154,6 +171,8 @@ describe('Node master', () => {
     beforeEach(() => {
         delayRemoval = false;
     });
+
+    afterAll(() => fakeClusterMaster.close());
 
     it('can load without throwing', () => {
         expect(() => setUpNodeMaster()).not.toThrowError();

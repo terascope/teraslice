@@ -2,6 +2,9 @@
 
 const misc = require('../../misc');
 const wait = require('../../wait');
+const { resetState } = require('../../helpers');
+
+const { waitForJobStatus } = wait;
 
 const teraslice = misc.teraslice();
 
@@ -13,12 +16,12 @@ function workersTest(workers, workersExpected, records, done) {
     jobSpec.operations[1].index = `test-allocation-${workers}-worker`;
     jobSpec.workers = workers;
     teraslice.jobs.submit(jobSpec)
-        .then(job => job.waitForStatus('running', 100)
+        .then(job => waitForJobStatus(job, 'running')
             .then(() => job.workers())
             .then((runningWorkers) => {
                 expect(runningWorkers.length).toBe(workersExpected);
             })
-            .then(() => job.waitForStatus('completed', 100))
+            .then(() => waitForJobStatus(job, 'completed'))
             .then(() => wait.forLength(job.workers, 0))
             .then((workerCount) => {
                 expect(workerCount).toBe(0);
@@ -35,6 +38,8 @@ function workersTest(workers, workersExpected, records, done) {
 }
 
 describe('worker allocation', () => {
+    beforeAll(() => resetState());
+
     it('with 1 worker', (done) => {
         workersTest(1, 1, 1000, done);
     });
@@ -43,8 +48,9 @@ describe('worker allocation', () => {
         workersTest(5, 5, 10000, done);
     });
 
-    it('with 17 out of requested 20 workers', (done) => {
-        workersTest(20, 17, 10000, done);
+    it('with more workers than available', (done) => {
+        const total = misc.WORKERS_PER_NODE * misc.DEFAULT_NODES;
+        workersTest(total + 2, total - 3, 10000, done);
     });
 
     // TODO: Debug this test
@@ -65,20 +71,20 @@ describe('worker allocation', () => {
         jobSpec.workers = workers;
 
         teraslice.jobs.submit(jobSpec)
-            .then(job => job.waitForStatus('running', 100)
+            .then(job => waitForJobStatus(job, 'running')
                 .then(() => job.workers())
                 .then((runningWorkers) => {
                     // The job should only get 13 workers to start.
                     expect(runningWorkers.length).toBe(13);
 
                     // We want 2 workers in the environment
-                    return misc.scale(2);
+                    return misc.scaleWorkers(2);
                 })
                 .then(() => wait.forLength(job.workers, 20, 100))
                 .then((workerCount) => {
                     expect(workerCount).toBe(20);
 
-                    return job.waitForStatus('completed', 100);
+                    return waitForJobStatus(job, 'completed');
                 })
                 .then(() => wait.forLength(job.workers, 0, 100))
                 .then((workerCount) => {
@@ -92,7 +98,7 @@ describe('worker allocation', () => {
             .catch(fail)
             .finally(() => {
                 // Scale back to a default worker count.
-                misc.scale(3)
+                misc.scaleWorkers(3)
                     .finally(() => { done(); });
             });
     });

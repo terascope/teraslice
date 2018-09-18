@@ -14,11 +14,10 @@ const parseError = require('@terascope/error-parser');
  aborted - when a execution was running at the point when the cluster shutsdown
  */
 
-module.exports = function module(context) {
-    const { messaging } = context;
+module.exports = function module(context, { clusterMasterServer }) {
     const logger = context.apis.foundation.makeLogger({ module: 'execution_service' });
-    const masterNodeId = _parseNodeId(context.sysconfig._nodeName);
     const pendingExecutionQueue = new Queue();
+    const isNative = context.sysconfig.teraslice.cluster_manager_type === 'native';
 
     let exStore;
     let clusterService;
@@ -28,26 +27,7 @@ module.exports = function module(context) {
     }
 
     function getClusterStats() {
-        return clusterService.getClusterStats();
-    }
-
-    function _parseNodeId(str) {
-        const parsed = str.match(/\.\d+/);
-        const length = str.length - parsed[0].length;
-        return str.slice(0, length);
-    }
-
-    function verifyAssets(assetNames) {
-        // this is to node_master since asset_loader is not spawned unless asked to
-        const message = {
-            to: 'node_master',
-            address: masterNodeId,
-            message: 'execution_service:verify_assets',
-            payload: { assets: assetNames },
-            response: true
-        };
-
-        return messaging.send(message);
+        return clusterMasterServer.getClusterAnalytics();
     }
 
     // designed to allocate additional workers, not any future slicers
@@ -80,7 +60,10 @@ module.exports = function module(context) {
                 Promise.resolve()
                     .then(() => exStore.verifyStatusUpdate(exId, status))
                     .then(() => setExecutionStatus(exId, status))
-                    .catch(err => logger.error(err))
+                    .catch((err) => {
+                        logger.error(err.message);
+                        logger.trace(err.stack);
+                    })
                     .finally(() => resolve(true));
             }
             checkCluster();
@@ -92,10 +75,11 @@ module.exports = function module(context) {
         const query = exStore.getLivingStatuses().map(str => `_status:${str}`).join(' OR ');
         return searchExecutionContexts(query)
             .map((execution) => {
-                if (context.sysconfig.teraslice.cluster_manager_type === 'native') {
+                if (isNative) {
                     logger.warn(`marking execution ex_id: ${execution.ex_id}, job_id: ${execution.job_id} as terminated`);
                     const exId = execution.ex_id;
                     const { hostname } = context.sysconfig.teraslice;
+
                     // need to exclude sending a stop to cluster master host, the shutdown event
                     // has already been propagated this can cause a condition of it waiting for
                     // stop to return but it already has which pauses this service shutdown
@@ -104,6 +88,7 @@ module.exports = function module(context) {
                 }
                 return true;
             })
+            .then(() => clusterService.shutdown())
             .then(() => exStore.shutdown())
             .catch((err) => {
                 const errMsg = parseError(err);
@@ -153,11 +138,34 @@ module.exports = function module(context) {
         return terminalList.find(tStat => tStat === execution._status) !== undefined;
     }
 
+    // safely stop the execution without setting the ex status to stopping or stopped
+    function finishExecution(exId, err) {
+        if (err) {
+            logger.error(`terminal error for execution: ${exId}, shutting down execution`, err);
+        }
+        return getExecutionContext(exId)
+            .then((execution) => {
+                const status = execution._status;
+                if (['stopping', 'stopped'].includes(status)) {
+                    logger.debug(`execution ${exId} is already stopping which means there is no need to stop the execution`);
+                    return true;
+                }
+                logger.debug(`execution ${exId} finished, shutting down execution`);
+                return clusterService.stopExecution(exId).catch((error) => {
+                    logger.error(`error finishing the execution ${error}`);
+                });
+            });
+    }
+
     function stopExecution(exId, timeout, excludeNode) {
         return getExecutionContext(exId)
             .then((execution) => {
                 const isTerminal = _isTerminalStatus(execution);
-                if (isTerminal) return true;
+                if (isTerminal) {
+                    logger.info(`execution ${exId} is in terminal status "${execution._status}", it cannot be stopped`);
+                    return true;
+                }
+                logger.debug(`stopping execution ${exId}...`, _.pickBy({ timeout, excludeNode }));
                 return setExecutionStatus(exId, 'stopping')
                     .then(() => clusterService.stopExecution(exId, timeout, excludeNode))
                     .then(() => {
@@ -170,14 +178,20 @@ module.exports = function module(context) {
 
     function pauseExecution(exId) {
         const status = 'paused';
-        return clusterService.pauseExecution(exId)
+        if (!clusterMasterServer.isClientReady(exId)) {
+            return Promise.reject(new Error(`Execution ${exId} is not available to pause`));
+        }
+        return clusterMasterServer.sendExecutionPause(exId)
             .then(() => setExecutionStatus(exId, status))
             .then(() => ({ status }));
     }
 
     function resumeExecution(exId) {
         const status = 'running';
-        return clusterService.resumeExecution(exId)
+        if (!clusterMasterServer.isClientReady(exId)) {
+            return Promise.reject(new Error(`Execution ${exId} is not available to resume`));
+        }
+        return clusterMasterServer.sendExecutionResume(exId)
             .then(() => setExecutionStatus(exId, status))
             .then(() => ({ status }));
     }
@@ -186,7 +200,43 @@ module.exports = function module(context) {
         // if no exId is provided it returns all running executions
         const specificId = exId || false;
         return getRunningExecutions(exId)
-            .then(exIds => clusterService.getSlicerStats(exIds, specificId));
+            .then((exIds) => {
+                const clients = _.filter(clusterMasterServer.availableClients, ({ clientId }) => {
+                    if (specificId && clientId === specificId) return true;
+                    return _.includes(exIds, clientId);
+                });
+
+                function formatResponse(msg) {
+                    const payload = _.get(msg, 'payload', {});
+                    const identifiers = {
+                        ex_id: payload.ex_id,
+                        job_id: payload.job_id,
+                        name: payload.name
+                    };
+                    return Object.assign(identifiers, payload.stats);
+                }
+
+                if (_.isEmpty(clients)) {
+                    if (specificId) {
+                        const error = new Error(`Could not find active slicer for ex_id: ${specificId}`);
+                        error.code = 404;
+                        return Promise.reject(error);
+                    }
+                    return Promise.resolve([]);
+                }
+
+                const promises = _.map(clients, (client) => {
+                    const { clientId } = client;
+                    return clusterMasterServer
+                        .sendExecutionAnalyticsRequest(clientId)
+                        .then(formatResponse);
+                });
+
+                return Promise.all(promises);
+            }).then((results) => {
+                const sortedData = _.sortBy(results, ['name', 'started']);
+                return _.reverse(sortedData);
+            });
     }
 
     function createExecutionContext(job) {
@@ -325,7 +375,6 @@ module.exports = function module(context) {
         searchExecutionContexts,
         setExecutionStatus,
         terminalStatusList,
-        verifyAssets,
         executionMetaData,
         executionHasStopped
     };
@@ -366,6 +415,9 @@ module.exports = function module(context) {
     }
 
     function _initialize() {
+        // listen for an execution finished events
+        clusterMasterServer.onExecutionFinished(finishExecution);
+
         // Reschedule any persistent jobs that were running.
         // There may be some additional subtlety required here.
         return searchExecutionContexts('running').each((execution) => {
@@ -405,16 +457,16 @@ module.exports = function module(context) {
                 }
                 const errMsg = parseError(err);
                 logger.error('Error initializing, ', errMsg);
-                return Promise.reject(errMsg);
+                return Promise.reject(err);
             });
     }
 
 
     return require('../storage/execution')(context)
         .then((ex) => {
-            logger.info('Initializing');
+            logger.info('execution service is initializing...');
             exStore = ex;
-            return require('./cluster')(context, messaging, api);
+            return require('./cluster')(context, clusterMasterServer, api);
         })
         .then((cluster) => {
             clusterService = cluster;

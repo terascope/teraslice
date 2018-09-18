@@ -30,6 +30,7 @@ node_modules
 
 # teraslice assets
 assets/*/
+packages/*/assets/*/
 
 # package dist directory
 packages/**/dist

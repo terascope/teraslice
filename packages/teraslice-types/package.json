@@ -21,39 +21,40 @@
   "files": [
     "dist/**/*"
   ],
+  "srcMain": "src/index.ts",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "lint": "tslint --project tsconfig.json --force --format verbose \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint": "tslint --project tsconfig.json --format verbose",
     "lint:fix": "yarn lint --fix",
     "prepublishOnly": "yarn build",
-    "build": "rimraf dist && tsc --pretty",
+    "build": "rimraf dist && tsc --project tsconfig.build.json --pretty",
+    "build:watch": "yarn build --watch",
     "test": "jest",
-    "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
-    "watch": "yarn build --watch",
-    "watch:test": "jest --watch"
+    "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
+    "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
   },
   "dependencies": {
     "@types/bunyan": "^1.8.4",
     "@types/convict": "^4.2.0",
     "@types/lodash": "^4.14.116",
-    "@types/node": "^10.7.1",
+    "@types/node": "^10.9.4",
     "bunyan": "^1.8.12",
     "convict": "^4.3.2",
     "debugnyan": "^2.0.2",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.11",
     "rimraf": "^2.0.0",
-    "typescript": "^3.0.1"
+    "typescript": "^3.0.3"
   },
   "devDependencies": {
-    "@types/jest": "^23.3.1",
+    "@types/jest": "^23.3.2",
     "babel-core": "^6.0.0",
-    "babel-jest": "^23.4.2",
-    "jest": "^23.5.0",
-    "jest-extended": "^0.8.1",
+    "babel-jest": "^23.6.0",
+    "jest": "^23.6.0",
+    "jest-extended": "^0.9.0",
     "ts-jest": "^23.1.4",
     "tslint": "^5.0.0",
-    "tslint-config-airbnb": "^5.10.0"
+    "tslint-config-airbnb": "^5.11.0"
   },
   "engines": {
     "node": ">=8.0.0"

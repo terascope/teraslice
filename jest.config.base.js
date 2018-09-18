@@ -2,6 +2,7 @@
 
 const path = require('path');
 const fs = require('fs-extra');
+const { jest: lernaAliases } = require('lerna-alias');
 
 module.exports = (projectDir) => {
     const name = path.basename(projectDir);
@@ -25,9 +26,11 @@ module.exports = (projectDir) => {
             `${projectRoot}/test/*-spec.{ts,js}`
         ],
         testPathIgnorePatterns: [
+            '<rootDir>/assets',
             `<rootDir>/${workspaceName}/*/node_modules`,
             `<rootDir>/${workspaceName}/*/dist`,
         ],
+        moduleNameMapper: lernaAliases({ mainFields: ['srcMain', 'main'] }),
         moduleFileExtensions: [
             'ts',
             'js',
