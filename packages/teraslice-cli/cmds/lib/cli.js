@@ -22,7 +22,7 @@ module.exports = () => {
             .option('output', {
                 alias: 'o',
                 describe: 'Output display format pretty or txt, default is pretty',
-                default: 'pretty'
+                default: 'txt'
             })
             .option('env', {
                 alias: 'e',
