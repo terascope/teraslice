@@ -1,13 +1,15 @@
 import { DataEntity } from './data-entity';
-import { OperationCore } from './operation-core';
+import { ProcessorCore } from './core/processor-core';
 
 /**
- * BatchProcessor Base Class [DRAFT]
- * @description A core operation within a job for consuming data in batches in the pipeline.
+ * BatchProcessor [DRAFT]
+ * @description A variation of Processor that can handle a batch of data at a time.
  */
-export class BatchProcessor extends OperationCore {
-    async onBatch(data: DataEntity[]): Promise<DataEntity[]> {
-        this.logger.debug(`got batch of ${data.length}`);
-        throw new Error('BatchProcessor must implement a "onBatch" method');
+export abstract class BatchProcessor extends ProcessorCore {
+    abstract async onBatch(data: DataEntity[]): Promise<DataEntity[]>;
+
+    // this method is called by the teraslice framework and should not be overwritten
+    async handle(input: DataEntity[]): Promise<DataEntity[]> {
+        return this.onBatch(input);
     }
 }

@@ -1,7 +1,7 @@
 import 'jest-extended'; // require for type definitions
 import { DataEntity } from '../../src';
 
-describe('Data Entity', () => {
+describe('DataEntity', () => {
     describe('when constructed with an object', () => {
         const dataEntity = new DataEntity({
             blue: 'green',
