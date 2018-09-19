@@ -5,6 +5,8 @@ const Promise = require('bluebird');
 
 const { TestContext } = require('@terascope/teraslice-types');
 const { validateJobConfig, validateOpConfig, jobSchema } = require('@terascope/job-components');
+const { bindThis } = require('./utils');
+const Operation = require('./operation');
 
 // load data
 const sampleDataArrayLike = require('./data/sampleDataArrayLike.json');
@@ -29,87 +31,14 @@ function jobSpec(opConfig) {
     };
 }
 
-function bindThis(instance, cls) {
-    return Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
-        .filter((name) => {
-            const method = instance[name];
-            return method instanceof Function && method !== cls;
-        })
-        .forEach((mtd) => {
-            instance[mtd] = instance[mtd].bind(instance);
-        });
-}
-
-class Operation {
-    constructor({
-        op,
-        context,
-        opConfig,
-        logger,
-        retryData,
-        executionConfig,
-        executionContext,
-        type
-    }) {
-        this.operationFn = op;
-        this.context = context;
-        this.logger = logger;
-        this.retryData = retryData;
-        this.executionConfig = executionConfig;
-        this.executionContext = executionContext;
-        this.opConfig = opConfig;
-
-        this.isProcessor = op.newProcessor !== undefined;
-        this.isReader = type === 'reader' && op.newReader !== undefined;
-        this.isSlicer = type === 'slicer' && op.newSlicer !== undefined;
-        this._hasInit = false;
-        bindThis(this, Operation);
-    }
-
-    async init() {
-        const {
-            context,
-            logger,
-            retryData = [],
-            executionContext,
-            operationFn: op,
-            opConfig,
-            executionConfig
-        } = this;
-
-        if (!this._hasInit) {
-            if (this.isProcessor) {
-                this.operation = await op.newProcessor(context, opConfig, executionConfig);
-            }
-            if (this.isReader) {
-                // readers and slicers are currently mixed in the same file,
-                // this will change with the new operations
-                this.operation = await op.newReader(context, opConfig, executionConfig);
-            }
-            if (this.isSlicer) {
-                this.operation = await op.newSlicer(context, executionContext, retryData, logger);
-            }
-            this._hasInit = true;
+function wrapper(clientList) {
+    return (config) => {
+        const { type, endpoint } = config;
+        const client = _.get(clientList, [type, endpoint], null);
+        if (!client) throw new Error(`No client was found at type ${type}, endpoint: ${endpoint}`);
+        return { client };
+    };
         }
-        return this;
-    }
-
-    async run(data) {
-        if (!this._hasInit) await this.init();
-        if (this.isSlicer) {
-            // if just one slicer, return one value
-            if (this.operation.length === 1) {
-                return this.operation[0](data);
-            }
-            const invocations = this.operation.map((fn, ind) => {
-                const respData = _.get(data, ind) || data;
-                return fn(respData);
-            });
-            return Promise.all(invocations);
-        }
-        return this.operation(data, this.logger);
-    }
-}
 
 // TODO: cleanup extra parameters that this does not need
 class TestHarness {
@@ -120,6 +49,8 @@ class TestHarness {
         this.events = this.context.apis.foundation.getSystemEvents();
         this.logger = this.context.logger;
         this.operationFn = op;
+        this.getConnetionIsWrapped = false;
+        this.clientList = {};
         // This is for backwards compatiblity
         this._jobSpec = jobSpec;
         bindThis(this, TestHarness);
@@ -130,13 +61,32 @@ class TestHarness {
         return op.run(data);
     }
 
+    setClients(clients = []) {
+        const { clientList, context } = this;
+
+        clients.forEach((clientConfig) => {
+            const { client, type, endpoint = 'default' } = clientConfig;
+
+            if (!type || (typeof type !== 'string')) throw new Error('you must specify a type when setting a client');
+
+            _.set(clientList, [type, endpoint], client);
+            _.set(context, ['sysconfig', 'terafoundation', 'connectors', type, endpoint], {});
+        });
+
+        if (!this.getConnetionIsWrapped) {
+            this.getConnetionIsWrapped = true;
+            this.context.apis.foundation.getConnection = wrapper(clientList);
+            this.context.foundation.getConnection = wrapper(clientList);
+        }
+    }
+
     // TODO: Im not sure this should be here, maybe this should all be in init
     async init({
         opConfig: newOpConfig = null,
         executionConfig: newExecutionConfig = null,
         context: newContext = null,
         retryData = [],
-        client = null,
+        clients = null,
         type = 'slicer'
     }) {
         const {
@@ -171,11 +121,9 @@ class TestHarness {
             context = Object.assign({}, _context, newContext);
             this.context = context;
         }
-        if (client) {
-            // this first one is for backwards compatability
-            this.client = client;
-            this.context.foundation.getConnection = () => ({ client });
-            this.context.apis.foundation.getConnnection = () => ({ client });
+
+        if (clients) {
+            this.setClients(clients);
         }
 
         const instance = new Operation({

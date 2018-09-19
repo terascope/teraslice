@@ -119,7 +119,8 @@ describe('tests for new op harness', () => {
         const client = new Client();
         const type = 'reader';
         const executionConfig = { lifecycle: 'once', operations: [{ _op: 'reader' }] };
-        const test = await opTest.init({ executionConfig, client, type });
+        opTest.setClients([{ client, type: 'elasticsearch' }]);
+        const test = await opTest.init({ executionConfig, type });
 
         const results = await test.run({ test: 'data' });
         expect(results).toEqual({ test: 'data', wasRead: true, wasFetched: true });
@@ -129,6 +130,8 @@ describe('tests for new op harness', () => {
         const opTest = opHarness(reader);
         const client = new Client();
         const executionConfig = { lifecycle: 'once', operations: [{ _op: 'reader' }] };
+        opTest.setClients([{ client, type: 'elasticsearch' }]);
+
         const test = await opTest.init({ executionConfig, client });
 
         const results = await test.run();
