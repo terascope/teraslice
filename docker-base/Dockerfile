@@ -5,18 +5,24 @@ ENV NODE_ENV production
 ENV NPM_CONFIG_LOGLEVEL error
 
 RUN mkdir -p /app/source
-WORKDIR /app/source
+WORKDIR /app/
 
-RUN export WITH_SASL=0 && \
-    yarn global add \
+RUN yarn global add \
     --silent \
     --no-progress \
     --no-emoji \
     --no-cache \
-    bunyan \
-    terascope/terafoundation_kafka_connector \
-    terascope/teraslice_kafka_reader \
-    terascope/teraslice_kafka_sender
+    bunyan
+
+COPY package.json yarn.lock /app/
+
+RUN export WITH_SASL=0 && yarn \
+    --silent \
+    --no-progress \
+    --no-emoji \
+    --no-cache
+
+WORKDIR /app/source
 
 EXPOSE 5678
 

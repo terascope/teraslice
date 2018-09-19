@@ -259,38 +259,6 @@ class ExecutionController {
         await Promise.delay(100);
     }
 
-    async allocateSlice(request, slicerId, startingOrder) {
-        let slicerOrder = startingOrder;
-        const { logger, slicerQueue, exId } = this;
-        const { stateStore } = this.stores;
-
-        await Promise.map(castArray(request), async (sliceRequest) => {
-            slicerOrder += 1;
-            let slice = sliceRequest;
-
-            // recovery slices already have correct meta data
-            if (!slice.slice_id) {
-                slice = {
-                    slice_id: uuidv4(),
-                    request: sliceRequest,
-                    slicer_id: slicerId,
-                    slicer_order: slicerOrder,
-                    _created: new Date().toISOString()
-                };
-
-                await stateStore.createState(exId, slice, 'start');
-                logger.trace('enqueuing slice', slice);
-            }
-
-            this.slicesEnqueued += 1;
-            slicerQueue.enqueue(slice);
-        });
-
-        this.executionAnalytics.set('queued', this.slicerQueue.size());
-
-        return slicerOrder;
-    }
-
     async setFailingStatus() {
         const { exStore } = this.stores;
 
@@ -506,8 +474,8 @@ class ExecutionController {
         const remaining = this.executionContext.queueLength - this.slicerQueue.size();
         if (remaining <= 0) return;
 
-        // schedule up to 10 slices at once
-        const count = _.min([remaining, 10]);
+        // schedule up to 3 slices at once
+        const count = _.min([remaining, 3]);
 
         const schedule = async () => {
             const needsMoreSlices = this.slicerQueue.size() < this.executionContext.queueLength;
@@ -520,7 +488,8 @@ class ExecutionController {
             }
         };
 
-        await Promise.map(_.times(count), schedule);
+        // this has to be run in series because the slicers can only be run serially
+        await Promise.each(_.times(count), schedule);
     }
 
     async _dispatchSlices() {
@@ -642,7 +611,7 @@ class ExecutionController {
                         this.executionAnalytics.increment('subslice_by_key');
                     }
 
-                    slicerOrder = await this.allocateSlice(
+                    slicerOrder = await this._allocateSlice(
                         sliceRequest,
                         slicerId,
                         slicerOrder
@@ -661,6 +630,39 @@ class ExecutionController {
             }
         };
     }
+
+    async _allocateSlice(request, slicerId, startingOrder) {
+        let slicerOrder = startingOrder;
+        const { logger, slicerQueue, exId } = this;
+        const { stateStore } = this.stores;
+
+        await Promise.map(castArray(request), async (sliceRequest) => {
+            slicerOrder += 1;
+            let slice = sliceRequest;
+
+            // recovery slices already have correct meta data
+            if (!slice.slice_id) {
+                slice = {
+                    slice_id: uuidv4(),
+                    request: sliceRequest,
+                    slicer_id: slicerId,
+                    slicer_order: slicerOrder,
+                    _created: new Date().toISOString()
+                };
+
+                await stateStore.createState(exId, slice, 'start');
+                logger.trace('enqueuing slice', slice);
+            }
+
+            this.slicesEnqueued += 1;
+            slicerQueue.enqueue(slice);
+        });
+
+        this.executionAnalytics.set('queued', this.slicerQueue.size());
+
+        return slicerOrder;
+    }
+
 
     _slicerCompleted(slicerId) {
         this.slicersDoneCount += 1;
