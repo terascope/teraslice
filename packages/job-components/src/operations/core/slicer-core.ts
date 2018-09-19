@@ -10,19 +10,20 @@ import {
 } from '@terascope/teraslice-types';
 
 /**
- * SlicerCore Base Class [DRAFT]
- * @description The core base class for slicer subclasses,
+ * SlicerCore [DRAFT]
+ * @description A base class for supporting "Slicers" that run on a "Execution Controller",
  *              that supports the execution lifecycle events.
  *              This class will likely not be used externally
- *              since Teraslice only supports a few subclass varients.
+ *              since Teraslice only supports a few type varients.
  */
 
 export class SlicerCore {
-    protected readonly context: Context;
-    protected readonly executionConfig: ExecutionConfig;
-    protected readonly opConfig: OpConfig;
+    protected readonly context: Readonly<Context>;
+    protected readonly executionConfig: Readonly<ExecutionConfig>;
+    protected readonly opConfig: Readonly<OpConfig>;
     protected readonly logger: Logger;
     protected readonly events: EventEmitter;
+    protected _slicers: Function[];
 
     constructor(context: Context, executionConfig: ExecutionConfig, opConfig: OpConfig, logger: Logger) {
         this.context = context;
@@ -30,16 +31,15 @@ export class SlicerCore {
         this.opConfig = opConfig;
         this.logger = logger;
         this.events = context.apis.foundation.getSystemEvents();
+        this._slicers = [];
     }
 
-    async initialize(startingPoints: object[]): Promise<void> {
-        this.context.logger.debug(`${this.executionConfig.name}->${this.opConfig._op} is initialzing...`, startingPoints);
-        return;
+    async initialize(recoveryData: object[]): Promise<void> {
+        this.context.logger.debug(`${this.executionConfig.name}->${this.opConfig._op} is initializing...`, recoveryData);
     }
 
     async shutdown(): Promise<void> {
         this.context.logger.debug(`${this.executionConfig.name}->${this.opConfig._op} is shutting down...`);
-        return;
     }
 
     async onSliceEnqueued(slice: Slice): Promise<void> {
@@ -55,6 +55,8 @@ export class SlicerCore {
     }
 
 }
+
+export type SlicerResult = object | object[] | null;
 
 export interface SliceResult {
     slice: Slice;

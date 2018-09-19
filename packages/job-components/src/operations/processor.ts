@@ -1,13 +1,33 @@
 import { DataEntity } from './data-entity';
-import { OperationCore } from './operation-core';
+import { OperationCore } from './core/operation-core';
 
 /**
- * Processor Base Class [DRAFT]
- * @description A core operation within a job for consuming data one item at a time in the pipeline.
+ * Processor [DRAFT]
+ * @description A variation of Processor that can a single DataEntity at a time.
+ *              If onData returns null, no more data will be passed to onData for this slice.
  */
-export class Processor extends OperationCore {
-    async onData(data: DataEntity): Promise<DataEntity | null> {
-        this.logger.debug(`data ${data}`);
-        throw new Error('DataProcessor must implement a "onData" method');
+export abstract class Processor extends OperationCore {
+    abstract async onData(data: DataEntity): Promise<DataEntity | null>;
+
+    // this method is called by the teraslice framework and should not be overwritten
+    async handle(input: DataEntity[]): Promise<DataEntity[]> {
+        const remaining = input.slice();
+        const entities: DataEntity[] = [];
+
+        const forEach = async (): Promise<void> => {
+            const data = remaining.shift();
+            if (data == null) return;
+
+            const result = await this.onData(data);
+            if (result == null) return;
+
+            entities.push(result);
+
+            return forEach();
+        };
+
+        await forEach();
+
+        return entities;
     }
 }

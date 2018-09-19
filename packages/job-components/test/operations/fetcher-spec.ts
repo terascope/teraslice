@@ -1,19 +1,19 @@
 import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { Slicer, SlicerResult } from '../../src';
+import { Fetcher, DataEntity } from '../../src';
 
-describe('Slicer', () => {
-    class ExampleSlicer extends Slicer {
-        public async slice(): Promise<SlicerResult> {
+describe('Fetcher', () => {
+    class ExampleFetcher extends Fetcher {
+        public async fetch(): Promise<DataEntity[]> {
             return [
-                   { hi: true }
+                new DataEntity({ hi: true })
             ];
         }
     }
 
-    let operation: ExampleSlicer;
+    let operation: ExampleFetcher;
 
-    beforeAll(async () => {
+    beforeAll(() => {
         const context = new TestContext('teraslice-operations');
         const jobConfig = newTestJobConfig();
         jobConfig.operations.push({
@@ -21,13 +21,12 @@ describe('Slicer', () => {
         });
         const opConfig = jobConfig.operations[0];
         const logger = context.apis.foundation.makeLogger('job-logger');
-        operation = new ExampleSlicer(context, jobConfig, opConfig, logger);
-        await operation.initialize([{ hello: true }]);
+        operation = new ExampleFetcher(context, jobConfig, opConfig, logger);
     });
 
-    describe('->slice', () => {
+    describe('->fetch', () => {
         it('should resolve with data entries', () => {
-            return expect(operation.handle(0)).resolves.toBeArrayOfSize(1);
+            return expect(operation.handle()).resolves.toBeArrayOfSize(1);
         });
     });
 });

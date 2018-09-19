@@ -1,16 +1,16 @@
 import _ from 'lodash';
 import convict from 'convict';
 import { EventEmitter } from 'events';
-import { DataEntity } from './data-entity';
-import { validateOpConfig } from '../config-validators';
+import { DataEntity } from '../data-entity';
+import { validateOpConfig } from '../../config-validators';
 import { Context, ExecutionConfig, Logger, OpConfig } from '@terascope/teraslice-types';
 
 /**
- * OperationCore Base Class [DRAFT]
- * @description The core base class for operation subclasses,
+ * Operation Base Class [DRAFT]
+ * @description A base class for supporting operations that run on a "Worker",
  *              that supports the job execution lifecycle events.
  *              This class will likely not be used externally
- *              since Teraslice only supports a few subclass varients.
+ *              since Teraslice only supports a few types varients.
  */
 
 export class OperationCore {
@@ -18,9 +18,9 @@ export class OperationCore {
         return validateOpConfig(inputSchema, inputConfig);
     }
 
-    protected readonly context: Context;
-    protected readonly executionConfig: ExecutionConfig;
-    protected readonly opConfig: OpConfig;
+    protected readonly context: Readonly<Context>;
+    protected readonly executionConfig: Readonly<ExecutionConfig>;
+    protected readonly opConfig: Readonly<OpConfig>;
     protected readonly logger: Logger;
     protected readonly events: EventEmitter;
 
