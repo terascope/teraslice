@@ -1,4 +1,4 @@
-import { Context, JobConfig, Logger, OpConfig } from '@terascope/teraslice-types';
+import { Context, ExecutionConfig, Logger, OpConfig } from '@terascope/teraslice-types';
 import convict from 'convict';
 import _ from 'lodash';
 import { DataEntity } from './data-entity';
@@ -13,61 +13,61 @@ import { validateOpConfig } from '../config-validators';
  */
 
 export class OperationCore {
-    public static async validate(inputSchema: convict.Schema<any>, inputConfig: any): Promise<OpConfig> {
+    static async validate(inputSchema: convict.Schema<any>, inputConfig: any): Promise<OpConfig> {
         return validateOpConfig(inputSchema, inputConfig);
     }
 
     protected readonly context: Context;
-    protected readonly jobConfig: JobConfig;
+    protected readonly executionConfig: ExecutionConfig;
     protected readonly opConfig: OpConfig;
     protected readonly logger: Logger;
 
-    constructor(context: Context, jobConfig: JobConfig, opConfig: OpConfig, logger: Logger) {
+    constructor(context: Context, executionConfig: ExecutionConfig, opConfig: OpConfig, logger: Logger) {
         this.context = context;
-        this.jobConfig = jobConfig;
+        this.executionConfig = executionConfig;
         this.opConfig = opConfig;
         this.logger = logger;
     }
 
-    public async initialize(): Promise<void> {
-        this.context.logger.debug(`${this.jobConfig.name}->${this.opConfig._op} is initialzing...`);
+    async initialize(): Promise<void> {
+        this.context.logger.debug(`${this.executionConfig.name}->${this.opConfig._op} is initialzing...`);
         return;
     }
 
-    public async shutdown(): Promise<void> {
-        this.context.logger.debug(`${this.jobConfig.name}->${this.opConfig._op} is shutting down...`);
+    async shutdown(): Promise<void> {
+        this.context.logger.debug(`${this.executionConfig.name}->${this.opConfig._op} is shutting down...`);
         return;
     }
 
-    public async onSliceInitialized(sliceId: string): Promise<void> {
+    async onSliceInitialized(sliceId: string): Promise<void> {
         this.context.logger.debug(`slice initialized: ${sliceId}`);
     }
 
-    public async onSliceStarted(sliceId: string): Promise<void> {
+    async onSliceStarted(sliceId: string): Promise<void> {
         this.context.logger.debug(`slice started: ${sliceId}`);
     }
 
-    public async onSliceFinalizing(sliceId: string): Promise<void> {
+    async onSliceFinalizing(sliceId: string): Promise<void> {
         this.context.logger.debug(`slice finalizing: ${sliceId}`);
     }
 
-    public async onSliceFinished(sliceId: string): Promise<void> {
+    async onSliceFinished(sliceId: string): Promise<void> {
         this.context.logger.debug(`slice finished: ${sliceId}`);
     }
 
-    public async onSliceFailed(sliceId: string): Promise<void> {
+    async onSliceFailed(sliceId: string): Promise<void> {
         this.context.logger.debug(`slice failed: ${sliceId}`);
     }
 
-    public async onSliceRetry(sliceId: string): Promise<void> {
+    async onSliceRetry(sliceId: string): Promise<void> {
         this.context.logger.debug(`slice retry: ${sliceId}`);
     }
 
-    public convertDataToDataEntity(data: object): DataEntity {
+    convertDataToDataEntity(data: object): DataEntity {
         return new DataEntity(data);
     }
 
-    public convertBatchToDataEntity(batch: object[]): DataEntity[] {
+    convertBatchToDataEntity(batch: object[]): DataEntity[] {
         return _.map(batch, this.convertDataToDataEntity);
     }
 }

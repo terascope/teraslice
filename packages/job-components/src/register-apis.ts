@@ -1,4 +1,4 @@
-import { ConnectionConfig, Context, JobConfig, OpConfig } from '@terascope/teraslice-types';
+import { ConnectionConfig, Context, ValidatedJobConfig, OpConfig } from '@terascope/teraslice-types';
 import { has } from 'lodash';
 
 interface GetClientConfig {
@@ -10,7 +10,7 @@ interface GetClientConfig {
 /*
 * Returns the first op that matches name.
 */
-export function getOpConfig(job: JobConfig, name: string): OpConfig|undefined {
+export function getOpConfig(job: ValidatedJobConfig, name: string): OpConfig|undefined {
     return job.operations.find((op: OpConfig) => op._op === name);
 }
 
@@ -44,7 +44,7 @@ export function getClient(context: Context, config: GetClientConfig, type: strin
     }
 }
 
-export function registerApis(context: Context, job: JobConfig): void {
+export function registerApis(context: Context, job: ValidatedJobConfig): void {
     if (context.apis.op_runner == null) {
         context.apis.registerAPI('op_runner', {
             getClient(config: GetClientConfig, type: string): { client: any } {

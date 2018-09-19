@@ -11,13 +11,13 @@ export type SlicerResult = object | object[] | null;
  */
 
 export class Slicer extends OperationCore {
-    public async initialize(startingPoints?: any): Promise<void> {
+    async initialize(startingPoints?: any): Promise<void> {
         this.logger.debug('got initialized starting points', startingPoints);
         super.initialize();
     }
 
     // @ts-ignore
-    public async slice(slicerId: number): Promise<SlicerResult> {
+    async slice(slicerId: number): Promise<SlicerResult> {
         throw new Error('Slicer must implement a "slice" method');
     }
 }

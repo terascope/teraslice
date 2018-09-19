@@ -1,6 +1,6 @@
 'use strict';
 
-import { LegacyProcessor, LegacyReader, newTestJobConfig, TestContext } from '@terascope/teraslice-types';
+import { LegacyProcessor, LegacyReader, newTestExecutionConfig, TestContext } from '@terascope/teraslice-types';
 import fse from 'fs-extra';
 import 'jest-extended'; // require for type definitions
 import path from 'path';
@@ -26,9 +26,9 @@ describe('OperationLoader', () => {
             terasliceOpPath,
         });
 
-        expect(typeof opLoader).toEqual('object');
+        expect(opLoader).toBeObject();
         expect(opLoader.load).toBeDefined();
-        expect(typeof opLoader.load).toEqual('function');
+        expect(opLoader.load).toBeFunction();
     });
 
     it('can load an operation', () => {
@@ -38,21 +38,21 @@ describe('OperationLoader', () => {
         const results = opLoader.load('noop') as LegacyProcessor;
 
         expect(results).toBeDefined();
-        expect(typeof results).toEqual('object');
+        expect(results).toBeObject();
         expect(results.newProcessor).toBeDefined();
         expect(results.schema).toBeDefined();
-        expect(typeof results.newProcessor).toEqual('function');
-        expect(typeof results.schema).toEqual('function');
+        expect(results.newProcessor).toBeFunction();
+        expect(results.schema).toBeFunction();
 
         const opSchema = results.schema();
         expect(opSchema).toBeDefined();
-        expect(typeof opSchema).toEqual('object');
+        expect(opSchema).toBeObject();
 
-        const jobConfig = newTestJobConfig();
-        const processor = results.newProcessor(context, { _op: 'noop' }, jobConfig);
+        const exConfig = newTestExecutionConfig();
+        const processor = results.newProcessor(context, { _op: 'noop' }, exConfig);
 
         expect(processor).toBeDefined();
-        expect(typeof processor).toEqual('function');
+        expect(processor).toBeFunction();
 
         const someData = 'someData';
         const processorResults = processor(someData);
@@ -66,20 +66,20 @@ describe('OperationLoader', () => {
         const op = opLoader.load(path.join(__dirname, 'fixtures', 'test-op')) as LegacyProcessor;
 
         expect(op).toBeDefined();
-        expect(typeof op).toEqual('object');
+        expect(op).toBeObject();
         expect(op.newProcessor).toBeDefined();
         expect(op.schema).toBeDefined();
-        expect(typeof op.newProcessor).toEqual('function');
-        expect(typeof op.schema).toEqual('function');
+        expect(op.newProcessor).toBeFunction();
+        expect(op.schema).toBeFunction();
 
         const reader = opLoader.load(path.join(__dirname, 'fixtures', 'test-reader')) as LegacyReader;
 
         expect(reader).toBeDefined();
-        expect(typeof reader).toEqual('object');
+        expect(reader).toBeObject();
         expect(reader.newReader).toBeDefined();
         expect(reader.schema).toBeDefined();
-        expect(typeof reader.newReader).toEqual('function');
-        expect(typeof reader.schema).toEqual('function');
+        expect(reader.newReader).toBeFunction();
+        expect(reader.schema).toBeFunction();
     });
 
     it('can throw proper errors if op code does not exits', () => {
@@ -101,20 +101,21 @@ describe('OperationLoader', () => {
         const results = opLoader.load('noop', [assetId]) as LegacyProcessor;
 
         expect(results).toBeDefined();
-        expect(typeof results).toEqual('object');
+        expect(results).toBeObject();
         expect(results.newProcessor).toBeDefined();
         expect(results.schema).toBeDefined();
-        expect(typeof results.newProcessor).toEqual('function');
-        expect(typeof results.schema).toEqual('function');
+        expect(results.newProcessor).toBeFunction();
+        expect(results.schema).toBeFunction();
 
         const opSchema = results.schema();
         expect(opSchema).toBeDefined();
-        expect(typeof opSchema).toEqual('object');
+        expect(opSchema).toBeObject();
 
-        const processor = results.newProcessor(context, { _op: 'hello' }, newTestJobConfig());
+        const exConfig = newTestExecutionConfig();
+        const processor = results.newProcessor(context, { _op: 'hello' }, exConfig);
 
         expect(processor).toBeDefined();
-        expect(typeof processor).toEqual('function');
+        expect(processor).toBeFunction();
 
         const someData = 'someData';
         const processorResults = processor(someData);

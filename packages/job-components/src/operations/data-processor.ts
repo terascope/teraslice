@@ -7,7 +7,7 @@ import { OperationCore } from './operation-core';
  */
 export class DataProcessor extends OperationCore {
     // @ts-ignore
-    public async onData(data: DataEntity): Promise<DataEntity | null> {
+    async onData(data: DataEntity): Promise<DataEntity | null> {
         throw new Error('DataProcessor must implement a "onData" method');
     }
 }
