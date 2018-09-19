@@ -1,4 +1,4 @@
-FROM terascope/teraslice-base:v0.1.2
+FROM terascope/teraslice-base:v0.1.3
 
 COPY package.json yarn.lock /app/source/
 
