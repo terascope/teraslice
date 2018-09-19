@@ -20,7 +20,6 @@ const simpleData = [
 ];
 
 function jobSpec(opConfig) {
-    // TODO: make this work for slicers/readers
     return {
         operations: [
             {
@@ -38,12 +37,10 @@ function wrapper(clientList) {
         if (!client) throw new Error(`No client was found at type ${type}, endpoint: ${endpoint}`);
         return { client };
     };
-        }
+}
 
-// TODO: cleanup extra parameters that this does not need
 class TestHarness {
     constructor(op) {
-        // TODO:this need to be changable;
         this.context = new TestContext('teraslice-op-test-harness');
         this.schema = jobSchema(this.context);
         this.events = this.context.apis.foundation.getSystemEvents();
@@ -80,7 +77,6 @@ class TestHarness {
         }
     }
 
-    // TODO: Im not sure this should be here, maybe this should all be in init
     async init({
         opConfig: newOpConfig = null,
         executionConfig: newExecutionConfig = null,
@@ -219,7 +215,7 @@ class TestHarness {
     runProcessorSpecs(processor) {
         // TODO: I'd like to refactor this out into a stand-alone spec file in a
         // subdirectory, but this will do for now.
-        // TODO: this is not needed
+        // TODO: this is not needed?
         this.fakeLogger.info();
         describe('test harness', () => {
             it('has a schema and newProcessor method', () => {

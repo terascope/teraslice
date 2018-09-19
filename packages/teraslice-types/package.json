@@ -1,62 +1,62 @@
 {
-  "name": "@terascope/teraslice-types",
-  "version": "0.2.0",
-  "publishConfig": {
-    "access": "public"
-  },
-  "description": "Teraslice Types",
-  "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-types#readme",
-  "bugs": {
-    "url": "https://github.com/terascope/teraslice/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/terascope/teraslice.git"
-  },
-  "license": "MIT",
-  "directories": {
-    "lib": "dist",
-    "test": "test"
-  },
-  "files": [
-    "dist/**/*"
-  ],
-  "srcMain": "src/index.ts",
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
-  "scripts": {
-    "lint": "tslint --project tsconfig.json --format verbose",
-    "lint:fix": "yarn lint --fix",
-    "prepublishOnly": "yarn build",
-    "build": "rimraf dist && tsc --project tsconfig.build.json --pretty",
-    "build:watch": "yarn build --watch",
-    "test": "jest",
-    "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-    "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
-  },
-  "dependencies": {
-    "@types/bunyan": "^1.8.4",
-    "@types/convict": "^4.2.0",
-    "@types/lodash": "^4.14.116",
-    "@types/node": "^10.9.4",
-    "bunyan": "^1.8.12",
-    "convict": "^4.3.2",
-    "debugnyan": "^2.0.2",
-    "lodash": "^4.17.11",
-    "rimraf": "^2.0.0",
-    "typescript": "^3.0.3"
-  },
-  "devDependencies": {
-    "@types/jest": "^23.3.2",
-    "babel-core": "^6.0.0",
-    "babel-jest": "^23.6.0",
-    "jest": "^23.6.0",
-    "jest-extended": "^0.9.0",
-    "ts-jest": "^23.1.4",
-    "tslint": "^5.0.0",
-    "tslint-config-airbnb": "^5.11.0"
-  },
-  "engines": {
-    "node": ">=8.0.0"
-  }
+    "name": "@terascope/teraslice-types",
+    "version": "0.2.0",
+    "publishConfig": {
+        "access": "public"
+    },
+    "description": "Teraslice Types",
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-types#readme",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/terascope/teraslice.git"
+    },
+    "license": "MIT",
+    "directories": {
+        "lib": "dist",
+        "test": "test"
+    },
+    "files": [
+        "dist/**/*"
+    ],
+    "srcMain": "src/index.ts",
+    "main": "dist/index.js",
+    "typings": "dist/index.d.ts",
+    "scripts": {
+        "lint": "tslint --project tsconfig.json --format verbose",
+        "lint:fix": "yarn lint --fix",
+        "prepublishOnly": "yarn build",
+        "build": "rimraf dist && tsc --project tsconfig.build.json --pretty",
+        "build:watch": "yarn build --watch",
+        "test": "jest",
+        "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
+        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+    },
+    "dependencies": {
+        "@types/bunyan": "^1.8.4",
+        "@types/convict": "^4.2.0",
+        "@types/lodash": "^4.14.116",
+        "@types/node": "^10.9.4",
+        "bunyan": "^1.8.12",
+        "convict": "^4.3.2",
+        "debugnyan": "^2.0.2",
+        "lodash": "^4.17.11",
+        "rimraf": "^2.0.0",
+        "typescript": "^3.0.3"
+    },
+    "devDependencies": {
+        "@types/jest": "^23.3.2",
+        "babel-core": "^6.0.0",
+        "babel-jest": "^23.6.0",
+        "jest": "^23.6.0",
+        "jest-extended": "^0.9.0",
+        "ts-jest": "^23.1.4",
+        "tslint": "^5.0.0",
+        "tslint-config-airbnb": "^5.11.0"
+    },
+    "engines": {
+        "node": ">=8.0.0"
+    }
 }
