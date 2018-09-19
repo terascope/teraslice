@@ -8,9 +8,16 @@ import { OperationCore } from './core/operation-core';
  */
 
 export abstract class Fetcher extends OperationCore {
+    /**
+    * @description fetch data
+    * @param startingData information given the "Fetcher" from the slicer
+    * @returns an array of DataEntities
+    */
     abstract async fetch(startingData?: any): Promise<DataEntity[]>;
 
-    // this method is called by the teraslice framework and should not be overwritten
+    /**
+    * @description this is called by the Teraslice framework, this calls "->fetch"
+    */
     async handle(startingData?: any): Promise<DataEntity[]> {
         return this.fetch(startingData);
     }
