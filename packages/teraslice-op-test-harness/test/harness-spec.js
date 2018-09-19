@@ -132,7 +132,7 @@ describe('tests for new op harness', () => {
         const executionConfig = { lifecycle: 'once', operations: [{ _op: 'reader' }] };
         opTest.setClients([{ client, type: 'elasticsearch' }]);
 
-        const test = await opTest.init({ executionConfig, client });
+        const test = await opTest.init({ executionConfig });
 
         const results = await test.run();
         expect(results).toBeDefined();

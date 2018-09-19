@@ -21,11 +21,23 @@ Now, you can access functionality using the `harness` object.
 ## Processor Execution Function - `init()`
 
 The manner to instanciate a new instance of your operation is by using init
+You make pass in optional clients under the `clients` key but they must follow the format listed in the setClients definition
 
 ```javascript
 describe('setting up an operation', () => {
-     const processorOpTest = opHarness(processor);
-     const readerOpTest = opHarness(reader);
+    const processorOpTest = opHarness(processor);
+    const readerOpTest = opHarness(reader);
+    let client;
+    let client2;
+
+     class MockClient {
+        async get(data) { return data }
+    }
+     
+    beforeEach(() => {
+    client = new MockClient();
+    readerOpTest.setClients([{ client, type: 'elasticsearch', endpoint: 'default' }])
+    });
 
     it('can make a processor instance', async () => {
         const opConfig = { _op: 'foo', some: 'config' };
@@ -36,10 +48,6 @@ describe('setting up an operation', () => {
         expect(results).toBeDefined();
     });
 
-    class MockClient {
-        async get(data) { return data }
-    }
-
     it('can make a reader instance', async () => {
         const executionConfig = { 
             lifecycle: 'once',
@@ -47,8 +55,7 @@ describe('setting up an operation', () => {
         };
         const data = { some: 'data' };
         const type = 'reader';
-        const client = new MockClient();
-        const rTest = await readerOpTest.init({ executionConfig, client, type });
+        const rTest = await readerOpTest.init({ executionConfig, type });
 
         const results = await rTest.run(data)
         expect(results).toBeDefined();
@@ -60,13 +67,74 @@ describe('setting up an operation', () => {
             operations: [{ _op: 'foo', some: 'config' }
         };
         // type defaults to slicer
-        const client = new MockClient();
-        const sTest = await readerOpTest.init({ executionConfig, client });
+        const sTest = await readerOpTest.init({ executionConfig });
 
         const results = await sTest.run()
         expect(results).toBeDefined();
     });
 
+})
+```
+## Processor Execution Function - `setClients()`
+This takes an array of client configurations that will be used internally.
+The obejct must have a client key and a type key set.
+
+```javascript
+describe('setting up an operation', () => {
+    const opTest = opHarness(reader);
+    let client;
+    let client2;
+    let client3;
+
+    class MockClient {
+        async get(data) { return data }
+    }
+
+    class OtherClient {
+        async get(data) { return 'something else' }
+    }
+     
+    beforeEach(() => {
+    client = new MockClient();
+    client2 = new MockClient();
+    client3 = new MockClient();
+    // endpoint defaults to 'default' if not specifed, but showing none the less
+    readerOpTest.setClients([
+        { client, type: 'elasticsearch', endpoint: 'default' },
+        { client: client2, type: 'elasticsearch', endpoint: 'other_connection' },
+        { client: client3, type: 'kafka' },
+        ])
+    });
+
+    it('can make a reader instance', async () => {
+        const executionConfig = { 
+            lifecycle: 'once',
+            operations: [{ _op: 'foo', some: 'config' }
+        };
+        const data = { some: 'data' };
+        const type = 'reader';
+        const test = await opTest.init({ executionConfig, type });
+
+        const results = await test.run(data)
+        expect(results).toBeDefined();
+    });
+
+    it('can make a slicer instance', async () => {
+        const executionConfig = { 
+            lifecycle: 'once',
+            operations: [{ _op: 'foo', some: 'config' }
+        };
+        // you can override the clients at init time
+        const clients = [{ client: new OtherClient(), type: 'elasticsearch', endpoint: 'default'}]
+        // these two ops now have different clients at elasticsearch : default connection
+        const test1 = await opTest.init({ executionConfig });
+        const test2 = await opTest.init({ executionConfig, clients });
+
+        const [results1, results2 ] = await Promise.all([ test1.run(), test2.run()]);
+
+        expect(results1).toBeDefined();
+        expect(results2).toBeDefined();
+    });
 })
 ```
 ## Processor Execution Function `processData()`
