@@ -1,4 +1,4 @@
-import { OperationCore } from './operation-core';
+import { SlicerCore } from './slicer-core';
 
 export type SlicerResult = object | object[] | null;
 
@@ -10,14 +10,9 @@ export type SlicerResult = object | object[] | null;
  *              The "Slicer" is a part of the "Reader" component of a job.
  */
 
-export class Slicer extends OperationCore {
-    async initialize(startingPoints?: any): Promise<void> {
-        this.logger.debug('got initialized starting points', startingPoints);
-        super.initialize();
-    }
-
-    // @ts-ignore
+export class Slicer extends SlicerCore {
     async slice(slicerId: number): Promise<SlicerResult> {
+        this.logger.debug(`slicerId ${slicerId}`);
         throw new Error('Slicer must implement a "slice" method');
     }
 }

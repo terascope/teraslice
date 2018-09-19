@@ -21,7 +21,9 @@
         "suppressImplicitAnyIndexErrors": true,
         "paths": {
             "@terascope/*": [
-                "../*/src"
+                "../*/src",
+                "../*",
+                "../*/types"
             ],
             "*": [
                 "types/*",

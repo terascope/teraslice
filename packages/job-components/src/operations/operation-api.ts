@@ -12,8 +12,8 @@ export type OpAPI = OpAPIFn | OpAPIInstance;
  */
 
 export class OperationAPI extends OperationCore {
-    // @ts-ignore
     async createAPI(config?: object): Promise<OpAPI> {
+        this.logger.debug(`config ${config}`);
         throw new Error('OperationAPI must implement a "createAPI" method');
     }
 }

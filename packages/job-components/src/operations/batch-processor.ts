@@ -6,8 +6,8 @@ import { OperationCore } from './operation-core';
  * @description A core operation within a job for consuming data in batches in the pipeline.
  */
 export class BatchProcessor extends OperationCore {
-    // @ts-ignore
     async onBatch(data: DataEntity[]): Promise<DataEntity[]> {
+        this.logger.debug(`got batch of ${data.length}`);
         throw new Error('BatchProcessor must implement a "onBatch" method');
     }
 }

@@ -8,8 +8,8 @@ import { OperationCore } from './operation-core';
  */
 
 export class Fetcher extends OperationCore {
-    // @ts-ignore
     async fetch(startingData?: any): Promise<DataEntity[]> {
+        this.logger.debug(`startingData ${startingData}`);
         throw new Error('Fetcher must implement a "fetch" method');
     }
 }

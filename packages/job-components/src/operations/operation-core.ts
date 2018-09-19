@@ -1,8 +1,9 @@
-import { Context, ExecutionConfig, Logger, OpConfig } from '@terascope/teraslice-types';
-import convict from 'convict';
 import _ from 'lodash';
+import convict from 'convict';
+import { EventEmitter } from 'events';
 import { DataEntity } from './data-entity';
 import { validateOpConfig } from '../config-validators';
+import { Context, ExecutionConfig, Logger, OpConfig } from '@terascope/teraslice-types';
 
 /**
  * OperationCore Base Class [DRAFT]
@@ -21,12 +22,14 @@ export class OperationCore {
     protected readonly executionConfig: ExecutionConfig;
     protected readonly opConfig: OpConfig;
     protected readonly logger: Logger;
+    protected readonly events: EventEmitter;
 
     constructor(context: Context, executionConfig: ExecutionConfig, opConfig: OpConfig, logger: Logger) {
         this.context = context;
         this.executionConfig = executionConfig;
         this.opConfig = opConfig;
         this.logger = logger;
+        this.events = context.apis.foundation.getSystemEvents();
     }
 
     async initialize(): Promise<void> {
@@ -63,11 +66,10 @@ export class OperationCore {
         this.context.logger.debug(`slice retry: ${sliceId}`);
     }
 
-    convertDataToDataEntity(data: object): DataEntity {
-        return new DataEntity(data);
-    }
-
-    convertBatchToDataEntity(batch: object[]): DataEntity[] {
-        return _.map(batch, this.convertDataToDataEntity);
+    wrapData(input: object|object[]): DataEntity|DataEntity[] {
+        if (_.isArray(input)) {
+            return _.map(input, (i) => new DataEntity(i));
+        }
+        return new DataEntity(input);
     }
 }
