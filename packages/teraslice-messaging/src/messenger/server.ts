@@ -150,9 +150,15 @@ export class Server extends Core {
             clearInterval(this._cleanupClients);
         }
 
-        this.server.volatile.emit('shutdown');
+        if (this.closed) {
+            this._clients = {};
+            this._clientSendFns = {};
+            return;
+        }
 
         await new Promise((resolve) => {
+            this.server.volatile.emit('shutdown');
+
             this.server.close(() => {
                 resolve();
             });
@@ -324,7 +330,6 @@ export class Server extends Core {
             payload: update.payload,
             error: update.payload,
             socketId: update.socketId,
-            metadata: update.metadata,
             updatedAt,
         });
 
@@ -335,10 +340,6 @@ export class Server extends Core {
 
         if (update.socketId) {
             this._clients[clientId].socketId = update.socketId;
-        }
-
-        if (update.metadata) {
-            Object.assign(this._clients[clientId].metadata, update.metadata);
         }
 
         switch (update.state) {
@@ -410,8 +411,7 @@ export class Server extends Core {
             createdAt: new Date(),
             updatedAt: new Date(),
             offlineAt: null,
-            socketId: socket.id,
-            metadata: {},
+            socketId: socket.id
         };
 
         this.emit(`client:${i.ClientState.Online}`, clientId);

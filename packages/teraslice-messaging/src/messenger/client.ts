@@ -16,6 +16,7 @@ export class Client extends Core {
     readonly hostUrl: string;
     available: boolean;
     protected ready: boolean;
+    protected serverShutdown: boolean;
 
     constructor(opts: ClientOptions) {
         super(opts);
@@ -65,6 +66,17 @@ export class Client extends Core {
         this.serverName = serverName;
         this.available = false;
         this.ready = false;
+        this.serverShutdown = false;
+    }
+
+    onServerShutdown(fn: () => void) {
+        this.on('server:shutdown', async () => {
+            this.serverShutdown = true;
+            fn();
+            setImmediate(() => {
+                this.socket.close();
+            });
+        });
     }
 
     async connect() {
@@ -101,20 +113,20 @@ export class Client extends Core {
             this.ready = false;
         });
 
-        this.socket.on('reconnect', async () => {
+        this.socket.on('reconnect', () => {
             debug(`client ${this.clientId} reconnected`);
             this.ready = true;
             this.emit('ready', this.serverName);
 
-            try {
-                if (this.available) {
+            if (!this.available) return;
+
+            setImmediate(async () => {
+                try {
                     await this.sendAvailable();
-                } else {
-                    await this.sendUnavailable();
+                } catch (err) {
+                    debug('update availablilty on reconnect error', err);
                 }
-            } catch (err) {
-                debug('update availablilty on reconnect error', err);
-            }
+            });
         });
 
         this.socket.on('disconnect', () => {
@@ -125,23 +137,14 @@ export class Client extends Core {
         this.socket.on('shutdown', () => {
             debug(`server ${this.serverName} shutdown`);
             this.ready = false;
-            this.socket.close();
+            this.serverShutdown = true;
+            this.emit('server:shutdown');
         });
 
         this.socket.on('connect', async () => {
             debug(`client ${this.clientId} connected`);
             this.ready = true;
             this.emit('ready', this.serverName);
-
-            try {
-                if (this.available) {
-                    await this.sendAvailable();
-                } else {
-                    await this.sendUnavailable();
-                }
-            } catch (err) {
-                debug('update availablilty on connect error', err);
-            }
         });
 
         this.ready = true;
@@ -164,8 +167,8 @@ export class Client extends Core {
         });
     }
 
-    protected async send(eventName: string, payload: Payload = {}, options: SendOptions = { response: true }): Promise<Message|null> {
-        if (this.closed) return null;
+    protected async send(eventName: string, payload: Payload = {}, options: SendOptions = { response: true }): Promise < Message | null > {
+        if (this.serverShutdown || this.closed) return null;
 
         if (!this.ready && !options.volatile) {
             const connected = this.socket.connected ? 'connected' : 'not-connected';
@@ -195,7 +198,7 @@ export class Client extends Core {
     }
 
     isClientReady() {
-        return this.ready;
+        return !this.serverShutdown && this.ready;
     }
 
     async shutdown() {
@@ -213,7 +216,10 @@ export class Client extends Core {
 
         this.ready = false;
 
-        this.socket.close();
+        if (this.socket.connected) {
+            this.socket.close();
+        }
+
         this.close();
     }
 

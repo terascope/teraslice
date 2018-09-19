@@ -50,6 +50,7 @@ class Worker {
         this.isShuttingDown = false;
         this.isProcessing = false;
         this.isInitialized = false;
+        this.shouldShutdown = false;
         this.slicesProcessed = 0;
     }
 
@@ -62,12 +63,18 @@ class Worker {
         this.stores.stateStore = await stateStore;
         this.stores.analyticsStore = await analyticsStore;
 
+        this.client.onServerShutdown(() => {
+            this.logger.warn('Execution Controller shutdown, exiting...');
+            this.shouldShutdown = true;
+        });
+
         await this.client.start();
     }
 
     async run() {
         const runForever = async () => {
             if (this.isShuttingDown) return;
+            if (this.shouldShutdown) return;
 
             try {
                 await this.runOnce();
@@ -84,6 +91,7 @@ class Worker {
     }
 
     async runOnce() {
+        this.logger.trace('waiting for new slice from execution controller');
         const msg = await this.client.waitForSlice(() => this.isShuttingDown);
 
         if (!msg) {

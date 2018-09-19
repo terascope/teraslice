@@ -66,7 +66,6 @@ export interface ConnectedClient {
     createdAt: Date;
     updatedAt: Date;
     offlineAt: Date|null;
-    metadata: object;
 }
 
 export interface UpdateClientState {

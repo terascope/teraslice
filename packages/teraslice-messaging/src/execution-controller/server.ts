@@ -140,11 +140,13 @@ export class Server extends core.Server {
             if (!alreadyCompleted) {
                 this.cache.set(`${sliceId}:complete`, true);
 
-                if (workerResponse.error) {
-                    this.emit('slice:failure', workerId, workerResponse);
-                } else {
-                    this.emit('slice:success', workerId, workerResponse);
-                }
+                _.defer(() => {
+                    if (workerResponse.error) {
+                        this.emit('slice:failure', workerId, workerResponse);
+                    } else {
+                        this.emit('slice:success', workerId, workerResponse);
+                    }
+                });
             }
 
             _.pull(this._activeWorkers, workerId);
