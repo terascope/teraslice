@@ -4,9 +4,15 @@ const prompts = require('prompts');
 const _ = require('lodash');
 const path = require('path');
 const fs = require('fs-extra');
+const { promisify } = require('util');
+const exec = promisify(require('child_process').exec);
+
 const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('../lib/cli');
+const rootPackageJson = require('./lib/rootPackage');
+const assetPackageJson = require('./lib/assetPackage');
+const eslintrc = require('./lib/eslintrc');
 
 exports.command = 'init <asset_name>';
 exports.desc = 'creates asset basic asset directory and files that can be posted to teraslice';
@@ -31,20 +37,17 @@ exports.handler = async (argv, _testFunctions) => {
     }
     const { baseDir } = cliConfig;
     // create asset directory
-    reply.yellow(`This will create an 'asset' directory in ${baseDir}.`);
+    reply.yellow('This will create a package.json, README.md, asset dir, spec dir,'
+        + `asset/asset.json, asset/package.json, and install various npm packages in ${baseDir}.`);
+
     const create = await prompts({
         type: 'confirm',
         name: 'asset',
-        message: 'Continue and create an asset directory?'
+        message: 'Continue and create the asset related files and directories?'
     });
-    if (!create.asset) reply.fatal('Exiting asset init process');
-    // create asset directory
-    try {
-        await fs.ensureDir(path.join(cliConfig.baseDir, 'asset'));
-    } catch (e) {
-        reply.fatal('Could not create asset directory');
-    }
-    reply.green(`Created asset directory in ${baseDir}`);
+
+    if (!create.asset) reply.fatal('Exiting asset creation process');
+    // get description and version
     const questions = [
         {
             type: 'text',
@@ -58,28 +61,90 @@ exports.handler = async (argv, _testFunctions) => {
         }
     ];
     const assetData = await prompts(questions);
-    const assetFileData = {
-        name: cliConfig.asset_name,
-        description: assetData.asset_desc,
-        version: assetData.asset_version === '' ? '0.0.1' : assetData.asset_version
-    };
+    // create asset directory
     try {
-        await fs.writeJson(path.join(baseDir, 'asset', 'asset.json'), assetFileData, { spaces: 4 });
+        await fs.ensureDir(path.join(cliConfig.baseDir, 'asset'));
+    } catch (e) {
+        reply.fatal('Could not create asset directory');
+    }
+    reply.green(`Created asset directory in ${baseDir}`);
+    // package.jsons and asset.json all have this data
+    const packageJson = {
+        name: cliConfig.asset_name,
+        version: assetData.asset_name,
+        description: assetData.asset_desc
+    };
+    // create package.json, asset/package.json, asset/asset.json
+    try {
+        await fs.writeJSON(path.join(baseDir, 'package.json'), _.merge(rootPackageJson, packageJson), { spaces: 4 });
+        await fs.writeJSON(path.join(baseDir, 'asset', 'package.json'), _.merge(assetPackageJson, packageJson), { spaces: 4 });
+        await fs.writeJson(path.join(baseDir, 'asset', 'asset.json'), packageJson, { spaces: 4 });
     } catch (e) {
         reply.fatal(e);
     }
+    // create spec, .eslintrc, spec/processor-spec, README.md, asset/processor
+    try {
+        await fs.ensureDir(path.join(baseDir, 'spec'));
+        await fs.writeJSON(path.join(baseDir, '.eslintrc'), eslintrc, { spaces: 4 });
+        await fs.writeFile(path.join(baseDir, 'README.md'), '');
+    } catch (e) {
+        reply.fatal(e);
+    }
+    // add a processor
     const processor = await prompts({
         type: 'confirm',
         name: 'processor',
         message: 'Would you like to add a processor to the asset?'
     });
-    if (!processor.processor) reply.green('Finished with asset init');
-    const processorName = await prompts([{ type: 'text', name: 'processor_name', message: 'Processor name:' }]);
+    if (processor.processor) {
+        const processorName = await prompts([{ type: 'text', name: 'processor_name', message: 'Processor name:' }]);
+        reply.green(`Directory ${processorName.processor_name} was created in ${baseDir}/asset`);
+        try {
+            await fs.ensureFile(path.join(baseDir, 'asset', processorName.processor_name, 'index.js'));
+            await fs.writeFile(path.join(baseDir, 'spec', `${processorName.processor_name}-spec.js`), '');
+        } catch (e) {
+            reply.fatal(e);
+        }
+    }
+    // use yarn to install dependencies
+    async function command(cmd) {
+        return exec(cmd);
+    }
+
+    // check if yarn or npm is installed, prefer yarn
+    async function isInstalled(name) {
+        let installed;
+        try {
+            await command(`which ${name}`);
+            installed = true;
+        } catch (e) {
+            installed = false;
+        }
+        return installed;
+    }
+    const yarn = await isInstalled('yarn');
+    const npm = await isInstalled('npm');
+    if (!yarn && !npm) {
+        reply.fatal('The dependencies were not installed, because a package manager was not found.'
+        + 'Install yarn and then run yarn install in both root dir and rood dir asset');
+    }
+    const rootInstallCmd = yarn ? 'yarn install' : 'npm install';
     try {
-        await fs.ensureFile(path.join(baseDir, 'asset', processorName.processor_name, 'index.js'));
+        reply.green('installing root dependences, this could take a few minutes');
+        const rootDependencies = await command(rootInstallCmd);
+        reply.yellow(rootDependencies.stderr);
+        reply.green(rootDependencies.stdout);
     } catch (e) {
         reply.fatal(e);
     }
-    reply.green(`Directory ${processorName.name} was created in ${baseDir}/asset`);
+    try {
+        reply.green('installing asset dependences, this could take a few minutes');
+        const assetDependencies = await command(`cd asset && ${rootInstallCmd}`);
+        reply.yellow(assetDependencies.stderr);
+        reply.green(assetDependencies.stdout);
+    } catch (e) {
+        reply.fatal(e);
+    }
     reply.green('Your asset directory has been created!');
+    // adjust npm config
 };

@@ -7,10 +7,10 @@ const config = require('../lib/config');
 const cli = require('../lib/cli');
 
 exports.command = 'status';
-exports.desc = 'shows data on the asset in the cluster';
+exports.desc = 'displays asset info for the asset on a cluster or all clusters in the asset.json file';
 exports.builder = (yargs) => {
     cli().args('cluster', 'alias', yargs);
-    yargs.example('tjm deploy clustername:port#');
+    yargs.example('tjm asset status -c clustername:port# \ntjm asset status (for all clusters)');
 };
 
 exports.handler = (argv, _testTjmFunctions) => {
@@ -34,7 +34,8 @@ exports.handler = (argv, _testTjmFunctions) => {
                 .then(assetData => assetFunctions.latestAssetVersion(assetData))
                 .then((latest) => {
                     reply.green(`${cluster} - name: ${latest.name}, version: ${latest.version}, description: ${latest.description}, id: ${latest.id}, created: ${latest._created}`);
-                });
+                })
+                .catch(() => reply.yellow(`Could not retreive status data for ${cluster}`));
         });
     }
     if (!_.has(cliConfig, 'asset_file_content.tjm.clusters')) {
