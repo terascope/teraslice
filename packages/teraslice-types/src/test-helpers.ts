@@ -37,7 +37,7 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
     return logger;
 }
 
-export function newTestJobConfig(): j.JobConfig {
+export function newTestJobConfig(): j.ValidatedJobConfig {
     return {
         analytics: false,
         assets: [],
@@ -50,6 +50,15 @@ export function newTestJobConfig(): j.JobConfig {
         slicers: 1,
         workers: 1,
     };
+}
+
+export function newTestExecutionConfig(): j.ExecutionConfig {
+    const exConfig: j.ExecutionConfig = newTestJobConfig();
+    exConfig.slicer_hostname = 'example.com';
+    exConfig.slicer_port = _.random(8000, 60000);
+    exConfig.ex_id = `${_.uniqueId('ex-id-')}-${_.random(10000, 99999)}`;
+    exConfig.job_id = `${_.uniqueId('job-id-')}-${_.random(10000, 99999)}`;
+    return exConfig;
 }
 
 function testContextApis(testName: string): c.ContextApis {

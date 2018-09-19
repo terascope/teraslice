@@ -69,16 +69,16 @@ describe('Data Entity', () => {
         });
     });
 
-    describe('when constructed with object that has a property __metadata', () => {
+    describe('when constructed with object that has a property ___metadata', () => {
         it('should throw an error', () => {
             expect(() => {
                 // tslint:disable-next-line
                 new DataEntity({
-                    __metadata: {
+                    ___metadata: {
                         hello: 'there',
                     },
                 });
-            }).toThrowError('DataEntity cannot be constructed with a __metadata property');
+            }).toThrowError('DataEntity cannot be constructed with a ___metadata property');
         });
     });
 });

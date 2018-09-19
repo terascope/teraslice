@@ -7,7 +7,7 @@ import { OperationCore } from './operation-core';
  */
 export class BatchProcessor extends OperationCore {
     // @ts-ignore
-    public async onBatch(data: DataEntity[]): Promise<DataEntity[]> {
+    async onBatch(data: DataEntity[]): Promise<DataEntity[]> {
         throw new Error('BatchProcessor must implement a "onBatch" method');
     }
 }

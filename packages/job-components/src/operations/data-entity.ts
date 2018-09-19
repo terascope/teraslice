@@ -7,47 +7,47 @@ import _ from 'lodash';
  */
 export class DataEntity {
     /* tslint:disable-next-line:variable-name */
-    protected __metadata: DataEntityMetadata;
+    protected ___metadata: DataEntityMetadata;
 
     // Add the ability to specify any additional properties
     [prop: string]: any;
 
     constructor(data: object) {
-        if (_.has(data, '__metadata')) {
-            throw new Error('DataEntity cannot be constructed with a __metadata property');
+        if (_.has(data, '___metadata')) {
+            throw new Error('DataEntity cannot be constructed with a ___metadata property');
         }
 
-        this.__metadata = {
+        this.___metadata = {
             createdAt: new Date(),
         };
 
         Object.assign(this, data);
     }
 
-    public getMetadata(key?: string): any {
+    getMetadata(key?: string): any {
         if (key) {
-            return _.get(this.__metadata, key);
+            return _.get(this.___metadata, key);
         }
-        return this.__metadata;
+        return this.___metadata;
     }
 
-    public setMetadata(key: string, value: any): void {
+    setMetadata(key: string, value: any): void {
         const readonlyMetadataKeys: string[] = ['createdAt'];
         if (_.includes(readonlyMetadataKeys, key)) {
             throw new Error(`Cannot set readonly metadata property ${key}`);
         }
 
-        _.set(this.__metadata, key, value);
+        _.set(this.___metadata, key, value);
     }
 
-    public toJSON(withMetadata?: boolean): object {
+    toJSON(withMetadata?: boolean): object {
         const keys = Object.getOwnPropertyNames(this);
-        const data = _.pick(this, _.without(keys, '__metadata'));
+        const data = _.pick(this, _.without(keys, '___metadata'));
 
         if (withMetadata) {
             return {
                 data,
-                metadata: this.__metadata,
+                metadata: this.___metadata,
             };
         }
 
