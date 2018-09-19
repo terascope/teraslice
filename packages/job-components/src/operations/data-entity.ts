@@ -5,6 +5,7 @@ import _ from 'lodash';
  *  @description A wrapper for data that can hold additional metadata properties.
  *               The DataEntity should be essentially transparent to use within operations
  */
+
 export class DataEntity {
     /* tslint:disable-next-line:variable-name */
     protected ___metadata: DataEntityMetadata;

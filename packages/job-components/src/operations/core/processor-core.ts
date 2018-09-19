@@ -7,7 +7,9 @@ import { OperationCore } from './operation-core';
  */
 
 export abstract class ProcessorCore extends OperationCore {
-    // this method is called by the teraslice framework
-    // this is for the Processor subclass
+    /**
+     * @description this is called by the Teraslice framework
+     * @returns an array of DataEntities
+    */
     abstract async handle(input: DataEntity[]): Promise<DataEntity[]>;
 }
