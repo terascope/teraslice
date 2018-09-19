@@ -9,13 +9,13 @@ describe('OperationCore', () => {
 
         beforeAll(() => {
             const context = new TestContext('teraslice-operations');
-            const jobConfig = newTestJobConfig();
-            jobConfig.operations.push({
+            const exConfig = newTestJobConfig();
+            exConfig.operations.push({
                 _op: 'example-op',
             });
-            const opConfig = jobConfig.operations[0];
+            const opConfig = exConfig.operations[0];
             const logger = context.apis.foundation.makeLogger('job-logger');
-            operation = new OperationCore(context, jobConfig, opConfig, logger);
+            operation = new OperationCore(context, exConfig, opConfig, logger);
         });
 
         describe('->initialize', () => {
@@ -66,19 +66,17 @@ describe('OperationCore', () => {
             });
         });
 
-        describe('->convertDataToDataEntity', () => {
+        describe('->wrapData', () => {
             it('should return a single data entity', () => {
-                const dataEntity = operation.convertDataToDataEntity({
+                const dataEntity = operation.wrapData({
                     hello: 'there',
                 });
                 expect(dataEntity).toBeInstanceOf(DataEntity);
                 expect(dataEntity).toHaveProperty('hello', 'there');
             });
-        });
 
-        describe('->convertBatchToDataEntity', () => {
             it('should return a batch of data entities', () => {
-                const dataEntities = operation.convertBatchToDataEntity([
+                const dataEntities = operation.wrapData([
                     {
                         hello: 'there',
                     },

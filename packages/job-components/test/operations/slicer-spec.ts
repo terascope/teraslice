@@ -45,7 +45,7 @@ describe('Slicer', () => {
             const opConfig = jobConfig.operations[0];
             const logger = context.apis.foundation.makeLogger('job-logger');
             operation = new ExampleSlicer(context, jobConfig, opConfig, logger);
-            await operation.initialize({ hello: true });
+            await operation.initialize([{ hello: true }]);
         });
 
         describe('->slice', () => {
