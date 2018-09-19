@@ -1,10 +1,10 @@
 import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { DataEntity, DataProcessor } from '../../src';
+import { DataEntity, Processor } from '../../src';
 
-describe('DataProcessor', () => {
+describe('Processor', () => {
     describe('when constructed', () => {
-        let operation: DataProcessor;
+        let operation: Processor;
 
         beforeAll(() => {
             const context = new TestContext('teraslice-operations');
@@ -14,7 +14,7 @@ describe('DataProcessor', () => {
             });
             const opConfig = jobConfig.operations[0];
             const logger = context.apis.foundation.makeLogger('job-logger');
-            operation = new DataProcessor(context, jobConfig, opConfig, logger);
+            operation = new Processor(context, jobConfig, opConfig, logger);
         });
 
         describe('->onData', () => {
@@ -22,20 +22,20 @@ describe('DataProcessor', () => {
                 const dataEntity = new DataEntity({
                     hello: 'there',
                 });
-                return expect(operation.onData(dataEntity)).rejects.toThrowError('DataProcessor must implement a "onData" method');
+                return expect(operation.onData(dataEntity)).rejects.toThrowError('Processor must implement a "onData" method');
             });
         });
     });
 
     describe('when extending the base class', () => {
-        class ExampleDataProcessor extends DataProcessor {
+        class ExampleProcessor extends Processor {
             public async onData(data: DataEntity): Promise<DataEntity|null> {
                 data.howdy = 'there';
                 return data;
             }
         }
 
-        let operation: ExampleDataProcessor;
+        let operation: ExampleProcessor;
 
         beforeAll(() => {
             const context = new TestContext('teraslice-operations');
@@ -45,7 +45,7 @@ describe('DataProcessor', () => {
             });
             const opConfig = jobConfig.operations[0];
             const logger = context.apis.foundation.makeLogger('job-logger');
-            operation = new ExampleDataProcessor(context, jobConfig, opConfig, logger);
+            operation = new ExampleProcessor(context, jobConfig, opConfig, logger);
         });
 
         describe('->onData', () => {
