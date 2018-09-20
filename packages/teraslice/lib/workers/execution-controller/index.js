@@ -176,7 +176,7 @@ class ExecutionController {
         this.server.onSliceSuccess((workerId, response) => {
             this.executionAnalytics.increment('processed');
 
-            if (this.collectAnalytics) {
+            if (this.collectAnalytics && response.analytics) {
                 this.slicerAnalytics.addStats(response.analytics);
             }
 
@@ -316,6 +316,8 @@ class ExecutionController {
 
         await this._waitForExecutionFinished();
 
+        clearInterval(this.processInterval);
+
         if (this.recover) {
             try {
                 await this.recover.shutdown();
@@ -415,77 +417,72 @@ class ExecutionController {
         this.dispatching = false;
 
         try {
-            await this._processLoop();
+            await new Promise((resolve) => {
+                this.processInterval = setInterval(() => {
+                    if (this.isExecutionDone || this.isShuttingDown) {
+                        clearInterval(this.processInterval);
+                        resolve();
+                        return;
+                    }
+
+                    if (this.isPaused) return;
+
+                    if (!this.isDoneProcessing) {
+                        this._processLoop();
+                    } else {
+                        clearInterval(this.processInterval);
+                        resolve();
+                    }
+                }, 20);
+            });
         } catch (err) {
             this.logger.error('Error processing slices', err);
+        } finally {
+            clearInterval(this.processInterval);
         }
 
         if (this.isDoneProcessing) {
+            await this._waitForPendingSlices();
             this.logger.debug(`execution ${this.exId} is done processing slices`);
         }
     }
 
-    async _processLoop() {
-        if (this.isExecutionDone || this.isShuttingDown) {
-            return null;
+    _processLoop() {
+        if (!this.scheduling && this.slicersReady && !this.slicersDone) {
+            this._scheduleSlices();
         }
 
-        await Promise.delay(10);
-
-        if (this.isPaused) {
-            this.logger.debug('execution is paused, wait for resume...');
-            const found = await this.client.onceWithTimeout('execution:resume', 1000);
-            if (found == null) {
-                return this._processLoop();
-            }
+        if (!this.dispatching && this.slicerQueue.size() > 0) {
+            this._dispatchSlices();
         }
-
-        this._schedule();
-        this._dispatch();
 
         if (!this.dispatching && !this.scheduling && this.slicersDone && !this.slicerQueue.size()) {
-            await this._waitForPendingSlices();
             this.isDoneProcessing = true;
-            return true;
         }
-
-        return this._processLoop();
-    }
-
-    async _schedule() {
-        if (this.scheduling) return;
-        if (!this.slicersReady || this.slicersDone) return;
-
-        this.scheduling = true;
-        await this._scheduleSlices();
-        this.scheduling = false;
     }
 
     async _scheduleSlices() {
         const needsMoreSlices = this.slicerQueue.size() < this.executionContext.queueLength;
         if (!needsMoreSlices) return;
 
+        this.scheduling = true;
+
         try {
             await Promise.race(this._runScheduler());
         } catch (err) {
             this.logger.error('Failure scheduling slice', err);
         }
+
+        this.scheduling = false;
     }
 
     _runScheduler() {
         return _.map(this.scheduler, fn => fn());
     }
 
-    async _dispatch() {
-        if (this.dispatching) return;
-        if (!this.slicerQueue.size()) return;
-
-        this.dispatching = true;
-        await this._dispatchSlices();
-        this.dispatching = false;
-    }
-
     async _dispatchSlices() {
+        this.dispatching = true;
+
         const reenqueueSlices = [];
         const promises = [];
 
@@ -522,6 +519,8 @@ class ExecutionController {
         if (promises.length > 0) {
             this.executionAnalytics.set('queued', this.slicerQueue.size());
         }
+
+        this.dispatching = false;
     }
 
     async _dispatchSlice(slice, workerId, reenqueueSlices) {
