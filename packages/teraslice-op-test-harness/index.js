@@ -5,6 +5,8 @@ const Promise = require('bluebird');
 
 const { TestContext } = require('@terascope/teraslice-types');
 const { validateJobConfig, validateOpConfig, jobSchema } = require('@terascope/job-components');
+const { bindThis } = require('./lib/utils');
+const Operation = require('./lib/operation');
 
 // load data
 const sampleDataArrayLike = require('./data/sampleDataArrayLike.json');
@@ -17,55 +19,138 @@ const simpleData = [
     { name: 'Dippy', age: 23 },
 ];
 
-function runProcessorSpecs(processor) {
-    // TODO: I'd like to refactor this out into a stand-alone spec file in a
-    // subdirectory, but this will do for now.
-    describe('test harness', () => {
-        it('has a schema and newProcessor method', () => {
-            expect(processor).toBeDefined();
-            expect(processor.newProcessor).toBeDefined();
-            expect(processor.schema).toBeDefined();
-            expect(typeof processor.newProcessor).toEqual('function');
-            expect(typeof processor.schema).toEqual('function');
-        });
-    });
+function jobSpec(opConfig) {
+    return {
+        operations: [
+            {
+                _op: 'noop'
+            },
+            opConfig
+        ],
+    };
 }
 
-module.exports = (processor) => {
-    /* A minimal context object */
-    const context = new TestContext('teraslice-op-test-harness');
-    const events = context.apis.foundation.getSystemEvents();
+function wrapper(clientList) {
+    return (config) => {
+        const { type, endpoint } = config;
+        const client = _.get(clientList, [type, endpoint], null);
+        if (!client) throw new Error(`No client was found at type ${type}, endpoint: ${endpoint}`);
+        return { client };
+    };
+}
 
-    const schema = jobSchema(context);
-
-    /**
-     * jobSpec returns a simple jobConfig object consisting of two operations,
-     * the first one `noop` and the second one the op being tested.
-     * @param  {Object} opConfig an optional partial opConfig
-     * @return {Object}          a jobConfig object
-     */
-
-    function jobSpec(opConfig) {
-        return {
-            operations: [
-                {
-                    _op: 'noop'
-                },
-                opConfig
-            ],
-        };
+class TestHarness {
+    constructor(op) {
+        this.context = new TestContext('teraslice-op-test-harness');
+        this.schema = jobSchema(this.context);
+        this.events = this.context.apis.foundation.getSystemEvents();
+        this.logger = this.context.logger;
+        this.operationFn = op;
+        this._getConnetionIsWrapped = false;
+        this.clientList = {};
+        // This is for backwards compatiblity
+        this._jobSpec = jobSpec;
+        bindThis(this, TestHarness);
     }
 
-    function run(data, extraOpConfig, extraContext) {
+    async processData(opConfig, data) {
+        const op = await this.init({ opConfig });
+        return op.run(data);
+    }
+
+    setClients(clients = []) {
+        const { clientList, context } = this;
+
+        clients.forEach((clientConfig) => {
+            const { client, type, endpoint = 'default' } = clientConfig;
+
+            if (!type || (typeof type !== 'string')) throw new Error('you must specify a type when setting a client');
+
+            _.set(clientList, [type, endpoint], client);
+            _.set(context, ['sysconfig', 'terafoundation', 'connectors', type, endpoint], {});
+        });
+
+        if (!this._getConnetionIsWrapped) {
+            this._getConnetionIsWrapped = true;
+            this.context.apis.foundation.getConnection = wrapper(clientList);
+            this.context.foundation.getConnection = wrapper(clientList);
+        }
+    }
+
+    async init({
+        opConfig: newOpConfig = null,
+        executionConfig: newExecutionConfig = null,
+        context: newContext = null,
+        retryData = [],
+        clients = null,
+        type = 'slicer'
+    }) {
+        const {
+            context: _context,
+            logger,
+            operationFn: op,
+        } = this;
+
+        let opConfig;
+        let executionConfig;
+        let executionContext;
+        let context = _context;
+
+        if (newOpConfig) opConfig = validateOpConfig(op.schema(), newOpConfig);
+        if (!newOpConfig) opConfig = { _op: 'test-op-name' };
+
+        if (newExecutionConfig) {
+            executionConfig = newExecutionConfig;
+            this.executionConfig = executionConfig;
+            executionContext = { config: _.cloneDeep(executionConfig) };
+            this.executionContext = executionContext;
+        }
+        if (!newExecutionConfig) {
+            executionConfig = validateJobConfig(this.schema, jobSpec(opConfig));
+            this.executionConfig = executionConfig;
+            executionContext = { config: _.cloneDeep(executionConfig) };
+            this.executionContext = executionContext;
+        }
+        this.retryData = retryData;
+
+        if (newContext) {
+            context = Object.assign({}, _context, newContext);
+            this.context = context;
+        }
+
+        if (clients) {
+            this.setClients(clients);
+        }
+
+        const instance = new Operation({
+            op,
+            context,
+            opConfig,
+            logger,
+            retryData,
+            executionConfig,
+            executionContext,
+            type
+        });
+
+        return instance.init();
+    }
+
+    // This and below is for all backward compatible code
+
+    run(data, extraOpConfig, extraContext) {
+        const { processFn, getProcessor } = this;
         return processFn(getProcessor(extraOpConfig, extraContext), data);
     }
 
-    function runAsync(data, extraOpConfig, extraContext) {
+    runAsync(data, extraOpConfig, extraContext) {
+        const { processFn, getProcessor } = this;
         return Promise.resolve(getProcessor(extraOpConfig, extraContext))
             .then(proc => processFn(proc, data));
     }
 
-    function runSlices(slices, extraOpConfig, extraContext) {
+    runSlices(slices, extraOpConfig, extraContext) {
+        const { processFn, getProcessor, emulateShutdown } = this;
         const newProcessor = getProcessor(extraOpConfig, extraContext);
         return Promise.resolve(slices)
             .mapSeries(slice => processFn(newProcessor, slice))
@@ -81,81 +166,76 @@ module.exports = (processor) => {
             });
     }
 
-    function getProcessor(opConfig, extraContext) {
-        if (opConfig == null) {
-            opConfig = {}; // eslint-disable-line no-param-reassign
+    getProcessor(_opConfig, extraContext) {
+        let opConfig = _opConfig;
+        if (_opConfig == null) {
+            opConfig = {};
         }
 
         if (!opConfig._op) {
             opConfig._op = 'test-op-name';
         }
-
+        const operation = this.operationFn;
+        const { schema, context } = this;
         // run the jobConfig and opConfig through the validator to get
         // complete and convict validated configs
         const jobConfig = validateJobConfig(schema, jobSpec(opConfig));
-
-        return processor.newProcessor(
+        return operation.newProcessor(
             _.assign({}, context, extraContext),
-            validateOpConfig(processor.schema(), opConfig),
+            validateOpConfig(operation.schema(), opConfig),
             jobConfig
         );
     }
 
-    function processFn(myProcessor, data) {
-        return myProcessor(data, context.logger);
+    processFn(myProcessor, data) {
+        const { logger } = this;
+        return myProcessor(data, logger);
     }
 
-    function emulateShutdown() {
-        events.emit('worker:shutdown');
+    emulateShutdown() {
+        this.events.emit('worker:shutdown');
     }
 
-    return {
-        /* Setup mock contexts for processor, each processor takes:
-         *   context - global teraslice/terafoundation context object
-         *   opConfig - configuration of the specific operation being executed (the processor)
-         *   jobConfig - details on this jobs configuration
-         *   sliceLogger - a logger instance for each slice
-         */
-        context,
+    get fakeLogger() {
+        return this.logger;
+    }
 
-        /** Fake logger object with empty method definitions.  Suitable for use as
-         *  the general teraslice logger or as the sliceLogger.  Implements the
-         *  following log levels:
-         *    - fatal
-         *    - error
-         *    - warn
-         *    - info
-         *    - debug
-         *    - trace
-         *  Which are derived from bunyan's default levels:
-         *    https://github.com/trentm/node-bunyan#levels
-         */
-        fakeLogger: context.logger,
+    set fakeLogger(logger) {
+        this.logger = logger;
+    }
 
-        /** Standard test data objects: arrayLike and esLike */
-        data: {
-            /**
-             * A very simple and small array of JSON objects
-             */
-            simple: simpleData,
-            /**
-             * Sample data in the form of an array of JSON documents , like would
-             *   come from the elasticsearch_data_generator
-             */
-            arrayLike: sampleDataArrayLike,
-            /**
-             * Sample data in the form of an array of Elasticsearch query response.
-             *   documents
-             */
-            esLike: sampleDataEsLike
-        },
-        _jobSpec: jobSpec,
-        runProcessorSpecs,
-        run,
-        runAsync,
-        runSlices,
-        emulateShutdown,
-        getProcessor,
-        process: processFn
-    };
-};
+    set process(processFn) {
+        this.processFn = processFn;
+    }
+
+    get process() {
+        return this.processFn;
+    }
+
+    runProcessorSpecs(processor) {
+        // TODO: I'd like to refactor this out into a stand-alone spec file in a
+        // subdirectory, but this will do for now.
+        // TODO: this is not needed?
+        this.fakeLogger.info();
+        describe('test harness', () => {
+            it('has a schema and newProcessor method', () => {
+                expect(processor).toBeDefined();
+                expect(processor.newProcessor).toBeDefined();
+                expect(processor.schema).toBeDefined();
+                expect(typeof processor.newProcessor).toEqual('function');
+                expect(typeof processor.schema).toEqual('function');
+            });
+        });
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    get data() {
+        return {
+            simple: simpleData.slice(),
+            arrayLike: sampleDataArrayLike.slice(),
+            esLike: _.cloneDeep(sampleDataEsLike)
+        };
+    }
+}
+
+module.exports = op => new TestHarness(op);

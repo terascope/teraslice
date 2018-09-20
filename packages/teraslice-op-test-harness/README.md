@@ -18,7 +18,139 @@ var harness = require('@terascope/teraslice-op-test-harness')(processor);
 
 Now, you can access functionality using the `harness` object.
 
-## Processor Execution Function - `run()`
+## Processor Execution Function - `init()`
+
+The manner to instanciate a new instance of your operation is by using init
+You make pass in optional clients under the `clients` key but they must follow the format listed in the setClients definition
+
+```javascript
+describe('setting up an operation', () => {
+    const processorOpTest = opHarness(processor);
+    const readerOpTest = opHarness(reader);
+    let client;
+
+    class MockClient {
+        async get(data) { return data }
+    }
+
+    beforeEach(() => {
+        client = new MockClient();
+        readerOpTest.setClients([{ client, type: 'elasticsearch', endpoint: 'default' }])
+    });
+
+    it('can make a processor instance', async () => {
+        const opConfig = { _op: 'foo', some: 'config' };
+        const data = { some: 'data' };
+        const pTest = await processorOpTest.init({ opConfig });
+
+        const results = await pTest.run(data)
+        expect(results).toBeDefined();
+    });
+
+    it('can make a reader instance', async () => {
+        const executionConfig = {
+            lifecycle: 'once',
+            operations: [{ _op: 'foo', some: 'config' }
+        };
+        const data = { some: 'data' };
+        const type = 'reader';
+        const rTest = await readerOpTest.init({ executionConfig, type });
+
+        const results = await rTest.run(data)
+        expect(results).toBeDefined();
+    });
+
+    it('can make a slicer instance', async () => {
+        const executionConfig = {
+            lifecycle: 'once',
+            operations: [{ _op: 'foo', some: 'config' }
+        };
+        // type defaults to slicer
+        const sTest = await readerOpTest.init({ executionConfig });
+
+        const results = await sTest.run()
+        expect(results).toBeDefined();
+    });
+
+})
+```
+## Processor Execution Function - `setClients()`
+This takes an array of client configurations that will be used internally.
+The obejct must have a client key and a type key set.
+
+```javascript
+describe('setting up an operation', () => {
+    const opTest = opHarness(reader);
+    let client;
+    let client2;
+    let client3;
+
+    class MockClient {
+        async get(data) { return data }
+    }
+
+    class OtherClient {
+        async get(data) { return 'something else' }
+    }
+
+    beforeEach(() => {
+        client = new MockClient(); client2 = new MockClient();
+        client3 = new MockClient();
+        // endpoint defaults to 'default' if not specifed, but showing none the less
+        readerOpTest.setClients([
+            { client, type: 'elasticsearch', endpoint: 'default' },
+            { client: client2, type: 'elasticsearch', endpoint: 'other_connection' },
+            { client: client3, type: 'kafka' },
+        ])
+    });
+
+    it('can make a reader instance', async () => {
+        const executionConfig = {
+            lifecycle: 'once',
+            operations: [{ _op: 'foo', some: 'config' }
+        };
+        const data = { some: 'data' };
+        const type = 'reader';
+        const test = await opTest.init({ executionConfig, type });
+
+        const results = await test.run(data)
+        expect(results).toBeDefined();
+    });
+
+    it('can make a slicer instance', async () => {
+        const executionConfig = {
+            lifecycle: 'once',
+            operations: [{ _op: 'foo', some: 'config' }
+        };
+        // you can override the clients at init time
+        const clients = [{ client: new OtherClient(), type: 'elasticsearch', endpoint: 'default'}]
+        // these two ops now have different clients at elasticsearch : default connection
+        const test1 = await opTest.init({ executionConfig });
+        const test2 = await opTest.init({ executionConfig, clients });
+
+        const [results1, results2 ] = await Promise.all([ test1.run(), test2.run()]);
+
+        expect(results1).toBeDefined();
+        expect(results2).toBeDefined();
+    });
+})
+```
+## Processor Execution Function `processData()`
+This provides a short hand for processors to instantiate a new operation, run some data with it and return the results
+
+```javascript
+describe('processor operation test', () => {
+    it('has a shorthand method', async () => {
+        const opConfig = { _op: 'foo', some: 'config' };
+        const data = [{ some: 'data' }];
+        const results = await processorOpTest.processData(opConfig, data);
+        expect(results).toBeDefined();
+    })
+})
+
+```
+
+## Processor Execution Function - `run()`  DEPRECIATED
 
 The testing harness provides a function `run()`, that will run your processor on
 the data you have passed in to the run function.  The `run()` function returns
@@ -83,12 +215,12 @@ describe('The data doubles when', function() {
 });
 ```
 
-## Multiple calls to the same processor instance
+## Multiple calls to the same processor instance DEPRECIATED
 
 If you need to test a processor that maintains some type of state across slices
 you have two options:
 
-### 1 Use `runSlices() -> Promise`
+### 1 Use `runSlices() -> Promise` DEPRECIATED
 
 This will process all of the given slices, `emulateShutdown()`, then process a
 final empty slice to give the processor a chance to flush its state.
@@ -112,7 +244,7 @@ describe('Add running total', function() {
 });
 ```
 
-### 2. Create a processor instance to call `process()` independently
+### 2. Create a processor instance to call `process()` independently DEPRECIATED
 
 ```javascript
 var processor = require('../index');
@@ -136,7 +268,7 @@ describe('The data doubles when', function() {
 });
 ```
 
-## Async/Promise based processors
+## Async/Promise based processors DEPRECIATED
 
 In some scenarios a processor will be asynchronous and needs to return a
 promise.
