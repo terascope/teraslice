@@ -1,11 +1,11 @@
 import { newTestExecutionConfig, newTestSlice, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { SlicerCore, SliceResult, SlicerResult } from '../../../src/operations/core/slicer-core';
+import { SlicerCore, SliceResult } from '../../../src/operations/core/slicer-core';
 
 describe('SlicerCore', () => {
     class ExampleSlicerCore extends SlicerCore {
-        async handle(): Promise<SlicerResult[]|null> {
-            return null;
+        async handle(): Promise<boolean> {
+            return false;
         }
     }
 
@@ -18,8 +18,7 @@ describe('SlicerCore', () => {
             _op: 'example-op',
         });
         const opConfig = exConfig.operations[0];
-        const logger = context.apis.foundation.makeLogger('job-logger');
-        operation = new ExampleSlicerCore(context, exConfig, opConfig, logger);
+        operation = new ExampleSlicerCore(context, opConfig, exConfig);
     });
 
     describe('->initialize', () => {

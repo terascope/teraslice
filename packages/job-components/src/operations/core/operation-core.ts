@@ -24,11 +24,15 @@ export class OperationCore {
     protected readonly logger: Logger;
     protected readonly events: EventEmitter;
 
-    constructor(context: Context, executionConfig: ExecutionConfig, opConfig: OpConfig, logger: Logger) {
+    constructor(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig) {
         this.context = context;
         this.executionConfig = executionConfig;
         this.opConfig = opConfig;
-        this.logger = logger;
+        this.logger = this.context.apis.foundation.makeLogger({
+            module: 'operation',
+            opName: opConfig._op,
+            jobName: executionConfig.name,
+        });
         this.events = context.apis.foundation.getSystemEvents();
     }
 
@@ -69,6 +73,21 @@ export class OperationCore {
     wrapData(input: object|object[]): DataEntity|DataEntity[] {
         if (_.isArray(input)) {
             return _.map(input, (i) => new DataEntity(i));
+        }
+        return new DataEntity(input);
+    }
+
+    ensureData(input: object|object[]): DataEntity|DataEntity[] {
+        if (_.isArray(input) && input.length > 0) {
+            const first = _.first(input);
+            if (first instanceof DataEntity) {
+                return input as DataEntity[];
+            }
+            return _.map(input, (i) => new DataEntity(i));
+        }
+
+        if (input instanceof DataEntity) {
+            return input;
         }
         return new DataEntity(input);
     }

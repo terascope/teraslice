@@ -1,4 +1,4 @@
-import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
+import { TestContext, newTestExecutionConfig } from '@terascope/teraslice-types';
 import { Schema } from 'convict';
 import 'jest-extended'; // require for type definitions
 import { OperationCore } from '../../../src/operations/core/operation-core';
@@ -10,13 +10,12 @@ describe('OperationCore', () => {
 
         beforeAll(() => {
             const context = new TestContext('teraslice-operations');
-            const exConfig = newTestJobConfig();
+            const exConfig = newTestExecutionConfig();
             exConfig.operations.push({
                 _op: 'example-op',
             });
             const opConfig = exConfig.operations[0];
-            const logger = context.apis.foundation.makeLogger('job-logger');
-            operation = new OperationCore(context, exConfig, opConfig, logger);
+            operation = new OperationCore(context, opConfig, exConfig);
         });
 
         describe('->initialize', () => {
@@ -92,37 +91,91 @@ describe('OperationCore', () => {
                 expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
             });
         });
-    });
 
-    describe('#validate', () => {
-        it('should succeed when given invalid data', () => {
-            const schema: Schema<any> = {
-                example: {
-                    default: 'howdy',
-                    doc: 'some example value',
-                    format: 'required_String',
-                }
-            };
+        describe('->ensureData', () => {
+            describe('when wrapped', () => {
+                it('should return a single data entity', () => {
+                    const dataEntity = operation.ensureData({
+                        hello: 'there',
+                    });
+                    expect(dataEntity).toBeInstanceOf(DataEntity);
+                    expect(dataEntity).toHaveProperty('hello', 'there');
+                });
 
-            return expect(OperationCore.validate(schema, {
-                _op: 'hello',
-                example: 'hi'
-            })).resolves.toEqual({
-                _op: 'hello',
-                example: 'hi'
+                it('should return a batch of data entities', () => {
+                    const dataEntities = operation.ensureData([
+                        {
+                            hello: 'there',
+                        },
+                        {
+                            howdy: 'partner',
+                        },
+                    ]);
+                    expect(dataEntities).toBeArrayOfSize(2);
+                    expect(dataEntities[0]).toBeInstanceOf(DataEntity);
+                    expect(dataEntities[0]).toHaveProperty('hello', 'there');
+                    expect(dataEntities[1]).toBeInstanceOf(DataEntity);
+                    expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
+                });
             });
         });
 
-        it('should fail when given invalid data', () => {
-            const schema: Schema<any> = {
-                example: {
-                    default: 'hi',
-                    doc: 'some example value',
-                    format: 'required_String',
-                }
-            };
+        describe('when not wrapped', () => {
+            it('should return a single data entity', () => {
+                const dataEntity = operation.ensureData(operation.wrapData({
+                    hello: 'there',
+                }));
+                expect(dataEntity).toBeInstanceOf(DataEntity);
+                expect(dataEntity).toHaveProperty('hello', 'there');
+            });
 
-            return expect(OperationCore.validate(schema, {})).rejects.toThrow();
+            it('should return a batch of data entities', () => {
+                const dataEntities = operation.ensureData(operation.wrapData([
+                    {
+                        hello: 'there',
+                    },
+                    {
+                        howdy: 'partner',
+                    },
+                ]));
+                expect(dataEntities).toBeArrayOfSize(2);
+                expect(dataEntities[0]).toBeInstanceOf(DataEntity);
+                expect(dataEntities[0]).toHaveProperty('hello', 'there');
+                expect(dataEntities[1]).toBeInstanceOf(DataEntity);
+                expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
+            });
         });
+    });
+});
+
+describe('#validate', () => {
+    it('should succeed when given invalid data', () => {
+        const schema: Schema<any> = {
+            example: {
+                default: 'howdy',
+                doc: 'some example value',
+                format: 'required_String',
+            }
+        };
+
+        return expect(OperationCore.validate(schema, {
+            _op: 'hello',
+            example: 'hi'
+        })).resolves.toEqual({
+            _op: 'hello',
+            example: 'hi'
+        });
+    });
+
+    it('should fail when given invalid data', () => {
+        const schema: Schema<any> = {
+            example: {
+                default: 'hi',
+                doc: 'some example value',
+                format: 'required_String',
+            }
+        };
+
+        return expect(OperationCore.validate(schema, {})).rejects.toThrow();
     });
 });

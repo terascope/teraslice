@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
+import { newTestExecutionConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
 import { ParallelSlicer, SlicerFn } from '../../src';
 
@@ -16,17 +16,17 @@ describe('ParallelSlicer', () => {
 
     beforeAll(async () => {
         const context = new TestContext('teraslice-operations');
-        const jobConfig = newTestJobConfig();
+        const exConfig = newTestExecutionConfig();
 
-        jobConfig.operations.push({
+        exConfig.operations.push({
             _op: 'example-op',
         });
 
-        jobConfig.slicers = 3;
+        exConfig.slicers = 3;
 
-        const opConfig = jobConfig.operations[0];
-        const logger = context.apis.foundation.makeLogger('job-logger');
-        slicer = new ExampleParallelSlicer(context, jobConfig, opConfig, logger);
+        const opConfig = exConfig.operations[0];
+
+        slicer = new ExampleParallelSlicer(context, opConfig, exConfig);
         await slicer.initialize([]);
     });
 

@@ -1,4 +1,4 @@
-import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
+import { newTestExecutionConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
 import { Slicer, SlicerResult } from '../../src';
 
@@ -15,15 +15,14 @@ describe('Slicer', () => {
 
     beforeAll(async () => {
         const context = new TestContext('teraslice-operations');
-        const jobConfig = newTestJobConfig();
-        jobConfig.operations.push({
+        const exConfig = newTestExecutionConfig();
+        exConfig.operations.push({
             _op: 'example-op',
         });
 
-        const opConfig = jobConfig.operations[0];
-        const logger = context.apis.foundation.makeLogger('job-logger');
+        const opConfig = exConfig.operations[0];
 
-        slicer = new ExampleSlicer(context, jobConfig, opConfig, logger);
+        slicer = new ExampleSlicer(context, opConfig, exConfig);
         await slicer.initialize([]);
     });
 
