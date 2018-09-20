@@ -5,8 +5,8 @@ const Promise = require('bluebird');
 
 const { TestContext } = require('@terascope/teraslice-types');
 const { validateJobConfig, validateOpConfig, jobSchema } = require('@terascope/job-components');
-const { bindThis } = require('./utils');
-const Operation = require('./operation');
+const { bindThis } = require('./lib/utils');
+const Operation = require('./lib/operation');
 
 // load data
 const sampleDataArrayLike = require('./data/sampleDataArrayLike.json');
@@ -46,7 +46,7 @@ class TestHarness {
         this.events = this.context.apis.foundation.getSystemEvents();
         this.logger = this.context.logger;
         this.operationFn = op;
-        this.getConnetionIsWrapped = false;
+        this._getConnetionIsWrapped = false;
         this.clientList = {};
         // This is for backwards compatiblity
         this._jobSpec = jobSpec;
@@ -70,8 +70,8 @@ class TestHarness {
             _.set(context, ['sysconfig', 'terafoundation', 'connectors', type, endpoint], {});
         });
 
-        if (!this.getConnetionIsWrapped) {
-            this.getConnetionIsWrapped = true;
+        if (!this._getConnetionIsWrapped) {
+            this._getConnetionIsWrapped = true;
             this.context.apis.foundation.getConnection = wrapper(clientList);
             this.context.foundation.getConnection = wrapper(clientList);
         }

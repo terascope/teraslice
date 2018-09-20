@@ -65,7 +65,7 @@ class Operation {
                 return this.operation[0](data);
             }
             const invocations = this.operation.map((fn, ind) => {
-                const respData = _.get(data, ind) || data;
+                const respData = _.get(data, ind, data);
                 return fn(respData);
             });
             return Promise.all(invocations);

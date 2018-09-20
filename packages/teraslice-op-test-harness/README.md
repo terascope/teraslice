@@ -28,15 +28,14 @@ describe('setting up an operation', () => {
     const processorOpTest = opHarness(processor);
     const readerOpTest = opHarness(reader);
     let client;
-    let client2;
 
-     class MockClient {
+    class MockClient {
         async get(data) { return data }
     }
      
     beforeEach(() => {
-    client = new MockClient();
-    readerOpTest.setClients([{ client, type: 'elasticsearch', endpoint: 'default' }])
+        client = new MockClient();
+        readerOpTest.setClients([{ client, type: 'elasticsearch', endpoint: 'default' }])
     });
 
     it('can make a processor instance', async () => {
