@@ -28,11 +28,15 @@ export abstract class SlicerCore {
     protected readonly events: EventEmitter;
     private queue: Queue;
 
-    constructor(context: Context, executionConfig: ExecutionConfig, opConfig: OpConfig, logger: Logger) {
+    constructor(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig) {
         this.context = context;
         this.executionConfig = executionConfig;
         this.opConfig = opConfig;
-        this.logger = logger;
+        this.logger = this.context.apis.foundation.makeLogger({
+            module: 'slicer',
+            opName: opConfig._op,
+            jobName: executionConfig.name,
+        });
         this.events = context.apis.foundation.getSystemEvents();
         this.queue = new Queue();
     }

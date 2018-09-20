@@ -1,5 +1,5 @@
 import { DataEntity } from './data-entity';
-import { OperationCore } from './core/operation-core';
+import { ProcessorCore } from './core/processor-core';
 
 /**
  * Processor [DRAFT]
@@ -7,7 +7,7 @@ import { OperationCore } from './core/operation-core';
  *              If onData returns null, no more data will be passed to onData for this slice.
  */
 
-export abstract class Processor extends OperationCore {
+export abstract class Processor extends ProcessorCore {
     /**
     * @description this will handle a single DataEntity at a time.
     *              If null is returned it will stop processing the result of "Batch"

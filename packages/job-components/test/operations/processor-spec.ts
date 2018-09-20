@@ -1,4 +1,4 @@
-import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
+import { newTestExecutionConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
 import { DataEntity, Processor } from '../../src';
 
@@ -14,13 +14,12 @@ describe('Processor', () => {
 
     beforeAll(() => {
         const context = new TestContext('teraslice-operations');
-        const jobConfig = newTestJobConfig();
-        jobConfig.operations.push({
+        const exConfig = newTestExecutionConfig();
+        exConfig.operations.push({
             _op: 'example-op',
         });
-        const opConfig = jobConfig.operations[0];
-        const logger = context.apis.foundation.makeLogger('job-logger');
-        operation = new ExampleProcessor(context, jobConfig, opConfig, logger);
+        const opConfig = exConfig.operations[0];
+        operation = new ExampleProcessor(context, opConfig, exConfig);
     });
 
     describe('->onData', () => {

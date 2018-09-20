@@ -118,8 +118,8 @@ export interface LegacySlicer extends LegacyOperation {
     schema(context?: Context): Schema<any>;
     newSlicer(
         context: Context,
-        executionContext: SlicerExecutionContext,
-        startingPoints: object[],
+        executionContext: ExecutionContext,
+        recoveryData: object[],
         logger: Logger,
     ): () => any[] | null;
 }
@@ -129,7 +129,7 @@ export interface LegacyProcessor extends LegacyOperation {
     newProcessor(
         context: Context,
         opConfig: OpConfig,
-        exectutionConfig: ExecutionConfig,
+        executionConfig: ExecutionConfig,
     ): (...params: any[]) => any[] | any;
 }
 
