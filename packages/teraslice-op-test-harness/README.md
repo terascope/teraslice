@@ -32,7 +32,7 @@ describe('setting up an operation', () => {
     class MockClient {
         async get(data) { return data }
     }
-     
+
     beforeEach(() => {
         client = new MockClient();
         readerOpTest.setClients([{ client, type: 'elasticsearch', endpoint: 'default' }])
@@ -48,7 +48,7 @@ describe('setting up an operation', () => {
     });
 
     it('can make a reader instance', async () => {
-        const executionConfig = { 
+        const executionConfig = {
             lifecycle: 'once',
             operations: [{ _op: 'foo', some: 'config' }
         };
@@ -61,7 +61,7 @@ describe('setting up an operation', () => {
     });
 
     it('can make a slicer instance', async () => {
-        const executionConfig = { 
+        const executionConfig = {
             lifecycle: 'once',
             operations: [{ _op: 'foo', some: 'config' }
         };
@@ -92,21 +92,20 @@ describe('setting up an operation', () => {
     class OtherClient {
         async get(data) { return 'something else' }
     }
-     
+
     beforeEach(() => {
-    client = new MockClient();
-    client2 = new MockClient();
-    client3 = new MockClient();
-    // endpoint defaults to 'default' if not specifed, but showing none the less
-    readerOpTest.setClients([
-        { client, type: 'elasticsearch', endpoint: 'default' },
-        { client: client2, type: 'elasticsearch', endpoint: 'other_connection' },
-        { client: client3, type: 'kafka' },
+        client = new MockClient(); client2 = new MockClient();
+        client3 = new MockClient();
+        // endpoint defaults to 'default' if not specifed, but showing none the less
+        readerOpTest.setClients([
+            { client, type: 'elasticsearch', endpoint: 'default' },
+            { client: client2, type: 'elasticsearch', endpoint: 'other_connection' },
+            { client: client3, type: 'kafka' },
         ])
     });
 
     it('can make a reader instance', async () => {
-        const executionConfig = { 
+        const executionConfig = {
             lifecycle: 'once',
             operations: [{ _op: 'foo', some: 'config' }
         };
@@ -119,7 +118,7 @@ describe('setting up an operation', () => {
     });
 
     it('can make a slicer instance', async () => {
-        const executionConfig = { 
+        const executionConfig = {
             lifecycle: 'once',
             operations: [{ _op: 'foo', some: 'config' }
         };
