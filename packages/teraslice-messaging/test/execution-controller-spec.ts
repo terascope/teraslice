@@ -206,47 +206,6 @@ describe('ExecutionController', () => {
                         });
                     });
                 });
-
-                describe('when the slice is double recorded', () => {
-                    it('should respond with a duplicate message', () => {
-                        const onSliceSuccessFn = jest.fn();
-                        server.onSliceSuccess(onSliceSuccessFn);
-                        const slice = {
-                            slice: {
-                                slicer_order: 0,
-                                slicer_id: 1,
-                                request: {},
-                                slice_id: 'duplicate-slice-complete',
-                                _created: 'hello'
-                            },
-                            analytics: {
-                                time: [],
-                                memory: [],
-                                size: []
-                            },
-                        };
-
-                        return client.sendSliceComplete(slice)
-                            .then(() => client.sendSliceComplete(slice))
-                            .then(async (msg) => {
-                                await bluebird.delay(100);
-                                return msg;
-                            })
-                            .then((msg) => {
-                                if (msg == null) {
-                                    expect(msg).not.toBeNull();
-                                    return;
-                                }
-                                expect(msg.payload).toEqual({
-                                    slice_id: 'duplicate-slice-complete',
-                                    recorded: true,
-                                    duplicate: true,
-                                });
-                                expect(onSliceSuccessFn).toHaveBeenCalledTimes(1);
-                                expect(server.queue.exists('workerId', workerId)).toBeFalse();
-                            });
-                    });
-                });
             });
 
             describe('when receiving finished', () => {

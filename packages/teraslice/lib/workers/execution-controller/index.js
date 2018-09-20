@@ -77,6 +77,7 @@ class ExecutionController {
         this.slicersReady = false;
         this.slicesEnqueued = 0;
         this.slicers = [];
+        this.scheduler = [];
         this.slicersDoneCount = 0;
         this.totalSlicers = 0;
         this.pendingSlices = 0;
@@ -410,6 +411,9 @@ class ExecutionController {
             this.client.sendAvailable(),
         ]);
 
+        this.scheduling = false;
+        this.dispatching = false;
+
         try {
             await this._processLoop();
         } catch (err) {
@@ -426,7 +430,7 @@ class ExecutionController {
             return null;
         }
 
-        await Promise.delay(0);
+        await Promise.delay(10);
 
         if (this.isPaused) {
             this.logger.debug('execution is paused, wait for resume...');
@@ -436,32 +440,10 @@ class ExecutionController {
             }
         }
 
-        let scheduling = false;
-        const schedule = async () => {
-            if (scheduling) return;
-            if (!this.slicersReady || this.slicersDone) return;
+        this._schedule();
+        this._dispatch();
 
-            scheduling = true;
-            await this._scheduleSlices();
-            scheduling = false;
-        };
-
-        let dispatching = false;
-        const dispatch = async () => {
-            if (dispatching) return;
-            if (!this.slicerQueue.size()) return;
-
-            dispatching = true;
-            await this._dispatchSlices();
-            dispatching = false;
-        };
-
-        await Promise.race([
-            schedule(),
-            dispatch()
-        ]);
-
-        if (!dispatching && !scheduling && this.slicersDone && !this.slicerQueue.size()) {
+        if (!this.dispatching && !this.scheduling && this.slicersDone && !this.slicerQueue.size()) {
             await this._waitForPendingSlices();
             this.isDoneProcessing = true;
             return true;
@@ -470,39 +452,52 @@ class ExecutionController {
         return this._processLoop();
     }
 
+    async _schedule() {
+        if (this.scheduling) return;
+        if (!this.slicersReady || this.slicersDone) return;
+
+        this.scheduling = true;
+        await this._scheduleSlices();
+        this.scheduling = false;
+    }
+
     async _scheduleSlices() {
-        const remaining = this.executionContext.queueLength - this.slicerQueue.size();
-        if (remaining <= 0) return;
+        const needsMoreSlices = this.slicerQueue.size() < this.executionContext.queueLength;
+        if (!needsMoreSlices) return;
 
-        // schedule up to 3 slices at once
-        const count = _.min([remaining, 3]);
+        try {
+            await Promise.race(this._runScheduler());
+        } catch (err) {
+            this.logger.error('Failure scheduling slice', err);
+        }
+    }
 
-        const schedule = async () => {
-            const needsMoreSlices = this.slicerQueue.size() < this.executionContext.queueLength;
-            if (!needsMoreSlices) return;
+    _runScheduler() {
+        return _.map(this.scheduler, fn => fn());
+    }
 
-            try {
-                await Promise.map(this.scheduler, slicerFn => slicerFn());
-            } catch (err) {
-                this.logger.error('Failure scheduling slice', err);
-            }
-        };
+    async _dispatch() {
+        if (this.dispatching) return;
+        if (!this.slicerQueue.size()) return;
 
-        // this has to be run in series because the slicers can only be run serially
-        await Promise.each(_.times(count), schedule);
+        this.dispatching = true;
+        await this._dispatchSlices();
+        this.dispatching = false;
     }
 
     async _dispatchSlices() {
+        const reenqueueSlices = [];
+        const promises = [];
+
         // dispatch only up to 10 at time but if there are less work available
         const count = _.min([this.server.workerQueueSize, this.slicerQueue.size(), 10]);
-        const reenqueueSlices = [];
 
-        await Promise.all(_.times(count, async () => {
-            if (!this.slicerQueue.size()) return;
-            if (!this.server.workerQueueSize) return;
+        for (let i = 0; i < count; i += 1) {
+            if (!this.slicerQueue.size()) break;
+            if (!this.server.workerQueueSize) break;
 
             const slice = this.slicerQueue.dequeue();
-            if (!slice) return; // this probably won't happen but lets make sure
+            if (!slice) break;
 
             this.pendingSlices += 1;
 
@@ -510,16 +505,11 @@ class ExecutionController {
             if (!workerId) {
                 reenqueueSlices.push(slice);
             } else {
-                const dispatched = await this.server.dispatchSlice(slice, workerId);
-
-                if (dispatched) {
-                    this.logger.debug(`dispatched slice ${slice.slice_id} to worker ${workerId}`);
-                } else {
-                    reenqueueSlices.push(slice);
-                    this.logger.warn(`worker "${workerId}" is not available to process slice ${slice.slice_id}`);
-                }
+                promises.push(this._dispatchSlice(slice, workerId, reenqueueSlices));
             }
-        }));
+        }
+
+        await Promise.all(promises);
 
         if (reenqueueSlices.length > 0) {
             this.logger.debug(`re-enqueing ${reenqueueSlices.length} slices because they were unable to be dispatched`);
@@ -529,7 +519,20 @@ class ExecutionController {
             });
         }
 
-        this.executionAnalytics.set('queued', this.slicerQueue.size());
+        if (promises.length > 0) {
+            this.executionAnalytics.set('queued', this.slicerQueue.size());
+        }
+    }
+
+    async _dispatchSlice(slice, workerId, reenqueueSlices) {
+        const dispatched = await this.server.dispatchSlice(slice, workerId);
+
+        if (dispatched) {
+            this.logger.debug(`dispatched slice ${slice.slice_id} to worker ${workerId}`);
+        } else {
+            reenqueueSlices.push(slice);
+            this.logger.warn(`worker "${workerId}" is not available to process slice ${slice.slice_id}`);
+        }
     }
 
     async _slicerInit() {
@@ -557,7 +560,7 @@ class ExecutionController {
             );
         }, retryOptions);
 
-        this.scheduler = await this._registerSlicers(this.slicers);
+        await this._registerSlicers(this.slicers);
     }
 
     async _registerSlicers(slicers = [], isRecovery = false) {
@@ -570,7 +573,8 @@ class ExecutionController {
         this.totalSlicers += _.size(slicers);
         this.executionAnalytics.set('slicers', slicers.length);
 
-        const scheduler = slicers.map((slicerFn, index) => this._registerSlicerFn(slicerFn, index));
+        this.scheduler.length = 0;
+        this.scheduler = slicers.map((slicerFn, index) => this._registerSlicerFn(slicerFn, index));
 
         // Recovery has it own error listening logic internally
         if (!isRecovery) {
@@ -585,11 +589,9 @@ class ExecutionController {
 
         this.logger.debug(`registered ${_.size(slicers)} slicers`);
         this.slicersReady = true;
-
-        return scheduler;
     }
 
-    async _registerSlicerFn(slicerFn, slicerId) {
+    _registerSlicerFn(slicerFn, slicerId) {
         let hasCompleted = false;
         let isProcessing = false;
         let slicerOrder = 0;
@@ -699,8 +701,7 @@ class ExecutionController {
 
         this.slicers = await this.recover.newSlicer();
 
-        this.scheduler = await this._registerSlicers(this.slicers, true);
-        this.slicersReady = true;
+        await this._registerSlicers(this.slicers, true);
     }
 
     async _waitForRecovery() {

@@ -7,8 +7,6 @@ const _ = require('lodash');
 const get = require('lodash/get');
 const { shutdownHandler } = require('./lib/workers/helpers/worker-shutdown');
 const { safeDecode } = require('./lib/utils/encoding_utils');
-const Worker = require('./lib/workers/worker');
-const ExecutionController = require('./lib/workers/execution-controller');
 const ExecutionContext = require('./lib/workers/context/execution-context');
 const makeTerafoundationContext = require('./lib/workers/context/terafoundation-context');
 
@@ -50,8 +48,14 @@ class Service {
         await this.executionContext.initialize();
 
         if (assignment === 'worker') {
+            // require this here so node doesn't have load extra code into memory
+            const Worker = require('./lib/workers/worker');
+
             this.instance = new Worker(this.context, this.executionContext);
         } else if (assignment === 'execution_controller') {
+            // require this here so node doesn't have load extra code into memory
+            const ExecutionController = require('./lib/workers/execution-controller');
+
             this.instance = new ExecutionController(this.context, this.executionContext);
         }
 

@@ -1,15 +1,10 @@
 import os from 'os';
 import _ from 'lodash';
 import url from 'url';
-import nanoid from 'nanoid/generate';
+import nanoid from 'nanoid';
 
-export function newMsgId(lowerCase: boolean = false, length: number = 15): string {
-    let characters = '-0123456789abcdefghijklmnopqrstuvwxyz';
-    if (!lowerCase) {
-        characters += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    }
-    const id = _.trim(nanoid(characters, length), '-');
-    return _.padEnd(id, length, 'abcdefghijklmnopqrstuvwxyz');
+export function newMsgId(): string {
+    return nanoid();
 }
 
 export function formatURL(hostname = os.hostname(), port: number): string {
