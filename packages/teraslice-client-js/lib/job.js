@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const autoBind = require('auto-bind');
 const Promise = require('bluebird');
+const util = require('util');
 const Client = require('./client');
 
 /*
@@ -11,6 +12,10 @@ const Client = require('./client');
  * state internally. Any access to the state currently goes to the server.
  * Depending on how usage of this API develops we may want to reconsider this.
  */
+function _deprecateSlicerName(fn) {
+    const msg = 'api endpoints with /slicers are being deprecated in favor of the semantically correct term of /controllers';
+    return util.deprecate(fn, msg);
+}
 
 class Job extends Client {
     constructor(config, jobId) {
@@ -22,6 +27,7 @@ class Job extends Client {
             throw new Error('Job requires jobId to be a string');
         }
         this._jobId = jobId;
+        this.slicer = _deprecateSlicerName(this.slicer);
         autoBind(this);
     }
 
@@ -29,6 +35,10 @@ class Job extends Client {
 
     slicer() {
         return this.get(`/jobs/${this._jobId}/slicer`);
+    }
+
+    controller() {
+        return this.get(`/jobs/${this._jobId}/controller`);
     }
 
     start(qs) {

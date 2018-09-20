@@ -3,11 +3,18 @@
 const _ = require('lodash');
 const autoBind = require('auto-bind');
 const Promise = require('bluebird');
+const util = require('util');
 const Client = require('./client');
+
+function _deprecateSlicerName(fn) {
+    const msg = 'api endpoints with /slicers are being deprecated in favor of the semantically correct term of /controllers';
+    return util.deprecate(fn, msg);
+}
 
 class Cluster extends Client {
     constructor(config) {
         super(config);
+        this.slicers = _deprecateSlicerName(this.slicers);
         autoBind(this);
     }
 
@@ -21,6 +28,10 @@ class Cluster extends Client {
 
     slicers() {
         return this.get('/cluster/slicers');
+    }
+
+    controllers() {
+        return this.get('/cluster/controllers');
     }
 
     txt(type) {

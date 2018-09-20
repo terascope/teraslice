@@ -34,7 +34,7 @@ export class Server extends core.Server {
         });
 
         this.clusterAnalytics = {
-            slicer: {
+            controllers: {
                 processed: 0,
                 failed: 0,
                 queued: 0,

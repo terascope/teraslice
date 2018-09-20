@@ -48,7 +48,7 @@ export class Client extends core.Client {
     sendClusterAnalytics(stats: i.ClusterExecutionAnalytics, timeout?: number) {
         return this.send('cluster:analytics', {
             stats,
-            kind: 'slicer'
+            kind: 'controllers'
         }, {
             volatile: true,
             response: true,

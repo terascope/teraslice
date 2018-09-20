@@ -56,7 +56,7 @@ describe('worker allocation', () => {
     // TODO: Debug this test
     xit('should scale from 13 to 20 workers', (done) => {
         // Test cluster has 20 workers total.
-        // 1 is consumed by the cluster_master. 1 by the slicer.
+        // 1 is consumed by the cluster_master. 1 by the execution controller.
         // So the job should consume 13 to start.
         // the when we add another worker. 4 more should become available.
         // And all 20 should schedule.
