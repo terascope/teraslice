@@ -3,6 +3,7 @@
 const Promise = require('bluebird');
 const retry = require('bluebird-retry');
 const get = require('lodash/get');
+const toString = require('lodash/toString');
 const cloneDeep = require('lodash/cloneDeep');
 const parseError = require('@terascope/error-parser');
 const { makeLogger } = require('../helpers/terafoundation');
@@ -135,6 +136,7 @@ class Slice {
         events.emit('slice:failure', slice);
 
         const sliceError = new Error(prependErrorMsg('Slice failed processing', err, true));
+        sliceError.alreadyLogged = true;
         return Promise.reject(sliceError);
     }
 
@@ -155,8 +157,7 @@ class Slice {
             .then(data => fn(data, logger, metadata));
 
         return Promise.reduce(operations, reduceFn, metadata).catch((err) => {
-            const errMsg = parseError(err);
-            logger.error(`An error has occurred: ${errMsg}, message: `, slice);
+            logger.error(`An error has occurred: ${toString(err)}, slice:`, slice);
             events.emit('slice:retry', slice);
             return Promise.reject(err);
         });
