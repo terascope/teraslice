@@ -29,11 +29,11 @@ export abstract class Slicer extends SlicerCore {
             this.events.emit('execution:subslice');
             await Promise.all(_.map(result, async (item) => {
                 this.order += 1;
-                this.enqueue(item, this.order);
+                this.createSlice(item, this.order);
             }));
         } else {
             this.order += 1;
-            this.enqueue(result, this.order);
+            this.createSlice(result, this.order);
         }
 
         return false;

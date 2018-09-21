@@ -38,7 +38,7 @@ class Slice {
         this.slice = slice;
         this.metadata = cloneDeep(get(slice, 'request'));
         this.logger = makeLogger(this.context, this.executionContext, 'slice', { slice_id: sliceId });
-        this.events.emit('slice:initalize', slice);
+        this.events.emit('slice:initialize', slice);
     }
 
     async run() {

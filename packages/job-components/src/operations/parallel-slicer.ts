@@ -66,11 +66,11 @@ export abstract class ParallelSlicer extends SlicerCore {
                 this.events.emit('execution:subslice');
                 await Promise.all(_.map(result, async (item) => {
                     slicer.order += 1;
-                    this.enqueue(item, slicer.order, id);
+                    this.createSlice(item, slicer.order, id);
                 }));
             } else {
                 slicer.order += 1;
-                this.enqueue(result, slicer.order);
+                this.createSlice(result, slicer.order);
             }
         }
     }

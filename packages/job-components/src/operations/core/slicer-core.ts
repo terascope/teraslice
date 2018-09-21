@@ -41,10 +41,20 @@ export abstract class SlicerCore {
         this.queue = new Queue();
     }
 
-    // this method is called by the teraslice framework
+    /**
+     * @description this is called by the Teraslice framework.
+     *              Each type of varient of a "Slicer" will need
+     *              to implement their own version of this.
+     * @returns a boolean to indicate when the "Slicer" is done
+    */
     abstract async handle(): Promise<boolean>;
 
-    enqueue(input: Slice|SliceRequest, order: number, id: number = 0) {
+    /**
+     * @description this is called by a "Slicer" varient
+     *              in order to enqueue a "Slice" to be processed
+     *              by the "Execution Controller"
+    */
+    createSlice(input: Slice|SliceRequest, order: number, id: number = 0) {
         let slice: Slice;
         let needsState = false;
 
@@ -68,27 +78,50 @@ export abstract class SlicerCore {
         });
     }
 
-    dequeue() {
+    /**
+     * @description this is called by the "Execution Controller", to process a "Slice"
+    */
+    getSlice(): Slice|null {
         return this.queue.dequeue();
     }
 
+    /**
+     * @description this is called by the "Execution Controller" in order to give the "Slicer"
+     *              time to run asynchronous setup
+    */
     async initialize(recoveryData: object[]): Promise<void> {
         this.context.logger.debug(`${this.executionConfig.name}->${this.opConfig._op} is initializing...`, recoveryData);
     }
 
+    /**
+     * @description this is called by the "Execution Controller" in order to give the "Slicer"
+     *              time to run asynchronous cleanup before exiting
+    */
     async shutdown(): Promise<void> {
         this.context.logger.debug(`${this.executionConfig.name}->${this.opConfig._op} is shutting down...`);
     }
 
-    async onSliceEnqueued(slice: Slice): Promise<void> {
+    /**
+     * @description this is called by the "Execution Controller" in order to give the "Slicer"
+     *              the opportunity to track the slices enqueued by the execution controller
+    */
+    onSliceEnqueued(slice: Slice): void {
         this.context.logger.debug('slice enqueued', slice);
     }
 
-    async onSliceDispatch(slice: Slice): Promise<void> {
+    /**
+     * @description this is called by the "Execution Controller" in order to give the "Slicer"
+     *              the opportunity to track the slices disptached by the execution controller
+    */
+    onSliceDispatch(slice: Slice): void {
         this.context.logger.debug('slice dispatch', slice);
     }
 
-    async onSliceComplete(result: SliceResult): Promise<void> {
+    /**
+     * @description this is called by the "Execution Controller" in order to give the "Slicer"
+     *              the opportunity to track the slices completed by the execution controller
+    */
+    onSliceComplete(result: SliceResult): void {
         this.context.logger.debug('slice result', result);
     }
 

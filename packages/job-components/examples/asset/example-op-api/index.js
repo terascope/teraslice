@@ -1,11 +1,13 @@
 'use strict';
 
-const MapProcessor = require('./processor');
+const ExampleAPI = require('./api');
 const Schema = require('./schema');
 
 // This file for backwards compatibility and functionality will be limited
 // but it should allow you to write processors using the new way today
 
+// IMPORTANT: The backward compatibility for this type is very limited,
+// since it is required to be in the operation list even though it is a no-op
 module.exports = {
     schema: (context) => {
         if (Schema.type() !== 'convict') {
@@ -16,35 +18,34 @@ module.exports = {
         return schema.build(context);
     },
     async newProcessor(context, opConfig, executionConfig) {
-        const processor = new MapProcessor(context, opConfig, executionConfig);
-        await processor.initialize();
+        const opApi = new ExampleAPI(context, opConfig, executionConfig);
+        await opApi.initialize();
+
+        context.apis.registerApi('ExampleAPI', {
+            createAPI: opApi.createAPI,
+        });
 
         const events = context.apis.foundation.getSystemEvents();
         events.once('worker:shutdown', async () => {
-            await processor.shutdown();
+            await opApi.shutdown();
         });
 
         events.once('slice:retry', async () => {
-            await processor.onSliceRetry();
+            await opApi.onSliceRetry();
         });
 
         events.once('slice:failure', async () => {
-            await processor.onSliceFailed();
+            await opApi.onSliceFailed();
         });
 
         events.once('slice:success', async () => {
-            await processor.onSliceSuccess();
+            await opApi.onSliceSuccess();
         });
 
         events.once('slice:finalize', async () => {
-            await processor.onSliceFinished();
+            await opApi.onSliceFinished();
         });
 
-        return async (input, logger, sliceRequest) => {
-            process.logger = logger;
-            const data = processor.toDataEntityList(input);
-            const output = await processor.handle(data, sliceRequest);
-            return output.toArray();
-        };
+        return data => data;
     }
 };
