@@ -35,7 +35,7 @@ describe('ParallelSlicer', () => {
             const done = await slicer.handle();
             expect(done).toBeFalse();
 
-            expect(slicer.dequeue()).toMatchObject({
+            expect(slicer.getSlice()).toMatchObject({
                 needsState: true,
                 slice: {
                     slicer_order: 1,
@@ -45,18 +45,7 @@ describe('ParallelSlicer', () => {
                     }
                 }
             });
-            expect(slicer.dequeue()).toMatchObject({
-                needsState: true,
-                slice: {
-                    slicer_order: 1,
-                    slicer_id: 0,
-                    request: {
-                        hi: true,
-                    }
-                }
-            });
-
-            expect(slicer.dequeue()).toMatchObject({
+            expect(slicer.getSlice()).toMatchObject({
                 needsState: true,
                 slice: {
                     slicer_order: 1,
@@ -67,7 +56,18 @@ describe('ParallelSlicer', () => {
                 }
             });
 
-            expect(slicer.dequeue()).toBeNil();
+            expect(slicer.getSlice()).toMatchObject({
+                needsState: true,
+                slice: {
+                    slicer_order: 1,
+                    slicer_id: 0,
+                    request: {
+                        hi: true,
+                    }
+                }
+            });
+
+            expect(slicer.getSlice()).toBeNil();
         });
     });
 });

@@ -31,7 +31,7 @@ describe('Slicer', () => {
             const done = await slicer.handle();
             expect(done).toBeFalse();
 
-            expect(slicer.dequeue()).toMatchObject({
+            expect(slicer.getSlice()).toMatchObject({
                 needsState: true,
                 slice: {
                     slicer_order: 1,
@@ -42,7 +42,7 @@ describe('Slicer', () => {
                 }
             });
 
-            expect(slicer.dequeue()).toBeNil();
+            expect(slicer.getSlice()).toBeNil();
         });
     });
 });

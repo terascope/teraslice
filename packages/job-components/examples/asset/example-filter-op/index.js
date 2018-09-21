@@ -1,6 +1,6 @@
 'use strict';
 
-const MapProcessor = require('./processor');
+const FilterProcessor = require('./processor');
 const Schema = require('./schema');
 
 // This file for backwards compatibility and functionality will be limited
@@ -16,7 +16,7 @@ module.exports = {
         return schema.build(context);
     },
     async newProcessor(context, opConfig, executionConfig) {
-        const processor = new MapProcessor(context, opConfig, executionConfig);
+        const processor = new FilterProcessor(context, opConfig, executionConfig);
         await processor.initialize();
 
         const events = context.apis.foundation.getSystemEvents();
@@ -43,6 +43,7 @@ module.exports = {
         return async (input, logger, sliceRequest) => {
             process.logger = logger;
             const data = processor.toDataEntityList(input);
+
             const output = await processor.handle(data, sliceRequest);
             return output.toArray();
         };
