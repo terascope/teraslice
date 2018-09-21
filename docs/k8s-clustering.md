@@ -145,6 +145,7 @@ you can type `make` to see all of the possible targets.
 The standard minikube based dev workflow is:
 
 ```
+minikube start
 cd examples/k8s
 export NAMESPACE=ts-dev1
 export TERASLICE_K8S_IMAGE=teraslice-k8sdev:1
@@ -166,3 +167,10 @@ make setup
 make register
 make example
 ```
+
+Note: If you build your images straight into k8s you don't need to increment
+the version number on TERASLICE_K8s_IMAGE.  You can do this by configuring
+your local docker to use minikube by running the following command:
+`eval $(minikube docker-env)`.  This can get messy in a number of ways if
+you're not carefule though (e.g: if you forget your shell is configured this
+way or you accumulate too many images in your minikube)
