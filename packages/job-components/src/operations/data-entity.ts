@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import * as L from 'list/methods';
 
 /**
  * DataEntity [DRAFT]
@@ -54,6 +55,49 @@ export class DataEntity {
 
         return data;
     }
+}
+
+export type DataInput = object|DataEntity;
+export type DataArrayInput = DataInput|DataInput[];
+export type DataListInput = DataInput|DataInput[]|L.List<DataInput>;
+export type DataEntityList = L.List<DataEntity>;
+
+export function toDataEntity(input: DataInput): DataEntity {
+    if (input instanceof DataEntity) {
+        return input;
+    }
+    return new DataEntity(input);
+}
+
+export function toDataEntities(input: DataInput|DataInput[]): DataEntity[] {
+    if (!_.isArray(input)) {
+        return [toDataEntity(input)];
+    }
+    const [first] = input;
+    if (first instanceof DataEntity) {
+        return input as DataEntity[];
+    }
+    return _.map(input, toDataEntity);
+}
+
+export function toDataEntityList(input: DataListInput): DataEntityList {
+    if (L.isList(input)) {
+        const [first] = input;
+        if (first instanceof DataEntity) {
+            return input as DataEntityList;
+        }
+        return L.map(toDataEntity, input);
+    }
+
+    if (_.isArray(input)) {
+        const [first] = input;
+        if (first instanceof DataEntity) {
+            return L.from(input) as DataEntityList;
+        }
+        return L.from(_.map(input, toDataEntity));
+    }
+
+    return L.list(toDataEntity(input));
 }
 
 interface DataEntityMetadata {

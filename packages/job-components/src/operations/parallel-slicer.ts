@@ -28,6 +28,10 @@ export abstract class ParallelSlicer extends SlicerCore {
         await Promise.all(promises);
     }
 
+    async shutdown() {
+        this._slicers.length = 0;
+    }
+
     /**
      * @description this is called for every count of `slicers` in the ExecutionConfig
      * @returns a function which will be called in parallel
@@ -41,25 +45,7 @@ export abstract class ParallelSlicer extends SlicerCore {
     async handle(): Promise<boolean> {
         if (this.isFinished) return true;
 
-        const promises = _.map(this._slicers, async (slicer, id) => {
-            if (slicer.done) return;
-
-            const result = await slicer.fn();
-            if (result == null) {
-                slicer.done = true;
-            } else {
-                if (_.isArray(result)) {
-                    this.events.emit('execution:subslice');
-                    await Promise.all(_.map(result, async (item) => {
-                        slicer.order += 1;
-                        this.enqueue(item, slicer.order, id);
-                    }));
-                } else {
-                    slicer.order += 1;
-                    this.enqueue(result, slicer.order);
-                }
-            }
-        });
+        const promises = _.map(this._slicers, (slicer, id) => this.processSlicer(slicer, id));
 
         await Promise.all(promises);
         return this.isFinished;
@@ -67,6 +53,26 @@ export abstract class ParallelSlicer extends SlicerCore {
 
     get isFinished(): boolean {
         return _.every(this._slicers, { done: true });
+    }
+
+    private async processSlicer(slicer: SlicerObj, id: number) {
+        if (slicer.done) return;
+
+        const result = await slicer.fn();
+        if (result == null) {
+            slicer.done = true;
+        } else {
+            if (_.isArray(result)) {
+                this.events.emit('execution:subslice');
+                await Promise.all(_.map(result, async (item) => {
+                    slicer.order += 1;
+                    this.enqueue(item, slicer.order, id);
+                }));
+            } else {
+                slicer.order += 1;
+                this.enqueue(result, slicer.order);
+            }
+        }
     }
 }
 

@@ -1,4 +1,4 @@
-import { DataEntity } from '../data-entity';
+import { DataEntityList } from '../data-entity';
 import { OperationCore } from './operation-core';
 import { SliceRequest } from '@terascope/teraslice-types';
 
@@ -12,5 +12,5 @@ export abstract class ProcessorCore extends OperationCore {
      * @description this is called by the Teraslice framework
      * @returns an array of DataEntities
     */
-    abstract async handle(input: DataEntity[], sliceRequest?: SliceRequest): Promise<DataEntity[]>;
+    abstract async handle(input: DataEntityList, sliceRequest?: SliceRequest): Promise<DataEntityList>;
 }

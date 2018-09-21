@@ -1,4 +1,5 @@
-import { DataEntity } from './data-entity';
+import * as L from 'list/methods';
+import { DataEntity, DataEntityList } from './data-entity';
 import { ProcessorCore } from './core/processor-core';
 
 /**
@@ -10,33 +11,28 @@ import { ProcessorCore } from './core/processor-core';
 export abstract class Processor extends ProcessorCore {
     /**
     * @description this will handle a single DataEntity at a time.
-    *              If null is returned it will stop processing the result of "Batch"
+    *              If false is returned it will stop processing the result of "Batch"
+    *              If null or undefined is returned it will skip that result
     * @returns an array of DataEntities
     */
-    abstract async onData(data: DataEntity): Promise<DataEntity | null>;
+    abstract onData(data: DataEntity): DataEntity|null|undefined|false;
 
     /**
      * @description this is called by the Teraslice framework
      * @returns an array of DataEntities
     */
-    async handle(input: DataEntity[]): Promise<DataEntity[]> {
-        const remaining = input.slice();
-        const entities: DataEntity[] = [];
+    async handle(input: DataEntityList): Promise<DataEntityList> {
+        let output : DataEntityList = L.empty();
 
-        const forEach = async (): Promise<void> => {
-            const data = remaining.shift();
-            if (data == null) return;
+        for (const data of input) {
+            const result = this.onData(data);
+            if (result == null) continue;
+            if (result === false) break;
 
-            const result = await this.onData(data);
-            if (result == null) return;
+            output = output.append(result);
+        }
 
-            entities.push(result);
-
-            return forEach();
-        };
-
-        await forEach();
-
-        return entities;
+        return output;
     }
+
 }

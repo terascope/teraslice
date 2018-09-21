@@ -24,8 +24,9 @@ describe('Fetcher', () => {
     });
 
     describe('->fetch', () => {
-        it('should resolve with data entries', () => {
-            return expect(operation.handle()).resolves.toBeArrayOfSize(1);
+        it('should resolve with data entries', async () => {
+            const output = await operation.handle();
+            expect(output.toArray()).toBeArrayOfSize(1);
         });
     });
 });
