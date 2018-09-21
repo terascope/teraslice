@@ -109,11 +109,19 @@ export class Server extends core.Server {
     }
 
     onSliceSuccess(fn: core.ClientEventFn) {
-        this.on('slice:success', fn);
+        this.on('slice:success', (workerId, payload) => {
+            _.defer(() => {
+                fn(workerId, payload);
+            });
+        });
     }
 
     onSliceFailure(fn: core.ClientEventFn) {
-        this.on('slice:failure', fn);
+        this.on('slice:failure', (workerId, payload) => {
+            _.defer(() => {
+                fn(workerId, payload);
+            });
+        });
     }
 
     sendExecutionFinishedToAll(exId: string) {
@@ -135,16 +143,11 @@ export class Server extends core.Server {
         socket.on('worker:slice:complete', this.handleResponse('worker:slice:complete', (msg) => {
             const workerResponse = msg.payload;
             const sliceId = _.get(workerResponse, 'slice.slice_id');
-            const alreadyCompleted = this.cache.get(`${sliceId}:complete`);
 
-            if (!alreadyCompleted) {
-                this.cache.set(`${sliceId}:complete`, true);
-
-                if (workerResponse.error) {
-                    this.emit('slice:failure', workerId, workerResponse);
-                } else {
-                    this.emit('slice:success', workerId, workerResponse);
-                }
+            if (workerResponse.error) {
+                this.emit('slice:failure', workerId, workerResponse);
+            } else {
+                this.emit('slice:success', workerId, workerResponse);
             }
 
             _.pull(this._activeWorkers, workerId);
@@ -153,7 +156,6 @@ export class Server extends core.Server {
             });
 
             return _.pickBy({
-                duplicate: alreadyCompleted,
                 recorded: true,
                 slice_id: sliceId,
             });

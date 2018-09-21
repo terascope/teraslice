@@ -5,8 +5,6 @@
 const Promise = require('bluebird');
 const get = require('lodash/get');
 const { shutdownHandler } = require('./lib/workers/helpers/worker-shutdown');
-const makeClusterMaster = require('./lib/cluster/cluster_master');
-const makeAssetsService = require('./lib/cluster/services/assets');
 const makeTerafoundationContext = require('./lib/workers/context/terafoundation-context');
 
 class Service {
@@ -27,9 +25,11 @@ class Service {
         this.logger.trace(`Initializing ${assignment}`);
 
         if (assignment === 'cluster_master') {
-            this.instance = makeClusterMaster(this.context);
+            // require this here so node doesn't have load extra code into memory
+            this.instance = require('./lib/cluster/cluster_master')(this.context);
         } else if (assignment === 'assets_service') {
-            this.instance = makeAssetsService(this.context);
+            // require this here so node doesn't have load extra code into memory
+            this.instance = require('./lib/cluster/services/assets')(this.context);
         }
 
         await this.instance.initialize();

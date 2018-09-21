@@ -35,19 +35,24 @@ function es() {
 
 function indexStats(indexName) {
     return new Promise(((resolve, reject) => {
-        es().indices.refresh({ index: indexName })
-            .then(() => {
-                es().indices.stats({ index: indexName })
-                    .then((stats) => {
-                        resolve(stats._all.total.docs);
-                    })
-                    .catch((err) => {
-                        reject(err);
-                    });
-            })
-            .catch((err) => {
-                reject(err);
-            });
+        // delay for 500ms because sometimes the execution
+        // is marked as complete but the indices stats is one off
+        // because it happened too quickly
+        setTimeout(() => {
+            es().indices.refresh({ index: indexName })
+                .then(() => {
+                    es().indices.stats({ index: indexName })
+                        .then((stats) => {
+                            resolve(stats._all.total.docs);
+                        })
+                        .catch((err) => {
+                            reject(err);
+                        });
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+        }, 500);
     }));
 }
 

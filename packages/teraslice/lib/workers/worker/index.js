@@ -11,8 +11,6 @@ const Slice = require('./slice');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
 const { generateWorkerId, makeLogger } = require('../helpers/terafoundation');
 
-const immediate = Promise.promisify(setImmediate);
-
 class Worker {
     constructor(context, executionContext) {
         const workerId = generateWorkerId(context);
@@ -50,6 +48,8 @@ class Worker {
         this.isShuttingDown = false;
         this.isProcessing = false;
         this.isInitialized = false;
+        this.shouldShutdown = false;
+        this.forceShutdown = false;
         this.slicesProcessed = 0;
     }
 
@@ -62,28 +62,53 @@ class Worker {
         this.stores.stateStore = await stateStore;
         this.stores.analyticsStore = await analyticsStore;
 
+        this.client.onServerShutdown(() => {
+            this.logger.warn('Execution Controller shutdown, exiting...');
+            this.shouldShutdown = true;
+        });
         await this.client.start();
     }
 
     async run() {
-        const runForever = async () => {
-            if (this.isShuttingDown) return;
+        let running = false;
 
+        const _run = async () => {
+            running = true;
             try {
                 await this.runOnce();
             } catch (err) {
                 /* istanbul ignore next */
                 this.logger.warn('Slice failed but worker is not done processing');
             }
-
-            await immediate();
-            await runForever();
+            running = false;
         };
 
-        await runForever();
+        await new Promise((resolve) => {
+            const interval = setInterval(() => {
+                if (this.forceShutdown) {
+                    done();
+                    return;
+                }
+
+                if (running) return;
+
+                if (this.isShuttingDown || this.shouldShutdown) {
+                    done();
+                    return;
+                }
+
+                _run();
+            }, 5);
+
+            function done() {
+                clearInterval(interval);
+                resolve();
+            }
+        });
     }
 
     async runOnce() {
+        this.logger.trace('waiting for new slice from execution controller');
         const msg = await this.client.waitForSlice(() => this.isShuttingDown);
 
         if (!msg) {
@@ -106,7 +131,9 @@ class Worker {
                 analytics: this.slice.analyticsData,
             });
         } catch (err) {
-            this.logger.error(`slice run error for execution ${exId}`, err);
+            if (!err.alreadyLogged) {
+                this.logger.error(`slice run error for execution ${exId}`, err);
+            }
 
             await this.client.sendSliceComplete({
                 slice: this.slice.slice,
@@ -143,6 +170,9 @@ class Worker {
         }
 
         this.events.emit('worker:shutdown');
+
+        // make sure ->run() resolves the promise
+        this.forceShutdown = true;
 
         try {
             await Promise.map(_.values(this.stores), (store) => {

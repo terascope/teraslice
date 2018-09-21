@@ -1,6 +1,6 @@
 {
     "name": "@terascope/job-components",
-    "version": "0.4.1",
+    "version": "0.4.2",
     "publishConfig": {
         "access": "public"
     },
@@ -35,7 +35,7 @@
         "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@terascope/teraslice-types": "^0.1.1",
+        "@terascope/teraslice-types": "^0.2.0",
         "@types/fs-extra": "^5.0.4",
         "@types/lodash": "^4.14.116",
         "@types/node": "^10.9.4",

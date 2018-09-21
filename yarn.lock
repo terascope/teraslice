@@ -617,12 +617,6 @@
   dependencies:
     "@types/node" "*"
 
-"@types/node-cache@^4.1.1":
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/@types/node-cache/-/node-cache-4.1.1.tgz#c435974571cdb3b44fef91de95565fb6656cc3b6"
-  dependencies:
-    "@types/node" "*"
-
 "@types/node@*":
   version "10.5.8"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.5.8.tgz#6f14ccecad1d19332f063a6a764f8907801fece0"

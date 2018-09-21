@@ -76,11 +76,58 @@ describe('Worker', () => {
         });
 
         it('should complete the slice', () => {
+            expect(sliceFailure).toBeNil();
+
             expect(sliceSuccess).toMatchObject({
                 slice: sliceConfig,
             });
+        });
+    });
 
+    describe('when running and the execution controller disconnects', () => {
+        let sliceConfig;
+        let worker;
+        let testContext;
+        let server;
+        let sliceSuccess;
+        let sliceFailure;
+
+        beforeEach(async () => {
+            ({ worker, testContext, server } = await setupTest());
+
+            await worker.initialize();
+
+            sliceConfig = await testContext.newSlice();
+
+            server.onClientAvailable(() => {
+                server.dispatchSlice(sliceConfig, worker.workerId);
+            });
+            let shutdownPromise;
+
+            server.onSliceSuccess((workerId, _msg) => {
+                sliceSuccess = _msg;
+                shutdownPromise = server.shutdown();
+            });
+
+            server.onSliceFailure((workerId, _msg) => {
+                sliceFailure = _msg;
+                shutdownPromise = server.shutdown();
+            });
+
+            await worker.run();
+            await shutdownPromise;
+        });
+
+        afterEach(async () => {
+            await testContext.cleanup();
+        });
+
+        it('should complete the slice', () => {
             expect(sliceFailure).toBeNil();
+
+            expect(sliceSuccess).toMatchObject({
+                slice: sliceConfig,
+            });
         });
     });
 
@@ -112,6 +159,9 @@ describe('Worker', () => {
             });
 
             await worker.runOnce();
+
+            // avoid on slice events don't fire immediatley now
+            await Promise.delay(0);
         });
 
         afterEach(async () => {
@@ -119,11 +169,11 @@ describe('Worker', () => {
         });
 
         it('should complete the slice', () => {
+            expect(sliceFailure).toBeNil();
+
             expect(sliceSuccess).toMatchObject({
                 slice: sliceConfig,
             });
-
-            expect(sliceFailure).toBeNil();
         });
     });
 
@@ -285,13 +335,15 @@ describe('Worker', () => {
                 server.dispatchSlice(sliceConfig, worker.workerId);
             });
 
-            worker.events.once('slice:initalize', () => {
-                worker.shutdown().catch((err) => {
+            let shutdown;
+            worker.events.once('slice:initialize', () => {
+                shutdown = worker.shutdown().catch((err) => {
                     shutdownErr = err;
                 });
             });
 
             await worker.run();
+            await shutdown;
         });
 
         afterEach(() => testContext.cleanup());
