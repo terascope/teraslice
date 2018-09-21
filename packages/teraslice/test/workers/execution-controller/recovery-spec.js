@@ -110,7 +110,7 @@ describe('execution recovery', () => {
         expect(recovery._recoveryBatchCompleted()).toEqual(true);
     });
 
-    it('initalizes and sets up listeners', (done) => {
+    it('initializes and sets up listeners', (done) => {
         recoveryModule = recoveryCode(
             context,
             executionFailed,
