@@ -96,6 +96,21 @@
     lodash "^4.17.5"
     to-fast-properties "^2.0.0"
 
+"@terascope/elasticsearch-api@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@terascope/elasticsearch-api/-/elasticsearch-api-1.1.1.tgz#87de959d443289c77cbd0a2131de3b71b6fc4b8a"
+  dependencies:
+    "@terascope/error-parser" "^1.0.0"
+    bluebird "^3.5.0"
+    lodash "^4.17.4"
+    uuid "^3.0.1"
+
+"@terascope/error-parser@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@terascope/error-parser/-/error-parser-1.0.0.tgz#0853b6d10845babda7a7ed596632f866d2fde86d"
+  dependencies:
+    lodash "^4.17.4"
+
 acorn-jsx@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/acorn-jsx/-/acorn-jsx-4.1.1.tgz#e8e41e48ea2fe0c896740610ab6a4ffd8add225e"
@@ -244,7 +259,7 @@ bluebird@3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.0.tgz#791420d7f551eea2897453a8a77653f96606d67c"
 
-bluebird@^3.5.2:
+bluebird@^3.5.0, bluebird@^3.5.2:
   version "3.5.2"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.2.tgz#1be0908e054a751754549c270489c1505d4ab15a"
 
@@ -2361,13 +2376,13 @@ util-deprecate@~1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
 
+uuid@^3.0.1, uuid@^3.3.2:
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
+
 uuid@^3.1.0:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.2.1.tgz#12c528bb9d58d0b9265d9a2f6f0fe8be17ff1f14"
-
-uuid@^3.3.2:
-  version "3.3.2"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
 
 validate-npm-package-license@^3.0.1:
   version "3.0.3"

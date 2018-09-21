@@ -38,7 +38,6 @@ name | name of application| String | optional, defaults to terafoundation
 ops_directory | 'path/to/directory', to look for more custom connectors. Usually this is where you place your custom code not part of core, unless you want to leave your code in place. | String | optional
 descriptors | Object listing all the different modules that a child process could run, used when child process will have different behaviors | Object | optional, default to creation of children running the worker module passed in
 cluster_name | name of application| String or Function | optional, defaults to terafoundation
-logging_connection | If storing logs to elasticsearch, use this parameter to specify which endpoint it will use in the connectors configuration| String or Function | optional
 script | javascript execution of code | Function | optional
 config_schema | system schema for the top level service| Object or Function | optional
 plugin_schema |system schema for plugins associated with the top level service |Object or Function | optional
@@ -71,9 +70,8 @@ var foundation = require('terafoundation')({
     config_schema: config_schema,
     schema_formats: schema_formats,
     ops_directory: ops_directory,
-    cluster_name: cluster_name,
-    logging_connection: logging_connection
-});
+    cluster_name: cluster_name
+  });
 ```
 You may pass in multiple different type of child process that behave differently. To use them you must specify them on the descriptors. After this you may create them using `context.foundation.startWorkers` api to create that specific worker type. The descriptor is primarily needed for child worker restarts
 
@@ -203,4 +201,5 @@ logging | a list to where logs will be written to, settings available are ['cons
 log_level | this determines what level of logs are shown, options: trace, debug, info, warn , error, fatal | String or Array | optional, defaults to info, if a string is set then all log destinations in logging will use this, you may also customize log levels for each destination: [{console: 'debug'}, {file: 'warn}, {elasticsearch: 'info'}]
 log_buffer_limit | the number of logs stored in the ringbuffer on the logger before sent, logging must have elasticsearch set as a value for this to take effect | Number | optional, defaults to 30
 log_buffer_interval | interval (number in milliseconds) that the log buffer will send up its logs, this is used if logging is set to use elasticsearch | Number | optional, defaults to 60000 ms
+log_connection | logging connection endpoint if logging is saved to elasticsearch, this is only in use if logs are being saved to a DB | String | optional, uses the 'default' endpoint of elasticsearch connectors
 connectors | An object containing database client information for you service | Object | required

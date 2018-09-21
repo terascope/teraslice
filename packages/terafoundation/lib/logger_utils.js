@@ -4,6 +4,7 @@ const util = require('util');
 const moment = require('moment');
 const bunyan = require('bunyan');
 const Promise = require('bluebird');
+const esApi = require('@terascope/elasticsearch-api');
 
 const levelsObj = {
     10: 'trace',
@@ -33,11 +34,11 @@ function RingBuffer(index, limit, delay, client, timeseriesFormat) {
     // set a timer to flush logs
     this.interval = setInterval(() => {
         self.sendBulk();
-    }, delay);
+    }, 1000);
 }
 util.inherits(RingBuffer, bunyan.RingBuffer);
 
-RingBuffer.prototype.write = function (record) {
+RingBuffer.prototype.write = function write(record) {
     if (!this.writable) {
         throw (new Error('RingBuffer has been ended already'));
     }
@@ -50,9 +51,9 @@ RingBuffer.prototype.write = function (record) {
     return (true);
 };
 
-RingBuffer.prototype.sendBulk = function () {
+RingBuffer.prototype.sendBulk = async function sendBulk() {
     const {
-        records, client, index, timeseriesFormat
+        records, client, index, timeseriesFormat, logger
     } = this;
 
     const esData = records.reduce((prev, record) => {
@@ -70,25 +71,21 @@ RingBuffer.prototype.sendBulk = function () {
     this.records = [];
 
     if (esData.length > 0) {
-        return client.bulk({ body: esData })
-            .then((res) => {
-                if (res.errors) {
-                    console.log('whats this error', JSON.stringify(res));
-                    res.items.forEach((item) => {
-                        console.log(item.create);
-                    });
-                }
-            })
-            .catch((err) => {
-                const errMsg = err.toJSON ? err.toJSON : err.stack;
-                return Promise.reject(errMsg);
-            });
+        try {
+            const results = await client.bulkSend(esData, logger);
+            return results;
+        } catch (err) {
+            logger.error(`failed to send logs to index: ${index}`, err);
+            // non retrialbe error, so we return. We do not return an error
+            // as that could have other side effects in teraslice
+            return true;
+        }
     }
 
-    return Promise.resolve(true);
+    return true;
 };
 
-RingBuffer.prototype.flush = function () {
+RingBuffer.prototype.flush = function flush() {
     const { interval } = this;
     if (this.records.length > 0) {
         clearInterval(interval);
@@ -99,25 +96,32 @@ RingBuffer.prototype.flush = function () {
     return Promise.resolve(true);
 };
 
-RingBuffer.prototype.setBufferClient = function (client) {
+RingBuffer.prototype.setBufferClient = function setBufferClient(client, logger) {
     this.client = client;
+    this.logger = logger;
 };
 
-function loggerClient(context, logger, loggingConnection) {
+function loggerClient(context) {
+    const {
+        logger,
+        sysconfig: { terafoundation: { log_connection: endpoint } }
+    } = context;
+
     const esClient = logger.streams.filter((stream) => {
         if (stream.stream instanceof RingBuffer) {
             return stream;
         }
+        return false;
     });
 
     if (esClient.length > 0) {
         const { client } = context.foundation.getConnection({
             type: 'elasticsearch',
-            endpoint: loggingConnection,
+            endpoint,
             cached: true
         });
-
-        esClient[0].stream.setBufferClient(client);
+        const api = esApi(client, logger);
+        esClient[0].stream.setBufferClient(api, logger);
     }
 }
 

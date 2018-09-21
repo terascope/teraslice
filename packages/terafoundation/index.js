@@ -11,7 +11,6 @@ module.exports = function module(config) {
     const api = require('./lib/api');
 
     const name = config.name ? config.name : 'terafoundation';
-    let loggingConnection = 'default';
 
     const { argv } = require('yargs')
         .usage('Usage: $0 [options]')
@@ -36,6 +35,7 @@ module.exports = function module(config) {
     let logger;
 
     const sysconfig = validateConfigs(cluster, config, configFile);
+
     // set by initAPI
 
     function errorHandler(err) {
@@ -100,10 +100,6 @@ module.exports = function module(config) {
             context.cluster_name = config.cluster_name(context.sysconfig);
         }
 
-        if (typeof config.loggingConnection === 'function') {
-            loggingConnection = config.loggingConnection(context.sysconfig);
-        }
-
         // Initialize the API
         api(context);
 
@@ -113,7 +109,7 @@ module.exports = function module(config) {
 
         // FIXME: this should probably be refactored to actually create the
         // logger as it stands this function is very confusing
-        loggerClient(context, context.logger, loggingConnection);
+        loggerClient(context);
 
         if (config.script) {
             config.script(context);

@@ -3,8 +3,8 @@
 const bunyan = require('bunyan');
 const fs = require('fs');
 const _ = require('lodash');
-const { RingBuffer } = require('../logger_utils');
 const Promise = require('bluebird');
+const { RingBuffer } = require('../logger_utils');
 
 function getLogLevel(level) {
     // Set the same level for all logging types.
@@ -21,7 +21,6 @@ function getLogLevel(level) {
 
 module.exports = function module(context) {
     const loggingConfig = context.sysconfig.terafoundation;
-
     const logLevel = getLogLevel(loggingConfig.log_level);
 
     // This is the root logger. Module specific loggers will be created
@@ -84,9 +83,11 @@ module.exports = function module(context) {
         }
 
         if (_.includes(loggingConfig.logging, 'elasticsearch')) {
-            const limit = loggingConfig.log_buffer_limit;
-            const delay = loggingConfig.log_buffer_interval;
-            const timeseriesFormat = loggingConfig.log_index_rollover_frequency;
+            const {
+                log_buffer_interval: delay,
+                log_buffer_limit: limit,
+                log_index_rollover_frequency: timeseriesFormat
+            } = loggingConfig;
             const name = context.cluster_name;
 
             const level = logLevel.elasticsearch ? logLevel.elasticsearch : 'info';

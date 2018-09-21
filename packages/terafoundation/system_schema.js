@@ -94,6 +94,11 @@ module.exports = {
         default: 'monthly',
         format: ['daily', 'monthly', 'yearly']
     },
+    log_connection: {
+        doc: 'logging connection endpoint if logging is saved to elasticsearch',
+        default: 'default',
+        format: 'optional_String'
+    },
     workers: {
         doc: 'Number of workers per server',
         default: workerCount

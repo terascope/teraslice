@@ -1,6 +1,6 @@
 {
   "name": "terafoundation",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "scripts": {
     "lint": "eslint *.js lib",
     "lint:fix": "eslint --fix *.js lib",
@@ -28,6 +28,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
+    "@terascope/elasticsearch-api": "^1.1.1",
     "agentkeepalive": "^3.4.1",
     "bluebird": "^3.5.2",
     "bunyan": "^1.8.12",
