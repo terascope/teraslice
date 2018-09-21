@@ -1,7 +1,7 @@
 import 'jest-extended'; // require for type definitions
 import { DataEntity } from '../../src';
 
-describe('Data Entity', () => {
+describe('DataEntity', () => {
     describe('when constructed with an object', () => {
         const dataEntity = new DataEntity({
             blue: 'green',
@@ -69,16 +69,16 @@ describe('Data Entity', () => {
         });
     });
 
-    describe('when constructed with object that has a property __metadata', () => {
+    describe('when constructed with object that has a property ___metadata', () => {
         it('should throw an error', () => {
             expect(() => {
                 // tslint:disable-next-line
                 new DataEntity({
-                    __metadata: {
+                    ___metadata: {
                         hello: 'there',
                     },
                 });
-            }).toThrowError('DataEntity cannot be constructed with a __metadata property');
+            }).toThrowError('DataEntity cannot be constructed with a ___metadata property');
         });
     });
 });

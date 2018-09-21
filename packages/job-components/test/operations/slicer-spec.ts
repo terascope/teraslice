@@ -1,57 +1,48 @@
-import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
+import { newTestExecutionConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
 import { Slicer, SlicerResult } from '../../src';
 
 describe('Slicer', () => {
-    describe('when constructed', () => {
-        let operation: Slicer;
+    class ExampleSlicer extends Slicer {
+        public async slice(): Promise<SlicerResult> {
+            return [
+                   { hi: true }
+            ];
+        }
+    }
 
-        beforeAll(() => {
-            const context = new TestContext('teraslice-operations');
-            const jobConfig = newTestJobConfig();
-            jobConfig.operations.push({
-                _op: 'example-op',
-            });
-            const opConfig = jobConfig.operations[0];
-            const logger = context.apis.foundation.makeLogger('job-logger');
-            operation = new Slicer(context, jobConfig, opConfig, logger);
+    let slicer: ExampleSlicer;
+
+    beforeAll(async () => {
+        const context = new TestContext('teraslice-operations');
+        const exConfig = newTestExecutionConfig();
+        exConfig.operations.push({
+            _op: 'example-op',
         });
 
-        describe('->slice', () => {
-            it('should reject with an implementation warning', () => {
-                return expect(operation.slice(0)).rejects.toThrowError('Slicer must implement a "slice" method');
-            });
-        });
+        const opConfig = exConfig.operations[0];
+
+        slicer = new ExampleSlicer(context, opConfig, exConfig);
+        await slicer.initialize([]);
     });
 
-    describe('when extending the base class', () => {
-        class ExampleSlicer extends Slicer {
-            public async slice(slicerId: number): Promise<SlicerResult> {
-                this.logger.debug(`got slicer_id: ${slicerId}`);
-                return [
-                   { hi: true }
-                ];
-            }
-        }
+    describe('->handle', () => {
+        it('should resolve with 1 slice', async () => {
+            const done = await slicer.handle();
+            expect(done).toBeFalse();
 
-        let operation: ExampleSlicer;
-
-        beforeAll(async () => {
-            const context = new TestContext('teraslice-operations');
-            const jobConfig = newTestJobConfig();
-            jobConfig.operations.push({
-                _op: 'example-op',
+            expect(slicer.getSlice()).toMatchObject({
+                needsState: true,
+                slice: {
+                    slicer_order: 1,
+                    slicer_id: 0,
+                    request: {
+                        hi: true,
+                    }
+                }
             });
-            const opConfig = jobConfig.operations[0];
-            const logger = context.apis.foundation.makeLogger('job-logger');
-            operation = new ExampleSlicer(context, jobConfig, opConfig, logger);
-            await operation.initialize({ hello: true });
-        });
 
-        describe('->slice', () => {
-            it('should resolve with data entries', () => {
-                return expect(operation.slice(0)).resolves.toBeArrayOfSize(1);
-            });
+            expect(slicer.getSlice()).toBeNil();
         });
     });
 });

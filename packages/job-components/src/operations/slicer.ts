@@ -1,23 +1,43 @@
-import { OperationCore } from './operation-core';
-
-export type SlicerResult = object | object[] | null;
+import _ from 'lodash';
+import { SlicerCore, SlicerResult } from './core/slicer-core';
 
 /**
- * Slicer Base Class [DRAFT]
- * @description A core operation for slicing large sets of data
- *              that will be pushed to the workers for processing.
- *              The slicer is not used within the same context of the other operations
+ * Slicer [DRAFT]
+ * @description The simpilest form of a "Slicer" for building non-parallel stream of slices.
  *              The "Slicer" is a part of the "Reader" component of a job.
  */
 
-export class Slicer extends OperationCore {
-    public async initialize(startingPoints?: any): Promise<void> {
-        this.logger.debug('got initialized starting points', startingPoints);
-        super.initialize();
-    }
+export abstract class Slicer extends SlicerCore {
+    /**
+     * @private
+    */
+    protected order = 0;
 
-    // @ts-ignore
-    public async slice(slicerId: number): Promise<SlicerResult> {
-        throw new Error('Slicer must implement a "slice" method');
+    abstract async slice(): Promise<SlicerResult>;
+
+    /**
+     * @description this is called by the Teraslice framework
+     * @returns a boolean depending on whether the slicer is done
+    */
+    async handle(): Promise<boolean> {
+        const result = await this.slice();
+        if (result == null) {
+            return true;
+        }
+
+        if (_.isArray(result)) {
+            this.events.emit('execution:subslice');
+            await Promise.all(_.map(result, async (item) => {
+                this.order += 1;
+                this.createSlice(item, this.order);
+            }));
+        } else {
+            this.order += 1;
+            this.createSlice(result, this.order);
+        }
+
+        return false;
     }
 }
+
+export { SlicerResult };

@@ -1,58 +1,103 @@
 import _ from 'lodash';
+import * as L from 'list/methods';
 
 /**
  * DataEntity [DRAFT]
  *  @description A wrapper for data that can hold additional metadata properties.
  *               The DataEntity should be essentially transparent to use within operations
  */
+
 export class DataEntity {
     /* tslint:disable-next-line:variable-name */
-    protected __metadata: DataEntityMetadata;
+    protected ___metadata: DataEntityMetadata;
 
     // Add the ability to specify any additional properties
     [prop: string]: any;
 
     constructor(data: object) {
-        if (_.has(data, '__metadata')) {
-            throw new Error('DataEntity cannot be constructed with a __metadata property');
+        if (_.has(data, '___metadata')) {
+            throw new Error('DataEntity cannot be constructed with a ___metadata property');
         }
 
-        this.__metadata = {
+        this.___metadata = {
             createdAt: new Date(),
         };
 
         Object.assign(this, data);
     }
 
-    public getMetadata(key?: string): any {
+    getMetadata(key?: string): any {
         if (key) {
-            return _.get(this.__metadata, key);
+            return _.get(this.___metadata, key);
         }
-        return this.__metadata;
+        return this.___metadata;
     }
 
-    public setMetadata(key: string, value: any): void {
+    setMetadata(key: string, value: any): void {
         const readonlyMetadataKeys: string[] = ['createdAt'];
         if (_.includes(readonlyMetadataKeys, key)) {
             throw new Error(`Cannot set readonly metadata property ${key}`);
         }
 
-        _.set(this.__metadata, key, value);
+        _.set(this.___metadata, key, value);
     }
 
-    public toJSON(withMetadata?: boolean): object {
+    toJSON(withMetadata?: boolean): object {
         const keys = Object.getOwnPropertyNames(this);
-        const data = _.pick(this, _.without(keys, '__metadata'));
+        const data = _.pick(this, _.without(keys, '___metadata'));
 
         if (withMetadata) {
             return {
                 data,
-                metadata: this.__metadata,
+                metadata: this.___metadata,
             };
         }
 
         return data;
     }
+}
+
+export type DataInput = object|DataEntity;
+export type DataArrayInput = DataInput|DataInput[];
+export type DataListInput = DataInput|DataInput[]|L.List<DataInput>;
+export type DataEntityList = L.List<DataEntity>;
+
+export function toDataEntity(input: DataInput): DataEntity {
+    if (input instanceof DataEntity) {
+        return input;
+    }
+    return new DataEntity(input);
+}
+
+export function toDataEntities(input: DataInput|DataInput[]): DataEntity[] {
+    if (!_.isArray(input)) {
+        return [toDataEntity(input)];
+    }
+    const [first] = input;
+    if (first instanceof DataEntity) {
+        return input as DataEntity[];
+    }
+    return _.map(input, toDataEntity);
+}
+
+export function toDataEntityList(input: DataListInput): DataEntityList {
+    if (L.isList(input)) {
+        const [first] = input;
+        if (first instanceof DataEntity) {
+            return input as DataEntityList;
+        }
+        return L.map(toDataEntity, input);
+    }
+
+    if (_.isArray(input)) {
+        const [first] = input;
+        if (first instanceof DataEntity) {
+            return L.from(input) as DataEntityList;
+        }
+        return L.from(_.map(input, toDataEntity));
+    }
+
+    return L.list(toDataEntity(input));
 }
 
 interface DataEntityMetadata {
