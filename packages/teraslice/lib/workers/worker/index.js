@@ -98,7 +98,7 @@ class Worker {
                 }
 
                 _run();
-            }, 10);
+            }, 5);
 
             function done() {
                 clearInterval(interval);

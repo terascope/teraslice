@@ -104,7 +104,7 @@ export class Client extends Core {
 
             connectTimeout = setTimeout(() => {
                 cleanup();
-                reject(new Error(`Unable to connecting to ${this.hostUrl}`));
+                reject(new Error(`Unable to connect to ${this.hostUrl}`));
             }, this.connectTimeout);
         });
 
