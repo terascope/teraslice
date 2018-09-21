@@ -9,7 +9,7 @@ describe('SlicerCore', () => {
         }
     }
 
-    let operation: ExampleSlicerCore;
+    let slicer: ExampleSlicerCore;
 
     beforeAll(() => {
         const context = new TestContext('teraslice-operations');
@@ -18,35 +18,35 @@ describe('SlicerCore', () => {
             _op: 'example-op',
         });
         const opConfig = exConfig.operations[0];
-        operation = new ExampleSlicerCore(context, opConfig, exConfig);
+        slicer = new ExampleSlicerCore(context, opConfig, exConfig);
     });
 
     describe('->initialize', () => {
         it('should resolve undefined', () => {
-            return expect(operation.initialize([])).resolves.toBeUndefined();
+            return expect(slicer.initialize([])).resolves.toBeUndefined();
         });
     });
 
     describe('->shutdown', () => {
-        it('should resolve undefined', () => {
-            return expect(operation.shutdown()).resolves.toBeUndefined();
+        it('should resolves undefined', () => {
+            return expect(slicer.shutdown()).resolves.toBeUndefined();
         });
     });
 
     describe('->onSliceEnqueued', () => {
-        it('should resolve undefined', () => {
-            return expect(operation.onSliceEnqueued(newTestSlice())).resolves.toBeUndefined();
+        it('should return undefined', () => {
+            expect(slicer.onSliceEnqueued(newTestSlice())).toBeUndefined();
         });
     });
 
     describe('->onSliceDispatch', () => {
-        it('should resolve undefined', () => {
-            return expect(operation.onSliceDispatch(newTestSlice())).resolves.toBeUndefined();
+        it('should return undefined', () => {
+            expect(slicer.onSliceDispatch(newTestSlice())).toBeUndefined();
         });
     });
 
     describe('->onSliceComplete', () => {
-        it('should resolve undefined', () => {
+        it('should return undefined', () => {
             const result: SliceResult = {
                 slice: newTestSlice(),
                 analytics: {
@@ -55,7 +55,7 @@ describe('SlicerCore', () => {
                     memory: []
                 }
             };
-            return expect(operation.onSliceComplete(result)).resolves.toBeUndefined();
+            expect(slicer.onSliceComplete(result)).toBeUndefined();
         });
     });
 });
