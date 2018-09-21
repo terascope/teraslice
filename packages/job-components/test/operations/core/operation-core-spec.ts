@@ -66,17 +66,40 @@ describe('OperationCore', () => {
             });
         });
 
-        describe('->wrapData', () => {
-            it('should return a single data entity', () => {
-                const dataEntity = operation.wrapData({
+        describe('->toDataEntity', () => {
+            describe('when wrapped', () => {
+                it('should return a single data entity', () => {
+                    const dataEntity = operation.toDataEntity({
+                        hello: 'there',
+                    });
+                    expect(dataEntity).toBeInstanceOf(DataEntity);
+                    expect(dataEntity).toHaveProperty('hello', 'there');
+                });
+            });
+
+            describe('when not wrapped', () => {
+                it('should return a single data entity', () => {
+                    const dataEntity = operation.toDataEntity(operation.toDataEntity({
+                        hello: 'there',
+                    }));
+                    expect(dataEntity).toBeInstanceOf(DataEntity);
+                    expect(dataEntity).toHaveProperty('hello', 'there');
+                });
+            });
+        });
+
+        describe('->toDataEntities', () => {
+            it('should return an array with a single data entity', () => {
+                const dataEntities = operation.toDataEntities({
                     hello: 'there',
                 });
-                expect(dataEntity).toBeInstanceOf(DataEntity);
-                expect(dataEntity).toHaveProperty('hello', 'there');
+                expect(dataEntities).toBeArrayOfSize(1);
+                expect(dataEntities[0]).toBeInstanceOf(DataEntity);
+                expect(dataEntities[0]).toHaveProperty('hello', 'there');
             });
 
             it('should return a batch of data entities', () => {
-                const dataEntities = operation.wrapData([
+                const dataEntities = operation.toDataEntities([
                     {
                         hello: 'there',
                     },
@@ -84,6 +107,7 @@ describe('OperationCore', () => {
                         howdy: 'partner',
                     },
                 ]);
+
                 expect(dataEntities).toBeArrayOfSize(2);
                 expect(dataEntities[0]).toBeInstanceOf(DataEntity);
                 expect(dataEntities[0]).toHaveProperty('hello', 'there');
@@ -92,25 +116,30 @@ describe('OperationCore', () => {
             });
         });
 
-        describe('->ensureData', () => {
+        describe('->toDataEntityList', () => {
             describe('when wrapped', () => {
-                it('should return a single data entity', () => {
-                    const dataEntity = operation.ensureData({
+                it('should return a list with a single data entity', () => {
+                    const list = operation.toDataEntityList(operation.toDataEntityList({
                         hello: 'there',
-                    });
-                    expect(dataEntity).toBeInstanceOf(DataEntity);
-                    expect(dataEntity).toHaveProperty('hello', 'there');
+                    }));
+
+                    const dataEntities = list.toArray();
+                    expect(dataEntities).toBeArrayOfSize(1);
+                    expect(dataEntities[0]).toBeInstanceOf(DataEntity);
+                    expect(dataEntities[0]).toHaveProperty('hello', 'there');
                 });
 
                 it('should return a batch of data entities', () => {
-                    const dataEntities = operation.ensureData([
+                    const list = operation.toDataEntityList(operation.toDataEntityList([
                         {
                             hello: 'there',
                         },
                         {
                             howdy: 'partner',
                         },
-                    ]);
+                    ]));
+
+                    const dataEntities = list.toArray();
                     expect(dataEntities).toBeArrayOfSize(2);
                     expect(dataEntities[0]).toBeInstanceOf(DataEntity);
                     expect(dataEntities[0]).toHaveProperty('hello', 'there');
@@ -118,31 +147,35 @@ describe('OperationCore', () => {
                     expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
                 });
             });
-        });
 
-        describe('when not wrapped', () => {
-            it('should return a single data entity', () => {
-                const dataEntity = operation.ensureData(operation.wrapData({
-                    hello: 'there',
-                }));
-                expect(dataEntity).toBeInstanceOf(DataEntity);
-                expect(dataEntity).toHaveProperty('hello', 'there');
-            });
-
-            it('should return a batch of data entities', () => {
-                const dataEntities = operation.ensureData(operation.wrapData([
-                    {
+            describe('when not wrapped', () => {
+                it('should return a list with a single data entity', () => {
+                    const list = operation.toDataEntityList({
                         hello: 'there',
-                    },
-                    {
-                        howdy: 'partner',
-                    },
-                ]));
-                expect(dataEntities).toBeArrayOfSize(2);
-                expect(dataEntities[0]).toBeInstanceOf(DataEntity);
-                expect(dataEntities[0]).toHaveProperty('hello', 'there');
-                expect(dataEntities[1]).toBeInstanceOf(DataEntity);
-                expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
+                    });
+                    const dataEntities = list.toArray();
+                    expect(dataEntities).toBeArrayOfSize(1);
+                    expect(dataEntities[0]).toBeInstanceOf(DataEntity);
+                    expect(dataEntities[0]).toHaveProperty('hello', 'there');
+                });
+
+                it('should return a batch of data entities', () => {
+                    const list = operation.toDataEntityList([
+                        {
+                            hello: 'there',
+                        },
+                        {
+                            howdy: 'partner',
+                        },
+                    ]);
+
+                    const dataEntities = list.toArray();
+                    expect(dataEntities).toBeArrayOfSize(2);
+                    expect(dataEntities[0]).toBeInstanceOf(DataEntity);
+                    expect(dataEntities[0]).toHaveProperty('hello', 'there');
+                    expect(dataEntities[1]).toBeInstanceOf(DataEntity);
+                    expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
+                });
             });
         });
     });

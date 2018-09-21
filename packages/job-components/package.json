@@ -44,6 +44,7 @@
         "@types/uuid": "^3.4.4",
         "datemath-parser": "^1.0.6",
         "fs-extra": "^7.0.0",
+        "list": "^2.0.15",
         "lodash": "^4.17.11",
         "moment": "^2.22.2",
         "uuid": "^3.3.2"

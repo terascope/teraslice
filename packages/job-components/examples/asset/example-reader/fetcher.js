@@ -7,7 +7,7 @@ const { Fetcher } = require('@terascope/job-components');
 class ExampleFetcher extends Fetcher {
     async fetch(startingData) {
         const statusCode = await this.getStatusCode(startingData.fromUrl);
-        const data = _.times(statusCode, n => ({
+        return _.times(statusCode, n => ({
             id: n,
             statusCode,
             data: [
@@ -16,7 +16,6 @@ class ExampleFetcher extends Fetcher {
                 _.random(),
             ]
         }));
-        return this.wrapData(data);
     }
 
     async getStatusCode(url) {

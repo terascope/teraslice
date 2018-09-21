@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import convict from 'convict';
+import * as D from '../data-entity';
 import { EventEmitter } from 'events';
-import { DataEntity } from '../data-entity';
 import { validateOpConfig } from '../../config-validators';
 import { Context, ExecutionConfig, Logger, OpConfig } from '@terascope/teraslice-types';
 
@@ -70,25 +70,15 @@ export class OperationCore {
         this.context.logger.debug(`slice retry: ${sliceId}`);
     }
 
-    wrapData(input: object|object[]): DataEntity|DataEntity[] {
-        if (_.isArray(input)) {
-            return _.map(input, (i) => new DataEntity(i));
-        }
-        return new DataEntity(input);
+    toDataEntity(input: D.DataInput): D.DataEntity {
+        return D.toDataEntity(input);
     }
 
-    ensureData(input: object|object[]): DataEntity|DataEntity[] {
-        if (_.isArray(input) && input.length > 0) {
-            const first = _.first(input);
-            if (first instanceof DataEntity) {
-                return input as DataEntity[];
-            }
-            return _.map(input, (i) => new DataEntity(i));
-        }
+    toDataEntities(input: D.DataArrayInput): D.DataEntity[] {
+        return D.toDataEntities(input);
+    }
 
-        if (input instanceof DataEntity) {
-            return input;
-        }
-        return new DataEntity(input);
+    toDataEntityList(input: D.DataListInput): D.DataEntityList {
+        return D.toDataEntityList(input);
     }
 }

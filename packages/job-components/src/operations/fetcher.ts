@@ -1,4 +1,4 @@
-import { DataEntity } from './data-entity';
+import { DataEntityList, DataListInput } from './data-entity';
 import { OperationCore } from './core/operation-core';
 
 /**
@@ -13,12 +13,12 @@ export abstract class Fetcher extends OperationCore {
     * @param sliceRequest the metadata from the Slice request
     * @returns an array of DataEntities
     */
-    abstract async fetch(sliceRequest?: any): Promise<DataEntity[]>;
+    abstract async fetch(sliceRequest?: any): Promise<DataListInput>;
 
     /**
     * @description this is called by the Teraslice framework, this calls "->fetch"
     */
-    async handle(sliceRequest?: any): Promise<DataEntity[]> {
-        return this.fetch(sliceRequest);
+    async handle(sliceRequest?: any): Promise<DataEntityList> {
+        return this.toDataEntityList(await this.fetch(sliceRequest));
     }
 }
