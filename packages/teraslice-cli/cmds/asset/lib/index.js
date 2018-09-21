@@ -5,6 +5,9 @@ const fs = require('fs-extra');
 const archiver = require('archiver');
 const Promise = require('bluebird');
 const path = require('path');
+const { promisify } = require('util');
+const exec = promisify(require('child_process').exec);
+
 const TerasliceClient = require('teraslice-client-js');
 const reply = require('../../lib/reply')();
 
@@ -116,14 +119,32 @@ module.exports = (cliConfig = {}, _terasliceClient) => {
         return assetJson;
     }
 
+    function command(cmd) {
+        return exec(cmd);
+    }
+
+    // check if yarn or npm is installed, prefer yarn
+    async function isInstalled(name) {
+        let installed;
+        try {
+            await command(`which ${name}`);
+            installed = true;
+        } catch (e) {
+            installed = false;
+        }
+        return installed;
+    }
+
     return {
         alreadyRegisteredCheck,
-        latestAssetVersion,
+        command,
         createJsonFile,
         getAssetClusters,
+        isInstalled,
+        latestAssetVersion,
         postAsset,
         terasliceClient,
         updateAssetMetadata,
-        zipAsset,
+        zipAsset
     };
 };
