@@ -1,6 +1,6 @@
 {
     "name": "@terascope/teraslice-messaging",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "publishConfig": {
         "access": "public"
     },
@@ -43,13 +43,11 @@
         "@types/lodash": "^4.14.116",
         "@types/nanoid": "^1.2.0",
         "@types/node": "^10.9.4",
-        "@types/node-cache": "^4.1.1",
         "@types/socket.io": "^1.4.38",
         "@types/socket.io-client": "^1.4.32",
         "bluebird": "^3.5.2",
         "debug": "^4.0.1",
         "nanoid": "^1.2.3",
-        "node-cache": "^4.2.0",
         "porty": "^3.1.1",
         "rimraf": "^2.0.0",
         "socket.io": "^1.7.4",

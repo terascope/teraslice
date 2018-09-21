@@ -1,6 +1,5 @@
 import debugFn from 'debug';
 import _ from 'lodash';
-import NodeCache from 'node-cache';
 import { EventEmitter } from 'events';
 import * as i from './interfaces';
 import { newMsgId } from '../utils';
@@ -9,7 +8,6 @@ const debug = debugFn('teraslice-messaging:core');
 
 export class Core extends EventEmitter {
     public closed: boolean = false;
-    protected cache: NodeCache;
 
     protected networkLatencyBuffer: number;
     protected actionTimeout: number;
@@ -27,21 +25,10 @@ export class Core extends EventEmitter {
         if (!_.isSafeInteger(this.networkLatencyBuffer)) {
             throw new Error('Messenger requires a valid networkLatencyBuffer');
         }
-
-        this.cache = new NodeCache({
-            stdTTL: 30 * 60 * 1000, // 30 minutes
-            checkperiod: 10 * 60 * 1000, // 10 minutes
-            useClones: false,
-        });
-
     }
 
     close() {
         this.closed = true;
-
-        this.cache.flushAll();
-        this.cache.close();
-
         this.removeAllListeners();
     }
 
@@ -105,7 +92,7 @@ export class Core extends EventEmitter {
                 return;
             }
 
-            if (!msg.volatile) {
+            if (!msg.volatile && !this.isClientReady(message.to)) {
                 const remaining = msg.respondBy - Date.now();
                 await this.waitForClientReady(message.to, remaining);
             }
