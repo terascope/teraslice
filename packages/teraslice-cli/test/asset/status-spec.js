@@ -107,6 +107,33 @@ describe('status', () => {
             fail(e);
         }
     });
+
+    it('should show status on many clusters if -a', async () => {
+        assetNames = [];
+        argv.c = 'http://localhost:5678';
+        clientResponse = [
+            {
+                name: 'testing_123',
+                version: '0.0.1',
+                _create: '01/01/2018',
+                id: '123456789',
+                description: 'dummy asset.json for testing',
+                a: true
+            }
+        ];
+
+        await fs.ensureFile(assetPath);
+        await fs.writeJson(assetPath, assetJson, { spaces: 4 });
+        try {
+            await status.handler(argv, _tjmFunctions);
+            expect(assetNames.length).toBe(2);
+            expect(assetNames[0]).toBe('assets/testing_123');
+            expect(assetNames[1]).toBe('assets/testing_123');
+        } catch (e) {
+            fail(e);
+        }
+    });
+
     it('should ensure that tjm data is in the asset.json file', async () => {
         delete assetJson.tjm;
         const tmpDirX = createTempDirSync();

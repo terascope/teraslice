@@ -7,10 +7,17 @@ const config = require('../lib/config');
 const cli = require('../lib/cli');
 
 exports.command = 'status';
-exports.desc = 'displays asset info for the asset on a cluster or all clusters in the asset.json file';
+exports.desc = 'shows the status of the asset on a cluster or a group of clusters';
 exports.builder = (yargs) => {
     cli().args('cluster', 'alias', yargs);
-    yargs.example('tjm asset status -c clustername:port# \ntjm asset status (for all clusters)');
+    yargs.option('all', {
+        alias: 'a',
+        describe: 'view the status of all the clusters in the asset.json file',
+        type: 'boolean',
+        default: false,
+    });
+    yargs.example('tjm asset status -c clustername:port#');
+    yargs.example('tjm asset status -a');
 };
 
 exports.handler = (argv, _testTjmFunctions) => {
@@ -43,7 +50,7 @@ exports.handler = (argv, _testTjmFunctions) => {
     }
     let { clusters } = cliConfig.asset_file_content.tjm;
     // if cluster is not specifically called out then show status for all
-    if (cliConfig.l || cliConfig.c !== 'http://localhost:5678') {
+    if (cliConfig.l || cliConfig.c !== 'http://localhost:5678' || cliConfig.a) {
         clusters = [cliConfig.cluster_url];
     }
     status(clusters);

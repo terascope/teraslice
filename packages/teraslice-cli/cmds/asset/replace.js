@@ -10,10 +10,10 @@ const cli = require('../lib/cli');
 
 
 exports.command = 'replace';
-exports.desc = 'replaces asset on cluster';
+exports.desc = 'replaces an asset on a cluster, intended for dev work only';
 exports.builder = (yargs) => {
     cli().args('cluster', 'alias', yargs);
-    yargs.example('tjm deploy clustername:port#');
+    yargs.example('tjm replace clustername:port#');
 };
 
 exports.handler = (argv, _testTjmFunctions) => {

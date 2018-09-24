@@ -8,16 +8,17 @@ const config = require('../lib/config');
 const cli = require('../lib/cli');
 
 exports.command = 'deploy';
-exports.desc = 'deploys asset to cluster';
+exports.desc = 'zips and deploys an asset to a cluster or a group of clusters';
 exports.builder = (yargs) => {
     cli().args('cluster', 'alias', yargs);
     yargs.option('all', {
         alias: 'a',
-        describe: 'deploy to all clusters in asset.json file',
+        describe: 'zips and deploys the asset to all the clusters in the asset/asset.json file',
         type: 'boolean',
         default: false,
     });
     yargs.example('tjm deploy cluster-url');
+    yargs.example('tjm deploy -a');
 };
 
 exports.handler = (argv, _testTjmFunctions) => {

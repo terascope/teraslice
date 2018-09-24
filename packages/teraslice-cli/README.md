@@ -20,11 +20,13 @@ For all commands that accept `-c`, if `-c` is missing default is http://localhos
 
 ### ASSET - commands to manage assets
 Compresses files in `${cwd}/asset` and creates a zip file in `${cwd}/builds/processors.zip`.  Once the asset has been deployed with tjm the cluster data is stored in `${cwd}/asset/asset.json`.  The builds dir is deleted before a new processors.zip file is created on all functions that build assets.
-- `tjm asset --deploy -l` *Deploys asset to localhost*
-- `tjm asset --deploy -c` clusterName *Deploys assets to the cluster*
-- `tjm asset --update -c` clusterName *Updates asset in the cluster(s) specified.  If no -c flag then all the clusters in the asset.json will get updated*
-- `tjm asset --status` *Shows the latest asset version in the cluster(s) in asset.json*
-- `tjm asset --replace -c` clusterName *Deletes and replaces an asset, this is intended to be used for asset development and not for production asset management*
+- `tjm asset deploy -l` *Deploys asset to localhost*
+- `tjm asset deploy -c clusterName` *Deploys assets to a cluster*
+- `tjm asset deploy -a` *if -a is used then deploys to all the clusters in the asset.json file*
+- `tjm asset status -c clusterName` *Shows the latest asset version in the specified cluster*
+- `tjm asset status -a clusterName` *Shows the latest asset version in the cluster(s) in asset.json*
+- `tjm asset replace -c clusterName` *Deletes and replaces an asset, this is intended to be used for asset development and not for production asset management*
+- `tjm asset init newAssetName` *Creates new asset directory structure and associated files.  This will install dependencies from npmjs.org with yarn or npm as well as create package.json and asset.json files*
 
 ### JOB - commands to manage jobs  
 **REGISTER** - Registers a job to a cluster with an option to deploy assets.  Updates the jobFile.json with the cluster and job id data.  Use -a to deploy assets, -r to run immediately after registering.

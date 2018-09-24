@@ -13,7 +13,7 @@ const assetPackageJson = require('./lib/init_files/assetPackage');
 const eslintrc = require('./lib/init_files/eslintrc');
 
 exports.command = 'init <asset_name>';
-exports.desc = 'creates asset basic asset directory and files that can be posted to teraslice';
+exports.desc = 'creates a new asset bundle.  This includes package.json, asset.json, README.md, an asset directory and basic dependencies';
 exports.builder = (yargs) => {
     cli().args('cluster', 'alias', yargs);
     yargs.example('tjm asset init asset_name');
