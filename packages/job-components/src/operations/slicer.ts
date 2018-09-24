@@ -1,12 +1,12 @@
 import _ from 'lodash';
-import { SlicerCore, SlicerResult } from './core/slicer-core';
+import SlicerCore, { SlicerResult } from './core/slicer-core';
 
 /**
  * The simpliest form a "Slicer"
  * @see SlicerCore
  */
 
-export abstract class Slicer extends SlicerCore {
+export default abstract class Slicer extends SlicerCore {
     /**
      * @private
     */
@@ -18,11 +18,6 @@ export abstract class Slicer extends SlicerCore {
     */
     abstract async slice(): Promise<SlicerResult>;
 
-    /**
-     * A method called by the Teraslice framework to handle creating slices.
-     * Calls {@link slice}
-     * @see SlicerCore#handle
-    */
     async handle(): Promise<boolean> {
         const result = await this.slice();
         if (result == null) {

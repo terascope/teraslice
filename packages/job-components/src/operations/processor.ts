@@ -1,13 +1,13 @@
 import * as L from 'list/methods';
-import { DataEntity, DataEntityList } from './data-entity';
-import { ProcessorCore } from './core/processor-core';
+import DataEntity, { DataEntityList } from './data-entity';
+import ProcessorCore from './core/processor-core';
 
 /**
  * A variation of Processor that can a single DataEntity at a time.
  * This call be used as a primative for doing `filter`, `map`, `forEach`, `error`
  */
 
-export abstract class Processor extends ProcessorCore {
+export default abstract class Processor extends ProcessorCore {
     /**
     * Called by {@link Processor#handle} and will handle single {@link DataEntity}
     * If false is returned it will stop processing the result of "Batch"

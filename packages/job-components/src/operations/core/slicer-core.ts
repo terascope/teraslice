@@ -9,7 +9,7 @@ import {
     SliceRequest
 } from '@terascope/teraslice-types';
 import Queue from '@terascope/queue';
-import { Core } from './core';
+import Core from './core';
 
 /**
  * A base class for supporting "Slicers" that run on a "Execution Controller",
@@ -19,7 +19,7 @@ import { Core } from './core';
  * @see Core
  */
 
-export abstract class SlicerCore extends Core {
+export default abstract class SlicerCore extends Core {
     /**
      * Used to indicate whether this slicer is recoverable.
     */

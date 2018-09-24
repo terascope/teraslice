@@ -7,7 +7,7 @@ import { OpAPI } from './api-core';
  * The core class for creating for all varients or base classes for an operation.
  */
 
-export class Core {
+export default class Core {
     protected readonly context: Readonly<Context>;
     protected readonly executionConfig: Readonly<ExecutionConfig>;
     protected readonly opConfig: Readonly<OpConfig>;

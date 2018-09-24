@@ -1,7 +1,24 @@
-export * from './batch-processor';
-export * from './data-entity';
-export * from './fetcher';
-export * from './operation-api';
-export * from './parallel-slicer';
-export * from './processor';
-export * from './slicer';
+import BatchProcessor from './batch-processor';
+import DataEntity, { toDataEntityList, toDataEntities, toDataEntity } from './data-entity';
+import Fetcher from './fetcher';
+import OperationAPI, { OpAPI, OpAPIInstance, OpAPIFn } from './operation-api';
+import ParallelSlicer from './parallel-slicer';
+import Processor from './processor';
+import Slicer, { SlicerResult } from './slicer';
+
+export {
+    BatchProcessor,
+    DataEntity,
+    Fetcher,
+    OpAPI,
+    OpAPIFn,
+    OpAPIInstance,
+    OperationAPI,
+    Processor,
+    ParallelSlicer,
+    Slicer,
+    SlicerResult,
+    toDataEntityList,
+    toDataEntities,
+    toDataEntity
+};

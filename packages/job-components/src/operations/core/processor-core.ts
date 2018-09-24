@@ -1,5 +1,5 @@
 import { DataEntityList } from '../data-entity';
-import { OperationCore } from './operation-core';
+import OperationCore from './operation-core';
 import { SliceRequest } from '@terascope/teraslice-types';
 
 /**
@@ -10,10 +10,12 @@ import { SliceRequest } from '@terascope/teraslice-types';
  * @see OperationCore
  */
 
-export abstract class ProcessorCore extends OperationCore {
+export default abstract class ProcessorCore extends OperationCore {
     /**
     * A generic method called by the Teraslice framework to a give a "Processor"
     * the ability to handle the input and output of operation
+    * @param input an immutable list of DataEntities
+    * @returns an immutable list of DataEntities
     */
     abstract async handle(input: DataEntityList, sliceRequest?: SliceRequest): Promise<DataEntityList>;
 }

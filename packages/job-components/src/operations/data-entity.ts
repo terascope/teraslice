@@ -6,7 +6,7 @@ import * as L from 'list/methods';
  * A DataEntity should be essentially transparent to use within operations
  */
 
-export class DataEntity {
+export default class DataEntity {
     /* tslint:disable-next-line:variable-name */
     protected ___metadata: DataEntityMetadata;
 

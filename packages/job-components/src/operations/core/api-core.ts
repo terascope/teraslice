@@ -1,11 +1,11 @@
-import { OperationCore } from './operation-core';
+import OperationCore from './operation-core';
 
 /**
  * A base class for supporting APIs that run within an Execution Context.
  * @see OperationCore
  */
 
-export abstract class APICore extends OperationCore {
+export default abstract class APICore extends OperationCore {
     /**
      * The name of API which will be used to be registed as within an Execution Context.
     */
@@ -30,7 +30,7 @@ export abstract class APICore extends OperationCore {
      *           - an instances of a class
      *           - a function
      */
-    abstract async handle(...params: any[]): Promise<any>;
+    abstract async handle(...params: any[]): Promise<OpAPI>;
 }
 
 export type OpAPIFn = Function;

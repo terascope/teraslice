@@ -1,5 +1,5 @@
 import { DataEntityList } from '../data-entity';
-import { OperationCore } from './operation-core';
+import OperationCore from './operation-core';
 
 /**
  * A base class for supporting "Fetcher" that run on a "Worker".
@@ -7,7 +7,7 @@ import { OperationCore } from './operation-core';
  * @see OperationCore
  */
 
-export abstract class FetcherCore extends OperationCore {
+export default abstract class FetcherCore extends OperationCore {
     /**
     * A generic method called by the Teraslice framework to a give a "Fetcher"
     * the ability to handle the fetch operation

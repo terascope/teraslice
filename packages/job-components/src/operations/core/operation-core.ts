@@ -1,10 +1,9 @@
 import _ from 'lodash';
 import convict from 'convict';
-import { Core } from './core';
+import Core from './core';
 import { validateOpConfig } from '../../config-validators';
 import { OpConfig } from '@terascope/teraslice-types';
-import {
-    DataEntity,
+import DataEntity, {
     DataEntityList,
     DataArrayInput,
     DataInput,
@@ -22,7 +21,7 @@ import {
  * @see Core
  */
 
-export class OperationCore extends Core {
+export default class OperationCore extends Core {
     /**
      * This is called by the Teraslice framework in-order to delegrate the
      * the schema validation to place that can be customized depending on

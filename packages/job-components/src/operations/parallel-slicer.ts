@@ -1,12 +1,12 @@
 import _ from 'lodash';
-import { SlicerCore, SlicerResult } from './core/slicer-core';
+import SlicerCore, { SlicerResult } from './core/slicer-core';
 
 /**
  * A varient of a "Slicer" for running a parallel stream of slicers.
  * @see SlicerCore
  */
 
-export abstract class ParallelSlicer extends SlicerCore {
+export default abstract class ParallelSlicer extends SlicerCore {
     protected _slicers: SlicerObj[] = [];
 
     /**
@@ -45,10 +45,6 @@ export abstract class ParallelSlicer extends SlicerCore {
     */
     abstract async newSlicer(): Promise<SlicerFn>;
 
-    /**
-     * A method called by the Teraslice framework to handle creating slices
-     * @see SlicerCore#handle
-    */
     async handle(): Promise<boolean> {
         if (this.isFinished) return true;
 

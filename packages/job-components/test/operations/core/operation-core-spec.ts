@@ -1,7 +1,7 @@
 import { TestContext, newTestExecutionConfig } from '@terascope/teraslice-types';
 import { Schema } from 'convict';
 import 'jest-extended'; // require for type definitions
-import { OperationCore } from '../../../src/operations/core/operation-core';
+import OperationCore from '../../../src/operations/core/operation-core';
 import { DataEntity } from '../../../src';
 
 describe('OperationCore', () => {

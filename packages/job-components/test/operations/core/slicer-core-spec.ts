@@ -1,6 +1,6 @@
 import { newTestExecutionConfig, newTestSlice, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { SlicerCore, SliceResult } from '../../../src/operations/core/slicer-core';
+import SlicerCore, { SliceResult } from '../../../src/operations/core/slicer-core';
 
 describe('SlicerCore', () => {
     class ExampleSlicerCore extends SlicerCore {

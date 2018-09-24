@@ -1,18 +1,10 @@
-import { APICore, OpAPI, OpAPIInstance, OpAPIFn } from './core/api-core';
+import APICore, { OpAPI, OpAPIInstance, OpAPIFn } from './core/api-core';
 
 /**
- * @see APICore
+ * An API factory class for operations
  */
-
-export abstract class OperationAPI extends APICore {
-    /**
-     * @see APICore#name
-    */
+export default abstract class OperationAPI extends APICore {
     abstract name(): string;
-
-    /**
-     * @see APICore#handle
-    */
     abstract async handle(...params: any[]): Promise<OpAPI>;
 }
 
