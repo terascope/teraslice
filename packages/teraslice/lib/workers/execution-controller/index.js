@@ -90,6 +90,7 @@ class ExecutionController {
         this.isExecutionFinished = false;
         this.isExecutionDone = false;
         this.workersHaveConnected = false;
+        this.finishProcessing = () => {};
 
         this.setFailingStatus = this.setFailingStatus.bind(this);
         this.terminalError = this.terminalError.bind(this);
@@ -171,6 +172,7 @@ class ExecutionController {
         this.client.onServerShutdown(() => {
             this.logger.warn('Cluster Master shutdown, exiting...');
             this.isExecutionDone = true;
+            this.finishProcessing();
         });
 
         this.server.onSliceSuccess((workerId, response) => {
@@ -290,6 +292,7 @@ class ExecutionController {
 
         this.isExecutionDone = true;
         this.logger.fatal(`execution ${this.exId} is done because of slice failure`);
+        this.finishProcessing();
     }
 
     async shutdown(block = true) {
@@ -306,6 +309,7 @@ class ExecutionController {
         this.server.isShuttingDown = true;
 
         this.isShuttingDown = true;
+        this.finishProcessing();
         this.isPaused = false;
 
         const shutdownErrs = [];
@@ -419,26 +423,22 @@ class ExecutionController {
         try {
             await new Promise((resolve) => {
                 this.processInterval = setInterval(() => {
-                    if (this.isExecutionDone || this.isShuttingDown) {
-                        clearInterval(this.processInterval);
-                        resolve();
+                    if (this.isPaused) return;
+                    if (this.isDoneProcessing) {
+                        this.finishProcessing();
                         return;
                     }
 
-                    if (this.isPaused) return;
+                    this._processLoop();
+                }, 5);
 
-                    if (!this.isDoneProcessing) {
-                        this._processLoop();
-                    } else {
-                        clearInterval(this.processInterval);
-                        resolve();
-                    }
-                }, 20);
+                this.finishProcessing = _.once(() => {
+                    clearInterval(this.processInterval);
+                    resolve();
+                });
             });
         } catch (err) {
             this.logger.error('Error processing slices', err);
-        } finally {
-            clearInterval(this.processInterval);
         }
 
         if (this.isDoneProcessing) {
@@ -452,11 +452,21 @@ class ExecutionController {
             this._scheduleSlices();
         }
 
-        if (!this.dispatching && this.slicerQueue.size() > 0) {
+        if (!this.dispatching && this.workersHaveConnected && this.slicerQueue.size() > 0) {
             this._dispatchSlices();
         }
 
-        if (!this.dispatching && !this.scheduling && this.slicersDone && !this.slicerQueue.size()) {
+        // before we signal we are done processing
+        // check the following:
+        // - make sure aren't currently dispatching and scheduling
+        // - workers have connected
+        // - all slicers are done
+        // - and the slicersQueue is 0
+        if (!this.dispatching
+            && !this.scheduling
+            && this.workersHaveConnected
+            && this.slicersDone
+            && !this.slicerQueue.size()) {
             this.isDoneProcessing = true;
         }
     }
@@ -664,7 +674,6 @@ class ExecutionController {
         return slicerOrder;
     }
 
-
     _slicerCompleted(slicerId) {
         this.slicersDoneCount += 1;
 
@@ -746,6 +755,7 @@ class ExecutionController {
 
         this.isExecutionFinished = true;
         this.isExecutionDone = true;
+        this.finishProcessing();
     }
 
     async _updateExecutionStatus() {

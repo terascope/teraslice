@@ -335,13 +335,15 @@ describe('Worker', () => {
                 server.dispatchSlice(sliceConfig, worker.workerId);
             });
 
-            worker.events.once('slice:initalize', () => {
-                worker.shutdown().catch((err) => {
+            let shutdown;
+            worker.events.once('slice:initialize', () => {
+                shutdown = worker.shutdown().catch((err) => {
                     shutdownErr = err;
                 });
             });
 
             await worker.run();
+            await shutdown;
         });
 
         afterEach(() => testContext.cleanup());
