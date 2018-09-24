@@ -164,4 +164,17 @@ describe('init', () => {
             expect(e).toBe('something bad');
         }
     });
+
+    it('should exit if no on dependencies', async () => {
+        counter = 0;
+        commandResponse = true;
+        _testFunctions.prompts_inject.dependencies = false;
+        _testFunctions.prompts_inject.installer = 'npm';
+
+        try {
+            await init.handler(argv, _testFunctions);
+        } catch (e) {
+            expect(e).toBe('Exiting the init process');
+        }
+    });
 });
