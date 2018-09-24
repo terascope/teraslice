@@ -31,7 +31,7 @@ export interface ClusterExecutionAnalytics {
 }
 
 export interface ClusterAnalytics {
-    slicer: ClusterExecutionAnalytics;
+    controllers: ClusterExecutionAnalytics;
 }
 
 export interface ExecutionAnalytics {

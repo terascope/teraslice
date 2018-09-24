@@ -84,11 +84,11 @@ function scaleWorkersAndWait(workersToAdd = 0) {
  */
 function forWorkersJoined(jobId, workerCount, iterations) {
     return forValue(() => misc.teraslice().cluster
-        .slicers()
-        .then((slicers) => {
-            const slicer = _.find(slicers, s => s.job_id === jobId);
-            if (slicer !== undefined) {
-                return slicer.workers_joined;
+        .controllers()
+        .then((controllers) => {
+            const controller = _.find(controllers, s => s.job_id === jobId);
+            if (controller !== undefined) {
+                return controller.workers_joined;
             }
             return 0;
         }), workerCount, iterations)

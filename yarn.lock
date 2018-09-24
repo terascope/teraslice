@@ -7195,6 +7195,16 @@ terafoundation@^0.3.0:
     redis "^2.8.0"
     yargs "^12.0.2"
 
+teraslice-client-js@^0.1.0:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/teraslice-client-js/-/teraslice-client-js-0.1.3.tgz#ec219d957310f1c4702d5e840d9d2141ed4f3dae"
+  dependencies:
+    auto-bind "^1.2.1"
+    bluebird "^3.5.2"
+    lodash "^4.17.11"
+    request "^2.88.0"
+    request-promise "^4.2.2"
+
 test-exclude@^4.2.1:
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/test-exclude/-/test-exclude-4.2.1.tgz#dfa222f03480bca69207ca728b37d74b45f724fa"
