@@ -3,23 +3,23 @@ import { DataEntity, DataEntityList } from './data-entity';
 import { ProcessorCore } from './core/processor-core';
 
 /**
- * Processor [DRAFT]
- * @description A variation of Processor that can a single DataEntity at a time.
- *              If onData returns null, no more data will be passed to onData for this slice.
+ * A variation of Processor that can a single DataEntity at a time.
+ * This call be used as a primative for doing `filter`, `map`, `forEach`, `error`
  */
 
 export abstract class Processor extends ProcessorCore {
     /**
-    * @description this will handle a single DataEntity at a time.
-    *              If false is returned it will stop processing the result of "Batch"
-    *              If null or undefined is returned it will skip that result
+    * Called by {@link Processor#handle} and will handle single {@link DataEntity}
+    * If false is returned it will stop processing the result of "Batch"
+    * If null or undefined is returned it will skip that result
     * @returns an array of DataEntities
     */
     abstract onData(data: DataEntity): DataEntity|null|undefined|false;
 
     /**
-     * @description this is called by the Teraslice framework
-     * @returns an array of DataEntities
+     * A generic method called by the Teraslice framework, calls {@link #onData}
+     * @param input an immutable list of DataEntities
+     * @returns an immutable list of DataEntities
     */
     async handle(input: DataEntityList): Promise<DataEntityList> {
         let output : DataEntityList = L.empty();

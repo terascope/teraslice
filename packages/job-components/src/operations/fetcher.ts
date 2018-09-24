@@ -1,22 +1,22 @@
 import { DataEntityList, DataListInput } from './data-entity';
-import { OperationCore } from './core/operation-core';
+import { FetcherCore } from './core/fetcher-core';
 
 /**
- * Fetcher [DRAFT]
- * @description One of the main types of an Operation for reading data for a slice.
- *              The "Fetcher" is a part of the "Reader" component of a job.
+ * The simpliest varient of "Fetcher"
+ * @see FetcherCore
  */
 
-export abstract class Fetcher extends OperationCore {
+export abstract class Fetcher extends FetcherCore {
     /**
-    * @description fetch data
-    * @param sliceRequest the metadata from the Slice request
-    * @returns an array of DataEntities
+     * A method called by {@link Fetcher#handle}
+     * @returns a DataEntity compatible list
     */
     abstract async fetch(sliceRequest?: any): Promise<DataListInput>;
 
     /**
-    * @description this is called by the Teraslice framework, this calls "->fetch"
+    * A generic method called by the Teraslice framework.
+    * This will call {@link #fetch} method.
+    * @see FetcherCore#handle
     */
     async handle(sliceRequest?: any): Promise<DataEntityList> {
         return this.toDataEntityList(await this.fetch(sliceRequest));

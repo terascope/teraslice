@@ -3,21 +3,23 @@ import { DataEntity, DataEntityList } from './data-entity';
 import { ProcessorCore } from './core/processor-core';
 
 /**
- * BatchProcessor [DRAFT]
- * @description A variation of Processor that can handle a batch of data at a time.
+ * A variation of "Processor" that can handle a batch of data at a time.
+ * @see ProcessorCore
+ * @see OperationCore
  */
 
 export abstract class BatchProcessor extends ProcessorCore {
     /**
-     * @description this will handle an array of DataEntities
-     *              and can increase size of the result by appending to the result
-     * @returns an array of DataEntities
+     * A method called by {@link BatchProcessor#handle}
+     * @returns an array of DataEntities or DataEntityList
     */
     abstract async onBatch(data: DataEntity[]): Promise<DataEntity[]|DataEntityList>;
 
     /**
-     * @description this is called by the Teraslice framework
-     * @returns an array of DataEntities
+     * A generic method called by the Teraslice framework, calls {@link #onBatch}
+     * @param input an immutable list of DataEntities
+     * @returns an immutable list of DataEntities
+     * @see ProcessorCore#handle
     */
     async handle(input: DataEntityList): Promise<DataEntityList> {
         return L.from(await this.onBatch(input.toArray()));

@@ -3,7 +3,11 @@
 const { OperationAPI } = require('@terascope/job-components');
 
 class ExampleAPI extends OperationAPI {
-    createAPI(config) {
+    name() {
+        return 'ExampleAPI';
+    }
+
+    async handle(config) {
         return {
             config,
             say() {

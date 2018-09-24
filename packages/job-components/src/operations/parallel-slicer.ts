@@ -2,50 +2,57 @@ import _ from 'lodash';
 import { SlicerCore, SlicerResult } from './core/slicer-core';
 
 /**
- * ParallelSlicer [DRAFT]
- * @description A more complex form of a "Slicer" for building a parallel stream of slicers.
- *              The "Slicer" is a part of the "Reader" component of a job.
+ * A varient of a "Slicer" for running a parallel stream of slicers.
+ * @see SlicerCore
  */
 
 export abstract class ParallelSlicer extends SlicerCore {
     protected _slicers: SlicerObj[] = [];
 
+    /**
+     * Register the different Slicer instances
+     * @see SlicerCore#initialize
+    */
     async initialize(recoveryData: object[]): Promise<void> {
         await super.initialize(recoveryData);
         const { slicers } = this.executionConfig;
 
-        const promises = _.times(slicers, async () => {
+        const promises = _.times(slicers, async (id) => {
             const fn = await this.newSlicer();
-            const slicer = {
-                fn,
+            this._slicers.push({
                 done: false,
+                fn,
+                id,
                 order: 0,
-            };
-
-            this._slicers.push(slicer);
+            });
         });
 
         await Promise.all(promises);
     }
 
+    /**
+     * Cleanup the slicers functions
+     * @see SlicerCore#shutdown
+    */
     async shutdown() {
         this._slicers.length = 0;
+        return super.shutdown();
     }
 
     /**
-     * @description this is called for every count of `slicers` in the ExecutionConfig
+     * Called by {@link ParallelSlicer#handle} for every count of `slicers` in the ExecutionConfig
      * @returns a function which will be called in parallel
     */
     abstract async newSlicer(): Promise<SlicerFn>;
 
     /**
-     * @description this is called by the Teraslice framework
-     * @returns a boolean depending on whether the slicer is done
+     * A method called by the Teraslice framework to handle creating slices
+     * @see SlicerCore#handle
     */
     async handle(): Promise<boolean> {
         if (this.isFinished) return true;
 
-        const promises = _.map(this._slicers, (slicer, id) => this.processSlicer(slicer, id));
+        const promises = _.map(this._slicers, (slicer) => this.processSlicer(slicer));
 
         await Promise.all(promises);
         return this.isFinished;
@@ -55,7 +62,7 @@ export abstract class ParallelSlicer extends SlicerCore {
         return _.every(this._slicers, { done: true });
     }
 
-    private async processSlicer(slicer: SlicerObj, id: number) {
+    private async processSlicer(slicer: SlicerObj) {
         if (slicer.done) return;
 
         const result = await slicer.fn();
@@ -64,13 +71,13 @@ export abstract class ParallelSlicer extends SlicerCore {
         } else {
             if (_.isArray(result)) {
                 this.events.emit('execution:subslice');
-                await Promise.all(_.map(result, async (item) => {
+                _.map(result, (item) => {
                     slicer.order += 1;
-                    this.createSlice(item, slicer.order, id);
-                }));
+                    this.createSlice(item, slicer.order, slicer.id);
+                });
             } else {
                 slicer.order += 1;
-                this.createSlice(result, slicer.order);
+                this.createSlice(result, slicer.order, slicer.id);
             }
         }
     }
@@ -79,6 +86,7 @@ export abstract class ParallelSlicer extends SlicerCore {
 interface SlicerObj {
     done: boolean;
     fn: SlicerFn;
+    id: number;
     order: number;
 }
 

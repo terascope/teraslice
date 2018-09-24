@@ -1,4 +1,5 @@
 import { ConnectionConfig, Context, ValidatedJobConfig, OpConfig } from '@terascope/teraslice-types';
+import { ExecutionContextAPI } from './execution-context-apis';
 import { has } from 'lodash';
 
 interface GetClientConfig {
@@ -51,6 +52,10 @@ export function registerApis(context: Context, job: ValidatedJobConfig): void {
                 return getClient(context, config, type);
             },
         });
+    }
+
+    if (context.apis.executionContext == null) {
+        context.apis.registerAPI('executionContext', new ExecutionContextAPI());
     }
 
     delete context.apis.job_runner;

@@ -1,58 +1,60 @@
 import _ from 'lodash';
-import { EventEmitter } from 'events';
 import uuidv4 from 'uuid/v4';
 import {
     Context,
     ExecutionConfig,
-    Logger,
     OpConfig,
     Slice,
     SliceAnalyticsData,
     SliceRequest
 } from '@terascope/teraslice-types';
 import Queue from '@terascope/queue';
+import { Core } from './core';
 
 /**
- * SlicerCore [DRAFT]
- * @description A base class for supporting "Slicers" that run on a "Execution Controller",
- *              that supports the execution lifecycle events.
- *              This class will likely not be used externally
- *              since Teraslice only supports a few type varients.
+ * A base class for supporting "Slicers" that run on a "Execution Controller",
+ * that supports the execution lifecycle events.
+ * This class will likely not be used externally
+ * since Teraslice only supports a few type varients.
+ * @see Core
  */
 
-export abstract class SlicerCore {
-    protected readonly context: Readonly<Context>;
-    protected readonly executionConfig: Readonly<ExecutionConfig>;
-    protected readonly opConfig: Readonly<OpConfig>;
-    protected readonly logger: Logger;
-    protected readonly events: EventEmitter;
+export abstract class SlicerCore extends Core {
+    /**
+     * Used to indicate whether this slicer is recoverable.
+    */
+    static isRecoverable: boolean = true;
+
     private queue: Queue;
+    protected recoveryData: object[];
 
     constructor(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig) {
-        this.context = context;
-        this.executionConfig = executionConfig;
-        this.opConfig = opConfig;
-        this.logger = this.context.apis.foundation.makeLogger({
-            module: 'slicer',
-            opName: opConfig._op,
-            jobName: executionConfig.name,
-        });
-        this.events = context.apis.foundation.getSystemEvents();
+        super(context, opConfig, executionConfig);
         this.queue = new Queue();
+        this.recoveryData = [];
     }
 
     /**
-     * @description this is called by the Teraslice framework.
-     *              Each type of varient of a "Slicer" will need
-     *              to implement their own version of this.
-     * @returns a boolean to indicate when the "Slicer" is done
+    * A generic method called by the Teraslice framework to a give a "Slicer"
+    * the ability to handle creating slices.
+    * @returns a boolean depending on whether the slicer is done
     */
     abstract async handle(): Promise<boolean>;
 
     /**
-     * @description this is called by a "Slicer" varient
-     *              in order to enqueue a "Slice" to be processed
-     *              by the "Execution Controller"
+     * A method called by the Teraslice framework to give the Slicer
+     * time to run asynchronous setup.
+    */
+    async initialize(recoveryData: object[]): Promise<void> {
+        this.recoveryData = recoveryData;
+        this.context.logger.debug(`${this.executionConfig.name}->${this.opConfig._op} is initializing...`, recoveryData);
+        return;
+    }
+
+    /**
+     * Create a Slice object from a slice request.
+     * In the case of recovery the "Slice" already has the required
+     * This will be enqueued and dequeued by the "Execution Controller"
     */
     createSlice(input: Slice|SliceRequest, order: number, id: number = 0) {
         let slice: Slice;
@@ -79,52 +81,35 @@ export abstract class SlicerCore {
     }
 
     /**
-     * @description this is called by the "Execution Controller", to process a "Slice"
+     * A method called by the "Execution Controller" to dequeue a created "Slice"
     */
-    getSlice(): Slice|null {
+    getSlice(): EnqueuedSlice|null {
         return this.queue.dequeue();
     }
 
     /**
-     * @description this is called by the "Execution Controller" in order to give the "Slicer"
-     *              time to run asynchronous setup
-    */
-    async initialize(recoveryData: object[]): Promise<void> {
-        this.context.logger.debug(`${this.executionConfig.name}->${this.opConfig._op} is initializing...`, recoveryData);
-    }
-
-    /**
-     * @description this is called by the "Execution Controller" in order to give the "Slicer"
-     *              time to run asynchronous cleanup before exiting
-    */
-    async shutdown(): Promise<void> {
-        this.context.logger.debug(`${this.executionConfig.name}->${this.opConfig._op} is shutting down...`);
-    }
-
-    /**
-     * @description this is called by the "Execution Controller" in order to give the "Slicer"
-     *              the opportunity to track the slices enqueued by the execution controller
+     * A method called by the "Execution Controller" to give a "Slicer"
+     * the opportunity to track the slices enqueued by the execution controller
     */
     onSliceEnqueued(slice: Slice): void {
         this.context.logger.debug('slice enqueued', slice);
     }
 
     /**
-     * @description this is called by the "Execution Controller" in order to give the "Slicer"
-     *              the opportunity to track the slices disptached by the execution controller
+     * A method called by the "Execution Controller" to give a "Slicer"
+     * the opportunity to track the slices disptached by the execution controller
     */
     onSliceDispatch(slice: Slice): void {
         this.context.logger.debug('slice dispatch', slice);
     }
 
     /**
-     * @description this is called by the "Execution Controller" in order to give the "Slicer"
-     *              the opportunity to track the slices completed by the execution controller
+     * A method called by the "Execution Controller" to give a "Slicer"
+     * the opportunity to track the slices completed by the execution controller
     */
     onSliceComplete(result: SliceResult): void {
         this.context.logger.debug('slice result', result);
     }
-
 }
 
 export type SlicerResult = Slice|SliceRequest | Slice|SliceRequest[] | null;
@@ -134,4 +119,9 @@ export interface SliceResult {
     analytics: SliceAnalyticsData;
     retry?: boolean;
     error?: string;
+}
+
+export interface EnqueuedSlice {
+    slice: Slice;
+    needsState: boolean;
 }

@@ -2,9 +2,8 @@ import _ from 'lodash';
 import { SlicerCore, SlicerResult } from './core/slicer-core';
 
 /**
- * Slicer [DRAFT]
- * @description The simpilest form of a "Slicer" for building non-parallel stream of slices.
- *              The "Slicer" is a part of the "Reader" component of a job.
+ * The simpliest form a "Slicer"
+ * @see SlicerCore
  */
 
 export abstract class Slicer extends SlicerCore {
@@ -13,11 +12,16 @@ export abstract class Slicer extends SlicerCore {
     */
     protected order = 0;
 
+    /**
+     * A method called by {@link Slicer#handle}
+     * @returns a Slice, or SliceRequest
+    */
     abstract async slice(): Promise<SlicerResult>;
 
     /**
-     * @description this is called by the Teraslice framework
-     * @returns a boolean depending on whether the slicer is done
+     * A method called by the Teraslice framework to handle creating slices.
+     * Calls {@link slice}
+     * @see SlicerCore#handle
     */
     async handle(): Promise<boolean> {
         const result = await this.slice();
@@ -27,10 +31,10 @@ export abstract class Slicer extends SlicerCore {
 
         if (_.isArray(result)) {
             this.events.emit('execution:subslice');
-            await Promise.all(_.map(result, async (item) => {
+            _.map(result, (item) => {
                 this.order += 1;
                 this.createSlice(item, this.order);
-            }));
+            });
         } else {
             this.order += 1;
             this.createSlice(result, this.order);

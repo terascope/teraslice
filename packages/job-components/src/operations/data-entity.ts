@@ -2,9 +2,8 @@ import _ from 'lodash';
 import * as L from 'list/methods';
 
 /**
- * DataEntity [DRAFT]
- *  @description A wrapper for data that can hold additional metadata properties.
- *               The DataEntity should be essentially transparent to use within operations
+ * A wrapper for data that can hold additional metadata properties.
+ * A DataEntity should be essentially transparent to use within operations
  */
 
 export class DataEntity {
@@ -62,6 +61,10 @@ export type DataArrayInput = DataInput|DataInput[];
 export type DataListInput = DataInput|DataInput[]|L.List<DataInput>;
 export type DataEntityList = L.List<DataEntity>;
 
+/**
+ * A utility for safely converting an object a DataEntity.
+ * This will detect if passed an already converted input and return it.
+*/
 export function toDataEntity(input: DataInput): DataEntity {
     if (input instanceof DataEntity) {
         return input;
@@ -69,6 +72,11 @@ export function toDataEntity(input: DataInput): DataEntity {
     return new DataEntity(input);
 }
 
+/**
+ * A utility for safely converting an input of an object,
+ * or an array of objects, to an array of DataEntities.
+ * This will detect if passed an already converted input and return it.
+*/
 export function toDataEntities(input: DataInput|DataInput[]): DataEntity[] {
     if (!_.isArray(input)) {
         return [toDataEntity(input)];
@@ -80,6 +88,11 @@ export function toDataEntities(input: DataInput|DataInput[]): DataEntity[] {
     return _.map(input, toDataEntity);
 }
 
+/**
+ * A utility for safely converting an input of an object,
+ * an array of objects, a {@link L.List} of objects, to an immutable {@link L.List} of DataEntities.
+ * This will detect if passed an already converted input and return it.
+*/
 export function toDataEntityList(input: DataListInput): DataEntityList {
     if (L.isList(input)) {
         const [first] = input;

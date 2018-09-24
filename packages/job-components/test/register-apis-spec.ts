@@ -23,6 +23,9 @@ describe('registerApis', () => {
         expect(context.apis.op_runner.getClient).toBeFunction();
         expect(context.apis).toHaveProperty('job_runner');
         expect(context.apis.job_runner.getOpConfig).toBeFunction();
+        expect(context.apis).toHaveProperty('executionContext');
+        expect(context.apis.executionContext.register).toBeFunction();
+        expect(context.apis.executionContext.create).toBeFunction();
     });
 
     describe('->getOpConfig', () => {
@@ -120,6 +123,33 @@ describe('registerApis', () => {
                 cached: false,
                 endpoint: 'thirdConnection',
                 type: 'elasticsearch',
+            });
+        });
+    });
+
+    describe('->executionContext', () => {
+        describe('->register', () => {
+            it('should succeed', () => {
+                expect(() => {
+                    context.apis.executionContext.register('hello', () => 'hi');
+                }).not.toThrow();
+            });
+        });
+
+        describe('->create', () => {
+            it('should throw an error when the API is not found', async () => {
+                expect.hasAssertions();
+
+                try {
+                    await context.apis.executionContext.create('uh-oh');
+                } catch (err) {
+                    expect(err.message).toEqual('Unable to find API by name "uh-oh"');
+                }
+            });
+
+            it('should succeed when called with "hello"', async () => {
+                const result = await context.apis.executionContext.create('hello');
+                expect(result).toEqual('hi');
             });
         });
     });

@@ -21,9 +21,7 @@ module.exports = {
         const opApi = new ExampleAPI(context, opConfig, executionConfig);
         await opApi.initialize();
 
-        context.apis.registerApi('ExampleAPI', {
-            createAPI: opApi.createAPI,
-        });
+        opApi.register();
 
         const events = context.apis.foundation.getSystemEvents();
         events.once('worker:shutdown', async () => {
