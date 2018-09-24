@@ -109,7 +109,7 @@ describe('init', () => {
 
     it('should use npm if selcted', async () => {
         counter = 0;
-        _testFunctions.installer = 'npm';
+        _testFunctions.prompts_inject.installer = 'npm';
         try {
             await init.handler(argv, _testFunctions);
         } catch (e) {
@@ -120,7 +120,7 @@ describe('init', () => {
 
     it('should prefer yarn', async () => {
         counter = 0;
-        _testFunctions.installer = 'cli';
+        _testFunctions.prompts_inject.installer = 'cli';
         try {
             await init.handler(argv, _testFunctions);
         } catch (e) {
@@ -131,7 +131,7 @@ describe('init', () => {
 
     it('should use npm if yarn not found', async () => {
         counter = 0;
-        _testFunctions.installer = 'cli';
+        _testFunctions.prompts_inject.installer = 'cli';
         yarn = false;
         try {
             await init.handler(argv, _testFunctions);
@@ -143,7 +143,7 @@ describe('init', () => {
 
     it('should use throw error if neither yarn or npm is installed', async () => {
         counter = 0;
-        _testFunctions.installer = 'cli';
+        _testFunctions.prompts_inject.installer = 'cli';
         yarn = false;
         npm = false;
         try {
