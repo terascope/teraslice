@@ -259,9 +259,30 @@ describe('tjmFunctions testing', () => {
             }
         ];
 
+        const assetArray3 = [
+            {
+                name: 'asset1',
+                version: '0.0.12'
+            },
+            {
+                name: 'asset1',
+                version: '0.0.15'
+            },
+            {
+                name: 'asset1',
+                version: '0.0.14'
+            },
+            {
+                name: 'asset1',
+                version: '0.0.1'
+            }
+        ];
+
         const orderedArray = assetFunctions(cliConfig).latestAssetVersion(assetArray1);
         expect(orderedArray).toEqual({ name: 'asset1', version: '3.2.1' });
         const orderedArray2 = assetFunctions(cliConfig).latestAssetVersion(assetArray2);
         expect(orderedArray2).toEqual({ name: 'asset1', version: '0.0.3' });
+        const orderedArray3 = assetFunctions(cliConfig).latestAssetVersion(assetArray3);
+        expect(orderedArray3).toEqual({ name: 'asset1', version: '0.0.15' });
     });
 });

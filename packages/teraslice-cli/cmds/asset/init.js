@@ -25,16 +25,7 @@ exports.handler = async (argv, _testFunctions) => {
     config(cliConfig, 'asset:init').returnConfigData(false, false);
     // inject prompts answers for testing
     if (_testFunctions) {
-        await prompts.inject({
-            asset: _testFunctions.asset,
-            processor: _testFunctions.processor,
-            dependencies: _testFunctions.dependencies,
-            processor_name: _testFunctions.processor_name,
-            asset_name: _testFunctions.asset_name,
-            asset_desc: _testFunctions.asset_desc,
-            asset_version: _testFunctions.asset_version,
-            installer: _testFunctions.installer
-        });
+        await prompts.inject(_testFunctions.prompts_inject);
     }
     const { baseDir } = cliConfig;
     // create asset directory

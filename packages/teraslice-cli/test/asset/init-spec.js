@@ -12,13 +12,15 @@ let commandResponse = true;
 let installCommand;
 
 const _testFunctions = {
-    asset: true,
-    processor: true,
-    dependencies: true,
-    processor_name: 'test_good',
-    asset_desc: 'this is a test',
-    asset_version: '0.0.2',
-    installer: 'yarn',
+    prompts_inject: {
+        asset: true,
+        processor: true,
+        dependencies: true,
+        processor_name: 'test_good',
+        asset_desc: 'this is a test',
+        asset_version: '0.0.2',
+        installer: 'yarn',
+    },
     isInstalled: () => {
         let response = yarn;
         counter += 1;
@@ -59,8 +61,8 @@ describe('init', () => {
         const assetDir = await fs.pathExists(path.join(tmpDir, 'asset'));
         const assetJson = await fs.pathExists(path.join(tmpDir, 'asset', 'asset.json'));
         const assetPackageJson = await fs.pathExists(path.join(tmpDir, 'asset', 'package.json'));
-        const processorDir = await fs.pathExists(path.join(tmpDir, 'asset', _testFunctions.processor_name));
-        const processorIndex = await fs.pathExists(path.join(tmpDir, 'asset', _testFunctions.processor_name, 'index.js'));
+        const processorDir = await fs.pathExists(path.join(tmpDir, 'asset', _testFunctions.prompts_inject.processor_name));
+        const processorIndex = await fs.pathExists(path.join(tmpDir, 'asset', _testFunctions.prompts_inject.processor_name, 'index.js'));
 
         expect(spec).toBe(true);
         expect(eslintrc).toBe(true);
