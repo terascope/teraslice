@@ -67,7 +67,7 @@ export default abstract class ParallelSlicer extends SlicerCore {
         } else {
             if (_.isArray(result)) {
                 this.events.emit('execution:subslice');
-                _.map(result, (item) => {
+                _.each(result, (item) => {
                     slicer.order += 1;
                     this.createSlice(item, slicer.order, slicer.id);
                 });

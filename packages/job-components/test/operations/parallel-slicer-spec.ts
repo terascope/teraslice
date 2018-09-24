@@ -5,6 +5,7 @@ import { ParallelSlicer, SlicerFn } from '../../src';
 
 describe('ParallelSlicer', () => {
     class ExampleParallelSlicer extends ParallelSlicer {
+        subslice = false;
         newSlicerCalled = 0;
         public async newSlicer(): Promise<SlicerFn> {
             this.newSlicerCalled += 1;
@@ -14,7 +15,7 @@ describe('ParallelSlicer', () => {
                 return async () => {
                     called += 1;
                     if (called < 3) {
-                        return { hi: true };
+                        return this.subslice ? [{ hi: true }] : { hi: true };
                     }
                     return null;
                 };
@@ -23,173 +24,364 @@ describe('ParallelSlicer', () => {
             return async () => {
                 called += 1;
                 if (called < 3) {
-                    return { hello: true };
+                    return this.subslice ? [{ hello: true }] : { hello: true };
                 }
                 return null;
             };
         }
     }
 
-    let slicer: ExampleParallelSlicer;
+    describe('when returning a single-slice', () => {
+        let slicer: ExampleParallelSlicer;
 
-    beforeAll(async () => {
-        const context = new TestContext('teraslice-operations');
-        const exConfig = newTestExecutionConfig();
+        beforeAll(async () => {
+            const context = new TestContext('teraslice-operations');
+            const exConfig = newTestExecutionConfig();
 
-        exConfig.operations.push({
-            _op: 'example-op',
+            exConfig.operations.push({
+                _op: 'example-op',
+            });
+
+            exConfig.slicers = 2;
+
+            const opConfig = exConfig.operations[0];
+
+            slicer = new ExampleParallelSlicer(context, opConfig, exConfig);
+            await slicer.initialize([]);
         });
 
-        exConfig.slicers = 2;
+        afterAll(() => {
+            return slicer.shutdown();
+        });
 
-        const opConfig = exConfig.operations[0];
+        describe('->handle', () => {
+            describe('on the first call', () => {
+                it('should resolve false and enqueue 2 slices', async () => {
+                    const done = await slicer.handle();
+                    expect(done).toBeFalse();
 
-        slicer = new ExampleParallelSlicer(context, opConfig, exConfig);
-        await slicer.initialize([]);
+                    const slice1 = slicer.getSlice();
+
+                    if (!slice1) {
+                        expect(slice1).toBeNil();
+                    } else if (slice1.slice.slicer_id === 0) {
+                        expect(slice1).toMatchObject({
+                            needsState: true,
+                            slice: {
+                                slicer_order: 1,
+                                slicer_id: 0,
+                                request: {
+                                    hi: true,
+                                }
+                            }
+                        });
+                    } else {
+                        expect(slice1).toMatchObject({
+                            needsState: true,
+                            slice: {
+                                slicer_order: 1,
+                                slicer_id: 1,
+                                request: {
+                                    hello: true,
+                                }
+                            }
+                        });
+                    }
+
+                    const slice2 = slicer.getSlice();
+
+                    if (!slice2) {
+                        expect(slice2).toBeNil();
+                    } else if (slice2.slice.slicer_id === 0) {
+                        expect(slice2).toMatchObject({
+                            needsState: true,
+                            slice: {
+                                slicer_order: 1,
+                                slicer_id: 0,
+                                request: {
+                                    hi: true,
+                                }
+                            }
+                        });
+                    } else {
+                        expect(slice2).toMatchObject({
+                            needsState: true,
+                            slice: {
+                                slicer_order: 1,
+                                slicer_id: 1,
+                                request: {
+                                    hello: true,
+                                }
+                            }
+                        });
+                    }
+
+                    expect(slicer.getSlice()).toBeNil();
+                });
+            });
+
+            describe('on the second call', () => {
+                it('should resolve false and enqueue 2 slices', async () => {
+                    const done = await slicer.handle();
+                    expect(done).toBeFalse();
+
+                    const slice1 = slicer.getSlice();
+
+                    if (!slice1) {
+                        expect(slice1).toBeNil();
+                    } else if (slice1.slice.slicer_id === 0) {
+                        expect(slice1).toMatchObject({
+                            needsState: true,
+                            slice: {
+                                slicer_order: 2,
+                                slicer_id: 0,
+                                request: {
+                                    hi: true,
+                                }
+                            }
+                        });
+                    } else {
+                        expect(slice1).toMatchObject({
+                            needsState: true,
+                            slice: {
+                                slicer_order: 2,
+                                slicer_id: 1,
+                                request: {
+                                    hello: true,
+                                }
+                            }
+                        });
+                    }
+
+                    const slice2 = slicer.getSlice();
+
+                    if (!slice2) {
+                        expect(slice2).toBeNil();
+                    } else if (slice2.slice.slicer_id === 0) {
+                        expect(slice2).toMatchObject({
+                            needsState: true,
+                            slice: {
+                                slicer_order: 2,
+                                slicer_id: 0,
+                                request: {
+                                    hi: true,
+                                }
+                            }
+                        });
+                    } else {
+                        expect(slice2).toMatchObject({
+                            needsState: true,
+                            slice: {
+                                slicer_order: 2,
+                                slicer_id: 1,
+                                request: {
+                                    hello: true,
+                                }
+                            }
+                        });
+                    }
+
+                    expect(slicer.getSlice()).toBeNil();
+                });
+            });
+
+            describe('on the third call', () => {
+                it('should resolve true and enqueue no slice', async () => {
+                    const done = await slicer.handle();
+                    expect(done).toBeTrue();
+
+                    expect(slicer.getSlice()).toBeNil();
+                });
+            });
+
+            describe('on the fourth call', () => {
+                it('should resolve true and enqueue no slice', async () => {
+                    const done = await slicer.handle();
+                    expect(done).toBeTrue();
+
+                    expect(slicer.getSlice()).toBeNil();
+                });
+            });
+        });
     });
 
-    afterAll(() => {
-        return slicer.shutdown();
-    });
+    describe('when returning a sub-slices', () => {
+        let slicer: ExampleParallelSlicer;
+        const onExecutionSubslice = jest.fn();
 
-    describe('->handle', () => {
-        describe('on the first call', () => {
-            it('should resolve with 2 slices', async () => {
-                const done = await slicer.handle();
-                expect(done).toBeFalse();
+        beforeAll(async () => {
+            const context = new TestContext('teraslice-operations');
+            const events = context.apis.foundation.getSystemEvents();
 
-                const slice1 = slicer.getSlice();
+            events.on('execution:subslice', onExecutionSubslice);
 
-                if (!slice1) {
-                    expect(slice1).toBeNil();
-                } else if (slice1.slice.slicer_id === 0) {
-                    expect(slice1).toMatchObject({
-                        needsState: true,
-                        slice: {
-                            slicer_order: 1,
-                            slicer_id: 0,
-                            request: {
-                                hi: true,
-                            }
-                        }
-                    });
-                } else {
-                    expect(slice1).toMatchObject({
-                        needsState: true,
-                        slice: {
-                            slicer_order: 1,
-                            slicer_id: 1,
-                            request: {
-                                hello: true,
-                            }
-                        }
-                    });
-                }
+            const exConfig = newTestExecutionConfig();
 
-                const slice2 = slicer.getSlice();
-
-                if (!slice2) {
-                    expect(slice2).toBeNil();
-                } else if (slice2.slice.slicer_id === 0) {
-                    expect(slice2).toMatchObject({
-                        needsState: true,
-                        slice: {
-                            slicer_order: 1,
-                            slicer_id: 0,
-                            request: {
-                                hi: true,
-                            }
-                        }
-                    });
-                } else {
-                    expect(slice2).toMatchObject({
-                        needsState: true,
-                        slice: {
-                            slicer_order: 1,
-                            slicer_id: 1,
-                            request: {
-                                hello: true,
-                            }
-                        }
-                    });
-                }
-
-                expect(slicer.getSlice()).toBeNil();
+            exConfig.operations.push({
+                _op: 'example-op',
             });
+
+            exConfig.slicers = 2;
+
+            const opConfig = exConfig.operations[0];
+
+            slicer = new ExampleParallelSlicer(context, opConfig, exConfig);
+            slicer.subslice = true;
+
+            await slicer.initialize([]);
         });
 
-        describe('on the second call', () => {
-            it('should resolve with 2 slices', async () => {
-                const done = await slicer.handle();
-                expect(done).toBeFalse();
-
-                const slice1 = slicer.getSlice();
-
-                if (!slice1) {
-                    expect(slice1).toBeNil();
-                } else if (slice1.slice.slicer_id === 0) {
-                    expect(slice1).toMatchObject({
-                        needsState: true,
-                        slice: {
-                            slicer_order: 2,
-                            slicer_id: 0,
-                            request: {
-                                hi: true,
-                            }
-                        }
-                    });
-                } else {
-                    expect(slice1).toMatchObject({
-                        needsState: true,
-                        slice: {
-                            slicer_order: 2,
-                            slicer_id: 1,
-                            request: {
-                                hello: true,
-                            }
-                        }
-                    });
-                }
-
-                const slice2 = slicer.getSlice();
-
-                if (!slice2) {
-                    expect(slice2).toBeNil();
-                } else if (slice2.slice.slicer_id === 0) {
-                    expect(slice2).toMatchObject({
-                        needsState: true,
-                        slice: {
-                            slicer_order: 2,
-                            slicer_id: 0,
-                            request: {
-                                hi: true,
-                            }
-                        }
-                    });
-                } else {
-                    expect(slice2).toMatchObject({
-                        needsState: true,
-                        slice: {
-                            slicer_order: 2,
-                            slicer_id: 1,
-                            request: {
-                                hello: true,
-                            }
-                        }
-                    });
-                }
-
-                expect(slicer.getSlice()).toBeNil();
-            });
+        afterAll(() => {
+            return slicer.shutdown();
         });
 
-        describe('on the third call', () => {
-            it('should resolve with 0 slices', async () => {
-                const done = await slicer.handle();
-                expect(done).toBeTrue();
-
-                expect(slicer.getSlice()).toBeNil();
+        describe('->handle', () => {
+            it('should not emit execution:subslice yet', () => {
+                expect(onExecutionSubslice).not.toHaveBeenCalled();
             });
+
+            describe('on the first call', () => {
+                it('should resolve false and enqueue 2 slices', async () => {
+                    const done = await slicer.handle();
+                    expect(done).toBeFalse();
+
+                    const slice1 = slicer.getSlice();
+
+                    if (!slice1) {
+                        expect(slice1).toBeNil();
+                    } else if (slice1.slice.slicer_id === 0) {
+                        expect(slice1).toMatchObject({
+                            needsState: true,
+                            slice: {
+                                slicer_order: 1,
+                                slicer_id: 0,
+                                request: {
+                                    hi: true,
+                                }
+                            }
+                        });
+                    } else {
+                        expect(slice1).toMatchObject({
+                            needsState: true,
+                            slice: {
+                                slicer_order: 1,
+                                slicer_id: 1,
+                                request: {
+                                    hello: true,
+                                }
+                            }
+                        });
+                    }
+
+                    const slice2 = slicer.getSlice();
+
+                    if (!slice2) {
+                        expect(slice2).toBeNil();
+                    } else if (slice2.slice.slicer_id === 0) {
+                        expect(slice2).toMatchObject({
+                            needsState: true,
+                            slice: {
+                                slicer_order: 1,
+                                slicer_id: 0,
+                                request: {
+                                    hi: true,
+                                }
+                            }
+                        });
+                    } else {
+                        expect(slice2).toMatchObject({
+                            needsState: true,
+                            slice: {
+                                slicer_order: 1,
+                                slicer_id: 1,
+                                request: {
+                                    hello: true,
+                                }
+                            }
+                        });
+                    }
+
+                    expect(onExecutionSubslice).toHaveBeenCalledTimes(2);
+                    expect(slicer.getSlice()).toBeNil();
+                });
+            });
+
+            describe('on the second call', () => {
+                it('should resolve false and enqueue 2 slices', async () => {
+                    const done = await slicer.handle();
+                    expect(done).toBeFalse();
+
+                    const slice1 = slicer.getSlice();
+
+                    if (!slice1) {
+                        expect(slice1).toBeNil();
+                    } else if (slice1.slice.slicer_id === 0) {
+                        expect(slice1).toMatchObject({
+                            needsState: true,
+                            slice: {
+                                slicer_order: 2,
+                                slicer_id: 0,
+                                request: {
+                                    hi: true,
+                                }
+                            }
+                        });
+                    } else {
+                        expect(slice1).toMatchObject({
+                            needsState: true,
+                            slice: {
+                                slicer_order: 2,
+                                slicer_id: 1,
+                                request: {
+                                    hello: true,
+                                }
+                            }
+                        });
+                    }
+
+                    const slice2 = slicer.getSlice();
+
+                    if (!slice2) {
+                        expect(slice2).toBeNil();
+                    } else if (slice2.slice.slicer_id === 0) {
+                        expect(slice2).toMatchObject({
+                            needsState: true,
+                            slice: {
+                                slicer_order: 2,
+                                slicer_id: 0,
+                                request: {
+                                    hi: true,
+                                }
+                            }
+                        });
+                    } else {
+                        expect(slice2).toMatchObject({
+                            needsState: true,
+                            slice: {
+                                slicer_order: 2,
+                                slicer_id: 1,
+                                request: {
+                                    hello: true,
+                                }
+                            }
+                        });
+                    }
+
+                    expect(onExecutionSubslice).toHaveBeenCalledTimes(4);
+                    expect(slicer.getSlice()).toBeNil();
+                });
+            });
+
+            describe('on the third call', () => {
+                it('should resolve true and enqueue no slice', async () => {
+                    const done = await slicer.handle();
+                    expect(done).toBeTrue();
+
+                    expect(onExecutionSubslice).toHaveBeenCalledTimes(4);
+                    expect(slicer.getSlice()).toBeNil();
+                });
+            });
+
         });
     });
 });

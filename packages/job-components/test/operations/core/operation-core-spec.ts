@@ -1,5 +1,6 @@
 import { TestContext, newTestExecutionConfig } from '@terascope/teraslice-types';
 import { Schema } from 'convict';
+import * as L from 'list';
 import 'jest-extended'; // require for type definitions
 import OperationCore from '../../../src/operations/core/operation-core';
 import { DataEntity } from '../../../src';
@@ -93,9 +94,12 @@ describe('OperationCore', () => {
                 const dataEntities = operation.toDataEntities({
                     hello: 'there',
                 });
+
                 expect(dataEntities).toBeArrayOfSize(1);
                 expect(dataEntities[0]).toBeInstanceOf(DataEntity);
                 expect(dataEntities[0]).toHaveProperty('hello', 'there');
+
+                expect(operation.toDataEntities(dataEntities)).toEqual(dataEntities);
             });
 
             it('should return a batch of data entities', () => {
@@ -113,6 +117,8 @@ describe('OperationCore', () => {
                 expect(dataEntities[0]).toHaveProperty('hello', 'there');
                 expect(dataEntities[1]).toBeInstanceOf(DataEntity);
                 expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
+
+                expect(operation.toDataEntities(dataEntities)).toEqual(dataEntities);
             });
         });
 
@@ -148,11 +154,32 @@ describe('OperationCore', () => {
                 });
             });
 
+            describe('when a List but not of data entities', () => {
+                it('should return a batch of data entities', () => {
+                    const list = operation.toDataEntityList(L.from([
+                        {
+                            hello: 'there',
+                        },
+                        {
+                            howdy: 'partner',
+                        },
+                    ]));
+
+                    const dataEntities = list.toArray();
+                    expect(dataEntities).toBeArrayOfSize(2);
+                    expect(dataEntities[0]).toBeInstanceOf(DataEntity);
+                    expect(dataEntities[0]).toHaveProperty('hello', 'there');
+                    expect(dataEntities[1]).toBeInstanceOf(DataEntity);
+                    expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
+                });
+            });
+
             describe('when not wrapped', () => {
                 it('should return a list with a single data entity', () => {
                     const list = operation.toDataEntityList({
                         hello: 'there',
                     });
+
                     const dataEntities = list.toArray();
                     expect(dataEntities).toBeArrayOfSize(1);
                     expect(dataEntities[0]).toBeInstanceOf(DataEntity);

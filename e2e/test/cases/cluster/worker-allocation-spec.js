@@ -38,7 +38,7 @@ function workersTest(workers, workersExpected, records, done) {
 }
 
 describe('worker allocation', () => {
-    beforeAll(() => resetState());
+    beforeEach(() => resetState());
 
     it('with 1 worker', (done) => {
         workersTest(1, 1, 1000, done);

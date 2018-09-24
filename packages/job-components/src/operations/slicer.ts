@@ -12,6 +12,8 @@ export default abstract class Slicer extends SlicerCore {
     */
     protected order = 0;
 
+    isFinished = false;
+
     /**
      * A method called by {@link Slicer#handle}
      * @returns a Slice, or SliceRequest
@@ -19,14 +21,17 @@ export default abstract class Slicer extends SlicerCore {
     abstract async slice(): Promise<SlicerResult>;
 
     async handle(): Promise<boolean> {
+        if (this.isFinished) return true;
+
         const result = await this.slice();
         if (result == null) {
+            this.isFinished = true;
             return true;
         }
 
         if (_.isArray(result)) {
             this.events.emit('execution:subslice');
-            _.map(result, (item) => {
+            _.each(result, (item) => {
                 this.order += 1;
                 this.createSlice(item, this.order);
             });
