@@ -32,5 +32,6 @@ module.exports = {
         '!<rootDir>/packages/**/coverage/**',
     ],
     coverageReporters: ['lcov', 'text-summary', 'html'],
-    coverageDirectory: '<rootDir>/coverage'
+    coverageDirectory: '<rootDir>/coverage',
+    preset: 'ts-jest'
 };

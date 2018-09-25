@@ -132,7 +132,7 @@ function newSlicer(context, opConfig, executionContext, retryData, logger, clien
         // this sends actual dates to execution context so that it can keep
         // track of them for recoveries
         if (!opConfig.start || !opConfig.end) {
-            const { operations } = JSON.parse(process.env.job);
+            const { operations } = executionConfig;
             operations.shift();
             const update = {
                 start: dates.start.format(dateFormat),
