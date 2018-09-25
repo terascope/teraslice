@@ -69,7 +69,7 @@ up in cluster state if it is deployed with the label `clusterName` set to the
 clustername modified as follows:
 
 ```javascript
-clusterName.replace(/[^a-zA-Z_\-.]/g, '_').substring(0, 63)
+clusterName.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63)
 ```
 
 It is not necessary that the master be in cluster state for Teraslice to work,

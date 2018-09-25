@@ -32,7 +32,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
     const assetsDirectory = _.get(context, 'sysconfig.teraslice.assets_directory', '');
     const assetsVolume = _.get(context, 'sysconfig.teraslice.assets_volume', '');
     const clusterName = _.get(context, 'sysconfig.teraslice.name');
-    const clusterNameLabel = clusterName.replace(/[^a-zA-Z_\-.]/g, '_').substring(0, 63);
+    const clusterNameLabel = clusterName.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
     const kubernetesImage = _.get(context, 'sysconfig.teraslice.kubernetes_image', 'teraslice:k8sdev');
     const kubernetesNamespace = _.get(context, 'sysconfig.teraslice.kubernetes_namespace', 'default');
     const configMapName = _.get(
@@ -114,7 +114,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      */
     function allocateSlicer(execution, recoverExecution) {
         const name = `teraslice-execution-controller-${execution.ex_id}`.substring(0, 63);
-        const jobNameLabel = execution.name.replace(/[^a-zA-Z_\-.]/g, '_').substring(0, 63);
+        const jobNameLabel = execution.name.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
 
         const serviceConfig = {
             name,
@@ -182,7 +182,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      */
     function allocateWorkers(execution, numWorkers) {
         const name = `teraslice-worker-${execution.ex_id}`.substring(0, 63);
-        const jobNameLabel = execution.name.replace(/[^a-zA-Z_\-.]/g, '_').substring(0, 63);
+        const jobNameLabel = execution.name.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
 
         const deploymentConfig = {
             name,
