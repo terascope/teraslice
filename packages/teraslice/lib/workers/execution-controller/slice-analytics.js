@@ -3,8 +3,7 @@
 const _ = require('lodash');
 
 module.exports = function _sliceAnalytics(context, executionContext) {
-    const exId = executionContext.ex_id || process.env.ex_id;
-    const jobId = executionContext.job_id || process.env.job_id;
+    const { ex_id: exId, job_id: jobId } = executionContext;
 
     const logger = context.apis.foundation.makeLogger({
         module: 'slice_analytics',
@@ -51,29 +50,26 @@ module.exports = function _sliceAnalytics(context, executionContext) {
             return;
         }
 
-        input[stat].forEach((val, index) => {
+        for (let i = 0; i < operations.length; i += 1) {
+            const val = input[stat][i];
             if (!_.isSafeInteger(val)) {
                 return;
             }
 
-            sliceAnalytics[stat][index].sum += val;
-            sliceAnalytics[stat][index].total += 1;
+            sliceAnalytics[stat][i].sum += val;
+            sliceAnalytics[stat][i].total += 1;
 
             const {
                 min,
                 max,
                 total,
                 sum
-            } = sliceAnalytics[stat];
+            } = sliceAnalytics[stat][i];
 
-            if (min === 0 || min > val) {
-                sliceAnalytics[stat][index].min = val;
-            }
-            if (max === 0 || max > val) {
-                sliceAnalytics[stat][index].max = val;
-            }
-            sliceAnalytics[stat][index].average = _.round((sum / total), 2);
-        });
+            sliceAnalytics[stat][i].min = min !== 0 ? _.min([val, min]) : val;
+            sliceAnalytics[stat][i].max = max !== 0 ? _.max([val, max]) : val;
+            sliceAnalytics[stat][i].average = _.round((sum / total), 2);
+        }
     }
 
     function addStats(data) {
@@ -84,7 +80,6 @@ module.exports = function _sliceAnalytics(context, executionContext) {
 
     function analyzeStats() {
         logger.info('calculating statistics');
-
 
         for (let i = 0; i < operations.length; i += 1) {
             const name = operations[i]._op;
@@ -101,13 +96,13 @@ average memory: ${memory.average}, min: ${memory.min}, and max: ${memory.max}
         }
     }
 
-    function testContext() {
-        return { sliceAnalytics };
+    function getStats() {
+        return sliceAnalytics;
     }
 
     return {
         addStats,
         analyzeStats,
-        __test_context: testContext
+        getStats,
     };
 };
