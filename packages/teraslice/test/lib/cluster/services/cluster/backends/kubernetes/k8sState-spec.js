@@ -13,21 +13,6 @@ describe('k8sState', () => {
         // console.log(`clusterState\n\n${JSON.stringify(clusterState, null, 2)}`);
         // console.log(`expectedClusterState\n\n` + JSON.stringify(expectedClusterState, null, 2));
 
-        /* The two tests below fail with the following error due to jasmine
-           having a hard time deep comparing two objects with an array.
-           https://github.com/jasmine/jasmine/issues/598
-           https://github.com/jasmine/jasmine/issues/786
-
-           Both suggest I implement a custom_equality test
-           https://jasmine.github.io/2.2/custom_equality.html
-        - Expected object not to have properties
-            ex_id: undefined
-            job_id: undefined
-        */
-        // expect(clusterState).toEqual(expectedClusterState);
-        // expect(clusterState['192.168.99.100'].active[0])
-        //     .toEqual(expectedClusterState['192.168.99.100'].active[0]);
-
         expect(clusterState['192.168.99.100'].state).toEqual('connected');
         expect(clusterState['192.168.99.100'].active.length).toEqual(3);
         expect(clusterState['192.168.99.100'].active[1])
@@ -95,22 +80,4 @@ describe('k8sState', () => {
         expect(clusterState['192.168.99.100'].active.length).toEqual(3);
         expect(clusterState['2.2.2.2']).toBeUndefined();
     });
-
-    // This might not be technically possible, I think there will at least have
-    // to be a master node
-    // it('generates cluster state correctly with null PodList', () => {
-    //     const clusterState = {};
-    //     const podList = {
-    //         kind: 'PodList',
-    //         apiVersion: 'v1',
-    //         metadata: {
-    //             selfLink: '/api/v1/namespaces/default/pods',
-    //             resourceVersion: '1089627'
-    //         },
-    //         items: []
-    //     };
-    //
-    //     k8sState.gen(podList, clusterState);
-    //     expect(clusterState).toEqual({});
-    // });
 });
