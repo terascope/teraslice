@@ -1,4 +1,4 @@
-import { DataEntityList, DataListInput } from './data-entity';
+import DataEntity, { DataEntityList, DataListInput } from './data-entity';
 import FetcherCore from './core/fetcher-core';
 
 /**
@@ -13,6 +13,6 @@ export default abstract class Fetcher extends FetcherCore {
     abstract async fetch(sliceRequest?: any): Promise<DataListInput>;
 
     async handle(sliceRequest?: any): Promise<DataEntityList> {
-        return this.toDataEntityList(await this.fetch(sliceRequest));
+        return DataEntity.makeList(await this.fetch(sliceRequest));
     }
 }

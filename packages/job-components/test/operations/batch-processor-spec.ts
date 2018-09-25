@@ -1,6 +1,6 @@
 import { newTestExecutionConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { DataEntity, BatchProcessor, toDataEntityList, toDataEntities } from '../../src';
+import { DataEntity, BatchProcessor } from '../../src';
 
 describe('BatchProcessor', () => {
     class ExampleBatchProcessor extends BatchProcessor {
@@ -26,7 +26,7 @@ describe('BatchProcessor', () => {
 
     describe('->onBatch', () => {
         it('should resolve the data entities which are passed in', async () => {
-            const input = toDataEntities([
+            const input = DataEntity.makeArray([
                 {
                     hello: 'there',
                 },
@@ -39,7 +39,7 @@ describe('BatchProcessor', () => {
 
     describe('->handle', () => {
         it('should resolve to a data entity list', async () => {
-            const input = toDataEntityList([
+            const input = DataEntity.makeList([
                 {
                     hello: 'there',
                 },

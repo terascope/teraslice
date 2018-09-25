@@ -1,6 +1,6 @@
 import { newTestExecutionConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { DataEntity, Processor, toDataEntityList } from '../../src';
+import { DataEntity, Processor } from '../../src';
 
 describe('Processor', () => {
     describe('when mapping', () => {
@@ -39,7 +39,7 @@ describe('Processor', () => {
 
         describe('->handle', () => {
             it('should resolve the data entity which are passed in', async () => {
-                const input = toDataEntityList([
+                const input = DataEntity.makeList([
                     {
                         hello: 'there',
                     },

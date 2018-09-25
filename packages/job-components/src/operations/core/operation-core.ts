@@ -1,17 +1,9 @@
 import _ from 'lodash';
 import convict from 'convict';
 import Core from './core';
+import '../../formats'; // require to add the schema formats
 import { validateOpConfig } from '../../config-validators';
 import { OpConfig } from '@terascope/teraslice-types';
-import DataEntity, {
-    DataEntityList,
-    DataArrayInput,
-    DataInput,
-    DataListInput,
-    toDataEntity,
-    toDataEntities,
-    toDataEntityList
-} from '../data-entity';
 
 /**
  * A base class for supporting operations that run on a "Worker",
@@ -39,7 +31,7 @@ export default class OperationCore extends Core {
      * has been handed to any operation.
     */
     async onSliceInitialized(sliceId: string): Promise<void> {
-        this.context.logger.debug(`slice initialized: ${sliceId}`);
+        this.context.logger.trace(`slice initialized: ${sliceId}`);
     }
 
     /**
@@ -48,7 +40,7 @@ export default class OperationCore extends Core {
      * to the "Fetcher"
     */
     async onSliceStarted(sliceId: string): Promise<void> {
-        this.context.logger.debug(`slice started: ${sliceId}`);
+        this.context.logger.trace(`slice started: ${sliceId}`);
     }
 
     /**
@@ -57,7 +49,7 @@ export default class OperationCore extends Core {
      * with the last operation
     */
     async onSliceFinalizing(sliceId: string): Promise<void> {
-        this.context.logger.debug(`slice finalizing: ${sliceId}`);
+        this.context.logger.trace(`slice finalizing: ${sliceId}`);
     }
 
     /**
@@ -66,7 +58,7 @@ export default class OperationCore extends Core {
      * been acknowledged by the "Execution Controller"
     */
     async onSliceFinished(sliceId: string): Promise<void> {
-        this.context.logger.debug(`slice finished: ${sliceId}`);
+        this.context.logger.trace(`slice finished: ${sliceId}`);
     }
 
     /**
@@ -75,7 +67,7 @@ export default class OperationCore extends Core {
      * been marked as "Failed"
     */
     async onSliceFailed(sliceId: string): Promise<void> {
-        this.context.logger.debug(`slice failed: ${sliceId}`);
+        this.context.logger.trace(`slice failed: ${sliceId}`);
     }
 
     /**
@@ -85,30 +77,6 @@ export default class OperationCore extends Core {
      * greater than 1.
     */
     async onSliceRetry(sliceId: string): Promise<void> {
-        this.context.logger.debug(`slice retry: ${sliceId}`);
-    }
-
-    /**
-     * Convert an input to a DataEntity
-     * @borrows toDataEntity as OperationCore#toDataEntity
-    */
-    toDataEntity(input: DataInput): DataEntity {
-        return toDataEntity(input);
-    }
-
-    /**
-     * Convert an input to an array of DataEntities
-     * @borrows toDataEntities as OperationCore#toDataEntities
-    */
-    toDataEntities(input: DataArrayInput): DataEntity[] {
-        return toDataEntities(input);
-    }
-
-    /**
-     * Convert an input to an List of DataEntities
-     * @borrows toDataEntityList as OperationCore#toDataEntityList
-    */
-    toDataEntityList(input: DataListInput): DataEntityList {
-        return toDataEntityList(input);
+        this.context.logger.trace(`slice retry: ${sliceId}`);
     }
 }

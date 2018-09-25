@@ -1,5 +1,6 @@
 'use strict';
 
+const { DataEntity } = require('@terascope/job-components');
 const MapProcessor = require('./processor');
 const Schema = require('./schema');
 
@@ -42,9 +43,9 @@ module.exports = {
 
         return async (input, logger, sliceRequest) => {
             process.logger = logger;
-            const data = processor.toDataEntityList(input);
+            const data = DataEntity.makeList(input);
             const output = await processor.handle(data, sliceRequest);
-            return output.toArray();
+            return DataEntity.makeArray(output);
         };
     }
 };

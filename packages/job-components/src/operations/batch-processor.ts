@@ -1,4 +1,3 @@
-import * as L from 'list/methods';
 import DataEntity, { DataEntityList } from './data-entity';
 import ProcessorCore from './core/processor-core';
 
@@ -14,6 +13,7 @@ export default abstract class BatchProcessor extends ProcessorCore {
     abstract async onBatch(data: DataEntity[]): Promise<DataEntity[]|DataEntityList>;
 
     async handle(input: DataEntityList): Promise<DataEntityList> {
-        return L.from(await this.onBatch(input.toArray()));
+        const output = await this.onBatch(DataEntity.makeArray(input));
+        return DataEntity.makeList(output);
     }
 }
