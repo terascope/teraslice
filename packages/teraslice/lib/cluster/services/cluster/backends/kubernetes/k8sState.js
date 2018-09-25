@@ -56,9 +56,7 @@ function gen(k8sPods, clusterState) {
 
         // k8s pods can have status.phase = `Pending`, `Running`, `Succeeded`,
         // `Failed`, `Unknown`.  We will only add `Running` pods to the
-        // Teraslice cluster state.  Now that we use Jobs for
-        // execution_controllers, their pods are left for inspection and not
-        // deleted, these are usually left in the `Succeeded` state.
+        // Teraslice cluster state.
         if (element.status.phase === 'Running') {
             clusterState[element.status.hostIP].active.push(worker);
         }

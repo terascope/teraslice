@@ -33,7 +33,7 @@ describe('k8sState', () => {
         expect(clusterState['192.168.99.100'].active[1])
             .toEqual({
                 worker_id: 'teraslice-execution_controller-123456-784cbt5mz',
-                assignment: 'slicer',
+                assignment: 'execution_controller',
                 pid: 'teraslice-execution_controller-123456-784cbt5mz',
                 ex_id: '123456',
                 job_id: '654321',
@@ -64,7 +64,7 @@ describe('k8sState', () => {
         expect(clusterState['192.168.99.100'].active[1])
             .toEqual({
                 worker_id: 'teraslice-execution_controller-123456-784cbt5mz',
-                assignment: 'slicer',
+                assignment: 'execution_controller',
                 pid: 'teraslice-execution_controller-123456-784cbt5mz',
                 ex_id: '123456',
                 job_id: '654321',

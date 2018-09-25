@@ -126,9 +126,11 @@
             "creationTimestamp": "2018-04-16T17:34:52Z",
             "labels": {
                 "app": "teraslice",
+                "clusterName": "ts-dev1",
                 "exId": "123456",
                 "jobId": "654321",
-                "nodeType": "slicer",
+                "jobName": "test-job-1",
+                "nodeType": "execution_controller",
                 "pod-template-hash": "340711374"
             },
             "ownerReferences": [{
@@ -245,8 +247,10 @@
             "creationTimestamp": "2018-04-16T17:34:52Z",
             "labels": {
                 "app": "teraslice",
+                "clusterName": "ts-dev1",
                 "exId": "123456",
                 "jobId": "654321",
+                "jobName": "test-job-1",
                 "nodeType": "worker",
                 "pod-template-hash": "46241697"
             },
