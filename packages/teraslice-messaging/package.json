@@ -29,6 +29,7 @@
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
         "build": "rimraf dist && tsc --project tsconfig.build.json --pretty",
+        "build:prod": "tsc --project tsconfig.build.json",
         "build:watch": "yarn build --watch",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
@@ -42,28 +43,27 @@
         "@types/fs-extra": "^5.0.4",
         "@types/lodash": "^4.14.116",
         "@types/nanoid": "^1.2.0",
-        "@types/node": "^10.9.4",
+        "@types/node": "^10.11.0",
         "@types/socket.io": "^1.4.38",
         "@types/socket.io-client": "^1.4.32",
         "bluebird": "^3.5.2",
         "debug": "^4.0.1",
         "nanoid": "^1.2.3",
         "porty": "^3.1.1",
-        "rimraf": "^2.0.0",
         "socket.io": "^1.7.4",
-        "socket.io-client": "^1.7.4",
-        "ts-node": "^7.0.1",
-        "typescript": "^3.0.3"
+        "socket.io-client": "^1.7.4"
     },
     "devDependencies": {
         "@types/jest": "^23.3.2",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "jest": "^23.6.0",
-        "jest-extended": "^0.9.0",
-        "ts-jest": "^23.1.4",
+        "jest-extended": "^0.10.0",
+        "rimraf": "^2.0.0",
+        "ts-jest": "^23.10.1",
         "tslint": "^5.0.0",
-        "tslint-config-airbnb": "^5.11.0"
+        "tslint-config-airbnb": "^5.11.0",
+        "typescript": "^3.0.3"
     },
     "engines": {
         "node": ">=8.0.0"

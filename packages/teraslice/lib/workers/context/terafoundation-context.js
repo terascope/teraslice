@@ -19,7 +19,6 @@ const contextName = 'teraslice-worker';
 
 function makeContext(cluster, config, sysconfig) {
     const context = {};
-    let loggingConnection = 'default';
     context.sysconfig = validateConfigs(cluster, config, sysconfig);
 
     if (process.env.POD_IP) {
@@ -34,10 +33,6 @@ function makeContext(cluster, config, sysconfig) {
 
     if (typeof config.cluster_name === 'function') {
         context.cluster_name = config.cluster_name(context.sysconfig);
-    }
-
-    if (typeof config.loggingConnection === 'function') {
-        loggingConnection = config.loggingConnection(context.sysconfig);
     }
 
     // Initialize the API
@@ -59,14 +54,14 @@ function makeContext(cluster, config, sysconfig) {
 
     // FIXME: this should probably be refactored to actually create the
     // logger as it stands this function is very confusing
-    loggerClient(context, context.logger, loggingConnection);
+    loggerClient(context);
 
     return context;
 }
 
 function getSysConfig() {
     const { argv } = yargs.usage('Usage: $0 [options]')
-        .scriptName('teraslice-worker')
+        .scriptName('teraslice')
         .version()
         .alias('v', 'version')
         .help()

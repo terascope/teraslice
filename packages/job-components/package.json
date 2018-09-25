@@ -29,6 +29,7 @@
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
         "build": "rimraf dist && tsc --project tsconfig.build.json --pretty",
+        "build:prod": "tsc --project tsconfig.build.json",
         "build:watch": "yarn build --watch",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
@@ -38,24 +39,23 @@
         "@terascope/teraslice-types": "^0.2.0",
         "@types/fs-extra": "^5.0.4",
         "@types/lodash": "^4.14.116",
-        "@types/node": "^10.9.4",
+        "@types/node": "^10.11.0",
         "datemath-parser": "^1.0.6",
         "fs-extra": "^7.0.0",
         "lodash": "^4.17.11",
-        "moment": "^2.22.2",
-        "rimraf": "^2.0.0",
-        "ts-node": "^7.0.1",
-        "typescript": "^3.0.3"
+        "moment": "^2.22.2"
     },
     "devDependencies": {
         "@types/jest": "^23.3.2",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "jest": "^23.6.0",
-        "jest-extended": "^0.9.0",
-        "ts-jest": "^23.1.4",
+        "jest-extended": "^0.10.0",
+        "rimraf": "^2.0.0",
+        "ts-jest": "^23.10.1",
         "tslint": "^5.0.0",
-        "tslint-config-airbnb": "^5.11.0"
+        "tslint-config-airbnb": "^5.11.0",
+        "typescript": "^3.0.3"
     },
     "engines": {
         "node": ">=8.0.0"

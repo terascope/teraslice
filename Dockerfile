@@ -1,15 +1,41 @@
 FROM terascope/teraslice-base:v0.1.3
 
-COPY package.json yarn.lock /app/source/
+RUN mkdir -p /app/source/packages/teraslice \
+    && mkdir -p /app/source/packages/teraslice-messaging \
+    && mkdir -p /app/source/packages/teraslice-types \
+    && mkdir -p /app/source/packages/job-components \
+    && mkdir -p /app/source/packages/elasticsearch-api \
+    && mkdir -p /app/source/packages/error-parser \
+    && mkdir -p /app/source/packages/queue
 
-RUN yarn --frozen-lockfile --link-duplicates
+# copy just the package.json's so we can have faster build times
+COPY package.json yarn.lock lerna.json /app/source/
+COPY packages/teraslice/package.json /app/source/packages/teraslice/package.json
+COPY packages/teraslice-messaging/package.json /app/source/packages/teraslice-messaging/package.json
+COPY packages/teraslice-types/package.json /app/source/packages/teraslice-types/package.json
+COPY packages/job-components/package.json /app/source/packages/job-components/package.json
+COPY packages/elasticsearch-api/package.json /app/source/packages/elasticsearch-api/package.json
+COPY packages/error-parser/package.json /app/source/packages/error-parser/package.json
+COPY packages/queue/package.json /app/source/packages/queue/package.json
 
-COPY lerna.json tsconfig.json service.js /app/source/
+RUN yarn --frozen-lockfile --link-duplicates \
+    && yarn bootstrap:prod \
+    && yarn cache clean
+
+# Build just the typescript
+COPY tsconfig.json /app/source/
 COPY types /app/source/types
-COPY packages /app/source/packages
-COPY scripts /app/source/scripts
+COPY packages/queue /app/source/packages/queue
+COPY packages/teraslice-types /app/source/packages/teraslice-types
+COPY packages/job-components /app/source/packages/job-components
+COPY packages/teraslice-messaging /app/source/packages/teraslice-messaging
 
-RUN yarn bootstrap:prod && yarn build && rm -rf node_modules/typescript
+RUN yarn build:prod && rm -rf node_modules/typescript
+
+# copy everything else
+COPY service.js /app/source/
+COPY scripts /app/source/scripts
+COPY packages /app/source/packages
 
 ENV NODE_OPTIONS "--max-old-space-size=2048"
 
