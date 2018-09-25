@@ -40,11 +40,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         'sysconfig.teraslice.kubernetes_config_map_name',
         `${context.sysconfig.teraslice.name}-worker`
     );
-    const imagePullSecret = _.get(
-        context,
-        'sysconfig.teraslice.kubernetes_image_pull_secret',
-        'teraslice-image-pull-secret'
-    );
+    const imagePullSecret = _.get(context, 'sysconfig.teraslice.kubernetes_image_pull_secret', '');
 
     const clusterState = {};
     let clusterStateInterval = null;

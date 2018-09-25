@@ -13,8 +13,8 @@ describe('k8sJob', () => {
     const _name = `teraslice-execution-controller-${_execution.ex_id}`.substring(0, 63);
     const _config = {
         name: _name,
-        jobName: 'test-job',
-        clusterName: 'test-cluster',
+        jobNameLabel: 'test-job',
+        clusterNameLabel: 'test-cluster',
         exId: _execution.ex_id,
         jobId: _execution.job_id,
         dockerImage: 'teraslice-k8sdev:1',
@@ -24,7 +24,6 @@ describe('k8sJob', () => {
         shutdownTimeout: 30000,
         replicas: 1,
         configMapName: 'teraslice-worker',
-        imagePullSecret: 'teraslice-secret',
     };
 
     let ex;
@@ -45,9 +44,11 @@ describe('k8sJob', () => {
 describe('k8sDeployment', () => {
     const _name = `teraslice-worker-${_execution.ex_id}`.substring(0, 63);
     const _config = {
+        assetsDirectory: '',
+        assetsVolume: '',
         name: _name,
-        jobName: 'test-job',
-        clusterName: 'test-cluster',
+        jobNameLabel: 'test-job',
+        clusterNameLabel: 'test-cluster',
         exId: _execution.ex_id,
         jobId: _execution.job_id,
         dockerImage: 'teraslice-k8sdev:1',
@@ -57,7 +58,7 @@ describe('k8sDeployment', () => {
         shutdownTimeout: 30000,
         replicas: 1,
         configMapName: 'teraslice-worker',
-        imagePullSecret: 'teraslice-secret',
+        imagePullSecret: '',
     };
 
     let ex;
@@ -334,6 +335,39 @@ describe('k8sDeployment', () => {
                 .toEqual(yaml.load(`
                     name: asset-volume
                     mountPath: /assets`));
+        });
+    });
+
+    describe('with no image_pull_secret set in teraslice config', () => {
+        let deployment;
+
+        beforeEach(() => {
+            deployment = k8sObject.gen('deployments', 'worker', ex, config);
+        });
+
+        it('should render a deployment without imagePullSecrets', () => {
+            expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+            expect(deployment.spec.template.spec).not.toHaveProperty('imagePullSecrets');
+        });
+    });
+
+    describe('with image_pull_secret set in teraslice config', () => {
+        let deployment;
+
+        beforeEach(() => {
+            config.imagePullSecret = 'teraslice-image-pull-secret';
+            deployment = k8sObject.gen('deployments', 'worker', ex, config);
+        });
+
+        it('should render a deployment with a single imagePullSecret', () => {
+            expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+
+            // First check the configMap volumes, which should be present on all
+            // deployments
+            expect(deployment.spec.template.spec.imagePullSecrets[0]).toEqual(
+                yaml.load(`
+                  name: teraslice-image-pull-secret`)
+            );
         });
     });
 });

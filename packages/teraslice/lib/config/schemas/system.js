@@ -218,7 +218,7 @@ const schema = {
     },
     kubernetes_image_pull_secret: {
         doc: 'Name of Kubernetes secret used to pull docker images from private repository',
-        default: 'teraslice-image-pull-secret',
+        default: '',
         format: 'optional_String'
     }
 };

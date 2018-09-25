@@ -35,7 +35,17 @@ function gen(templateType, templateName, execution, config) {
         _setAssetsVolume(k8sObject, config);
     }
 
+    if ((config.imagePullSecret !== '')) {
+        _setImagePullSecret(k8sObject, config.imagePullSecret);
+    }
+
     return k8sObject;
+}
+
+function _setImagePullSecret(k8sObject, imagePullSecret) {
+    k8sObject.spec.template.spec.imagePullSecrets = [
+        { name: imagePullSecret }
+    ];
 }
 
 function _setAssetsVolume(k8sObject, config) {
