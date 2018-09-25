@@ -8,7 +8,7 @@ versions of Kubernetes is:
 
 * `1.10.*`
 
-## Setup
+# Setup
 
 You need Elasticsearch running and listening on a port accessible by the
 Teraslice master and worker nodes.  In the case of minikube based deployments
@@ -19,7 +19,7 @@ IP address of that interface is what you need to set as:
 
 in both the `teraslice-master` and `teraslice-worker` ConfigMaps.
 
-### `default` ServiceAccount Binding
+## `default` ServiceAccount Binding
 
 In order to run Teraslice Jobs in your Kubernetes cluster the Teraslice master
 node will need the ability create, list and delete Kubernetes Jobs, Deployments,
@@ -60,7 +60,25 @@ roleRef:
 Currently, Teraslice interacts with Kubernetes using the
 `default ServiceAccount` in the configured namespace.
 
-### Kubernetes Specific Configuration Settings
+## Master Deployment
+
+The Teraslice master node needs to be deployed in k8s by the user.  It should
+be deployed in a namespace mentioned above.  It should have a k8s service that
+exposes port `5678` for user interaction.  The cluster master will only show
+up in cluster state if it is deployed with the label `clusterName` set to the
+clustername modified as follows:
+
+```javascript
+clusterName.replace(/[^a-zA-Z_\-.]/g, '_').substring(0, 63)
+```
+
+It is not necessary that the master be in cluster state for Teraslice to work,
+it's just kind of nice to have.
+
+# Kubernetes Specific Configuration Settings
+
+The table below shows the Teraslice configuration settings added
+to support k8s based Teraslice deployments.
 
 |        Configuration         |                                                                        Description                                                                         |  Type  |  Notes   |
 |:----------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------:|:------:|:--------:|

@@ -78,7 +78,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      */
     function _getClusterState() {
         return k8s.list('app=teraslice', 'pods')
-            .then(k8sPods => k8sState.gen(k8sPods, clusterState))
+            .then(k8sPods => k8sState.gen(k8sPods, clusterState, clusterNameLabel))
             .catch((err) => {
                 // TODO: We might need to do more here.  I think it's OK to just
                 // log though.  This only gets used to show slicer info through
