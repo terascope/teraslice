@@ -67,13 +67,13 @@ describe('reindex', () => {
     it('should collect cluster level stats', (done) => {
         teraslice.cluster.stats()
             .then((stats) => {
-                expect(stats.slicer.processed).toBeGreaterThan(0);
-                expect(stats.slicer.failed).toBe(0);
-                expect(stats.slicer.queued).toBeDefined();
-                expect(stats.slicer.job_duration).toBeGreaterThan(0);
-                expect(stats.slicer.workers_joined).toBeGreaterThan(0);
-                expect(stats.slicer.workers_disconnected).toBeDefined();
-                expect(stats.slicer.workers_reconnected).toBeDefined();
+                expect(stats.controllers.processed).toBeGreaterThan(0);
+                expect(stats.controllers.failed).toBe(0);
+                expect(stats.controllers.queued).toBeDefined();
+                expect(stats.controllers.job_duration).toBeGreaterThan(0);
+                expect(stats.controllers.workers_joined).toBeGreaterThan(0);
+                expect(stats.controllers.workers_disconnected).toBeDefined();
+                expect(stats.controllers.workers_reconnected).toBeDefined();
                 // executions: total, failed, active?
                 // exceptions?
             })

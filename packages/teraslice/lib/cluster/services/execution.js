@@ -196,7 +196,7 @@ module.exports = function module(context, { clusterMasterServer }) {
             .then(() => ({ status }));
     }
 
-    function getSlicerStats(exId) {
+    function getControllerStats(exId) {
         // if no exId is provided it returns all running executions
         const specificId = exId || false;
         return getRunningExecutions(exId)
@@ -357,7 +357,7 @@ module.exports = function module(context, { clusterMasterServer }) {
     const api = {
         getClusterState,
         getClusterStats,
-        getSlicerStats,
+        getControllerStats,
         getActiveExecution,
         allocateWorkers,
         allocateSlicer,

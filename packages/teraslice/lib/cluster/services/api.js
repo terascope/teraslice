@@ -5,6 +5,7 @@ const { Router } = require('express');
 const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const request = require('request');
+const util = require('util');
 const { makeTable, sendError, handleError } = require('../../utils/api_utils');
 
 module.exports = function module(context, app, { assetsUrl }) {
@@ -184,13 +185,24 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.get('/jobs/:job_id/slicer', (req, res) => {
+    v1routes.get('/jobs/:job_id/slicer', _deprecateSlicerName((req, res) => {
         const { job_id: jobId } = req.params;
         logger.trace(`GET /jobs/:job_id/slicer endpoint has been called, job_id: ${jobId}`);
         const handleApiError = handleError(res, logger, 500, `Could not get slicer statistics for job: ${jobId}`);
 
         jobsService.getLatestExecutionId(jobId)
-            .then(exId => _slicerStats(exId))
+            .then(exId => _controllerStats(exId))
+            .then(results => res.status(200).json(results))
+            .catch(handleApiError);
+    }));
+
+    v1routes.get('/jobs/:job_id/controller', (req, res) => {
+        const { job_id: jobId } = req.params;
+        logger.trace(`GET /jobs/:job_id/controller endpoint has been called, job_id: ${jobId}`);
+        const handleApiError = handleError(res, logger, 500, `Could not get controller statistics for job: ${jobId}`);
+
+        jobsService.getLatestExecutionId(jobId)
+            .then(exId => _controllerStats(exId))
             .then(results => res.status(200).json(results))
             .catch(handleApiError);
     });
@@ -310,26 +322,48 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.get('/ex/:ex_id/slicer', (req, res) => {
+    v1routes.get('/ex/:ex_id/slicer', _deprecateSlicerName((req, res) => {
         const { ex_id: exId } = req.params;
         logger.trace(`GET /ex/:ex_id/slicer endpoint has been called, ex_id: ${exId}`);
         const handleApiError = handleError(res, logger, 500, `Could not get statistics for execution: ${exId}`);
 
-        _slicerStats(exId)
+        _controllerStats(exId)
+            .then(results => res.status(200).json(results))
+            .catch(handleApiError);
+    }));
+
+    v1routes.get('/ex/:ex_id/controller', (req, res) => {
+        const { ex_id: exId } = req.params;
+        logger.trace(`GET /ex/:ex_id/controller endpoint has been called, ex_id: ${exId}`);
+        const handleApiError = handleError(res, logger, 500, `Could not get statistics for execution: ${exId}`);
+
+        _controllerStats(exId)
             .then(results => res.status(200).json(results))
             .catch(handleApiError);
     });
 
     v1routes.get('/cluster/stats', (req, res) => {
         logger.trace('GET /cluster/stats endpoint has been called');
-        res.status(200).json(executionService.getClusterStats());
+        const stats = executionService.getClusterStats();
+        // for backwards compatability
+        stats.slicer = stats.controllers;
+        res.status(200).json(stats);
     });
 
-    v1routes.get('/cluster/slicers', (req, res) => {
+    v1routes.get('/cluster/slicers', _deprecateSlicerName((req, res) => {
         logger.trace('GET /cluster/slicers endpoint has been called');
         const handleApiError = handleError(res, logger, 500, 'Could not get execution statistics');
 
-        _slicerStats()
+        _controllerStats()
+            .then(results => res.status(200).send(results))
+            .catch(handleApiError);
+    }));
+
+    v1routes.get('/cluster/controllers', (req, res) => {
+        logger.trace('GET /cluster/controllers endpoint has been called');
+        const handleApiError = handleError(res, logger, 500, 'Could not get execution statistics');
+
+        _controllerStats()
             .then(results => res.status(200).send(results))
             .catch(handleApiError);
     });
@@ -401,7 +435,7 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    app.get('/txt/slicers', (req, res) => {
+    app.get('/txt/slicers', _deprecateSlicerName((req, res) => {
         logger.trace('GET /txt/slicers endpoint has been called');
 
         const defaults = [
@@ -416,7 +450,30 @@ module.exports = function module(context, app, { assetsUrl }) {
 
         const handleApiError = handleError(res, logger, 500, 'Could not get all execution statistics');
 
-        _slicerStats()
+        _controllerStats()
+            .then((results) => {
+                const tableStr = makeTable(req, defaults, results);
+                res.status(200).send(tableStr);
+            })
+            .catch(handleApiError);
+    }));
+
+    app.get('/txt/controllers', (req, res) => {
+        logger.trace('GET /txt/controllers endpoint has been called');
+
+        const defaults = [
+            'name',
+            'job_id',
+            'workers_available',
+            'workers_active',
+            'failed',
+            'queued',
+            'processed'
+        ];
+
+        const handleApiError = handleError(res, logger, 500, 'Could not get all execution statistics');
+
+        _controllerStats()
             .then((results) => {
                 const tableStr = makeTable(req, defaults, results);
                 res.status(200).send(tableStr);
@@ -468,6 +525,11 @@ module.exports = function module(context, app, { assetsUrl }) {
         return serviceContext.setWorkers(id, workerNum);
     }
 
+    function _deprecateSlicerName(fn) {
+        const msg = 'api endpoints with /slicers are being deprecated in favor of the semantically correct term of /controllers';
+        return util.deprecate(fn, msg);
+    }
+
     function _redirect(req, res) {
         req.pipe(request({
             method: req.method,
@@ -479,8 +541,8 @@ module.exports = function module(context, app, { assetsUrl }) {
         });
     }
 
-    function _slicerStats(exId) {
-        return executionService.getSlicerStats(exId);
+    function _controllerStats(exId) {
+        return executionService.getControllerStats(exId);
     }
 
     function shutdown() {

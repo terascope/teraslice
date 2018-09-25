@@ -279,7 +279,7 @@ curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_recover"
 ### Pausing a job
 
 Pausing a job will stop execution of the job on the cluster but will not
-release the workers being used by the job. It simply pauses the slicer and
+release the workers being used by the job. It simply pauses the execution and
 stops allocating work to the workers. Workers will complete the work they're doing then just sit idle until the job is resumed.
 
 ```sh
@@ -294,7 +294,7 @@ tjm job pause ./job.json
 
 ### Resuming a job
 
-Resuming a job restarts the slicer and the allocation of slices to workers.
+Resuming a job restarts the execution and the allocation of slices to workers.
 
 ```sh
 curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_resume"
@@ -308,11 +308,11 @@ tjm job resume ./job.json
 
 ### Viewing Slicer statistics for a job
 
-This provides information related to the execution of the slicer and can be useful
+This provides information related to the execution controller and can be useful
 in monitoring and optimizing the execution of the job.
 
 ```sh
-curl "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/slicer"
+curl "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/controller"
 ```
 
 ### Viewing cluster state
