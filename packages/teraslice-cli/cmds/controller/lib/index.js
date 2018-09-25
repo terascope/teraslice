@@ -79,8 +79,14 @@ module.exports = (cliConfig) => {
             'started']
          */
         const response = await terasliceClient.cluster.slicers();
-
+        console.log(response);
         if (response.length > 0) {
+            _.each(response, (controller) => {
+                // console.log(value);
+                console.log(controller);
+                console.log(response[controller]);
+            });
+
             await displayControllers(header, response, cliConfig.output_style);
         } else {
             console.log('> no active controllers');

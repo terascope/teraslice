@@ -12,8 +12,13 @@ exports.builder = (yargs) => {
     cli().args('job', 'start', yargs);
     yargs
         .option('annotate', {
-            alias: 'a',
+            alias: 'n',
             describe: 'add grafana annotation',
+            default: ''
+        })
+        .option('all', {
+            alias: 'a',
+            describe: 'stop all running/failing jobs',
             default: false
         });
 };

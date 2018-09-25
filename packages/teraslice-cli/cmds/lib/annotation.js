@@ -33,9 +33,14 @@ async function send(host, key, tags, text) {
 }
 
 module.exports = (cliConfig) => {
-    async function add(action) {
-        const message = `${action}ed jobs on ${cliConfig.c}`;
-        await send(cliConfig.config.annotations[cliConfig.config.env].host, cliConfig.config.annotations[cliConfig.env].key, ['global', 'teraslice'], message);
+    async function add(action, job = '') {
+        let message = '';
+        if (job === '') {
+            message = `${action}ed all jobs on ${cliConfig.cluster}`;
+        } else {
+            message = `${action}ed ${job} on ${cliConfig.cluster}`;
+        }
+        await send(cliConfig.config.annotations[cliConfig.annotation_env].host, cliConfig.config.annotations[cliConfig.annotation_env].key, ['global', 'teraslice'], message);
     }
     return {
         add

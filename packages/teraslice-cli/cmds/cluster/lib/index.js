@@ -10,7 +10,7 @@ const display = require('../../lib/display')();
 const reply = require('../../lib/reply')();
 
 async function displayClusters(clusters, style) {
-    const header = ['cluster', 'host', 'port', 'env'];
+    const header = ['cluster', 'host', 'port', 'cluster_manager_type'];
     let parsedClusters = '';
 
     if (style === 'txt') {
@@ -64,12 +64,12 @@ module.exports = (cliConfig) => {
             newClusterAlias[cliConfig.cluster] = {
                 host: cliConfig.host,
                 port: cliConfig.port,
-                env: cliConfig.env
+                cluster_manager_type: cliConfig.cluster_manager_type,
             };
             cliConfig.config.clusters[cliConfig.cluster] = {
                 host: cliConfig.host,
                 port: cliConfig.port,
-                env: cliConfig.env
+                cluster_manager_type: cliConfig.cluster_manager_type,
             };
         }
         yaml.writeSync(cliConfig.configFile, cliConfig.config);

@@ -6,7 +6,7 @@ const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'resume';
+exports.command = 'recover';
 exports.desc = 'Run recovery on cluster.\n';
 exports.builder = (yargs) => {
     cli().args('job', 'resume', yargs);

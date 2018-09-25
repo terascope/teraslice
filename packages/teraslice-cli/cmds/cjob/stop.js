@@ -7,13 +7,18 @@ const configChecks = require('../lib/config');
 const cli = require('../lib/cli');
 
 exports.command = 'stop';
-exports.desc = 'stops all job running or failing on the cluster, saves running job to a json file.\n';
+exports.desc = 'stops job(s) running or failing on the cluster, saves running job(s) to a json file.\n';
 exports.builder = (yargs) => {
     cli().args('job', 'stop', yargs);
     yargs
         .option('annotate', {
-            alias: 'a',
+            alias: 'n',
             describe: 'add grafana annotation',
+            default: ''
+        })
+        .option('all', {
+            alias: 'a',
+            describe: 'stop all running/failing jobs',
             default: false
         });
 };
@@ -21,8 +26,8 @@ exports.builder = (yargs) => {
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
     configChecks(cliConfig).returnConfigData();
-    const jobLib = _testFunctions || require('./lib')(cliConfig);
+    const job = _testFunctions || require('./lib')(cliConfig);
 
-    return jobLib.stopJobs()
+    return job.stop()
         .catch(err => reply.fatal(err.message));
 };

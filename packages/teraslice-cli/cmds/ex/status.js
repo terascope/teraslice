@@ -15,8 +15,8 @@ exports.builder = (yargs) => {
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
     config(cliConfig).returnConfigData();
-    const tsuFunctions = _testFunctions || require('../lib/functions')(cliConfig);
+    const tsuFunctions = _testFunctions || require('./lib')(cliConfig);
 
-    return tsuFunctions.statusEx()
+    return tsuFunctions.status()
         .catch(err => reply.fatal(err.message));
 };

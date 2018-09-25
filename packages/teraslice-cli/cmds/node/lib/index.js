@@ -16,8 +16,8 @@ module.exports = (cliConfig) => {
         let parsedResponse = '';
         let header = ['node_id', 'state', 'hostname', 'total', 'active', 'pid', 'teraslice_version', 'node_version'];
         const response = await terasliceClient.cluster.state();
-        if (_.startsWith(cliConfig.env, 'k8s')) {
-            // total and pid are n/a with k8s, so they are removed from the output
+        if (cliConfig.cluster_manager_type === 'kubernetes') {
+            // total and pid are n/a with kubernetes, so they are removed from the output
             header = ['node_id', 'state', 'hostname', 'active', 'teraslice_version', 'node_version'];
         }
         if (cliConfig.output_style === 'txt') {
@@ -44,11 +44,11 @@ module.exports = (cliConfig) => {
             row.push(response[node].node_id);
             row.push(response[node].state);
             row.push(response[node].hostname);
-            if (!_.startsWith(cliConfig.env, 'k8s')) {
+            if (cliConfig.cluster_manager_type === 'kubernetes') {
                 row.push(response[node].total);
             }
             row.push(response[node].active.length);
-            if (!_.startsWith(cliConfig.env, 'k8s')) {
+            if (cliConfig.cluster_manager_type === 'kubernetes') {
                 row.push(response[node].pid);
             }
             row.push(response[node].teraslice_version);

@@ -23,7 +23,13 @@ module.exports = (cliConfig, command) => {
         // set output format
         cliConfig.output_style = cliConfig.o;
         // set annotation
-        cliConfig.add_annotation = cliConfig.a;
+        if (cliConfig.n === '') {
+            cliConfig.add_annotation = false;
+        } else {
+            cliConfig.add_annotation = true;
+            cliConfig.annotation_env = cliConfig.n;
+        }
+
         if (cliConfig._[2] !== undefined) {
             _.set(cliConfig, 'cluster_sh', cliConfig._[2]);
             cliConfig.deets = shortHand.parse(cliConfig.cluster_sh);
@@ -32,14 +38,13 @@ module.exports = (cliConfig, command) => {
         if (command === 'cluster:list') {
             return;
         }
-
         if (command === 'cluster:alias') {
             _.set(cliConfig, 'cluster_sh', cliConfig._[2]);
             cliConfig.deets = shortHand.parse(cliConfig.cluster_sh);
             cliConfig.cluster = cliConfig.deets.cluster;
             cliConfig.port = cliConfig.p;
-            cliConfig.env = cliConfig.e;
             cliConfig.host = cliConfig.c;
+            cliConfig.cluster_manager_type = cliConfig.t;
         } else {
             if (cliConfig.status) {
                 cliConfig.statusList = _.split(cliConfig.status, ':');
@@ -56,6 +61,11 @@ module.exports = (cliConfig, command) => {
                 reply.fatal('Use -c to specify a cluster or use -l for localhost');
             }
             cliConfig.hostname = url.parse(cliConfig.cluster_url).hostname;
+            if (cliConfig.a === undefined || cliConfig.a === false) {
+                cliConfig.all_jobs = false;
+            } else {
+                cliConfig.all_jobs = true;
+            }
             // set the state file name
             if (cliConfig.d) {
                 cliConfig.state_file = path.join(cliConfig.d, `${cliConfig.cluster}-state.json`);
@@ -66,6 +76,7 @@ module.exports = (cliConfig, command) => {
             if (cliConfig.env === '' && cliConfig.config.clusters[cliConfig.cluster]) {
                 cliConfig.env = cliConfig.config.clusters[cliConfig.cluster].env;
             }
+            cliConfig.cluster_manager_type = cliConfig.config.clusters[cliConfig.cluster].cluster_manager_type;
         }
     }
 

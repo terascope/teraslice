@@ -10,18 +10,13 @@ exports.command = 'stop';
 exports.desc = 'stops ex that is running or failing on the cluster.\n';
 exports.builder = (yargs) => {
     cli().args('ex', 'stop', yargs);
-    yargs
-        .option('a', {
-            describe: 'add grafana annotation',
-            default: false
-        });
 };
 
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
     configChecks(cliConfig).returnConfigData();
-    const tsuFunctions = _testFunctions || require('../lib/functions')(cliConfig);
+    const tsuFunctions = _testFunctions || require('./lib')(cliConfig);
 
-    return tsuFunctions.stopEx()
+    return tsuFunctions.stop()
         .catch(err => reply.fatal(err.message));
 };

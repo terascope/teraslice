@@ -40,6 +40,9 @@ module.exports = (cliConfig) => {
         let stopTimedOut = false;
         let jobsStopped = 0;
         let allJobsStopped = false;
+        if (cliConfig.deets.id !== undefined) {
+            console.log(cliConfig.deets);
+        }
         const jobs = await save();
         if (await showPrompt('Stop')) {
             while (!stopTimedOut) {
@@ -52,7 +55,7 @@ module.exports = (cliConfig) => {
                 } catch (err) {
                     stopTimedOut = false;
                     reply.error(`> Stopping jobs had an error [${err.message}]`);
-                    jobsStopped = await list(false, false, false);
+                    jobsStopped = await list(false, false);
                 }
                 waitCountStop += 1;
             }
@@ -60,8 +63,7 @@ module.exports = (cliConfig) => {
             let waitCount = 0;
             const waitMax = 15;
             while (!allJobsStopped) {
-                jobsStopped = await list(false, false, false);
-                console.log(jobsStopped);
+                jobsStopped = await list(false, false);
                 await _.delay(() => {}, 500);
                 if (jobsStopped.length === 0) {
                     allJobsStopped = true;
@@ -73,33 +75,20 @@ module.exports = (cliConfig) => {
             }
             if (allJobsStopped) {
                 console.log('> All jobs stopped.');
+                if (cliConfig.add_annotation) {
+                    await annotation.add('Stop');
+                }
             }
-        }
-        if (cliConfig.add_annotation) {
-            await annotation.add('Stop');
         }
 
         return allJobsStopped;
     }
 
-    async function submit() {
-        const jobContents = cliConfig.job_file_content;
-        const registerResult = await terasliceClient.jobs.submit(jobContents, true);
-        cliConfig.job_id = registerResult ? registerResult.id() : cliConfig.job_file_content.tjm.job_id;
-        const jobFilePath = cliConfig.job_file_path;
-        reply.green(`Successfully registered job: ${cliConfig.job_id} on ${cliConfig.cluster}`);
-        _.set(jobContents, 'tjm.cluster', cliConfig.cluster);
-        _.set(jobContents, 'tjm.version', cliConfig.version);
-        _.set(jobContents, 'tjm.job_id', cliConfig.job_id);
-        cliFunctions.createJsonFile(jobFilePath, jobContents);
-        reply.green('Updated job file with tjm data');
-        // alreadyRegisteredCheck();
-        // tjmFunctions.terasliceClient.jobs.wrap(cliConfig.job_id).start())
-    }
-
     async function start() {
         const jobsRead = await fs.readJson(cliConfig.state_file);
-        await displayInfo();
+        if (cliConfig.info) {
+            await displayInfo();
+        }
         await displayJobs(jobsRead, true);
         if (await showPrompt('Start')) {
             await changeStatus(jobsRead, 'start');
@@ -109,7 +98,7 @@ module.exports = (cliConfig) => {
             let allWorkersStarted = false;
             // TODO check for json?
             while (!allWorkersStarted || waitCount < waitMax) {
-                jobsStarted = await list(false, false, false);
+                jobsStarted = await list(false, false);
                 await _.delay(() => {}, 5000);
                 waitCount += 1;
                 allWorkersStarted = await checkWorkerCount(jobsRead, jobsStarted);
@@ -121,22 +110,23 @@ module.exports = (cliConfig) => {
                 waitCount = 0;
                 await addWorkers(jobsRead, jobsStarted);
                 while (!allAddedWorkersStarted || waitCount < waitMax) {
-                    jobsStarted = await list(false, false, false);
+                    jobsStarted = await list(false, false);
                     await _.delay(() => {}, 5000);
                     waitCount += 1;
                     allAddedWorkersStarted = await checkWorkerCount(jobsRead, jobsStarted, true);
                 }
             }
             if (allAddedWorkersStarted) {
-                await list(false, false, true);
-                console.log('> All job and workers started.');
+                await list(false, true);
+                console.log('> All jobs and workers started.');
+                if (cliConfig.add_annotation) {
+                    await annotation.add('Start');
+                }
             }
         } else {
             console.log('bye!');
         }
-        if (cliConfig.add_annotation) {
-            await annotation.add('Start');
-        }
+
     }
 
     async function pause() {
@@ -158,8 +148,8 @@ module.exports = (cliConfig) => {
                     }
                     if (addWorkersOnce) {
                         const workers2add = expectedJob.slicer.workers_active - expectedJob.workers;
-                        console.log(`> Adding ${workers2add} worker(s) to ${job.job_id}`);
                         if (workers2add > 0) {
+                            console.log(`> Adding ${workers2add} worker(s) to ${job.job_id}`);
                             await terasliceClient.jobs.wrap(job.job_id).changeWorkers('add', workers2add);
                             await _.delay(() => {}, 5000);
                         }
@@ -203,9 +193,9 @@ module.exports = (cliConfig) => {
     }
 
 
-    async function list(saveState = false, showInfo = true, showJobs = true) {
+    async function list(saveState = false, showJobs = true) {
         const jobs = [];
-        if (showInfo) {
+        if (cliConfig.info) {
             await displayInfo();
         }
         for (const status of cliConfig.statusList) {

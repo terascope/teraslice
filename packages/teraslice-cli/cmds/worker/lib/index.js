@@ -16,8 +16,8 @@ module.exports = (cliConfig) => {
 
     async function list() {
         let header = ['assignment', 'job_id', 'ex_id', 'node_id', 'pid'];
-        if (_.startsWith(cliConfig.env, 'k8s')) {
-            // total and pid are n/a with k8s, so they are removed from the output
+        if (cliConfig.cluster_manager_type === 'kubernetes') {
+            // total and pid are n/a with kubernetes, so they are removed from the output
             header = ['assignment', 'job_id', 'ex_id', 'node_id', 'pod'];
         }
         const response = await terasliceClient.cluster.state();
@@ -45,7 +45,11 @@ module.exports = (cliConfig) => {
                     row[node].job_id = workerValue.job_id;
                     row[node].ex_id = workerValue.ex_id;
                     row[node].node_id = node;
-                    row[node].pid = workerValue.pid;
+                    if (cliConfig.cluster_manager_type === 'kubernetes') {
+                        row[node].pod = workerValue.pid;
+                    } else {
+                        row[node].pid = workerValue.pid;
+                    }
                     rows.push(row);
                 }
             });
