@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 const events = require('events');
 const analyticsCode = require('../../../lib/workers/execution-controller/slice-analytics');
 
@@ -34,51 +33,85 @@ describe('slice_analytics', () => {
     };
 
     const analytics = analyticsCode(context, executionContext);
-    const statContainer = analytics.__test_context().sliceAnalytics;
 
     it('addStats transfers message stats to the statsContainer', () => {
-        const statsObj = statContainer;
+        const statsObj = analytics.getStats();
         const data = { time: [234, 125, 1300], size: [2300, 4600], memory: [1234, 4567] };
         const data2 = { time: [346, 325, 1102], size: [1120, 2240], memory: [12345, 56789] };
 
-        expect(statsObj.size[0].length).toEqual(0);
-        expect(statsObj.time[0].length).toEqual(0);
-        expect(statsObj.memory[0].length).toEqual(0);
+        expect(statsObj.size[0]).toMatchObject({
+            min: 0,
+            max: 0,
+            sum: 0,
+            total: 0,
+            average: 0,
+        });
+        expect(statsObj.time[0]).toMatchObject({
+            min: 0,
+            max: 0,
+            sum: 0,
+            total: 0,
+            average: 0,
+        });
+        expect(statsObj.memory[0]).toMatchObject({
+            min: 0,
+            max: 0,
+            sum: 0,
+            total: 0,
+            average: 0,
+        });
 
         analytics.addStats(data);
 
-        expect(statsObj.size[0].length).toEqual(1);
-        expect(statsObj.time[0].length).toEqual(1);
-        expect(statsObj.memory[0].length).toEqual(1);
-
-        expect(_.flatten(statsObj.size)).toEqual(data.size);
-        expect(_.flatten(statsObj.time)).toEqual(data.time);
-        expect(_.flatten(statsObj.memory)).toEqual(data.memory);
+        expect(statsObj.size[0]).toMatchObject({
+            min: 2300,
+            max: 2300,
+            sum: 2300,
+            total: 1,
+            average: 2300,
+        });
+        expect(statsObj.time[0]).toMatchObject({
+            min: 234,
+            max: 234,
+            sum: 234,
+            total: 1,
+            average: 234,
+        });
+        expect(statsObj.memory[0]).toMatchObject({
+            min: 1234,
+            max: 1234,
+            sum: 1234,
+            total: 1,
+            average: 1234,
+        });
 
         analytics.addStats(data2);
 
-        expect(statsObj.size[0].length).toEqual(2);
-        expect(statsObj.time[0].length).toEqual(2);
-        expect(statsObj.memory[0].length).toEqual(2);
-
-        expect(_.flatten(statsObj.size)).toEqual(_.flatten(_.zip(data.size, data2.size)));
-        expect(_.flatten(statsObj.time)).toEqual(_.flatten(_.zip(data.time, data2.time)));
-        expect(_.flatten(statsObj.memory)).toEqual(_.flatten(_.zip(data.memory, data2.memory)));
-    });
-
-    it('calculateStats takes an array of ints and returns an obj that has the  min, max, and total of ints', () => {
-        const data = [232, 254, 345, 112, 367, 343, 321, 213, 222, 245];
-        const results = analytics.__test_context({})._calculateStats(data);
-
-        expect(results).toBeDefined();
-        expect(results.max).toEqual(367);
-        expect(results.min).toEqual(112);
-        // toFixed returns a string
-        expect(results.average).toEqual('265.40');
+        expect(statsObj.size[0]).toMatchObject({
+            min: 1120,
+            max: 2300,
+            sum: 3420,
+            total: 2,
+            average: 1710,
+        });
+        expect(statsObj.time[0]).toMatchObject({
+            min: 234,
+            max: 346,
+            sum: 580,
+            total: 2,
+            average: 290,
+        });
+        expect(statsObj.memory[0]).toMatchObject({
+            min: 1234,
+            max: 12345,
+            sum: 13579,
+            total: 2,
+            average: 6789.5,
+        });
     });
 
     it('statsContainer takes in job.operations and returns an object for the number of ops', () => {
-        const results = statContainer;
+        const results = analytics.getStats();
 
         expect(results).toBeDefined();
         expect(results.time).toBeDefined();

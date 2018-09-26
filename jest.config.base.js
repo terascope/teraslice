@@ -17,9 +17,6 @@ module.exports = (projectDir) => {
         displayName: name,
         verbose: true,
         testEnvironment: 'node',
-        transform: {
-            '^.+\\.ts$': 'ts-jest'
-        },
         setupTestFrameworkScriptFile: 'jest-extended',
         testMatch: [
             `${projectRoot}/test/**/*-spec.{ts,js}`,
@@ -43,7 +40,8 @@ module.exports = (projectDir) => {
             '/test/',
         ],
         coverageReporters: ['lcov', 'text', 'html'],
-        coverageDirectory: `${projectRoot}/coverage`
+        coverageDirectory: `${projectRoot}/coverage`,
+        preset: 'ts-jest'
     };
 
     if (fs.pathExistsSync(path.join(projectDir, 'test/global.setup.js'))) {
@@ -58,13 +56,18 @@ module.exports = (projectDir) => {
         config.setupTestFrameworkScriptFile = `${projectRoot}/test/test.setup.js`;
     }
 
+    config.globals = {
+        'ts-jest': {
+            diagnostics: false,
+            pretty: true
+        }
+    };
+
     if (isTypescript) {
-        config.globals = {
-            'ts-jest': {
-                tsConfigFile: `./${workspaceName}/${name}/tsconfig.json`,
-                enableTsDiagnostics: true
-            }
+        config.globals['ts-jest'].diagnostics = {
+            warnOnly: true
         };
+        config.globals['ts-jest'].tsConfig = `./${workspaceName}/${name}/tsconfig.json`;
     }
 
     config.roots = [
