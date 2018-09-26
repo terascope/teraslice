@@ -1,11 +1,9 @@
 'use strict';
 
-class Schema {
-    static type() {
-        return 'convict';
-    }
+const { ConvictSchema } = require('@terascope/job-components');
 
-    build(context) { // eslint-disable-line no-unused-vars
+class Schema extends ConvictSchema {
+    build() {
         return {
             example: {
                 default: 'examples are quick and easy',
