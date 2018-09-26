@@ -10,7 +10,7 @@ export default abstract class Core {
     protected readonly context: Readonly<Context>;
     protected readonly executionConfig: Readonly<ExecutionConfig>;
     protected readonly logger: Logger;
-    protected readonly events: EventEmitter;
+    readonly events: EventEmitter;
 
     constructor(context: Context, executionConfig: ExecutionConfig, logger: Logger) {
         this.context = context;

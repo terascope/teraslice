@@ -57,7 +57,7 @@ export default class OperationCore extends Core implements SliceEvents {
     /**
      * Get a reference to an existing API
     */
-    async getAPI(name: string): Promise<OpAPI> {
+    getAPI(name: string): OpAPI {
         return this.context.apis.executionContext.getAPI(name);
     }
 

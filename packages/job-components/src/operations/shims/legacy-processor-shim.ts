@@ -1,4 +1,4 @@
-import sliceEventsShim from './slice-events-shim';
+import legacySliceEventsShim from './legacy-slice-events-shim';
 import DataEntity, { DataInput } from '../data-entity';
 import { SchemaConstructor } from '../core/schema-core';
 import { ProcessorConstructor } from '../core/processor-core';
@@ -30,7 +30,7 @@ export default function legacyProcessorShim(Processor: ProcessorConstructor, Sch
             const processor = new Processor(context, opConfig, executionConfig);
             await processor.initialize();
 
-            sliceEventsShim(context, processor);
+            legacySliceEventsShim(processor);
 
             return async (input: DataInput[], logger: Logger, sliceRequest: SliceRequest): Promise<DataInput[]> => {
                 // @ts-ignore

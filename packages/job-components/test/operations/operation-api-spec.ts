@@ -26,7 +26,6 @@ describe('OperationAPI', () => {
 
         const exContextApi = new ExecutionContextAPI(context, exConfig);
         exContextApi.addToRegistry('example/api', ExampleOperationAPI);
-
         context.apis.registerAPI('executionContext', exContextApi);
     });
 

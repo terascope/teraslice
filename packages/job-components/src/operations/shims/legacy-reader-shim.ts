@@ -1,5 +1,5 @@
 import times from 'lodash/times';
-import sliceEventsShim from './slice-events-shim';
+import legacySliceEventsShim from './legacy-slice-events-shim';
 import { SchemaConstructor } from '../core/schema-core';
 import { FetcherConstructor } from '../core/fetcher-core';
 import { ParallelSlicerConstructor } from '../parallel-slicer';
@@ -35,7 +35,7 @@ export default function legacyReaderShim(Slicer: SlicerConstructor|ParallelSlice
             const fetcher = new Fetcher(context, opConfig, executionConfig);
             await fetcher.initialize();
 
-            sliceEventsShim(context, fetcher);
+            legacySliceEventsShim(fetcher);
 
             return async (sliceRequest: SliceRequest): Promise<DataInput[]> => {
                 const output = await fetcher.handle(sliceRequest);
@@ -53,8 +53,7 @@ export default function legacyReaderShim(Slicer: SlicerConstructor|ParallelSlice
 
             await slicer.initialize(recoveryData);
 
-            const events = context.apis.foundation.getSystemEvents();
-            events.once('worker:shutdown', async () => {
+            slicer.events.once('worker:shutdown', async () => {
                 await slicer.shutdown();
             });
 
