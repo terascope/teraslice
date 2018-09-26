@@ -7,8 +7,8 @@
             "nodeType": "{{nodeType}}",
             "exId": "{{exId}}",
             "jobId": "{{jobId}}",
-            "jobName": "{{jobName}}",
-            "clusterName": "{{clusterName}}"
+            "jobName": "{{jobNameLabel}}",
+            "clusterName": "{{clusterNameLabel}}"
         },
         "name": "{{name}}",
         "namespace": "{{namespace}}"
@@ -21,8 +21,8 @@
                     "nodeType": "{{nodeType}}",
                     "exId": "{{exId}}",
                     "jobId": "{{jobId}}",
-                    "jobName": "{{jobName}}",
-                    "clusterName": "{{clusterName}}"
+                    "jobName": "{{jobNameLabel}}",
+                    "clusterName": "{{clusterNameLabel}}"
                 }
             },
             "spec": {
@@ -61,7 +61,6 @@
                         }]
                     }
                 }],
-                "imagePullSecrets": [{ "name": "{{imagePullSecret}}" }],
                 "terminationGracePeriodSeconds": {{shutdownTimeout}},
                 "restartPolicy": "Never"
             }
