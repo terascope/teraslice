@@ -1,5 +1,4 @@
 import 'jest-extended'; // require for type definitions
-import times from 'lodash/times';
 import { TestContext, newTestExecutionConfig } from '@terascope/teraslice-types';
 import { OperationAPI, operationAPIShim, ExecutionContextAPI } from '../../../src';
 
