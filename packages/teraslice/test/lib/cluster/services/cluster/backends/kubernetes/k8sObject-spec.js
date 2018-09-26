@@ -169,6 +169,10 @@ describe('k8sDeployment', () => {
                   limits:
                     memory: 2147483648
                     cpu: 1`));
+
+            const envArray = deployment.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
+                .toEqual('--max-old-space-size=1932735283');
         });
     });
 
@@ -188,6 +192,9 @@ describe('k8sDeployment', () => {
                     cpu: 1
                   limits:
                     cpu: 1`));
+
+            const envArray = deployment.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' })).toBeUndefined();
         });
     });
 
@@ -208,6 +215,10 @@ describe('k8sDeployment', () => {
                     memory: 2147483648
                   limits:
                     memory: 2147483648`));
+
+            const envArray = deployment.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
+                .toEqual('--max-old-space-size=1932735283');
         });
     });
 

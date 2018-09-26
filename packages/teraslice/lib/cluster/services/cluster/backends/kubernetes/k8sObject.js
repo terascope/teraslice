@@ -15,6 +15,7 @@ const { makeTemplate } = require('./utils');
 function gen(templateType, templateName, execution, config) {
     const templateGenerator = makeTemplate(templateType, templateName);
     const k8sObject = templateGenerator(config);
+    const maxHeapMemoryFactor = 0.9;
 
     // Apply job `targets` setting as k8s nodeAffinity
     // We assume that multiple targets require both to match ...
@@ -25,7 +26,7 @@ function gen(templateType, templateName, execution, config) {
         _setAffinity(k8sObject, execution);
     }
 
-    _setResources(k8sObject, execution);
+    _setResources(k8sObject, execution, maxHeapMemoryFactor);
 
     if (_.has(execution, 'volumes') && (execution.volumes != null)) {
         _setVolumes(k8sObject, execution);
@@ -72,7 +73,7 @@ function _setVolumes(k8sObject, execution) {
     });
 }
 
-function _setResources(k8sObject, execution) {
+function _setResources(k8sObject, execution, maxHeapMemoryFactor) {
     if (_.has(execution, 'cpu') && execution.cpu !== -1) {
         _.set(k8sObject.spec.template.spec.containers[0],
             'resources.requests.cpu', execution.cpu);
@@ -85,6 +86,15 @@ function _setResources(k8sObject, execution) {
             'resources.requests.memory', execution.memory);
         _.set(k8sObject.spec.template.spec.containers[0],
             'resources.limits.memory', execution.memory);
+
+        // Set NODE_OPTIONS to override max-old-space-size
+        const maxOldSpace = Math.round(maxHeapMemoryFactor * execution.memory);
+        k8sObject.spec.template.spec.containers[0].env.push(
+            {
+                name: 'NODE_OPTIONS',
+                value: `--max-old-space-size=${maxOldSpace}`
+            }
+        );
     }
 }
 
