@@ -44,11 +44,11 @@ module.exports = (cliConfig) => {
             row.push(response[node].node_id);
             row.push(response[node].state);
             row.push(response[node].hostname);
-            if (cliConfig.cluster_manager_type === 'kubernetes') {
+            if (cliConfig.cluster_manager_type === 'native') {
                 row.push(response[node].total);
             }
             row.push(response[node].active.length);
-            if (cliConfig.cluster_manager_type === 'kubernetes') {
+            if (cliConfig.cluster_manager_type === 'native') {
                 row.push(response[node].pid);
             }
             row.push(response[node].teraslice_version);
