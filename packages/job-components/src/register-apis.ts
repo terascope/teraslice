@@ -55,7 +55,7 @@ export function registerApis(context: Context, job: ValidatedJobConfig): void {
     }
 
     if (context.apis.executionContext == null) {
-        context.apis.registerAPI('executionContext', new ExecutionContextAPI());
+        context.apis.registerAPI('executionContext', new ExecutionContextAPI(context, job));
     }
 
     delete context.apis.job_runner;

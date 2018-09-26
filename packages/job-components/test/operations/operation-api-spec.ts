@@ -8,45 +8,39 @@ describe('OperationAPI', () => {
     }
 
     class ExampleOperationAPI extends OperationAPI {
-        name() {
-            return 'ExampleAPI';
-        }
-
-        public async handle(): Promise<ExampleAPI> {
+        public async createAPI(): Promise<ExampleAPI> {
             return {
                 hi: () => 'hello'
             };
         }
     }
 
-    let operation: ExampleOperationAPI;
+    const context = new TestContext('teraslice-operations');
+    const exConfig = newTestExecutionConfig();
+
+    exConfig.operations.push({
+        _op: 'example-op',
+    });
 
     beforeAll(() => {
-        const context = new TestContext('teraslice-operations');
-        context.apis.registerAPI('executionContext', new ExecutionContextAPI());
 
-        const exConfig = newTestExecutionConfig();
+        const exContextApi = new ExecutionContextAPI(context, exConfig);
+        exContextApi.addToRegistry('example/api', ExampleOperationAPI);
 
-        exConfig.operations.push({
-            _op: 'example-op',
-        });
-
-        const opConfig = exConfig.operations[0];
-        operation = new ExampleOperationAPI(context, opConfig, exConfig);
-        operation.register();
+        context.apis.registerAPI('executionContext', exContextApi);
     });
 
-    describe('->handle', () => {
-        it('should resolve the data entity which are passed in', async () => {
-            const result = await operation.handle();
-            expect(result.hi()).toEqual('hello');
-        });
+    it('should be able to be created', async () => {
+        const api:ExampleAPI = await context.apis.executionContext.initAPI('example/api');
+        expect(api.hi()).toEqual('hello');
     });
 
-    describe('->createAPI', () => {
-        it('should resolve the data entity which are passed in', async () => {
-            const result = await operation.createAPI('ExampleAPI') as ExampleAPI;
-            expect(result.hi()).toEqual('hello');
-        });
+    it('should throw an error if created again', async () => {
+        return expect(context.apis.executionContext.initAPI('example/api')).rejects.toThrow();
+    });
+
+    it('should be able to be fetched', async () => {
+        const api:ExampleAPI = await context.apis.executionContext.getAPI('example/api');
+        expect(api.hi()).toEqual('hello');
     });
 });

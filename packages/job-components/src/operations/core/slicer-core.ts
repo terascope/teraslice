@@ -25,13 +25,30 @@ export default abstract class SlicerCore extends Core {
     */
     static isRecoverable: boolean = true;
 
-    private queue: Queue;
+    private readonly queue: Queue;
     protected recoveryData: object[];
+    protected readonly opConfig: Readonly<OpConfig>;
 
     constructor(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig) {
-        super(context, opConfig, executionConfig);
+        const logger = context.apis.foundation.makeLogger({
+            module: 'slicer',
+            opName: opConfig._op,
+            jobName: executionConfig.name,
+        });
+        super(context, executionConfig, logger);
+
+        this.opConfig = opConfig;
         this.queue = new Queue();
         this.recoveryData = [];
+    }
+
+    async initialize(recoveryData: object[]): Promise<void> {
+        this.recoveryData = recoveryData;
+        this.context.logger.debug(`${this.executionConfig.name}->${this.opConfig._op} is initializing...`, recoveryData);
+    }
+
+    async shutdown(): Promise<void> {
+        this.context.logger.trace(`${this.executionConfig.name}->${this.opConfig._op} is shutting down...`);
     }
 
     /**
@@ -40,16 +57,6 @@ export default abstract class SlicerCore extends Core {
     * @returns a boolean depending on whether the slicer is done
     */
     abstract async handle(): Promise<boolean>;
-
-    /**
-     * A method called by the Teraslice framework to give the Slicer
-     * time to run asynchronous setup.
-    */
-    async initialize(recoveryData: object[]): Promise<void> {
-        this.recoveryData = recoveryData;
-        this.context.logger.debug(`${this.executionConfig.name}->${this.opConfig._op} is initializing...`, recoveryData);
-        return;
-    }
 
     /**
      * Create a Slice object from a slice request.
@@ -111,11 +118,6 @@ export default abstract class SlicerCore extends Core {
         this.context.logger.debug('slice result', result);
     }
 }
-
-export type SlicerConstructor = {
-    isRecoverable: boolean;
-    new(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): SlicerCore;
-};
 
 export type SlicerResult = Slice|SliceRequest | Slice|SliceRequest[] | null;
 
