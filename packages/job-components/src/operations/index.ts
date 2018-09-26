@@ -5,6 +5,7 @@ import Fetcher from './fetcher';
 import legacyProcessorShim from './shims/legacy-processor-shim';
 import legacyReaderShim from './shims/legacy-reader-shim';
 import legacySliceEventsShim from './shims/legacy-slice-events-shim';
+import operationAPIShim from './shims/operation-api-shim';
 import OperationAPI, { OpAPI, OpAPIInstance, OpAPIFn } from './operation-api';
 import ParallelSlicer, { SlicerFn } from './parallel-slicer';
 import Processor from './processor';
@@ -18,6 +19,7 @@ export {
     legacyProcessorShim,
     legacyReaderShim,
     legacySliceEventsShim,
+    operationAPIShim,
     OpAPI,
     OpAPIFn,
     OpAPIInstance,

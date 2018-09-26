@@ -1,10 +1,11 @@
 import times from 'lodash/times';
-import legacySliceEventsShim from './legacy-slice-events-shim';
+import DataEntity, { DataInput } from '../data-entity';
 import { SchemaConstructor } from '../core/schema-core';
 import { FetcherConstructor } from '../core/fetcher-core';
-import { ParallelSlicerConstructor } from '../parallel-slicer';
 import SlicerClass, { SlicerConstructor } from '../slicer';
-import DataEntity, { DataInput } from '../data-entity';
+import operationAPIShim, { APIs } from './operation-api-shim';
+import legacySliceEventsShim from './legacy-slice-events-shim';
+import { ParallelSlicerConstructor } from '../parallel-slicer';
 import {
     Logger,
     Context,
@@ -20,8 +21,12 @@ import {
 // This file for backwards compatibility and functionality will be limited
 // but it should allow you to write processors using the new way today
 
+type SlicerType = SlicerConstructor|ParallelSlicerConstructor;
+type FetcherType = FetcherConstructor;
+type SchemaType = SchemaConstructor;
+
 // tslint:disable-next-line:variable-name
-export default function legacyReaderShim(Slicer: SlicerConstructor|ParallelSlicerConstructor, Fetcher: FetcherConstructor, Schema: SchemaConstructor): LegacyReader {
+export default function legacyReaderShim(Slicer: SlicerType, Fetcher: FetcherType, Schema: SchemaType, apis?: APIs): LegacyReader {
     return {
         schema: (context) => {
             if (Schema.type() !== 'convict') {
@@ -36,6 +41,8 @@ export default function legacyReaderShim(Slicer: SlicerConstructor|ParallelSlice
             await fetcher.initialize();
 
             legacySliceEventsShim(fetcher);
+
+            operationAPIShim(context, apis);
 
             return async (sliceRequest: SliceRequest): Promise<DataInput[]> => {
                 const output = await fetcher.handle(sliceRequest);

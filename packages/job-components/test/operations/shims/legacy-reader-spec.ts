@@ -11,11 +11,17 @@ describe('Legacy Reader Shim', () => {
         }
     }
 
+    const slicerShutdown = jest.fn();
+
     class ExampleSlicer extends Slicer {
         async slice() {
             return {
                 hello: true
             };
+        }
+
+        async shutdown() {
+            slicerShutdown();
         }
     }
 
@@ -76,7 +82,7 @@ describe('Legacy Reader Shim', () => {
         });
 
         it('should handle newSlicer correctly', async () => {
-            expect(shim.newReader).toBeFunction();
+            expect(shim.newSlicer).toBeFunction();
 
             const exContext = newTestExecutionContext(Assignment.ExecutionController, exConfig);
             const slicers = await shim.newSlicer(context, exContext, [], context.logger);
@@ -125,10 +131,13 @@ describe('Legacy Reader Shim', () => {
         });
 
         it('should handle newSlicer correctly', async () => {
-            expect(shim.newReader).toBeFunction();
+            expect(shim.newSlicer).toBeFunction();
+            const events = context.apis.foundation.getSystemEvents();
 
             const exContext = newTestExecutionContext(Assignment.ExecutionController, exConfig);
             const slicers = await shim.newSlicer(context, exContext, [], context.logger);
+
+            events.emit('worker:shutdown');
 
             const result = await Promise.all(slicers.map((fn) => fn()));
 
@@ -136,6 +145,8 @@ describe('Legacy Reader Shim', () => {
             expect(result[0]).toMatchObject({
                 hello: true
             });
+
+            expect(slicerShutdown).toHaveBeenCalled();
         });
 
         it('should handle schema correctly', () => {

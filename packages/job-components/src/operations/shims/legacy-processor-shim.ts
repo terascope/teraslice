@@ -1,3 +1,4 @@
+import operationAPIShim, { APIs } from './operation-api-shim';
 import legacySliceEventsShim from './legacy-slice-events-shim';
 import DataEntity, { DataInput } from '../data-entity';
 import { SchemaConstructor } from '../core/schema-core';
@@ -16,7 +17,7 @@ import {
 // but it should allow you to write processors using the new way today
 
 // tslint:disable-next-line:variable-name
-export default function legacyProcessorShim(Processor: ProcessorConstructor, Schema: SchemaConstructor): LegacyProcessor {
+export default function legacyProcessorShim(Processor: ProcessorConstructor, Schema: SchemaConstructor, apis?: APIs): LegacyProcessor {
     return {
         schema: (context) => {
             if (Schema.type() !== 'convict') {
@@ -31,6 +32,8 @@ export default function legacyProcessorShim(Processor: ProcessorConstructor, Sch
             await processor.initialize();
 
             legacySliceEventsShim(processor);
+
+            operationAPIShim(context, apis);
 
             return async (input: DataInput[], logger: Logger, sliceRequest: SliceRequest): Promise<DataInput[]> => {
                 // @ts-ignore

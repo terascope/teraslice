@@ -88,36 +88,36 @@ describe('OperationCore', () => {
             return expect(api()).toEqual('hello');
         });
     });
-});
 
-describe('#validate', () => {
-    it('should succeed when given valid data', () => {
-        const schema: Schema<any> = {
-            example: {
-                default: 'howdy',
-                doc: 'some example value',
-                format: 'required_String',
-            }
-        };
+    describe('#validate', () => {
+        it('should succeed when given valid data', () => {
+            const schema: Schema<any> = {
+                example: {
+                    default: 'howdy',
+                    doc: 'some example value',
+                    format: 'required_String',
+                }
+            };
 
-        return expect(OperationCore.validate(schema, {
-            _op: 'hello',
-            example: 'hi'
-        })).resolves.toEqual({
-            _op: 'hello',
-            example: 'hi'
+            return expect(OperationCore.validate(schema, {
+                _op: 'hello',
+                example: 'hi'
+            })).resolves.toEqual({
+                _op: 'hello',
+                example: 'hi'
+            });
         });
-    });
 
-    it('should fail when given invalid data', () => {
-        const schema: Schema<any> = {
-            example: {
-                default: 'hi',
-                doc: 'some example value',
-                format: 'required_String',
-            }
-        };
+        it('should fail when given invalid data', () => {
+            const schema: Schema<any> = {
+                example: {
+                    default: 'hi',
+                    doc: 'some example value',
+                    format: 'required_String',
+                }
+            };
 
-        return expect(OperationCore.validate(schema, {})).rejects.toThrow();
+            return expect(OperationCore.validate(schema, {})).rejects.toThrow();
+        });
     });
 });
