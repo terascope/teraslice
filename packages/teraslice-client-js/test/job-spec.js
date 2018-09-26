@@ -127,7 +127,7 @@ describe('Teraslice Job', () => {
         describe('when called with nothing', () => {
             let result;
             beforeEach((done) => {
-                scope.post('/ex/some-ex-id/_recover')
+                scope.post('/jobs/some-job-id/_recover')
                     .reply(200, {
                         id: 'example'
                     });
@@ -150,7 +150,7 @@ describe('Teraslice Job', () => {
         describe('when called with a query', () => {
             let result;
             beforeEach((done) => {
-                scope.post('/ex/some-ex-id/_recover')
+                scope.post('/jobs/some-job-id/_recover')
                     .query({ cleanup: 'errors' })
                     .reply(200, {
                         key: 'some-other-key'
@@ -182,7 +182,7 @@ describe('Teraslice Job', () => {
                     });
 
                 new Job({ baseUrl }, 'some-job-id')
-                    .ex()
+                    .exId()
                     .then((_result) => {
                         result = _result;
                         done();
@@ -230,7 +230,7 @@ describe('Teraslice Job', () => {
                     });
 
                 new Job({ baseUrl }, 'some-job-id')
-                    .spec()
+                    .config()
                     .then((_result) => {
                         result = _result;
                         done();

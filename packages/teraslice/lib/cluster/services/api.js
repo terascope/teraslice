@@ -166,11 +166,16 @@ module.exports = function module(context, app, { assetsUrl }) {
     });
 
     v1routes.post('/jobs/:job_id/_recover', (req, res) => {
-        const { job_id: jobId } = req.params;
+        const { params: { job_id: jobId }, query: { cleanup } } = req;
         logger.trace(`POST /jobs/:job_id/_recover endpoint has been called, job_id: ${jobId}`);
         const handleApiError = handleError(res, logger, 500, `Could not recover execution for job: ${jobId}`);
 
-        jobsService.recoverJob(jobId)
+        if (cleanup && !(cleanup === 'all' || cleanup === 'errors')) {
+            res.status(400).json({ error: 'if cleanup is specified it must be set to "all" or "errors"' });
+            return;
+        }
+
+        jobsService.recoverJob(jobId, cleanup)
             .then(status => res.status(200).json({ status }))
             .catch(handleApiError);
     });
@@ -286,8 +291,7 @@ module.exports = function module(context, app, { assetsUrl }) {
     });
 
     v1routes.post('/ex/:ex_id/_recover', (req, res) => {
-        const { ex_id: exId } = req.params;
-        const { cleanup } = req.query;
+        const { params: { ex_id: exId }, query: { cleanup } } = req;
         const handleApiError = handleError(res, logger, 500, `Could not recover execution: ${exId}`);
         logger.trace(`POST /ex_id/:id/_recover endpoint has been called, ex_id: ${exId}`);
 

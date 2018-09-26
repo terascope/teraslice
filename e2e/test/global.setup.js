@@ -130,7 +130,7 @@ function generateTestData() {
 
     function postJob(jobSpec) {
         return misc.teraslice().jobs.submit(jobSpec)
-            .then(job => job.ex()
+            .then(job => job.exId()
                 .then((exId) => {
                     jobList.push(exId);
                     return job;

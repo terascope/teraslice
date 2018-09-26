@@ -58,10 +58,14 @@ class Job extends Client {
     }
 
     recover(qs) {
-        return this.ex().then(exId => this.post(`/ex/${exId}/_recover`, { qs }));
+        return this.post(`/jobs/${this._jobId}/_recover`, { qs });
     }
 
-    ex() {
+    execution() {
+        return this.get(`/jobs/${this._jobId}/ex`);
+    }
+
+    exId() {
         return this.get(`/jobs/${this._jobId}/ex`)
             .then(jobSpec => jobSpec.ex_id);
     }
@@ -125,7 +129,7 @@ class Job extends Client {
         return Promise.resolve().then(() => checkStatus());
     }
 
-    spec() {
+    config() {
         return this.get(`/jobs/${this._jobId}`);
     }
 
