@@ -1,8 +1,9 @@
 'use strict';
 
+const _ = require('lodash');
+
 module.exports = function _sliceAnalytics(context, executionContext) {
-    const exId = executionContext.ex_id || process.env.ex_id;
-    const jobId = executionContext.job_id || process.env.job_id;
+    const { ex_id: exId, job_id: jobId } = executionContext;
 
     const logger = context.apis.foundation.makeLogger({
         module: 'slice_analytics',
@@ -13,72 +14,95 @@ module.exports = function _sliceAnalytics(context, executionContext) {
     const { operations } = executionContext.config;
 
     // create a container to hold all the slice analytics for this execution
-    const sliceAnalytics = { time: [], size: [], memory: [] };
+    const sliceAnalytics = {
+        time: [],
+        size: [],
+        memory: []
+    };
 
     for (let i = 0; i < operations.length; i += 1) {
-        sliceAnalytics.time.push([]);
-        sliceAnalytics.size.push([]);
-        sliceAnalytics.memory.push([]);
+        sliceAnalytics.time.push({
+            min: 0,
+            max: 0,
+            sum: 0,
+            total: 0,
+            average: 0,
+        });
+        sliceAnalytics.size.push({
+            min: 0,
+            max: 0,
+            sum: 0,
+            total: 0,
+            average: 0,
+        });
+        sliceAnalytics.memory.push({
+            min: 0,
+            max: 0,
+            sum: 0,
+            total: 0,
+            average: 0,
+        });
+    }
+
+    function addStat(input, stat) {
+        if (!_.has(input, stat) || !_.has(sliceAnalytics, stat)) {
+            logger.warn(`unsupported stat "${stat}"`);
+            return;
+        }
+
+        for (let i = 0; i < operations.length; i += 1) {
+            const val = input[stat][i];
+            if (!_.isSafeInteger(val)) {
+                return;
+            }
+
+            sliceAnalytics[stat][i].sum += val;
+            sliceAnalytics[stat][i].total += 1;
+
+            const {
+                min,
+                max,
+                total,
+                sum
+            } = sliceAnalytics[stat][i];
+
+            sliceAnalytics[stat][i].min = min !== 0 ? _.min([val, min]) : val;
+            sliceAnalytics[stat][i].max = max !== 0 ? _.max([val, max]) : val;
+            sliceAnalytics[stat][i].average = _.round((sum / total), 2);
+        }
     }
 
     function addStats(data) {
-        data.time.forEach((duration, index) => {
-            sliceAnalytics.time[index].push(duration);
-        });
-
-        data.size.forEach((len, index) => {
-            sliceAnalytics.size[index].push(len);
-        });
-
-        data.memory.forEach((mem, index) => {
-            sliceAnalytics.memory[index].push(mem);
-        });
-    }
-
-    function _calculateStats(array) {
-        let max = Number.NEGATIVE_INFINITY;
-        let min = Number.POSITIVE_INFINITY;
-        const total = array.length;
-
-        const sum = array.reduce((prev, num) => {
-            if (num > max) {
-                max = num;
-            }
-            if (num < min) {
-                min = num;
-            }
-            return prev + num;
-        }, 0);
-
-        const average = (sum / total).toFixed(2);
-
-        return { max, min, average };
+        addStat(data, 'time');
+        addStat(data, 'memory');
+        addStat(data, 'size');
     }
 
     function analyzeStats() {
         logger.info('calculating statistics');
 
-        const time = sliceAnalytics.time.map(arr => _calculateStats(arr));
-        const size = sliceAnalytics.size.map(arr => _calculateStats(arr));
-        const memory = sliceAnalytics.memory.map(arr => _calculateStats(arr));
+        for (let i = 0; i < operations.length; i += 1) {
+            const name = operations[i]._op;
+            const time = sliceAnalytics.time[i];
+            const size = sliceAnalytics.size[i];
+            const memory = sliceAnalytics.memory[i];
 
-        time.forEach((data, index) => {
             logger.info(`
-operation ${operations[index]._op}
-average completion time of: ${data.average} ms, min: ${data.min} ms, and max: ${data.max} ms
-average size : ${size[index].average}, min: ${size[index].min}, and max: ${size[index].max}
-average memory : ${memory[index].average}, min: ${memory[index].min}, and max: ${memory[index].max}
-             `);
-        });
+operation ${name}
+average completion time of: ${time.average} ms, min: ${time.min} ms, and max: ${time.max} ms
+average size: ${size.average}, min: ${size.min}, and max: ${size.max}
+average memory: ${memory.average}, min: ${memory.min}, and max: ${memory.max}
+            `);
+        }
     }
 
-    function testContext() {
-        return { sliceAnalytics, _calculateStats };
+    function getStats() {
+        return sliceAnalytics;
     }
 
     return {
         addStats,
         analyzeStats,
-        __test_context: testContext
+        getStats,
     };
 };

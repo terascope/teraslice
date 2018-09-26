@@ -11,17 +11,12 @@ function clusterName(configFile) {
     return get(configFile, 'teraslice.name', null);
 }
 
-function loggingConnection(configFile) {
-    return get(configFile, 'teraslice.state.connection', 'default');
-}
-
 function getTerasliceConfig(sysconfig) {
     return Object.assign({
         name: 'teraslice',
         config_schema: configSchema,
         schema_formats: formats,
         cluster_name: clusterName,
-        logging_connection: loggingConnection,
         shutdownMessaging: false,
         start_workers: false,
     }, sysconfig);
@@ -32,6 +27,5 @@ module.exports = {
     formats,
     configSchema,
     getTerasliceConfig,
-    loggingConnection,
     clusterName,
 };
