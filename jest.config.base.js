@@ -10,6 +10,7 @@ module.exports = (projectDir) => {
     const rootDir = name === 'e2e' ? '../' : '../../';
     const projectRoot = name === 'e2e' ? '<rootDir>/e2e' : `<rootDir>/${workspaceName}/${name}`;
     const isTypescript = fs.pathExistsSync(path.join(projectDir, 'tsconfig.json'));
+    const runInPackage = projectDir === process.cwd();
 
     const config = {
         rootDir,
@@ -67,7 +68,11 @@ module.exports = (projectDir) => {
         config.globals['ts-jest'].diagnostics = {
             warnOnly: true
         };
-        config.globals['ts-jest'].tsConfig = `./${workspaceName}/${name}/tsconfig.json`;
+        if (runInPackage) {
+            config.globals['ts-jest'].tsConfig = './tsconfig.json';
+        } else {
+            config.globals['ts-jest'].tsConfig = `./${workspaceName}/${name}/tsconfig.json`;
+        }
     }
 
     config.roots = [
