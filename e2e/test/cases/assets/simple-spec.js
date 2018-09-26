@@ -13,7 +13,7 @@ describe('Asset Tests', () => {
     const teraslice = misc.teraslice();
 
     /**
-         * Uploads the specified asset file and then submits the specified job spec
+         * Uploads the specified asset file and then submits the specified job config
          * it then waits for the job to enter the running state, then waits for
          * the requested number of workers to enter the joined state.  Then that has
          * happened it tests to see that the number of workers joined is the number
@@ -101,5 +101,48 @@ describe('Asset Tests', () => {
         submitAndValidateAssetJob('generator-asset', assetPath)
             .catch(fail)
             .finally(() => { done(); });
+    });
+
+    it('can update an asset bundle and use the new asset', async () => {
+        const assetPath = 'test/fixtures/assets/example_asset_1updated.zip';
+
+        const fileStream = fs.createReadStream(assetPath);
+        // the asset on this job already points to 'ex1' so it should use the latest available asset
+        const jobSpec = misc.newJob('generator-asset');
+        const { workers } = jobSpec;
+
+        const assetResponse = await teraslice.assets.post(fileStream);
+        const assetId = JSON.parse(assetResponse)._id;
+
+        const job = await teraslice.jobs.submit(jobSpec);
+        await waitForJobStatus(job, 'running');
+
+        const waitResponse = await wait.forWorkersJoined(job.id(), workers, 20);
+        expect(waitResponse).toEqual(workers);
+
+        const execution = await job.execution();
+        expect(execution.assets[0]).toEqual(assetId);
+
+        await job.stop();
+    });
+
+    it('can directly ask for the new asset to be used', async () => {
+        const jobSpec = misc.newJob('generator-asset');
+        jobSpec.assets = ['ex1:0.1.1'];
+        const { workers } = jobSpec;
+
+        const assetResponse = await teraslice.assets.get('ex1/0.1.1');
+        const assetId = assetResponse[0].id;
+
+        const job = await teraslice.jobs.submit(jobSpec);
+        await waitForJobStatus(job, 'running');
+
+        const waitResponse = await wait.forWorkersJoined(job.id(), workers, 20);
+        expect(waitResponse).toEqual(workers);
+
+        const execution = await job.execution();
+        expect(execution.assets[0]).toEqual(assetId);
+
+        await job.stop();
     });
 });

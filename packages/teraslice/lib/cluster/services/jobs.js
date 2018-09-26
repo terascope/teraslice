@@ -76,35 +76,13 @@ module.exports = function module(context) {
             });
     }
 
-    function _canRecover(ex) {
-        if (ex._status === 'completed') {
-            throw new Error('This job has completed and can not be restarted.');
-        }
-        if (ex._status === 'scheduling' || ex._status === 'pending') {
-            throw new Error('This job is currently being scheduled and can not be restarted.');
-        }
-        if (ex._status === 'running') {
-            throw new Error('This job is currently successfully running and can not be restarted.');
-        }
-    }
-
-    function recoverJob(jobId) {
-        let previousExecutionId;
-        return getLatestExecutionId(jobId)
-            .then((exId) => {
-                previousExecutionId = exId;
-                return executionService.getExecutionContext(exId);
-            })
-            .then(execution => _canRecover(execution))
-            .then(() => getJob(jobId))
+    function recoverJob(jobId, cleanup) {
+        // we need to do validations since the job config could change between recovery
+        return getJob(jobId)
             .then(jobSpec => _ensureAssets(jobSpec))
             .then(assetIdJob => _validateJob(assetIdJob))
-            .then((validJob) => {
-                // setting previous execution id so new execution can query it properly
-                validJob._recover_execution = previousExecutionId;
-                return validJob;
-            })
-            .then(recoveryJob => executionService.createExecutionContext(recoveryJob))
+            .then(() => getLatestExecutionId(jobId))
+            .then(exId => executionService.recoverExecution(exId, cleanup))
             .catch(err => Promise.reject(parseError(err)));
     }
 

@@ -1,5 +1,6 @@
 'use strict';
 
+const path = require('path');
 const _ = require('lodash');
 const autoBind = require('auto-bind');
 const Promise = require('bluebird');
@@ -33,6 +34,15 @@ class Assets extends Client {
 
             return JSON.parse(response);
         });
+    }
+
+    list() {
+        return super.get('/assets');
+    }
+
+    get(assetPath) {
+        const pathing = path.join('/assets', assetPath);
+        return super.get(pathing);
     }
 }
 
