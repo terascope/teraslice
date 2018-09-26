@@ -34,5 +34,4 @@ export default abstract class Processor extends ProcessorCore {
 
         return output;
     }
-
 }

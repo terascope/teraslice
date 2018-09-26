@@ -49,3 +49,11 @@ export interface Context {
     apis: ContextApis;
     foundation: LegacyFoundationApis;
 }
+
+export enum Assignment {
+    Worker = 'worker',
+    ExecutionController = 'execution_controller',
+    NodeMaster = 'node_master',
+    ClusterMaster = 'cluster_master',
+    AssetsService = 'assets_service'
+}

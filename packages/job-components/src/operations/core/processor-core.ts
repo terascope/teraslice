@@ -1,6 +1,6 @@
 import { DataEntityList } from '../data-entity';
 import OperationCore from './operation-core';
-import { SliceRequest } from '@terascope/teraslice-types';
+import { SliceRequest, Context, OpConfig, ExecutionConfig } from '@terascope/teraslice-types';
 
 /**
  * A base class for supporting "Processors" that run on a "Worker".
@@ -19,3 +19,7 @@ export default abstract class ProcessorCore extends OperationCore {
     */
     abstract async handle(input: DataEntityList, sliceRequest?: SliceRequest): Promise<DataEntityList>;
 }
+
+export type ProcessorConstructor = {
+    new(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): ProcessorCore;
+};

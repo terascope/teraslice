@@ -7,3 +7,8 @@ import { Context } from '@terascope/teraslice-types';
 export default abstract class SchemaCore {
     abstract build(context?: Context): any;
 }
+
+export type SchemaConstructor = {
+    type(): string;
+    new(): SchemaCore;
+};

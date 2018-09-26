@@ -75,6 +75,30 @@ export function newTestExecutionConfig(): j.ExecutionConfig {
     return exConfig;
 }
 
+export function newTestExecutionContext(type: c.Assignment, config: j.ExecutionConfig): j.ExecutionContext {
+    if (type === c.Assignment.ExecutionController) {
+        return {
+            config,
+            queue: [],
+            reader: null,
+            slicer: () => {},
+            dynamicQueueLength: false,
+            queueLength: 10000,
+            reporter: null,
+        };
+    }
+
+    return {
+        config,
+        queue: config.operations.map(() => () => {}),
+        reader: () => {},
+        slicer: null,
+        dynamicQueueLength: false,
+        queueLength: 10000,
+        reporter: null,
+    };
+}
+
 function testContextApis(testName: string): c.ContextApis {
     const events = new EventEmitter();
     return {

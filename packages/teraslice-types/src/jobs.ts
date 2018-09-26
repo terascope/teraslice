@@ -107,22 +107,23 @@ export interface LegacyOperation {
 }
 
 export interface LegacyReader extends LegacyOperation {
+    schema(context?: Context): Schema<any>;
     newReader(
         context: Context,
         opConfig: OpConfig,
         exectutionConfig: ExecutionConfig,
-    ): (...params: any[]) => any[] | any;
-}
-
-export interface LegacySlicer extends LegacyOperation {
-    schema(context?: Context): Schema<any>;
+    ): Promise<readerFn<any>>;
     newSlicer(
         context: Context,
         executionContext: ExecutionContext,
         recoveryData: object[],
         logger: Logger,
-    ): () => any[] | null;
+    ): Promise<slicerFns>;
 }
+
+export type readerFn<T> = (sliceRequest: SliceRequest) => Promise<T>|T;
+export type slicerFn = () => Promise<SliceRequest|Slice|null>;
+export type slicerFns = slicerFn[];
 
 export interface LegacyProcessor extends LegacyOperation {
     schema(context?: Context): Schema<any>;
@@ -130,8 +131,10 @@ export interface LegacyProcessor extends LegacyOperation {
         context: Context,
         opConfig: OpConfig,
         executionConfig: ExecutionConfig,
-    ): (...params: any[]) => any[] | any;
+    ): Promise<processorFn<any>>;
 }
+
+export type processorFn<T> = (data: T, logger: Logger, sliceRequest: SliceRequest) => Promise<T>|T;
 
 export interface SliceRequest {
     request_worker?: string;

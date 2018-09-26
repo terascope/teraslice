@@ -112,6 +112,11 @@ export default abstract class SlicerCore extends Core {
     }
 }
 
+export type SlicerConstructor = {
+    isRecoverable: boolean;
+    new(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): SlicerCore;
+};
+
 export type SlicerResult = Slice|SliceRequest | Slice|SliceRequest[] | null;
 
 export interface SliceResult {

@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { Context, OpConfig, ExecutionConfig } from '@terascope/teraslice-types';
 import SlicerCore, { SlicerResult } from './core/slicer-core';
 
 /**
@@ -89,3 +90,8 @@ interface SlicerObj {
 export interface SlicerFn {
     (): Promise<SlicerResult>;
 }
+
+export type ParallelSlicerConstructor = {
+    isRecoverable: boolean;
+    new(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): ParallelSlicer;
+};

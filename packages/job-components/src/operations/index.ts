@@ -2,6 +2,8 @@ import BatchProcessor from './batch-processor';
 import ConvictSchema from './convict-schema';
 import DataEntity from './data-entity';
 import Fetcher from './fetcher';
+import legacyProcessorShim from './shims/legacy-processor';
+import legacyReaderShim from './shims/legacy-reader';
 import OperationAPI, { OpAPI, OpAPIInstance, OpAPIFn } from './operation-api';
 import ParallelSlicer, { SlicerFn } from './parallel-slicer';
 import Processor from './processor';
@@ -12,6 +14,8 @@ export {
     ConvictSchema,
     DataEntity,
     Fetcher,
+    legacyProcessorShim,
+    legacyReaderShim,
     OpAPI,
     OpAPIFn,
     OpAPIInstance,

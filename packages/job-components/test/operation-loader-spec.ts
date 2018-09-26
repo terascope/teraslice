@@ -1,12 +1,13 @@
 'use strict';
 
-import { LegacyProcessor, LegacyReader, newTestExecutionConfig, TestContext } from '@terascope/teraslice-types';
+import { LegacyProcessor, LegacyReader, newTestExecutionConfig, TestContext, debugLogger } from '@terascope/teraslice-types';
 import fse from 'fs-extra';
 import 'jest-extended'; // require for type definitions
 import path from 'path';
 import { OperationLoader } from '../src';
 
 describe('OperationLoader', () => {
+    const logger = debugLogger('operation-loader');
     const assetId = '1234';
     const testDir = path.join(__dirname, 'op_test');
     const assetPath = path.join(testDir, assetId);
@@ -31,7 +32,7 @@ describe('OperationLoader', () => {
         expect(opLoader.load).toBeFunction();
     });
 
-    it('can load an operation', () => {
+    it('can load an operation', async () => {
         const opLoader = new OperationLoader({
             terasliceOpPath,
         });
@@ -49,13 +50,13 @@ describe('OperationLoader', () => {
         expect(opSchema).toBeObject();
 
         const exConfig = newTestExecutionConfig();
-        const processor = results.newProcessor(context, { _op: 'noop' }, exConfig);
+        const processor = await results.newProcessor(context, { _op: 'noop' }, exConfig);
 
         expect(processor).toBeDefined();
         expect(processor).toBeFunction();
 
         const someData = 'someData';
-        const processorResults = processor(someData);
+        const processorResults = processor(someData, logger, {});
         expect(processorResults).toEqual(someData);
     });
 
@@ -92,7 +93,7 @@ describe('OperationLoader', () => {
         }).toThrowError();
     });
 
-    it('can load asset ops', () => {
+    it('can load asset ops', async () => {
         const opLoader = new OperationLoader({
             terasliceOpPath,
             assetPath: testDir,
@@ -112,13 +113,13 @@ describe('OperationLoader', () => {
         expect(opSchema).toBeObject();
 
         const exConfig = newTestExecutionConfig();
-        const processor = results.newProcessor(context, { _op: 'hello' }, exConfig);
+        const processor = await results.newProcessor(context, { _op: 'hello' }, exConfig);
 
         expect(processor).toBeDefined();
         expect(processor).toBeFunction();
 
         const someData = 'someData';
-        const processorResults = processor(someData);
+        const processorResults = processor(someData, logger, {});
         expect(processorResults).toEqual(someData);
     });
 });
