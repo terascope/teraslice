@@ -1,8 +1,9 @@
 import times from 'lodash/times';
-import SlicerClass, { SlicerConstructor } from '../slicer';
-import { ParallelSlicerConstructor } from '../parallel-slicer';
-import { FetcherConstructor } from '../core/fetcher-core';
+import sliceEventsShim from './slice-events-shim';
 import { SchemaConstructor } from '../core/schema-core';
+import { FetcherConstructor } from '../core/fetcher-core';
+import { ParallelSlicerConstructor } from '../parallel-slicer';
+import SlicerClass, { SlicerConstructor } from '../slicer';
 import DataEntity, { DataInput } from '../data-entity';
 import {
     Logger,
@@ -34,30 +35,7 @@ export default function legacyReaderShim(Slicer: SlicerConstructor|ParallelSlice
             const fetcher = new Fetcher(context, opConfig, executionConfig);
             await fetcher.initialize();
 
-            const events = context.apis.foundation.getSystemEvents();
-            events.once('worker:shutdown', async () => {
-                await fetcher.shutdown();
-            });
-
-            events.once('slice:initialize', async (slice) => {
-                await fetcher.onSliceInitialized(slice.slice_id);
-            });
-
-            events.once('slice:retry', async (slice) => {
-                await fetcher.onSliceRetry(slice.slice_id);
-            });
-
-            events.once('slice:failure', async (slice) => {
-                await fetcher.onSliceFailed(slice.slice_id);
-            });
-
-            events.once('slice:success', async (slice) => {
-                await fetcher.onSliceFinalizing(slice.slice_id);
-            });
-
-            events.once('slice:finalize', async (slice) => {
-                await fetcher.onSliceFinished(slice.slice_id);
-            });
+            sliceEventsShim(context, fetcher);
 
             return async (sliceRequest: SliceRequest): Promise<DataInput[]> => {
                 const output = await fetcher.handle(sliceRequest);

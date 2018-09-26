@@ -1,6 +1,7 @@
-import { ProcessorConstructor } from '../core/processor-core';
-import { SchemaConstructor } from '../core/schema-core';
+import sliceEventsShim from './slice-events-shim';
 import DataEntity, { DataInput } from '../data-entity';
+import { SchemaConstructor } from '../core/schema-core';
+import { ProcessorConstructor } from '../core/processor-core';
 import {
     LegacyProcessor,
     Logger,
@@ -29,30 +30,7 @@ export default function legacyProcessorShim(Processor: ProcessorConstructor, Sch
             const processor = new Processor(context, opConfig, executionConfig);
             await processor.initialize();
 
-            const events = context.apis.foundation.getSystemEvents();
-            events.once('worker:shutdown', async () => {
-                await processor.shutdown();
-            });
-
-            events.once('slice:initialize', async (slice) => {
-                await processor.onSliceInitialized(slice.slice_id);
-            });
-
-            events.once('slice:retry', async (slice) => {
-                await processor.onSliceRetry(slice.slice_id);
-            });
-
-            events.once('slice:failure', async (slice) => {
-                await processor.onSliceFailed(slice.slice_id);
-            });
-
-            events.once('slice:success', async (slice) => {
-                await processor.onSliceFinalizing(slice.slice_id);
-            });
-
-            events.once('slice:finalize', async (slice) => {
-                await processor.onSliceFinished(slice.slice_id);
-            });
+            sliceEventsShim(context, processor);
 
             return async (input: DataInput[], logger: Logger, sliceRequest: SliceRequest): Promise<DataInput[]> => {
                 // @ts-ignore

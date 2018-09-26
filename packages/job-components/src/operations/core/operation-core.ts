@@ -3,6 +3,7 @@ import '../../formats'; // require to add the schema formats
 import Core from './core';
 import convict from 'convict';
 import { OpAPI } from './api-core';
+import SliceEvents from './slice-events';
 import { Context, ExecutionConfig, OpConfig } from '@terascope/teraslice-types';
 import { validateOpConfig } from '../../config-validators';
 
@@ -14,7 +15,7 @@ import { validateOpConfig } from '../../config-validators';
  * @see Core
  */
 
-export default class OperationCore extends Core {
+export default class OperationCore extends Core implements SliceEvents {
     /**
      * This is called by the Teraslice framework in-order to delegrate the
      * the schema validation to place that can be customized depending on
@@ -60,57 +61,26 @@ export default class OperationCore extends Core {
         return this.context.apis.executionContext.getAPI(name);
     }
 
-    /**
-     * A method called by the Teraslice framework to give an operation
-     * time to run asynchronous slice initialization before the slice
-     * has been handed to any operation.
-    */
     async onSliceInitialized(sliceId: string): Promise<void> {
         this.context.logger.trace(`slice initialized: ${sliceId}`);
     }
 
-    /**
-     * A method called by the Teraslice framework to give an operation
-     * time to run asynchronous preperation after the slice is sent
-     * to the "Fetcher"
-    */
     async onSliceStarted(sliceId: string): Promise<void> {
         this.context.logger.trace(`slice started: ${sliceId}`);
     }
 
-    /**
-     * A method called by the Teraslice framework to give an operation
-     * time to run asynchronous cleanup after the slice is done
-     * with the last operation
-    */
     async onSliceFinalizing(sliceId: string): Promise<void> {
         this.context.logger.trace(`slice finalizing: ${sliceId}`);
     }
 
-    /**
-     * A method called by the Teraslice framework to give an operation
-     * time to run asynchronous cleanup after the slice has
-     * been acknowledged by the "Execution Controller"
-    */
     async onSliceFinished(sliceId: string): Promise<void> {
         this.context.logger.trace(`slice finished: ${sliceId}`);
     }
 
-    /**
-     * A method called by the Teraslice framework to give an operation
-     * time to run asynchronous cleanup after the slice has
-     * been marked as "Failed"
-    */
     async onSliceFailed(sliceId: string): Promise<void> {
         this.context.logger.trace(`slice failed: ${sliceId}`);
     }
 
-    /**
-     * A method called by the Teraslice framework to give an operation
-     * time to run asynchronous cleanup, or setup, after the slice has
-     * been failed to process and the `max_retries` is set a number
-     * greater than 1.
-    */
     async onSliceRetry(sliceId: string): Promise<void> {
         this.context.logger.trace(`slice retry: ${sliceId}`);
     }
