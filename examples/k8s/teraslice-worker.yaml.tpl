@@ -16,4 +16,5 @@ teraslice:
     master: false
     master_hostname: "teraslice-master"
     kubernetes_image: "teraslice-k8sdev"
-    name: "terak8s"
+    kubernetes_namespace: "ts-dev1"
+    name: "ts-dev1"

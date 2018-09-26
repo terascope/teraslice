@@ -13,8 +13,8 @@ describe('k8sJob', () => {
     const _name = `teraslice-execution-controller-${_execution.ex_id}`.substring(0, 63);
     const _config = {
         name: _name,
-        jobName: 'test-job',
-        clusterName: 'test-cluster',
+        jobNameLabel: 'test-job',
+        clusterNameLabel: 'test-cluster',
         exId: _execution.ex_id,
         jobId: _execution.job_id,
         dockerImage: 'teraslice-k8sdev:1',
@@ -24,7 +24,6 @@ describe('k8sJob', () => {
         shutdownTimeout: 30000,
         replicas: 1,
         configMapName: 'teraslice-worker',
-        imagePullSecret: 'teraslice-secret',
     };
 
     let ex;
@@ -45,9 +44,11 @@ describe('k8sJob', () => {
 describe('k8sDeployment', () => {
     const _name = `teraslice-worker-${_execution.ex_id}`.substring(0, 63);
     const _config = {
+        assetsDirectory: '',
+        assetsVolume: '',
         name: _name,
-        jobName: 'test-job',
-        clusterName: 'test-cluster',
+        jobNameLabel: 'test-job',
+        clusterNameLabel: 'test-cluster',
         exId: _execution.ex_id,
         jobId: _execution.job_id,
         dockerImage: 'teraslice-k8sdev:1',
@@ -57,7 +58,7 @@ describe('k8sDeployment', () => {
         shutdownTimeout: 30000,
         replicas: 1,
         configMapName: 'teraslice-worker',
-        imagePullSecret: 'teraslice-secret',
+        imagePullSecret: '',
     };
 
     let ex;
@@ -168,6 +169,10 @@ describe('k8sDeployment', () => {
                   limits:
                     memory: 2147483648
                     cpu: 1`));
+
+            const envArray = deployment.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
+                .toEqual('--max-old-space-size=1932735283');
         });
     });
 
@@ -187,6 +192,9 @@ describe('k8sDeployment', () => {
                     cpu: 1
                   limits:
                     cpu: 1`));
+
+            const envArray = deployment.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' })).toBeUndefined();
         });
     });
 
@@ -207,10 +215,14 @@ describe('k8sDeployment', () => {
                     memory: 2147483648
                   limits:
                     memory: 2147483648`));
+
+            const envArray = deployment.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
+                .toEqual('--max-old-space-size=1932735283');
         });
     });
 
-    describe('with single volume set', () => {
+    describe('with a single job volume set', () => {
         let deployment;
 
         beforeEach(() => {
@@ -249,7 +261,7 @@ describe('k8sDeployment', () => {
         });
     });
 
-    describe('with two volumes set', () => {
+    describe('with two job volumes set', () => {
         let deployment;
 
         beforeEach(() => {
@@ -260,7 +272,7 @@ describe('k8sDeployment', () => {
             deployment = k8sObject.gen('deployments', 'worker', ex, config);
         });
 
-        it('should render a deployment with a two volumes and volumeMounts', () => {
+        it('should render a deployment with a three volumes and volumeMounts', () => {
             expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
 
             // First check the configMap volumes, which should be present on all
@@ -296,6 +308,77 @@ describe('k8sDeployment', () => {
                 .toEqual(yaml.load(`
                     name: tmp
                     mountPath: /tmp`));
+        });
+    });
+
+    describe('with assets_volume set in teraslice config', () => {
+        let deployment;
+
+        beforeEach(() => {
+            config.assetsDirectory = '/assets';
+            config.assetsVolume = 'asset-volume';
+            deployment = k8sObject.gen('deployments', 'worker', ex, config);
+        });
+
+        it('should render a deployment with a two volumes and volumeMounts', () => {
+            expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+
+            // First check the configMap volumes, which should be present on all
+            // deployments
+            expect(deployment.spec.template.spec.volumes[0]).toEqual(yaml.load(`
+                  name: config
+                  configMap:
+                   name: teraslice-worker
+                   items:
+                     - key: teraslice.yaml
+                       path: teraslice.yaml`));
+            expect(deployment.spec.template.spec.containers[0].volumeMounts[0])
+                .toEqual(yaml.load(`
+                    mountPath: /app/config
+                    name: config`));
+
+            // Now check for the assets volume
+            expect(deployment.spec.template.spec.volumes[1]).toEqual(yaml.load(`
+                  name: asset-volume
+                  persistentVolumeClaim:
+                    claimName: asset-volume`));
+            expect(deployment.spec.template.spec.containers[0].volumeMounts[1])
+                .toEqual(yaml.load(`
+                    name: asset-volume
+                    mountPath: /assets`));
+        });
+    });
+
+    describe('with no image_pull_secret set in teraslice config', () => {
+        let deployment;
+
+        beforeEach(() => {
+            deployment = k8sObject.gen('deployments', 'worker', ex, config);
+        });
+
+        it('should render a deployment without imagePullSecrets', () => {
+            expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+            expect(deployment.spec.template.spec).not.toHaveProperty('imagePullSecrets');
+        });
+    });
+
+    describe('with image_pull_secret set in teraslice config', () => {
+        let deployment;
+
+        beforeEach(() => {
+            config.imagePullSecret = 'teraslice-image-pull-secret';
+            deployment = k8sObject.gen('deployments', 'worker', ex, config);
+        });
+
+        it('should render a deployment with a single imagePullSecret', () => {
+            expect(deployment.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+
+            // First check the configMap volumes, which should be present on all
+            // deployments
+            expect(deployment.spec.template.spec.imagePullSecrets[0]).toEqual(
+                yaml.load(`
+                  name: teraslice-image-pull-secret`)
+            );
         });
     });
 });

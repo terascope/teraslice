@@ -19,4 +19,4 @@ teraslice:
     kubernetes_image_pull_secrets:
         - "docker-tera1-secret"
     kubernetes_namespace: "ts-dev1"
-    name: "terak8s"
+    name: "ts-dev1"

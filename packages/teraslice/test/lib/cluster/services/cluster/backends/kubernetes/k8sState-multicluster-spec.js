@@ -1,17 +1,17 @@
 'use strict';
 
 const _ = require('lodash');
-const _podsJobRunning = require('./files/job-running-v1-k8s-pods.json');
+const _podsJobRunning = require('./files/job-running-v1-k8s-pods-multicluster.json');
 const k8sState = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8sState');
 
-describe('k8sState', () => {
+describe('k8sState with pods from multiple clusters', () => {
     it('should generate cluster state correctly on first call', () => {
         const podsJobRunning = _.cloneDeep(_podsJobRunning);
         const clusterState = {};
 
         k8sState.gen(podsJobRunning, clusterState, 'ts-dev1');
         // console.log(`clusterState\n\n${JSON.stringify(clusterState, null, 2)}`);
-        // console.log(`expectedClusterState\n\n` + JSON.stringify(expectedClusterState, null, 2));
+        // console.log(JSON.stringify(podsJobRunning, null, 2));
 
         expect(clusterState['192.168.99.100'].state).toEqual('connected');
         expect(clusterState['192.168.99.100'].active.length).toEqual(3);
@@ -66,18 +66,5 @@ describe('k8sState', () => {
                 pod_ip: '172.17.0.6',
                 assets: []
             });
-    });
-
-    it('should remove old host ips', () => {
-        const podsJobRunning = _.cloneDeep(_podsJobRunning);
-        const clusterState = {};
-        clusterState['2.2.2.2'] = {
-            state: 'idk',
-            active: []
-        };
-
-        k8sState.gen(podsJobRunning, clusterState, 'ts-dev1');
-        expect(clusterState['192.168.99.100'].active.length).toEqual(3);
-        expect(clusterState['2.2.2.2']).toBeUndefined();
     });
 });
