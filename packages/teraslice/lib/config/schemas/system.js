@@ -73,7 +73,7 @@ const schema = {
     name: {
         doc: 'Name for the cluster itself, its used for naming log files/indices',
         default: 'teracluster',
-        format: 'required_String'
+        format: 'elasticsearch_Name'
     },
     state: {
         doc: 'Elasticsearch cluster where job state, analytics and logs are stored',
