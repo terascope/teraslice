@@ -398,13 +398,21 @@ module.exports = function module(context, { clusterMasterServer }) {
                         }))
                         .then(() => allocateWorkers(execution, execution.workers)
                             .catch((err) => {
-                            // this is to catch errors of allocateWorkers
-                            // if allocation fails, they are enqueued
-                                logger.error(`Workers failed to be allocated, they will be enqueued, error: ${parseError(err)}`);
+                                if (isNative) {
+                                    // this is to catch errors of allocateWorkers
+                                    // if allocation fails, they are enqueued
+                                    logger.error(`Workers failed to be allocated, they will be enqueued, error: ${parseError(err)}`);
+                                } else {
+                                    // if k8s allocateWorkers fails, the execution fails
+                                    logger.error(`Failured to create k8s worker deployment ${execution.ex_id}, error: ${parseError(err)}`);
+                                    const errMetaData = executionMetaData(null, parseError(err));
+                                    return setExecutionStatus(execution.ex_id, 'failed', errMetaData);
+                                }
                             })))
                     .catch((err) => {
                         logger.error(`Failured to provision execution ${execution.ex_id}, error: ${parseError(err)}`);
-                        return setExecutionStatus(execution.ex_id, 'failed');
+                        const errMetaData = executionMetaData(null, parseError(err));
+                        return setExecutionStatus(execution.ex_id, 'failed', errMetaData);
                     })
                     .finally(() => {
                         allocatingExecution = false;
