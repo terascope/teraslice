@@ -11,6 +11,8 @@ module.exports = function _sliceAnalytics(context, executionContext) {
         job_id: jobId
     });
 
+    const events = context.apis.foundation.getSystemEvents();
+
     const { operations } = executionContext.config;
 
     // create a container to hold all the slice analytics for this execution
@@ -99,6 +101,12 @@ average memory: ${memory.average}, min: ${memory.min}, and max: ${memory.max}
     function getStats() {
         return sliceAnalytics;
     }
+
+    events.on('slice:success', (response) => {
+        if (response.analytics) {
+            addStats(response.analytics);
+        }
+    });
 
     return {
         addStats,

@@ -18,7 +18,7 @@ describe('execution recovery', () => {
 
     const startingPoints = {};
 
-    let executionFailureMsg = null;
+    let executionFailureMsg = null; // eslint-disable-line
     let testSlices = [{ slice_id: 1 }, { slice_id: 2 }];
 
     beforeEach(() => {
@@ -130,7 +130,6 @@ describe('execution recovery', () => {
 
         const sendSucess = sendEvent('slice:success', { slice: { slice_id: 1 } });
         const sendSucess2 = sendEvent('slice:success', { slice: { slice_id: 2 } });
-        const sendError = sendEvent('slice:failure', 'an error occured');
 
         Promise.all([
             recovery._waitForRecoveryBatchCompletion(),
@@ -141,10 +140,6 @@ describe('execution recovery', () => {
                 expect(recovery._retryState()).toEqual({});
                 expect(recovery._recoveryBatchCompleted()).toEqual(true);
                 return recovery._setId({ slice_id: 2 });
-            })
-            .then(() => Promise.all([sendError(), waitFor(() => {}, 30)]))
-            .then(() => {
-                expect(executionFailureMsg).toEqual('an error occured');
             })
             .catch(fail)
             .finally(() => done());

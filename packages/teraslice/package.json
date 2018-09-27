@@ -55,6 +55,8 @@
         "mocker-data-generator": "^2.6.6",
         "moment": "^2.22.2",
         "node-cache": "^4.2.0",
+        "p-queue": "^3.0.0",
+        "p-whilst": "^1.0.0",
         "porty": "^3.1.1",
         "request": "^2.88.0",
         "shortid": "^2.2.13",

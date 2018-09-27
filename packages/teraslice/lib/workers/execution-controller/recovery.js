@@ -23,14 +23,11 @@ function recovery(context, executionFailed, stateStore, executionContext) {
     const retryState = {};
 
     function initialize() {
-        // if an error occurred while in recovery, fail the job as a whole
-        events.once('slice:failure', executionFailed);
         events.on('slice:success', _sliceComplete);
         recoverComplete = false;
 
         // once we have fully recovered, clean up event listners
         events.once('execution:recovery:complete', () => {
-            events.removeListener('slice:failure', executionFailed);
             events.removeListener('slice:success', _sliceComplete);
         });
 

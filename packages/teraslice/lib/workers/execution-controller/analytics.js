@@ -57,6 +57,32 @@ class ExecutionAnalytics {
             this.increment('slice_range_expansion');
         });
 
+        this.events.on('analytics:subslice', () => {
+            this.logger.warn(`slicer for execution: ${exId} is subslicing by key`);
+            this.increment('subslice_by_key');
+        });
+
+        this.events.on('analytics:queued', (queueSize) => {
+            this.set('queued', queueSize);
+        });
+
+        this.events.on('analytics:slicers', (count) => {
+            this.set('slicers', count);
+        });
+
+        this.events.on('slice:success', (count) => {
+            this.increment('processed', count);
+        });
+
+        this.events.on('slicers:finished', () => {
+            this.set('queuing_complete', newFormattedDate());
+        });
+
+        this.events.on('slice:failure', (count) => {
+            this.increment('processed', count);
+            this.increment('failed', count);
+        });
+
         this.client.onExecutionAnalytics(() => ({
             name,
             ex_id: exId,
