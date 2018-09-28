@@ -146,18 +146,23 @@ export class Core extends EventEmitter {
         }
 
         return new Promise((resolve) => {
-            const timer = setTimeout(() => {
+            const finish = (result: any) => {
                 this.removeListener(eventName, _onceWithTimeout);
-                resolve();
+                clearTimeout(timer);
+                resolve(result);
+            };
+
+            const timer = setTimeout(() => {
+                finish(null);
             }, timeoutMs);
 
             function _onceWithTimeout(clientId: string, param?: any) {
                 if (forClientId && forClientId !== clientId) return;
                 clearTimeout(timer);
                 if (!param) {
-                    resolve(clientId);
+                    finish(clientId);
                 } else {
-                    resolve(param);
+                    finish(param);
                 }
             }
 

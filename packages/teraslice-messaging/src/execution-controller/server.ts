@@ -150,8 +150,6 @@ export class Server extends core.Server {
                 this.emit('slice:success', workerId, workerResponse);
             }
 
-            this.emit(`slice:complete:${sliceId}`, workerId);
-
             _.pull(this._activeWorkers, workerId);
             this.updateClientState(workerId, {
                 state: core.ClientState.Unavailable,

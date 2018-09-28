@@ -61,10 +61,9 @@ class ExecutionController {
         this.scheduler = new Scheduler(context, executionContext);
 
         this.dispatchQueue = new PQueue({
-            carryoverConcurrencyCount: true,
             concurrency: executionContext.config.workers,
             intervalCap: 1,
-            interval: 100,
+            interval: 10,
             autoStart: false,
         });
 
@@ -86,6 +85,7 @@ class ExecutionController {
         this.isShuttingDown = false;
         this.isInitialized = false;
         this.isStarted = false;
+        this.pendingSlices = 0;
         this.isDoneProcessing = false;
         this.isExecutionFinished = false;
         this.isExecutionDone = false;
@@ -176,6 +176,7 @@ class ExecutionController {
         this.server.onSliceSuccess((workerId, response) => {
             this.logger.info(`worker ${workerId} has completed its slice`, response);
             this.events.emit('slice:success', response);
+            this.pendingSlices -= 1;
         });
 
         this.server.onSliceFailure((workerId, response) => {
@@ -191,6 +192,8 @@ class ExecutionController {
                 // when failing can be set back to running
                 this._checkAndUpdateExecutionState();
             }
+
+            this.pendingSlices -= 1;
         });
 
         this.events.on('slicer:execution:update', ({ update }) => {
@@ -426,14 +429,12 @@ class ExecutionController {
             ]);
         }
 
-        // give events to finish
-        await Promise.delay(100);
-
         const schedulerSuccessful = this.scheduler.isFinished && !this.scheduler.slicersFailed;
 
         if (schedulerSuccessful && this.isDoneDispatching) {
             this.logger.debug(`execution ${this.exId} is done processing slices`);
             this.isDoneProcessing = true;
+            await this._waitForPendingSlices();
         } else {
             this.logger.debug(`execution ${this.exId} did not finish correctly`);
         }
@@ -466,6 +467,10 @@ class ExecutionController {
                 return this.dispatchQueue.onEmpty();
             }
 
+            if (!workers) {
+                return this.server.onceWithTimeout('worker:enqueue', 1000);
+            }
+
             return Promise.delay(0);
         });
 
@@ -488,9 +493,6 @@ class ExecutionController {
             // add it the queue
             this.dispatchQueue
                 .add(() => this._dispatchSlice(slice, workerId))
-                .then((success) => {
-                    this.logger.debug('dispatch complete', { success });
-                })
                 .catch((err) => {
                     this.logger.error('dispatch slice error', err);
                 });
@@ -509,16 +511,11 @@ class ExecutionController {
 
         if (dispatched) {
             this.logger.debug(`dispatched slice ${sliceId} to worker ${workerId}`);
-            return new Promise((resolve) => {
-                this.server.once(`slice:complete:${sliceId}`, () => {
-                    resolve(true);
-                });
-            });
+            this.pendingSlices += 1;
+        } else {
+            this.logger.warn(`worker "${workerId}" is not available to process slice ${sliceId}`);
+            this.scheduler.enqueueSlice(slice, true);
         }
-
-        this.logger.warn(`worker "${workerId}" is not available to process slice ${sliceId}`);
-        this.scheduler.enqueueSlice(slice, true);
-        return false;
     }
 
     async _slicerInit() {
@@ -709,6 +706,29 @@ class ExecutionController {
         await checkOnlineCount();
     }
 
+    async _waitForPendingSlices() {
+        const logPendingSlices = _.debounce(() => {
+            this.logger.debug(`waiting for ${this.pendingSlices} slices to finish`);
+        }, 1000, {
+            leading: true,
+        });
+
+        const checkPendingSlices = async () => {
+            if (this.isShuttingDown) return;
+
+            if (!this.pendingSlices) {
+                this.logger.debug('all pending slices are done');
+                return;
+            }
+
+            logPendingSlices();
+
+            await Promise.delay(100);
+            await checkPendingSlices();
+        };
+
+        await checkPendingSlices();
+    }
 
     _waitForExecutionFinished() {
         const timeout = Math.round(this.shutdownTimeout * 0.8);
