@@ -11,9 +11,15 @@ exports.desc = 'Restarts all job on the specified cluster.\n';
 exports.builder = (yargs) => {
     cli().args('jobs', 'restart', yargs);
     yargs
+        .demandCommand(1)
         .option('annotate', {
-            alias: 'a',
+            alias: 'n',
             describe: 'add grafana annotation',
+            default: ''
+        })
+        .option('all', {
+            alias: 'a',
+            describe: 'stop all running/failing jobs',
             default: false
         });
 };

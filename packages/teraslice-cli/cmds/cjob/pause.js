@@ -10,6 +10,18 @@ exports.command = 'pause';
 exports.desc = 'Pause all running and failing job on cluster.\n';
 exports.builder = (yargs) => {
     cli().args('job', 'pause', yargs);
+    yargs
+        .demandCommand(1)
+        .option('annotate', {
+            alias: 'n',
+            describe: 'add grafana annotation',
+            default: ''
+        })
+        .option('all', {
+            alias: 'a',
+            describe: 'stop all running/failing jobs',
+            default: false
+        });
 };
 
 exports.handler = (argv, _testFunctions) => {

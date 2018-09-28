@@ -24,13 +24,6 @@ module.exports = () => {
                 describe: 'Output display format pretty or txt, default is pretty',
                 default: 'txt'
             })
-            /*
-            .option('env', {
-                alias: 'e',
-                describe: 'environment, used by annotations',
-                default: ''
-            })
-            */
             .option('cluster-manager-type', {
                 alias: 't',
                 describe: 'cluster manager type, kubernetes or native',
@@ -39,6 +32,11 @@ module.exports = () => {
             .option('info', {
                 alias: 'i',
                 describe: 'show cluster info',
+                default: false
+            })
+            .option('yes', {
+                alias: 'y',
+                describe: 'Answer \'Yes\' or \'Y\' to all prompts',
                 default: false
             })
 

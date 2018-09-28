@@ -56,41 +56,28 @@ module.exports = (cliConfig) => {
             console.log('> no active controllers');
         }
     }
+
+    async function setHeader(response) {
+        const header = [];
+        _.each(response, (controller) => {
+            _.each(controller, function(value, key) {
+                header.push(key);
+            });
+        });
+        return header;
+    }
     async function stats() {
         // TODO add object_id filtering of results
         // TODO make output configurable
-        const header = ['name', 'ex_id', 'job_id', 'workers_available', 'workers_active', 'failed', 'queued', 'processed', 'started']
-        /*
-        const header = ['name',
-            'ex_id',
-            'job_id',
-            'workers_available',
-            'workers_active',
-            //'workers_joined',
-            // 'workers_reconnected',
-            // 'workers_disconnected',
-            'failed',
-            'subslices',
-            'queued',
-            'slice_range_expansion',
-            'processed',
-            'slicers',
-            'subslice_by_key',
-            'started']
-         */
-        const response = await terasliceClient.cluster.slicers();
-        console.log(response);
-        if (response.length > 0) {
-            _.each(response, (controller) => {
-                // console.log(value);
-                console.log(controller);
-                console.log(response[controller]);
-            });
 
+        const response = await terasliceClient.cluster.slicers();
+        if (response.length > 0) {
+            const header = await setHeader(response);
             await displayControllers(header, response, cliConfig.output_style);
         } else {
             console.log('> no active controllers');
         }
+
     }
 
     return {

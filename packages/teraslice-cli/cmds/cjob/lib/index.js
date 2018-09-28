@@ -16,8 +16,9 @@ module.exports = (cliConfig) => {
     });
     const annotation = require('../../lib/annotation')(cliConfig);
 
-    async function showPrompt(action) {
+    async function showPrompt(actionIn) {
         let answer = false;
+        const action = _.startCase(actionIn);
         const response = prompt(`${action} jobs (Y/N)? > `);
         if (response === 'Y' || response === 'y') {
             answer = true;
@@ -34,27 +35,39 @@ module.exports = (cliConfig) => {
         }
     }
 
-    async function stop() {
+    async function stop(action = 'stop') {
         let waitCountStop = 0;
         const waitMaxStop = 10;
         let stopTimedOut = false;
         let jobsStopped = 0;
         let allJobsStopped = false;
-        if (cliConfig.deets.id !== undefined) {
-            console.log(cliConfig.deets);
+        let jobs = [];
+        if (cliConfig.all_jobs) {
+            jobs = await save();
+        } else {
+            jobs = await save();
+            const id = _.find(jobs, { job_id: cliConfig.deets.id });
+            if (id !== undefined) {
+                jobs = [];
+                jobs.push(id);
+            }
         }
-        const jobs = await save();
-        if (await showPrompt('Stop')) {
+        if (jobs.length === 0) {
+            reply.error(`No jobs to ${action}`);
+            return;
+        }
+
+        if (cliConfig.yes || await showPrompt(action)) {
             while (!stopTimedOut) {
                 if (waitCountStop >= waitMaxStop) {
                     break;
                 }
                 try {
-                    await changeStatus(jobs, 'stop');
+                    await changeStatus(jobs, action);
                     stopTimedOut = true;
                 } catch (err) {
                     stopTimedOut = false;
-                    reply.error(`> Stopping jobs had an error [${err.message}]`);
+                    reply.error(`> ${action} job(s) had an error [${err.message}]`);
                     jobsStopped = await list(false, false);
                 }
                 waitCountStop += 1;
@@ -74,24 +87,39 @@ module.exports = (cliConfig) => {
                 waitCount += 1;
             }
             if (allJobsStopped) {
-                console.log('> All jobs stopped.');
+                console.log('> All jobs %s.', await setAction(action, 'past'));
                 if (cliConfig.add_annotation) {
-                    await annotation.add('Stop');
+                    await annotation.add(_.startCase(action));
                 }
             }
         }
-
         return allJobsStopped;
     }
 
-    async function start() {
-        const jobsRead = await fs.readJson(cliConfig.state_file);
+    async function start(action = 'start') {
+        let jobs = [];
+        if (!cliConfig.all_jobs) {
+            const id = await terasliceClient.jobs.wrap(cliConfig.deets.id).spec();
+            if (id !== undefined) {
+                id.slicer = {};
+                id.slicer.workers_active = id.workers;
+                jobs.push(id);
+            }
+        } else {
+            jobs = await fs.readJson(cliConfig.state_file);
+        }
+        if (jobs.length === 0) {
+            reply.error(`No jobs to ${action}`);
+            return;
+        }
+
         if (cliConfig.info) {
             await displayInfo();
         }
-        await displayJobs(jobsRead, true);
-        if (await showPrompt('Start')) {
-            await changeStatus(jobsRead, 'start');
+        await displayJobs(jobs, true);
+
+        if (cliConfig.yes || await showPrompt(action)) {
+            await changeStatus(jobs, action);
             let waitCount = 0;
             const waitMax = 15;
             let jobsStarted = 0;
@@ -101,40 +129,39 @@ module.exports = (cliConfig) => {
                 jobsStarted = await list(false, false);
                 await _.delay(() => {}, 5000);
                 waitCount += 1;
-                allWorkersStarted = await checkWorkerCount(jobsRead, jobsStarted);
+                allWorkersStarted = await checkWorkerCount(jobs, jobsStarted);
             }
 
             let allAddedWorkersStarted = false;
             if (allWorkersStarted) {
                 // add extra workers
                 waitCount = 0;
-                await addWorkers(jobsRead, jobsStarted);
+                await addWorkers(jobs, jobsStarted);
                 while (!allAddedWorkersStarted || waitCount < waitMax) {
                     jobsStarted = await list(false, false);
                     await _.delay(() => {}, 5000);
                     waitCount += 1;
-                    allAddedWorkersStarted = await checkWorkerCount(jobsRead, jobsStarted, true);
+                    allAddedWorkersStarted = await checkWorkerCount(jobs, jobsStarted, true);
                 }
             }
             if (allAddedWorkersStarted) {
                 await list(false, true);
-                console.log('> All jobs and workers started.');
+                console.log('> All jobs and workers %s', await setAction(action, 'past'));
                 if (cliConfig.add_annotation) {
-                    await annotation.add('Start');
+                    await annotation.add(_.startCase(action));
                 }
             }
         } else {
             console.log('bye!');
         }
-
     }
 
     async function pause() {
-
+        await stop('pause');
     }
 
     async function resume() {
-
+        await start('resume');
     }
 
     async function addWorkers(expectedJobs, actualJobs) {
@@ -192,7 +219,6 @@ module.exports = (cliConfig) => {
         return list(true);
     }
 
-
     async function list(saveState = false, showJobs = true) {
         const jobs = [];
         if (cliConfig.info) {
@@ -220,6 +246,58 @@ module.exports = (cliConfig) => {
         return jobs;
     }
 
+    async function init() {
+        // todo
+        return;
+    }
+    async function reset() {
+        // todo
+        return;
+    }
+
+    async function update() {
+        // todo
+        return;
+    }
+
+    async function run() {
+        await start();
+    }
+
+    async function recover() {
+        // todo set options
+        const response = await terasliceClient.jobs.wrap(cliConfig.deets.id).recover();
+        // todo parse response
+        console.log(response);
+    }
+
+    async function view() {
+        const response = await terasliceClient.jobs.wrap(cliConfig.deets.id).spec();
+        console.log(response);
+    }
+
+    async function errors() {
+        const response = await terasliceClient.jobs.wrap(cliConfig.deets.id).errors();
+        if (response.length === 0) {
+            console.log('job_id: %s no errors', cliConfig.deets.id);
+            console.log('--------------------------------------------------------------------------------------');
+        } else {
+            let count = 0;
+            const size = parseInt(cliConfig.size, 10);
+            console.log(`Errors job_id: ${cliConfig.deets.id}`);
+            _.each(response, (error) => {
+                _.each(error, (value, key) => {
+                    console.log(`${key} : ${value}`);
+                });
+                count += 1;
+                console.log('--------------------------------------------------------------------------------------');
+                if (count >= size) {
+                    return false;
+                }
+            });
+        }
+    }
+
     async function displayJobs(jobs, file = false) {
         const headerJobs = await setHeaderDefaults(file);
         let jobsParsed = '';
@@ -229,6 +307,41 @@ module.exports = (cliConfig) => {
             jobsParsed = await parseJobResponse(jobs, file);
         }
         await display.display(headerJobs, jobsParsed, cliConfig.output_style);
+    }
+
+    async function setAction(action, tense) {
+        if (action === 'stop' && tense === 'past') {
+            return 'stopped';
+        }
+        if (action === 'stop' && tense === 'present') {
+            return 'stopping';
+        }
+        if (action === 'start' && tense === 'past') {
+            return 'started';
+        }
+        if (action === 'stop' && tense === 'present') {
+            return 'starting';
+        }
+        if (action === 'pause' && tense === 'past') {
+            return 'paused';
+        }
+        if (action === 'stop' && tense === 'present') {
+            return 'pausing';
+        }
+        if (action === 'restart' && tense === 'past') {
+            return 'restarted';
+        }
+        if (action === 'restart' && tense === 'present') {
+            return 'restarting';
+        }
+        if (action === 'resume' && tense === 'past') {
+            return 'resumed';
+        }
+        if (action === 'resume' && tense === 'present') {
+            return 'resuming';
+        }
+
+        return action;
     }
 
     async function displayInfo() {
@@ -249,7 +362,6 @@ module.exports = (cliConfig) => {
         await display.display(header, rows, cliConfig.output_style);
     }
     async function parseJobResponseTxt(response) {
-
         _.each(response, (value, node) => {
             if (response[node].slicer.workers_active === undefined) {
                 response[node].workers_active = 0;
@@ -301,17 +413,33 @@ module.exports = (cliConfig) => {
             if (action === 'stop') {
                 response = await terasliceClient.jobs.wrap(job.job_id).stop();
                 if (response.status.status === 'stopped') {
-                    console.log(`job: ${job.job_id} stopped`);
+                    console.log('> job: %s %s', job.job_id, await setAction(action, 'past'));
                 } else {
-                    console.log(`job: ${job.job_id} error stopping`);
+                    console.log('> job: %s error %s', job.job_id, await setAction(action, 'present'));
                 }
             }
             if (action === 'start') {
-                response = await terasliceClient.jobs.wrap(job.job_id).start()
+                response = await terasliceClient.jobs.wrap(job.job_id).start();
                 if (response.job_id === job.job_id) {
-                    console.log(`> job: ${job.job_id} started`);
+                    console.log('> job: %s %s', job.job_id, await setAction(action, 'past'));
                 } else {
-                    console.log(`job: ${job.job_id} error starting`);
+                    console.log('> job: %s error %s', job.job_id, await setAction(action, 'present'));
+                }
+            }
+            if (action === 'resume') {
+                response = await terasliceClient.jobs.wrap(job.job_id).resume();
+                if (response.status.status === 'running') {
+                    console.log('> job: %s %s', job.job_id, await setAction(action, 'past'));
+                } else {
+                    console.log('> job: %s error %s', job.job_id, await setAction(action, 'present'));
+                }
+            }
+            if (action === 'pause') {
+                response = await terasliceClient.jobs.wrap(job.job_id).pause();
+                if (response.status.status === 'paused') {
+                    console.log('> job: %s %s', job.job_id, await setAction(action, 'past'));
+                } else {
+                    console.log('> job: %s error %s', job.job_id, await setAction(action, 'present'));
                 }
             }
         }
@@ -333,19 +461,20 @@ module.exports = (cliConfig) => {
         return jobs;
     }
 
-    async function recover() {
-        return;
-    }
-
-
     return {
+        errors,
+        init,
         list,
+        pause,
+        recover,
+        reset,
+        restart,
+        resume,
+        run,
+        save,
         start,
         stop,
-        save,
-        restart,
-        pause,
-        resume,
-        recover
+        view,
+        update
     };
 };

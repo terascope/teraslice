@@ -11,6 +11,7 @@ exports.desc = 'Run recovery on cluster.\n';
 exports.builder = (yargs) => {
     cli().args('job', 'resume', yargs);
     yargs
+        .demandCommand(1)
         .option('cleanup', {
             describe: 'options are \'all\' or \'errors\'',
             default: ''

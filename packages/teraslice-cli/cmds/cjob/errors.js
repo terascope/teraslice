@@ -11,6 +11,7 @@ exports.desc = 'List errors for all running and failing job on cluster.\n';
 exports.builder = (yargs) => {
     cli().args('job', 'errors', yargs);
     yargs
+        .demandCommand(1)
         .option('from', {
             describe: 'error number to start query',
             default: 1

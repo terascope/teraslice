@@ -33,6 +33,8 @@ module.exports = (cliConfig, command) => {
         if (cliConfig._[2] !== undefined) {
             _.set(cliConfig, 'cluster_sh', cliConfig._[2]);
             cliConfig.deets = shortHand.parse(cliConfig.cluster_sh);
+        } else {
+            reply.fatal('cluster alias required');
         }
 
         if (command === 'cluster:list') {
@@ -96,10 +98,10 @@ module.exports = (cliConfig, command) => {
 
     function createConfigFile() {
         const configDir = `${homeDir}/.teraslice`;
-        const configFile = `${configDir}/tsu.yaml`;
+        const configFile = `${configDir}/earl.yaml`;
         const defaultConfigData = {
             clusters:
-               { localhost: { host: 'localhost', port: 5678, annotation_url: '' } },
+               { localhost: { host: 'localhost', port: 5678, cluster_manager_type: 'native' } },
             paths: { job_state_dir: `${configDir}/job_state_files` }
         };
         if (!fs.existsSync(configDir)) {
@@ -115,7 +117,6 @@ module.exports = (cliConfig, command) => {
 
         return configFile;
     }
-
 
     function stateFileHandler() {
         let fName = cliConfig.job_file;
@@ -141,8 +142,6 @@ module.exports = (cliConfig, command) => {
             reply.fatal('JSON file contents cannot be empty');
         }
 
-        // if (cliConfig.tsu_check === true) _tsuDataCheck(jobContents);
-
         cliConfig.job_file_path = jobFilePath;
         cliConfig.job_file_content = jobContents;
     }
@@ -161,7 +160,6 @@ module.exports = (cliConfig, command) => {
 
     return {
         returnConfigData,
-        stateFileHandler,
-        _urlCheck,
+        _urlCheck
     };
 };

@@ -11,6 +11,7 @@ exports.desc = 'List the job status of running and failing job.\n';
 exports.builder = (yargs) => {
     cli().args('job', 'list', yargs);
     yargs
+        .demandCommand(1)
         .option('status', {
             alias: 's',
             describe: 'list of job status to include',
