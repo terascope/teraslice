@@ -210,7 +210,7 @@ async function cleanupAll(withEs) {
         console.error(err);
     }
 
-    if (withEs) {
+    if (withEs && Object.keys(stores).length) {
         try {
             await Promise.map(stores, store => store.shutdown(true));
         } catch (err) {
