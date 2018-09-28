@@ -3483,15 +3483,6 @@ fs-extra@^4.0.2:
     jsonfile "^4.0.0"
     universalify "^0.1.0"
 
-fs-extra@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-5.0.0.tgz#414d0110cdd06705734d055652c5411260c31abd"
-  integrity sha512-66Pm4RYbjzdyeuqudYqhFiNBbCIuI9kgRqLPSHIlXHidW8NIQtVdkM1yeZ4lXwuhbTETv3EUGMNHAAw6hiundQ==
-  dependencies:
-    graceful-fs "^4.1.2"
-    jsonfile "^4.0.0"
-    universalify "^0.1.0"
-
 fs-extra@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-7.0.0.tgz#8cc3f47ce07ef7b3593a11b9fb245f7e34c041d6"
@@ -7024,13 +7015,21 @@ promise@^7.1.1:
   dependencies:
     asap "~2.0.3"
 
-prompts@^0.1.11, prompts@^0.1.9:
+prompts@^0.1.9:
   version "0.1.14"
   resolved "https://registry.yarnpkg.com/prompts/-/prompts-0.1.14.tgz#a8e15c612c5c9ec8f8111847df3337c9cbd443b2"
   integrity sha512-rxkyiE9YH6zAz/rZpywySLKkpaj0NMVyNw1qhsubdbjjSgcayjTShDreZGlFMcGSu5sab3bAKPfFk78PB90+8w==
   dependencies:
     kleur "^2.0.1"
     sisteransi "^0.1.1"
+
+prompts@^1.1.1:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/prompts/-/prompts-1.2.0.tgz#598f7722032fb6c399beb24533129d00604c7007"
+  integrity sha512-g+I6Cer6EefDTawQhGHpdX98nhD7KQrRqyRgKCb+Sc+GG4P64EWRe5DZE402ZNkwrItf97Asf0L1z0g3waOgAA==
+  dependencies:
+    kleur "^2.0.1"
+    sisteransi "^1.0.0"
 
 promy@^1.0.1:
   version "1.0.2"
@@ -7781,6 +7780,11 @@ sisteransi@^0.1.1:
   resolved "https://registry.yarnpkg.com/sisteransi/-/sisteransi-0.1.1.tgz#5431447d5f7d1675aac667ccd0b865a4994cb3ce"
   integrity sha512-PmGOd02bM9YO5ifxpw36nrNMBTptEtfRl4qUYl9SndkolplkrZZOW7PGHjrZL53QvMVj9nQ+TKqUnRsw4tJa4g==
 
+sisteransi@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/sisteransi/-/sisteransi-1.0.0.tgz#77d9622ff909080f1c19e5f4a1df0c1b0a27b88c"
+  integrity sha512-N+z4pHB4AmUv0SjveWRd6q1Nj5w62m5jodv+GD8lvmbY/83T/rpbJGZOnK5T149OldDj4Db07BSv9xY4K6NTPQ==
+
 slash@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/slash/-/slash-1.0.0.tgz#c41f2f6c39fc16d1cd17ad4b5d896114ae470d55"
@@ -8339,17 +8343,6 @@ terafoundation@^0.5.0:
     node-webhdfs "^0.2.1"
     redis "^2.8.0"
     yargs "^12.0.2"
-
-teraslice-client-js@^0.1.2:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/teraslice-client-js/-/teraslice-client-js-0.1.3.tgz#ec219d957310f1c4702d5e840d9d2141ed4f3dae"
-  integrity sha512-a66eXpy7Wbzyv8WWLOakvD5L2yHfONwBwYVmYm5knTEvs5IGrfG+Rb31AqUkNNbWQAPGLEUVQoG+sNeVrEJHtQ==
-  dependencies:
-    auto-bind "^1.2.1"
-    bluebird "^3.5.2"
-    lodash "^4.17.11"
-    request "^2.88.0"
-    request-promise "^4.2.2"
 
 terminal-kit@^1.26.0:
   version "1.26.4"
