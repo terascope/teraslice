@@ -64,7 +64,7 @@ class ExecutionController {
             carryoverConcurrencyCount: true,
             concurrency: executionContext.config.workers,
             intervalCap: 1,
-            interval: 10,
+            interval: 100,
             autoStart: false,
         });
 
@@ -440,6 +440,8 @@ class ExecutionController {
     }
 
     async _runDispatch() {
+        await pWhilst(() => !this.workersHaveConnected, () => Promise.delay(100));
+
         this.isDoneDispatching = false;
 
         this.dispatchQueue.start();
