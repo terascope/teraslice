@@ -19,7 +19,7 @@ exports.builder = (yargs) => {
             type: 'boolean',
             default: false
         })
-        .example('tjm start jobfile.prod.json');
+        .example('earl job start jobfile.prod.json');
 };
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);

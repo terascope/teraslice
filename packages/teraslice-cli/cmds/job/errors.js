@@ -8,7 +8,7 @@ const dataChecks = require('../cmd_functions/data_checks');
 exports.command = 'errors <job_file>';
 exports.desc = 'Shows the errors for a job\n';
 exports.builder = (yargs) => {
-    yargs.example('tjm errors jobfile.prod');
+    yargs.example('earl job errors jobfile.prod');
 };
 
 exports.handler = (argv, _testFunctions) => {

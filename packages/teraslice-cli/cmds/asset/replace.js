@@ -13,7 +13,7 @@ exports.command = 'replace';
 exports.desc = 'replaces an asset on a cluster, intended for dev work only';
 exports.builder = (yargs) => {
     cli().args('cluster', 'alias', yargs);
-    yargs.example('tjm replace clustername:port#');
+    yargs.example('earl replace clustername:port#');
 };
 
 exports.handler = (argv, _testTjmFunctions) => {

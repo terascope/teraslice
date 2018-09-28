@@ -5,12 +5,12 @@ const fs = require('fs-extra');
 const reply = require('../cmd_functions/reply');
 const dataChecks = require('../cmd_functions/data_checks');
 
-// removes tjm data from json file
+// removes earl data from json file
 
 exports.command = 'reset [job_file]';
 exports.desc = 'Removes tjm data from job or asset file';
 exports.builder = (yargs) => {
-    yargs.example('tjm reset jobfile.prod');
+    yargs.example('earl job reset jobfile.prod');
 };
 exports.handler = (argv) => {
     const cliConfig = _.clone(argv);

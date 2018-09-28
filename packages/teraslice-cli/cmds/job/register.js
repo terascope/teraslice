@@ -22,7 +22,7 @@ exports.builder = (yargs) => {
             default: false,
             type: 'boolean'
         })
-        .example('tjm register jobfile.prod -c clusterDomain -a');
+        .example('earl job register jobfile.prod -c clusterDomain -a');
 };
 exports.handler = (argv, _testTjmFunctions) => {
     const cliConfig = _.clone(argv);

@@ -7,7 +7,7 @@ const dataChecks = require('../cmd_functions/data_checks');
 exports.command = 'view [job_file]';
 exports.desc = 'Displays the job file as saved on the cluster specified in the tjm data';
 exports.builder = (yargs) => {
-    yargs.example('tjm view jobfile.prod');
+    yargs.example('earl job view jobfile.prod');
 };
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);

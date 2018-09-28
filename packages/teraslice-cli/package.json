@@ -1,10 +1,11 @@
 {
   "name": "teraslice-cli",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Teraslice command line interface",
   "bin": {
     "teraslice-cli": "./index.js",
-    "tjm": "./index.js"
+    "tjm": "./index.js",
+    "earl": "./index.js"
   },
   "main": "index.js",
   "publishConfig": {

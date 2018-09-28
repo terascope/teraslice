@@ -9,7 +9,7 @@ exports.desc = 'add or remove workers to a job';
 exports.builder = (yargs) => {
     yargs
         .choices('param', ['add', 'remove'])
-        .example('tjm workers add 5 jobfile.prod');
+        .example('earl job workers add 5 jobfile.prod');
 };
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);

@@ -8,7 +8,7 @@ const dataChecks = require('../cmd_functions/data_checks');
 exports.command = 'pause <job_file>';
 exports.desc = 'pauses job on the specified cluster\n';
 exports.builder = (yargs) => {
-    yargs.example('tjm pause jobfile.prod');
+    yargs.example('earl job pause jobfile.prod');
 };
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);

@@ -7,7 +7,7 @@ const dataChecks = require('../cmd_functions/data_checks');
 exports.command = 'resume <job_file>';
 exports.desc = 'resumes a paused job\n';
 exports.builder = (yargs) => {
-    yargs.example('tjm resume jobfile.prod');
+    yargs.example('earl job resume jobfile.prod');
 };
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);

@@ -16,7 +16,7 @@ exports.command = 'init <asset_name>';
 exports.desc = 'creates a new asset bundle.  This includes package.json, asset.json, README.md, an asset directory and basic dependencies';
 exports.builder = (yargs) => {
     cli().args('cluster', 'alias', yargs);
-    yargs.example('tjm asset init asset_name');
+    yargs.example('earl asset init asset_name');
 };
 
 exports.handler = async (argv, _testFunctions) => {

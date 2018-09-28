@@ -17,8 +17,8 @@ exports.builder = (yargs) => {
         type: 'boolean',
         default: false,
     });
-    yargs.example('tjm deploy cluster-url');
-    yargs.example('tjm deploy -a');
+    yargs.example('earl deploy cluster-url');
+    yargs.example('earl deploy -a');
 };
 
 exports.handler = (argv, _testTjmFunctions) => {

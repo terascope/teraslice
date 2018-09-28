@@ -16,8 +16,8 @@ exports.builder = (yargs) => {
         type: 'boolean',
         default: false,
     });
-    yargs.example('tjm asset status -c clustername:port#');
-    yargs.example('tjm asset status -a');
+    yargs.example('earl asset status -c clustername:port#');
+    yargs.example('earl asset status -a');
 };
 
 exports.handler = (argv, _testTjmFunctions) => {
@@ -46,7 +46,7 @@ exports.handler = (argv, _testTjmFunctions) => {
         });
     }
     if (!_.has(cliConfig, 'asset_file_content.tjm.clusters')) {
-        reply.fatal('asset.json file does not have tjm data, has the asset been deployed?');
+        reply.fatal('asset.json file does not have earl data, has the asset been deployed?');
     }
     let { clusters } = cliConfig.asset_file_content.tjm;
     // if cluster is not specifically called out then show status for all

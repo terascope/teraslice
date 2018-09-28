@@ -7,7 +7,7 @@ const dataChecks = require('../cmd_functions/data_checks');
 exports.command = 'status <job_file>';
 exports.desc = 'reports the job status\n';
 exports.builder = (yargs) => {
-    yargs.example('tjm status jobfile.prod');
+    yargs.example('earl job status jobfile.prod');
 };
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);

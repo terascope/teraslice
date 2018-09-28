@@ -13,7 +13,7 @@ exports.builder = (yargs) => {
             default: false,
             type: 'boolean'
         })
-        .example('tjm update jobfile.prod.json -r');
+        .example('earl job update jobfile.prod.json -r');
 };
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);

@@ -7,7 +7,7 @@ const dataChecks = require('../cmd_functions/data_checks');
 exports.command = 'restart <job_file>';
 exports.desc = 'stops and starts a job\n';
 exports.builder = (yargs) => {
-    yargs.example('tjm restart jobfile.prod.json');
+    yargs.example('earl restart jobfile.prod.json');
 };
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
