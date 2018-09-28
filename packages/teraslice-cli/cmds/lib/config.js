@@ -33,8 +33,6 @@ module.exports = (cliConfig, command) => {
         if (cliConfig._[2] !== undefined) {
             _.set(cliConfig, 'cluster_sh', cliConfig._[2]);
             cliConfig.deets = shortHand.parse(cliConfig.cluster_sh);
-        } else {
-            reply.fatal('cluster alias required');
         }
 
         if (command === 'cluster:list') {
@@ -78,7 +76,9 @@ module.exports = (cliConfig, command) => {
             if (cliConfig.env === '' && cliConfig.config.clusters[cliConfig.cluster]) {
                 cliConfig.env = cliConfig.config.clusters[cliConfig.cluster].env;
             }
-            cliConfig.cluster_manager_type = cliConfig.config.clusters[cliConfig.cluster].cluster_manager_type;
+            if (cliConfig.cluster_manager_type !== undefined) {
+                cliConfig.cluster_manager_type = cliConfig.config.clusters[cliConfig.cluster].cluster_manager_type;
+            }
         }
     }
 
