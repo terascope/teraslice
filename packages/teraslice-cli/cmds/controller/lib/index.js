@@ -8,9 +8,7 @@ const _ = require('lodash');
 const display = require('../../lib/display')();
 
 async function displayControllers(header, controllers, style) {
-
     let parsedControllers = '';
-
     if (style === 'txt') {
         parsedControllers = await parseControllersTxt(header, controllers);
     } else {
@@ -48,7 +46,7 @@ module.exports = (cliConfig) => {
         host: cliConfig.cluster_url
     });
     async function list() {
-        const header = ['name', 'job_id', 'workers_available', 'workers_active', 'failed', 'queued', 'processed']
+        const header = ['name', 'job_id', 'workers_available', 'workers_active', 'failed', 'queued', 'processed'];
         const response = await terasliceClient.cluster.slicers();
         if (response.length > 0) {
             await displayControllers(header, response, cliConfig.output_style);
@@ -60,12 +58,13 @@ module.exports = (cliConfig) => {
     async function setHeader(response) {
         const header = [];
         _.each(response, (controller) => {
-            _.each(controller, function(value, key) {
+            _.each(controller, (value, key) => {
                 header.push(key);
             });
         });
         return header;
     }
+
     async function stats() {
         // TODO add object_id filtering of results
         // TODO make output configurable
@@ -77,7 +76,6 @@ module.exports = (cliConfig) => {
         } else {
             console.log('> no active controllers');
         }
-
     }
 
     return {

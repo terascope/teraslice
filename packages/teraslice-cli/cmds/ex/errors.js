@@ -27,7 +27,6 @@ exports.builder = (yargs) => {
             describe: 'Execution id to limit query',
             default: ''
         });
-
 };
 
 exports.handler = (argv, _testFunctions) => {

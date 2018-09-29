@@ -160,6 +160,7 @@ module.exports = (cliConfig, command) => {
 
     return {
         returnConfigData,
+        stateFileHandler,
         _urlCheck
     };
 };

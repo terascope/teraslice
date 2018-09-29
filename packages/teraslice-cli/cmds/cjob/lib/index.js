@@ -248,16 +248,13 @@ module.exports = (cliConfig) => {
 
     async function init() {
         // todo
-        return;
     }
     async function reset() {
         // todo
-        return;
     }
 
     async function update() {
         // todo
-        return;
     }
 
     async function run() {

@@ -1,5 +1,8 @@
 'use strict';
 
+/* eslint-disable no-console */
+/* eslint-disable no-await-in-loop */
+
 const _ = require('lodash');
 
 module.exports = () => {

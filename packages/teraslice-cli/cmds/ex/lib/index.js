@@ -5,7 +5,6 @@
 /* eslint-disable no-await-in-loop */
 
 const fs = require('fs-extra');
-const prompt = require('syncprompt');
 const _ = require('lodash');
 const reply = require('../../lib/reply')();
 const display = require('../../lib/display')();
@@ -58,7 +57,7 @@ module.exports = (cliConfig) => {
             await list();
         }
     }
-    async function list(showInfo = true, showExIds = true) {
+    async function list(showInfo = false, showExIds = true) {
         const exIds = [];
         if (showInfo) {
             await displayInfo();
@@ -117,7 +116,7 @@ module.exports = (cliConfig) => {
 
         await display.display(header, rows, cliConfig.output_style);
     }
-    async function parseExResponseTxt(response, file = false) {
+    async function parseExResponseTxt(response) {
         return response;
     }
     async function parseExResponse(response, file = false) {
@@ -151,8 +150,6 @@ module.exports = (cliConfig) => {
         }
         return defaults;
     }
-
-
 
     return {
         list,

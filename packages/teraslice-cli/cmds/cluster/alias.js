@@ -14,6 +14,7 @@ exports.desc = 'List the clusters defined in the config file.\n';
 exports.builder = (yargs) => {
     cli().args('cluster', 'alias', yargs);
     yargs
+        .demandCommand(1)
         .option('port', {
             alias: 'p',
             describe: 'port',

@@ -80,5 +80,4 @@ module.exports = (cliConfig) => {
     return {
         list
     };
-
 };
