@@ -458,7 +458,6 @@ module.exports = function module(context, { clusterMasterServer }) {
                     return api;
                 }))
             .error((err) => {
-                console.error('XXXXXXXX');
                 // TODO: verify whats coming here
                 if (_.get(err, 'body.error.reason') !== 'no such index') {
                     logger.error(`initialization failed loading state from Elasticsearch: ${err}`);
