@@ -160,7 +160,7 @@ class Scheduler {
                 return;
             }
 
-            this.logger.debug('enqueuing slice', slice);
+            this.logger.trace('enqueuing slice', slice);
 
             if (addToStart) {
                 this.queue.unshift(slice);

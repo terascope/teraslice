@@ -146,13 +146,13 @@ class ExecutionAnalytics {
             this.set('slicers', count);
         };
 
-        this._handlers['slice:success'] = (count) => {
-            this.increment('processed', count);
+        this._handlers['slice:success'] = () => {
+            this.increment('processed');
         };
 
-        this._handlers['slice:failure'] = (count) => {
-            this.increment('processed', count);
-            this.increment('failed', count);
+        this._handlers['slice:failure'] = () => {
+            this.increment('processed');
+            this.increment('failed');
         };
 
         this._handlers['slicers:finished'] = () => {

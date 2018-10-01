@@ -430,6 +430,8 @@ class ExecutionController {
         if (this.recoverExecution) {
             await this._recoverSlicesInit();
 
+            await pWhilst(() => this.isPaused, () => Promise.delay(100));
+
             await Promise.all([
                 this._waitForRecovery(),
                 this._runDispatch(),
@@ -437,6 +439,8 @@ class ExecutionController {
             ]);
         } else {
             await this._slicerInit();
+
+            await pWhilst(() => this.isPaused, () => Promise.delay(100));
 
             await Promise.all([
                 this._runDispatch(),
