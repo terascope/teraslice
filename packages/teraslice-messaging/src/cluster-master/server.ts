@@ -71,8 +71,10 @@ export class Server extends core.Server {
         return _.cloneDeep(this.clusterAnalytics);
     }
 
-    onExecutionFinished(fn: core.ClientEventFn) {
-        this.on('execution:finished', fn);
+    onExecutionFinished(fn: (clientId: string, error?: core.ResponseError) => {}) {
+        this.on('execution:finished', (msg) => {
+            fn(msg.clientId, msg.error);
+        });
     }
 
     private onConnection(exId: string, socket: SocketIO.Socket) {

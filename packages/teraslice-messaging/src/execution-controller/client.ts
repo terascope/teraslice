@@ -82,18 +82,23 @@ export class Client extends core.Client {
         this.sendAvailable();
 
         const slice = await new Promise((resolve) => {
+            const unsubscribe = this.on('execution:slice:new', onMessage);
+
             const intervalId = setInterval(() => {
                 if (this.serverShutdown || !this.ready || fn()) {
-                    this.off('execution:slice:new', onMessage);
-                    resolve();
+                    finish();
                 }
             }, interval);
-            const onMessage = (msg: core.EventMessage) => {
-                clearInterval(intervalId);
-                resolve(msg.payload as Slice);
-            };
 
-            this.on('execution:slice:new', onMessage);
+            function onMessage(msg: core.EventMessage) {
+                finish(msg.payload as Slice);
+            }
+
+            function finish(slice?: Slice) {
+                clearInterval(intervalId);
+                unsubscribe();
+                resolve(slice);
+            }
         });
 
         if (!slice) return;

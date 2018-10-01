@@ -110,9 +110,7 @@ export class Server extends core.Server {
 
     onSliceSuccess(fn: (workerId: string, payload: i.SliceCompletePayload) => {}) {
         this.on('slice:success', (msg) => {
-            _.defer(() => {
-                fn(msg.clientId, msg.payload);
-            });
+            fn(msg.clientId, msg.payload);
         });
     }
 
