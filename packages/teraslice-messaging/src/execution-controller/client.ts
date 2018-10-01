@@ -50,7 +50,9 @@ export class Client extends core.Client {
             const willProcess = this.available;
             if (willProcess) {
                 this.available = false;
-                this.emit('execution:slice:new', msg.payload);
+                this.emit('execution:slice:new', {
+                    payload: msg.payload
+                });
             }
 
             return {
@@ -59,12 +61,14 @@ export class Client extends core.Client {
         }));
 
         this.socket.on('execution:finished', this.handleResponse('execution:finished', (msg: core.Message) => {
-            this.emit('execution:finished', msg.payload);
+            this.emit('execution:finished', {
+                payload: msg.payload
+            });
         }));
     }
 
-    onExecutionFinished(fn: core.ClientEventFn) {
-        this.once('execution:finished', fn);
+    onExecutionFinished(fn: () => void) {
+        this.on('execution:finished', fn);
     }
 
     sendSliceComplete(payload: i.SliceCompletePayload) {
@@ -80,15 +84,16 @@ export class Client extends core.Client {
         const slice = await new Promise((resolve) => {
             const intervalId = setInterval(() => {
                 if (this.serverShutdown || !this.ready || fn()) {
-                    this.removeListener('execution:slice:new', onMessage);
+                    this.off('execution:slice:new', onMessage);
                     resolve();
                 }
             }, interval);
-            const onMessage = (msg: Slice) => {
+            const onMessage = (msg: core.EventMessage) => {
                 clearInterval(intervalId);
-                resolve(msg);
+                resolve(msg.payload as Slice);
             };
-            this.once('execution:slice:new', onMessage);
+
+            this.on('execution:slice:new', onMessage);
         });
 
         if (!slice) return;

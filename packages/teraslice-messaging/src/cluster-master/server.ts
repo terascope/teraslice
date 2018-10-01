@@ -48,8 +48,8 @@ export class Server extends core.Server {
     }
 
     async start() {
-        this.on('connection', (clientId: string, socket: SocketIO.Socket) => {
-            this.onConnection(clientId, socket);
+        this.on('connection', (msg) => {
+            this.onConnection(msg.clientId, msg.payload as SocketIO.Socket);
         });
 
         await this.listen();
@@ -77,7 +77,11 @@ export class Server extends core.Server {
 
     private onConnection(exId: string, socket: SocketIO.Socket) {
         socket.on('execution:finished', this.handleResponse('execution:finished', (msg: core.Message) => {
-            this.emit('execution:finished', exId, msg.payload.error);
+            this.emit('execution:finished', {
+                clientId: exId,
+                payload: {},
+                error: msg.payload.error
+            });
         }));
 
         socket.on('cluster:analytics', this.handleResponse('cluster:analytics', (msg: core.Message) => {

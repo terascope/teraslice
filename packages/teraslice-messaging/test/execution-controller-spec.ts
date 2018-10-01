@@ -2,7 +2,6 @@ import 'jest-extended';
 
 import bluebird from 'bluebird';
 import findPort from './helpers/find-port';
-import * as core from '../src/messenger';
 import {
     formatURL,
     newMsgId,
@@ -71,7 +70,7 @@ describe('ExecutionController', () => {
         let client: ExecutionController.Client;
         let server: ExecutionController.Server;
         const workerId: string = newMsgId();
-        const executionFinishedFn: core.ClientEventFn = jest.fn();
+        const executionFinishedFn: () => void = jest.fn();
 
         beforeAll(async () => {
             const slicerPort = await findPort();
@@ -132,11 +131,16 @@ describe('ExecutionController', () => {
             });
 
             describe('when sending worker:slice:complete', () => {
-                describe('when the slice succeed', () => {
-                    it('should respond with a slice recorded and emit slice succeeds', () => {
+                describe('when the slice succeeds', () => {
+                    it('should respond with a slice recorded and emit slice success', async () => {
                         const sliceComplete = jest.fn();
                         server.onSliceSuccess(sliceComplete);
-                        return client.sendSliceComplete({
+
+                        if (client.available) {
+                            await client.sendUnavailable();
+                        }
+
+                        const msg = await client.sendSliceComplete({
                             slice: {
                                 slicer_order: 0,
                                 slicer_id: 1,
@@ -149,31 +153,35 @@ describe('ExecutionController', () => {
                                 memory: [],
                                 size: []
                             },
-                        })
-                        .then(async (msg) => {
-                            await bluebird.delay(100);
-                            return msg;
-                        })
-                        .then((msg) => {
-                            expect(sliceComplete).toHaveBeenCalled();
-                            if (msg == null) {
-                                expect(msg).not.toBeNull();
-                                return;
-                            }
+                        });
+
+                        await bluebird.delay(100);
+
+                        expect(sliceComplete).toHaveBeenCalled();
+
+                        if (msg == null) {
+                            expect(msg).not.toBeNull();
+                        } else {
                             expect(msg.payload).toEqual({
                                 slice_id: 'success-slice-complete',
                                 recorded: true,
                             });
-                            expect(server.queue.exists('workerId', workerId)).toBeFalse();
-                        });
+                        }
+
+                        expect(server.queue.exists('workerId', workerId)).toBeFalse();
                     });
                 });
 
                 describe('when the slice fails', () => {
-                    it('should respond with a slice recorded and emit slice failure', () => {
+                    it('should respond with a slice recorded and emit slice failure', async () => {
                         const sliceFailure = jest.fn();
                         server.onSliceFailure(sliceFailure);
-                        return client.sendSliceComplete({
+
+                        if (client.available) {
+                            await client.sendUnavailable();
+                        }
+
+                        const msg = await client.sendSliceComplete({
                             slice: {
                                 slicer_order: 0,
                                 slicer_id: 1,
@@ -187,23 +195,21 @@ describe('ExecutionController', () => {
                                 size: []
                             },
                             error: 'hello'
-                        })
-                        .then(async (msg) => {
-                            await bluebird.delay(100);
-                            return msg;
-                        })
-                        .then((msg) => {
-                            expect(sliceFailure).toHaveBeenCalled();
-                            if (msg == null) {
-                                expect(msg).not.toBeNull();
-                                return;
-                            }
+                        });
+
+                        await bluebird.delay(100);
+
+                        expect(sliceFailure).toHaveBeenCalled();
+                        if (msg == null) {
+                            expect(msg).not.toBeNull();
+                        } else {
                             expect(msg.payload).toEqual({
                                 slice_id: 'failure-slice-complete',
                                 recorded: true,
                             });
-                            expect(server.queue.exists('workerId', workerId)).toBeFalse();
-                        });
+                        }
+
+                        expect(server.queue.exists('workerId', workerId)).toBeFalse();
                     });
                 });
             });

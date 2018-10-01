@@ -98,8 +98,19 @@ export interface ClientSendFns {
     [clientId: string]: (eventName: string, message: Message) => Promise<Message|null>;
 }
 
+export interface EventMessage {
+    payload: any;
+    error?: Error|ResponseError;
+}
+
+export interface ClientEventMessage {
+    clientId: string;
+    payload: any;
+    error?: Error|ResponseError;
+}
+
 export interface ClientEventFn {
-    (clientId: string, param?: any): void;
+    (msg: ClientEventMessage): void;
 }
 
 export interface MessageHandler {

@@ -1,12 +1,12 @@
 import debugFn from 'debug';
 import _ from 'lodash';
-import { EventEmitter } from 'events';
+import Emittery from 'emittery';
 import * as i from './interfaces';
 import { newMsgId } from '../utils';
 
 const debug = debugFn('teraslice-messaging:core');
 
-export class Core extends EventEmitter {
+export class Core extends Emittery {
     public closed: boolean = false;
 
     protected networkLatencyBuffer: number;
@@ -29,7 +29,7 @@ export class Core extends EventEmitter {
 
     close() {
         this.closed = true;
-        this.removeAllListeners();
+        this.clearListeners();
     }
 
     protected handleSendResponse(sent: i.Message, resolve: (val?: i.Message) => void, reject: (err: Error) => void) {
@@ -132,7 +132,7 @@ export class Core extends EventEmitter {
 
     async onceWithTimeout(eventName: string, timeout?: number): Promise<any>;
     async onceWithTimeout(eventName: string, forClientId: string, timeout?: number): Promise<any>;
-    async onceWithTimeout(eventName: string, ...params: any[]): Promise<any> {
+    async onceWithTimeout(_eventName: string, ...params: any[]): Promise<any> {
         let timeoutMs: number = this.getTimeout();
         let forClientId: string|undefined;
 
@@ -145,30 +145,29 @@ export class Core extends EventEmitter {
             }
         }
 
-        // FIXME: debug less
-        const listeners = this.listeners(eventName);
-        debug('onceWithTimeout, started', { eventName, timeoutMs, forClientId, listeners });
+        const eventName = forClientId != null ? `${_eventName}:${forClientId}` : _eventName;
+
+        debug('onceWithTimeout, started', { eventName, timeoutMs });
 
         return new Promise((resolve) => {
+            let unsubscribe: Emittery.UnsubscribeFn|undefined;
             let timer: NodeJS.Timer|undefined;
             const startTime = Date.now();
 
             const finish = (result?: any) => {
                 const elapsed = Date.now() - startTime;
-                // FIXME: debug less
-                const listeners = this.listeners(eventName);
-                debug('onceWithTimeout, finished', { eventName, timeoutMs, forClientId, elapsed, result, listeners });
-                this.removeListener(eventName, _onceWithTimeout);
-                if (timer) clearTimeout(timer);
+                debug('onceWithTimeout, finished', { eventName, timeoutMs, elapsed, result });
+
+                if (unsubscribe != null) unsubscribe();
+                if (timer != null) clearTimeout(timer);
+
                 resolve(result);
             };
 
-            function _onceWithTimeout(clientId: string, param?: any) {
-                if (forClientId && forClientId !== clientId) return;
-                finish(param || clientId);
-            }
+            unsubscribe = this.on(eventName, (msg: i.ClientEventMessage|i.EventMessage) => {
+                finish(msg.payload);
+            });
 
-            this.on(eventName, _onceWithTimeout);
             timer = setTimeout(() => { finish(); }, timeoutMs);
         });
     }
