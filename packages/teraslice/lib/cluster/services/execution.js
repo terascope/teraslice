@@ -405,8 +405,7 @@ module.exports = function module(context, { clusterMasterServer }) {
                                 } else {
                                     // if k8s allocateWorkers fails, the execution fails
                                     logger.error(`Failured to create k8s worker deployment ${execution.ex_id}, error: ${parseError(err)}`);
-                                    const errMetaData = executionMetaData(null, parseError(err));
-                                    return setExecutionStatus(execution.ex_id, 'failed', errMetaData);
+                                    return Promise.reject(err);
                                 }
                             })))
                     .catch((err) => {
@@ -459,7 +458,8 @@ module.exports = function module(context, { clusterMasterServer }) {
                     return api;
                 }))
             .error((err) => {
-            // TODO: verify whats coming here
+                console.error('XXXXXXXX');
+                // TODO: verify whats coming here
                 if (_.get(err, 'body.error.reason') !== 'no such index') {
                     logger.error(`initialization failed loading state from Elasticsearch: ${err}`);
                 }
