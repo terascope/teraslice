@@ -110,13 +110,17 @@ export class Server extends core.Server {
 
     onSliceSuccess(fn: (workerId: string, payload: i.SliceCompletePayload) => {}) {
         this.on('slice:success', (msg) => {
-            fn(msg.clientId, msg.payload);
+            _.defer(() => {
+                fn(msg.clientId, msg.payload);
+            });
         });
     }
 
     onSliceFailure(fn: (workerId: string, payload: i.SliceCompletePayload) => {}) {
         this.on('slice:failure', (msg) => {
-            fn(msg.clientId, msg.payload);
+            _.defer(() => {
+                fn(msg.clientId, msg.payload);
+            });
         });
     }
 
@@ -136,7 +140,7 @@ export class Server extends core.Server {
     }
 
     private onConnection(workerId: string, socket: SocketIO.Socket) {
-        socket.on('worker:slice:complete', this.handleResponse('worker:slice:complete', (msg) => {
+        socket.on('worker:slice:complete', this.handleResponse('worker:slice:complete', async (msg) => {
             const { payload } = msg;
             const sliceId = _.get(payload, 'slice.slice_id');
 

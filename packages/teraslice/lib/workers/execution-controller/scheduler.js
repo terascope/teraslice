@@ -109,7 +109,7 @@ class Scheduler {
 
         this.logger.debug(`registered ${count} slicers`);
 
-        this.events.emit('slicers:length', count);
+        this.events.emit('slicers:registered', count);
         this.ready = true;
     }
 
@@ -123,45 +123,53 @@ class Scheduler {
         this.slicers.length = 0;
     }
 
-
     getSlice() {
-        if (this.queue.size() === 0) return null;
-
-        const slice = this.queue.dequeue();
-        if (slice) {
-            this.events.emit('slicers:queued', this.queueLength);
-        }
-
+        const [slice] = this.getSlices(1);
         return slice;
     }
 
-    getSlicers() {
-        return this.slicers;
-    }
+    getSlices(limit = 1) {
+        if (this.queue.size() === 0) return [];
 
-    runSlicer(id) {
-        const slicer = _.find(this.slicers, { id });
-        if (slicer == null) {
-            throw new Error(`Unable to find slicer by id ${id}`);
+        const slices = [];
+
+        for (let i = 0; i < limit; i += 1) {
+            const slice = this.queue.dequeue();
+            if (slice == null) break;
+
+            slices.push(slice);
         }
 
-        return slicer.handle();
-    }
-
-    enqueueSlice(slice, addToStart = false) {
-        if (this.queue.exists('slice_id', slice.slice_id)) {
-            this.logger.warn(`slice ${slice.slice_id} has already been enqueued`);
-            return;
+        if (slices.length > 0) {
+            this.events.emit('slicers:queued', this.queueLength);
         }
 
-        this.logger.trace('enqueuing slice', slice);
+        return slices;
+    }
+
+    enqueueSlice(slice, addToStart) {
+        return this.enqueueSlices([slice], addToStart);
+    }
+
+    enqueueSlices(slices, addToStart = false) {
+        if (this.stopped) return;
+
+        _.forEach(slices, (slice) => {
+            if (this.queue.exists('slice_id', slice.slice_id)) {
+                this.logger.warn(`slice ${slice.slice_id} has already been enqueued`);
+                return;
+            }
+
+            this.logger.debug('enqueuing slice', slice);
+
+            if (addToStart) {
+                this.queue.unshift(slice);
+            } else {
+                this.queue.enqueue(slice);
+            }
+        });
+
         this.events.emit('slicers:queued', this.queueLength);
-
-        if (addToStart) {
-            this.queue.unshift(slice);
-        } else {
-            this.queue.enqueue(slice);
-        }
     }
 
     _processSlicers() {
@@ -169,32 +177,61 @@ class Scheduler {
             events,
             logger,
             exId,
-            runSlicer,
-            getSlicers,
             canAllocateSlice,
         } = this;
 
         let slicersDone = 0;
 
-        const pendingSlicers = [];
+        let pendingSlicers = [];
 
-        function onQueueLengthChange() {
-            if (canAllocateSlice() && pendingSlicers.length > 0) {
-                runSlicer(pendingSlicers.shift());
+        const getSlicers = () => this.slicers;
+        const getSlicerIds = () => _.map(this.slicers, 'id');
+
+        const runSlicer = (id) => {
+            const slicer = _.find(this.slicers, { id });
+            if (slicer == null) {
+                throw new Error(`Unable to find slicer by id ${id}`);
             }
+
+            return slicer.handle();
+        };
+
+        const getAllocationCount = () => {
+            if (!canAllocateSlice()) return 0;
+
+            const count = this.executionContext.queueLength - this.queueLength;
+            if (count > pendingSlicers.length) {
+                return pendingSlicers.length;
+            }
+            if (count < 0) return 0;
+            return count;
+        };
+
+        function runPendingSlicers() {
+            if (!pendingSlicers.length) return;
+
+            const count = getAllocationCount();
+            const slicersToRun = _.take(pendingSlicers, count);
+            pendingSlicers = _.without(pendingSlicers, ...slicersToRun);
+
+            slicersToRun.forEach((id) => {
+                runSlicer(id);
+            });
+        }
+
+        function setupSlicers() {
+            slicersDone = 0;
+            pendingSlicers = _.union(pendingSlicers, getSlicerIds());
+            runPendingSlicers();
         }
 
         function onSlicersStart() {
-            pendingSlicers.slice().forEach(id => runSlicer(id));
-            pendingSlicers.length = 0;
+            runPendingSlicers();
         }
 
         function onSlicersDone(slicerId) {
-            if (canAllocateSlice()) {
-                runSlicer(slicerId);
-            } else {
-                pendingSlicers.push(slicerId);
-            }
+            pendingSlicers = _.union(pendingSlicers, [slicerId]);
+            runPendingSlicers();
         }
 
         function onSlicerFinished(slicerId) {
@@ -227,22 +264,22 @@ class Scheduler {
         events.on('slicer:failure', onSlicerFailure);
 
         events.on('slicers:start', onSlicersStart);
-        events.on('slicers:queued', onQueueLengthChange);
+        events.on('slicers:queued', runPendingSlicers);
+        events.on('slicers:registered', setupSlicers);
 
         function cleanup() {
-            pendingSlicers.length = 0;
+            pendingSlicers = [];
 
             events.removeListener('slicer:done', onSlicersDone);
             events.removeListener('slicer:finished', onSlicerFinished);
             events.removeListener('slicer:failure', onSlicerFailure);
 
             events.removeListener('slicers:start', onSlicersStart);
-            events.removeListener('slicers:queued', onQueueLengthChange);
+            events.removeListener('slicers:queued', runPendingSlicers);
+            events.removeListener('slicers:registered', setupSlicers);
         }
 
-        const slicerIds = _.map(getSlicers(), 'id');
-
-        pendingSlicers.push(...slicerIds);
+        setupSlicers();
 
         this._processCleanup = cleanup;
     }
@@ -251,7 +288,7 @@ class Scheduler {
         const {
             events,
             logger,
-            enqueueSlice,
+            enqueueSlices,
             canComplete
         } = this;
 
@@ -274,21 +311,23 @@ class Scheduler {
                         events.emit('slicer:subslice');
                     }
 
-                    _.each(_.castArray(result), (sliceRequest) => {
+                    const slices = _.map(_.castArray(result), (sliceRequest) => {
                         slicer.order += 1;
-                        let slice = sliceRequest;
 
                         // recovery slices already have correct meta data
-                        if (!slice.slice_id) {
-                            slice = {
-                                slice_id: uuidv4(),
-                                request: sliceRequest,
-                                slicer_id: slicer.id,
-                                slicer_order: slicer.order,
-                            };
+                        if (sliceRequest.slice_id) {
+                            return sliceRequest;
                         }
-                        enqueueSlice(slice);
+
+                        return {
+                            slice_id: uuidv4(),
+                            request: sliceRequest,
+                            slicer_id: slicer.id,
+                            slicer_order: slicer.order,
+                        };
                     });
+
+                    enqueueSlices(slices);
                 } else if (canComplete()) {
                     logger.trace(`slicer ${slicer.id} finished`);
                     events.emit('slicer:finished', slicer.id);

@@ -228,6 +228,10 @@ describe('ExecutionController', () => {
             describe('when receiving execution:slice:new', () => {
                 describe('when the client is set as available', () => {
                     it('should resolve with correct messages', async () => {
+                        if (!client.available) {
+                            await client.sendAvailable();
+                        }
+
                         const newSlice = {
                             slicer_order: 0,
                             slicer_id: 1,
@@ -251,7 +255,9 @@ describe('ExecutionController', () => {
                         }
 
                         const dispatched = await server.dispatchSlice(newSlice, id);
+
                         await expect(slice).resolves.toEqual(newSlice);
+
                         expect(dispatched).toBeTrue();
 
                         expect(server.activeWorkers).toBeArrayOfSize(1);
@@ -273,7 +279,9 @@ describe('ExecutionController', () => {
 
                 describe('when the client is set as unavailable', () => {
                     beforeAll(async () => {
-                        await client.sendUnavailable();
+                        if (client.available) {
+                            await client.sendUnavailable();
+                        }
                     });
 
                     it('should reject with the correct error messages', () => {

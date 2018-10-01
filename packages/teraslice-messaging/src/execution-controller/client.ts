@@ -47,6 +47,10 @@ export class Client extends core.Client {
         }
 
         this.socket.on('execution:slice:new', this.handleResponse('execution:slice:new', (msg: core.Message) => {
+            if (this.listenerCount('execution:slice:new') === 0) {
+                return { willProcess: false };
+            }
+
             const willProcess = this.available;
             if (willProcess) {
                 this.available = false;

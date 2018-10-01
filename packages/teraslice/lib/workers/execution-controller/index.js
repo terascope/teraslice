@@ -480,10 +480,10 @@ class ExecutionController {
             const count = slices > workers ? workers : slices;
 
             if (count > 0) {
-                return this._dispatchSlices(count);
+                return this._dispatchSlices();
             }
 
-            if (!workers) {
+            if (!workers && !this.isShuttingDown) {
                 return this.server.onceWithTimeout('worker:enqueue', 1000);
             }
 
@@ -495,15 +495,14 @@ class ExecutionController {
         this.isDoneDispatching = true;
     }
 
-    async _dispatchSlices(count) {
-        for (let i = 0; i < count; i += 1) {
-            const slice = this.scheduler.getSlice();
-            if (!slice) break;
+    async _dispatchSlices() {
+        const slices = this.scheduler.getSlices(this.server.workerQueueSize);
 
+        slices.forEach((slice) => {
             const workerId = this.server.dequeueWorker(slice);
             if (!workerId) {
                 this.scheduler.enqueueSlice(slice, true);
-                break;
+                return;
             }
 
             this.logger.trace(`add dispatch slice ${slice.slice_id} for worker ${workerId} to queue`);
@@ -514,7 +513,7 @@ class ExecutionController {
                 .catch((err) => {
                     this.logger.error('dispatch slice error', err);
                 });
-        }
+        });
 
         if (this.dispatchQueue.pending === 0) {
             await this.dispatchQueue.onEmpty();

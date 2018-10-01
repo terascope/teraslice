@@ -142,7 +142,7 @@ class ExecutionAnalytics {
             this.set('queued', queueSize);
         };
 
-        this._handlers['slicers:length'] = (count) => {
+        this._handlers['slicers:registered'] = (count) => {
             this.set('slicers', count);
         };
 

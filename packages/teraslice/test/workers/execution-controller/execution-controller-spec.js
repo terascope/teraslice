@@ -89,6 +89,7 @@ describe('ExecutionController', () => {
         beforeEach(async () => {
             testContext = new TestContext({
                 assignment: 'execution_controller',
+                shutdownTimeout: 100
             });
 
             await testContext.initialize();

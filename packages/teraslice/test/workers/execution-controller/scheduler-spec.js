@@ -1,24 +1,45 @@
 'use strict';
 
-const times = require('lodash/times');
-const uniqueId = require('lodash/uniqueId');
+const _ = require('lodash');
 const Promise = require('bluebird');
 const TestContext = require('../helpers/test-context');
 const Scheduler = require('../../../lib/workers/execution-controller/scheduler');
 
 describe('Scheduler', () => {
-    const slicers = 5;
-    const countPerSlicer = 200;
-    const expectedCount = slicers * countPerSlicer;
-
-    const testContext = new TestContext({
-        assignment: 'execution_controller',
-        slicers
-    });
-
+    let slicers;
+    let countPerSlicer;
+    let expectedCount;
+    let testContext;
     let scheduler;
 
-    beforeAll(async () => {
+    function getSlices() {
+        const slices = [];
+
+        return new Promise((resolve) => {
+            const intervalId = setInterval(() => {
+                if (scheduler.isFinished) {
+                    clearInterval(intervalId);
+                    resolve(slices);
+                } else {
+                    const result = scheduler.getSlices(10);
+                    if (result.length > 0) {
+                        slices.push(...result);
+                    }
+                }
+            }, 1);
+        });
+    }
+
+    beforeEach(async () => {
+        slicers = 5;
+        countPerSlicer = 200;
+        expectedCount = slicers * countPerSlicer;
+
+        testContext = new TestContext({
+            assignment: 'execution_controller',
+            slicers
+        });
+
         await testContext.initialize();
 
         scheduler = new Scheduler(
@@ -27,19 +48,19 @@ describe('Scheduler', () => {
         );
 
         const newSlicer = (id) => {
-            const records = times(countPerSlicer, () => ({ id: uniqueId(`slicer-${id}-`) }));
+            const records = _.times(countPerSlicer, () => ({ id: _.uniqueId(`slicer-${id}-`) }));
             return async () => {
                 await Promise.delay(0);
                 return records.shift();
             };
         };
 
-        await scheduler.registerSlicers(times(slicers, newSlicer));
+        await scheduler.registerSlicers(_.times(slicers, newSlicer));
 
         testContext.attachCleanup(() => scheduler.cleanup());
     });
 
-    afterAll(() => testContext.cleanup());
+    afterEach(() => testContext.cleanup());
 
     it('should register the slicers', async () => {
         expect(scheduler.slicers).toBeArrayOfSize(slicers);
@@ -47,30 +68,17 @@ describe('Scheduler', () => {
 
         expect(scheduler.ready).toBeTrue();
         expect(scheduler.paused).toBeTrue();
+        expect(scheduler.stopped).toBeFalse();
         expect(scheduler.queueLength).toEqual(0);
         expect(scheduler.isFinished).toBeFalse();
     });
 
     it(`should be able to schedule ${expectedCount} slices`, async () => {
-        const slices = [];
-
-        const getSlices = () => new Promise((resolve) => {
-            const intervalId = setInterval(() => {
-                if (scheduler.isFinished) {
-                    clearInterval(intervalId);
-                    resolve();
-                } else {
-                    const slice = scheduler.getSlice();
-                    if (slice) {
-                        slices.push(slice);
-                    }
-                }
-            }, 1);
-        });
+        let slices = [];
 
         await Promise.all([
             scheduler.run(),
-            getSlices(),
+            getSlices().then((_slices) => { slices = _slices; }),
         ]);
 
         expect(scheduler.paused).toBeFalse();
@@ -79,5 +87,48 @@ describe('Scheduler', () => {
         expect(scheduler.queueLength).toEqual(0);
         expect(slices).toBeArrayOfSize(expectedCount);
         expect(scheduler.isFinished).toBeTrue();
+    });
+
+    it('should handle pause and resume correctly', async () => {
+        let slices = [];
+
+        const pause = _.once(() => {
+            scheduler.pause();
+            _.delay(scheduler.start, 10);
+        });
+
+        const pauseAfter = _.after(Math.round(countPerSlicer / 3), pause);
+
+        scheduler.events.on('slicer:done', pauseAfter);
+
+        await Promise.all([
+            scheduler.run(),
+            getSlices().then((_slices) => { slices = _slices; }),
+        ]);
+
+        expect(slices).toBeArrayOfSize(expectedCount);
+        expect(scheduler.isFinished).toBeTrue();
+        expect(scheduler.slicersDone).toBeTrue();
+    });
+
+    it('should handle stop correctly', async () => {
+        let slices = [];
+
+        const stop = _.once(scheduler.stop);
+
+        expectedCount = Math.round(countPerSlicer / 3);
+        const stopAfter = _.after(expectedCount, stop);
+
+        scheduler.events.on('slicer:done', stopAfter);
+
+        await Promise.all([
+            scheduler.run(),
+            getSlices().then((_slices) => { slices = _slices; }),
+        ]);
+
+        expect(slices).toBeArrayOfSize(expectedCount);
+        expect(scheduler.isFinished).toBeTrue();
+        expect(scheduler.stopped).toBeTrue();
+        expect(scheduler.slicersDone).toBeFalse();
     });
 });

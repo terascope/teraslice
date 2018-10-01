@@ -156,7 +156,7 @@ export class Core extends Emittery {
 
             const finish = (result?: any) => {
                 const elapsed = Date.now() - startTime;
-                debug(`onceWithTimeout(${eventName}, ${timeoutMs}) - finished, took ${elapsed}`);
+                debug(`onceWithTimeout(${eventName}, ${timeoutMs}) - finished, took ${elapsed}ms`);
 
                 if (unsubscribe != null) unsubscribe();
                 if (timer != null) clearTimeout(timer);

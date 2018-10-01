@@ -141,7 +141,7 @@ export class Client extends Core {
             this.emit('server:shutdown');
         });
 
-        this.socket.on('connect', async () => {
+        this.socket.on('connect', () => {
             debug(`client ${this.clientId} connected`);
             this.ready = true;
             this.emit('ready');
