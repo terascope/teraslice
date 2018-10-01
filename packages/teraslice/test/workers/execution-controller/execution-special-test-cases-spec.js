@@ -98,6 +98,7 @@ describe('ExecutionController Special Tests', () => {
         [
             'processing slices and the execution gets shutdown early',
             {
+                only: true,
                 slicerResults: [
                     { example: 'slice-shutdown-early' },
                     { example: 'slice-shutdown-early' },
@@ -115,8 +116,8 @@ describe('ExecutionController Special Tests', () => {
     ];
 
     // for testing enable the next line and a "only" property to the test cases you want
-    // fdescribe.each(_.filter(testCases, ts => ts[1].only))('when %s', (m, options) => {
-    describe.each(testCases)('when %s', (m, options) => {
+    fdescribe.each(_.filter(testCases, ts => ts[1].only))('when %s', (m, options) => {
+    // describe.each(testCases)('when %s', (m, options) => {
         const {
             slicerResults,
             slicerQueueLength,

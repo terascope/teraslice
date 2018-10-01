@@ -133,16 +133,16 @@ class ExecutionAnalytics {
             this.increment('slice_range_expansion');
         };
 
-        this._handlers['analytics:subslice'] = () => {
+        this._handlers['slicer:subslice'] = () => {
             this.logger.warn(`slicer for execution: ${exId} is subslicing by key`);
             this.increment('subslice_by_key');
         };
 
-        this._handlers['analytics:queued'] = (queueSize) => {
+        this._handlers['slicers:queued'] = (queueSize) => {
             this.set('queued', queueSize);
         };
 
-        this._handlers['analytics:slicers'] = (count) => {
+        this._handlers['slicers:length'] = (count) => {
             this.set('slicers', count);
         };
 

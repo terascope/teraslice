@@ -20,6 +20,8 @@ class Scheduler {
         this.paused = true;
         this.slicersDone = false;
         this.slicersFailed = false;
+        this._resolveRun = () => {};
+        this._processCleanup = () => {};
 
         this.queue = new Queue();
 
@@ -28,10 +30,12 @@ class Scheduler {
 
     async run() {
         if (!this.ready) {
-            throw new Error('Schedule needs to have registered slicers first');
+            throw new Error('Scheduler needs to have registered slicers first');
         }
 
         const promise = new Promise((resolve) => {
+            this._resolveRun = () => resolve();
+
             this.events.once('slicers:finished', (err) => {
                 if (err) {
                     this.slicersFailed = true;
@@ -48,6 +52,9 @@ class Scheduler {
         this.logger.debug('running the scheduler');
 
         await promise;
+
+        // FIXME: remove
+        this.logger.debug('SCHEDULER DONE');
     }
 
     start() {
@@ -94,16 +101,18 @@ class Scheduler {
 
         this.logger.debug(`registered ${count} slicers`);
 
-        this.events.emit('analytics:slicers', count);
+        this.events.emit('slicers:length', count);
         this.ready = true;
     }
 
     cleanup() {
+        // FIXME: should be trace
+        this.logger.debug('cleaning up scheduler...');
+
         this.paused = true;
 
-        if (this._processCleanup) {
-            this._processCleanup();
-        }
+        this._processCleanup();
+        this._resolveRun();
 
         this.queue.each((slice) => {
             this.queue.remove(slice.slice_id, 'slice_id');
@@ -116,7 +125,7 @@ class Scheduler {
     getSlice() {
         const slice = this.queue.dequeue();
         if (slice) {
-            this.events.emit('analytics:queued', this.queueLength);
+            this.events.emit('slicers:queued', this.queueLength);
         }
         return slice;
     }
@@ -131,6 +140,8 @@ class Scheduler {
             throw new Error(`Unable to find slicer by id ${id}`);
         }
 
+        // FIXME: remove
+        this.logger.debug(`RUNNING SLICER ${id}!`);
         return slicer.handle();
     }
 
@@ -141,7 +152,7 @@ class Scheduler {
         }
 
         this.logger.trace('enqueuing slice', slice);
-        this.events.emit('analytics:queued', this.queueLength);
+        this.events.emit('slicers:queued', this.queueLength);
 
         if (addToStart) {
             this.queue.unshift(slice);
@@ -205,7 +216,7 @@ class Scheduler {
         events.on('slicer:failure', onSlicerFailure);
 
         events.on('slicers:start', onSlicersStart);
-        events.on('analytics:queued', onQueueLengthChange);
+        events.on('slicers:queued', onQueueLengthChange);
 
         function cleanup() {
             pendingSlicers.length = 0;
@@ -215,7 +226,7 @@ class Scheduler {
             events.removeListener('slicer:failure', onSlicerFailure);
 
             events.removeListener('slicers:start', onSlicersStart);
-            events.removeListener('analytics:queued', onQueueLengthChange);
+            events.removeListener('slicers:queued', onQueueLengthChange);
         }
 
         const slicerIds = _.map(getSlicers(), 'id');
@@ -249,7 +260,7 @@ class Scheduler {
                 // not null or undefined
                 if (result != null) {
                     if (_.isArray(result)) {
-                        events.emit('analytics:subslice');
+                        events.emit('slicer:subslice');
                     }
 
                     _.each(_.castArray(result), (sliceRequest) => {
@@ -268,7 +279,6 @@ class Scheduler {
                         enqueueSlice(slice);
                     });
                 } else if (canComplete()) {
-                    // should be trace
                     logger.trace(`slicer ${slicer.id} finished`);
                     events.emit('slicer:finished', slicer.id);
                     return;

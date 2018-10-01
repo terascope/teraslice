@@ -145,28 +145,31 @@ export class Core extends EventEmitter {
             }
         }
 
+        // FIXME: debug less
+        const listeners = this.listeners(eventName);
+        debug('onceWithTimeout, started', { eventName, timeoutMs, forClientId, listeners });
+
         return new Promise((resolve) => {
-            const finish = (result: any) => {
+            let timer: NodeJS.Timer|undefined;
+            const startTime = Date.now();
+
+            const finish = (result?: any) => {
+                const elapsed = Date.now() - startTime;
+                // FIXME: debug less
+                const listeners = this.listeners(eventName);
+                debug('onceWithTimeout, finished', { eventName, timeoutMs, forClientId, elapsed, result, listeners });
                 this.removeListener(eventName, _onceWithTimeout);
-                clearTimeout(timer);
+                if (timer) clearTimeout(timer);
                 resolve(result);
             };
 
-            const timer = setTimeout(() => {
-                finish(null);
-            }, timeoutMs);
-
             function _onceWithTimeout(clientId: string, param?: any) {
                 if (forClientId && forClientId !== clientId) return;
-                clearTimeout(timer);
-                if (!param) {
-                    finish(clientId);
-                } else {
-                    finish(param);
-                }
+                finish(param || clientId);
             }
 
             this.on(eventName, _onceWithTimeout);
+            timer = setTimeout(() => { finish(); }, timeoutMs);
         });
     }
 }

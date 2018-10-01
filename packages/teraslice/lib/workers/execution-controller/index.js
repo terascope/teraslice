@@ -20,6 +20,8 @@ const ExecutionControllerServer = Messaging.ExecutionController.Server;
 const ClusterMasterClient = Messaging.ClusterMaster.Client;
 const { formatURL } = Messaging;
 
+// const immediate = Promise.promisify(setImmediate);
+
 class ExecutionController {
     constructor(context, executionContext) {
         const workerId = generateWorkerId(context);
@@ -61,9 +63,10 @@ class ExecutionController {
         this.scheduler = new Scheduler(context, executionContext);
 
         this.dispatchQueue = new PQueue({
+            carryoverConcurrencyCount: true,
             concurrency: executionContext.config.workers,
             intervalCap: 1,
-            interval: 10,
+            interval: 100,
             autoStart: false,
         });
 
@@ -392,11 +395,6 @@ class ExecutionController {
         }
     }
 
-    _endExecution() {
-        this.isExecutionDone = true;
-        this.scheduler.cleanup();
-    }
-
     async _runExecution() {
         this._startWorkConnectWatchDog();
 
@@ -456,6 +454,9 @@ class ExecutionController {
             const queueSize = this.dispatchQueue.size + this.dispatchQueue.pending;
             return queueSize > 0;
         }, async () => {
+            // FIXME: remove
+            this.logger.debug('DISPATCHING!');
+
             if (this.isPaused) return Promise.delay(1000);
 
             const workers = this.server.workerQueueSize;
@@ -463,21 +464,30 @@ class ExecutionController {
             const count = slices > workers ? workers : slices;
 
             if (count > 0) {
-                this._dispatchSlices(count);
-                return this.dispatchQueue.onEmpty();
+                // FIXME: remove
+                this.logger.debug('DISPATCHING COUNT!', { count });
+                return this._dispatchSlices(count);
             }
 
             if (!workers) {
-                return this.server.onceWithTimeout('worker:enqueue', 1000);
+                // FIXME: remove
+                this.logger.debug('DISPATCHING WORKER ENQUEUE!');
+                await this.server.onceWithTimeout('worker:enqueue', 1000);
+                // FIXME: remove
+                this.logger.debug('DISPATCHING WORKER ENQUEUE DONE!');
+                return null;
             }
 
-            return Promise.delay(0);
+            return Promise.delay(100);
         });
+
+        // FIXME: remove
+        this.logger.debug('DONE DISPATCHING!');
 
         this.isDoneDispatching = true;
     }
 
-    _dispatchSlices(count) {
+    async _dispatchSlices(count) {
         for (let i = 0; i < count; i += 1) {
             const slice = this.scheduler.getSlice();
             if (!slice) break;
@@ -488,14 +498,29 @@ class ExecutionController {
                 break;
             }
 
-            this.logger.debug('add dispatch slice to queue');
+            // FIXME: should be trace
+            this.logger.debug(`add dispatch slice ${slice.slice_id} for worker ${workerId} to queue`);
 
             // add it the queue
             this.dispatchQueue
                 .add(() => this._dispatchSlice(slice, workerId))
+                // FIXME: remove
+                .then(() => {
+                    this.logger.debug('dispatch done!', { slice, workerId });
+                })
                 .catch((err) => {
                     this.logger.error('dispatch slice error', err);
                 });
+        }
+
+        if (this.dispatchQueue.pending === 0) {
+            // FIXME: remove debug
+            this.logger.debug('Waiting for onEmpty()');
+            await this.dispatchQueue.onEmpty();
+            // FIXME: remove debug
+            this.logger.debug('Waiting for onEmpty() end');
+        } else {
+            await Promise.delay(100);
         }
     }
 
@@ -576,6 +601,7 @@ class ExecutionController {
 
         if (_.get(this.startingPoints, '_exit') === true) {
             this.recoveryComplete = this.recover.recoveryComplete;
+            this.scheduler.recovering = false;
             this.logger.warn('execution recovery has been marked as completed');
             return;
         }
@@ -605,7 +631,12 @@ class ExecutionController {
         }
 
         this.isExecutionFinished = true;
+        this._endExecution();
+    }
+
+    _endExecution() {
         this.isExecutionDone = true;
+        this.scheduler.cleanup();
     }
 
     async _updateExecutionStatus() {
@@ -736,7 +767,8 @@ class ExecutionController {
 
         const logShuttingDown = _.debounce(() => {
             this.logger.debug('shutdown is waiting for execution to finish...');
-        }, 1000, {
+            // FIXME: this should be 1000ms
+        }, 10, {
             leading: true,
         });
 
