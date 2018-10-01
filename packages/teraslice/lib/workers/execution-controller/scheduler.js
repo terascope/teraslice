@@ -18,6 +18,7 @@ class Scheduler {
         this.recovering = false;
         this.ready = false;
         this.paused = true;
+        this.stopped = false;
         this.slicersDone = false;
         this.slicersFailed = false;
         this._resolveRun = () => {};
@@ -52,14 +53,21 @@ class Scheduler {
         this.logger.debug('running the scheduler');
 
         await promise;
-
-        // FIXME: remove
-        this.logger.debug('SCHEDULER DONE');
     }
 
     start() {
         this.paused = false;
         this.events.emit('slicers:start');
+    }
+
+    stop() {
+        this.stopped = true;
+
+        this._processCleanup();
+        this._processCleanup = () => {};
+
+        this._resolveRun();
+        this._resolveRun = () => {};
     }
 
     pause() {
@@ -75,7 +83,7 @@ class Scheduler {
     }
 
     get isFinished() {
-        return (this.slicersDone || this.slicersFailed) && this.queueLength === 0;
+        return (this.slicersDone || this.slicersFailed || this.stopped) && this.queueLength === 0;
     }
 
     canAllocateSlice() {
@@ -106,13 +114,7 @@ class Scheduler {
     }
 
     cleanup() {
-        // FIXME: should be trace
-        this.logger.debug('cleaning up scheduler...');
-
-        this.paused = true;
-
-        this._processCleanup();
-        this._resolveRun();
+        this.stop();
 
         this.queue.each((slice) => {
             this.queue.remove(slice.slice_id, 'slice_id');
@@ -123,10 +125,13 @@ class Scheduler {
 
 
     getSlice() {
+        if (this.queue.size() === 0) return null;
+
         const slice = this.queue.dequeue();
         if (slice) {
             this.events.emit('slicers:queued', this.queueLength);
         }
+
         return slice;
     }
 
@@ -140,8 +145,6 @@ class Scheduler {
             throw new Error(`Unable to find slicer by id ${id}`);
         }
 
-        // FIXME: remove
-        this.logger.debug(`RUNNING SLICER ${id}!`);
         return slicer.handle();
     }
 
@@ -199,16 +202,24 @@ class Scheduler {
             logger.info(`a slicer ${slicerId} for execution: ${exId} has completed its range`);
 
             if (slicersDone === getSlicers().length) {
-                cleanup();
                 logger.info(`all slicers for execution: ${exId} have been completed`);
-                events.emit('slicers:finished');
+
+                // before removing listeners make sure we've received all of the events
+                setTimeout(() => {
+                    events.emit('slicers:finished');
+                    cleanup();
+                }, 100);
             }
         }
 
         function onSlicerFailure(err, slicerId) {
             logger.warn(`slicer ${slicerId} failed`, _.toString(err));
-            events.emit('slicers:finished', err);
-            cleanup();
+
+            // before removing listeners make sure we've received all of the events
+            setTimeout(() => {
+                events.emit('slicers:finished', err);
+                cleanup();
+            }, 100);
         }
 
         events.on('slicer:done', onSlicersDone);

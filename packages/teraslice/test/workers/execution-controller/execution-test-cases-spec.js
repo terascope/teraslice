@@ -378,7 +378,7 @@ describe('ExecutionController Test Cases', () => {
 
             if (sliceFails || slicerFails) {
                 if (sliceFails) {
-                    expect(exStatus).toHaveProperty('_failureReason', `execution: ${exId} had 1 slice failures during processing`);
+                    expect(exStatus).toHaveProperty('_failureReason', `execution: ${exId} had 1 slice failure during processing`);
                     expect(exStatus._slicer_stats.failed).toEqual(count);
                     const query = `ex_id:${exId} AND state:error`;
                     const actualCount = await stateStore.count(query, 0);

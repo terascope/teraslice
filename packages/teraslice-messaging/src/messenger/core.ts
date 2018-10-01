@@ -147,7 +147,7 @@ export class Core extends Emittery {
 
         const eventName = forClientId != null ? `${_eventName}:${forClientId}` : _eventName;
 
-        debug('onceWithTimeout, started', { eventName, timeoutMs });
+        debug(`onceWithTimeout(${eventName}, ${timeoutMs}) - started`);
 
         return new Promise((resolve) => {
             let unsubscribe: Emittery.UnsubscribeFn|undefined;
@@ -156,7 +156,7 @@ export class Core extends Emittery {
 
             const finish = (result?: any) => {
                 const elapsed = Date.now() - startTime;
-                debug('onceWithTimeout, finished', { eventName, timeoutMs, elapsed, result });
+                debug(`onceWithTimeout(${eventName}, ${timeoutMs}) - finished, took ${elapsed}`);
 
                 if (unsubscribe != null) unsubscribe();
                 if (timer != null) clearTimeout(timer);
