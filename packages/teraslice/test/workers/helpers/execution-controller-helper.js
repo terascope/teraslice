@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const Promise = require('bluebird');
 
 function makeShutdownEarlyFn({ exController, enabled = false }) {
@@ -44,4 +45,20 @@ function makeShutdownEarlyFn({ exController, enabled = false }) {
     };
 }
 
-module.exports = { makeShutdownEarlyFn };
+function getTestCases(testCases) {
+    const onlyCases = _.filter(testCases, ts => ts[1].only);
+    if (onlyCases.length > 0) {
+        // eslint-disable-next-line no-console
+        console.warn('[WARNING]: test cases includes a "only" property, make sure to remove this before committing');
+        return onlyCases;
+    }
+
+    const cases = _.reject(testCases, ts => ts[1].skip);
+    if (cases.length !== testCases.length) {
+        // eslint-disable-next-line no-console
+        console.warn('[WARNING]: test cases includes a "skip" property, make sure to remove this before committing');
+    }
+    return cases;
+}
+
+module.exports = { makeShutdownEarlyFn, getTestCases };

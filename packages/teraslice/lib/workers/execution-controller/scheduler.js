@@ -103,6 +103,7 @@ class Scheduler {
 
         this.recovering = recovering;
 
+        this.slicers.length = 0;
         this.slicers = slicerFns.map((fn, id) => this._registerSlicer(fn, id));
 
         const count = _.size(this.slicers);

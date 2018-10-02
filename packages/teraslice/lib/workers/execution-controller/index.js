@@ -390,6 +390,7 @@ class ExecutionController {
             const errMsg = shutdownErrs.map(e => e.stack).join(', and');
             const shutdownErr = new Error(`Failed to shutdown correctly: ${errMsg}`);
             this.events.emit(this.context, 'worker:shutdown:complete', shutdownErr);
+            await Promise.delay(0);
             throw shutdownErr;
         }
 

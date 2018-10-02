@@ -139,7 +139,7 @@ function recovery(context, executionFailed, stateStore, executionContext) {
             } catch (err) {
                 logger.warn(parseError(err));
             }
-            events.emit('execution:recovery:complete');
+            events.emit('execution:recovery:complete', []);
         });
     }
 
