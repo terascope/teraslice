@@ -1,59 +1,122 @@
 import _ from 'lodash';
+import * as L from 'list/methods';
 
 /**
- * DataEntity [DRAFT]
- *  @description A wrapper for data that can hold additional metadata properties.
- *               The DataEntity should be essentially transparent to use within operations
+ * A wrapper for data that can hold additional metadata properties.
+ * A DataEntity should be essentially transparent to use within operations
  */
-export class DataEntity {
+
+export default class DataEntity {
+    /**
+     * A utility for safely converting an object a DataEntity.
+     * This will detect if passed an already converted input and return it.
+    */
+    static make(input: DataInput): DataEntity {
+        if (input instanceof DataEntity) {
+            return input;
+        }
+        return new DataEntity(input);
+    }
+
+    /**
+     * A utility for safely converting an input of an object,
+     * or an array of objects, to an array of DataEntities.
+     * This will detect if passed an already converted input and return it.
+    */
+    static makeArray(input: DataInput|DataInput[]|DataListInput): DataEntity[] {
+        if (!L.isList(input) && !_.isArray(input)) {
+            return [DataEntity.make(input)];
+        }
+
+        const [first] = input;
+        if (first instanceof DataEntity) {
+            if (L.isList(input)) return L.toArray(input) as DataEntity[];
+
+            return input as DataEntity[];
+        }
+
+        const arr = L.isList(input) ? L.toArray(input) : input;
+        return _.map(arr, DataEntity.make);
+    }
+
+    /**
+     * A utility for safely converting an input of an object,
+     * an array of objects, a {@link L.List} of objects, to an immutable {@link L.List} of DataEntities.
+     * This will detect if passed an already converted input and return it.
+    */
+    static makeList(input: DataListInput): DataEntityList {
+        if (L.isList(input)) {
+            const [first] = input;
+            if (first instanceof DataEntity) {
+                return input as DataEntityList;
+            }
+            return L.map(DataEntity.make, input);
+        }
+
+        if (_.isArray(input)) {
+            const [first] = input;
+            if (first instanceof DataEntity) {
+                return L.from(input) as DataEntityList;
+            }
+            return L.from(_.map(input, DataEntity.make));
+        }
+
+        return L.list(DataEntity.make(input));
+    }
+
     /* tslint:disable-next-line:variable-name */
-    protected __metadata: DataEntityMetadata;
+    protected ___metadata: DataEntityMetadata;
 
     // Add the ability to specify any additional properties
     [prop: string]: any;
 
     constructor(data: object) {
-        if (_.has(data, '__metadata')) {
-            throw new Error('DataEntity cannot be constructed with a __metadata property');
+        if (_.has(data, '___metadata')) {
+            throw new Error('DataEntity cannot be constructed with a ___metadata property');
         }
 
-        this.__metadata = {
+        this.___metadata = {
             createdAt: new Date(),
         };
 
         Object.assign(this, data);
     }
 
-    public getMetadata(key?: string): any {
+    getMetadata(key?: string): any {
         if (key) {
-            return _.get(this.__metadata, key);
+            return _.get(this.___metadata, key);
         }
-        return this.__metadata;
+        return this.___metadata;
     }
 
-    public setMetadata(key: string, value: any): void {
+    setMetadata(key: string, value: any): void {
         const readonlyMetadataKeys: string[] = ['createdAt'];
         if (_.includes(readonlyMetadataKeys, key)) {
             throw new Error(`Cannot set readonly metadata property ${key}`);
         }
 
-        _.set(this.__metadata, key, value);
+        _.set(this.___metadata, key, value);
     }
 
-    public toJSON(withMetadata?: boolean): object {
+    toJSON(withMetadata?: boolean): object {
         const keys = Object.getOwnPropertyNames(this);
-        const data = _.pick(this, _.without(keys, '__metadata'));
+        const data = _.pick(this, _.without(keys, '___metadata'));
 
         if (withMetadata) {
             return {
                 data,
-                metadata: this.__metadata,
+                metadata: this.___metadata,
             };
         }
 
         return data;
     }
 }
+
+export type DataInput = object|DataEntity;
+export type DataArrayInput = DataInput|DataInput[];
+export type DataListInput = DataInput|DataInput[]|L.List<DataInput>;
+export type DataEntityList = L.List<DataEntity>;
 
 interface DataEntityMetadata {
     // The date at which this entity was created

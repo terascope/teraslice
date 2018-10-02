@@ -9,6 +9,10 @@ interface DebugParamObj {
     assignment?: string;
 }
 
+function newId(prefix: string): string {
+    return `${_.uniqueId(`${prefix}-`)}-${_.random(10000, 99999)}`;
+}
+
 type debugParam = DebugParamObj | string;
 
 export function debugLogger(testName: string, param?: debugParam, otherName?: string): c.Logger {
@@ -37,7 +41,17 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
     return logger;
 }
 
-export function newTestJobConfig(): j.JobConfig {
+export function newTestSlice(): j.Slice {
+    return {
+        slice_id: newId('slice-id'),
+        slicer_id: _.random(0, 99999),
+        slicer_order: _.random(0, 99999),
+        request: {},
+        _created: new Date().toISOString(),
+    };
+}
+
+export function newTestJobConfig(): j.ValidatedJobConfig {
     return {
         analytics: false,
         assets: [],
@@ -49,6 +63,39 @@ export function newTestJobConfig(): j.JobConfig {
         recycle_worker: 0,
         slicers: 1,
         workers: 1,
+    };
+}
+
+export function newTestExecutionConfig(): j.ExecutionConfig {
+    const exConfig: j.ExecutionConfig = newTestJobConfig();
+    exConfig.slicer_hostname = 'example.com';
+    exConfig.slicer_port = _.random(8000, 60000);
+    exConfig.ex_id = newId('ex-id');
+    exConfig.job_id = newId('job-id');
+    return exConfig;
+}
+
+export function newTestExecutionContext(type: c.Assignment, config: j.ExecutionConfig): j.ExecutionContext {
+    if (type === c.Assignment.ExecutionController) {
+        return {
+            config,
+            queue: [],
+            reader: null,
+            slicer: () => {},
+            dynamicQueueLength: false,
+            queueLength: 10000,
+            reporter: null,
+        };
+    }
+
+    return {
+        config,
+        queue: config.operations.map(() => () => {}),
+        reader: () => {},
+        slicer: null,
+        dynamicQueueLength: false,
+        queueLength: 10000,
+        reporter: null,
     };
 }
 

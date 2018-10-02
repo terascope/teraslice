@@ -20,6 +20,11 @@
         "resolveJsonModule": true,
         "suppressImplicitAnyIndexErrors": true,
         "paths": {
+            "@terascope/*": [
+                "../*/src",
+                "../*",
+                "../*/types"
+            ],
             "*": [
                 "types/*",
                 "../*",

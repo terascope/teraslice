@@ -1,7 +1,8 @@
+import * as L from 'list';
 import 'jest-extended'; // require for type definitions
 import { DataEntity } from '../../src';
 
-describe('Data Entity', () => {
+describe('DataEntity', () => {
     describe('when constructed with an object', () => {
         const dataEntity = new DataEntity({
             blue: 'green',
@@ -69,16 +70,174 @@ describe('Data Entity', () => {
         });
     });
 
-    describe('when constructed with object that has a property __metadata', () => {
+    describe('when constructed with object that has a property ___metadata', () => {
         it('should throw an error', () => {
             expect(() => {
                 // tslint:disable-next-line
                 new DataEntity({
-                    __metadata: {
+                    ___metadata: {
                         hello: 'there',
                     },
                 });
-            }).toThrowError('DataEntity cannot be constructed with a __metadata property');
+            }).toThrowError('DataEntity cannot be constructed with a ___metadata property');
+        });
+    });
+
+    describe('#make', () => {
+        describe('when wrapped', () => {
+            it('should return a single data entity', () => {
+                const dataEntity = DataEntity.make({
+                    hello: 'there',
+                });
+                expect(dataEntity).toBeInstanceOf(DataEntity);
+                expect(dataEntity).toHaveProperty('hello', 'there');
+            });
+        });
+
+        describe('when not wrapped', () => {
+            it('should return a single data entity', () => {
+                const dataEntity = DataEntity.make(DataEntity.make({
+                    hello: 'there',
+                }));
+                expect(dataEntity).toBeInstanceOf(DataEntity);
+                expect(dataEntity).toHaveProperty('hello', 'there');
+            });
+        });
+    });
+
+    describe('#makeArray', () => {
+        it('should return an array with a single data entity', () => {
+            const dataEntities = DataEntity.makeArray({
+                hello: 'there',
+            });
+
+            expect(dataEntities).toBeArrayOfSize(1);
+            expect(dataEntities[0]).toBeInstanceOf(DataEntity);
+            expect(dataEntities[0]).toHaveProperty('hello', 'there');
+
+            expect(DataEntity.makeArray(dataEntities)).toEqual(dataEntities);
+        });
+
+        it('should return a batch of data entities', () => {
+            const dataEntities = DataEntity.makeArray([
+                {
+                    hello: 'there',
+                },
+                {
+                    howdy: 'partner',
+                },
+            ]);
+
+            expect(dataEntities).toBeArrayOfSize(2);
+            expect(dataEntities[0]).toBeInstanceOf(DataEntity);
+            expect(dataEntities[0]).toHaveProperty('hello', 'there');
+            expect(dataEntities[1]).toBeInstanceOf(DataEntity);
+            expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
+
+            expect(DataEntity.makeArray(dataEntities)).toEqual(dataEntities);
+        });
+
+        it('should return a batch of data entities when given a list', () => {
+            const dataEntities = DataEntity.makeArray(DataEntity.makeList([
+                {
+                    hello: 'there',
+                },
+                {
+                    howdy: 'partner',
+                },
+            ]));
+
+            expect(dataEntities).toBeArrayOfSize(2);
+            expect(dataEntities[0]).toBeInstanceOf(DataEntity);
+            expect(dataEntities[0]).toHaveProperty('hello', 'there');
+            expect(dataEntities[1]).toBeInstanceOf(DataEntity);
+            expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
+
+            expect(DataEntity.makeArray(dataEntities)).toEqual(dataEntities);
+        });
+    });
+
+    describe('#makeList', () => {
+        describe('when wrapped', () => {
+            it('should return a list with a single data entity', () => {
+                const list = DataEntity.makeList(DataEntity.makeList({
+                    hello: 'there',
+                }));
+
+                const dataEntities = list.toArray();
+                expect(dataEntities).toBeArrayOfSize(1);
+                expect(dataEntities[0]).toBeInstanceOf(DataEntity);
+                expect(dataEntities[0]).toHaveProperty('hello', 'there');
+            });
+
+            it('should return a batch of data entities', () => {
+                const list = DataEntity.makeList(DataEntity.makeList([
+                    {
+                        hello: 'there',
+                    },
+                    {
+                        howdy: 'partner',
+                    },
+                ]));
+
+                const dataEntities = list.toArray();
+                expect(dataEntities).toBeArrayOfSize(2);
+                expect(dataEntities[0]).toBeInstanceOf(DataEntity);
+                expect(dataEntities[0]).toHaveProperty('hello', 'there');
+                expect(dataEntities[1]).toBeInstanceOf(DataEntity);
+                expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
+            });
+        });
+
+        describe('when a List but not of data entities', () => {
+            it('should return a batch of data entities', () => {
+                const list = DataEntity.makeList(L.from([
+                    {
+                        hello: 'there',
+                    },
+                    {
+                        howdy: 'partner',
+                    },
+                ]));
+
+                const dataEntities = list.toArray();
+                expect(dataEntities).toBeArrayOfSize(2);
+                expect(dataEntities[0]).toBeInstanceOf(DataEntity);
+                expect(dataEntities[0]).toHaveProperty('hello', 'there');
+                expect(dataEntities[1]).toBeInstanceOf(DataEntity);
+                expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
+            });
+        });
+
+        describe('when not wrapped', () => {
+            it('should return a list with a single data entity', () => {
+                const list = DataEntity.makeList({
+                    hello: 'there',
+                });
+
+                const dataEntities = list.toArray();
+                expect(dataEntities).toBeArrayOfSize(1);
+                expect(dataEntities[0]).toBeInstanceOf(DataEntity);
+                expect(dataEntities[0]).toHaveProperty('hello', 'there');
+            });
+
+            it('should return a batch of data entities', () => {
+                const list = DataEntity.makeList([
+                    {
+                        hello: 'there',
+                    },
+                    {
+                        howdy: 'partner',
+                    },
+                ]);
+
+                const dataEntities = list.toArray();
+                expect(dataEntities).toBeArrayOfSize(2);
+                expect(dataEntities[0]).toBeInstanceOf(DataEntity);
+                expect(dataEntities[0]).toHaveProperty('hello', 'there');
+                expect(dataEntities[1]).toBeInstanceOf(DataEntity);
+                expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
+            });
         });
     });
 });

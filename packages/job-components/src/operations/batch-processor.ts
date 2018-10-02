@@ -1,13 +1,19 @@
-import { DataEntity } from './data-entity';
-import { OperationCore } from './operation-core';
+import DataEntity, { DataEntityList } from './data-entity';
+import ProcessorCore from './core/processor-core';
 
 /**
- * BatchProcessor Base Class [DRAFT]
- * @description A core operation within a job for consuming data in batches in the pipeline.
+ * A variation of "Processor" that can handle a batch of data at a time.
  */
-export class BatchProcessor extends OperationCore {
-    // @ts-ignore
-    public async onBatch(data: DataEntity[]): Promise<DataEntity[]> {
-        throw new Error('BatchProcessor must implement a "onBatch" method');
+
+export default abstract class BatchProcessor extends ProcessorCore {
+    /**
+     * A method called by {@link BatchProcessor#handle}
+     * @returns an array of DataEntities or DataEntityList
+    */
+    abstract async onBatch(data: DataEntity[]): Promise<DataEntity[]|DataEntityList>;
+
+    async handle(input: DataEntityList): Promise<DataEntityList> {
+        const output = await this.onBatch(DataEntity.makeArray(input));
+        return DataEntity.makeList(output);
     }
 }
