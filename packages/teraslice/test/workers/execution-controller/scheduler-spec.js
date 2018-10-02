@@ -30,8 +30,20 @@ describe('Scheduler', () => {
         });
     }
 
+    function registerSlicers() {
+        const newSlicer = (id) => {
+            const records = _.times(countPerSlicer, () => ({ id: _.uniqueId(`slicer-${id}-`) }));
+            return async () => {
+                await Promise.delay(0);
+                return records.shift();
+            };
+        };
+
+        return scheduler.registerSlicers(_.times(slicers, newSlicer));
+    }
+
     beforeEach(async () => {
-        slicers = 5;
+        slicers = 3;
         countPerSlicer = 200;
         expectedCount = slicers * countPerSlicer;
 
@@ -47,15 +59,7 @@ describe('Scheduler', () => {
             testContext.executionContext
         );
 
-        const newSlicer = (id) => {
-            const records = _.times(countPerSlicer, () => ({ id: _.uniqueId(`slicer-${id}-`) }));
-            return async () => {
-                await Promise.delay(0);
-                return records.shift();
-            };
-        };
-
-        await scheduler.registerSlicers(_.times(slicers, newSlicer));
+        await registerSlicers();
 
         testContext.attachCleanup(() => scheduler.cleanup());
     });
@@ -130,5 +134,67 @@ describe('Scheduler', () => {
         expect(scheduler.isFinished).toBeTrue();
         expect(scheduler.stopped).toBeTrue();
         expect(scheduler.slicersDone).toBeFalse();
+    });
+
+    it('should handle recovery correctly', async () => {
+        let slices = [];
+
+        scheduler.recoverExecution = true;
+        scheduler.recovering = true;
+
+        const recover = _.once(() => {
+            scheduler.markRecoveryAsComplete(false);
+
+            Promise.delay(10)
+                .then(() => registerSlicers())
+                .catch((err) => {
+                    expect(err).toBeNil();
+                });
+        });
+
+        const recoverAfter = _.after(expectedCount, recover);
+
+        expectedCount *= 2;
+
+        scheduler.events.on('slicer:done', recoverAfter);
+
+        await Promise.all([
+            scheduler.run(),
+            getSlices().then((_slices) => { slices = _slices; }),
+        ]);
+
+        expect(slices).toBeArrayOfSize(expectedCount);
+        expect(scheduler.ready).toBeTrue();
+        expect(scheduler.isFinished).toBeTrue();
+        expect(scheduler.stopped).toBeFalse();
+        expect(scheduler.recovering).toBeFalse();
+        expect(scheduler.slicersDone).toBeTrue();
+    });
+
+    it('should handle recovery with cleanup type correctly', async () => {
+        let slices = [];
+
+        scheduler.recoverExecution = true;
+        scheduler.recovering = true;
+
+        const recover = _.once(() => {
+            scheduler.markRecoveryAsComplete(true);
+        });
+
+        const recoverAfter = _.after(expectedCount, recover);
+
+        scheduler.events.on('slicer:done', recoverAfter);
+
+        await Promise.all([
+            scheduler.run(),
+            getSlices().then((_slices) => { slices = _slices; }),
+        ]);
+
+        expect(slices).toBeArrayOfSize(expectedCount);
+        expect(scheduler.ready).toBeFalse();
+        expect(scheduler.isFinished).toBeTrue();
+        expect(scheduler.stopped).toBeFalse();
+        expect(scheduler.recovering).toBeFalse();
+        expect(scheduler.slicersDone).toBeTrue();
     });
 });

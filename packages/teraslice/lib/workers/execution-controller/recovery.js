@@ -40,8 +40,8 @@ function recovery(context, executionFailed, stateStore, executionContext) {
     }
 
     function getSlicerStartingPosition() {
-        // if cleanup is set, it implies that it should not continue after recovery
-        if (cleanupType) return Promise.resolve({ _exit: true });
+        if (exitAfterComplete()) return Promise.resolve([]);
+
         const recoveredSlices = [];
         for (let i = 0; i < numOfSlicersToRecover; i += 1) {
             recoveredSlices.push(stateStore.executionStartingSlice(recoverExecution, i));
@@ -185,6 +185,11 @@ function recovery(context, executionFailed, stateStore, executionContext) {
         return recoverComplete;
     }
 
+    // if cleanup is set, it implies that it should not continue after recovery
+    function exitAfterComplete() {
+        return cleanupType != null;
+    }
+
     function testContext() {
         return {
             _retryState,
@@ -199,6 +204,7 @@ function recovery(context, executionFailed, stateStore, executionContext) {
         getSlicerStartingPosition,
         initialize,
         newSlicer,
+        exitAfterComplete,
         recoveryComplete,
         recoverSlices,
         shutdown,

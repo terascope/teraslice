@@ -56,6 +56,21 @@ describe('ExecutionController Special Tests', () => {
             }
         ],
         [
+            'recovering with no slices to recover',
+            {
+                slicerResults: [
+                    { example: 'slice-recovery' },
+                    { example: 'slice-recovery' },
+                    null
+                ],
+                recover: true,
+                recoverySlices: [],
+                body: { example: 'slice-recovery' },
+                count: 2,
+                analytics: _.sample([true, false]),
+            }
+        ],
+        [
             'recovering a slicer with a cleanup type of errors',
             {
                 slicerResults: [

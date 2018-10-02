@@ -147,22 +147,19 @@ export class Core extends Emittery {
 
         const eventName = forClientId != null ? `${_eventName}:${forClientId}` : _eventName;
 
+        const startTime = Date.now();
         debug(`onceWithTimeout(${eventName}, ${timeoutMs}) - started`);
 
-        return new Promise((resolve) => {
+        const result = await new Promise((resolve) => {
             let unsubscribe: Emittery.UnsubscribeFn|undefined;
             let timer: NodeJS.Timer|undefined;
-            const startTime = Date.now();
 
-            const finish = (result?: any) => {
-                const elapsed = Date.now() - startTime;
-                debug(`onceWithTimeout(${eventName}, ${timeoutMs}) - finished, took ${elapsed}ms`);
-
+            const finish = _.once((result?: any) => {
                 if (unsubscribe != null) unsubscribe();
                 if (timer != null) clearTimeout(timer);
 
                 resolve(result);
-            };
+            });
 
             unsubscribe = this.on(eventName, (msg: i.ClientEventMessage|i.EventMessage) => {
                 finish(msg.payload);
@@ -170,5 +167,9 @@ export class Core extends Emittery {
 
             timer = setTimeout(() => { finish(); }, timeoutMs);
         });
+
+        const elapsed = Date.now() - startTime;
+        debug(`onceWithTimeout(${eventName}, ${timeoutMs}) - finished, took ${elapsed}ms`);
+        return result;
     }
 }
