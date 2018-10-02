@@ -11,7 +11,7 @@ export default class DataEntity {
      * A utility for safely converting an object a DataEntity.
      * This will detect if passed an already converted input and return it.
     */
-    static makeDataEntity(input: DataInput): DataEntity {
+    static make(input: DataInput): DataEntity {
         if (input instanceof DataEntity) {
             return input;
         }
@@ -25,7 +25,7 @@ export default class DataEntity {
     */
     static makeArray(input: DataInput|DataInput[]|DataListInput): DataEntity[] {
         if (!L.isList(input) && !_.isArray(input)) {
-            return [DataEntity.makeDataEntity(input)];
+            return [DataEntity.make(input)];
         }
 
         const [first] = input;
@@ -36,7 +36,7 @@ export default class DataEntity {
         }
 
         const arr = L.isList(input) ? L.toArray(input) : input;
-        return _.map(arr, DataEntity.makeDataEntity);
+        return _.map(arr, DataEntity.make);
     }
 
     /**
@@ -50,7 +50,7 @@ export default class DataEntity {
             if (first instanceof DataEntity) {
                 return input as DataEntityList;
             }
-            return L.map(DataEntity.makeDataEntity, input);
+            return L.map(DataEntity.make, input);
         }
 
         if (_.isArray(input)) {
@@ -58,10 +58,10 @@ export default class DataEntity {
             if (first instanceof DataEntity) {
                 return L.from(input) as DataEntityList;
             }
-            return L.from(_.map(input, DataEntity.makeDataEntity));
+            return L.from(_.map(input, DataEntity.make));
         }
 
-        return L.list(DataEntity.makeDataEntity(input));
+        return L.list(DataEntity.make(input));
     }
 
     /* tslint:disable-next-line:variable-name */
