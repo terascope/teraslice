@@ -51,6 +51,38 @@ export const formats : Format[] = [
             return val;
         },
     } as Format,
+    {
+        name: 'elasticsearch_Name',
+        validate(val: any) {
+            if (val.length > 255) {
+                throw new Error(`value: ${val} should not exceed 255 characters`);
+            }
+
+            if (_.startsWith(val, '_')
+                || _.startsWith(val, '-')
+                || _.startsWith(val, '+')) {
+                throw new Error(`value: ${val} should not start with _, -, or +`);
+            }
+
+            if (val === '.' || val === '..') {
+                throw new Error(`value: ${val} should not equal . or ..`);
+            }
+
+            // NOTE: the \\\\ is necessary to match a single \ in this case
+            const badChar = new RegExp('[#*?"<>|/\\\\]');
+            if (badChar.test(val)) {
+                throw new Error(`value: ${ val } should not contain any invalid characters: #*?"<>|/\\`);
+            }
+
+            const upperRE = new RegExp('[A-Z]');
+            if (upperRE.test(val)) {
+                throw new Error(`value: ${ val } should be lower case`);
+            }
+        },
+        coerce(val) {
+            return val;
+        },
+    } as Format,
 ];
 
 export function addFormats() {
