@@ -95,4 +95,148 @@ describe('Convict Formats', () => {
             optional.validate(undefined);
         }).not.toThrowError();
     });
+
+    describe('elasticsearch_Name', () => {
+        it('should be defined', () => {
+            const esName = getSchema('elasticsearch_Name');
+            if (!esName) {
+                expect(esName).not.toBeUndefined();
+                return;
+            }
+
+            expect(esName.name).toBeDefined();
+            expect(typeof esName.validate).toEqual('function');
+        });
+
+        it('should work for common index names', () => {
+            const esName = getSchema('elasticsearch_Name');
+            expect(() => {
+                // @ts-ignore
+                esName.validate('data-2018-01-01');
+            }).not.toThrowError();
+            expect(() => {
+                // @ts-ignore
+                esName.validate('data-2018-01-01.01');
+            }).not.toThrowError();
+
+        });
+
+        it('should not exceed 255 characters', () => {
+            const esName = getSchema('elasticsearch_Name');
+            expect(() => {
+                // @ts-ignore
+                esName.validate('a'.repeat(256));
+            }).toThrow(/^value: .* should not exceed 255 characters/);
+            expect(() => {
+                // @ts-ignore
+                esName.validate('a'.repeat(255));
+            }).not.toThrowError();
+        });
+
+        it('should not contain any of: #\\\/*?"<>|', () => {
+            const esName = getSchema('elasticsearch_Name');
+            expect(() => {
+                // @ts-ignore
+                esName.validate('a#a');
+            }).toThrow(/^value: .* should not contain any invalid characters/);
+            expect(() => {
+                // @ts-ignore
+                esName.validate('a\\a');
+            }).toThrow(/^value: .* should not contain any invalid characters/);
+            expect(() => {
+                // @ts-ignore
+                esName.validate('a/a');
+            }).toThrow(/^value: .* should not contain any invalid characters/);
+            expect(() => {
+                // @ts-ignore
+                esName.validate('a*a');
+            }).toThrow(/^value: .* should not contain any invalid characters/);
+            expect(() => {
+                // @ts-ignore
+                esName.validate('a?a');
+            }).toThrow(/^value: .* should not contain any invalid characters/);
+            expect(() => {
+                // @ts-ignore
+                esName.validate('a"a');
+            }).toThrow(/^value: .* should not contain any invalid characters/);
+            expect(() => {
+                // @ts-ignore
+                esName.validate('a<a');
+            }).toThrow(/^value: .* should not contain any invalid characters/);
+            expect(() => {
+                // @ts-ignore
+                esName.validate('a>a');
+            }).toThrow(/^value: .* should not contain any invalid characters/);
+            expect(() => {
+                // @ts-ignore
+                esName.validate('a|a');
+            }).toThrow(/^value: .* should not contain any invalid characters/);
+
+            expect(() => {
+                // @ts-ignore
+                esName.validate('|aa');
+            }).toThrow(/^value: .* should not contain any invalid characters/);
+        });
+
+        it('should not start with _, -, or +', () => {
+            const esName = getSchema('elasticsearch_Name');
+
+            expect(() => {
+                // @ts-ignore
+                esName.validate('_foo');
+            }).toThrow(/^value: .* should not start with _, -, or +/);
+
+            expect(() => {
+                // @ts-ignore
+                esName.validate('-foo');
+            }).toThrow(/^value: .* should not start with _, -, or +/);
+
+            expect(() => {
+                // @ts-ignore
+                esName.validate('+foo');
+            }).toThrow(/^value: .* should not start with _, -, or +/);
+
+            expect(() => {
+                // @ts-ignore
+                esName.validate('a_foo');
+            }).not.toThrowError();
+
+        });
+
+        it('should not equal . or ..', () => {
+            const esName = getSchema('elasticsearch_Name');
+            expect(() => {
+                // @ts-ignore
+                esName.validate('.');
+            }).toThrow(/^value: .* should not equal . or ../);
+            expect(() => {
+                // @ts-ignore
+                esName.validate('..');
+            }).toThrow(/^value: .* should not equal . or ../);
+            expect(() => {
+                // @ts-ignore
+                esName.validate('.foo');
+            }).not.toThrowError();
+            expect(() => {
+                // @ts-ignore
+                esName.validate('..foo');
+            }).not.toThrowError();
+        });
+
+        it('should be lower case', () => {
+            const esName = getSchema('elasticsearch_Name');
+            expect(() => {
+                // @ts-ignore
+                esName.validate('ASDF');
+            }).toThrow(/^value: .* should be lower case/);
+            expect(() => {
+                // @ts-ignore
+                esName.validate('asdF');
+            }).toThrow(/^value: .* should be lower case/);
+            expect(() => {
+                // @ts-ignore
+                esName.validate('asdf');
+            }).not.toThrowError();
+        });
+    });
 });

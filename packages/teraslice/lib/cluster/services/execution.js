@@ -398,13 +398,13 @@ module.exports = function module(context, { clusterMasterServer }) {
                         }))
                         .then(() => allocateWorkers(execution, execution.workers)
                             .catch((err) => {
-                            // this is to catch errors of allocateWorkers
-                            // if allocation fails, they are enqueued
-                                logger.error(`Workers failed to be allocated, they will be enqueued, error: ${parseError(err)}`);
+                                logger.error(`Failured to allocateWorkers ${execution.ex_id}, error: ${parseError(err)}`);
+                                return Promise.reject(err);
                             })))
                     .catch((err) => {
                         logger.error(`Failured to provision execution ${execution.ex_id}, error: ${parseError(err)}`);
-                        return setExecutionStatus(execution.ex_id, 'failed');
+                        const errMetaData = executionMetaData(null, parseError(err));
+                        return setExecutionStatus(execution.ex_id, 'failed', errMetaData);
                     })
                     .finally(() => {
                         allocatingExecution = false;
@@ -451,7 +451,7 @@ module.exports = function module(context, { clusterMasterServer }) {
                     return api;
                 }))
             .error((err) => {
-            // TODO: verify whats coming here
+                // TODO: verify whats coming here
                 if (_.get(err, 'body.error.reason') !== 'no such index') {
                     logger.error(`initialization failed loading state from Elasticsearch: ${err}`);
                 }

@@ -105,10 +105,9 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      * The hostname and port are used later by the workers to contact this
      * Execution Controller.
      * @param  {Object} execution        Object containing execution details
-     * @param  {String} recoverExecution ex_id of old execution to be recovered
      * @return {Promise}                 [description]
      */
-    function allocateSlicer(execution, recoverExecution) {
+    function allocateSlicer(execution) {
         const name = `teraslice-execution-controller-${execution.ex_id}`.substring(0, 63);
         const jobNameLabel = execution.name.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
 
@@ -126,8 +125,6 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
 
         execution.slicer_port = _.get(exService, 'spec.ports[0].targetPort');
         execution.slicer_hostname = _.get(exService, 'metadata.name');
-
-        if (recoverExecution) execution.recover_execution = recoverExecution;
 
         const jobConfig = {
             name,
