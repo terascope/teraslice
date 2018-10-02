@@ -59,7 +59,7 @@ describe('Scheduler', () => {
             testContext.executionContext
         );
 
-        await registerSlicers();
+        registerSlicers();
 
         testContext.attachCleanup(() => scheduler.cleanup());
     });
@@ -143,13 +143,9 @@ describe('Scheduler', () => {
         scheduler.recovering = true;
 
         const recover = _.once(() => {
-            scheduler.markRecoveryAsComplete(false);
-
-            Promise.delay(10)
-                .then(() => registerSlicers())
-                .catch((err) => {
-                    expect(err).toBeNil();
-                });
+            scheduler.markRecoveryAsComplete(false).then(() => {
+                registerSlicers();
+            });
         });
 
         const recoverAfter = _.after(expectedCount, recover);

@@ -95,7 +95,7 @@ module.exports = function messaging(context, logger) {
     function _handleResponse(msgResponse) {
         // if msg has returned to source then emit it else pass it along
         if (msgResponse.__source === config.assignment) {
-            logger.debug(`node message ${msgResponse.__msgId} has been processed`);
+            logger.trace(`node message ${msgResponse.__msgId} has been processed`);
             // we are in the right spot, emit to complete the promise from send
             events.emit(msgResponse.__msgId, msgResponse);
         } else {

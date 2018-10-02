@@ -592,7 +592,7 @@ class ExecutionController {
             });
         }
 
-        this.scheduler.markRecoveryAsComplete(this.recover.exitAfterComplete());
+        await this.scheduler.markRecoveryAsComplete(this.recover.exitAfterComplete());
 
         await this._slicerInit();
     }
