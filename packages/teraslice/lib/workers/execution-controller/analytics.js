@@ -1,6 +1,5 @@
 'use strict';
 
-const Promise = require('bluebird');
 const _ = require('lodash');
 const { newFormattedDate } = require('../../utils/date_utils');
 const { makeLogger } = require('../helpers/terafoundation');
@@ -30,6 +29,7 @@ class ExecutionAnalytics {
             workers_joined: 0,
             workers_reconnected: 0,
             workers_disconnected: 0,
+            job_duration: 0,
             failed: 0,
             subslices: 0,
             queued: 0,
@@ -59,33 +59,27 @@ class ExecutionAnalytics {
 
         this.sendingAnalytics = true;
 
-        const sendAnalytics = async () => {
-            if (!this.sendingAnalytics) return;
-            await Promise.delay(this.analyticsRate);
-            await this._pushAnalytics();
-        };
+        this.intervalId = setInterval(() => {
+            if (!this.sendingAnalytics) {
+                clearInterval(this.intervalId);
+                return;
+            }
 
-        sendAnalytics();
+            this._pushAnalytics();
+        }, this.analyticsRate);
     }
 
     set(key, value) {
-        _.update(this.executionAnalytics, key, (c) => {
-            if (_.isFinite(c) && !_.isFinite(value)) {
-                this.logger.warn(`cannot set ${key} because to "${value}" it is not a valid number`);
-                return c;
-            }
-            return value;
-        });
+        this.executionAnalytics[key] = value;
     }
 
     increment(key) {
-        _.update(this.executionAnalytics, key, (c) => {
-            if (!_.isFinite(c)) {
-                this.logger.warn(`cannot increment ${key} because it is not a valid number`);
-                return c;
-            }
-            return c + 1;
-        });
+        if (!_.has(this.executionAnalytics, key)) {
+            this.logger.warn(`"${key}" is not a valid analytics property`);
+            return;
+        }
+
+        this.executionAnalytics[key] += 1;
     }
 
     get() {
@@ -98,6 +92,7 @@ class ExecutionAnalytics {
 
     async shutdown(timeout) {
         this.sendingAnalytics = false;
+        clearInterval(this.intervalId);
 
         _.forEach(this._handlers, (handler, event) => {
             this.events.removeListener(event, handler);
@@ -107,15 +102,27 @@ class ExecutionAnalytics {
     }
 
     async _pushAnalytics(timeout = Math.round(this.analyticsRate / 2)) {
+        if (this._pushing) return;
+        this._pushing = true;
+
         // save a copy of what we push so we can emit diffs
         const diffs = {};
         const copy = {};
+
         _.forOwn(this.pushedAnalytics, (value, field) => {
-            diffs[field] = _.get(this.executionAnalytics, field) - value;
-            copy[field] = _.get(this.executionAnalytics, field);
+            diffs[field] = this.executionAnalytics[field] - value;
+            copy[field] = this.executionAnalytics[field];
         });
 
-        await this.client.sendClusterAnalytics(diffs, timeout);
+        const response = await this.client.sendClusterAnalytics(diffs, timeout);
+        const recorded = _.get(response, 'payload.recorded', false);
+
+        this._pushing = false;
+
+        if (!recorded && this.sendingAnalytics) {
+            this.logger.warn('cluster master did not record the cluster analytics');
+            return;
+        }
 
         this.pushedAnalytics = copy;
     }

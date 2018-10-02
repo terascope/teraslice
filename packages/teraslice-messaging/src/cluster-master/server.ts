@@ -91,11 +91,24 @@ export class Server extends core.Server {
             if (!this.clusterAnalytics[data.kind]) {
                 return;
             }
+
             _.forOwn(data.stats, (value, field) => {
                 if (this.clusterAnalytics[data.kind][field] != null) {
                     this.clusterAnalytics[data.kind][field] += value;
                 }
             });
+
+            this.emit('cluster:analytics', {
+                clientId: exId,
+                payload: {
+                    diff: data.stats,
+                    current: this.clusterAnalytics[data.kind],
+                }
+            });
+
+            return {
+                recorded: true
+            };
         }));
     }
 }

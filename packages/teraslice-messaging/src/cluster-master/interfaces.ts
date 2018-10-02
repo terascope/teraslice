@@ -40,6 +40,7 @@ export interface ExecutionAnalytics {
     workers_joined: number;
     workers_reconnected: number;
     workers_disconnected: number;
+    job_duration: number;
     failed: number;
     subslices: number;
     queued: number;

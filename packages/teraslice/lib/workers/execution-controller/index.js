@@ -171,6 +171,7 @@ class ExecutionController {
         this.client.onExecutionResume(() => this.resume());
         this.client.onServerShutdown(() => {
             this.logger.warn('Cluster Master shutdown, exiting...');
+            this.executionAnalytics.sendingAnalytics = false;
             this._endExecution();
         });
 
@@ -345,6 +346,12 @@ class ExecutionController {
 
         await this._waitForExecutionFinished();
 
+        try {
+            await this.executionAnalytics.shutdown();
+        } catch (err) {
+            this.logger.error('execution analytics error');
+        }
+
         this.dispatchQueue.clear();
         this.scheduler.cleanup();
 
@@ -354,12 +361,6 @@ class ExecutionController {
             } catch (err) {
                 shutdownErrs.push(err);
             }
-        }
-
-        try {
-            await this.executionAnalytics.shutdown();
-        } catch (err) {
-            this.logger.error('execution analytics error');
         }
 
         try {
