@@ -68,8 +68,9 @@ export const formats : Format[] = [
                 throw new Error(`value: ${val} should not equal . or ..`);
             }
 
-            const badChar = new RegExp('[#*?"<>|/]');
-            if (badChar.test(val) || val.includes('\\')) {
+            // NOTE: the \\\\ is necessary to match a single \ in this case
+            const badChar = new RegExp('[#*?"<>|/\\\\]');
+            if (badChar.test(val)) {
                 throw new Error(`value: ${ val } should not contain any invalid characters: #*?"<>|/\\`);
             }
 
