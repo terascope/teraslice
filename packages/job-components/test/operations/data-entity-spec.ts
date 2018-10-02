@@ -83,10 +83,10 @@ describe('DataEntity', () => {
         });
     });
 
-    describe('#makeDataEntity', () => {
+    describe('#make', () => {
         describe('when wrapped', () => {
             it('should return a single data entity', () => {
-                const dataEntity = DataEntity.makeDataEntity({
+                const dataEntity = DataEntity.make({
                     hello: 'there',
                 });
                 expect(dataEntity).toBeInstanceOf(DataEntity);
@@ -96,7 +96,7 @@ describe('DataEntity', () => {
 
         describe('when not wrapped', () => {
             it('should return a single data entity', () => {
-                const dataEntity = DataEntity.makeDataEntity(DataEntity.makeDataEntity({
+                const dataEntity = DataEntity.make(DataEntity.make({
                     hello: 'there',
                 }));
                 expect(dataEntity).toBeInstanceOf(DataEntity);
