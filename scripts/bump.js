@@ -43,6 +43,7 @@ if (!release) {
 }
 
 const packagesPath = path.join(process.cwd(), 'packages');
+const e2ePath = path.join(process.cwd(), 'e2e');
 
 const pkgPath = path.join(packagesPath, pkgName, 'package.json');
 
@@ -63,7 +64,7 @@ fse.writeJSONSync(pkgPath, pkgJSON, {
     spaces: 4,
 });
 
-fs.readdirSync(packagesPath).forEach((fileName) => {
+function updatePkgVersion(fileName) {
     const otherPkgDir = path.join(packagesPath, fileName);
     const otherPkgPath = path.join(otherPkgDir, 'package.json');
     if (fs.statSync(otherPkgDir).isDirectory()) {
@@ -89,6 +90,10 @@ fs.readdirSync(packagesPath).forEach((fileName) => {
             spaces: 4,
         });
     }
-});
+}
+
+fs.readdirSync(packagesPath).forEach(updatePkgVersion);
+
+updatePkgVersion(e2ePath);
 
 console.log('DONE! Don\'t forget to run "yarn" to update your yarn.lock');
