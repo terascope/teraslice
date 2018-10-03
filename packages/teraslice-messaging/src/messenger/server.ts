@@ -118,11 +118,11 @@ export class Server extends Core {
         this.server.on('connection', this._onConnection);
 
         this.onClientReconnect((clientId) => {
-            this.emit('ready', clientId);
+            this.emit('ready', { clientId, payload: {} });
         });
 
         this.onClientOnline((clientId) => {
-            this.emit('ready', clientId);
+            this.emit('ready', { clientId, payload: {} });
         });
 
         this._cleanupClients = setInterval(() => {
@@ -224,43 +224,62 @@ export class Server extends Core {
         return this.countClientsByState(unavailableStates);
     }
 
-    onClientOnline(fn: i.ClientEventFn) {
-        this.on(`client:${i.ClientState.Online}`, fn);
+    onClientOnline(fn: (clientId: string) => void) {
+        this.on(`client:${i.ClientState.Online}`, (msg) => {
+            fn(msg.clientId);
+        });
     }
 
-    onClientAvailable(fn: i.ClientEventFn) {
-        this.on(`client:${i.ClientState.Available}`, fn);
+    onClientAvailable(fn: (clientId: string) => void) {
+        this.on(`client:${i.ClientState.Available}`, (msg) => {
+            fn(msg.clientId);
+        });
     }
 
-    onClientUnavailable(fn: i.ClientEventFn) {
-        this.on(`client:${i.ClientState.Unavailable}`, fn);
+    onClientUnavailable(fn: (clientId: string) => void) {
+        this.on(`client:${i.ClientState.Unavailable}`, (msg) => {
+            fn(msg.clientId);
+        });
     }
 
-    onClientOffline(fn: i.ClientEventFn) {
-        this.on(`client:${i.ClientState.Offline}`, fn);
+    onClientOffline(fn: (clientId: string) => void) {
+        this.on(`client:${i.ClientState.Offline}`, (msg) => {
+            fn(msg.clientId);
+        });
     }
 
-    onClientDisconnect(fn: i.ClientEventFn) {
-        this.on(`client:${i.ClientState.Disconnected}`, fn);
+    onClientDisconnect(fn: (clientId: string) => void) {
+        this.on(`client:${i.ClientState.Disconnected}`, (msg) => {
+            fn(msg.clientId);
+        });
     }
 
-    onClientShutdown(fn: i.ClientEventFn) {
-        this.on(`client:${i.ClientState.Shutdown}`, fn);
+    onClientShutdown(fn: (clientId: string) => void) {
+        this.on(`client:${i.ClientState.Shutdown}`, (msg) => {
+            fn(msg.clientId);
+        });
     }
 
-    onClientReconnect(fn: i.ClientEventFn) {
-        this.on('client:reconnect', fn);
+    onClientReconnect(fn: (clientId: string) => void) {
+        this.on('client:reconnect', (msg) => {
+            fn(msg.clientId);
+        });
     }
 
-    onClientError(fn: i.ClientEventFn) {
-        this.on('client:error', fn);
+    onClientError(fn: (clientId: string) => void) {
+        this.on('client:error', (msg) => {
+            fn(msg.clientId);
+        });
     }
 
-    emit(eventName: string, clientId: string, param?: any) {
-        return super.emit(eventName, clientId, param);
+    async emit(eventName: string, msg: i.ClientEventMessage) {
+        await Promise.all([
+            super.emit(`${eventName}`, msg),
+            super.emit(`${eventName}:${msg.clientId}`, msg),
+        ]);
     }
 
-    on(eventName: string, fn: i.ClientEventFn) {
+    on(eventName: string, fn: (msg: i.ClientEventMessage) => void) {
         return super.on(eventName, fn);
     }
 
@@ -293,22 +312,22 @@ export class Server extends Core {
         }
 
         const response = options.response != null ? options.response : true;
+        const respondBy = Date.now() + this.getTimeout(options.timeout);
 
         const message: i.Message = {
             id: newMsgId(),
-            respondBy: Date.now() + this.getTimeout(options.timeout),
             eventName,
-            payload,
-            to: clientId,
             from: this.serverName,
+            to: clientId,
+            payload,
             volatile: options.volatile,
             response,
+            respondBy,
         };
 
-        const responseMsg = await this._clientSendFns[clientId](eventName, message);
-
-        if (!responseMsg) return null;
-        return responseMsg as i.Message;
+        const responseMsg = this.handleSendResponse(message);
+        this._clientSendFns[clientId](message);
+        return responseMsg;
     }
 
     protected getClientMetadataFromSocket(socket: SocketIO.Socket): i.ClientSocketMetadata {
@@ -357,48 +376,54 @@ export class Server extends Core {
             this._clients[clientId].socketId = update.socketId;
         }
 
+        const eventMsg = {
+            clientId,
+            payload: update.payload,
+            error: update.error,
+        };
+
         switch (update.state) {
             case i.ClientState.Online:
-                this.emit('client:reconnect', clientId);
+                this.emit('client:reconnect', eventMsg);
                 return true;
 
             case i.ClientState.Available:
-                this.emit(`client:${update.state}`, clientId, update.payload);
+                this.emit(`client:${update.state}`, eventMsg);
                 return true;
 
             case i.ClientState.Unavailable:
-                this.emit(`client:${update.state}`, clientId, update.payload);
+                this.emit(`client:${update.state}`, eventMsg);
                 return true;
 
             case i.ClientState.Shutdown:
-                this.emit(`client:${update.state}`, clientId, update.payload);
+                this.emit(`client:${update.state}`, eventMsg);
                 return true;
 
             case i.ClientState.Disconnected:
                 if (currentState === i.ClientState.Available) {
                     debug(`${clientId} is unavailable because it was marked as disconnected`);
-                    this.emit(`client:${i.ClientState.Unavailable}`, clientId);
+                    this.emit(`client:${i.ClientState.Unavailable}`, eventMsg);
                 }
 
                 const offlineAtMs = Date.now() + this.clientDisconnectTimeout;
                 this._clients[clientId].offlineAt = new Date(offlineAtMs);
 
                 debug(`${clientId} is disconnected will be considered offline in ${this.clientDisconnectTimeout}`);
-                this.emit(`client:${update.state}`, clientId, update.error);
+                this.emit(`client:${update.state}`, eventMsg);
                 return true;
 
             case i.ClientState.Offline:
                 if (!disconnectedStates.includes(currentState)) {
                     if (currentState === i.ClientState.Available) {
                         debug(`${clientId} is unavailable because it was marked as offline`);
-                        this.emit(`client:${i.ClientState.Unavailable}`, clientId);
+                        this.emit(`client:${i.ClientState.Unavailable}`, eventMsg);
                     }
 
                     debug(`${clientId} is disconnected because it was marked as offline`);
-                    this.emit(`client:${i.ClientState.Disconnected}`, clientId);
+                    this.emit(`client:${i.ClientState.Disconnected}`, eventMsg);
                 }
 
-                this.emit(`client:${update.state}`, clientId, update.error);
+                this.emit(`client:${update.state}`, eventMsg);
 
                 // cleanup socket and such
                 const { socketId } = this._clients[clientId];
@@ -443,7 +468,7 @@ export class Server extends Core {
             socketId: socket.id
         };
 
-        this.emit(`client:${i.ClientState.Online}`, clientId);
+        this.emit(`client:${i.ClientState.Online}`, { clientId, payload: {} });
 
         this._clients[clientId] = newClient;
         return newClient;
@@ -453,14 +478,16 @@ export class Server extends Core {
         const client = this.ensureClient(socket);
         const { clientId } = client;
 
-        this._clientSendFns[clientId] = (eventName, message: i.Message) => {
-            return new Promise((resolve, reject) => {
-                socket.emit(eventName, message, this.handleSendResponse(message, resolve, reject));
-            });
+        this._clientSendFns[clientId] = (message: i.Message) => {
+            socket.emit(message.eventName, message, this._sendCallbackFn);
         };
 
-        socket.on('error', (err: Error|string) => {
-            this.emit('client:error', clientId, err);
+        socket.on('error', (error: Error|string) => {
+            this.emit('client:error', {
+                clientId,
+                payload: {},
+                error
+            });
         });
 
         socket.on('disconnect', (error: Error|string) => {
@@ -498,7 +525,10 @@ export class Server extends Core {
             });
         }));
 
-        this.emit('connection', clientId, socket);
+        this.emit('connection', {
+            clientId,
+            payload: socket
+        });
     }
 }
 

@@ -63,7 +63,7 @@ fse.writeJSONSync(pkgPath, pkgJSON, {
     spaces: 4,
 });
 
-fs.readdirSync(packagesPath).forEach((fileName) => {
+function updatePkgVersion(fileName) {
     const otherPkgDir = path.join(packagesPath, fileName);
     const otherPkgPath = path.join(otherPkgDir, 'package.json');
     if (fs.statSync(otherPkgDir).isDirectory()) {
@@ -76,9 +76,9 @@ fs.readdirSync(packagesPath).forEach((fileName) => {
             return;
         }
 
-        if (otherPkgJSON.dependencies[realPkgName]) {
+        if (otherPkgJSON.dependencies && otherPkgJSON.dependencies[realPkgName]) {
             otherPkgJSON.dependencies[realPkgName] = `^${newVersion}`;
-        } else if (otherPkgJSON.devDependencies[realPkgName]) {
+        } else if (otherPkgJSON.devDependencies && otherPkgJSON.devDependencies[realPkgName]) {
             otherPkgJSON.devDependencies[realPkgName] = `^${newVersion}`;
         } else {
             return;
@@ -89,6 +89,10 @@ fs.readdirSync(packagesPath).forEach((fileName) => {
             spaces: 4,
         });
     }
-});
+}
+
+fs.readdirSync(packagesPath).forEach(updatePkgVersion);
+
+updatePkgVersion('../e2e');
 
 console.log('DONE! Don\'t forget to run "yarn" to update your yarn.lock');

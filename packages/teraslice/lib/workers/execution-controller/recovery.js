@@ -23,14 +23,11 @@ function recovery(context, executionFailed, stateStore, executionContext) {
     const retryState = {};
 
     function initialize() {
-        // if an error occurred while in recovery, fail the job as a whole
-        events.once('slice:failure', executionFailed);
         events.on('slice:success', _sliceComplete);
         recoverComplete = false;
 
         // once we have fully recovered, clean up event listners
         events.once('execution:recovery:complete', () => {
-            events.removeListener('slice:failure', executionFailed);
             events.removeListener('slice:success', _sliceComplete);
         });
 
@@ -43,8 +40,8 @@ function recovery(context, executionFailed, stateStore, executionContext) {
     }
 
     function getSlicerStartingPosition() {
-        // if cleanup is set, it implies that it should not continue after recovery
-        if (cleanupType) return Promise.resolve({ _exit: true });
+        if (exitAfterComplete()) return Promise.resolve([]);
+
         const recoveredSlices = [];
         for (let i = 0; i < numOfSlicersToRecover; i += 1) {
             recoveredSlices.push(stateStore.executionStartingSlice(recoverExecution, i));
@@ -142,7 +139,7 @@ function recovery(context, executionFailed, stateStore, executionContext) {
             } catch (err) {
                 logger.warn(parseError(err));
             }
-            events.emit('execution:recovery:complete');
+            events.emit('execution:recovery:complete', []);
         });
     }
 
@@ -188,6 +185,11 @@ function recovery(context, executionFailed, stateStore, executionContext) {
         return recoverComplete;
     }
 
+    // if cleanup is set, it implies that it should not continue after recovery
+    function exitAfterComplete() {
+        return cleanupType != null;
+    }
+
     function testContext() {
         return {
             _retryState,
@@ -202,6 +204,7 @@ function recovery(context, executionFailed, stateStore, executionContext) {
         getSlicerStartingPosition,
         initialize,
         newSlicer,
+        exitAfterComplete,
         recoveryComplete,
         recoverSlices,
         shutdown,

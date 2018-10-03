@@ -23,6 +23,7 @@ describe('Messenger', () => {
                     // @ts-ignore
                     new Messenger.Core({
                         actionTimeout: 10,
+                        // @ts-ignore
                         networkLatencyBuffer: 'abc'
                     });
                 }).toThrowError('Messenger requires a valid networkLatencyBuffer');
@@ -186,14 +187,15 @@ describe('Messenger', () => {
         const clientId = newMsgId();
         let client: Messenger.Client;
         let server: Messenger.Server;
-        let clientAvailableFn: Messenger.ClientEventFn;
-        const clientUnavailableFn: Messenger.ClientEventFn = jest.fn();
-        const clientOnlineFn: Messenger.ClientEventFn = jest.fn();
-        const clientOfflineFn: Messenger.ClientEventFn = jest.fn();
-        const clientDisconnectFn: Messenger.ClientEventFn = jest.fn();
-        const clientReconnectFn: Messenger.ClientEventFn = jest.fn();
-        const clientShutdownFn: Messenger.ClientEventFn = jest.fn();
-        const clientErrorFn: Messenger.ClientEventFn = jest.fn();
+        type clientFn = (clientId: string) => void;
+        let clientAvailableFn: clientFn;
+        const clientUnavailableFn: clientFn = jest.fn();
+        const clientOnlineFn: clientFn = jest.fn();
+        const clientOfflineFn: clientFn = jest.fn();
+        const clientDisconnectFn: clientFn = jest.fn();
+        const clientReconnectFn: clientFn = jest.fn();
+        const clientShutdownFn: clientFn = jest.fn();
+        const clientErrorFn: clientFn = jest.fn();
 
         beforeAll((done) => {
             clientAvailableFn = jest.fn(() => { done(); });
@@ -270,11 +272,11 @@ describe('Messenger', () => {
         });
 
         it('should call server.onClientOnline', () => {
-            expect(clientOnlineFn).toHaveBeenCalledWith(clientId, undefined);
+            expect(clientOnlineFn).toHaveBeenCalledWith(clientId);
         });
 
         it('should call server.onClientAvailable', () => {
-            expect(clientAvailableFn).toHaveBeenCalledWith(clientId, {});
+            expect(clientAvailableFn).toHaveBeenCalledWith(clientId);
         });
 
         it('should not call server.onClientUnavailable', () => {
@@ -312,9 +314,14 @@ describe('Messenger', () => {
                 return expect(once).resolves.toBeUndefined();
             });
 
-            it('should be able to resolve the message', () => {
+            it('should be able to resolve the message', async () => {
                 const once = server.onceWithTimeout('success:event', 500);
-                server.emit('success:event', clientId, { hello: true });
+                await server.emit('success:event', {
+                    clientId,
+                    payload: {
+                        hello: true
+                    }
+                });
                 return expect(once).resolves.toEqual({
                     hello: true
                 });
@@ -322,7 +329,12 @@ describe('Messenger', () => {
 
             it('should be able to resolve the message when given a specific clientId', () => {
                 const once = server.onceWithTimeout('success:event', clientId, 500);
-                server.emit('success:event', clientId, { hello: true });
+                server.emit('success:event', {
+                    clientId,
+                    payload: {
+                        hello: true
+                    }
+                });
                 return expect(once).resolves.toEqual({
                     hello: true
                 });

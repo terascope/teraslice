@@ -4,7 +4,7 @@ const Promise = require('bluebird');
 const _ = require('lodash');
 const Messaging = require('@terascope/teraslice-messaging');
 const { TestContext } = require('../helpers');
-const { makeShutdownEarlyFn } = require('../helpers/execution-controller-helper');
+const { makeShutdownEarlyFn, getTestCases } = require('../helpers/execution-controller-helper');
 const ExecutionController = require('../../../lib/workers/execution-controller');
 const { findPort } = require('../../../lib/utils/port_utils');
 const { newId } = require('../../../lib/utils/id_utils');
@@ -15,6 +15,61 @@ process.env.BLUEBIRD_LONG_STACK_TRACES = '1';
 describe('ExecutionController Special Tests', () => {
     // [ message, config ]
     const testCases = [
+        [
+            'recovering a slicer no cleanup type',
+            {
+                slicerResults: [
+                    { example: 'slice-recovery' },
+                    { example: 'slice-recovery' },
+                    null
+                ],
+                recover: true,
+                recoverySlices: [
+                    {
+                        state: 'start',
+                        slice: {
+                            slice_id: newId(),
+                            request: {
+                                example: 'slice-recovery'
+                            },
+                            slicer_id: 0,
+                            slicer_order: 0,
+                            _created: new Date().toISOString()
+                        }
+                    },
+                    {
+                        state: 'start',
+                        slice: {
+                            slice_id: newId(),
+                            request: {
+                                example: 'slice-recovery'
+                            },
+                            slicer_id: 0,
+                            slicer_order: 1,
+                            _created: new Date().toISOString()
+                        }
+                    }
+                ],
+                body: { example: 'slice-recovery' },
+                count: 4,
+                analytics: _.sample([true, false]),
+            }
+        ],
+        [
+            'recovering with no slices to recover',
+            {
+                slicerResults: [
+                    { example: 'slice-recovery' },
+                    { example: 'slice-recovery' },
+                    null
+                ],
+                recover: true,
+                recoverySlices: [],
+                body: { example: 'slice-recovery' },
+                count: 2,
+                analytics: _.sample([true, false]),
+            }
+        ],
         [
             'recovering a slicer with a cleanup type of errors',
             {
@@ -114,9 +169,9 @@ describe('ExecutionController Special Tests', () => {
         ],
     ];
 
-    // for testing enable the next line and a "only" property to the test cases you want
-    // fdescribe.each(_.filter(testCases, ts => ts[1].only))('when %s', (m, options) => {
-    describe.each(testCases)('when %s', (m, options) => {
+    // for testing add a "only" property to the test cases you want
+    // or add a skip property to the test cases you don't want
+    describe.each(getTestCases(testCases))('when %s', (m, options) => {
         const {
             slicerResults,
             slicerQueueLength,
@@ -171,8 +226,11 @@ describe('ExecutionController Special Tests', () => {
             }
 
             if (recover) {
-                testContext.executionContext.config.recovered_slice_type = cleanupType;
                 testContext.executionContext.config.recovered_execution = exId;
+
+                if (cleanupType) {
+                    testContext.executionContext.config.recovered_slice_type = cleanupType;
+                }
 
                 await Promise.map(recoverySlices, (recoverySlice) => {
                     const { slice, state } = recoverySlice;
@@ -320,12 +378,17 @@ describe('ExecutionController Special Tests', () => {
         it('should process the execution correctly', async () => {
             const { ex_id: exId } = testContext.executionContext;
 
-            expect(slices).toBeArrayOfSize(count);
-            _.times(count, (i) => {
-                const slice = slices[i];
-                expect(slice).toHaveProperty('request');
-                expect(slice.request).toEqual(body);
-            });
+            if (shutdownEarly) {
+                expect(slices.length).toBeGreaterThanOrEqual(count);
+            } else {
+                expect(slices).toBeArrayOfSize(count);
+                _.times(count, (i) => {
+                    const slice = slices[i];
+                    expect(slice).toHaveProperty('request');
+                    expect(slice.request).toEqual(body);
+                });
+            }
+
             const exStatus = await exStore.get(exId);
             expect(exStatus).toBeObject();
             expect(exStatus).toHaveProperty('_slicer_stats');

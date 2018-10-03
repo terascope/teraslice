@@ -103,7 +103,7 @@ module.exports = function module(context, clusterMasterServer, executionService)
                 const errMsg = `node ${nodeId} has been disconnected from cluster_master past the allowed timeout, it has an active slicer for execution: ${exId} which will be marked as terminated and shut down`;
                 logger.error(errMsg);
                 const metaData = executionService.executionMetaData(null, errMsg);
-                pendingWorkerRequests.remove(exId);
+                pendingWorkerRequests.remove(exId, 'ex_id');
                 executionService.setExecutionStatus(exId, 'terminated', metaData);
                 messaging.broadcast('cluster:execution:stop', { ex_id: exId });
             });
@@ -555,7 +555,7 @@ module.exports = function module(context, clusterMasterServer, executionService)
     function stopExecution(exId, timeout, exclude) {
         // we are allowing stopExecution to be non blocking, we block at api level
         const excludeNode = exclude || null;
-        pendingWorkerRequests.remove(exId);
+        pendingWorkerRequests.remove(exId, 'ex_id');
         const sendingMessage = { message: 'cluster:execution:stop' };
         if (timeout) {
             sendingMessage.timeout = timeout;

@@ -22,21 +22,21 @@
     },
     "dependencies": {
         "lerna": "^3.4.0",
-        "typescript": "^3.0.3"
+        "typescript": "^3.1.1"
     },
     "devDependencies": {
         "@types/jest": "^23.3.2",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
-        "eslint": "^5.6.0",
+        "eslint": "^5.6.1",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "^2.14.0",
         "fs-extra": "^7.0.0",
         "jest": "^23.6.0",
-        "jest-extended": "^0.10.0",
+        "jest-extended": "^0.11.0",
         "lerna-alias": "^3.0.2",
         "semver": "^5.5.1",
-        "ts-jest": "^23.10.1",
+        "ts-jest": "^23.10.3",
         "tslint": "^5.0.0"
     },
     "workspaces": [

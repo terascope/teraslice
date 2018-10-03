@@ -21,14 +21,14 @@ module.exports = function module(context) {
     function createState(exId, slice, state, error) {
         const { index } = timeseriesIndex(timeseriesFormat, _index, slice._created);
         const record = {
-            _created: slice._created,
-            _updated: slice._created,
             slice_id: slice.slice_id,
             slicer_id: slice.slicer_id,
             slicer_order: slice.slicer_order,
             request: JSON.stringify(slice.request),
             state,
-            ex_id: exId
+            ex_id: exId,
+            _created: slice._created,
+            _updated: slice._created,
         };
 
         if (error) {

@@ -1,7 +1,7 @@
 import debugFn from 'debug';
 import { isString, isInteger } from 'lodash';
 import SocketIOClient from 'socket.io-client';
-import { Message, ClientOptions, Payload, ClientState, SendOptions } from './interfaces';
+import * as i from './interfaces';
 import { Core } from './core';
 import { newMsgId } from '../utils';
 
@@ -18,7 +18,7 @@ export class Client extends Core {
     protected ready: boolean;
     protected serverShutdown: boolean;
 
-    constructor(opts: ClientOptions) {
+    constructor(opts: i.ClientOptions) {
         super(opts);
         const {
             hostUrl,
@@ -116,7 +116,7 @@ export class Client extends Core {
         this.socket.on('reconnect', () => {
             debug(`client ${this.clientId} reconnected`);
             this.ready = true;
-            this.emit('ready', this.serverName);
+            this.emit('ready');
 
             if (!this.available) return;
 
@@ -141,33 +141,33 @@ export class Client extends Core {
             this.emit('server:shutdown');
         });
 
-        this.socket.on('connect', async () => {
+        this.socket.on('connect', () => {
             debug(`client ${this.clientId} connected`);
             this.ready = true;
-            this.emit('ready', this.serverName);
+            this.emit('ready');
         });
 
         this.ready = true;
-        this.emit('ready', this.serverName);
+        this.emit('ready');
 
         debug(`client ${this.clientId} initial connect`);
     }
 
-    async sendAvailable(payload?: Payload) {
+    async sendAvailable(payload?: i.Payload) {
         this.available = true;
-        return this.send(`client:${ClientState.Available}`, payload, {
+        return this.send(`client:${i.ClientState.Available}`, payload, {
             volatile: true,
         });
     }
 
-    async sendUnavailable(payload?: Payload) {
+    async sendUnavailable(payload?: i.Payload) {
         this.available = false;
-        return this.send(`client:${ClientState.Unavailable}`, payload, {
+        return this.send(`client:${i.ClientState.Unavailable}`, payload, {
             volatile: true,
         });
     }
 
-    protected async send(eventName: string, payload: Payload = {}, options: SendOptions = { response: true }): Promise < Message | null > {
+    protected async send(eventName: string, payload: i.Payload = {}, options: i.SendOptions = { response: true }): Promise <i.Message | null> {
         if (this.serverShutdown || this.closed) return null;
 
         if (!this.ready && !options.volatile) {
@@ -177,24 +177,33 @@ export class Client extends Core {
         }
 
         const response = options.response != null ? options.response : true;
+        const respondBy = Date.now() + this.getTimeout(options.timeout);
 
-        const message: Message = {
+        const message: i.Message = {
             id: newMsgId(),
-            respondBy: Date.now() + this.getTimeout(options.timeout),
-            payload,
             eventName,
+            from: this.clientId,
+            to: this.serverName,
+            payload,
             volatile: options.volatile,
             response,
-            to: this.serverName,
-            from: this.clientId,
+            respondBy,
         };
 
-        const responseMsg = await new Promise((resolve, reject) => {
-            this.socket.emit(eventName, message, this.handleSendResponse(message, resolve, reject));
-        });
+        const responseMsg = this.handleSendResponse(message);
+        this.socket.emit(eventName, message, this._sendCallbackFn);
+        return responseMsg;
+    }
 
-        if (!responseMsg) return null;
-        return responseMsg as Message;
+    async emit(eventName: string, msg: i.EventMessage = { payload: {} }) {
+        await Promise.all([
+            super.emit(`${eventName}`, msg),
+            super.emit(`${eventName}:${this.serverName}`, msg),
+        ]);
+    }
+
+    on(eventName: string, fn: (msg: i.EventMessage) => void) {
+        return super.on(eventName, fn);
     }
 
     isClientReady() {
@@ -204,7 +213,7 @@ export class Client extends Core {
     async shutdown() {
         if (this.isClientReady()) {
             try {
-                await this.send(`client:${ClientState.Shutdown}`, {}, {
+                await this.send(`client:${i.ClientState.Shutdown}`, {}, {
                     volatile: true,
                     response: false,
                     timeout: 100,

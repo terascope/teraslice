@@ -1,12 +1,11 @@
 import debugFn from 'debug';
 import _ from 'lodash';
-import { EventEmitter } from 'events';
+import Emittery from 'emittery';
 import * as i from './interfaces';
-import { newMsgId } from '../utils';
 
 const debug = debugFn('teraslice-messaging:core');
 
-export class Core extends EventEmitter {
+export class Core extends Emittery {
     public closed: boolean = false;
 
     protected networkLatencyBuffer: number;
@@ -25,47 +24,49 @@ export class Core extends EventEmitter {
         if (!_.isSafeInteger(this.networkLatencyBuffer)) {
             throw new Error('Messenger requires a valid networkLatencyBuffer');
         }
+
+        this._sendCallbackFn = this._sendCallbackFn.bind(this);
     }
 
     close() {
         this.closed = true;
-        this.removeAllListeners();
+        this.clearListeners();
     }
 
-    protected handleSendResponse(sent: i.Message, resolve: (val?: i.Message) => void, reject: (err: Error) => void) {
-        if (!sent.response) {
-            resolve();
-            return;
-        }
+    protected async handleSendResponse(sent: i.Message): Promise<i.Message|null> {
+        if (!sent.response) return null;
         debug('waiting for response from message', sent);
 
         const remaining = sent.respondBy - Date.now();
         const timeoutError = new Error(`Timed out after ${remaining}ms, waiting for message "${sent.eventName}"`);
 
-        const timeout = setTimeout(() => {
-            if (sent.volatile || this.closed) {
-                resolve();
-            } else {
-                reject(timeoutError);
-            }
-        }, remaining);
-
         const responseError = new Error(`${sent.eventName} Message Response Failure`);
-        return (response: i.Message) => {
-            clearTimeout(timeout);
+        const response = await this.onceWithTimeout(sent.id, remaining);
 
-            if (response.error) {
-                responseError.message += `: ${response.error}`;
-                // @ts-ignore
-                responseError.response = response;
-                debug('message send response error', responseError);
-                reject(responseError);
-                return;
+        // it is a timeout
+        if (response == null) {
+            if (sent.volatile || this.closed) {
+                return null;
             }
+            throw timeoutError;
+        }
 
-            debug(`got response for message ${sent.eventName}`, response);
-            resolve(response);
-        };
+        if (response.error) {
+            responseError.message += `: ${response.error}`;
+                // @ts-ignore
+            responseError.response = response;
+            debug('message send response error', responseError);
+            throw responseError;
+        }
+
+        return response;
+    }
+
+    protected _sendCallbackFn(response: i.Message) {
+        this.emit(response.id, {
+            clientId: response.to,
+            payload: response
+        });
     }
 
     protected handleResponse(eventName: string, fn: i.MessageHandler) {
@@ -73,7 +74,6 @@ export class Core extends EventEmitter {
 
         return async (msg: i.Message, callback: (msg?: i.Message) => void) => {
             const message: i.Message = Object.assign({}, msg, {
-                id: newMsgId(),
                 from: msg.to,
                 to: msg.from,
                 payload: {},
@@ -132,7 +132,7 @@ export class Core extends EventEmitter {
 
     async onceWithTimeout(eventName: string, timeout?: number): Promise<any>;
     async onceWithTimeout(eventName: string, forClientId: string, timeout?: number): Promise<any>;
-    async onceWithTimeout(eventName: string, ...params: any[]): Promise<any> {
+    async onceWithTimeout(_eventName: string, ...params: any[]): Promise<any> {
         let timeoutMs: number = this.getTimeout();
         let forClientId: string|undefined;
 
@@ -145,23 +145,31 @@ export class Core extends EventEmitter {
             }
         }
 
-        return new Promise((resolve) => {
-            const timer = setTimeout(() => {
-                this.removeListener(eventName, _onceWithTimeout);
-                resolve();
-            }, timeoutMs);
+        const eventName = forClientId != null ? `${_eventName}:${forClientId}` : _eventName;
 
-            function _onceWithTimeout(clientId: string, param?: any) {
-                if (forClientId && forClientId !== clientId) return;
-                clearTimeout(timer);
-                if (!param) {
-                    resolve(clientId);
-                } else {
-                    resolve(param);
-                }
-            }
+        const startTime = Date.now();
+        debug(`onceWithTimeout(${eventName}, ${timeoutMs}) - started`);
 
-            this.on(eventName, _onceWithTimeout);
+        const result = await new Promise((resolve) => {
+            let unsubscribe: Emittery.UnsubscribeFn|undefined;
+            let timer: NodeJS.Timer|undefined;
+
+            const finish = _.once((result?: any) => {
+                if (unsubscribe != null) unsubscribe();
+                if (timer != null) clearTimeout(timer);
+
+                resolve(result);
+            });
+
+            unsubscribe = this.on(eventName, (msg: i.ClientEventMessage|i.EventMessage) => {
+                finish(msg.payload);
+            });
+
+            timer = setTimeout(() => { finish(); }, timeoutMs);
         });
+
+        const elapsed = Date.now() - startTime;
+        debug(`onceWithTimeout(${eventName}, ${timeoutMs}) - finished, took ${elapsed}ms`);
+        return result;
     }
 }

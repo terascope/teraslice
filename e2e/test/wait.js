@@ -149,6 +149,10 @@ function waitForJobStatus(job, status) {
     }
 
     return job.waitForStatus(status, 100, 2 * 60 * 1000)
+        // since most of the time we are chaining this with other actions
+        // make sure we avoid unrealistic test conditions by giving the
+        // it a little bit of time
+        .then(result => Promise.delay(500).then(() => result))
         .catch(async (err) => {
             err.message = `Job: ${jobId}: ${err.message}`;
             await logExErrors();

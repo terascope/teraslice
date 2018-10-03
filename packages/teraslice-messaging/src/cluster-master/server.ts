@@ -48,8 +48,8 @@ export class Server extends core.Server {
     }
 
     async start() {
-        this.on('connection', (clientId: string, socket: SocketIO.Socket) => {
-            this.onConnection(clientId, socket);
+        this.on('connection', (msg) => {
+            this.onConnection(msg.clientId, msg.payload as SocketIO.Socket);
         });
 
         await this.listen();
@@ -71,13 +71,19 @@ export class Server extends core.Server {
         return _.cloneDeep(this.clusterAnalytics);
     }
 
-    onExecutionFinished(fn: core.ClientEventFn) {
-        this.on('execution:finished', fn);
+    onExecutionFinished(fn: (clientId: string, error?: core.ResponseError) => {}) {
+        this.on('execution:finished', (msg) => {
+            fn(msg.clientId, msg.error);
+        });
     }
 
     private onConnection(exId: string, socket: SocketIO.Socket) {
         socket.on('execution:finished', this.handleResponse('execution:finished', (msg: core.Message) => {
-            this.emit('execution:finished', exId, msg.payload.error);
+            this.emit('execution:finished', {
+                clientId: exId,
+                payload: {},
+                error: msg.payload.error
+            });
         }));
 
         socket.on('cluster:analytics', this.handleResponse('cluster:analytics', (msg: core.Message) => {
@@ -85,11 +91,24 @@ export class Server extends core.Server {
             if (!this.clusterAnalytics[data.kind]) {
                 return;
             }
+
             _.forOwn(data.stats, (value, field) => {
                 if (this.clusterAnalytics[data.kind][field] != null) {
                     this.clusterAnalytics[data.kind][field] += value;
                 }
             });
+
+            this.emit('cluster:analytics', {
+                clientId: exId,
+                payload: {
+                    diff: data.stats,
+                    current: this.clusterAnalytics[data.kind],
+                }
+            });
+
+            return {
+                recorded: true
+            };
         }));
     }
 }

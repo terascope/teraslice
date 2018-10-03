@@ -4,6 +4,7 @@ const Promise = require('bluebird');
 const _ = require('lodash');
 const Messaging = require('@terascope/teraslice-messaging');
 const { TestContext } = require('../helpers');
+const { getTestCases } = require('../helpers/execution-controller-helper');
 const ExecutionController = require('../../../lib/workers/execution-controller');
 const { findPort } = require('../../../lib/utils/port_utils');
 const { newId } = require('../../../lib/utils/id_utils');
@@ -151,9 +152,9 @@ describe('ExecutionController Test Cases', () => {
         ],
     ];
 
-    // for testing enable the next line and a "only" property to the test cases you want
-    // fdescribe.each(_.filter(testCases, ts => ts[1].only))('when %s', (m, options) => {
-    describe.each(testCases)('when %s', (m, options) => {
+    // for testing add a "only" property to the test cases you want
+    // or add a skip property to the test cases you don't want
+    describe.each(getTestCases(testCases))('when %s', (m, options) => {
         const {
             slicerResults,
             slicerQueueLength,
@@ -378,7 +379,7 @@ describe('ExecutionController Test Cases', () => {
 
             if (sliceFails || slicerFails) {
                 if (sliceFails) {
-                    expect(exStatus).toHaveProperty('_failureReason', `execution: ${exId} had 1 slice failures during processing`);
+                    expect(exStatus).toHaveProperty('_failureReason', `execution: ${exId} had 1 slice failure during processing`);
                     expect(exStatus._slicer_stats.failed).toEqual(count);
                     const query = `ex_id:${exId} AND state:error`;
                     const actualCount = await stateStore.count(query, 0);

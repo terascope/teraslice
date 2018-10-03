@@ -47,10 +47,16 @@ export class Client extends core.Client {
         }
 
         this.socket.on('execution:slice:new', this.handleResponse('execution:slice:new', (msg: core.Message) => {
+            if (this.listenerCount('execution:slice:new') === 0) {
+                return { willProcess: false };
+            }
+
             const willProcess = this.available;
             if (willProcess) {
                 this.available = false;
-                this.emit('execution:slice:new', msg.payload);
+                this.emit('execution:slice:new', {
+                    payload: msg.payload
+                });
             }
 
             return {
@@ -59,12 +65,14 @@ export class Client extends core.Client {
         }));
 
         this.socket.on('execution:finished', this.handleResponse('execution:finished', (msg: core.Message) => {
-            this.emit('execution:finished', msg.payload);
+            this.emit('execution:finished', {
+                payload: msg.payload
+            });
         }));
     }
 
-    onExecutionFinished(fn: core.ClientEventFn) {
-        this.once('execution:finished', fn);
+    onExecutionFinished(fn: () => void) {
+        this.on('execution:finished', fn);
     }
 
     sendSliceComplete(payload: i.SliceCompletePayload) {
@@ -78,17 +86,23 @@ export class Client extends core.Client {
         this.sendAvailable();
 
         const slice = await new Promise((resolve) => {
+            const unsubscribe = this.on('execution:slice:new', onMessage);
+
             const intervalId = setInterval(() => {
                 if (this.serverShutdown || !this.ready || fn()) {
-                    this.removeListener('execution:slice:new', onMessage);
-                    resolve();
+                    finish();
                 }
             }, interval);
-            const onMessage = (msg: Slice) => {
+
+            function onMessage(msg: core.EventMessage) {
+                finish(msg.payload as Slice);
+            }
+
+            function finish(slice?: Slice) {
                 clearInterval(intervalId);
-                resolve(msg);
-            };
-            this.once('execution:slice:new', onMessage);
+                unsubscribe();
+                resolve(slice);
+            }
         });
 
         if (!slice) return;

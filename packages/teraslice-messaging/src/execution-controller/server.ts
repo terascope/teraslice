@@ -40,8 +40,8 @@ export class Server extends core.Server {
     }
 
     async start() {
-        this.on('connection', (clientId: string, socket: SocketIO.Socket) => {
-            this.onConnection(clientId, socket);
+        this.on('connection', (msg) => {
+            this.onConnection(msg.clientId, msg.payload as SocketIO.Socket);
         });
 
         this.onClientUnavailable((workerId) => {
@@ -49,7 +49,7 @@ export class Server extends core.Server {
         });
 
         this.onClientDisconnect((workerId) => {
-            _.pull(this._activeWorkers, workerId);
+            this._activeWorkers = _.without(this._activeWorkers, workerId);
             this._workerRemove(workerId);
         });
 
@@ -82,8 +82,6 @@ export class Server extends core.Server {
             return false;
         }
 
-        const sliceId = slice.slice_id;
-
         // first assume the slice is dispatched
         this._activeWorkers = _.union(this._activeWorkers, [workerId]);
 
@@ -93,12 +91,12 @@ export class Server extends core.Server {
             const response = await this.send(workerId, 'execution:slice:new', slice);
             dispatched = _.get(response, 'payload.willProcess', false);
         } catch (error) {
-            debug('got error when dispatching slice', error, slice);
+            debug(`got error when dispatching slice ${slice.slice_id}`, error);
         }
 
         if (!dispatched) {
-            debug(`failure to dispatch slice ${sliceId} to worker ${workerId}`);
-            _.pull(this._activeWorkers, workerId);
+            debug(`failure to dispatch slice ${slice.slice_id} to worker ${workerId}`);
+            this._activeWorkers = _.without(this._activeWorkers, workerId);
         } else {
             this.updateClientState(workerId, {
                 state: core.ClientState.Unavailable,
@@ -108,18 +106,18 @@ export class Server extends core.Server {
         return dispatched;
     }
 
-    onSliceSuccess(fn: core.ClientEventFn) {
-        this.on('slice:success', (workerId, payload) => {
+    onSliceSuccess(fn: (workerId: string, payload: i.SliceCompletePayload) => {}) {
+        this.on('slice:success', (msg) => {
             _.defer(() => {
-                fn(workerId, payload);
+                fn(msg.clientId, msg.payload);
             });
         });
     }
 
-    onSliceFailure(fn: core.ClientEventFn) {
-        this.on('slice:failure', (workerId, payload) => {
+    onSliceFailure(fn: (workerId: string, payload: i.SliceCompletePayload) => {}) {
+        this.on('slice:failure', (msg) => {
             _.defer(() => {
-                fn(workerId, payload);
+                fn(msg.clientId, msg.payload);
             });
         });
     }
@@ -140,20 +138,17 @@ export class Server extends core.Server {
     }
 
     private onConnection(workerId: string, socket: SocketIO.Socket) {
-        socket.on('worker:slice:complete', this.handleResponse('worker:slice:complete', (msg) => {
-            const workerResponse = msg.payload;
-            const sliceId = _.get(workerResponse, 'slice.slice_id');
+        socket.on('worker:slice:complete', this.handleResponse('worker:slice:complete', async (msg) => {
+            const { payload } = msg;
+            const sliceId = _.get(payload, 'slice.slice_id');
 
-            if (workerResponse.error) {
-                this.emit('slice:failure', workerId, workerResponse);
+            if (payload.error) {
+                this.emit('slice:failure', { clientId: workerId, payload });
             } else {
-                this.emit('slice:success', workerId, workerResponse);
+                this.emit('slice:success', { clientId: workerId, payload });
             }
 
-            _.pull(this._activeWorkers, workerId);
-            this.updateClientState(workerId, {
-                state: core.ClientState.Unavailable,
-            });
+            this._activeWorkers = _.without(this._activeWorkers, workerId);
 
             return _.pickBy({
                 recorded: true,
@@ -172,7 +167,7 @@ export class Server extends core.Server {
             this.queue.enqueue({ workerId });
         }
 
-        this.emit('worker:enqueue', workerId);
+        this.emit('worker:enqueue', { clientId: workerId, payload: {} });
         return exists;
     }
 
@@ -188,8 +183,8 @@ export class Server extends core.Server {
         }
 
         if (workerId != null) {
-            _.pull(this._activeWorkers, workerId);
-            this.emit('worker:dequeue', workerId);
+            this._activeWorkers = _.without(this._activeWorkers, workerId);
+            this.emit('worker:dequeue', { clientId: workerId, payload: {} });
         }
 
         return workerId;
@@ -200,7 +195,7 @@ export class Server extends core.Server {
 
         this.queue.remove(workerId, 'workerId');
 
-        this.emit('worker:dequeue', workerId);
+        this.emit('worker:dequeue', { clientId: workerId, payload: {} });
         return true;
     }
 }
