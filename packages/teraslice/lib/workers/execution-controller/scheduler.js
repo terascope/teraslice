@@ -353,19 +353,19 @@ class Scheduler {
                     this.events.emit('slicer:subslice');
                 }
 
-                const slices = _.map(_.castArray(result), (sliceRequest) => {
+                const slices = _.map(_.castArray(result), (request) => {
                     slicer.order += 1;
 
                     // recovery slices already have correct meta data
-                    if (sliceRequest.slice_id) {
-                        return sliceRequest;
+                    if (request.slice_id) {
+                        return request;
                     }
 
                     return {
                         slice_id: uuidv4(),
-                        request: sliceRequest,
                         slicer_id: slicer.id,
                         slicer_order: slicer.order,
+                        request,
                     };
                 });
 

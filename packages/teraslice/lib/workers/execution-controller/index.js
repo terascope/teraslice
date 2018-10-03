@@ -61,9 +61,13 @@ class ExecutionController {
 
         this.scheduler = new Scheduler(context, executionContext);
 
+        // processing more concurrency is not actually faster
+        // use number of workers specified with a max of 5
+        const concurrency = _.min([executionContext.config.workers, 5]);
+
         this.dispatchQueue = new PQueue({
             carryoverConcurrencyCount: true,
-            concurrency: executionContext.config.workers,
+            concurrency,
             intervalCap: 1,
             interval: 100,
             autoStart: false,
@@ -466,21 +470,26 @@ class ExecutionController {
             const queueSize = this.dispatchQueue.size + this.dispatchQueue.pending;
             return queueSize > 0;
         }, async () => {
-            if (this.isPaused) return Promise.delay(1000);
+            if (this.isPaused) {
+                await Promise.delay(1000);
+                return;
+            }
 
             const workers = this.server.workerQueueSize;
             const slices = this.scheduler.queueLength;
             const count = slices > workers ? workers : slices;
 
             if (count > 0) {
-                return this._dispatchSlices();
+                await this._dispatchSlices();
+                return;
             }
 
             if (!workers && !this.isShuttingDown) {
-                return this.server.onceWithTimeout('worker:enqueue', 1000);
+                await this.server.onceWithTimeout('worker:enqueue', 1000);
+                return;
             }
 
-            return Promise.delay(100);
+            await Promise.delay(100);
         });
 
         await this.dispatchQueue.onIdle();
@@ -502,7 +511,14 @@ class ExecutionController {
 
             // add it the queue
             this.dispatchQueue
-                .add(() => this._dispatchSlice(slice, workerId))
+                .add(async () => {
+                    if (slice._created) {
+                        return this._dispatchSlice(slice, workerId);
+                    }
+
+                    const newSlice = await this._createSliceState(slice);
+                    return this._dispatchSlice(newSlice, workerId);
+                })
                 .catch((err) => {
                     this.logger.error('dispatch slice error', err);
                 });
@@ -515,13 +531,24 @@ class ExecutionController {
         }
     }
 
+    // if the _created is missing property is missing
+    // create the slice state.
+    // By not mutating the slice record we can improve the v8
+    // performance
+    async _createSliceState(_slice) {
+        const { createState } = this.stores.stateStore;
+
+        const slice = Object.assign({
+            _created: new Date().toISOString(),
+        }, _slice);
+
+        await createState(this.exId, slice, 'start');
+
+        return slice;
+    }
+
     async _dispatchSlice(slice, workerId) {
         const sliceId = slice.slice_id;
-
-        if (!slice._created) {
-            slice._created = new Date().toISOString();
-            await this.stores.stateStore.createState(this.exId, slice, 'start');
-        }
 
         const dispatched = await this.server.dispatchSlice(slice, workerId);
 

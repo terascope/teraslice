@@ -49,7 +49,7 @@ export class Server extends core.Server {
         });
 
         this.onClientDisconnect((workerId) => {
-            _.pull(this._activeWorkers, workerId);
+            this._activeWorkers = _.without(this._activeWorkers, workerId);
             this._workerRemove(workerId);
         });
 
@@ -82,8 +82,6 @@ export class Server extends core.Server {
             return false;
         }
 
-        const sliceId = slice.slice_id;
-
         // first assume the slice is dispatched
         this._activeWorkers = _.union(this._activeWorkers, [workerId]);
 
@@ -93,12 +91,12 @@ export class Server extends core.Server {
             const response = await this.send(workerId, 'execution:slice:new', slice);
             dispatched = _.get(response, 'payload.willProcess', false);
         } catch (error) {
-            debug('got error when dispatching slice', error, slice);
+            debug(`got error when dispatching slice ${slice.slice_id}`, error);
         }
 
         if (!dispatched) {
-            debug(`failure to dispatch slice ${sliceId} to worker ${workerId}`);
-            _.pull(this._activeWorkers, workerId);
+            debug(`failure to dispatch slice ${slice.slice_id} to worker ${workerId}`);
+            this._activeWorkers = _.without(this._activeWorkers, workerId);
         } else {
             this.updateClientState(workerId, {
                 state: core.ClientState.Unavailable,
@@ -150,7 +148,7 @@ export class Server extends core.Server {
                 this.emit('slice:success', { clientId: workerId, payload });
             }
 
-            _.pull(this._activeWorkers, workerId);
+            this._activeWorkers = _.without(this._activeWorkers, workerId);
 
             return _.pickBy({
                 recorded: true,
@@ -185,7 +183,7 @@ export class Server extends core.Server {
         }
 
         if (workerId != null) {
-            _.pull(this._activeWorkers, workerId);
+            this._activeWorkers = _.without(this._activeWorkers, workerId);
             this.emit('worker:dequeue', { clientId: workerId, payload: {} });
         }
 

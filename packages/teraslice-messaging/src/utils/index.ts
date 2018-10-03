@@ -4,7 +4,7 @@ import url from 'url';
 import nanoid from 'nanoid';
 
 export function newMsgId(): string {
-    return nanoid();
+    return nanoid(10);
 }
 
 export function formatURL(hostname = os.hostname(), port: number): string {

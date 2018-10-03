@@ -95,7 +95,7 @@ export interface ConnectedClients {
 }
 
 export interface ClientSendFns {
-    [clientId: string]: (eventName: string, message: Message) => Promise<Message|null>;
+    [clientId: string]: (message: Message) => void;
 }
 
 export interface EventMessage {

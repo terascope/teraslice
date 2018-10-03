@@ -177,24 +177,22 @@ export class Client extends Core {
         }
 
         const response = options.response != null ? options.response : true;
+        const respondBy = Date.now() + this.getTimeout(options.timeout);
 
         const message: i.Message = {
             id: newMsgId(),
-            respondBy: Date.now() + this.getTimeout(options.timeout),
-            payload,
             eventName,
+            from: this.clientId,
+            to: this.serverName,
+            payload,
             volatile: options.volatile,
             response,
-            to: this.serverName,
-            from: this.clientId,
+            respondBy,
         };
 
-        const responseMsg = await new Promise((resolve, reject) => {
-            this.socket.emit(eventName, message, this.handleSendResponse(message, resolve, reject));
-        });
-
-        if (!responseMsg) return null;
-        return responseMsg as i.Message;
+        const responseMsg = this.handleSendResponse(message);
+        this.socket.emit(eventName, message, this._sendCallbackFn);
+        return responseMsg;
     }
 
     async emit(eventName: string, msg: i.EventMessage = { payload: {} }) {

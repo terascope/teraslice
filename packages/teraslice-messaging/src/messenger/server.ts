@@ -312,22 +312,22 @@ export class Server extends Core {
         }
 
         const response = options.response != null ? options.response : true;
+        const respondBy = Date.now() + this.getTimeout(options.timeout);
 
         const message: i.Message = {
             id: newMsgId(),
-            respondBy: Date.now() + this.getTimeout(options.timeout),
             eventName,
-            payload,
-            to: clientId,
             from: this.serverName,
+            to: clientId,
+            payload,
             volatile: options.volatile,
             response,
+            respondBy,
         };
 
-        const responseMsg = await this._clientSendFns[clientId](eventName, message);
-
-        if (!responseMsg) return null;
-        return responseMsg as i.Message;
+        const responseMsg = this.handleSendResponse(message);
+        this._clientSendFns[clientId](message);
+        return responseMsg;
     }
 
     protected getClientMetadataFromSocket(socket: SocketIO.Socket): i.ClientSocketMetadata {
@@ -478,10 +478,8 @@ export class Server extends Core {
         const client = this.ensureClient(socket);
         const { clientId } = client;
 
-        this._clientSendFns[clientId] = (eventName, message: i.Message) => {
-            return new Promise((resolve, reject) => {
-                socket.emit(eventName, message, this.handleSendResponse(message, resolve, reject));
-            });
+        this._clientSendFns[clientId] = (message: i.Message) => {
+            socket.emit(message.eventName, message, this._sendCallbackFn);
         };
 
         socket.on('error', (error: Error|string) => {

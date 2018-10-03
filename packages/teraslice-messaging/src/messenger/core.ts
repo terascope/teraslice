@@ -2,7 +2,6 @@ import debugFn from 'debug';
 import _ from 'lodash';
 import Emittery from 'emittery';
 import * as i from './interfaces';
-import { newMsgId } from '../utils';
 
 const debug = debugFn('teraslice-messaging:core');
 
@@ -25,6 +24,8 @@ export class Core extends Emittery {
         if (!_.isSafeInteger(this.networkLatencyBuffer)) {
             throw new Error('Messenger requires a valid networkLatencyBuffer');
         }
+
+        this._sendCallbackFn = this._sendCallbackFn.bind(this);
     }
 
     close() {
@@ -32,40 +33,40 @@ export class Core extends Emittery {
         this.clearListeners();
     }
 
-    protected handleSendResponse(sent: i.Message, resolve: (val?: i.Message) => void, reject: (err: Error) => void) {
-        if (!sent.response) {
-            resolve();
-            return;
-        }
+    protected async handleSendResponse(sent: i.Message): Promise<i.Message|null> {
+        if (!sent.response) return null;
         debug('waiting for response from message', sent);
 
         const remaining = sent.respondBy - Date.now();
         const timeoutError = new Error(`Timed out after ${remaining}ms, waiting for message "${sent.eventName}"`);
 
-        const timeout = setTimeout(() => {
-            if (sent.volatile || this.closed) {
-                resolve();
-            } else {
-                reject(timeoutError);
-            }
-        }, remaining);
-
         const responseError = new Error(`${sent.eventName} Message Response Failure`);
-        return (response: i.Message) => {
-            clearTimeout(timeout);
+        const response = await this.onceWithTimeout(sent.id, remaining);
 
-            if (response.error) {
-                responseError.message += `: ${response.error}`;
-                // @ts-ignore
-                responseError.response = response;
-                debug('message send response error', responseError);
-                reject(responseError);
-                return;
+        // it is a timeout
+        if (response == null) {
+            if (sent.volatile || this.closed) {
+                return null;
             }
+            throw timeoutError;
+        }
 
-            debug(`got response for message ${sent.eventName}`, response);
-            resolve(response);
-        };
+        if (response.error) {
+            responseError.message += `: ${response.error}`;
+                // @ts-ignore
+            responseError.response = response;
+            debug('message send response error', responseError);
+            throw responseError;
+        }
+
+        return response;
+    }
+
+    protected _sendCallbackFn(response: i.Message) {
+        this.emit(response.id, {
+            clientId: response.to,
+            payload: response
+        });
     }
 
     protected handleResponse(eventName: string, fn: i.MessageHandler) {
@@ -73,7 +74,6 @@ export class Core extends Emittery {
 
         return async (msg: i.Message, callback: (msg?: i.Message) => void) => {
             const message: i.Message = Object.assign({}, msg, {
-                id: newMsgId(),
                 from: msg.to,
                 to: msg.from,
                 payload: {},
