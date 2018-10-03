@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-const PQueue = require('p-queue');
 const pWhilst = require('p-whilst');
 const Promise = require('bluebird');
 const retry = require('bluebird-retry');
@@ -61,18 +60,6 @@ class ExecutionController {
 
         this.scheduler = new Scheduler(context, executionContext);
 
-        // processing more concurrency is not actually faster
-        // use number of workers specified with a max of 5
-        const concurrency = _.min([executionContext.config.workers, 5]);
-
-        this.dispatchQueue = new PQueue({
-            carryoverConcurrencyCount: true,
-            concurrency,
-            intervalCap: 1,
-            interval: 100,
-            autoStart: false,
-        });
-
         this.exId = _.get(executionContext, 'config.ex_id');
         this.workerId = workerId;
         this.logger = logger;
@@ -89,6 +76,7 @@ class ExecutionController {
         this.isShuttingDown = false;
         this.isInitialized = false;
         this.isStarted = false;
+        this.pendingDispatches = 0;
         this.pendingSlices = 0;
         this.isDoneProcessing = false;
         this.isExecutionFinished = false;
@@ -356,7 +344,6 @@ class ExecutionController {
             this.logger.error('execution analytics error');
         }
 
-        this.dispatchQueue.clear();
         this.scheduler.cleanup();
 
         if (this.recover) {
@@ -457,47 +444,48 @@ class ExecutionController {
 
         this.isDoneDispatching = false;
 
-        this.dispatchQueue.start();
-
         this.logger.debug('dispatching slices...');
+        let backupTimer;
 
-        await pWhilst(() => {
-            // stop dispatching
-            if (this.isExecutionDone || this.isShuttingDown) return false;
+        const isRunning = () => {
+            if (this.isShuttingDown) return false;
+            if (this.isExecutionDone) return false;
+            if (this.scheduler.isFinished && !this.pendingDispatches) return false;
+            return true;
+        };
 
-            if (!this.scheduler.isFinished) return true;
-
-            const queueSize = this.dispatchQueue.size + this.dispatchQueue.pending;
-            return queueSize > 0;
-        }, async () => {
-            if (this.isPaused) {
-                await Promise.delay(1000);
-                return;
-            }
+        const canDispatch = () => {
+            if (this.isPaused) return false;
 
             const workers = this.server.workerQueueSize;
             const slices = this.scheduler.queueLength;
-            const count = slices > workers ? workers : slices;
+            return workers > 0 && slices > 0;
+        };
 
-            if (count > 0) {
-                await this._dispatchSlices();
-                return;
-            }
+        const dispatch = () => {
+            if (!isRunning()) return;
 
-            if (!workers && !this.isShuttingDown) {
-                await this.server.onceWithTimeout('worker:enqueue', 1000);
-                return;
-            }
+            clearTimeout(backupTimer);
+            backupTimer = setTimeout(dispatch, 500);
 
-            await Promise.delay(100);
-        });
+            if (!canDispatch()) return;
+            this._dispatchSlices();
+        };
 
-        await this.dispatchQueue.onIdle();
+        this.server.onClientAvailable(dispatch);
+
+        dispatch();
+
+        await pWhilst(isRunning, () => Promise.delay(500));
+
+        clearTimeout(backupTimer);
 
         this.isDoneDispatching = true;
     }
 
-    async _dispatchSlices() {
+    _dispatchSlices() {
+        if (this.isPaused) return;
+
         const slices = this.scheduler.getSlices(this.server.workerQueueSize);
 
         slices.forEach((slice) => {
@@ -507,28 +495,10 @@ class ExecutionController {
                 return;
             }
 
-            this.logger.trace(`add dispatch slice ${slice.slice_id} for worker ${workerId} to queue`);
+            this.logger.trace(`dispatching slice ${slice.slice_id} for worker ${workerId}`);
 
-            // add it the queue
-            this.dispatchQueue
-                .add(async () => {
-                    if (slice._created) {
-                        return this._dispatchSlice(slice, workerId);
-                    }
-
-                    const newSlice = await this._createSliceState(slice);
-                    return this._dispatchSlice(newSlice, workerId);
-                })
-                .catch((err) => {
-                    this.logger.error('dispatch slice error', err);
-                });
+            this._dispatchSlice(slice, workerId);
         });
-
-        if (this.dispatchQueue.pending === 0) {
-            await this.dispatchQueue.onEmpty();
-        } else {
-            await Promise.delay(100);
-        }
     }
 
     // if the _created is missing property is missing
@@ -536,6 +506,8 @@ class ExecutionController {
     // By not mutating the slice record we can improve the v8
     // performance
     async _createSliceState(_slice) {
+        if (_slice._created) return _slice;
+
         const { createState } = this.stores.stateStore;
 
         const slice = Object.assign({
@@ -547,7 +519,10 @@ class ExecutionController {
         return slice;
     }
 
-    async _dispatchSlice(slice, workerId) {
+    async _dispatchSlice(_slice, workerId) {
+        this.pendingDispatches += 1;
+
+        const slice = await this._createSliceState(_slice);
         const sliceId = slice.slice_id;
 
         const dispatched = await this.server.dispatchSlice(slice, workerId);
@@ -559,6 +534,8 @@ class ExecutionController {
             this.logger.warn(`worker "${workerId}" is not available to process slice ${sliceId}`);
             this.scheduler.enqueueSlice(slice, true);
         }
+
+        this.pendingDispatches -= 1;
     }
 
     async _slicerInit() {
