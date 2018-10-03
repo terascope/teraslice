@@ -432,7 +432,7 @@ class ExecutionController {
             this.logger.debug(`execution ${this.exId} is done processing slices`);
             this.isDoneProcessing = true;
         } else if (!this.isShuttdown) {
-            this.logger.debug(`execution ${this.exId} did not finish correctly`);
+            this.logger.debug(`execution ${this.exId} did not finish`);
         } else {
             this.logger.debug(`execution ${this.exId} is exiting...`);
         }
@@ -460,12 +460,12 @@ class ExecutionController {
             return workers > 0 && slices > 0;
         };
 
-        const dispatch = _.debounce(() => {
+        const dispatch = _.throttle(() => {
             if (!isRunning()) return;
             if (!canDispatch()) return;
 
             this._dispatchSlices();
-        }, 100, { maxWait: 500, leading: true });
+        }, 100);
 
         const unsubscribe = this.server.on('client:available', dispatch);
 
@@ -474,7 +474,6 @@ class ExecutionController {
             return Promise.delay(500);
         });
 
-        dispatch.cancel();
         unsubscribe();
 
         this.isDoneDispatching = true;
@@ -714,12 +713,9 @@ class ExecutionController {
 
         const timeoutOutAt = this.workerDisconnectTimeout + Date.now();
 
-        const logWaitingForWorkers = _.debounce(() => {
+        const logWaitingForWorkers = _.throttle(() => {
             this.logger.debug(`waiting for ${this.server.onlineClientCount} to go offline`);
-        }, 1000, {
-            maxWait: 1000,
-            leading: true,
-        });
+        }, 1000);
 
         const checkOnlineCount = async () => {
             if (this.isExecutionFinished) {
@@ -749,12 +745,9 @@ class ExecutionController {
     }
 
     async _waitForPendingSlices() {
-        const logPendingSlices = _.debounce(() => {
+        const logPendingSlices = _.throttle(() => {
             this.logger.debug(`waiting for ${this.pendingSlices} slices to finish`);
-        }, 1000, {
-            maxWait: 1000,
-            leading: true,
-        });
+        }, 1000);
 
         const checkPendingSlices = async () => {
             if (this.isShuttingDown) return;
@@ -781,12 +774,9 @@ class ExecutionController {
         const timeout = Math.round(this.shutdownTimeout * 0.8);
         const shutdownAt = timeout + Date.now();
 
-        const logShuttingDown = _.debounce(() => {
+        const logShuttingDown = _.throttle(() => {
             this.logger.debug('shutdown is waiting for execution to finish...');
-        }, 1000, {
-            maxWait: 1000,
-            leading: true,
-        });
+        }, 1000);
 
         const checkExecution = async () => {
             if (this.isExecutionDone) {
