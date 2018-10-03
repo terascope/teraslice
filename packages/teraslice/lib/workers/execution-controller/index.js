@@ -440,12 +440,9 @@ class ExecutionController {
     }
 
     async _runDispatch() {
-        await pWhilst(() => !this.workersHaveConnected, () => Promise.delay(100));
-
         this.isDoneDispatching = false;
 
         this.logger.debug('dispatching slices...');
-        let backupTimer;
 
         const isRunning = () => {
             if (this.isShuttingDown) return false;
@@ -462,23 +459,22 @@ class ExecutionController {
             return workers > 0 && slices > 0;
         };
 
-        const dispatch = () => {
+        const dispatch = _.debounce(() => {
             if (!isRunning()) return;
-
-            clearTimeout(backupTimer);
-            backupTimer = setTimeout(dispatch, 500);
-
             if (!canDispatch()) return;
+
             this._dispatchSlices();
-        };
+        }, 100, { maxWait: 500, leading: true });
 
-        this.server.onClientAvailable(dispatch);
+        const unsubscribe = this.server.on('client:available', dispatch);
 
-        dispatch();
+        await pWhilst(isRunning, () => {
+            dispatch();
+            return Promise.delay(500);
+        });
 
-        await pWhilst(isRunning, () => Promise.delay(500));
-
-        clearTimeout(backupTimer);
+        dispatch.cancel();
+        unsubscribe();
 
         this.isDoneDispatching = true;
     }
