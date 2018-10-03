@@ -758,9 +758,13 @@ class ExecutionController {
 
         const checkPendingSlices = async () => {
             if (this.isShuttingDown) return;
-
             if (!this.pendingSlices) {
                 this.logger.debug('all pending slices are done');
+                return;
+            }
+
+            if (!this.server.onlineClientCount) {
+                this.logger.warn(`clients are all offline, but there are still ${this.pendingSlices} pending slices`);
                 return;
             }
 
