@@ -23,6 +23,7 @@ describe('Messenger', () => {
                     // @ts-ignore
                     new Messenger.Core({
                         actionTimeout: 10,
+                        // @ts-ignore
                         networkLatencyBuffer: 'abc'
                     });
                 }).toThrowError('Messenger requires a valid networkLatencyBuffer');
