@@ -428,6 +428,8 @@ class ExecutionController {
 
         const schedulerSuccessful = this.scheduler.isFinished && this.scheduler.slicersDone;
 
+        await this._waitForPendingSlices();
+
         if (schedulerSuccessful && this.isDoneDispatching) {
             this.logger.debug(`execution ${this.exId} is done processing slices`);
             this.isDoneProcessing = true;
@@ -436,8 +438,6 @@ class ExecutionController {
         } else {
             this.logger.debug(`execution ${this.exId} is exiting...`);
         }
-
-        await this._waitForPendingSlices();
     }
 
     async _runDispatch() {
@@ -471,7 +471,7 @@ class ExecutionController {
 
         await pWhilst(isRunning, () => {
             dispatch();
-            return Promise.delay(500);
+            return Promise.delay(100);
         });
 
         unsubscribe();
@@ -516,6 +516,8 @@ class ExecutionController {
     }
 
     async _dispatchSlice(_slice, workerId) {
+        if (this.isShuttingDown) return;
+
         this.pendingDispatches += 1;
 
         const slice = await this._createSliceState(_slice);
