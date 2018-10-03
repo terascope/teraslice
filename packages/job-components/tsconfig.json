@@ -4,5 +4,10 @@
         "baseUrl": ".",
         "rootDir": "src",
         "outDir": "dist"
-    }
+    },
+    "references": [
+        {
+            "path": "../teraslice-types/src"
+        }
+    ]
 }

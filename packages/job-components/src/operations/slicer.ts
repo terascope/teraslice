@@ -1,23 +1,53 @@
-import { OperationCore } from './operation-core';
-
-export type SlicerResult = object | object[] | null;
+import _ from 'lodash';
+import { Context, OpConfig, ExecutionConfig } from '@terascope/teraslice-types';
+import SlicerCore, { SlicerResult } from './core/slicer-core';
 
 /**
- * Slicer Base Class [DRAFT]
- * @description A core operation for slicing large sets of data
- *              that will be pushed to the workers for processing.
- *              The slicer is not used within the same context of the other operations
- *              The "Slicer" is a part of the "Reader" component of a job.
+ * The simpliest form a "Slicer"
+ * @see SlicerCore
  */
 
-export class Slicer extends OperationCore {
-    public async initialize(startingPoints?: any): Promise<void> {
-        this.logger.debug('got initialized starting points', startingPoints);
-        super.initialize();
-    }
+export default abstract class Slicer extends SlicerCore {
+    /**
+     * @private
+    */
+    protected order = 0;
 
-    // @ts-ignore
-    public async slice(slicerId: number): Promise<SlicerResult> {
-        throw new Error('Slicer must implement a "slice" method');
+    isFinished = false;
+
+    /**
+     * A method called by {@link Slicer#handle}
+     * @returns a Slice, or SliceRequest
+    */
+    abstract async slice(): Promise<SlicerResult>;
+
+    async handle(): Promise<boolean> {
+        if (this.isFinished) return true;
+
+        const result = await this.slice();
+        if (result == null) {
+            this.isFinished = true;
+            return true;
+        }
+
+        if (_.isArray(result)) {
+            this.events.emit('execution:subslice');
+            _.each(result, (item) => {
+                this.order += 1;
+                this.createSlice(item, this.order);
+            });
+        } else {
+            this.order += 1;
+            this.createSlice(result, this.order);
+        }
+
+        return false;
     }
 }
+
+export { SlicerResult };
+
+export type SlicerConstructor = {
+    isRecoverable: boolean;
+    new(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): Slicer;
+};

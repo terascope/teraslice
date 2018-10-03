@@ -1,4 +1,4 @@
-import { JobConfig, OpConfig, K8sJobConfig } from '@terascope/teraslice-types';
+import { ValidatedJobConfig, OpConfig } from '@terascope/teraslice-types';
 import convict from 'convict';
 import { opSchema } from './job-schemas';
 
@@ -27,7 +27,7 @@ export function validateOpConfig(inputSchema: convict.Schema<any>, inputConfig: 
  * Merges the provided inputSchema with commonSchema and then validates the
  * provided jobConfig against the resulting schema.
  */
-export function validateJobConfig(inputSchema: convict.Schema<any>, inputConfig: any): JobConfig | K8sJobConfig {
+export function validateJobConfig(inputSchema: convict.Schema<any>, inputConfig: any): ValidatedJobConfig {
     const config = convict(inputSchema);
 
     try {

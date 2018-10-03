@@ -1,19 +1,23 @@
-import { OperationCore } from './operation-core';
-
-export type OpAPIFn = Function;
-export type OpAPIInstance = { [method: string]: Function };
-export type OpAPI = OpAPIFn | OpAPIInstance;
+import { Context, ExecutionConfig } from '@terascope/teraslice-types';
+import APICore, { OpAPI, OpAPIInstance, OpAPIFn } from './core/api-core';
 
 /**
- * OperationAPI Base Class [DRAFT]
- * @description A base class for specifying an API that other operations can use.
- *              The createAPI method can be called many times,
- *              it is up to the class to support caching the returned API.
+ * An API factory class for operations
  */
-
-export class OperationAPI extends OperationCore {
-    // @ts-ignore
-    public async createAPI(config?: object): Promise<OpAPI> {
-        throw new Error('OperationAPI must implement a "createAPI" method');
-    }
+export default abstract class OperationAPI extends APICore {
+     /**
+     * Called when the API is created with in another Operation.
+     * This will only be called once during an operation
+     * @returns an Operation API which is one of the following
+     *           - an object with function properties
+     *           - an instances of a class
+     *           - a function
+     */
+    abstract async createAPI(...params: any[]): Promise<OpAPI>;
 }
+
+export type OperationAPIConstructor = {
+    new(context: Context, executionConfig: ExecutionConfig): OperationAPI;
+};
+
+export { OpAPI, OpAPIInstance, OpAPIFn };

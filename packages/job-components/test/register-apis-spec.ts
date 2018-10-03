@@ -2,7 +2,7 @@
 
 import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { registerApis } from '../src';
+import { registerApis, OperationAPI } from '../src';
 
 describe('registerApis', () => {
     const context = new TestContext('teraslice-operations');
@@ -23,6 +23,10 @@ describe('registerApis', () => {
         expect(context.apis.op_runner.getClient).toBeFunction();
         expect(context.apis).toHaveProperty('job_runner');
         expect(context.apis.job_runner.getOpConfig).toBeFunction();
+        expect(context.apis).toHaveProperty('executionContext');
+        expect(context.apis.executionContext.addToRegistry).toBeFunction();
+        expect(context.apis.executionContext.initAPI).toBeFunction();
+        expect(context.apis.executionContext.getAPI).toBeFunction();
     });
 
     describe('->getOpConfig', () => {
@@ -120,6 +124,66 @@ describe('registerApis', () => {
                 cached: false,
                 endpoint: 'thirdConnection',
                 type: 'elasticsearch',
+            });
+        });
+    });
+
+    describe('->executionContext', () => {
+        class HelloAPI extends OperationAPI {
+            async createAPI() {
+                return () => 'hello';
+            }
+        }
+
+        describe('->addToRegistry', () => {
+            it('should succeed', () => {
+                expect(() => {
+                    context.apis.executionContext.addToRegistry('hello', HelloAPI);
+                }).not.toThrow();
+            });
+        });
+
+        describe('->initAPI', () => {
+            it('should throw an error when the API is not in the registry', async () => {
+                expect.hasAssertions();
+
+                try {
+                    await context.apis.executionContext.initAPI('uh-oh');
+                } catch (err) {
+                    expect(err.message).toEqual('Unable to find API by name "uh-oh"');
+                }
+            });
+
+            it('should return the api and return hello when called', async () => {
+                const result = await context.apis.executionContext.initAPI('hello');
+                expect(result()).toEqual('hello');
+            });
+
+            it('should throw an error when the API is already created', async () => {
+                expect.hasAssertions();
+
+                try {
+                    await context.apis.executionContext.initAPI('hello');
+                } catch (err) {
+                    expect(err.message).toEqual('API "hello" can only be initalized once');
+                }
+            });
+        });
+
+        describe('->getAPI', () => {
+            it('should throw an error when the API is not found', () => {
+                expect.hasAssertions();
+
+                try {
+                    context.apis.executionContext.getAPI('uh-oh');
+                } catch (err) {
+                    expect(err.message).toEqual('Unable to find API by name "uh-oh"');
+                }
+            });
+
+            it('should return the api and return hello when called', () => {
+                const result = context.apis.executionContext.getAPI('hello');
+                expect(result()).toEqual('hello');
             });
         });
     });

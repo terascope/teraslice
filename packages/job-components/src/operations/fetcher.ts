@@ -1,15 +1,18 @@
-import { DataEntity } from './data-entity';
-import { OperationCore } from './operation-core';
+import DataEntity, { DataEntityList, DataListInput } from './data-entity';
+import FetcherCore from './core/fetcher-core';
 
 /**
- * Fetcher Base Class [DRAFT]
- * @description A core operation for fetching the data pushing it into the job pipeline.
- *              The "Fetcher" is a part of the "Reader" component of a job.
+ * The simpliest varient of "Fetcher"
  */
 
-export class Fetcher extends OperationCore {
-    // @ts-ignore
-    public async fetch(startingData?: any): Promise<DataEntity[]> {
-        throw new Error('Fetcher must implement a "fetch" method');
+export default abstract class Fetcher extends FetcherCore {
+    /**
+     * A method called by {@link Fetcher#handle}
+     * @returns a DataEntity compatible list
+    */
+    abstract async fetch(sliceRequest?: any): Promise<DataListInput>;
+
+    async handle(sliceRequest?: any): Promise<DataEntityList> {
+        return DataEntity.makeList(await this.fetch(sliceRequest));
     }
 }

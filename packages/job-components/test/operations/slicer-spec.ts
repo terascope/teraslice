@@ -1,56 +1,181 @@
-import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
+import { newTestExecutionConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
 import { Slicer, SlicerResult } from '../../src';
 
 describe('Slicer', () => {
-    describe('when constructed', () => {
-        let operation: Slicer;
+    class ExampleSlicer extends Slicer {
+        calls = 0;
+        subslice = false;
 
-        beforeAll(() => {
+        public async slice(): Promise<SlicerResult> {
+            this.calls += 1;
+
+            if (this.calls < 3) {
+                return this.subslice ? [{ hi: true }] : { hi: true };
+            }
+
+            return null;
+        }
+    }
+
+    describe('when returning a single-slice', () => {
+        let slicer: ExampleSlicer;
+
+        beforeAll(async () => {
             const context = new TestContext('teraslice-operations');
-            const jobConfig = newTestJobConfig();
-            jobConfig.operations.push({
+            const exConfig = newTestExecutionConfig();
+            exConfig.operations.push({
                 _op: 'example-op',
             });
-            const opConfig = jobConfig.operations[0];
-            const logger = context.apis.foundation.makeLogger('job-logger');
-            operation = new Slicer(context, jobConfig, opConfig, logger);
+
+            const opConfig = exConfig.operations[0];
+
+            slicer = new ExampleSlicer(context, opConfig, exConfig);
+            await slicer.initialize([]);
         });
 
-        describe('->slice', () => {
-            it('should reject with an implementation warning', () => {
-                return expect(operation.slice(0)).rejects.toThrowError('Slicer must implement a "slice" method');
+        describe('->handle', () => {
+            describe('when called the first time', () => {
+                it('should resolve false and enqueue 1 slice', async () => {
+                    const done = await slicer.handle();
+                    expect(done).toBeFalse();
+
+                    expect(slicer.getSlice()).toMatchObject({
+                        needsState: true,
+                        slice: {
+                            slicer_order: 1,
+                            slicer_id: 0,
+                            request: {
+                                hi: true,
+                            }
+                        }
+                    });
+
+                    expect(slicer.getSlice()).toBeNil();
+                });
+            });
+
+            describe('when called the second time', () => {
+                it('should resolve false and enqueue 1 slice', async () => {
+                    const done = await slicer.handle();
+                    expect(done).toBeFalse();
+
+                    expect(slicer.getSlice()).toMatchObject({
+                        needsState: true,
+                        slice: {
+                            slicer_order: 2,
+                            slicer_id: 0,
+                            request: {
+                                hi: true,
+                            }
+                        }
+                    });
+
+                    expect(slicer.getSlice()).toBeNil();
+                });
+            });
+
+            describe('when called the third time', () => {
+                it('should resolve true and enqueue no slice', async () => {
+                    const done = await slicer.handle();
+                    expect(done).toBeTrue();
+
+                    expect(slicer.getSlice()).toBeNil();
+                });
+            });
+
+            describe('when called a fourth time', () => {
+                it('should resolve true and enqueue no slice', async () => {
+                    const done = await slicer.handle();
+                    expect(done).toBeTrue();
+
+                    expect(slicer.getSlice()).toBeNil();
+                });
             });
         });
     });
 
-    describe('when extending the base class', () => {
-        class ExampleSlicer extends Slicer {
-            public async slice(slicerId: number): Promise<SlicerResult> {
-                this.logger.debug(`got slicer_id: ${slicerId}`);
-                return [
-                   { hi: true }
-                ];
-            }
-        }
-
-        let operation: ExampleSlicer;
+    describe('when returning a sub-slices', () => {
+        let slicer: ExampleSlicer;
+        const onExecutionSubslice = jest.fn();
 
         beforeAll(async () => {
             const context = new TestContext('teraslice-operations');
-            const jobConfig = newTestJobConfig();
-            jobConfig.operations.push({
+
+            const events = context.apis.foundation.getSystemEvents();
+
+            events.on('execution:subslice', onExecutionSubslice);
+
+            const exConfig = newTestExecutionConfig();
+            exConfig.operations.push({
                 _op: 'example-op',
             });
-            const opConfig = jobConfig.operations[0];
-            const logger = context.apis.foundation.makeLogger('job-logger');
-            operation = new ExampleSlicer(context, jobConfig, opConfig, logger);
-            await operation.initialize({ hello: true });
+
+            const opConfig = exConfig.operations[0];
+
+            slicer = new ExampleSlicer(context, opConfig, exConfig);
+            slicer.subslice = true;
+
+            await slicer.initialize([]);
         });
 
-        describe('->slice', () => {
-            it('should resolve with data entries', () => {
-                return expect(operation.slice(0)).resolves.toBeArrayOfSize(1);
+        describe('->handle', () => {
+            it('should not emit execution:subslice yet', () => {
+                expect(onExecutionSubslice).not.toHaveBeenCalled();
+            });
+
+            describe('when called the first time', () => {
+                it('should resolve false and enqueue 1 slice', async () => {
+                    const done = await slicer.handle();
+                    expect(done).toBeFalse();
+
+                    expect(slicer.getSlice()).toMatchObject({
+                        needsState: true,
+                        slice: {
+                            slicer_order: 1,
+                            slicer_id: 0,
+                            request: {
+                                hi: true,
+                            }
+                        }
+                    });
+
+                    expect(onExecutionSubslice).toHaveBeenCalledTimes(1);
+
+                    expect(slicer.getSlice()).toBeNil();
+                });
+            });
+
+            describe('when called the second time', () => {
+                it('should resolve false and enqueue 1 slice', async () => {
+                    const done = await slicer.handle();
+                    expect(done).toBeFalse();
+
+                    expect(slicer.getSlice()).toMatchObject({
+                        needsState: true,
+                        slice: {
+                            slicer_order: 2,
+                            slicer_id: 0,
+                            request: {
+                                hi: true,
+                            }
+                        }
+                    });
+
+                    expect(onExecutionSubslice).toHaveBeenCalledTimes(2);
+
+                    expect(slicer.getSlice()).toBeNil();
+                });
+            });
+
+            describe('when called the third time', () => {
+                it('should resolve true and enqueue no slice', async () => {
+                    const done = await slicer.handle();
+                    expect(done).toBeTrue();
+
+                    expect(slicer.getSlice()).toBeNil();
+                    expect(onExecutionSubslice).toHaveBeenCalledTimes(2);
+                });
             });
         });
     });

@@ -1,60 +1,45 @@
-import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
+import { newTestExecutionConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { OperationAPI, OpAPIInstance } from '../../src';
+import { OperationAPI, OpAPIInstance, ExecutionContextAPI } from '../../src';
 
 describe('OperationAPI', () => {
-    describe('when constructed', () => {
-        let operation: OperationAPI;
+    interface ExampleAPI extends OpAPIInstance {
+        hi(): string;
+    }
 
-        beforeAll(() => {
-            const context = new TestContext('teraslice-operations');
-            const jobConfig = newTestJobConfig();
-            jobConfig.operations.push({
-                _op: 'example-op',
-            });
-            const opConfig = jobConfig.operations[0];
-            const logger = context.apis.foundation.makeLogger('job-logger');
-            operation = new OperationAPI(context, jobConfig, opConfig, logger);
-        });
+    class ExampleOperationAPI extends OperationAPI {
+        public async createAPI(): Promise<ExampleAPI> {
+            return {
+                hi: () => 'hello'
+            };
+        }
+    }
 
-        describe('->createAPI', () => {
-            it('should reject with an implementation warning', () => {
-                return expect(operation.createAPI()).rejects.toThrowError('OperationAPI must implement a "createAPI" method');
-            });
-        });
+    const context = new TestContext('teraslice-operations');
+    const exConfig = newTestExecutionConfig();
+
+    exConfig.operations.push({
+        _op: 'example-op',
     });
 
-    describe('when extending the base class', () => {
-        interface ExampleAPI extends OpAPIInstance {
-            hi(): string;
-        }
+    beforeAll(() => {
 
-        class ExampleOperationAPI extends OperationAPI {
-            public async createAPI(): Promise<ExampleAPI> {
-                return {
-                    hi: () => 'hello'
-                };
-            }
-        }
+        const exContextApi = new ExecutionContextAPI(context, exConfig);
+        exContextApi.addToRegistry('example/api', ExampleOperationAPI);
+        context.apis.registerAPI('executionContext', exContextApi);
+    });
 
-        let operation: ExampleOperationAPI;
+    it('should be able to be created', async () => {
+        const api:ExampleAPI = await context.apis.executionContext.initAPI('example/api');
+        expect(api.hi()).toEqual('hello');
+    });
 
-        beforeAll(() => {
-            const context = new TestContext('teraslice-operations');
-            const jobConfig = newTestJobConfig();
-            jobConfig.operations.push({
-                _op: 'example-op',
-            });
-            const opConfig = jobConfig.operations[0];
-            const logger = context.apis.foundation.makeLogger('job-logger');
-            operation = new ExampleOperationAPI(context, jobConfig, opConfig, logger);
-        });
+    it('should throw an error if created again', async () => {
+        return expect(context.apis.executionContext.initAPI('example/api')).rejects.toThrow();
+    });
 
-        describe('->createAPI', () => {
-            it('should resolve the data entity which are passed in', async () => {
-                const result = await operation.createAPI();
-                expect(result.hi()).toEqual('hello');
-            });
-        });
+    it('should be able to be fetched', async () => {
+        const api:ExampleAPI = await context.apis.executionContext.getAPI('example/api');
+        expect(api.hi()).toEqual('hello');
     });
 });
