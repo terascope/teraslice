@@ -716,6 +716,7 @@ class ExecutionController {
         const logWaitingForWorkers = _.debounce(() => {
             this.logger.debug(`waiting for ${this.server.onlineClientCount} to go offline`);
         }, 1000, {
+            maxWait: 1000,
             leading: true,
         });
 
@@ -750,6 +751,7 @@ class ExecutionController {
         const logPendingSlices = _.debounce(() => {
             this.logger.debug(`waiting for ${this.pendingSlices} slices to finish`);
         }, 1000, {
+            maxWait: 1000,
             leading: true,
         });
 
@@ -777,6 +779,7 @@ class ExecutionController {
         const logShuttingDown = _.debounce(() => {
             this.logger.debug('shutdown is waiting for execution to finish...');
         }, 1000, {
+            maxWait: 1000,
             leading: true,
         });
 
