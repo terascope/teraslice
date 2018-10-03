@@ -14,8 +14,6 @@ class ExectionContext {
             throw new Error('reporters are not functional at this time, please do not set one in the configuration');
         }
 
-        this._loadOperation = this._loadOperation.bind(this);
-
         this._opLoader = new OperationLoader({
             terasliceOpPath,
             assetPath: _.get(context, 'sysconfig.teraslice.assets_directory'),
@@ -50,6 +48,16 @@ class ExectionContext {
         if (this.assignment === 'execution_controller') {
             await this._initializeSlicer();
         }
+
+        // cleanup private stuff to keep memory footprint small
+        delete this._context;
+        delete this._initializeSlicer;
+        delete this._initializeOperations;
+        delete this._initializeOperations;
+        delete this._loadOperation;
+        delete this._logger;
+        delete this._opLoader;
+        delete this._setQueueLength;
         return this;
     }
 
