@@ -431,12 +431,13 @@ class ExecutionController {
         if (schedulerSuccessful && this.isDoneDispatching) {
             this.logger.debug(`execution ${this.exId} is done processing slices`);
             this.isDoneProcessing = true;
-            await this._waitForPendingSlices();
         } else if (!this.isShuttdown) {
             this.logger.debug(`execution ${this.exId} did not finish correctly`);
         } else {
             this.logger.debug(`execution ${this.exId} is exiting...`);
         }
+
+        await this._waitForPendingSlices();
     }
 
     async _runDispatch() {
