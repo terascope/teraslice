@@ -425,7 +425,7 @@ class ExecutionController {
         }
 
         // wait for paused
-        await pWhilst(() => this.isPaused, () => Promise.delay(100));
+        await pWhilst(() => this.isPaused && !this.isShuttdown, () => Promise.delay(100));
 
         await Promise.all([
             this.stores.exStore.setStatus(this.exId, 'running'),
@@ -459,7 +459,7 @@ class ExecutionController {
 
         await pWhilst(() => {
             // stop dispatching
-            if (this.isExecutionDone) return false;
+            if (this.isExecutionDone || this.isShuttingDown) return false;
 
             if (!this.scheduler.isFinished) return true;
 
