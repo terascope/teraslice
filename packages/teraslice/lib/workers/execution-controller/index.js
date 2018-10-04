@@ -449,7 +449,7 @@ class ExecutionController {
         const isRunning = () => {
             if (this.isShuttingDown) return false;
             if (this.isExecutionDone) return false;
-            if (this.scheduler.isFinished && !this.pendingDispatches) return false;
+            if (this.scheduler.isFinished && !processing && !this.pendingDispatches) return false;
             return true;
         };
 
