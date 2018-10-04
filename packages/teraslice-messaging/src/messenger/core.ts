@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { toString, isSafeInteger } from 'lodash';
 import debugFn from 'debug';
 import { EventEmitter } from 'events';
 import * as i from './interfaces';
@@ -17,11 +17,11 @@ export class Core extends EventEmitter {
         this.networkLatencyBuffer = opts.networkLatencyBuffer || 0;
         this.actionTimeout = opts.actionTimeout;
 
-        if (!_.isSafeInteger(this.actionTimeout) || !this.actionTimeout) {
+        if (!isSafeInteger(this.actionTimeout) || !this.actionTimeout) {
             throw new Error('Messenger requires a valid actionTimeout');
         }
 
-        if (!_.isSafeInteger(this.networkLatencyBuffer)) {
+        if (!isSafeInteger(this.networkLatencyBuffer)) {
             throw new Error('Messenger requires a valid networkLatencyBuffer');
         }
     }
@@ -76,7 +76,7 @@ export class Core extends EventEmitter {
                     message.payload = payload;
                 }
             } catch (err) {
-                message.error = _.toString(err);
+                message.error = toString(err);
             }
 
             if (!msg.response) {
@@ -105,7 +105,7 @@ export class Core extends EventEmitter {
         }
 
         debug(`waiting for ${clientId} to be ready`);
-        await this.onceWithTimeout('ready', clientId, timeout);
+        await this.onceWithTimeout(`ready:${clientId}`, timeout);
         const isReady = this.isClientReady(clientId);
         if (!isReady) {
             throw new Error(`Client ${clientId} is not ready`);
@@ -123,12 +123,8 @@ export class Core extends EventEmitter {
     }
 
     // @ts-ignore
-    on(eventName: string, listener: i.EventListener): i.UnsubscribeFn {
+    on(eventName: string, listener: i.EventListener) {
         super.on(eventName, listener);
-
-        return () => {
-            super.removeListener(eventName, listener);
-        };
     }
 
     // @ts-ignore
@@ -139,46 +135,26 @@ export class Core extends EventEmitter {
         }
     }
 
-    async onceWithTimeout(eventName: string, timeout?: number): Promise<any>;
-    async onceWithTimeout(eventName: string, scope: string, timeout?: number): Promise<any>;
-    async onceWithTimeout(_eventName: string, ...params: any[]): Promise<any> {
-        let timeoutMs: number = this.getTimeout();
-        let scope: string|undefined;
-
-        if (_.isNumber(params[0])) {
-            timeoutMs = this.getTimeout(params[0]);
-        } else if (_.isString(params[0])) {
-            scope = params[0];
-            if (_.isNumber(params[1])) {
-                timeoutMs = this.getTimeout(params[1]);
-            }
-        }
-
-        const eventName = scope != null ? `${_eventName}:${scope}` : _eventName;
-
-        const startTime = Date.now();
-        debug(`onceWithTimeout(${eventName}, ${timeoutMs}) - started`);
+    async onceWithTimeout(eventName: string, timeout?: number): Promise<any> {
+        const timeoutMs: number = this.getTimeout(timeout);
 
         const result = await new Promise((resolve) => {
-            let unsubscribe: i.UnsubscribeFn|undefined;
-            let timer: NodeJS.Timer|undefined;
+            const finish = (result?: any) => {
+                this.removeListener(eventName, onMessage);
 
-            const finish = _.once((result?: any) => {
-                if (unsubscribe != null) unsubscribe();
                 if (timer != null) clearTimeout(timer);
 
                 resolve(result);
-            });
+            };
 
-            unsubscribe = this.on(eventName, (msg: i.EventMessage) => {
+            const onMessage = (msg: i.EventMessage) => {
                 finish(msg.payload);
-            });
+            };
 
-            timer = setTimeout(() => { finish(); }, timeoutMs);
+            this.on(eventName, onMessage);
+            const timer = setTimeout(finish, timeoutMs);
         });
 
-        const elapsed = Date.now() - startTime;
-        debug(`onceWithTimeout(${eventName}, ${timeoutMs}) - finished, took ${elapsed}ms`);
         return result;
     }
 }

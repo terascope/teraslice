@@ -118,10 +118,6 @@ export interface ClientEventMessage {
     error?: Error|ResponseError;
 }
 
-export interface UnsubscribeFn {
-    (): void;
-}
-
 export interface EventListener {
     (msg: EventMessage): void;
 }

@@ -180,7 +180,7 @@ export class Client extends Core {
         if (!this.ready && !options.volatile) {
             const connected = this.socket.connected ? 'connected' : 'not-connected';
             debug(`server is not ready and ${connected}, waiting for the ready event`);
-            await this.onceWithTimeout('ready');
+            await this.onceWithTimeout(`ready:${this.serverName}`);
         }
 
         const response = options.response != null ? options.response : true;

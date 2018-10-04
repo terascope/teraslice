@@ -1,7 +1,7 @@
 'use strict';
 
 import debugFn from 'debug';
-import _ from 'lodash';
+import { isString, isNumber, clone, get } from 'lodash';
 import SocketIOServer from 'socket.io';
 import http from 'http';
 import porty from 'porty';
@@ -56,15 +56,15 @@ export class Server extends Core {
         } = opts;
         super(opts);
 
-        if (!_.isNumber(port)) {
+        if (!isNumber(port)) {
             throw new Error('Messenger.Server requires a valid port');
         }
 
-        if (!_.isString(serverName)) {
+        if (!isString(serverName)) {
             throw new Error('Messenger.Server requires a valid serverName');
         }
 
-        if (!_.isNumber(clientDisconnectTimeout)) {
+        if (!isNumber(clientDisconnectTimeout)) {
             throw new Error('Messenger.Server requires a valid clientDisconnectTimeout');
         }
 
@@ -126,7 +126,7 @@ export class Server extends Core {
         });
 
         this._cleanupClients = setInterval(() => {
-            _.forEach(this._clients, (client: i.ConnectedClient) => {
+            Object.values(this._clients).forEach((client: i.ConnectedClient) => {
                 if (client.state === i.ClientState.Shutdown) {
                     this.updateClientState(client.clientId, {
                         state: i.ClientState.Offline,
@@ -177,7 +177,7 @@ export class Server extends Core {
     }
 
     get connectedClients(): i.ConnectedClient[] {
-        return _.clone(this.filterClientsByState(connectedStates));
+        return clone(this.filterClientsByState(connectedStates));
     }
 
     get connectedClientCount(): number {
@@ -185,7 +185,7 @@ export class Server extends Core {
     }
 
     get onlineClients(): i.ConnectedClient[] {
-        return _.clone(this.filterClientsByState(onlineStates));
+        return clone(this.filterClientsByState(onlineStates));
     }
 
     get onlineClientCount(): number {
@@ -193,7 +193,7 @@ export class Server extends Core {
     }
 
     get disconnectedClients(): i.ConnectedClient[] {
-        return _.clone(this.filterClientsByState(disconnectedStates));
+        return clone(this.filterClientsByState(disconnectedStates));
     }
 
     get disconectedClientCount(): number {
@@ -201,7 +201,7 @@ export class Server extends Core {
     }
 
     get offlineClients(): i.ConnectedClient[] {
-        return _.clone(this.filterClientsByState([i.ClientState.Offline]));
+        return clone(this.filterClientsByState([i.ClientState.Offline]));
     }
 
     get offlineClientCount(): number {
@@ -209,7 +209,7 @@ export class Server extends Core {
     }
 
     get availableClients(): i.ConnectedClient[] {
-        return _.clone(this.filterClientsByState([i.ClientState.Available]));
+        return clone(this.filterClientsByState([i.ClientState.Available]));
     }
 
     get availableClientCount(): number {
@@ -217,7 +217,7 @@ export class Server extends Core {
     }
 
     get unavailableClients(): i.ConnectedClient[] {
-        return _.clone(this.filterClientsByState(unavailableStates));
+        return clone(this.filterClientsByState(unavailableStates));
     }
 
     get unavailableClientCount(): number {
@@ -273,13 +273,13 @@ export class Server extends Core {
     }
 
     isClientReady(clientId: string) {
-        const clientState = _.get(this._clients, [clientId, 'state']);
+        const clientState = get(this._clients, [clientId, 'state']);
         return onlineStates.includes(clientState);
     }
 
     protected sendToAll(eventName: string, payload?: i.Payload, options: i.SendOptions = { volatile: true, response: true }) {
         const clients = this.filterClientsByState(onlineStates);
-        const promises = _.map(clients, (client) => {
+        const promises = Object.values(clients).map((client) => {
             return this.send(client.clientId, eventName, payload, options);
         });
         return Promise.all(promises);
@@ -327,7 +327,7 @@ export class Server extends Core {
     }
 
     private filterClientsByState(states: i.ClientState[]): i.ConnectedClient[] {
-        return _.filter(this._clients, (client) => {
+        return Object.values(this._clients).filter((client) => {
             return states.includes(client.state);
         });
     }

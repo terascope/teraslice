@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isNumber, cloneDeep, forOwn } from 'lodash';
 import * as i from './interfaces';
 import * as core from '../messenger';
 
@@ -17,7 +17,7 @@ export class Server extends core.Server {
             pingTimeout,
         } = opts;
 
-        if (!_.isNumber(nodeDisconnectTimeout)) {
+        if (!isNumber(nodeDisconnectTimeout)) {
             throw new Error('ClusterMaster.Server requires a valid nodeDisconnectTimeout');
         }
 
@@ -68,7 +68,7 @@ export class Server extends core.Server {
     }
 
     getClusterAnalytics() {
-        return _.cloneDeep(this.clusterAnalytics);
+        return cloneDeep(this.clusterAnalytics);
     }
 
     onExecutionFinished(fn: (clientId: string, error?: core.ResponseError) => {}) {
@@ -92,7 +92,7 @@ export class Server extends core.Server {
                 return;
             }
 
-            _.forOwn(data.stats, (value, field) => {
+            forOwn(data.stats, (value, field) => {
                 if (this.clusterAnalytics[data.kind][field] != null) {
                     this.clusterAnalytics[data.kind][field] += value;
                 }

@@ -317,7 +317,7 @@ describe('Messenger', () => {
             });
 
             it('should be able to handle timeouts when given a specific scope', () => {
-                const once = server.onceWithTimeout('timeout:event', clientId, 500);
+                const once = server.onceWithTimeout(`timeout:event:${clientId}`, 500);
                 return expect(once).resolves.toBeUndefined();
             });
 
@@ -344,7 +344,7 @@ describe('Messenger', () => {
             });
 
             it('should be able to resolve the message when given a specific scope', () => {
-                const once = server.onceWithTimeout('success:event', clientId, 500);
+                const once = server.onceWithTimeout(`success:event:${clientId}`, 500);
                 server.emit('success:event', {
                     scope: clientId,
                     payload: {

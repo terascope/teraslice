@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isNumber, without, get, union, clone } from 'lodash';
 import debugFn from 'debug';
 import Queue from '@terascope/queue';
 import { Slice } from '@terascope/teraslice-types';
@@ -21,7 +21,7 @@ export class Server extends core.Server {
             workerDisconnectTimeout,
         } = opts;
 
-        if (!_.isNumber(workerDisconnectTimeout)) {
+        if (!isNumber(workerDisconnectTimeout)) {
             throw new Error('ExecutionController.Server requires a valid workerDisconnectTimeout');
         }
 
@@ -49,7 +49,7 @@ export class Server extends core.Server {
         });
 
         this.onClientDisconnect((workerId) => {
-            this._activeWorkers = _.without(this._activeWorkers, workerId);
+            this._activeWorkers = without(this._activeWorkers, workerId);
             this._workerRemove(workerId);
         });
 
@@ -76,27 +76,27 @@ export class Server extends core.Server {
     }
 
     async dispatchSlice(slice: Slice, workerId: string): Promise<boolean> {
-        const isAvailable = _.get(this._clients, [workerId, 'state']) === core.ClientState.Available;
+        const isAvailable = get(this._clients, [workerId, 'state']) === core.ClientState.Available;
         if (!isAvailable) {
             debug(`worker ${workerId} is not available`);
             return false;
         }
 
         // first assume the slice is dispatched
-        this._activeWorkers = _.union(this._activeWorkers, [workerId]);
+        this._activeWorkers = union(this._activeWorkers, [workerId]);
 
         let dispatched = false;
 
         try {
             const response = await this.send(workerId, 'execution:slice:new', slice);
-            dispatched = _.get(response, 'payload.willProcess', false);
+            dispatched = get(response, 'payload.willProcess', false);
         } catch (error) {
             debug(`got error when dispatching slice ${slice.slice_id}`, error);
         }
 
         if (!dispatched) {
             debug(`failure to dispatch slice ${slice.slice_id} to worker ${workerId}`);
-            this._activeWorkers = _.without(this._activeWorkers, workerId);
+            this._activeWorkers = without(this._activeWorkers, workerId);
         } else {
             this.updateClientState(workerId, {
                 state: core.ClientState.Unavailable,
@@ -126,7 +126,7 @@ export class Server extends core.Server {
     }
 
     get activeWorkers(): string[] {
-        return _.clone(this._activeWorkers);
+        return clone(this._activeWorkers);
     }
 
     get workerQueueSize(): number {
@@ -136,7 +136,7 @@ export class Server extends core.Server {
     private onConnection(workerId: string, socket: SocketIO.Socket) {
         this.handleResponse(socket, 'worker:slice:complete', async (msg) => {
             const { payload } = msg;
-            const sliceId = _.get(payload, 'slice.slice_id');
+            const sliceId = get(payload, 'slice.slice_id');
 
             if (payload.error) {
                 this.emit('slice:failure', { scope: workerId, payload });
@@ -144,12 +144,12 @@ export class Server extends core.Server {
                 this.emit('slice:success', { scope: workerId, payload });
             }
 
-            this._activeWorkers = _.without(this._activeWorkers, workerId);
+            this._activeWorkers = without(this._activeWorkers, workerId);
 
-            return _.pickBy({
+            return {
                 recorded: true,
                 slice_id: sliceId,
-            });
+            };
         });
     }
 
@@ -179,7 +179,7 @@ export class Server extends core.Server {
         }
 
         if (workerId != null) {
-            this._activeWorkers = _.without(this._activeWorkers, workerId);
+            this._activeWorkers = without(this._activeWorkers, workerId);
             this.emit('worker:dequeue', { scope: workerId, payload: {} });
         }
 

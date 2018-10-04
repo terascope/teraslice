@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isString } from 'lodash';
 import * as i from './interfaces';
 import * as core from '../messenger';
 
@@ -15,11 +15,11 @@ export class Client extends core.Client {
             connectTimeout
         } = opts;
 
-        if (!clusterMasterUrl || !_.isString(clusterMasterUrl)) {
+        if (!clusterMasterUrl || !isString(clusterMasterUrl)) {
             throw new Error('ClusterMaster.Client requires a valid clusterMasterUrl');
         }
 
-        if (!exId || !_.isString(exId)) {
+        if (!exId || !isString(exId)) {
             throw new Error('ClusterMaster.Client requires a valid exId');
         }
 

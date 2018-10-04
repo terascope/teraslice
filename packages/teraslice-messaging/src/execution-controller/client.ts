@@ -86,10 +86,11 @@ export class Client extends core.Client {
         this.sendAvailable();
 
         const slice = await new Promise((resolve) => {
-            const unsubscribe = this.on('execution:slice:new', onMessage);
+            this.once('execution:slice:new', onMessage);
 
             const intervalId = setInterval(() => {
                 if (this.serverShutdown || !this.ready || fn()) {
+                    this.removeListener('execution:slice:new', onMessage);
                     finish();
                 }
             }, interval);
@@ -100,7 +101,6 @@ export class Client extends core.Client {
 
             function finish(slice?: Slice) {
                 clearInterval(intervalId);
-                unsubscribe();
                 resolve(slice);
             }
         });
