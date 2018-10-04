@@ -489,20 +489,18 @@ class ExecutionController {
     _dispatchSlices() {
         if (this.isPaused) return;
 
-        const slices = this.scheduler.getSlices(this.server.workerQueueSize);
+        const slice = this.scheduler.getSlice();
+        if (!slice) return;
 
-        // eslint-disable-next-line no-restricted-syntax
-        for (const slice of slices) {
-            const workerId = this.server.dequeueWorker(slice);
-            if (!workerId) {
-                this.scheduler.enqueueSlice(slice, true);
-                return;
-            }
-
-            this.logger.trace(`dispatching slice ${slice.slice_id} for worker ${workerId}`);
-
-            this._dispatchSlice(slice, workerId);
+        const workerId = this.server.dequeueWorker(slice);
+        if (!workerId) {
+            this.scheduler.enqueueSlice(slice, true);
+            return;
         }
+
+        this.logger.trace(`dispatching slice ${slice.slice_id} for worker ${workerId}`);
+
+        this._dispatchSlice(slice, workerId);
     }
 
     // if the _created is missing property is missing

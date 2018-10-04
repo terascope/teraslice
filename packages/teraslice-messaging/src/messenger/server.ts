@@ -286,7 +286,7 @@ export class Server extends Core {
     }
 
     protected async send(clientId: string, eventName: string, payload: i.Payload = {}, options: i.SendOptions = { response: true }): Promise<i.Message|null> {
-        if (!_.has(this._clientSendFns, clientId)) {
+        if (this._clientSendFns[clientId] == null) {
             throw new Error(`No client found by that id "${clientId}"`);
         }
 
@@ -315,7 +315,10 @@ export class Server extends Core {
         };
 
         const responseMsg = this.handleSendResponse(message);
+
+        // @ts-ignore
         this._clientSendFns[clientId](message);
+
         return responseMsg;
     }
 
@@ -424,10 +427,9 @@ export class Server extends Core {
                     } catch (err) {
                         debug('error cleaning up socket when going offline', err);
                     }
-                    delete this.server.sockets.sockets[socketId];
                 }
 
-                delete this._clientSendFns[clientId];
+                this._clientSendFns[clientId] = null;
                 return true;
 
             default:

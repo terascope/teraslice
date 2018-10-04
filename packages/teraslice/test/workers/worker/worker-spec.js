@@ -106,12 +106,16 @@ describe('Worker', () => {
 
             server.onSliceSuccess((workerId, _msg) => {
                 sliceSuccess = _msg;
-                shutdownPromise = server.shutdown();
+                setImmediate(() => {
+                    shutdownPromise = server.shutdown();
+                });
             });
 
             server.onSliceFailure((workerId, _msg) => {
                 sliceFailure = _msg;
-                shutdownPromise = server.shutdown();
+                setImmediate(() => {
+                    shutdownPromise = server.shutdown();
+                });
             });
 
             await worker.run();

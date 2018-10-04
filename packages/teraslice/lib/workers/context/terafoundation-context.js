@@ -37,8 +37,8 @@ function makeContext(cluster, config, sysconfig) {
 
     // Initialize the API
     registerApis(context);
-    delete context.apis.foundation.startWorkers;
-    delete context.foundation.startWorkers;
+    context.apis.foundation.startWorkers = () => {};
+    context.foundation.startWorkers = () => {};
 
     const events = new EventEmitter();
     context.apis.foundation.getSystemEvents = () => events;

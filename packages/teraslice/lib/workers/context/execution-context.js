@@ -50,14 +50,13 @@ class ExectionContext {
         }
 
         // cleanup private stuff to keep memory footprint small
-        delete this._context;
-        delete this._initializeSlicer;
-        delete this._initializeOperations;
-        delete this._initializeOperations;
-        delete this._loadOperation;
-        delete this._logger;
-        delete this._opLoader;
-        delete this._setQueueLength;
+        this._context = null;
+        this._initializeSlicer = null;
+        this._initializeOperations = null;
+        this._loadOperation = null;
+        this._logger = null;
+        this._opLoader = null;
+        this._setQueueLength = null;
         return this;
     }
 

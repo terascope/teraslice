@@ -108,17 +108,13 @@ export class Server extends core.Server {
 
     onSliceSuccess(fn: (workerId: string, payload: i.SliceCompletePayload) => {}) {
         this.on('slice:success', (msg) => {
-            setImmediate(() => {
-                fn(msg.scope, msg.payload);
-            });
+            fn(msg.scope, msg.payload);
         });
     }
 
     onSliceFailure(fn: (workerId: string, payload: i.SliceCompletePayload) => {}) {
         this.on('slice:failure', (msg) => {
-            setImmediate(() => {
-                fn(msg.scope, msg.payload);
-            });
+            fn(msg.scope, msg.payload);
         });
     }
 

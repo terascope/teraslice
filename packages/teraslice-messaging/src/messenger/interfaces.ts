@@ -94,8 +94,12 @@ export interface ConnectedClients {
     [clientId: string]: ConnectedClient;
 }
 
+export interface ClientSendFn {
+    (message: Message): void;
+}
+
 export interface ClientSendFns {
-    [clientId: string]: (message: Message) => void;
+    [clientId: string]: ClientSendFn|null;
 }
 
 export interface MessageHandler {
