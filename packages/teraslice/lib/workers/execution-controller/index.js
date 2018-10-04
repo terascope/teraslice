@@ -460,21 +460,28 @@ class ExecutionController {
             return workers > 0 && slices > 0;
         };
 
-        const dispatch = _.throttle(() => {
-            if (!isRunning()) return;
-            if (!canDispatch()) return;
+        const checkState = () => {
+            if (!isRunning()) {
+                this.events.emit('dispatch:done');
+                return false;
+            }
+            if (!canDispatch()) return false;
+            return true;
+        };
+
+        const dispatch = () => {
+            if (!checkState()) return;
 
             this._dispatchSlices();
-        }, 100);
+        };
 
-        const unsubscribe = this.server.on('client:available', dispatch);
+        const intervalId = setInterval(dispatch, 10);
 
-        await pWhilst(isRunning, () => {
-            dispatch();
-            return Promise.delay(100);
+        await new Promise((resolve) => {
+            this.events.once('dispatch:done', () => { resolve(); });
         });
 
-        unsubscribe();
+        clearInterval(intervalId);
 
         this.isDoneDispatching = true;
     }
@@ -484,7 +491,8 @@ class ExecutionController {
 
         const slices = this.scheduler.getSlices(this.server.workerQueueSize);
 
-        slices.forEach((slice) => {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const slice of slices) {
             const workerId = this.server.dequeueWorker(slice);
             if (!workerId) {
                 this.scheduler.enqueueSlice(slice, true);
@@ -494,7 +502,7 @@ class ExecutionController {
             this.logger.trace(`dispatching slice ${slice.slice_id} for worker ${workerId}`);
 
             this._dispatchSlice(slice, workerId);
-        });
+        }
     }
 
     // if the _created is missing property is missing
