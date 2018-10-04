@@ -444,6 +444,7 @@ class ExecutionController {
         this.isDoneDispatching = false;
 
         this.logger.debug('dispatching slices...');
+        let processing = false;
 
         const isRunning = () => {
             if (this.isShuttingDown) return false;
@@ -460,86 +461,97 @@ class ExecutionController {
             return workers > 0 && slices > 0;
         };
 
-        const checkState = () => {
-            if (!isRunning()) {
-                this.events.emit('dispatch:done');
-                return false;
+        const getWorkerAndSlice = () => {
+            const slice = this.scheduler.getSlice();
+            if (slice == null) return [];
+
+            const workerId = this.server.dequeueWorker(slice);
+            if (!workerId) {
+                this.scheduler.enqueueSlice(slice, true);
+                return [];
             }
-            if (!canDispatch()) return false;
-            return true;
+
+            return [slice, workerId];
         };
 
-        const dispatch = () => {
-            if (!checkState()) return;
+        const ensureSlice = (_slice) => {
+            if (_slice._created) return Promise.resolve(_slice);
 
-            this._dispatchSlices();
+            return this._createSliceState(_slice);
         };
 
-        const intervalId = setInterval(dispatch, 10);
+        const dispatchSlice = async (_slice, workerId) => {
+            ensureSlice(_slice)
+                .then((slice) => {
+                    processing = false;
+                    this.logger.trace(`dispatching slice ${slice.slice_id} for worker ${workerId}`);
+                    this._dispatchSlice(slice, workerId);
+                })
+                .catch((err) => {
+                    processing = false;
+                    this.logger.error('error creating slice state', err);
+                });
+        };
 
-        await new Promise((resolve) => {
-            this.events.once('dispatch:done', () => { resolve(); });
-        });
+        function dequeueAndDispatch() {
+            processing = true;
 
-        clearInterval(intervalId);
+            const [slice, workerId] = getWorkerAndSlice();
+            if (slice == null) return;
 
-        this.isDoneDispatching = true;
-    }
-
-    _dispatchSlices() {
-        if (this.isPaused) return;
-
-        const slice = this.scheduler.getSlice();
-        if (!slice) return;
-
-        const workerId = this.server.dequeueWorker(slice);
-        if (!workerId) {
-            this.scheduler.enqueueSlice(slice, true);
-            return;
+            dispatchSlice(slice, workerId);
         }
 
-        this.logger.trace(`dispatching slice ${slice.slice_id} for worker ${workerId}`);
+        await new Promise((resolve) => {
+            const intervalId = setInterval(dispatch, 10);
 
-        this._dispatchSlice(slice, workerId);
+            function dispatch() {
+                if (processing) return;
+
+                if (!isRunning()) {
+                    clearInterval(intervalId);
+                    resolve();
+                    return;
+                }
+
+                if (!canDispatch()) return;
+
+                dequeueAndDispatch();
+            }
+        });
+
+        this.isDoneDispatching = true;
     }
 
     // if the _created is missing property is missing
     // create the slice state.
     // By not mutating the slice record we can improve the v8
     // performance
-    async _createSliceState(_slice) {
-        if (_slice._created) return _slice;
-
-        const { createState } = this.stores.stateStore;
-
+    _createSliceState(_slice) {
         const slice = Object.assign({
             _created: new Date().toISOString(),
         }, _slice);
 
-        await createState(this.exId, slice, 'start');
-
-        return slice;
+        return this.stores.stateStore
+            .createState(this.exId, slice, 'start')
+            .then(() => slice);
     }
 
-    async _dispatchSlice(_slice, workerId) {
-        if (this.isShuttingDown) return;
-
+    _dispatchSlice(slice, workerId) {
         this.pendingDispatches += 1;
 
-        const slice = await this._createSliceState(_slice);
-        const sliceId = slice.slice_id;
+        this.server.dispatchSlice(slice, workerId)
+            .then((dispatched) => {
+                if (dispatched) {
+                    this.logger.debug(`dispatched slice ${slice.sliceId} to worker ${workerId}`);
+                    this.pendingSlices += 1;
+                } else {
+                    this.logger.warn(`worker "${workerId}" is not available to process slice ${slice.sliceId}`);
+                    this.scheduler.enqueueSlice(slice, true);
+                }
 
-        const dispatched = await this.server.dispatchSlice(slice, workerId);
-
-        if (dispatched) {
-            this.logger.debug(`dispatched slice ${sliceId} to worker ${workerId}`);
-            this.pendingSlices += 1;
-        } else {
-            this.logger.warn(`worker "${workerId}" is not available to process slice ${sliceId}`);
-            this.scheduler.enqueueSlice(slice, true);
-        }
-
-        this.pendingDispatches -= 1;
+                this.pendingDispatches -= 1;
+            });
     }
 
     async _slicerInit() {
