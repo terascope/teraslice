@@ -98,21 +98,26 @@ export interface ClientSendFns {
     [clientId: string]: (message: Message) => void;
 }
 
+export interface MessageHandler {
+    (msg: Message): Promise<Payload|void>|Payload|void;
+}
+
 export interface EventMessage {
+    scope: string;
     payload: any;
     error?: Error|ResponseError;
 }
 
 export interface ClientEventMessage {
-    clientId: string;
+    scope?: string;
     payload: any;
     error?: Error|ResponseError;
 }
 
-export interface ClientEventFn {
-    (msg: ClientEventMessage): void;
+export interface UnsubscribeFn {
+    (): void;
 }
 
-export interface MessageHandler {
-    (msg: Message): Promise<Payload|void>|Payload|void;
+export interface EventListener {
+    (msg: EventMessage): void;
 }

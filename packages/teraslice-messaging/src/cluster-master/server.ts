@@ -49,7 +49,7 @@ export class Server extends core.Server {
 
     async start() {
         this.on('connection', (msg) => {
-            this.onConnection(msg.clientId, msg.payload as SocketIO.Socket);
+            this.onConnection(msg.scope, msg.payload as SocketIO.Socket);
         });
 
         await this.listen();
@@ -73,14 +73,14 @@ export class Server extends core.Server {
 
     onExecutionFinished(fn: (clientId: string, error?: core.ResponseError) => {}) {
         this.on('execution:finished', (msg) => {
-            fn(msg.clientId, msg.error);
+            fn(msg.scope, msg.error);
         });
     }
 
     private onConnection(exId: string, socket: SocketIO.Socket) {
         socket.on('execution:finished', this.handleResponse('execution:finished', (msg: core.Message) => {
             this.emit('execution:finished', {
-                clientId: exId,
+                scope: exId,
                 payload: {},
                 error: msg.payload.error
             });
@@ -99,7 +99,7 @@ export class Server extends core.Server {
             });
 
             this.emit('cluster:analytics', {
-                clientId: exId,
+                scope: exId,
                 payload: {
                     diff: data.stats,
                     current: this.clusterAnalytics[data.kind],

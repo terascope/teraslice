@@ -5,7 +5,7 @@
 const Promise = require('bluebird');
 
 function newProcessor(context, opConfig, executionConfig) {
-    return data => Promise.delay(opConfig.delay).then(() => data);
+    return data => Promise.delay(opConfig.ms).then(() => data);
 }
 
 function schema() {

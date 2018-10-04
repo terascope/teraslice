@@ -118,11 +118,11 @@ export class Server extends Core {
         this.server.on('connection', this._onConnection);
 
         this.onClientReconnect((clientId) => {
-            this.emit('ready', { clientId, payload: {} });
+            this.emit('ready', { scope: clientId, payload: {} });
         });
 
         this.onClientOnline((clientId) => {
-            this.emit('ready', { clientId, payload: {} });
+            this.emit('ready', { scope: clientId, payload: {} });
         });
 
         this._cleanupClients = setInterval(() => {
@@ -225,62 +225,51 @@ export class Server extends Core {
     }
 
     onClientOnline(fn: (clientId: string) => void) {
-        this.on(`client:${i.ClientState.Online}`, (msg) => {
-            fn(msg.clientId);
+        return this.on(`client:${i.ClientState.Online}`, (msg) => {
+            fn(msg.scope);
         });
     }
 
     onClientAvailable(fn: (clientId: string) => void) {
-        this.on(`client:${i.ClientState.Available}`, (msg) => {
-            fn(msg.clientId);
+        return this.on(`client:${i.ClientState.Available}`, (msg) => {
+            fn(msg.scope);
         });
     }
 
     onClientUnavailable(fn: (clientId: string) => void) {
-        this.on(`client:${i.ClientState.Unavailable}`, (msg) => {
-            fn(msg.clientId);
+        return this.on(`client:${i.ClientState.Unavailable}`, (msg) => {
+            fn(msg.scope);
         });
     }
 
     onClientOffline(fn: (clientId: string) => void) {
-        this.on(`client:${i.ClientState.Offline}`, (msg) => {
-            fn(msg.clientId);
+        return this.on(`client:${i.ClientState.Offline}`, (msg) => {
+            fn(msg.scope);
         });
     }
 
     onClientDisconnect(fn: (clientId: string) => void) {
-        this.on(`client:${i.ClientState.Disconnected}`, (msg) => {
-            fn(msg.clientId);
+        return this.on(`client:${i.ClientState.Disconnected}`, (msg) => {
+            fn(msg.scope);
         });
     }
 
     onClientShutdown(fn: (clientId: string) => void) {
-        this.on(`client:${i.ClientState.Shutdown}`, (msg) => {
-            fn(msg.clientId);
+        return this.on(`client:${i.ClientState.Shutdown}`, (msg) => {
+            fn(msg.scope);
         });
     }
 
     onClientReconnect(fn: (clientId: string) => void) {
-        this.on('client:reconnect', (msg) => {
-            fn(msg.clientId);
+        return this.on('client:reconnect', (msg) => {
+            fn(msg.scope);
         });
     }
 
     onClientError(fn: (clientId: string) => void) {
-        this.on('client:error', (msg) => {
-            fn(msg.clientId);
+        return this.on('client:error', (msg) => {
+            fn(msg.scope);
         });
-    }
-
-    async emit(eventName: string, msg: i.ClientEventMessage) {
-        await Promise.all([
-            super.emit(`${eventName}`, msg),
-            super.emit(`${eventName}:${msg.clientId}`, msg),
-        ]);
-    }
-
-    on(eventName: string, fn: (msg: i.ClientEventMessage) => void) {
-        return super.on(eventName, fn);
     }
 
     isClientReady(clientId: string) {
@@ -377,7 +366,7 @@ export class Server extends Core {
         }
 
         const eventMsg = {
-            clientId,
+            scope: clientId,
             payload: update.payload,
             error: update.error,
         };
@@ -468,7 +457,7 @@ export class Server extends Core {
             socketId: socket.id
         };
 
-        this.emit(`client:${i.ClientState.Online}`, { clientId, payload: {} });
+        this.emit(`client:${i.ClientState.Online}`, { scope: clientId, payload: {} });
 
         this._clients[clientId] = newClient;
         return newClient;
@@ -484,7 +473,7 @@ export class Server extends Core {
 
         socket.on('error', (error: Error|string) => {
             this.emit('client:error', {
-                clientId,
+                scope: clientId,
                 payload: {},
                 error
             });
@@ -526,7 +515,7 @@ export class Server extends Core {
         }));
 
         this.emit('connection', {
-            clientId,
+            scope: clientId,
             payload: socket
         });
     }

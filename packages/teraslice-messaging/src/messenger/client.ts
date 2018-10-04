@@ -195,15 +195,9 @@ export class Client extends Core {
         return responseMsg;
     }
 
-    async emit(eventName: string, msg: i.EventMessage = { payload: {} }) {
-        await Promise.all([
-            super.emit(`${eventName}`, msg),
-            super.emit(`${eventName}:${this.serverName}`, msg),
-        ]);
-    }
-
-    on(eventName: string, fn: (msg: i.EventMessage) => void) {
-        return super.on(eventName, fn);
+    emit(eventName: string, msg: i.ClientEventMessage = { payload: {} }) {
+        msg.scope = this.serverName;
+        super.emit(`${eventName}`, msg as i.EventMessage);
     }
 
     isClientReady() {

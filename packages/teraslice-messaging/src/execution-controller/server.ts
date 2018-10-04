@@ -41,7 +41,7 @@ export class Server extends core.Server {
 
     async start() {
         this.on('connection', (msg) => {
-            this.onConnection(msg.clientId, msg.payload as SocketIO.Socket);
+            this.onConnection(msg.scope, msg.payload as SocketIO.Socket);
         });
 
         this.onClientUnavailable((workerId) => {
@@ -109,7 +109,7 @@ export class Server extends core.Server {
     onSliceSuccess(fn: (workerId: string, payload: i.SliceCompletePayload) => {}) {
         this.on('slice:success', (msg) => {
             _.defer(() => {
-                fn(msg.clientId, msg.payload);
+                fn(msg.scope, msg.payload);
             });
         });
     }
@@ -117,7 +117,7 @@ export class Server extends core.Server {
     onSliceFailure(fn: (workerId: string, payload: i.SliceCompletePayload) => {}) {
         this.on('slice:failure', (msg) => {
             _.defer(() => {
-                fn(msg.clientId, msg.payload);
+                fn(msg.scope, msg.payload);
             });
         });
     }
@@ -143,9 +143,9 @@ export class Server extends core.Server {
             const sliceId = _.get(payload, 'slice.slice_id');
 
             if (payload.error) {
-                this.emit('slice:failure', { clientId: workerId, payload });
+                this.emit('slice:failure', { scope: workerId, payload });
             } else {
-                this.emit('slice:success', { clientId: workerId, payload });
+                this.emit('slice:success', { scope: workerId, payload });
             }
 
             this._activeWorkers = _.without(this._activeWorkers, workerId);
@@ -167,7 +167,7 @@ export class Server extends core.Server {
             this.queue.enqueue({ workerId });
         }
 
-        this.emit('worker:enqueue', { clientId: workerId, payload: {} });
+        this.emit('worker:enqueue', { scope: workerId, payload: {} });
         return exists;
     }
 
@@ -184,7 +184,7 @@ export class Server extends core.Server {
 
         if (workerId != null) {
             this._activeWorkers = _.without(this._activeWorkers, workerId);
-            this.emit('worker:dequeue', { clientId: workerId, payload: {} });
+            this.emit('worker:dequeue', { scope: workerId, payload: {} });
         }
 
         return workerId;
@@ -195,7 +195,7 @@ export class Server extends core.Server {
 
         this.queue.remove(workerId, 'workerId');
 
-        this.emit('worker:dequeue', { clientId: workerId, payload: {} });
+        this.emit('worker:dequeue', { scope: workerId, payload: {} });
         return true;
     }
 }

@@ -1,11 +1,11 @@
 import debugFn from 'debug';
 import _ from 'lodash';
-import Emittery from 'emittery';
+import { EventEmitter } from 'events';
 import * as i from './interfaces';
 
 const debug = debugFn('teraslice-messaging:core');
 
-export class Core extends Emittery {
+export class Core extends EventEmitter {
     public closed: boolean = false;
 
     protected networkLatencyBuffer: number;
@@ -30,7 +30,7 @@ export class Core extends Emittery {
 
     close() {
         this.closed = true;
-        this.clearListeners();
+        this.removeAllListeners();
     }
 
     protected async handleSendResponse(sent: i.Message): Promise<i.Message|null> {
@@ -64,7 +64,7 @@ export class Core extends Emittery {
 
     protected _sendCallbackFn(response: i.Message) {
         this.emit(response.id, {
-            clientId: response.to,
+            scope: response.to,
             payload: response
         });
     }
@@ -130,28 +130,45 @@ export class Core extends Emittery {
         return (timeout || this.actionTimeout) + this.networkLatencyBuffer;
     }
 
+    // @ts-ignore
+    on(eventName: string, listener: i.EventListener): i.UnsubscribeFn {
+        super.on(eventName, listener);
+
+        return () => {
+            super.removeListener(eventName, listener);
+        };
+    }
+
+    // @ts-ignore
+    emit(eventName: string, msg: i.EventMessage) {
+        super.emit(`${eventName}`, msg);
+        if (msg.scope) {
+            super.emit(`${eventName}:${msg.scope}`, msg);
+        }
+    }
+
     async onceWithTimeout(eventName: string, timeout?: number): Promise<any>;
-    async onceWithTimeout(eventName: string, forClientId: string, timeout?: number): Promise<any>;
+    async onceWithTimeout(eventName: string, scope: string, timeout?: number): Promise<any>;
     async onceWithTimeout(_eventName: string, ...params: any[]): Promise<any> {
         let timeoutMs: number = this.getTimeout();
-        let forClientId: string|undefined;
+        let scope: string|undefined;
 
         if (_.isNumber(params[0])) {
             timeoutMs = this.getTimeout(params[0]);
         } else if (_.isString(params[0])) {
-            forClientId = params[0];
+            scope = params[0];
             if (_.isNumber(params[1])) {
                 timeoutMs = this.getTimeout(params[1]);
             }
         }
 
-        const eventName = forClientId != null ? `${_eventName}:${forClientId}` : _eventName;
+        const eventName = scope != null ? `${_eventName}:${scope}` : _eventName;
 
         const startTime = Date.now();
         debug(`onceWithTimeout(${eventName}, ${timeoutMs}) - started`);
 
         const result = await new Promise((resolve) => {
-            let unsubscribe: Emittery.UnsubscribeFn|undefined;
+            let unsubscribe: i.UnsubscribeFn|undefined;
             let timer: NodeJS.Timer|undefined;
 
             const finish = _.once((result?: any) => {
@@ -161,7 +178,7 @@ export class Core extends Emittery {
                 resolve(result);
             });
 
-            unsubscribe = this.on(eventName, (msg: i.ClientEventMessage|i.EventMessage) => {
+            unsubscribe = this.on(eventName, (msg: i.EventMessage) => {
                 finish(msg.payload);
             });
 
