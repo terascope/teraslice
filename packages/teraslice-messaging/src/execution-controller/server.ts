@@ -138,7 +138,7 @@ export class Server extends core.Server {
     }
 
     private onConnection(workerId: string, socket: SocketIO.Socket) {
-        socket.on('worker:slice:complete', this.handleResponse('worker:slice:complete', async (msg) => {
+        this.handleResponse(socket, 'worker:slice:complete', async (msg) => {
             const { payload } = msg;
             const sliceId = _.get(payload, 'slice.slice_id');
 
@@ -154,7 +154,7 @@ export class Server extends core.Server {
                 recorded: true,
                 slice_id: sliceId,
             });
-        }));
+        });
     }
 
     private _workerEnqueue(workerId: string): boolean {

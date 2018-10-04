@@ -121,3 +121,8 @@ export interface UnsubscribeFn {
 export interface EventListener {
     (msg: EventMessage): void;
 }
+
+export interface SocketEmitter {
+    on(eventName: string, fn: (msg: Message) => void): void;
+    emit(eventName: string, msg: Message): void;
+}

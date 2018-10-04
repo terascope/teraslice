@@ -46,7 +46,7 @@ export class Client extends core.Client {
             throw new Error(`Unable to connect to execution controller, caused by error: ${err.message}`);
         }
 
-        this.socket.on('execution:slice:new', this.handleResponse('execution:slice:new', (msg: core.Message) => {
+        this.handleResponse(this.socket, 'execution:slice:new', (msg: core.Message) => {
             if (this.listenerCount('execution:slice:new') === 0) {
                 return { willProcess: false };
             }
@@ -62,13 +62,13 @@ export class Client extends core.Client {
             return {
                 willProcess,
             };
-        }));
+        });
 
-        this.socket.on('execution:finished', this.handleResponse('execution:finished', (msg: core.Message) => {
+        this.handleResponse(this.socket, 'execution:finished', (msg: core.Message) => {
             this.emit('execution:finished', {
                 payload: msg.payload
             });
-        }));
+        });
     }
 
     onExecutionFinished(fn: () => void) {

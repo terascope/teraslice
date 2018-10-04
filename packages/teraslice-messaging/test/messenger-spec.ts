@@ -344,10 +344,12 @@ describe('Messenger', () => {
         describe('when waiting for message that will never come', () => {
             it('should throw a timeout error', async () => {
                 expect.hasAssertions();
+
                 // @ts-ignore
-                server.server.to(clientId).on('hello', server.handleResponse(async () => {
+                server.handleResponse(server.server.to(clientId), 'hello', async () => {
                     await bluebird.delay(1000);
-                }));
+                });
+
                 try {
                     // @ts-ignore
                     await client.send('hello', {}, {
@@ -382,9 +384,9 @@ describe('Messenger', () => {
 
             beforeAll(async () => {
                 // @ts-ignore
-                client.socket.once('failure:message', (msg: Message, cb: Function) => {
+                client.socket.once('failure:message', (msg: Message) => {
                     msg.error = 'this should fail';
-                    cb(msg);
+                    client.socket.emit('message:response', msg);
                 });
                 try {
                     // @ts-ignore

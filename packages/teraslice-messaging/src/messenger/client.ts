@@ -141,6 +141,13 @@ export class Client extends Core {
             this.emit('server:shutdown');
         });
 
+        this.socket.on('message:response', (msg: i.Message) => {
+            this.emit(msg.id, {
+                scope: msg.from,
+                payload: msg,
+            });
+        });
+
         this.socket.on('connect', () => {
             debug(`client ${this.clientId} connected`);
             this.ready = true;
@@ -191,7 +198,7 @@ export class Client extends Core {
         };
 
         const responseMsg = this.handleSendResponse(message);
-        this.socket.emit(eventName, message, this._sendCallbackFn);
+        this.socket.emit(eventName, message);
         return responseMsg;
     }
 

@@ -1,5 +1,5 @@
-import debugFn from 'debug';
 import _ from 'lodash';
+import debugFn from 'debug';
 import { EventEmitter } from 'events';
 import * as i from './interfaces';
 
@@ -24,8 +24,6 @@ export class Core extends EventEmitter {
         if (!_.isSafeInteger(this.networkLatencyBuffer)) {
             throw new Error('Messenger requires a valid networkLatencyBuffer');
         }
-
-        this._sendCallbackFn = this._sendCallbackFn.bind(this);
     }
 
     close() {
@@ -62,17 +60,10 @@ export class Core extends EventEmitter {
         return response;
     }
 
-    protected _sendCallbackFn(response: i.Message) {
-        this.emit(response.id, {
-            scope: response.to,
-            payload: response
-        });
-    }
-
-    protected handleResponse(eventName: string, fn: i.MessageHandler) {
+    protected handleResponse(socket: i.SocketEmitter, eventName: string, fn: i.MessageHandler) {
         debug(`registering response handler for ${eventName}`);
 
-        return async (msg: i.Message, callback: (msg?: i.Message) => void) => {
+        socket.on(eventName, async (msg: i.Message) => {
             const message: i.Message = Object.assign({}, msg, {
                 from: msg.to,
                 to: msg.from,
@@ -98,8 +89,9 @@ export class Core extends EventEmitter {
             }
 
             debug(`responding to ${eventName} with message`, message);
-            callback(message);
-        };
+            // @ts-ignore
+            socket.emit('message:response', message);
+        });
     }
 
     isClientReady(clientId?: string): boolean {

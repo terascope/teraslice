@@ -468,7 +468,7 @@ export class Server extends Core {
         const { clientId } = client;
 
         this._clientSendFns[clientId] = (message: i.Message) => {
-            socket.emit(message.eventName, message, this._sendCallbackFn);
+            socket.emit(message.eventName, message);
         };
 
         socket.on('error', (error: Error|string) => {
@@ -493,26 +493,33 @@ export class Server extends Core {
             }
         });
 
-        socket.on(`client:${i.ClientState.Available}`, this.handleResponse(`client:${i.ClientState.Available}`, (msg: i.Message) => {
+        this.handleResponse(socket, `client:${i.ClientState.Available}`, (msg: i.Message) => {
             this.updateClientState(clientId, {
                 state: i.ClientState.Available,
                 payload: msg.payload,
             });
-        }));
+        });
 
-        socket.on(`client:${i.ClientState.Unavailable}`, this.handleResponse(`client:${i.ClientState.Unavailable}`, (msg: i.Message) => {
+        this.handleResponse(socket, `client:${i.ClientState.Unavailable}`, (msg: i.Message) => {
             this.updateClientState(clientId, {
                 state: i.ClientState.Unavailable,
                 payload: msg.payload,
             });
-        }));
+        });
 
-        socket.on(`client:${i.ClientState.Shutdown}`, this.handleResponse(`client:${i.ClientState.Shutdown}`, (msg: i.Message) => {
+        this.handleResponse(socket, `client:${i.ClientState.Shutdown}`, (msg: i.Message) => {
             this.updateClientState(clientId, {
                 state: i.ClientState.Shutdown,
                 payload: msg.payload,
             });
-        }));
+        });
+
+        socket.on('message:response', (msg: i.Message) => {
+            this.emit(msg.id, {
+                scope: msg.from,
+                payload: msg,
+            });
+        });
 
         this.emit('connection', {
             scope: clientId,

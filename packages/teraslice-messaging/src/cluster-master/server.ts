@@ -78,15 +78,15 @@ export class Server extends core.Server {
     }
 
     private onConnection(exId: string, socket: SocketIO.Socket) {
-        socket.on('execution:finished', this.handleResponse('execution:finished', (msg: core.Message) => {
+        this.handleResponse(socket, 'execution:finished', (msg: core.Message) => {
             this.emit('execution:finished', {
                 scope: exId,
                 payload: {},
                 error: msg.payload.error
             });
-        }));
+        });
 
-        socket.on('cluster:analytics', this.handleResponse('cluster:analytics', (msg: core.Message) => {
+        this.handleResponse(socket, 'cluster:analytics', (msg: core.Message) => {
             const data = msg.payload as i.ExecutionAnalyticsMessage;
             if (!this.clusterAnalytics[data.kind]) {
                 return;
@@ -109,6 +109,6 @@ export class Server extends core.Server {
             return {
                 recorded: true
             };
-        }));
+        });
     }
 }
