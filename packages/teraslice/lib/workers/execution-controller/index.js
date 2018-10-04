@@ -503,7 +503,7 @@ class ExecutionController {
         }
 
         await new Promise((resolve) => {
-            const intervalId = setInterval(dispatch, 10);
+            const intervalId = setInterval(dispatch, 50);
 
             function dispatch() {
                 if (processing) return;
