@@ -34,7 +34,7 @@
     "author": "Terascope, LLC <info@terascope.io>",
     "homepage": "https://github.com/terascope/teraslice#readme",
     "dependencies": {
-        "@terascope/elasticsearch-api": "^1.1.1",
+        "@terascope/elasticsearch-api": "^1.1.2",
         "@terascope/error-parser": "^1.0.1",
         "@terascope/job-components": "^0.5.1",
         "@terascope/queue": "^1.1.4",
