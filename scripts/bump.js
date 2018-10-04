@@ -95,4 +95,4 @@ fs.readdirSync(packagesPath).forEach(updatePkgVersion);
 
 updatePkgVersion('../e2e');
 
-console.log('DONE! Don\'t forget to run "yarn" to update your yarn.lock');
+console.log('DONE!');

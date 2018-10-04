@@ -43,3 +43,7 @@ export interface SliceCompletePayload {
 export interface WaitUntilFn {
     (): boolean;
 }
+
+export interface EnqueuedWorker {
+    workerId: string;
+}

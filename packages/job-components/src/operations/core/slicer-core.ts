@@ -25,7 +25,7 @@ export default abstract class SlicerCore extends Core {
     */
     static isRecoverable: boolean = true;
 
-    private readonly queue: Queue;
+    private readonly queue: Queue<Slice>;
     protected recoveryData: object[];
     protected readonly opConfig: Readonly<OpConfig>;
 
@@ -64,33 +64,23 @@ export default abstract class SlicerCore extends Core {
      * This will be enqueued and dequeued by the "Execution Controller"
     */
     createSlice(input: Slice|SliceRequest, order: number, id: number = 0) {
-        let slice: Slice;
-        let needsState = false;
-
         // recovery slices already have correct meta data
         if (input.slice_id) {
-            slice = input as Slice;
+            this.queue.enqueue(input as Slice);
         } else {
-            needsState = true;
-            slice = {
+            this.queue.enqueue({
                 slice_id: uuidv4(),
-                request: input,
                 slicer_id: id,
                 slicer_order: order,
-                _created: new Date().toISOString()
-            };
+                request: input,
+            } as Slice);
         }
-
-        this.queue.enqueue({
-            needsState,
-            slice
-        });
     }
 
     /**
      * A method called by the "Execution Controller" to dequeue a created "Slice"
     */
-    getSlice(): EnqueuedSlice|null {
+    getSlice(): Slice|null {
         return this.queue.dequeue();
     }
 
@@ -126,9 +116,4 @@ export interface SliceResult {
     analytics: SliceAnalyticsData;
     retry?: boolean;
     error?: string;
-}
-
-export interface EnqueuedSlice {
-    slice: Slice;
-    needsState: boolean;
 }

@@ -9,7 +9,7 @@ const debug = debugFn('teraslice-messaging:execution-controller:server');
 
 export class Server extends core.Server {
     private _activeWorkers: string[];
-    queue: Queue;
+    queue: Queue<i.EnqueuedWorker>;
 
     constructor(opts: i.ServerOptions) {
         const {

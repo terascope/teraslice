@@ -64,26 +64,20 @@ describe('ParallelSlicer', () => {
 
                     if (!slice1) {
                         expect(slice1).toBeNil();
-                    } else if (slice1.slice.slicer_id === 0) {
+                    } else if (slice1.slicer_id === 0) {
                         expect(slice1).toMatchObject({
-                            needsState: true,
-                            slice: {
-                                slicer_order: 1,
-                                slicer_id: 0,
-                                request: {
-                                    hi: true,
-                                }
+                            slicer_order: 1,
+                            slicer_id: 0,
+                            request: {
+                                hi: true,
                             }
                         });
                     } else {
                         expect(slice1).toMatchObject({
-                            needsState: true,
-                            slice: {
-                                slicer_order: 1,
-                                slicer_id: 1,
-                                request: {
-                                    hello: true,
-                                }
+                            slicer_order: 1,
+                            slicer_id: 1,
+                            request: {
+                                hello: true,
                             }
                         });
                     }
@@ -92,26 +86,20 @@ describe('ParallelSlicer', () => {
 
                     if (!slice2) {
                         expect(slice2).toBeNil();
-                    } else if (slice2.slice.slicer_id === 0) {
+                    } else if (slice2.slicer_id === 0) {
                         expect(slice2).toMatchObject({
-                            needsState: true,
-                            slice: {
-                                slicer_order: 1,
-                                slicer_id: 0,
-                                request: {
-                                    hi: true,
-                                }
+                            slicer_order: 1,
+                            slicer_id: 0,
+                            request: {
+                                hi: true,
                             }
                         });
                     } else {
                         expect(slice2).toMatchObject({
-                            needsState: true,
-                            slice: {
-                                slicer_order: 1,
-                                slicer_id: 1,
-                                request: {
-                                    hello: true,
-                                }
+                            slicer_order: 1,
+                            slicer_id: 1,
+                            request: {
+                                hello: true,
                             }
                         });
                     }
@@ -129,26 +117,20 @@ describe('ParallelSlicer', () => {
 
                     if (!slice1) {
                         expect(slice1).toBeNil();
-                    } else if (slice1.slice.slicer_id === 0) {
+                    } else if (slice1.slicer_id === 0) {
                         expect(slice1).toMatchObject({
-                            needsState: true,
-                            slice: {
-                                slicer_order: 2,
-                                slicer_id: 0,
-                                request: {
-                                    hi: true,
-                                }
+                            slicer_order: 2,
+                            slicer_id: 0,
+                            request: {
+                                hi: true,
                             }
                         });
                     } else {
                         expect(slice1).toMatchObject({
-                            needsState: true,
-                            slice: {
-                                slicer_order: 2,
-                                slicer_id: 1,
-                                request: {
-                                    hello: true,
-                                }
+                            slicer_order: 2,
+                            slicer_id: 1,
+                            request: {
+                                hello: true,
                             }
                         });
                     }
@@ -157,26 +139,20 @@ describe('ParallelSlicer', () => {
 
                     if (!slice2) {
                         expect(slice2).toBeNil();
-                    } else if (slice2.slice.slicer_id === 0) {
+                    } else if (slice2.slicer_id === 0) {
                         expect(slice2).toMatchObject({
-                            needsState: true,
-                            slice: {
-                                slicer_order: 2,
-                                slicer_id: 0,
-                                request: {
-                                    hi: true,
-                                }
+                            slicer_order: 2,
+                            slicer_id: 0,
+                            request: {
+                                hi: true,
                             }
                         });
                     } else {
                         expect(slice2).toMatchObject({
-                            needsState: true,
-                            slice: {
-                                slicer_order: 2,
-                                slicer_id: 1,
-                                request: {
-                                    hello: true,
-                                }
+                            slicer_order: 2,
+                            slicer_id: 1,
+                            request: {
+                                hello: true,
                             }
                         });
                     }
@@ -207,13 +183,13 @@ describe('ParallelSlicer', () => {
 
     describe('when returning a sub-slices', () => {
         let slicer: ExampleParallelSlicer;
-        const onExecutionSubslice = jest.fn();
+        const onSlicerSubslice = jest.fn();
 
         beforeAll(async () => {
             const context = new TestContext('teraslice-operations');
             const events = context.apis.foundation.getSystemEvents();
 
-            events.on('execution:subslice', onExecutionSubslice);
+            events.on('slicer:subslice', onSlicerSubslice);
 
             const exConfig = newTestExecutionConfig();
 
@@ -236,8 +212,8 @@ describe('ParallelSlicer', () => {
         });
 
         describe('->handle', () => {
-            it('should not emit execution:subslice yet', () => {
-                expect(onExecutionSubslice).not.toHaveBeenCalled();
+            it('should not emit slicer:subslice yet', () => {
+                expect(onSlicerSubslice).not.toHaveBeenCalled();
             });
 
             describe('on the first call', () => {
@@ -249,26 +225,20 @@ describe('ParallelSlicer', () => {
 
                     if (!slice1) {
                         expect(slice1).toBeNil();
-                    } else if (slice1.slice.slicer_id === 0) {
+                    } else if (slice1.slicer_id === 0) {
                         expect(slice1).toMatchObject({
-                            needsState: true,
-                            slice: {
-                                slicer_order: 1,
-                                slicer_id: 0,
-                                request: {
-                                    hi: true,
-                                }
+                            slicer_order: 1,
+                            slicer_id: 0,
+                            request: {
+                                hi: true,
                             }
                         });
                     } else {
                         expect(slice1).toMatchObject({
-                            needsState: true,
-                            slice: {
-                                slicer_order: 1,
-                                slicer_id: 1,
-                                request: {
-                                    hello: true,
-                                }
+                            slicer_order: 1,
+                            slicer_id: 1,
+                            request: {
+                                hello: true,
                             }
                         });
                     }
@@ -277,31 +247,25 @@ describe('ParallelSlicer', () => {
 
                     if (!slice2) {
                         expect(slice2).toBeNil();
-                    } else if (slice2.slice.slicer_id === 0) {
+                    } else if (slice2.slicer_id === 0) {
                         expect(slice2).toMatchObject({
-                            needsState: true,
-                            slice: {
-                                slicer_order: 1,
-                                slicer_id: 0,
-                                request: {
-                                    hi: true,
-                                }
+                            slicer_order: 1,
+                            slicer_id: 0,
+                            request: {
+                                hi: true,
                             }
                         });
                     } else {
                         expect(slice2).toMatchObject({
-                            needsState: true,
-                            slice: {
-                                slicer_order: 1,
-                                slicer_id: 1,
-                                request: {
-                                    hello: true,
-                                }
+                            slicer_order: 1,
+                            slicer_id: 1,
+                            request: {
+                                hello: true,
                             }
                         });
                     }
 
-                    expect(onExecutionSubslice).toHaveBeenCalledTimes(2);
+                    expect(onSlicerSubslice).toHaveBeenCalledTimes(2);
                     expect(slicer.getSlice()).toBeNil();
                 });
             });
@@ -315,26 +279,20 @@ describe('ParallelSlicer', () => {
 
                     if (!slice1) {
                         expect(slice1).toBeNil();
-                    } else if (slice1.slice.slicer_id === 0) {
+                    } else if (slice1.slicer_id === 0) {
                         expect(slice1).toMatchObject({
-                            needsState: true,
-                            slice: {
-                                slicer_order: 2,
-                                slicer_id: 0,
-                                request: {
-                                    hi: true,
-                                }
+                            slicer_order: 2,
+                            slicer_id: 0,
+                            request: {
+                                hi: true,
                             }
                         });
                     } else {
                         expect(slice1).toMatchObject({
-                            needsState: true,
-                            slice: {
-                                slicer_order: 2,
-                                slicer_id: 1,
-                                request: {
-                                    hello: true,
-                                }
+                            slicer_order: 2,
+                            slicer_id: 1,
+                            request: {
+                                hello: true,
                             }
                         });
                     }
@@ -343,31 +301,25 @@ describe('ParallelSlicer', () => {
 
                     if (!slice2) {
                         expect(slice2).toBeNil();
-                    } else if (slice2.slice.slicer_id === 0) {
+                    } else if (slice2.slicer_id === 0) {
                         expect(slice2).toMatchObject({
-                            needsState: true,
-                            slice: {
-                                slicer_order: 2,
-                                slicer_id: 0,
-                                request: {
-                                    hi: true,
-                                }
+                            slicer_order: 2,
+                            slicer_id: 0,
+                            request: {
+                                hi: true,
                             }
                         });
                     } else {
                         expect(slice2).toMatchObject({
-                            needsState: true,
-                            slice: {
-                                slicer_order: 2,
-                                slicer_id: 1,
-                                request: {
-                                    hello: true,
-                                }
+                            slicer_order: 2,
+                            slicer_id: 1,
+                            request: {
+                                hello: true,
                             }
                         });
                     }
 
-                    expect(onExecutionSubslice).toHaveBeenCalledTimes(4);
+                    expect(onSlicerSubslice).toHaveBeenCalledTimes(4);
                     expect(slicer.getSlice()).toBeNil();
                 });
             });
@@ -377,7 +329,7 @@ describe('ParallelSlicer', () => {
                     const done = await slicer.handle();
                     expect(done).toBeTrue();
 
-                    expect(onExecutionSubslice).toHaveBeenCalledTimes(4);
+                    expect(onSlicerSubslice).toHaveBeenCalledTimes(4);
                     expect(slicer.getSlice()).toBeNil();
                 });
             });

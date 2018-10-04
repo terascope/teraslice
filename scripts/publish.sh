@@ -23,21 +23,13 @@ publish() {
 
     if [ "$currentVersion" != "$targetVersion" ]; then
         echo "$name@$currentVersion -> $targetVersion"
-        if [ "$dryRun" != "false" ]; then
-            return;
-        elif [ "$name" != "teraslice" ]; then
+        if [ "$dryRun" == "false" ]; then
             yarn publish \
                 --silent \
                 --tag "$tag" \
                 --non-interactive \
                 --new-version "$targetVersion" \
                 --no-git-tag-version
-        elif [ "$name" != "teraslice" ]; then
-            yarn publish \
-                --silent \
-                --tag "$tag" \
-                --non-interactive \
-                --new-version "$targetVersion"
         fi
     fi
 }
