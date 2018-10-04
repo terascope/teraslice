@@ -31,7 +31,7 @@ export default abstract class Slicer extends SlicerCore {
         }
 
         if (_.isArray(result)) {
-            this.events.emit('execution:subslice');
+            this.events.emit('slicer:subslice');
             _.each(result, (item) => {
                 this.order += 1;
                 this.createSlice(item, this.order);

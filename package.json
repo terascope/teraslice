@@ -21,11 +21,11 @@
         "publish:changed": "./scripts/publish.sh"
     },
     "dependencies": {
-        "lerna": "^3.4.0",
+        "lerna": "^3.4.1",
         "typescript": "^3.1.1"
     },
     "devDependencies": {
-        "@types/jest": "^23.3.2",
+        "@types/jest": "^23.3.3",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "eslint": "^5.6.1",

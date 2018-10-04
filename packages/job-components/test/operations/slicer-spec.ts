@@ -41,13 +41,10 @@ describe('Slicer', () => {
                     expect(done).toBeFalse();
 
                     expect(slicer.getSlice()).toMatchObject({
-                        needsState: true,
-                        slice: {
-                            slicer_order: 1,
-                            slicer_id: 0,
-                            request: {
-                                hi: true,
-                            }
+                        slicer_order: 1,
+                        slicer_id: 0,
+                        request: {
+                            hi: true,
                         }
                     });
 
@@ -61,13 +58,10 @@ describe('Slicer', () => {
                     expect(done).toBeFalse();
 
                     expect(slicer.getSlice()).toMatchObject({
-                        needsState: true,
-                        slice: {
-                            slicer_order: 2,
-                            slicer_id: 0,
-                            request: {
-                                hi: true,
-                            }
+                        slicer_order: 2,
+                        slicer_id: 0,
+                        request: {
+                            hi: true,
                         }
                     });
 
@@ -97,14 +91,14 @@ describe('Slicer', () => {
 
     describe('when returning a sub-slices', () => {
         let slicer: ExampleSlicer;
-        const onExecutionSubslice = jest.fn();
+        const onSlicerSubslice = jest.fn();
 
         beforeAll(async () => {
             const context = new TestContext('teraslice-operations');
 
             const events = context.apis.foundation.getSystemEvents();
 
-            events.on('execution:subslice', onExecutionSubslice);
+            events.on('slicer:subslice', onSlicerSubslice);
 
             const exConfig = newTestExecutionConfig();
             exConfig.operations.push({
@@ -120,8 +114,8 @@ describe('Slicer', () => {
         });
 
         describe('->handle', () => {
-            it('should not emit execution:subslice yet', () => {
-                expect(onExecutionSubslice).not.toHaveBeenCalled();
+            it('should not emit slicer:subslice yet', () => {
+                expect(onSlicerSubslice).not.toHaveBeenCalled();
             });
 
             describe('when called the first time', () => {
@@ -130,17 +124,14 @@ describe('Slicer', () => {
                     expect(done).toBeFalse();
 
                     expect(slicer.getSlice()).toMatchObject({
-                        needsState: true,
-                        slice: {
-                            slicer_order: 1,
-                            slicer_id: 0,
-                            request: {
-                                hi: true,
-                            }
+                        slicer_order: 1,
+                        slicer_id: 0,
+                        request: {
+                            hi: true,
                         }
                     });
 
-                    expect(onExecutionSubslice).toHaveBeenCalledTimes(1);
+                    expect(onSlicerSubslice).toHaveBeenCalledTimes(1);
 
                     expect(slicer.getSlice()).toBeNil();
                 });
@@ -152,17 +143,14 @@ describe('Slicer', () => {
                     expect(done).toBeFalse();
 
                     expect(slicer.getSlice()).toMatchObject({
-                        needsState: true,
-                        slice: {
-                            slicer_order: 2,
-                            slicer_id: 0,
-                            request: {
-                                hi: true,
-                            }
+                        slicer_order: 2,
+                        slicer_id: 0,
+                        request: {
+                            hi: true,
                         }
                     });
 
-                    expect(onExecutionSubslice).toHaveBeenCalledTimes(2);
+                    expect(onSlicerSubslice).toHaveBeenCalledTimes(2);
 
                     expect(slicer.getSlice()).toBeNil();
                 });
@@ -174,7 +162,7 @@ describe('Slicer', () => {
                     expect(done).toBeTrue();
 
                     expect(slicer.getSlice()).toBeNil();
-                    expect(onExecutionSubslice).toHaveBeenCalledTimes(2);
+                    expect(onSlicerSubslice).toHaveBeenCalledTimes(2);
                 });
             });
         });

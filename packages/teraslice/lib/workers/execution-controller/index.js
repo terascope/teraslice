@@ -471,7 +471,7 @@ class ExecutionController {
 
         await pWhilst(isRunning, () => {
             dispatch();
-            return Promise.delay(100);
+            return Promise.delay(500);
         });
 
         unsubscribe();
