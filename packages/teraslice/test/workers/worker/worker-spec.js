@@ -199,7 +199,7 @@ describe('Worker', () => {
                 sliceFailure = _msg;
             });
 
-            const msgPromise = server.once('worker:enqueue');
+            const msgPromise = server.onceWithTimeout('worker:enqueue');
 
             const workerStart = worker.runOnce();
 
@@ -220,7 +220,7 @@ describe('Worker', () => {
         });
 
         it('should re-enqueue the worker after receiving the slice complete message', () => {
-            expect(msg.clientId).toEqual(worker.workerId);
+            expect(msg).not.toBeNil();
             expect(sliceSuccess).toMatchObject({
                 slice: sliceConfig,
             });
@@ -251,7 +251,7 @@ describe('Worker', () => {
                 sliceFailure = _msg;
             });
 
-            const msgPromise = server.once('worker:enqueue');
+            const msgPromise = server.onceWithTimeout('worker:enqueue');
 
             const sliceConfig = await testContext.newSlice();
 

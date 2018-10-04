@@ -304,9 +304,16 @@ describe('Messenger', () => {
         });
 
         describe('when testing onceWithTimeout', () => {
-            it('should be able to handle timeouts', () => {
+            it('should be able to handle timeouts', async () => {
+                expect(server.listenerCount('timeout:event')).toBe(0);
+
                 const once = server.onceWithTimeout('timeout:event', 500);
-                return expect(once).resolves.toBeUndefined();
+                expect(server.listenerCount('timeout:event')).toBe(1);
+                const msg = await once;
+
+                expect(msg).toBeUndefined();
+
+                expect(server.listenerCount('timeout:event')).toBe(0);
             });
 
             it('should be able to handle timeouts when given a specific scope', () => {
@@ -315,14 +322,23 @@ describe('Messenger', () => {
             });
 
             it('should be able to resolve the message', async () => {
+                expect(server.listenerCount('success:event')).toBe(0);
+
                 const once = server.onceWithTimeout('success:event', 500);
+                expect(server.listenerCount('success:event')).toBe(1);
+
                 await server.emit('success:event', {
                     scope: clientId,
                     payload: {
                         hello: true
                     }
                 });
-                return expect(once).resolves.toEqual({
+
+                const msg = await once;
+
+                expect(server.listenerCount('success:event')).toBe(0);
+
+                expect(msg).toEqual({
                     hello: true
                 });
             });
