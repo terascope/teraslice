@@ -17,7 +17,7 @@ yarn global add teraslice-cli
 
 ## CLI Commands and Usage
 For all commands that accept `-c`, if `-c` is missing default is http://localhost
-### ALIAS - commands to manage cluster aliases
+### ALIASES - commands to manage cluster aliases
 Defaults:
 - host `http://localhost:5678`
 - cluster_manager_type `native`
@@ -25,7 +25,7 @@ Defaults:
 **ADD** - adds a cluster alias to the config file
 
 command:
-`earl alias add cluster1 -c http://cluster1.net:80`
+`earl aliases add cluster1 -c http://cluster1.net:80`
 
 config entry:
 ```
@@ -34,7 +34,7 @@ cluster      host                                    cluster_manager_type
 cluster1     http://cluster1.net:80                  kubernetes
 ```
 
-command: `earl alias add local`
+command: `earl aliases add local`
 ```
 cluster      host                                    cluster_manager_type
 -----------  --------------------------------------  --------------------
@@ -44,14 +44,14 @@ local        http://localhost:5678                   native
 **REMOVE** - Removes a cluster alias to the config file
 
 command:
-`earl alias remove local`
+`earl aliases remove local`
 
 output:
 `> Removed cluster alias local`
 
 **LIST** - List cluster aliases defined in the config file
 
-command: `earl alias list`
+command: `earl aliases list`
 
 output:
 ```
