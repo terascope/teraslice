@@ -51,6 +51,7 @@
         "easy-table": "^1.1.1",
         "express": "^4.16.3",
         "fs-extra": "^7.0.0",
+        "heapdump": "^0.3.9",
         "kubernetes-client": "^5.4.0",
         "lodash": "^4.17.11",
         "mocker-data-generator": "^2.6.6",
