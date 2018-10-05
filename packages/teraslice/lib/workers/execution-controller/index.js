@@ -528,7 +528,7 @@ class ExecutionController {
         await new Promise((resolve) => {
             // run every 10ms, adjust this value to
             // give to not block the event loop
-            const intervalId = setInterval(dispatch, 10);
+            const intervalId = setInterval(dispatch, 20);
 
             function dispatch() {
                 if (processing) return;
