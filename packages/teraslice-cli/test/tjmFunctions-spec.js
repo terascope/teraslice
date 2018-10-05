@@ -59,14 +59,12 @@ describe('tjmFunctions testing', () => {
 
     it('alreadyRegisteredCheck should resolve if the job exists', (done) => {
         const tjmConfig = _.clone(baseTjmConfig);
-        const jobContents = {
+        tjmConfig.job_file_content = {
             tjm: {
                 cluster: 'http://example.dev:5678',
                 job_id: 'jobYouAreLookingFor'
             }
         };
-
-        tjmConfig.job_file_content = jobContents;
         tjmConfig.job_file_path = 'someFilePath';
         tjmConfig.cluster = 'http://clustername.dev';
 
@@ -102,9 +100,7 @@ describe('tjmFunctions testing', () => {
 
     it('alreadyRegisteredCheck should reject if the job contents are empty', (done) => {
         const tjmConfig = _.clone(baseTjmConfig);
-        const jobContents = {};
-
-        tjmConfig.job_file_content = jobContents;
+        tjmConfig.job_file_content = {};
         tjmConfig.job_file_path = 'someFilePath';
 
         someJobId = 'jobYouAreLookingFor';

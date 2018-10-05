@@ -42,16 +42,15 @@ module.exports = () => {
         hand.string = str;
         if (valid(str)) {
             const handArray = _.split(str, ':');
-            hand.cluster = handArray[0];
-            console.log(`cluster: ${hand.cluster}`);
+            _.set(hand, 'cluster', handArray[0]);
             if (types.indexOf(handArray[1]) > -1) {
-                hand.type = handArray[1];
+                _.set(hand, 'type', handArray[1]);
                 pos = 2;
             }
             if (validId(handArray[pos]) || handArray[pos] === '*') {
-                hand.id = handArray[pos];
+                _.set(hand, 'id', handArray[pos]);
             } else if (_.endsWith(handArray[pos], '.json')) {
-                hand.file = handArray[pos];
+                _.set(hand, 'file', handArray[pos]);
             }
         } else {
             hand.cluster = str;

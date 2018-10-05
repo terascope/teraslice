@@ -30,19 +30,21 @@ module.exports = (cliConfig, command) => {
             cliConfig.annotation_env = cliConfig.n;
         }
 
-        if (cliConfig._[2] !== undefined) {
+        if (command === 'jobs:workers') {
+            cliConfig.deets = shortHand.parse(cliConfig.cluster_sh);
+
+        } else if (cliConfig._[2] !== undefined) {
             _.set(cliConfig, 'cluster_sh', cliConfig._[2]);
             cliConfig.deets = shortHand.parse(cliConfig.cluster_sh);
         }
 
-        if (command === 'cluster:list') {
+        if (command === 'alias:list') {
             return;
         }
-        if (command === 'cluster:alias') {
+        if (command === 'alias:add' || command === 'alias:remove') {
             _.set(cliConfig, 'cluster_sh', cliConfig._[2]);
             cliConfig.deets = shortHand.parse(cliConfig.cluster_sh);
             cliConfig.cluster = cliConfig.deets.cluster;
-            cliConfig.port = cliConfig.p;
             cliConfig.host = cliConfig.c;
             cliConfig.cluster_manager_type = cliConfig.t;
         } else {
@@ -54,6 +56,8 @@ module.exports = (cliConfig, command) => {
             if (_.has(cliConfig, 'deets.cluster')) {
                 cliConfig.cluster = cliConfig.deets.cluster;
                 cliConfig.cluster_url = getClusterHost(cliConfig);
+                cliConfig.cluster_manager_type = cliConfig.config.clusters[
+                    cliConfig.cluster].cluster_manager_type;
             } else {
                 cliConfig.cluster_url = cliConfig.l ? 'http://localhost:5678' : getClusterHost(cliConfig);
             }
@@ -61,20 +65,12 @@ module.exports = (cliConfig, command) => {
                 reply.fatal('Use -c to specify a cluster or use -l for localhost');
             }
             cliConfig.hostname = url.parse(cliConfig.cluster_url).hostname;
-            if (cliConfig.a === undefined || cliConfig.a === false) {
-                cliConfig.all_jobs = false;
-            } else {
-                cliConfig.all_jobs = true;
-            }
+            cliConfig.all_jobs = !(cliConfig.a === undefined || cliConfig.a === false);
             // set the state file name
             if (cliConfig.d) {
                 cliConfig.state_file = path.join(cliConfig.d, `${cliConfig.cluster}-state.json`);
             } else {
                 cliConfig.state_file = path.join(cliConfig.config.paths.job_state_dir, `${cliConfig.cluster}-state.json`);
-            }
-            // env isn't always needed
-            if (cliConfig.env === '' && cliConfig.config.clusters[cliConfig.cluster]) {
-                cliConfig.env = cliConfig.config.clusters[cliConfig.cluster].env;
             }
             if (cliConfig.cluster_manager_type !== undefined) {
                 cliConfig.cluster_manager_type = cliConfig.config.clusters[cliConfig.cluster].cluster_manager_type;
@@ -83,13 +79,9 @@ module.exports = (cliConfig, command) => {
     }
 
     function getClusterHost(config) {
-        let host = '';
-        let port = 0;
         let clusterUrl = '';
         if (config.cluster in config.config.clusters) {
-            host = config.config.clusters[config.cluster].host;
-            port = config.config.clusters[config.cluster].port;
-            clusterUrl = _urlCheck(`${host}:${port}`);
+            clusterUrl = config.config.clusters[config.cluster].host;
         } else {
             clusterUrl = _urlCheck(config.cluster);
         }
@@ -98,10 +90,10 @@ module.exports = (cliConfig, command) => {
 
     function createConfigFile() {
         const configDir = `${homeDir}/.teraslice`;
-        const configFile = `${configDir}/earl.yaml`;
+        const configFile = `${configDir}/config-cli.yaml`;
         const defaultConfigData = {
             clusters:
-               { localhost: { host: 'localhost', port: 5678, cluster_manager_type: 'native' } },
+               { localhost: { host: 'http://localhost:5678', cluster_manager_type: 'native' } },
             paths: { job_state_dir: `${configDir}/job_state_files` }
         };
         if (!fs.existsSync(configDir)) {

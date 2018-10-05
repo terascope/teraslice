@@ -62,7 +62,6 @@ module.exports = (cliConfig) => {
         if (showInfo) {
             await displayInfo();
         }
-
         for (const statusEx of cliConfig.statusList) {
             const exResult = await terasliceClient.ex.list(statusEx);
             if (exResult.length > 0) {
@@ -75,7 +74,6 @@ module.exports = (cliConfig) => {
                 });
             }
         }
-
         if (exIds.length > 0) {
             if (showExIds) {
                 await displayExIds(exIds);
@@ -100,7 +98,7 @@ module.exports = (cliConfig) => {
     }
 
     async function displayInfo() {
-        const header = ['host', 'state_file']
+        const header = ['host', 'state_file'];
         const rows = [];
         if (cliConfig.output_style === 'txt') {
             const row = {};

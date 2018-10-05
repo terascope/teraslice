@@ -6,17 +6,18 @@ const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'status';
-exports.desc = 'List the ex status of running and failing job.\n';
+exports.command = 'list';
+exports.desc = 'List the clusters defined in the config file.\n';
 exports.builder = (yargs) => {
-    cli().args('ex', 'status', yargs);
+    cli().args('alias', 'list', yargs);
+    yargs.example('earl alias list cluster1');
 };
 
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
-    config(cliConfig).returnConfigData();
-    const exLib = _testFunctions || require('./lib')(cliConfig);
+    config(cliConfig, 'alias:list').returnConfigData(false);
+    const libAlias = _testFunctions || require('./lib')(cliConfig);
 
-    return exLib.status()
+    return libAlias.list()
         .catch(err => reply.fatal(err.message));
 };

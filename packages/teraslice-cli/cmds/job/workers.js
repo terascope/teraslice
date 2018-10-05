@@ -14,9 +14,7 @@ exports.builder = (yargs) => {
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
     dataChecks(cliConfig).returnJobData();
-
     const tjmFunctions = _testFunctions || require('../cmd_functions/functions')(cliConfig);
-
     const jobId = cliConfig.job_file_content.tjm.job_id;
     return tjmFunctions.alreadyRegisteredCheck()
         .then(() => {

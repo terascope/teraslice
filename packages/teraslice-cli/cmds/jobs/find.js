@@ -6,17 +6,20 @@ const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'status';
-exports.desc = 'List the ex status of running and failing job.\n';
+exports.command = 'find';
+exports.desc = 'Find a job across clusters\n';
 exports.builder = (yargs) => {
-    cli().args('ex', 'status', yargs);
+    cli().args('job', 'find', yargs);
+    yargs
+        .demandCommand(1)
+        .example('earl jobs find cluster1');
 };
 
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
-    config(cliConfig).returnConfigData();
-    const exLib = _testFunctions || require('./lib')(cliConfig);
+    config(cliConfig, 'job:find').returnConfigData();
+    const job = _testFunctions || require('./lib')(cliConfig);
 
-    return exLib.status()
+    return job.view()
         .catch(err => reply.fatal(err.message));
 };

@@ -7,12 +7,12 @@ module.exports = () => {
         yargs
             .option('cluster', {
                 alias: 'c',
-                describe: 'Cluster to list job from.',
+                describe: 'Cluster to save jobs from.',
                 default: 'http://localhost:5678'
             })
             .option('conf', {
                 describe: 'Config file',
-                default: `${homeDir}/.teraslice/tsu.yaml`
+                default: `${homeDir}/.teraslice/config-cli.yaml`
             })
             .option('state-file-dir', {
                 alias: 'd',
@@ -21,7 +21,7 @@ module.exports = () => {
             })
             .option('output', {
                 alias: 'o',
-                describe: 'Output display format pretty or txt, default is pretty',
+                describe: 'Output display format pretty or txt, default is txt',
                 default: 'txt'
             })
             .option('cluster-manager-type', {
@@ -38,9 +38,7 @@ module.exports = () => {
                 alias: 'y',
                 describe: 'Answer \'Yes\' or \'Y\' to all prompts',
                 default: false
-            })
-
-            .example(`tjm ${commandLevel1} ${commandLevel2} localhost`);
+            });
         return yargs.option;
     }
 
