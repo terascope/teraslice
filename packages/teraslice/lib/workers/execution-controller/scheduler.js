@@ -131,6 +131,11 @@ class Scheduler {
         await Promise.delay(100);
     }
 
+    // this is overwritten by the execution controller
+    ensureSliceState(slice) {
+        return slice;
+    }
+
     registerSlicers(slicerFns) {
         const { config } = this.executionContext;
         if (!_.isArray(slicerFns)) {
@@ -352,23 +357,7 @@ class Scheduler {
                     this.events.emit('slicer:subslice');
                 }
 
-                const slices = _.map(_.castArray(result), (request) => {
-                    slicer.order += 1;
-
-                    // recovery slices already have correct meta data
-                    if (request.slice_id) {
-                        return request;
-                    }
-
-                    return {
-                        slice_id: uuidv4(),
-                        slicer_id: slicer.id,
-                        slicer_order: slicer.order,
-                        request,
-                    };
-                });
-
-                this.enqueueSlices(slices);
+                await this._createSlices(slicer, result);
             } else if (this.canComplete() && !slicer.finished) {
                 slicer.finished = true;
                 this.logger.trace(`slicer ${slicer.id} finished`);
@@ -381,6 +370,30 @@ class Scheduler {
         }
 
         this.events.emit('slicer:done', slicer.id);
+    }
+
+    _createSlices(slicer, result) {
+        if (this.stopped) return null;
+
+        const slices = _.map(_.castArray(result), (request) => {
+            slicer.order += 1;
+
+            // recovery slices already have correct meta data
+            if (request.slice_id) {
+                return request;
+            }
+
+            return {
+                slice_id: uuidv4(),
+                slicer_id: slicer.id,
+                slicer_order: slicer.order,
+                request,
+            };
+        });
+
+        // ensureSliceState is attached in execution_controller
+        return Promise.map(slices, this.ensureSliceState)
+            .then(this.enqueueSlices);
     }
 }
 

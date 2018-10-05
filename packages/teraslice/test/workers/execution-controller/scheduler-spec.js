@@ -130,7 +130,7 @@ describe('Scheduler', () => {
             getSlices().then((_slices) => { slices = _slices; }),
         ]);
 
-        expect(slices).toBeArrayOfSize(expectedCount);
+        expect(slices.length).toBeWithin(expectedCount, expectedCount + 3);
         expect(scheduler.isFinished).toBeTrue();
         expect(scheduler.stopped).toBeTrue();
         expect(scheduler.slicersDone).toBeFalse();

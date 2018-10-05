@@ -408,6 +408,8 @@ class ExecutionController {
         this.logger.info(`starting execution ${this.exId}...`);
         this.startTime = Date.now();
 
+        // attach to scheduler
+        this.scheduler.ensureSliceState = this.ensureSliceState.bind(this);
 
         this.isStarted = true;
 
@@ -450,15 +452,11 @@ class ExecutionController {
             logger,
             scheduler,
             server,
-            exId
         } = this;
-
-        const { createState } = this.stores.stateStore;
 
         this.isDoneDispatching = false;
 
         logger.debug('dispatching slices...');
-        let processing = false;
 
         // returns a boolean to indicate whether
         // dispatching should continue
@@ -466,7 +464,6 @@ class ExecutionController {
             if (this.isShuttingDown) return false;
             if (this.isExecutionDone) return false;
             if (scheduler.isFinished
-                && !processing
                 && !this.pendingDispatches) return false;
             return true;
         };
@@ -482,57 +479,28 @@ class ExecutionController {
             return scheduler.enqueueSlice(slice, true);
         }
 
-        // In the case of recovery slices have already been
-        // created, so its important to skip this step
-        function ensureSlice(slice) {
-            if (slice._created) return Promise.resolve(slice);
-
-            slice._created = new Date().toISOString();
-
-            return createState(exId, slice, 'start')
-                .then(() => slice);
-        }
-
         function dequeueAndDispatch() {
-            const [slice, workerId] = getWorkerAndSlice();
-            if (slice == null) return;
+            const slices = scheduler.getSlices(server.workerQueueSize);
+            if (slices.length === 0) return;
 
-            processing = true;
+            // eslint-disable-next-line no-restricted-syntax
+            for (const slice of slices) {
+                const workerId = server.dequeueWorker(slice);
+                if (!workerId) {
+                    process.nextTick(() => {
+                        reenqueueSlice(slice);
+                    });
+                    break;
+                }
 
-            ensureSlice(slice)
-                .then((_slice) => {
-                    dispatchSlice(_slice, workerId);
-                    return null;
-                })
-                .catch((err) => {
-                    logger.error('error creating slice state', err);
-                })
-                .finally(() => {
-                    processing = false;
-                });
-        }
-
-        function getWorkerAndSlice() {
-            const slice = scheduler.getSlice();
-            if (slice == null) return [];
-
-            const workerId = server.dequeueWorker(slice);
-            if (!workerId) {
-                reenqueueSlice(slice);
-                return [];
+                dispatchSlice(slice, workerId);
             }
-
-            return [slice, workerId];
         }
 
         await new Promise((resolve) => {
-            // run every 10ms, adjust this value to
-            // give to not block the event loop
-            const intervalId = setInterval(dispatch, 20);
+            const intervalId = setInterval(dispatch, 1);
 
             function dispatch() {
-                if (processing) return;
-
                 if (!isRunning()) {
                     clearInterval(intervalId);
                     resolve();
@@ -551,6 +519,16 @@ class ExecutionController {
         });
 
         this.isDoneDispatching = true;
+    }
+
+    // In the case of recovery slices have already been
+    // created, so its important to skip this step
+    ensureSliceState(slice) {
+        if (slice._created) return Promise.resolve(slice);
+
+        slice._created = new Date().toISOString();
+        return this.stores.stateStore.createState(this.exId, slice, 'start')
+            .then(() => slice);
     }
 
     _dispatchSlice(slice, workerId) {
