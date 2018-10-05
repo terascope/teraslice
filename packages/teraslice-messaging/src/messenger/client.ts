@@ -88,8 +88,9 @@ export class Client extends Core {
             let connectTimeout: NodeJS.Timer | undefined;
 
             const cleanup = () => {
-                if (connectTimeout) {
+                if (connectTimeout != null) {
                     clearTimeout(connectTimeout);
+                    connectTimeout = undefined;
                 }
                 this.socket.removeListener('connect', connect);
             };

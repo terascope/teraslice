@@ -163,7 +163,7 @@ export class Server extends core.Server {
             this.queue.enqueue({ workerId });
         }
 
-        this.emit('worker:enqueue', { scope: workerId, payload: {} });
+        this.emit('worker:enqueue', { scope: '', payload: {} });
         return exists;
     }
 
@@ -180,7 +180,6 @@ export class Server extends core.Server {
 
         if (workerId != null) {
             this._activeWorkers = without(this._activeWorkers, workerId);
-            this.emit('worker:dequeue', { scope: workerId, payload: {} });
         }
 
         return workerId;
@@ -191,7 +190,6 @@ export class Server extends core.Server {
 
         this.queue.remove(workerId, 'workerId');
 
-        this.emit('worker:dequeue', { scope: workerId, payload: {} });
         return true;
     }
 }

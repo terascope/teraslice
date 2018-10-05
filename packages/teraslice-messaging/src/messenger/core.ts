@@ -88,7 +88,6 @@ export class Core extends EventEmitter {
                 await this.waitForClientReady(message.to, remaining);
             }
 
-            debug(`responding to ${eventName} with message`, message);
             // @ts-ignore
             socket.emit('message:response', message);
         });
@@ -139,10 +138,15 @@ export class Core extends EventEmitter {
         const timeoutMs: number = this.getTimeout(timeout);
 
         const result = await new Promise((resolve) => {
+            let timer: NodeJS.Timer|undefined;
+
             const finish = (result?: any) => {
                 this.removeListener(eventName, onMessage);
 
-                if (timer != null) clearTimeout(timer);
+                if (timer != null) {
+                    clearTimeout(timer);
+                    timer = undefined;
+                }
 
                 resolve(result);
             };
@@ -152,7 +156,7 @@ export class Core extends EventEmitter {
             };
 
             this.on(eventName, onMessage);
-            const timer = setTimeout(finish, timeoutMs);
+            timer = setTimeout(finish, timeoutMs);
         });
 
         return result;

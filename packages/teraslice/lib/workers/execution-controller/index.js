@@ -86,7 +86,6 @@ class ExecutionController {
 
         this.setFailingStatus = this.setFailingStatus.bind(this);
         this.terminalError = this.terminalError.bind(this);
-        this._dispatchSlice = this._dispatchSlice.bind(this);
     }
 
     async initialize() {
@@ -126,6 +125,7 @@ class ExecutionController {
             this._adjustSlicerQueueLength();
             this.workersHaveConnected = true;
             clearTimeout(this.workerConnectTimeoutId);
+            this.workerConnectTimeoutId = null;
             this.executionAnalytics.increment('workers_joined');
         });
 
@@ -155,8 +155,9 @@ class ExecutionController {
 
         this.server.onClientReconnect((workerId) => {
             clearTimeout(this.workerDisconnectTimeoutId);
-            this.logger.trace(`worker ${workerId} is reconnected`);
+            this.workerConnectTimeoutId = null;
 
+            this.logger.trace(`worker ${workerId} is reconnected`);
             this.executionAnalytics.increment('workers_reconnected');
         });
 
@@ -447,7 +448,6 @@ class ExecutionController {
     async _runDispatch() {
         const {
             logger,
-            _dispatchSlice,
             scheduler,
             server,
             exId
@@ -472,6 +472,7 @@ class ExecutionController {
         };
 
         const isPaused = () => this.isPaused;
+        const dispatchSlice = (slice, workerId) => this._dispatchSlice(slice, workerId);
 
         // this isn't really ideal since we adding
         // to the beginning of the queue and
@@ -500,7 +501,8 @@ class ExecutionController {
 
             ensureSlice(slice)
                 .then((_slice) => {
-                    _dispatchSlice(_slice, workerId);
+                    dispatchSlice(_slice, workerId);
+                    return null;
                 })
                 .catch((err) => {
                     logger.error('error creating slice state', err);
