@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const uuidv4 = require('uuid/v4');
 const Promise = require('bluebird');
+const pWhilst = require('p-whilst');
 const autoBind = require('auto-bind');
 const Queue = require('@terascope/queue');
 const { makeLogger } = require('../helpers/terafoundation');
@@ -17,6 +18,7 @@ class Scheduler {
         this.recovering = this.recoverExecution;
         this.slicers = [];
 
+        this._creating = 0;
         this.ready = false;
         this.paused = true;
         this.stopped = false;
@@ -61,7 +63,14 @@ class Scheduler {
 
         await promise;
 
-        this.logger.debug(`execution ${this.exId} is finished scheduling, ${this.queueLength} remaining slices in the queue`);
+        this.logger.debug(`execution ${this.exId} is finished scheduling, ${this.queueLength + this._creating} remaining slices in the queue`);
+
+        const waitForCreating = () => {
+            const is = () => this._creating;
+            return pWhilst(is, () => Promise.delay(100));
+        };
+
+        await waitForCreating();
     }
 
     start() {
@@ -129,11 +138,6 @@ class Scheduler {
 
         // for whatever reason this needs to be here
         await Promise.delay(100);
-    }
-
-    // this is overwritten by the execution controller
-    ensureSliceState(slice) {
-        return slice;
     }
 
     registerSlicers(slicerFns) {
@@ -357,7 +361,7 @@ class Scheduler {
                     this.events.emit('slicer:subslice');
                 }
 
-                await this._createSlices(slicer, result);
+                this._createSlices(slicer, result);
             } else if (this.canComplete() && !slicer.finished) {
                 slicer.finished = true;
                 this.logger.trace(`slicer ${slicer.id} finished`);
@@ -373,8 +377,6 @@ class Scheduler {
     }
 
     _createSlices(slicer, result) {
-        if (this.stopped) return null;
-
         const slices = _.map(_.castArray(result), (request) => {
             slicer.order += 1;
 
@@ -391,9 +393,25 @@ class Scheduler {
             };
         });
 
-        // ensureSliceState is attached in execution_controller
-        return Promise.map(slices, this.ensureSliceState)
-            .then(this.enqueueSlices);
+
+        // run these in the background
+        const promises = _.map(slices, async (slice) => {
+            this._creating += 1;
+
+            try {
+                // ensureSliceState is attached in execution_controller
+                this.enqueueSlice(await this.ensureSliceState(slice));
+            } catch (err) {
+                this.logger.error('error enqueuing slice', slice);
+            }
+
+            this._creating -= 1;
+            return null;
+        });
+
+        Promise.all(promises);
+
+        return null;
     }
 }
 
