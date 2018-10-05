@@ -230,7 +230,7 @@ class Scheduler {
         };
 
         let slicersDone = 0;
-        let backupTimer;
+        let backupInterval;
 
         const slicerCount = () => this.slicers.length;
         const getSlicerIds = () => _.map(_.filter(this.slicers, { finished: false }), 'id');
@@ -249,12 +249,6 @@ class Scheduler {
         };
 
         function runPendingSlicers() {
-            // make sure never a miss anything
-            clearTimeout(backupTimer);
-            backupTimer = setTimeout(() => {
-                runPendingSlicers();
-            }, 100);
-
             if (!pendingSlicers.length) return;
 
             const count = getAllocationCount();
@@ -283,7 +277,7 @@ class Scheduler {
             logger.info(`a slicer ${slicerId} for execution: ${exId} has completed its range`);
 
             if (slicersDone === slicerCount()) {
-                clearTimeout(backupTimer);
+                clearInterval(backupInterval);
                 logger.info(`all slicers for execution: ${exId} have been completed`);
 
                 // before removing listeners make sure we've received all of the events
@@ -295,7 +289,7 @@ class Scheduler {
         }
 
         function onSlicerFailure(err, slicerId) {
-            clearTimeout(backupTimer);
+            clearInterval(backupInterval);
             logger.warn(`slicer ${slicerId} failed`, _.toString(err));
 
             // before removing listeners make sure we've received all of the events
@@ -320,7 +314,7 @@ class Scheduler {
         events.on('slicers:registered', onRegisteredSlicers);
 
         function cleanup() {
-            clearTimeout(backupTimer);
+            clearInterval(backupInterval);
 
             pendingSlicers = [];
 
@@ -333,6 +327,11 @@ class Scheduler {
             events.removeListener('slicers:registered', onRegisteredSlicers);
             resetCleanup();
         }
+
+        // make sure never a miss anything
+        backupInterval = setInterval(() => {
+            runPendingSlicers();
+        }, 500);
 
         this._processCleanup = cleanup;
     }

@@ -493,10 +493,10 @@ class ExecutionController {
         }
 
         function dequeueAndDispatch() {
-            processing = true;
-
             const [slice, workerId] = getWorkerAndSlice();
             if (slice == null) return;
+
+            processing = true;
 
             ensureSlice(slice)
                 .then((_slice) => {
