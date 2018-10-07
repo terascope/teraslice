@@ -102,7 +102,8 @@ class Scheduler {
     }
 
     get isFinished() {
-        return (this.slicersDone || this.slicersFailed || this.stopped) && !this.queueLength && !this._creating;
+        const isDone = this.slicersDone || this.slicersFailed || this.stopped;
+        return isDone && this.queueLength && !this._creating;
     }
 
     canAllocateSlice() {

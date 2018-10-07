@@ -490,7 +490,7 @@ class ExecutionController {
                     process.nextTick(() => {
                         reenqueueSlice(slice);
                     });
-                    break;
+                    continue;
                 }
 
                 dispatchSlice(slice, workerId);
@@ -533,6 +533,7 @@ class ExecutionController {
 
     _dispatchSlice(slice, workerId) {
         this.pendingDispatches += 1;
+        this.pendingSlices += 1;
 
         // use process.nextTick to break out of the event loop
         // for a moment
@@ -543,16 +544,18 @@ class ExecutionController {
                 .then((dispatched) => {
                     if (dispatched) {
                         this.logger.debug(`dispatched slice ${slice.slice_id} to worker ${workerId}`);
-                        this.pendingSlices += 1;
                     } else {
                         this.logger.warn(`worker "${workerId}" is not available to process slice ${slice.slice_id}`);
                         this.scheduler.enqueueSlice(slice, true);
+                        this.pendingSlices -= 1;
                     }
 
                     this.pendingDispatches -= 1;
                 })
                 .catch((err) => {
                     this.logger.error('error dispatching slice', err);
+                    this.pendingDispatches -= 1;
+                    this.pendingSlices -= 1;
                 });
         });
     }
