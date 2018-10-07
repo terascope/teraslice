@@ -498,7 +498,7 @@ class ExecutionController {
         }
 
         await new Promise((resolve) => {
-            const intervalId = setInterval(dispatch, 1);
+            const intervalId = setInterval(dispatch, 5);
 
             function dispatch() {
                 if (!isRunning()) {
