@@ -98,12 +98,13 @@ class Scheduler {
     }
 
     get isQueueFull() {
-        return this.queueLength > this.executionContext.queueLength;
+        const maxLength = this.executionContext.queueLength;
+        return (this._creating + this.queueLength) > maxLength;
     }
 
     get isFinished() {
         const isDone = this.slicersDone || this.slicersFailed || this.stopped;
-        return isDone && this.queueLength && !this._creating;
+        return isDone && !this.queueLength && !this._creating;
     }
 
     canAllocateSlice() {
@@ -250,7 +251,7 @@ class Scheduler {
         const getAllocationCount = () => {
             if (!canAllocateSlice()) return 0;
 
-            const count = this.executionContext.queueLength - this.queueLength;
+            const count = this.executionContext.queueLength - this.queueLength - this._creating;
             if (count > pendingSlicers.length) {
                 return pendingSlicers.length;
             }
