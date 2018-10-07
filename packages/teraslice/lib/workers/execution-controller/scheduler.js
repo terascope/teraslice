@@ -102,7 +102,7 @@ class Scheduler {
     }
 
     get isFinished() {
-        return (this.slicersDone || this.slicersFailed || this.stopped) && this.queueLength === 0;
+        return (this.slicersDone || this.slicersFailed || this.stopped) && !this.queueLength && !this._creating;
     }
 
     canAllocateSlice() {
@@ -283,7 +283,7 @@ class Scheduler {
         function onSlicerFinished(slicerId) {
             slicersDone += 1;
 
-            logger.info(`a slicer ${slicerId} for execution: ${exId} has completed its range`);
+            logger.info(`slicer "${slicerId}" for execution: ${exId} has completed its range`);
 
             if (slicersDone === slicerCount()) {
                 clearInterval(backupInterval);
