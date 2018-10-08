@@ -397,7 +397,7 @@ class Scheduler {
 
 
         // run these in the background
-        const promises = _.map(slices, async (slice) => {
+        _.forEach(slices, async (slice) => {
             this._creating += 1;
 
             try {
@@ -410,8 +410,6 @@ class Scheduler {
             this._creating -= 1;
             return null;
         });
-
-        Promise.all(promises);
 
         return null;
     }
