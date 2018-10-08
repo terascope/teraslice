@@ -1,6 +1,7 @@
-import { toString, isSafeInteger } from 'lodash';
 import debugFn from 'debug';
+import { toString, isSafeInteger } from 'lodash';
 import { EventEmitter } from 'events';
+import pEvent from 'p-event';
 import * as i from './interfaces';
 
 const debug = debugFn('teraslice-messaging:core');
@@ -36,9 +37,6 @@ export class Core extends EventEmitter {
         debug('waiting for response from message', sent);
 
         const remaining = sent.respondBy - Date.now();
-        const timeoutError = new Error(`Timed out after ${remaining}ms, waiting for message "${sent.eventName}"`);
-
-        const responseError = new Error(`${sent.eventName} Message Response Failure`);
         const response = await this.onceWithTimeout(sent.id, remaining);
 
         // it is a timeout
@@ -46,15 +44,11 @@ export class Core extends EventEmitter {
             if (sent.volatile || this.closed) {
                 return null;
             }
-            throw timeoutError;
+            throw new Error(`Timed out after ${remaining}ms, waiting for message "${sent.eventName}"`);
         }
 
         if (response.error) {
-            responseError.message += `: ${response.error}`;
-                // @ts-ignore
-            responseError.response = response;
-            debug('message send response error', responseError);
-            throw responseError;
+            throw new Error(`${sent.eventName} Message Response Failure: ${response.error}`);
         }
 
         return response;
@@ -122,11 +116,6 @@ export class Core extends EventEmitter {
     }
 
     // @ts-ignore
-    on(eventName: string, listener: i.EventListener) {
-        super.on(eventName, listener);
-    }
-
-    // @ts-ignore
     emit(eventName: string, msg: i.EventMessage) {
         super.emit(`${eventName}`, msg);
         if (msg.scope) {
@@ -136,29 +125,14 @@ export class Core extends EventEmitter {
 
     async onceWithTimeout(eventName: string, timeout?: number): Promise<any> {
         const timeoutMs: number = this.getTimeout(timeout);
-
-        const result = await new Promise((resolve) => {
-            let timer: NodeJS.Timer|undefined;
-
-            const finish = (result?: any) => {
-                this.removeListener(eventName, onMessage);
-
-                if (timer != null) {
-                    clearTimeout(timer);
-                    timer = undefined;
-                }
-
-                resolve(result);
-            };
-
-            const onMessage = (msg: i.EventMessage) => {
-                finish(msg.payload);
-            };
-
-            this.on(eventName, onMessage);
-            timer = setTimeout(finish, timeoutMs);
-        });
-
-        return result;
+        try {
+            const { payload } = await pEvent(this, eventName, {
+                rejectionEvents: [],
+                timeout: timeoutMs
+            }) as i.EventMessage;
+            return payload;
+        } catch (err) {
+            return undefined;
+        }
     }
 }
