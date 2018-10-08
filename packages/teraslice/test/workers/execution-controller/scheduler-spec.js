@@ -135,8 +135,10 @@ describe('Scheduler', () => {
             getSlices().then((_slices) => { slices = _slices; }),
         ]);
 
-        // FIXME: this should be uncommented
-        // expect(slices).toBeArrayOfSize(expectedCount);
+        const min = expectedCount - slicers;
+        const max = expectedCount + slicers;
+        expect(slices.length).toBeWithin(min, max);
+
         expect(scheduler.isFinished).toBeTrue();
         expect(scheduler.stopped).toBeTrue();
         expect(scheduler.slicersDone).toBeFalse();

@@ -285,7 +285,7 @@ class Scheduler {
         function onSlicerFinished(slicerId) {
             slicersDone += 1;
 
-            logger.info(`slicer "${slicerId}" for execution: ${exId} has completed its range`);
+            logger.info(`slicer ${slicerId} for execution: ${exId} has completed its range`);
 
             if (slicersDone === slicerCount()) {
                 clearInterval(backupInterval);

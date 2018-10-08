@@ -487,13 +487,10 @@ class ExecutionController {
             for (const slice of slices) {
                 const workerId = server.dequeueWorker(slice);
                 if (!workerId) {
-                    process.nextTick(() => {
-                        reenqueueSlice(slice);
-                    });
-                    continue;
+                    process.nextTick(reenqueueSlice, slice);
+                } else {
+                    dispatchSlice(slice, workerId);
                 }
-
-                dispatchSlice(slice, workerId);
             }
         }
 
