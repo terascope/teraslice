@@ -374,6 +374,18 @@ class Scheduler {
         this.events.emit('slicer:done', slicer.id);
     }
 
+    // In the case of recovery slices have already been
+    // created, so its important to skip this step
+    _ensureSliceState(slice) {
+        if (slice._created) return Promise.resolve(slice);
+
+        slice._created = new Date().toISOString();
+
+        // this.stateStore is attached from the execution_controller
+        return this.stateStore.createState(this.exId, slice, 'start')
+            .then(() => slice);
+    }
+
     _createSlices(slicer, result) {
         const slices = _.map(_.castArray(result), (request) => {
             slicer.order += 1;
@@ -391,20 +403,18 @@ class Scheduler {
             };
         });
 
-
         // run these in the background
-        slices.forEach(async (slice) => {
+        slices.forEach((slice) => {
             this._creating += 1;
 
-            try {
-                // ensureSliceState is attached in execution_controller
-                this.enqueueSlice(await this.ensureSliceState(slice));
-            } catch (err) {
-                this.logger.error('error enqueuing slice', slice);
-            }
-
-            this._creating -= 1;
-            return null;
+            this._ensureSliceState(slice)
+                .then(_slice => this.enqueueSlice(_slice))
+                .catch((err) => {
+                    this.logger.error('error enqueuing slice', err, slice);
+                })
+                .finally(() => {
+                    this._creating -= 1;
+                });
         });
 
         return null;

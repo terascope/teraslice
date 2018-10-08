@@ -469,7 +469,7 @@ export class Server extends Core {
         const client = this.ensureClient(socket);
         const { clientId } = client;
 
-        this._clientSendFns[clientId] = (message: i.Message) => {
+        this._clientSendFns[clientId] = function (message: i.Message) {
             socket.emit(message.eventName, message);
         };
 

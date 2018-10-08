@@ -113,8 +113,10 @@ class ExecutionController {
             return;
         }
 
-        const stateStore = makeStateStore(context);
-        this.stores.stateStore = await stateStore;
+        const stateStore = await makeStateStore(context);
+        this.stores.stateStore = stateStore;
+        // attach to scheduler
+        this.scheduler.stateStore = stateStore;
 
         await this.server.start();
 
@@ -398,9 +400,6 @@ class ExecutionController {
         this.logger.info(`starting execution ${this.exId}...`);
         this.startTime = Date.now();
 
-        // attach to scheduler
-        this.scheduler.ensureSliceState = this.ensureSliceState.bind(this);
-
         this.isStarted = true;
 
         if (this.scheduler.recoverExecution) {
@@ -506,16 +505,6 @@ class ExecutionController {
         });
 
         this.isDoneDispatching = true;
-    }
-
-    // In the case of recovery slices have already been
-    // created, so its important to skip this step
-    ensureSliceState(slice) {
-        if (slice._created) return Promise.resolve(slice);
-
-        slice._created = new Date().toISOString();
-        return this.stores.stateStore.createState(this.exId, slice, 'start')
-            .then(() => slice);
     }
 
     _dispatchSlice(slice, workerId) {
