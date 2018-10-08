@@ -408,9 +408,9 @@ class Scheduler {
             this._creating += 1;
 
             this._ensureSliceState(slice)
-                .then(_slice => this.enqueueSlice(_slice))
+                .then(this.enqueueSlice)
                 .catch((err) => {
-                    this.logger.error('error enqueuing slice', err, slice);
+                    this.logger.error('error enqueuing slice', err);
                 })
                 .finally(() => {
                     this._creating -= 1;

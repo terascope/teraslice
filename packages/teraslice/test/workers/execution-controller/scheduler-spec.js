@@ -6,8 +6,8 @@ const TestContext = require('../helpers/test-context');
 const Scheduler = require('../../../lib/workers/execution-controller/scheduler');
 
 describe('Scheduler', () => {
-    let slicers;
-    let countPerSlicer;
+    const slicers = 3;
+    const countPerSlicer = 200;
     let expectedCount;
     let testContext;
     let scheduler;
@@ -43,8 +43,6 @@ describe('Scheduler', () => {
     }
 
     beforeEach(async () => {
-        slicers = 3;
-        countPerSlicer = 200;
         expectedCount = slicers * countPerSlicer;
 
         testContext = new TestContext({
@@ -59,9 +57,8 @@ describe('Scheduler', () => {
             testContext.executionContext
         );
 
-        scheduler.ensureSliceState = async (slice) => {
-            await Promise.delay(0);
-            return slice;
+        scheduler.stateStore = {
+            createState: () => Promise.delay()
         };
 
         registerSlicers();
