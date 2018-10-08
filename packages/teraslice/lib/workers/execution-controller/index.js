@@ -495,7 +495,7 @@ class ExecutionController {
         }
 
         await new Promise((resolve) => {
-            const intervalId = setInterval(dispatch, 5);
+            const intervalId = setInterval(dispatch, 1);
 
             function dispatch() {
                 if (!isRunning()) {
@@ -532,29 +532,25 @@ class ExecutionController {
         this.pendingDispatches += 1;
         this.pendingSlices += 1;
 
-        // use process.nextTick to break out of the event loop
-        // for a moment
-        process.nextTick(() => {
-            this.logger.trace(`dispatching slice ${slice.slice_id} for worker ${workerId}`);
+        this.logger.trace(`dispatching slice ${slice.slice_id} for worker ${workerId}`);
 
-            this.server.dispatchSlice(slice, workerId)
-                .then((dispatched) => {
-                    if (dispatched) {
-                        this.logger.debug(`dispatched slice ${slice.slice_id} to worker ${workerId}`);
-                    } else {
-                        this.logger.warn(`worker "${workerId}" is not available to process slice ${slice.slice_id}`);
-                        this.scheduler.enqueueSlice(slice, true);
-                        this.pendingSlices -= 1;
-                    }
-
-                    this.pendingDispatches -= 1;
-                })
-                .catch((err) => {
-                    this.logger.error('error dispatching slice', err);
-                    this.pendingDispatches -= 1;
+        this.server.dispatchSlice(slice, workerId)
+            .then((dispatched) => {
+                if (dispatched) {
+                    this.logger.debug(`dispatched slice ${slice.slice_id} to worker ${workerId}`);
+                } else {
+                    this.logger.warn(`worker "${workerId}" is not available to process slice ${slice.slice_id}`);
+                    this.scheduler.enqueueSlice(slice, true);
                     this.pendingSlices -= 1;
-                });
-        });
+                }
+
+                this.pendingDispatches -= 1;
+            })
+            .catch((err) => {
+                this.logger.error('error dispatching slice', err);
+                this.pendingDispatches -= 1;
+                this.pendingSlices -= 1;
+            });
     }
 
     async _slicerInit() {
