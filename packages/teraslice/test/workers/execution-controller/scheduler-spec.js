@@ -21,7 +21,7 @@ describe('Scheduler', () => {
                     clearInterval(intervalId);
                     resolve(slices);
                 } else {
-                    const result = scheduler.getSlices(10);
+                    const result = scheduler.getSlices(100);
                     if (result.length > 0) {
                         slices.push(...result);
                     }
@@ -80,6 +80,47 @@ describe('Scheduler', () => {
         expect(scheduler.stopped).toBeFalse();
         expect(scheduler.queueLength).toEqual(0);
         expect(scheduler.isFinished).toBeFalse();
+    });
+
+    it('should throw an error when run is called before slicers are registered', () => {
+        scheduler.ready = false;
+        return expect(scheduler.run()).rejects.toThrowError('Scheduler needs to have registered slicers first');
+    });
+
+    it('should throw an error when registering a non-array of slicers', () => {
+        expect(() => {
+            scheduler.registerSlicers({});
+        }).toThrowError(`newSlicer from module ${testContext.config.job.operations[0]._op} needs to return an array of slicers`);
+    });
+
+    it('should be able to reenqueue a slice', () => {
+        scheduler.enqueueSlices([
+            {
+                slice_id: 1,
+            },
+            {
+                slice_id: 2,
+            }
+        ]);
+
+        scheduler.enqueueSlice({ slice_id: 1 });
+
+        scheduler.enqueueSlice({
+            slice_id: 3
+        }, true);
+
+        const slices = scheduler.getSlices(100);
+        expect(slices).toEqual([
+            {
+                slice_id: 3,
+            },
+            {
+                slice_id: 1,
+            },
+            {
+                slice_id: 2,
+            }
+        ]);
     });
 
     it(`should be able to schedule ${expectedCount} slices`, async () => {

@@ -217,16 +217,6 @@ class ExecutionController {
     }
 
     async run() {
-        if (this.isShuttingDown) {
-            this.logger.error('Cannot run execution while shutting down');
-            return;
-        }
-
-        if (!this.isInitialized) {
-            this.logger.error('Cannot run execution is not initialized');
-            return;
-        }
-
         try {
             await this._runExecution();
         } catch (err) {
@@ -343,7 +333,7 @@ class ExecutionController {
         try {
             await this.executionAnalytics.shutdown();
         } catch (err) {
-            this.logger.error('execution analytics error');
+            shutdownErrs.push(err);
         }
 
         this.scheduler.cleanup();

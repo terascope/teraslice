@@ -178,13 +178,9 @@ class Scheduler {
         this.slicers.length = 0;
     }
 
-    getSlice() {
-        const [slice] = this.getSlices(1);
-        return slice;
-    }
-
     getSlices(limit = 1) {
         if (this.queue.size() === 0) return [];
+        if (limit < 1) return [];
 
         const slices = [];
 
@@ -397,7 +393,7 @@ class Scheduler {
 
 
         // run these in the background
-        _.forEach(slices, async (slice) => {
+        slices.forEach(async (slice) => {
             this._creating += 1;
 
             try {
