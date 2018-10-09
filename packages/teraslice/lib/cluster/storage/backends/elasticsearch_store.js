@@ -2,7 +2,6 @@
 
 const fs = require('fs');
 const _ = require('lodash');
-const shortid = require('shortid');
 const parseError = require('@terascope/error-parser');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
@@ -14,7 +13,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
     let elasticsearch;
     let client;
     let flushInterval;
-    let destroyFns = {};
+    let isShutdown = false;
 
     // Buffer to build up bulk requests.
     let bulkQueue = [];
@@ -186,14 +185,15 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
         if (forceShutdown !== true) {
             return _flush();
         }
+
         return new Promise((resolve) => {
             logger.trace(`attempting to shutdown, will destroy in ${config.shutdown_timeout}`);
 
             const _destroy = () => {
                 logger.trace(`shutdown store, took ${Date.now() - startTime}ms`);
-                bulkQueue.length = 0;
-                Object.values(destroyFns).forEach((fn) => { fn(); });
-                destroyFns = {};
+                bulkQueue.length = [];
+                isShutdown = true;
+
                 resolve();
             };
             const timeout = setTimeout(_destroy, config.shutdown_timeout).unref();
@@ -241,18 +241,21 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
     function isAvailable(indexArg) {
         const query = { index: indexArg || indexName, q: '*' };
 
-        return new Promise(((resolve, reject) => {
+        return new Promise(((resolve) => {
             elasticsearch.search(query)
                 .then((results) => {
                     logger.trace(`index ${indexName} is now available`);
                     resolve(results);
                 })
                 .catch(() => {
-                    const id = shortid.generate();
                     const isReady = setInterval(() => {
+                        if (isShutdown) {
+                            clearInterval(isReady);
+                            return;
+                        }
+
                         elasticsearch.search(query)
                             .then((results) => {
-                                destroyFns = _.omit(destroyFns, id);
                                 clearInterval(isReady);
                                 resolve(results);
                             })
@@ -260,11 +263,6 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
                                 logger.warn('verifying job index is open');
                             });
                     }, 200);
-
-                    destroyFns[id] = () => {
-                        clearInterval(isReady);
-                        reject(new Error('Elastic search force shutting down'));
-                    };
                 });
         }));
     }
@@ -359,7 +357,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
         newIndex = timeseriesIndex(timeseriesFormat, indexName.slice(0, nameSize)).index;
     }
 
-    return new Promise(((resolve, reject) => {
+    return new Promise(((resolve) => {
         const clientName = JSON.stringify(config.state);
         client = getClient(context, config.state, 'elasticsearch');
         let options = null;
@@ -377,8 +375,12 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
                 logger.error(errMsg);
                 logger.error(`Error created job index: ${errMsg}`);
                 logger.info(`Attempting to connect to elasticsearch: ${clientName}`);
-                const id = shortid.generate();
                 const checking = setInterval(() => {
+                    if (isShutdown) {
+                        clearInterval(checking);
+                        return;
+                    }
+
                     _createIndex(newIndex)
                         .then(() => {
                             const query = { index: newIndex };
@@ -396,7 +398,6 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
                             }
 
                             if (bool) {
-                                destroyFns = _.omit(destroyFns, id);
                                 clearInterval(checking);
                                 logger.info('connection to elasticsearch has been established');
                                 return isAvailable(newIndex)
@@ -411,11 +412,6 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
                             logger.info(`Attempting to connect to elasticsearch: ${clientName}, error: ${checkingErrMsg}`);
                         });
                 }, 3000);
-
-                destroyFns[id] = () => {
-                    clearInterval(checking);
-                    reject(new Error('Elastic search force shutting down'));
-                };
             });
     }));
 };
