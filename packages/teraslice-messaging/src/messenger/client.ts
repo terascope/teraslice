@@ -53,11 +53,11 @@ export class Client extends Core {
             autoConnect: false,
             forceNew: true,
             query: { clientId, clientType },
-            // transports: ['websocket'],
             timeout: connectTimeout
         });
 
-        this.socket = SocketIOClient(hostUrl, options);
+        // @ts-ignore
+        this.socket = new SocketIOClient(hostUrl, options);
 
         this.hostUrl = hostUrl;
         this.connectTimeout = connectTimeout;

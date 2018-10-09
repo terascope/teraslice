@@ -33,6 +33,8 @@ const connectedStates = [
     ...onlineStates
 ];
 
+const isTesting = process.env.NODE_ENV === 'test';
+
 export class Server extends Core {
     isShuttingDown: boolean;
     readonly port: number;
@@ -72,11 +74,10 @@ export class Server extends Core {
         this.serverName = serverName;
         this.clientDisconnectTimeout = clientDisconnectTimeout;
 
-        this.server = SocketIOServer({
+        // @ts-ignore
+        this.server = new SocketIOServer({
             pingTimeout,
             pingInterval,
-            // transports: ['websocket'],
-            // allowUpgrades: false,
             serveClient: false,
         });
 
@@ -140,7 +141,7 @@ export class Server extends Core {
                     }
                 }
             });
-        }, 1000);
+        }, isTesting ? 100 : 1000);
     }
 
     async shutdown() {
@@ -148,6 +149,7 @@ export class Server extends Core {
 
         if (this._cleanupClients != null) {
             clearInterval(this._cleanupClients);
+            this._cleanupClients = undefined;
         }
 
         if (this.closed) {

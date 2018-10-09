@@ -209,7 +209,8 @@ describe('Messenger', () => {
                     actionTimeout: 1000,
                     pingTimeout: 3000,
                     pingInterval: 1000,
-                    clientDisconnectTimeout: 4000,
+                    serverTimeout: 2000,
+                    clientDisconnectTimeout: 500,
                     serverName: 'example'
                 });
 
@@ -235,8 +236,8 @@ describe('Messenger', () => {
                     socketOptions: {
                         reconnection: true,
                         reconnectionAttempts: 10,
-                        reconnectionDelay: 500,
-                        reconnectionDelayMax: 500
+                        reconnectionDelay: 10,
+                        reconnectionDelayMax: 50
                     },
                 });
 
@@ -250,7 +251,10 @@ describe('Messenger', () => {
         afterAll((done) => {
             server.onClientShutdown(() => {
                 server.shutdown()
-                    .then(() => { done(); })
+                    .then(() => {
+                        server.shutdown();
+                        done();
+                    })
                     .catch(fail);
             });
             client.shutdown().catch(fail);
@@ -301,6 +305,25 @@ describe('Messenger', () => {
 
         it('should not call server.onClientError', () => {
             expect(clientErrorFn).not.toHaveBeenCalled();
+        });
+
+        it('should be able to handle getTimeoutWithMax', () => {
+            expect(server.getTimeoutWithMax(100)).toBe(100);
+            expect(server.getTimeoutWithMax(20000)).toBe(1000);
+        });
+
+        it('should be able to handle waitForClientReady', async () => {
+            try {
+                await server.waitForClientReady('hello', 100);
+            } catch (err) {
+                expect(err.message).toEqual('Client hello is not ready');
+            }
+
+            const clientReady = await server.waitForClientReady(client.clientId, 100);
+            expect(clientReady).toBeTrue();
+
+            const serverReady = await client.waitForClientReady(client.serverName, 100);
+            expect(serverReady).toBeTrue();
         });
 
         describe('when testing onceWithTimeout', () => {
@@ -419,7 +442,7 @@ describe('Messenger', () => {
             });
         });
 
-        xdescribe('when testing reconnect', () => {
+        describe('when testing reconnect', () => {
             it('should call server.onClientReconnect', (done) => {
                 server.onClientReconnect(() => {
                     done();

@@ -115,6 +115,10 @@ describe('ExecutionController', () => {
             expect(server.activeWorkers).toBeArrayOfSize(0);
         });
 
+        it('should have a worker queue size of 0', () => {
+            expect(server.workerQueueSize).toBe(0);
+        });
+
         it('should not call client.onExecutionFinished', () => {
             expect(executionFinishedFn).not.toHaveBeenCalled();
         });
