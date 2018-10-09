@@ -450,7 +450,7 @@ class ExecutionController {
                 if (this.isShuttingDown) return false;
                 if (this.isExecutionDone) return false;
                 if (this.scheduler.isFinished
-                && !this.pendingDispatches) return false;
+                    && !this.pendingDispatches) return false;
                 return true;
             };
 
@@ -468,7 +468,9 @@ class ExecutionController {
             // to process that slice
             const reenqueueSlices = slices => this.scheduler.enqueueSlices(slices, true);
 
-            const dispatchSlice = (slice, workerId) => this._dispatchSlice(slice, workerId);
+            const dispatchSlice = (slice, workerId) => {
+                this._dispatchSlice(slice, workerId);
+            };
 
             const dequeueAndDispatch = () => {
                 const reenqueue = this.scheduler
@@ -478,12 +480,16 @@ class ExecutionController {
                         if (!workerId) {
                             return true;
                         }
+
+                        this.pendingDispatches += 1;
+                        this.pendingSlices += 1;
+
                         process.nextTick(dispatchSlice, slice, workerId);
                         return false;
                     });
 
                 if (reenqueue.length > 0) {
-                    process.nextTick(reenqueueSlices, reenqueue);
+                    reenqueueSlices(reenqueue);
                 }
             };
 
@@ -506,9 +512,6 @@ class ExecutionController {
     }
 
     _dispatchSlice(slice, workerId) {
-        this.pendingDispatches += 1;
-        this.pendingSlices += 1;
-
         this.logger.trace(`dispatching slice ${slice.slice_id} for worker ${workerId}`);
 
         this.server.dispatchSlice(slice, workerId)
