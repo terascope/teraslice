@@ -4,7 +4,7 @@ const Promise = require('bluebird');
 const _ = require('lodash');
 const { OperationLoader, registerApis } = require('@terascope/job-components');
 const { terasliceOpPath } = require('../../config');
-const loadAssets = require('../assets/loader');
+const spawnAssetLoader = require('../assets/spawn');
 const { makeLogger } = require('../helpers/terafoundation');
 const { analyzeOp } = require('../helpers/op-analytics');
 
@@ -39,8 +39,7 @@ class ExectionContext {
     }
 
     async initialize() {
-        const assets = _.get(this.config, 'assets', []);
-        this.assetIds = await loadAssets(this._context, assets);
+        this.assetIds = await spawnAssetLoader(_.get(this.config, 'assets', []));
 
         if (this.assignment === 'worker') {
             await this._initializeOperations();
