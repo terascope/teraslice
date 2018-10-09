@@ -213,12 +213,18 @@ class ExecutionController {
             this.events.on(event, handler);
         });
 
+        this.slicerAnalytics = makeSliceAnalytics(this.context, this.executionContext);
+
         this.logger.debug(`execution ${this.exId} is initialized`);
 
         this.isInitialized = true;
     }
 
     async run() {
+        this._startWorkConnectWatchDog();
+
+        this.executionAnalytics.start();
+
         try {
             await this._runExecution();
         } catch (err) {
@@ -391,12 +397,6 @@ class ExecutionController {
     }
 
     async _runExecution() {
-        this._startWorkConnectWatchDog();
-
-        this.slicerAnalytics = makeSliceAnalytics(this.context, this.executionContext);
-
-        this.executionAnalytics.start();
-
         this.logger.info(`starting execution ${this.exId}...`);
         this.startTime = Date.now();
 

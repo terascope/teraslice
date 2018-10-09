@@ -4,7 +4,6 @@ const _ = require('lodash');
 const uuidv4 = require('uuid/v4');
 const Promise = require('bluebird');
 const pWhilst = require('p-whilst');
-const autoBind = require('auto-bind');
 const Queue = require('@terascope/queue');
 const { makeLogger } = require('../helpers/terafoundation');
 
@@ -24,12 +23,17 @@ class Scheduler {
         this.stopped = false;
         this.slicersDone = false;
         this.slicersFailed = false;
-        this._resolveRun = () => {};
-        this._processCleanup = () => {};
-
         this.queue = new Queue();
 
-        autoBind(this);
+        this._resolveRun = _.noop;
+        this._processCleanup = _.noop;
+
+        this.canAllocateSlice = this.canAllocateSlice.bind(this);
+        this.enqueueSlice = this.enqueueSlice.bind(this);
+        this.start = this.start.bind(this);
+        this.stop = this.stop.bind(this);
+        this._createSlicesState = this._createSlicesState.bind(this);
+        this._runSlicer = this._runSlicer.bind(this);
 
         this._processSlicers();
     }
@@ -47,6 +51,7 @@ class Scheduler {
                     this.slicersDone = true;
                 }
                 this._resolveRun();
+                this._resolveRun = _.noop;
             };
 
             this._resolveRun = () => {
@@ -86,7 +91,9 @@ class Scheduler {
         this.stopped = true;
 
         this._processCleanup();
+        this._processCleanup = _.noop;
         this._resolveRun();
+        this._resolveRun = _.noop;
     }
 
     pause() {
@@ -132,7 +139,9 @@ class Scheduler {
             this.logger.warn('execution recovery has been marked as completed');
             this.slicersDone = true;
             this._processCleanup();
+            this._processCleanup = _.noop;
             this._resolveRun();
+            this._resolveRun = _.noop;
             return;
         }
 
@@ -233,7 +242,7 @@ class Scheduler {
         } = this;
 
         const resetCleanup = () => {
-            this._processCleanup = () => {};
+            this._processCleanup = _.noop;
         };
 
         let slicersDone = 0;
@@ -334,9 +343,7 @@ class Scheduler {
         }
 
         // make sure never a miss anything
-        backupInterval = setInterval(() => {
-            runPendingSlicers();
-        }, 500);
+        backupInterval = setInterval(runPendingSlicers, 500);
 
         this._processCleanup = cleanup;
     }
