@@ -14,6 +14,20 @@ class ExecutionAnalytics {
         this._handlers = {};
 
         this._registerHandlers();
+
+        this.isRunning = false;
+        this.isShutdown = false;
+
+        this.analyticsInterval = setInterval(() => {
+            if (this.isShutdown) {
+                clearInterval(this.analyticsInterval);
+                return;
+            }
+
+            if (!this.isRunning) return;
+
+            this._pushAnalytics();
+        }, this.analyticsRate);
     }
 
     start() {
@@ -57,16 +71,7 @@ class ExecutionAnalytics {
             stats: this.executionAnalytics
         }));
 
-        this.sendingAnalytics = true;
-
-        this.intervalId = setInterval(() => {
-            if (!this.sendingAnalytics) {
-                clearInterval(this.intervalId);
-                return;
-            }
-
-            this._pushAnalytics();
-        }, this.analyticsRate);
+        this.isRunning = true;
     }
 
     set(key, value) {
@@ -91,8 +96,10 @@ class ExecutionAnalytics {
     }
 
     async shutdown(timeout) {
-        this.sendingAnalytics = false;
-        clearInterval(this.intervalId);
+        this.isRunning = false;
+        this.isShutdown = true;
+
+        clearInterval(this.analyticsInterval);
 
         _.forEach(this._handlers, (handler, event) => {
             this.events.removeListener(event, handler);
@@ -119,7 +126,7 @@ class ExecutionAnalytics {
 
         this._pushing = false;
 
-        if (!recorded && this.sendingAnalytics) {
+        if (!recorded && this.isRunning) {
             this.logger.warn('cluster master did not record the cluster analytics');
             return;
         }

@@ -8,7 +8,7 @@ const parseError = require('@terascope/error-parser');
 const Messaging = require('@terascope/teraslice-messaging');
 
 const Scheduler = require('./scheduler');
-const ExecutionAnalytics = require('./analytics');
+const ExecutionAnalytics = require('./execution-analytics');
 const makeExecutionRecovery = require('./recovery');
 const makeSliceAnalytics = require('./slice-analytics');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
@@ -122,18 +122,20 @@ class ExecutionController {
         this.isInitialized = true;
 
         this.server.onClientOnline((workerId) => {
-            this.logger.trace(`worker ${workerId} is online`);
-            this._adjustSlicerQueueLength();
-            this.workersHaveConnected = true;
             clearTimeout(this.workerConnectTimeoutId);
             this.workerConnectTimeoutId = null;
+
+            this.logger.trace(`worker ${workerId} is online`);
+            this.workersHaveConnected = true;
             this.executionAnalytics.increment('workers_joined');
+
+            this._adjustSlicerQueueLength();
         });
 
         this.server.onClientAvailable((workerId) => {
             this.logger.trace(`worker ${workerId} is available`);
-            this.executionAnalytics.set('workers_available', this.server.availableClientCount);
             this.executionAnalytics.set('workers_active', this.server.activeWorkers.length);
+            this.executionAnalytics.set('workers_available', this.server.availableClientCount);
         });
 
         this.server.onClientUnavailable(() => {
