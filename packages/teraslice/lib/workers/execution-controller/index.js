@@ -434,74 +434,72 @@ class ExecutionController {
     }
 
     // dispatching should be pushed out into its own module
-    // this function uses many tiny unbound functions to
-    // increase performance
     async _runDispatch() {
         const {
             logger,
-            scheduler,
-            server,
         } = this;
 
         this.isDoneDispatching = false;
 
-        logger.debug('dispatching slices...');
-
-        // returns a boolean to indicate whether
-        // dispatching should continue
-        const isRunning = () => {
-            if (this.isShuttingDown) return false;
-            if (this.isExecutionDone) return false;
-            if (scheduler.isFinished
-                && !this.pendingDispatches) return false;
-            return true;
-        };
-
-        const isPaused = () => this.isPaused;
-        const dispatchSlice = (slice, workerId) => this._dispatchSlice(slice, workerId);
-
-        // this isn't really ideal since we adding
-        // to the beginning of the queue and
-        // it may end up in a recursive loop trying
-        // to process that slice
-        function reenqueueSlice(slice) {
-            return scheduler.enqueueSlice(slice, true);
-        }
-
-        function dequeueAndDispatch() {
-            const slices = scheduler.getSlices(server.workerQueueSize);
-            if (slices.length === 0) return;
-
-            // eslint-disable-next-line no-restricted-syntax
-            for (const slice of slices) {
-                const workerId = server.dequeueWorker(slice);
-                if (!workerId) {
-                    process.nextTick(reenqueueSlice, slice);
-                } else {
-                    dispatchSlice(slice, workerId);
-                }
-            }
-        }
-
         await new Promise((resolve) => {
-            const intervalId = setInterval(dispatch, 1);
+            logger.debug('dispatching slices...');
 
-            function dispatch() {
+            // returns a boolean to indicate whether
+            // dispatching should continue
+            const isRunning = () => {
+                if (this.isShuttingDown) return false;
+                if (this.isExecutionDone) return false;
+                if (this.scheduler.isFinished
+                && !this.pendingDispatches) return false;
+                return true;
+            };
+
+            const isPaused = () => this.isPaused;
+            const canDispatch = () => {
+                const workers = this.server.workerQueueSize;
+                const slices = this.scheduler.queueLength;
+
+                return workers > 0 && slices > 0;
+            };
+
+            // this isn't really ideal since we adding
+            // to the beginning of the queue and
+            // it may end up in a recursive loop trying
+            // to process that slice
+            const reenqueueSlices = slices => this.scheduler.enqueueSlices(slices, true);
+
+            const dispatchSlice = (slice, workerId) => this._dispatchSlice(slice, workerId);
+
+            const dequeueAndDispatch = () => {
+                const reenqueue = this.scheduler
+                    .getSlices(this.server.workerQueueSize)
+                    .filter((slice) => {
+                        const workerId = this.server.dequeueWorker(slice);
+                        if (!workerId) {
+                            return true;
+                        }
+                        process.nextTick(dispatchSlice, slice, workerId);
+                        return false;
+                    });
+
+                if (reenqueue.length > 0) {
+                    process.nextTick(reenqueueSlices, reenqueue);
+                }
+            };
+
+            this.dispatchInterval = setInterval(() => {
                 if (!isRunning()) {
-                    clearInterval(intervalId);
+                    clearInterval(this.dispatchInterval);
                     resolve();
                     return;
                 }
 
                 if (isPaused()) return;
 
-                const workers = server.workerQueueSize;
-                const slices = scheduler.queueLength;
-
-                if (workers > 0 && slices > 0) {
+                if (canDispatch()) {
                     dequeueAndDispatch();
                 }
-            }
+            }, 1);
         });
 
         this.isDoneDispatching = true;
