@@ -52,6 +52,7 @@ export class Client extends Core {
         const options: SocketIOClient.ConnectOpts = Object.assign({}, socketOptions, {
             autoConnect: false,
             forceNew: true,
+            perMessageDeflate: false,
             query: { clientId, clientType },
             timeout: connectTimeout
         });
