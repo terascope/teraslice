@@ -264,9 +264,7 @@ class Scheduler {
             const slicersToRun = _.take(pendingSlicers, count);
             pendingSlicers = _.without(pendingSlicers, ...slicersToRun);
 
-            slicersToRun.forEach((id) => {
-                _runSlicer(id);
-            });
+            slicersToRun.forEach(_runSlicer);
         }
 
         function onSlicersStart() {
@@ -359,7 +357,7 @@ class Scheduler {
                     this.events.emit('slicer:subslice');
                 }
 
-                this._createSlices(slicer, result);
+                this._createSlices(slicer, _.castArray(result));
             } else if (this.canComplete() && !slicer.finished) {
                 slicer.finished = true;
                 this.logger.trace(`slicer ${slicer.id} finished`);
@@ -386,8 +384,21 @@ class Scheduler {
             .then(() => slice);
     }
 
+    _createSlicesState(slices) {
+        slices.forEach((slice) => {
+            this._ensureSliceState(slice)
+                .then(this.enqueueSlice)
+                .catch((err) => {
+                    this.logger.error('error enqueuing slice', err);
+                })
+                .finally(() => {
+                    this._creating -= 1;
+                });
+        });
+    }
+
     _createSlices(slicer, result) {
-        const slices = _.map(_.castArray(result), (request) => {
+        const slices = result.map((request) => {
             slicer.order += 1;
 
             // recovery slices already have correct meta data
@@ -403,21 +414,9 @@ class Scheduler {
             };
         });
 
-        // run these in the background
-        slices.forEach((slice) => {
-            this._creating += 1;
-
-            this._ensureSliceState(slice)
-                .then(this.enqueueSlice)
-                .catch((err) => {
-                    this.logger.error('error enqueuing slice', err);
-                })
-                .finally(() => {
-                    this._creating -= 1;
-                });
-        });
-
-        return null;
+        // create the slice state in the background
+        this._creating += result.length;
+        process.nextTick(this._createSlicesState, slices);
     }
 }
 
