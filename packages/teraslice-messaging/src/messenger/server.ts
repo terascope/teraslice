@@ -44,7 +44,6 @@ export class Server extends Core {
     readonly clientDisconnectTimeout: number;
     private _cleanupClients: NodeJS.Timer|undefined;
     protected _clients: i.ConnectedClients;
-    protected _clientSendFns: i.ClientSendFns;
 
     constructor(opts: i.ServerOptions) {
         const {
@@ -78,6 +77,7 @@ export class Server extends Core {
         this.server = new SocketIOServer({
             pingTimeout,
             pingInterval,
+            perMessageDeflate: false,
             serveClient: false,
         });
 
@@ -90,7 +90,6 @@ export class Server extends Core {
         this.isShuttingDown = false;
 
         this._clients = {};
-        this._clientSendFns = {};
         this._onConnection = this._onConnection.bind(this);
     }
 
@@ -154,7 +153,6 @@ export class Server extends Core {
 
         if (this.closed) {
             this._clients = {};
-            this._clientSendFns = {};
             return;
         }
 
@@ -173,7 +171,6 @@ export class Server extends Core {
         });
 
         this._clients = {};
-        this._clientSendFns = {};
 
         super.close();
     }
@@ -288,7 +285,7 @@ export class Server extends Core {
     }
 
     protected async send(clientId: string, eventName: string, payload: i.Payload = {}, options: i.SendOptions = { response: true }): Promise<i.Message|null> {
-        if (this._clientSendFns[clientId] == null) {
+        if (!this.listenerCount(`message:send:${clientId}`)) {
             throw new Error(`No client found by that id "${clientId}"`);
         }
 
@@ -318,8 +315,7 @@ export class Server extends Core {
 
         const responseMsg = this.handleSendResponse(message);
 
-        // @ts-ignore
-        this._clientSendFns[clientId](message);
+        this.emit(`message:send:${clientId}`, { scope: '', payload: message });
 
         return responseMsg;
     }
@@ -431,7 +427,6 @@ export class Server extends Core {
                     }
                 }
 
-                this._clientSendFns[clientId] = null;
                 return true;
 
             default:
@@ -471,10 +466,6 @@ export class Server extends Core {
         const client = this.ensureClient(socket);
         const { clientId } = client;
 
-        this._clientSendFns[clientId] = function (message: i.Message) {
-            socket.emit(message.eventName, message);
-        };
-
         socket.on('error', (error: Error|string) => {
             this.emit('client:error', {
                 scope: clientId,
@@ -484,6 +475,8 @@ export class Server extends Core {
         });
 
         socket.on('disconnect', (error: Error|string) => {
+            this.removeListener(`message:send:${clientId}`, onSendMessage);
+
             if (this.isShuttingDown) {
                 this.updateClientState(clientId, {
                     state: i.ClientState.Shutdown,
@@ -524,6 +517,14 @@ export class Server extends Core {
                 payload: msg,
             });
         });
+
+        function onSendMessage(msg: i.ClientEventMessage) {
+            const message: i.Message = msg.payload;
+            socket.emit(message.eventName, message);
+        }
+
+        this.removeAllListeners(clientId);
+        this.on(`message:send:${clientId}`, onSendMessage);
 
         this.emit('connection', {
             scope: clientId,
