@@ -84,7 +84,6 @@ class ExecutionController {
         this.workersHaveConnected = false;
         this._handlers = {};
 
-        this.setFailingStatus = this.setFailingStatus.bind(this);
         this.terminalError = this.terminalError.bind(this);
     }
 

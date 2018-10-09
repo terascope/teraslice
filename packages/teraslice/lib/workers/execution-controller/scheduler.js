@@ -28,13 +28,6 @@ class Scheduler {
         this._resolveRun = _.noop;
         this._processCleanup = _.noop;
 
-        this.canAllocateSlice = this.canAllocateSlice.bind(this);
-        this.enqueueSlice = this.enqueueSlice.bind(this);
-        this.start = this.start.bind(this);
-        this.stop = this.stop.bind(this);
-        this._createSlicesState = this._createSlicesState.bind(this);
-        this._runSlicer = this._runSlicer.bind(this);
-
         this._processSlicers();
     }
 
@@ -184,6 +177,8 @@ class Scheduler {
             this.queue.remove(slice.slice_id, 'slice_id');
         });
 
+        this.stateStore = null;
+
         this.slicers.length = 0;
     }
 
@@ -214,7 +209,7 @@ class Scheduler {
     enqueueSlices(slices, addToStart = false) {
         if (this.stopped) return;
 
-        _.forEach(slices, (slice) => {
+        slices.forEach((slice) => {
             if (this.queue.exists('slice_id', slice.slice_id)) {
                 this.logger.warn(`slice ${slice.slice_id} has already been enqueued`);
                 return;
@@ -237,12 +232,14 @@ class Scheduler {
             events,
             logger,
             exId,
-            canAllocateSlice,
-            _runSlicer,
         } = this;
 
         const resetCleanup = () => {
             this._processCleanup = _.noop;
+        };
+
+        const runSlicer = (id) => {
+            process.nextTick((input) => { this._runSlicer(input); }, id);
         };
 
         let slicersDone = 0;
@@ -254,7 +251,7 @@ class Scheduler {
         let pendingSlicers = [];
 
         const getAllocationCount = () => {
-            if (!canAllocateSlice()) return 0;
+            if (!this.canAllocateSlice()) return 0;
 
             const count = this.executionContext.queueLength - this.queueLength - this._creating;
             if (count > pendingSlicers.length) {
@@ -273,7 +270,7 @@ class Scheduler {
             const slicersToRun = _.take(pendingSlicers, count);
             pendingSlicers = _.without(pendingSlicers, ...slicersToRun);
 
-            slicersToRun.forEach(_runSlicer);
+            slicersToRun.forEach(runSlicer);
         }
 
         function onSlicersStart() {
@@ -394,7 +391,9 @@ class Scheduler {
     _createSlicesState(slices) {
         slices.forEach((slice) => {
             this._ensureSliceState(slice)
-                .then(this.enqueueSlice)
+                .then((_slice) => {
+                    this.enqueueSlice(_slice);
+                })
                 .catch((err) => {
                     this.logger.error('error enqueuing slice', err);
                 })
@@ -423,7 +422,7 @@ class Scheduler {
 
         // create the slice state in the background
         this._creating += result.length;
-        process.nextTick(this._createSlicesState, slices);
+        process.nextTick(input => this._createSlicesState(input), slices);
     }
 }
 

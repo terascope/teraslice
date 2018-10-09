@@ -141,7 +141,7 @@ describe('Scheduler', () => {
 
         const pause = _.once(() => {
             scheduler.pause();
-            _.delay(scheduler.start, 10);
+            _.delay(() => scheduler.start(), 10);
         });
 
         const pauseAfter = _.after(Math.round(countPerSlicer / 3), pause);
@@ -161,7 +161,7 @@ describe('Scheduler', () => {
     it('should handle stop correctly', async () => {
         let slices = []; // eslint-disable-line
 
-        const stop = _.once(scheduler.stop);
+        const stop = _.once(() => scheduler.stop());
 
         expectedCount = Math.round(countPerSlicer / 3);
         const stopAfter = _.after(expectedCount, stop);
