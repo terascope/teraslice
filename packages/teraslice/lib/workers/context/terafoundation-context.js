@@ -66,6 +66,7 @@ function getSysConfig() {
         .alias('v', 'version')
         .help()
         .alias('h', 'help')
+        .detectLocale(false)
         .option('c', {
             alias: 'configfile',
             describe: `Terafoundation configuration file to load.
