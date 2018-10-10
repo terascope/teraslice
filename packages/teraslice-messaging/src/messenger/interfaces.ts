@@ -61,17 +61,14 @@ export interface SendOptions {
 export interface ConnectedClient {
     readonly clientId: string;
     readonly clientType: string;
-    socketId: string;
     state: ClientState;
-    createdAt: Date;
-    updatedAt: Date;
-    offlineAt: Date|null;
+    createdAt: number;
+    updatedAt: number;
+    offlineAt: number|null;
 }
 
 export interface UpdateClientState {
     state: ClientState;
-    socketId?: string;
-    metadata?: object;
     error?: Error|string;
     payload?: Payload;
 }

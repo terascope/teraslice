@@ -112,7 +112,7 @@ export class Server extends Core {
         this.server.attach(this.httpServer);
 
         this.server.use((socket, next) => {
-            socket.join(socket.handshake.query.clientType, next);
+            socket.join(socket.handshake.query.clientId, next);
         });
 
         this.server.on('connection', this._onConnection);
@@ -133,14 +133,14 @@ export class Server extends Core {
                     });
                 }
                 if (client.state === i.ClientState.Disconnected && client.offlineAt) {
-                    if (client.offlineAt.getTime() > Date.now()) {
+                    if (client.offlineAt > Date.now()) {
                         this.updateClientState(client.clientId, {
                             state: i.ClientState.Offline,
                         });
                     }
                 }
             });
-        }, isTesting ? 100 : 1000);
+        }, isTesting ? 100 : 5000);
     }
 
     async shutdown() {
@@ -285,7 +285,7 @@ export class Server extends Core {
     }
 
     protected async send(clientId: string, eventName: string, payload: i.Payload = {}, options: i.SendOptions = { response: true }): Promise<i.Message|null> {
-        if (!this.listenerCount(`message:send:${clientId}`)) {
+        if (!this.isClientConnected(clientId)) {
             throw new Error(`No client found by that id "${clientId}"`);
         }
 
@@ -315,9 +315,15 @@ export class Server extends Core {
 
         const responseMsg = this.handleSendResponse(message);
 
-        this.emit(`message:send:${clientId}`, { scope: '', payload: message });
+        this.server.to(clientId).emit(message.eventName, message);
 
         return responseMsg;
+    }
+
+    isClientConnected(clientId: string): boolean {
+        if (this._clients[clientId] == null) return false;
+        const { state } = this._clients[clientId];
+        return connectedStates.includes(state);
     }
 
     protected getClientMetadataFromSocket(socket: SocketIO.Socket): i.ClientSocketMetadata {
@@ -358,13 +364,9 @@ export class Server extends Core {
             return false;
         }
 
-        const updatedAt = new Date();
+        const updatedAt = Date.now();
         this._clients[clientId].state = update.state;
         this._clients[clientId].updatedAt = updatedAt;
-
-        if (update.socketId) {
-            this._clients[clientId].socketId = update.socketId;
-        }
 
         const eventMsg = {
             scope: clientId,
@@ -395,8 +397,7 @@ export class Server extends Core {
                     this.emit(`client:${i.ClientState.Unavailable}`, eventMsg);
                 }
 
-                const offlineAtMs = Date.now() + this.clientDisconnectTimeout;
-                this._clients[clientId].offlineAt = new Date(offlineAtMs);
+                this._clients[clientId].offlineAt = Date.now() + this.clientDisconnectTimeout;
 
                 debug(`${clientId} is disconnected will be considered offline in ${this.clientDisconnectTimeout}`);
                 this.emit(`client:${update.state}`, eventMsg);
@@ -414,19 +415,6 @@ export class Server extends Core {
                 }
 
                 this.emit(`client:${update.state}`, eventMsg);
-
-                // cleanup socket and such
-                const { socketId } = this._clients[clientId];
-
-                if (this.server.sockets.sockets[socketId]) {
-                    try {
-                        this.server.sockets.sockets[socketId].removeAllListeners();
-                        this.server.sockets.sockets[socketId].disconnect(true);
-                    } catch (err) {
-                        debug('error cleaning up socket when going offline', err);
-                    }
-                }
-
                 return true;
 
             default:
@@ -441,7 +429,6 @@ export class Server extends Core {
         if (client) {
             this.updateClientState(clientId, {
                 state: i.ClientState.Online,
-                socketId: socket.id,
             });
             return client;
         }
@@ -450,10 +437,9 @@ export class Server extends Core {
             clientId,
             clientType,
             state: i.ClientState.Online,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            offlineAt: null,
-            socketId: socket.id
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            offlineAt: null
         };
 
         this.emit(`client:${i.ClientState.Online}`, { scope: clientId, payload: {} });
@@ -475,7 +461,8 @@ export class Server extends Core {
         });
 
         socket.on('disconnect', (error: Error|string) => {
-            this.removeListener(`message:send:${clientId}`, onSendMessage);
+            socket.removeAllListeners();
+            socket.disconnect(true);
 
             if (this.isShuttingDown) {
                 this.updateClientState(clientId, {
@@ -517,14 +504,6 @@ export class Server extends Core {
                 payload: msg,
             });
         });
-
-        function onSendMessage(msg: i.ClientEventMessage) {
-            const message: i.Message = msg.payload;
-            socket.emit(message.eventName, message);
-        }
-
-        this.removeAllListeners(clientId);
-        this.on(`message:send:${clientId}`, onSendMessage);
 
         this.emit('connection', {
             scope: clientId,

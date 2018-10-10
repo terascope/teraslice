@@ -210,7 +210,7 @@ describe('Messenger', () => {
                     pingTimeout: 3000,
                     pingInterval: 1000,
                     serverTimeout: 2000,
-                    clientDisconnectTimeout: 500,
+                    clientDisconnectTimeout: 50,
                     serverName: 'example'
                 });
 
