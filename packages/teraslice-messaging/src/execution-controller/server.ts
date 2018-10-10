@@ -99,9 +99,7 @@ export class Server extends core.Server {
             debug(`failure to dispatch slice ${slice.slice_id} to worker ${workerId}`);
             this._activeWorkers[workerId] = false;
         } else {
-            this.updateClientState(workerId, {
-                state: core.ClientState.Unavailable,
-            });
+            this.updateClientState(workerId, core.ClientState.Unavailable);
         }
 
         return dispatched;

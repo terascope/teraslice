@@ -477,34 +477,37 @@ class ExecutionController {
                 return workers > 0 && slices > 0;
             };
 
-            // this isn't really ideal since we adding
-            // to the beginning of the queue and
-            // it may end up in a recursive loop trying
-            // to process that slice
-            const reenqueueSlices = slices => this.scheduler.enqueueSlices(slices, true);
-
-            const dispatchSlice = (slice, workerId) => {
-                this._dispatchSlice(slice, workerId);
-            };
-
             const dequeueAndDispatch = () => {
-                const reenqueue = this.scheduler
+                const reenqueue = [];
+                const dispatch = [];
+
+                this.scheduler
                     .getSlices(this.server.workerQueueSize)
-                    .filter((slice) => {
+                    .forEach((slice) => {
                         const workerId = this.server.dequeueWorker(slice);
                         if (!workerId) {
-                            return true;
+                            reenqueue.push(slice);
+                        } else {
+                            this.pendingDispatches += 1;
+                            this.pendingSlices += 1;
+                            dispatch.push({ slice, workerId });
                         }
-
-                        this.pendingDispatches += 1;
-                        this.pendingSlices += 1;
-
-                        process.nextTick(dispatchSlice, slice, workerId);
-                        return false;
                     });
 
+                if (dispatch.length > 0) {
+                    process.nextTick(() => {
+                        dispatch.forEach(({ slice, workerId }) => {
+                            this._dispatchSlice(slice, workerId);
+                        });
+                    });
+                }
+
                 if (reenqueue.length > 0) {
-                    reenqueueSlices(reenqueue);
+                    // this isn't really ideal since we adding
+                    // to the beginning of the queue and
+                    // it may end up in a recursive loop trying
+                    // to process that slice
+                    this.scheduler.enqueueSlices(reenqueue, true);
                 }
             };
 
@@ -519,7 +522,7 @@ class ExecutionController {
                 if (canDispatch()) {
                     dequeueAndDispatch();
                 }
-            }, 2);
+            }, 1);
         });
 
         clearInterval(dispatchInterval);

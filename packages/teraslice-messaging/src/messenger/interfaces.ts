@@ -60,10 +60,7 @@ export interface SendOptions {
 
 export interface ConnectedClient {
     readonly clientId: string;
-    readonly clientType: string;
     state: ClientState;
-    createdAt: number;
-    updatedAt: number;
     offlineAt: number|null;
 }
 
