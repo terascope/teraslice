@@ -452,6 +452,8 @@ class ExecutionController {
     async _runDispatch() {
         this.isDoneDispatching = false;
 
+        let dispatchInterval;
+
         await new Promise(resolve => process.nextTick(() => resolve()));
 
         await new Promise((resolve) => {
@@ -506,9 +508,8 @@ class ExecutionController {
                 }
             };
 
-            const dispatchInterval = setInterval(() => {
+            dispatchInterval = setInterval(() => {
                 if (!isRunning()) {
-                    clearInterval(dispatchInterval);
                     resolve();
                     return;
                 }
@@ -518,8 +519,10 @@ class ExecutionController {
                 if (canDispatch()) {
                     dequeueAndDispatch();
                 }
-            }, 1);
+            }, 2);
         });
+
+        clearInterval(dispatchInterval);
 
         this.isDoneDispatching = true;
     }

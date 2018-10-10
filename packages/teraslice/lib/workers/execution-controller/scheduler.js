@@ -410,7 +410,7 @@ class Scheduler {
         });
 
         // create the slice state in the background
-        this._creating += result.length;
+        this._creating += slices.length;
         process.nextTick(input => this._createSlicesState(input), slices);
     }
 }
