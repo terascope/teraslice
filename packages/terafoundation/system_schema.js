@@ -96,8 +96,7 @@ module.exports = {
     },
     log_connection: {
         doc: 'logging connection endpoint if logging is saved to elasticsearch',
-        default: 'default',
-        format: 'optional_String'
+        default: 'default'
     },
     workers: {
         doc: 'Number of workers per server',
