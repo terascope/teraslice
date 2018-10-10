@@ -436,14 +436,10 @@ class ExecutionController {
 
     // dispatching should be pushed out into its own module
     async _runDispatch() {
-        const {
-            logger,
-        } = this;
-
         this.isDoneDispatching = false;
 
         await new Promise((resolve) => {
-            logger.debug('dispatching slices...');
+            this.logger.debug('dispatching slices...');
 
             // returns a boolean to indicate whether
             // dispatching should continue
@@ -494,9 +490,9 @@ class ExecutionController {
                 }
             };
 
-            this.dispatchInterval = setInterval(() => {
+            const dispatchInterval = setInterval(() => {
                 if (!isRunning()) {
-                    clearInterval(this.dispatchInterval);
+                    clearInterval(dispatchInterval);
                     resolve();
                     return;
                 }
