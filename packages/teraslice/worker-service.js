@@ -40,8 +40,8 @@ class Service {
         const { assignment, ex_id: exId } = this.executionConfig;
         this.logger.trace(`Initializing ${assignment} for execution ${exId}...`, this.executionConfig);
 
-        const executionContext = new ExecutionContext(this.context, this.executionConfig);
-        await executionContext.initialize();
+        const exContext = new ExecutionContext(this.context, this.executionConfig);
+        const executionContext = await exContext.initialize();
 
         if (assignment === 'worker') {
             this.instance = new Worker(this.context, executionContext);

@@ -35,7 +35,7 @@ class ExecutionAnalytics {
             ex_id: exId,
             job_id: jobId,
         } = this.executionContext;
-        const { name } = this.executionContext.job;
+        const { name } = this.executionContext.config;
 
         this.executionAnalytics = {
             workers_available: 0,
