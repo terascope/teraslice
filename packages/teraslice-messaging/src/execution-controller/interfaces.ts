@@ -23,7 +23,7 @@ export interface Worker {
 }
 
 export interface ActiveWorkers {
-    [workerId: string]: string;
+    [workerId: string]: boolean;
 }
 
 export interface SliceResponseMessage {

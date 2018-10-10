@@ -122,7 +122,7 @@ export class Client extends Core {
 
             if (!this.available) return;
 
-            setImmediate(async () => {
+            process.nextTick(async () => {
                 try {
                     await this.sendAvailable();
                 } catch (err) {
@@ -163,6 +163,8 @@ export class Client extends Core {
     }
 
     async sendAvailable(payload?: i.Payload) {
+        if (this.available) return;
+
         this.available = true;
         return this.send(`client:${i.ClientState.Available}`, payload, {
             volatile: true,
@@ -170,6 +172,8 @@ export class Client extends Core {
     }
 
     async sendUnavailable(payload?: i.Payload) {
+        if (!this.available) return;
+
         this.available = false;
         return this.send(`client:${i.ClientState.Unavailable}`, payload, {
             volatile: true,

@@ -112,7 +112,7 @@ describe('ExecutionController', () => {
         });
 
         it('should have no active workers', () => {
-            expect(server.activeWorkers).toBeArrayOfSize(0);
+            expect(server.activeWorkerCount).toBe(0);
         });
 
         it('should have a worker queue size of 0', () => {
@@ -232,9 +232,7 @@ describe('ExecutionController', () => {
             describe('when receiving execution:slice:new', () => {
                 describe('when the client is set as available', () => {
                     it('should resolve with correct messages', async () => {
-                        if (!client.available) {
-                            await client.sendAvailable();
-                        }
+                        await client.sendAvailable();
 
                         const newSlice = {
                             slicer_order: 0,
@@ -264,7 +262,7 @@ describe('ExecutionController', () => {
 
                         expect(dispatched).toBeTrue();
 
-                        expect(server.activeWorkers).toBeArrayOfSize(1);
+                        expect(server.activeWorkerCount).toBe(1);
 
                         await client.sendSliceComplete({
                             slice: newSlice,
@@ -277,15 +275,13 @@ describe('ExecutionController', () => {
 
                         await bluebird.delay(100);
 
-                        expect(server.activeWorkers).toBeArrayOfSize(0);
+                        expect(server.activeWorkerCount).toBe(0);
                     });
                 });
 
                 describe('when the client is set as unavailable', () => {
                     beforeAll(async () => {
-                        if (client.available) {
-                            await client.sendUnavailable();
-                        }
+                        await client.sendUnavailable();
                     });
 
                     it('should reject with the correct error messages', () => {

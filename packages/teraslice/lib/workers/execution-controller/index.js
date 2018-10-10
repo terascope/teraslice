@@ -134,19 +134,19 @@ class ExecutionController {
 
         this.server.onClientAvailable((workerId) => {
             this.logger.trace(`worker ${workerId} is available`);
-            this.executionAnalytics.set('workers_active', this.server.activeWorkers.length);
+            this.executionAnalytics.set('workers_active', this.server.activeWorkerCount);
             this.executionAnalytics.set('workers_available', this.server.availableClientCount);
         });
 
         this.server.onClientUnavailable(() => {
-            this.executionAnalytics.set('workers_active', this.server.activeWorkers.length);
+            this.executionAnalytics.set('workers_active', this.server.activeWorkerCount);
             this.executionAnalytics.set('workers_available', this.server.availableClientCount);
         });
 
         this.server.onClientDisconnect((workerId) => {
             this.logger.trace(`worker ${workerId} is disconnected but it may reconnect`);
             this.executionAnalytics.increment('workers_disconnected');
-            this.executionAnalytics.set('workers_active', this.server.activeWorkers.length);
+            this.executionAnalytics.set('workers_active', this.server.activeWorkerCount);
 
             this._startWorkerDisconnectWatchDog();
         });
@@ -173,26 +173,29 @@ class ExecutionController {
         });
 
         this.server.onSliceSuccess((workerId, response) => {
-            this.logger.info(`worker ${workerId} has completed its slice ${response.slice_id}`);
-            this.events.emit('slice:success', response);
-            this.pendingSlices -= 1;
+            process.nextTick(() => {
+                this.logger.info(`worker ${workerId} has completed its slice ${response.slice_id}`);
+                this.events.emit('slice:success', response);
+                this.pendingSlices -= 1;
+            });
         });
 
         this.server.onSliceFailure((workerId, response) => {
-            this.logger.error(`worker: ${workerId} has failure completing its slice`, response);
-            this.events.emit('slice:failure', response);
+            process.nextTick(() => {
+                this.logger.error(`worker: ${workerId} has failure completing its slice`, response);
+                this.events.emit('slice:failure', response);
 
-            if (this.scheduler.canComplete()) {
-                this.setFailingStatus();
-            } else if (this.scheduler.isRecovering()) {
-                this.terminalError(new Error('Slice failed while recovering'));
-            } else {
-                // in persistent mode we set watchdogs to monitor
-                // when failing can be set back to running
-                this._checkAndUpdateExecutionState();
-            }
-
-            this.pendingSlices -= 1;
+                if (this.scheduler.canComplete()) {
+                    this.setFailingStatus();
+                } else if (this.scheduler.isRecovering()) {
+                    this.terminalError(new Error('Slice failed while recovering'));
+                } else {
+                    // in persistent mode we set watchdogs to monitor
+                    // when failing can be set back to running
+                    this._checkAndUpdateExecutionState();
+                }
+                this.pendingSlices -= 1;
+            });
         });
 
         this._handlers['slicer:execution:update'] = ({ update }) => {
@@ -214,7 +217,9 @@ class ExecutionController {
             this.events.on(event, handler);
         });
 
-        this.slicerAnalytics = makeSliceAnalytics(this.context, this.executionContext);
+        if (this.collectAnalytics) {
+            this.slicerAnalytics = makeSliceAnalytics(this.context, this.executionContext);
+        }
 
         this.logger.debug(`execution ${this.exId} is initialized`);
 
@@ -328,6 +333,7 @@ class ExecutionController {
         // remove any listeners
         _.forEach(this._handlers, (handler, event) => {
             this.events.removeListener(event, handler);
+            this._handlers[event] = null;
         });
 
         this.isShuttingDown = true;
@@ -338,6 +344,14 @@ class ExecutionController {
         clearTimeout(this.workerDisconnectTimeoutId);
 
         await this._waitForExecutionFinished();
+
+        if (this.collectAnalytics) {
+            try {
+                await this.slicerAnalytics.shutdown();
+            } catch (err) {
+                shutdownErrs.push(err);
+            }
+        }
 
         try {
             await this.executionAnalytics.shutdown();
