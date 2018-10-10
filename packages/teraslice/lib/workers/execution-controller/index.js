@@ -454,62 +454,65 @@ class ExecutionController {
 
         let dispatchInterval;
 
-        await new Promise(resolve => process.nextTick(() => resolve()));
+        // returns a boolean to indicate whether
+        // dispatching should continue
+        const isRunning = () => {
+            if (this.isShuttingDown) return false;
+            if (this.isExecutionDone) return false;
+            if (this.scheduler.isFinished
+                    && !this.pendingDispatches) return false;
+            return true;
+        };
+
+        const isPaused = () => this.isPaused;
+        const canDispatch = () => {
+            const workers = this.server.workerQueueSize;
+            const slices = this.scheduler.queueLength;
+
+            return workers > 0 && slices > 0;
+        };
+
+        const dequeueAndDispatch = () => {
+            const reenqueue = [];
+            const dispatch = [];
+
+            const slices = this.scheduler.getSlices(this.server.workerQueueSize);
+
+            slices.forEach((slice) => {
+                const workerId = this.server.dequeueWorker(slice);
+                if (!workerId) {
+                    reenqueue.push(slice);
+                } else {
+                    this.pendingDispatches += 1;
+                    this.pendingSlices += 1;
+                    dispatch.push({ slice, workerId });
+                }
+            });
+            slices.length = 0;
+
+            if (dispatch.length > 0) {
+                process.nextTick(() => {
+                    dispatch.forEach(({ slice, workerId }) => {
+                        this._dispatchSlice(slice, workerId);
+                    });
+                    dispatch.length = 0;
+                });
+            }
+
+            if (reenqueue.length > 0) {
+                // this isn't really ideal since we adding
+                // to the beginning of the queue and
+                // it may end up in a recursive loop trying
+                // to process that slice
+                this.scheduler.enqueueSlices(reenqueue, true);
+                reenqueue.length = 0;
+            }
+        };
+
+        await Promise.delay(0);
 
         await new Promise((resolve) => {
             this.logger.debug('dispatching slices...');
-
-            // returns a boolean to indicate whether
-            // dispatching should continue
-            const isRunning = () => {
-                if (this.isShuttingDown) return false;
-                if (this.isExecutionDone) return false;
-                if (this.scheduler.isFinished
-                    && !this.pendingDispatches) return false;
-                return true;
-            };
-
-            const isPaused = () => this.isPaused;
-            const canDispatch = () => {
-                const workers = this.server.workerQueueSize;
-                const slices = this.scheduler.queueLength;
-
-                return workers > 0 && slices > 0;
-            };
-
-            const dequeueAndDispatch = () => {
-                const reenqueue = [];
-                const dispatch = [];
-
-                this.scheduler
-                    .getSlices(this.server.workerQueueSize)
-                    .forEach((slice) => {
-                        const workerId = this.server.dequeueWorker(slice);
-                        if (!workerId) {
-                            reenqueue.push(slice);
-                        } else {
-                            this.pendingDispatches += 1;
-                            this.pendingSlices += 1;
-                            dispatch.push({ slice, workerId });
-                        }
-                    });
-
-                if (dispatch.length > 0) {
-                    process.nextTick(() => {
-                        dispatch.forEach(({ slice, workerId }) => {
-                            this._dispatchSlice(slice, workerId);
-                        });
-                    });
-                }
-
-                if (reenqueue.length > 0) {
-                    // this isn't really ideal since we adding
-                    // to the beginning of the queue and
-                    // it may end up in a recursive loop trying
-                    // to process that slice
-                    this.scheduler.enqueueSlices(reenqueue, true);
-                }
-            };
 
             dispatchInterval = setInterval(() => {
                 if (!isRunning()) {
@@ -522,7 +525,7 @@ class ExecutionController {
                 if (canDispatch()) {
                     dequeueAndDispatch();
                 }
-            }, 1);
+            }, 10);
         });
 
         clearInterval(dispatchInterval);

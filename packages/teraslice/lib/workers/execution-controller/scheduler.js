@@ -340,7 +340,7 @@ class Scheduler {
                 pendingSlicers.delete(id);
                 this._runSlicer(id);
             }
-        }, 1);
+        }, 10);
 
         this._processCleanup = cleanup;
     }
