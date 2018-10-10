@@ -238,12 +238,8 @@ class Scheduler {
             this._processCleanup = _.noop;
         };
 
-        const runSlicer = (id) => {
-            process.nextTick((input) => { this._runSlicer(input); }, id);
-        };
-
         let slicersDone = 0;
-        let backupInterval;
+        let interval;
 
         const slicerCount = () => this.slicers.length;
         const getSlicerIds = () => _.map(_.filter(this.slicers, { finished: false }), 'id');
@@ -261,25 +257,10 @@ class Scheduler {
             return count;
         };
 
-        function runPendingSlicers() {
-            if (!pendingSlicers.length) return;
-
-            const count = getAllocationCount();
-            if (!count) return;
-
-            const slicersToRun = _.take(pendingSlicers, count);
-            pendingSlicers = _.without(pendingSlicers, ...slicersToRun);
-
-            slicersToRun.forEach(runSlicer);
-        }
-
-        function onSlicersStart() {
-            runPendingSlicers();
-        }
-
         function onSlicersDone(slicerId) {
-            pendingSlicers = _.union(pendingSlicers, [slicerId]);
-            runPendingSlicers();
+            if (!pendingSlicers.includes(slicerId)) {
+                pendingSlicers = [...pendingSlicers, slicerId];
+            }
         }
 
         function onSlicerFinished(slicerId) {
@@ -288,7 +269,7 @@ class Scheduler {
             logger.info(`slicer ${slicerId} for execution: ${exId} has completed its range`);
 
             if (slicersDone === slicerCount()) {
-                clearInterval(backupInterval);
+                clearInterval(interval);
                 logger.info(`all slicers for execution: ${exId} have been completed`);
 
                 // before removing listeners make sure we've received all of the events
@@ -300,7 +281,7 @@ class Scheduler {
         }
 
         function onSlicerFailure(err, slicerId) {
-            clearInterval(backupInterval);
+            clearInterval(interval);
             logger.warn(`slicer ${slicerId} failed`, _.toString(err));
 
             // before removing listeners make sure we've received all of the events
@@ -320,12 +301,10 @@ class Scheduler {
         events.on('slicer:finished', onSlicerFinished);
         events.on('slicer:failure', onSlicerFailure);
 
-        events.on('slicers:start', onSlicersStart);
-        events.on('slicers:queued', runPendingSlicers);
         events.on('slicers:registered', onRegisteredSlicers);
 
         function cleanup() {
-            clearInterval(backupInterval);
+            clearInterval(interval);
 
             pendingSlicers = [];
 
@@ -333,14 +312,24 @@ class Scheduler {
             events.removeListener('slicer:finished', onSlicerFinished);
             events.removeListener('slicer:failure', onSlicerFailure);
 
-            events.removeListener('slicers:start', onSlicersStart);
-            events.removeListener('slicers:queued', runPendingSlicers);
             events.removeListener('slicers:registered', onRegisteredSlicers);
             resetCleanup();
         }
 
         // make sure never a miss anything
-        backupInterval = setInterval(runPendingSlicers, 500);
+        interval = setInterval(() => {
+            if (!pendingSlicers.length) return;
+
+            const count = getAllocationCount();
+            if (!count) return;
+
+            const slicersToRun = _.take(pendingSlicers, count);
+            pendingSlicers = _.without(pendingSlicers, ...slicersToRun);
+
+            slicersToRun.forEach((id) => {
+                this._runSlicer(id);
+            });
+        }, 1);
 
         this._processCleanup = cleanup;
     }

@@ -452,6 +452,8 @@ class ExecutionController {
     async _runDispatch() {
         this.isDoneDispatching = false;
 
+        await new Promise(resolve => process.nextTick(() => resolve()));
+
         await new Promise((resolve) => {
             this.logger.debug('dispatching slices...');
 
