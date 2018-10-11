@@ -1,0 +1,22 @@
+{
+  "name": "tlucene-evaluator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "jest",
+    "build": "node_modules/pegjs/bin/pegjs -o lib/lucene-query-parser/peg_engine.js lib/lucene-query-parser/lucene.grammar"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "pegjs": "^0.10.0"
+  },
+  "devDependencies": {
+    "jest": "^23.6.0"
+  }
+}
