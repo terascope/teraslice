@@ -48,7 +48,7 @@
         "datemath-parser": "^1.0.6",
         "decompress": "^4.2.0",
         "easy-table": "^1.1.1",
-        "express": "^4.16.3",
+        "express": "^4.16.4",
         "fs-extra": "^7.0.0",
         "kubernetes-client": "^5.4.0",
         "lodash": "^4.17.11",
@@ -78,6 +78,6 @@
         "jest-extended": "^0.11.0",
         "jest-fixtures": "^0.6.0",
         "json-schema-faker": "^0.5.0-rc16",
-        "nock": "^10.0.0"
+        "nock": "^10.0.1"
     }
 }

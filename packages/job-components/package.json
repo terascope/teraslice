@@ -39,8 +39,8 @@
         "@terascope/queue": "^1.1.4",
         "@terascope/teraslice-types": "^0.2.1",
         "@types/fs-extra": "^5.0.4",
-        "@types/lodash": "^4.14.116",
-        "@types/node": "^10.11.4",
+        "@types/lodash": "^4.14.117",
+        "@types/node": "^10.11.7",
         "@types/uuid": "^3.4.4",
         "datemath-parser": "^1.0.6",
         "fs-extra": "^7.0.0",
@@ -50,16 +50,16 @@
         "uuid": "^3.3.2"
     },
     "devDependencies": {
-        "@types/jest": "^23.3.3",
+        "@types/jest": "^23.3.5",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "jest": "^23.6.0",
         "jest-extended": "^0.11.0",
         "rimraf": "^2.0.0",
-        "ts-jest": "^23.10.3",
+        "ts-jest": "^23.10.4",
         "tslint": "^5.0.0",
         "tslint-config-airbnb": "^5.11.0",
-        "typescript": "^3.1.1"
+        "typescript": "^3.1.2"
     },
     "engines": {
         "node": ">=8.0.0"
