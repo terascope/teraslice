@@ -477,7 +477,6 @@ class ExecutionController {
             const dispatch = [];
 
             const slices = this.scheduler.getSlices(this.server.workerQueueSize);
-
             slices.forEach((slice) => {
                 const workerId = this.server.dequeueWorker(slice);
                 if (!workerId) {
@@ -492,10 +491,15 @@ class ExecutionController {
 
             if (dispatch.length > 0) {
                 process.nextTick(() => {
-                    dispatch.forEach(({ slice, workerId }) => {
-                        this._dispatchSlice(slice, workerId);
-                    });
+                    const promises = dispatch
+                        .map((input) => {
+                            const { slice, workerId } = input;
+                            return this._dispatchSlice(slice, workerId);
+                        });
                     dispatch.length = 0;
+
+                    Promise.all(promises)
+                        .catch(err => this.logger.error('failure to dispatch slices', err));
                 });
             }
 
@@ -525,7 +529,7 @@ class ExecutionController {
                 if (canDispatch()) {
                     dequeueAndDispatch();
                 }
-            }, 10);
+            }, 5);
         });
 
         clearInterval(dispatchInterval);
@@ -536,7 +540,7 @@ class ExecutionController {
     _dispatchSlice(slice, workerId) {
         this.logger.trace(`dispatching slice ${slice.slice_id} for worker ${workerId}`);
 
-        this.server.dispatchSlice(slice, workerId)
+        return this.server.dispatchSlice(slice, workerId)
             .then((dispatched) => {
                 if (dispatched) {
                     this.logger.debug(`dispatched slice ${slice.slice_id} to worker ${workerId}`);

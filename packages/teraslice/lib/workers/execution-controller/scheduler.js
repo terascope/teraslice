@@ -331,16 +331,20 @@ class Scheduler {
             if (!count) return;
 
             let processed = 0;
+            const promises = [];
 
             // eslint-disable-next-line no-restricted-syntax
             for (const id of pendingSlicers) {
                 processed += 1;
-                if (processed > count) return;
+                if (processed > count) break;
 
                 pendingSlicers.delete(id);
-                this._runSlicer(id);
+                promises.push(this._runSlicer(id));
             }
-        }, 10);
+
+            Promise.all(promises)
+                .catch(err => this.logger.error('failure to run slicers', err));
+        }, 5);
 
         this._processCleanup = cleanup;
     }
@@ -407,19 +411,15 @@ class Scheduler {
     _createSlices(slices) {
         this._creating += slices.length;
 
-        slices.forEach((slice) => {
-            process.nextTick(() => {
-                this._ensureSliceState(slice)
-                    .then((_slice) => {
-                        this.enqueueSlice(_slice);
-                    })
-                    .catch((err) => {
-                        this.logger.error('error enqueuing slice', err);
-                    })
-                    .finally(() => {
-                        this._creating -= 1;
-                    });
-            });
+        process.nextTick(() => {
+            const promises = slices.map(slice => this._ensureSliceState(slice)
+                .then(_slice => this.enqueueSlice(_slice))
+                .finally(() => {
+                    this._creating -= 1;
+                }));
+
+            Promise.all(promises)
+                .catch(err => this.logger.error('failure to enqueue slice', err));
         });
     }
 }

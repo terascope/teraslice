@@ -7,6 +7,8 @@ import * as i from './interfaces';
 
 const debug = debugFn('teraslice-messaging:execution-controller:server');
 
+const { Available, Unavailable } = core.ClientState;
+
 export class Server extends core.Server {
     private _activeWorkers: i.ActiveWorkers;
     queue: Queue<i.EnqueuedWorker>;
@@ -77,7 +79,7 @@ export class Server extends core.Server {
     }
 
     async dispatchSlice(slice: Slice, workerId: string): Promise<boolean> {
-        const isAvailable = get(this._clients, [workerId, 'state']) === core.ClientState.Available;
+        const isAvailable = this._clients[workerId] && this._clients[workerId].state === Available;
         if (!isAvailable) {
             debug(`worker ${workerId} is not available`);
             return false;
@@ -90,7 +92,9 @@ export class Server extends core.Server {
 
         try {
             const response = await this.send(workerId, 'execution:slice:new', slice);
-            dispatched = get(response, 'payload.willProcess', false);
+            if (response && response.payload) {
+                dispatched = response.payload.willProcess;
+            }
         } catch (error) {
             debug(`got error when dispatching slice ${slice.slice_id}`, error);
         }
@@ -99,7 +103,9 @@ export class Server extends core.Server {
             debug(`failure to dispatch slice ${slice.slice_id} to worker ${workerId}`);
             this._activeWorkers[workerId] = false;
         } else {
-            this.updateClientState(workerId, core.ClientState.Unavailable);
+            process.nextTick(() => {
+                this.updateClientState(workerId, Unavailable);
+            });
         }
 
         return dispatched;
