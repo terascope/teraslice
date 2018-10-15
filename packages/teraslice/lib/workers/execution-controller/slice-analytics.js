@@ -102,15 +102,22 @@ average memory: ${memory.average}, min: ${memory.min}, and max: ${memory.max}
         return sliceAnalytics;
     }
 
-    events.on('slice:success', (response) => {
-        if (response.analytics) {
-            addStats(response.analytics);
+    function onSliceSuccess({ analytics }) {
+        if (analytics) {
+            addStats(analytics);
         }
-    });
+    }
+
+    events.on('slice:success', onSliceSuccess);
+
+    function shutdown() {
+        events.removeListener('slice:success', onSliceSuccess);
+    }
 
     return {
         addStats,
         analyzeStats,
         getStats,
+        shutdown,
     };
 };

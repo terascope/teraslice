@@ -36,26 +36,26 @@
         "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@types/bunyan": "^1.8.4",
+        "@types/bunyan": "^1.8.5",
         "@types/convict": "^4.2.0",
-        "@types/lodash": "^4.14.116",
-        "@types/node": "^10.11.4",
+        "@types/lodash": "^4.14.117",
+        "@types/node": "^10.11.7",
         "bunyan": "^1.8.12",
         "convict": "^4.4.0",
         "debugnyan": "^2.0.2",
         "lodash": "^4.17.11"
     },
     "devDependencies": {
-        "@types/jest": "^23.3.3",
+        "@types/jest": "^23.3.5",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "jest": "^23.6.0",
         "jest-extended": "^0.11.0",
         "rimraf": "^2.0.0",
-        "ts-jest": "^23.10.3",
+        "ts-jest": "^23.10.4",
         "tslint": "^5.0.0",
         "tslint-config-airbnb": "^5.11.0",
-        "typescript": "^3.1.1"
+        "typescript": "^3.1.2"
     },
     "engines": {
         "node": ">=8.0.0"

@@ -1,7 +1,7 @@
 'use strict';
 
 import debugFn from 'debug';
-import _ from 'lodash';
+import { isString, isNumber, clone, get } from 'lodash';
 import SocketIOServer from 'socket.io';
 import http from 'http';
 import porty from 'porty';
@@ -33,6 +33,8 @@ const connectedStates = [
     ...onlineStates
 ];
 
+const isTesting = process.env.NODE_ENV === 'test';
+
 export class Server extends Core {
     isShuttingDown: boolean;
     readonly port: number;
@@ -42,7 +44,6 @@ export class Server extends Core {
     readonly clientDisconnectTimeout: number;
     private _cleanupClients: NodeJS.Timer|undefined;
     protected _clients: i.ConnectedClients;
-    protected _clientSendFns: i.ClientSendFns;
 
     constructor(opts: i.ServerOptions) {
         const {
@@ -56,15 +57,15 @@ export class Server extends Core {
         } = opts;
         super(opts);
 
-        if (!_.isNumber(port)) {
+        if (!isNumber(port)) {
             throw new Error('Messenger.Server requires a valid port');
         }
 
-        if (!_.isString(serverName)) {
+        if (!isString(serverName)) {
             throw new Error('Messenger.Server requires a valid serverName');
         }
 
-        if (!_.isNumber(clientDisconnectTimeout)) {
+        if (!isNumber(clientDisconnectTimeout)) {
             throw new Error('Messenger.Server requires a valid clientDisconnectTimeout');
         }
 
@@ -72,11 +73,11 @@ export class Server extends Core {
         this.serverName = serverName;
         this.clientDisconnectTimeout = clientDisconnectTimeout;
 
-        this.server = SocketIOServer({
+        // @ts-ignore
+        this.server = new SocketIOServer({
             pingTimeout,
             pingInterval,
-            // transports: ['websocket'],
-            // allowUpgrades: false,
+            perMessageDeflate: false,
             serveClient: false,
         });
 
@@ -89,7 +90,6 @@ export class Server extends Core {
         this.isShuttingDown = false;
 
         this._clients = {};
-        this._clientSendFns = {};
         this._onConnection = this._onConnection.bind(this);
     }
 
@@ -112,35 +112,31 @@ export class Server extends Core {
         this.server.attach(this.httpServer);
 
         this.server.use((socket, next) => {
-            socket.join(socket.handshake.query.clientType, next);
+            socket.join(socket.handshake.query.clientId, next);
         });
 
         this.server.on('connection', this._onConnection);
 
         this.onClientReconnect((clientId) => {
-            this.emit('ready', { clientId, payload: {} });
+            this.emit('ready', { scope: clientId, payload: {} });
         });
 
         this.onClientOnline((clientId) => {
-            this.emit('ready', { clientId, payload: {} });
+            this.emit('ready', { scope: clientId, payload: {} });
         });
 
         this._cleanupClients = setInterval(() => {
-            _.forEach(this._clients, (client: i.ConnectedClient) => {
-                if (client.state === i.ClientState.Shutdown) {
-                    this.updateClientState(client.clientId, {
-                        state: i.ClientState.Offline,
-                    });
+            for (const { clientId, state, offlineAt } of Object.values(this._clients)) {
+                if (state === i.ClientState.Shutdown) {
+                    this.updateClientState(clientId, i.ClientState.Offline);
                 }
-                if (client.state === i.ClientState.Disconnected && client.offlineAt) {
-                    if (client.offlineAt.getTime() > Date.now()) {
-                        this.updateClientState(client.clientId, {
-                            state: i.ClientState.Offline,
-                        });
+                if (state === i.ClientState.Disconnected && offlineAt) {
+                    if (offlineAt > Date.now()) {
+                        this.updateClientState(clientId, i.ClientState.Offline);
                     }
                 }
-            });
-        }, 1000);
+            }
+        }, isTesting ? 100 : 5000);
     }
 
     async shutdown() {
@@ -148,11 +144,11 @@ export class Server extends Core {
 
         if (this._cleanupClients != null) {
             clearInterval(this._cleanupClients);
+            this._cleanupClients = undefined;
         }
 
         if (this.closed) {
             this._clients = {};
-            this._clientSendFns = {};
             return;
         }
 
@@ -171,13 +167,12 @@ export class Server extends Core {
         });
 
         this._clients = {};
-        this._clientSendFns = {};
 
         super.close();
     }
 
     get connectedClients(): i.ConnectedClient[] {
-        return _.clone(this.filterClientsByState(connectedStates));
+        return clone(this.filterClientsByState(connectedStates));
     }
 
     get connectedClientCount(): number {
@@ -185,7 +180,7 @@ export class Server extends Core {
     }
 
     get onlineClients(): i.ConnectedClient[] {
-        return _.clone(this.filterClientsByState(onlineStates));
+        return clone(this.filterClientsByState(onlineStates));
     }
 
     get onlineClientCount(): number {
@@ -193,7 +188,7 @@ export class Server extends Core {
     }
 
     get disconnectedClients(): i.ConnectedClient[] {
-        return _.clone(this.filterClientsByState(disconnectedStates));
+        return clone(this.filterClientsByState(disconnectedStates));
     }
 
     get disconectedClientCount(): number {
@@ -201,7 +196,7 @@ export class Server extends Core {
     }
 
     get offlineClients(): i.ConnectedClient[] {
-        return _.clone(this.filterClientsByState([i.ClientState.Offline]));
+        return clone(this.filterClientsByState([i.ClientState.Offline]));
     }
 
     get offlineClientCount(): number {
@@ -209,7 +204,7 @@ export class Server extends Core {
     }
 
     get availableClients(): i.ConnectedClient[] {
-        return _.clone(this.filterClientsByState([i.ClientState.Available]));
+        return clone(this.filterClientsByState([i.ClientState.Available]));
     }
 
     get availableClientCount(): number {
@@ -217,7 +212,7 @@ export class Server extends Core {
     }
 
     get unavailableClients(): i.ConnectedClient[] {
-        return _.clone(this.filterClientsByState(unavailableStates));
+        return clone(this.filterClientsByState(unavailableStates));
     }
 
     get unavailableClientCount(): number {
@@ -225,79 +220,68 @@ export class Server extends Core {
     }
 
     onClientOnline(fn: (clientId: string) => void) {
-        this.on(`client:${i.ClientState.Online}`, (msg) => {
-            fn(msg.clientId);
+        return this.on(`client:${i.ClientState.Online}`, (msg) => {
+            fn(msg.scope);
         });
     }
 
     onClientAvailable(fn: (clientId: string) => void) {
-        this.on(`client:${i.ClientState.Available}`, (msg) => {
-            fn(msg.clientId);
+        return this.on(`client:${i.ClientState.Available}`, (msg) => {
+            fn(msg.scope);
         });
     }
 
     onClientUnavailable(fn: (clientId: string) => void) {
-        this.on(`client:${i.ClientState.Unavailable}`, (msg) => {
-            fn(msg.clientId);
+        return this.on(`client:${i.ClientState.Unavailable}`, (msg) => {
+            fn(msg.scope);
         });
     }
 
     onClientOffline(fn: (clientId: string) => void) {
-        this.on(`client:${i.ClientState.Offline}`, (msg) => {
-            fn(msg.clientId);
+        return this.on(`client:${i.ClientState.Offline}`, (msg) => {
+            fn(msg.scope);
         });
     }
 
     onClientDisconnect(fn: (clientId: string) => void) {
-        this.on(`client:${i.ClientState.Disconnected}`, (msg) => {
-            fn(msg.clientId);
+        return this.on(`client:${i.ClientState.Disconnected}`, (msg) => {
+            fn(msg.scope);
         });
     }
 
     onClientShutdown(fn: (clientId: string) => void) {
-        this.on(`client:${i.ClientState.Shutdown}`, (msg) => {
-            fn(msg.clientId);
+        return this.on(`client:${i.ClientState.Shutdown}`, (msg) => {
+            fn(msg.scope);
         });
     }
 
     onClientReconnect(fn: (clientId: string) => void) {
-        this.on('client:reconnect', (msg) => {
-            fn(msg.clientId);
+        return this.on('client:reconnect', (msg) => {
+            fn(msg.scope);
         });
     }
 
     onClientError(fn: (clientId: string) => void) {
-        this.on('client:error', (msg) => {
-            fn(msg.clientId);
+        return this.on('client:error', (msg) => {
+            fn(msg.scope);
         });
     }
 
-    async emit(eventName: string, msg: i.ClientEventMessage) {
-        await Promise.all([
-            super.emit(`${eventName}`, msg),
-            super.emit(`${eventName}:${msg.clientId}`, msg),
-        ]);
-    }
-
-    on(eventName: string, fn: (msg: i.ClientEventMessage) => void) {
-        return super.on(eventName, fn);
-    }
-
     isClientReady(clientId: string) {
-        const clientState = _.get(this._clients, [clientId, 'state']);
+        const clientState = get(this._clients, [clientId, 'state']);
         return onlineStates.includes(clientState);
     }
 
     protected sendToAll(eventName: string, payload?: i.Payload, options: i.SendOptions = { volatile: true, response: true }) {
         const clients = this.filterClientsByState(onlineStates);
-        const promises = _.map(clients, (client) => {
+        const promises = Object.values(clients).map((client) => {
             return this.send(client.clientId, eventName, payload, options);
         });
         return Promise.all(promises);
     }
 
     protected async send(clientId: string, eventName: string, payload: i.Payload = {}, options: i.SendOptions = { response: true }): Promise<i.Message|null> {
-        if (!_.has(this._clientSendFns, clientId)) {
+        if (!this.isClientConnected(clientId)) {
             throw new Error(`No client found by that id "${clientId}"`);
         }
 
@@ -326,8 +310,16 @@ export class Server extends Core {
         };
 
         const responseMsg = this.handleSendResponse(message);
-        this._clientSendFns[clientId](message);
+
+        this.server.to(clientId).emit(message.eventName, message);
+
         return responseMsg;
+    }
+
+    isClientConnected(clientId: string): boolean {
+        if (this._clients[clientId] == null) return false;
+        const { state } = this._clients[clientId];
+        return connectedStates.includes(state);
     }
 
     protected getClientMetadataFromSocket(socket: SocketIO.Socket): i.ClientSocketMetadata {
@@ -335,7 +327,7 @@ export class Server extends Core {
     }
 
     private filterClientsByState(states: i.ClientState[]): i.ConnectedClient[] {
-        return _.filter(this._clients, (client) => {
+        return Object.values(this._clients).filter((client) => {
             return states.includes(client.state);
         });
     }
@@ -350,125 +342,76 @@ export class Server extends Core {
         return count;
     }
 
-    protected updateClientState(clientId: string, update: i.UpdateClientState): boolean {
-        const client = this._clients[clientId];
-        if (!client) {
+    protected updateClientState(clientId: string, state: i.ClientState): boolean {
+        if (this._clients[clientId] == null) {
             debug(`${clientId} does not exist and cannot be updated`);
             return false;
         }
 
-        const currentState = client.state;
-        if (currentState === update.state) {
+        const currentState = this._clients[clientId].state;
+        if (currentState === state) {
             debug(`${clientId} state of ${currentState} is the same, skipping update`);
             return false;
         }
 
-        if (currentState === i.ClientState.Shutdown && update.state !== i.ClientState.Offline) {
+        if (currentState === i.ClientState.Shutdown && state !== i.ClientState.Offline) {
             debug(`${clientId} state of ${currentState} can only be updated to offline`);
             return false;
         }
 
-        const updatedAt = new Date();
-        this._clients[clientId].state = update.state;
-        this._clients[clientId].updatedAt = updatedAt;
-
-        if (update.socketId) {
-            this._clients[clientId].socketId = update.socketId;
-        }
+        this._clients[clientId].state = state;
 
         const eventMsg = {
-            clientId,
-            payload: update.payload,
-            error: update.error,
+            scope: clientId,
+            payload: {}
         };
 
-        switch (update.state) {
-            case i.ClientState.Online:
-                this.emit('client:reconnect', eventMsg);
-                return true;
+        if (state === i.ClientState.Disconnected) {
+            if (currentState === i.ClientState.Available) {
+                debug(`${clientId} is unavailable because it was marked as disconnected`);
+                this.emit(`client:${i.ClientState.Unavailable}`, eventMsg);
+            }
 
-            case i.ClientState.Available:
-                this.emit(`client:${update.state}`, eventMsg);
-                return true;
+            this._clients[clientId].offlineAt = Date.now() + this.clientDisconnectTimeout;
 
-            case i.ClientState.Unavailable:
-                this.emit(`client:${update.state}`, eventMsg);
-                return true;
-
-            case i.ClientState.Shutdown:
-                this.emit(`client:${update.state}`, eventMsg);
-                return true;
-
-            case i.ClientState.Disconnected:
+            debug(`${clientId} is disconnected will be considered offline in ${this.clientDisconnectTimeout}`);
+        } else if (state === i.ClientState.Offline) {
+            if (!disconnectedStates.includes(currentState)) {
                 if (currentState === i.ClientState.Available) {
-                    debug(`${clientId} is unavailable because it was marked as disconnected`);
+                    debug(`${clientId} is unavailable because it was marked as offline`);
                     this.emit(`client:${i.ClientState.Unavailable}`, eventMsg);
                 }
 
-                const offlineAtMs = Date.now() + this.clientDisconnectTimeout;
-                this._clients[clientId].offlineAt = new Date(offlineAtMs);
-
-                debug(`${clientId} is disconnected will be considered offline in ${this.clientDisconnectTimeout}`);
-                this.emit(`client:${update.state}`, eventMsg);
-                return true;
-
-            case i.ClientState.Offline:
-                if (!disconnectedStates.includes(currentState)) {
-                    if (currentState === i.ClientState.Available) {
-                        debug(`${clientId} is unavailable because it was marked as offline`);
-                        this.emit(`client:${i.ClientState.Unavailable}`, eventMsg);
-                    }
-
-                    debug(`${clientId} is disconnected because it was marked as offline`);
-                    this.emit(`client:${i.ClientState.Disconnected}`, eventMsg);
-                }
-
-                this.emit(`client:${update.state}`, eventMsg);
-
-                // cleanup socket and such
-                const { socketId } = this._clients[clientId];
-
-                if (this.server.sockets.sockets[socketId]) {
-                    try {
-                        this.server.sockets.sockets[socketId].removeAllListeners();
-                        this.server.sockets.sockets[socketId].disconnect(true);
-                    } catch (err) {
-                        debug('error cleaning up socket when going offline', err);
-                    }
-                    delete this.server.sockets.sockets[socketId];
-                }
-
-                delete this._clientSendFns[clientId];
-                return true;
-
-            default:
-                return false;
+                debug(`${clientId} is disconnected because it was marked as offline`);
+                this.emit(`client:${i.ClientState.Disconnected}`, eventMsg);
+            }
         }
+
+        if (state === i.ClientState.Online) {
+            this.emit('client:reconnect', eventMsg);
+        } else {
+            this.emit(`client:${state}`, eventMsg);
+        }
+
+        return true;
     }
 
     protected ensureClient(socket: SocketIO.Socket) : i.ConnectedClient {
-        const { clientId, clientType } = this.getClientMetadataFromSocket(socket);
+        const { clientId } = this.getClientMetadataFromSocket(socket);
         const client = this._clients[clientId];
 
         if (client) {
-            this.updateClientState(clientId, {
-                state: i.ClientState.Online,
-                socketId: socket.id,
-            });
+            this.updateClientState(clientId, i.ClientState.Online);
             return client;
         }
 
         const newClient: i.ConnectedClient = {
             clientId,
-            clientType,
             state: i.ClientState.Online,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            offlineAt: null,
-            socketId: socket.id
+            offlineAt: null
         };
 
-        this.emit(`client:${i.ClientState.Online}`, { clientId, payload: {} });
+        this.emit(`client:${i.ClientState.Online}`, { scope: clientId, payload: {} });
 
         this._clients[clientId] = newClient;
         return newClient;
@@ -478,55 +421,47 @@ export class Server extends Core {
         const client = this.ensureClient(socket);
         const { clientId } = client;
 
-        this._clientSendFns[clientId] = (message: i.Message) => {
-            socket.emit(message.eventName, message, this._sendCallbackFn);
-        };
-
         socket.on('error', (error: Error|string) => {
             this.emit('client:error', {
-                clientId,
+                scope: clientId,
                 payload: {},
                 error
             });
         });
 
         socket.on('disconnect', (error: Error|string) => {
+            debug(`client ${clientId} disconnected with error`, error);
+            socket.removeAllListeners();
+            socket.disconnect(true);
+
             if (this.isShuttingDown) {
-                this.updateClientState(clientId, {
-                    state: i.ClientState.Shutdown,
-                    error,
-                });
+                this.updateClientState(clientId, i.ClientState.Shutdown);
             } else {
-                this.updateClientState(clientId, {
-                    state: i.ClientState.Disconnected,
-                    error,
-                });
+                this.updateClientState(clientId, i.ClientState.Disconnected);
             }
         });
 
-        socket.on(`client:${i.ClientState.Available}`, this.handleResponse(`client:${i.ClientState.Available}`, (msg: i.Message) => {
-            this.updateClientState(clientId, {
-                state: i.ClientState.Available,
-                payload: msg.payload,
-            });
-        }));
+        this.handleResponse(socket, `client:${i.ClientState.Available}`, () => {
+            this.updateClientState(clientId, i.ClientState.Available);
+        });
 
-        socket.on(`client:${i.ClientState.Unavailable}`, this.handleResponse(`client:${i.ClientState.Unavailable}`, (msg: i.Message) => {
-            this.updateClientState(clientId, {
-                state: i.ClientState.Unavailable,
-                payload: msg.payload,
-            });
-        }));
+        this.handleResponse(socket, `client:${i.ClientState.Unavailable}`, () => {
+            this.updateClientState(clientId, i.ClientState.Unavailable);
+        });
 
-        socket.on(`client:${i.ClientState.Shutdown}`, this.handleResponse(`client:${i.ClientState.Shutdown}`, (msg: i.Message) => {
-            this.updateClientState(clientId, {
-                state: i.ClientState.Shutdown,
-                payload: msg.payload,
+        this.handleResponse(socket, `client:${i.ClientState.Shutdown}`, () => {
+            this.updateClientState(clientId, i.ClientState.Shutdown);
+        });
+
+        socket.on('message:response', (msg: i.Message) => {
+            this.emit(msg.id, {
+                scope: msg.from,
+                payload: msg,
             });
-        }));
+        });
 
         this.emit('connection', {
-            clientId,
+            scope: clientId,
             payload: socket
         });
     }

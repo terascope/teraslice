@@ -106,7 +106,7 @@ describe('execution recovery', () => {
 
         recovery._sliceComplete({ slice: { slice_id: 1 } });
 
-        expect(recovery._retryState()).toEqual({ });
+        expect(recovery._retryState()).toEqual({ 1: false });
         expect(recovery._recoveryBatchCompleted()).toEqual(true);
     });
 
@@ -137,7 +137,10 @@ describe('execution recovery', () => {
             waitFor(sendSucess2, 250)
         ])
             .then(() => {
-                expect(recovery._retryState()).toEqual({});
+                expect(recovery._retryState()).toEqual({
+                    1: false,
+                    2: false,
+                });
                 expect(recovery._recoveryBatchCompleted()).toEqual(true);
                 return recovery._setId({ slice_id: 2 });
             })

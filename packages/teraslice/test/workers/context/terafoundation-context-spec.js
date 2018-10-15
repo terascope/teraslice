@@ -21,8 +21,8 @@ describe('Terafoundation Context', () => {
         expect(context.foundation).toHaveProperty('getEventEmitter');
         expect(context.apis.foundation).toHaveProperty('getConnection');
         expect(context.foundation).toHaveProperty('getConnection');
-        expect(context.apis.foundation).not.toHaveProperty('startWorkers');
-        expect(context.foundation).not.toHaveProperty('startWorkers');
+        expect(context.apis.foundation).toHaveProperty('startWorkers');
+        expect(context.foundation).toHaveProperty('startWorkers');
         expect(context.apis).toHaveProperty('registerAPI');
     });
 

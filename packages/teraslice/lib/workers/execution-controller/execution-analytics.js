@@ -12,16 +12,7 @@ class ExecutionAnalytics {
         this.client = client;
         this.analyticsRate = _.get(context, 'sysconfig.teraslice.analytics_rate');
         this._handlers = {};
-
-        this._registerHandlers();
-    }
-
-    start() {
-        const {
-            ex_id: exId,
-            job_id: jobId,
-        } = this.executionContext;
-        const { name } = this.executionContext.job;
+        this._pushing = false;
 
         this.executionAnalytics = {
             workers_available: 0,
@@ -37,7 +28,8 @@ class ExecutionAnalytics {
             processed: 0,
             slicers: 0,
             subslice_by_key: 0,
-            started: newFormattedDate(),
+            started: '',
+            queuing_complete: ''
         };
 
         this.pushedAnalytics = {
@@ -50,20 +42,32 @@ class ExecutionAnalytics {
             workers_reconnected: 0
         };
 
+        this._registerHandlers();
+
+        this.isRunning = false;
+        this.isShutdown = false;
+    }
+
+    start() {
+        const {
+            ex_id: exId,
+            job_id: jobId,
+        } = this.executionContext;
+        const { name } = this.executionContext.config;
+
+        this.set('started', newFormattedDate());
+
         this.client.onExecutionAnalytics(() => ({
             name,
             ex_id: exId,
             job_id: jobId,
-            stats: this.executionAnalytics
+            stats: this.getAnalytics()
         }));
 
-        this.sendingAnalytics = true;
+        this.isRunning = true;
 
-        this.intervalId = setInterval(() => {
-            if (!this.sendingAnalytics) {
-                clearInterval(this.intervalId);
-                return;
-            }
+        this.analyticsInterval = setInterval(() => {
+            if (!this.isRunning) return;
 
             this._pushAnalytics();
         }, this.analyticsRate);
@@ -87,15 +91,18 @@ class ExecutionAnalytics {
     }
 
     getAnalytics() {
-        return _.cloneDeep(this.executionAnalytics);
+        return _.clone(this.executionAnalytics);
     }
 
     async shutdown(timeout) {
-        this.sendingAnalytics = false;
-        clearInterval(this.intervalId);
+        this.isRunning = false;
+        this.isShutdown = true;
+
+        clearInterval(this.analyticsInterval);
 
         _.forEach(this._handlers, (handler, event) => {
             this.events.removeListener(event, handler);
+            this._handlers[event] = null;
         });
 
         await this._pushAnalytics(timeout);
@@ -105,13 +112,15 @@ class ExecutionAnalytics {
         if (this._pushing) return;
         this._pushing = true;
 
+        const analytics = this.getAnalytics();
+
         // save a copy of what we push so we can emit diffs
         const diffs = {};
         const copy = {};
 
         _.forOwn(this.pushedAnalytics, (value, field) => {
-            diffs[field] = this.executionAnalytics[field] - value;
-            copy[field] = this.executionAnalytics[field];
+            diffs[field] = analytics[field] - value;
+            copy[field] = analytics[field];
         });
 
         const response = await this.client.sendClusterAnalytics(diffs, timeout);
@@ -119,7 +128,7 @@ class ExecutionAnalytics {
 
         this._pushing = false;
 
-        if (!recorded && this.sendingAnalytics) {
+        if (!recorded && this.isRunning) {
             this.logger.warn('cluster master did not record the cluster analytics');
             return;
         }

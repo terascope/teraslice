@@ -79,8 +79,8 @@ class TestContext {
             this.config.ex_id = ex.ex_id;
         }
 
-        this.executionContext = new ExecutionContext(this.context, this.config);
-        await this.executionContext.initialize();
+        const exContext = new ExecutionContext(this.context, this.config);
+        this.executionContext = await exContext.initialize();
 
         this.nodeId = this.executionContext.node_id;
         this.exId = this.executionContext.ex_id;

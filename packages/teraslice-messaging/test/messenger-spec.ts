@@ -209,7 +209,8 @@ describe('Messenger', () => {
                     actionTimeout: 1000,
                     pingTimeout: 3000,
                     pingInterval: 1000,
-                    clientDisconnectTimeout: 4000,
+                    serverTimeout: 2000,
+                    clientDisconnectTimeout: 50,
                     serverName: 'example'
                 });
 
@@ -235,8 +236,8 @@ describe('Messenger', () => {
                     socketOptions: {
                         reconnection: true,
                         reconnectionAttempts: 10,
-                        reconnectionDelay: 500,
-                        reconnectionDelayMax: 500
+                        reconnectionDelay: 10,
+                        reconnectionDelayMax: 50
                     },
                 });
 
@@ -250,7 +251,10 @@ describe('Messenger', () => {
         afterAll((done) => {
             server.onClientShutdown(() => {
                 server.shutdown()
-                    .then(() => { done(); })
+                    .then(() => {
+                        server.shutdown();
+                        done();
+                    })
                     .catch(fail);
             });
             client.shutdown().catch(fail);
@@ -303,34 +307,69 @@ describe('Messenger', () => {
             expect(clientErrorFn).not.toHaveBeenCalled();
         });
 
+        it('should be able to handle getTimeoutWithMax', () => {
+            expect(server.getTimeoutWithMax(100)).toBe(100);
+            expect(server.getTimeoutWithMax(20000)).toBe(1000);
+        });
+
+        it('should be able to handle waitForClientReady', async () => {
+            try {
+                await server.waitForClientReady('hello', 100);
+            } catch (err) {
+                expect(err.message).toEqual('Client hello is not ready');
+            }
+
+            const clientReady = await server.waitForClientReady(client.clientId, 100);
+            expect(clientReady).toBeTrue();
+
+            const serverReady = await client.waitForClientReady(client.serverName, 100);
+            expect(serverReady).toBeTrue();
+        });
+
         describe('when testing onceWithTimeout', () => {
-            it('should be able to handle timeouts', () => {
+            it('should be able to handle timeouts', async () => {
+                expect(server.listenerCount('timeout:event')).toBe(0);
+
                 const once = server.onceWithTimeout('timeout:event', 500);
-                return expect(once).resolves.toBeUndefined();
+                expect(server.listenerCount('timeout:event')).toBe(1);
+                const msg = await once;
+
+                expect(msg).toBeUndefined();
+
+                expect(server.listenerCount('timeout:event')).toBe(0);
             });
 
-            it('should be able to handle timeouts when given a specific clientId', () => {
-                const once = server.onceWithTimeout('timeout:event', clientId, 500);
+            it('should be able to handle timeouts when given a specific scope', () => {
+                const once = server.onceWithTimeout(`timeout:event:${clientId}`, 500);
                 return expect(once).resolves.toBeUndefined();
             });
 
             it('should be able to resolve the message', async () => {
+                expect(server.listenerCount('success:event')).toBe(0);
+
                 const once = server.onceWithTimeout('success:event', 500);
+                expect(server.listenerCount('success:event')).toBe(1);
+
                 await server.emit('success:event', {
-                    clientId,
+                    scope: clientId,
                     payload: {
                         hello: true
                     }
                 });
-                return expect(once).resolves.toEqual({
+
+                const msg = await once;
+
+                expect(server.listenerCount('success:event')).toBe(0);
+
+                expect(msg).toEqual({
                     hello: true
                 });
             });
 
-            it('should be able to resolve the message when given a specific clientId', () => {
-                const once = server.onceWithTimeout('success:event', clientId, 500);
+            it('should be able to resolve the message when given a specific scope', () => {
+                const once = server.onceWithTimeout(`success:event:${clientId}`, 500);
                 server.emit('success:event', {
-                    clientId,
+                    scope: clientId,
                     payload: {
                         hello: true
                     }
@@ -344,10 +383,12 @@ describe('Messenger', () => {
         describe('when waiting for message that will never come', () => {
             it('should throw a timeout error', async () => {
                 expect.hasAssertions();
+
                 // @ts-ignore
-                server.server.to(clientId).on('hello', server.handleResponse(async () => {
+                server.handleResponse(server.server.to(clientId), 'hello', async () => {
                     await bluebird.delay(1000);
-                }));
+                });
+
                 try {
                     // @ts-ignore
                     await client.send('hello', {}, {
@@ -382,9 +423,9 @@ describe('Messenger', () => {
 
             beforeAll(async () => {
                 // @ts-ignore
-                client.socket.once('failure:message', (msg: Message, cb: Function) => {
+                client.socket.once('failure:message', (msg: Message) => {
                     msg.error = 'this should fail';
-                    cb(msg);
+                    client.socket.emit('message:response', msg);
                 });
                 try {
                     // @ts-ignore
@@ -401,7 +442,7 @@ describe('Messenger', () => {
             });
         });
 
-        xdescribe('when testing reconnect', () => {
+        describe('when testing reconnect', () => {
             it('should call server.onClientReconnect', (done) => {
                 server.onClientReconnect(() => {
                     done();

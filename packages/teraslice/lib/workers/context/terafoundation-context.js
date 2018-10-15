@@ -37,8 +37,8 @@ function makeContext(cluster, config, sysconfig) {
 
     // Initialize the API
     registerApis(context);
-    delete context.apis.foundation.startWorkers;
-    delete context.foundation.startWorkers;
+    context.apis.foundation.startWorkers = () => {};
+    context.foundation.startWorkers = () => {};
 
     const events = new EventEmitter();
     context.apis.foundation.getSystemEvents = () => events;
@@ -66,6 +66,7 @@ function getSysConfig() {
         .alias('v', 'version')
         .help()
         .alias('h', 'help')
+        .detectLocale(false)
         .option('c', {
             alias: 'configfile',
             describe: `Terafoundation configuration file to load.

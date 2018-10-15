@@ -2,24 +2,20 @@
 
 /* eslint-disable class-methods-use-this, no-console */
 
-const Promise = require('bluebird');
 const _ = require('lodash');
-const get = require('lodash/get');
+const Promise = require('bluebird');
 const { shutdownHandler } = require('./lib/workers/helpers/worker-shutdown');
 const { safeDecode } = require('./lib/utils/encoding_utils');
 const ExecutionContext = require('./lib/workers/context/execution-context');
 const makeTerafoundationContext = require('./lib/workers/context/terafoundation-context');
+const ExecutionController = require('./lib/workers/execution-controller');
+const Worker = require('./lib/workers/worker');
 
 class Service {
-    constructor() {
+    constructor(context) {
         const ex = this._getExecutionConfigFromEnv();
 
-        this.context = makeTerafoundationContext();
-
-        this.shutdownHandler = shutdownHandler(this.context, () => {
-            if (!this.instance) return Promise.resolve();
-            return this.instance.shutdown();
-        });
+        this.context = context;
 
         this.executionConfig = {
             assignment: this.context.assignment,
@@ -37,26 +33,20 @@ class Service {
         };
 
         this.logger = this.context.logger;
-        this.shutdownTimeout = get(this.context, 'sysconfig.teraslice.shutdown_timeout', 60 * 1000);
+        this.shutdownTimeout = _.get(this.context, 'sysconfig.teraslice.shutdown_timeout', 60 * 1000);
     }
 
     async initialize() {
         const { assignment, ex_id: exId } = this.executionConfig;
         this.logger.trace(`Initializing ${assignment} for execution ${exId}...`, this.executionConfig);
 
-        this.executionContext = new ExecutionContext(this.context, this.executionConfig);
-        await this.executionContext.initialize();
+        const exContext = new ExecutionContext(this.context, this.executionConfig);
+        const executionContext = await exContext.initialize();
 
         if (assignment === 'worker') {
-            // require this here so node doesn't have load extra code into memory
-            const Worker = require('./lib/workers/worker');
-
-            this.instance = new Worker(this.context, this.executionContext);
+            this.instance = new Worker(this.context, executionContext);
         } else if (assignment === 'execution_controller') {
-            // require this here so node doesn't have load extra code into memory
-            const ExecutionController = require('./lib/workers/execution-controller');
-
-            this.instance = new ExecutionController(this.context, this.executionContext);
+            this.instance = new ExecutionController(this.context, executionContext);
         }
 
         await this.instance.initialize();
@@ -89,7 +79,14 @@ class Service {
     }
 }
 
-const cmd = new Service();
+const context = makeTerafoundationContext();
+const cmd = new Service(context);
+
+cmd.shutdownHandler = shutdownHandler(context, () => {
+    if (!cmd.instance) return Promise.resolve();
+    return cmd.instance.shutdown();
+});
+
 Promise.resolve()
     .then(() => cmd.initialize())
     .then(() => cmd.run())

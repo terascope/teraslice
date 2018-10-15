@@ -2,12 +2,11 @@
     "extends": "../../tsconfig",
     "compilerOptions": {
         "baseUrl": ".",
-        "rootDir": "src",
         "outDir": "dist"
     },
     "references": [
         {
-            "path": "../teraslice-types/src"
+            "path": "../teraslice-types"
         }
     ]
 }

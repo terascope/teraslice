@@ -6,8 +6,8 @@ const TestContext = require('../helpers/test-context');
 const Scheduler = require('../../../lib/workers/execution-controller/scheduler');
 
 describe('Scheduler', () => {
-    let slicers;
-    let countPerSlicer;
+    const slicers = 3;
+    const countPerSlicer = 200;
     let expectedCount;
     let testContext;
     let scheduler;
@@ -21,7 +21,7 @@ describe('Scheduler', () => {
                     clearInterval(intervalId);
                     resolve(slices);
                 } else {
-                    const result = scheduler.getSlices(10);
+                    const result = scheduler.getSlices(100);
                     if (result.length > 0) {
                         slices.push(...result);
                     }
@@ -43,8 +43,6 @@ describe('Scheduler', () => {
     }
 
     beforeEach(async () => {
-        slicers = 3;
-        countPerSlicer = 200;
         expectedCount = slicers * countPerSlicer;
 
         testContext = new TestContext({
@@ -58,6 +56,10 @@ describe('Scheduler', () => {
             testContext.context,
             testContext.executionContext
         );
+
+        scheduler.stateStore = {
+            createState: () => Promise.delay()
+        };
 
         registerSlicers();
 
@@ -75,6 +77,47 @@ describe('Scheduler', () => {
         expect(scheduler.stopped).toBeFalse();
         expect(scheduler.queueLength).toEqual(0);
         expect(scheduler.isFinished).toBeFalse();
+    });
+
+    it('should throw an error when run is called before slicers are registered', () => {
+        scheduler.ready = false;
+        return expect(scheduler.run()).rejects.toThrowError('Scheduler needs to have registered slicers first');
+    });
+
+    it('should throw an error when registering a non-array of slicers', () => {
+        expect(() => {
+            scheduler.registerSlicers({});
+        }).toThrowError(`newSlicer from module ${testContext.config.job.operations[0]._op} needs to return an array of slicers`);
+    });
+
+    it('should be able to reenqueue a slice', () => {
+        scheduler.enqueueSlices([
+            {
+                slice_id: 1,
+            },
+            {
+                slice_id: 2,
+            }
+        ]);
+
+        scheduler.enqueueSlice({ slice_id: 1 });
+
+        scheduler.enqueueSlice({
+            slice_id: 3
+        }, true);
+
+        const slices = scheduler.getSlices(100);
+        expect(slices).toEqual([
+            {
+                slice_id: 3,
+            },
+            {
+                slice_id: 1,
+            },
+            {
+                slice_id: 2,
+            }
+        ]);
     });
 
     it(`should be able to schedule ${expectedCount} slices`, async () => {
@@ -98,7 +141,7 @@ describe('Scheduler', () => {
 
         const pause = _.once(() => {
             scheduler.pause();
-            _.delay(scheduler.start, 10);
+            _.delay(() => scheduler.start(), 10);
         });
 
         const pauseAfter = _.after(Math.round(countPerSlicer / 3), pause);
@@ -116,9 +159,9 @@ describe('Scheduler', () => {
     });
 
     it('should handle stop correctly', async () => {
-        let slices = [];
+        let slices = []; // eslint-disable-line
 
-        const stop = _.once(scheduler.stop);
+        const stop = _.once(() => scheduler.stop());
 
         expectedCount = Math.round(countPerSlicer / 3);
         const stopAfter = _.after(expectedCount, stop);
@@ -130,7 +173,10 @@ describe('Scheduler', () => {
             getSlices().then((_slices) => { slices = _slices; }),
         ]);
 
-        expect(slices).toBeArrayOfSize(expectedCount);
+        const min = expectedCount - slicers;
+        const max = expectedCount + slicers;
+        expect(slices.length).toBeWithin(min, max);
+
         expect(scheduler.isFinished).toBeTrue();
         expect(scheduler.stopped).toBeTrue();
         expect(scheduler.slicersDone).toBeFalse();

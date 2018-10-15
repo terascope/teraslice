@@ -36,7 +36,7 @@ function recovery(context, executionFailed, stateStore, executionContext) {
     }
 
     function _sliceComplete(sliceData) {
-        delete retryState[sliceData.slice.slice_id];
+        retryState[sliceData.slice.slice_id] = false;
     }
 
     function getSlicerStartingPosition() {
@@ -66,7 +66,7 @@ function recovery(context, executionFailed, stateStore, executionContext) {
     }
 
     function _recoveryBatchCompleted() {
-        return Object.keys(retryState).length === 0;
+        return _.every(retryState, v => v === false);
     }
 
     function _retryState() {

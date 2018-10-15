@@ -60,18 +60,12 @@ export interface SendOptions {
 
 export interface ConnectedClient {
     readonly clientId: string;
-    readonly clientType: string;
-    socketId: string;
     state: ClientState;
-    createdAt: Date;
-    updatedAt: Date;
-    offlineAt: Date|null;
+    offlineAt: number|null;
 }
 
 export interface UpdateClientState {
     state: ClientState;
-    socketId?: string;
-    metadata?: object;
     error?: Error|string;
     payload?: Payload;
 }
@@ -94,25 +88,35 @@ export interface ConnectedClients {
     [clientId: string]: ConnectedClient;
 }
 
+export interface ClientSendFn {
+    (message: Message): void;
+}
+
 export interface ClientSendFns {
-    [clientId: string]: (message: Message) => void;
+    [clientId: string]: ClientSendFn|null;
+}
+
+export interface MessageHandler {
+    (msg: Message): Promise<Payload|void>|Payload|void;
 }
 
 export interface EventMessage {
+    scope: string;
     payload: any;
     error?: Error|ResponseError;
 }
 
 export interface ClientEventMessage {
-    clientId: string;
+    scope?: string;
     payload: any;
     error?: Error|ResponseError;
 }
 
-export interface ClientEventFn {
-    (msg: ClientEventMessage): void;
+export interface EventListener {
+    (msg: EventMessage): void;
 }
 
-export interface MessageHandler {
-    (msg: Message): Promise<Payload|void>|Payload|void;
+export interface SocketEmitter {
+    on(eventName: string, fn: (msg: Message) => void): void;
+    emit(eventName: string, msg: Message): void;
 }

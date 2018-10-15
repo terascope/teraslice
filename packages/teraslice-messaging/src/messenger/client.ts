@@ -52,12 +52,13 @@ export class Client extends Core {
         const options: SocketIOClient.ConnectOpts = Object.assign({}, socketOptions, {
             autoConnect: false,
             forceNew: true,
+            perMessageDeflate: false,
             query: { clientId, clientType },
-            // transports: ['websocket'],
             timeout: connectTimeout
         });
 
-        this.socket = SocketIOClient(hostUrl, options);
+        // @ts-ignore
+        this.socket = new SocketIOClient(hostUrl, options);
 
         this.hostUrl = hostUrl;
         this.connectTimeout = connectTimeout;
@@ -88,8 +89,9 @@ export class Client extends Core {
             let connectTimeout: NodeJS.Timer | undefined;
 
             const cleanup = () => {
-                if (connectTimeout) {
+                if (connectTimeout != null) {
                     clearTimeout(connectTimeout);
+                    connectTimeout = undefined;
                 }
                 this.socket.removeListener('connect', connect);
             };
@@ -120,7 +122,7 @@ export class Client extends Core {
 
             if (!this.available) return;
 
-            setImmediate(async () => {
+            process.nextTick(async () => {
                 try {
                     await this.sendAvailable();
                 } catch (err) {
@@ -141,6 +143,13 @@ export class Client extends Core {
             this.emit('server:shutdown');
         });
 
+        this.socket.on('message:response', (msg: i.Message) => {
+            this.emit(msg.id, {
+                scope: msg.from,
+                payload: msg,
+            });
+        });
+
         this.socket.on('connect', () => {
             debug(`client ${this.clientId} connected`);
             this.ready = true;
@@ -154,6 +163,8 @@ export class Client extends Core {
     }
 
     async sendAvailable(payload?: i.Payload) {
+        if (this.available) return;
+
         this.available = true;
         return this.send(`client:${i.ClientState.Available}`, payload, {
             volatile: true,
@@ -161,6 +172,8 @@ export class Client extends Core {
     }
 
     async sendUnavailable(payload?: i.Payload) {
+        if (!this.available) return;
+
         this.available = false;
         return this.send(`client:${i.ClientState.Unavailable}`, payload, {
             volatile: true,
@@ -173,7 +186,7 @@ export class Client extends Core {
         if (!this.ready && !options.volatile) {
             const connected = this.socket.connected ? 'connected' : 'not-connected';
             debug(`server is not ready and ${connected}, waiting for the ready event`);
-            await this.onceWithTimeout('ready');
+            await this.onceWithTimeout(`ready:${this.serverName}`);
         }
 
         const response = options.response != null ? options.response : true;
@@ -191,19 +204,13 @@ export class Client extends Core {
         };
 
         const responseMsg = this.handleSendResponse(message);
-        this.socket.emit(eventName, message, this._sendCallbackFn);
+        this.socket.emit(eventName, message);
         return responseMsg;
     }
 
-    async emit(eventName: string, msg: i.EventMessage = { payload: {} }) {
-        await Promise.all([
-            super.emit(`${eventName}`, msg),
-            super.emit(`${eventName}:${this.serverName}`, msg),
-        ]);
-    }
-
-    on(eventName: string, fn: (msg: i.EventMessage) => void) {
-        return super.on(eventName, fn);
+    emit(eventName: string, msg: i.ClientEventMessage = { payload: {} }) {
+        msg.scope = this.serverName;
+        super.emit(`${eventName}`, msg as i.EventMessage);
     }
 
     isClientReady() {

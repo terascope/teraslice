@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const uuidv4 = require('uuid/v4');
 const Promise = require('bluebird');
-const autoBind = require('auto-bind');
+const pWhilst = require('p-whilst');
 const Queue = require('@terascope/queue');
 const { makeLogger } = require('../helpers/terafoundation');
 
@@ -17,17 +17,16 @@ class Scheduler {
         this.recovering = this.recoverExecution;
         this.slicers = [];
 
+        this._creating = 0;
         this.ready = false;
         this.paused = true;
         this.stopped = false;
         this.slicersDone = false;
         this.slicersFailed = false;
-        this._resolveRun = () => {};
-        this._processCleanup = () => {};
-
         this.queue = new Queue();
 
-        autoBind(this);
+        this._resolveRun = _.noop;
+        this._processCleanup = _.noop;
 
         this._processSlicers();
     }
@@ -45,6 +44,7 @@ class Scheduler {
                     this.slicersDone = true;
                 }
                 this._resolveRun();
+                this._resolveRun = _.noop;
             };
 
             this._resolveRun = () => {
@@ -61,7 +61,14 @@ class Scheduler {
 
         await promise;
 
-        this.logger.debug(`execution ${this.exId} is finished scheduling, ${this.queueLength} remaining slices in the queue`);
+        this.logger.debug(`execution ${this.exId} is finished scheduling, ${this.queueLength + this._creating} remaining slices in the queue`);
+
+        const waitForCreating = () => {
+            const is = () => this._creating;
+            return pWhilst(is, () => Promise.delay(100));
+        };
+
+        await waitForCreating();
     }
 
     start() {
@@ -77,7 +84,9 @@ class Scheduler {
         this.stopped = true;
 
         this._processCleanup();
+        this._processCleanup = _.noop;
         this._resolveRun();
+        this._resolveRun = _.noop;
     }
 
     pause() {
@@ -89,11 +98,13 @@ class Scheduler {
     }
 
     get isQueueFull() {
-        return this.queueLength > this.executionContext.queueLength;
+        const maxLength = this.executionContext.queueLength;
+        return (this._creating + this.queueLength) > maxLength;
     }
 
     get isFinished() {
-        return (this.slicersDone || this.slicersFailed || this.stopped) && this.queueLength === 0;
+        const isDone = this.slicersDone || this.slicersFailed || this.stopped;
+        return isDone && !this.queueLength && !this._creating;
     }
 
     canAllocateSlice() {
@@ -121,7 +132,9 @@ class Scheduler {
             this.logger.warn('execution recovery has been marked as completed');
             this.slicersDone = true;
             this._processCleanup();
+            this._processCleanup = _.noop;
             this._resolveRun();
+            this._resolveRun = _.noop;
             return;
         }
 
@@ -164,16 +177,14 @@ class Scheduler {
             this.queue.remove(slice.slice_id, 'slice_id');
         });
 
-        this.slicers.length = 0;
-    }
+        this.stateStore = null;
 
-    getSlice() {
-        const [slice] = this.getSlices(1);
-        return slice;
+        this.slicers.length = 0;
     }
 
     getSlices(limit = 1) {
         if (this.queue.size() === 0) return [];
+        if (limit < 1) return [];
 
         const slices = [];
 
@@ -198,7 +209,7 @@ class Scheduler {
     enqueueSlices(slices, addToStart = false) {
         if (this.stopped) return;
 
-        _.forEach(slices, (slice) => {
+        slices.forEach((slice) => {
             if (this.queue.exists('slice_id', slice.slice_id)) {
                 this.logger.warn(`slice ${slice.slice_id} has already been enqueued`);
                 return;
@@ -221,69 +232,45 @@ class Scheduler {
             events,
             logger,
             exId,
-            canAllocateSlice,
-            _runSlicer,
         } = this;
 
         const resetCleanup = () => {
-            this._processCleanup = () => {};
+            this._processCleanup = _.noop;
         };
 
         let slicersDone = 0;
-        let backupTimer;
+        let interval;
 
         const slicerCount = () => this.slicers.length;
-        const getSlicerIds = () => _.map(_.filter(this.slicers, { finished: false }), 'id');
+        const getSlicers = () => this.slicers;
 
-        let pendingSlicers = [];
+        const pendingSlicers = new Set();
 
         const getAllocationCount = () => {
-            if (!canAllocateSlice()) return 0;
+            if (!this.canAllocateSlice()) return 0;
 
-            const count = this.executionContext.queueLength - this.queueLength;
-            if (count > pendingSlicers.length) {
-                return pendingSlicers.length;
+            const count = this.executionContext.queueLength - this.queueLength - this._creating;
+            if (count > pendingSlicers.size) {
+                return pendingSlicers.size;
             }
+
             if (count < 0) return 0;
             return count;
         };
 
-        function runPendingSlicers() {
-            // make sure never a miss anything
-            clearTimeout(backupTimer);
-            backupTimer = setTimeout(() => {
-                runPendingSlicers();
-            }, 100);
-
-            if (!pendingSlicers.length) return;
-
-            const count = getAllocationCount();
-            if (!count) return;
-
-            const slicersToRun = _.take(pendingSlicers, count);
-            pendingSlicers = _.without(pendingSlicers, ...slicersToRun);
-
-            slicersToRun.forEach((id) => {
-                _runSlicer(id);
-            });
-        }
-
-        function onSlicersStart() {
-            runPendingSlicers();
-        }
-
         function onSlicersDone(slicerId) {
-            pendingSlicers = _.union(pendingSlicers, [slicerId]);
-            runPendingSlicers();
+            if (pendingSlicers.has(slicerId)) return;
+
+            pendingSlicers.add(slicerId);
         }
 
         function onSlicerFinished(slicerId) {
             slicersDone += 1;
 
-            logger.info(`a slicer ${slicerId} for execution: ${exId} has completed its range`);
+            logger.info(`slicer ${slicerId} for execution: ${exId} has completed its range`);
 
             if (slicersDone === slicerCount()) {
-                clearTimeout(backupTimer);
+                clearInterval(interval);
                 logger.info(`all slicers for execution: ${exId} have been completed`);
 
                 // before removing listeners make sure we've received all of the events
@@ -295,7 +282,7 @@ class Scheduler {
         }
 
         function onSlicerFailure(err, slicerId) {
-            clearTimeout(backupTimer);
+            clearInterval(interval);
             logger.warn(`slicer ${slicerId} failed`, _.toString(err));
 
             // before removing listeners make sure we've received all of the events
@@ -308,37 +295,62 @@ class Scheduler {
         function onRegisteredSlicers(count) {
             logger.debug(`registered ${count} slicers`);
 
-            pendingSlicers = getSlicerIds();
+            getSlicers()
+                .forEach(({ finished, id }) => {
+                    if (finished) return;
+                    if (pendingSlicers.has(id)) return;
+
+                    pendingSlicers.add(id);
+                });
         }
 
         events.on('slicer:done', onSlicersDone);
         events.on('slicer:finished', onSlicerFinished);
         events.on('slicer:failure', onSlicerFailure);
 
-        events.on('slicers:start', onSlicersStart);
-        events.on('slicers:queued', runPendingSlicers);
         events.on('slicers:registered', onRegisteredSlicers);
 
         function cleanup() {
-            clearTimeout(backupTimer);
+            clearInterval(interval);
 
-            pendingSlicers = [];
+            pendingSlicers.clear();
 
             events.removeListener('slicer:done', onSlicersDone);
             events.removeListener('slicer:finished', onSlicerFinished);
             events.removeListener('slicer:failure', onSlicerFailure);
 
-            events.removeListener('slicers:start', onSlicersStart);
-            events.removeListener('slicers:queued', runPendingSlicers);
             events.removeListener('slicers:registered', onRegisteredSlicers);
             resetCleanup();
         }
+
+        // make sure never a miss anything
+        interval = setInterval(() => {
+            if (!pendingSlicers.size) return;
+
+            const count = getAllocationCount();
+            if (!count) return;
+
+            let processed = 0;
+            const promises = [];
+
+            // eslint-disable-next-line no-restricted-syntax
+            for (const id of pendingSlicers) {
+                processed += 1;
+                if (processed > count) break;
+
+                pendingSlicers.delete(id);
+                promises.push(this._runSlicer(id));
+            }
+
+            Promise.all(promises)
+                .catch(err => this.logger.error('failure to run slicers', err));
+        }, 5);
 
         this._processCleanup = cleanup;
     }
 
     async _runSlicer(id) {
-        const slicer = _.find(this.slicers, { id });
+        const slicer = this.slicers[id];
         if (slicer.finished) return;
 
         this.logger.trace(`slicer ${slicer.id} is being called`);
@@ -353,7 +365,7 @@ class Scheduler {
                     this.events.emit('slicer:subslice');
                 }
 
-                const slices = _.map(_.castArray(result), (request) => {
+                const slices = _.castArray(result).map((request) => {
                     slicer.order += 1;
 
                     // recovery slices already have correct meta data
@@ -369,7 +381,7 @@ class Scheduler {
                     };
                 });
 
-                this.enqueueSlices(slices);
+                this._createSlices(slices);
             } else if (this.canComplete() && !slicer.finished) {
                 slicer.finished = true;
                 this.logger.trace(`slicer ${slicer.id} finished`);
@@ -382,6 +394,33 @@ class Scheduler {
         }
 
         this.events.emit('slicer:done', slicer.id);
+    }
+
+    // In the case of recovery slices have already been
+    // created, so its important to skip this step
+    _ensureSliceState(slice) {
+        if (slice._created) return Promise.resolve(slice);
+
+        slice._created = new Date().toISOString();
+
+        // this.stateStore is attached from the execution_controller
+        return this.stateStore.createState(this.exId, slice, 'start')
+            .then(() => slice);
+    }
+
+    _createSlices(slices) {
+        this._creating += slices.length;
+
+        process.nextTick(() => {
+            const promises = slices.map(slice => this._ensureSliceState(slice)
+                .then(_slice => this.enqueueSlice(_slice))
+                .finally(() => {
+                    this._creating -= 1;
+                }));
+
+            Promise.all(promises)
+                .catch(err => this.logger.error('failure to enqueue slice', err));
+        });
     }
 }
 
