@@ -1,11 +1,12 @@
 'use strict';
 
-import { LegacyOperation } from '@terascope/teraslice-types';
+import { LegacyOperation, LegacyReader, LegacyProcessor } from '@terascope/teraslice-types';
 import { APIConstructor } from './operations/core/api-core';
 import { FetcherConstructor } from './operations/core/fetcher-core';
 import { SlicerConstructor } from './operations/core/slicer-core';
 import { ProcessorConstructor } from './operations/core/processor-core';
 import { SchemaConstructor } from './operations/core/schema-core';
+import { readerShim, processorShim } from './operations/shims';
 import fs from 'fs';
 import { pathExistsSync } from 'fs-extra';
 import path from 'path';
@@ -23,9 +24,7 @@ export class OperationLoader {
         this.options = options;
     }
 
-    public find(name: string, assetIds?: string[]): string | null {
-        this.verifyOpName(name);
-
+    find(name: string, assetIds?: string[]): string | null {
         let filePath: string | null = null;
         const findCodeFn = this.findCode(name);
 
@@ -56,14 +55,37 @@ export class OperationLoader {
         return filePath;
     }
 
-    public loadProcessor(name: string, assetIds?: string[]): ProcessorModule {
+    findOrThrow(name: string, assetIds?: string[]): string {
         this.verifyOpName(name);
 
         const codePath = this.find(name, assetIds);
         if (!codePath) {
             throw new Error(`Unable to find module for operation: ${name}`);
-        } else if (!this.isDir(codePath)) {
-            throw new Error(`Processor "${name}" cannot be loaded because it resolved to file not a directory`);
+        }
+
+        return codePath;
+    }
+
+    /**
+     * Load any LegacyOperation
+     * DEPRECATED to accommadate for new Job APIs,
+     * use loadReader, or loadProcessor
+    */
+    load(name: string, assetIds?: string[]): LegacyOperation {
+        const codePath = this.findOrThrow(name, assetIds);
+
+        try {
+            return require(codePath);
+        } catch (err) {
+            throw new Error(`Failure loading module: ${name}, error: ${err.stack}`);
+        }
+    }
+
+    loadProcessor(name: string, assetIds?: string[]): ProcessorModule {
+        const codePath = this.findOrThrow(name, assetIds);
+
+        if (this.isLegacyProcessor(codePath)) {
+            return this.shimLegacyProcessor(name, codePath);
         }
 
         /* tslint:disable-next-line:variable-name */
@@ -98,14 +120,11 @@ export class OperationLoader {
         };
     }
 
-    public loadReader(name: string, assetIds?: string[]): ReaderModule {
-        this.verifyOpName(name);
+    loadReader(name: string, assetIds?: string[]): ReaderModule {
+        const codePath = this.findOrThrow(name, assetIds);
 
-        const codePath = this.find(name, assetIds);
-        if (!codePath) {
-            throw new Error(`Unable to find module for operation: ${name}`);
-        } else if (!this.isDir(codePath)) {
-            throw new Error(`Reader "${name}" cannot be loaded because it resolved to file not a directory`);
+        if (this.isLegacyReader(codePath)) {
+            return this.shimLegacyReader(name, codePath);
         }
 
         /* tslint:disable-next-line:variable-name */
@@ -150,16 +169,28 @@ export class OperationLoader {
         };
     }
 
-    public load(name: string, assetIds?: string[]): LegacyOperation {
-        this.verifyOpName(name);
+    private isLegacyReader(codePath: string): boolean {
+        const fetcherPath = pathExistsSync(path.join(codePath, 'fetcher.js'));
+        const slicerPath = pathExistsSync(path.join(codePath, 'slicer.js'));
+        return !fetcherPath && !slicerPath;
+    }
 
-        const codePath = this.find(name, assetIds);
-        if (!codePath) {
-            throw new Error(`Unable to find module for operation: ${name}`);
-        }
-
+    private shimLegacyReader(name: string, codePath: string): ReaderModule {
         try {
-            return require(codePath);
+            const legacy: LegacyReader = require(codePath);
+            return readerShim(legacy);
+        } catch (err) {
+            throw new Error(`Failure loading module: ${name}, error: ${err.stack}`);
+        }
+    }
+
+    private isLegacyProcessor(codePath: string): boolean {
+        return !pathExistsSync(path.join(codePath, 'processor.js'));
+    }
+    private shimLegacyProcessor(name: string, codePath: string): ProcessorModule {
+        try {
+            const legacy: LegacyProcessor = require(codePath);
+            return processorShim(legacy);
         } catch (err) {
             throw new Error(`Failure loading module: ${name}, error: ${err.stack}`);
         }
@@ -226,6 +257,10 @@ export class OperationLoader {
 export interface OperationModule {
     Schema: SchemaConstructor;
     API?: APIConstructor;
+}
+
+export interface APIModule {
+    API: APIConstructor;
 }
 
 export interface ReaderModule extends OperationModule {

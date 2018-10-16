@@ -136,18 +136,14 @@ describe('OperationLoader', () => {
 
         const opLoader = new OperationLoader({
             terasliceOpPath,
-            assetPath: path.join(__dirname, 'fixtures'),
+            assetPath: path.join(__dirname),
         });
 
         expect(() => {
             opLoader.loadProcessor('fail');
         }).toThrowError('Unable to find module for operation: fail');
 
-        expect(() => {
-            opLoader.loadProcessor('processor.js', ['assets']);
-        }).toThrowError('Processor "processor.js" cannot be loaded because it resolved to file not a directory');
-
-        const op = opLoader.loadProcessor('example-op', ['assets']);
+        const op = opLoader.loadProcessor('example-op', ['fixtures']);
 
         expect(op.Processor).not.toBeNil();
         expect(() => {
@@ -172,18 +168,14 @@ describe('OperationLoader', () => {
 
         const opLoader = new OperationLoader({
             terasliceOpPath,
-            assetPath: path.join(__dirname, 'fixtures'),
+            assetPath: path.join(__dirname),
         });
 
         expect(() => {
             opLoader.loadReader('fail');
         }).toThrowError('Unable to find module for operation: fail');
 
-        expect(() => {
-            opLoader.loadReader('fetcher.js', ['assets']);
-        }).toThrowError('Reader "fetcher.js" cannot be loaded because it resolved to file not a directory');
-
-        const op = opLoader.loadReader('example-reader', ['assets']);
+        const op = opLoader.loadReader('example-reader', ['fixtures']);
 
         expect(op.Slicer).not.toBeNil();
         expect(() => {
@@ -205,5 +197,38 @@ describe('OperationLoader', () => {
             // @ts-ignore
             new op.API(context, exConfig);
         }).not.toThrow();
+    });
+
+    it('can load a shimmed reader', async () => {
+        const exConfig = newTestExecutionConfig();
+        const opConfig = {
+            _op: 'test-reader'
+        };
+
+        exConfig.operations.push(opConfig);
+
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: path.join(__dirname),
+        });
+
+        const op = opLoader.loadReader('test-reader', ['fixtures']);
+
+        expect(op.Slicer).not.toBeNil();
+        expect(() => {
+            new op.Slicer(context, opConfig, exConfig);
+        }).not.toThrow();
+
+        expect(op.Fetcher).not.toBeNil();
+        expect(() => {
+            new op.Fetcher(context, opConfig, exConfig);
+        }).not.toThrow();
+
+        expect(op.Schema).not.toBeNil();
+        expect(() => {
+            new op.Schema().build();
+        }).not.toThrow();
+
+        expect(op.API).toBeNil();
     });
 });

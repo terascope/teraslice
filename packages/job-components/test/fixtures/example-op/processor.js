@@ -1,6 +1,6 @@
 'use strict';
 
-const { Processor } = require('../../../..');
+const { Processor } = require('../../..');
 
 class MapProcessor extends Processor {
     onData(data) {

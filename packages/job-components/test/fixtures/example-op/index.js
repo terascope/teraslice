@@ -1,6 +1,6 @@
 'use strict';
 
-const { legacyProcessorShim } = require('../../../..');
+const { legacyProcessorShim } = require('../../..');
 const Processor = require('./processor');
 const Schema = require('./schema');
 

@@ -1,6 +1,6 @@
 'use strict';
 
-const { legacyReaderShim } = require('../../../..');
+const { legacyReaderShim } = require('../../..');
 const Fetcher = require('./fetcher');
 const Slicer = require('./slicer');
 const Schema = require('./schema');

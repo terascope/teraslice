@@ -1,7 +1,7 @@
 'use strict';
 
 const uuidv4 = require('uuid/v4');
-const { Slicer } = require('../../../..');
+const { Slicer } = require('../../..');
 
 class ExampleSlicer extends Slicer {
     async slice() {

@@ -1,6 +1,6 @@
 'use strict';
 
-const { OperationAPI } = require('../../../..');
+const { OperationAPI } = require('../../..');
 
 class ExampleAPI extends OperationAPI {
     name() {

@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const { Fetcher } = require('../../../..');
+const { Fetcher } = require('../../..');
 
 class ExampleFetcher extends Fetcher {
     async fetch() {

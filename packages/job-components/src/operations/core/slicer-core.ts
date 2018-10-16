@@ -109,7 +109,7 @@ export default abstract class SlicerCore extends Core {
     }
 }
 
-export type SlicerResult = Slice|SliceRequest | Slice|SliceRequest[] | null;
+export type SlicerResult = Slice|SliceRequest|SliceRequest[]|null;
 
 export interface SliceResult {
     slice: Slice;
