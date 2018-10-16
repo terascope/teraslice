@@ -1,6 +1,5 @@
 import 'jest-extended'; // require for type definitions
 import { TestContext, newTestExecutionConfig } from '@terascope/teraslice-types';
-import { Schema } from 'convict';
 import { OperationAPI, ExecutionContextAPI, OpAPIFn } from '../../../src';
 import OperationCore from '../../../src/operations/core/operation-core';
 
@@ -86,38 +85,6 @@ describe('OperationCore', () => {
         it('should resolve the api', () => {
             const api = operation.getAPI('hello') as () => OpAPIFn;
             return expect(api()).toEqual('hello');
-        });
-    });
-
-    describe('#validate', () => {
-        it('should succeed when given valid data', () => {
-            const schema: Schema<any> = {
-                example: {
-                    default: 'howdy',
-                    doc: 'some example value',
-                    format: 'required_String',
-                }
-            };
-
-            return expect(OperationCore.validate(schema, {
-                _op: 'hello',
-                example: 'hi'
-            })).resolves.toEqual({
-                _op: 'hello',
-                example: 'hi'
-            });
-        });
-
-        it('should fail when given invalid data', () => {
-            const schema: Schema<any> = {
-                example: {
-                    default: 'hi',
-                    doc: 'some example value',
-                    format: 'required_String',
-                }
-            };
-
-            return expect(OperationCore.validate(schema, {})).rejects.toThrow();
         });
     });
 });

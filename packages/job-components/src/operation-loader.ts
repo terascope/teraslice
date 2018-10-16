@@ -55,17 +55,6 @@ export class OperationLoader {
         return filePath;
     }
 
-    findOrThrow(name: string, assetIds?: string[]): string {
-        this.verifyOpName(name);
-
-        const codePath = this.find(name, assetIds);
-        if (!codePath) {
-            throw new Error(`Unable to find module for operation: ${name}`);
-        }
-
-        return codePath;
-    }
-
     /**
      * Load any LegacyOperation
      * DEPRECATED to accommadate for new Job APIs,
@@ -167,6 +156,17 @@ export class OperationLoader {
             Schema,
             API,
         };
+    }
+
+    private findOrThrow(name: string, assetIds?: string[]): string {
+        this.verifyOpName(name);
+
+        const codePath = this.find(name, assetIds);
+        if (!codePath) {
+            throw new Error(`Unable to find module for operation: ${name}`);
+        }
+
+        return codePath;
     }
 
     private isLegacyReader(codePath: string): boolean {

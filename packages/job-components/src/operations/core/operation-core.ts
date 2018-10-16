@@ -1,11 +1,9 @@
 import _ from 'lodash';
 import '../../formats'; // require to add the schema formats
 import Core from './core';
-import convict from 'convict';
 import { OpAPI } from './api-core';
 import SliceEvents from './slice-events';
 import { Context, ExecutionConfig, OpConfig } from '@terascope/teraslice-types';
-import { validateOpConfig } from '../../config-validators';
 
 /**
  * A base class for supporting operations that run on a "Worker",
@@ -16,17 +14,6 @@ import { validateOpConfig } from '../../config-validators';
  */
 
 export default class OperationCore extends Core implements SliceEvents {
-    /**
-     * This is called by the Teraslice framework in-order to delegrate the
-     * the schema validation to place that can be customized depending on
-     * the operations need.
-     * In the case of "Reader" the "Slicer" and "Fetcher" schema are shared
-     * but the "Fetcher" is the operation that will handle the validation
-    */
-    static async validate(inputSchema: convict.Schema<any>, inputConfig: any): Promise<OpConfig> {
-        return validateOpConfig(inputSchema, inputConfig);
-    }
-
     protected readonly opConfig: Readonly<OpConfig>;
 
     constructor(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig) {

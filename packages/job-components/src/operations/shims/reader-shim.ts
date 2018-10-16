@@ -1,4 +1,4 @@
-import { Context, ExecutionContext, LegacyReader, SliceRequest, slicerFns, readerFn } from '@terascope/teraslice-types';
+import { Context, OpConfig, ExecutionContext, LegacyReader, SliceRequest, slicerFns, readerFn } from '@terascope/teraslice-types';
 import DataEntity, { DataEntityList } from '../data-entity';
 import { SlicerConstructor } from '../core/slicer-core';
 import FetcherCore, { FetcherConstructor } from '../core/fetcher-core';
@@ -50,6 +50,14 @@ export default function readerShim(legacy: LegacyReader): ReaderModule {
             }
         },
         Schema: class LegacySchemaShim extends ConvictSchema {
+            validate(inputConfig: any): OpConfig {
+                const opConfig = super.validate(inputConfig);
+                if (legacy.selfValidation) {
+                    legacy.selfValidation(opConfig);
+                }
+                return opConfig;
+            }
+
             build(context?: Context) {
                 return legacy.schema(context);
             }

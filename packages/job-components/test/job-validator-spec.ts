@@ -1,4 +1,4 @@
-import { TestContext } from '@terascope/teraslice-types';
+import { TestContext, JobConfig } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
 import * as path from 'path';
 import { JobValidator } from '../src';
@@ -11,7 +11,8 @@ describe('JobValidator', () => {
     });
 
     it('returns a completed and valid jobConfig', () => {
-        const jobSpec = {
+        const jobSpec: JobConfig = {
+            name: 'noop',
             operations: [
                 {
                     _op: 'noop',
@@ -21,7 +22,8 @@ describe('JobValidator', () => {
                 },
             ],
         };
-        const validJob = api.validate(jobSpec);
+
+        const validJob = api.validateConfig(jobSpec);
         expect(validJob.max_retries).toBeDefined();
         expect(validJob.lifecycle).toBeDefined();
         expect(validJob.operations).toBeDefined();
@@ -29,9 +31,11 @@ describe('JobValidator', () => {
     });
 
     it('throws an error with faulty operation configuration', () => {
-        const jobSpec = {
+        const jobSpec: JobConfig = {
+            name: 'test',
             operations: [
                 {
+                    // @ts-ignore
                     something: 'else',
                 },
                 {
@@ -41,15 +45,17 @@ describe('JobValidator', () => {
         };
 
         expect(() => {
-            api.validate(jobSpec);
+            api.validateConfig(jobSpec);
         }).toThrowError();
     });
 
     it('will properly read an operation', () => {
-        const jobSpec = {
+        const jobSpec: JobConfig = {
+            name: 'test',
             operations: [
                 {
                     _op: 'elasticsearch_reader',
+                    // @ts-ignore
                     date_field_name: 'created',
                     index: 'some_index',
                 },
@@ -60,16 +66,18 @@ describe('JobValidator', () => {
         };
 
         expect(() => {
-            api.validate(jobSpec);
+            api.validateConfig(jobSpec);
         }).not.toThrowError();
     });
 
     it('will throw based off opValition errors', () => {
         // if subslice_by_key, then it needs type specified or it will error
-        const jobSpec = {
+        const jobSpec: JobConfig = {
+            name: 'test',
             operations: [
                 {
                     _op: 'elasticsearch_reader',
+                    // @ts-ignore
                     date_field_name: 'created',
                     index: 'some_index',
                     subslice_by_key: true,
@@ -81,7 +89,7 @@ describe('JobValidator', () => {
         };
 
         expect(() => {
-            api.validate(jobSpec);
+            api.validateConfig(jobSpec);
         }).toThrowError();
     });
 

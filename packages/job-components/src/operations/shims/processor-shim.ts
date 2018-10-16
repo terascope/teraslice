@@ -1,4 +1,4 @@
-import { Context, LegacyProcessor, SliceRequest, processorFn } from '@terascope/teraslice-types';
+import { Context, OpConfig, LegacyProcessor, SliceRequest, processorFn } from '@terascope/teraslice-types';
 import DataEntity, { DataEntityList } from '../data-entity';
 import ProcessorCore, { ProcessorConstructor } from '../core/processor-core';
 import { SchemaConstructor } from '../core/schema-core';
@@ -23,6 +23,14 @@ export default function processorShim(legacy: LegacyProcessor): ProcessorModule 
             }
         },
         Schema: class LegacySchemaShim extends ConvictSchema {
+            validate(inputConfig: any): OpConfig {
+                const opConfig = super.validate(inputConfig);
+                if (legacy.selfValidation) {
+                    legacy.selfValidation(opConfig);
+                }
+                return opConfig;
+            }
+
             build(context?: Context) {
                 return legacy.schema(context);
             }

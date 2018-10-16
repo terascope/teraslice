@@ -1,6 +1,6 @@
 'use strict';
 
-import { Context, crossValidationFn, OpConfig } from '@terascope/teraslice-types';
+import { Context, crossValidationFn, OpConfig, JobConfig, ValidatedJobConfig } from '@terascope/teraslice-types';
 import convict from 'convict';
 import _ from 'lodash';
 import { validateJobConfig, validateOpConfig } from './config-validators';
@@ -19,7 +19,32 @@ export class JobValidator {
         this.schema = jobSchema(context);
     }
 
-    public validate(job: any) {
+    validateConfig(_jobConfig: JobConfig): ValidatedJobConfig {
+        // top level job validation occurs, but not operations
+        const jobConfig = validateJobConfig(this.schema, _.cloneDeep(_jobConfig));
+
+        jobConfig.operations = jobConfig.operations.map((opConfig, index) => {
+            if (index === 0) {
+                const { Schema } = this.opLoader.loadReader(opConfig._op);
+                new Schema(this.context).validate(opConfig);
+            }
+
+            const { Schema } = this.opLoader.loadProcessor(opConfig._op);
+            return new Schema(this.context).validate(opConfig);
+        });
+
+        registerApis(this.context, jobConfig);
+
+        // @ts-ignore
+        return jobConfig;
+    }
+
+    /**
+     * Validate Legacy Jobs
+     * DEPRECATED to accommadate for new Job APIs,
+     * use validateConfig
+    */
+    validate(job: any) {
         let validJob = _.cloneDeep(job);
 
         // this is used if an operation needs to provide additional validation beyond its own scope
@@ -55,7 +80,7 @@ export class JobValidator {
         return validJob;
     }
 
-    public hasSchema(obj: any, name: string) {
+    hasSchema(obj: any, name: string) {
         if (!obj.schema || typeof obj.schema !== 'function') {
             throw new Error(`${name} needs to have a method named "schema"`);
         } else if (typeof obj.schema() !== 'object') {
