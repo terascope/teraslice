@@ -117,3 +117,8 @@ export interface SliceResult {
     retry?: boolean;
     error?: string;
 }
+
+export type SlicerConstructor = {
+    isRecoverable: boolean;
+    new(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): SlicerCore;
+};

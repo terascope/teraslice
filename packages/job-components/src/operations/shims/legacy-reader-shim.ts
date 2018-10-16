@@ -2,7 +2,7 @@ import times from 'lodash/times';
 import DataEntity, { DataInput } from '../data-entity';
 import { SchemaConstructor } from '../core/schema-core';
 import { FetcherConstructor } from '../core/fetcher-core';
-import SlicerClass, { SlicerConstructor } from '../slicer';
+import SlicerClass, { SingleSlicerConstructor } from '../slicer';
 import operationAPIShim, { APIs } from './operation-api-shim';
 import legacySliceEventsShim from './legacy-slice-events-shim';
 import { ParallelSlicerConstructor } from '../parallel-slicer';
@@ -21,7 +21,7 @@ import {
 // This file for backwards compatibility and functionality will be limited
 // but it should allow you to write processors using the new way today
 
-type SlicerType = SlicerConstructor|ParallelSlicerConstructor;
+type SlicerType = SingleSlicerConstructor|ParallelSlicerConstructor;
 type FetcherType = FetcherConstructor;
 type SchemaType = SchemaConstructor;
 

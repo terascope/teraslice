@@ -47,7 +47,7 @@ export default abstract class Slicer extends SlicerCore {
 
 export { SlicerResult };
 
-export type SlicerConstructor = {
+export type SingleSlicerConstructor = {
     isRecoverable: boolean;
     new(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): Slicer;
 };

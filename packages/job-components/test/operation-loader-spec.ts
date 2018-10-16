@@ -122,4 +122,45 @@ describe('OperationLoader', () => {
         const processorResults = processor(someData, logger, {});
         expect(processorResults).toEqual(someData);
     });
+
+    it('can load the new processor', async () => {
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: path.join(__dirname, 'fixtures'),
+        });
+
+        expect(() => {
+            opLoader.loadProcessor('fail');
+        }).toThrowError('Unable to find module for operation: fail');
+
+        expect(() => {
+            opLoader.loadProcessor('processor.js', ['assets']);
+        }).toThrowError('Processor "processor.js" cannot be loaded because it resolved to file not a directory');
+
+        const op = opLoader.loadProcessor('example-op', ['assets']);
+        expect(op.Processor).not.toBeNil();
+        expect(op.Schema).not.toBeNil();
+        expect(op.API).toBeNil();
+    });
+
+    it('can load the new reader', async () => {
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: path.join(__dirname, 'fixtures'),
+        });
+
+        expect(() => {
+            opLoader.loadReader('fail');
+        }).toThrowError('Unable to find module for operation: fail');
+
+        expect(() => {
+            opLoader.loadReader('fetcher.js', ['assets']);
+        }).toThrowError('Reader "fetcher.js" cannot be loaded because it resolved to file not a directory');
+
+        const op = opLoader.loadReader('example-reader', ['assets']);
+        expect(op.Slicer).not.toBeNil();
+        expect(op.Fetcher).not.toBeNil();
+        expect(op.Schema).not.toBeNil();
+        expect(op.API).not.toBeNil();
+    });
 });
