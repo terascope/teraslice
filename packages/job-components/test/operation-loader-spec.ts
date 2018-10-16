@@ -158,6 +158,37 @@ describe('OperationLoader', () => {
         expect(op.API).toBeNil();
     });
 
+    it('can load a shimmed processor', async () => {
+        const exConfig = newTestExecutionConfig();
+        const opConfig = {
+            _op: 'example-op'
+        };
+
+        exConfig.operations.push({
+            _op: 'example-reader'
+        });
+        exConfig.operations.push(opConfig);
+
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: path.join(__dirname),
+        });
+
+        const op = opLoader.loadProcessor('test-op', ['fixtures']);
+
+        expect(op.Processor).not.toBeNil();
+        expect(() => {
+            new op.Processor(context, opConfig, exConfig);
+        }).not.toThrow();
+
+        expect(op.Schema).not.toBeNil();
+        expect(() => {
+            new op.Schema().build();
+        }).not.toThrow();
+
+        expect(op.API).toBeNil();
+    });
+
     it('can load the new reader', async () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {

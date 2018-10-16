@@ -14,7 +14,7 @@ export default function processorShim(legacy: LegacyProcessor): ProcessorModule 
             }
 
             async handle(input: DataEntityList, sliceRequest: SliceRequest): Promise<DataEntityList> {
-                if (this.processorFn) {
+                if (this.processorFn != null) {
                     const result = await this.processorFn(input.toArray(), this.logger, sliceRequest);
                     return DataEntity.makeList(result);
                 }
