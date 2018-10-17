@@ -70,19 +70,6 @@ describe('DataEntity', () => {
         });
     });
 
-    describe('when constructed with object that has a property ___metadata', () => {
-        it('should throw an error', () => {
-            expect(() => {
-                // tslint:disable-next-line
-                new DataEntity({
-                    ___metadata: {
-                        hello: 'there',
-                    },
-                });
-            }).toThrowError('DataEntity cannot be constructed with a ___metadata property');
-        });
-    });
-
     describe('#make', () => {
         describe('when wrapped', () => {
             it('should return a single data entity', () => {
