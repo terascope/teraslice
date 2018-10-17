@@ -22,18 +22,26 @@ export class JobValidator {
     validateConfig(_jobConfig: JobConfig): ValidatedJobConfig {
         // top level job validation occurs, but not operations
         const jobConfig = validateJobConfig(this.schema, _.cloneDeep(_jobConfig));
+        const apis = {};
 
         jobConfig.operations = jobConfig.operations.map((opConfig, index) => {
             if (index === 0) {
-                const { Schema } = this.opLoader.loadReader(opConfig._op);
-                new Schema(this.context).validate(opConfig);
+                const { Schema, API } = this.opLoader.loadReader(opConfig._op);
+                apis[opConfig._op] = API;
+                return new Schema(this.context).validate(opConfig);
             }
 
-            const { Schema } = this.opLoader.loadProcessor(opConfig._op);
+            const { Schema, API } = this.opLoader.loadProcessor(opConfig._op);
+            apis[opConfig._op] = API;
             return new Schema(this.context).validate(opConfig);
         });
 
         registerApis(this.context, jobConfig);
+
+        Object.keys(apis).forEach((name) => {
+            const api = apis[name];
+            this.context.apis.executionContext.addToRegistry(name, api);
+        });
 
         // @ts-ignore
         return jobConfig;
