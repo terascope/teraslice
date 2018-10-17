@@ -1,10 +1,14 @@
-'use strict';
-
-import { LegacyProcessor, LegacyReader, newTestExecutionConfig, TestContext, debugLogger } from '@terascope/teraslice-types';
-import fse from 'fs-extra';
 import 'jest-extended'; // require for type definitions
+import fse from 'fs-extra';
 import path from 'path';
-import { OperationLoader } from '../src';
+import {
+    OperationLoader,
+    LegacyProcessor,
+    LegacyReader,
+    newTestExecutionConfig,
+    debugLogger,
+    TestContext
+} from '../src';
 
 describe('OperationLoader', () => {
     const logger = debugLogger('operation-loader');

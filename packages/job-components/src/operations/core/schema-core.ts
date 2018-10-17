@@ -1,4 +1,4 @@
-import { Context, OpConfig } from '@terascope/teraslice-types';
+import { Context, OpConfig } from '../../interfaces';
 
 /**
  * A base class for supporting "Schema" definition

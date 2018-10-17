@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const events = require('events');
 const Promise = require('bluebird');
-const { debugLogger } = require('@terascope/teraslice-types');
+const { debugLogger } = require('@terascope/job-components');
 const messagingModule = require('../../lib/cluster/services/cluster/backends/native/messaging');
 
 describe('messaging module', () => {

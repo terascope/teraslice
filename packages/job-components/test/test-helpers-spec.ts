@@ -1,16 +1,19 @@
 import { EventEmitter } from 'events';
-import 'jest-extended'; // require for type definitions
-import * as index from '../src/index';
+import {
+    debugLogger,
+    newTestJobConfig,
+    newTestSlice,
+    newTestExecutionContext,
+    newTestExecutionConfig,
+    TestContext,
+    Assignment
+} from '../src';
 
-it('should be truthy', () => {
-    expect(index).toBeTruthy();
-});
-
-describe('TestContext', () => {
+describe('Test Helpers', () => {
     it('should have a debugLogger', async () => {
-        expect(index.debugLogger).toBeFunction();
+        expect(debugLogger).toBeFunction();
 
-        const logger = index.debugLogger('test-name');
+        const logger = debugLogger('test-name');
         expect(logger).toHaveProperty('flush');
         expect(logger).toHaveProperty('info');
         expect(logger).toHaveProperty('debug');
@@ -22,27 +25,27 @@ describe('TestContext', () => {
     });
 
     it('should have a newTestJobConfig', () => {
-        expect(index.newTestJobConfig).toBeFunction();
+        expect(newTestJobConfig).toBeFunction();
 
-        const jobConfig = index.newTestJobConfig();
+        const jobConfig = newTestJobConfig();
         expect(jobConfig).toHaveProperty('name', 'test-job');
         expect(jobConfig.operations).toBeArrayOfSize(0);
         expect(jobConfig.assets).toBeArrayOfSize(0);
     });
 
     it('should have a newTestExecutionConfig', () => {
-        expect(index.newTestExecutionConfig).toBeFunction();
+        expect(newTestSlice).toBeFunction();
 
-        const exConfig = index.newTestExecutionConfig();
+        const exConfig = newTestExecutionConfig();
         expect(exConfig).toHaveProperty('name', 'test-job');
         expect(exConfig.operations).toBeArrayOfSize(0);
         expect(exConfig.assets).toBeArrayOfSize(0);
     });
 
     it('should have a newTestSlice', () => {
-        expect(index.newTestSlice).toBeFunction();
+        expect(newTestSlice).toBeFunction();
 
-        const slice = index.newTestSlice();
+        const slice = newTestSlice();
         expect(slice).toHaveProperty('slice_id');
         expect(slice.slice_id).toBeString();
         expect(slice).toHaveProperty('slicer_id');
@@ -56,28 +59,28 @@ describe('TestContext', () => {
     });
 
     it('should have a newTestExecutionContext (ExecutionController)', () => {
-        expect(index.newTestExecutionContext).toBeFunction();
+        expect(newTestExecutionConfig).toBeFunction();
 
-        const exConfig = index.newTestExecutionConfig();
-        const exContext = index.newTestExecutionContext(index.Assignment.ExecutionController, exConfig);
+        const exConfig = newTestExecutionConfig();
+        const exContext = newTestExecutionContext(Assignment.ExecutionController, exConfig);
         expect(exContext.config).toEqual(exConfig);
         expect(exContext.reader).toBeNull();
         expect(exContext.slicer).toBeFunction();
     });
 
     it('should have a newTestExecutionContext (Worker)', () => {
-        expect(index.newTestExecutionContext).toBeFunction();
+        expect(newTestExecutionContext).toBeFunction();
 
-        const exConfig = index.newTestExecutionConfig();
-        const exContext = index.newTestExecutionContext(index.Assignment.Worker, exConfig);
+        const exConfig = newTestExecutionConfig();
+        const exContext = newTestExecutionContext(Assignment.Worker, exConfig);
         expect(exContext.config).toEqual(exConfig);
         expect(exContext.reader).toBeFunction();
         expect(exContext.slicer).toBeNull();
     });
 
     it('should have a TestContext', () => {
-        expect(index.TestContext).toBeTruthy();
-        const context = new index.TestContext('test-name');
+        expect(TestContext).toBeTruthy();
+        const context = new TestContext('test-name');
         expect(context).toHaveProperty('sysconfig');
         expect(context).toHaveProperty('apis');
         expect(context).toHaveProperty('foundation');

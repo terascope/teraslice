@@ -1,4 +1,4 @@
-import { Context, OpConfig, ExecutionContext, LegacyReader, SliceRequest, slicerFns, readerFn } from '@terascope/teraslice-types';
+import { Context, OpConfig, ExecutionContext, LegacyReader, SliceRequest, slicerFns, readerFn } from '../../interfaces';
 import DataEntity, { DataEntityList } from '../data-entity';
 import { SlicerConstructor } from '../core/slicer-core';
 import FetcherCore, { FetcherConstructor } from '../core/fetcher-core';

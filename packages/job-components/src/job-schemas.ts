@@ -1,6 +1,6 @@
 'use strict';
 
-import { Context } from '@terascope/teraslice-types';
+import { Context } from './interfaces';
 import convict from 'convict';
 import _ from 'lodash';
 import os from 'os';

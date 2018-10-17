@@ -1,5 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { TestContext, newTestExecutionConfig } from '@terascope/teraslice-types';
+import { TestContext, newTestExecutionConfig } from '../../../src';
 import ObserverCore from '../../../src/operations/core/observer-core';
 
 describe('ObserverCore', () => {

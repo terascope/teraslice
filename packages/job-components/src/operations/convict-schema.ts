@@ -1,5 +1,5 @@
 import convict from 'convict';
-import { Context, OpConfig } from '@terascope/teraslice-types';
+import { Context, OpConfig } from '../interfaces';
 import SchemaCore from './core/schema-core';
 import { validateOpConfig } from '../config-validators';
 

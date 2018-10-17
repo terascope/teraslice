@@ -1,6 +1,10 @@
-import { newTestExecutionConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { DataEntity, EachProcessor } from '../../src';
+import {
+    DataEntity,
+    EachProcessor,
+    newTestExecutionConfig,
+    TestContext
+} from '../../src';
 
 describe('EachProcessor', () => {
     let processedCount = 0;

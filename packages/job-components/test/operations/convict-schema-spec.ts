@@ -1,6 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { TestContext } from '@terascope/teraslice-types';
-import { ConvictSchema } from '../../src';
+import { ConvictSchema, TestContext } from '../../src';
 
 describe('Convict Schema', () => {
     const context = new TestContext('job-components');

@@ -7,7 +7,7 @@ import {
     Slice,
     SliceAnalyticsData,
     SliceRequest
-} from '@terascope/teraslice-types';
+} from '../../interfaces';
 import Queue from '@terascope/queue';
 import Core from './core';
 

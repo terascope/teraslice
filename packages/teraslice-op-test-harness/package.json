@@ -23,7 +23,6 @@
     },
     "dependencies": {
         "@terascope/job-components": "^0.6.0",
-        "@terascope/teraslice-types": "^0.2.1",
         "bluebird": "^3.5.2",
         "lodash": "^4.17.11"
     },

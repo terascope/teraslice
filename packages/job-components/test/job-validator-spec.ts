@@ -1,7 +1,6 @@
-import { TestContext, JobConfig } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
 import * as path from 'path';
-import { JobValidator } from '../src';
+import { JobValidator, TestContext, JobConfig } from '../src';
 
 describe('JobValidator', () => {
     const context = new TestContext('teraslice-operations');

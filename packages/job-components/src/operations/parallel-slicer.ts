@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Context, OpConfig, ExecutionConfig } from '@terascope/teraslice-types';
+import { Context, OpConfig, ExecutionConfig } from '../interfaces';
 import SlicerCore, { SlicerResult } from './core/slicer-core';
 
 /**

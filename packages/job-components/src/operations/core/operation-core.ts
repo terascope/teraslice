@@ -3,7 +3,7 @@ import '../../formats'; // require to add the schema formats
 import Core from './core';
 import { OpAPI } from './api-core';
 import SliceEvents from './slice-events';
-import { Context, ExecutionConfig, OpConfig } from '@terascope/teraslice-types';
+import { Context, ExecutionConfig, OpConfig } from '../../interfaces';
 
 /**
  * A base class for supporting operations that run on a "Worker",

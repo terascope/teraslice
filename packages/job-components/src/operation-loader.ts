@@ -1,6 +1,6 @@
 'use strict';
 
-import { LegacyOperation, LegacyReader, LegacyProcessor } from '@terascope/teraslice-types';
+import { LegacyOperation, LegacyReader, LegacyProcessor } from './interfaces';
 import { APIConstructor } from './operations/core/api-core';
 import { FetcherConstructor } from './operations/core/fetcher-core';
 import { SlicerConstructor } from './operations/core/slicer-core';

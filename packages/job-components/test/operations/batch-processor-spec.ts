@@ -1,6 +1,10 @@
-import { newTestExecutionConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { DataEntity, BatchProcessor } from '../../src';
+import {
+    DataEntity,
+    BatchProcessor,
+    newTestExecutionConfig,
+    TestContext
+} from '../../src';
 
 describe('BatchProcessor', () => {
     class ExampleBatchProcessor extends BatchProcessor {

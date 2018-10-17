@@ -1,6 +1,6 @@
 import Core from './core';
 import SliceEvents from './slice-events';
-import { Context, ExecutionConfig } from '@terascope/teraslice-types';
+import { Context, ExecutionConfig } from '../../interfaces';
 
 /**
  * A base class for supporting APIs that run within an Execution Context.

@@ -1,6 +1,5 @@
-import { newTestExecutionConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { DataEntity, MapProcessor } from '../../src';
+import { DataEntity, MapProcessor, newTestExecutionConfig, TestContext } from '../../src';
 
 describe('MapProcessor', () => {
     class ExampleProcessor extends MapProcessor {

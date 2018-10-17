@@ -1,4 +1,4 @@
-import { Context, OpConfig, LegacyProcessor, SliceRequest, processorFn } from '@terascope/teraslice-types';
+import { Context, OpConfig, LegacyProcessor, SliceRequest, processorFn } from '../../interfaces';
 import DataEntity, { DataEntityList } from '../data-entity';
 import ProcessorCore, { ProcessorConstructor } from '../core/processor-core';
 import { SchemaConstructor } from '../core/schema-core';

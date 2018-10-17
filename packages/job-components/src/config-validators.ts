@@ -1,4 +1,4 @@
-import { ValidatedJobConfig, OpConfig } from '@terascope/teraslice-types';
+import { ValidatedJobConfig, OpConfig } from './interfaces';
 import convict from 'convict';
 import { opSchema } from './job-schemas';
 

@@ -1,6 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { TestContext, newTestExecutionConfig } from '@terascope/teraslice-types';
-import { readerShim } from '../../../src';
+import { readerShim, TestContext, newTestExecutionConfig } from '../../../src';
 
 describe('Reader Shim', () => {
     const context = new TestContext('teraslice-operations');
@@ -46,7 +45,7 @@ describe('Reader Shim', () => {
 
     it('should have a functioning Schema', () => {
         expect(mod.Schema.type()).toEqual('convict');
-        const schema = new mod.Schema();
+        const schema = new mod.Schema(context);
         expect(schema.build()).toEqual({
             example: {
                 default: 'examples are quick and easy',

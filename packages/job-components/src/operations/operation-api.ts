@@ -1,4 +1,4 @@
-import { Context, ExecutionConfig } from '@terascope/teraslice-types';
+import { Context, ExecutionConfig } from '../interfaces';
 import APICore, { OpAPI, OpAPIInstance, OpAPIFn } from './core/api-core';
 
 /**

@@ -1,6 +1,6 @@
 import { OpAPI, OperationAPIConstructor } from './operations/operation-api';
 import legacySliceEventsShim from './operations/shims/legacy-slice-events-shim';
-import { Context, ExecutionConfig } from '@terascope/teraslice-types';
+import { Context, ExecutionConfig } from './interfaces';
 
 const _registry = new WeakMap();
 const _apis = new WeakMap();

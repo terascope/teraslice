@@ -16,7 +16,7 @@ import {
     slicerFns,
     LegacyReader,
     ExecutionContext,
-} from '@terascope/teraslice-types';
+} from '../../interfaces';
 
 // This file for backwards compatibility and functionality will be limited
 // but it should allow you to write processors using the new way today

@@ -1,6 +1,6 @@
 'use strict';
 
-import { Context, crossValidationFn, OpConfig, JobConfig, ValidatedJobConfig } from '@terascope/teraslice-types';
+import { Context, crossValidationFn, OpConfig, JobConfig, ValidatedJobConfig } from './interfaces';
 import convict from 'convict';
 import _ from 'lodash';
 import { validateJobConfig, validateOpConfig } from './config-validators';

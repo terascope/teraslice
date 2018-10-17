@@ -37,7 +37,6 @@
     },
     "dependencies": {
         "@terascope/queue": "^1.1.4",
-        "@terascope/teraslice-types": "^0.2.1",
         "@types/bluebird": "^3.5.24",
         "@types/debug": "^0.0.31",
         "@types/fs-extra": "^5.0.4",

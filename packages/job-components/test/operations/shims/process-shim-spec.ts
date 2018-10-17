@@ -1,6 +1,10 @@
 import 'jest-extended'; // require for type definitions
-import { TestContext, newTestExecutionConfig } from '@terascope/teraslice-types';
-import { processorShim, DataEntity } from '../../../src';
+import {
+    processorShim,
+    DataEntity,
+    TestContext,
+    newTestExecutionConfig
+} from '../../../src';
 
 describe('Processor Shim', () => {
     const context = new TestContext('teraslice-operations');
@@ -39,7 +43,7 @@ describe('Processor Shim', () => {
 
     it('should have a functioning Schema', () => {
         expect(mod.Schema.type()).toEqual('convict');
-        const schema = new mod.Schema();
+        const schema = new mod.Schema(context);
         expect(schema.build()).toEqual({
             example: {
                 default: 'examples are quick and easy',
