@@ -152,7 +152,7 @@ describe('OperationLoader', () => {
 
         expect(op.Schema).not.toBeNil();
         expect(() => {
-            new op.Schema().build();
+            new op.Schema(context).build();
         }).not.toThrow();
 
         expect(op.API).toBeNil();
@@ -183,7 +183,7 @@ describe('OperationLoader', () => {
 
         expect(op.Schema).not.toBeNil();
         expect(() => {
-            new op.Schema().build();
+            new op.Schema(context).build();
         }).not.toThrow();
 
         expect(op.API).toBeNil();
@@ -220,7 +220,7 @@ describe('OperationLoader', () => {
 
         expect(op.Schema).not.toBeNil();
         expect(() => {
-            new op.Schema().build();
+            new op.Schema(context).build();
         }).not.toThrow();
 
         expect(op.API).not.toBeNil();
@@ -257,7 +257,7 @@ describe('OperationLoader', () => {
 
         expect(op.Schema).not.toBeNil();
         expect(() => {
-            new op.Schema().build();
+            new op.Schema(context).build();
         }).not.toThrow();
 
         expect(op.API).toBeNil();

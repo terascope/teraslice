@@ -1,9 +1,9 @@
 'use strict';
 
-const { Processor } = require('@terascope/job-components');
+const { FilterProcessor } = require('@terascope/job-components');
 
-class ExampleFilter extends Processor {
-    onData(data) {
+class ExampleFilter extends FilterProcessor {
+    filter(data) {
         if (data.statusCode > 400) {
             return null;
         }
