@@ -5,6 +5,7 @@ import EachProcessor from './each-processor';
 import Fetcher from './fetcher';
 import FilterProcessor from './filter-processor';
 import MapProcessor from './map-processor';
+import Observer from './observer';
 import OperationAPI, { OpAPI, OpAPIInstance, OpAPIFn } from './operation-api';
 import ParallelSlicer, { SlicerFn } from './parallel-slicer';
 import Slicer, { SlicerResult } from './slicer';
@@ -18,6 +19,7 @@ export {
     Fetcher,
     FilterProcessor,
     MapProcessor,
+    Observer,
     OpAPI,
     OpAPIFn,
     OpAPIInstance,
