@@ -1,5 +1,8 @@
 'use strict';
 
+import fs from 'fs';
+import { pathExistsSync } from 'fs-extra';
+import path from 'path';
 import { LegacyOperation, LegacyReader, LegacyProcessor } from './interfaces';
 import { APIConstructor } from './operations/core/api-core';
 import { FetcherConstructor } from './operations/core/fetcher-core';
@@ -8,10 +11,7 @@ import { ProcessorConstructor } from './operations/core/processor-core';
 import { ObserverConstructor } from './operations/core/observer-core';
 import { SchemaConstructor } from './operations/core/schema-core';
 import { readerShim, processorShim } from './operations/shims';
-import fs from 'fs';
-import { pathExistsSync } from 'fs-extra';
-import path from 'path';
-import { isString } from 'lodash';
+import { isString } from './utils';
 
 export interface LoaderOptions {
     terasliceOpPath: string;

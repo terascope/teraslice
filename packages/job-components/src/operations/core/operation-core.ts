@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import '../../formats'; // require to add the schema formats
 import Core from './core';
 import { OpAPI } from './api-core';

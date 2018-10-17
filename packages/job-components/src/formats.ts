@@ -1,10 +1,9 @@
 'use strict';
 
-import _ from 'lodash';
 import { addFormat, Format } from 'convict';
 // @ts-ignore
 import dateMath from 'datemath-parser';
-import moment from 'moment';
+import { startsWith, isValidDate } from './utils';
 
 export const formats : Format[] = [
     {
@@ -34,7 +33,7 @@ export const formats : Format[] = [
         validate(val: any) {
             if (!val) { return; }
             if (typeof val === 'string' || typeof val === 'number') {
-                if (moment(new Date(val)).isValid()) { return; }
+                if (isValidDate(val)) { return; }
                 try {
                     dateMath.parse(val);
                 } catch (err) {
@@ -58,9 +57,9 @@ export const formats : Format[] = [
                 throw new Error(`value: ${val} should not exceed 255 characters`);
             }
 
-            if (_.startsWith(val, '_')
-                || _.startsWith(val, '-')
-                || _.startsWith(val, '+')) {
+            if (startsWith(val, '_')
+                || startsWith(val, '-')
+                || startsWith(val, '+')) {
                 throw new Error(`value: ${val} should not start with _, -, or +`);
             }
 

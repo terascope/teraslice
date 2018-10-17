@@ -1,5 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import times from 'lodash/times';
+import { times } from '../../../src/utils';
 import {
     EachProcessor,
     legacySliceEventsShim,

@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { EventEmitter } from 'events';
 import { Context, ExecutionConfig, Logger } from '../../interfaces';
 

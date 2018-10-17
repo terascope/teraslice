@@ -1,5 +1,4 @@
 import 'jest-extended'; // require for type definitions
-import _ from 'lodash';
 import {
     ParallelSlicer,
     SlicerFn,

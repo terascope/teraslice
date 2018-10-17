@@ -1,9 +1,9 @@
 
-import _ from 'lodash';
 import debugnyan from 'debugnyan';
 import { EventEmitter } from 'events';
 import * as c from './interfaces/context';
 import * as j from './interfaces/jobs';
+import { random, isString, uniq } from './utils';
 
 interface DebugParamObj {
     module: string;
@@ -11,7 +11,7 @@ interface DebugParamObj {
 }
 
 function newId(prefix: string): string {
-    return `${_.uniqueId(`${prefix}-`)}-${_.random(10000, 99999)}`;
+    return `${prefix}-${random(10000, 99999)}`;
 }
 
 type debugParam = DebugParamObj | string;
@@ -21,9 +21,9 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
     const options = {};
     const parts: string[] = ['teraslice', testName];
     if (param) {
-        if (_.isString(param)) {
+        if (isString(param)) {
             parts.push(param as string);
-        } else if (_.isPlainObject(param)) {
+        } else if (typeof param === 'object') {
             parts.push(param.module);
             if (param.assignment) {
                 parts.push(param.assignment);
@@ -35,7 +35,7 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
         parts.push(otherName);
     }
 
-    logger = debugnyan(_.uniq(parts).join(':'), options) as c.Logger;
+    logger = debugnyan(uniq(parts).join(':'), options) as c.Logger;
 
     logger.flush = () => Promise.resolve();
 
@@ -45,8 +45,8 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
 export function newTestSlice(): j.Slice {
     return {
         slice_id: newId('slice-id'),
-        slicer_id: _.random(0, 99999),
-        slicer_order: _.random(0, 99999),
+        slicer_id: random(0, 99999),
+        slicer_order: random(0, 99999),
         request: {},
         _created: new Date().toISOString(),
     };
@@ -70,7 +70,7 @@ export function newTestJobConfig(): j.ValidatedJobConfig {
 export function newTestExecutionConfig(): j.ExecutionConfig {
     const exConfig: j.ExecutionConfig = newTestJobConfig();
     exConfig.slicer_hostname = 'example.com';
-    exConfig.slicer_port = _.random(8000, 60000);
+    exConfig.slicer_port = random(8000, 60000);
     exConfig.ex_id = newId('ex-id');
     exConfig.job_id = newId('job-id');
     return exConfig;

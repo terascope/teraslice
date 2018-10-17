@@ -1,4 +1,3 @@
-import times from 'lodash/times';
 import DataEntity, { DataInput } from '../data-entity';
 import { SchemaConstructor } from '../core/schema-core';
 import { FetcherConstructor } from '../core/fetcher-core';
@@ -17,6 +16,7 @@ import {
     LegacyReader,
     ExecutionContext,
 } from '../../interfaces';
+import { times } from '../../utils';
 
 // This file for backwards compatibility and functionality will be limited
 // but it should allow you to write processors using the new way today

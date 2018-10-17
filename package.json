@@ -7,7 +7,7 @@
         "bootstrap:prod": "lerna bootstrap -- --production=true --link-duplicates --no-optional",
         "bootstrap": "lerna bootstrap",
         "build": "lerna run build",
-        "build:prod": "lerna run build:prod",
+        "build:prod": "lerna run build:prod --parallel --stream --prefix",
         "build:watch": "lerna run build:watch --parallel --stream --prefix",
         "bump": "./scripts/bump.js",
         "test": "jest --ci --cache --silent --maxWorkers=4 --detectOpenHandles --forceExit",
@@ -21,6 +21,7 @@
         "publish:changed": "./scripts/publish.sh"
     },
     "dependencies": {
+        "@types/node": "^10.12.0",
         "lerna": "^3.4.3",
         "typescript": "^3.1.3"
     },
