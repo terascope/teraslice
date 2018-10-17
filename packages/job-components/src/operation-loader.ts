@@ -5,6 +5,7 @@ import { APIConstructor } from './operations/core/api-core';
 import { FetcherConstructor } from './operations/core/fetcher-core';
 import { SlicerConstructor } from './operations/core/slicer-core';
 import { ProcessorConstructor } from './operations/core/processor-core';
+import { ObserverConstructor } from './operations/core/observer-core';
 import { SchemaConstructor } from './operations/core/schema-core';
 import { readerShim, processorShim } from './operations/shims';
 import fs from 'fs';
@@ -157,6 +158,42 @@ export class OperationLoader {
         };
     }
 
+    loadObserver(name: string, assetIds?: string[]): ObserverModule {
+        const codePath = this.findOrThrow(name, assetIds);
+
+        /* tslint:disable-next-line:variable-name */
+        let Observer: ObserverConstructor|undefined;
+
+        try {
+            Observer = require(path.join(codePath, 'observer.js'));
+        } catch (err) {
+            throw new Error(`Failure loading observer from module: ${name}, error: ${err.stack}`);
+        }
+
+        return {
+            // @ts-ignore
+            Observer,
+        };
+    }
+
+    loadAPI(name: string, assetIds?: string[]): APIModule {
+        const codePath = this.findOrThrow(name, assetIds);
+
+        /* tslint:disable-next-line:variable-name */
+        let API: ObserverConstructor|undefined;
+
+        try {
+            API = require(path.join(codePath, 'api.js'));
+        } catch (err) {
+            throw new Error(`Failure loading api from module: ${name}, error: ${err.stack}`);
+        }
+
+        return {
+            // @ts-ignore
+            API,
+        };
+    }
+
     private findOrThrow(name: string, assetIds?: string[]): string {
         this.verifyOpName(name);
 
@@ -260,6 +297,10 @@ export interface OperationModule {
 
 export interface APIModule {
     API: APIConstructor;
+}
+
+export interface ObserverModule {
+    Observer: ObserverConstructor;
 }
 
 export interface ReaderModule extends OperationModule {

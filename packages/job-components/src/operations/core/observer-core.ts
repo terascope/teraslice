@@ -47,6 +47,6 @@ export default abstract class ObserverCore extends Core implements SliceEvents {
     }
 }
 
-export type ObserverCoreConstructor = {
+export type ObserverConstructor = {
     new(context: Context, executionConfig: ExecutionConfig): ObserverCore;
 };

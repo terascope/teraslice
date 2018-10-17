@@ -1,4 +1,4 @@
-import ObserverCore, { ObserverCoreConstructor } from './core/observer-core';
+import ObserverCore, { ObserverConstructor } from './core/observer-core';
 
 /**
  * An Observer factory class for operations
@@ -6,4 +6,4 @@ import ObserverCore, { ObserverCoreConstructor } from './core/observer-core';
 export default abstract class Observer extends ObserverCore {
 }
 
-export type ObserverConstructor = ObserverCoreConstructor;
+export { ObserverConstructor };

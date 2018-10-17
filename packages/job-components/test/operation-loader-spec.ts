@@ -262,4 +262,46 @@ describe('OperationLoader', () => {
 
         expect(op.API).toBeNil();
     });
+
+    it('can load an api', async () => {
+        const exConfig = newTestExecutionConfig();
+        const opConfig = {
+            _op: 'test-reader'
+        };
+
+        exConfig.operations.push(opConfig);
+
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: path.join(__dirname),
+        });
+
+        const op = opLoader.loadAPI('example-api', ['fixtures']);
+
+        expect(op.API).not.toBeNil();
+        expect(() => {
+            new op.API(context, exConfig);
+        }).not.toThrow();
+    });
+
+    it('can load an observer', async () => {
+        const exConfig = newTestExecutionConfig();
+        const opConfig = {
+            _op: 'test-reader'
+        };
+
+        exConfig.operations.push(opConfig);
+
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: path.join(__dirname),
+        });
+
+        const op = opLoader.loadObserver('example-observer', ['fixtures']);
+
+        expect(op.Observer).not.toBeNil();
+        expect(() => {
+            new op.Observer(context, exConfig);
+        }).not.toThrow();
+    });
 });
