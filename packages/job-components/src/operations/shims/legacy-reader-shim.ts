@@ -33,8 +33,9 @@ export default function legacyReaderShim(Slicer: SlicerType, Fetcher: FetcherTyp
                 throw new Error('Backwards compatibility only works for "convict" schemas');
             }
 
-            const schema = new Schema();
-            return schema.build(context);
+            // @ts-ignore
+            const schema = new Schema(context);
+            return schema.schema;
         },
         async newReader(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): Promise<readerFn<DataInput[]>> {
             const fetcher = new Fetcher(context, opConfig, executionConfig);

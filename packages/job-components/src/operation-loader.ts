@@ -28,16 +28,15 @@ export class OperationLoader {
         let filePath: string | null = null;
         const findCodeFn = this.findCode(name);
 
-        const findCodeByConvention = (basePath?: string, subfolders?: string[], resolvePath?: boolean) => {
+        const findCodeByConvention = (basePath?: string, subfolders?: string[]) => {
             if (!basePath) return;
             if (!pathExistsSync(basePath)) return;
             if (!subfolders || !subfolders.length) return;
-            const folderPath = resolvePath ? path.resolve(basePath) : basePath;
 
             subfolders.forEach((folder: string) => {
-                const pathType = path.join(folderPath, folder);
-                if (!filePath && pathExistsSync(pathType)) {
-                    filePath = findCodeFn(pathType);
+                const folderPath = path.join(basePath, folder);
+                if (!filePath && pathExistsSync(folderPath)) {
+                    filePath = findCodeFn(folderPath);
                 }
             });
         };

@@ -24,8 +24,9 @@ export default function legacyProcessorShim(Processor: ProcessorConstructor, Sch
                 throw new Error('Backwards compatibility only works for "convict" schemas');
             }
 
-            const schema = new Schema();
-            return schema.build(context);
+            // @ts-ignore
+            const schema = new Schema(context);
+            return schema.schema;
         },
         async newProcessor(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): Promise<processorFn<DataInput[]>> {
             const processor = new Processor(context, opConfig, executionConfig);
