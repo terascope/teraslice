@@ -201,7 +201,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                 // On a create request if a document exists it's not an error.
                 // are there cases where this is incorrect?
                 if (item.status === DOCUMENT_EXISTS) {
-                    continue; // eslint-disable-line
+                    continue;
                 }
 
                 if (item.error.type === 'es_rejected_execution_exception') {

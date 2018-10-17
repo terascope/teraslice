@@ -61,13 +61,11 @@ describe('With multiple slices', () => {
 // Any test above this line is for backward compatability
 describe('tests for new op harness', () => {
     class Client {
-        // eslint-disable-next-line class-methods-use-this
         async get(data) {
             data.wasFetched = true;
             return data;
         }
 
-        // eslint-disable-next-line class-methods-use-this
         async count(data) {
             data.count = 5;
             return data;

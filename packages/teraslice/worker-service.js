@@ -1,7 +1,5 @@
 'use strict';
 
-/* eslint-disable class-methods-use-this, no-console */
-
 const _ = require('lodash');
 const Promise = require('bluebird');
 const { shutdownHandler } = require('./lib/workers/helpers/worker-shutdown');

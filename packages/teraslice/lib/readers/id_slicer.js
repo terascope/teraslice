@@ -1,6 +1,6 @@
 'use strict';
 
-/* eslint-disable no-restricted-syntax, no-useless-escape, max-len */
+/* eslint-disable no-useless-escape, max-len */
 
 const _ = require('lodash');
 const parseError = require('@terascope/error-parser');
