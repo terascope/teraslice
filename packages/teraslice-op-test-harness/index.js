@@ -228,7 +228,6 @@ class TestHarness {
         });
     }
 
-    // eslint-disable-next-line class-methods-use-this
     get data() {
         return {
             simple: simpleData.slice(),

@@ -333,7 +333,6 @@ class Scheduler {
             let processed = 0;
             const promises = [];
 
-            // eslint-disable-next-line no-restricted-syntax
             for (const id of pendingSlicers) {
                 processed += 1;
                 if (processed > count) break;
