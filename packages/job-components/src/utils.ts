@@ -37,3 +37,12 @@ export function flatten<T>(val: List<T[]>): T[] {
 
 interface List<T> extends Array<T> {
 }
+
+export function locked() {
+    // @ts-ignore
+    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        descriptor.configurable = false;
+        descriptor.enumerable = false;
+        descriptor.writable = false;
+    };
+}

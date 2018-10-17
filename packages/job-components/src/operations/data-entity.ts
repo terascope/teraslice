@@ -1,6 +1,7 @@
 import * as L from 'list/methods';
 import get from 'lodash.get';
 import set from 'lodash.set';
+import { locked } from '../utils';
 
 const _metadata = new WeakMap();
 
@@ -121,13 +122,4 @@ interface DataEntityMetadata {
     readonly createdAt: Date;
     // Add the ability to specify any additional properties
     [prop: string]: any;
-}
-
-function locked() {
-    // @ts-ignore
-    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-        descriptor.configurable = false;
-        descriptor.enumerable = false;
-        descriptor.writable = false;
-    };
 }

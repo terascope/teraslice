@@ -66,7 +66,7 @@ export interface NativeExecutionConfig extends NativeJobConfig {
     slicer_port?: number;
 }
 
-export interface K8sExecutionConfig extends NativeJobConfig {
+export interface K8sExecutionConfig extends K8sJobConfig {
     ex_id?: string;
     job_id?: string;
     slicer_hostname?: string;

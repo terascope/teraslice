@@ -1,4 +1,14 @@
-export default interface SliceEvents {
+export default interface WorkerOperationLifeCycle {
+    /**
+     * Called during execution initialization
+    */
+    initialize(): Promise<void>;
+
+    /**
+     * Called during execution shutdown
+    */
+    shutdown(): Promise<void>;
+
     /**
      * Called after a slice is initializated, but before the slice
      * has been handed to any operation.

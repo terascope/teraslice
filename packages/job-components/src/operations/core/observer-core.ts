@@ -1,11 +1,10 @@
 import Core from './core';
-import SliceEvents from './slice-events';
-import { Context, ExecutionConfig } from '../../interfaces';
+import { Context, ExecutionConfig, WorkerOperationLifeCycle } from '../../interfaces';
 
 /**
  * A base class for observing the events happening within an Execution
  */
-export default abstract class ObserverCore extends Core implements SliceEvents {
+export default abstract class ObserverCore extends Core implements WorkerOperationLifeCycle {
     constructor(context: Context, executionConfig: ExecutionConfig) {
         const logger = context.apis.foundation.makeLogger({
             module: 'observer',

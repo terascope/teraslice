@@ -1,8 +1,7 @@
 import '../../formats'; // require to add the schema formats
 import Core from './core';
 import { OpAPI } from './api-core';
-import SliceEvents from './slice-events';
-import { Context, ExecutionConfig, OpConfig } from '../../interfaces';
+import { Context, ExecutionConfig, OpConfig, WorkerOperationLifeCycle } from '../../interfaces';
 
 /**
  * A base class for supporting operations that run on a "Worker",
@@ -12,7 +11,7 @@ import { Context, ExecutionConfig, OpConfig } from '../../interfaces';
  * @see Core
  */
 
-export default class OperationCore extends Core implements SliceEvents {
+export default class OperationCore extends Core implements WorkerOperationLifeCycle {
     protected readonly opConfig: Readonly<OpConfig>;
 
     constructor(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig) {
