@@ -1,6 +1,11 @@
-import { newTestExecutionConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { OperationAPI, OpAPIInstance, ExecutionContextAPI } from '../../src';
+import {
+    OperationAPI,
+    OpAPIInstance,
+    ExecutionContextAPI,
+    newTestExecutionConfig,
+    TestContext
+} from '../../src';
 
 describe('OperationAPI', () => {
     interface ExampleAPI extends OpAPIInstance {

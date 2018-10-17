@@ -3,10 +3,5 @@
     "compilerOptions": {
         "baseUrl": ".",
         "outDir": "dist"
-    },
-    "references": [
-        {
-            "path": "../teraslice-types"
-        }
-    ]
+    }
 }

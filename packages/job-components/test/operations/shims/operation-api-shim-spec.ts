@@ -1,6 +1,11 @@
 import 'jest-extended'; // require for type definitions
-import { TestContext, newTestExecutionConfig } from '@terascope/teraslice-types';
-import { OperationAPI, operationAPIShim, ExecutionContextAPI } from '../../../src';
+import {
+    OperationAPI,
+    operationAPIShim,
+    ExecutionContextAPI,
+    TestContext,
+    newTestExecutionConfig
+} from '../../../src';
 
 describe('Operation APIs Shim', () => {
     class HelloAPI extends OperationAPI {

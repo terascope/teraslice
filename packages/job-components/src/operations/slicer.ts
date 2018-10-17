@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Context, OpConfig, ExecutionConfig } from '@terascope/teraslice-types';
+import { Context, OpConfig, ExecutionConfig } from '../interfaces';
 import SlicerCore, { SlicerResult } from './core/slicer-core';
 
 /**
@@ -47,7 +47,7 @@ export default abstract class Slicer extends SlicerCore {
 
 export { SlicerResult };
 
-export type SlicerConstructor = {
+export type SingleSlicerConstructor = {
     isRecoverable: boolean;
     new(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): Slicer;
 };

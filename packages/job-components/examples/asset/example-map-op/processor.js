@@ -1,12 +1,12 @@
 'use strict';
 
-const { Processor } = require('@terascope/job-components');
+const { MapProcessor } = require('@terascope/job-components');
 
-class MapProcessor extends Processor {
-    onData(data) {
+class ExampleMap extends MapProcessor {
+    map(data) {
         data.touchedAt = new Date().toISOString();
         return data;
     }
 }
 
-module.exports = MapProcessor;
+module.exports = ExampleMap;

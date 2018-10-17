@@ -2,9 +2,12 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
-
-const { TestContext } = require('@terascope/teraslice-types');
-const { validateJobConfig, validateOpConfig, jobSchema } = require('@terascope/job-components');
+const {
+    validateJobConfig,
+    validateOpConfig,
+    jobSchema,
+    TestContext
+} = require('@terascope/job-components');
 const { bindThis } = require('./lib/utils');
 const Operation = require('./lib/operation');
 

@@ -1,4 +1,3 @@
-import { Slice } from '@terascope/teraslice-types';
 import { isString, pickBy } from 'lodash';
 import * as core from '../messenger';
 import * as i from './interfaces';
@@ -82,7 +81,7 @@ export class Client extends core.Client {
         });
     }
 
-    async waitForSlice(fn: i.WaitUntilFn = () => false, interval = 100): Promise<Slice|undefined> {
+    async waitForSlice(fn: i.WaitUntilFn = () => false, interval = 100): Promise<i.Slice|undefined> {
         this.sendAvailable();
 
         const slice = await new Promise((resolve) => {
@@ -96,10 +95,10 @@ export class Client extends core.Client {
             }, interval);
 
             function onMessage(msg: core.EventMessage) {
-                finish(msg.payload as Slice);
+                finish(msg.payload as i.Slice);
             }
 
-            function finish(slice?: Slice) {
+            function finish(slice?: i.Slice) {
                 clearInterval(intervalId);
                 resolve(slice);
             }
@@ -107,6 +106,6 @@ export class Client extends core.Client {
 
         if (!slice) return;
 
-        return slice as Slice;
+        return slice as i.Slice;
     }
 }

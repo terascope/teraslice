@@ -1,7 +1,11 @@
-import _ from 'lodash';
-import { newTestExecutionConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { ParallelSlicer, SlicerFn } from '../../src';
+import _ from 'lodash';
+import {
+    ParallelSlicer,
+    SlicerFn,
+    newTestExecutionConfig,
+    TestContext
+} from '../../src';
 
 describe('ParallelSlicer', () => {
     class ExampleParallelSlicer extends ParallelSlicer {

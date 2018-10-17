@@ -1,8 +1,5 @@
-'use strict';
-
-import { newTestJobConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { registerApis, OperationAPI } from '../src';
+import { registerApis, OperationAPI, newTestJobConfig, TestContext } from '../src';
 
 describe('registerApis', () => {
     const context = new TestContext('teraslice-operations');

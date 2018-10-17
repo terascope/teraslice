@@ -5,4 +5,6 @@ export * from './operation-loader';
 export * from './operations';
 export * from './job-validator';
 export * from './job-schemas';
+export * from './interfaces';
 export * from './register-apis';
+export * from './test-helpers';

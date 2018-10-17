@@ -1,7 +1,5 @@
-'use strict';
-
-import { Format } from 'convict';
 import 'jest-extended'; // require for type definitions
+import { Format } from 'convict';
 import { formats } from '../src/formats';
 
 describe('Convict Formats', () => {

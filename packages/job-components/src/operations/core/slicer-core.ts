@@ -7,7 +7,7 @@ import {
     Slice,
     SliceAnalyticsData,
     SliceRequest
-} from '@terascope/teraslice-types';
+} from '../../interfaces';
 import Queue from '@terascope/queue';
 import Core from './core';
 
@@ -109,7 +109,7 @@ export default abstract class SlicerCore extends Core {
     }
 }
 
-export type SlicerResult = Slice|SliceRequest | Slice|SliceRequest[] | null;
+export type SlicerResult = Slice|SliceRequest|SliceRequest[]|null;
 
 export interface SliceResult {
     slice: Slice;
@@ -117,3 +117,8 @@ export interface SliceResult {
     retry?: boolean;
     error?: string;
 }
+
+export type SlicerConstructor = {
+    isRecoverable: boolean;
+    new(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): SlicerCore;
+};

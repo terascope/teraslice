@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { EventEmitter } from 'events';
-import { Context, ExecutionConfig, Logger } from '@terascope/teraslice-types';
+import { Context, ExecutionConfig, Logger } from '../../interfaces';
 
 /**
  * The core class for creating for all varients or base classes for an operation.

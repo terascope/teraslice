@@ -1,6 +1,15 @@
 import 'jest-extended'; // require for type definitions
-import { TestContext, newTestExecutionConfig, newTestExecutionContext, Assignment } from '@terascope/teraslice-types';
-import { Fetcher, Slicer, ParallelSlicer, ConvictSchema, legacyReaderShim } from '../../../src';
+import {
+    Fetcher,
+    Slicer,
+    ParallelSlicer,
+    ConvictSchema,
+    legacyReaderShim,
+    TestContext,
+    newTestExecutionConfig,
+    newTestExecutionContext,
+    Assignment
+} from '../../../src';
 
 describe('Legacy Reader Shim', () => {
     class ExampleParallelSlicer extends ParallelSlicer {

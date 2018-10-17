@@ -122,7 +122,7 @@ export interface LegacyReader extends LegacyOperation {
 }
 
 export type readerFn<T> = (sliceRequest: SliceRequest) => Promise<T>|T;
-export type slicerFn = () => Promise<SliceRequest|Slice|null>;
+export type slicerFn = () => Promise<Slice|SliceRequest|SliceRequest[]|null>;
 export type slicerFns = slicerFn[];
 
 export interface LegacyProcessor extends LegacyOperation {

@@ -1,10 +1,14 @@
-'use strict';
-
-import { LegacyProcessor, LegacyReader, newTestExecutionConfig, TestContext, debugLogger } from '@terascope/teraslice-types';
-import fse from 'fs-extra';
 import 'jest-extended'; // require for type definitions
+import fse from 'fs-extra';
 import path from 'path';
-import { OperationLoader } from '../src';
+import {
+    OperationLoader,
+    LegacyProcessor,
+    LegacyReader,
+    newTestExecutionConfig,
+    debugLogger,
+    TestContext
+} from '../src';
 
 describe('OperationLoader', () => {
     const logger = debugLogger('operation-loader');
@@ -121,5 +125,187 @@ describe('OperationLoader', () => {
         const someData = 'someData';
         const processorResults = processor(someData, logger, {});
         expect(processorResults).toEqual(someData);
+    });
+
+    it('can load the new processor', async () => {
+        const exConfig = newTestExecutionConfig();
+        const opConfig = {
+            _op: 'example-op'
+        };
+
+        exConfig.operations.push({
+            _op: 'example-reader'
+        });
+        exConfig.operations.push(opConfig);
+
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: path.join(__dirname),
+        });
+
+        expect(() => {
+            opLoader.loadProcessor('fail');
+        }).toThrowError('Unable to find module for operation: fail');
+
+        const op = opLoader.loadProcessor('example-op', ['fixtures']);
+
+        expect(op.Processor).not.toBeNil();
+        expect(() => {
+            new op.Processor(context, opConfig, exConfig);
+        }).not.toThrow();
+
+        expect(op.Schema).not.toBeNil();
+        expect(() => {
+            new op.Schema(context).build();
+        }).not.toThrow();
+
+        expect(op.API).toBeNil();
+    });
+
+    it('can load a shimmed processor', async () => {
+        const exConfig = newTestExecutionConfig();
+        const opConfig = {
+            _op: 'example-op'
+        };
+
+        exConfig.operations.push({
+            _op: 'example-reader'
+        });
+        exConfig.operations.push(opConfig);
+
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: path.join(__dirname),
+        });
+
+        const op = opLoader.loadProcessor('test-op', ['fixtures']);
+
+        expect(op.Processor).not.toBeNil();
+        expect(() => {
+            new op.Processor(context, opConfig, exConfig);
+        }).not.toThrow();
+
+        expect(op.Schema).not.toBeNil();
+        expect(() => {
+            new op.Schema(context).build();
+        }).not.toThrow();
+
+        expect(op.API).toBeNil();
+    });
+
+    it('can load the new reader', async () => {
+        const exConfig = newTestExecutionConfig();
+        const opConfig = {
+            _op: 'example-reader'
+        };
+
+        exConfig.operations.push(opConfig);
+
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: path.join(__dirname),
+        });
+
+        expect(() => {
+            opLoader.loadReader('fail');
+        }).toThrowError('Unable to find module for operation: fail');
+
+        const op = opLoader.loadReader('example-reader', ['fixtures']);
+
+        expect(op.Slicer).not.toBeNil();
+        expect(() => {
+            new op.Slicer(context, opConfig, exConfig);
+        }).not.toThrow();
+
+        expect(op.Fetcher).not.toBeNil();
+        expect(() => {
+            new op.Fetcher(context, opConfig, exConfig);
+        }).not.toThrow();
+
+        expect(op.Schema).not.toBeNil();
+        expect(() => {
+            new op.Schema(context).build();
+        }).not.toThrow();
+
+        expect(op.API).not.toBeNil();
+        expect(() => {
+            // @ts-ignore
+            new op.API(context, exConfig);
+        }).not.toThrow();
+    });
+
+    it('can load a shimmed reader', async () => {
+        const exConfig = newTestExecutionConfig();
+        const opConfig = {
+            _op: 'test-reader'
+        };
+
+        exConfig.operations.push(opConfig);
+
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: path.join(__dirname),
+        });
+
+        const op = opLoader.loadReader('test-reader', ['fixtures']);
+
+        expect(op.Slicer).not.toBeNil();
+        expect(() => {
+            new op.Slicer(context, opConfig, exConfig);
+        }).not.toThrow();
+
+        expect(op.Fetcher).not.toBeNil();
+        expect(() => {
+            new op.Fetcher(context, opConfig, exConfig);
+        }).not.toThrow();
+
+        expect(op.Schema).not.toBeNil();
+        expect(() => {
+            new op.Schema(context).build();
+        }).not.toThrow();
+
+        expect(op.API).toBeNil();
+    });
+
+    it('can load an api', async () => {
+        const exConfig = newTestExecutionConfig();
+        const opConfig = {
+            _op: 'test-reader'
+        };
+
+        exConfig.operations.push(opConfig);
+
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: path.join(__dirname),
+        });
+
+        const op = opLoader.loadAPI('example-api', ['fixtures']);
+
+        expect(op.API).not.toBeNil();
+        expect(() => {
+            new op.API(context, exConfig);
+        }).not.toThrow();
+    });
+
+    it('can load an observer', async () => {
+        const exConfig = newTestExecutionConfig();
+        const opConfig = {
+            _op: 'test-reader'
+        };
+
+        exConfig.operations.push(opConfig);
+
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: path.join(__dirname),
+        });
+
+        const op = opLoader.loadObserver('example-observer', ['fixtures']);
+
+        expect(op.Observer).not.toBeNil();
+        expect(() => {
+            new op.Observer(context, exConfig);
+        }).not.toThrow();
     });
 });

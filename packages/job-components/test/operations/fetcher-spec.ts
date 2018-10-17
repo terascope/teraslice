@@ -1,6 +1,5 @@
-import { newTestExecutionConfig, TestContext } from '@terascope/teraslice-types';
 import 'jest-extended'; // require for type definitions
-import { Fetcher, DataEntity } from '../../src';
+import { Fetcher, DataEntity, newTestExecutionConfig, TestContext } from '../../src';
 
 describe('Fetcher', () => {
     class ExampleFetcher extends Fetcher {
