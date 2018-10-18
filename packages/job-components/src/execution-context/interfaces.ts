@@ -19,7 +19,6 @@ export interface SlicerOperations extends Set<SlicerOperationLifeCycle> {}
 
 export interface SlicerContextApis extends ContextApis {
     op_runner: OpRunnerAPI;
-    executionContext: ExecutionContextAPI;
     job_runner: JobRunnerAPI;
 }
 

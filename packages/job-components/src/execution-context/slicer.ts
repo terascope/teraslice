@@ -58,10 +58,10 @@ export class SlicerExecutionContext {
     }
 
     @enumerable(false)
-    async initialize() {
+    async initialize(recoveryData: object[] = []) {
         const promises = [];
         for (const op of this.getOperations()) {
-            promises.push(op.initialize());
+            promises.push(op.initialize(recoveryData));
         }
 
         await Promise.all(promises);

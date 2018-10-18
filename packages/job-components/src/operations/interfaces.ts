@@ -1,6 +1,5 @@
 import { OpConfig, ExecutionConfig, Context } from '../interfaces';
 import { SlicerContext, WorkerContext } from '../execution-context';
-import ObserverCore from './core/observer-core';
 import FetcherCore from './core/fetcher-core';
 import SchemaCore from './core/schema-core';
 import SlicerCore from './core/slicer-core';
@@ -27,7 +26,7 @@ export type OperationAPIConstructor = {
 };
 
 export type ObserverConstructor = {
-    new(context: WorkerContext, executionConfig: ExecutionConfig): ObserverCore;
+    new(context: WorkerContext, executionConfig: ExecutionConfig): APICore;
 };
 
 export type SchemaConstructor = {
