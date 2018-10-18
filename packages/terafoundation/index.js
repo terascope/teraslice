@@ -95,6 +95,8 @@ module.exports = function module(config) {
         context.sysconfig = sysconfig;
         context.cluster = cluster;
         context.name = name;
+        context.arch = process.arch;
+        context.platform = process.platform;
 
         if (typeof config.cluster_name === 'function') {
             context.cluster_name = config.cluster_name(context.sysconfig);

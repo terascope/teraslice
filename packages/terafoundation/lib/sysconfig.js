@@ -4,7 +4,7 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const { existsSync } = require('./file_utils');
 
-module.exports = function (context) {
+module.exports = function sysconfig(context) {
     let configFile;
 
     if (existsSync('/app/config/config.yaml')) {
