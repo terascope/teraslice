@@ -1,4 +1,4 @@
-export default interface WorkerOperationLifeCycle {
+export interface WorkerOperationLifeCycle {
     /**
      * Called during execution initialization
     */

@@ -17,12 +17,12 @@ export class ExecutionContextAPI {
     }
 
     addToRegistry(name: string, api: OperationAPIConstructor) {
-        const registry = this.registery;
+        const registry = this.registry;
         registry[name] = api;
         _registry.set(this, registry);
     }
 
-    get registery(): APIRegistry {
+    get registry(): APIRegistry {
         return _registry.get(this);
     }
 
@@ -38,7 +38,7 @@ export class ExecutionContextAPI {
     }
 
     async initAPI(name: string, ...params: any[]) {
-        if (this.registery[name] == null) {
+        if (this.registry[name] == null) {
             throw new Error(`Unable to find API by name "${name}"`);
         }
 
@@ -46,7 +46,7 @@ export class ExecutionContextAPI {
             throw new Error(`API "${name}" can only be initalized once`);
         }
 
-        const API = this.registery[name];
+        const API = this.registry[name];
         const api = new API(this._context, this._executionConfig);
         await api.initialize();
 

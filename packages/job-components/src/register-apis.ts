@@ -65,3 +65,11 @@ export function registerApis(context: Context, job: ValidatedJobConfig): void {
         },
     });
 }
+
+export interface OpRunnerAPI {
+    getClient(config: GetClientConfig, type: string): { client: any };
+}
+
+export interface JobRunnerAPI {
+    getOpConfig(name: string): OpConfig|undefined;
+}

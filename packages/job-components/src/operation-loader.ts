@@ -4,7 +4,7 @@ import fs from 'fs';
 import { pathExistsSync } from 'fs-extra';
 import path from 'path';
 import { LegacyOperation, LegacyReader, LegacyProcessor } from './interfaces';
-import { APIConstructor } from './operations/core/api-core';
+import { OperationAPIConstructor } from './operations/operation-api';
 import { FetcherConstructor } from './operations/core/fetcher-core';
 import { SlicerConstructor } from './operations/core/slicer-core';
 import { ProcessorConstructor } from './operations/core/processor-core';
@@ -81,7 +81,7 @@ export class OperationLoader {
         let Processor: ProcessorConstructor|undefined;
         /* tslint:disable-next-line:variable-name */
         let Schema: SchemaConstructor|undefined;
-        let API: APIConstructor|undefined;
+        let API: OperationAPIConstructor|undefined;
 
         try {
             Processor = require(path.join(codePath, 'processor.js'));
@@ -122,7 +122,7 @@ export class OperationLoader {
         let Slicer: SlicerConstructor|undefined;
         /* tslint:disable-next-line:variable-name */
         let Schema: SchemaConstructor|undefined;
-        let API: APIConstructor|undefined;
+        let API: OperationAPIConstructor|undefined;
 
         try {
             Slicer = require(path.join(codePath, 'slicer.js'));
@@ -180,7 +180,7 @@ export class OperationLoader {
         const codePath = this.findOrThrow(name, assetIds);
 
         /* tslint:disable-next-line:variable-name */
-        let API: ObserverConstructor|undefined;
+        let API: OperationAPIConstructor|undefined;
 
         try {
             API = require(path.join(codePath, 'api.js'));
@@ -292,11 +292,11 @@ export class OperationLoader {
 
 export interface OperationModule {
     Schema: SchemaConstructor;
-    API?: APIConstructor;
+    API?: OperationAPIConstructor;
 }
 
 export interface APIModule {
-    API: APIConstructor;
+    API: OperationAPIConstructor;
 }
 
 export interface ObserverModule {

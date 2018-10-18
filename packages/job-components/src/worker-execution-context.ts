@@ -1,23 +1,23 @@
 import { locked } from './utils';
 import cloneDeep from 'lodash.clonedeep';
 import { OperationLoader } from './operation-loader';
-import { Context, ExecutionConfig, WorkerOperationLifeCycle } from './interfaces';
-import { APIConstructor } from './operations/core/api-core';
-import { registerApis } from './register-apis';
+import * as i from './interfaces';
+import { registerApis, JobRunnerAPI, OpRunnerAPI } from './register-apis';
+import { ExecutionContextAPI } from './execution-context-apis';
+import { OperationAPIConstructor } from './operations/operation-api';
 
-const _config = new WeakMap<WorkerExecutionContext, PrivateConfig>();
 const _loaders = new WeakMap<WorkerExecutionContext, OperationLoader>();
 const _lifecycle = new WeakMap<WorkerExecutionContext, InitializedOperations>();
 
 export class WorkerExecutionContext {
-    readonly config: ExecutionConfig;
-    readonly assetIds: string[];
+    readonly config: i.ExecutionConfig;
+    readonly context: WorkerContext;
+    readonly assetIds: string[] = [];
+    private loaded: boolean = false;
 
     constructor(config: ExecutionContextConfig) {
-        _config.set(this, {
-            context: config.context,
-            initialized: false,
-        });
+        const executionConfig = cloneDeep(config.executionConfig);
+        registerApis(config.context, executionConfig);
 
         _loaders.set(this, new OperationLoader({
             terasliceOpPath: config.terasliceOpPath,
@@ -26,42 +26,43 @@ export class WorkerExecutionContext {
 
         _lifecycle.set(this, new Set());
 
-        this.assetIds = config.assetIds;
-        this.config = cloneDeep(config.executionConfig);
+        this.context = config.context as WorkerContext;
+        if (config.assetIds) {
+            this.assetIds = config.assetIds;
+        }
+        this.config = executionConfig;
     }
 
     @locked()
-    async initialize() {
-        const config = _config.get(this);
-        if (!config || config.initialized) {
-            throw new Error('Execution Context can only be initialized once');
-        }
-
+    load() {
         const loader = _loaders.get(this);
-        if (!loader) throw new Error('Uh oh');
 
-        registerApis(config.context, this.config);
+        if (this.loaded || !loader) {
+            throw new Error('Operations can only be loaded once');
+        }
+        this.loaded = true;
 
         let index = 0;
         for (const opConfig of this.config.operations) {
+            const name = opConfig._op;
             if (!index++) {
-                const mod = loader.loadReader(opConfig._op);
+                const mod = loader.loadReader(name, this.assetIds);
                 this.registerAPI(name, mod.API);
 
-                const op = new mod.Fetcher(config.context, opConfig, this.config);
+                const op = new mod.Fetcher(this.context, opConfig, this.config);
                 this.addToLifecycle(op);
             } else {
-                const mod = loader.loadProcessor(opConfig._op);
+                const mod = loader.loadProcessor(name, this.assetIds);
                 this.registerAPI(name, mod.API);
 
-                const op = new mod.Processor(config.context, opConfig, this.config);
+                const op = new mod.Processor(this.context, opConfig, this.config);
                 this.addToLifecycle(op);
             }
         }
     }
 
     @locked()
-    private addToLifecycle(op: WorkerOperationLifeCycle) {
+    private addToLifecycle(op: i.WorkerOperationLifeCycle) {
         const operations = _lifecycle.get(this);
         if (!operations) throw new Error('Uh oh');
 
@@ -69,25 +70,28 @@ export class WorkerExecutionContext {
     }
 
     @locked()
-    private registerAPI(name: string, API?: APIConstructor) {
-        const config = _config.get(this);
-        if (!config) throw new Error('Uh oh');
+    private registerAPI(name: string, API?: OperationAPIConstructor) {
         if (API == null) return;
 
-        config.context.apis.executionContext.addToRegistry(name, API);
+        this.context.apis.executionContext.addToRegistry(name, API);
     }
 }
 
 interface ExecutionContextConfig {
-    context: Context;
-    executionConfig: ExecutionConfig;
+    context: i.Context;
+    executionConfig: i.ExecutionConfig;
     terasliceOpPath: string;
-    assetIds: string[];
+    assetIds?: string[];
 }
 
-interface PrivateConfig {
-    context: Context;
-    initialized: boolean;
+interface InitializedOperations extends Set<i.WorkerOperationLifeCycle> {}
+
+interface WorkerContextApis extends i.ContextApis {
+    op_runner: OpRunnerAPI;
+    executionContext: ExecutionContextAPI;
+    job_runner: JobRunnerAPI;
 }
 
-interface InitializedOperations extends Set<WorkerOperationLifeCycle> {}
+export interface WorkerContext extends i.Context {
+    apis: WorkerContextApis;
+}
