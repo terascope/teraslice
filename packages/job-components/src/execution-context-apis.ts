@@ -4,14 +4,16 @@ import { Context, ExecutionConfig } from './interfaces';
 
 const _registry = new WeakMap();
 const _apis = new WeakMap();
+const _config = new WeakMap();
 
 export class ExecutionContextAPI {
-    private _context: Context;
-    private _executionConfig: ExecutionConfig;
-
     constructor(context: Context, executionConfig: ExecutionConfig) {
-        this._context = context;
-        this._executionConfig = executionConfig;
+        _config.set(this, {
+            context,
+            executionConfig,
+            events: context.apis.foundation.getSystemEvents(),
+        });
+
         _registry.set(this, {});
         _apis.set(this, {});
     }
@@ -38,6 +40,7 @@ export class ExecutionContextAPI {
     }
 
     async initAPI(name: string, ...params: any[]) {
+        const config = _config.get(this);
         if (this.registry[name] == null) {
             throw new Error(`Unable to find API by name "${name}"`);
         }
@@ -47,8 +50,11 @@ export class ExecutionContextAPI {
         }
 
         const API = this.registry[name];
-        const api = new API(this._context, this._executionConfig);
+
+        const api = new API(config.context, config.executionConfig);
         await api.initialize();
+
+        config.events.emit('execution:add-to-lifecycle', api);
 
         legacySliceEventsShim(api);
 

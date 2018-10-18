@@ -31,35 +31,19 @@ describe('WorkerExecutionContext', () => {
             terasliceOpPath,
         });
 
+        beforeAll(() => {
+            return executionContext.initialize();
+        });
+
+        afterAll(() => {
+            return executionContext.shutdown();
+        });
+
         it('should have correct properties', () => {
             expect(executionContext).toHaveProperty('config', executionConfig);
             expect(executionContext).toHaveProperty('assetIds', ['fixtures']);
             expect(executionContext).toHaveProperty('context');
         });
-
-        it('should not be able to load twice', () => {
-            executionContext.load();
-
-            expect(() => {
-                executionContext.load();
-            }).toThrowError();
-        });
-    });
-
-    describe('when loaded', () => {
-        const inputContext = new TestContext('worker-execution-context');
-        inputContext.sysconfig.teraslice.assets_directory = assetDir;
-
-        const executionContext = new WorkerExecutionContext({
-            context: inputContext,
-            executionConfig,
-            assetIds,
-            terasliceOpPath,
-        });
-
-        const { context } = executionContext;
-
-        executionContext.load();
 
         it('should have the registered apis', () => {
             const registry = Object.keys(context.apis.executionContext.registry);

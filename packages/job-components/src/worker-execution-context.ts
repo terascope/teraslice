@@ -1,10 +1,13 @@
-import { locked } from './utils';
+import { EventEmitter } from 'events';
 import cloneDeep from 'lodash.clonedeep';
-import { OperationLoader } from './operation-loader';
+import { locked } from './utils';
 import * as i from './interfaces';
-import { registerApis, JobRunnerAPI, OpRunnerAPI } from './register-apis';
+import { OperationLoader } from './operation-loader';
+import FetcherCore from './operations/core/fetcher-core';
+import ProcessorCore from './operations/core/processor-core';
 import { ExecutionContextAPI } from './execution-context-apis';
 import { OperationAPIConstructor } from './operations/operation-api';
+import { registerApis, JobRunnerAPI, OpRunnerAPI } from './register-apis';
 
 const _loaders = new WeakMap<WorkerExecutionContext, OperationLoader>();
 const _lifecycle = new WeakMap<WorkerExecutionContext, InitializedOperations>();
@@ -13,60 +16,78 @@ export class WorkerExecutionContext {
     readonly config: i.ExecutionConfig;
     readonly context: WorkerContext;
     readonly assetIds: string[] = [];
-    private loaded: boolean = false;
+    readonly fetcher: FetcherCore;
+    readonly processors: Set<ProcessorCore>;
+    private events: EventEmitter;
+    private _handlers: EventHandlers = {};
 
     constructor(config: ExecutionContextConfig) {
-        const executionConfig = cloneDeep(config.executionConfig);
-        registerApis(config.context, executionConfig);
+        this.events = config.context.apis.foundation.getSystemEvents();
 
-        _loaders.set(this, new OperationLoader({
+        this._handlers['execution:add-to-lifecycle'] = (op: i.WorkerOperationLifeCycle) => {
+            this.lifecycle.add(op);
+        };
+
+        this.events.on('execution:add-to-lifecycle', this._handlers['execution:add-to-lifecycle']);
+
+        const executionConfig = cloneDeep(config.executionConfig);
+        const loader = new OperationLoader({
             terasliceOpPath: config.terasliceOpPath,
             assetPath: config.context.sysconfig.teraslice.assets_directory,
-        }));
+        });
+
+        registerApis(config.context, executionConfig);
+        this.context = config.context as WorkerContext;
+
+        this.assetIds = config.assetIds || [];
+
+        this.config = executionConfig;
+
+        _loaders.set(this, loader);
 
         _lifecycle.set(this, new Set());
 
-        this.context = config.context as WorkerContext;
-        if (config.assetIds) {
-            this.assetIds = config.assetIds;
-        }
-        this.config = executionConfig;
-    }
+        const readerConfig = this.config.operations[0];
+        const mod = loader.loadReader(readerConfig._op, this.assetIds);
+        this.registerAPI(readerConfig._op, mod.API);
 
-    @locked()
-    load() {
-        const loader = _loaders.get(this);
+        const op = new mod.Fetcher(this.context, readerConfig, this.config);
+        this.fetcher = op;
+        this.lifecycle.add(op);
 
-        if (this.loaded || !loader) {
-            throw new Error('Operations can only be loaded once');
-        }
-        this.loaded = true;
+        this.processors = new Set();
 
-        let index = 0;
-        for (const opConfig of this.config.operations) {
+        for (const opConfig of this.config.operations.slice(1)) {
             const name = opConfig._op;
-            if (!index++) {
-                const mod = loader.loadReader(name, this.assetIds);
-                this.registerAPI(name, mod.API);
+            const mod = loader.loadProcessor(name, this.assetIds);
+            this.registerAPI(name, mod.API);
 
-                const op = new mod.Fetcher(this.context, opConfig, this.config);
-                this.addToLifecycle(op);
-            } else {
-                const mod = loader.loadProcessor(name, this.assetIds);
-                this.registerAPI(name, mod.API);
-
-                const op = new mod.Processor(this.context, opConfig, this.config);
-                this.addToLifecycle(op);
-            }
+            const op = new mod.Processor(this.context, opConfig, this.config);
+            this.lifecycle.add(op);
+            this.processors.add(op);
         }
     }
 
     @locked()
-    private addToLifecycle(op: i.WorkerOperationLifeCycle) {
-        const operations = _lifecycle.get(this);
-        if (!operations) throw new Error('Uh oh');
+    async initialize() {
+        const promises = [];
+        for (const op of this.lifecycle.values()) {
+            promises.push(op.initialize());
+        }
 
-        operations.add(op);
+        await Promise.all(promises);
+    }
+    @locked()
+    async shutdown() {
+        const promises = [];
+        for (const op of this.lifecycle.values()) {
+            promises.push(op.shutdown());
+        }
+        await Promise.all(promises);
+    }
+
+    private get lifecycle() {
+        return _lifecycle.get(this) as InitializedOperations;
     }
 
     @locked()
@@ -94,4 +115,8 @@ interface WorkerContextApis extends i.ContextApis {
 
 export interface WorkerContext extends i.Context {
     apis: WorkerContextApis;
+}
+
+interface EventHandlers {
+    [eventName: string]: (...args: any[]) => void;
 }
