@@ -1,9 +1,12 @@
-'use strict';
-
-import { TestContext, K8sJobConfig } from '@terascope/teraslice-types';
-import { Schema } from 'convict';
 import 'jest-extended'; // require for type definitions
-import { jobSchema, validateJobConfig, validateOpConfig } from '../src';
+import { Schema } from 'convict';
+import {
+    jobSchema,
+    validateJobConfig,
+    validateOpConfig,
+    TestContext,
+    K8sJobConfig
+} from '../src';
 
 describe('When using native clustering', () => {
     describe('When passed a valid jobSchema and jobConfig', () => {

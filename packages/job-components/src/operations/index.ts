@@ -1,32 +1,31 @@
 import BatchProcessor from './batch-processor';
 import ConvictSchema from './convict-schema';
 import DataEntity from './data-entity';
+import EachProcessor from './each-processor';
 import Fetcher from './fetcher';
-import legacyProcessorShim from './shims/legacy-processor-shim';
-import legacyReaderShim from './shims/legacy-reader-shim';
-import legacySliceEventsShim from './shims/legacy-slice-events-shim';
-import operationAPIShim from './shims/operation-api-shim';
+import FilterProcessor from './filter-processor';
+import MapProcessor from './map-processor';
+import Observer from './observer';
 import OperationAPI, { OpAPI, OpAPIInstance, OpAPIFn } from './operation-api';
 import ParallelSlicer, { SlicerFn } from './parallel-slicer';
-import Processor from './processor';
 import Slicer, { SlicerResult } from './slicer';
 
+export * from './shims';
 export {
     BatchProcessor,
     ConvictSchema,
     DataEntity,
+    EachProcessor,
     Fetcher,
-    legacyProcessorShim,
-    legacyReaderShim,
-    legacySliceEventsShim,
-    operationAPIShim,
+    FilterProcessor,
+    MapProcessor,
+    Observer,
     OpAPI,
     OpAPIFn,
     OpAPIInstance,
     OperationAPI,
-    Processor,
     ParallelSlicer,
     Slicer,
     SlicerFn,
-    SlicerResult
+    SlicerResult,
 };

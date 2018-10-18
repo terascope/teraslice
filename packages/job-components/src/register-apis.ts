@@ -1,4 +1,4 @@
-import { ConnectionConfig, Context, ValidatedJobConfig, OpConfig } from '@terascope/teraslice-types';
+import { ConnectionConfig, Context, ValidatedJobConfig, OpConfig } from './interfaces';
 import { ExecutionContextAPI } from './execution-context-apis';
 import { has } from 'lodash';
 

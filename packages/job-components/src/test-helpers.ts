@@ -2,8 +2,9 @@
 import _ from 'lodash';
 import debugnyan from 'debugnyan';
 import { EventEmitter } from 'events';
-import * as c from './context';
-import * as j from './jobs';
+import * as c from './interfaces/context';
+import * as j from './interfaces/jobs';
+
 interface DebugParamObj {
     module: string;
     assignment?: string;

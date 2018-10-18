@@ -1,7 +1,6 @@
 import { isNumber, get } from 'lodash';
 import debugFn from 'debug';
 import Queue from '@terascope/queue';
-import { Slice } from '@terascope/teraslice-types';
 import * as core from '../messenger';
 import * as i from './interfaces';
 
@@ -73,12 +72,12 @@ export class Server extends core.Server {
         await super.shutdown();
     }
 
-    dequeueWorker(slice: Slice): string|null {
+    dequeueWorker(slice: i.Slice): string|null {
         const requestedWorkerId = slice.request.request_worker;
         return this._workerDequeue(requestedWorkerId);
     }
 
-    async dispatchSlice(slice: Slice, workerId: string): Promise<boolean> {
+    async dispatchSlice(slice: i.Slice, workerId: string): Promise<boolean> {
         const isAvailable = this._clients[workerId] && this._clients[workerId].state === Available;
         if (!isAvailable) {
             debug(`worker ${workerId} is not available`);

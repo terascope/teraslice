@@ -1,10 +1,17 @@
 import 'jest-extended'; // require for type definitions
-import { TestContext, newTestExecutionConfig } from '@terascope/teraslice-types';
-import { BatchProcessor, Processor, ConvictSchema, legacyProcessorShim, DataEntity } from '../../../src';
+import {
+    BatchProcessor,
+    MapProcessor,
+    ConvictSchema,
+    legacyProcessorShim,
+    DataEntity,
+    TestContext,
+    newTestExecutionConfig,
+} from '../../../src';
 
 describe('Legacy Processor Shim', () => {
-    class ExampleProcessor extends Processor {
-        onData(data: DataEntity) {
+    class ExampleProcessor extends MapProcessor {
+        map(data: DataEntity) {
             data.name = 'hello';
             return data;
         }

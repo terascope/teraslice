@@ -1,7 +1,12 @@
 import 'jest-extended'; // require for type definitions
 import times from 'lodash/times';
-import { TestContext, newTestExecutionConfig } from '@terascope/teraslice-types';
-import { Processor, legacySliceEventsShim, DataEntity } from '../../../src';
+import {
+    EachProcessor,
+    legacySliceEventsShim,
+    DataEntity,
+    TestContext,
+    newTestExecutionConfig
+} from '../../../src';
 
 describe('Legacy Slice Events Shim', () => {
     const workerShutdown = jest.fn();
@@ -13,9 +18,13 @@ describe('Legacy Slice Events Shim', () => {
         'slice:finalize': jest.fn(),
     };
 
-    class ExampleOp extends Processor {
-        onData(data: DataEntity) {
-            return data;
+    class ExampleOp extends EachProcessor {
+        forEach(data: DataEntity) {
+            if (data) {
+                return;
+            }
+
+            return;
         }
 
         async shutdown() {

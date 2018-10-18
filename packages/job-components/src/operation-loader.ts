@@ -1,6 +1,13 @@
 'use strict';
 
-import { LegacyOperation } from '@terascope/teraslice-types';
+import { LegacyOperation, LegacyReader, LegacyProcessor } from './interfaces';
+import { APIConstructor } from './operations/core/api-core';
+import { FetcherConstructor } from './operations/core/fetcher-core';
+import { SlicerConstructor } from './operations/core/slicer-core';
+import { ProcessorConstructor } from './operations/core/processor-core';
+import { ObserverConstructor } from './operations/core/observer-core';
+import { SchemaConstructor } from './operations/core/schema-core';
+import { readerShim, processorShim } from './operations/shims';
 import fs from 'fs';
 import { pathExistsSync } from 'fs-extra';
 import path from 'path';
@@ -18,50 +25,24 @@ export class OperationLoader {
         this.options = options;
     }
 
-    public find(name: string, executionAssets?: string[]): string | null {
-        this.verifyOpName(name);
-
+    find(name: string, assetIds?: string[]): string | null {
         let filePath: string | null = null;
-        let codeName: string = '';
+        const findCodeFn = this.findCode(name);
 
-        if (!name.match(/.js$/)) {
-            codeName = `${name}.js`;
-        }
-
-        const findCode = (rootDir: string): void => {
-            fs.readdirSync(rootDir).forEach((filename: string) => {
-                const nextPath = path.join(rootDir, filename);
-
-                // if name is same as filename/dir then we found it
-                if (filename === name || filename === codeName) {
-                    filePath = this.resolvePath(nextPath);
-                }
-
-                if (filePath || filename === 'node_modules') {
-                    return;
-                }
-
-                if (fs.statSync(nextPath).isDirectory()) {
-                    findCode(nextPath);
-                }
-            });
-        };
-
-        const findCodeByConvention = (basePath?: string, subfolders?: string[], resolvePath?: boolean) => {
+        const findCodeByConvention = (basePath?: string, subfolders?: string[]) => {
             if (!basePath) return;
             if (!pathExistsSync(basePath)) return;
             if (!subfolders || !subfolders.length) return;
-            const folderPath = resolvePath ? path.resolve(basePath) : basePath;
 
             subfolders.forEach((folder: string) => {
-                const pathType = path.join(folderPath, folder);
-                if (!filePath && pathExistsSync(pathType)) {
-                    findCode(pathType);
+                const folderPath = path.join(basePath, folder);
+                if (!filePath && pathExistsSync(folderPath)) {
+                    filePath = findCodeFn(folderPath);
                 }
             });
         };
 
-        findCodeByConvention(this.options.assetPath, executionAssets);
+        findCodeByConvention(this.options.assetPath, assetIds);
 
         if (!filePath) {
             findCodeByConvention(this.options.terasliceOpPath, ['readers', 'processors']);
@@ -74,20 +55,181 @@ export class OperationLoader {
         return filePath;
     }
 
-    public load(name: string, executionAssets?: string[]): LegacyOperation {
-        this.verifyOpName(name);
+    /**
+     * Load any LegacyOperation
+     * DEPRECATED to accommadate for new Job APIs,
+     * use loadReader, or loadProcessor
+    */
+    load(name: string, assetIds?: string[]): LegacyOperation {
+        const codePath = this.findOrThrow(name, assetIds);
 
-        const codePath = this.find(name, executionAssets);
+        try {
+            return require(codePath);
+        } catch (err) {
+            throw new Error(`Failure loading module: ${name}, error: ${err.stack}`);
+        }
+    }
 
-        if (codePath) {
-            try {
-                return require(codePath);
-            } catch (err) {
-                throw new Error(`Failure loading module: ${name}, error: ${err.stack}`);
-            }
+    loadProcessor(name: string, assetIds?: string[]): ProcessorModule {
+        const codePath = this.findOrThrow(name, assetIds);
+
+        if (this.isLegacyProcessor(codePath)) {
+            return this.shimLegacyProcessor(name, codePath);
         }
 
-        throw new Error(`Unable to find module for operation: ${name}`);
+        /* tslint:disable-next-line:variable-name */
+        let Processor: ProcessorConstructor|undefined;
+        /* tslint:disable-next-line:variable-name */
+        let Schema: SchemaConstructor|undefined;
+        let API: APIConstructor|undefined;
+
+        try {
+            Processor = require(path.join(codePath, 'processor.js'));
+        } catch (err) {
+            throw new Error(`Failure loading processor from module: ${name}, error: ${err.stack}`);
+        }
+
+        try {
+            Schema = require(path.join(codePath, 'schema.js'));
+        } catch (err) {
+            throw new Error(`Failure loading schema from module: ${name}, error: ${err.stack}`);
+        }
+
+        try {
+            API = require(path.join(codePath, 'api.js'));
+        } catch (err) {
+        }
+
+        return {
+            // @ts-ignore
+            Processor,
+            // @ts-ignore
+            Schema,
+            API,
+        };
+    }
+
+    loadReader(name: string, assetIds?: string[]): ReaderModule {
+        const codePath = this.findOrThrow(name, assetIds);
+
+        if (this.isLegacyReader(codePath)) {
+            return this.shimLegacyReader(name, codePath);
+        }
+
+        /* tslint:disable-next-line:variable-name */
+        let Fetcher: FetcherConstructor|undefined;
+        /* tslint:disable-next-line:variable-name */
+        let Slicer: SlicerConstructor|undefined;
+        /* tslint:disable-next-line:variable-name */
+        let Schema: SchemaConstructor|undefined;
+        let API: APIConstructor|undefined;
+
+        try {
+            Slicer = require(path.join(codePath, 'slicer.js'));
+        } catch (err) {
+            throw new Error(`Failure loading processor from module: ${name}, error: ${err.stack}`);
+        }
+
+        try {
+            Fetcher = require(path.join(codePath, 'fetcher.js'));
+        } catch (err) {
+            throw new Error(`Failure loading processor from module: ${name}, error: ${err.stack}`);
+        }
+
+        try {
+            Schema = require(path.join(codePath, 'schema.js'));
+        } catch (err) {
+            throw new Error(`Failure loading schema from module: ${name}, error: ${err.stack}`);
+        }
+
+        try {
+            API = require(path.join(codePath, 'api.js'));
+        } catch (err) {
+        }
+
+        return {
+            // @ts-ignore
+            Slicer,
+            // @ts-ignore
+            Fetcher,
+            // @ts-ignore
+            Schema,
+            API,
+        };
+    }
+
+    loadObserver(name: string, assetIds?: string[]): ObserverModule {
+        const codePath = this.findOrThrow(name, assetIds);
+
+        /* tslint:disable-next-line:variable-name */
+        let Observer: ObserverConstructor|undefined;
+
+        try {
+            Observer = require(path.join(codePath, 'observer.js'));
+        } catch (err) {
+            throw new Error(`Failure loading observer from module: ${name}, error: ${err.stack}`);
+        }
+
+        return {
+            // @ts-ignore
+            Observer,
+        };
+    }
+
+    loadAPI(name: string, assetIds?: string[]): APIModule {
+        const codePath = this.findOrThrow(name, assetIds);
+
+        /* tslint:disable-next-line:variable-name */
+        let API: ObserverConstructor|undefined;
+
+        try {
+            API = require(path.join(codePath, 'api.js'));
+        } catch (err) {
+            throw new Error(`Failure loading api from module: ${name}, error: ${err.stack}`);
+        }
+
+        return {
+            // @ts-ignore
+            API,
+        };
+    }
+
+    private findOrThrow(name: string, assetIds?: string[]): string {
+        this.verifyOpName(name);
+
+        const codePath = this.find(name, assetIds);
+        if (!codePath) {
+            throw new Error(`Unable to find module for operation: ${name}`);
+        }
+
+        return codePath;
+    }
+
+    private isLegacyReader(codePath: string): boolean {
+        const fetcherPath = pathExistsSync(path.join(codePath, 'fetcher.js'));
+        const slicerPath = pathExistsSync(path.join(codePath, 'slicer.js'));
+        return !fetcherPath && !slicerPath;
+    }
+
+    private shimLegacyReader(name: string, codePath: string): ReaderModule {
+        try {
+            const legacy: LegacyReader = require(codePath);
+            return readerShim(legacy);
+        } catch (err) {
+            throw new Error(`Failure loading module: ${name}, error: ${err.stack}`);
+        }
+    }
+
+    private isLegacyProcessor(codePath: string): boolean {
+        return !pathExistsSync(path.join(codePath, 'processor.js'));
+    }
+    private shimLegacyProcessor(name: string, codePath: string): ProcessorModule {
+        try {
+            const legacy: LegacyProcessor = require(codePath);
+            return processorShim(legacy);
+        } catch (err) {
+            throw new Error(`Failure loading module: ${name}, error: ${err.stack}`);
+        }
     }
 
     private resolvePath(filePath: string): string | null {
@@ -102,7 +244,70 @@ export class OperationLoader {
 
     private verifyOpName(name: string): void {
         if (!isString(name)) {
-            throw new Error('Please verify that the "_op" name exists for each operation');
+            throw new TypeError('Please verify that the "_op" name exists for each operation');
         }
     }
+
+    private findCode(name: string) {
+        let filePath: string | null = null;
+        let codeName: string = '';
+
+        if (!name.match(/.js$/)) {
+            codeName = `${name}.js`;
+        }
+
+        const invalid = [
+            'node_modules'
+        ];
+
+        const findCode = (rootDir: string): string|null => {
+            const fileNames = fs.readdirSync(rootDir)
+                .filter((fileName: string) => !invalid.includes(fileName));
+
+            for (const fileName of fileNames) {
+                if (filePath) break;
+
+                const nextPath = path.join(rootDir, fileName);
+
+                // if name is same as fileName/dir then we found it
+                if (fileName === name || fileName === codeName) {
+                    filePath = this.resolvePath(nextPath);
+                }
+
+                if (!filePath && this.isDir(nextPath)) {
+                    filePath = findCode(nextPath);
+                }
+            }
+
+            return filePath;
+        };
+
+        return findCode;
+    }
+
+    private isDir(filePath: string) {
+        return fs.statSync(filePath).isDirectory();
+    }
+}
+
+export interface OperationModule {
+    Schema: SchemaConstructor;
+    API?: APIConstructor;
+}
+
+export interface APIModule {
+    API: APIConstructor;
+}
+
+export interface ObserverModule {
+    Observer: ObserverConstructor;
+}
+
+export interface ReaderModule extends OperationModule {
+    Slicer: SlicerConstructor;
+    Fetcher: FetcherConstructor;
+}
+
+export interface ProcessorModule extends OperationModule {
+    Processor: ProcessorConstructor;
 }

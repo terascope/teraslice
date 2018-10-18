@@ -2,7 +2,7 @@ import times from 'lodash/times';
 import DataEntity, { DataInput } from '../data-entity';
 import { SchemaConstructor } from '../core/schema-core';
 import { FetcherConstructor } from '../core/fetcher-core';
-import SlicerClass, { SlicerConstructor } from '../slicer';
+import SlicerClass, { SingleSlicerConstructor } from '../slicer';
 import operationAPIShim, { APIs } from './operation-api-shim';
 import legacySliceEventsShim from './legacy-slice-events-shim';
 import { ParallelSlicerConstructor } from '../parallel-slicer';
@@ -16,12 +16,12 @@ import {
     slicerFns,
     LegacyReader,
     ExecutionContext,
-} from '@terascope/teraslice-types';
+} from '../../interfaces';
 
 // This file for backwards compatibility and functionality will be limited
 // but it should allow you to write processors using the new way today
 
-type SlicerType = SlicerConstructor|ParallelSlicerConstructor;
+type SlicerType = SingleSlicerConstructor|ParallelSlicerConstructor;
 type FetcherType = FetcherConstructor;
 type SchemaType = SchemaConstructor;
 
@@ -33,8 +33,9 @@ export default function legacyReaderShim(Slicer: SlicerType, Fetcher: FetcherTyp
                 throw new Error('Backwards compatibility only works for "convict" schemas');
             }
 
-            const schema = new Schema();
-            return schema.build(context);
+            // @ts-ignore
+            const schema = new Schema(context);
+            return schema.schema;
         },
         async newReader(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): Promise<readerFn<DataInput[]>> {
             const fetcher = new Fetcher(context, opConfig, executionConfig);

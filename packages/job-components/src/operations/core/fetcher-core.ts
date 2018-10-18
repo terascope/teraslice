@@ -1,6 +1,6 @@
 import { DataEntityList } from '../data-entity';
 import OperationCore from './operation-core';
-import { Context, OpConfig, ExecutionConfig } from '@terascope/teraslice-types';
+import { Context, OpConfig, ExecutionConfig } from '../../interfaces';
 
 /**
  * A base class for supporting "Fetcher" that run on a "Worker".

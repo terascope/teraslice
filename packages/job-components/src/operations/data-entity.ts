@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import * as L from 'list/methods';
 
+const _metadata = new WeakMap();
+
 /**
  * A wrapper for data that can hold additional metadata properties.
  * A DataEntity should be essentially transparent to use within operations
@@ -11,11 +13,11 @@ export default class DataEntity {
      * A utility for safely converting an object a DataEntity.
      * This will detect if passed an already converted input and return it.
     */
-    static make(input: DataInput): DataEntity {
+    static make(input: DataInput, metadata?: object): DataEntity {
         if (input instanceof DataEntity) {
             return input;
         }
-        return new DataEntity(input);
+        return new DataEntity(input, metadata);
     }
 
     /**
@@ -36,7 +38,7 @@ export default class DataEntity {
         }
 
         const arr = L.isList(input) ? L.toArray(input) : input;
-        return _.map(arr, DataEntity.make);
+        return _.map(arr, (d) => DataEntity.make(d));
     }
 
     /**
@@ -50,7 +52,7 @@ export default class DataEntity {
             if (first instanceof DataEntity) {
                 return input as DataEntityList;
             }
-            return L.map(DataEntity.make, input);
+            return L.map((d) => DataEntity.make(d), input);
         }
 
         if (_.isArray(input)) {
@@ -58,58 +60,53 @@ export default class DataEntity {
             if (first instanceof DataEntity) {
                 return L.from(input) as DataEntityList;
             }
-            return L.from(_.map(input, DataEntity.make));
+            return L.from(_.map(input, (d) => DataEntity.make(d)));
         }
 
         return L.list(DataEntity.make(input));
     }
 
-    /* tslint:disable-next-line:variable-name */
-    protected ___metadata: DataEntityMetadata;
-
     // Add the ability to specify any additional properties
     [prop: string]: any;
 
-    constructor(data: object) {
-        if (_.has(data, '___metadata')) {
-            throw new Error('DataEntity cannot be constructed with a ___metadata property');
-        }
-
-        this.___metadata = {
+    constructor(data: object, metadata?: object) {
+        _metadata.set(this, Object.assign({}, metadata, {
             createdAt: new Date(),
-        };
+        }));
 
         Object.assign(this, data);
     }
 
-    getMetadata(key?: string): any {
+    @locked()
+    getMetadata(key?: string): DataEntityMetadata|any {
+        const metadata = _metadata.get(this);
         if (key) {
-            return _.get(this.___metadata, key);
+            return _.get(metadata, key);
         }
-        return this.___metadata;
+        return metadata;
     }
 
+    @locked()
     setMetadata(key: string, value: any): void {
         const readonlyMetadataKeys: string[] = ['createdAt'];
         if (_.includes(readonlyMetadataKeys, key)) {
             throw new Error(`Cannot set readonly metadata property ${key}`);
         }
 
-        _.set(this.___metadata, key, value);
+        const metadata = _metadata.get(this);
+        _metadata.set(this, _.set(metadata, key, value));
     }
 
+    @locked()
     toJSON(withMetadata?: boolean): object {
-        const keys = Object.getOwnPropertyNames(this);
-        const data = _.pick(this, _.without(keys, '___metadata'));
-
         if (withMetadata) {
             return {
-                data,
-                metadata: this.___metadata,
+                data: this,
+                metadata: _metadata.get(this),
             };
         }
 
-        return data;
+        return this;
     }
 }
 
@@ -123,4 +120,13 @@ interface DataEntityMetadata {
     readonly createdAt: Date;
     // Add the ability to specify any additional properties
     [prop: string]: any;
+}
+
+function locked() {
+    // @ts-ignore
+    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        descriptor.configurable = false;
+        descriptor.enumerable = false;
+        descriptor.writable = false;
+    };
 }

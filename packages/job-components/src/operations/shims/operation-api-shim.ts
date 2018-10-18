@@ -1,5 +1,5 @@
 import each from 'lodash/each';
-import { Context } from '@terascope/teraslice-types';
+import { Context } from '../../interfaces';
 import { OperationAPIConstructor } from '../operation-api';
 
 export default function operationAPIShim(context: Context, apis: APIs = {}) {
