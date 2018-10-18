@@ -26,13 +26,13 @@ export interface ConnectionConfig {
     type: string;
 }
 
-interface FoundationApis {
+export interface FoundationApis {
     makeLogger(...params: any[]): Logger;
     getSystemEvents(): EventEmitter;
     getConnection(config: ConnectionConfig): { client: any };
 }
 
-interface LegacyFoundationApis {
+export interface LegacyFoundationApis {
     makeLogger(...params: any[]): Logger;
     getEventEmitter(): EventEmitter;
     getConnection(config: ConnectionConfig): { client: any };

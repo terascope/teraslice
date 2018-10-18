@@ -75,27 +75,15 @@ export interface K8sExecutionConfig extends K8sJobConfig {
 
 export type ExecutionConfig = NativeExecutionConfig|K8sExecutionConfig;
 
-// export interface WorkerExecutionContext {
-//     config: ExecutionConfig;
-//     queue: Function[];
-//     reader: Function;
-//     slicer: null;
-//     dynamicQueueLength: false;
-//     queueLength: 10000;
-//     reporter: null;
-// }
-
-export interface SlicerExecutionContext {
+export interface ExecutionContext {
     config: ExecutionConfig;
     slicer: Function;
     queueLength: 10000|number;
     dynamicQueueLength: boolean;
-    queue: [];
-    reader: null;
+    queue: Function[];
+    reader: Function|null;
     reporter: null;
 }
-
-export type ExecutionContext = SlicerExecutionContext;
 
 export type crossValidationFn = (job: ValidatedJobConfig, sysconfig: SysConfig) => void;
 export type selfValidationFn = (config: OpConfig) => void;
