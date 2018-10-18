@@ -11,25 +11,26 @@ class LuceneQueryParser {
         this._ast = parser.parse(luceneStr);
     }
 
-    walkLuceneAst(cb) {
+    walkLuceneAst(preCb, postCb) {
         const { _ast: ast } = this;
         //console.log('what is the ast', ast, cb)
-        function walk(node, _field) {
+        function walk(node, _field, depth) {
             //console.log('what is the node', node)
             const topField = node.field || _field;
 
             if (node.left) {
-                walk(node.left, topField);
+                walk(node.left, topField, depth + 1);
             } 
         
-            cb(node, topField)
+            preCb(node, topField, depth)
         
             if (node.right) {
-                _walkLuceneAst(node.right, topField);
-            } 
+                walk(node.right, topField, depth + 1);
+            }
+            if (postCb) postCb(node, topField, depth)
         }
         
-       return walk(ast);
+       return walk(ast, null, );
     }
 }
 
