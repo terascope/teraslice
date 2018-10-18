@@ -1,14 +1,18 @@
-export interface WorkerOperationLifeCycle {
-    /**
+import { Slice, SliceResult } from './operations';
+
+export interface OperationLifeCycle {
+     /**
      * Called during execution initialization
     */
-    initialize(): Promise<void>;
+    initialize(initConfig?: any): Promise<void>;
 
     /**
      * Called during execution shutdown
     */
     shutdown(): Promise<void>;
+}
 
+export interface WorkerOperationLifeCycle extends OperationLifeCycle {
     /**
      * Called after a slice is initializated, but before the slice
      * has been handed to any operation.
@@ -41,4 +45,24 @@ export interface WorkerOperationLifeCycle {
      * [DEPRECATION NOTICE]: this will be deprecated in near future
     */
     onSliceRetry(sliceId: string): Promise <void>;
+}
+
+export interface SlicerOperationLifeCycle extends OperationLifeCycle {
+    /**
+     * A method called by the "Execution Controller" to give a "Slicer"
+     * the opportunity to track the slices enqueued by the execution controller
+    */
+    onSliceEnqueued(slice: Slice): void;
+
+    /**
+     * A method called by the "Execution Controller" to give a "Slicer"
+     * the opportunity to track the slices disptached by the execution controller
+    */
+    onSliceDispatch(slice: Slice): void;
+
+    /**
+     * A method called by the "Execution Controller" to give a "Slicer"
+     * the opportunity to track the slices completed by the execution controller
+    */
+    onSliceComplete(result: SliceResult): void;
 }

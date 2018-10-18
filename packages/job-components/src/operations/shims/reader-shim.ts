@@ -1,4 +1,4 @@
-import { Context, OpConfig, ExecutionContext, LegacyReader, SliceRequest, slicerFns, readerFn } from '../../interfaces';
+import { Context, OpConfig, ExecutionContext, LegacyReader, SliceRequest, SlicerFns, ReaderFn } from '../../interfaces';
 import DataEntity, { DataEntityList } from '../data-entity';
 import { SlicerConstructor } from '../core/slicer-core';
 import FetcherCore, { FetcherConstructor } from '../core/fetcher-core';
@@ -9,7 +9,7 @@ import ConvictSchema from '../convict-schema';
 export default function readerShim(legacy: LegacyReader): ReaderModule {
     return {
         Slicer: class LegacySlicerShim extends ParallelSlicer  {
-            private slicerFns: slicerFns|undefined;
+            private slicerFns: SlicerFns|undefined;
 
             async initialize(recoveryData: object[]) {
                 // @ts-ignore
@@ -34,7 +34,7 @@ export default function readerShim(legacy: LegacyReader): ReaderModule {
             }
         },
         Fetcher: class LegacyFetcherShim extends FetcherCore {
-            private fetcherFn: readerFn<DataEntity[]>|undefined;
+            private fetcherFn: ReaderFn<DataEntity[]>|undefined;
 
             async initialize() {
                 this.fetcherFn = await legacy.newReader(this.context, this.opConfig, this.executionConfig);

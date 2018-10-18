@@ -1,12 +1,12 @@
 import Core from './core';
-import { Context, ExecutionConfig, WorkerOperationLifeCycle } from '../../interfaces';
+import { WorkerContext } from '../../execution-context';
+import { ExecutionConfig, WorkerOperationLifeCycle } from '../../interfaces';
 
 /**
  * A base class for supporting APIs that run within an Execution Context.
  */
-
 export default abstract class APICore extends Core implements WorkerOperationLifeCycle {
-    constructor(context: Context, executionConfig: ExecutionConfig) {
+    constructor(context: WorkerContext, executionConfig: ExecutionConfig) {
         const logger = context.apis.foundation.makeLogger({
             module: 'operation-api',
             jobName: executionConfig.name,
@@ -46,13 +46,3 @@ export default abstract class APICore extends Core implements WorkerOperationLif
         this.context.logger.trace(`slice retry: ${sliceId}`);
     }
 }
-
-export type APIConstructor = {
-    new(context: Context, executionConfig: ExecutionConfig): APICore;
-};
-
-export type OpAPIFn = Function;
-export type OpAPIInstance = {
-    [method: string]: Function|any;
-};
-export type OpAPI = OpAPIFn | OpAPIInstance;

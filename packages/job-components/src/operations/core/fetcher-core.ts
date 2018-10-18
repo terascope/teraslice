@@ -1,6 +1,5 @@
 import { DataEntityList } from '../data-entity';
 import OperationCore from './operation-core';
-import { Context, OpConfig, ExecutionConfig } from '../../interfaces';
 
 /**
  * A base class for supporting "Fetcher" that run on a "Worker".
@@ -15,7 +14,3 @@ export default abstract class FetcherCore extends OperationCore {
     */
     abstract async handle(sliceRequest?: any): Promise<DataEntityList>;
 }
-
-export type FetcherConstructor = {
-    new(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): FetcherCore;
-};

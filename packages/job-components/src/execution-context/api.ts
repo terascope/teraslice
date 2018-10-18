@@ -1,6 +1,6 @@
-import { OpAPI, OperationAPIConstructor } from './operations/operation-api';
-import legacySliceEventsShim from './operations/shims/legacy-slice-events-shim';
-import { Context, ExecutionConfig } from './interfaces';
+import { OpAPI, Context, ExecutionConfig } from '../interfaces';
+import { OperationAPIConstructor } from '../operations';
+import legacySliceEventsShim from '../operations/shims/legacy-slice-events-shim';
 
 const _registry = new WeakMap();
 const _apis = new WeakMap();

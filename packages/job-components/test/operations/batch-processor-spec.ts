@@ -3,7 +3,8 @@ import {
     DataEntity,
     BatchProcessor,
     newTestExecutionConfig,
-    TestContext
+    TestContext,
+    WorkerContext
 } from '../../src';
 
 describe('BatchProcessor', () => {
@@ -25,7 +26,7 @@ describe('BatchProcessor', () => {
             _op: 'example-op',
         });
         const opConfig = exConfig.operations[0];
-        operation = new ExampleBatchProcessor(context, opConfig, exConfig);
+        operation = new ExampleBatchProcessor(context as WorkerContext, opConfig, exConfig);
     });
 
     describe('->onBatch', () => {

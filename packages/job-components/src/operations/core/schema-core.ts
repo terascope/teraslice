@@ -14,8 +14,3 @@ export default abstract class SchemaCore {
     abstract build(context?: Context): any;
     abstract validate(inputConfig: any): OpConfig;
 }
-
-export type SchemaConstructor = {
-    type(): string;
-    new(context: Context): SchemaCore;
-};

@@ -1,11 +1,12 @@
 import Core from './core';
-import { Context, ExecutionConfig, WorkerOperationLifeCycle } from '../../interfaces';
+import { WorkerContext } from '../../execution-context';
+import { ExecutionConfig, WorkerOperationLifeCycle } from '../../interfaces';
 
 /**
  * A base class for observing the events happening within an Execution
  */
 export default abstract class ObserverCore extends Core implements WorkerOperationLifeCycle {
-    constructor(context: Context, executionConfig: ExecutionConfig) {
+    constructor(context: WorkerContext, executionConfig: ExecutionConfig) {
         const logger = context.apis.foundation.makeLogger({
             module: 'observer',
             jobName: executionConfig.name,
@@ -45,7 +46,3 @@ export default abstract class ObserverCore extends Core implements WorkerOperati
         this.context.logger.trace(`slice retry: ${sliceId}`);
     }
 }
-
-export type ObserverConstructor = {
-    new(context: Context, executionConfig: ExecutionConfig): ObserverCore;
-};

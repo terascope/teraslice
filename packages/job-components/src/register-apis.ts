@@ -1,5 +1,5 @@
 import { ConnectionConfig, Context, ValidatedJobConfig, OpConfig } from './interfaces';
-import { ExecutionContextAPI } from './execution-context-apis';
+import { ExecutionContextAPI } from './execution-context';
 import has from 'lodash.has';
 
 interface GetClientConfig {

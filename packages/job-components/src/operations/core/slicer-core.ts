@@ -1,11 +1,12 @@
 import uuidv4 from 'uuid/v4';
+import { SlicerContext } from '../../execution-context';
 import {
-    Context,
     ExecutionConfig,
     OpConfig,
     Slice,
-    SliceAnalyticsData,
-    SliceRequest
+    SliceRequest,
+    SliceResult,
+    SlicerOperationLifeCycle,
 } from '../../interfaces';
 import Queue from '@terascope/queue';
 import Core from './core';
@@ -18,7 +19,7 @@ import Core from './core';
  * @see Core
  */
 
-export default abstract class SlicerCore extends Core {
+export default abstract class SlicerCore extends Core implements SlicerOperationLifeCycle {
     /**
      * Used to indicate whether this slicer is recoverable.
     */
@@ -28,7 +29,7 @@ export default abstract class SlicerCore extends Core {
     protected recoveryData: object[];
     protected readonly opConfig: Readonly<OpConfig>;
 
-    constructor(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig) {
+    constructor(context: SlicerContext, opConfig: OpConfig, executionConfig: ExecutionConfig) {
         const logger = context.apis.foundation.makeLogger({
             module: 'slicer',
             opName: opConfig._op,
@@ -83,41 +84,15 @@ export default abstract class SlicerCore extends Core {
         return this.queue.dequeue();
     }
 
-    /**
-     * A method called by the "Execution Controller" to give a "Slicer"
-     * the opportunity to track the slices enqueued by the execution controller
-    */
     onSliceEnqueued(slice: Slice): void {
         this.context.logger.debug('slice enqueued', slice);
     }
 
-    /**
-     * A method called by the "Execution Controller" to give a "Slicer"
-     * the opportunity to track the slices disptached by the execution controller
-    */
     onSliceDispatch(slice: Slice): void {
         this.context.logger.debug('slice dispatch', slice);
     }
 
-    /**
-     * A method called by the "Execution Controller" to give a "Slicer"
-     * the opportunity to track the slices completed by the execution controller
-    */
     onSliceComplete(result: SliceResult): void {
         this.context.logger.debug('slice result', result);
     }
 }
-
-export type SlicerResult = Slice|SliceRequest|SliceRequest[]|null;
-
-export interface SliceResult {
-    slice: Slice;
-    analytics: SliceAnalyticsData;
-    retry?: boolean;
-    error?: string;
-}
-
-export type SlicerConstructor = {
-    isRecoverable: boolean;
-    new(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): SlicerCore;
-};

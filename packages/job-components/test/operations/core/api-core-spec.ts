@@ -1,5 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { TestContext, newTestExecutionConfig } from '../../../src';
+import { TestContext, newTestExecutionConfig, WorkerContext } from '../../../src';
 import APICore from '../../../src/operations/core/api-core';
 
 describe('APICore', () => {
@@ -10,7 +10,7 @@ describe('APICore', () => {
     beforeAll(() => {
         const context = new TestContext('teraslice-operations');
         const exConfig = newTestExecutionConfig();
-        api = new ExampleAPI(context, exConfig);
+        api = new ExampleAPI(context as WorkerContext, exConfig);
     });
 
     describe('->initialize', () => {

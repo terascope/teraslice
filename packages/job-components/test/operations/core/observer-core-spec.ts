@@ -1,5 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { TestContext, newTestExecutionConfig } from '../../../src';
+import { TestContext, newTestExecutionConfig, WorkerContext } from '../../../src';
 import ObserverCore from '../../../src/operations/core/observer-core';
 
 describe('ObserverCore', () => {
@@ -10,7 +10,7 @@ describe('ObserverCore', () => {
     beforeAll(() => {
         const context = new TestContext('teraslice-operations');
         const exConfig = newTestExecutionConfig();
-        api = new ExampleObserver(context, exConfig);
+        api = new ExampleObserver(context as WorkerContext, exConfig);
     });
 
     describe('->initialize', () => {

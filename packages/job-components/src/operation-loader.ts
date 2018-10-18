@@ -4,16 +4,22 @@ import fs from 'fs';
 import { pathExistsSync } from 'fs-extra';
 import path from 'path';
 import { LegacyOperation, LegacyReader, LegacyProcessor } from './interfaces';
-import { OperationAPIConstructor } from './operations/operation-api';
-import { FetcherConstructor } from './operations/core/fetcher-core';
-import { SlicerConstructor } from './operations/core/slicer-core';
-import { ProcessorConstructor } from './operations/core/processor-core';
-import { ObserverConstructor } from './operations/core/observer-core';
-import { SchemaConstructor } from './operations/core/schema-core';
+import {
+    OperationAPIConstructor,
+    FetcherConstructor,
+    SlicerConstructor,
+    ProcessorConstructor,
+    ObserverConstructor,
+    SchemaConstructor,
+    ObserverModule,
+    ProcessorModule,
+    APIModule,
+    ReaderModule,
+} from './operations';
 import { readerShim, processorShim } from './operations/shims';
 import { isString } from './utils';
 
-export interface LoaderOptions {
+interface LoaderOptions {
     terasliceOpPath: string;
     assetPath?: string;
 }
@@ -288,26 +294,4 @@ export class OperationLoader {
     private isDir(filePath: string) {
         return fs.statSync(filePath).isDirectory();
     }
-}
-
-export interface OperationModule {
-    Schema: SchemaConstructor;
-    API?: OperationAPIConstructor;
-}
-
-export interface APIModule {
-    API: OperationAPIConstructor;
-}
-
-export interface ObserverModule {
-    Observer: ObserverConstructor;
-}
-
-export interface ReaderModule extends OperationModule {
-    Slicer: SlicerConstructor;
-    Fetcher: FetcherConstructor;
-}
-
-export interface ProcessorModule extends OperationModule {
-    Processor: ProcessorConstructor;
 }

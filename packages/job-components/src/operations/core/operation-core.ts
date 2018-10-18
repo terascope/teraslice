@@ -1,7 +1,12 @@
 import '../../formats'; // require to add the schema formats
 import Core from './core';
-import { OpAPI } from './api-core';
-import { Context, ExecutionConfig, OpConfig, WorkerOperationLifeCycle } from '../../interfaces';
+import { WorkerContext } from '../../execution-context';
+import {
+    ExecutionConfig,
+    OpConfig,
+    WorkerOperationLifeCycle,
+    OpAPI
+} from '../../interfaces';
 
 /**
  * A base class for supporting operations that run on a "Worker",
@@ -14,7 +19,7 @@ import { Context, ExecutionConfig, OpConfig, WorkerOperationLifeCycle } from '..
 export default class OperationCore extends Core implements WorkerOperationLifeCycle {
     protected readonly opConfig: Readonly<OpConfig>;
 
-    constructor(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig) {
+    constructor(context: WorkerContext, opConfig: OpConfig, executionConfig: ExecutionConfig) {
         const logger = context.apis.foundation.makeLogger({
             module: 'operation',
             opName: opConfig._op,

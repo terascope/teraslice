@@ -1,19 +1,24 @@
 import { EventEmitter } from 'events';
 import cloneDeep from 'lodash.clonedeep';
-import { locked } from './utils';
-import * as i from './interfaces';
-import { OperationLoader } from './operation-loader';
-import FetcherCore from './operations/core/fetcher-core';
-import ProcessorCore from './operations/core/processor-core';
-import { ExecutionContextAPI } from './execution-context-apis';
-import { OperationAPIConstructor } from './operations/operation-api';
-import { registerApis, JobRunnerAPI, OpRunnerAPI } from './register-apis';
+import { locked } from '../utils';
+import { OperationLoader } from '../operation-loader';
+import FetcherCore from '../operations/core/fetcher-core';
+import ProcessorCore from '../operations/core/processor-core';
+import { OperationAPIConstructor } from '../operations';
+import { registerApis } from '../register-apis';
+import { WorkerOperationLifeCycle, ExecutionConfig } from '../interfaces';
+import {
+    EventHandlers,
+    WorkerOperations,
+    WorkerContext,
+    ExecutionContextConfig,
+} from './interfaces';
 
 const _loaders = new WeakMap<WorkerExecutionContext, OperationLoader>();
-const _operations = new WeakMap<WorkerExecutionContext, InitializedOperations>();
+const _operations = new WeakMap<WorkerExecutionContext, WorkerOperations>();
 
 export class WorkerExecutionContext {
-    readonly config: i.ExecutionConfig;
+    readonly config: ExecutionConfig;
     readonly context: WorkerContext;
     readonly assetIds: string[] = [];
     readonly fetcher: FetcherCore;
@@ -24,7 +29,7 @@ export class WorkerExecutionContext {
     constructor(config: ExecutionContextConfig) {
         this.events = config.context.apis.foundation.getSystemEvents();
 
-        this._handlers['execution:add-to-lifecycle'] = (op: i.WorkerOperationLifeCycle) => {
+        this._handlers['execution:add-to-lifecycle'] = (op: WorkerOperationLifeCycle) => {
             this.addOperation(op);
         };
 
@@ -82,18 +87,25 @@ export class WorkerExecutionContext {
         for (const op of this.getOperations()) {
             promises.push(op.shutdown());
         }
+
         await Promise.all(promises);
+
+        Object.keys(this._handlers)
+            .forEach((event) => {
+                const listener = this._handlers[event];
+                this.events.removeListener(event, listener);
+            });
     }
 
     @locked()
     getOperations() {
-        const ops = _operations.get(this) as InitializedOperations;
+        const ops = _operations.get(this) as WorkerOperations;
         return ops.values();
     }
 
     @locked()
-    private addOperation(op: i.WorkerOperationLifeCycle) {
-        const ops = _operations.get(this) as InitializedOperations;
+    private addOperation(op: WorkerOperationLifeCycle) {
+        const ops = _operations.get(this) as WorkerOperations;
         ops.add(op);
     }
 
@@ -103,27 +115,4 @@ export class WorkerExecutionContext {
 
         this.context.apis.executionContext.addToRegistry(name, API);
     }
-}
-
-interface ExecutionContextConfig {
-    context: i.Context;
-    executionConfig: i.ExecutionConfig;
-    terasliceOpPath: string;
-    assetIds?: string[];
-}
-
-interface InitializedOperations extends Set<i.WorkerOperationLifeCycle> {}
-
-interface WorkerContextApis extends i.ContextApis {
-    op_runner: OpRunnerAPI;
-    executionContext: ExecutionContextAPI;
-    job_runner: JobRunnerAPI;
-}
-
-export interface WorkerContext extends i.Context {
-    apis: WorkerContextApis;
-}
-
-interface EventHandlers {
-    [eventName: string]: (...args: any[]) => void;
 }

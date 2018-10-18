@@ -1,5 +1,5 @@
-import { Context, OpConfig, ExecutionConfig } from '../interfaces';
-import SlicerCore, { SlicerResult } from './core/slicer-core';
+import { SlicerFn } from '../interfaces';
+import SlicerCore from './core/slicer-core';
 import { times } from '../utils';
 
 /**
@@ -86,12 +86,3 @@ interface SlicerObj {
     id: number;
     order: number;
 }
-
-export interface SlicerFn {
-    (): Promise<SlicerResult>;
-}
-
-export type ParallelSlicerConstructor = {
-    isRecoverable: boolean;
-    new(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): ParallelSlicer;
-};

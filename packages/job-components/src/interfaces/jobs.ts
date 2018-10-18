@@ -1,6 +1,3 @@
-import { Schema } from 'convict';
-import { Context, Logger, SysConfig } from './context';
-
 export interface OpConfig {
     _op: string;
 }
@@ -75,7 +72,7 @@ export interface K8sExecutionConfig extends K8sJobConfig {
 
 export type ExecutionConfig = NativeExecutionConfig|K8sExecutionConfig;
 
-export interface ExecutionContext {
+export interface LegacyExecutionContext {
     config: ExecutionConfig;
     slicer: Function;
     queueLength: 10000|number;
@@ -83,62 +80,4 @@ export interface ExecutionContext {
     queue: Function[];
     reader: Function|null;
     reporter: null;
-}
-
-export type crossValidationFn = (job: ValidatedJobConfig, sysconfig: SysConfig) => void;
-export type selfValidationFn = (config: OpConfig) => void;
-
-export interface LegacyOperation {
-    crossValidation?: crossValidationFn;
-    selfValidation?: selfValidationFn;
-    schema(context?: Context): Schema<any>;
-}
-
-export interface LegacyReader extends LegacyOperation {
-    schema(context?: Context): Schema<any>;
-    newReader(
-        context: Context,
-        opConfig: OpConfig,
-        exectutionConfig: ExecutionConfig,
-    ): Promise<readerFn<any>>;
-    newSlicer(
-        context: Context,
-        executionContext: ExecutionContext,
-        recoveryData: object[],
-        logger: Logger,
-    ): Promise<slicerFns>;
-}
-
-export type readerFn<T> = (sliceRequest: SliceRequest) => Promise<T>|T;
-export type slicerFn = () => Promise<Slice|SliceRequest|SliceRequest[]|null>;
-export type slicerFns = slicerFn[];
-
-export interface LegacyProcessor extends LegacyOperation {
-    schema(context?: Context): Schema<any>;
-    newProcessor(
-        context: Context,
-        opConfig: OpConfig,
-        executionConfig: ExecutionConfig,
-    ): Promise<processorFn<any>>;
-}
-
-export type processorFn<T> = (data: T, logger: Logger, sliceRequest: SliceRequest) => Promise<T>|T;
-
-export interface SliceRequest {
-    request_worker?: string;
-    [prop: string]: any;
-}
-
-export interface Slice {
-    slice_id: string;
-    slicer_id: number;
-    slicer_order: number;
-    request: SliceRequest;
-    _created: string;
-}
-
-export interface SliceAnalyticsData {
-    time: number[];
-    size: number[];
-    memory: number[];
 }

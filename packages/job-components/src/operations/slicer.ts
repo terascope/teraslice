@@ -1,5 +1,5 @@
-import { Context, OpConfig, ExecutionConfig } from '../interfaces';
-import SlicerCore, { SlicerResult } from './core/slicer-core';
+import { SlicerResult } from '../interfaces';
+import SlicerCore from './core/slicer-core';
 
 /**
  * The simpliest form a "Slicer"
@@ -43,10 +43,3 @@ export default abstract class Slicer extends SlicerCore {
         return false;
     }
 }
-
-export { SlicerResult };
-
-export type SingleSlicerConstructor = {
-    isRecoverable: boolean;
-    new(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): Slicer;
-};

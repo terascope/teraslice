@@ -1,11 +1,11 @@
 import { EventEmitter } from 'events';
-import { Context, ExecutionConfig, Logger } from '../../interfaces';
+import { Context, ExecutionConfig, Logger, OperationLifeCycle } from '../../interfaces';
 
 /**
  * The core class for creating for all varients or base classes for an operation.
  */
 
-export default abstract class Core {
+export default abstract class Core implements OperationLifeCycle {
     protected readonly context: Readonly<Context>;
     protected readonly executionConfig: Readonly<ExecutionConfig>;
     protected readonly logger: Logger;
@@ -18,15 +18,7 @@ export default abstract class Core {
         this.events = context.apis.foundation.getSystemEvents();
     }
 
-    /**
-     * A method called by the Teraslice framework to give an operation
-     * time to run asynchronous setup.
-    */
     abstract async initialize(initConfig?: any): Promise<void>;
 
-    /**
-     * A method called by the Teraslice framework to give an operation
-     * time to run asynchronous cleanup.
-    */
     abstract async shutdown(): Promise<void>;
 }
