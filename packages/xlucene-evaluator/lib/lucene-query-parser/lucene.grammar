@@ -113,7 +113,7 @@ node
             
             return results;
         }    
-    / type:range_exp_op range_value:decimal_or_int_exp _* operator_exp _* type2:range_exp_op range_value2:decimal_or_int_exp _*
+    / type:range_exp_op range_value:rangevalue _* operator_exp _* type2:range_exp_op range_value2:rangevalue _*
         {
             const results = {
                 term_min: range_value,
@@ -240,17 +240,17 @@ range_exp_op
         }
     
 range_term
-    = type:range_exp_op _+ range_value:decimal_or_int_exp  
+    = type:range_exp_op _+ value:rangevalue  
         {
             const error = new Error('cannot have a space between a (<, <=, >, >=) and the value')
             error.name = 'SyntaxError';
             throw error
         }
-    / type:range_exp_op range_value:decimal_or_int_exp _* 
+    / type:range_exp_op value:rangevalue _* 
         {
             if(type === '>') {
                 return {
-                    term_min: range_value,
+                    term_min: value,
                     term_max: Infinity,
                     inclusive_min: false,
                     inclusive_max: true
@@ -258,7 +258,7 @@ range_term
             }
             if(type === '>=') {
                 return {
-                    term_min: range_value,
+                    term_min: value,
                     term_max: Infinity,
                     inclusive_min: true,
                     inclusive_max: true
@@ -267,7 +267,7 @@ range_term
             if(type === '<') {
                 return {
                     term_min: -Infinity,
-                    term_max: range_value,
+                    term_max: value,
                     inclusive_min: true,
                     inclusive_max: false
                 };
@@ -275,12 +275,20 @@ range_term
             if(type === '<=') {
                 return {
                     term_min: -Infinity,
-                    term_max: range_value,
+                    term_max: value,
                     inclusive_min: true,
                     inclusive_max: true
                 };
             }
-    } 
+    }
+
+rangevalue
+	= num:decimal_or_int_exp {
+    	return num;
+    }
+    / termValue:term {
+    	return termValue.term
+    }     
 
 fieldname
     = fieldname:unquoted_term _* [:] _*
@@ -414,7 +422,7 @@ int_exp
         }
 
 range_operator_exp
-    = '[' term_min:unquoted_term _* 'TO' _+ term_max:unquoted_term ']'
+    = '[' term_min:rangevalue _* 'TO' _+ term_max:rangevalue ']'
         {
             return {
                 term_min,
@@ -424,7 +432,7 @@ range_operator_exp
                 inclusive_max: true
             };
         }
-    / '{' term_min:unquoted_term _* 'TO' _+ term_max:unquoted_term '}'
+    / '{' term_min:rangevalue _* 'TO' _+ term_max:rangevalue '}'
         {
             return {
                 term_min,
@@ -434,7 +442,7 @@ range_operator_exp
                 inclusive_max: false
             };
         }
-    / '{' term_min:unquoted_term _* 'TO' _+ term_max:unquoted_term ']'
+    / '{' term_min:rangevalue _* 'TO' _+ term_max:rangevalue ']'
         {
             return {
                 term_min,
@@ -444,7 +452,7 @@ range_operator_exp
                 inclusive_max: true
             };
         }
-    / '[' term_min:unquoted_term _* 'TO' _+ term_max:unquoted_term '}'
+    / '[' term_min:rangevalue _* 'TO' _+ term_max:rangevalue '}'
         {
             return {
                 term_min,
