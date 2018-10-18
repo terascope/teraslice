@@ -19,7 +19,7 @@ import {
 import { readerShim, processorShim } from './operations/shims';
 import { isString } from './utils';
 
-interface LoaderOptions {
+export interface LoaderOptions {
     terasliceOpPath: string;
     assetPath?: string;
 }

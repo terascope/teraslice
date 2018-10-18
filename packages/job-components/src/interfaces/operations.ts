@@ -4,6 +4,7 @@ import { Context, SysConfig, Logger } from './context';
 
 export type crossValidationFn = (job: ValidatedJobConfig, sysconfig: SysConfig) => void;
 export type selfValidationFn = (config: OpConfig) => void;
+export type sliceQueueLengthFn = (executionContext: LegacyExecutionContext) => number|string;
 
 export interface LegacyOperation {
     crossValidation?: crossValidationFn;
@@ -12,6 +13,7 @@ export interface LegacyOperation {
 }
 
 export interface LegacyReader extends LegacyOperation {
+    slicerQueueLength?: sliceQueueLengthFn;
     schema(context?: Context): Schema<any>;
     newReader(
         context: Context,
@@ -78,3 +80,18 @@ export type OpAPIInstance = {
     [method: string]: Function|any;
 };
 export type OpAPI = OpAPIFn | OpAPIInstance;
+
+interface ExecutionWorkerStats {
+    connected: number;
+    available: number;
+}
+
+interface ExecutionSliceStats {
+    processed: number;
+    failed: number;
+}
+
+export interface ExecutionStats {
+    workers: ExecutionWorkerStats;
+    slices: ExecutionSliceStats;
+}

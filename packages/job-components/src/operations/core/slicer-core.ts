@@ -7,6 +7,7 @@ import {
     SliceRequest,
     SliceResult,
     SlicerOperationLifeCycle,
+    ExecutionStats,
 } from '../../interfaces';
 import Queue from '@terascope/queue';
 import Core from './core';
@@ -20,14 +21,10 @@ import Core from './core';
  */
 
 export default abstract class SlicerCore extends Core implements SlicerOperationLifeCycle {
-    /**
-     * Used to indicate whether this slicer is recoverable.
-    */
-    static isRecoverable: boolean = true;
-
-    private readonly queue: Queue<Slice>;
+    protected stats: ExecutionStats;
     protected recoveryData: object[];
     protected readonly opConfig: Readonly<OpConfig>;
+    private readonly queue: Queue<Slice>;
 
     constructor(context: SlicerContext, opConfig: OpConfig, executionConfig: ExecutionConfig) {
         const logger = context.apis.foundation.makeLogger({
@@ -35,11 +32,22 @@ export default abstract class SlicerCore extends Core implements SlicerOperation
             opName: opConfig._op,
             jobName: executionConfig.name,
         });
+
         super(context, executionConfig, logger);
 
         this.opConfig = opConfig;
         this.queue = new Queue();
         this.recoveryData = [];
+        this.stats = {
+            workers: {
+                connected: 0,
+                available: 0,
+            },
+            slices: {
+                processed: 0,
+                failed: 0,
+            }
+        };
     }
 
     async initialize(recoveryData: object[]): Promise<void> {
@@ -84,15 +92,43 @@ export default abstract class SlicerCore extends Core implements SlicerOperation
         return this.queue.dequeue();
     }
 
+    /**
+     * Used to indicate whether this slicer is recoverable.
+    */
+    isRecoverable() {
+        return true;
+    }
+
+    /**
+     * Used to determine the maximum number of slices queued.
+     * Defaults to 10000
+     * NOTE: if you want to base of the number of
+     * workers use {@link #workersConnected}
+    */
+    maxQueueLength() {
+        return 10000;
+    }
+
+    onExecutionStats(stats: ExecutionStats) {
+        this.stats = stats;
+    }
+
+    // @ts-ignore
     onSliceEnqueued(slice: Slice): void {
-        this.context.logger.debug('slice enqueued', slice);
+
     }
 
+    // @ts-ignore
     onSliceDispatch(slice: Slice): void {
-        this.context.logger.debug('slice dispatch', slice);
+
     }
 
+    // @ts-ignore
     onSliceComplete(result: SliceResult): void {
-        this.context.logger.debug('slice result', result);
+
+    }
+
+    protected get workersConnected() {
+        return this.stats.workers.connected;
     }
 }

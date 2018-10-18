@@ -46,3 +46,9 @@ export function locked() {
         descriptor.writable = false;
     };
 }
+
+export function isInteger(input: any): input is number {
+    if (typeof input !== 'number') return false;
+
+    return Number.isInteger(input);
+}

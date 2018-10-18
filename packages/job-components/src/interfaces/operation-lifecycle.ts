@@ -1,4 +1,4 @@
-import { Slice, SliceResult } from './operations';
+import { Slice, SliceResult, ExecutionStats } from './operations';
 
 export interface OperationLifeCycle {
      /**
@@ -65,4 +65,10 @@ export interface SlicerOperationLifeCycle extends OperationLifeCycle {
      * the opportunity to track the slices completed by the execution controller
     */
     onSliceComplete(result: SliceResult): void;
+
+    /**
+     * A method called by the "Execution Controller" to give a "Slicer"
+     * the opportunity to track various slicer satistics
+    */
+    onExecutionStats(stats: ExecutionStats): void;
 }

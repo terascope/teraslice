@@ -1,5 +1,5 @@
 import { Context } from '../../interfaces';
-import { OperationAPIConstructor } from '../operation-api';
+import { OperationAPIConstructor } from '../interfaces';
 
 export default function operationAPIShim(context: Context, apis: APIs = {}) {
     Object.keys(apis).forEach((name) => {

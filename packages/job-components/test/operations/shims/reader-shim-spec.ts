@@ -1,5 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { readerShim, TestContext, newTestExecutionConfig } from '../../../src';
+import { readerShim, TestContext, newTestExecutionConfig, SlicerContext, WorkerContext } from '../../../src';
 
 describe('Reader Shim', () => {
     const context = new TestContext('teraslice-operations');
@@ -12,6 +12,9 @@ describe('Reader Shim', () => {
     exConfig.operations.push(opConfig);
 
     const mod = readerShim({
+        slicerQueueLength() {
+            return 'QUEUE_MINIMUM_SIZE';
+        },
         async newSlicer(context, executionContext, recoveryData, logger) {
             logger.debug(opConfig, executionContext, recoveryData, context.sysconfig.teraslice.assets_directory);
             const results = [{ say: 'hi' }, { say: 'hello' }];
@@ -56,7 +59,7 @@ describe('Reader Shim', () => {
     });
 
     it('should have a functioning Slicer', async () => {
-        const slicer = new mod.Slicer(context, opConfig, exConfig);
+        const slicer = new mod.Slicer(context as SlicerContext, opConfig, exConfig);
         await slicer.initialize([]);
 
         expect(await slicer.handle()).toBeFalse();
@@ -79,7 +82,7 @@ describe('Reader Shim', () => {
     });
 
     it('should have a functioning Fetcher', async () => {
-        const fetcher = new mod.Fetcher(context, opConfig, exConfig);
+        const fetcher = new mod.Fetcher(context as WorkerContext, opConfig, exConfig);
         await fetcher.initialize();
 
         const result = await fetcher.handle();

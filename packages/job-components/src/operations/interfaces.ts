@@ -11,17 +11,14 @@ import ParallelSlicer from './parallel-slicer';
 import OperationAPI from './operation-api';
 
 export type SlicerConstructor = {
-    isRecoverable: boolean;
     new(context: SlicerContext, opConfig: OpConfig, executionConfig: ExecutionConfig): SlicerCore;
 };
 
 export type SingleSlicerConstructor = {
-    isRecoverable: boolean;
     new(context: SlicerContext, opConfig: OpConfig, executionConfig: ExecutionConfig): Slicer;
 };
 
 export type ParallelSlicerConstructor = {
-    isRecoverable: boolean;
     new(context: SlicerContext, opConfig: OpConfig, executionConfig: ExecutionConfig): ParallelSlicer;
 };
 
