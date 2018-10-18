@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import cloneDeep from 'lodash.clonedeep';
-import { locked } from '../utils';
+import { enumerable } from '../utils';
 import { OperationLoader } from '../operation-loader';
 import FetcherCore from '../operations/core/fetcher-core';
 import ProcessorCore from '../operations/core/processor-core';
@@ -73,6 +73,7 @@ export class WorkerExecutionContext {
         }
     }
 
+    @enumerable(false)
     async initialize() {
         const promises = [];
         for (const op of this.getOperations()) {
@@ -82,6 +83,7 @@ export class WorkerExecutionContext {
         await Promise.all(promises);
     }
 
+    @enumerable(false)
     async shutdown() {
         const promises = [];
         for (const op of this.getOperations()) {
@@ -97,19 +99,19 @@ export class WorkerExecutionContext {
             });
     }
 
-    @locked()
+    @enumerable(false)
     getOperations() {
         const ops = _operations.get(this) as WorkerOperations;
         return ops.values();
     }
 
-    @locked()
+    @enumerable(false)
     private addOperation(op: WorkerOperationLifeCycle) {
         const ops = _operations.get(this) as WorkerOperations;
         ops.add(op);
     }
 
-    @locked()
+    @enumerable(false)
     private registerAPI(name: string, API?: OperationAPIConstructor) {
         if (API == null) return;
 

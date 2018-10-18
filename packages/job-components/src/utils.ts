@@ -47,6 +47,13 @@ export function locked() {
     };
 }
 
+export function enumerable(enabled: boolean) {
+    // @ts-ignore
+    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        descriptor.enumerable = enabled;
+    };
+}
+
 export function isInteger(input: any): input is number {
     if (typeof input !== 'number') return false;
 

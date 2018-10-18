@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import cloneDeep from 'lodash.clonedeep';
-import { locked } from '../utils';
+import { enumerable } from '../utils';
 import { SlicerOperationLifeCycle, ExecutionConfig } from '../interfaces';
 import { OperationLoader } from '../operation-loader';
 import SlicerCore from '../operations/core/slicer-core';
@@ -57,6 +57,7 @@ export class SlicerExecutionContext {
         this.addOperation(op);
     }
 
+    @enumerable(false)
     async initialize() {
         const promises = [];
         for (const op of this.getOperations()) {
@@ -66,6 +67,7 @@ export class SlicerExecutionContext {
         await Promise.all(promises);
     }
 
+    @enumerable(false)
     async shutdown() {
         const promises = [];
         for (const op of this.getOperations()) {
@@ -80,13 +82,13 @@ export class SlicerExecutionContext {
             });
     }
 
-    @locked()
+    @enumerable(false)
     getOperations() {
         const ops = _operations.get(this) as SlicerOperations;
         return ops.values();
     }
 
-    @locked()
+    @enumerable(false)
     private addOperation(op: SlicerOperationLifeCycle) {
         const ops = _operations.get(this) as SlicerOperations;
         ops.add(op);
