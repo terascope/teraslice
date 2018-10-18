@@ -4,7 +4,8 @@ import { terasliceOpPath } from './helpers';
 import {
     WorkerExecutionContext,
     TestContext,
-    newTestExecutionConfig
+    newTestExecutionConfig,
+    DataEntity
 } from '../src';
 
 describe('WorkerExecutionContext', () => {
@@ -45,11 +46,40 @@ describe('WorkerExecutionContext', () => {
             expect(executionContext).toHaveProperty('context');
         });
 
+        it('should have the Fetcher', async () => {
+            expect(executionContext).toHaveProperty('fetcher');
+            const result = await executionContext.fetcher.handle({});
+            expect(result.toArray()).toBeArrayOfSize(10);
+        });
+
+        it('should have the Processors', async () => {
+            expect(executionContext).toHaveProperty('processors');
+            expect(executionContext.processors.size).toEqual(1);
+            const input = DataEntity.makeList([
+                {
+                    hello: true,
+                }
+            ]);
+
+            for (const processor of executionContext.processors.values()) {
+                const result = await processor.handle(input);
+                expect(result.toArray()).toBeArrayOfSize(1);
+                expect(result.toArray()[0]).toHaveProperty('touchedAt');
+            }
+        });
+
         it('should have the registered apis', () => {
             const registry = Object.keys(context.apis.executionContext.registry);
             expect(registry).toEqual([
                 'example-reader'
             ]);
+        });
+
+        it('should have the operations initialized', () => {
+            const ops = executionContext.getOperations();
+            for (const op of ops) {
+                expect(op).toHaveProperty('initialized', true);
+            }
         });
     });
 });

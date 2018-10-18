@@ -10,7 +10,7 @@ import { OperationAPIConstructor } from './operations/operation-api';
 import { registerApis, JobRunnerAPI, OpRunnerAPI } from './register-apis';
 
 const _loaders = new WeakMap<WorkerExecutionContext, OperationLoader>();
-const _lifecycle = new WeakMap<WorkerExecutionContext, InitializedOperations>();
+const _operations = new WeakMap<WorkerExecutionContext, InitializedOperations>();
 
 export class WorkerExecutionContext {
     readonly config: i.ExecutionConfig;
@@ -25,7 +25,7 @@ export class WorkerExecutionContext {
         this.events = config.context.apis.foundation.getSystemEvents();
 
         this._handlers['execution:add-to-lifecycle'] = (op: i.WorkerOperationLifeCycle) => {
-            this.lifecycle.add(op);
+            this.addOperation(op);
         };
 
         this.events.on('execution:add-to-lifecycle', this._handlers['execution:add-to-lifecycle']);
@@ -45,7 +45,7 @@ export class WorkerExecutionContext {
 
         _loaders.set(this, loader);
 
-        _lifecycle.set(this, new Set());
+        _operations.set(this, new Set());
 
         const readerConfig = this.config.operations[0];
         const mod = loader.loadReader(readerConfig._op, this.assetIds);
@@ -53,7 +53,7 @@ export class WorkerExecutionContext {
 
         const op = new mod.Fetcher(this.context, readerConfig, this.config);
         this.fetcher = op;
-        this.lifecycle.add(op);
+        this.addOperation(op);
 
         this.processors = new Set();
 
@@ -63,31 +63,38 @@ export class WorkerExecutionContext {
             this.registerAPI(name, mod.API);
 
             const op = new mod.Processor(this.context, opConfig, this.config);
-            this.lifecycle.add(op);
+            this.addOperation(op);
             this.processors.add(op);
         }
     }
 
-    @locked()
     async initialize() {
         const promises = [];
-        for (const op of this.lifecycle.values()) {
+        for (const op of this.getOperations()) {
             promises.push(op.initialize());
         }
 
         await Promise.all(promises);
     }
-    @locked()
+
     async shutdown() {
         const promises = [];
-        for (const op of this.lifecycle.values()) {
+        for (const op of this.getOperations()) {
             promises.push(op.shutdown());
         }
         await Promise.all(promises);
     }
 
-    private get lifecycle() {
-        return _lifecycle.get(this) as InitializedOperations;
+    @locked()
+    getOperations() {
+        const ops = _operations.get(this) as InitializedOperations;
+        return ops.values();
+    }
+
+    @locked()
+    private addOperation(op: i.WorkerOperationLifeCycle) {
+        const ops = _operations.get(this) as InitializedOperations;
+        ops.add(op);
     }
 
     @locked()
