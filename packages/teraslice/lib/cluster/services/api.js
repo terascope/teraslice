@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const util = require('util');
 const { makeTable, sendError, handleError } = require('../../utils/api_utils');
+const terasliceVersion = require('../../../package.json').version;
 
 module.exports = function module(context, app, { assetsUrl }) {
     const logger = context.apis.foundation.makeLogger({ module: 'api_service' });
@@ -30,6 +31,18 @@ module.exports = function module(context, app, { assetsUrl }) {
     });
 
     app.set('json spaces', 4);
+
+    v1routes.get('/', (req, res) => {
+        const responseObj = {
+            arch: context.arch,
+            clustering_type: context.sysconfig.teraslice.cluster_manager_type,
+            name: context.sysconfig.teraslice.name,
+            node_version: process.version,
+            platform: context.platform,
+            teraslice_version: terasliceVersion
+        };
+        res.status(200).json(responseObj);
+    });
 
     v1routes.get('/cluster/state', (req, res) => {
         res.status(200).json(executionService.getClusterState());
