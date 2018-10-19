@@ -1,10 +1,11 @@
 import 'jest-extended'; // require for type definitions
-import times from 'lodash/times';
+import { times } from '../../../src/utils';
 import {
     EachProcessor,
     legacySliceEventsShim,
     DataEntity,
     TestContext,
+    WorkerContext,
     newTestExecutionConfig
 } from '../../../src';
 
@@ -61,7 +62,7 @@ describe('Legacy Slice Events Shim', () => {
 
     const context = new TestContext('legacy-processor');
 
-    const processor = new ExampleOp(context, opConfig, exConfig);
+    const processor = new ExampleOp(context as WorkerContext, opConfig, exConfig);
     legacySliceEventsShim(processor);
     const timesCalled = 2;
 

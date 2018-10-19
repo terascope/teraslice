@@ -1,5 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { DataEntity, FilterProcessor, newTestExecutionConfig, TestContext } from '../../src';
+import { DataEntity, FilterProcessor, newTestExecutionConfig, TestContext, WorkerContext } from '../../src';
 
 describe('FilterProcessor', () => {
     class ExampleProcessor extends FilterProcessor {
@@ -17,7 +17,7 @@ describe('FilterProcessor', () => {
             _op: 'example-op',
         });
         const opConfig = exConfig.operations[0];
-        operation = new ExampleProcessor(context, opConfig, exConfig);
+        operation = new ExampleProcessor(context as WorkerContext, opConfig, exConfig);
     });
 
     describe('->filter', () => {

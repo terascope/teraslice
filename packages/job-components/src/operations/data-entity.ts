@@ -1,6 +1,9 @@
-import _ from 'lodash';
 import * as L from 'list/methods';
+import get from 'lodash.get';
+import set from 'lodash.set';
+import { locked } from '../utils';
 
+// WeakMaps are used as a memory efficient reference to private data
 const _metadata = new WeakMap();
 
 /**
@@ -26,7 +29,7 @@ export default class DataEntity {
      * This will detect if passed an already converted input and return it.
     */
     static makeArray(input: DataInput|DataInput[]|DataListInput): DataEntity[] {
-        if (!L.isList(input) && !_.isArray(input)) {
+        if (!L.isList(input) && !Array.isArray(input)) {
             return [DataEntity.make(input)];
         }
 
@@ -38,7 +41,7 @@ export default class DataEntity {
         }
 
         const arr = L.isList(input) ? L.toArray(input) : input;
-        return _.map(arr, (d) => DataEntity.make(d));
+        return arr.map((d) => DataEntity.make(d));
     }
 
     /**
@@ -55,12 +58,12 @@ export default class DataEntity {
             return L.map((d) => DataEntity.make(d), input);
         }
 
-        if (_.isArray(input)) {
+        if (Array.isArray(input)) {
             const [first] = input;
             if (first instanceof DataEntity) {
                 return L.from(input) as DataEntityList;
             }
-            return L.from(_.map(input, (d) => DataEntity.make(d)));
+            return L.from(input.map((d) => DataEntity.make(d)));
         }
 
         return L.list(DataEntity.make(input));
@@ -74,14 +77,16 @@ export default class DataEntity {
             createdAt: new Date(),
         }));
 
-        Object.assign(this, data);
+        for (const key in data) {
+            this[key] = data[key];
+        }
     }
 
     @locked()
     getMetadata(key?: string): DataEntityMetadata|any {
         const metadata = _metadata.get(this);
         if (key) {
-            return _.get(metadata, key);
+            return get(metadata, key);
         }
         return metadata;
     }
@@ -89,12 +94,12 @@ export default class DataEntity {
     @locked()
     setMetadata(key: string, value: any): void {
         const readonlyMetadataKeys: string[] = ['createdAt'];
-        if (_.includes(readonlyMetadataKeys, key)) {
+        if (readonlyMetadataKeys.includes(key)) {
             throw new Error(`Cannot set readonly metadata property ${key}`);
         }
 
         const metadata = _metadata.get(this);
-        _metadata.set(this, _.set(metadata, key, value));
+        _metadata.set(this, set(metadata, key, value));
     }
 
     @locked()
@@ -120,13 +125,4 @@ interface DataEntityMetadata {
     readonly createdAt: Date;
     // Add the ability to specify any additional properties
     [prop: string]: any;
-}
-
-function locked() {
-    // @ts-ignore
-    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-        descriptor.configurable = false;
-        descriptor.enumerable = false;
-        descriptor.writable = false;
-    };
 }

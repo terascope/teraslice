@@ -2,7 +2,9 @@
 
 import { Context } from './interfaces';
 import convict from 'convict';
-import _ from 'lodash';
+import get from 'lodash.get';
+import has from 'lodash.has';
+import { flatten } from './utils';
 import os from 'os';
 
 const cpuCount = os.cpus().length;
@@ -70,15 +72,15 @@ export function jobSchema(context: Context): convict.Schema<any> {
                         'with at least two operations in it');
                 }
 
-                const connectors = _.values(
-                    _.get(context.sysconfig, 'terafoundation.connectors', {}),
+                const connectors = Object.values(
+                    get(context.sysconfig, 'terafoundation.connectors', {}),
                 );
 
-                const connections = _.flatten(_.map(connectors, _.keys));
+                const connections = flatten(connectors.map((conn) => Object.keys(conn)));
                 arr.forEach((op) => {
                     if (!op.connection) { return; }
 
-                    if (!_.includes(connections, op.connection)) {
+                    if (!connections.includes(op.connection)) {
                         throw new Error(`operation ${op._op} refers to an undefined connection`);
                     }
                 });
@@ -140,13 +142,13 @@ export function jobSchema(context: Context): convict.Schema<any> {
         schemas.targets = {
             default: [],
             doc: 'array of key/value labels used for targetting teraslice jobs to nodes',
-            format(arr: any) {
-                _.forEach(arr, (label) => {
-                    if (!_.has(label, 'key')) {
+            format(arr: any[]) {
+                arr.forEach((label) => {
+                    if (!has(label, 'key')) {
                         throw new Error(`targets need to have a key: ${label}`);
                     }
 
-                    if (!_.has(label, 'value')) {
+                    if (!has(label, 'value')) {
                         throw new Error(`targets need to have a value: ${label}`);
                     }
                 });
@@ -168,13 +170,13 @@ export function jobSchema(context: Context): convict.Schema<any> {
         schemas.volumes = {
             default: [],
             doc: 'array of volumes to be mounted by job workers',
-            format(arr: any) {
-                _.forEach(arr, (volume) => {
-                    if (!_.has(volume, 'name')) {
+            format(arr: any[]) {
+                arr.forEach((volume) => {
+                    if (!has(volume, 'name')) {
                         throw new Error(`volumes need to have a name: ${volume}`);
                     }
 
-                    if (!_.has(volume, 'path')) {
+                    if (!has(volume, 'path')) {
                         throw new Error(`volumes need to have a path: ${volume}`);
                     }
                 });

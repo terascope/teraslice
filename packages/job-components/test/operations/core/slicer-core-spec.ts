@@ -1,6 +1,6 @@
 import 'jest-extended'; // require for type definitions
-import { newTestExecutionConfig, newTestSlice, TestContext } from '../../../src';
-import SlicerCore, { SliceResult } from '../../../src/operations/core/slicer-core';
+import { newTestExecutionConfig, newTestSlice, TestContext, SliceResult, SlicerContext } from '../../../src';
+import SlicerCore from '../../../src/operations/core/slicer-core';
 
 describe('SlicerCore', () => {
     class ExampleSlicerCore extends SlicerCore {
@@ -18,7 +18,7 @@ describe('SlicerCore', () => {
             _op: 'example-op',
         });
         const opConfig = exConfig.operations[0];
-        slicer = new ExampleSlicerCore(context, opConfig, exConfig);
+        slicer = new ExampleSlicerCore(context as SlicerContext, opConfig, exConfig);
     });
 
     describe('->initialize', () => {

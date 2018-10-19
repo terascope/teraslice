@@ -2,7 +2,7 @@
 
 import { Context, crossValidationFn, OpConfig, JobConfig, ValidatedJobConfig } from './interfaces';
 import convict from 'convict';
-import _ from 'lodash';
+import cloneDeep from 'lodash.clonedeep';
 import { validateJobConfig, validateOpConfig } from './config-validators';
 import { jobSchema } from './job-schemas';
 import { LoaderOptions, OperationLoader } from './operation-loader';
@@ -21,7 +21,7 @@ export class JobValidator {
 
     validateConfig(_jobConfig: JobConfig): ValidatedJobConfig {
         // top level job validation occurs, but not operations
-        const jobConfig = validateJobConfig(this.schema, _.cloneDeep(_jobConfig));
+        const jobConfig = validateJobConfig(this.schema, cloneDeep(_jobConfig));
         const apis = {};
 
         jobConfig.operations = jobConfig.operations.map((opConfig, index) => {
@@ -53,7 +53,7 @@ export class JobValidator {
      * use validateConfig
     */
     validate(job: any) {
-        let validJob = _.cloneDeep(job);
+        let validJob = cloneDeep(job);
 
         // this is used if an operation needs to provide additional validation beyond its own scope
         const topLevelJobValidators : crossValidationFn[] = [];

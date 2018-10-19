@@ -5,6 +5,7 @@ import {
     ExecutionContextAPI,
     OpAPIFn,
     TestContext,
+    WorkerContext,
     newTestExecutionConfig
 } from '../../../src';
 
@@ -28,7 +29,7 @@ describe('OperationCore', () => {
         exContextApi.addToRegistry('hello', HelloAPI);
         context.apis.registerAPI('executionContext', exContextApi);
 
-        operation = new OperationCore(context, opConfig, exConfig);
+        operation = new OperationCore(context as WorkerContext, opConfig, exConfig);
     });
 
     describe('->initialize', () => {

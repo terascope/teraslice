@@ -3,7 +3,8 @@ import {
     processorShim,
     DataEntity,
     TestContext,
-    newTestExecutionConfig
+    newTestExecutionConfig,
+    WorkerContext
 } from '../../../src';
 
 describe('Processor Shim', () => {
@@ -54,7 +55,7 @@ describe('Processor Shim', () => {
     });
 
     it('should have a functioning Processor', async () => {
-        const processor = new mod.Processor(context, opConfig, exConfig);
+        const processor = new mod.Processor(context as WorkerContext, opConfig, exConfig);
         await processor.initialize();
 
         const input = DataEntity.makeList([{ say: 'hi' }]);

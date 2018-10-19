@@ -1,16 +1,13 @@
 import operationAPIShim, { APIs } from './operation-api-shim';
 import legacySliceEventsShim from './legacy-slice-events-shim';
 import DataEntity, { DataInput } from '../data-entity';
-import { SchemaConstructor } from '../core/schema-core';
-import { ProcessorConstructor } from '../core/processor-core';
+import { SchemaConstructor, ProcessorConstructor } from '../interfaces';
+import { WorkerContext } from '../../execution-context';
 import {
     LegacyProcessor,
     Logger,
-    Context,
-    OpConfig,
-    ExecutionConfig,
     SliceRequest,
-    processorFn,
+    ProcessorFn,
 } from '../../interfaces';
 
 // This file for backwards compatibility and functionality will be limited
@@ -28,8 +25,8 @@ export default function legacyProcessorShim(Processor: ProcessorConstructor, Sch
             const schema = new Schema(context);
             return schema.schema;
         },
-        async newProcessor(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): Promise<processorFn<DataInput[]>> {
-            const processor = new Processor(context, opConfig, executionConfig);
+        async newProcessor(context, opConfig, executionConfig): Promise<ProcessorFn<DataInput[]>> {
+            const processor = new Processor(context as WorkerContext, opConfig, executionConfig);
             await processor.initialize();
 
             legacySliceEventsShim(processor);

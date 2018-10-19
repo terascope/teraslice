@@ -1,4 +1,5 @@
-import * as bunyan from 'bunyan';
+// @ts-ignore
+import bunyan from '@types/bunyan';
 import { EventEmitter } from 'events';
 
 export interface Logger extends bunyan {

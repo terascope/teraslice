@@ -57,22 +57,29 @@ module.exports = (projectDir) => {
         config.setupTestFrameworkScriptFile = `${projectRoot}/test/test.setup.js`;
     }
 
-    config.globals = {
-        'ts-jest': {
-            diagnostics: false,
-            pretty: true
-        }
-    };
+    config.globals = {};
 
     if (isTypescript) {
-        config.globals['ts-jest'].diagnostics = {
-            warnOnly: true
-        };
         if (runInPackage) {
-            config.globals['ts-jest'].tsConfig = './tsconfig.json';
+            config.globals['ts-jest'] = {
+                tsConfig: './tsconfig.json',
+                diagnostics: true,
+                pretty: true,
+            };
         } else {
-            config.globals['ts-jest'].tsConfig = `./${workspaceName}/${name}/tsconfig.json`;
+            config.globals['ts-jest'] = {
+                tsConfig: `./${workspaceName}/${name}/tsconfig.json`,
+                diagnostics: {
+                    warnOnly: true
+                },
+                pretty: true
+            };
         }
+    } else {
+        config.globals['ts-jest'] = {
+            diagnostics: false,
+            pretty: true
+        };
     }
 
     config.roots = [

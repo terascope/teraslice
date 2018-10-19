@@ -1,6 +1,9 @@
-import { Schema } from 'convict';
-import { Context, Logger, SysConfig } from './context';
-
+/**
+ * OpConfig is the configuration that user specifies
+ * for a Operation.
+ * The only required property is `_op` since that is used
+ * to find the operation
+*/
 export interface OpConfig {
     _op: string;
 }
@@ -10,6 +13,10 @@ export enum LifeCycle {
     Persistent = 'persistent',
 }
 
+/**
+ * JobConfig is the configuration that user specifies
+ * for a Job
+*/
 export interface JobConfig {
     analytics?: boolean;
     assets?: string[];
@@ -66,91 +73,27 @@ export interface NativeExecutionConfig extends NativeJobConfig {
     slicer_port?: number;
 }
 
-export interface K8sExecutionConfig extends NativeJobConfig {
+export interface K8sExecutionConfig extends K8sJobConfig {
     ex_id?: string;
     job_id?: string;
     slicer_hostname?: string;
     slicer_port?: number;
 }
 
+/**
+ * ExecutionConfig a unique configuration instance for a running Job
+*/
 export type ExecutionConfig = NativeExecutionConfig|K8sExecutionConfig;
 
-export interface WorkerExecutionContext {
-    config: ExecutionConfig;
-    queue: Function[];
-    reader: Function;
-    slicer: null;
-    dynamicQueueLength: false;
-    queueLength: 10000;
-    reporter: null;
-}
-
-export interface SlicerExecutionContext {
+/**
+ * LegacyExecutionContext is the old ExecutionContext available
+*/
+export interface LegacyExecutionContext {
     config: ExecutionConfig;
     slicer: Function;
     queueLength: 10000|number;
     dynamicQueueLength: boolean;
-    queue: [];
-    reader: null;
+    queue: Function[];
+    reader: Function|null;
     reporter: null;
-}
-
-export type ExecutionContext = WorkerExecutionContext|SlicerExecutionContext;
-
-export type crossValidationFn = (job: ValidatedJobConfig, sysconfig: SysConfig) => void;
-export type selfValidationFn = (config: OpConfig) => void;
-
-export interface LegacyOperation {
-    crossValidation?: crossValidationFn;
-    selfValidation?: selfValidationFn;
-    schema(context?: Context): Schema<any>;
-}
-
-export interface LegacyReader extends LegacyOperation {
-    schema(context?: Context): Schema<any>;
-    newReader(
-        context: Context,
-        opConfig: OpConfig,
-        exectutionConfig: ExecutionConfig,
-    ): Promise<readerFn<any>>;
-    newSlicer(
-        context: Context,
-        executionContext: ExecutionContext,
-        recoveryData: object[],
-        logger: Logger,
-    ): Promise<slicerFns>;
-}
-
-export type readerFn<T> = (sliceRequest: SliceRequest) => Promise<T>|T;
-export type slicerFn = () => Promise<Slice|SliceRequest|SliceRequest[]|null>;
-export type slicerFns = slicerFn[];
-
-export interface LegacyProcessor extends LegacyOperation {
-    schema(context?: Context): Schema<any>;
-    newProcessor(
-        context: Context,
-        opConfig: OpConfig,
-        executionConfig: ExecutionConfig,
-    ): Promise<processorFn<any>>;
-}
-
-export type processorFn<T> = (data: T, logger: Logger, sliceRequest: SliceRequest) => Promise<T>|T;
-
-export interface SliceRequest {
-    request_worker?: string;
-    [prop: string]: any;
-}
-
-export interface Slice {
-    slice_id: string;
-    slicer_id: number;
-    slicer_order: number;
-    request: SliceRequest;
-    _created: string;
-}
-
-export interface SliceAnalyticsData {
-    time: number[];
-    size: number[];
-    memory: number[];
 }

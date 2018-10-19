@@ -1,12 +1,13 @@
-import _ from 'lodash';
 import uuidv4 from 'uuid/v4';
+import { SlicerContext } from '../../execution-context';
 import {
-    Context,
     ExecutionConfig,
     OpConfig,
     Slice,
-    SliceAnalyticsData,
-    SliceRequest
+    SliceRequest,
+    SliceResult,
+    SlicerOperationLifeCycle,
+    ExecutionStats,
 } from '../../interfaces';
 import Queue from '@terascope/queue';
 import Core from './core';
@@ -19,27 +20,34 @@ import Core from './core';
  * @see Core
  */
 
-export default abstract class SlicerCore extends Core {
-    /**
-     * Used to indicate whether this slicer is recoverable.
-    */
-    static isRecoverable: boolean = true;
-
-    private readonly queue: Queue<Slice>;
+export default abstract class SlicerCore extends Core implements SlicerOperationLifeCycle {
+    protected stats: ExecutionStats;
     protected recoveryData: object[];
     protected readonly opConfig: Readonly<OpConfig>;
+    private readonly queue: Queue<Slice>;
 
-    constructor(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig) {
+    constructor(context: SlicerContext, opConfig: OpConfig, executionConfig: ExecutionConfig) {
         const logger = context.apis.foundation.makeLogger({
             module: 'slicer',
             opName: opConfig._op,
             jobName: executionConfig.name,
         });
+
         super(context, executionConfig, logger);
 
         this.opConfig = opConfig;
         this.queue = new Queue();
         this.recoveryData = [];
+        this.stats = {
+            workers: {
+                connected: 0,
+                available: 0,
+            },
+            slices: {
+                processed: 0,
+                failed: 0,
+            }
+        };
     }
 
     async initialize(recoveryData: object[]): Promise<void> {
@@ -85,40 +93,42 @@ export default abstract class SlicerCore extends Core {
     }
 
     /**
-     * A method called by the "Execution Controller" to give a "Slicer"
-     * the opportunity to track the slices enqueued by the execution controller
+     * Used to indicate whether this slicer is recoverable.
     */
+    isRecoverable() {
+        return true;
+    }
+
+    /**
+     * Used to determine the maximum number of slices queued.
+     * Defaults to 10000
+     * NOTE: if you want to base of the number of
+     * workers use {@link #workersConnected}
+    */
+    maxQueueLength() {
+        return 10000;
+    }
+
+    onExecutionStats(stats: ExecutionStats) {
+        this.stats = stats;
+    }
+
+    // @ts-ignore
     onSliceEnqueued(slice: Slice): void {
-        this.context.logger.debug('slice enqueued', slice);
+
     }
 
-    /**
-     * A method called by the "Execution Controller" to give a "Slicer"
-     * the opportunity to track the slices disptached by the execution controller
-    */
+    // @ts-ignore
     onSliceDispatch(slice: Slice): void {
-        this.context.logger.debug('slice dispatch', slice);
+
     }
 
-    /**
-     * A method called by the "Execution Controller" to give a "Slicer"
-     * the opportunity to track the slices completed by the execution controller
-    */
+    // @ts-ignore
     onSliceComplete(result: SliceResult): void {
-        this.context.logger.debug('slice result', result);
+
+    }
+
+    protected get workersConnected() {
+        return this.stats.workers.connected;
     }
 }
-
-export type SlicerResult = Slice|SliceRequest|SliceRequest[]|null;
-
-export interface SliceResult {
-    slice: Slice;
-    analytics: SliceAnalyticsData;
-    retry?: boolean;
-    error?: string;
-}
-
-export type SlicerConstructor = {
-    isRecoverable: boolean;
-    new(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): SlicerCore;
-};

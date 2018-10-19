@@ -1,6 +1,5 @@
-import _ from 'lodash';
-import { Context, OpConfig, ExecutionConfig } from '../interfaces';
-import SlicerCore, { SlicerResult } from './core/slicer-core';
+import { SlicerResult } from '../interfaces';
+import SlicerCore from './core/slicer-core';
 
 /**
  * The simpliest form a "Slicer"
@@ -30,9 +29,9 @@ export default abstract class Slicer extends SlicerCore {
             return true;
         }
 
-        if (_.isArray(result)) {
+        if (Array.isArray(result)) {
             this.events.emit('slicer:subslice');
-            _.each(result, (item) => {
+            result.forEach((item) => {
                 this.order += 1;
                 this.createSlice(item, this.order);
             });
@@ -44,10 +43,3 @@ export default abstract class Slicer extends SlicerCore {
         return false;
     }
 }
-
-export { SlicerResult };
-
-export type SingleSlicerConstructor = {
-    isRecoverable: boolean;
-    new(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): Slicer;
-};

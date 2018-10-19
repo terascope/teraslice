@@ -1,13 +1,12 @@
 import Core from './core';
-import SliceEvents from './slice-events';
-import { Context, ExecutionConfig } from '../../interfaces';
+import { WorkerContext } from '../../execution-context';
+import { ExecutionConfig, WorkerOperationLifeCycle } from '../../interfaces';
 
 /**
  * A base class for supporting APIs that run within an Execution Context.
  */
-
-export default abstract class APICore extends Core implements SliceEvents {
-    constructor(context: Context, executionConfig: ExecutionConfig) {
+export default abstract class APICore extends Core implements WorkerOperationLifeCycle {
+    constructor(context: WorkerContext, executionConfig: ExecutionConfig) {
         const logger = context.apis.foundation.makeLogger({
             module: 'operation-api',
             jobName: executionConfig.name,
@@ -23,37 +22,33 @@ export default abstract class APICore extends Core implements SliceEvents {
         this.context.logger.trace(`${this.executionConfig.name}->api is shutting down...`);
     }
 
+    // @ts-ignore
     async onSliceInitialized(sliceId: string): Promise<void> {
-        this.context.logger.trace(`slice initialized: ${sliceId}`);
+
     }
 
+    // @ts-ignore
     async onSliceStarted(sliceId: string): Promise<void> {
-        this.context.logger.trace(`slice started: ${sliceId}`);
+
     }
 
+    // @ts-ignore
     async onSliceFinalizing(sliceId: string): Promise<void> {
-        this.context.logger.trace(`slice finalizing: ${sliceId}`);
+
     }
 
+    // @ts-ignore
     async onSliceFinished(sliceId: string): Promise<void> {
-        this.context.logger.trace(`slice finished: ${sliceId}`);
+
     }
 
+    // @ts-ignore
     async onSliceFailed(sliceId: string): Promise<void> {
-        this.context.logger.trace(`slice failed: ${sliceId}`);
+
     }
 
+    // @ts-ignore
     async onSliceRetry(sliceId: string): Promise<void> {
-        this.context.logger.trace(`slice retry: ${sliceId}`);
+
     }
 }
-
-export type APIConstructor = {
-    new(context: Context, executionConfig: ExecutionConfig): APICore;
-};
-
-export type OpAPIFn = Function;
-export type OpAPIInstance = {
-    [method: string]: Function|any;
-};
-export type OpAPI = OpAPIFn | OpAPIInstance;

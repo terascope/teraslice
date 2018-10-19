@@ -75,7 +75,7 @@ describe('Test Helpers', () => {
         const exContext = newTestExecutionContext(Assignment.Worker, exConfig);
         expect(exContext.config).toEqual(exConfig);
         expect(exContext.reader).toBeFunction();
-        expect(exContext.slicer).toBeNull();
+        expect(exContext.slicer).toBeFunction();
     });
 
     it('should have a TestContext', () => {

@@ -1,22 +1,22 @@
-import times from 'lodash/times';
 import DataEntity, { DataInput } from '../data-entity';
-import { SchemaConstructor } from '../core/schema-core';
-import { FetcherConstructor } from '../core/fetcher-core';
-import SlicerClass, { SingleSlicerConstructor } from '../slicer';
+import SlicerClass from '../slicer';
 import operationAPIShim, { APIs } from './operation-api-shim';
 import legacySliceEventsShim from './legacy-slice-events-shim';
-import { ParallelSlicerConstructor } from '../parallel-slicer';
+import {
+    ParallelSlicerConstructor,
+    SingleSlicerConstructor,
+    FetcherConstructor,
+    SchemaConstructor,
+} from '../interfaces';
 import {
     Logger,
-    Context,
-    OpConfig,
-    ExecutionConfig,
     SliceRequest,
-    readerFn,
-    slicerFns,
+    ReaderFn,
+    SlicerFns,
     LegacyReader,
-    ExecutionContext,
 } from '../../interfaces';
+import { WorkerContext, SlicerContext } from '../../execution-context';
+import { times } from '../../utils';
 
 // This file for backwards compatibility and functionality will be limited
 // but it should allow you to write processors using the new way today
@@ -37,8 +37,8 @@ export default function legacyReaderShim(Slicer: SlicerType, Fetcher: FetcherTyp
             const schema = new Schema(context);
             return schema.schema;
         },
-        async newReader(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): Promise<readerFn<DataInput[]>> {
-            const fetcher = new Fetcher(context, opConfig, executionConfig);
+        async newReader(context, opConfig, executionConfig): Promise<ReaderFn<DataInput[]>> {
+            const fetcher = new Fetcher(context as WorkerContext, opConfig, executionConfig);
             await fetcher.initialize();
 
             legacySliceEventsShim(fetcher);
@@ -50,11 +50,11 @@ export default function legacyReaderShim(Slicer: SlicerType, Fetcher: FetcherTyp
                 return DataEntity.makeArray(output);
             };
         },
-        async newSlicer(context: Context, executionContext: ExecutionContext, recoveryData: object[], logger: Logger): Promise<slicerFns> {
+        async newSlicer(context, executionContext, recoveryData: object[], logger: Logger): Promise<SlicerFns> {
             const executionConfig = executionContext.config;
             const opConfig = executionConfig.operations[0];
 
-            const slicer = new Slicer(context, opConfig, executionConfig);
+            const slicer = new Slicer(context as SlicerContext, opConfig, executionConfig);
 
             // @ts-ignore
             slicer.logger = logger;
