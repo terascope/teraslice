@@ -5,7 +5,8 @@ import {
     ExecutionConfig,
     ContextApis,
     SlicerOperationLifeCycle,
-    WorkerOperationLifeCycle
+    WorkerOperationLifeCycle,
+    Assignment
 } from '../interfaces';
 
 export interface ExecutionContextConfig {
@@ -31,6 +32,7 @@ export interface SlicerContextApis extends ContextApis {
 */
 export interface SlicerContext extends Context {
     apis: SlicerContextApis;
+    assignment: Assignment;
 }
 
 export interface WorkerOperations extends Set<WorkerOperationLifeCycle> {}
@@ -51,6 +53,7 @@ interface WorkerContextApis extends ContextApis {
 */
 export interface WorkerContext extends Context {
     apis: WorkerContextApis;
+    assignment: Assignment;
 }
 
 /** event handlers that should be cleaned up */

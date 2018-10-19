@@ -34,6 +34,9 @@ export class SlicerExecutionContext {
     /** The instance of a "Slicer" */
     readonly slicer: SlicerCore;
 
+    readonly exId: string;
+    readonly jobId: string;
+
     /** The terafoundation EventEmitter */
     private events: EventEmitter;
     private _handlers: EventHandlers = {};
@@ -59,6 +62,8 @@ export class SlicerExecutionContext {
         this.assetIds = config.assetIds || [];
 
         this.config = executionConfig;
+        this.exId = executionConfig.ex_id;
+        this.jobId = executionConfig.job_id;
 
         _loaders.set(this, loader);
 

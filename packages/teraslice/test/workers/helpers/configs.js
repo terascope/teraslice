@@ -23,7 +23,6 @@ const newSliceConfig = (request = { example: 'slice-data' }) => ({
 const newConfig = (options = {}) => {
     const {
         analytics = false,
-        assignment = 'worker',
         maxRetries = 0,
         slicerPort = 0,
         lifecycle = 'once',
@@ -51,19 +50,16 @@ const newConfig = (options = {}) => {
         ],
     } = options;
     return {
-        assignment,
-        job: {
-            name: chance.name({ middle: true }),
-            slicers,
-            workers,
-            assets,
-            analytics,
-            lifecycle,
-            max_retries: maxRetries,
-            operations,
-            recovered_execution: recoveredExecution,
-            recovered_slice_type: recoveredSliceType
-        },
+        name: chance.name({ middle: true }),
+        slicers,
+        workers,
+        assets,
+        analytics,
+        lifecycle,
+        max_retries: maxRetries,
+        operations,
+        recovered_execution: recoveredExecution,
+        recovered_slice_type: recoveredSliceType,
         ex_id: newId('ex-id', true),
         job_id: newId('job-id', true),
         node_id: newId('node-id', true),

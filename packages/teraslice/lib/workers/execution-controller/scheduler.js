@@ -12,7 +12,7 @@ class Scheduler {
         this.logger = makeLogger(context, executionContext, 'execution_scheduler');
         this.events = context.apis.foundation.getSystemEvents();
         this.executionContext = executionContext;
-        this.exId = executionContext.ex_id;
+        this.exId = executionContext.exId;
         this.recoverExecution = _.get(executionContext.config, 'recovered_execution', false);
         this.recovering = this.recoverExecution;
         this.slicers = [];
