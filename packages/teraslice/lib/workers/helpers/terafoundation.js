@@ -10,10 +10,10 @@ function generateWorkerId(context) {
 
 function makeLogger(context, executionContext, moduleName, extra = {}) {
     const {
-        ex_id: exId,
-        job_id: jobId,
-        assignment
+        exId,
+        jobId,
     } = executionContext;
+    const { assignment } = context;
 
     return context.apis.foundation.makeLogger(_.assign({
         ex_id: exId,

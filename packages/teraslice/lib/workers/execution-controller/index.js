@@ -3,7 +3,6 @@
 const _ = require('lodash');
 const pWhilst = require('p-whilst');
 const Promise = require('bluebird');
-const retry = require('bluebird-retry');
 const parseError = require('@terascope/error-parser');
 const Messaging = require('@terascope/teraslice-messaging');
 
@@ -26,7 +25,7 @@ class ExecutionController {
         const workerId = generateWorkerId(context);
         const logger = makeLogger(context, executionContext, 'execution_controller');
         const events = context.apis.foundation.getSystemEvents();
-        const slicerPort = executionContext.slicer_port;
+        const slicerPort = executionContext.config.slicer_port;
         const networkLatencyBuffer = _.get(context, 'sysconfig.teraslice.network_latency_buffer');
         const actionTimeout = _.get(context, 'sysconfig.teraslice.action_timeout');
         const workerDisconnectTimeout = _.get(context, 'sysconfig.teraslice.worker_disconnect_timeout');
@@ -49,7 +48,7 @@ class ExecutionController {
             networkLatencyBuffer,
             actionTimeout,
             connectTimeout: nodeDisconnectTimeout,
-            exId: executionContext.ex_id,
+            exId: executionContext.exId,
         });
 
         this.executionAnalytics = new ExecutionAnalytics(
@@ -60,7 +59,7 @@ class ExecutionController {
 
         this.scheduler = new Scheduler(context, executionContext);
 
-        this.exId = _.get(executionContext, 'config.ex_id');
+        this.exId = executionContext.exId;
         this.workerId = workerId;
         this.logger = logger;
         this.events = events;
@@ -238,6 +237,7 @@ class ExecutionController {
         }
 
         this.events.emit('worker:shutdown');
+        await this.executionContext.shutdown();
 
         // help the workers go offline
         this.server.isShuttingDown = true;
@@ -420,7 +420,7 @@ class ExecutionController {
         if (this.scheduler.recoverExecution) {
             await this._recoverSlicesInit();
         } else {
-            await this._slicerInit();
+            await this.executionContext.initialize();
         }
 
         // wait for paused
@@ -559,34 +559,6 @@ class ExecutionController {
             });
     }
 
-    async _slicerInit() {
-        const {
-            logger,
-            context,
-        } = this;
-
-        const maxRetries = _.get(this.executionContext, 'config.max_retries', 3);
-        const retryOptions = {
-            max_tries: maxRetries,
-            throw_original: true,
-            interval: 100,
-        };
-
-        const slicers = await retry(() => {
-            const executionContext = _.cloneDeep(this.executionContext);
-            const startingPoints = this.startingPoints ? _.cloneDeep(this.startingPoints) : [];
-
-            return this.executionContext.slicer.newSlicer(
-                context,
-                executionContext,
-                startingPoints,
-                logger
-            );
-        }, retryOptions);
-
-        await this.scheduler.registerSlicers(slicers);
-    }
-
     async _recoverSlicesInit() {
         this.recover = makeExecutionRecovery(
             this.context,
@@ -620,7 +592,7 @@ class ExecutionController {
 
         await this.scheduler.markRecoveryAsComplete(this.recover.exitAfterComplete());
 
-        await this._slicerInit();
+        await this.executionContext.initialize(this.startingPoints);
     }
 
     async _finishExecution() {

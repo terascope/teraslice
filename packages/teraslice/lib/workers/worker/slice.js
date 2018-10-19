@@ -25,14 +25,16 @@ class Slice {
 
     initialize(slice, stores) {
         const { slice_id: sliceId } = slice;
-        const { queue } = this.executionContext;
 
-        if (this.analytics) {
-            this.analyticsData = { time: [], size: [], memory: [] };
-            this.operations = queue.map(fn => fn.bind(null, this.analyticsData));
-        } else {
-            this.operations = queue;
-        }
+        // if (this.analytics) {
+        //   this.analyticsData = { time: [], size: [], memory: [] };
+        //   this.operations = queue.map(fn => fn.bind(null, this.analyticsData));
+        // }
+
+        this.operations = [
+            this.executionContext.fetcher,
+            ...this.executionContext.processors,
+        ];
 
         this.stateStore = stores.stateStore;
         this.analyticsStore = stores.analyticsStore;

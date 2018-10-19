@@ -12,8 +12,7 @@ function recovery(context, executionFailed, stateStore, executionContext) {
 
     const cleanupType = executionContext.config.recovered_slice_type;
     const recoverExecution = executionContext.config.recovered_execution;
-    const exId = executionContext.ex_id;
-    const jobId = executionContext.job_id;
+    const { exId, jobId } = executionContext;
 
     let recoverComplete = true;
     let isShutdown = false;

@@ -67,17 +67,17 @@ export interface K8sJobConfig extends NativeJobConfig {
 export type ValidatedJobConfig = NativeJobConfig|K8sJobConfig;
 
 export interface NativeExecutionConfig extends NativeJobConfig {
-    ex_id?: string;
-    job_id?: string;
-    slicer_hostname?: string;
-    slicer_port?: number;
+    ex_id: string;
+    job_id: string;
+    slicer_hostname: string;
+    slicer_port: number;
 }
 
 export interface K8sExecutionConfig extends K8sJobConfig {
-    ex_id?: string;
-    job_id?: string;
-    slicer_hostname?: string;
-    slicer_port?: number;
+    ex_id: string;
+    job_id: string;
+    slicer_hostname: string;
+    slicer_port: number;
 }
 
 /**
