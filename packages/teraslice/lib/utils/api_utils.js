@@ -59,7 +59,21 @@ function sendError(res, code, error) {
     });
 }
 
+// NOTE: This only works for counters, if you're trying to extend this, you
+// should probably switch to using prom-client.
+function makePrometheus(stats) {
+    let returnString = '';
+    _.forEach(stats.controllers, (value, key) => {
+        const name = `teraslice_${key}`;
+        returnString += `# HELP ${name}\n`;
+        returnString += `# TYPE ${name} counter\n`;
+        returnString += `${value}\n`;
+    });
+    return returnString;
+}
+
 module.exports = {
+    makePrometheus,
     makeTable,
     handleError,
     sendError

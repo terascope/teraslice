@@ -6,7 +6,9 @@ const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const request = require('request');
 const util = require('util');
-const { makeTable, sendError, handleError } = require('../../utils/api_utils');
+const {
+    makePrometheus, makeTable, sendError, handleError
+} = require('../../utils/api_utils');
 const terasliceVersion = require('../../../package.json').version;
 
 module.exports = function module(context, app, { assetsUrl }) {
@@ -361,10 +363,16 @@ module.exports = function module(context, app, { assetsUrl }) {
 
     v1routes.get('/cluster/stats', (req, res) => {
         logger.trace('GET /cluster/stats endpoint has been called');
+        const acceptHeader = _.get(req, 'headers.accept', '');
         const stats = executionService.getClusterStats();
-        // for backwards compatability
-        stats.slicer = stats.controllers;
-        res.status(200).json(stats);
+
+        if ((acceptHeader !== '') && (acceptHeader.indexOf('application/openmetrics-text;') > -1)) {
+            res.status(200).send(makePrometheus(stats));
+        } else {
+            // for backwards compatability (unsupported for prometheus)
+            stats.slicer = stats.controllers;
+            res.status(200).json(stats);
+        }
     });
 
     v1routes.get('/cluster/slicers', _deprecateSlicerName((req, res) => {
