@@ -19,73 +19,73 @@ const filter = new SimpleFilter(context, opConfig, executionConfig);
 const each = new SimpleEach(context, opConfig, executionConfig);
 const count = 10000;
 
-module.exports = Suite('Simple Job')
-    .add('fetcher.handle() -> processor.handle()', {
+module.exports = Suite('Simple Job Using Methods')
+    .add('map without DataEntities', {
         defer: true,
         fn(deferred) {
-            fetcher.handle(count)
-                .then(result => map.handle(result))
-                .then(() => deferred.resolve());
-        }
-    })
-    .add('fetcher.handle() -> processor.handle()', {
-        defer: true,
-        fn(deferred) {
-            fetcher.handle(count)
-                .then(result => filter.handle(result))
-                .then(() => deferred.resolve());
-        }
-    })
-    .add('fetcher.handle() -> processor.handle()', {
-        defer: true,
-        fn(deferred) {
-            fetcher.handle(count)
-                .then(result => each.handle(result))
-                .then(() => deferred.resolve());
-        }
-    })
-    .add('fetcher.handle() -> processor.handle() -> processor.handle() -> processor.handle()', {
-        defer: true,
-        fn(deferred) {
-            fetcher.handle(count)
-                .then(result => map.handle(result))
-                .then(result => filter.handle(result))
-                .then(result => each.handle(result))
-                .then(() => deferred.resolve());
-        }
-    })
-    .add('fetcher.fetch() -> processor.map()', {
-        defer: true,
-        fn(deferred) {
-            fetcher.fetch(count)
+            fetcher.fetch({ count })
                 .then(result => result.map(data => map.map(data)))
                 .then(() => deferred.resolve());
         }
     })
-    .add('fetcher.fetch() -> processor.filter()', {
+    .add('filter without DataEntities', {
         defer: true,
         fn(deferred) {
-            fetcher.fetch(count)
+            fetcher.fetch({ count })
                 .then(result => result.filter(data => filter.filter(data)))
                 .then(() => deferred.resolve());
         }
     })
-    .add('fetcher.fetch() -> processor.forEach()', {
+    .add('forEach without DataEntities', {
         defer: true,
         fn(deferred) {
-            fetcher.fetch(count)
+            fetcher.fetch({ count })
                 .then(result => result.forEach(data => each.forEach(data)))
                 .then(() => deferred.resolve());
         }
     })
-    .add('fetcher.fetch() -> processor.map() -> processor.filter() -> processor.forEach()', {
+    .add('map->filter->forEach without DataEntities', {
         defer: true,
         fn(deferred) {
-            fetcher.fetch(count)
+            fetcher.fetch({ count })
                 .then(result => result.map(data => map.map(data)))
                 .then(result => result.filter(data => filter.filter(data)))
                 .then(result => result.forEach(data => each.forEach(data)))
                 .then(() => deferred.resolve());
         }
     })
-    .run();
+    .add('map with DataEntities', {
+        defer: true,
+        fn(deferred) {
+            fetcher.fetch({ count, precreate: true })
+                .then(result => result.map(data => map.map(data)))
+                .then(() => deferred.resolve());
+        }
+    })
+    .add('filter with DataEntities', {
+        defer: true,
+        fn(deferred) {
+            fetcher.fetch({ count, precreate: true })
+                .then(result => result.filter(data => filter.filter(data)))
+                .then(() => deferred.resolve());
+        }
+    })
+    .add('forEach with DataEntities', {
+        defer: true,
+        fn(deferred) {
+            fetcher.fetch({ count, precreate: true })
+                .then(result => result.forEach(data => each.forEach(data)))
+                .then(() => deferred.resolve());
+        }
+    })
+    .add('map->filter->forEach with DataEntities', {
+        defer: true,
+        fn(deferred) {
+            fetcher.fetch({ count, precreate: true })
+                .then(result => result.map(data => map.map(data)))
+                .then(result => result.filter(data => filter.filter(data)))
+                .then(result => result.forEach(data => each.forEach(data)))
+                .then(() => deferred.resolve());
+        }
+    })
+    .run({ async: true });
