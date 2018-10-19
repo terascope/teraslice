@@ -62,12 +62,23 @@ function sendError(res, code, error) {
 // NOTE: This only works for counters, if you're trying to extend this, you
 // should probably switch to using prom-client.
 function makePrometheus(stats) {
+    const metricMapping = {
+        processed: 'teraslice_slices_processed',
+        failed: 'teraslice_slices_failed',
+        queued: 'teraslice_slices_queued',
+        job_duration: '', // this isn't really useful, omitting
+        workers_joined: 'teraslice_workers_joined',
+        workers_disconnected: 'teraslice_workers_disconnected',
+        workers_reconnected: 'teraslice_workers_reconnected'
+    };
+
     let returnString = '';
     _.forEach(stats.controllers, (value, key) => {
-        const name = `teraslice_${key}`;
-        returnString += `# HELP ${name}\n`;
-        returnString += `# TYPE ${name} counter\n`;
-        returnString += `${value}\n`;
+        const name = metricMapping[key];
+        if (name !== '') {
+            returnString += `# TYPE ${name} counter\n`;
+            returnString += `${value}\n`;
+        }
     });
     return returnString;
 }

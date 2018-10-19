@@ -15,27 +15,18 @@ describe('apiUtils', () => {
                 workers_reconnected: 40
             }
         };
-        const r = `# HELP teraslice_processed
-# TYPE teraslice_processed counter
-1000
-# HELP teraslice_failed
-# TYPE teraslice_failed counter
-10
-# HELP teraslice_queued
-# TYPE teraslice_queued counter
-5
-# HELP teraslice_job_duration
-# TYPE teraslice_job_duration counter
-10
-# HELP teraslice_workers_joined
+        const r = `# TYPE teraslice_slices_processed counter
+${stats.controllers.processed}
+# TYPE teraslice_slices_failed counter
+${stats.controllers.failed}
+# TYPE teraslice_slices_queued counter
+${stats.controllers.queued}
 # TYPE teraslice_workers_joined counter
-20
-# HELP teraslice_workers_disconnected
+${stats.controllers.workers_joined}
 # TYPE teraslice_workers_disconnected counter
-30
-# HELP teraslice_workers_reconnected
+${stats.controllers.workers_disconnected}
 # TYPE teraslice_workers_reconnected counter
-40
+${stats.controllers.workers_reconnected}
 `;
         expect(apiUtils.makePrometheus(stats)).toEqual(r);
     });
