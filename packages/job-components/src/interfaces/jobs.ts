@@ -6,7 +6,6 @@
 */
 export interface OpConfig {
     _op: string;
-    [prop: string]: any;
 }
 
 export enum LifeCycle {
