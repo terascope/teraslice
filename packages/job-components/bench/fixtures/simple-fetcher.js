@@ -3,7 +3,7 @@
 const { Fetcher, DataEntity } = require('../../dist');
 
 class SimpleFetcher extends Fetcher {
-    async fetch({ count = 10000, precreate }) {
+    async fetch({ count = 10000, precreate } = {}) {
         const result = [];
         for (let i = 0; i < count; i++) {
             const data = {
