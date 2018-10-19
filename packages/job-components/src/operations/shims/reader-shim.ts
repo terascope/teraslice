@@ -1,21 +1,37 @@
-import { Context, OpConfig, ExecutionContext, LegacyReader, SliceRequest, slicerFns, readerFn } from '../../interfaces';
+import { Context, OpConfig, LegacyExecutionContext, LegacyReader, SliceRequest, SlicerFns, ReaderFn } from '../../interfaces';
 import DataEntity, { DataEntityList } from '../data-entity';
-import { SlicerConstructor } from '../core/slicer-core';
-import FetcherCore, { FetcherConstructor } from '../core/fetcher-core';
+import FetcherCore from '../core/fetcher-core';
 import ParallelSlicer from '../parallel-slicer';
-import { SchemaConstructor } from '../core/schema-core';
 import ConvictSchema from '../convict-schema';
+import {
+    SchemaConstructor,
+    FetcherConstructor,
+    SlicerConstructor,
+} from '../interfaces';
+import { isInteger } from '../../utils';
 
 export default function readerShim(legacy: LegacyReader): ReaderModule {
     return {
         Slicer: class LegacySlicerShim extends ParallelSlicer  {
-            private slicerFns: slicerFns|undefined;
+            private _maxQueueLength = 10000;
+            private _dynamicQueueLength = false;
+            private slicerFns: SlicerFns|undefined;
 
             async initialize(recoveryData: object[]) {
                 // @ts-ignore
-                const executionContext: ExecutionContext = {
+                const executionContext: LegacyExecutionContext = {
                     config: this.executionConfig,
                 };
+
+                if (legacy.slicerQueueLength && typeof legacy.slicerQueueLength === 'function') {
+                    const result = await legacy.slicerQueueLength(executionContext);
+                    if (result === 'QUEUE_MINIMUM_SIZE') {
+                        this._maxQueueLength = this.executionConfig.workers;
+                        this._dynamicQueueLength = true;
+                    } else if (isInteger(result) && result > 0) {
+                        this._maxQueueLength = result;
+                    }
+                }
 
                 this.slicerFns = await legacy.newSlicer(this.context, executionContext, recoveryData, this.logger);
 
@@ -32,9 +48,16 @@ export default function readerShim(legacy: LegacyReader): ReaderModule {
                 }
                 return fn;
             }
+
+            maxQueueLength() {
+                if (this._dynamicQueueLength) {
+                    return this.workersConnected;
+                }
+                return this._maxQueueLength;
+            }
         },
         Fetcher: class LegacyFetcherShim extends FetcherCore {
-            private fetcherFn: readerFn<DataEntity[]>|undefined;
+            private fetcherFn: ReaderFn<DataEntity[]>|undefined;
 
             async initialize() {
                 this.fetcherFn = await legacy.newReader(this.context, this.opConfig, this.executionConfig);

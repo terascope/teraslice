@@ -6,11 +6,12 @@ import Fetcher from './fetcher';
 import FilterProcessor from './filter-processor';
 import MapProcessor from './map-processor';
 import Observer from './observer';
-import OperationAPI, { OpAPI, OpAPIInstance, OpAPIFn } from './operation-api';
-import ParallelSlicer, { SlicerFn } from './parallel-slicer';
-import Slicer, { SlicerResult } from './slicer';
+import OperationAPI from './operation-api';
+import ParallelSlicer from './parallel-slicer';
+import Slicer from './slicer';
 
 export * from './shims';
+export * from './interfaces';
 export {
     BatchProcessor,
     ConvictSchema,
@@ -20,12 +21,7 @@ export {
     FilterProcessor,
     MapProcessor,
     Observer,
-    OpAPI,
-    OpAPIFn,
-    OpAPIInstance,
     OperationAPI,
     ParallelSlicer,
     Slicer,
-    SlicerFn,
-    SlicerResult,
 };

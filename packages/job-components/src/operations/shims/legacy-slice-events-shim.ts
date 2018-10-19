@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
-import SliceEvents from '../core/slice-events';
+import { WorkerOperationLifeCycle } from '../../interfaces';
 
-interface SliceOperation extends SliceEvents {
+interface SliceOperation extends WorkerOperationLifeCycle {
     readonly events: EventEmitter;
     shutdown(): Promise<void>;
 }

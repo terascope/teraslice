@@ -1,5 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { DataEntity, MapProcessor, newTestExecutionConfig, TestContext } from '../../src';
+import { DataEntity, MapProcessor, newTestExecutionConfig, TestContext, WorkerContext } from '../../src';
 
 describe('MapProcessor', () => {
     class ExampleProcessor extends MapProcessor {
@@ -18,7 +18,7 @@ describe('MapProcessor', () => {
             _op: 'example-op',
         });
         const opConfig = exConfig.operations[0];
-        operation = new ExampleProcessor(context, opConfig, exConfig);
+        operation = new ExampleProcessor(context as WorkerContext, opConfig, exConfig);
     });
 
     describe('->map', () => {

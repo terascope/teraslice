@@ -1,13 +1,13 @@
-import { Context, OpConfig, LegacyProcessor, SliceRequest, processorFn } from '../../interfaces';
+import { Context, OpConfig, LegacyProcessor, SliceRequest, ProcessorFn } from '../../interfaces';
 import DataEntity, { DataEntityList } from '../data-entity';
-import ProcessorCore, { ProcessorConstructor } from '../core/processor-core';
-import { SchemaConstructor } from '../core/schema-core';
+import ProcessorCore from '../core/processor-core';
 import ConvictSchema from '../convict-schema';
+import { ProcessorConstructor, SchemaConstructor } from '../interfaces';
 
 export default function processorShim(legacy: LegacyProcessor): ProcessorModule {
     return {
         Processor: class LegacyProcessorShim extends ProcessorCore {
-            private processorFn: processorFn<DataEntity[]>|undefined;
+            private processorFn: ProcessorFn<DataEntity[]>|undefined;
 
             async initialize() {
                 this.processorFn = await legacy.newProcessor(this.context, this.opConfig, this.executionConfig);

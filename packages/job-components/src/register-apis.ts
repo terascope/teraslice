@@ -1,6 +1,6 @@
 import { ConnectionConfig, Context, ValidatedJobConfig, OpConfig } from './interfaces';
-import { ExecutionContextAPI } from './execution-context-apis';
-import { has } from 'lodash';
+import { ExecutionContextAPI } from './execution-context';
+import has from 'lodash.has';
 
 interface GetClientConfig {
     connection?: string;
@@ -64,4 +64,12 @@ export function registerApis(context: Context, job: ValidatedJobConfig): void {
             return getOpConfig(job, name);
         },
     });
+}
+
+export interface OpRunnerAPI {
+    getClient(config: GetClientConfig, type: string): { client: any };
+}
+
+export interface JobRunnerAPI {
+    getOpConfig(name: string): OpConfig|undefined;
 }

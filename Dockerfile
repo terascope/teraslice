@@ -27,7 +27,9 @@ COPY packages/queue /app/source/packages/queue
 COPY packages/job-components /app/source/packages/job-components
 COPY packages/teraslice-messaging /app/source/packages/teraslice-messaging
 
-RUN yarn build:prod && rm -rf node_modules/typescript
+RUN yarn build:prod \
+    && rm -rf node_modules/typescript \
+    && rm -rf node_modules/@types
 
 # copy everything else
 COPY service.js /app/source/

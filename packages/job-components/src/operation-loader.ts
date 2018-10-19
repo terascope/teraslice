@@ -1,17 +1,23 @@
 'use strict';
 
-import { LegacyOperation, LegacyReader, LegacyProcessor } from './interfaces';
-import { APIConstructor } from './operations/core/api-core';
-import { FetcherConstructor } from './operations/core/fetcher-core';
-import { SlicerConstructor } from './operations/core/slicer-core';
-import { ProcessorConstructor } from './operations/core/processor-core';
-import { ObserverConstructor } from './operations/core/observer-core';
-import { SchemaConstructor } from './operations/core/schema-core';
-import { readerShim, processorShim } from './operations/shims';
 import fs from 'fs';
 import { pathExistsSync } from 'fs-extra';
 import path from 'path';
-import { isString } from 'lodash';
+import { LegacyOperation, LegacyReader, LegacyProcessor } from './interfaces';
+import {
+    OperationAPIConstructor,
+    FetcherConstructor,
+    SlicerConstructor,
+    ProcessorConstructor,
+    ObserverConstructor,
+    SchemaConstructor,
+    ObserverModule,
+    ProcessorModule,
+    APIModule,
+    ReaderModule,
+} from './operations';
+import { readerShim, processorShim } from './operations/shims';
+import { isString } from './utils';
 
 export interface LoaderOptions {
     terasliceOpPath: string;
@@ -81,7 +87,7 @@ export class OperationLoader {
         let Processor: ProcessorConstructor|undefined;
         /* tslint:disable-next-line:variable-name */
         let Schema: SchemaConstructor|undefined;
-        let API: APIConstructor|undefined;
+        let API: OperationAPIConstructor|undefined;
 
         try {
             Processor = require(path.join(codePath, 'processor.js'));
@@ -122,7 +128,7 @@ export class OperationLoader {
         let Slicer: SlicerConstructor|undefined;
         /* tslint:disable-next-line:variable-name */
         let Schema: SchemaConstructor|undefined;
-        let API: APIConstructor|undefined;
+        let API: OperationAPIConstructor|undefined;
 
         try {
             Slicer = require(path.join(codePath, 'slicer.js'));
@@ -180,7 +186,7 @@ export class OperationLoader {
         const codePath = this.findOrThrow(name, assetIds);
 
         /* tslint:disable-next-line:variable-name */
-        let API: ObserverConstructor|undefined;
+        let API: OperationAPIConstructor|undefined;
 
         try {
             API = require(path.join(codePath, 'api.js'));
@@ -288,26 +294,4 @@ export class OperationLoader {
     private isDir(filePath: string) {
         return fs.statSync(filePath).isDirectory();
     }
-}
-
-export interface OperationModule {
-    Schema: SchemaConstructor;
-    API?: APIConstructor;
-}
-
-export interface APIModule {
-    API: APIConstructor;
-}
-
-export interface ObserverModule {
-    Observer: ObserverConstructor;
-}
-
-export interface ReaderModule extends OperationModule {
-    Slicer: SlicerConstructor;
-    Fetcher: FetcherConstructor;
-}
-
-export interface ProcessorModule extends OperationModule {
-    Processor: ProcessorConstructor;
 }

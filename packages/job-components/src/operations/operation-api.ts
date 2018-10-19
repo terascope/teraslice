@@ -1,5 +1,5 @@
-import { Context, ExecutionConfig } from '../interfaces';
-import APICore, { OpAPI, OpAPIInstance, OpAPIFn } from './core/api-core';
+import { OpAPI } from '../interfaces';
+import APICore from './core/api-core';
 
 /**
  * An API factory class for operations
@@ -15,9 +15,3 @@ export default abstract class OperationAPI extends APICore {
      */
     abstract async createAPI(...params: any[]): Promise<OpAPI>;
 }
-
-export type OperationAPIConstructor = {
-    new(context: Context, executionConfig: ExecutionConfig): OperationAPI;
-};
-
-export { OpAPI, OpAPIInstance, OpAPIFn };

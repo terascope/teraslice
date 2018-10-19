@@ -3,7 +3,8 @@ import {
     Slicer,
     SlicerResult,
     newTestExecutionConfig,
-    TestContext
+    TestContext,
+    SlicerContext
 } from '../../src';
 
 describe('Slicer', () => {
@@ -34,7 +35,7 @@ describe('Slicer', () => {
 
             const opConfig = exConfig.operations[0];
 
-            slicer = new ExampleSlicer(context, opConfig, exConfig);
+            slicer = new ExampleSlicer(context as SlicerContext, opConfig, exConfig);
             await slicer.initialize([]);
         });
 
@@ -111,7 +112,7 @@ describe('Slicer', () => {
 
             const opConfig = exConfig.operations[0];
 
-            slicer = new ExampleSlicer(context, opConfig, exConfig);
+            slicer = new ExampleSlicer(context as SlicerContext, opConfig, exConfig);
             slicer.subslice = true;
 
             await slicer.initialize([]);

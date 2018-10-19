@@ -3,7 +3,8 @@ import {
     DataEntity,
     EachProcessor,
     newTestExecutionConfig,
-    TestContext
+    TestContext,
+    WorkerContext
 } from '../../src';
 
 describe('EachProcessor', () => {
@@ -25,7 +26,7 @@ describe('EachProcessor', () => {
             _op: 'example-op',
         });
         const opConfig = exConfig.operations[0];
-        operation = new ExampleProcessor(context, opConfig, exConfig);
+        operation = new ExampleProcessor(context as WorkerContext, opConfig, exConfig);
     });
 
     beforeEach(() => {

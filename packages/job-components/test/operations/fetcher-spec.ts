@@ -1,5 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { Fetcher, DataEntity, newTestExecutionConfig, TestContext } from '../../src';
+import { Fetcher, DataEntity, newTestExecutionConfig, TestContext, WorkerContext } from '../../src';
 
 describe('Fetcher', () => {
     class ExampleFetcher extends Fetcher {
@@ -19,7 +19,7 @@ describe('Fetcher', () => {
             _op: 'example-op',
         });
         const opConfig = exConfig.operations[0];
-        operation = new ExampleFetcher(context, opConfig, exConfig);
+        operation = new ExampleFetcher(context as WorkerContext, opConfig, exConfig);
     });
 
     describe('->fetch', () => {

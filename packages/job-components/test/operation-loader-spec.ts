@@ -7,7 +7,9 @@ import {
     LegacyReader,
     newTestExecutionConfig,
     debugLogger,
-    TestContext
+    TestContext,
+    WorkerContext,
+    SlicerContext,
 } from '../src';
 
 describe('OperationLoader', () => {
@@ -151,7 +153,7 @@ describe('OperationLoader', () => {
 
         expect(op.Processor).not.toBeNil();
         expect(() => {
-            new op.Processor(context, opConfig, exConfig);
+            new op.Processor(context as WorkerContext, opConfig, exConfig);
         }).not.toThrow();
 
         expect(op.Schema).not.toBeNil();
@@ -182,7 +184,7 @@ describe('OperationLoader', () => {
 
         expect(op.Processor).not.toBeNil();
         expect(() => {
-            new op.Processor(context, opConfig, exConfig);
+            new op.Processor(context as WorkerContext, opConfig, exConfig);
         }).not.toThrow();
 
         expect(op.Schema).not.toBeNil();
@@ -214,12 +216,12 @@ describe('OperationLoader', () => {
 
         expect(op.Slicer).not.toBeNil();
         expect(() => {
-            new op.Slicer(context, opConfig, exConfig);
+            new op.Slicer(context as SlicerContext, opConfig, exConfig);
         }).not.toThrow();
 
         expect(op.Fetcher).not.toBeNil();
         expect(() => {
-            new op.Fetcher(context, opConfig, exConfig);
+            new op.Fetcher(context as WorkerContext, opConfig, exConfig);
         }).not.toThrow();
 
         expect(op.Schema).not.toBeNil();
@@ -251,12 +253,12 @@ describe('OperationLoader', () => {
 
         expect(op.Slicer).not.toBeNil();
         expect(() => {
-            new op.Slicer(context, opConfig, exConfig);
+            new op.Slicer(context as SlicerContext, opConfig, exConfig);
         }).not.toThrow();
 
         expect(op.Fetcher).not.toBeNil();
         expect(() => {
-            new op.Fetcher(context, opConfig, exConfig);
+            new op.Fetcher(context as WorkerContext, opConfig, exConfig);
         }).not.toThrow();
 
         expect(op.Schema).not.toBeNil();
@@ -284,7 +286,7 @@ describe('OperationLoader', () => {
 
         expect(op.API).not.toBeNil();
         expect(() => {
-            new op.API(context, exConfig);
+            new op.API(context as WorkerContext, exConfig);
         }).not.toThrow();
     });
 
@@ -305,7 +307,7 @@ describe('OperationLoader', () => {
 
         expect(op.Observer).not.toBeNil();
         expect(() => {
-            new op.Observer(context, exConfig);
+            new op.Observer(context as WorkerContext, exConfig);
         }).not.toThrow();
     });
 });

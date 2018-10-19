@@ -38,6 +38,7 @@
         "static-method-regex": "^[a-z][\\w\\d]+$"
       }
     ],
-    "no-console": [true, "log", "info", "dir", "count", "time", "timeEnd"]
+    "no-console": [true, "log", "info", "dir", "count", "time", "timeEnd"],
+    "no-increment-decrement": false
   }
 }

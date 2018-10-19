@@ -1,6 +1,6 @@
-import _ from 'lodash';
-import { Context, OpConfig, ExecutionConfig } from '../interfaces';
-import SlicerCore, { SlicerResult } from './core/slicer-core';
+import { SlicerFn } from '../interfaces';
+import SlicerCore from './core/slicer-core';
+import { times } from '../utils';
 
 /**
  * A varient of a "Slicer" for running a parallel stream of slicers.
@@ -18,7 +18,7 @@ export default abstract class ParallelSlicer extends SlicerCore {
         await super.initialize(recoveryData);
         const { slicers } = this.executionConfig;
 
-        const promises = _.times(slicers, async (id) => {
+        const promises = times(slicers, async (id) => {
             const fn = await this.newSlicer();
             this._slicers.push({
                 done: false,
@@ -49,14 +49,14 @@ export default abstract class ParallelSlicer extends SlicerCore {
     async handle(): Promise<boolean> {
         if (this.isFinished) return true;
 
-        const promises = _.map(this._slicers, (slicer) => this.processSlicer(slicer));
+        const promises = this._slicers.map((slicer) => this.processSlicer(slicer));
 
         await Promise.all(promises);
         return this.isFinished;
     }
 
     get isFinished(): boolean {
-        return _.every(this._slicers, { done: true });
+        return this._slicers.every((slicer) => slicer.done);
     }
 
     private async processSlicer(slicer: SlicerObj) {
@@ -66,9 +66,9 @@ export default abstract class ParallelSlicer extends SlicerCore {
         if (result == null) {
             slicer.done = true;
         } else {
-            if (_.isArray(result)) {
+            if (Array.isArray(result)) {
                 this.events.emit('slicer:subslice');
-                _.each(result, (item) => {
+                result.forEach((item) => {
                     slicer.order += 1;
                     this.createSlice(item, slicer.order, slicer.id);
                 });
@@ -86,12 +86,3 @@ interface SlicerObj {
     id: number;
     order: number;
 }
-
-export interface SlicerFn {
-    (): Promise<SlicerResult>;
-}
-
-export type ParallelSlicerConstructor = {
-    isRecoverable: boolean;
-    new(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): ParallelSlicer;
-};

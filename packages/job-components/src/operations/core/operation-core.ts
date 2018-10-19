@@ -1,9 +1,12 @@
-import _ from 'lodash';
 import '../../formats'; // require to add the schema formats
 import Core from './core';
-import { OpAPI } from './api-core';
-import SliceEvents from './slice-events';
-import { Context, ExecutionConfig, OpConfig } from '../../interfaces';
+import { WorkerContext } from '../../execution-context';
+import {
+    ExecutionConfig,
+    OpConfig,
+    WorkerOperationLifeCycle,
+    OpAPI
+} from '../../interfaces';
 
 /**
  * A base class for supporting operations that run on a "Worker",
@@ -13,10 +16,10 @@ import { Context, ExecutionConfig, OpConfig } from '../../interfaces';
  * @see Core
  */
 
-export default class OperationCore extends Core implements SliceEvents {
+export default class OperationCore extends Core implements WorkerOperationLifeCycle {
     protected readonly opConfig: Readonly<OpConfig>;
 
-    constructor(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig) {
+    constructor(context: WorkerContext, opConfig: OpConfig, executionConfig: ExecutionConfig) {
         const logger = context.apis.foundation.makeLogger({
             module: 'operation',
             opName: opConfig._op,
@@ -48,27 +51,33 @@ export default class OperationCore extends Core implements SliceEvents {
         return this.context.apis.executionContext.getAPI(name);
     }
 
+    // @ts-ignore
     async onSliceInitialized(sliceId: string): Promise<void> {
-        this.context.logger.trace(`slice initialized: ${sliceId}`);
+
     }
 
+    // @ts-ignore
     async onSliceStarted(sliceId: string): Promise<void> {
-        this.context.logger.trace(`slice started: ${sliceId}`);
+
     }
 
+    // @ts-ignore
     async onSliceFinalizing(sliceId: string): Promise<void> {
-        this.context.logger.trace(`slice finalizing: ${sliceId}`);
+
     }
 
+    // @ts-ignore
     async onSliceFinished(sliceId: string): Promise<void> {
-        this.context.logger.trace(`slice finished: ${sliceId}`);
+
     }
 
+    // @ts-ignore
     async onSliceFailed(sliceId: string): Promise<void> {
-        this.context.logger.trace(`slice failed: ${sliceId}`);
+
     }
 
+    // @ts-ignore
     async onSliceRetry(sliceId: string): Promise<void> {
-        this.context.logger.trace(`slice retry: ${sliceId}`);
+
     }
 }

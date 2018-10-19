@@ -1,9 +1,8 @@
 
-import _ from 'lodash';
 import debugnyan from 'debugnyan';
 import { EventEmitter } from 'events';
-import * as c from './interfaces/context';
-import * as j from './interfaces/jobs';
+import * as i from './interfaces';
+import { random, isString, uniq } from './utils';
 
 interface DebugParamObj {
     module: string;
@@ -11,19 +10,19 @@ interface DebugParamObj {
 }
 
 function newId(prefix: string): string {
-    return `${_.uniqueId(`${prefix}-`)}-${_.random(10000, 99999)}`;
+    return `${prefix}-${random(10000, 99999)}`;
 }
 
 type debugParam = DebugParamObj | string;
 
-export function debugLogger(testName: string, param?: debugParam, otherName?: string): c.Logger {
-    let logger: c.Logger;
+export function debugLogger(testName: string, param?: debugParam, otherName?: string): i.Logger {
+    let logger: i.Logger;
     const options = {};
     const parts: string[] = ['teraslice', testName];
     if (param) {
-        if (_.isString(param)) {
+        if (isString(param)) {
             parts.push(param as string);
-        } else if (_.isPlainObject(param)) {
+        } else if (typeof param === 'object') {
             parts.push(param.module);
             if (param.assignment) {
                 parts.push(param.assignment);
@@ -35,28 +34,28 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
         parts.push(otherName);
     }
 
-    logger = debugnyan(_.uniq(parts).join(':'), options) as c.Logger;
+    logger = debugnyan(uniq(parts).join(':'), options) as i.Logger;
 
     logger.flush = () => Promise.resolve();
 
     return logger;
 }
 
-export function newTestSlice(): j.Slice {
+export function newTestSlice(): i.Slice {
     return {
         slice_id: newId('slice-id'),
-        slicer_id: _.random(0, 99999),
-        slicer_order: _.random(0, 99999),
+        slicer_id: random(0, 99999),
+        slicer_order: random(0, 99999),
         request: {},
         _created: new Date().toISOString(),
     };
 }
 
-export function newTestJobConfig(): j.ValidatedJobConfig {
+export function newTestJobConfig(): i.ValidatedJobConfig {
     return {
         analytics: false,
         assets: [],
-        lifecycle: j.LifeCycle.Once,
+        lifecycle: i.LifeCycle.Once,
         max_retries: 1,
         name: 'test-job',
         operations: [],
@@ -67,17 +66,17 @@ export function newTestJobConfig(): j.ValidatedJobConfig {
     };
 }
 
-export function newTestExecutionConfig(): j.ExecutionConfig {
-    const exConfig: j.ExecutionConfig = newTestJobConfig();
+export function newTestExecutionConfig(): i.ExecutionConfig {
+    const exConfig: i.ExecutionConfig = newTestJobConfig();
     exConfig.slicer_hostname = 'example.com';
-    exConfig.slicer_port = _.random(8000, 60000);
+    exConfig.slicer_port = random(8000, 60000);
     exConfig.ex_id = newId('ex-id');
     exConfig.job_id = newId('job-id');
     return exConfig;
 }
 
-export function newTestExecutionContext(type: c.Assignment, config: j.ExecutionConfig): j.ExecutionContext {
-    if (type === c.Assignment.ExecutionController) {
+export function newTestExecutionContext(type: i.Assignment, config: i.ExecutionConfig): i.LegacyExecutionContext {
+    if (type === i.Assignment.ExecutionController) {
         return {
             config,
             queue: [],
@@ -93,21 +92,21 @@ export function newTestExecutionContext(type: c.Assignment, config: j.ExecutionC
         config,
         queue: config.operations.map(() => () => {}),
         reader: () => {},
-        slicer: null,
+        slicer: () => {},
         dynamicQueueLength: false,
         queueLength: 10000,
         reporter: null,
     };
 }
 
-function testContextApis(testName: string): c.ContextApis {
+function testContextApis(testName: string): i.ContextApis {
     const events = new EventEmitter();
     return {
         foundation: {
-            makeLogger(...params: any[]): c.Logger {
+            makeLogger(...params: any[]): i.Logger {
                 return debugLogger(testName, ...params);
             },
-            getConnection(config: c.ConnectionConfig): { client: any } {
+            getConnection(config: i.ConnectionConfig): { client: any } {
                 return { client: config };
             },
             getSystemEvents(): EventEmitter {
@@ -120,11 +119,11 @@ function testContextApis(testName: string): c.ContextApis {
     };
 }
 
-export class TestContext implements c.Context {
-    public logger: c.Logger;
-    public sysconfig: c.SysConfig;
-    public apis: c.ContextApis;
-    public foundation: c.LegacyFoundationApis;
+export class TestContext implements i.Context {
+    public logger: i.Logger;
+    public sysconfig: i.SysConfig;
+    public apis: i.ContextApis;
+    public foundation: i.LegacyFoundationApis;
 
     constructor(testName: string) {
         this.logger = debugLogger(testName);
