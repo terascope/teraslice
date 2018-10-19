@@ -1,8 +1,8 @@
 'use strict';
 
-const api_utils = require('../../lib/utils/api_utils');
+const apiUtils = require('../../lib/utils/api_utils');
 
-describe('api_utils', () => {
+describe('apiUtils', () => {
     it('makePrometheus', () => {
         const stats = {
             controllers: {
@@ -37,6 +37,6 @@ describe('api_utils', () => {
 # TYPE teraslice_workers_reconnected counter
 40
 `;
-        expect(api_utils.makePrometheus(stats)).toEqual(r);
+        expect(apiUtils.makePrometheus(stats)).toEqual(r);
     });
 });
