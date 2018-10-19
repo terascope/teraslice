@@ -41,7 +41,7 @@ module.exports = function module(context, app, { assetsUrl }) {
             name: context.sysconfig.teraslice.name,
             node_version: process.version,
             platform: context.platform,
-            teraslice_version: terasliceVersion
+            teraslice_version: `v${terasliceVersion}`
         };
         res.status(200).json(responseObj);
     });
