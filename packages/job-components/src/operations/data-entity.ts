@@ -77,7 +77,9 @@ export default class DataEntity {
             createdAt: new Date(),
         }));
 
-        Object.assign(this, data);
+        for (const key in data) {
+            this[key] = data[key];
+        }
     }
 
     @locked()
