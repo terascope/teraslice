@@ -30,6 +30,8 @@ function makeContext(cluster, config, sysconfig) {
     context.assignment = assignment;
     context.name = contextName;
     context.cluster = cluster;
+    context.arch = process.arch;
+    context.platform = process.platform;
 
     if (typeof config.cluster_name === 'function') {
         context.cluster_name = config.cluster_name(context.sysconfig);
