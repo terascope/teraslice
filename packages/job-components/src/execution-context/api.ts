@@ -2,10 +2,20 @@ import { OpAPI, Context, ExecutionConfig } from '../interfaces';
 import { OperationAPIConstructor } from '../operations';
 import legacySliceEventsShim from '../operations/shims/legacy-slice-events-shim';
 
+// WeakMaps are used as a memory efficient reference to private data
 const _registry = new WeakMap();
 const _apis = new WeakMap();
 const _config = new WeakMap();
 
+/**
+ * A utility API exposed on the Terafoundation Context APIs.
+ * The following functionality is included:
+ *  - Registering Operation API
+ *  - Creating an API (usually done from an Operation),
+ *    it also includes attaching the API to the Execution LifeCycle.
+ *    An API can only be created once.
+ *  - Getting a reference to an API
+*/
 export class ExecutionContextAPI {
     constructor(context: Context, executionConfig: ExecutionConfig) {
         _config.set(this, {
@@ -18,20 +28,27 @@ export class ExecutionContextAPI {
         _apis.set(this, {});
     }
 
+    /** Add an API constructor to the registry */
     addToRegistry(name: string, api: OperationAPIConstructor) {
         const registry = this.registry;
         registry[name] = api;
         _registry.set(this, registry);
     }
 
+    /** Get all of the registered API constructors */
     get registry(): APIRegistry {
         return _registry.get(this);
     }
 
+    /** Get all of the initalized APIs */
     get apis(): APIS {
         return _apis.get(this);
     }
 
+    /**
+     * Get a reference to a specific API,
+     * the must be initialized.
+     */
     getAPI(name: string) {
         if (this.apis[name] == null) {
             throw new Error(`Unable to find API by name "${name}"`);
@@ -39,6 +56,10 @@ export class ExecutionContextAPI {
         return this.apis[name];
     }
 
+    /**
+     * Initalize an API and attach it
+     * to the lifecycle of an Execution.
+     */
     async initAPI(name: string, ...params: any[]) {
         const config = _config.get(this);
         if (this.registry[name] == null) {

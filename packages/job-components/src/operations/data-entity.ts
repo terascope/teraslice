@@ -3,6 +3,7 @@ import get from 'lodash.get';
 import set from 'lodash.set';
 import { locked } from '../utils';
 
+// WeakMaps are used as a memory efficient reference to private data
 const _metadata = new WeakMap();
 
 /**

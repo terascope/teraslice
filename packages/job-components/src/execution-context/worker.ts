@@ -14,6 +14,7 @@ import {
     ExecutionContextConfig,
 } from './interfaces';
 
+// WeakMaps are used as a memory efficient reference to private data
 const _loaders = new WeakMap<WorkerExecutionContext, OperationLoader>();
 const _operations = new WeakMap<WorkerExecutionContext, WorkerOperations>();
 

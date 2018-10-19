@@ -12,6 +12,7 @@ import {
     ExecutionContextConfig
 } from './interfaces';
 
+// WeakMaps are used as a memory efficient reference to private data
 const _loaders = new WeakMap<SlicerExecutionContext, OperationLoader>();
 const _operations = new WeakMap<SlicerExecutionContext, SlicerOperations>();
 
