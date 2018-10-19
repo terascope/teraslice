@@ -19,7 +19,7 @@ const {
 
 const { initializeJob } = require('../../../lib/workers/helpers/job');
 const makeTerafoundationContext = require('../../../lib/workers/context/terafoundation-context');
-const ExecutionContext = require('../../../lib/workers/context/execution-context');
+const setupExecutionContext = require('../../../lib/workers/context/execution-context');
 const { newId } = require('../../../lib/utils/id_utils');
 const { findPort } = require('../../../lib/utils/port_utils');
 const { newConfig, newSysConfig, newSliceConfig } = require('./configs');
@@ -72,19 +72,16 @@ class TestContext {
             await this.addJobStore();
             await this.addExStore();
 
-            const { job, ex } = await initializeJob(this.context, this.config.job, stores);
-
-            this.config.job = job;
-            this.config.job_id = ex.job_id;
-            this.config.ex_id = ex.ex_id;
+            const { ex } = await initializeJob(this.context, this.config.job, stores);
+            this.config = ex;
         }
 
-        const exContext = new ExecutionContext(this.context, this.config);
+        const exContext = setupExecutionContext(this.context, this.config);
         this.executionContext = await exContext.initialize();
 
-        this.nodeId = this.executionContext.node_id;
-        this.exId = this.executionContext.ex_id;
-        this.jobId = this.executionContext.job_id;
+        this.nodeId = this.executionContext.config.node_id;
+        this.exId = this.executionContext.config.ex_id;
+        this.jobId = this.executionContext.config.job_id;
     }
 
     get stores() { // eslint-disable-line
