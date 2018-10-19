@@ -17,12 +17,32 @@ import {
 const _loaders = new WeakMap<WorkerExecutionContext, OperationLoader>();
 const _operations = new WeakMap<WorkerExecutionContext, WorkerOperations>();
 
+/**
+ * WorkerExecutionContext is designed to add more
+ * functionality to interface with the
+ * Execution Configuration and any Operation.
+*/
 export class WorkerExecutionContext {
     readonly config: ExecutionConfig;
     readonly context: WorkerContext;
+
+    /**
+     * A list of assetIds available to the job.
+     * This will be replaced by `resolvedAssets`
+    */
     readonly assetIds: string[] = [];
+
+    /** The instance of a "Fetcher" */
     readonly fetcher: FetcherCore;
+
+    /**
+     * A Set of a Processors available to Job.
+     * This does not include the Fetcher since they have
+     * different APIs.
+    */
     readonly processors: Set<ProcessorCore>;
+
+    /** The terafoundation EventEmitter */
     private events: EventEmitter;
     private _handlers: EventHandlers = {};
 
@@ -73,6 +93,9 @@ export class WorkerExecutionContext {
         }
     }
 
+    /**
+     * Called to initialize all of the registered operations available to the Worker
+    */
     @enumerable(false)
     async initialize() {
         const promises = [];
@@ -83,6 +106,9 @@ export class WorkerExecutionContext {
         await Promise.all(promises);
     }
 
+    /**
+     * Called to cleanup all of the registered operations available to the Worker
+    */
     @enumerable(false)
     async shutdown() {
         const promises = [];
@@ -99,6 +125,10 @@ export class WorkerExecutionContext {
             });
     }
 
+    /**
+     * Returns a list of any registered Operation that has been
+     * initialized.
+    */
     @enumerable(false)
     getOperations() {
         const ops = _operations.get(this) as WorkerOperations;

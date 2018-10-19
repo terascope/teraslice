@@ -1,5 +1,12 @@
+/**
+ * OpConfig is the configuration that user specifies
+ * for a Operation.
+ * The only required property is `_op` since that is used
+ * to find the operation
+*/
 export interface OpConfig {
     _op: string;
+    [prop: string]: any;
 }
 
 export enum LifeCycle {
@@ -7,6 +14,10 @@ export enum LifeCycle {
     Persistent = 'persistent',
 }
 
+/**
+ * JobConfig is the configuration that user specifies
+ * for a Job
+*/
 export interface JobConfig {
     analytics?: boolean;
     assets?: string[];
@@ -70,8 +81,14 @@ export interface K8sExecutionConfig extends K8sJobConfig {
     slicer_port?: number;
 }
 
+/**
+ * ExecutionConfig a unique configuration instance for a running Job
+*/
 export type ExecutionConfig = NativeExecutionConfig|K8sExecutionConfig;
 
+/**
+ * LegacyExecutionContext is the old ExecutionContext available
+*/
 export interface LegacyExecutionContext {
     config: ExecutionConfig;
     slicer: Function;

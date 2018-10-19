@@ -15,11 +15,25 @@ import {
 const _loaders = new WeakMap<SlicerExecutionContext, OperationLoader>();
 const _operations = new WeakMap<SlicerExecutionContext, SlicerOperations>();
 
+/**
+ * SlicerExecutionContext is designed to add more
+ * functionality to interface with the
+ * Execution Configuration and any Operation.
+*/
 export class SlicerExecutionContext {
     readonly config: ExecutionConfig;
     readonly context: SlicerContext;
+
+    /**
+     * A list of assetIds available to the job.
+     * This will be replaced by `resolvedAssets`
+    */
     readonly assetIds: string[] = [];
+
+    /** The instance of a "Slicer" */
     readonly slicer: SlicerCore;
+
+    /** The terafoundation EventEmitter */
     private events: EventEmitter;
     private _handlers: EventHandlers = {};
 
@@ -57,6 +71,9 @@ export class SlicerExecutionContext {
         this.addOperation(op);
     }
 
+    /**
+     * Called to initialize all of the registered operations available to the Execution Controller
+    */
     @enumerable(false)
     async initialize(recoveryData: object[] = []) {
         const promises = [];
@@ -67,6 +84,9 @@ export class SlicerExecutionContext {
         await Promise.all(promises);
     }
 
+    /**
+     * Called to cleanup all of the registered operations available to the Execution Controller
+    */
     @enumerable(false)
     async shutdown() {
         const promises = [];
