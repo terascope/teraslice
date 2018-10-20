@@ -2,7 +2,7 @@
 
 const DocumentMatcher = require('../lib/document-matcher');
 
-// //TODO: add tests for regex, ip, dates, geo
+// //TODO: add tests for regex, geo
 describe('document matcher', () => {
     let documentMatcher;
     
@@ -458,7 +458,7 @@ describe('document matcher', () => {
         });
     });
 
-    describe('date expressions', () => {
+    xdescribe('date expressions', () => {
         xit('can do exact matches, no type changes', () => {
             // all of these are the same date
             const data1 = { _created: 'Thu Oct 18 2018 11:13:20 GMT-0700' };
@@ -598,6 +598,19 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data3)).toEqual(true);
             expect(documentMatcher.match(data4)).toEqual(true);
             expect(documentMatcher.match(data5)).toEqual(false);
+        });
+    });
+
+    describe('geo expressions', () => {
+
+
+        it('can run', () => {
+            const data1 = { location: '-83, 30', some: 'key', bytes: 1232322 };
+
+            documentMatcher.parse('location:(_geo_point_:"12.32,143.32" _geo_distance_: 5 _geo_sort_unit_:km) AND some:key', { location: 'geo' });
+
+            expect(documentMatcher.match(data1)).toEqual(true);
+
         });
     })
     

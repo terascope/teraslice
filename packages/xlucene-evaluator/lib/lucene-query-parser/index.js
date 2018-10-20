@@ -7,12 +7,12 @@ class LuceneQueryParser {
         this._ast = null;
     }
     parse(luceneStr) {
-       // console.log('has parse been called?', luceneStr)
         this._ast = parser.parse(luceneStr);
     }
 
-    walkLuceneAst(preCb, postCb) {
-        const { _ast: ast } = this;
+    walkLuceneAst(preCb, postCb, _argAst) {
+        const { _ast } = this;
+        const ast = _argAst || _ast;
         //console.log('what is the ast', ast, cb)
         function walk(node, _field, depth) {
             //console.log('what is the node', node)

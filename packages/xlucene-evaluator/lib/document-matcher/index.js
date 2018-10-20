@@ -5,6 +5,7 @@ const { bindThis } = require('../utils');
 const isCidr = require('is-cidr');
 const { isIPv4, isIPv6 } = require('net');
 const ip6addr = require('ip6addr');
+const _ = require('lodash');
 
 const MIN_IPV4_IP = '0.0.0.0';
 const MAX_IPV4_IP = '255.255.255.255';
@@ -166,6 +167,12 @@ class DocumentMatcher extends LuceneQueryParser {
         const self = this; 
         const preprocess = {};
         let hasDateTypes = false;
+        let hasGeoTypes = false;
+        let geoQuery = null;
+        let parsedAst = null;
+
+        const { _ast: ast } = this;
+
 
         if (types) {
             for (const key in types) {
@@ -173,14 +180,89 @@ class DocumentMatcher extends LuceneQueryParser {
                     hasDateTypes = true;
                     preprocess[key] = types[key];
                 }
+                if (types[key] === 'geo' ) {
+                    hasGeoTypes = true;
+                }
             }
         }
 
-        if (hasDateTypes) {
-            console.log('i should be transfmoring the ast')
-            this.walkLuceneAst(parseDates);
-            console.log('i should be transfmoring the ast',)
+        //TODO: is geo_sort_unit correct name for units?
+        const geoParameters = {
+            _geo_point_: 'geoPoint',
+            _geo_distance_: 'geoDistance',
+            _geo_box_top_left_: 'geoBoxTopLeft',
+            _geo_box_bottom_right_: 'geoBoxBottomRight',
+            _geo_sort_unit_: 'geoSortUnit'
+        };
+        const geoResults = {};
 
+        // geo_field: geoField,
+        // geo_box_top_left: geoBoxTopLeft,
+        // geo_box_bottom_right: geoBoxBottomRight,
+        // geo_point: geoPoint,
+        // geo_distance: geoDistance,
+        // geo_sort_point: geoSortPoint,
+        // geo_sort_order: geoSortOrder,
+        // geo_sort_unit: geoSortUnit
+        //TODO: dont mutate raw ast, have another one
+
+        function parseGeoQueries(node){
+            //console.log('parseGeoQueries is calling', node, !geoResults['geoField'], _.get(node, 'left.field'), geoParameters[_.get(node, 'left.field')])
+            if (!geoResults['geoField'] && (geoParameters[_.get(node, 'right.field')] || geoParameters[_.get(node, 'left.field')])) {
+                geoResults['geoField'] = node.field
+            }
+
+            if (geoParameters[node.field]) {
+                geoResults[geoParameters[node.field]] = node.term
+            }
+        }
+
+
+        if (hasDateTypes) {
+            this.walkLuceneAst(parseDates);
+        }
+
+        function makeGeoQueryFn() {
+            return (data) => {
+                console.log('im in the geoWueryfn', data)
+                return true;
+            }
+        }
+
+        if (hasGeoTypes) {
+            this.walkLuceneAst(parseGeoQueries);
+            if (Object.keys(geoResults).length > 0) {
+                geoQuery = makeGeoQueryFn(geoResults)
+                const clone = _.cloneDeep(ast);
+                function alterCloneAst(node){
+                    if (node.field === geoResults['geoField']) {
+                        return { field: '__parsed', term: 'geoFn(data)'};
+                    }
+                    return node
+                }
+                
+                function alterAst(ast) {
+                    //const results = alterCloneAst(ast);
+                
+                    function walk(ast){
+                        const node = alterCloneAst(ast);
+                
+                        if (node.right) {
+                            node.right = walk(node.right)
+                        }
+                
+                        if (node.left) {
+                            node.left = walk(node.left)
+                        }
+                        return node;
+                    }
+                
+                   return walk(ast)
+                  // return results;
+                }
+    
+                parsedAst = alterAst(clone);
+            }
         }
 
         function parseDates(node, _field, depth) {
@@ -203,13 +285,15 @@ class DocumentMatcher extends LuceneQueryParser {
 
         function strBuilder(ast, _field, depth) {
             const topField = ast.field || _field;
-            console.log('there should be no ipFieldName', topField, ipFieldName, topField === ipFieldName)
+
             if (topField === ipFieldName) {
                 str += `argsFn(data)`
             } else {
                 if (ast.field && ast.term) {
                     if (ast.field === '_exists_') {
-                        str += `data.${ast.term} != null`
+                        str += `data.${ast.term} != null`;
+                    } else if (ast.field === '__parsed') {
+                        str += `${ast.term}`;
                     } else {
                         str += `data.${ast.field} == "${ast.term}"`
                     }
@@ -244,15 +328,14 @@ class DocumentMatcher extends LuceneQueryParser {
                 str += ')'
             }
         }
-    
-        this.walkLuceneAst(strBuilder, postParens);
+        console.log('the parsedAst', JSON.stringify(parsedAst, null, 4))
+        this.walkLuceneAst(strBuilder, postParens, parsedAst);
 
         console.log('the first main strFn', str)
 
         try {
-            const strFilterFunction = new Function('data', 'argsFn', `
+            const strFilterFunction = new Function('data', 'argsFn', 'geoFn',`
             console.log('what is this inside fn',${str});
-           // if (argsFn) return (argsFn(data) && ${str});
             return ${str}`);
             //TODO: review this
             function ipFilterFunction() {
@@ -264,7 +347,9 @@ class DocumentMatcher extends LuceneQueryParser {
                 }
 
             }
-            this.filterFn = ipFieldName ? (data) => strFilterFunction(data, ipFilterFunction()) : strFilterFunction
+
+            console.log('should be calling the extra speciall way', ipFieldName, geoQuery, (ipFieldName || geoQuery))
+            this.filterFn = (ipFieldName || geoQuery) ? (data) => strFilterFunction(data, ipFilterFunction(), geoQuery) : strFilterFunction
         } catch(err) {
             console.log('the error', err)
         }
