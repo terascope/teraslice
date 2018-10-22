@@ -81,7 +81,9 @@ describe('WorkerExecutionContext', () => {
         it('should have the operations initialized', () => {
             const ops = executionContext.getOperations();
             for (const op of ops) {
-                expect(op).toHaveProperty('initialized', true);
+                if (op.onOperationComplete == null) {
+                    expect(op).toHaveProperty('initialized', true);
+                }
             }
         });
 
@@ -104,11 +106,13 @@ describe('WorkerExecutionContext', () => {
                 _created: 'hi'
             };
 
-            const result = await executionContext.runSlice(slice);
+            const { results, analytics } = await executionContext.runSlice(slice);
 
-            expect(result.length).toBeGreaterThan(0);
+            expect(analytics).toBeUndefined();
 
-            for (const item of result) {
+            expect(results.length).toBeGreaterThan(0);
+
+            for (const item of results) {
                 expect(item).toHaveProperty('id');
                 expect(item).toHaveProperty('data');
                 expect(item).toHaveProperty('touchedAt');

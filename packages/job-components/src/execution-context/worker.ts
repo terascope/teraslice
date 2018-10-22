@@ -13,6 +13,7 @@ import {
     WorkerContext,
     ExecutionContextConfig,
 } from './interfaces';
+import JobObserver from '../operations/job-observer';
 
 // WeakMaps are used as a memory efficient reference to private data
 const _loaders = new WeakMap<WorkerExecutionContext, OperationLoader>();
@@ -45,6 +46,8 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
 
     readonly exId: string;
     readonly jobId: string;
+
+    private readonly jobObserver: JobObserver;
 
     /** The terafoundation EventEmitter */
     private events: EventEmitter;
@@ -97,6 +100,10 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
             this.addOperation(op);
             this.processors.add(op);
         }
+
+        const jobObserver = new JobObserver(this.context, this.config);
+        this.addOperation(jobObserver);
+        this.jobObserver = jobObserver;
     }
 
     /**
@@ -150,7 +157,10 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
             this.onOperationComplete(index, sliceId, result.length);
         }
 
-        return DataEntity.listToJSON(result);
+        return {
+            results: DataEntity.listToJSON(result),
+            analytics: this.jobObserver.analyticsData,
+        };
     }
 
     @enumerable(false)
