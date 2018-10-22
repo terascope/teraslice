@@ -14,16 +14,10 @@ class Slice {
         this.context = context;
         this.events = context.apis.foundation.getSystemEvents();
         this.executionContext = executionContext;
-        this.analytics = get(executionContext, 'config.analytics', false);
     }
 
     async initialize(slice, stores) {
         const { slice_id: sliceId } = slice;
-
-        // if (this.analytics) {
-        //   this.analyticsData = { time: [], size: [], memory: [] };
-        //   this.operations = queue.map(fn => fn.bind(null, this.analyticsData));
-        // }
 
         this.stateStore = stores.stateStore;
         this.analyticsStore = stores.analyticsStore;
@@ -54,24 +48,24 @@ class Slice {
             await this._markFailed(err);
             throw err;
         } finally {
-            await this._logAnalytics();
+            await this._logAnalytics(result && result.analytics);
             this.events.emit('slice:finalize', slice);
             await this.executionContext.onSliceFinalizing(slice.slice_id);
         }
 
-        return result;
+        return result.results;
     }
 
     async shutdown() {
         this._isShutdown = true;
     }
 
-    async _logAnalytics() {
-        if (!this.analytics) return;
+    async _logAnalytics(analyticsData) {
+        if (analyticsData == null) return;
+        this.analyticsData = analyticsData;
 
         const {
             logger,
-            analyticsData,
             slice,
             executionContext
         } = this;
