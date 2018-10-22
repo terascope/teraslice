@@ -1,7 +1,13 @@
 import { EventEmitter } from 'events';
 import cloneDeep from 'lodash.clonedeep';
 import { enumerable } from '../utils';
-import { SlicerOperationLifeCycle, ExecutionConfig } from '../interfaces';
+import {
+    SlicerOperationLifeCycle,
+    ExecutionConfig,
+    ExecutionStats,
+    Slice,
+    SliceResult
+} from '../interfaces';
 import { OperationLoader } from '../operation-loader';
 import SlicerCore from '../operations/core/slicer-core';
 import { registerApis } from '../register-apis';
@@ -21,7 +27,7 @@ const _operations = new WeakMap<SlicerExecutionContext, SlicerOperations>();
  * functionality to interface with the
  * Execution Configuration and any Operation.
 */
-export class SlicerExecutionContext {
+export class SlicerExecutionContext implements SlicerOperationLifeCycle {
     readonly config: ExecutionConfig;
     readonly context: SlicerContext;
 
@@ -99,6 +105,10 @@ export class SlicerExecutionContext {
         for (const op of this.getOperations()) {
             promises.push(op.shutdown());
         }
+
+        // for backwards compatibility
+        this.events.emit('worker:shutdown');
+
         await Promise.all(promises);
 
         Object.keys(this._handlers)
@@ -106,6 +116,34 @@ export class SlicerExecutionContext {
                 const listener = this._handlers[event];
                 this.events.removeListener(event, listener);
             });
+    }
+
+    @enumerable(false)
+    onExecutionStats(stats: ExecutionStats) {
+        for (const operation of this.getOperations()) {
+            operation.onExecutionStats(stats);
+        }
+    }
+
+    @enumerable(false)
+    onSliceEnqueued(slice: Slice) {
+        for (const operation of this.getOperations()) {
+            operation.onSliceEnqueued(slice);
+        }
+    }
+
+    @enumerable(false)
+    onSliceDispatch(slice: Slice) {
+        for (const operation of this.getOperations()) {
+            operation.onSliceDispatch(slice);
+        }
+    }
+
+    @enumerable(false)
+    onSliceComplete(result: SliceResult): void {
+        for (const operation of this.getOperations()) {
+            operation.onSliceComplete(result);
+        }
     }
 
     @enumerable(false)

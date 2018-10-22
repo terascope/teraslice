@@ -12,15 +12,16 @@ benchmarks.forEach((file) => {
     console.log(`- ${file}`);
 });
 
-function run(list) {
-    function visit(length, i) {
+async function run(list) {
+    async function visit(length, i) {
         if (length > i) {
-            require(`./${list[i]}`).on('complete', () => {
+            const suite = await require(`./${list[i]}`)();
+            suite.on('complete', () => {
                 visit(length, i + 1);
             });
         }
     }
-    visit(list.length, 0);
+    await visit(list.length, 0);
 }
 
 run(benchmarks);

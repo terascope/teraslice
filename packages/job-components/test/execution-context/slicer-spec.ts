@@ -1,15 +1,15 @@
 import 'jest-extended';
 import path from 'path';
-import { terasliceOpPath } from './helpers';
+import { terasliceOpPath } from '../helpers';
 import {
     SlicerExecutionContext,
     TestContext,
     newTestExecutionConfig
-} from '../src';
+} from '../../src';
 
 describe('SlicerExecutionContext', () => {
     const assetIds = ['fixtures'];
-    const assetDir = path.join(__dirname);
+    const assetDir = path.join(__dirname, '..');
     const executionConfig = newTestExecutionConfig();
     executionConfig.operations = [
         {
@@ -61,6 +61,42 @@ describe('SlicerExecutionContext', () => {
             for (const op of ops) {
                 expect(op).toHaveProperty('initialized', true);
             }
+        });
+
+        it('should be to call the Slicer LifeCycle events', () => {
+            const stats = {
+                workers: {
+                    connected: 10,
+                    available: 2,
+                },
+                slices: {
+                    processed: 5,
+                    failed: 1
+                }
+            };
+
+            const slice = {
+                slice_id: '1',
+                slicer_id: 1,
+                slicer_order: 1,
+                request: { hello: true },
+                _created: 'hi'
+            };
+
+            executionContext.onExecutionStats(stats);
+            expect(executionContext.slicer).toHaveProperty('stats', stats);
+
+            executionContext.onSliceComplete({
+                slice,
+                analytics: {
+                    time: [],
+                    memory: [],
+                    size: [],
+                }
+            });
+
+            executionContext.onSliceDispatch(slice);
+            executionContext.onSliceEnqueued(slice);
         });
     });
 });
