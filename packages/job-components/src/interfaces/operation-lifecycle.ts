@@ -45,6 +45,14 @@ export interface WorkerOperationLifeCycle extends OperationLifeCycle {
      * [DEPRECATION NOTICE]: this will be deprecated in near future
     */
     onSliceRetry(sliceId: string): Promise <void>;
+
+    /**
+     * Called after an operation is complete
+     * @param index the index to the operation which completed
+     * @param sliceId is the id of the slice being processed
+     * @param processed is the number of records returned from the op
+    */
+    onOperationComplete?(index: number, sliceId: string, processed: number): void;
 }
 
 export interface SlicerOperationLifeCycle extends OperationLifeCycle {
