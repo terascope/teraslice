@@ -6,7 +6,7 @@ import FetcherCore from '../operations/core/fetcher-core';
 import ProcessorCore from '../operations/core/processor-core';
 import { OperationAPIConstructor } from '../operations';
 import { registerApis } from '../register-apis';
-import { WorkerOperationLifeCycle, ExecutionConfig } from '../interfaces';
+import { WorkerOperationLifeCycle, ExecutionConfig, Slice } from '../interfaces';
 import {
     EventHandlers,
     WorkerOperations,
@@ -23,7 +23,7 @@ const _operations = new WeakMap<WorkerExecutionContext, WorkerOperations>();
  * functionality to interface with the
  * Execution Configuration and any Operation.
 */
-export class WorkerExecutionContext {
+export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     readonly config: ExecutionConfig;
     readonly context: WorkerContext;
 
@@ -122,6 +122,9 @@ export class WorkerExecutionContext {
             promises.push(op.shutdown());
         }
 
+        // for backwards compatibility
+        this.events.emit('worker:shutdown');
+
         await Promise.all(promises);
 
         Object.keys(this._handlers)
@@ -129,6 +132,101 @@ export class WorkerExecutionContext {
                 const listener = this._handlers[event];
                 this.events.removeListener(event, listener);
             });
+    }
+
+    /**
+     * Run a slice against the fetcher and then processors.
+     * Currently this will only fire onSliceStarted
+     * and onSliceFinalizing.
+     * TODO: this should handle slice retries.
+    */
+    async runSlice(slice: Slice) {
+        const sliceId = slice.slice_id;
+
+        let result = await this.fetcher.handle(slice);
+        await this.onSliceStarted(sliceId);
+
+        for (const processor of this.processors.values()) {
+            result = await processor.handle(result);
+        }
+
+        await this.onSliceFinalizing(sliceId);
+        return result;
+    }
+
+    @enumerable(false)
+    async onSliceInitialized(sliceId: string) {
+        const promises = [];
+        for (const operation of this.getOperations()) {
+            promises.push(operation.onSliceInitialized(sliceId));
+        }
+
+        // for backwards compatibility
+        this.events.emit('slice:initialize', sliceId);
+
+        await Promise.all(promises);
+    }
+
+    @enumerable(false)
+    async onSliceStarted(sliceId: string) {
+        const promises = [];
+        for (const operation of this.getOperations()) {
+            promises.push(operation.onSliceStarted(sliceId));
+        }
+
+        await Promise.all(promises);
+    }
+
+    @enumerable(false)
+    async onSliceFinalizing(sliceId: string) {
+        const promises = [];
+        for (const operation of this.getOperations()) {
+            promises.push(operation.onSliceFinalizing(sliceId));
+        }
+
+        // for backwards compatibility
+        this.events.emit('slice:success', sliceId);
+
+        await Promise.all(promises);
+    }
+
+    @enumerable(false)
+    async onSliceFinished(sliceId: string) {
+        const promises = [];
+        for (const operation of this.getOperations()) {
+            promises.push(operation.onSliceFinished(sliceId));
+        }
+
+        // for backwards compatibility
+        this.events.emit('slice:finalize', sliceId);
+
+        await Promise.all(promises);
+    }
+
+    @enumerable(false)
+    async onSliceFailed(sliceId: string) {
+        const promises = [];
+        for (const operation of this.getOperations()) {
+            promises.push(operation.onSliceFailed(sliceId));
+        }
+
+        // for backwards compatibility
+        this.events.emit('slice:failure', sliceId);
+
+        await Promise.all(promises);
+    }
+
+    @enumerable(false)
+    async onSliceRetry(sliceId: string) {
+        const promises = [];
+        for (const operation of this.getOperations()) {
+            promises.push(operation.onSliceRetry(sliceId));
+        }
+
+        // for backwards compatibility
+        this.events.emit('slice:retry', sliceId);
+
+        await Promise.all(promises);
     }
 
     /**

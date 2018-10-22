@@ -73,11 +73,16 @@ export default class DataEntity {
     [prop: string]: any;
 
     constructor(data: object, metadata?: object) {
-        _metadata.set(this, Object.assign({}, metadata, {
-            createdAt: new Date(),
-        }));
+        const createdAt = new Date();
+        if (metadata) {
+            _metadata.set(this, { ...metadata, createdAt });
+        } else {
+            _metadata.set(this, {
+                createdAt: new Date(),
+            });
+        }
 
-        for (const key in data) {
+        for (const key of Object.keys(data)) {
             this[key] = data[key];
         }
     }

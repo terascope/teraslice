@@ -1,4 +1,4 @@
-import { ConnectionConfig, Context, ValidatedJobConfig, OpConfig } from './interfaces';
+import { ConnectionConfig, Context, ValidatedJobConfig, ExecutionConfig, OpConfig } from './interfaces';
 import { ExecutionContextAPI } from './execution-context';
 import has from 'lodash.has';
 
@@ -45,7 +45,7 @@ export function getClient(context: Context, config: GetClientConfig, type: strin
     }
 }
 
-export function registerApis(context: Context, job: ValidatedJobConfig): void {
+export function registerApis(context: Context, job: ValidatedJobConfig|ExecutionConfig): void {
     if (context.apis.op_runner == null) {
         context.apis.registerAPI('op_runner', {
             getClient(config: GetClientConfig, type: string): { client: any } {
@@ -55,7 +55,7 @@ export function registerApis(context: Context, job: ValidatedJobConfig): void {
     }
 
     if (context.apis.executionContext == null) {
-        context.apis.registerAPI('executionContext', new ExecutionContextAPI(context, job));
+        context.apis.registerAPI('executionContext', new ExecutionContextAPI(context, job as ExecutionConfig));
     }
 
     delete context.apis.job_runner;

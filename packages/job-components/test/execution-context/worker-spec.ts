@@ -1,16 +1,16 @@
 import 'jest-extended';
 import path from 'path';
-import { terasliceOpPath } from './helpers';
+import { terasliceOpPath } from '../helpers';
 import {
     WorkerExecutionContext,
     TestContext,
     newTestExecutionConfig,
     DataEntity
-} from '../src';
+} from '../../src';
 
 describe('WorkerExecutionContext', () => {
     const assetIds = ['fixtures'];
-    const assetDir = path.join(__dirname);
+    const assetDir = path.join(__dirname, '..');
     const executionConfig = newTestExecutionConfig();
     executionConfig.operations = [
         {
@@ -25,6 +25,8 @@ describe('WorkerExecutionContext', () => {
         const context = new TestContext('worker-execution-context');
         context.sysconfig.teraslice.assets_directory = assetDir;
 
+        const events = context.apis.foundation.getSystemEvents();
+
         const executionContext = new WorkerExecutionContext({
             context,
             executionConfig,
@@ -37,6 +39,7 @@ describe('WorkerExecutionContext', () => {
         });
 
         afterAll(() => {
+            events.removeAllListeners();
             return executionContext.shutdown();
         });
 
@@ -79,6 +82,67 @@ describe('WorkerExecutionContext', () => {
             const ops = executionContext.getOperations();
             for (const op of ops) {
                 expect(op).toHaveProperty('initialized', true);
+            }
+        });
+
+        it('should be to call the Worker LifeCycle events', async () => {
+            const onSliceInit = jest.fn();
+            events.on('slice:initialize', onSliceInit);
+
+            const onSliceSuccess = jest.fn();
+            events.on('slice:success', onSliceSuccess);
+
+            const onSliceFinalize = jest.fn();
+            events.on('slice:finalize', onSliceFinalize);
+
+            const onSliceFailure = jest.fn();
+            events.on('slice:failure', onSliceFailure);
+
+            const onSliceRetry = jest.fn();
+            events.on('slice:retry', onSliceRetry);
+
+            expect(onSliceInit).not.toHaveBeenCalled();
+            await executionContext.onSliceInitialized('hello');
+            expect(onSliceInit).toHaveBeenCalled();
+
+            await executionContext.onSliceStarted('hello');
+
+            expect(onSliceSuccess).not.toHaveBeenCalled();
+            await executionContext.onSliceFinalizing('hello');
+            expect(onSliceSuccess).toHaveBeenCalled();
+
+            expect(onSliceFinalize).not.toHaveBeenCalled();
+            await executionContext.onSliceFinished('hello');
+            expect(onSliceFinalize).toHaveBeenCalled();
+
+            expect(onSliceFailure).not.toHaveBeenCalled();
+
+            expect(onSliceFailure).not.toHaveBeenCalled();
+            await executionContext.onSliceFailed('hello');
+            expect(onSliceFailure).toHaveBeenCalled();
+
+            expect(onSliceRetry).not.toHaveBeenCalled();
+            await executionContext.onSliceRetry('hello');
+            expect(onSliceRetry).toHaveBeenCalled();
+        });
+
+        it('should be able run a "slice"', async () => {
+            const slice = {
+                slice_id: '1',
+                slicer_id: 1,
+                slicer_order: 1,
+                request: { hello: true },
+                _created: 'hi'
+            };
+
+            const result = await executionContext.runSlice(slice);
+
+            expect(result.length).toBeGreaterThan(0);
+
+            for (const item of result) {
+                expect(item).toHaveProperty('id');
+                expect(item).toHaveProperty('data');
+                expect(item).toHaveProperty('touchedAt');
             }
         });
     });

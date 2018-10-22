@@ -67,7 +67,7 @@ export function newTestJobConfig(): i.ValidatedJobConfig {
 }
 
 export function newTestExecutionConfig(): i.ExecutionConfig {
-    const exConfig: i.ExecutionConfig = newTestJobConfig();
+    const exConfig = newTestJobConfig() as i.ExecutionConfig;
     exConfig.slicer_hostname = 'example.com';
     exConfig.slicer_port = random(8000, 60000);
     exConfig.ex_id = newId('ex-id');
