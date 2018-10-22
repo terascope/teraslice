@@ -8,7 +8,7 @@ const Worker = require('../../../lib/workers/worker');
 const { TestContext } = require('../helpers');
 const { findPort } = require('../../../lib/utils/port_utils');
 
-describe('Worker', () => {
+xdescribe('Worker', () => {
     async function setupTest(options = {}) {
         const slicerPort = await findPort();
         options.slicerPort = slicerPort;
