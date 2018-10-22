@@ -8,6 +8,7 @@ const { TestContext } = require('../helpers');
 describe('Slice', () => {
     async function setupSlice(testContext, eventMocks = {}) {
         await testContext.initialize();
+        await testContext.executionContext.initialize();
 
         const slice = new Slice(testContext.context, testContext.executionContext);
         testContext.attachCleanup(() => slice.shutdown());
@@ -55,7 +56,7 @@ describe('Slice', () => {
 
             it('should handle the slice correctly', () => {
                 // should call of the operations
-                expect(results).toEqual(times(10, () => 'hi'));
+                expect(results).toEqual(times(10, () => ({ hi: true })));
 
                 // should have the correct analytics data
                 expect(slice.analyticsData).toBeObject();
@@ -72,7 +73,7 @@ describe('Slice', () => {
                 expect(eventMocks['slice:retry']).not.toHaveBeenCalled();
 
                 // should have the correct state storage
-                const { ex_id: exId } = slice.executionContext;
+                const { exId } = slice.executionContext;
                 const query = `ex_id:${exId} AND state:completed`;
                 return expect(slice.stateStore.count(query)).resolves.toEqual(1);
             });
@@ -99,7 +100,7 @@ describe('Slice', () => {
 
             it('should handle the slice correctly', () => {
                 // should call all of the operations
-                expect(results).toEqual(times(10, () => 'hi'));
+                expect(results).toEqual(times(10, () => ({ hi: true })));
 
                 // should have have the analytics data
                 expect(slice).not.toHaveProperty('analyticsData');
@@ -113,7 +114,7 @@ describe('Slice', () => {
                 expect(eventMocks['slice:failure']).not.toHaveBeenCalled();
 
                 // should have the correct state storage
-                const { ex_id: exId } = slice.executionContext;
+                const { exId } = slice.executionContext;
                 const query = `ex_id:${exId} AND state:completed`;
                 return expect(slice.stateStore.count(query, 0)).resolves.toEqual(1);
             });
@@ -142,7 +143,7 @@ describe('Slice', () => {
             });
 
             it('should handle the slice correctly', () => {
-                expect(results).toEqual(times(10, () => 'hi'));
+                expect(results).toEqual(times(10, () => ({ hi: true })));
 
                 // should have have the analytics data
                 expect(slice).not.toHaveProperty('analyticsData');
@@ -157,7 +158,7 @@ describe('Slice', () => {
                 expect(eventMocks['slice:failure']).not.toHaveBeenCalled();
 
                 // should have the correct state storage
-                const { ex_id: exId } = slice.executionContext;
+                const { exId } = slice.executionContext;
                 const query = `ex_id:${exId} AND state:completed`;
                 return expect(slice.stateStore.count(query, 0)).resolves.toEqual(1);
             });
@@ -204,32 +205,10 @@ describe('Slice', () => {
                 expect(eventMocks['slice:finalize']).toHaveBeenCalledWith(slice.slice);
 
                 // should have the correct state storage
-                const { ex_id: exId } = slice.executionContext;
+                const { exId } = slice.executionContext;
                 const query = `ex_id:${exId} AND state:error`;
                 return expect(slice.stateStore.count(query, 0)).resolves.toEqual(1);
             });
-        });
-    });
-
-    xdescribe('when given a completed slice', () => {
-        let slice;
-        let testContext;
-
-        beforeEach(async () => {
-            testContext = new TestContext();
-
-            slice = await setupSlice(testContext);
-
-            await slice._markCompleted();
-        });
-
-        afterEach(async () => {
-            await testContext.cleanup();
-        });
-
-        it('should throw an error when calling run', () => {
-            const errMsg = `Slice ${slice.slice.slice_id} has already been processed`;
-            return expect(slice.run()).rejects.toThrowError(errMsg);
         });
     });
 
@@ -276,8 +255,7 @@ describe('Slice', () => {
         });
     });
 
-    // FIXME
-    xdescribe('when marking an invalid slice', () => {
+    describe('when marking an invalid slice', () => {
         let testContext;
         let slice;
 

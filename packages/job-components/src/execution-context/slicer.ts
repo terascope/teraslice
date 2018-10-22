@@ -106,9 +106,6 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
             promises.push(op.shutdown());
         }
 
-        // for backwards compatibility
-        this.events.emit('worker:shutdown');
-
         await Promise.all(promises);
 
         Object.keys(this._handlers)
