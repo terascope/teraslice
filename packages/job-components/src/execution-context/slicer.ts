@@ -117,28 +117,28 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
 
     @enumerable(false)
     onExecutionStats(stats: ExecutionStats) {
-        for (const operation of this.getOperations()) {
+        for (const operation of this.getOperations().values()) {
             operation.onExecutionStats(stats);
         }
     }
 
     @enumerable(false)
     onSliceEnqueued(slice: Slice) {
-        for (const operation of this.getOperations()) {
+        for (const operation of this.getOperations().values()) {
             operation.onSliceEnqueued(slice);
         }
     }
 
     @enumerable(false)
     onSliceDispatch(slice: Slice) {
-        for (const operation of this.getOperations()) {
+        for (const operation of this.getOperations().values()) {
             operation.onSliceDispatch(slice);
         }
     }
 
     @enumerable(false)
     onSliceComplete(result: SliceResult): void {
-        for (const operation of this.getOperations()) {
+        for (const operation of this.getOperations().values()) {
             operation.onSliceComplete(result);
         }
     }
@@ -146,7 +146,7 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
     @enumerable(false)
     getOperations() {
         const ops = _operations.get(this) as SlicerOperations;
-        return ops.values();
+        return ops;
     }
 
     @enumerable(false)

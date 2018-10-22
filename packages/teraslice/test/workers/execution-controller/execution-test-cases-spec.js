@@ -365,7 +365,7 @@ xdescribe('ExecutionController Test Cases', () => {
         afterEach(() => testContext.cleanup());
 
         it('should process the execution correctly', async () => {
-            const { ex_id: exId } = testContext.executionContext;
+            const { exId } = testContext.executionContext;
 
             expect(slices).toBeArrayOfSize(count);
             _.times(count, (i) => {
