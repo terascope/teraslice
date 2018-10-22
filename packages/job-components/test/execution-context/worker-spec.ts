@@ -86,44 +86,12 @@ describe('WorkerExecutionContext', () => {
         });
 
         it('should be to call the Worker LifeCycle events', async () => {
-            const onSliceInit = jest.fn();
-            events.on('slice:initialize', onSliceInit);
-
-            const onSliceSuccess = jest.fn();
-            events.on('slice:success', onSliceSuccess);
-
-            const onSliceFinalize = jest.fn();
-            events.on('slice:finalize', onSliceFinalize);
-
-            const onSliceFailure = jest.fn();
-            events.on('slice:failure', onSliceFailure);
-
-            const onSliceRetry = jest.fn();
-            events.on('slice:retry', onSliceRetry);
-
-            expect(onSliceInit).not.toHaveBeenCalled();
             await executionContext.onSliceInitialized('hello');
-            expect(onSliceInit).toHaveBeenCalled();
-
             await executionContext.onSliceStarted('hello');
-
-            expect(onSliceSuccess).not.toHaveBeenCalled();
             await executionContext.onSliceFinalizing('hello');
-            expect(onSliceSuccess).toHaveBeenCalled();
-
-            expect(onSliceFinalize).not.toHaveBeenCalled();
             await executionContext.onSliceFinished('hello');
-            expect(onSliceFinalize).toHaveBeenCalled();
-
-            expect(onSliceFailure).not.toHaveBeenCalled();
-
-            expect(onSliceFailure).not.toHaveBeenCalled();
             await executionContext.onSliceFailed('hello');
-            expect(onSliceFailure).toHaveBeenCalled();
-
-            expect(onSliceRetry).not.toHaveBeenCalled();
             await executionContext.onSliceRetry('hello');
-            expect(onSliceRetry).toHaveBeenCalled();
         });
 
         it('should be able run a "slice"', async () => {

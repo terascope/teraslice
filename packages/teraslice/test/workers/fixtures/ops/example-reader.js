@@ -2,8 +2,8 @@
 
 const _ = require('lodash');
 
-const defaultResults = _.times(10, () => 'hello');
-const defaultSlicerResults = ['howdy', null];
+const defaultResults = _.times(10, () => ({ hello: true }));
+const defaultSlicerResults = [{ howdy: true }, null];
 const defaultSlicerQueueLength = '10';
 
 function schema() {
