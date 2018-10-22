@@ -105,7 +105,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     @enumerable(false)
     async initialize() {
         const promises = [];
-        for (const op of this.getOperations().values()) {
+        for (const op of this.getOperations()) {
             promises.push(op.initialize());
         }
 
@@ -118,7 +118,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     @enumerable(false)
     async shutdown() {
         const promises = [];
-        for (const op of this.getOperations().values()) {
+        for (const op of this.getOperations()) {
             promises.push(op.shutdown());
         }
 
@@ -133,18 +133,21 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
 
     /**
      * Run a slice against the fetcher and then processors.
-     * Currently this will only fire onSliceStarted
-     * and onSliceFinalizing.
      * TODO: this should handle slice retries.
     */
     async runSlice(slice: Slice) {
         const sliceId = slice.slice_id;
 
+        let index = 0;
         let result = await this.fetcher.handle(cloneDeep(slice.request));
+        this.onOperationComplete(index, sliceId, result.length);
+
         await this.onSliceStarted(sliceId);
 
         for (const processor of this.processors.values()) {
+            index++;
             result = await processor.handle(result);
+            this.onOperationComplete(index, sliceId, result.length);
         }
 
         return DataEntity.listToJSON(result);
@@ -153,7 +156,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     @enumerable(false)
     async onSliceInitialized(sliceId: string) {
         const promises = [];
-        for (const operation of this.getOperations().values()) {
+        for (const operation of this.getOperations()) {
             promises.push(operation.onSliceInitialized(sliceId));
         }
 
@@ -163,7 +166,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     @enumerable(false)
     async onSliceStarted(sliceId: string) {
         const promises = [];
-        for (const operation of this.getOperations().values()) {
+        for (const operation of this.getOperations()) {
             promises.push(operation.onSliceStarted(sliceId));
         }
 
@@ -173,7 +176,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     @enumerable(false)
     async onSliceFinalizing(sliceId: string) {
         const promises = [];
-        for (const operation of this.getOperations().values()) {
+        for (const operation of this.getOperations()) {
             promises.push(operation.onSliceFinalizing(sliceId));
         }
 
@@ -183,7 +186,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     @enumerable(false)
     async onSliceFinished(sliceId: string) {
         const promises = [];
-        for (const operation of this.getOperations().values()) {
+        for (const operation of this.getOperations()) {
             promises.push(operation.onSliceFinished(sliceId));
         }
 
@@ -193,7 +196,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     @enumerable(false)
     async onSliceFailed(sliceId: string) {
         const promises = [];
-        for (const operation of this.getOperations().values()) {
+        for (const operation of this.getOperations()) {
             promises.push(operation.onSliceFailed(sliceId));
         }
 
@@ -203,11 +206,19 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     @enumerable(false)
     async onSliceRetry(sliceId: string) {
         const promises = [];
-        for (const operation of this.getOperations().values()) {
+        for (const operation of this.getOperations()) {
             promises.push(operation.onSliceRetry(sliceId));
         }
 
         await Promise.all(promises);
+    }
+
+    onOperationComplete(index: number, sliceId: string, processed: number) {
+        for (const operation of this.getOperations()) {
+            if (operation.onOperationComplete != null) {
+                operation.onOperationComplete(index, sliceId, processed);
+            }
+        }
     }
 
     /**
@@ -217,7 +228,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     @enumerable(false)
     getOperations() {
         const ops = _operations.get(this) as WorkerOperations;
-        return ops;
+        return ops.values();
     }
 
     @enumerable(false)
