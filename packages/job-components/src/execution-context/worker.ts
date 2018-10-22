@@ -122,9 +122,6 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
             promises.push(op.shutdown());
         }
 
-        // for backwards compatibility
-        this.events.emit('worker:shutdown');
-
         await Promise.all(promises);
 
         Object.keys(this._handlers)
@@ -143,14 +140,12 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     async runSlice(slice: Slice) {
         const sliceId = slice.slice_id;
 
-        let result = await this.fetcher.handle(slice);
+        let result = await this.fetcher.handle(cloneDeep(slice.request));
         await this.onSliceStarted(sliceId);
 
         for (const processor of this.processors.values()) {
             result = await processor.handle(result);
         }
-
-        await this.onSliceFinalizing(sliceId);
 
         return DataEntity.listToJSON(result);
     }
@@ -161,9 +156,6 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         for (const operation of this.getOperations()) {
             promises.push(operation.onSliceInitialized(sliceId));
         }
-
-        // for backwards compatibility
-        this.events.emit('slice:initialize', sliceId);
 
         await Promise.all(promises);
     }
@@ -185,9 +177,6 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
             promises.push(operation.onSliceFinalizing(sliceId));
         }
 
-        // for backwards compatibility
-        this.events.emit('slice:success', sliceId);
-
         await Promise.all(promises);
     }
 
@@ -197,9 +186,6 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         for (const operation of this.getOperations()) {
             promises.push(operation.onSliceFinished(sliceId));
         }
-
-        // for backwards compatibility
-        this.events.emit('slice:finalize', sliceId);
 
         await Promise.all(promises);
     }
@@ -211,9 +197,6 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
             promises.push(operation.onSliceFailed(sliceId));
         }
 
-        // for backwards compatibility
-        this.events.emit('slice:failure', sliceId);
-
         await Promise.all(promises);
     }
 
@@ -223,9 +206,6 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         for (const operation of this.getOperations()) {
             promises.push(operation.onSliceRetry(sliceId));
         }
-
-        // for backwards compatibility
-        this.events.emit('slice:retry', sliceId);
 
         await Promise.all(promises);
     }

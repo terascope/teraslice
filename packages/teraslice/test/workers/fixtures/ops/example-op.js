@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 
-const defaultResults = _.times(10, () => 'hi');
+const defaultResults = _.times(10, () => ({ hi: true }));
 
 function schema() {
     return {
