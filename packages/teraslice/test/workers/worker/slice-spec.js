@@ -35,8 +35,7 @@ describe('Slice', () => {
         return slice;
     }
 
-    // FIXME
-    xdescribe('with analytics', () => {
+    describe('with analytics', () => {
         describe('when the slice succeeds', () => {
             let slice;
             let results;

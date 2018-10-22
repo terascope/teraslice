@@ -246,7 +246,7 @@ describe('Worker', () => {
             await worker.initialize();
 
             const operations = worker.executionContext.getOperations();
-            for (const op of operations.values()) {
+            for (const op of operations) {
                 op.processorFn = jest.fn().mockRejectedValue(new Error('Bad news bears'));
             }
 
