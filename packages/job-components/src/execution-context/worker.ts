@@ -4,7 +4,7 @@ import { enumerable } from '../utils';
 import { OperationLoader } from '../operation-loader';
 import FetcherCore from '../operations/core/fetcher-core';
 import ProcessorCore from '../operations/core/processor-core';
-import { OperationAPIConstructor } from '../operations';
+import { OperationAPIConstructor, DataEntity } from '../operations';
 import { registerApis } from '../register-apis';
 import { WorkerOperationLifeCycle, ExecutionConfig, Slice } from '../interfaces';
 import {
@@ -151,7 +151,8 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         }
 
         await this.onSliceFinalizing(sliceId);
-        return result;
+
+        return DataEntity.listToJSON(result);
     }
 
     @enumerable(false)

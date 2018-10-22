@@ -69,6 +69,14 @@ export default class DataEntity {
         return L.list(DataEntity.make(input));
     }
 
+    /**
+     * Convert an immutable list to an array,
+     * This could have performance impact
+    */
+    static listToJSON(input: DataEntityList): object[] {
+        return input.toArray().map((d) => d.toJSON());
+    }
+
     // Add the ability to specify any additional properties
     [prop: string]: any;
 
@@ -82,18 +90,16 @@ export default class DataEntity {
             });
         }
 
-        for (const key of Object.keys(data)) {
-            this[key] = data[key];
-        }
+        copy(this, data);
     }
 
     @locked()
     getMetadata(key?: string): DataEntityMetadata|any {
-        const metadata = _metadata.get(this);
+        const metadata = _metadata.get(this) as DataEntityMetadata;
         if (key) {
             return get(metadata, key);
         }
-        return metadata;
+        return { ...metadata };
     }
 
     @locked()
@@ -103,20 +109,35 @@ export default class DataEntity {
             throw new Error(`Cannot set readonly metadata property ${key}`);
         }
 
-        const metadata = _metadata.get(this);
+        const metadata = _metadata.get(this) as DataEntityMetadata;
         _metadata.set(this, set(metadata, key, value));
     }
 
     @locked()
     toJSON(withMetadata?: boolean): object {
+        const data = {};
+        copy(data, this);
+
         if (withMetadata) {
+            const metadata = _metadata.get(this) as DataEntityMetadata;
             return {
-                data: this,
-                metadata: _metadata.get(this),
+                data,
+                metadata: {
+                    ...metadata
+                },
             };
         }
 
-        return this;
+        return data;
+    }
+}
+
+function copy<T, U>(target: T, source: U) {
+    if (typeof target !== 'object' || typeof source !== 'object') {
+        return;
+    }
+    for (const key of Object.keys(source)) {
+        target[key] = source[key];
     }
 }
 
