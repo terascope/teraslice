@@ -58,7 +58,7 @@ describe('SlicerExecutionContext', () => {
 
         it('should have the operations initialized', () => {
             const ops = executionContext.getOperations();
-            for (const op of ops) {
+            for (const op of ops.values()) {
                 expect(op).toHaveProperty('initialized', true);
             }
         });

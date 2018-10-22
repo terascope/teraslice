@@ -377,7 +377,7 @@ xdescribe('ExecutionController Special Tests', () => {
         afterEach(() => testContext.cleanup());
 
         it('should process the execution correctly', async () => {
-            const { ex_id: exId } = testContext.executionContext;
+            const { exId } = testContext.executionContext;
 
             if (shutdownEarly) {
                 expect(slices.length).toBeGreaterThanOrEqual(count);

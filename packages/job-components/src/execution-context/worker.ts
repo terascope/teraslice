@@ -105,7 +105,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     @enumerable(false)
     async initialize() {
         const promises = [];
-        for (const op of this.getOperations()) {
+        for (const op of this.getOperations().values()) {
             promises.push(op.initialize());
         }
 
@@ -118,7 +118,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     @enumerable(false)
     async shutdown() {
         const promises = [];
-        for (const op of this.getOperations()) {
+        for (const op of this.getOperations().values()) {
             promises.push(op.shutdown());
         }
 
@@ -153,7 +153,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     @enumerable(false)
     async onSliceInitialized(sliceId: string) {
         const promises = [];
-        for (const operation of this.getOperations()) {
+        for (const operation of this.getOperations().values()) {
             promises.push(operation.onSliceInitialized(sliceId));
         }
 
@@ -163,7 +163,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     @enumerable(false)
     async onSliceStarted(sliceId: string) {
         const promises = [];
-        for (const operation of this.getOperations()) {
+        for (const operation of this.getOperations().values()) {
             promises.push(operation.onSliceStarted(sliceId));
         }
 
@@ -173,7 +173,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     @enumerable(false)
     async onSliceFinalizing(sliceId: string) {
         const promises = [];
-        for (const operation of this.getOperations()) {
+        for (const operation of this.getOperations().values()) {
             promises.push(operation.onSliceFinalizing(sliceId));
         }
 
@@ -183,7 +183,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     @enumerable(false)
     async onSliceFinished(sliceId: string) {
         const promises = [];
-        for (const operation of this.getOperations()) {
+        for (const operation of this.getOperations().values()) {
             promises.push(operation.onSliceFinished(sliceId));
         }
 
@@ -193,7 +193,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     @enumerable(false)
     async onSliceFailed(sliceId: string) {
         const promises = [];
-        for (const operation of this.getOperations()) {
+        for (const operation of this.getOperations().values()) {
             promises.push(operation.onSliceFailed(sliceId));
         }
 
@@ -203,7 +203,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     @enumerable(false)
     async onSliceRetry(sliceId: string) {
         const promises = [];
-        for (const operation of this.getOperations()) {
+        for (const operation of this.getOperations().values()) {
             promises.push(operation.onSliceRetry(sliceId));
         }
 
@@ -217,7 +217,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     @enumerable(false)
     getOperations() {
         const ops = _operations.get(this) as WorkerOperations;
-        return ops.values();
+        return ops;
     }
 
     @enumerable(false)
