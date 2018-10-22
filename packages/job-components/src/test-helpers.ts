@@ -120,12 +120,18 @@ function testContextApis(testName: string): i.ContextApis {
 }
 
 export class TestContext implements i.Context {
-    public logger: i.Logger;
-    public sysconfig: i.SysConfig;
-    public apis: i.ContextApis;
-    public foundation: i.LegacyFoundationApis;
+    logger: i.Logger;
+    sysconfig: i.SysConfig;
+    apis: i.ContextApis;
+    foundation: i.LegacyFoundationApis;
+    name: string;
+    assignment = 'worker';
+    platform = process.platform;
+    arch = process.arch;
 
     constructor(testName: string) {
+        this.name = testName;
+
         this.logger = debugLogger(testName);
 
         this.sysconfig = {
