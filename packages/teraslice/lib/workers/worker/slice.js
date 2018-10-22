@@ -30,7 +30,7 @@ class Slice {
         this.slice = slice;
         this.logger = makeLogger(this.context, this.executionContext, 'slice', { slice_id: sliceId });
 
-        this.events.emit('slice:initialized', slice);
+        this.events.emit('slice:initialize', slice);
         await this.executionContext.onSliceInitialized(sliceId);
     }
 

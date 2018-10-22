@@ -8,7 +8,7 @@ const Worker = require('../../../lib/workers/worker');
 const { TestContext } = require('../helpers');
 const { findPort } = require('../../../lib/utils/port_utils');
 
-xdescribe('Worker', () => {
+describe('Worker', () => {
     async function setupTest(options = {}) {
         const slicerPort = await findPort();
         options.slicerPort = slicerPort;
@@ -245,7 +245,10 @@ xdescribe('Worker', () => {
 
             await worker.initialize();
 
-            worker.executionContext.queue[1] = jest.fn().mockRejectedValue(new Error('Bad news bears'));
+            const operations = worker.executionContext.getOperations();
+            for (const op of operations.values()) {
+                op.processorFn = jest.fn().mockRejectedValue(new Error('Bad news bears'));
+            }
 
             server.onSliceSuccess((workerId, _msg) => {
                 sliceSuccess = _msg;
