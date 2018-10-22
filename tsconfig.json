@@ -5,6 +5,9 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "target": "es2017",
+        "lib": [
+            "esnext"
+        ],
         "experimentalDecorators": true,
         "composite": true,
         "declaration": true,

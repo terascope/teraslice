@@ -18,11 +18,11 @@ const each = new SimpleEach(context, opConfig, executionConfig);
 const map = new SimpleMap(context, opConfig, executionConfig);
 const filter = new SimpleFilter(context, opConfig, executionConfig);
 
-module.exports = Suite('Simple Job')
+module.exports = () => Suite('Simple Job')
     .add('calling methods without DataEntities', {
         defer: true,
         fn(deferred) {
-            fetcher.fetch()
+            fetcher.fetch({ addMetadata: true })
                 .then(result => result.map(data => map.map(data)))
                 .then((result) => {
                     result.forEach(data => each.forEach(data));
@@ -75,4 +75,4 @@ module.exports = Suite('Simple Job')
                 .then(() => deferred.resolve());
         }
     })
-    .run({ async: true });
+    .run();
