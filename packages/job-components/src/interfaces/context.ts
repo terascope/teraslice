@@ -49,6 +49,10 @@ export interface Context {
     sysconfig: SysConfig;
     apis: ContextApis;
     foundation: LegacyFoundationApis;
+    assignment: string;
+    arch: string;
+    platform: string;
+    name: string;
 }
 
 export enum Assignment {
