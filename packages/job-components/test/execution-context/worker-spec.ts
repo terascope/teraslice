@@ -80,7 +80,7 @@ describe('WorkerExecutionContext', () => {
 
         it('should have the operations initialized', () => {
             const ops = executionContext.getOperations();
-            for (const op of ops.values()) {
+            for (const op of ops) {
                 expect(op).toHaveProperty('initialized', true);
             }
         });
@@ -92,6 +92,7 @@ describe('WorkerExecutionContext', () => {
             await executionContext.onSliceFinished('hello');
             await executionContext.onSliceFailed('hello');
             await executionContext.onSliceRetry('hello');
+            await executionContext.onOperationComplete(1, 'hello', 1);
         });
 
         it('should be able run a "slice"', async () => {
