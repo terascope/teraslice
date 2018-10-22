@@ -1,6 +1,6 @@
 import 'jest-extended'; // require for type definitions
 import { times } from '../../src/utils';
-import { TestContext, newTestExecutionConfig, WorkerContext, JobObserver } from '../../src';
+import { TestContext, newTestExecutionConfig, WorkerContext, JobObserver, SliceAnalyticsData } from '../../src';
 
 describe('JobObserver', () => {
     let observer: JobObserver;
@@ -47,14 +47,16 @@ describe('JobObserver', () => {
                 observer.onOperationComplete(index, sliceId, index * 10);
             }
 
-            expect(observer.analyticsData.time).toBeArrayOfSize(opLength);
-            expect(observer.analyticsData.size).toBeArrayOfSize(opLength);
-            expect(observer.analyticsData.memory).toBeArrayOfSize(opLength);
+            const analyitcs = observer.analyticsData as SliceAnalyticsData;
+
+            expect(analyitcs.time).toBeArrayOfSize(opLength);
+            expect(analyitcs.size).toBeArrayOfSize(opLength);
+            expect(analyitcs.memory).toBeArrayOfSize(opLength);
 
             for (let index = 0; index < opLength; index++) {
-                expect(observer.analyticsData.size[index]).toEqual(index * 10);
-                expect(observer.analyticsData.memory[index]).toBeNumber();
-                expect(observer.analyticsData.time[index]).toBeGreaterThanOrEqual(0);
+                expect(analyitcs.size[index]).toEqual(index * 10);
+                expect(analyitcs.memory[index]).toBeNumber();
+                expect(analyitcs.time[index]).toBeGreaterThanOrEqual(0);
             }
         });
     });
@@ -71,7 +73,7 @@ describe('JobObserver', () => {
 
         it('should have the default analyticsData', () => {
             expect(observer.collectAnalytics).toBeFalse();
-            expect(observer.analyticsData).toEqual(defaultAnalytics);
+            expect(observer.analyticsData).toBeUndefined();
         });
 
         it('should not gather the analytics when processing a slice', async () => {
@@ -83,7 +85,7 @@ describe('JobObserver', () => {
                 observer.onOperationComplete(index, sliceId, index * 10);
             }
 
-            expect(observer.analyticsData).toEqual(defaultAnalytics);
+            expect(observer.analyticsData).toBeUndefined();
         });
     });
 });

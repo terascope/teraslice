@@ -8,7 +8,7 @@ import { times } from '../utils';
  */
 export default class JobObserver extends APICore {
     collectAnalytics: boolean;
-    analyticsData: SliceAnalyticsData;
+    analyticsData: SliceAnalyticsData|undefined;
 
     // use to avoid undefinied variable issues
     protected _currentSliceId: string;
@@ -25,7 +25,9 @@ export default class JobObserver extends APICore {
         this._opLength = executionConfig.operations.length;
 
         this.collectAnalytics = executionConfig.analytics;
-        this.analyticsData = this.defaultAnalytics();
+        if (this.collectAnalytics) {
+            this.analyticsData = this.defaultAnalytics();
+        }
 
         this._initialized = null;
         this._currentSliceId = '';
@@ -43,7 +45,7 @@ export default class JobObserver extends APICore {
     onOperationComplete(index: number, sliceId: string, processed: number) {
         this._currentSliceId = sliceId;
 
-        if (!this._initialized || !this.collectAnalytics) return;
+        if (!this._initialized || !this.collectAnalytics || !this.analyticsData) return;
 
         const { memory, time } = this._initialized;
 
