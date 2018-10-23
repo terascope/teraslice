@@ -71,10 +71,10 @@ class Scheduler {
 
         await promise;
 
-        this.logger.debug(`execution ${this.exId} is finished scheduling, ${this.queueLength + this._creating} remaining slices in the queue`);
+        this.logger.debug(`execution ${this.exId} is finished scheduling, ${this.pendingSlices + this.pendingSlicerCount} remaining slices in the queue`);
 
         const waitForCreating = () => {
-            const is = () => this._creating;
+            const is = () => this._creating + this.pendingSlicerCount;
             return pWhilst(is, () => Promise.delay(100));
         };
 
@@ -85,7 +85,7 @@ class Scheduler {
         this.paused = false;
     }
 
-    stop() {
+    async stop() {
         if (this.stopped) return;
 
         this.logger.debug('stopping scheduler...');
@@ -94,6 +94,9 @@ class Scheduler {
 
         this._processCleanup();
         this._processCleanup = _.noop;
+
+        await this._drainPendingSlices(false);
+
         this._resolveRun();
         this._resolveRun = _.noop;
     }
@@ -112,12 +115,31 @@ class Scheduler {
 
     get isQueueFull() {
         const maxLength = this.maxQueueLength;
-        return (this._creating + this.queueLength) > maxLength;
+        return this.pendingSlices + this.pendingSlicerCount > maxLength;
+    }
+
+    get pendingSlicerCount() {
+        if (!this.ready) return 0;
+
+        if (this.recovering && this.recover) {
+            return this.recover.sliceCount();
+        }
+
+        return this.executionContext.slicer.sliceCount();
+    }
+
+    get pendingSlices() {
+        return this.queueLength + this._creating;
+    }
+
+    get queueRemainder() {
+        const remainder = this.maxQueueLength - this.pendingSlices;
+        return remainder > 0 ? remainder : 0;
     }
 
     get isFinished() {
         const isDone = this.slicersDone || this.slicersFailed || this.stopped;
-        return isDone && !this.queueLength && !this._creating;
+        return isDone && !this.pendingSlices;
     }
 
     canAllocateSlice() {
@@ -134,7 +156,7 @@ class Scheduler {
     }
 
     async shutdown() {
-        this.stop();
+        await this.stop();
 
         if (this.recover) {
             try {
@@ -203,99 +225,123 @@ class Scheduler {
             exId,
         } = this;
 
+        let _handling = false;
+        let _finished = false;
+
+        let createInterval;
+        let handleInterval;
+
         const resetCleanup = () => {
             this._processCleanup = _.noop;
         };
 
-        const queueRemainder = () => this.maxQueueLength - this.queueLength - this._creating;
-
-        let _handling = false;
-
-        const makeSlices = async () => {
-            if (!this.ready) return;
-            if (_handling) return;
-
-            let finished = false;
-
-            _handling = true;
-
-            try {
-                if (this.recovering && this.recover) {
-                    finished = await this.recover.handle();
-                } else {
-                    finished = await this.executionContext.slicer.handle();
-                }
-            } catch (err) {
-                await onSlicerFailure(err);
-            } finally {
-                _handling = false;
-            }
-
-            if (finished && this.canComplete()) {
-                await onSlicerFinished();
-            }
+        const cleanup = () => {
+            clearInterval(createInterval);
+            createInterval = null;
+            clearInterval(handleInterval);
+            handleInterval = null;
+            resetCleanup();
         };
 
-        const getSlices = () => {
-            if (!this.ready) return [];
-
-            const remainder = queueRemainder();
-
-            if (this.recovering && this.recover) {
-                return this.recover.getSlices(remainder);
-            }
-
-            return this.executionContext.slicer.getSlices(remainder);
-        };
-
-        let interval;
-
-        const queueWillBeFull = () => queueRemainder() < this.executionContext.config.slicers;
-
-        const drainPendingSlices = async () => {
-            const slices = getSlices();
-            if (!slices.length) return;
-
-            await this._createSlices(slices);
-            await drainPendingSlices();
-        };
-
-        async function onSlicerFinished() {
-            clearInterval(interval);
+        const onSlicerFinished = async () => {
+            cleanup();
             logger.info(`all slicers for execution: ${exId} have been completed`);
 
-            await drainPendingSlices();
+            await this._drainPendingSlices(false);
 
             events.emit('slicers:finished');
-            cleanup();
-        }
+        };
 
-        async function onSlicerFailure(err) {
-            clearInterval(interval);
+        const onSlicerFailure = async (err) => {
+            cleanup();
             logger.warn('slicer failed', _.toString(err));
 
             // before removing listeners make sure we've received all of the events
             await Promise.delay(100);
             events.emit('slicers:finished', err);
-            cleanup();
-        }
+        };
 
-        function cleanup() {
-            clearInterval(interval);
-            resetCleanup();
-        }
+        const makeSlices = async () => {
+            try {
+                if (this.recovering && this.recover) {
+                    _finished = await this.recover.handle();
+                } else {
+                    _finished = await this.executionContext.slicer.handle();
+                }
+            } catch (err) {
+                await onSlicerFailure(err);
+                return;
+            }
 
-        // make sure never a miss anything
-        interval = setInterval(() => {
-            if (!this.canAllocateSlice() || queueWillBeFull()) return;
+            if (!_finished) {
+                return;
+            }
 
-            Promise.all([
-                this._createSlices(getSlices()),
-                makeSlices(),
-            ]).catch(err => this.logger.error('failure to run slicers', err));
+            if (!this.recovering) {
+                clearInterval(handleInterval);
+                handleInterval = null;
+            }
+
+            if (this.canComplete()) {
+                await onSlicerFinished();
+            }
+        };
+
+        handleInterval = setInterval(() => {
+            if (!this.canAllocateSlice()) return;
+            if (_handling) return;
+
+            this.logger.trace('LOOP', {
+                _handling,
+                _finished,
+                recovering: this.recovering,
+                pending: this.pendingSlices,
+                pendingSlicerCount: this.pendingSlicerCount,
+                queueLength: this.queueLength,
+                remaining: this.queueRemainder,
+                _creating: this._creating,
+                maxQueueLength: this.maxQueueLength
+            });
+
+            _handling = true;
+
+            makeSlices()
+                .then(() => { _handling = false; })
+                .catch((err) => {
+                    _handling = false;
+                    this.logger.error('failure to run slicers', err);
+                });
+        }, 3);
+
+        createInterval = setInterval(() => {
+            if (!this.pendingSlicerCount) return;
+
+            this._drainPendingSlices()
+                .catch(err => this.logger.error('failure creating slices', err));
         }, 5);
 
         this._processCleanup = cleanup;
+    }
+
+    async _drainPendingSlices(once = true) {
+        const slices = this._getPendingSlices();
+        if (!slices.length) return;
+
+        await this._createSlices(slices);
+
+        if (once) return;
+
+        await this._drainPendingSlices();
+    }
+
+    _getPendingSlices() {
+        if (!this.ready) return [];
+
+        if (this.recovering && this.recover) {
+            return this.recover.getSlices(this.queueRemainder);
+        }
+
+        return this.executionContext.slicer.getSlices(this.queueRemainder);
     }
 
     // In the case of recovery slices have already been

@@ -179,7 +179,7 @@ describe('Scheduler', () => {
                 return Promise.resolve();
             },
             handle() {
-                return this.recoveryComplete();
+                return recoveryRecords.length === 0;
             },
             getSlices(max = 1) {
                 const result = recoveryRecords.splice(0, max);
@@ -197,6 +197,9 @@ describe('Scheduler', () => {
                     return true;
                 }
                 return false;
+            },
+            sliceCount() {
+                return 10;
             },
             exitAfterComplete() {
                 return false;
@@ -243,6 +246,9 @@ describe('Scheduler', () => {
             shutdown() {
                 return Promise.resolve();
             },
+            handle() {
+                return recoveryRecords.length === 0;
+            },
             getSlices(max = 1) {
                 const result = recoveryRecords.splice(0, max);
                 if (!recoveryRecords.length) {
@@ -259,6 +265,9 @@ describe('Scheduler', () => {
                     return true;
                 }
                 return false;
+            },
+            sliceCount() {
+                return 10;
             },
             exitAfterComplete() {
                 return true;
