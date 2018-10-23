@@ -83,7 +83,10 @@ class ExecutionAnalytics {
         this.executionAnalytics[key] += 1;
     }
 
-    get() {
+    get(key) {
+        if (key) {
+            return this.executionAnalytics[key];
+        }
         return this.executionAnalytics;
     }
 

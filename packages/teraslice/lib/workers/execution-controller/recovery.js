@@ -5,7 +5,7 @@ const parseError = require('@terascope/error-parser');
 const _ = require('lodash');
 const Queue = require('@terascope/queue');
 
-function recovery(context, executionFailed, stateStore, executionContext) {
+function recovery(context, stateStore, executionContext) {
     const events = context.apis.foundation.getSystemEvents();
     const numOfSlicersToRecover = executionContext.config.slicers;
     const recoveryQueue = new Queue();
@@ -31,7 +31,11 @@ function recovery(context, executionFailed, stateStore, executionContext) {
         });
 
         recoverSlices()
-            .catch(executionFailed);
+            .catch(_recoveryFailure);
+    }
+
+    function _recoveryFailure(err) {
+        events.emit('recovery:failure', err);
     }
 
     function _sliceComplete(sliceData) {
@@ -142,25 +146,30 @@ function recovery(context, executionFailed, stateStore, executionContext) {
         });
     }
 
-    function newSlicer() {
-        return Promise.resolve([() => new Promise((resolve) => {
-            if (recoveryQueue.size() > 0) {
-                resolve(recoveryQueue.dequeue());
-            } else {
-                const checkingQueue = setInterval(() => {
-                    if (recoveryQueue.size() > 0) {
-                        clearInterval(checkingQueue);
-                        resolve(recoveryQueue.dequeue());
-                        return;
-                    }
+    function getSlice() {
+        if (recoveryQueue.size() > 0) {
+            return recoveryQueue.dequeue();
+        }
+        return null;
+    }
 
-                    if (recoverComplete || isShutdown) {
-                        clearInterval(checkingQueue);
-                        resolve(null);
-                    }
-                }, 100);
-            }
-        })]);
+    function getSlices(max = 1) {
+        const count = max > sliceCount() ? sliceCount() : max;
+
+        const slices = [];
+
+        for (let i = 0; i < count; i++) {
+            const slice = recoveryQueue.dequeue();
+            if (!slice) return slices;
+
+            slices.push(slice);
+        }
+
+        return slices;
+    }
+
+    function sliceCount() {
+        return recoveryQueue.size();
     }
 
     function shutdown() {
@@ -202,7 +211,9 @@ function recovery(context, executionFailed, stateStore, executionContext) {
     return {
         getSlicerStartingPosition,
         initialize,
-        newSlicer,
+        getSlice,
+        getSlices,
+        sliceCount,
         exitAfterComplete,
         recoveryComplete,
         recoverSlices,

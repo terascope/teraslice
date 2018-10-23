@@ -70,6 +70,7 @@ export default abstract class ParallelSlicer extends SlicerCore {
         if (result == null) {
             this.logger.info(`slicer ${slicer.id} has completed its range`);
             slicer.done = true;
+
             this.events.emit('slicer:done', slicer.id);
         } else {
             if (Array.isArray(result)) {
