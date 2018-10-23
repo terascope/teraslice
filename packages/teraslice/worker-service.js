@@ -19,7 +19,7 @@ class Service {
     }
 
     async initialize() {
-        const { assignment } = this.conext;
+        const { assignment } = this.context;
         const { ex_id: exId } = this.executionConfig;
         this.logger.trace(`Initializing ${assignment} for execution ${exId}...`, this.executionConfig);
 
