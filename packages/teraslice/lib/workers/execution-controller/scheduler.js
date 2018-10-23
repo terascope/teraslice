@@ -35,7 +35,6 @@ class Scheduler {
     async run() {
         if (this.recoverExecution) {
             await this._recoverSlices();
-            this.events.emit('slicers:registered', 1);
 
             if (this.recover.exitAfterComplete()) {
                 return;
@@ -44,6 +43,7 @@ class Scheduler {
 
         this.events.emit('slicers:registered', this.executionContext.slicer.slicers);
         await this.executionContext.initialize(this.startingPoints);
+
         this.ready = true;
 
         const promise = new Promise((resolve) => {
@@ -203,7 +203,6 @@ class Scheduler {
             exId,
         } = this;
 
-
         const resetCleanup = () => {
             this._processCleanup = _.noop;
         };
@@ -216,7 +215,7 @@ class Scheduler {
 
             try {
                 if (this.recovering && this.recover) {
-                    finished = this.recover.recoveryComplete();
+                    finished = await this.recover.handle();
                 } else {
                     finished = await this.executionContext.slicer.handle();
                 }
@@ -283,12 +282,10 @@ class Scheduler {
         interval = setInterval(() => {
             if (!this.canAllocateSlice() || queueWillBeFull()) return;
 
-            process.nextTick(() => {
-                Promise.all([
-                    this._createSlices(getSlices()),
-                    makeSlices(),
-                ]).catch(err => this.logger.error('failure to run slicers', err));
-            });
+            Promise.all([
+                this._createSlices(getSlices()),
+                makeSlices(),
+            ]).catch(err => this.logger.error('failure to run slicers', err));
         }, 5);
 
         this._processCleanup = cleanup;
@@ -327,11 +324,29 @@ class Scheduler {
 
         await this.recover.initialize();
 
+        this.events.emit('slicers:registered', 1);
+
         this.logger.info(`execution: ${this.exId} is starting in recovery mode`);
         this.ready = true;
+        this.start();
 
         await this._waitForRecovery();
+        await this._recoveryComplete();
+    }
 
+    async _waitForRecovery() {
+        if (!this.recoverExecution) return;
+
+        if (!this.recover.recoveryComplete()) {
+            await new Promise((resolve) => {
+                this.events.once('execution:recovery:complete', () => {
+                    resolve();
+                });
+            });
+        }
+    }
+
+    async _recoveryComplete() {
         this.recovering = false;
         this.ready = false;
 
@@ -345,22 +360,9 @@ class Scheduler {
             return;
         }
 
+        this.startingPoints = await this.recover.getSlicerStartingPosition();
+
         this.logger.info(`execution ${this.exId} finished its recovery`);
-    }
-
-    async _waitForRecovery() {
-        if (!this.recoverExecution) return;
-
-        if (!this.recover.recoveryComplete()) {
-            await new Promise((resolve) => {
-                this.events.once('execution:recovery:complete', (startingPoints) => {
-                    this.logger.trace('recovery starting points', startingPoints);
-                    this.startingPoints = startingPoints;
-
-                    resolve();
-                });
-            });
-        }
     }
 }
 

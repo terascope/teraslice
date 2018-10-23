@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const uuidv4 = require('uuid/v4');
 const Promise = require('bluebird');
 const TestContext = require('../helpers/test-context');
 const Scheduler = require('../../../lib/workers/execution-controller/scheduler');
@@ -152,7 +153,20 @@ describe('Scheduler', () => {
     });
 
     it('should handle recovery correctly', async () => {
-        const recoveryRecords = _.times(countPerSlicer * slicers, () => ({ id: _.uniqueId('recover-') }));
+        const recoveryRecords = _.times(countPerSlicer * slicers, () => ({
+            slice_id: uuidv4(),
+            slicer_id: 1,
+            slicer_order: 0,
+            request: {
+                id: _.uniqueId('recover-'),
+            },
+            _created: new Date().toISOString()
+        }));
+
+        const emitDone = _.once(() => {
+            scheduler.events.emit('execution:recovery:complete', []);
+        });
+
         let slices = [];
 
         scheduler.recoverExecution = true;
@@ -164,15 +178,25 @@ describe('Scheduler', () => {
             shutdown() {
                 return Promise.resolve();
             },
+            handle() {
+                return this.recoveryComplete();
+            },
             getSlices(max = 1) {
                 const result = recoveryRecords.splice(0, max);
-                if (!result.length) {
-                    this.events.emit('execution:recovery:complete', []);
+                if (!recoveryRecords.length) {
+                    emitDone();
                 }
                 return result;
             },
+            getSlicerStartingPosition() {
+                return Promise.resolve([]);
+            },
             recoveryComplete() {
-                return recoveryRecords.length === 0;
+                if (!recoveryRecords.length) {
+                    emitDone();
+                    return true;
+                }
+                return false;
             },
             exitAfterComplete() {
                 return false;
@@ -195,9 +219,20 @@ describe('Scheduler', () => {
     });
 
     it('should handle recovery with cleanup type correctly', async () => {
-        const recoveryRecords = _.times(countPerSlicer, () => ({ id: _.uniqueId('recover-') }));
+        const recoveryRecords = _.times(countPerSlicer, () => ({
+            slice_id: uuidv4(),
+            slicer_id: 1,
+            slicer_order: 0,
+            request: {
+                id: _.uniqueId('recover-'),
+            },
+            _created: new Date().toISOString()
+        }));
 
         let slices = [];
+        const emitDone = _.once(() => {
+            scheduler.events.emit('execution:recovery:complete', []);
+        });
 
         scheduler.recoverExecution = true;
         scheduler.recovering = true;
@@ -210,13 +245,20 @@ describe('Scheduler', () => {
             },
             getSlices(max = 1) {
                 const result = recoveryRecords.splice(0, max);
-                if (!result.length) {
-                    this.events.emit('execution:recovery:complete', []);
+                if (!recoveryRecords.length) {
+                    emitDone();
                 }
                 return result;
             },
+            getSlicerStartingPosition() {
+                return Promise.resolve([]);
+            },
             recoveryComplete() {
-                return recoveryRecords.length === 0;
+                if (!recoveryRecords.length) {
+                    emitDone();
+                    return true;
+                }
+                return false;
             },
             exitAfterComplete() {
                 return true;
