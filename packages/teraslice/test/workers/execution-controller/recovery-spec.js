@@ -78,22 +78,14 @@ describe('execution recovery', () => {
     }
 
     it('has the proper methods', () => {
-        expect(recoveryModule.initialize).toBeDefined();
-        expect(typeof recoveryModule.initialize).toEqual('function');
-        expect(recoveryModule.recoverSlices).toBeDefined();
-        expect(typeof recoveryModule.recoverSlices).toEqual('function');
-        expect(recoveryModule.__test_context).toBeDefined();
-        expect(typeof recoveryModule.__test_context).toEqual('function');
-        expect(recoveryModule.getSlice).toBeDefined();
-        expect(typeof recoveryModule.getSlice).toEqual('function');
-        expect(recoveryModule.getSlices).toBeDefined();
-        expect(typeof recoveryModule.getSlices).toEqual('function');
-        expect(recoveryModule.getSlicerStartingPosition).toBeDefined();
-        expect(typeof recoveryModule.getSlicerStartingPosition).toEqual('function');
-        expect(recoveryModule.recoveryComplete).toBeDefined();
-        expect(typeof recoveryModule.recoveryComplete).toEqual('function');
-        expect(recoveryModule.shutdown).toBeDefined();
-        expect(typeof recoveryModule.shutdown).toEqual('function');
+        expect(recoveryModule.initialize).toBeFunction();
+        expect(recoveryModule.__test_context).toBeFunction();
+        expect(recoveryModule.handle).toBeFunction();
+        expect(recoveryModule.getSlice).toBeFunction();
+        expect(recoveryModule.getSlices).toBeFunction();
+        expect(recoveryModule.getSlicerStartingPosition).toBeFunction();
+        expect(recoveryModule.recoveryComplete).toBeFunction();
+        expect(recoveryModule.shutdown).toBeFunction();
     });
 
     it('manages retry slice state', () => {
@@ -124,6 +116,7 @@ describe('execution recovery', () => {
         expect(recovery._recoveryBatchCompleted()).toEqual(true);
 
         recovery._setId({ slice_id: 1 });
+        recovery._setId({ slice_id: 2 });
 
         const sendSucess = sendEvent('slice:success', { slice: { slice_id: 1 } });
         const sendSucess2 = sendEvent('slice:success', { slice: { slice_id: 2 } });
@@ -167,6 +160,11 @@ describe('execution recovery', () => {
 
         expect(recoveryModule.recoveryComplete()).toEqual(false);
 
+        let finished = false;
+        const createSlices = pWhilst(() => !finished, async () => {
+            finished = await recoveryModule.handle();
+        });
+
         const shouldWait = () => !recoveryModule.sliceCount() && !recoveryModule.recoveryComplete();
 
         const slicer = async () => {
@@ -198,6 +196,7 @@ describe('execution recovery', () => {
             })
             .then(() => {
                 expect(startingPoints).toEqual({ 0: '9999', 1: '9999' });
+                return createSlices;
             });
     });
 });
