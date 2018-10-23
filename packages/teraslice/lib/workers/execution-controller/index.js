@@ -180,7 +180,7 @@ class ExecutionController {
 
         this.server.onSliceSuccess((workerId, response) => {
             process.nextTick(() => {
-                const { slice: sliceId } = response.slice;
+                const { slice_id: sliceId } = response.slice;
                 this.logger.info(`worker ${workerId} has completed its slice ${sliceId}`);
                 this.events.emit('slice:success', response);
                 this.pendingSlices -= 1;
@@ -343,7 +343,7 @@ class ExecutionController {
         this.server.isShuttingDown = true;
 
         // tell the scheduler to stop producing slices
-        this.scheduler.stop();
+        await this.scheduler.stop();
 
         // remove any listeners
         _.forEach(this._handlers, (handler, event) => {

@@ -89,6 +89,8 @@ function recovery(context, stateStore, executionContext) {
     let slicerID = 0;
 
     async function handle() {
+        if (recoverComplete) return true;
+
         const recoveredSlicesCount = await _processIncompleteSlices(slicerID);
         if (recoveredSlicesCount === 0) {
             slicerID++;
