@@ -211,8 +211,7 @@ describe('Slice', () => {
         });
     });
 
-    // FIXME
-    xdescribe('when logging the analytics state', () => {
+    describe('when logging the analytics state', () => {
         describe('when given invalid state', () => {
             let testContext;
             let slice;
@@ -228,8 +227,8 @@ describe('Slice', () => {
             });
 
             it('should throw an error if given invalid state', async () => {
-                slice.analyticsData = { should: 'break' };
-                return expect(slice._logAnalytics()).rejects.toThrowError(/Failure to update analytics/);
+                const data = { should: 'break' };
+                return expect(slice._logAnalytics(data)).rejects.toThrowError(/Failure to update analytics/);
             });
         });
 
