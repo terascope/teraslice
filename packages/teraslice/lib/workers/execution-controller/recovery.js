@@ -1,13 +1,12 @@
 'use strict';
 
-const Promise = require('bluebird');
-const parseError = require('@terascope/error-parser');
 const _ = require('lodash');
+const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
 
 function recovery(context, stateStore, executionContext) {
     const events = context.apis.foundation.getSystemEvents();
-    const numOfSlicersToRecover = executionContext.config.slicers;
+    const slicersToRecover = executionContext.config.slicers;
     const recoveryQueue = new Queue();
 
     const cleanupType = executionContext.config.recovered_slice_type;
@@ -29,13 +28,6 @@ function recovery(context, stateStore, executionContext) {
         events.once('execution:recovery:complete', () => {
             events.removeListener('slice:success', _sliceComplete);
         });
-
-        recoverSlices()
-            .catch(_recoveryFailure);
-    }
-
-    function _recoveryFailure(err) {
-        events.emit('recovery:failure', err);
     }
 
     function _sliceComplete(sliceData) {
@@ -46,7 +38,7 @@ function recovery(context, stateStore, executionContext) {
         if (exitAfterComplete()) return Promise.resolve([]);
 
         const recoveredSlices = [];
-        for (let i = 0; i < numOfSlicersToRecover; i += 1) {
+        for (let i = 0; i < slicersToRecover; i += 1) {
             recoveredSlices.push(stateStore.executionStartingSlice(recoverExecution, i));
         }
         return Promise.all(recoveredSlices);
@@ -56,16 +48,14 @@ function recovery(context, stateStore, executionContext) {
         retryState[slice.slice_id] = true;
     }
 
-    function _processIncompleteSlices(slicerID) {
-        return stateStore.recoverSlices(recoverExecution, slicerID, cleanupType)
-            .then((slices) => {
-                slices.forEach((slice) => {
-                    _setId(slice);
-                    recoveryQueue.enqueue(slice);
-                });
+    async function _processIncompleteSlices(slicerID) {
+        const slices = await stateStore.recoverSlices(recoverExecution, slicerID, cleanupType);
+        slices.forEach((slice) => {
+            _setId(slice);
+            recoveryQueue.enqueue(slice);
+        });
 
-                return slices.length;
-            });
+        return slices.length;
     }
 
     function _recoveryBatchCompleted() {
@@ -81,69 +71,38 @@ function recovery(context, stateStore, executionContext) {
             const checkingBatch = setInterval(() => {
                 if (_recoveryBatchCompleted()) {
                     clearInterval(checkingBatch);
-                    resolve(true);
+                    events.emit('execution:recovery:complete');
+                    recoverComplete = true;
+                    resolve();
                     return;
                 }
 
                 if (isShutdown) {
                     clearInterval(checkingBatch);
-                    resolve(false);
+                    recoverComplete = false;
+                    resolve();
                 }
             }, 100);
         });
     }
 
-    function recoverSlices() {
-        const startingID = 0;
-        return new Promise((resolve, reject) => {
-            function retrieveSlices(slicerID) {
-                if (isShutdown) {
-                    resolve(false);
-                    return;
-                }
+    let slicerID = 0;
 
-                _processIncompleteSlices(slicerID)
-                    .then((recoveredSlicesCount) => {
-                        if (recoveredSlicesCount === 0) {
-                            const nextID = slicerID + 1;
-                            // all slicers have been recovered
-                            if (nextID > numOfSlicersToRecover) {
-                                logger.warn(`recovered data for execution: ${exId} has successfully been enqueued`);
-                                _waitForRecoveryBatchCompletion()
-                                    .then((isComplete) => {
-                                        if (isComplete) {
-                                            resolve(true);
-                                        } else {
-                                            resolve(false);
-                                        }
-                                    });
-                            } else {
-                                retrieveSlices(nextID);
-                            }
-                        } else {
-                            _waitForRecoveryBatchCompletion()
-                                .then(() => retrieveSlices(slicerID));
-                        }
-                    })
-                    .catch(err => reject(new Error(parseError(err))));
+    async function handle() {
+        const recoveredSlicesCount = await _processIncompleteSlices(slicerID);
+        if (recoveredSlicesCount === 0) {
+            slicerID++;
+            // all slicers have been recovered
+            if (slicerID > slicersToRecover) {
+                logger.warn(`recovered data for execution: ${exId} has successfully been enqueued`);
+                _waitForRecoveryBatchCompletion();
+                return true;
             }
+        } else {
+            await _waitForRecoveryBatchCompletion();
+        }
 
-            retrieveSlices(startingID);
-        }).then(async (isComplete) => {
-            if (!isComplete) {
-                logger.warn(`recovered data for execution: ${exId} was shutdown before it could finish`);
-                return;
-            }
-            recoverComplete = true;
-            try {
-                const executionStartingPoints = await getSlicerStartingPosition();
-                events.emit('execution:recovery:complete', executionStartingPoints);
-                return;
-            } catch (err) {
-                logger.warn(parseError(err));
-            }
-            events.emit('execution:recovery:complete', []);
-        });
+        return false;
     }
 
     function getSlice() {
@@ -216,7 +175,7 @@ function recovery(context, stateStore, executionContext) {
         sliceCount,
         exitAfterComplete,
         recoveryComplete,
-        recoverSlices,
+        handle,
         shutdown,
         __test_context: testContext,
     };
