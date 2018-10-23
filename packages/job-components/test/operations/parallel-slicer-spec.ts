@@ -64,9 +64,13 @@ describe('ParallelSlicer', () => {
                     const done = await slicer.handle();
                     expect(done).toBeFalse();
 
-                    const slice1 = slicer.getSlice();
+                    const slices = slicer.getSlices(3);
+                    expect(slices).toBeArrayOfSize(2);
 
-                    if (!slice1) {
+                    const slice1 = slices[0];
+                    const slice2 = slices[1];
+
+                    if (!slices) {
                         expect(slice1).toBeNil();
                     } else if (slice1.slicer_id === 0) {
                         expect(slice1).toMatchObject({
@@ -85,8 +89,6 @@ describe('ParallelSlicer', () => {
                             }
                         });
                     }
-
-                    const slice2 = slicer.getSlice();
 
                     if (!slice2) {
                         expect(slice2).toBeNil();
@@ -117,7 +119,11 @@ describe('ParallelSlicer', () => {
                     const done = await slicer.handle();
                     expect(done).toBeFalse();
 
-                    const slice1 = slicer.getSlice();
+                    const slices = slicer.getSlices(3);
+                    expect(slices).toBeArrayOfSize(2);
+
+                    const slice1 = slices[0];
+                    const slice2 = slices[1];
 
                     if (!slice1) {
                         expect(slice1).toBeNil();
@@ -138,8 +144,6 @@ describe('ParallelSlicer', () => {
                             }
                         });
                     }
-
-                    const slice2 = slicer.getSlice();
 
                     if (!slice2) {
                         expect(slice2).toBeNil();
@@ -225,7 +229,11 @@ describe('ParallelSlicer', () => {
                     const done = await slicer.handle();
                     expect(done).toBeFalse();
 
-                    const slice1 = slicer.getSlice();
+                    const slices = slicer.getSlices(3);
+                    expect(slices).toBeArrayOfSize(2);
+
+                    const slice1 = slices[0];
+                    const slice2 = slices[1];
 
                     if (!slice1) {
                         expect(slice1).toBeNil();
@@ -246,8 +254,6 @@ describe('ParallelSlicer', () => {
                             }
                         });
                     }
-
-                    const slice2 = slicer.getSlice();
 
                     if (!slice2) {
                         expect(slice2).toBeNil();
@@ -279,7 +285,11 @@ describe('ParallelSlicer', () => {
                     const done = await slicer.handle();
                     expect(done).toBeFalse();
 
-                    const slice1 = slicer.getSlice();
+                    const slices = slicer.getSlices(3);
+                    expect(slices).toBeArrayOfSize(2);
+
+                    const slice1 = slices[0];
+                    const slice2 = slices[1];
 
                     if (!slice1) {
                         expect(slice1).toBeNil();
@@ -300,8 +310,6 @@ describe('ParallelSlicer', () => {
                             }
                         });
                     }
-
-                    const slice2 = slicer.getSlice();
 
                     if (!slice2) {
                         expect(slice2).toBeNil();
