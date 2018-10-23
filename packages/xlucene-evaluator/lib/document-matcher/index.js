@@ -227,7 +227,7 @@ class DocumentMatcher extends LuceneQueryParser {
         let hasGeoTypes = false;
         let geoQuery = null;
         let parsedAst = null;
-
+        let regexField = null;
         const { _ast: ast } = this;
 
 
@@ -238,8 +238,10 @@ class DocumentMatcher extends LuceneQueryParser {
                     preprocess[key] = types[key];
                 }
                 if (types[key] === 'geo' ) {
-                    console.log('geo type should be true')
                     hasGeoTypes = true;
+                }
+                if (types[key] === 'regex' ) {
+                    regexField = key;
                 }
             }
         }
@@ -368,7 +370,11 @@ class DocumentMatcher extends LuceneQueryParser {
         function strBuilder(ast, _field, depth) {
             const topField = ast.field || _field;
 
-            if (topField === ipFieldName) {
+            if (regexField && (topField === regexField)) {
+                console.log('this regex should not be running', topField, regexField)
+                str += `data.${ast.field}.match(/^(${ast.term})\\b/) !== null`
+            }
+            else if (topField === ipFieldName) {
                 str += `argsFn(data)`
             } else {
                 if (ast.field && ast.term) {

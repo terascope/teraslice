@@ -601,9 +601,9 @@ describe('document matcher', () => {
         });
     });
 
-    describe('geo expressions', () => {
+    xdescribe('geo expressions', () => {
 
-        it('can run', () => {
+        it('can do basic matches', () => {
             const data1 = { location: '33.435967,-111.867710' };
             const data2 = { location: '22.435967,-150.867710' };
 
@@ -621,7 +621,28 @@ describe('document matcher', () => {
         //TODO: make more geo tests
     });
 
-    describe('can do regex queries', () => {
+    describe('regex queries', () => {
 
+        it('can do basic regex matches', () => {
+            const data1 = { key : 'abcde' };
+            const data2 = { key: 'field' };
+            const data3 = { key : 'abcdef' };
+            const data4 = { key : 'zabcde' };
+    
+            documentMatcher.parse('key:ab.*', { key: 'regex' });
+    
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(false);
+            expect(documentMatcher.match(data3)).toEqual(true);
+            expect(documentMatcher.match(data4)).toEqual(false);
+
+            documentMatcher.parse('key:abcd', { key: 'regex' });
+    
+            expect(documentMatcher.match(data1)).toEqual(false);
+            expect(documentMatcher.match(data2)).toEqual(false);
+            expect(documentMatcher.match(data3)).toEqual(false);
+            expect(documentMatcher.match(data4)).toEqual(false);
+        });
     });
+    //TODO: test mulptile types of the same kind on data
 });

@@ -7,13 +7,18 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "jest",
+    "test": "npm run build; jest --verbose --runInBand",
     "build": "node_modules/pegjs/bin/pegjs -o lib/lucene-query-parser/peg_engine.js lib/lucene-query-parser/lucene.grammar"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@turf/turf": "^5.1.6",
+    "ip-num": "^1.1.1",
+    "ip6addr": "^0.2.2",
+    "is-cidr": "^3.0.0",
+    "lodash": "^4.17.11",
     "pegjs": "^0.10.0"
   },
   "devDependencies": {
