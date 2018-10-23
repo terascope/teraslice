@@ -223,7 +223,7 @@ xdescribe('ExecutionController Special Tests', () => {
             exStore = await testContext.addExStore();
 
             if (shutdownEarly) {
-                testContext.executionContext.slicer.maxQueueLength = 1;
+                testContext.executionContext.slicer.maxQueueLength = () => 1;
             }
 
             if (recover) {

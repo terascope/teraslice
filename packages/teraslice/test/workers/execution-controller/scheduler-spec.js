@@ -5,8 +5,7 @@ const Promise = require('bluebird');
 const TestContext = require('../helpers/test-context');
 const Scheduler = require('../../../lib/workers/execution-controller/scheduler');
 
-// FIXME
-xdescribe('Scheduler', () => {
+describe('Scheduler', () => {
     const slicers = 3;
     const countPerSlicer = 200;
     let expectedCount;
@@ -31,24 +30,14 @@ xdescribe('Scheduler', () => {
         });
     }
 
-    function registerSlicers() {
-        const newSlicer = (id) => {
-            const records = _.times(countPerSlicer, () => ({ id: _.uniqueId(`slicer-${id}-`) }));
-            return async () => {
-                await Promise.delay(0);
-                return records.shift();
-            };
-        };
-
-        return scheduler.registerSlicers(_.times(slicers, newSlicer));
-    }
-
     beforeEach(async () => {
         expectedCount = slicers * countPerSlicer;
 
         testContext = new TestContext({
             assignment: 'execution_controller',
-            slicers
+            slicers,
+            newOps: true,
+            countPerSlicer
         });
 
         await testContext.initialize();
@@ -62,33 +51,18 @@ xdescribe('Scheduler', () => {
             createState: () => Promise.delay()
         };
 
-        registerSlicers();
-
-        testContext.attachCleanup(() => scheduler.cleanup());
+        testContext.attachCleanup(() => scheduler.shutdown());
     });
 
     afterEach(() => testContext.cleanup());
 
-    it('should register the slicers', async () => {
-        expect(scheduler.slicers).toBeArrayOfSize(slicers);
+    it('should be constructed wih the correct values', async () => {
         expect(scheduler.slicersDone).toBeFalse();
-
-        expect(scheduler.ready).toBeTrue();
+        expect(scheduler.ready).toBeFalse();
         expect(scheduler.paused).toBeTrue();
         expect(scheduler.stopped).toBeFalse();
         expect(scheduler.queueLength).toEqual(0);
         expect(scheduler.isFinished).toBeFalse();
-    });
-
-    it('should throw an error when run is called before slicers are registered', () => {
-        scheduler.ready = false;
-        return expect(scheduler.run()).rejects.toThrowError('Scheduler needs to have registered slicers first');
-    });
-
-    it('should throw an error when registering a non-array of slicers', () => {
-        expect(() => {
-            scheduler.registerSlicers({});
-        }).toThrowError(`newSlicer from module ${testContext.config.job.operations[0]._op} needs to return an array of slicers`);
     });
 
     it('should be able to reenqueue a slice', () => {
@@ -130,7 +104,6 @@ xdescribe('Scheduler', () => {
         ]);
 
         expect(scheduler.paused).toBeFalse();
-        expect(scheduler.slicers).toBeArrayOfSize(slicers);
         expect(scheduler.slicersDone).toBeTrue();
         expect(scheduler.queueLength).toEqual(0);
         expect(slices).toBeArrayOfSize(expectedCount);
@@ -145,9 +118,7 @@ xdescribe('Scheduler', () => {
             _.delay(() => scheduler.start(), 10);
         });
 
-        const pauseAfter = _.after(Math.round(countPerSlicer / 3), pause);
-
-        scheduler.events.on('slicer:done', pauseAfter);
+        scheduler.events.on('slicer:done', pause);
 
         await Promise.all([
             scheduler.run(),
@@ -164,10 +135,7 @@ xdescribe('Scheduler', () => {
 
         const stop = _.once(() => scheduler.stop());
 
-        expectedCount = Math.round(countPerSlicer / 3);
-        const stopAfter = _.after(expectedCount, stop);
-
-        scheduler.events.on('slicer:done', stopAfter);
+        scheduler.events.on('slicer:done', stop);
 
         await Promise.all([
             scheduler.run(),
@@ -183,19 +151,20 @@ xdescribe('Scheduler', () => {
         expect(scheduler.slicersDone).toBeFalse();
     });
 
-    it('should handle recovery correctly', async () => {
+    // FIXME
+    xit('should handle recovery correctly', async () => {
         let slices = [];
 
         scheduler.recoverExecution = true;
         scheduler.recovering = true;
 
         const recover = _.once(() => {
-            scheduler.markRecoveryAsComplete(false).then(() => {
-                registerSlicers();
-            });
+            // scheduler.markRecoveryAsComplete(false).then(() => {
+            //     registerSlicers();
+            // });
         });
 
-        const recoverAfter = _.after(expectedCount, recover);
+        const recoverAfter = _.after(slicers, recover);
 
         expectedCount *= 2;
 
@@ -214,7 +183,8 @@ xdescribe('Scheduler', () => {
         expect(scheduler.slicersDone).toBeTrue();
     });
 
-    it('should handle recovery with cleanup type correctly', async () => {
+    // FIXME
+    xit('should handle recovery with cleanup type correctly', async () => {
         let slices = [];
 
         scheduler.recoverExecution = true;
@@ -224,7 +194,7 @@ xdescribe('Scheduler', () => {
             scheduler.markRecoveryAsComplete(true);
         });
 
-        const recoverAfter = _.after(expectedCount, recover);
+        const recoverAfter = _.after(slicers, recover);
 
         scheduler.events.on('slicer:done', recoverAfter);
 
