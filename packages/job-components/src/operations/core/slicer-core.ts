@@ -67,6 +67,11 @@ export default abstract class SlicerCore extends Core implements SlicerOperation
     abstract async handle(): Promise<boolean>;
 
     /**
+     * Return the number of registered slicers
+    */
+    abstract slicers(): number;
+
+    /**
      * Create a Slice object from a slice request.
      * In the case of recovery the "Slice" already has the required
      * This will be enqueued and dequeued by the "Execution Controller"
@@ -89,7 +94,33 @@ export default abstract class SlicerCore extends Core implements SlicerOperation
      * A method called by the "Execution Controller" to dequeue a created "Slice"
     */
     getSlice(): Slice|null {
+        if (!this.sliceCount()) return null;
         return this.queue.dequeue();
+    }
+
+    /**
+     * A method called by the "Execution Controller" to dequeue many created slices
+    */
+    getSlices(max: number): Slice[] {
+        const count = max > this.sliceCount() ? this.sliceCount() : max;
+
+        const slices: Slice[] = [];
+
+        for (let i = 0; i < count; i++) {
+            const slice = this.queue.dequeue();
+            if (!slice) return slices;
+
+            slices.push(slice);
+        }
+
+        return slices;
+    }
+
+    /**
+     * The number of enqueued slices
+    */
+    sliceCount(): number {
+        return this.queue.size();
     }
 
     /**
