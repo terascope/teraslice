@@ -21,6 +21,40 @@ const newSliceConfig = (request = { example: 'slice-data' }) => ({
 });
 
 const newConfig = (options = {}) => {
+    const { newOps } = options;
+    let { operations } = options;
+    if (operations == null) {
+        if (newOps) {
+            operations = [
+                pickBy({
+                    _op: path.join(opsPath, 'new-reader'),
+                    countPerSlicer: options.countPerSlicer,
+                }),
+                pickBy({
+                    _op: path.join(opsPath, 'new-op'),
+                })
+            ];
+        } else {
+            operations = [
+                pickBy({
+                    _op: path.join(opsPath, 'example-reader'),
+                    exampleProp: 321,
+                    errorAt: options.readerErrorAt,
+                    results: options.readerResults,
+                    slicerResults: options.slicerResults,
+                    slicerErrorAt: options.slicerErrorAt,
+                    slicerQueueLength: options.slicerQueueLength,
+                }),
+                pickBy({
+                    _op: path.join(opsPath, 'example-op'),
+                    exampleProp: 123,
+                    errorAt: options.opErrorAt,
+                    results: options.opResults,
+                })
+            ];
+        }
+    }
+
     const {
         analytics = false,
         maxRetries = 0,
@@ -31,24 +65,8 @@ const newConfig = (options = {}) => {
         slicers = 1,
         recoveredExecution,
         recoveredSliceType,
-        operations = [
-            pickBy({
-                _op: path.join(opsPath, 'example-reader'),
-                exampleProp: 321,
-                errorAt: options.readerErrorAt,
-                results: options.readerResults,
-                slicerResults: options.slicerResults,
-                slicerErrorAt: options.slicerErrorAt,
-                slicerQueueLength: options.slicerQueueLength,
-            }),
-            pickBy({
-                _op: path.join(opsPath, 'example-op'),
-                exampleProp: 123,
-                errorAt: options.opErrorAt,
-                results: options.opResults,
-            })
-        ],
     } = options;
+
     return {
         name: chance.name({ middle: true }),
         slicers,
