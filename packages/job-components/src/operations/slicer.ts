@@ -20,12 +20,18 @@ export default abstract class Slicer extends SlicerCore {
     */
     abstract async slice(): Promise<SlicerResult>;
 
+    slicers() {
+        return 1;
+    }
+
     async handle(): Promise<boolean> {
         if (this.isFinished) return true;
 
         const result = await this.slice();
         if (result == null) {
             this.isFinished = true;
+            this.logger.info('slicer has completed its range');
+            this.events.emit('slicer:done', 0);
             return true;
         }
 

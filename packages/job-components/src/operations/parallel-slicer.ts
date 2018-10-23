@@ -46,6 +46,10 @@ export default abstract class ParallelSlicer extends SlicerCore {
     */
     abstract async newSlicer(): Promise<SlicerFn>;
 
+    slicers() {
+        return this._slicers.length;
+    }
+
     async handle(): Promise<boolean> {
         if (this.isFinished) return true;
 
@@ -64,7 +68,9 @@ export default abstract class ParallelSlicer extends SlicerCore {
 
         const result = await slicer.fn();
         if (result == null) {
+            this.logger.info(`slicer ${slicer.id} has completed its range`);
             slicer.done = true;
+            this.events.emit('slicer:done', slicer.id);
         } else {
             if (Array.isArray(result)) {
                 this.events.emit('slicer:subslice');

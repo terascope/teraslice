@@ -7,6 +7,10 @@ describe('SlicerCore', () => {
         async handle(): Promise<boolean> {
             return false;
         }
+
+        slicers() {
+            return 1;
+        }
     }
 
     let slicer: ExampleSlicerCore;
