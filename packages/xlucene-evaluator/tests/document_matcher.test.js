@@ -2,15 +2,15 @@
 
 const DocumentMatcher = require('../lib/document-matcher');
 
-// //TODO: add tests for regex, geo
+// //TODO: add tests
 describe('document matcher', () => {
     let documentMatcher;
     
     beforeEach(() => {
         documentMatcher = new DocumentMatcher();
     });
-//TODO: have tests using  _exists_
-   xdescribe('exact match and term expressions', () => {
+
+    xdescribe('exact match and term expressions', () => {
         it('can match basic terms', () => {
             const data = { hello: 'world' };
             const badData = { hello: 'goodbye' };
@@ -603,15 +603,25 @@ describe('document matcher', () => {
 
     describe('geo expressions', () => {
 
-
         it('can run', () => {
-            const data1 = { location: '-83, 30', some: 'key', bytes: 1232322 };
+            const data1 = { location: '33.435967,-111.867710' };
+            const data2 = { location: '22.435967,-150.867710' };
 
-            documentMatcher.parse('location:(_geo_point_:"12.32,143.32" _geo_distance_: 5 _geo_sort_unit_:km) AND some:key', { location: 'geo' });
+            documentMatcher.parse('location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")', { location: 'geo' });
 
             expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(false);
 
+            documentMatcher.parse('location:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000)', { location: 'geo' });
+
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(false);
         });
-    })
-    
+
+        //TODO: make more geo tests
+    });
+
+    describe('can do regex queries', () => {
+
+    });
 });

@@ -6,12 +6,69 @@ const isCidr = require('is-cidr');
 const { isIPv4, isIPv6 } = require('net');
 const ip6addr = require('ip6addr');
 const _ = require('lodash');
+const pointInPolygon = require('@turf/boolean-point-in-polygon');
+const createCircle = require('@turf/circle');
+const bbox = require('@turf/bbox').default;
+const bboxPolygon = require('@turf/bbox-polygon');
+const { lineString } = require('@turf/helpers');
+
+
+//TODO: need to handle date math
 
 const MIN_IPV4_IP = '0.0.0.0';
 const MAX_IPV4_IP = '255.255.255.255';
 
 const MIN_IPV6_IP = '0.0.0.0.0.0.0.0';
 const MAX_IPV6_IP = 'ffff.ffff.ffff.ffff.ffff.ffff.ffff.ffff';
+
+// feet
+const MileUnits = {
+    mi: 'miles',
+    miles: 'miles',
+    mile: 'miles',
+};
+const NMileUnits = {
+    NM:'nauticalmiles',
+    nmi: 'nauticalmiles',
+    nauticalmile: 'nauticalmiles',
+    nauticalmiles: 'nauticalmiles'
+};
+const inchUnits = {
+    in: 'inches',
+    inch: 'inches',
+    inches: 'inches'
+};
+const yardUnits = {
+    yd: 'yards',
+    yard: 'yards',
+    yards: 'yards'
+};
+const meterUnits = {
+    m: 'meters',
+    meter: 'meters',
+    meters: 'meters'
+};
+const kilometerUnits = {
+    km: 'kilometers',
+    kilometer: 'kilometers',
+    kilometers: 'kilometers'
+};
+const millimeterUnits = {
+    mm: 'millimeters',
+    millimeter: 'millimeters',
+    millimeters: 'millimeters'
+};
+const centimetersUnits = {
+    cm: 'centimeters',
+    centimeter: 'centimeters',
+    centimeters: 'centimeters'
+};
+const feetUnits = {
+    ft: 'feet',
+    feet: 'feet'
+};
+
+const UNIT_DICTONARY = Object.assign({}, MileUnits, NMileUnits, inchUnits, yardUnits, meterUnits, kilometerUnits, millimeterUnits, centimetersUnits, feetUnits);
 
 //TODO: need regex capability, dates, geo
 //TODO: need to handle obj with multiple ip, date type keys etc
@@ -181,6 +238,7 @@ class DocumentMatcher extends LuceneQueryParser {
                     preprocess[key] = types[key];
                 }
                 if (types[key] === 'geo' ) {
+                    console.log('geo type should be true')
                     hasGeoTypes = true;
                 }
             }
@@ -196,18 +254,11 @@ class DocumentMatcher extends LuceneQueryParser {
         };
         const geoResults = {};
 
-        // geo_field: geoField,
-        // geo_box_top_left: geoBoxTopLeft,
-        // geo_box_bottom_right: geoBoxBottomRight,
-        // geo_point: geoPoint,
-        // geo_distance: geoDistance,
-        // geo_sort_point: geoSortPoint,
-        // geo_sort_order: geoSortOrder,
-        // geo_sort_unit: geoSortUnit
+        
         //TODO: dont mutate raw ast, have another one
 
         function parseGeoQueries(node){
-            //console.log('parseGeoQueries is calling', node, !geoResults['geoField'], _.get(node, 'left.field'), geoParameters[_.get(node, 'left.field')])
+            //console.log('parseGeoQueries is calling', node, !geoResults['geoField'], _.get(node, 'left.field'), geoParameters[_.get(node, 'left.field')], !geoResults['geoField'] && (geoParameters[_.get(node, 'right.field')] || geoParameters[_.get(node, 'left.field')]))
             if (!geoResults['geoField'] && (geoParameters[_.get(node, 'right.field')] || geoParameters[_.get(node, 'left.field')])) {
                 geoResults['geoField'] = node.field
             }
@@ -215,6 +266,7 @@ class DocumentMatcher extends LuceneQueryParser {
             if (geoParameters[node.field]) {
                 geoResults[geoParameters[node.field]] = node.term
             }
+
         }
 
 
@@ -222,14 +274,44 @@ class DocumentMatcher extends LuceneQueryParser {
             this.walkLuceneAst(parseDates);
         }
 
+        function parsePoint(str){
+            return str.split(',').map(st => st.trim()).map(numStr => Number(numStr)).reverse();
+        }
+
         function makeGeoQueryFn() {
-            return (data) => {
-                console.log('im in the geoWueryfn', data)
-                return true;
+          
+            const {
+                geoField,
+                geoBoxTopLeft,
+                geoBoxBottomRight,
+                geoPoint,
+                geoDistance,
+                geoSortUnit = 'm'
+            } = geoResults;
+
+            let polygon;
+
+            if (geoBoxTopLeft && geoBoxBottomRight) {
+                const line = lineString([parsePoint(geoBoxTopLeft), parsePoint(geoBoxBottomRight)]);
+                const box = bbox(line);
+                polygon = bboxPolygon(box);
             }
+            
+            if (geoPoint && geoDistance) {
+                polygon =  createCircle(parsePoint(geoPoint), geoDistance, { units: UNIT_DICTONARY[geoSortUnit] });
+            }
+
+            // Nothing matches so return false
+            if (!polygon) return () => false
+            return (data) => {
+                const point = parsePoint(data[geoField]);
+                return pointInPolygon(point, polygon)
+            } 
         }
 
         if (hasGeoTypes) {
+            let myast = this._ast;
+            console.log('the top ast there is',JSON.stringify(myast, null, 4))
             this.walkLuceneAst(parseGeoQueries);
             if (Object.keys(geoResults).length > 0) {
                 geoQuery = makeGeoQueryFn(geoResults)
