@@ -1,7 +1,8 @@
 'use strict';
 
-const Promise = require('bluebird');
 const _ = require('lodash');
+const uuidv4 = require('uuid/v4');
+const Promise = require('bluebird');
 const Messaging = require('@terascope/teraslice-messaging');
 const { TestContext } = require('../helpers');
 const { makeShutdownEarlyFn, getTestCases } = require('../helpers/execution-controller-helper');
@@ -12,8 +13,7 @@ const { newId } = require('../../../lib/utils/id_utils');
 const ExecutionControllerClient = Messaging.ExecutionController.Client;
 process.env.BLUEBIRD_LONG_STACK_TRACES = '1';
 
-// FIXME
-xdescribe('ExecutionController Special Tests', () => {
+describe('ExecutionController Special Tests', () => {
     // [ message, config ]
     const testCases = [
         [
@@ -29,7 +29,7 @@ xdescribe('ExecutionController Special Tests', () => {
                     {
                         state: 'start',
                         slice: {
-                            slice_id: newId(),
+                            slice_id: uuidv4(),
                             request: {
                                 example: 'slice-recovery'
                             },
@@ -41,7 +41,7 @@ xdescribe('ExecutionController Special Tests', () => {
                     {
                         state: 'start',
                         slice: {
-                            slice_id: newId(),
+                            slice_id: uuidv4(),
                             request: {
                                 example: 'slice-recovery'
                             },
@@ -84,7 +84,7 @@ xdescribe('ExecutionController Special Tests', () => {
                     {
                         state: 'idk',
                         slice: {
-                            slice_id: newId(),
+                            slice_id: uuidv4(),
                             request: {
                                 example: 'slice-recovery-error-idk'
                             },
@@ -96,7 +96,7 @@ xdescribe('ExecutionController Special Tests', () => {
                     {
                         state: 'error',
                         slice: {
-                            slice_id: newId(),
+                            slice_id: uuidv4(),
                             request: {
                                 example: 'slice-recovery-error'
                             },
@@ -124,7 +124,7 @@ xdescribe('ExecutionController Special Tests', () => {
                     {
                         state: 'error',
                         slice: {
-                            slice_id: newId(),
+                            slice_id: uuidv4(),
                             request: {
                                 example: 'slice-recovery-all'
                             },
@@ -136,7 +136,7 @@ xdescribe('ExecutionController Special Tests', () => {
                     {
                         state: 'start',
                         slice: {
-                            slice_id: newId(),
+                            slice_id: uuidv4(),
                             request: {
                                 example: 'slice-recovery-all'
                             },

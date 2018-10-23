@@ -159,7 +159,7 @@ class ExecutionController {
 
         this.server.onClientOffline((workerId) => {
             this.logger.trace(`worker ${workerId} is offline`);
-            this._adjustSlicerQueueLength();
+            this._updateExecutionStats();
         });
 
         this.server.onClientReconnect((workerId) => {
@@ -180,7 +180,8 @@ class ExecutionController {
 
         this.server.onSliceSuccess((workerId, response) => {
             process.nextTick(() => {
-                this.logger.info(`worker ${workerId} has completed its slice ${response.slice_id}`);
+                const { slice: sliceId } = response.slice;
+                this.logger.info(`worker ${workerId} has completed its slice ${sliceId}`);
                 this.events.emit('slice:success', response);
                 this.pendingSlices -= 1;
                 this._updateExecutionStats();
@@ -321,7 +322,7 @@ class ExecutionController {
         await exStore.setStatus(this.exId, 'failed', errorMeta);
 
         this.logger.fatal(`execution ${this.exId} is done because of slice failure`);
-        this._endExecution();
+        await this._endExecution();
     }
 
     async shutdown(block = true) {
@@ -373,7 +374,11 @@ class ExecutionController {
             shutdownErrs.push(err);
         }
 
-        await this.scheduler.shutdown();
+        try {
+            await this.scheduler.shutdown();
+        } catch (err) {
+            shutdownErrs.push(err);
+        }
 
         try {
             await this.server.shutdown();
@@ -419,7 +424,6 @@ class ExecutionController {
         await Promise.all([
             this.stores.exStore.setStatus(this.exId, 'running'),
             this.client.sendAvailable(),
-            this._waitForRecovery(),
             this._runDispatch(),
             this.scheduler.run(),
         ]);
@@ -563,12 +567,12 @@ class ExecutionController {
         }
 
         this.isExecutionFinished = true;
-        this._endExecution();
+        await this._endExecution();
     }
 
-    _endExecution() {
+    async _endExecution() {
         this.isExecutionDone = true;
-        this.scheduler.cleanup();
+        await this.scheduler.shutdown();
     }
 
     _updateExecutionStatsNow() {
