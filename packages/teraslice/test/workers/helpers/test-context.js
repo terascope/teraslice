@@ -72,7 +72,7 @@ class TestContext {
             await this.addJobStore();
             await this.addExStore();
 
-            const { ex } = await initializeJob(this.context, this.config.job, stores);
+            const { ex } = await initializeJob(this.context, this.config, stores);
             this.config = ex;
         }
 

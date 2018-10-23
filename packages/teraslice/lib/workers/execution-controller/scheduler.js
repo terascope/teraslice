@@ -209,9 +209,15 @@ class Scheduler {
 
         const queueRemainder = () => this.maxQueueLength - this.queueLength - this._creating;
 
+        let _handling = false;
+
         const makeSlices = async () => {
             if (!this.ready) return;
+            if (_handling) return;
+
             let finished = false;
+
+            _handling = true;
 
             try {
                 if (this.recovering && this.recover) {
@@ -221,7 +227,8 @@ class Scheduler {
                 }
             } catch (err) {
                 await onSlicerFailure(err);
-                return;
+            } finally {
+                _handling = false;
             }
 
             if (finished && this.canComplete()) {

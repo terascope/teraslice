@@ -95,12 +95,12 @@ function recovery(context, stateStore, executionContext) {
             // all slicers have been recovered
             if (slicerID > slicersToRecover) {
                 logger.warn(`recovered data for execution: ${exId} has successfully been enqueued`);
-                _waitForRecoveryBatchCompletion();
+                await _waitForRecoveryBatchCompletion();
                 return true;
             }
-        } else {
-            await _waitForRecoveryBatchCompletion();
         }
+
+        await _waitForRecoveryBatchCompletion();
 
         return false;
     }
