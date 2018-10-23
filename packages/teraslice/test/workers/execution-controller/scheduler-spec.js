@@ -131,7 +131,7 @@ describe('Scheduler', () => {
     });
 
     it('should handle stop correctly', async () => {
-        let slices = []; // eslint-disable-line
+        let slices = [];
 
         const stop = _.once(() => scheduler.stop());
 
@@ -151,24 +151,35 @@ describe('Scheduler', () => {
         expect(scheduler.slicersDone).toBeFalse();
     });
 
-    // FIXME
-    xit('should handle recovery correctly', async () => {
+    it('should handle recovery correctly', async () => {
+        const recoveryRecords = _.times(countPerSlicer * slicers, () => ({ id: _.uniqueId('recover-') }));
         let slices = [];
 
         scheduler.recoverExecution = true;
         scheduler.recovering = true;
+        scheduler.recover = {
+            initialize() {
+                return Promise.resolve();
+            },
+            shutdown() {
+                return Promise.resolve();
+            },
+            getSlices(max = 1) {
+                const result = recoveryRecords.splice(0, max);
+                if (!result.length) {
+                    this.events.emit('execution:recovery:complete', []);
+                }
+                return result;
+            },
+            recoveryComplete() {
+                return recoveryRecords.length === 0;
+            },
+            exitAfterComplete() {
+                return false;
+            }
+        };
 
-        const recover = _.once(() => {
-            // scheduler.markRecoveryAsComplete(false).then(() => {
-            //     registerSlicers();
-            // });
-        });
-
-        const recoverAfter = _.after(slicers, recover);
-
-        expectedCount *= 2;
-
-        scheduler.events.on('slicer:done', recoverAfter);
+        expectedCount += recoveryRecords.length;
 
         await Promise.all([
             scheduler.run(),
@@ -183,20 +194,36 @@ describe('Scheduler', () => {
         expect(scheduler.slicersDone).toBeTrue();
     });
 
-    // FIXME
-    xit('should handle recovery with cleanup type correctly', async () => {
+    it('should handle recovery with cleanup type correctly', async () => {
+        const recoveryRecords = _.times(countPerSlicer, () => ({ id: _.uniqueId('recover-') }));
+
         let slices = [];
 
         scheduler.recoverExecution = true;
         scheduler.recovering = true;
+        scheduler.recover = {
+            initialize() {
+                return Promise.resolve();
+            },
+            shutdown() {
+                return Promise.resolve();
+            },
+            getSlices(max = 1) {
+                const result = recoveryRecords.splice(0, max);
+                if (!result.length) {
+                    this.events.emit('execution:recovery:complete', []);
+                }
+                return result;
+            },
+            recoveryComplete() {
+                return recoveryRecords.length === 0;
+            },
+            exitAfterComplete() {
+                return true;
+            }
+        };
 
-        const recover = _.once(() => {
-            scheduler.markRecoveryAsComplete(true);
-        });
-
-        const recoverAfter = _.after(slicers, recover);
-
-        scheduler.events.on('slicer:done', recoverAfter);
+        expectedCount = recoveryRecords.length;
 
         await Promise.all([
             scheduler.run(),

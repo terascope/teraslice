@@ -216,7 +216,7 @@ class Scheduler {
 
             try {
                 if (this.recovering && this.recover) {
-                    finished = this.recover.recoveryComplete() && this.canComplete();
+                    finished = this.recover.recoveryComplete();
                 } else {
                     finished = await this.executionContext.slicer.handle();
                 }
@@ -319,7 +319,7 @@ class Scheduler {
     }
 
     async _recoverSlices() {
-        this.recover = makeExecutionRecovery(
+        this.recover = this.recover || makeExecutionRecovery(
             this.context,
             this.stateStore,
             this.executionContext
