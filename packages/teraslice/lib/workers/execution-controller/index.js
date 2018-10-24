@@ -185,6 +185,7 @@ class ExecutionController {
                 this.events.emit('slice:success', response);
                 this.pendingSlices -= 1;
                 this._updateExecutionStats();
+                this.executionContext.onSliceComplete(response);
             });
         });
 
@@ -204,6 +205,7 @@ class ExecutionController {
                 }
                 this.pendingSlices -= 1;
                 this._updateExecutionStats();
+                this.executionContext.onSliceComplete(response);
             });
         });
 
@@ -538,6 +540,7 @@ class ExecutionController {
             .then((dispatched) => {
                 if (dispatched) {
                     this.logger.debug(`dispatched slice ${slice.slice_id} to worker ${workerId}`);
+                    this.executionContext.onSliceDispatch(slice);
                 } else {
                     this.logger.warn(`worker "${workerId}" is not available to process slice ${slice.slice_id}`);
                     this.scheduler.enqueueSlice(slice, true);

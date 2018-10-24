@@ -92,13 +92,14 @@ class Scheduler {
 
         this.stopped = true;
 
+        const drain = this._drainPendingSlices(false);
+
         this._processCleanup();
         this._processCleanup = _.noop;
-
-        await this._drainPendingSlices(false);
-
         this._resolveRun();
         this._resolveRun = _.noop;
+
+        await drain;
     }
 
     pause() {
@@ -212,6 +213,7 @@ class Scheduler {
                 this.queue.unshift(slice);
             } else {
                 this.queue.enqueue(slice);
+                this.executionContext.onSliceEnqueued(slice);
             }
         });
 
@@ -247,6 +249,7 @@ class Scheduler {
             cleanup();
             logger.info(`all slicers for execution: ${exId} have been completed`);
 
+            logger.debug(`draining the remaining ${this.pendingSlicerCount} from the slicer`);
             await this._drainPendingSlices(false);
 
             events.emit('slicers:finished');
@@ -255,6 +258,9 @@ class Scheduler {
         const onSlicerFailure = async (err) => {
             cleanup();
             logger.warn('slicer failed', _.toString(err));
+
+            logger.debug(`draining the remaining ${this.pendingSlicerCount} from the slicer`);
+            await this._drainPendingSlices(false);
 
             // before removing listeners make sure we've received all of the events
             await Promise.delay(100);

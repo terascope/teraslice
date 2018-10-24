@@ -134,9 +134,7 @@ describe('Scheduler', () => {
     it('should handle stop correctly', async () => {
         let slices = [];
 
-        const stop = _.once(() => scheduler.stop());
-
-        scheduler.events.on('slicer:done', stop);
+        scheduler.events.once('slicer:done', () => scheduler.stop());
 
         await Promise.all([
             scheduler.run(),
