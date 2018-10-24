@@ -144,7 +144,7 @@ describe('reindex', () => {
 
         const jobs = _.times(iterations, () => jobSpec);
 
-        Promise.map(jobs, async (spec) => {
+        Promise.mapSeries(jobs, async (spec) => {
             const job = await teraslice.jobs.submit(spec);
             expect(job).toBeDefined();
             expect(job.id()).toBeDefined();
@@ -153,7 +153,8 @@ describe('reindex', () => {
         })
             .then(async () => {
                 const stats = await misc.indexStats(`test-reindex-${iterations}times`);
-                expect(stats.count).toBe(10 * iterations);
+
+                expect(stats.count).toBe(10);
                 expect(stats.deleted).toBe(0);
             })
             .catch(fail)
