@@ -85,7 +85,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         const mod = loader.loadReader(readerConfig._op, this.assetIds);
         this.registerAPI(readerConfig._op, mod.API);
 
-        const op = new mod.Fetcher(this.context, readerConfig, this.config);
+        const op = new mod.Fetcher(this.context, cloneDeep(readerConfig), this.config);
         this.fetcher = op;
         this.addOperation(op);
 
@@ -96,7 +96,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
             const mod = loader.loadProcessor(name, this.assetIds);
             this.registerAPI(name, mod.API);
 
-            const op = new mod.Processor(this.context, opConfig, this.config);
+            const op = new mod.Processor(this.context, cloneDeep(opConfig), this.config);
             this.addOperation(op);
             this.processors.add(op);
         }
