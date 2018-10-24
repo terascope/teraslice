@@ -7,7 +7,7 @@
         {
             "_op": "elasticsearch_reader",
             "index": "example-logs-10000",
-            "full_response": true,
+            "preserve_id": true,
             "date_field_name": "created",
             "type": "change",
             "size": 500
