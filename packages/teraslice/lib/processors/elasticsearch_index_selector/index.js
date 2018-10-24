@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const util = require('util');
+const { DataEntity } = require('@terascope/job-components');
 
 function newProcessor(context, opConfig) {
     function formattedDate(record) {
@@ -32,13 +33,6 @@ function newProcessor(context, opConfig) {
         }
 
         return opConfig.index;
-    }
-
-    function getMetadata(record, key) {
-        if (typeof record.getMetadata === 'function') {
-            return record.getMetadata(key);
-        }
-        return record[key];
     }
 
     /*
@@ -76,7 +70,7 @@ function newProcessor(context, opConfig) {
                 _type: opConfig.type
             };
 
-            if (opConfig.preserve_id) meta._id = getMetadata(record, '_key');
+            if (opConfig.preserve_id) meta._id = DataEntity.getMetadata(record, '_key');
             if (fromElastic) meta._id = data.hits.hits[start]._id;
             if (opConfig.id_field) meta._id = record[opConfig.id_field];
 
