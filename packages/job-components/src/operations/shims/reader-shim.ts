@@ -65,7 +65,7 @@ export default function readerShim(legacy: LegacyReader): ReaderModule {
 
             async handle(sliceRequest: SliceRequest): Promise<DataEntityList> {
                 if (this.fetcherFn) {
-                    const result = await this.fetcherFn(sliceRequest);
+                    const result = await this.fetcherFn(sliceRequest, this.logger);
                     return DataEntity.makeList(result);
                 }
 
