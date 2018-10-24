@@ -140,7 +140,7 @@ module.exports = function module(context) {
             // This will throw errors if the job does not pass validation.
             let validJob;
             try {
-                validJob = jobValidator.validate(jobSpec);
+                validJob = jobValidator.validateConfig(jobSpec);
             } catch (ev) {
                 reject(`Error validating job: ${ev}`);
             }
