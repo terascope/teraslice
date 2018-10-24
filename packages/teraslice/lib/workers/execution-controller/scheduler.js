@@ -74,7 +74,7 @@ class Scheduler {
         this.logger.debug(`execution ${this.exId} is finished scheduling, ${this.pendingSlices + this.pendingSlicerCount} remaining slices in the queue`);
 
         const waitForCreating = () => {
-            const is = () => this._creating + this.pendingSlicerCount;
+            const is = () => this._creating;
             return pWhilst(is, () => Promise.delay(100));
         };
 
@@ -258,6 +258,7 @@ class Scheduler {
 
             // before removing listeners make sure we've received all of the events
             await Promise.delay(100);
+
             events.emit('slicers:finished', err);
         };
 
@@ -290,18 +291,6 @@ class Scheduler {
         handleInterval = setInterval(() => {
             if (!this.canAllocateSlice()) return;
             if (_handling) return;
-
-            this.logger.trace('LOOP', {
-                _handling,
-                _finished,
-                recovering: this.recovering,
-                pending: this.pendingSlices,
-                pendingSlicerCount: this.pendingSlicerCount,
-                queueLength: this.queueLength,
-                remaining: this.queueRemainder,
-                _creating: this._creating,
-                maxQueueLength: this.maxQueueLength
-            });
 
             _handling = true;
 
