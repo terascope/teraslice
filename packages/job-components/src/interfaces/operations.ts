@@ -65,7 +65,6 @@ export type SlicerResult = Slice|SliceRequest|SliceRequest[]|null;
 export interface SliceResult {
     slice: Slice;
     analytics: SliceAnalyticsData;
-    retry?: boolean;
     error?: string;
 }
 
