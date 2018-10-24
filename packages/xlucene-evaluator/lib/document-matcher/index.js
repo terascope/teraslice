@@ -69,23 +69,23 @@ const feetUnits = {
 };
 
 const UNIT_DICTONARY = Object.assign({}, MileUnits, NMileUnits, inchUnits, yardUnits, meterUnits, kilometerUnits, millimeterUnits, centimetersUnits, feetUnits);
+const TypeManger = require('./type-manager');
 
-//TODO: need regex capability, dates, geo
 //TODO: need to handle obj with multiple ip, date type keys etc
 class DocumentMatcher extends LuceneQueryParser {
     constructor(luceneStr, typeConfig) {
         super();
         this.luceneQuery = luceneStr;
         this.filterFn = null;
-        this.types = null;
-        if (typeConfig) {
-            for (const key in typeConfig) {
-                if (typeConfig[key] === 'ip' ) {
-                    this.ipFieldName = key;
-                }
-            }
-            this.types = typeConfig
-        }
+        this.types = new TypeManger(typeConfig);
+        // if (typeConfig) {
+        //     for (const key in typeConfig) {
+        //         if (typeConfig[key] === 'ip' ) {
+        //             this.ipFieldName = key;
+        //         }
+        //     }
+        //     this.types = typeConfig
+        // }
         bindThis(this, DocumentMatcher);
         if (luceneStr) {
             this.parse(luceneStr);
@@ -94,13 +94,16 @@ class DocumentMatcher extends LuceneQueryParser {
     }
 
     parse(luceneStr, typeConfig) {
+        // if (typeConfig) {
+        //     for (const key in typeConfig) {
+        //         if (typeConfig[key] === 'ip' ) {
+        //             this.ipFieldName = key;
+        //         }
+        //     }
+        //     this.types = typeConfig
+        // }
         if (typeConfig) {
-            for (const key in typeConfig) {
-                if (typeConfig[key] === 'ip' ) {
-                    this.ipFieldName = key;
-                }
-            }
-            this.types = typeConfig
+            this.types = new TypeManger(typeConfig);
         }
         this.luceneQuery = luceneStr;
         super.parse(luceneStr);
@@ -118,7 +121,7 @@ class DocumentMatcher extends LuceneQueryParser {
                        const range = ip6addr.createCIDR(node.term);
                        //This needs to be dynamic
                         fns.push((ip) => {
-                            console.log(' the incoming ip', ip, isCidr(ip) > 0)
+                           // console.log(' the incoming ip', ip, isCidr(ip) > 0)
                             if (isCidr(ip) > 0) {
                                 const argRange = ip6addr.createCIDR(ip);
                                 const argFirst = argRange.first().toString();
@@ -153,7 +156,7 @@ class DocumentMatcher extends LuceneQueryParser {
                         field = topFieldName
                     } = node;
                     let range;
-                    console.log('what is node here', node, minValue, maxValue)
+                   // console.log('what is node here', node, minValue, maxValue)
 
             
                     if (minValue === '*') isIPv6(maxValue) ? minValue = MIN_IPV6_IP : minValue = MIN_IPV4_IP;
@@ -177,14 +180,14 @@ class DocumentMatcher extends LuceneQueryParser {
             
                     // ie age:(>10 AND <20)
                     if(!incMin && !incMax) {
-                        console.log('what is nodezzzzz', node, minValue)
+                     //   console.log('what is nodezzzzz', node, minValue)
                         minValue = ip6addr.parse(minValue).offset(1).toString();
                         maxValue = ip6addr.parse(maxValue).offset(-1).toString();
                         range = ip6addr.createAddrRange(minValue, maxValue);
                     }
 
                     fns.push((ip) => {
-                        console.log(' the incoming ip', ip, isCidr(ip) > 0)
+                    //    console.log(' the incoming ip', ip, isCidr(ip) > 0)
                         if (isCidr(ip) > 0) {
                             const argRange = ip6addr.createCIDR(ip);
                             const argFirst = argRange.first().toString();
@@ -209,7 +212,7 @@ class DocumentMatcher extends LuceneQueryParser {
                 catch(err) {
                     console.log('why does this not work', err)
                 }
-                console.log('in the every', fn, ipData, fn(ipData))
+               // console.log('in the every', fn, ipData, fn(ipData))
                 return fn(ipData) === true
             })
         }
@@ -219,24 +222,22 @@ class DocumentMatcher extends LuceneQueryParser {
         let str = '';
         let addParens = false;
         let parensDepth = {};
-        const { _setUpIpFilter, ipFieldName, types } = this;
+        const { _setUpIpFilter, ipFieldName } = this;
         //TODO: change this
         const self = this; 
-        const preprocess = {};
-        let hasDateTypes = false;
         let hasGeoTypes = false;
         let geoQuery = null;
-        let parsedAst = null;
         let regexField = null;
-        const { _ast: ast } = this;
+        const { _ast: ast, types } = this;
 
+        
+
+        let parsedAst = types.processAst(ast);
+        this._parsedAst = parsedAst;
 
         if (types) {
             for (const key in types) {
-                if (types[key] === 'date' ) {
-                    hasDateTypes = true;
-                    preprocess[key] = types[key];
-                }
+        
                 if (types[key] === 'geo' ) {
                     hasGeoTypes = true;
                 }
@@ -271,10 +272,6 @@ class DocumentMatcher extends LuceneQueryParser {
 
         }
 
-
-        if (hasDateTypes) {
-            this.walkLuceneAst(parseDates);
-        }
 
         function parsePoint(str){
             return str.split(',').map(st => st.trim()).map(numStr => Number(numStr)).reverse();
@@ -349,29 +346,11 @@ class DocumentMatcher extends LuceneQueryParser {
             }
         }
 
-        function parseDates(node, _field, depth) {
-            const topField = node.field || _field;
-
-            function convert(value){
-                const results = new Date(value).getTime();
-                if (results) return results;
-                return value;
-            }
-
-            if (preprocess[topField]) {
-                if (node.term) node.term = convert(node.term);
-                if (node.term_max) node.term_max = convert(node.term_max);
-                if (node.term_min) node.term_min = convert(node.term_min);
-                console.log('is parseDates running', node)
-
-            }
-        }
-
         function strBuilder(ast, _field, depth) {
             const topField = ast.field || _field;
 
             if (regexField && (topField === regexField)) {
-                console.log('this regex should not be running', topField, regexField)
+                //console.log('this regex should not be running', topField, regexField)
                 str += `data.${ast.field}.match(/^(${ast.term})\\b/) !== null`
             }
             else if (topField === ipFieldName) {
@@ -395,7 +374,7 @@ class DocumentMatcher extends LuceneQueryParser {
                 let opStr = ' || ';
         
                 if (ast.operator === 'AND') {
-                    console.log('what is the ast here', ast)
+                    //console.log('what is the ast here', ast)
                     opStr = ' && '
                     //only add a () around deeply recursive structures
                     if ((ast.right && (ast.right.left || ast.right.right)) || (ast.left && (ast.left.left || ast.left.right))) {
@@ -416,7 +395,7 @@ class DocumentMatcher extends LuceneQueryParser {
                 str += ')'
             }
         }
-        console.log('the parsedAst', JSON.stringify(parsedAst, null, 4))
+
         this.walkLuceneAst(strBuilder, postParens, parsedAst);
 
         console.log('the first main strFn', str)
@@ -436,7 +415,7 @@ class DocumentMatcher extends LuceneQueryParser {
 
             }
 
-            console.log('should be calling the extra speciall way', ipFieldName, geoQuery, (ipFieldName || geoQuery))
+           // console.log('should be calling the extra speciall way', ipFieldName, geoQuery, (ipFieldName || geoQuery))
             this.filterFn = (ipFieldName || geoQuery) ? (data) => strFilterFunction(data, ipFilterFunction(), geoQuery) : strFilterFunction
         } catch(err) {
             console.log('the error', err)
@@ -486,24 +465,12 @@ class DocumentMatcher extends LuceneQueryParser {
             return  `((${maxValue} > data.${field}) && (data.${field} > ${minValue}))`
         }
     }
-    //TODO: this should be a pipeline
-    _preprocessData(data){
-        const { types } = this;
-        for (const key in types) {
-            if (types[key] === 'date' ) {
-                if (data[key]) {
-                    data[key] = new Date(data[key]).getTime();
-                }
-            }
-        }
-        return data;
-    }
 
     match(doc) {
         //TODO: should meta data be set here about rule?
+        const { types } = this;
         if (!this.filterFn) throw new Error('DocumentMatcher must be initialized with a lucene query');
-        const data = this._preprocessData(doc);
-        console.log('the parsed incomfing data', data)
+        const data = types.formatData(doc);
         return this.filterFn(data);
     }
 }
