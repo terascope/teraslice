@@ -12,6 +12,11 @@ describe('DataEntity', () => {
             purple: 'pink',
         });
 
+        it('should be an instance of DataEntity', () => {
+            expect(dataEntity).toBeInstanceOf(DataEntity);
+            expect(DataEntity.isDataEntity(dataEntity)).toBeTrue();
+        });
+
         it('should be to set an additional property', () => {
             dataEntity.teal = 'neal';
         });
@@ -76,6 +81,7 @@ describe('DataEntity', () => {
                 const dataEntity = DataEntity.make({
                     hello: 'there',
                 });
+                expect(DataEntity.isDataEntity(dataEntity)).toBeTrue();
                 expect(dataEntity).toBeInstanceOf(DataEntity);
                 expect(dataEntity).toHaveProperty('hello', 'there');
             });
@@ -86,6 +92,7 @@ describe('DataEntity', () => {
                 const dataEntity = DataEntity.make(DataEntity.make({
                     hello: 'there',
                 }));
+                expect(DataEntity.isDataEntity(dataEntity)).toBeTrue();
                 expect(dataEntity).toBeInstanceOf(DataEntity);
                 expect(dataEntity).toHaveProperty('hello', 'there');
             });
@@ -98,6 +105,7 @@ describe('DataEntity', () => {
                 hello: 'there',
             });
 
+            expect(DataEntity.isDataEntity(dataEntities)).toBeTrue();
             expect(dataEntities).toBeArrayOfSize(1);
             expect(dataEntities[0]).toBeInstanceOf(DataEntity);
             expect(dataEntities[0]).toHaveProperty('hello', 'there');
@@ -115,6 +123,7 @@ describe('DataEntity', () => {
                 },
             ]);
 
+            expect(DataEntity.isDataEntity(dataEntities)).toBeTrue();
             expect(dataEntities).toBeArrayOfSize(2);
             expect(dataEntities[0]).toBeInstanceOf(DataEntity);
             expect(dataEntities[0]).toHaveProperty('hello', 'there');
@@ -141,6 +150,69 @@ describe('DataEntity', () => {
             expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
 
             expect(DataEntity.makeArray(dataEntities)).toEqual(dataEntities);
+        });
+    });
+
+    describe('#isDataEntity', () => {
+        it('should return false when given object', () => {
+            expect(DataEntity.isDataEntity({})).toBeFalse();
+        });
+
+        it('should return false when given null', () => {
+            expect(DataEntity.isDataEntity(null)).toBeFalse();
+        });
+
+        it('should return false when given array of object', () => {
+            expect(DataEntity.isDataEntity([{}])).toBeFalse();
+        });
+
+        it('should return true when given a DataEntity', () => {
+            expect(DataEntity.isDataEntity(DataEntity.make({}))).toBeTrue();
+        });
+
+        it('should return true object like DataEntity', () => {
+            const input = {
+                hello: true,
+                getMetadata() {
+                    return 'hi';
+                }
+            };
+            expect(DataEntity.isDataEntity(input)).toBeTrue();
+        });
+
+        it('should return true when given an array of DataEntities', () => {
+            const input = DataEntity.makeArray([
+                { hi: true },
+                { hi: true },
+            ]);
+            expect(DataEntity.isDataEntity(input)).toBeTrue();
+        });
+
+        it('should return true when given a list of DataEntities', () => {
+            const input = DataEntity.makeList([
+                { howdy: true },
+                { hello: true },
+            ]);
+            expect(DataEntity.isDataEntity(input)).toBeTrue();
+        });
+    });
+
+    describe('#getMetadata', () => {
+        it('should be able to get metadata from object', () => {
+            const input = { hello: true };
+            expect(DataEntity.getMetadata(input, 'hello')).toBeTrue();
+            expect(DataEntity.getMetadata(input, 'hi')).toBeNil();
+        });
+
+        it('should be able to get metadata from a DataEntity', () => {
+            const input = DataEntity.make({ name: 'Batman' }, { hello: true });
+            expect(DataEntity.getMetadata(input, 'hello')).toBeTrue();
+            expect(DataEntity.getMetadata(input, 'hi')).toBeNil();
+        });
+
+        it('should not be able to get metadata from null', () => {
+            // @ts-ignore
+            expect(DataEntity.getMetadata(null, 'hi')).toBeNil();
         });
     });
 

@@ -17,7 +17,7 @@ export default class DataEntity {
      * This will detect if passed an already converted input and return it.
     */
     static make(input: DataInput, metadata?: object): DataEntity {
-        if (input instanceof DataEntity) {
+        if (DataEntity.isDataEntity(input)) {
             return input;
         }
         return new DataEntity(input, metadata);
@@ -33,8 +33,7 @@ export default class DataEntity {
             return [DataEntity.make(input)];
         }
 
-        const [first] = input;
-        if (first instanceof DataEntity) {
+        if (DataEntity.isDataEntity(input)) {
             if (L.isList(input)) return L.toArray(input) as DataEntity[];
 
             return input as DataEntity[];
@@ -51,16 +50,14 @@ export default class DataEntity {
     */
     static makeList(input: DataListInput): DataEntityList {
         if (L.isList(input)) {
-            const [first] = input;
-            if (first instanceof DataEntity) {
+            if (DataEntity.isDataEntity(input)) {
                 return input as DataEntityList;
             }
             return L.map((d) => DataEntity.make(d), input);
         }
 
         if (Array.isArray(input)) {
-            const [first] = input;
-            if (first instanceof DataEntity) {
+            if (DataEntity.isDataEntity(input)) {
                 return L.from(input) as DataEntityList;
             }
             return L.from(input.map((d) => DataEntity.make(d)));
@@ -75,6 +72,42 @@ export default class DataEntity {
     */
     static listToJSON(input: DataEntityList): object[] {
         return input.toArray().map((d) => d.toJSON());
+    }
+
+    /**
+     * Verify that an input is the DataEntity,
+     * or if an array or list, the first item is DataEntity
+    */
+    static isDataEntity(input: any): input is DataEntity {
+        if (input == null) return false;
+
+        let check: any;
+        if (L.isList(input)) {
+            check = input.first();
+        } else if (Array.isArray(input)) {
+            check = input[0];
+        } else {
+            check = input;
+        }
+
+        if (check == null) return false;
+        if (check instanceof DataEntity) return true;
+        if (typeof check.getMetadata === 'function') return true;
+        return false;
+    }
+
+    /**
+     * Safely get the metadata from a DataEntity.
+     * If the input is object it will get the property from the object
+    */
+    static getMetadata(input: DataInput, key: string): any {
+        if (input == null) return null;
+
+        if (DataEntity.isDataEntity(input)) {
+            return input.getMetadata(key);
+        }
+
+        return get(input, key);
     }
 
     // Add the ability to specify any additional properties
