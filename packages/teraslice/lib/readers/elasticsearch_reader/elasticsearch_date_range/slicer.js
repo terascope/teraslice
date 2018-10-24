@@ -5,8 +5,12 @@ const moment = require('moment');
 const _ = require('lodash');
 const dateMath = require('datemath-parser');
 const parseError = require('@terascope/error-parser');
-const { dateOptions, dateFormat: dateFormatMS, dateFormatSeconds: dateFormatS } = require('./../../utils/date_utils');
-const { retryModule } = require('../../utils/error_utils');
+const { retryModule } = require('../../../utils/error_utils');
+const {
+    dateOptions,
+    dateFormat: dateFormatMS,
+    dateFormatSeconds: dateFormatS
+} = require('../../../utils/date_utils');
 
 function newSlicer(context, opConfig, executionContext, retryData, logger, client) {
     const events = context.apis.foundation.getSystemEvents();
@@ -16,7 +20,8 @@ function newSlicer(context, opConfig, executionContext, retryData, logger, clien
     const timeResolution = dateOptions(opConfig.time_resolution);
     const retryError = retryModule(logger, executionConfig.max_retries);
     const dateFormat = timeResolution === 'ms' ? dateFormatMS : dateFormatS;
-
+    // This could be different since we have another op that uses this module
+    const opName = opConfig._op;
     const elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
 
     function processInterval(str, esDates) {
@@ -24,10 +29,8 @@ function newSlicer(context, opConfig, executionContext, retryData, logger, clien
             // one or more digits, followed by one or more letters, case-insensitive
             const regex = /(\d+)(\D+)/i;
             const interval = regex.exec(str);
-
             if (interval === null) {
-                throw new Error('elasticsearch_reader interval and/or delay are incorrectly formatted. Needs to follow '
-                    + '[number][letter\'s] format, e.g. "12s"');
+                throw new Error('elasticsearch_reader interval and/or delay are incorrectly formatted. Needs to follow [number][letter\'s] format, e.g. "12s"');
             }
 
             // dont need first parameter, its the full string
@@ -36,8 +39,7 @@ function newSlicer(context, opConfig, executionContext, retryData, logger, clien
             return compareInterval(interval, esDates);
         }
 
-        throw new Error('elasticsearch_reader interval and/or delay are incorrectly formatted. Needs to follow '
-                + '[number][letter\'s] format, e.g. "12s"');
+        throw new Error('elasticsearch_reader interval and/or delay are incorrectly formatted. Needs to follow [number][letter\'s] format, e.g. "12s"');
     }
 
     function compareInterval(interval, esDates) {
@@ -110,7 +112,7 @@ function newSlicer(context, opConfig, executionContext, retryData, logger, clien
                 }
 
                 if (data[opConfig.date_field_name] === undefined) {
-                    return Promise.reject(`date_field_name: "${opConfig.date_field_name}" for index: ${opConfig.index} does not exist, data: ${JSON.stringify(data)}, results: ${JSON.stringify(results)}`);
+                    throw new Error(`date_field_name: "${opConfig.date_field_name}" for index: ${opConfig.index} does not exist, data: ${JSON.stringify(data)}, results: ${JSON.stringify(results)}`);
                 }
 
                 if (givenDate) {
@@ -133,14 +135,14 @@ function newSlicer(context, opConfig, executionContext, retryData, logger, clien
         // track of them for recoveries
         if (!opConfig.start || !opConfig.end) {
             const { operations } = executionConfig;
-            operations.shift();
+            const opIndex = operations.findIndex(config => config._op === opName);
             const update = {
                 start: dates.start.format(dateFormat),
                 end: dates.limit.format(dateFormat)
             };
 
             const updatedOpConfig = Object.assign({}, opConfig, update);
-            operations.unshift(updatedOpConfig);
+            operations[opIndex] = updatedOpConfig;
             events.emit('slicer:execution:update', { update: operations });
         }
     }
@@ -273,7 +275,7 @@ function newSlicer(context, opConfig, executionContext, retryData, logger, clien
 
     function makeKeyList(data) {
         const idConfig = Object.assign({}, opConfig, { starting_key_depth: 0 });
-        const idSlicer = require('../id_slicer')(context, client, executionContext, idConfig, logger, null, data);
+        const idSlicer = require('../../id_slicer')(context, client, executionContext, idConfig, logger, null, data);
         return getIdData(idSlicer);
     }
 
@@ -336,7 +338,11 @@ function newSlicer(context, opConfig, executionContext, retryData, logger, clien
 
     function getMilliseconds(interval) {
         const times = {
-            d: 86400000, h: 3600000, m: 60000, s: 1000, ms: 1
+            d: 86400000,
+            h: 3600000,
+            m: 60000,
+            s: 1000,
+            ms: 1
         };
 
         return interval[0] * times[interval[1]];
@@ -362,7 +368,6 @@ function newSlicer(context, opConfig, executionContext, retryData, logger, clien
         // make sure that end of last segment is always correct
         const endingDate = end.format ? end.format(dateFormat) : moment(end).format(dateFormat);
         results[results.length - 1].end = endingDate;
-
         return results;
     }
 
@@ -523,5 +528,6 @@ function newSlicer(context, opConfig, executionContext, retryData, logger, clien
                     });
             }));
 }
+
 
 module.exports = newSlicer;
