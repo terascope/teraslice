@@ -24,29 +24,42 @@ describe('elasticsearch index selector', () => {
     });
 
     it('new processor will throw if other config options are not present with timeseries', () => {
-        const jobConfig = { logger: 'im a fake logger' };
-        const op1 = { timeseries: 'hourly' };
-        const op2 = { timeseries: 'daily' };
+        const op1 = { timeseries: 'daily' };
+        const op2 = { timeseries: 'daily', index_prefix: 'hello' };
+        const op3 = { timeseries: 'daily', index_prefix: 'hello', date_field: 'created' };
 
         expect(() => {
-            indexer.newProcessor({}, op1, jobConfig);
-        }).toThrowError('timeseries requires an index_prefix');
+            indexer.selfValidation(op1);
+        }).toThrowError('elasticsearch_index_selector is mis-configured, if any of the following configurations are set: timeseries, index_prefix or date_field, they must all be used together, please set the missing parameters');
         expect(() => {
-            indexer.newProcessor({}, op2, jobConfig);
-        }).toThrowError('timeseries requires an index_prefix');
+            indexer.selfValidation(op2);
+        }).toThrowError('elasticsearch_index_selector is mis-configured, if any of the following configurations are set: timeseries, index_prefix or date_field, they must all be used together, please set the missing parameters');
+        expect(() => {
+            indexer.selfValidation(op3);
+        }).not.toThrowError();
     });
 
-    it('new processor will throw if type is not specified when data is did not come from elasticsearch', () => {
-        const context = {};
-        const opConfig = { index: 'someIndex' };
-        const jobConfig = { logger: 'im a fake logger' };
-        const data = [{ someData: 'some random data' }];
+    it('new processor will throw properly', () => {
+        const job1 = {
+            operations: [
+                { _op: 'elasticsearch_reader' },
+                { _op: 'elasticsearch_index_selector', type: 'someType' }
+            ]
+        };
 
-        const fn = indexer.newProcessor(context, opConfig, jobConfig);
+        const job2 = {
+            operations: [
+                { _op: 'elasticsearch_reader' },
+                { _op: 'elasticsearch_index_selector' }
+            ]
+        };
 
         expect(() => {
-            fn(data);
-        }).toThrow(new Error('type must be specified in elasticsearch index selector config if data is not a full response from elasticsearch'));
+            indexer.crossValidation(job1);
+        }).not.toThrowError('e');
+        expect(() => {
+            indexer.crossValidation(job2);
+        }).toThrowError('type must be specified in elasticsearch index selector config if data is not a full response from elasticsearch');
     });
 
     it('newProcessor takes either an array or elasticsearch formatted data and returns an array', () => {

@@ -1,22 +1,20 @@
 'use strict';
 
+const util = require('util');
 const dateMath = require('datemath-parser');
 const moment = require('moment');
-const _ = require('lodash');
-const util = require('util');
+const elasticApi = require('@terascope/elasticsearch-api');
 const { getOpConfig, getClient } = require('@terascope/job-components');
-const { dateOptions } = require('../utils/date_utils');
+const { dateOptions } = require('../../utils/date_utils');
 
 function newSlicer(context, executionContext, retryData, logger) {
     const opConfig = getOpConfig(executionContext.config, 'elasticsearch_reader');
     const client = getClient(context, opConfig, 'elasticsearch');
-
     return require('./elasticsearch_date_range/slicer.js')(context, opConfig, executionContext, retryData, logger, client);
 }
 
 function newReader(context, opConfig, executionConfig) {
     const client = getClient(context, opConfig, 'elasticsearch');
-
     return require('./elasticsearch_date_range/reader.js')(context, opConfig, executionConfig, client);
 }
 
@@ -38,7 +36,6 @@ function schema() {
                     throw new Error('index must be lowercase');
                 }
             }
-
         },
         type: {
             doc: 'type of the document in the index, used for key searches',
@@ -46,8 +43,7 @@ function schema() {
             format: 'optional_String'
         },
         size: {
-            doc: 'The limit to the number of docs pulled in a chunk, if the number of docs retrieved '
-            + 'by the interval exceeds this number, it will cause the function to recurse to provide a smaller batch',
+            doc: 'The limit to the number of docs pulled in a chunk, if the number of docs retrieved by the interval exceeds this number, it will cause the function to recurse to provide a smaller batch',
             default: 5000,
             format(val) {
                 if (isNaN(val)) {
@@ -96,9 +92,7 @@ function schema() {
             }
         },
         interval: {
-            doc: 'The time interval in which it will read from, the number must be separated from the unit of time '
-            + 'by an underscore. The unit of time may be months, weeks, days, hours, minutes, seconds, millesconds '
-            + 'or their appropriate abbreviations',
+            doc: 'The time interval in which it will read from, the number must be separated from the unit of time by an underscore. The unit of time may be months, weeks, days, hours, minutes, seconds, millesconds or their appropriate abbreviations',
             default: 'auto',
             format(val) {
                 if (val === 'auto') return;
@@ -109,7 +103,12 @@ function schema() {
             }
         },
         full_response: {
-            doc: 'Set to true to receive the full Elasticsearch query response including index metadata.',
+            doc: 'DEPRECIATED : Set to true to receive the full Elasticsearch query response including index metadata.',
+            default: false,
+            format: Boolean
+        },
+        preserve_id: {
+            doc: 'Set to true to add the _id field of the doc set to the hidden metadata on the documents returned',
             default: false,
             format: Boolean
         },
@@ -163,6 +162,11 @@ function schema() {
                 }
             }
         },
+        key_type: {
+            doc: 'The type of id used in index',
+            default: 'base64url',
+            format: ['base64url', 'hexadecimal']
+        },
         time_resolution: {
             doc: 'indicate if data reading has second or millisecond resolutions',
             default: 's',
@@ -182,12 +186,95 @@ function schema() {
                 }
             }
         },
-        key_type: {
-            doc: 'The type of id used in index',
-            default: 'base64url',
-            format: ['base64url', 'hexadecimal']
+        geo_field: {
+            doc: 'field name where the geolocation data is located',
+            default: '',
+            format: 'optional_String'
+        },
+        geo_box_top_left: {
+            doc: 'used for a bounding box query',
+            default: '',
+            format: geoPointValidation
+        },
+        geo_box_bottom_right: {
+            doc: 'used for a bounding box query',
+            default: '',
+            format: geoPointValidation
+        },
+        geo_point: {
+            doc: 'used for a geo distance query',
+            default: '',
+            format: geoPointValidation
+        },
+        geo_distance: {
+            doc: 'used for a geo distance query',
+            default: '',
+            format: validGeoDistance
+        },
+        geo_sort_point: {
+            doc: 'used for sorting geo queries',
+            default: '',
+            format: geoPointValidation
+        },
+        geo_sort_order: {
+            doc: 'used for sorting geo queries',
+            default: '',
+            format: (val) => {
+                if (val) {
+                    const options = { asc: true, desc: true };
+                    if (typeof val !== 'string') throw new Error('parameter must be a string IF specified');
+                    if (!options[val]) throw new Error('if geo_sort_order is specified it must be either "asc" or "desc"');
+                }
+            }
+        },
+        geo_sort_unit: {
+            doc: 'used for sorting geo queries',
+            default: '',
+            format: checkUnits
         }
     };
+}
+
+function geoPointValidation(point) {
+    if (point) {
+        if (typeof point !== 'string') throw new Error('parameter must be a string IF specified');
+
+        const pieces = point.split(',');
+        if (pieces.length !== 2) throw new Error(`Invalid geo_point, received ${point}`);
+        const latitude = pieces[0];
+        const longitutde = pieces[1];
+
+        if (latitude > 90 || latitude < -90) throw new Error(`latitude parameter is incorrect, was given ${latitude}, should be >= -90 and <= 90`);
+        if (longitutde > 180 || longitutde < -180) throw new Error(`longitutde parameter is incorrect, was given ${longitutde}, should be >= -180 and <= 180`);
+    }
+}
+
+function checkUnits(unit) {
+    if (unit) {
+        const unitOptions = {
+            mi: true,
+            yd: true,
+            ft: true,
+            km: true,
+            m: true
+        };
+        if (typeof unit !== 'string') throw new Error('parameter must be a string IF specified');
+        if (!unitOptions[unit]) throw new Error('unit type did not have a proper unit of measuerment (ie m, km, yd, ft)');
+    }
+}
+
+function validGeoDistance(distance) {
+    if (distance) {
+        if (typeof distance !== 'string') throw new Error('parameter must be a string IF specified');
+        const matches = distance.match(/(\d+)(.*)$/);
+        if (!matches) throw new Error('geo_distance paramter is formatted incorrectly');
+
+        const number = matches[1];
+        if (!number) throw new Error('geo_distance paramter is formatted incorrectly, it must include a number');
+
+        const unit = matches[2];
+        checkUnits(unit);
+    }
 }
 
 function selfValidation(op) {
@@ -196,17 +283,13 @@ function selfValidation(op) {
             throw new Error('If subslice_by_key is set to true, the elasticsearch type parameter of the documents must also be set');
         }
     }
-}
-
-function _findOperation(opConfig) {
-    const schemaObj = schema();
-    return _.every(schemaObj, (config, key) => opConfig[key] !== undefined);
+    elasticApi({}).validateGeoParameters(op);
 }
 
 function crossValidation(job) {
     if (job.lifecycle === 'persistent') {
-        const op = job.operations.filter(_findOperation)[0];
-        if (op.interval === 'auto') {
+        const opConfig = getOpConfig(job, 'elasticsearch_reader');
+        if (opConfig.interval === 'auto') {
             throw new Error('interval for reader must be manually set while job is in persistent mode');
         }
     }
