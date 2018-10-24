@@ -78,7 +78,7 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
         const readerConfig = this.config.operations[0];
         const mod = loader.loadReader(readerConfig._op, this.assetIds);
 
-        const op = new mod.Slicer(this.context, readerConfig, this.config);
+        const op = new mod.Slicer(this.context, cloneDeep(readerConfig), this.config);
         this.slicer = op;
         this.addOperation(op);
     }
