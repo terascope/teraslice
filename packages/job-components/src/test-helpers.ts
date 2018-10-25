@@ -1,6 +1,7 @@
 
 import debugnyan from 'debugnyan';
 import { EventEmitter } from 'events';
+import path from 'path';
 import * as i from './interfaces';
 import { random, isString, uniq } from './utils';
 
@@ -143,6 +144,31 @@ export class TestContext implements i.Context {
                 },
             },
             teraslice: {
+                action_timeout: 10000,
+                analytics_rate: 10000,
+                assets_directory: path.join(process.cwd(), 'assets'),
+                cluster_manager_type: i.ClusterManagerType.Native,
+                hostname: 'localhost',
+                index_rollover_frequency: {
+                    analytics: i.RolloverFrequency.Yearly,
+                    state: i.RolloverFrequency.Monthly,
+                },
+                master_hostname: 'localhost',
+                master: false,
+                name: testName,
+                network_latency_buffer: 100,
+                node_disconnect_timeout: 5000,
+                node_state_interval: 5000,
+                port: 55678,
+                shutdown_timeout: 10000,
+                slicer_allocation_attempts: 1,
+                slicer_port_range: '55679:56678',
+                slicer_timeout: 10000,
+                state: {
+                    connection: 'default'
+                },
+                worker_disconnect_timeout: 3000,
+                workers: 1,
             },
         };
 
