@@ -1,30 +1,11 @@
 'use strict';
 
 const { Suite } = require('./helpers');
+const FakeDataEntity = require('./fixtures/fake-data-entity');
 const { DataEntity } = require('../dist');
 
 const data = { hello: true };
 const metadata = { id: 1 };
-
-class FakeDataEntity {
-    constructor(d, m) {
-        if (m) {
-            this.metadata = Object.assign({}, m, { createdAt: new Date() });
-        } else {
-            this.metadata = { createdAt: new Date() };
-        }
-
-        Object.assign(this, d);
-    }
-
-    getMetadata(key) {
-        return this.metadata[key];
-    }
-
-    setMetadata(key, val) {
-        this.metadata[key] = val;
-    }
-}
 
 module.exports = () => Suite('DataEntity (small records)')
     .add('new data', {
