@@ -13,15 +13,19 @@ benchmarks.forEach((file) => {
 });
 
 async function run(list) {
-    async function visit(length, i) {
-        if (length > i) {
-            const suite = await require(`./${list[i]}`)();
+    for (const initSuite of list) {
+        const suite = await initSuite();
+
+        await new Promise((resolve) => {
             suite.on('complete', () => {
-                visit(length, i + 1);
+                resolve();
             });
-        }
+        });
     }
-    await visit(list.length, 0);
 }
 
-run(benchmarks);
+run(benchmarks.map(file => require(`./${file}`)))
+    .then(() => {})
+    .catch((err) => {
+        console.error(err);
+    });
