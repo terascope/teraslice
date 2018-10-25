@@ -1,6 +1,27 @@
 'use strict';
 
+
 class BaseType {
+    constructor(fnBaseName) {
+        this.fnID = 0;
+        this.injectorFns = {};
+        this.fnBaseName = fnBaseName;
+
+        this.filterFnBuilder = (cb) => {
+            this.fnID += 1;
+            this.injectorFns[`${this.fnBaseName}${this.fnID}`] = cb;
+        }
+    
+        this.createParsedField = (field) => {
+            const { fnBaseName, fnID } = this;
+            return `${fnBaseName}${fnID}(data.${field})`;
+        }
+    
+        this.injectTypeFilterFns = () => {
+            const { injectorFns } = this;
+            return Object.keys(injectorFns).length > 0 ? injectorFns : null;
+        }
+    }
 
     walkAst(ast, cb) {
         function walk(ast, _field) {
@@ -27,10 +48,6 @@ class BaseType {
 
     formatData(data) {
         return data;
-    }
-
-    get injectTypeFilterFns() {
-        return null;
     }
 }
 

@@ -6,6 +6,8 @@ const bbox = require('@turf/bbox').default;
 const bboxPolygon = require('@turf/bbox-polygon');
 const { lineString } = require('@turf/helpers');
 const BaseType = require('./base');
+const { bindThis } = require('../../../utils');
+
 
 // feet
 const MileUnits = {
@@ -56,110 +58,85 @@ const feetUnits = {
 
 const UNIT_DICTONARY = Object.assign({}, MileUnits, NMileUnits, inchUnits, yardUnits, meterUnits, kilometerUnits, millimeterUnits, centimetersUnits, feetUnits);
 
+//TODO: is geo_sort_unit correct name for units?
+const geoParameters = {
+    _geo_point_: 'geoPoint',
+    _geo_distance_: 'geoDistance',
+    _geo_box_top_left_: 'geoBoxTopLeft',
+    _geo_box_bottom_right_: 'geoBoxBottomRight',
+    _geo_sort_unit_: 'geoSortUnit'
+};
+
+const fnBaseName = 'geoFn';
+
+
 class GeoType extends BaseType {
-    constructor(dateFieldDict) {
-        super();
-        this.fields = dateFieldDict;
-        bindThis(this, DateType);
+    constructor(geoFieldDict) {
+        super(fnBaseName);
+        this.fields = geoFieldDict;
+        this.geoResults = {};
+        bindThis(this, GeoType);
     }
 
+    processAst(ast) {
+        const { walkAst, filterFnBuilder, createParsedField, fields } = this;
 
-    //TODO: is geo_sort_unit correct name for units?
-    const geoParameters = {
-        _geo_point_: 'geoPoint',
-        _geo_distance_: 'geoDistance',
-        _geo_box_top_left_: 'geoBoxTopLeft',
-        _geo_box_bottom_right_: 'geoBoxBottomRight',
-        _geo_sort_unit_: 'geoSortUnit'
-    };
-    const geoResults = {};
+        function parsePoint(str) {
+            return str.split(',').map(st => st.trim()).map(numStr => Number(numStr)).reverse();
+        }
 
+        function makeGeoQueryFn(geoResults) {
+            const {
+                geoField,
+                geoBoxTopLeft,
+                geoBoxBottomRight,
+                geoPoint,
+                geoDistance,
+                geoSortUnit = 'm'
+            } = geoResults;
     
-    //TODO: dont mutate raw ast, have another one
-
-    function parseGeoQueries(node){
-        //console.log('parseGeoQueries is calling', node, !geoResults['geoField'], _.get(node, 'left.field'), geoParameters[_.get(node, 'left.field')], !geoResults['geoField'] && (geoParameters[_.get(node, 'right.field')] || geoParameters[_.get(node, 'left.field')]))
-        if (!geoResults['geoField'] && (geoParameters[_.get(node, 'right.field')] || geoParameters[_.get(node, 'left.field')])) {
-            geoResults['geoField'] = node.field
-        }
-
-        if (geoParameters[node.field]) {
-            geoResults[geoParameters[node.field]] = node.term
-        }
-
-    }
-
-
-    function parsePoint(str){
-        return str.split(',').map(st => st.trim()).map(numStr => Number(numStr)).reverse();
-    }
-
-    function makeGeoQueryFn() {
-      
-        const {
-            geoField,
-            geoBoxTopLeft,
-            geoBoxBottomRight,
-            geoPoint,
-            geoDistance,
-            geoSortUnit = 'm'
-        } = geoResults;
-
-        let polygon;
-
-        if (geoBoxTopLeft && geoBoxBottomRight) {
-            const line = lineString([parsePoint(geoBoxTopLeft), parsePoint(geoBoxBottomRight)]);
-            const box = bbox(line);
-            polygon = bboxPolygon(box);
-        }
-        
-        if (geoPoint && geoDistance) {
-            polygon =  createCircle(parsePoint(geoPoint), geoDistance, { units: UNIT_DICTONARY[geoSortUnit] });
-        }
-
-        // Nothing matches so return false
-        if (!polygon) return () => false
-        return (data) => {
-            const point = parsePoint(data[geoField]);
-            return pointInPolygon(point, polygon)
-        } 
-    }
-
-    if (hasGeoTypes) {
-        let myast = this._ast;
-        console.log('the top ast there is',JSON.stringify(myast, null, 4))
-        this.walkLuceneAst(parseGeoQueries);
-        if (Object.keys(geoResults).length > 0) {
-            geoQuery = makeGeoQueryFn(geoResults)
-            const clone = _.cloneDeep(ast);
-            function alterCloneAst(node){
-                if (node.field === geoResults['geoField']) {
-                    return { field: '__parsed', term: 'geoFn(data)'};
-                }
-                return node
+            let polygon;
+    
+            if (geoBoxTopLeft && geoBoxBottomRight) {
+                const line = lineString([parsePoint(geoBoxTopLeft), parsePoint(geoBoxBottomRight)]);
+                const box = bbox(line);
+                polygon = bboxPolygon(box);
             }
             
-            function alterAst(ast) {
-                //const results = alterCloneAst(ast);
-            
-                function walk(ast){
-                    const node = alterCloneAst(ast);
-            
-                    if (node.right) {
-                        node.right = walk(node.right)
-                    }
-            
-                    if (node.left) {
-                        node.left = walk(node.left)
+            if (geoPoint && geoDistance) {
+                polygon =  createCircle(parsePoint(geoPoint), geoDistance, { units: UNIT_DICTONARY[geoSortUnit] });
+            }
+    
+            // Nothing matches so return false
+            if (!polygon) return () => false
+            return (data) => {
+                const point = parsePoint(data);
+                return pointInPolygon(point, polygon)
+            } 
+        }
+
+        function parseGeoAst(node) {
+            const topField = node.field;
+            //console.log('parseGeoQueries is calling', node, !geoResults['geoField'], _.get(node, 'left.field'), geoParameters[_.get(node, 'left.field')], !geoResults['geoField'] && (geoParameters[_.get(node, 'right.field')] || geoParameters[_.get(node, 'left.field')]))
+            if ( fields[topField]) {
+                const geoQueryParameters = { geoField: topField };
+                function gatherGeoQueries(node) {
+                    const field = node.field;
+                    if (geoParameters[field]) {
+                        geoQueryParameters[geoParameters[field]] = node.term;
                     }
                     return node;
                 }
-            
-               return walk(ast)
-              // return results;
+                walkAst(node, gatherGeoQueries);
+                filterFnBuilder(makeGeoQueryFn(geoQueryParameters));
+                return { field: '__parsed', term: createParsedField(topField)}
             }
-
-            parsedAst = alterAst(clone);
+            return node;
         }
+
+
+        return this.walkAst(ast, parseGeoAst);
     }
 }
+
+module.exports = GeoType;

@@ -36,8 +36,6 @@ class DocumentMatcher extends LuceneQueryParser {
         let parensDepth = {};
         //TODO: change this
         const self = this; 
-        let hasGeoTypes = false;
-        let geoQuery = null;
         let regexField = null;
         const { _ast: ast, types } = this;
 
@@ -47,9 +45,6 @@ class DocumentMatcher extends LuceneQueryParser {
         if (types) {
             for (const key in types) {
         
-                if (types[key] === 'geo' ) {
-                    hasGeoTypes = true;
-                }
                 if (types[key] === 'regex' ) {
                     regexField = key;
                 }

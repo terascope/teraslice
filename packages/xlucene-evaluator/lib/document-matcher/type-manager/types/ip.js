@@ -16,27 +16,23 @@ const fnBaseName = 'ipFn';
 
 class IpType extends BaseType {
     constructor(ipFieldDict) {
-        super();
+        super(fnBaseName);
         this.fields = ipFieldDict;
         bindThis(this, IpType);
     }
 
     processAst(ast) {
-        const { fields } = this;
-        const fns = {};
+        const { filterFnBuilder, createParsedField, fields } = this;
         //used to denote the various filter functions with fnBaseName
-        let ipFnNum = 0;
-
         function populateIpQueries(node, _field) {
             const topField = node.field || _field;
             if (fields[topField]) {
-                ipFnNum += 1;
                if (node.term) {
                    const argeCidr = isCidr(node.term);
                    if (argeCidr > 0) {
                        const range = ip6addr.createCIDR(node.term);
                        //This needs to be dynamic
-                        fns[`${fnBaseName}${ipFnNum}`] = (ip) => {
+                       filterFnBuilder((ip) => {
                             if (isCidr(ip) > 0) {
                                 const argRange = ip6addr.createCIDR(ip);
                                 const argFirst = argRange.first().toString();
@@ -46,16 +42,15 @@ class IpType extends BaseType {
                                 return (range.contains(argFirst) || range.contains(argLast) || argRange.contains(rangeFirst) || argRange.contains(rangeLast))
                             }
                             return range.contains(ip);
-                        };
+                        });
                     } else {
-                        fns[`${fnBaseName}${ipFnNum}`] = (ip) => {
-
+                        filterFnBuilder((ip) => {
                             if (isCidr(ip) > 0) {
                                 const argRange = ip6addr.createCIDR(ip);
                                 return argRange.contains(node.term)
                             }
                             return ip === node.term
-                        };
+                        });
                     }
                }
                // RANGE EXPRESSIONS
@@ -95,7 +90,7 @@ class IpType extends BaseType {
                         range = ip6addr.createAddrRange(minValue, maxValue);
                     }
 
-                    fns[`${fnBaseName}${ipFnNum}`] = (ip) => {
+                    filterFnBuilder((ip) => {
                         if (isCidr(ip) > 0) {
                             const argRange = ip6addr.createCIDR(ip);
                             const argFirst = argRange.first().toString();
@@ -105,24 +100,16 @@ class IpType extends BaseType {
                             return (range.contains(argFirst) || range.contains(argLast) || argRange.contains(rangeFirst) || argRange.contains(rangeLast))
                         }
                         return range.contains(ip);
-                    };
+                    });
                }
 
-               return { field: '__parsed', term: `${fnBaseName}${ipFnNum}(data.${topField})`}
+               return { field: '__parsed', term: createParsedField(topField)}
             }
             return node;
         }
 
-        const parsedAst = this.walkAst(ast, populateIpQueries);
-        //fns is set after walkAst is called
-        this.typeFilterFn = fns;
-        return parsedAst;
+        return this.walkAst(ast, populateIpQueries);
     }
-
-    get injectTypeFilterFns() {
-        return this.typeFilterFn;
-    }
-
 }
 
 module.exports = IpType;
