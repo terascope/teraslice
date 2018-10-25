@@ -6,45 +6,69 @@ const { DataEntity } = require('../dist');
 const data = { hello: true };
 const metadata = { id: 1 };
 
-class SimpleWrapper {
+class FakeDataEntity {
     constructor(d, m) {
-        this.data = Object.assign({}, d);
-
         if (m) {
-            this.metadata = Object.assign({}, m);
+            this.metadata = Object.assign({}, m, { createdAt: new Date() });
+        } else {
+            this.metadata = { createdAt: new Date() };
         }
+
+        Object.assign(this, d);
+    }
+
+    getMetadata(key) {
+        return this.metadata[key];
+    }
+
+    setMetadata(key, val) {
+        this.metadata[key] = val;
     }
 }
 
 module.exports = () => Suite('DataEntity (small records)')
     .add('new data', {
         fn() {
-            return Object.assign({}, data);
+            let entity = Object.assign({}, data);
+            entity.metadata = { createdAt: new Date() };
+            entity = null;
+            return entity;
         }
     })
     .add('new data with metadata', {
         fn() {
-            return Object.assign({}, data, { metadata });
+            let entity = Object.assign({}, data);
+            entity.metadata = Object.assign({}, metadata, { createdAt: new Date() });
+            entity = null;
+            return entity;
         }
     })
-    .add('new SimpleWrapper', {
+    .add('new FakeDataEntity', {
         fn() {
-            return new SimpleWrapper(data);
+            let entity = new FakeDataEntity(data);
+            entity = null;
+            return entity;
         }
     })
-    .add('new SimpleWrapper metadata', {
+    .add('new FakeDataEntity metadata', {
         fn() {
-            return new SimpleWrapper(data, metadata);
+            let entity = new FakeDataEntity(data, metadata);
+            entity = null;
+            return entity;
         }
     })
     .add('new DataEntity', {
         fn() {
-            return new DataEntity(data);
+            let entity = new DataEntity(data);
+            entity = null;
+            return entity;
         }
     })
     .add('new DataEntity with metadata', {
         fn() {
-            return new DataEntity(data, metadata);
+            let entity = new DataEntity(data, metadata);
+            entity = null;
+            return entity;
         }
     })
     .run({ async: true });
