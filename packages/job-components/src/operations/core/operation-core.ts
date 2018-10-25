@@ -24,8 +24,12 @@ export default class OperationCore extends Core implements WorkerOperationLifeCy
             module: 'operation',
             opName: opConfig._op,
             jobName: executionConfig.name,
+            jobId: executionConfig.job_id,
+            exId: executionConfig.ex_id,
         });
+
         super(context, executionConfig, logger);
+
         this.opConfig = opConfig;
     }
 

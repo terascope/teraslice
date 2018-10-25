@@ -14,7 +14,11 @@ class Scheduler {
         this.events = context.apis.foundation.getSystemEvents();
         this.executionContext = executionContext;
         this.exId = executionContext.exId;
-        this.recoverExecution = _.get(executionContext.config, 'recovered_execution', false);
+
+        const jobCanRecover = _.get(executionContext.config, 'recovered_execution', false);
+        const slicerCanRecover = executionContext.slicer.isRecoverable();
+
+        this.recoverExecution = jobCanRecover && slicerCanRecover;
         this.recovering = this.recoverExecution;
 
         this._creating = 0;

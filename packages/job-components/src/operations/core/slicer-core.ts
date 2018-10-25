@@ -31,6 +31,8 @@ export default abstract class SlicerCore extends Core implements SlicerOperation
             module: 'slicer',
             opName: opConfig._op,
             jobName: executionConfig.name,
+            jobId: executionConfig.job_id,
+            exId: executionConfig.ex_id,
         });
 
         super(context, executionConfig, logger);
@@ -52,7 +54,7 @@ export default abstract class SlicerCore extends Core implements SlicerOperation
 
     async initialize(recoveryData: object[]): Promise<void> {
         this.recoveryData = recoveryData;
-        this.context.logger.debug(`${this.executionConfig.name}->${this.opConfig._op} is initializing...`, recoveryData);
+        this.context.logger.trace(`${this.executionConfig.name}->${this.opConfig._op} is initializing...`, recoveryData);
     }
 
     async shutdown(): Promise<void> {
@@ -127,7 +129,7 @@ export default abstract class SlicerCore extends Core implements SlicerOperation
      * Used to indicate whether this slicer is recoverable.
     */
     isRecoverable() {
-        return true;
+        return false;
     }
 
     /**
