@@ -1,16 +1,12 @@
-import { Context, OpConfig, LegacyExecutionContext, LegacyReader, SliceRequest, SlicerFns, ReaderFn } from '../../interfaces';
+import { Context, LegacyExecutionContext, LegacyReader, SliceRequest, SlicerFns, ReaderFn, ValidatedJobConfig } from '../../interfaces';
 import DataEntity, { DataEntityList } from '../data-entity';
 import FetcherCore from '../core/fetcher-core';
 import ParallelSlicer from '../parallel-slicer';
 import ConvictSchema from '../convict-schema';
-import {
-    SchemaConstructor,
-    FetcherConstructor,
-    SlicerConstructor,
-} from '../interfaces';
+import { ReaderModule } from '../interfaces';
 import { isInteger } from '../../utils';
 
-export default function readerShim(legacy: LegacyReader): ReaderModule {
+export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule {
     return {
         Slicer: class LegacySlicerShim extends ParallelSlicer  {
             private _maxQueueLength = 10000;
@@ -72,8 +68,8 @@ export default function readerShim(legacy: LegacyReader): ReaderModule {
                 throw new Error('Fetcher has not been initialized');
             }
         },
-        Schema: class LegacySchemaShim extends ConvictSchema {
-            validate(inputConfig: any): OpConfig {
+        Schema: class LegacySchemaShim extends ConvictSchema<S> {
+            validate(inputConfig: any) {
                 const opConfig = super.validate(inputConfig);
                 if (legacy.selfValidation) {
                     legacy.selfValidation(opConfig);
@@ -81,15 +77,15 @@ export default function readerShim(legacy: LegacyReader): ReaderModule {
                 return opConfig;
             }
 
+            validateJob(job: ValidatedJobConfig): void {
+                if (legacy.crossValidation) {
+                    legacy.crossValidation(job, this.context.sysconfig);
+                }
+            }
+
             build(context?: Context) {
                 return legacy.schema(context);
             }
         }
     };
-}
-
-interface ReaderModule {
-    Slicer: SlicerConstructor;
-    Fetcher: FetcherConstructor;
-    Schema: SchemaConstructor;
 }
