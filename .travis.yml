@@ -34,9 +34,10 @@ jobs:
   - stage: Tests
     name: Test Packages
     if: branch = master
-    script: yarn test
+    script: yarn test:ci
     after_success:
       - bash <(curl -s https://codecov.io/bash)
+      - yarn benchmark
 
   # test end-to-end tests, only on pull-requests
   - script:
