@@ -23,7 +23,6 @@ describe('id reader', () => {
             .then(() => misc.indexStats('test-id_reindex-10000')
                 .then((stats) => {
                     expect(stats.count).toBe(10000);
-                    expect(stats.deleted).toBe(0);
                 }))
             .catch(fail)
             .finally(() => { done(); });
@@ -45,7 +44,6 @@ describe('id reader', () => {
             .then(() => misc.indexStats('test-hexadecimal-logs')
                 .then((stats) => {
                     expect(stats.count).toBe(10000);
-                    expect(stats.deleted).toBe(0);
                 }))
             .catch(fail)
             .finally(() => { done(); });
@@ -97,7 +95,6 @@ describe('id reader', () => {
                     .then(() => misc.indexStats('test-id_reindex-lifecycle-10000')
                         .then((stats) => {
                             expect(stats.count).toBe(10000);
-                            expect(stats.deleted).toBe(0);
                         }));
             })
             .catch(fail)
