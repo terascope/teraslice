@@ -8,7 +8,8 @@ import {
     TestContext,
     newTestExecutionConfig,
     newTestExecutionContext,
-    Assignment
+    Assignment,
+    OpConfig
 } from '../../../src';
 
 describe('Legacy Reader Shim', () => {
@@ -44,7 +45,11 @@ describe('Legacy Reader Shim', () => {
         }
     }
 
-    class ExampleSchema extends ConvictSchema {
+    interface ExampleOpConfig extends OpConfig {
+        example: string;
+    }
+
+    class ExampleSchema extends ConvictSchema<ExampleOpConfig> {
         build() {
             return {
                 example: {
@@ -56,7 +61,7 @@ describe('Legacy Reader Shim', () => {
         }
     }
 
-    class InvalidSchema extends ConvictSchema {
+    class InvalidSchema extends ConvictSchema<OpConfig> {
         static type() {
             return 'invalid';
         }
@@ -82,7 +87,7 @@ describe('Legacy Reader Shim', () => {
             expect(shim.newReader).toBeFunction();
             const reader = await shim.newReader(context, opConfig, exConfig);
 
-            const result = await reader({});
+            const result = await reader({}, context.logger);
 
             expect(result).toBeArrayOfSize(1);
             expect(result[0]).toMatchObject({
@@ -132,7 +137,7 @@ describe('Legacy Reader Shim', () => {
             expect(shim.newReader).toBeFunction();
             const reader = await shim.newReader(context, opConfig, exConfig);
 
-            const result = await reader({});
+            const result = await reader({}, context.logger);
             expect(result).toBeArrayOfSize(1);
             expect(result[0]).toMatchObject({
                 hello: true

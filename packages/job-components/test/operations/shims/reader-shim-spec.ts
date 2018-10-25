@@ -1,5 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { readerShim, TestContext, newTestExecutionConfig, SlicerContext, WorkerContext } from '../../../src';
+import { readerShim, TestContext, newTestExecutionConfig, SlicerContext, WorkerContext, ValidatedJobConfig } from '../../../src';
 
 describe('Reader Shim', () => {
     const context = new TestContext('teraslice-operations');
@@ -11,7 +11,11 @@ describe('Reader Shim', () => {
     exConfig.slicers = 2;
     exConfig.operations.push(opConfig);
 
-    const mod = readerShim({
+    interface ExampleOpConfig {
+        example: string;
+    }
+
+    const mod = readerShim<ExampleOpConfig>({
         slicerQueueLength() {
             return 'QUEUE_MINIMUM_SIZE';
         },
@@ -28,6 +32,18 @@ describe('Reader Shim', () => {
             return async () => {
                 return [{ say: 'howdy' }];
             };
+        },
+        crossValidation(job, sysconfig) {
+            if (job.slicers !== exConfig.slicers) {
+                throw new Error('Incorrect slicers');
+            }
+
+            if (!sysconfig.teraslice.name) {
+                throw new Error('No teraslice name');
+            }
+        },
+        selfValidation() {
+
         },
         schema() {
             return {
@@ -56,6 +72,19 @@ describe('Reader Shim', () => {
                 format: 'String',
             }
         });
+
+        const result = schema.validate({ _op: 'hi', example: 'hello' });
+        expect(result.example).toEqual('hello');
+
+        if (schema.validateJob) {
+            expect(schema.validateJob(exConfig as ValidatedJobConfig)).toBeNil();
+        }
+
+        expect(() => {
+            if (!schema.validateJob) return;
+            const testConfig = { slicers: 1000 };
+            schema.validateJob(testConfig as ValidatedJobConfig);
+        }).toThrow();
     });
 
     it('should have a functioning Slicer', async () => {

@@ -1,6 +1,6 @@
 import 'jest-extended'; // require for type definitions
 import * as path from 'path';
-import { JobValidator, TestContext, JobConfig } from '../src';
+import { JobValidator, TestContext, JobConfig, LifeCycle } from '../src';
 
 describe('JobValidator', () => {
     const context = new TestContext('teraslice-operations');
@@ -94,7 +94,7 @@ describe('JobValidator', () => {
         });
 
         it('will throw based off crossValidation errors', () => {
-        // if persistent, then interval cannot be auto
+            // if persistent, then interval cannot be auto
             const jobSpec = {
                 lifecycle: 'persistent',
                 operations: [
@@ -115,7 +115,6 @@ describe('JobValidator', () => {
                 api.validate(jobSpec);
             }).toThrowError();
         });
-
     });
 
     describe('->validateConfig', () => {
@@ -144,7 +143,7 @@ describe('JobValidator', () => {
                 name: 'test',
                 operations: [
                     {
-                    // @ts-ignore
+                        // @ts-ignore
                         something: 'else',
                     },
                     {
@@ -164,7 +163,7 @@ describe('JobValidator', () => {
                 operations: [
                     {
                         _op: 'elasticsearch_reader',
-                    // @ts-ignore
+                        // @ts-ignore
                         date_field_name: 'created',
                         index: 'some_index',
                     },
@@ -180,13 +179,13 @@ describe('JobValidator', () => {
         });
 
         it('will throw based off opValition errors', () => {
-        // if subslice_by_key, then it needs type specified or it will error
+            // if subslice_by_key, then it needs type specified or it will error
             const jobSpec: JobConfig = {
                 name: 'test',
                 operations: [
                     {
                         _op: 'elasticsearch_reader',
-                    // @ts-ignore
+                        // @ts-ignore
                         date_field_name: 'created',
                         index: 'some_index',
                         subslice_by_key: true,
@@ -202,6 +201,30 @@ describe('JobValidator', () => {
             }).toThrowError();
         });
 
+        it('will throw based off crossValidation errors', () => {
+            // if persistent, then interval cannot be auto
+            const jobSpec: JobConfig = {
+                name: 'test',
+                lifecycle: LifeCycle.Persistent,
+                operations: [
+                    {
+                        _op: 'elasticsearch_reader',
+                        // @ts-ignore
+                        date_field_name: 'created',
+                        index: 'some_index',
+                        interval: 'auto',
+                        subslice_by_key: true,
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+
+            expect(() => {
+                api.validateConfig(jobSpec);
+            }).toThrowError();
+        });
     });
 
     describe('->hasSchema', () => {
