@@ -13,6 +13,11 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
             private _dynamicQueueLength = false;
             private slicerFns: SlicerFns|undefined;
 
+            /** legacy slicers should recoverable by default */
+            isRecoverable() {
+                return true;
+            }
+
             async initialize(recoveryData: object[]) {
                 // @ts-ignore
                 const executionContext: LegacyExecutionContext = {

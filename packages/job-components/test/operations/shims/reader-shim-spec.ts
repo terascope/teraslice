@@ -108,6 +108,9 @@ describe('Reader Shim', () => {
         });
 
         expect(slicer.getSlice()).toBeNull();
+
+        expect(slicer.isRecoverable()).toBeTrue();
+        expect(slicer.maxQueueLength()).toEqual(0);
     });
 
     it('should have a functioning Fetcher', async () => {

@@ -10,6 +10,8 @@ export default abstract class APICore extends Core implements WorkerOperationLif
         const logger = context.apis.foundation.makeLogger({
             module: 'operation-api',
             jobName: executionConfig.name,
+            jobId: executionConfig.job_id,
+            exId: executionConfig.ex_id,
         });
         super(context, executionConfig, logger);
     }
