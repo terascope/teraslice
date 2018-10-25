@@ -132,5 +132,5 @@ module.exports = async () => {
                     .then(() => deferred.resolve());
             }
         })
-        .run();
+        .run({ async: true });
 };
