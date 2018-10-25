@@ -1,9 +1,9 @@
 'use strict';
 
-const { Fetcher, DataEntity } = require('../../dist');
+const { Fetcher, DataEntity } = require('../../../dist');
 
 class SimpleFetcher extends Fetcher {
-    async fetch({ count = 10000, precreate, addMetadata } = {}) {
+    async fetch({ count = 1000, precreate, addMetadata } = {}) {
         const result = [];
         for (let i = 0; i < count; i++) {
             const data = {
