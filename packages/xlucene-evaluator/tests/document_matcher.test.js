@@ -10,7 +10,7 @@ describe('document matcher', () => {
         documentMatcher = new DocumentMatcher();
     });
 
-    xdescribe('exact match and term expressions', () => {
+    describe('exact match and term expressions', () => {
         it('can match basic terms', () => {
             const data = { hello: 'world' };
             const badData = { hello: 'goodbye' };
@@ -92,7 +92,7 @@ describe('document matcher', () => {
         });
     });
    
-    xdescribe('numerical range queries', () => {
+    describe('numerical range queries', () => {
         it('can handle "< > <= >="', () => {
             const data = { age: 33 };
             const data2 = { age: 8 };
@@ -268,7 +268,7 @@ describe('document matcher', () => {
         });
     });
 
-    xdescribe('ip expressions', () => {
+    describe('ip expressions', () => {
         it('can do exact matches, no type changes', () => {
             const data1 = { ip: '157.60.0.1' };
             const data2 = { ip: '1:2:3:4:5:6:7:8'};
@@ -458,8 +458,8 @@ describe('document matcher', () => {
         });
     });
 
-    xdescribe('date expressions', () => {
-        xit('can do exact matches, no type changes', () => {
+    describe('date expressions', () => {
+        it('can do exact matches, no type changes', () => {
             // all of these are the same date
             const data1 = { _created: 'Thu Oct 18 2018 11:13:20 GMT-0700' };
             const data2 = { _created: '2018-10-18T18:13:20.683Z'};
@@ -484,7 +484,7 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data3)).toEqual(true);
         });
         //TODO: should be testing multiple type fields of the same type ie _created:date, _updated:date
-        xit('can match dates, with type changes', () => {
+        it('can match dates, with type changes', () => {
             // all of these are the same date
             const data1 = { _created: 'Thu Oct 18 2018 11:13:20 GMT-0700' };
             const data2 = { _created: '2018-10-18T18:13:20.683Z'};
@@ -509,7 +509,7 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data3)).toEqual(true);
         });
 
-        xit('can can handle "< > <= >=", with type changes', () => {
+        it('can can handle "< > <= >=", with type changes', () => {
             // all of these are the same date
             const data1 = { _created: 'Thu Oct 18 2018 22:13:20 GMT-0700' };
             const data2 = { _created: '2018-10-18T18:13:20.683Z'};
@@ -542,7 +542,7 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data5)).toEqual(true);
         });
 
-        xit('can can handle [] {} {], with type changes', () => {
+        it('can can handle [] {} {], with type changes', () => {
             // all of these are the same date
             const data1 = { _created: 'Thu Oct 18 2018 22:13:20 GMT-0700' };
             const data2 = { _created: '2018-10-18T18:13:20.683Z'};
@@ -575,7 +575,7 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data5)).toEqual(false);
         });
 
-        xit('can can complex queries', () => {
+        it('can can complex queries', () => {
             // all of these are the same date
             const data1 = { _created: '2018-10-18T18:13:20.683Z', some: 'key', bytes: 1232322 };
             const data2 = { _created: '2018-10-18T18:13:20.683Z', other: 'key', bytes: 1232322 };
@@ -601,7 +601,7 @@ describe('document matcher', () => {
         });
     });
 
-    xdescribe('geo expressions', () => {
+    describe('geo expressions', () => {
 
         it('can do basic matches', () => {
             const data1 = { location: '33.435967,-111.867710' };

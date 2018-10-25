@@ -1,78 +1,62 @@
 'use strict';
 
-const StringType = require('./types/string');
 const DateType = require('./types/dates');
 const IpType = require('./types/ip');
 const GeoType = require('./types/geo');
+const RegexType = require('./types/regex');
+
+const typeMapping = {
+    date: DateType,
+    ip: IpType,
+    geo: GeoType,
+    regex: RegexType
+};
 
 class TypeManager {
     constructor(typeConfig) {
-        const typeList = [];
-        const config = this._buildFieldListConfig(typeConfig)
-        if (config.date ) {
-            typeList.push(new DateType(config.date))
-        }
-
-        if (config.ip) {
-            console.log('injecting ip')
-            typeList.push(new IpType(config.ip))
-        }
-
-        if (config.geo) {
-            typeList.push(new GeoType(config.geo))
-        }
-
-        if (config.regex) {
-            //typeList.push(new GeoType(config.geo))
-        }
-        
-        // by default we parse everything by strings so it needs to be included
-        typeList.push(new StringType())
-        this.typeList = typeList;
+        const typeList = [];        
+        this.typeList = this._buildFieldListConfig(typeConfig);
     }
 
     _buildFieldListConfig(typeConfig) {
+        const typeList = [];
         const results = {};
-        for (const key in typeConfig) {
-            if (typeConfig[key] === 'date' ) {
-                if (!results.date) results.date = {};
-                results.date[key] = true;
-            }
-            if (typeConfig[key] === 'ip' ) {
-                if (!results.ip) results.ip = {};
-                results.ip[key] = true;
-            }
-            if (typeConfig[key] === 'geo' ) {
-                if (!results.geo) results.geo = {};
-                results.geo[key] = true;
-            }
-            if (typeConfig[key] === 'regex' ) {
-                if (!results.regex) results.regex = {};
-                results.regex[key] = true;
+        
+        for (const field in typeConfig) {
+            const type = typeConfig[field];
+            if (typeMapping[type]) {
+                if (!results[type]) results[type] = {};
+                results[type][field] = true;
             }
         }
-        return results;
+
+        for (const type in results) {
+            const TypeClass = typeMapping[type];
+            typeList.push(new TypeClass(results[type]));
+        }
+
+        return typeList;
     }
 
     processAst(ast) {
         return this.typeList.reduce((ast, type) => {
-            return type.processAst(ast)
-        }, ast)
+            return type.processAst(ast);
+        }, ast);
     }
 
     formatData(doc) {
         return this.typeList.reduce((doc, type) => {
-            return type.formatData(doc)
-        }, doc)
+            return type.formatData(doc);
+        }, doc);
     }
 
     injectTypeFilterFns() {
         return this.typeList.reduce((prev, type) => {
             const filterFns = type.injectTypeFilterFns();
             if (filterFns !== null) {
-                Object.assign(prev, filterFns)
+                Object.assign(prev, filterFns);
             }
-            return prev
+            return prev;
         }, {});
     }
 }

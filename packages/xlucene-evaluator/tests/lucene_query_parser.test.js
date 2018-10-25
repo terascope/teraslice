@@ -2,7 +2,7 @@
 
 const LuceneQueryParser = require('../lib/lucene-query-parser');
 
-xdescribe('luceneQueryParser', () => {
+describe('luceneQueryParser', () => {
     let luceneQueryParser;
     
     beforeEach(() => {
@@ -58,7 +58,7 @@ xdescribe('luceneQueryParser', () => {
     
             expect(luceneQueryParser._ast['left']['term']).toBe('fizz buzz');
         });
-        //TODO: FIXME: this has issues with date math
+
         it("accepts terms with '-'", () => {
             luceneQueryParser.parse('created_at:>now-5d');
     

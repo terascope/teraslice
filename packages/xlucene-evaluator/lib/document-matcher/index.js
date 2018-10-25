@@ -31,51 +31,34 @@ class DocumentMatcher extends LuceneQueryParser {
     }
 
     _buildFilterFn() {
+        const { _ast: ast, types, _parseRange: parseRange } = this;
         let fnStrBody = '';
         let addParens = false;
         let parensDepth = {};
-        //TODO: change this
-        const self = this; 
-        let regexField = null;
-        const { _ast: ast, types } = this;
 
         let parsedAst = types.processAst(ast);
         this._parsedAst = parsedAst;
 
-        if (types) {
-            for (const key in types) {
-        
-                if (types[key] === 'regex' ) {
-                    regexField = key;
-                }
-            }
-        }
-
         function strBuilder(ast, _field, depth) {
             const topField = ast.field || _field;
 
-            if (regexField && (topField === regexField)) {
-                fnStrBody += `data.${ast.field}.match(/^(${ast.term})\\b/) !== null`
-            } else {
-                if (ast.field && ast.term) {
-                    if (ast.field === '_exists_') {
-                        fnStrBody += `data.${ast.term} != null`;
-                    } else if (ast.field === '__parsed') {
-                        fnStrBody += `${ast.term}`;
-                    } else {
-                        fnStrBody += `data.${ast.field} == "${ast.term}"`
-                    }
-                }
-                if (ast.term_min) {
-                    fnStrBody += self._parseRange(ast, topField)
+            if (ast.field && ast.term) {
+                if (ast.field === '_exists_') {
+                    fnStrBody += `data.${ast.term} != null`;
+                } else if (ast.field === '__parsed') {
+                    fnStrBody += `${ast.term}`;
+                } else {
+                    fnStrBody += `data.${ast.field} == "${ast.term}"`
                 }
             }
-    
+            if (ast.term_min) {
+                fnStrBody += parseRange(ast, topField)
+            }
+            
             if (ast.operator) {
                 let opStr = ' || ';
         
                 if (ast.operator === 'AND') {
-                    //console.log('what is the ast here', ast)
                     opStr = ' && '
                     //only add a () around deeply recursive structures
                     if ((ast.right && (ast.right.left || ast.right.right)) || (ast.left && (ast.left.left || ast.left.right))) {
@@ -84,10 +67,8 @@ class DocumentMatcher extends LuceneQueryParser {
                         parensDepth[depth] = true;
                     }
                 }
-        
                 fnStrBody += opStr;
             }
-           
         }
 
         function postParens(ast, _field, depth) {
@@ -99,25 +80,19 @@ class DocumentMatcher extends LuceneQueryParser {
 
         this.walkLuceneAst(strBuilder, postParens, parsedAst);
 
-        console.log('the first main strFn', fnStrBody)
+        const argsObj = types.injectTypeFilterFns();
+        const argsFns = [];
+        const strFnArgs = [];
 
-        try {
-            const argsObj = types.injectTypeFilterFns();
-            const argsFns = [];
-            const strFnArgs = [];
+        _.forOwn(argsObj, (value, key) => {
+            strFnArgs.push(key);
+            argsFns.push(value)
+        });
 
-            _.forOwn(argsObj, (value, key) => {
-                strFnArgs.push(key);
-                argsFns.push(value)
-            });
+        strFnArgs.push('data', `return ${fnStrBody}`);
 
-            strFnArgs.push('data', `return ${fnStrBody}`);
-
-            const strFilterFunction = new Function(...strFnArgs);
-            this.filterFn = (data) => strFilterFunction(...argsFns, data)
-        } catch(err) {
-            console.log('the error', err)
-        }
+        const strFilterFunction = new Function(...strFnArgs);
+        this.filterFn = (data) => strFilterFunction(...argsFns, data);
     }
 
     _parseRange(node, topFieldName) {
@@ -165,7 +140,6 @@ class DocumentMatcher extends LuceneQueryParser {
     }
 
     match(doc) {
-        //TODO: should meta data be set here about rule?
         const { types } = this;
         if (!this.filterFn) throw new Error('DocumentMatcher must be initialized with a lucene query');
         const data = types.formatData(doc);

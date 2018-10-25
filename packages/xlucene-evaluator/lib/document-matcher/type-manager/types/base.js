@@ -1,6 +1,5 @@
 'use strict';
 
-
 class BaseType {
     constructor(fnBaseName) {
         this.fnID = 0;
@@ -22,7 +21,7 @@ class BaseType {
             return Object.keys(injectorFns).length > 0 ? injectorFns : null;
         }
     }
-
+    //TODO: look to see if this can be combined with other walkAst method
     walkAst(ast, cb) {
         function walk(ast, _field) {
             const topField = ast.field || _field;
@@ -39,7 +38,6 @@ class BaseType {
         }
     
        return walk(ast)
-      
     }
 
     processAst(ast) {

@@ -117,7 +117,6 @@ class GeoType extends BaseType {
 
         function parseGeoAst(node) {
             const topField = node.field;
-            //console.log('parseGeoQueries is calling', node, !geoResults['geoField'], _.get(node, 'left.field'), geoParameters[_.get(node, 'left.field')], !geoResults['geoField'] && (geoParameters[_.get(node, 'right.field')] || geoParameters[_.get(node, 'left.field')]))
             if ( fields[topField]) {
                 const geoQueryParameters = { geoField: topField };
                 function gatherGeoQueries(node) {

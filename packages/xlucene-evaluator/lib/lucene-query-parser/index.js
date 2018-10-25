@@ -13,9 +13,8 @@ class LuceneQueryParser {
     walkLuceneAst(preCb, postCb, _argAst) {
         const { _ast } = this;
         const ast = _argAst || _ast;
-        //console.log('what is the ast', ast, cb)
+
         function walk(node, _field, depth) {
-            //console.log('what is the node', node)
             const topField = node.field || _field;
 
             if (node.left) {
@@ -30,7 +29,7 @@ class LuceneQueryParser {
             if (postCb) postCb(node, topField, depth)
         }
         
-       return walk(ast, null, );
+       return walk(ast, null);
     }
 }
 
