@@ -29,6 +29,9 @@ class BaseType {
         return data;
     }
 
+    get injectTypeFilterFns() {
+        return null;
+    }
 }
 
 module.exports = BaseType;
