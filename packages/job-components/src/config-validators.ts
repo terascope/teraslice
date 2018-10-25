@@ -9,8 +9,8 @@ const validateOptions: convict.ValidateOptions = { allowed: true };
  * Merges the provided inputSchema with commonSchema and then validates the
  * provided opConfig against the resulting schema.
  */
-export function validateOpConfig(inputSchema: convict.Schema<any>, inputConfig: any): OpConfig {
-    const schema: convict.Schema<any> = Object.assign({}, opSchema, inputSchema);
+export function validateOpConfig<T>(inputSchema: convict.Schema<any>, inputConfig: any) {
+    const schema = Object.assign({}, opSchema, inputSchema) as convict.Schema<OpConfig & T>;
     const config = convict(schema);
 
     try {
@@ -27,8 +27,8 @@ export function validateOpConfig(inputSchema: convict.Schema<any>, inputConfig: 
  * Merges the provided inputSchema with commonSchema and then validates the
  * provided jobConfig against the resulting schema.
  */
-export function validateJobConfig(inputSchema: convict.Schema<any>, inputConfig: any): ValidatedJobConfig {
-    const config = convict(inputSchema);
+export function validateJobConfig<T>(inputSchema: convict.Schema<any>, inputConfig: any) {
+    const config = convict(inputSchema as convict.Schema<ValidatedJobConfig & T>);
 
     try {
         config.load(inputConfig);

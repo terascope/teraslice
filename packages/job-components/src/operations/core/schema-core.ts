@@ -1,10 +1,10 @@
-import { Context, OpConfig } from '../../interfaces';
+import { Context, OpConfig, ValidatedJobConfig } from '../../interfaces';
 
 /**
  * A base class for supporting "Schema" definition
  */
 
-export default abstract class SchemaCore {
+export default abstract class SchemaCore<T> {
     protected context: Context;
 
     constructor(context: Context) {
@@ -12,5 +12,6 @@ export default abstract class SchemaCore {
     }
 
     abstract build(context?: Context): any;
-    abstract validate(inputConfig: any): OpConfig;
+    abstract validate(inputConfig: any): OpConfig & T;
+    abstract validateJob?(job: ValidatedJobConfig): void;
 }

@@ -7,6 +7,7 @@ import { validateJobConfig, validateOpConfig } from './config-validators';
 import { jobSchema } from './job-schemas';
 import { LoaderOptions, OperationLoader } from './operation-loader';
 import { registerApis } from './register-apis';
+import { OperationModule } from './operations';
 
 export class JobValidator {
     public schema: convict.Schema<any>;
@@ -25,19 +26,37 @@ export class JobValidator {
         const assetIds = jobConfig.assets || [];
         const apis = {};
 
-        jobConfig.operations = jobConfig.operations.map((opConfig, index) => {
-            if (index === 0) {
-                const { Schema, API } = this.opLoader.loadReader(opConfig._op, assetIds);
+        type validateJobFn = (job: ValidatedJobConfig) => void;
+        const validateJobFns: validateJobFn[] = [];
+
+        const handleModule = (opConfig: OpConfig, op: OperationModule) => {
+            const { Schema, API } = op;
+
+            if (API != null) {
                 apis[opConfig._op] = API;
-                return new Schema(this.context).validate(opConfig);
             }
 
-            const { Schema, API } = this.opLoader.loadProcessor(opConfig._op, assetIds);
-            apis[opConfig._op] = API;
-            return new Schema(this.context).validate(opConfig);
+            const schema = new Schema(this.context);
+
+            validateJobFns.push((job) => {
+                if (!schema.validateJob) return;
+                schema.validateJob(job);
+            });
+
+            return schema.validate(opConfig);
+        };
+
+        jobConfig.operations = jobConfig.operations.map((opConfig, index) => {
+            if (index === 0) {
+                return handleModule(opConfig, this.opLoader.loadReader(opConfig._op, assetIds));
+            }
+
+            return handleModule(opConfig, this.opLoader.loadProcessor(opConfig._op, assetIds));
         });
 
         registerApis(this.context, jobConfig);
+
+        validateJobFns.forEach((fn) => { fn(jobConfig); });
 
         Object.keys(apis).forEach((name) => {
             const api = apis[name];

@@ -29,9 +29,9 @@ export type ObserverConstructor = {
     new(context: WorkerContext, executionConfig: ExecutionConfig): APICore;
 };
 
-export type SchemaConstructor = {
+export type SchemaConstructor<T = any> = {
     type(): string;
-    new(context: Context): SchemaCore;
+    new(context: Context): SchemaCore<T>;
 };
 
 export type APIConstructor = {
