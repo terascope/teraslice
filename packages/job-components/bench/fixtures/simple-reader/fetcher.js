@@ -19,7 +19,7 @@ class SimpleFetcher extends Fetcher {
             // used when no data entity is created
             // in order to keep it as close to possible
             if (addMetadata) {
-                data.metadata = { createdAt: new Date() };
+                data.metadata = { createdAt: Date.now() };
             }
 
             if (precreate) {

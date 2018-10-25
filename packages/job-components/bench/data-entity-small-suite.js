@@ -11,7 +11,7 @@ module.exports = () => Suite('DataEntity (small records)')
     .add('new data', {
         fn() {
             let entity = Object.assign({}, data);
-            entity.metadata = { createdAt: new Date() };
+            entity.metadata = { createdAt: Date.now() };
             entity = null;
             return entity;
         }
@@ -19,7 +19,7 @@ module.exports = () => Suite('DataEntity (small records)')
     .add('new data with metadata', {
         fn() {
             let entity = Object.assign({}, data);
-            entity.metadata = Object.assign({}, metadata, { createdAt: new Date() });
+            entity.metadata = Object.assign({}, metadata, { createdAt: Date.now() });
             entity = null;
             return entity;
         }

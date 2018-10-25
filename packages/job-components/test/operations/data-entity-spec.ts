@@ -52,7 +52,7 @@ describe('DataEntity', () => {
 
         it('should be able to get the metadata by key', () => {
             const createdAt = dataEntity.getMetadata('createdAt');
-            expect(createdAt).toBeDate();
+            expect(createdAt).toBeNumber();
         });
 
         it('should not be able to set createdAt', () => {
