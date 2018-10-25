@@ -113,15 +113,9 @@ export default class DataEntity {
     // Add the ability to specify any additional properties
     [prop: string]: any;
 
-    constructor(data: object, metadata?: object) {
-        const createdAt = new Date();
-        if (metadata) {
-            _metadata.set(this, { ...metadata, createdAt });
-        } else {
-            _metadata.set(this, {
-                createdAt: new Date(),
-            });
-        }
+    constructor(data: object, metadata: object = {}) {
+        copy(metadata, { createdAt: Date.now() });
+        _metadata.set(this, metadata);
 
         copy(this, data);
     }
@@ -132,7 +126,7 @@ export default class DataEntity {
         if (key) {
             return get(metadata, key);
         }
-        return { ...metadata };
+        return metadata;
     }
 
     @locked()
@@ -148,20 +142,15 @@ export default class DataEntity {
 
     @locked()
     toJSON(withMetadata?: boolean): object {
-        const data = {};
-        copy(data, this);
-
         if (withMetadata) {
             const metadata = _metadata.get(this) as DataEntityMetadata;
             return {
-                data,
-                metadata: {
-                    ...metadata
-                },
+                data: this,
+                metadata,
             };
         }
 
-        return data;
+        return this;
     }
 }
 
@@ -181,7 +170,7 @@ export type DataEntityList = L.List<DataEntity>;
 
 interface DataEntityMetadata {
     // The date at which this entity was created
-    readonly createdAt: Date;
+    readonly createdAt: number;
     // Add the ability to specify any additional properties
     [prop: string]: any;
 }
