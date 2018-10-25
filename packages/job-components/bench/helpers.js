@@ -22,10 +22,18 @@ function Suite(name) {
             }
         })
         .on('start', function _start() {
-            console.log(`\n\n${banner(67, this.name)}`);
+            console.log(`\n\n${banner(90, this.name)}`);
         })
         .on('complete', function _complete() {
-            console.log(banner(67, `Best: ${this.filter('fastest').map('name')}`));
+            this.filter('fastest')
+                .forEach((item) => {
+                    console.log(banner(90, `Best: ${item.name}`));
+                });
+
+            this.filter('slowest')
+                .forEach((item) => {
+                    console.log(banner(90, `Worst: ${item.name}`));
+                });
         });
 }
 
