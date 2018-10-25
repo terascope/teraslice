@@ -62,4 +62,34 @@ describe('SlicerCore', () => {
             expect(slicer.onSliceComplete(result)).toBeUndefined();
         });
     });
+
+    describe('->onExecutionStats', () => {
+        it('should updates stats', () => {
+            const stats = {
+                workers: {
+                    connected: 1,
+                    available: 1,
+                },
+                slices: {
+                    processed: 1,
+                    failed: 1,
+                }
+            };
+            expect(slicer.onExecutionStats(stats)).toBeNil();
+            expect(slicer).toHaveProperty('stats', stats);
+        });
+    });
+
+    describe('->isRecoverable', () => {
+        it('should return false', () => {
+            expect(slicer.isRecoverable()).toBeFalse();
+        });
+    });
+
+    describe('->maxQueueLength', () => {
+        it('should return 10000', () => {
+            expect(slicer.maxQueueLength()).toEqual(10000);
+        });
+    });
+
 });
