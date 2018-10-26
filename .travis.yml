@@ -30,6 +30,7 @@ jobs:
   # stop if given a reason
   fast-finish: true
   include:
+
   # tests only on master and on pull-request
   - stage: Tests
     name: Test Packages
@@ -37,6 +38,13 @@ jobs:
     script: yarn test:ci
     after_success:
       - bash <(curl -s https://codecov.io/bash)
+
+  # benchmarks only on master and on pull-request
+  - stage: Benchmarks
+    name: Benchmarks and Linting
+    if: branch = master
+    script:
+      - yarn lint
       - yarn benchmark
 
   # test end-to-end tests, only on pull-requests
