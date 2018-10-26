@@ -58,4 +58,8 @@ module.exports = () => Suite('DataEntity (large records)')
             return entity;
         }
     })
-    .run({ async: true });
+    .run({
+        async: true,
+        initCount: 2,
+        maxTime: 10,
+    });
