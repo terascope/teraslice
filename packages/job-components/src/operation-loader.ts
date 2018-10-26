@@ -222,19 +222,20 @@ export class OperationLoader {
             const legacy: LegacyReader = require(codePath);
             return readerShim(legacy);
         } catch (err) {
-            throw new Error(`Failure loading module: ${name}, error: ${err.stack}`);
+            throw new Error(`Failure loading reader: ${name}, error: ${err.stack}`);
         }
     }
 
     private isLegacyProcessor(codePath: string): boolean {
         return !pathExistsSync(path.join(codePath, 'processor.js'));
     }
+
     private shimLegacyProcessor(name: string, codePath: string): ProcessorModule {
         try {
             const legacy: LegacyProcessor = require(codePath);
             return processorShim(legacy);
         } catch (err) {
-            throw new Error(`Failure loading module: ${name}, error: ${err.stack}`);
+            throw new Error(`Failure loading processor: ${name}, error: ${err.stack}`);
         }
     }
 

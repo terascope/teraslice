@@ -1,6 +1,6 @@
 'use strict';
 
-const { MapProcessor } = require('../../..');
+const { MapProcessor } = require('@terascope/job-components');
 
 class ExampleMap extends MapProcessor {
     async initialize() {
