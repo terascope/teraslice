@@ -12,22 +12,32 @@ export default function legacySliceEventsShim(op: SliceOperation) {
     });
 
     op.events.on('slice:initialize', async (slice) => {
-        await op.onSliceInitialized(slice.slice_id);
+        if (op.onSliceInitialized != null) {
+            await op.onSliceInitialized(slice.slice_id);
+        }
     });
 
     op.events.on('slice:retry', async (slice) => {
-        await op.onSliceRetry(slice.slice_id);
+        if (op.onSliceRetry != null) {
+            await op.onSliceRetry(slice.slice_id);
+        }
     });
 
     op.events.on('slice:failure', async (slice) => {
-        await op.onSliceFailed(slice.slice_id);
+        if (op.onSliceFailed != null) {
+            await op.onSliceFailed(slice.slice_id);
+        }
     });
 
     op.events.on('slice:success', async (slice) => {
-        await op.onSliceFinalizing(slice.slice_id);
+        if (op.onSliceFinalizing != null) {
+            await op.onSliceFinalizing(slice.slice_id);
+        }
     });
 
     op.events.on('slice:finalize', async (slice) => {
-        await op.onSliceFinished(slice.slice_id);
+        if (op.onSliceFinished != null) {
+            await op.onSliceFinished(slice.slice_id);
+        }
     });
 }
