@@ -1,12 +1,12 @@
 import { EventEmitter } from 'events';
 import cloneDeep from 'lodash.clonedeep';
-import { enumerable } from '../utils';
+import { enumerable, isFunction } from '../utils';
 import {
     SlicerOperationLifeCycle,
     ExecutionConfig,
     ExecutionStats,
     Slice,
-    SliceResult
+    SliceResult,
 } from '../interfaces';
 import { OperationLoader } from '../operation-loader';
 import SlicerCore from '../operations/core/slicer-core';
@@ -15,7 +15,8 @@ import {
     EventHandlers,
     SlicerContext,
     SlicerOperations,
-    ExecutionContextConfig
+    ExecutionContextConfig,
+    SlicerMethodRegistry,
 } from './interfaces';
 
 // WeakMaps are used as a memory efficient reference to private data
@@ -46,6 +47,13 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
     /** The terafoundation EventEmitter */
     private events: EventEmitter;
     private _handlers: EventHandlers = {};
+
+    private _methodRegistry: SlicerMethodRegistry = {
+        onSliceComplete: new Set(),
+        onSliceDispatch: new Set(),
+        onSliceEnqueued: new Set(),
+        onExecutionStats: new Set(),
+    };
 
     constructor(config: ExecutionContextConfig) {
         this.events = config.context.apis.foundation.getSystemEvents();
@@ -81,6 +89,8 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
         const op = new mod.Slicer(this.context, cloneDeep(readerConfig), this.config);
         this.slicer = op;
         this.addOperation(op);
+
+        this.resetMethodRegistry();
     }
 
     /**
@@ -117,30 +127,22 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
 
     @enumerable(false)
     onExecutionStats(stats: ExecutionStats) {
-        for (const operation of this.getOperations()) {
-            operation.onExecutionStats(stats);
-        }
+        this.runMethod('onExecutionStats', stats);
     }
 
     @enumerable(false)
     onSliceEnqueued(slice: Slice) {
-        for (const operation of this.getOperations()) {
-            operation.onSliceEnqueued(slice);
-        }
+        this.runMethod('onSliceEnqueued', slice);
     }
 
     @enumerable(false)
     onSliceDispatch(slice: Slice) {
-        for (const operation of this.getOperations()) {
-            operation.onSliceDispatch(slice);
-        }
+        this.runMethod('onSliceDispatch', slice);
     }
 
     @enumerable(false)
     onSliceComplete(result: SliceResult): void {
-        for (const operation of this.getOperations()) {
-            operation.onSliceComplete(result);
-        }
+        this.runMethod('onSliceComplete', result);
     }
 
     @enumerable(false)
@@ -153,5 +155,42 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
     private addOperation(op: SlicerOperationLifeCycle) {
         const ops = _operations.get(this) as SlicerOperations;
         ops.add(op);
+
+        this.resetMethodRegistry();
+    }
+
+    private runMethod<T>(method: string, arg: T) {
+        const set = this._methodRegistry[method] as Set<number>;
+        console.dir({ method, size: set.size });
+        if (set.size === 0) return;
+
+        let index = 0;
+        for (const operation of this.getOperations()) {
+            console.log({ method, index }, ...set);
+
+            if (set.has(index)) {
+                operation[method](arg);
+            }
+            index++;
+        }
+    }
+
+    private resetMethodRegistry() {
+        for (const method of Object.keys(this._methodRegistry)) {
+            this._methodRegistry[method].clear();
+        }
+
+        const methods = Object.keys(this._methodRegistry);
+
+        let index = 0;
+        for (const op of this.getOperations()) {
+            for (const method of methods) {
+                if (isFunction(op[method])) {
+                    this._methodRegistry[method].add(index);
+                }
+            }
+
+            index++;
+        }
     }
 }

@@ -1,5 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { newTestExecutionConfig, newTestSlice, TestContext, SliceResult, SlicerContext } from '../../../src';
+import { newTestExecutionConfig, TestContext, SlicerContext } from '../../../src';
 import SlicerCore from '../../../src/operations/core/slicer-core';
 
 describe('SlicerCore', () => {
@@ -38,28 +38,20 @@ describe('SlicerCore', () => {
     });
 
     describe('->onSliceEnqueued', () => {
-        it('should return undefined', () => {
-            expect(slicer.onSliceEnqueued(newTestSlice())).toBeUndefined();
+        it('should not have the method by default', () => {
+            expect(slicer).not.toHaveProperty('onSliceEnqueued');
         });
     });
 
     describe('->onSliceDispatch', () => {
-        it('should return undefined', () => {
-            expect(slicer.onSliceDispatch(newTestSlice())).toBeUndefined();
+        it('should not have the method by default', () => {
+            expect(slicer).not.toHaveProperty('onSliceDispatch');
         });
     });
 
     describe('->onSliceComplete', () => {
-        it('should return undefined', () => {
-            const result: SliceResult = {
-                slice: newTestSlice(),
-                analytics: {
-                    time: [],
-                    size: [],
-                    memory: []
-                }
-            };
-            expect(slicer.onSliceComplete(result)).toBeUndefined();
+        it('should not have the method by default', () => {
+            expect(slicer).not.toHaveProperty('onSliceComplete');
         });
     });
 

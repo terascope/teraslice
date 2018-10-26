@@ -23,34 +23,4 @@ export default abstract class APICore extends Core implements WorkerOperationLif
     async shutdown(): Promise<void> {
         this.context.logger.trace(`${this.executionConfig.name}->api is shutting down...`);
     }
-
-    // @ts-ignore
-    async onSliceInitialized(sliceId: string): Promise<void> {
-
-    }
-
-    // @ts-ignore
-    async onSliceStarted(sliceId: string): Promise<void> {
-
-    }
-
-    // @ts-ignore
-    async onSliceFinalizing(sliceId: string): Promise<void> {
-
-    }
-
-    // @ts-ignore
-    async onSliceFinished(sliceId: string): Promise<void> {
-
-    }
-
-    // @ts-ignore
-    async onSliceFailed(sliceId: string): Promise<void> {
-
-    }
-
-    // @ts-ignore
-    async onSliceRetry(sliceId: string): Promise<void> {
-
-    }
 }
