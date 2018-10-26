@@ -1,4 +1,3 @@
-import * as L from 'list/methods';
 import get from 'lodash.get';
 import set from 'lodash.set';
 import { locked } from '../utils';
@@ -28,63 +27,27 @@ export default class DataEntity {
      * or an array of objects, to an array of DataEntities.
      * This will detect if passed an already converted input and return it.
     */
-    static makeArray(input: DataInput|DataInput[]|DataListInput): DataEntity[] {
-        if (!L.isList(input) && !Array.isArray(input)) {
+    static makeArray(input: DataInput|DataInput[]): DataEntity[] {
+        if (!Array.isArray(input)) {
             return [DataEntity.make(input)];
         }
 
         if (DataEntity.isDataEntity(input)) {
-            if (L.isList(input)) return L.toArray(input) as DataEntity[];
-
             return input as DataEntity[];
         }
 
-        const arr = L.isList(input) ? L.toArray(input) : input;
-        return arr.map((d) => DataEntity.make(d));
-    }
-
-    /**
-     * A utility for safely converting an input of an object,
-     * an array of objects, a {@link L.List} of objects, to an immutable {@link L.List} of DataEntities.
-     * This will detect if passed an already converted input and return it.
-    */
-    static makeList(input: DataListInput): DataEntityList {
-        if (L.isList(input)) {
-            if (DataEntity.isDataEntity(input)) {
-                return input as DataEntityList;
-            }
-            return L.map((d) => DataEntity.make(d), input);
-        }
-
-        if (Array.isArray(input)) {
-            if (DataEntity.isDataEntity(input)) {
-                return L.from(input) as DataEntityList;
-            }
-            return L.from(input.map((d) => DataEntity.make(d)));
-        }
-
-        return L.list(DataEntity.make(input));
-    }
-
-    /**
-     * Convert an immutable list to an array,
-     * This could have performance impact
-    */
-    static listToJSON(input: DataEntityList): object[] {
-        return input.toArray().map((d) => d.toJSON());
+        return input.map((d) => DataEntity.make(d));
     }
 
     /**
      * Verify that an input is the DataEntity,
-     * or if an array or list, the first item is DataEntity
+     * or if an array, the first item is must be a DataEntity
     */
     static isDataEntity(input: any): input is DataEntity {
         if (input == null) return false;
 
         let check: any;
-        if (L.isList(input)) {
-            check = input.first();
-        } else if (Array.isArray(input)) {
+        if (Array.isArray(input)) {
             check = input[0];
         } else {
             check = input;
@@ -163,8 +126,10 @@ function copy<T, U>(target: T, source: U) {
     }
 
     const keys = Object.keys(source);
+
     for (let i = 0; i < keys.length; i++) {
-        target[i] = source[i];
+        const key = keys[i];
+        target[key] = source[key];
     }
 
     return target;
@@ -172,8 +137,6 @@ function copy<T, U>(target: T, source: U) {
 
 export type DataInput = object|DataEntity;
 export type DataArrayInput = DataInput|DataInput[];
-export type DataListInput = DataInput|DataInput[]|L.List<DataInput>;
-export type DataEntityList = L.List<DataEntity>;
 
 interface DataEntityMetadata {
     // The date at which this entity was created

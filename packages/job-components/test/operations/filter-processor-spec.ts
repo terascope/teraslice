@@ -31,7 +31,7 @@ describe('FilterProcessor', () => {
 
     describe('->handle', () => {
         it('should resolve the modified data entities which are passed in', async () => {
-            const input = DataEntity.makeList([
+            const input = DataEntity.makeArray([
                 {
                     hello: 'there',
                     keep: true,
@@ -43,7 +43,7 @@ describe('FilterProcessor', () => {
             ]);
 
             const output = await operation.handle(input);
-            const result = output.toArray();
+            const result = output;
 
             expect(result).toBeArrayOfSize(1);
             expect(result[0]).toHaveProperty('hello', 'there');

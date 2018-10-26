@@ -50,7 +50,6 @@
         "datemath-parser": "^1.0.6",
         "debugnyan": "^2.0.2",
         "fs-extra": "^7.0.0",
-        "list": "^2.0.16",
         "lodash.clonedeep": "^4.5.0",
         "lodash.get": "^4.4.2",
         "lodash.has": "^4.5.2",

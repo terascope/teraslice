@@ -1,5 +1,5 @@
 import { Context, LegacyProcessor, SliceRequest, ProcessorFn, ValidatedJobConfig } from '../../interfaces';
-import DataEntity, { DataEntityList } from '../data-entity';
+import DataEntity from '../data-entity';
 import ProcessorCore from '../core/processor-core';
 import ConvictSchema from '../convict-schema';
 import { ProcessorModule } from '../interfaces';
@@ -13,10 +13,10 @@ export default function processorShim<S = any>(legacy: LegacyProcessor): Process
                 this.processorFn = await legacy.newProcessor(this.context, this.opConfig, this.executionConfig);
             }
 
-            async handle(input: DataEntityList, sliceRequest: SliceRequest): Promise<DataEntityList> {
+            async handle(input: DataEntity[], sliceRequest: SliceRequest): Promise<DataEntity[]> {
                 if (this.processorFn != null) {
-                    const result = await this.processorFn(input.toArray(), this.logger, sliceRequest);
-                    return DataEntity.makeList(result);
+                    const result = await this.processorFn(input, this.logger, sliceRequest);
+                    return DataEntity.makeArray(result);
                 }
 
                 throw new Error('Processor has not been initialized');

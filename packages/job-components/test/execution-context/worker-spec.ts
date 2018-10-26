@@ -52,13 +52,13 @@ describe('WorkerExecutionContext', () => {
         it('should have the Fetcher', async () => {
             expect(executionContext).toHaveProperty('fetcher');
             const result = await executionContext.fetcher.handle({});
-            expect(result.toArray()).toBeArrayOfSize(10);
+            expect(result).toBeArrayOfSize(10);
         });
 
         it('should have the Processors', async () => {
             expect(executionContext).toHaveProperty('processors');
             expect(executionContext.processors.size).toEqual(1);
-            const input = DataEntity.makeList([
+            const input = DataEntity.makeArray([
                 {
                     hello: true,
                 }
@@ -66,8 +66,8 @@ describe('WorkerExecutionContext', () => {
 
             for (const processor of executionContext.processors.values()) {
                 const result = await processor.handle(input);
-                expect(result.toArray()).toBeArrayOfSize(1);
-                expect(result.toArray()[0]).toHaveProperty('touchedAt');
+                expect(result).toBeArrayOfSize(1);
+                expect(result[0]).toHaveProperty('touchedAt');
             }
         });
 

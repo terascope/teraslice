@@ -1,4 +1,4 @@
-import DataEntity, { DataEntityList } from './data-entity';
+import DataEntity from './data-entity';
 import ProcessorCore from './core/processor-core';
 
 /**
@@ -15,10 +15,10 @@ export default abstract class EachProcessor extends ProcessorCore {
 
     /**
      * A generic method called by the Teraslice framework, calls {@link #forEach}
-     * @param input an immutable list of DataEntities
-     * @returns an immutable list of DataEntities
+     * @param input an array of DataEntities
+     * @returns an array of DataEntities
     */
-    async handle(input: DataEntityList): Promise<DataEntityList> {
+    async handle(input: DataEntity[]): Promise<DataEntity[]> {
         input.forEach((data) => this.forEach(data));
         return input;
     }
