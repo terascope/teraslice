@@ -44,14 +44,14 @@ describe('BatchProcessor', () => {
 
     describe('->handle', () => {
         it('should resolve to a data entity list', async () => {
-            const input = DataEntity.makeList([
+            const input = DataEntity.makeArray([
                 {
                     hello: 'there',
                 },
             ]);
 
             const output = await operation.handle(input);
-            const results = output.toArray();
+            const results = output;
             expect(results).toBeArrayOfSize(2);
         });
     });

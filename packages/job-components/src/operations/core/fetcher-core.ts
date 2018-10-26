@@ -1,4 +1,4 @@
-import { DataEntityList } from '../data-entity';
+import DataEntity from '../data-entity';
 import OperationCore from './operation-core';
 
 /**
@@ -12,5 +12,5 @@ export default abstract class FetcherCore extends OperationCore {
     * A generic method called by the Teraslice framework to a give a "Fetcher"
     * the ability to handle the fetch operation
     */
-    abstract async handle(sliceRequest?: any): Promise<DataEntityList>;
+    abstract async handle(sliceRequest?: any): Promise<DataEntity[]>;
 }
