@@ -40,12 +40,10 @@ jobs:
       - bash <(curl -s https://codecov.io/bash)
 
   # benchmarks only on master and on pull-request
-  - stage: Benchmarks
+  - script:
     name: Benchmarks and Linting
     if: branch = master
-    script:
-      - yarn lint
-      - yarn benchmark
+    script: yarn lint && yarn benchmark
 
   # test end-to-end tests, only on pull-requests
   - script:
