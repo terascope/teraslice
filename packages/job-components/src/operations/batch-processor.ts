@@ -1,4 +1,4 @@
-import DataEntity, { DataEntityList } from './data-entity';
+import DataEntity from './data-entity';
 import ProcessorCore from './core/processor-core';
 
 /**
@@ -8,12 +8,12 @@ import ProcessorCore from './core/processor-core';
 export default abstract class BatchProcessor extends ProcessorCore {
     /**
      * A method called by {@link BatchProcessor#handle}
-     * @returns an array of DataEntities or DataEntityList
+     * @returns an array of DataEntities
     */
-    abstract async onBatch(data: DataEntity[]): Promise<DataEntity[]|DataEntityList>;
+    abstract async onBatch(data: DataEntity[]): Promise<DataEntity[]>;
 
-    async handle(input: DataEntityList): Promise<DataEntityList> {
+    async handle(input: DataEntity[]): Promise<DataEntity[]> {
         const output = await this.onBatch(DataEntity.makeArray(input));
-        return DataEntity.makeList(output);
+        return DataEntity.makeArray(output);
     }
 }

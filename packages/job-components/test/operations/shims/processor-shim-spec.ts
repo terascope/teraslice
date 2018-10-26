@@ -88,11 +88,11 @@ describe('Processor Shim', () => {
         const processor = new mod.Processor(context as WorkerContext, opConfig, exConfig);
         await processor.initialize();
 
-        const input = DataEntity.makeList([{ say: 'hi' }]);
+        const input = DataEntity.makeArray([{ say: 'hi' }]);
 
         const result = await processor.handle(input);
 
-        expect(result.toArray()[0].toJSON()).toEqual({
+        expect(result[0].toJSON()).toEqual({
             say: 'hello'
         });
     });

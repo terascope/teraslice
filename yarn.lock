@@ -5368,11 +5368,6 @@ libnpmaccess@^3.0.0:
     npm-package-arg "^6.1.0"
     npm-registry-fetch "^3.8.0"
 
-list@^2.0.16:
-  version "2.0.16"
-  resolved "https://registry.yarnpkg.com/list/-/list-2.0.16.tgz#c7f11ea9f4f413926e7d84239911e3a909932840"
-  integrity sha512-A/hl9z2uM/VChZbxNvt5QOCZW4f+eKeW4gfJB1npoE0RKp3g18K3/38hm9kkpXK45niy/BTAVjW8IDHKyCxzkg==
-
 load-json-file@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/load-json-file/-/load-json-file-1.1.0.tgz#956905708d58b4bab4c2261b04f59f31c99374c0"

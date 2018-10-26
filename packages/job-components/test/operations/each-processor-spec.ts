@@ -45,7 +45,7 @@ describe('EachProcessor', () => {
 
     describe('->handle', () => {
         it('should resolve the data entity which are passed in', async () => {
-            const input = DataEntity.makeList([
+            const input = DataEntity.makeArray([
                 {
                     hello: 'there',
                 },
@@ -55,7 +55,7 @@ describe('EachProcessor', () => {
             ]);
 
             const output = await operation.handle(input);
-            const result = output.toArray();
+            const result = output;
 
             expect(processedCount).toEqual(2);
             expect(result).toBeArrayOfSize(2);

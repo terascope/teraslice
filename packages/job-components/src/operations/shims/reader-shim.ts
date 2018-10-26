@@ -1,5 +1,5 @@
 import { Context, LegacyExecutionContext, LegacyReader, SliceRequest, SlicerFns, ReaderFn, ValidatedJobConfig } from '../../interfaces';
-import DataEntity, { DataEntityList } from '../data-entity';
+import DataEntity from '../data-entity';
 import FetcherCore from '../core/fetcher-core';
 import ParallelSlicer from '../parallel-slicer';
 import ConvictSchema from '../convict-schema';
@@ -64,10 +64,10 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
                 this.fetcherFn = await legacy.newReader(this.context, this.opConfig, this.executionConfig);
             }
 
-            async handle(sliceRequest: SliceRequest): Promise<DataEntityList> {
+            async handle(sliceRequest: SliceRequest): Promise<DataEntity[]> {
                 if (this.fetcherFn) {
                     const result = await this.fetcherFn(sliceRequest, this.logger);
-                    return DataEntity.makeList(result);
+                    return DataEntity.makeArray(result);
                 }
 
                 throw new Error('Fetcher has not been initialized');

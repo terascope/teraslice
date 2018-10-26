@@ -4,7 +4,7 @@ import { enumerable } from '../utils';
 import { OperationLoader } from '../operation-loader';
 import FetcherCore from '../operations/core/fetcher-core';
 import ProcessorCore from '../operations/core/processor-core';
-import { OperationAPIConstructor, DataEntity } from '../operations';
+import { OperationAPIConstructor } from '../operations';
 import { registerApis } from '../register-apis';
 import { WorkerOperationLifeCycle, ExecutionConfig, Slice } from '../interfaces';
 import {
@@ -146,19 +146,19 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         const sliceId = slice.slice_id;
 
         let index = 0;
-        let result = await this.fetcher.handle(cloneDeep(slice.request));
-        this.onOperationComplete(index, sliceId, result.length);
+        let results = await this.fetcher.handle(cloneDeep(slice.request));
+        this.onOperationComplete(index, sliceId, results.length);
 
         await this.onSliceStarted(sliceId);
 
         for (const processor of this.processors.values()) {
             index++;
-            result = await processor.handle(result);
-            this.onOperationComplete(index, sliceId, result.length);
+            results = await processor.handle(results);
+            this.onOperationComplete(index, sliceId, results.length);
         }
 
         return {
-            results: DataEntity.listToJSON(result),
+            results,
             analytics: this.jobObserver.analyticsData,
         };
     }

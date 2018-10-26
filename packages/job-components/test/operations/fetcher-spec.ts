@@ -25,7 +25,7 @@ describe('Fetcher', () => {
     describe('->fetch', () => {
         it('should resolve with data entries', async () => {
             const output = await operation.handle();
-            expect(output.toArray()).toBeArrayOfSize(1);
+            expect(output).toBeArrayOfSize(1);
         });
     });
 });
