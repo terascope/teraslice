@@ -1,6 +1,5 @@
 import get from 'lodash.get';
 import set from 'lodash.set';
-import { locked } from '../utils';
 
 // WeakMaps are used as a memory efficient reference to private data
 const _metadata = new WeakMap();
@@ -82,7 +81,6 @@ export default class DataEntity {
         copy(this, data);
     }
 
-    @locked()
     getMetadata(key?: string): DataEntityMetadata|any {
         const metadata = _metadata.get(this) as DataEntityMetadata;
         if (key) {
@@ -91,7 +89,6 @@ export default class DataEntity {
         return metadata;
     }
 
-    @locked()
     setMetadata(key: string, value: any): void {
         const readonlyMetadataKeys: string[] = ['createdAt'];
         if (readonlyMetadataKeys.includes(key)) {
@@ -102,17 +99,16 @@ export default class DataEntity {
         _metadata.set(this, set(metadata, key, value));
     }
 
-    @locked()
     toJSON(withMetadata?: boolean): object {
         if (withMetadata) {
             const metadata = _metadata.get(this) as DataEntityMetadata;
             return {
-                data: this,
+                data: copy({}, this),
                 metadata,
             };
         }
 
-        return this;
+        return copy({}, this);
     }
 }
 
@@ -120,16 +116,19 @@ function isObject(input: any): input is object {
     return input && typeof input === 'object';
 }
 
+function isFunction(input: any): input is Function {
+    return input && typeof input === 'function';
+}
+
 function copy<T, U>(target: T, source: U) {
     if (!isObject(target) || !isObject(source)) {
         return target;
     }
 
-    const keys = Object.keys(source);
-
-    for (let i = 0; i < keys.length; i++) {
-        const key = keys[i];
-        target[key] = source[key];
+    for (const key of Object.keys(source)) {
+        if (!isFunction(source[key])) {
+            target[key] = source[key];
+        }
     }
 
     return target;
