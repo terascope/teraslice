@@ -113,9 +113,8 @@ export default class DataEntity {
     // Add the ability to specify any additional properties
     [prop: string]: any;
 
-    constructor(data: object, metadata: object = {}) {
-        copy(metadata, { createdAt: Date.now() });
-        _metadata.set(this, metadata);
+    constructor(data: object, metadata?: object) {
+        _metadata.set(this, copy({ createdAt: Date.now() }, metadata));
 
         copy(this, data);
     }
@@ -154,13 +153,21 @@ export default class DataEntity {
     }
 }
 
+function isObject(input: any): input is object {
+    return input && typeof input === 'object';
+}
+
 function copy<T, U>(target: T, source: U) {
-    if (typeof target !== 'object' || typeof source !== 'object') {
-        return;
+    if (!isObject(target) || !isObject(source)) {
+        return target;
     }
-    for (const key of Object.keys(source)) {
-        target[key] = source[key];
+
+    const keys = Object.keys(source);
+    for (let i = 0; i < keys.length; i++) {
+        target[i] = source[i];
     }
+
+    return target;
 }
 
 export type DataInput = object|DataEntity;
