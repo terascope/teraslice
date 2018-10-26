@@ -57,14 +57,9 @@ module.exports = (cliConfig, command) => {
         }
 
         if (command.startsWith('assets:init')) {
-            // if (command.startsWith('assets:init') || command === 'assets:status') {
             return;
         }
-        /*
-        if (command === 'assets:status') {
-            return;
-        }
-        */
+
         if (command === 'assets:status') {
             if (_.has(cliConfig.deets, 'cluster')) {
                 cliConfig.cluster = cliConfig.deets.cluster;
