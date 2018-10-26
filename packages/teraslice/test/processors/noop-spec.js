@@ -1,38 +1,46 @@
 'use strict';
 
-const processor = require('../../lib/processors/noop');
+const { TestContext, newTestExecutionConfig } = require('@terascope/job-components');
+const Noop = require('../../lib/processors/noop/processor');
+const Schema = require('../../lib/processors/noop/schema');
 
-describe('noop processor', () => {
-    it('has a schema and newProcessor method', () => {
-        expect(processor).toBeDefined();
-        expect(processor.newProcessor).toBeDefined();
-        expect(processor.schema).toBeDefined();
-        expect(typeof processor.newProcessor).toEqual('function');
-        expect(typeof processor.schema).toEqual('function');
-    });
-});
+describe('Noop Processor', () => {
+    const context = new TestContext('noop');
+    const opConfig = { _op: 'noop' };
+    const exConfig = newTestExecutionConfig();
 
-describe('The data remains unchanged when', () => {
-    const context = {};
-    const opConfig = {};
-    const jobConfig = { logger: 'im a fake logger' };
-
-    const myProcessor = processor.newProcessor(
+    const noop = new Noop(
         context,
         opConfig,
-        jobConfig
+        exConfig
     );
-    it('using empty data array', () => {
-        // zero elements
-        expect(myProcessor([])).toEqual([]);
+
+    const schema = new Schema(context);
+
+    it('should have a Schema and Processor class', () => {
+        expect(Noop).not.toBeNil();
+        expect(Schema).not.toBeNil();
     });
-    it('using simple data array', () => {
-        // zero elements
-        const data = [
+
+    it('should be able to pass validation', () => {
+        const result = schema.validate({ _op: 'delay' });
+        expect(result).toEqual({ _op: 'delay' });
+    });
+
+    it('should not mutate the data when given an empty array', () => {
+        const input = [];
+        return expect(noop.onBatch(input)).resolves.toBe(input);
+    });
+
+    it('should not mutate the data when given an simple array', () => {
+        const input = [
             { a: 1 },
             { a: 2 },
             { a: 3 }
         ];
-        expect(myProcessor(data)).toEqual(data);
+        return expect(noop.onBatch(input)).resolves.toBe(input);
     });
+});
+
+describe('The data remains unchanged when', () => {
 });
