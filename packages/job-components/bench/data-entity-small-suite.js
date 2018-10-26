@@ -52,6 +52,20 @@ module.exports = () => Suite('DataEntity (small records)')
             return entity;
         }
     })
+    .add('DataEntity.make', {
+        fn() {
+            let entity = DataEntity.make(data);
+            entity = null;
+            return entity;
+        }
+    })
+    .add('DataEntity.make with metadata', {
+        fn() {
+            let entity = DataEntity.make(data, metadata);
+            entity = null;
+            return entity;
+        }
+    })
     .run({
         async: true,
         initCount: 2,
