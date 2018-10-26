@@ -201,7 +201,7 @@ module.exports = function module(context, { clusterMasterServer }) {
         const specificId = exId || false;
         return getRunningExecutions(exId)
             .then((exIds) => {
-                const clients = _.filter(clusterMasterServer.availableClients, ({ clientId }) => {
+                const clients = _.filter(clusterMasterServer.onlineClients, ({ clientId }) => {
                     if (specificId && clientId === specificId) return true;
                     return _.includes(exIds, clientId);
                 });

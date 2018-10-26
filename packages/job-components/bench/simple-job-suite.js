@@ -132,5 +132,9 @@ module.exports = async () => {
                     .then(() => deferred.resolve());
             }
         })
-        .run({ async: true });
+        .run({
+            async: true,
+            initCount: 2,
+            maxTime: 10,
+        });
 };
