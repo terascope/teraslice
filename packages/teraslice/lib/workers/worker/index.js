@@ -126,12 +126,15 @@ class Worker {
 
             await this.slice.run();
 
+            const { slice_id: sliceId } = this.slice.slice;
             this.logger.info(`slice complete for execution ${exId}`);
 
             await this.client.sendSliceComplete({
                 slice: this.slice.slice,
                 analytics: this.slice.analyticsData,
             });
+
+            await this.executionContext.onSliceFinished(sliceId);
         } catch (err) {
             if (!err.alreadyLogged) {
                 this.logger.error(`slice run error for execution ${exId}`, err);
