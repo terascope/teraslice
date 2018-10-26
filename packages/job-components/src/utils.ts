@@ -10,6 +10,28 @@ export function isInteger(val: any): val is number {
     return Number.isInteger(val);
 }
 
+export function isObject(input: any): input is object {
+    return input && typeof input === 'object';
+}
+
+export function isFunction(input: any): input is Function {
+    return input && typeof input === 'function';
+}
+
+export function copy<T, U>(target: T, source: U) {
+    if (!isObject(target) || !isObject(source)) {
+        return target;
+    }
+
+    for (const key of Object.keys(source)) {
+        if (!isFunction(source[key])) {
+            target[key] = source[key];
+        }
+    }
+
+    return target;
+}
+
 /** A native implemation of lodash random */
 export function random(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1)) + min;

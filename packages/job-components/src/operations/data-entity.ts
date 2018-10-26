@@ -1,5 +1,6 @@
 import get from 'lodash.get';
 import set from 'lodash.set';
+import { copy } from '../utils';
 
 // WeakMaps are used as a memory efficient reference to private data
 const _metadata = new WeakMap();
@@ -110,28 +111,6 @@ export default class DataEntity {
 
         return copy({}, this);
     }
-}
-
-function isObject(input: any): input is object {
-    return input && typeof input === 'object';
-}
-
-function isFunction(input: any): input is Function {
-    return input && typeof input === 'function';
-}
-
-function copy<T, U>(target: T, source: U) {
-    if (!isObject(target) || !isObject(source)) {
-        return target;
-    }
-
-    for (const key of Object.keys(source)) {
-        if (!isFunction(source[key])) {
-            target[key] = source[key];
-        }
-    }
-
-    return target;
 }
 
 export type DataInput = object|DataEntity;

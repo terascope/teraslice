@@ -5,7 +5,6 @@ import {
     OpConfig,
     Slice,
     SliceRequest,
-    SliceResult,
     SlicerOperationLifeCycle,
     ExecutionStats,
 } from '../../interfaces';
@@ -144,21 +143,6 @@ export default abstract class SlicerCore extends Core implements SlicerOperation
 
     onExecutionStats(stats: ExecutionStats) {
         this.stats = stats;
-    }
-
-    // @ts-ignore
-    onSliceEnqueued(slice: Slice): void {
-
-    }
-
-    // @ts-ignore
-    onSliceDispatch(slice: Slice): void {
-
-    }
-
-    // @ts-ignore
-    onSliceComplete(result: SliceResult): void {
-
     }
 
     protected get workersConnected() {

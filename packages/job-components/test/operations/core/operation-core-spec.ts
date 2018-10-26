@@ -45,38 +45,38 @@ describe('OperationCore', () => {
     });
 
     describe('->onSliceInitialized', () => {
-        it('should resolve undefined', () => {
-            return expect(operation.onSliceInitialized('slice-id')).resolves.toBeUndefined();
+        it('should not have the method by default', () => {
+            expect(operation).not.toHaveProperty('onSliceInitialized');
         });
     });
 
     describe('->onSliceStarted', () => {
-        it('should resolve undefined', () => {
-            return expect(operation.onSliceStarted('slice-id')).resolves.toBeUndefined();
+        it('should not have the method by default', () => {
+            expect(operation).not.toHaveProperty('onSliceStarted');
         });
     });
 
     describe('->onSliceFinalizing', () => {
-        it('should resolve undefined', () => {
-            return expect(operation.onSliceFinalizing('slice-id')).resolves.toBeUndefined();
+        it('should not have the method by default', () => {
+            expect(operation).not.toHaveProperty('onSliceFinalizing');
         });
     });
 
     describe('->onSliceFinished', () => {
-        it('should resolve undefined', () => {
-            return expect(operation.onSliceFinished('slice-id')).resolves.toBeUndefined();
+        it('should not have the method by default', () => {
+            expect(operation).not.toHaveProperty('onSliceFinished');
         });
     });
 
     describe('->onSliceFailed', () => {
-        it('should resolve undefined', () => {
-            return expect(operation.onSliceFailed('slice-id')).resolves.toBeUndefined();
+        it('should not have the method by default', () => {
+            expect(operation).not.toHaveProperty('onSliceFailed');
         });
     });
 
     describe('->onSliceRetry', () => {
-        it('should resolve undefined', () => {
-            return expect(operation.onSliceRetry('slice-id')).resolves.toBeUndefined();
+        it('should not have the method by default', () => {
+            expect(operation).not.toHaveProperty('onSliceRetry');
         });
     });
 
