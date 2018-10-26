@@ -2,27 +2,28 @@
 
 const _ = require('lodash');
 const path = require('path');
-const reply = require('../cmd_functions/reply');
+const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'status';
+exports.command = 'status [cluster_sh]';
 exports.desc = 'shows the status of the asset on a cluster or a group of clusters';
 exports.builder = (yargs) => {
-    cli().args('cluster', 'alias', yargs);
+    cli().args('assets', 'status', yargs);
     yargs.option('all', {
         alias: 'a',
         describe: 'view the status of all the clusters in the asset.json file',
         type: 'boolean',
         default: false,
     });
-    yargs.example('earl asset status -c clustername:port#');
-    yargs.example('earl asset status -a');
+    yargs.example('earl assets status -c clustername:port#');
+    yargs.example('earl assets status -c clusteralias');
+    yargs.example('earl assets status -a');
 };
 
-exports.handler = (argv, _testTjmFunctions) => {
+exports.handler = (argv, _testCliFunctions) => {
     const cliConfig = _.clone(argv);
-    config(cliConfig, 'asset:status').returnConfigData(false, false);
+    config(cliConfig, 'assets:status').returnConfigData(false, false);
     const assetPath = 'asset/asset.json';
     // ensure sure that cli can find the asset.json file
     try {
@@ -36,7 +37,7 @@ exports.handler = (argv, _testTjmFunctions) => {
         clusters.map((cluster) => {
             // assign cluster_url so that client host is properly assigned
             cliConfig.cluster_url = cluster;
-            const assetFunctions = _testTjmFunctions || require('./lib')(cliConfig);
+            const assetFunctions = _testCliFunctions || require('./lib')(cliConfig);
             return assetFunctions.terasliceClient.cluster.get(`assets/${assetName}`)
                 .then(assetData => assetFunctions.latestAssetVersion(assetData))
                 .then((latest) => {
@@ -50,7 +51,10 @@ exports.handler = (argv, _testTjmFunctions) => {
     }
     let { clusters } = cliConfig.asset_file_content.tjm;
     // if cluster is not specifically called out then show status for all
-    if (cliConfig.l || cliConfig.c !== 'http://localhost:5678' || cliConfig.a) {
+    if (cliConfig.l || cliConfig.c !== 'http://localhost:5678') {
+        clusters = [cliConfig.c];
+    }
+    if (_.has(cliConfig, 'cluster_url')) {
         clusters = [cliConfig.cluster_url];
     }
     status(clusters);

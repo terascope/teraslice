@@ -6,7 +6,7 @@ const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'errors';
+exports.command = 'errors <cluster_sh>';
 exports.desc = 'List errors for all running and failing ex ids on cluster.\n';
 exports.builder = (yargs) => {
     cli().args('ex', 'errors', yargs);

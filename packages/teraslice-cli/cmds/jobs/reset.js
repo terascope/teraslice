@@ -6,7 +6,7 @@ const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'reset';
+exports.command = 'reset <cluster_sh> [job]';
 exports.desc = 'reset a job\n';
 exports.builder = (yargs) => {
     cli().args('job', 'reset', yargs);
@@ -14,9 +14,9 @@ exports.builder = (yargs) => {
 
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
-    config(cliConfig, 'job:reset').returnConfigData();
-    const job = _testFunctions || require('./lib')(cliConfig);
+    config(cliConfig, 'jobs:reset').returnConfigData();
+    const jobs = _testFunctions || require('./lib')(cliConfig);
 
-    return job.reset()
+    return jobs.reset()
         .catch(err => reply.fatal(err.message));
 };

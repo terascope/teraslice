@@ -6,7 +6,7 @@ const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'find';
+exports.command = 'find <cluster_sh> [job]';
 exports.desc = 'Find a job across clusters\n';
 exports.builder = (yargs) => {
     cli().args('job', 'find', yargs);

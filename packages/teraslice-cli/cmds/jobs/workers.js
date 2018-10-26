@@ -6,7 +6,7 @@ const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'workers <action> <num> <cluster_sh>';
+exports.command = 'workers <action> <num> [cluster_sh]';
 exports.desc = 'Manage workers in job\n';
 exports.builder = (yargs) => {
     cli().args('jobs', 'workers', yargs);

@@ -13,7 +13,7 @@ let zipError = null;
 let postError = null;
 let assetMetaData;
 
-const _tjmFunctions = {
+const _cliFunctions = {
     postAsset: (client) => {
         if (postError) {
             return Promise.reject(postError);
@@ -66,7 +66,7 @@ describe('deploy', () => {
         await fs.ensureFile(assetPath);
         await fs.writeJson(assetPath, assetJson, { spaces: 4 });
         try {
-            await deploy.handler(argv, _tjmFunctions);
+            await deploy.handler(argv, _cliFunctions);
             const result = await fs.readJson(assetPath);
             expect(postedUrls.length).toBe(1);
             expect(postedUrls[0]).toBe('example.dev:5678');
@@ -80,7 +80,7 @@ describe('deploy', () => {
     it('should let user know if cli cannot find asset.json', async () => {
         const tmpDirX = createTempDirSync();
         const argvX = {
-            _: ['asset', 'deploy'],
+            _: ['assets', 'deploy'],
             baseDir: tmpDirX,
             deploy: true,
         };
@@ -91,7 +91,7 @@ describe('deploy', () => {
         // no asset.json file
 
         try {
-            await deploy.handler(argvX, _tjmFunctions);
+            await deploy.handler(argvX, _cliFunctions);
         } catch (e) {
             expect(e).toBe('Cannot find the asset.json file');
         }
@@ -103,7 +103,7 @@ describe('deploy', () => {
         argvCluster = argv.cluster;
         postError = 'This is a post error';
         try {
-            await deploy.handler(argv, _tjmFunctions);
+            await deploy.handler(argv, _cliFunctions);
         } catch (e) {
             expect(e).toBe('This is a post error');
         }
@@ -117,7 +117,7 @@ describe('deploy', () => {
         argvCluster = argv.cluster;
         zipError = 'This is a zip error';
         try {
-            await deploy.handler(argv, _tjmFunctions);
+            await deploy.handler(argv, _cliFunctions);
         } catch (e) {
             expect(e).toBe('This is a zip error');
         }
@@ -131,7 +131,7 @@ describe('deploy', () => {
         const assetPath2 = path.join(tmpDir2, 'asset/asset.json');
 
         const argv2 = {
-            _: ['asset', 'deploy'],
+            _: ['assets', 'deploy'],
             baseDir: tmpDir2,
             deploy: true,
         };
@@ -147,7 +147,7 @@ describe('deploy', () => {
         try {
             await fs.ensureFile(assetPath2);
             await fs.writeJson(assetPath2, assetJson, { spaces: 4 });
-            await deploy.handler(argv2, _tjmFunctions);
+            await deploy.handler(argv2, _cliFunctions);
             expect(postedUrls.length).toBe(2);
             expect(postedUrls[0].config.host).toBe('cluster1.io:80');
             expect(postedUrls[1].config.host).toBe('cluster2.io:5678');
@@ -161,7 +161,7 @@ describe('deploy', () => {
         argv.All = true;
         // argv does not have tjm data
         try {
-            await deploy.handler(argv, _tjmFunctions);
+            await deploy.handler(argv, _cliFunctions);
         } catch (e) {
             expect(e).toBe('You must specify a cluster with -c, or a cluster alias');
         }
@@ -190,8 +190,8 @@ describe('deploy', () => {
         try {
             await fs.ensureFile(assetPath2);
             await fs.writeJson(assetPath2, assetJson, { spaces: 4 });
-            await deploy.handler(argv2, _tjmFunctions);
-            await deploy.handler(argv2, _tjmFunctions);
+            await deploy.handler(argv2, _cliFunctions);
+            await deploy.handler(argv2, _cliFunctions);
         } catch (e) {
             expect(e).toBe('This is a post error');
         }

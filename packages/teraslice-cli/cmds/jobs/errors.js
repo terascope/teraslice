@@ -6,12 +6,11 @@ const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'errors';
+exports.command = 'errors <cluster_sh> [job]';
 exports.desc = 'List errors for all running and failing job on cluster.\n';
 exports.builder = (yargs) => {
     cli().args('jobs', 'errors', yargs);
     yargs
-        .demandCommand(1)
         .option('from', {
             describe: 'error number to start query',
             default: 1

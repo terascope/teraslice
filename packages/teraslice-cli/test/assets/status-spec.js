@@ -9,7 +9,7 @@ const status = require('../../cmds/assets/status');
 let clientResponse;
 let assetNames = [];
 
-const _tjmFunctions = {
+const _cliFunctions = {
     latestAssetVersion: () => {
         return {
             name: 'testing_123',
@@ -44,7 +44,7 @@ const tmpDir = createTempDirSync();
 const assetPath = path.join(tmpDir, 'asset/asset.json');
 
 const argv = {
-    _: ['asset', 'status'],
+    _: ['assets', 'status'],
     baseDir: tmpDir,
     status: true,
     cluster: 'http://localhost:5678'
@@ -53,7 +53,7 @@ const argv = {
 describe('status', () => {
     it('should ensure that can read asset.json', async () => {
         try {
-            await status.handler(argv, _tjmFunctions);
+            await status.handler(argv, _cliFunctions);
         } catch (e) {
             expect(e).toBe('Cannot find the asset.json file');
         }
@@ -73,7 +73,7 @@ describe('status', () => {
         await fs.ensureFile(assetPath);
         await fs.writeJson(assetPath, assetJson, { spaces: 4 });
         try {
-            await status.handler(argv, _tjmFunctions);
+            await status.handler(argv, _cliFunctions);
             expect(assetNames.length).toBe(1);
             expect(assetNames[0]).toBe('assets/testing_123');
         } catch (e) {
@@ -98,7 +98,7 @@ describe('status', () => {
         await fs.ensureFile(assetPath);
         await fs.writeJson(assetPath, assetJson, { spaces: 4 });
         try {
-            await status.handler(argv, _tjmFunctions);
+            await status.handler(argv, _cliFunctions);
             expect(assetNames.length).toBe(2);
             expect(assetNames[0]).toBe('assets/testing_123');
             expect(assetNames[1]).toBe('assets/testing_123');
@@ -124,7 +124,7 @@ describe('status', () => {
         await fs.ensureFile(assetPath);
         await fs.writeJson(assetPath, assetJson, { spaces: 4 });
         try {
-            await status.handler(argv, _tjmFunctions);
+            await status.handler(argv, _cliFunctions);
             expect(assetNames.length).toBe(2);
             expect(assetNames[0]).toBe('assets/testing_123');
             expect(assetNames[1]).toBe('assets/testing_123');
@@ -146,7 +146,7 @@ describe('status', () => {
         await fs.ensureFile(assetPathX);
         await fs.writeJson(assetPathX, assetJson, { spaces: 4 });
         try {
-            await status.handler(argvX, _tjmFunctions);
+            await status.handler(argvX, _cliFunctions);
         } catch (e) {
             expect(e).toBe('asset.json file does not have earl data, has the asset been deployed?');
         }

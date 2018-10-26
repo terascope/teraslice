@@ -6,10 +6,10 @@ const reply = require('../lib/reply')();
 const configChecks = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'stop';
+exports.command = 'stop <cluster_sh>';
 exports.desc = 'stops job(s) running or failing on the cluster, saves running job(s) to a json file.\n';
 exports.builder = (yargs) => {
-    cli().args('job', 'stop', yargs);
+    cli().args('jobs', 'stop', yargs);
     yargs
         .option('annotate', {
             alias: 'n',

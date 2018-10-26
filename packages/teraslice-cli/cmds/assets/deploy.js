@@ -7,10 +7,10 @@ const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'deploy';
+exports.command = 'deploy <cluster_sh> [asset_name]';
 exports.desc = 'zips and deploys an asset to a cluster or a group of clusters';
 exports.builder = (yargs) => {
-    cli().args('cluster', 'alias', yargs);
+    cli().args('assets', 'deploy', yargs);
     yargs.option('all', {
         alias: 'a',
         describe: 'zips and deploys the asset to all the clusters in the asset/asset.json file',
@@ -23,7 +23,7 @@ exports.builder = (yargs) => {
 
 exports.handler = (argv, _testTjmFunctions) => {
     const cliConfig = _.clone(argv);
-    config(cliConfig, 'asset:deploy').returnConfigData(false, false);
+    config(cliConfig, 'assets:deploy').returnConfigData(false, false);
     const assetPath = 'asset/asset.json';
 
     // ensure sure that cli can find the asset.json file
@@ -38,7 +38,7 @@ exports.handler = (argv, _testTjmFunctions) => {
         await fs.emptyDir(path.join(cliConfig.baseDir, '.assetbuild'));
         try {
             const zipResponse = await assetFunctions.zipAsset();
-            reply.green(`Asset compossed of ${zipResponse.size} bytes was successfully zipped`);
+            reply.green(`Asset composed of ${zipResponse.size} bytes was successfully zipped`);
         } catch (e) {
             reply.fatal(e);
         }
@@ -58,6 +58,7 @@ exports.handler = (argv, _testTjmFunctions) => {
         } else {
             // post asset to url
             try {
+                reply.green('posting asset');
                 await assetFunctions.postAsset();
             } catch (e) {
                 reply.fatal(e);

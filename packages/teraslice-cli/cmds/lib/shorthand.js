@@ -53,7 +53,11 @@ module.exports = () => {
                 _.set(hand, 'file', handArray[pos]);
             }
         } else {
-            hand.cluster = str;
+            if (_.endsWith(str, '.json')) {
+                hand.file = str;
+            } else {
+                hand.cluster = str;
+            }
         }
         return hand;
     }
@@ -68,6 +72,7 @@ module.exports = () => {
 
     return {
         parse,
-        idCheck
+        idCheck,
+        valid
     };
 };

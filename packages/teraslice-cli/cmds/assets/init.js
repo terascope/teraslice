@@ -15,22 +15,23 @@ const eslintrc = require('./lib/init_files/eslintrc');
 exports.command = 'init <asset_name>';
 exports.desc = 'creates a new asset bundle.  This includes package.json, asset.json, README.md, an asset directory and basic dependencies';
 exports.builder = (yargs) => {
-    cli().args('cluster', 'alias', yargs);
+    cli().args('assets', 'init', yargs);
     yargs.example('earl asset init asset_name');
 };
 
 exports.handler = async (argv, _testFunctions) => {
     const assetFunctions = _testFunctions || require('./lib')();
     const cliConfig = _.clone(argv);
-    config(cliConfig, 'asset:init').returnConfigData(false, false);
+
+    config(cliConfig, 'assets:init').returnConfigData(false, false);
     // inject prompts answers for testing
     if (_testFunctions) {
         await prompts.inject(_testFunctions.prompts_inject);
     }
-    const { baseDir } = cliConfig;
+
     // create asset directory
     reply.yellow('This will create a package.json, README.md, asset dir, spec dir,'
-        + `asset/asset.json, asset/package.json, and install various npm packages in ${baseDir}.`);
+        + `asset/asset.json, asset/package.json, and install various npm packages in ${cliConfig.baseDir}.`);
 
     const create = await prompts({
         type: 'confirm',
@@ -60,15 +61,16 @@ exports.handler = async (argv, _testFunctions) => {
         description: assetData.asset_desc
     };
     // create needed files and directories
+
     try {
         await fs.ensureDir(path.join(cliConfig.baseDir, 'asset'));
-        await fs.writeJSON(path.join(baseDir, 'package.json'), _.merge(rootPackageJson, packageJson), { spaces: 4 });
-        await fs.writeJSON(path.join(baseDir, 'asset', 'package.json'), _.merge(assetPackageJson, packageJson), { spaces: 4 });
-        await fs.writeJson(path.join(baseDir, 'asset', 'asset.json'), packageJson, { spaces: 4 });
-        await fs.ensureDir(path.join(baseDir, 'spec'));
-        await fs.writeJSON(path.join(baseDir, '.eslintrc'), eslintrc, { spaces: 4 });
-        await fs.writeFile(path.join(baseDir, 'README.md'), '');
-        reply.green(`Created initial directories and files in ${baseDir}`);
+        await fs.writeJSON(path.join(cliConfig.baseDir, 'package.json'), _.merge(rootPackageJson, packageJson), { spaces: 4 });
+        await fs.writeJSON(path.join(cliConfig.baseDir, 'asset', 'package.json'), _.merge(assetPackageJson, packageJson), { spaces: 4 });
+        await fs.writeJson(path.join(cliConfig.baseDir, 'asset', 'asset.json'), packageJson, { spaces: 4 });
+        await fs.ensureDir(path.join(cliConfig.baseDir, 'spec'));
+        await fs.writeJSON(path.join(cliConfig.baseDir, '.eslintrc'), eslintrc, { spaces: 4 });
+        await fs.writeFile(path.join(cliConfig.baseDir, 'README.md'), '');
+        reply.green(`Created initial directories and files in ${cliConfig.baseDir}`);
     } catch (e) {
         reply.fatal(e);
     }
@@ -80,10 +82,10 @@ exports.handler = async (argv, _testFunctions) => {
     });
     if (processor.processor) {
         const processorName = await prompts([{ type: 'text', name: 'processor_name', message: 'Processor name:' }]);
-        reply.green(`Directory ${processorName.processor_name} was created in ${baseDir}/asset`);
+        reply.green(`Directory ${processorName.processor_name} was created in ${cliConfig.baseDir}/asset`);
         try {
-            await fs.ensureFile(path.join(baseDir, 'asset', processorName.processor_name, 'index.js'));
-            await fs.writeFile(path.join(baseDir, 'spec', `${processorName.processor_name}-spec.js`), '');
+            await fs.ensureFile(path.join(cliConfig.baseDir, 'asset', processorName.processor_name, 'index.js'));
+            await fs.writeFile(path.join(cliConfig.baseDir, 'spec', `${processorName.processor_name}-spec.js`), '');
         } catch (e) {
             reply.fatal(e);
         }

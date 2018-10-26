@@ -6,12 +6,12 @@ const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'list';
+exports.command = 'list <cluster_sh>';
 exports.desc = 'List controller(s) on a cluster.\n';
 exports.builder = (yargs) => {
-    cli().args('controller', 'list', yargs);
-    yargs.example('earl controller list cluster1');
-    yargs.example('earl controller list -c http://cluster1.net:5678');
+    cli().args('controllers', 'list', yargs);
+    yargs.example('earl controllers list cluster1');
+    yargs.example('earl controllers list http://cluster1.net:5678');
 };
 
 exports.handler = (argv, _testFunctions) => {

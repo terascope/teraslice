@@ -14,7 +14,7 @@ let zipError = null;
 let postError = null;
 let postResponse = [{ id: 'someAssetId' }];
 
-const _tjmFunctions = {
+const _cliFunctions = {
     postAsset: () => {
         if (postError) {
             return Promise.reject(postError);
@@ -70,7 +70,7 @@ describe('replace', () => {
         await fs.ensureFile(assetPath);
         await fs.writeJson(assetPath, assetJson, { spaces: 4 });
         try {
-            await replace.handler(argv, _tjmFunctions);
+            await replace.handler(argv, _cliFunctions);
             expect(getAssetName).toBe('/assets/testing_123');
             expect(deleteAsset).toBe('someAssetId');
             expect(zipped).toBe(true);
@@ -83,7 +83,7 @@ describe('replace', () => {
     it('should throw error if no asset.json file', async () => {
         argv.baseDir = '/nonexistantdir/';
         try {
-            await replace.handler(argv, _tjmFunctions);
+            await replace.handler(argv, _cliFunctions);
         } catch (e) {
             expect(e).toBe('Cannot find the asset.json file');
         }
@@ -93,7 +93,7 @@ describe('replace', () => {
     it('should throw error if a bad zip response', async () => {
         zipError = 'a terrible zip error';
         try {
-            await replace.handler(argv, _tjmFunctions);
+            await replace.handler(argv, _cliFunctions);
         } catch (e) {
             expect(e).toBe('a terrible zip error');
         }
@@ -103,7 +103,7 @@ describe('replace', () => {
     it('should throw error if a bad post response', async () => {
         postError = 'a terrible post error';
         try {
-            await replace.handler(argv, _tjmFunctions);
+            await replace.handler(argv, _cliFunctions);
         } catch (e) {
             expect(e).toBe('a terrible post error');
         }
@@ -113,7 +113,7 @@ describe('replace', () => {
     it('should throw error if no asset id returned from the cluster', async () => {
         postResponse = [];
         try {
-            await replace.handler(argv, _tjmFunctions);
+            await replace.handler(argv, _cliFunctions);
         } catch (e) {
             expect(e).toBe('Could not find the asset on the cluster, check the status and deploy');
         }

@@ -4,21 +4,21 @@ const _ = require('lodash');
 const path = require('path');
 const prompts = require('prompts');
 const fs = require('fs-extra');
-const reply = require('../cmd_functions/reply');
+const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('../lib/cli');
 
 
-exports.command = 'replace';
+exports.command = 'replace <cluster_sh>';
 exports.desc = 'replaces an asset on a cluster, intended for dev work only';
 exports.builder = (yargs) => {
-    cli().args('cluster', 'alias', yargs);
+    cli().args('assets', 'replace', yargs);
     yargs.example('earl replace clustername:port#');
 };
 
 exports.handler = (argv, _testTjmFunctions) => {
     const cliConfig = _.clone(argv);
-    config(cliConfig, 'asset:replace').returnConfigData(false, false);
+    config(cliConfig, 'assets:replace').returnConfigData(false, false);
     const assetPath = 'asset/asset.json';
 
     // ensure sure that cli can find the asset.json file

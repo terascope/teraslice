@@ -39,7 +39,7 @@ const _testFunctions = {
 const tmpDir = createTempDirSync();
 
 const argv = {
-    _: ['asset', 'replace'],
+     _: ['assets', 'replace'],
     baseDir: tmpDir,
     init: true,
     cluster: 'cluster.com:5678',
@@ -49,6 +49,7 @@ const argv = {
 
 describe('init', () => {
     it('should create files and directories', async () => {
+
         try {
             await init.handler(argv, _testFunctions);
         } catch (e) {
@@ -63,7 +64,6 @@ describe('init', () => {
         const assetPackageJson = await fs.pathExists(path.join(tmpDir, 'asset', 'package.json'));
         const processorDir = await fs.pathExists(path.join(tmpDir, 'asset', _testFunctions.prompts_inject.processor_name));
         const processorIndex = await fs.pathExists(path.join(tmpDir, 'asset', _testFunctions.prompts_inject.processor_name, 'index.js'));
-
         expect(spec).toBe(true);
         expect(eslintrc).toBe(true);
         expect(rootPackageJson).toBe(true);
@@ -88,11 +88,11 @@ describe('init', () => {
     });
 
     it('should throw an error if error on creating dir or files', async () => {
-        delete argv.baseDir;
+        argv.baseDir = '/tmp-fake/fake-test-dir';
         try {
             await init.handler(argv, _testFunctions);
         } catch (e) {
-            expect(e).toBe('Path must be a string. Received undefined');
+            expect(e).toBe('EACCES: permission denied, mkdir \'/tmp-fake\'');
         }
     });
     // should install dependencies
@@ -107,7 +107,7 @@ describe('init', () => {
         expect(installCommand).toBe('cd asset && yarn install');
     });
 
-    it('should use npm if selcted', async () => {
+    it('should use npm if selected', async () => {
         counter = 0;
         _testFunctions.prompts_inject.installer = 'npm';
         try {

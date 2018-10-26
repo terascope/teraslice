@@ -54,7 +54,7 @@ function createNewAsset() {
         ]));
 }
 
-describe('tjmFunctions testing', () => {
+describe('cliFunctions testing', () => {
     beforeEach(() => createNewAsset());
     it('alreadyRegisteredCheck should resolve if the job exists', async () => {
         const cliConfig = _.clone(baseCliConfig);

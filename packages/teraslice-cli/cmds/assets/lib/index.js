@@ -52,8 +52,16 @@ module.exports = (cliConfig = {}, _terasliceClient) => {
     }
 
     function postAsset(client = terasliceClient) {
+        console.log(cliConfig.cluster_url);
+        /*
+        let baseDir = path.join(cliConfig.baseDir, cliConfig.asset_name);
+        if (path.basename(cliConfig.baseDir) === cliConfig.asset_name) {
+            baseDir = cliConfig.baseDir;
+        }
+        */
+        const baseDir = cliConfig.baseDir;
         return Promise.resolve()
-            .then(() => fs.readFile(path.join(cliConfig.baseDir, '.assetbuild', 'processors.zip')))
+            .then(() => fs.readFile(path.join(baseDir, '.assetbuild', 'processors.zip')))
             .then(zipFile => client.assets.post(zipFile))
             .then(assetPostResponse => assetPostResponse)
             .then((postResponse) => {

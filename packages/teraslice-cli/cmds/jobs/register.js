@@ -6,31 +6,36 @@ const reply = require('../lib/reply')();
 const configChecks = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'start <cluster_sh> [job]';
+exports.command = 'register <cluster_sh>';
 exports.desc = 'starts all job on the specified in the saved state file \n';
 exports.builder = (yargs) => {
-    cli().args('jobs', 'start', yargs);
+    cli().args('jobs', 'register', yargs);
     yargs
         .option('annotate', {
             alias: 'n',
             describe: 'add grafana annotation',
             default: ''
         })
-        .option('all', {
-            alias: 'a',
-            describe: 'stop all running/failing jobs',
-            default: false
+        .option('run', {
+            alias: 'r',
+            describe: 'option to run the job immediately after being registered',
+            default: false,
+            type: 'boolean'
         })
-        .example('earl jobs start cluster1:job:99999999-9999-9999-9999-999999999999')
-        .example('earl jobs start cluster1:job:99999999-9999-9999-9999-999999999999 --yes')
-        .example('earl jobs start cluster1 --all');
+        .option('asset', {
+            alias: 'a',
+            describe: 'builds the assets and deploys to cluster, optional',
+            default: false,
+            type: 'boolean'
+        })
+        .example('earl jobs register cluster1:job:jobfile.json -a');
 };
 
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
     configChecks(cliConfig).returnConfigData();
-    const job = _testFunctions || require('./lib')(cliConfig);
+    const jobsLib = _testFunctions || require('./lib')(cliConfig);
 
-    return job.start()
+    return jobsLib.register()
         .catch(err => reply.fatal(err.message));
 };

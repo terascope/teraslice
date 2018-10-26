@@ -6,7 +6,7 @@ const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'status';
+exports.command = 'status <cluster_sh>';
 exports.desc = 'List the ex status of running and failing job.\n';
 exports.builder = (yargs) => {
     cli().args('ex', 'status', yargs);

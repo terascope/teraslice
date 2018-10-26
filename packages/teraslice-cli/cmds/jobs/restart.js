@@ -6,12 +6,11 @@ const reply = require('../lib/reply')();
 const configChecks = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'restart';
+exports.command = 'restart <cluster_sh> [job]';
 exports.desc = 'Restarts all job on the specified cluster.\n';
 exports.builder = (yargs) => {
     cli().args('jobs', 'restart', yargs);
     yargs
-        .demandCommand(1)
         .option('annotate', {
             alias: 'n',
             describe: 'add grafana annotation',

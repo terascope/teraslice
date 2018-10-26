@@ -9,8 +9,9 @@ const cli = require('../lib/cli');
 exports.command = 'list';
 exports.desc = 'List the clusters defined in the config file.\n';
 exports.builder = (yargs) => {
-    cli().args('alias', 'list', yargs);
-    yargs.example('earl aliases list cluster1');
+    cli().args('aliases', 'list', yargs);
+    yargs.strict()
+        .example('earl aliases list cluster1');
 };
 
 exports.handler = (argv, _testFunctions) => {

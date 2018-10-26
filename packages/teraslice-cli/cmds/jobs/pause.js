@@ -6,12 +6,11 @@ const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'pause';
+exports.command = 'pause <cluster_sh> [job]';
 exports.desc = 'Pause all running and failing job on cluster.\n';
 exports.builder = (yargs) => {
     cli().args('job', 'pause', yargs);
     yargs
-        .demandCommand(1)
         .option('annotate', {
             alias: 'n',
             describe: 'add grafana annotation',

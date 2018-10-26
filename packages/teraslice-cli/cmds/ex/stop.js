@@ -6,7 +6,7 @@ const reply = require('../lib/reply')();
 const configChecks = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'stop';
+exports.command = 'stop <cluster_sh>';
 exports.desc = 'stops ex that is running or failing on the cluster.\n';
 exports.builder = (yargs) => {
     cli().args('ex', 'stop', yargs);

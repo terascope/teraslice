@@ -23,42 +23,81 @@ module.exports = (cliConfig, command) => {
         // set output format
         cliConfig.output_style = cliConfig.o;
         // set annotation
-        if (cliConfig.n === '') {
+        if (cliConfig.n === '' || cliConfig.n === undefined) {
             cliConfig.add_annotation = false;
         } else {
             cliConfig.add_annotation = true;
             cliConfig.annotation_env = cliConfig.n;
         }
 
-        if (command === 'jobs:workers') {
-            cliConfig.deets = shortHand.parse(cliConfig.cluster_sh);
-
-        } else if (cliConfig._[2] !== undefined) {
-            _.set(cliConfig, 'cluster_sh', cliConfig._[2]);
-            cliConfig.deets = shortHand.parse(cliConfig.cluster_sh);
+        if (!_.has(cliConfig, 'baseDir')) {
+            cliConfig.baseDir = process.cwd();
         }
 
-        if (command === 'alias:list') {
+        if (cliConfig.cluster_sh !== undefined) {
+            cliConfig.deets = shortHand.parse(cliConfig.cluster_sh);
+        }
+        if (_.has(cliConfig.deets, 'file')) {
+            const jobFile = require('./job_file')(cliConfig);
+            jobFile.read();
+            if (_.has(cliConfig.job_file_content, '__metadata.cli')) {
+                cliConfig.cluster = cliConfig.job_file_content.__metadata.cli.cluster;
+                cliConfig.cluster_url = cliConfig.job_file_content.__metadata.cli.cluster_url;
+                cliConfig.deets.id = cliConfig.job_file_content.__metadata.cli.job_id;
+                cliConfig.deets.cluster_url = cliConfig.job_file_content.__metadata.cli.cluster_url;
+                cliConfig.deets.cluster = cliConfig.job_file_content.__metadata.cli.cluster;
+            }
+            if (!_.has(cliConfig.deets, 'cluster') && command !== 'jobs:reset') {
+                reply.fatal('cluster is required with an unregistered job');
+            }
+        }
+
+        if (command === 'aliases:list' || command === 'jobs:reset') {
             return;
         }
-        if (command === 'alias:add' || command === 'alias:remove') {
-            _.set(cliConfig, 'cluster_sh', cliConfig._[2]);
-            cliConfig.deets = shortHand.parse(cliConfig.cluster_sh);
+
+        if (command.startsWith('assets:init')) {
+            // if (command.startsWith('assets:init') || command === 'assets:status') {
+            return;
+        }
+        /*
+        if (command === 'assets:status') {
+            return;
+        }
+        */
+        if (command === 'assets:status') {
+            if (_.has(cliConfig.deets, 'cluster')) {
+                cliConfig.cluster = cliConfig.deets.cluster;
+                if (_.has(cliConfig.config.clusters, cliConfig.deets.cluster)) {
+                    cliConfig.cluster_url = getClusterHost(cliConfig);
+                    cliConfig.cluster_manager_type = cliConfig.config.clusters[cliConfig.cluster].cluster_manager_type;
+                } else {
+                    reply.fatal(`cluster alias ${cliConfig.deets.cluster} not defined`);
+                }
+            }
+            return;
+        }
+
+        if (command === 'aliases:add' || command === 'aliases:remove' || command === 'aliases:update') {
             cliConfig.cluster = cliConfig.deets.cluster;
             cliConfig.host = cliConfig.c;
             cliConfig.cluster_manager_type = cliConfig.t;
         } else {
             if (cliConfig.status) {
-                cliConfig.statusList = _.split(cliConfig.status, ':');
+                cliConfig.statusList = _.split(cliConfig.status, ',');
             } else {
                 cliConfig.statusList = ['running', 'failing'];
             }
             if (_.has(cliConfig, 'deets.cluster')) {
                 cliConfig.cluster = cliConfig.deets.cluster;
-                cliConfig.cluster_url = getClusterHost(cliConfig);
-                cliConfig.cluster_manager_type = cliConfig.config.clusters[
-                    cliConfig.cluster].cluster_manager_type;
+                if (_.has(cliConfig.config.clusters, cliConfig.deets.cluster)) {
+                    cliConfig.cluster_url = getClusterHost(cliConfig);
+                    cliConfig.cluster_manager_type = cliConfig.config.clusters[cliConfig.cluster].cluster_manager_type;
+                } else {
+                    reply.fatal(`cluster alias ${cliConfig.deets.cluster} not defined`);
+                }
             } else {
+                cliConfig.c = undefined;
                 cliConfig.cluster_url = cliConfig.l ? 'http://localhost:5678' : getClusterHost(cliConfig);
             }
             if (!cliConfig.cluster_url) {

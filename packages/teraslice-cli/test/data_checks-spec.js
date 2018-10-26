@@ -5,6 +5,7 @@ const { createTempDirSync } = require('jest-fixtures');
 const path = require('path');
 const makeDataChecks = require('../cmds/cmd_functions/data_checks');
 
+
 describe('checks for job and asset file content', () => {
     const tmpDir = createTempDirSync();
 

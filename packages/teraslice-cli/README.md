@@ -17,7 +17,7 @@ yarn global add teraslice-cli
 
 ## CLI Commands and Usage
 For all commands that accept `-c`, if `-c` is missing default is http://localhost
-### ALIASES - commands to manage cluster aliases
+### ALIAS - commands to manage cluster aliases
 Defaults:
 - host `http://localhost:5678`
 - cluster_manager_type `native`
@@ -25,7 +25,7 @@ Defaults:
 **ADD** - adds a cluster alias to the config file
 
 command:
-`earl aliases add cluster1 -c http://cluster1.net:80`
+`earl alias add cluster1 -c http://cluster1.net:80`
 
 config entry:
 ```
@@ -34,7 +34,7 @@ cluster      host                                    cluster_manager_type
 cluster1     http://cluster1.net:80                  kubernetes
 ```
 
-command: `earl aliases add local`
+command: `earl alias add local`
 ```
 cluster      host                                    cluster_manager_type
 -----------  --------------------------------------  --------------------
@@ -44,14 +44,14 @@ local        http://localhost:5678                   native
 **REMOVE** - Removes a cluster alias to the config file
 
 command:
-`earl aliases remove local`
+`earl alias remove local`
 
 output:
 `> Removed cluster alias local`
 
 **LIST** - List cluster aliases defined in the config file
 
-command: `earl aliases list`
+command: `earl alias list`
 
 output:
 ```
@@ -71,51 +71,51 @@ Compresses files in `${cwd}/assets` and creates a zip file in `${cwd}/builds/pro
 - `earl assets replace -c clusterName` *Deletes and replaces an asset, this is intended to be used for asset development and not for production asset management*
 - `earl assets init newAssetName` *Creates new asset directory structure and associated files.  This will install dependencies from npmjs.org with yarn or npm as well as create package.json and asset.json files*
 
-### JOB - commands to manage jobs  
+### JOBS - commands to manage jobs  
 **REGISTER** - Registers a job to a cluster with an option to deploy assets.  Updates the jobFile.json with the cluster and job id data.  Use -a to deploy assets, -r to run immediately after registering.
-- `earl job register -c clustername jobFile.json`
-- `earl job register -c clustername -a jobFile.json`
-- `earl job register -c clustername -ar jobFile.json`
+- `earl jobs register clustername jobFile.json`
+- `earl jobs register clustername -a jobFile.json`
+- `earl jobs register clustername -ar jobFile.json`
 
 **Cluster and job id data must be in the jobsFile.json for all commands below**
 
 **ERRORS** - Displays errors for a job.  
-- `earl job errors jobFile.json`
+- `earl jobs errors jobFile.json`
 
 **PAUSE** - Pauses a job.
-- `earl job pause jobFile.json`
+- `earl jobs pause jobFile.json`
 
-**RESET** - Removes earl data from job file or asset file, just specify the relative path.
-- `earl job reset asset/asset.json`
+**RESET** - Removes cli metadata from job file or asset file, just specify the relative path.
+- `earl jobs reset jobFile.json`
 
 **Restart** - Stops and restarts a job.
-- `earl job restart jobFile.json`
+- `earl jobs restart jobFile.json`
 
 **RESUME** - Resumes a paused job.
-- `earl job resume jobFile.json`
+- `earl jobs resume jobFile.json`
 
 **START (RUN)** - Starts a job. Run is an alias for start, run and start can be used interchangeably.  Start will automatically register and start a new job, just remember to specify the cluster with `-c`.  Start can also be used to move a job to a new cluster with `-m`, this does not move the asset only the job file.
-- `earl job start jobFile.json`
-- `earl job run jobFile.json`
-- `earl job start jobFile -c clustername` *register and run a new job, same as earl register -r jobfile -c clustername*
-- `earl job run -m jobFile -c clusterName` *runs a job on a new cluster, replaces the old earl data in the jobFile*
+- `earl jobs start jobFile.json`
+- `earl jobs run jobFile.json`
+- `earl jobs start jobFile -c clustername` *register and run a new job, same as earl register -r jobfile -c clustername*
+- `earl jobs run -m jobFile -c clusterName` *runs a job on a new cluster, replaces the old earl data in the jobFile*
 
 
 **STATUS** - Reports the status of a job.
-- `earl job status jobFile.json`
+- `earl jobs status jobFile.json`
 
 **STOP** - Stops a job.
-- `earl job stop jobFile.json`
+- `earl jobs stop jobFile.json`
 
 **UPDATE** - Updates a job.
-- `earl job update jobFile.json`
+- `earl jobs update jobFile.json`
 
 **VIEW** - Displays job file as it is saved on the cluster.
-- `earl job view jobFile.json`
+- `earl jobs view jobFile.json`
 
 **WORKERS** - Adds to or removes workers from a job.
-- `earl job workers add 10 jobFile.json`
-- `earl job workers remove 5 jobFile.json`
+- `earl jobs workers add 10 jobFile.json`
+- `earl jobs workers remove 5 jobFile.json`
 
 **JOB CONTROL (start, stop, pause, resume, and restart)** - Job control commands start, stop, pause, resume, and restart all function with the same syntax.
 - `-all` or `-a` performs action on all the jobs on a given cluster.
@@ -229,11 +229,11 @@ earl ex errors local:ex:99999999-9999-9999-9999-999999999999
 - `--status` or `-s` define status to display, default is `running` and `failing`.
 
 ```bash
-earl jobs status <cluster> [--status status1:status2]
+earl ex status <cluster> [--status status1,status2]
 # default
-earl jobs status local
+earl ex status local
 # list only failed and stopped jobs
-earl jobs status local --status failed:stopped
+earl ex status local --status failed,stopped
 # list only failing jobs
 earl jobs status local --status failing
 ```

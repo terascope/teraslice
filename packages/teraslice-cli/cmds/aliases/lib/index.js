@@ -56,9 +56,13 @@ async function parseClustersTxt(header, clusters) {
 
 module.exports = (cliConfig) => {
     async function remove() {
-        reply.green(`> Removed cluster alias ${cliConfig.cluster}`);
-        delete cliConfig.config.clusters[cliConfig.cluster];
-        yaml.writeSync(cliConfig.configFile, cliConfig.config);
+        if (_.has(cliConfig.config.clusters, cliConfig.cluster)) {
+            reply.green(`> Removed cluster alias ${cliConfig.cluster}`);
+            delete cliConfig.config.clusters[cliConfig.cluster];
+            yaml.writeSync(cliConfig.configFile, cliConfig.config);
+        } else {
+            reply.error(`alias ${cliConfig.cluster} not in aliases list`);
+        }
         await list();
     }
 
@@ -73,6 +77,22 @@ module.exports = (cliConfig) => {
         await list();
     }
 
+    async function update() {
+        if (_.has(cliConfig.config.clusters, cliConfig.cluster)) {
+            reply.green(`> Updated cluster alias ${cliConfig.cluster}`);
+            if (process.argv.indexOf('-t') > 0 || process.argv.indexOf('--cluster-manager-type') > 0) {
+                cliConfig.config.clusters[cliConfig.cluster].cluster_manager_type = cliConfig.cluster_manager_type;
+            }
+            if (process.argv.indexOf('-c') > 0 || process.argv.indexOf('--host-cluster')) {
+                cliConfig.config.clusters[cliConfig.cluster].host = config._urlCheck(cliConfig.host);
+            }
+            yaml.writeSync(cliConfig.configFile, cliConfig.config);
+        } else {
+            reply.error(`alias ${cliConfig.cluster} not in aliases list`);
+        }
+        await list();
+    }
+
     async function list() {
         await displayClusters(cliConfig.config.clusters, cliConfig.output_style);
     }
@@ -80,6 +100,7 @@ module.exports = (cliConfig) => {
     return {
         list,
         add,
-        remove
+        remove,
+        update
     };
 };

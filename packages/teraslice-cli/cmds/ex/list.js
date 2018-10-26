@@ -6,7 +6,7 @@ const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'list';
+exports.command = 'list <cluster_sh>';
 exports.desc = 'List the executions ids with status of running and failing.\n';
 exports.builder = (yargs) => {
     cli().args('ex', 'list', yargs);
@@ -14,7 +14,7 @@ exports.builder = (yargs) => {
         .option('status', {
             alias: 's',
             describe: 'list of ex status to include',
-            default: 'running:failing'
+            default: 'running,failing'
         });
 };
 
