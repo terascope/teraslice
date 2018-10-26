@@ -104,12 +104,12 @@ export default class DataEntity {
         if (withMetadata) {
             const metadata = _metadata.get(this) as DataEntityMetadata;
             return {
-                data: copy({}, this),
+                data: this,
                 metadata,
             };
         }
 
-        return copy({}, this);
+        return this;
     }
 }
 
