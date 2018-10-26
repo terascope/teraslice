@@ -161,13 +161,10 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
 
     private runMethod<T>(method: string, arg: T) {
         const set = this._methodRegistry[method] as Set<number>;
-        console.dir({ method, size: set.size });
         if (set.size === 0) return;
 
         let index = 0;
         for (const operation of this.getOperations()) {
-            console.log({ method, index }, ...set);
-
             if (set.has(index)) {
                 operation[method](arg);
             }
