@@ -18,12 +18,12 @@ describe('OperationLoader', () => {
     const testDir = path.join(__dirname, 'op_test');
     const assetPath = path.join(testDir, assetId);
     const terasliceOpPath = path.join(__dirname, '../../teraslice/lib');
-    const processorPath = path.join(terasliceOpPath, 'processors/noop.js');
+    const processorPath = path.join(terasliceOpPath, 'processors/noop');
     const context = new TestContext('teraslice-op-loader');
 
     beforeAll(async () => {
         await fse.ensureDir(testDir);
-        await fse.copy(processorPath, path.join(assetPath, 'noop.js'));
+        await fse.copy(processorPath, path.join(assetPath, 'noop'));
     });
 
     afterAll(() => fse.remove(testDir));
@@ -61,8 +61,8 @@ describe('OperationLoader', () => {
         expect(processor).toBeDefined();
         expect(processor).toBeFunction();
 
-        const someData = 'someData';
-        const processorResults = processor(someData, logger, {});
+        const someData = [{ key: 'someData' }];
+        const processorResults = await processor(someData, logger, {});
         expect(processorResults).toEqual(someData);
     });
 
@@ -124,8 +124,8 @@ describe('OperationLoader', () => {
         expect(processor).toBeDefined();
         expect(processor).toBeFunction();
 
-        const someData = 'someData';
-        const processorResults = processor(someData, logger, {});
+        const someData =  [{ key: 'someData' }];
+        const processorResults = await processor(someData, logger, {});
         expect(processorResults).toEqual(someData);
     });
 
