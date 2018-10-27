@@ -28,7 +28,7 @@ exports.builder = (yargs) => {
 
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
-    configChecks(cliConfig).returnConfigData();
+    configChecks(cliConfig, 'jobs:stop').returnConfigData();
     const job = _testFunctions || require('./lib')(cliConfig);
 
     return job.stop()

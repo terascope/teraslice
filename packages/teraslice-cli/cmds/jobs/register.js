@@ -33,7 +33,7 @@ exports.builder = (yargs) => {
 
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
-    configChecks(cliConfig).returnConfigData();
+    configChecks(cliConfig, 'jobs:register').returnConfigData();
     const jobsLib = _testFunctions || require('./lib')(cliConfig);
 
     return jobsLib.register()

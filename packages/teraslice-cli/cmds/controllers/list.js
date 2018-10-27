@@ -16,7 +16,7 @@ exports.builder = (yargs) => {
 
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
-    config(cliConfig, 'controller:list').returnConfigData();
+    config(cliConfig, 'controllers:list').returnConfigData();
     const controller = _testFunctions || require('./lib')(cliConfig);
 
     return controller.list()
