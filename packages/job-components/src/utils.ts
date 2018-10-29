@@ -92,3 +92,13 @@ export function enumerable(enabled: boolean) {
         descriptor.enumerable = enabled;
     };
 }
+
+interface PromiseFn {
+    (input: any): Promise<any>;
+}
+
+export function waterfall(input: any, fns: PromiseFn[]): Promise<any> {
+    return fns.reduce(async (last, fn) => {
+        return fn(await last);
+    }, input);
+}
