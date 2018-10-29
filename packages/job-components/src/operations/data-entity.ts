@@ -1,5 +1,3 @@
-import get from 'lodash.get';
-import set from 'lodash.set';
 import { fastAssign, fastMap } from '../utils';
 
 // WeakMaps are used as a memory efficient reference to private data
@@ -9,8 +7,7 @@ const _metadata = new WeakMap();
  * A wrapper for data that can hold additional metadata properties.
  * A DataEntity should be essentially transparent to use within operations
  */
-
-export default class DataEntity {
+export default class DataEntity<T = object> {
     /**
      * A utility for safely converting an object a DataEntity.
      * This will detect if passed an already converted input and return it.
@@ -36,7 +33,7 @@ export default class DataEntity {
             return input;
         }
 
-        return fastMap(input, (d) => DataEntity.make(d)) as DataEntity[];
+        return fastMap(input, (d) => new DataEntity(d));
     }
 
     /**
@@ -45,7 +42,6 @@ export default class DataEntity {
     static isDataEntity(input: any): input is DataEntity {
         if (input == null) return false;
         if (input instanceof DataEntity) return true;
-        if (typeof input.getMetadata === 'function') return true;
         return false;
     }
 
@@ -69,13 +65,13 @@ export default class DataEntity {
             return input.getMetadata(key);
         }
 
-        return get(input, key);
+        return input[key];
     }
 
     // Add the ability to specify any additional properties
     [prop: string]: any;
 
-    constructor(data: object, metadata?: object) {
+    constructor(data: T, metadata?: object) {
         _metadata.set(this, fastAssign({ createdAt: Date.now() }, metadata));
 
         fastAssign(this, data);
@@ -84,7 +80,7 @@ export default class DataEntity {
     getMetadata(key?: string): DataEntityMetadata|any {
         const metadata = _metadata.get(this) as DataEntityMetadata;
         if (key) {
-            return get(metadata, key);
+            return metadata[key];
         }
         return metadata;
     }
@@ -96,19 +92,8 @@ export default class DataEntity {
         }
 
         const metadata = _metadata.get(this) as DataEntityMetadata;
-        _metadata.set(this, set(metadata, key, value));
-    }
-
-    toJSON(withMetadata?: boolean): object {
-        if (withMetadata) {
-            const metadata = _metadata.get(this) as DataEntityMetadata;
-            return {
-                data: this,
-                metadata,
-            };
-        }
-
-        return this;
+        metadata[key] = value;
+        _metadata.set(this, metadata);
     }
 }
 

@@ -17,7 +17,7 @@ module.exports = () => Suite('DataEntity (large records)')
     .add('new data', {
         fn() {
             let entity = Object.assign({}, data);
-            entity.metadata = { createdAt: Date.now() };
+            entity.metadata = Object.assign({ createdAt: Date.now() });
             entity = null;
             return entity;
         }
@@ -75,5 +75,5 @@ module.exports = () => Suite('DataEntity (large records)')
     .run({
         async: true,
         initCount: 2,
-        maxTime: 10,
+        maxTime: 5,
     });

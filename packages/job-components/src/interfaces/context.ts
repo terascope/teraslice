@@ -3,9 +3,7 @@ import bunyan from '@types/bunyan';
 import Stream from 'stream';
 import { EventEmitter } from 'events';
 
-export interface LoggerStream {
-    stream: Stream;
-}
+export type LoggerStream = Stream|WritableStream|undefined;
 
 export interface Logger extends bunyan {
     streams: LoggerStream[];
