@@ -31,7 +31,10 @@ node_modules
 
 # teraslice assets
 assets/*/
+autoload/*
+!autoload/.gitkeep
 packages/*/assets/*/
+packages/*/autoload/*
 
 # package dist directory
 packages/**/dist

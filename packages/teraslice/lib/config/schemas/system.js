@@ -24,6 +24,11 @@ const schema = {
         default: '',
         format: 'optional_String'
     },
+    autoload_dir: {
+        doc: 'directory to look for assets to auto deploy when teraslice boots up',
+        default: path.join(process.cwd(), './autoload'),
+        format: 'optional_String'
+    },
     shutdown_timeout: {
         doc: 'time in milliseconds, to allow workers and slicers to finish operations before forcefully shutting down',
         default: 60000,

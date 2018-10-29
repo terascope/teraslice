@@ -130,6 +130,7 @@ module.exports = function module(context) {
             .catch(handleApiError);
     }
 
+
     return {
         initialize() {
             return Promise.resolve(makeAssetsStore(context))
@@ -140,6 +141,7 @@ module.exports = function module(context) {
                     app.listen(port);
                     running = true;
                 })
+                .then(() => assetsStore.autoload())
                 .catch((err) => {
                     const errMsg = parseError(err);
                     logger.error(`Error while creating assets_service, error: ${errMsg}`);

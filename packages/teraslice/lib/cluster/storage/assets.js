@@ -3,6 +3,7 @@
 const Promise = require('bluebird');
 const fs = Promise.promisifyAll(require('fs'));
 const crypto = require('crypto');
+const path = require('path');
 const _ = require('lodash');
 const parseError = require('@terascope/error-parser');
 const fse = require('fs-extra');
@@ -213,11 +214,35 @@ module.exports = function module(context) {
             });
     }
 
+    async function findAssetsToAutoload(autoloadDir) {
+        const files = await fse.readdir(autoloadDir);
+
+        return files.filter((fileName) => {
+            const ext = path.extname(fileName);
+            return ext === '.zip';
+        });
+    }
+
+    async function autoload() {
+        const autoloadDir = context.sysconfig.teraslice.autoload_dir;
+        if (!autoloadDir || !fse.pathExistsSync(autoloadDir)) return;
+
+        const assets = await findAssetsToAutoload(autoloadDir);
+
+        for (const asset of assets) {
+            logger.info(`autoloading asset ${asset}...`);
+            const assetPath = path.join(autoloadDir, asset);
+            await save(await fse.readFile(assetPath));
+        }
+    }
+
+
     const api = {
         save,
         search,
         get: getAsset,
         remove,
+        autoload,
         parseAssetsArray,
         shutdown
     };
