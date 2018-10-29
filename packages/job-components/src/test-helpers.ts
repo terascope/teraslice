@@ -1,5 +1,5 @@
 
-import debugnyan from 'debugnyan';
+import debugFn from 'debug';
 import { EventEmitter } from 'events';
 import path from 'path';
 import * as i from './interfaces';
@@ -8,6 +8,7 @@ import { random, isString, uniq } from './utils';
 interface DebugParamObj {
     module: string;
     assignment?: string;
+    [name: string]: any;
 }
 
 function newId(prefix: string): string {
@@ -17,8 +18,8 @@ function newId(prefix: string): string {
 type debugParam = DebugParamObj | string;
 
 export function debugLogger(testName: string, param?: debugParam, otherName?: string): i.Logger {
-    let logger: i.Logger;
-    const options = {};
+    const logger: i.Logger = new EventEmitter() as i.Logger;
+
     const parts: string[] = ['teraslice', testName];
     if (param) {
         if (isString(param)) {
@@ -30,14 +31,44 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
             }
         }
     }
+    const name = uniq(parts).join(':');
 
     if (otherName) {
         parts.push(otherName);
     }
 
-    logger = debugnyan(uniq(parts).join(':'), options) as i.Logger;
+    logger.streams = [];
 
+    logger.addStream = function (stream) {
+        // @ts-ignore
+        this.streams.push(stream);
+    };
+
+    logger.child = (opts: debugParam) => debugLogger(testName, opts);
     logger.flush = () => Promise.resolve();
+    logger.reopenFileStreams = () => {};
+    logger.level = () => 50;
+    // @ts-ignore
+    logger.levels = () => 50;
+
+    logger.src = false;
+
+    const levels = [
+        'trace',
+        'debug',
+        'info',
+        'warn',
+        'error',
+        'fatal'
+    ];
+
+    for (const level of levels) {
+        const fLevel = `[${level.toUpperCase()}]`;
+        const debug = debugFn(name);
+        logger[level] = (...args: any[]) => {
+            debug(fLevel, ...args);
+        };
+    }
 
     return logger;
 }
