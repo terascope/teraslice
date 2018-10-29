@@ -104,7 +104,7 @@ describe('DataEntity', () => {
                 hello: 'there',
             });
 
-            expect(DataEntity.isDataEntity(dataEntities)).toBeTrue();
+            expect(DataEntity.isDataEntityArray(dataEntities)).toBeTrue();
             expect(dataEntities).toBeArrayOfSize(1);
             expect(dataEntities[0]).toBeInstanceOf(DataEntity);
             expect(dataEntities[0]).toHaveProperty('hello', 'there');
@@ -122,7 +122,7 @@ describe('DataEntity', () => {
                 },
             ]);
 
-            expect(DataEntity.isDataEntity(dataEntities)).toBeTrue();
+            expect(DataEntity.isDataEntityArray(dataEntities)).toBeTrue();
             expect(dataEntities).toBeArrayOfSize(2);
             expect(dataEntities[0]).toBeInstanceOf(DataEntity);
             expect(dataEntities[0]).toHaveProperty('hello', 'there');
@@ -160,12 +160,46 @@ describe('DataEntity', () => {
             expect(DataEntity.isDataEntity(input)).toBeTrue();
         });
 
+        it('should return false when given an array of DataEntities', () => {
+            const input = DataEntity.makeArray([
+                { hi: true },
+                { hi: true },
+            ]);
+            expect(DataEntity.isDataEntity(input)).toBeFalse();
+        });
+    });
+
+    describe('#isDataEntityArray', () => {
+        it('should return false when given object', () => {
+            expect(DataEntity.isDataEntityArray({})).toBeFalse();
+        });
+
+        it('should return false when given null', () => {
+            expect(DataEntity.isDataEntityArray(null)).toBeFalse();
+        });
+
+        it('should return false when given array of object', () => {
+            expect(DataEntity.isDataEntityArray([{}])).toBeFalse();
+        });
+
+        it('should return true when given an array of object like DataEntities', () => {
+            const input = [
+                {
+                    hello: true,
+                    getMetadata() {
+                        return 'hi';
+                    }
+                }
+            ];
+            expect(DataEntity.isDataEntityArray(input)).toBeTrue();
+        });
+
         it('should return true when given an array of DataEntities', () => {
             const input = DataEntity.makeArray([
                 { hi: true },
                 { hi: true },
             ]);
-            expect(DataEntity.isDataEntity(input)).toBeTrue();
+            expect(DataEntity.isDataEntityArray(input)).toBeTrue();
         });
     });
 
