@@ -16,7 +16,8 @@ teraslice:
     slicer_timeout: 120000
     shutdown_timeout: 30000
     action_timeout: 30000
-    assets_directory: '/tmp/'
+    assets_directory: '/app/assets'
+    autoload_directory: '/app/autoload'
     workers: 12
     master: false
     master_hostname: "teraslice-master"

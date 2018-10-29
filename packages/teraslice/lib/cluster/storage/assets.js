@@ -224,7 +224,7 @@ module.exports = function module(context) {
     }
 
     async function autoload() {
-        const autoloadDir = context.sysconfig.teraslice.autoload_dir;
+        const autoloadDir = context.sysconfig.teraslice.autoload_directory;
         if (!autoloadDir || !fse.pathExistsSync(autoloadDir)) return;
 
         const assets = await findAssetsToAutoload(autoloadDir);

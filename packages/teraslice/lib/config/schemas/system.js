@@ -24,7 +24,7 @@ const schema = {
         default: '',
         format: 'optional_String'
     },
-    autoload_dir: {
+    autoload_directory: {
         doc: 'directory to look for assets to auto deploy when teraslice boots up',
         default: path.join(process.cwd(), './autoload'),
         format: 'optional_String'
