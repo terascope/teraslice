@@ -256,17 +256,20 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     }
 
     @enumerable(false)
-    private async runMethodAsync(method: string, sliceId: string) {
+    private runMethodAsync(method: string, sliceId: string) {
         const set = this._methodRegistry[method] as Set<number>;
         if (set.size === 0) return;
 
-        let index = 0;
+        let i = 0;
+        const promises = [];
         for (const operation of this.getOperations()) {
+            const index = i++;
             if (set.has(index)) {
-                await operation[method](sliceId);
+                promises.push(operation[method](sliceId));
             }
-            index++;
         }
+
+        return Promise.all(promises);
     }
 
     @enumerable(false)

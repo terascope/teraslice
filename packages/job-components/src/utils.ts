@@ -18,18 +18,38 @@ export function isFunction(input: any): input is Function {
     return input && typeof input === 'function';
 }
 
-export function copy<T, U>(target: T, source: U) {
+/**
+ * Perform a shallow clone of an object to another, in the fastest way possible
+*/
+export function fastAssign<T, U>(target: T, source: U) {
     if (!isObject(target) || !isObject(source)) {
         return target;
     }
 
-    for (const key of Object.keys(source)) {
-        if (!isFunction(source[key])) {
-            target[key] = source[key];
-        }
+    const keys = Object.keys(source);
+    const totalKeys = keys.length;
+    let key;
+
+    for (let i = 0; i < totalKeys; i++) {
+        key = keys[i];
+        target[key] = source[key];
     }
 
     return target;
+}
+
+/**
+ * Map an array faster without sparse array handling
+*/
+export function fastMap<T>(arr: T[], fn: (val: T, index: number) => T): T[] {
+    const length = arr.length;
+    const result = Array(length);
+
+    for (let i = 0; i < length; i++) {
+        result[i] = fn(arr[i], i);
+    }
+
+    return result;
 }
 
 /** A native implemation of lodash random */
@@ -97,6 +117,9 @@ interface PromiseFn {
     (input: any): Promise<any>;
 }
 
+/**
+ * Async waterfall function
+ */
 export function waterfall(input: any, fns: PromiseFn[]): Promise<any> {
     return fns.reduce(async (last, fn) => {
         return fn(await last);

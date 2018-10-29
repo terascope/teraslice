@@ -1,6 +1,6 @@
 import get from 'lodash.get';
 import set from 'lodash.set';
-import { copy } from '../utils';
+import { fastAssign, fastMap } from '../utils';
 
 // WeakMaps are used as a memory efficient reference to private data
 const _metadata = new WeakMap();
@@ -32,31 +32,30 @@ export default class DataEntity {
             return [DataEntity.make(input)];
         }
 
-        if (DataEntity.isDataEntity(input)) {
-            return input as DataEntity[];
+        if (DataEntity.isDataEntityArray(input)) {
+            return input;
         }
 
-        return input.map((d) => DataEntity.make(d));
+        return fastMap(input, (d) => DataEntity.make(d)) as DataEntity[];
     }
 
     /**
-     * Verify that an input is the DataEntity,
-     * or if an array, the first item is must be a DataEntity
+     * Verify that an input is the DataEntity
     */
     static isDataEntity(input: any): input is DataEntity {
         if (input == null) return false;
-
-        let check: any;
-        if (Array.isArray(input)) {
-            check = input[0];
-        } else {
-            check = input;
-        }
-
-        if (check == null) return false;
-        if (check instanceof DataEntity) return true;
-        if (typeof check.getMetadata === 'function') return true;
+        if (input instanceof DataEntity) return true;
+        if (typeof input.getMetadata === 'function') return true;
         return false;
+    }
+
+    /**
+     * Verify that an input is an Array of DataEntities,
+    */
+    static isDataEntityArray(input: any): input is DataEntity[] {
+        if (input == null) return false;
+        if (!Array.isArray(input)) return false;
+        return DataEntity.isDataEntity(input[0]);
     }
 
     /**
@@ -77,9 +76,9 @@ export default class DataEntity {
     [prop: string]: any;
 
     constructor(data: object, metadata?: object) {
-        _metadata.set(this, copy({ createdAt: Date.now() }, metadata));
+        _metadata.set(this, fastAssign({ createdAt: Date.now() }, metadata));
 
-        copy(this, data);
+        fastAssign(this, data);
     }
 
     getMetadata(key?: string): DataEntityMetadata|any {
