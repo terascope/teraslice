@@ -29,8 +29,22 @@ describe('DataEntity', () => {
             expect(dataEntity).toHaveProperty('purple', 'pink');
         });
 
+        it('should not be able to enumerate metadata methods', () => {
+            const keys = Object.keys(dataEntity);
+            expect(keys).not.toInclude('getMetadata');
+            expect(keys).not.toInclude('setMetadata');
+
+            for (const prop in dataEntity) {
+                expect(prop).not.toEqual('getMetadata');
+                expect(prop).not.toEqual('setMetadata');
+            }
+        });
+
         it('should only convert non-metadata properties with stringified', () => {
             const object = JSON.parse(JSON.stringify(dataEntity));
+            expect(object).not.toHaveProperty('getMetadata');
+            expect(object).not.toHaveProperty('setMetadata');
+
             expect(object).toHaveProperty('teal', 'neal');
             expect(object).toHaveProperty('blue', 'green');
             expect(object).toHaveProperty('metadata', {
@@ -62,15 +76,6 @@ describe('DataEntity', () => {
 
         it('should be return undefined if getting a metadata that does not exist', () => {
             expect(dataEntity.getMetadata('hello')).toBeUndefined();
-        });
-
-        it('should be both metadata and data', () => {
-            const metadata = dataEntity.getMetadata();
-            const object = JSON.parse(JSON.stringify(dataEntity));
-            expect(dataEntity.toJSON(true)).toEqual({
-                data: object,
-                metadata,
-            });
         });
     });
 
@@ -150,16 +155,6 @@ describe('DataEntity', () => {
             expect(DataEntity.isDataEntity(DataEntity.make({}))).toBeTrue();
         });
 
-        it('should return true object like DataEntity', () => {
-            const input = {
-                hello: true,
-                getMetadata() {
-                    return 'hi';
-                }
-            };
-            expect(DataEntity.isDataEntity(input)).toBeTrue();
-        });
-
         it('should return false when given an array of DataEntities', () => {
             const input = DataEntity.makeArray([
                 { hi: true },
@@ -180,18 +175,6 @@ describe('DataEntity', () => {
 
         it('should return false when given array of object', () => {
             expect(DataEntity.isDataEntityArray([{}])).toBeFalse();
-        });
-
-        it('should return true when given an array of object like DataEntities', () => {
-            const input = [
-                {
-                    hello: true,
-                    getMetadata() {
-                        return 'hi';
-                    }
-                }
-            ];
-            expect(DataEntity.isDataEntityArray(input)).toBeTrue();
         });
 
         it('should return true when given an array of DataEntities', () => {

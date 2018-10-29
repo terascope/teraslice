@@ -92,7 +92,7 @@ describe('Processor Shim', () => {
 
         const result = await processor.handle(input);
 
-        expect(result[0].toJSON()).toEqual({
+        expect(result[0]).toEqual({
             say: 'hello'
         });
     });

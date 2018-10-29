@@ -137,6 +137,6 @@ module.exports = async () => {
         .run({
             async: true,
             initCount: 2,
-            maxTime: 10,
+            maxTime: 5,
         });
 };

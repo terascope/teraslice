@@ -119,7 +119,7 @@ describe('Reader Shim', () => {
 
         const result = await fetcher.handle();
 
-        expect(result[0].toJSON()).toEqual({
+        expect(result[0]).toEqual({
             say: 'howdy'
         });
     });
