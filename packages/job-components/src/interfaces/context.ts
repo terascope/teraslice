@@ -1,8 +1,14 @@
 // @ts-ignore
 import bunyan from '@types/bunyan';
+import Stream from 'stream';
 import { EventEmitter } from 'events';
 
+export interface LoggerStream {
+    stream: Stream;
+}
+
 export interface Logger extends bunyan {
+    streams: LoggerStream[];
     flush(): Promise<void>;
 }
 
