@@ -47,12 +47,20 @@ export interface WorkerOperationLifeCycle extends OperationLifeCycle {
     onSliceRetry?(sliceId: string): Promise <void>;
 
     /**
-     * Called after an operation is complete
-     * @param index the index to the operation which completed
+     * Called immediately before an operation is started
      * @param sliceId is the id of the slice being processed
+     * @param index the index to the operation which completed
      * @param processed is the number of records returned from the op
     */
-    onOperationComplete?(index: number, sliceId: string, processed: number): void;
+    onOperationStart?(sliceId: string, index: number): void;
+
+    /**
+     * Called immediately after an operation has ended
+     * @param sliceId is the id of the slice being processed
+     * @param index the index to the operation which completed
+     * @param processed is the number of records returned from the op
+    */
+    onOperationComplete?(sliceId: string, index: number, processed: number): void;
 }
 
 export interface SlicerOperationLifeCycle extends OperationLifeCycle {

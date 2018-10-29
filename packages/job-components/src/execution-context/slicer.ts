@@ -159,6 +159,7 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
         this.resetMethodRegistry();
     }
 
+    @enumerable(false)
     private runMethod<T>(method: string, arg: T) {
         const set = this._methodRegistry[method] as Set<number>;
         if (set.size === 0) return;
@@ -172,6 +173,7 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
         }
     }
 
+    @enumerable(false)
     private resetMethodRegistry() {
         for (const method of Object.keys(this._methodRegistry)) {
             this._methodRegistry[method].clear();

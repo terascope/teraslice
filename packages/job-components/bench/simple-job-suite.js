@@ -15,6 +15,8 @@ context.sysconfig.teraslice.assets_directory = __dirname;
 
 const executionConfig = newTestExecutionConfig();
 const opConfig = { _op: 'benchmark' };
+
+executionConfig.analytics = false;
 executionConfig.assets = ['fixtures'];
 executionConfig.operations = [
     {
