@@ -94,7 +94,8 @@ describe('WorkerExecutionContext', () => {
             await executionContext.onSliceFinished('hello');
             await executionContext.onSliceFailed('hello');
             await executionContext.onSliceRetry('hello');
-            await executionContext.onOperationComplete(1, 'hello', 1);
+            await executionContext.onOperationStart('hello', 1);
+            await executionContext.onOperationComplete('hello', 1, 1);
         });
 
         it('should be able run a "slice"', async () => {

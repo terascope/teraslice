@@ -44,7 +44,8 @@ describe('JobObserver', () => {
             await observer.onSliceInitialized(sliceId);
 
             for (let index = 0; index < opLength; index++) {
-                observer.onOperationComplete(index, sliceId, index * 10);
+                observer.onOperationStart(sliceId, index);
+                observer.onOperationComplete(sliceId, index, index * 10);
             }
 
             const analyitcs = observer.analyticsData as SliceAnalyticsData;
@@ -82,7 +83,8 @@ describe('JobObserver', () => {
             await observer.onSliceInitialized(sliceId);
 
             for (let index = 0; index < opLength; index++) {
-                observer.onOperationComplete(index, sliceId, index * 10);
+                observer.onOperationStart(sliceId, index);
+                observer.onOperationComplete(sliceId, index, index * 10);
             }
 
             expect(observer.analyticsData).toBeUndefined();

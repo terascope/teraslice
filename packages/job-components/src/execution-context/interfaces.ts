@@ -75,5 +75,6 @@ export interface WorkerMethodRegistry {
     readonly onSliceFinished: Set<number>;
     readonly onSliceFailed: Set<number>;
     readonly onSliceRetry: Set<number>;
+    readonly onOperationStart: Set<number>;
     readonly onOperationComplete: Set<number>;
 }

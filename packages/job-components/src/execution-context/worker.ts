@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import cloneDeep from 'lodash.clonedeep';
-import { enumerable, isFunction } from '../utils';
+import { enumerable, isFunction, waterfall } from '../utils';
 import { OperationLoader } from '../operation-loader';
 import FetcherCore from '../operations/core/fetcher-core';
 import ProcessorCore from '../operations/core/processor-core';
@@ -61,6 +61,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         onSliceFinished: new Set(),
         onSliceFailed: new Set(),
         onSliceRetry: new Set(),
+        onOperationStart: new Set(),
         onOperationComplete: new Set(),
     };
 
@@ -155,18 +156,33 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     */
     async runSlice(slice: Slice) {
         const sliceId = slice.slice_id;
+        const sliceRequest = cloneDeep(slice.request);
 
-        let index = 0;
-        let results = await this.fetcher.handle(cloneDeep(slice.request));
-        this.onOperationComplete(index, sliceId, results.length);
+        const queue = [
+            async (input: any) => {
+                this.onOperationStart(sliceId, 0);
+                const results = await this.fetcher.handle(input);
+                this.onOperationComplete(sliceId, 0, results.length);
+                return results;
+            },
+            async (input: any) => {
+                await this.onSliceStarted(sliceId);
+                return input;
+            },
+        ];
 
-        await this.onSliceStarted(sliceId);
-
+        let i = 0;
         for (const processor of this.processors.values()) {
-            index++;
-            results = await processor.handle(results);
-            this.onOperationComplete(index, sliceId, results.length);
+            const index = ++i;
+            queue.push(async (input: any) => {
+                this.onOperationStart(sliceId, index);
+                const results = await processor.handle(input);
+                this.onOperationComplete(sliceId, index, results.length);
+                return results;
+            });
         }
+
+        const results = await waterfall(sliceRequest, queue);
 
         return {
             results,
@@ -204,8 +220,14 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         await this.runMethodAsync('onSliceRetry', sliceId);
     }
 
-    onOperationComplete(index: number, sliceId: string, processed: number) {
-        this.runMethod('onOperationComplete', index, sliceId, processed);
+    @enumerable(false)
+    onOperationComplete(sliceId: string, index: number, processed: number) {
+        this.runMethod('onOperationComplete', sliceId, index, processed);
+    }
+
+    @enumerable(false)
+    onOperationStart(sliceId: string, index: number) {
+        this.runMethod('onOperationStart', sliceId, index);
     }
 
     /**
@@ -233,6 +255,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         this.context.apis.executionContext.addToRegistry(name, API);
     }
 
+    @enumerable(false)
     private async runMethodAsync(method: string, sliceId: string) {
         const set = this._methodRegistry[method] as Set<number>;
         if (set.size === 0) return;
@@ -246,6 +269,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         }
     }
 
+    @enumerable(false)
     private runMethod(method: string, ...args: any[]) {
         const set = this._methodRegistry[method] as Set<number>;
         if (set.size === 0) return;
@@ -259,6 +283,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         }
     }
 
+    @enumerable(false)
     private resetMethodRegistry() {
         for (const method of Object.keys(this._methodRegistry)) {
             this._methodRegistry[method].clear();

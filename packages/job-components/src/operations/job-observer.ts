@@ -12,6 +12,8 @@ export default class JobObserver extends APICore {
 
     // use to avoid undefinied variable issues
     protected _currentSliceId: string;
+    // use to avoid undefinied variable issues
+    protected _currentIndex: number;
 
     // the length of the operations
     private _opLength: number;
@@ -31,21 +33,37 @@ export default class JobObserver extends APICore {
 
         this._initialized = null;
         this._currentSliceId = '';
+        this._currentIndex = -1;
     }
 
     async onSliceInitialized(sliceId: string) {
         this._currentSliceId = sliceId;
+        this._currentIndex = 0;
 
         if (this.collectAnalytics) {
             this.analyticsData = this.defaultAnalytics();
-            this.initOpAnalytics();
         }
+
+        this._initialized = null;
     }
 
-    onOperationComplete(index: number, sliceId: string, processed: number) {
+    onOperationStart(sliceId: string, index: number) {
         this._currentSliceId = sliceId;
+        this._currentIndex = index;
 
-        if (!this._initialized || !this.collectAnalytics || !this.analyticsData) return;
+        if (!this.collectAnalytics) return;
+
+        this._initialized = {
+            memory: getMemoryUsage(),
+            time: Date.now(),
+        };
+    }
+
+    onOperationComplete(sliceId: string, index: number, processed: number) {
+        if (!this.collectAnalytics) return;
+        if (this._initialized == null || !this.analyticsData) return;
+
+        this._currentSliceId = sliceId;
 
         const { memory, time } = this._initialized;
 
@@ -53,17 +71,7 @@ export default class JobObserver extends APICore {
         this.analyticsData.size[index] = processed || 0;
         this.analyticsData.memory[index] = getMemoryUsage() - memory;
 
-        const isLast = this._opLength >= (index + 2);
-        if (isLast) return;
-
-        this.initOpAnalytics();
-    }
-
-    private initOpAnalytics() {
-        this._initialized = {
-            memory: getMemoryUsage(),
-            time: Date.now(),
-        };
+        this._initialized = null;
     }
 
     private defaultAnalytics(): SliceAnalyticsData {
