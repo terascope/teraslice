@@ -4,14 +4,20 @@ const { Suite } = require('./helpers');
 const FakeDataEntity = require('./fixtures/fake-data-entity');
 const { DataEntity } = require('../dist');
 
-const data = { hello: true };
-const metadata = { id: 1 };
+const data = {
+    id: Math.random(),
+    hello: 'sir',
+    hi: 'dude',
+    howdy: 'there'
+};
+
+const metadata = { id: Math.random() * 1000 };
 
 module.exports = () => Suite('DataEntity (small records)')
     .add('new data', {
         fn() {
             let entity = Object.assign({}, data);
-            entity.metadata = { createdAt: Date.now() };
+            entity.metadata = Object.assign({ createdAt: Date.now() });
             entity = null;
             return entity;
         }
@@ -69,5 +75,5 @@ module.exports = () => Suite('DataEntity (small records)')
     .run({
         async: true,
         initCount: 2,
-        maxTime: 10,
+        maxTime: 5,
     });

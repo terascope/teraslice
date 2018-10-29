@@ -22,16 +22,11 @@ export function isFunction(input: any): input is Function {
  * Perform a shallow clone of an object to another, in the fastest way possible
 */
 export function fastAssign<T, U>(target: T, source: U) {
-    if (!isObject(target) || !isObject(source)) {
+    if (!isObject(source)) {
         return target;
     }
 
-    const keys = Object.keys(source);
-    const totalKeys = keys.length;
-    let key;
-
-    for (let i = 0; i < totalKeys; i++) {
-        key = keys[i];
+    for (const key of Object.keys(source)) {
         target[key] = source[key];
     }
 
@@ -41,11 +36,12 @@ export function fastAssign<T, U>(target: T, source: U) {
 /**
  * Map an array faster without sparse array handling
 */
-export function fastMap<T>(arr: T[], fn: (val: T, index: number) => T): T[] {
+export function fastMap<T, U>(arr: T[], fn: (val: T, index: number) => U): U[] {
     const length = arr.length;
     const result = Array(length);
 
-    for (let i = 0; i < length; i++) {
+    let i = -1;
+    while (++i < length) {
         result[i] = fn(arr[i], i);
     }
 
