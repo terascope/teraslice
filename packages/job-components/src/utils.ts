@@ -35,7 +35,7 @@ export function isFunction(input: any): input is Function {
  * If the input is an array it will return the first item
  * else if it will return the input
  */
-export function getFirst<T>(input: T): T {
+export function getFirst<T>(input: T|T[]): T {
     return Array.isArray(input) ? input[0] : input;
 }
 

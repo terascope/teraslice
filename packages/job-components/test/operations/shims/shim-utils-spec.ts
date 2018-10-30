@@ -20,6 +20,14 @@ describe('Shim Utils', () => {
             expect(result[0]).toEqual(str);
         });
 
+        it('should handle an array of arrays', () => {
+            const arr = ['hello'];
+            const result = convertResult([arr]);
+
+            expect(result).toBeArrayOfSize(1);
+            expect(result[0]).toEqual(arr);
+        });
+
         it('should handle an array of DataEntities', () => {
             const data = new DataEntity({ hello: true });
             const result = convertResult([data]);
