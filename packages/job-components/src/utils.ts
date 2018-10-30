@@ -1,28 +1,49 @@
 /** A simplified implemation of lodash isString */
 export function isString(val: any): val is string {
-    return typeof val === 'string';
+    return typeof val === 'string' ? true : false;
 }
 
 /** A simplified implemation of lodash isInteger */
 export function isInteger(val: any): val is number {
     if (typeof val !== 'number') return false;
-
     return Number.isInteger(val);
 }
 
-export function isObject(input: any): input is object {
-    return input && typeof input === 'object';
+/** A simplified implemation of lodash isPlainObject */
+export function isPlainObject(input: any): input is object {
+    if (input == null) return false;
+    if (Array.isArray(input)) return false;
+    if (Buffer.isBuffer(input)) return false;
+    if (typeof input !== 'object') return false;
+    return true;
 }
 
+/** A simplified implemation of lodash castArray */
+export function castArray<T>(input: any): T[] {
+    if (Array.isArray(input)) return input as T[];
+    return [input] as T[];
+}
+
+/**
+ * Verify an input is a function
+*/
 export function isFunction(input: any): input is Function {
-    return input && typeof input === 'function';
+    return input && typeof input === 'function' ? true : false;
+}
+
+/**
+ * If the input is an array it will return the first item
+ * else if it will return the input
+ */
+export function getFirst<T>(input: T): T {
+    return Array.isArray(input) ? input[0] : input;
 }
 
 /**
  * Perform a shallow clone of an object to another, in the fastest way possible
 */
 export function fastAssign<T, U>(target: T, source: U) {
-    if (!isObject(source)) {
+    if (!isPlainObject(source)) {
         return target;
     }
 

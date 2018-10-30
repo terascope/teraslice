@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { waterfall } from '../src/utils';
+import { waterfall, isPlainObject } from '../src/utils';
 
 describe('Utils', () => {
     describe('waterfall', () => {
@@ -36,6 +36,22 @@ describe('Utils', () => {
             expect(queue[0]).toHaveBeenCalledWith('greetings');
             expect(queue[1]).toHaveBeenCalledWith('hello');
             expect(queue[2]).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('isPlainObject', () => {
+        class TestObj {
+
+        }
+
+        it('should correctly detect the an object type', () => {
+            expect(isPlainObject(null)).toBeFalse();
+            expect(isPlainObject(true)).toBeFalse();
+            expect(isPlainObject([])).toBeFalse();
+            expect(isPlainObject('some-string')).toBeFalse();
+            expect(isPlainObject(Buffer.from('some-string'))).toBeFalse();
+            expect(isPlainObject(new TestObj())).toBeTrue();
+            expect(isPlainObject({})).toBeTrue();
         });
     });
 });

@@ -5,6 +5,7 @@ import ParallelSlicer from '../parallel-slicer';
 import ConvictSchema from '../convict-schema';
 import { ReaderModule } from '../interfaces';
 import { isInteger } from '../../utils';
+import { convertResult } from './shim-utils';
 
 export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule {
     return {
@@ -67,7 +68,8 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
             async handle(sliceRequest: SliceRequest): Promise<DataEntity[]> {
                 if (this.fetcherFn) {
                     const result = await this.fetcherFn(sliceRequest, this.logger);
-                    return DataEntity.makeArray(result);
+                    // @ts-ignore
+                    return convertResult(result);
                 }
 
                 throw new Error('Fetcher has not been initialized');
