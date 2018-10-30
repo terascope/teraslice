@@ -7,7 +7,7 @@ const _metadata = new WeakMap();
  * A wrapper for data that can hold additional metadata properties.
  * A DataEntity should be essentially transparent to use within operations
  */
-export default class DataEntity<T = object> {
+export default class DataEntity {
     /**
      * A utility for safely converting an object a DataEntity.
      * This will detect if passed an already converted input and return it.
@@ -71,7 +71,7 @@ export default class DataEntity<T = object> {
     // Add the ability to specify any additional properties
     [prop: string]: any;
 
-    constructor(data: T, metadata?: object) {
+    constructor(data: object, metadata?: object) {
         _metadata.set(this, fastAssign({ createdAt: Date.now() }, metadata));
 
         fastAssign(this, data);

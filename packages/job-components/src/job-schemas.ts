@@ -2,8 +2,6 @@
 
 import { Context } from './interfaces';
 import convict from 'convict';
-import get from 'lodash.get';
-import has from 'lodash.has';
 import { flatten } from './utils';
 import os from 'os';
 
@@ -23,7 +21,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
             doc: 'An array of actions to execute, typically the first is a reader '
                 + 'and the last is a sender with any number of processing function in-between',
             format(arr: any) {
-                if (arr !== null) {
+                if (arr != null) {
                     if (!(Array.isArray(arr))) {
                         throw new Error('assets need to be of type array');
                     }
@@ -72,9 +70,8 @@ export function jobSchema(context: Context): convict.Schema<any> {
                         'with at least two operations in it');
                 }
 
-                const connectors = Object.values(
-                    get(context.sysconfig, 'terafoundation.connectors', {}),
-                );
+                const connectorsObject = context.sysconfig.terafoundation && context.sysconfig.terafoundation.connectors || {};
+                const connectors = Object.values(connectorsObject);
 
                 const connections = flatten(connectors.map((conn) => Object.keys(conn)));
                 arr.forEach((op) => {
@@ -103,7 +100,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
             default: null,
             doc: 'The number of slices a worker processes before it exits and restarts',
             format(val: any) {
-                if (val !== null) {
+                if (val != null) {
                     if (isNaN(val)) {
                         throw new Error('recycle_worker parameter for job must be a number');
                     } else if (val < 0) {
@@ -144,11 +141,11 @@ export function jobSchema(context: Context): convict.Schema<any> {
             doc: 'array of key/value labels used for targetting teraslice jobs to nodes',
             format(arr: any[]) {
                 arr.forEach((label) => {
-                    if (!has(label, 'key')) {
+                    if (label['key'] == null) {
                         throw new Error(`targets need to have a key: ${label}`);
                     }
 
-                    if (!has(label, 'value')) {
+                    if (label['value'] == null) {
                         throw new Error(`targets need to have a value: ${label}`);
                     }
                 });
@@ -172,11 +169,11 @@ export function jobSchema(context: Context): convict.Schema<any> {
             doc: 'array of volumes to be mounted by job workers',
             format(arr: any[]) {
                 arr.forEach((volume) => {
-                    if (!has(volume, 'name')) {
+                    if (volume['name'] == null) {
                         throw new Error(`volumes need to have a name: ${volume}`);
                     }
 
-                    if (!has(volume, 'path')) {
+                    if (volume['path'] == null) {
                         throw new Error(`volumes need to have a path: ${volume}`);
                     }
                 });
