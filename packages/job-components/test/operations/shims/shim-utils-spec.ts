@@ -28,12 +28,33 @@ describe('Shim Utils', () => {
             expect(result[0]).toEqual(data);
         });
 
+        it('should handle a single DataEntity', () => {
+            const data = new DataEntity({ hello: true });
+            // @ts-ignore
+            const result = convertResult(data);
+
+            expect(result).toBeArrayOfSize(1);
+            expect(result[0]).toEqual(data);
+        });
+
         it('should handle an array of Objects', () => {
             const data = { hello: true };
             const result = convertResult([data]);
 
             expect(result).toBeArrayOfSize(1);
             expect(result[0]).toEqual(data);
+        });
+
+        it('should handle null', () => {
+            // @ts-ignore
+            const result = convertResult(null);
+            expect(result).toBeArrayOfSize(0);
+        });
+
+        it('should handle undefined', () => {
+            // @ts-ignore
+            const result = convertResult(undefined);
+            expect(result).toBeArrayOfSize(0);
         });
 
         it('should handle an empty array', () => {

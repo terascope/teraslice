@@ -7,22 +7,17 @@ import { isPlainObject, getFirst, castArray, isString } from '../../utils';
  * But in order to be more backwards compatible legacy modules
  * can return an array of buffers or strings.
 */
-export function convertResult(input: DataInput[]|Buffer[]|string[]): DataEntity[]  {
+export function convertResult(input: DataInput[]|Buffer[]|string[]): DataEntity[] {
     if (input == null) return [];
     if (Array.isArray(input) && input.length === 0) return [];
 
     if (DataEntity.isDataEntityArray(input)) return input;
     if (DataEntity.isDataEntity(input)) return [input];
-    const first = getFirst(input);
+    const first = getFirst<object|string|Buffer>(input);
     if (first == null) return [];
 
     if (isPlainObject(first)) return DataEntity.makeArray(input);
-    if (Buffer.isBuffer(first)) {
-        return deprecateType(input);
-    }
-    if (isString(first)) {
-        return deprecateType(input);
-    }
+    if (Buffer.isBuffer(first) || isString(first)) return deprecateType(input);
 
     throw new Error('Invalid return type for processor');
 }
