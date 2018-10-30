@@ -9,9 +9,13 @@ import { isPlainObject, getFirst, castArray, isString } from '../../utils';
 */
 export function convertResult(input: DataInput[]|Buffer[]|string[]): DataEntity[]  {
     if (input == null) return [];
+    if (Array.isArray(input) && input.length === 0) return [];
+
     if (DataEntity.isDataEntityArray(input)) return input;
     if (DataEntity.isDataEntity(input)) return [input];
     const first = getFirst(input);
+    if (first == null) return [];
+
     if (isPlainObject(first)) return DataEntity.makeArray(input);
     if (Buffer.isBuffer(first)) {
         return deprecateType(input);
