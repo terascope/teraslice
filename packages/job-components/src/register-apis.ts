@@ -1,6 +1,5 @@
 import { ConnectionConfig, Context, ValidatedJobConfig, ExecutionConfig, OpConfig } from './interfaces';
 import { ExecutionContextAPI } from './execution-context';
-import has from 'lodash.has';
 
 interface GetClientConfig {
     connection?: string;
@@ -27,7 +26,7 @@ export function getClient(context: Context, config: GetClientConfig, type: strin
     };
     const events = context.apis.foundation.getSystemEvents();
 
-    if (config && has(config, 'connection')) {
+    if (config && config.connection) {
         clientConfig.endpoint = config.connection || 'default';
         const isCached = config.connection_cache != null;
         clientConfig.cached = isCached ? config.connection_cache : true;
