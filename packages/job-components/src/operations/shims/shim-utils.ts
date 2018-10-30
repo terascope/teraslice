@@ -16,6 +16,9 @@ export function convertResult(input: DataInput[]|Buffer[]|string[]): DataEntity[
     const first = getFirst<object|string|Buffer>(input);
     if (first == null) return [];
 
+    // @ts-ignore
+    if (Array.isArray(first)) return input;
+
     if (isPlainObject(first)) return DataEntity.makeArray(input);
     if (Buffer.isBuffer(first) || isString(first)) return deprecateType(input);
 
