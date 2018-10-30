@@ -1,7 +1,6 @@
 'use strict';
 
 import fs from 'fs';
-import { pathExistsSync } from 'fs-extra';
 import path from 'path';
 import { LegacyOperation, LegacyReader, LegacyProcessor } from './interfaces';
 import {
@@ -37,12 +36,12 @@ export class OperationLoader {
 
         const findCodeByConvention = (basePath?: string, subfolders?: string[]) => {
             if (!basePath) return;
-            if (!pathExistsSync(basePath)) return;
+            if (!fs.existsSync(basePath)) return;
             if (!subfolders || !subfolders.length) return;
 
             subfolders.forEach((folder: string) => {
                 const folderPath = path.join(basePath, folder);
-                if (!filePath && pathExistsSync(folderPath)) {
+                if (!filePath && fs.existsSync(folderPath)) {
                     filePath = findCodeFn(folderPath);
                 }
             });
@@ -212,8 +211,8 @@ export class OperationLoader {
     }
 
     private isLegacyReader(codePath: string): boolean {
-        const fetcherPath = pathExistsSync(path.join(codePath, 'fetcher.js'));
-        const slicerPath = pathExistsSync(path.join(codePath, 'slicer.js'));
+        const fetcherPath = fs.existsSync(path.join(codePath, 'fetcher.js'));
+        const slicerPath = fs.existsSync(path.join(codePath, 'slicer.js'));
         return !fetcherPath && !slicerPath;
     }
 
@@ -227,7 +226,7 @@ export class OperationLoader {
     }
 
     private isLegacyProcessor(codePath: string): boolean {
-        return !pathExistsSync(path.join(codePath, 'processor.js'));
+        return !fs.existsSync(path.join(codePath, 'processor.js'));
     }
 
     private shimLegacyProcessor(name: string, codePath: string): ProcessorModule {
@@ -240,7 +239,7 @@ export class OperationLoader {
     }
 
     private resolvePath(filePath: string): string | null {
-        if (pathExistsSync(filePath)) return filePath;
+        if (fs.existsSync(filePath)) return filePath;
 
         try {
             return require.resolve(filePath);
