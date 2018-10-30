@@ -3,6 +3,7 @@ import DataEntity from '../data-entity';
 import ProcessorCore from '../core/processor-core';
 import ConvictSchema from '../convict-schema';
 import { ProcessorModule } from '../interfaces';
+import { convertResult } from './shim-utils';
 
 export default function processorShim<S = any>(legacy: LegacyProcessor): ProcessorModule {
     return {
@@ -16,7 +17,8 @@ export default function processorShim<S = any>(legacy: LegacyProcessor): Process
             async handle(input: DataEntity[], sliceRequest: SliceRequest): Promise<DataEntity[]> {
                 if (this.processorFn != null) {
                     const result = await this.processorFn(input, this.logger, sliceRequest);
-                    return DataEntity.makeArray(result);
+                    // @ts-ignore
+                    return convertResult(result);
                 }
 
                 throw new Error('Processor has not been initialized');
