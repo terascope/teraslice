@@ -18,11 +18,12 @@
         }
     ],
     "__metadata": {
-        "cli" : {
-            "cluster": "http://clusterTwo",
+        "cli": {
+            "cluster": "clusterTwo",
+            "cluster_url": "http://clusterTwo",
             "version": "0.0.1",
-            "job_id": "jobId"
+            "job_id": "99999999-9999-9999-9999-999999999999",
+            "updated": "10/22/2018 12:00:00"
         }
-
     }
 }

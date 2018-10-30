@@ -32,6 +32,11 @@ class Jobs extends Client {
         return this.get('/ex', { qs });
     }
 
+    jobs(options) {
+        const qs = _parseListOptions(options);
+        return this.get('/jobs', { qs });
+    }
+
     // Wraps the job_id with convenience functions for accessing
     // the state on the server.
     wrap(jobId) {

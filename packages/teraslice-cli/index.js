@@ -3,8 +3,14 @@
 'use strict';
 
 const { argv } = require('yargs') // eslint-disable-line no-unused-vars
-    .commandDir('cmds')
-    .demandCommand()
+    .command(require('./cmds/aliases'))
+    .command(require('./cmds/assets'))
+    .command(require('./cmds/jobs'))
+    .command(require('./cmds/ex'))
+    .command(require('./cmds/nodes'))
+    .command(require('./cmds/workers'))
+    .command(require('./cmds/controllers'))
+    .demandCommand(1)
     .help('help')
     .alias('help', 'h')
     .version()

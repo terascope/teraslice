@@ -1,3 +1,4 @@
+
 'use strict';
 
 const _ = require('lodash');
@@ -5,32 +6,13 @@ const fs = require('fs-extra');
 const archiver = require('archiver');
 const Promise = require('bluebird');
 const path = require('path');
-const TerasliceClient = require('teraslice-client-js');
 const reply = require('./reply');
 
-module.exports = (cliConfig, _terasliceClient) => {
-    if (!cliConfig.baseDir) {
-        cliConfig.baseDir = process.cwd();
-    }
+module.exports = (cliConfig) => {
 
-    const terasliceClient = _terasliceClient || TerasliceClient({
-        host: cliConfig.cluster
+    const terasliceClient = require('teraslice-client-js')({
+        host: cliConfig.cluster_url
     });
-
-    function alreadyRegisteredCheck() {
-        const jobContents = cliConfig.job_file_content;
-        if (_.has(jobContents, 'tjm.cluster')) {
-            return terasliceClient.jobs.wrap(jobContents.tjm.job_id).spec()
-                .then((jobSpec) => {
-                    if (jobSpec.job_id === jobContents.tjm.job_id) {
-                        // return true for testing purposes
-                        return Promise.resolve(true);
-                    }
-                    return Promise.reject(new Error('Job is not on the cluster'));
-                });
-        }
-        return Promise.reject(new Error('No cluster configuration for this job'));
-    }
 
     function _postAsset() {
         return Promise.resolve()
@@ -39,7 +21,7 @@ module.exports = (cliConfig, _terasliceClient) => {
             .then(assetPostResponse => assetPostResponse);
     }
 
-    function loadAsset() {
+    function load() {
         if (!cliConfig.a) {
             return Promise.resolve();
         }
@@ -62,7 +44,7 @@ module.exports = (cliConfig, _terasliceClient) => {
                 const assetJson = _updateAssetMetadata();
                 return createJsonFile(path.join(cliConfig.baseDir, 'asset/asset.json'), assetJson);
             })
-            .then(() => reply.green('TJM data added to asset.json'))
+            .then(() => reply.green('cli data added to asset.json'))
             .then(() => reply.green(`Asset has successfully been deployed to ${cliConfig.cluster}`));
     }
 
@@ -105,10 +87,10 @@ module.exports = (cliConfig, _terasliceClient) => {
             throw new Error('Cluster configuration is invalid');
         }
 
-        if (!_.has(assetJson, 'tjm.clusters')) {
-            _.set(assetJson, 'tjm.clusters', [cluster]);
-        } else if (assetJson.tjm.clusters.indexOf(cluster) === -1) {
-            assetJson.tjm.clusters.push(cluster);
+        if (!_.has(assetJson, 'cli.clusters')) {
+            _.set(assetJson, 'cli.clusters', [cluster]);
+        } else if (assetJson.cli.clusters.indexOf(cluster) === -1) {
+            assetJson.cli.clusters.push(cluster);
         }
         return assetJson;
     }
@@ -121,10 +103,8 @@ module.exports = (cliConfig, _terasliceClient) => {
     }
 
     return {
-        alreadyRegisteredCheck,
-        loadAsset,
+        load,
         createJsonFile,
-        terasliceClient,
         __testFunctions,
         zipAsset,
     };
