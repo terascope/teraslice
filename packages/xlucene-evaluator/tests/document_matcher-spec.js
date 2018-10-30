@@ -8,7 +8,7 @@ describe('document matcher', () => {
         documentMatcher = new DocumentMatcher();
     });
 
-    xdescribe('exact match and term expressions', () => {
+    describe('exact match and term expressions', () => {
         it('can match basic terms', () => {
             const data = { hello: 'world' };
             const badData = { hello: 'goodbye' };
@@ -47,6 +47,41 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data2)).toEqual(false);
             expect(documentMatcher.match(data3)).toEqual(true);
             expect(documentMatcher.match(data4)).toEqual(true);
+        });
+
+        it('can handle "NOT !" operators', () => {
+            const data1 = { some: 'data' };
+            const data2 = { some: 'otherData', other: 'things' };
+            const data3 = { some: 'otherData', other: 'stuff' };
+            const data4 = { some: 'data', other: 'stuff' };
+
+            documentMatcher.parse('some:data NOT other:stuff');
+
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(false);
+            expect(documentMatcher.match(data3)).toEqual(false);
+            expect(documentMatcher.match(data4)).toEqual(false);
+        });
+
+        it('can handle "AND NOT" operators', () => {
+            const data1 = { some: 'data' };
+            const data2 = { some: 'data', other: 'things' };
+            const data3 = { some: 'otherData', other: 'stuff' };
+            const data4 = { some: 'data', other: 'stuff' };
+
+            documentMatcher.parse('some:data AND NOT other:stuff');
+
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(true);
+            expect(documentMatcher.match(data3)).toEqual(false);
+            expect(documentMatcher.match(data4)).toEqual(false);
+
+            documentMatcher.parse('some:data AND NOT other:stuff AND NOT bytes:1234');
+
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(true);
+            expect(documentMatcher.match(data3)).toEqual(false);
+            expect(documentMatcher.match(data4)).toEqual(false);
         });
 
         it('can handle _exists_', () => {
@@ -90,7 +125,7 @@ describe('document matcher', () => {
         });
     });
 
-    xdescribe('numerical range queries', () => {
+    describe('numerical range queries', () => {
         it('can handle "< > <= >="', () => {
             const data = { age: 33 };
             const data2 = { age: 8 };
@@ -259,7 +294,7 @@ describe('document matcher', () => {
         });
     });
 
-    xdescribe('ip expressions', () => {
+    describe('ip expressions', () => {
         it('can do exact matches, no type changes', () => {
             const data1 = { ip: '157.60.0.1' };
             const data2 = { ip: '1:2:3:4:5:6:7:8' };
@@ -448,7 +483,7 @@ describe('document matcher', () => {
         });
     });
 
-    xdescribe('date expressions', () => {
+    describe('date expressions', () => {
         it('can do exact matches, no type changes', () => {
             // all of these are the same date
             const data1 = { _created: 'Thu Oct 18 2018 11:13:20 GMT-0700' };
@@ -599,7 +634,7 @@ describe('document matcher', () => {
         });
     });
 
-    xdescribe('geo expressions', () => {
+    describe('geo expressions', () => {
         it('can do basic matches', () => {
             const data1 = { location: '33.435967,-111.867710' };
             const data2 = { location: '22.435967,-150.867710' };
@@ -609,7 +644,7 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data1)).toEqual(true);
             expect(documentMatcher.match(data2)).toEqual(false);
 
-            documentMatcher.parse('location:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000)', { location: 'geo' });
+            documentMatcher.parse('location:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000m)', { location: 'geo' });
 
             expect(documentMatcher.match(data1)).toEqual(true);
             expect(documentMatcher.match(data2)).toEqual(false);
@@ -628,7 +663,7 @@ describe('document matcher', () => {
         });
     });
 
-    xdescribe('regex queries', () => {
+    describe('regex queries', () => {
         it('can do basic regex matches', () => {
             const data1 = { key : 'abcde' };
             const data2 = { key: 'field' };
@@ -674,13 +709,13 @@ describe('document matcher', () => {
 
     describe('works properly with chaotic data', () => {
 
-        xit('does not throw when fields are not present', () => {
+        it('does not throw when fields are not present', () => {
             const data1 = {};
             documentMatcher.parse('some:field', { ip: 'ip', key: 'regex', created: 'date', location: 'geo' });
             expect(documentMatcher.match(data1)).toEqual(false);
         });
 
-        xit('does not throw when types are not present', () => {
+        it('does not throw when types are not present', () => {
             const data1 = {};
             const data2 = { ipfield: '192.198.3.0', date: '2018-10-18T18:15:34.123Z', str:'someStr', location: '53.2333,-112.3343' };
 
@@ -699,7 +734,7 @@ describe('document matcher', () => {
             documentMatcher.parse(luceneQuery);
 
             expect(documentMatcher.match(data1)).toEqual(false);
-            expect(documentMatcher.match(data2)).toEqual(false);
+            expect(documentMatcher.match(data2)).toEqual(true);
             expect(documentMatcher.match(data3)).toEqual(false);
         });
     });

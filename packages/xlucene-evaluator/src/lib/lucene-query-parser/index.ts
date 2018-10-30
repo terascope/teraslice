@@ -1,5 +1,5 @@
 
-const parser  = require('../../../peg/peg_engine');
+import parser from '../../../peg/peg_engine';
 import { ast } from '../utils';
 
 export interface cb {

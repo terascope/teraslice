@@ -475,8 +475,8 @@ function peg$parse(input, options) {
                   };
               },
       peg$c90 = function(operator1, operator2) {
-              	if (operator1 === 'NOT' || operator2 === 'NOT') return 'NOT';
-                  return 'AND';
+              	if (operator1 === 'AND' && operator2 === 'NOT') return 'AND NOT';
+                  throw new Error(`cannot combine operators ${operator1} and ${operator2} together`)
               },
       peg$c91 = function(operator) {
                   return operator;

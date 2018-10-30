@@ -34,9 +34,20 @@ export default class DocumentMatcher extends LuceneQueryParser {
         let fnStrBody = '';
         let addParens = false;
         const parensDepth = {};
-
         const parsedAst = types.processAst(ast);
-        console.log('the whole ast', JSON.stringify(ast, null, 4))
+
+        function isOpenEnded(str) {
+            let count = 0;        
+            for (const ind in str) {
+                if (str[ind] === '(') {
+                    count += 1;
+                }
+                if (str[ind] === ')') {
+                    count -= 1;
+                }
+            }
+            return count !== 0;
+        }
 
         function strBuilder(ast:ast, field:string, depth:number) {
             if (field && ast.term) {
@@ -64,6 +75,14 @@ export default class DocumentMatcher extends LuceneQueryParser {
                         parensDepth[depth] = true;
                     }
                 }
+
+                if(ast.operator === 'AND NOT' || ast.operator === 'NOT') {
+                    addParens = true;
+                    opStr = ' && !(';
+                    if (isOpenEnded(fnStrBody)) opStr = ') && !(';            
+                    parensDepth[depth] = true;
+                }
+
                 fnStrBody += opStr;
             }
         }
@@ -87,7 +106,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
         });
 
         strFnArgs.push('data', `return ${fnStrBody}`);
-        console.log('what is the body', strFnArgs)
+
         try {
             const strFilterFunction = new Function(...strFnArgs);
             this.filterFn = (data:object) => strFilterFunction(...argsFns, data);

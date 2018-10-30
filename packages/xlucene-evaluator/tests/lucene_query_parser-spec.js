@@ -1,7 +1,7 @@
 //@ts-ignore
 const LuceneQueryParser = require('../src/lib/lucene-query-parser').default;
 
-xdescribe('luceneQueryParser', () => {
+describe('luceneQueryParser', () => {
 
     let luceneQueryParser;
 
@@ -311,6 +311,26 @@ xdescribe('luceneQueryParser', () => {
             expect(luceneQueryParser._ast['operator']).toBe('NOT');
             expect(luceneQueryParser._ast['right']['term']).toBe('buzz');
         });
+
+        it('parses explicit conjunction operator (AND NOT)', () => {
+            luceneQueryParser.parse('fizz AND NOT buzz');
+
+            expect(luceneQueryParser._ast['left']['term']).toBe('fizz');
+            expect(luceneQueryParser._ast['operator']).toBe('AND NOT');
+            expect(luceneQueryParser._ast['right']['term']).toBe('buzz');
+
+            luceneQueryParser.parse('fizz && ! buzz');
+
+            expect(luceneQueryParser._ast['left']['term']).toBe('fizz');
+            expect(luceneQueryParser._ast['operator']).toBe('AND NOT');
+            expect(luceneQueryParser._ast['right']['term']).toBe('buzz');
+
+            luceneQueryParser.parse('fizz && !buzz');
+
+            expect(luceneQueryParser._ast['left']['term']).toBe('fizz');
+            expect(luceneQueryParser._ast['operator']).toBe('AND NOT');
+            expect(luceneQueryParser._ast['right']['term']).toBe('buzz');
+        });
     });
 
     describe('luceneQueryParser: parentheses groups', () => {
@@ -465,9 +485,8 @@ xdescribe('luceneQueryParser', () => {
             expect(luceneQueryParser._ast['left']['inclusive_max']).toBe(true);
         });
         it('parses inclusive/exclusive unnbounded ip range expression', () => {
-            // TODO: run this query against elasticsearch => DOES NOT WORK BUT { TO ] works
+            //  DOES NOT WORK IN ELASTICSEARCH BUT { TO ] WORKS
             luceneQueryParser.parse('ip:(>="2001:0:ce49:7601:e866:efff:62c3:eeee" AND <="2001:0:ce49:7601:e866:efff:62c3:ffff")');
-            // TODO: grammar three is the current correct one
             expect(luceneQueryParser._ast['left']['field']).toBe('ip');
             expect(luceneQueryParser._ast['left']['term_min']).toBe('2001:0:ce49:7601:e866:efff:62c3:eeee');
             expect(luceneQueryParser._ast['left']['term_max']).toBe('2001:0:ce49:7601:e866:efff:62c3:ffff');
