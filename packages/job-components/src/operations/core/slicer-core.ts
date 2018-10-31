@@ -7,6 +7,7 @@ import {
     SliceRequest,
     SlicerOperationLifeCycle,
     ExecutionStats,
+    LifeCycle,
 } from '../../interfaces';
 import Queue from '@terascope/queue';
 import Core from './core';
@@ -143,6 +144,10 @@ export default abstract class SlicerCore extends Core implements SlicerOperation
 
     onExecutionStats(stats: ExecutionStats) {
         this.stats = stats;
+    }
+
+    protected canComplete(): boolean {
+        return this.executionConfig.lifecycle === LifeCycle.Once;
     }
 
     protected get workersConnected() {

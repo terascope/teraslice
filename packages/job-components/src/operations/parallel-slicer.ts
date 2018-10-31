@@ -67,12 +67,12 @@ export default abstract class ParallelSlicer extends SlicerCore {
         if (slicer.done) return;
 
         const result = await slicer.fn();
-        if (result == null) {
+        if (result == null && this.canComplete()) {
             this.logger.info(`slicer ${slicer.id} has completed its range`);
             slicer.done = true;
 
             this.events.emit('slicer:done', slicer.id);
-        } else {
+        } else if (result != null) {
             if (Array.isArray(result)) {
                 this.events.emit('slicer:subslice');
                 result.forEach((item) => {
