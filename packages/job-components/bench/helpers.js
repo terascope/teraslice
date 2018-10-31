@@ -22,10 +22,22 @@ function Suite(name) {
             }
         })
         .on('start', function _start() {
-            console.log(`\n\n${banner(67, this.name)}`);
+            console.log(`\n${banner(90, this.name, '=')}\n`);
         })
         .on('complete', function _complete() {
-            console.log(banner(67, `Best: ${this.filter('fastest').map('name')}`));
+            process.stdout.write('\n');
+
+            this.filter('fastest')
+                .forEach((item) => {
+                    console.log(banner(90, `Best: ${item.name}`, '+'));
+                });
+
+            this.filter('slowest')
+                .forEach((item) => {
+                    console.log(banner(90, `Worst: ${item.name}`, '-'));
+                });
+
+            process.stdout.write('\n');
         });
 }
 
@@ -43,10 +55,10 @@ function padr(n, s) {
     return s;
 }
 
-function banner(n, s) {
+function banner(n, s, c = '-') {
     s = ` ${s} `;
     while (s.length < n) {
-        s = `-${s}-`;
+        s = `${c}${s}${c}`;
     }
     return s;
 }

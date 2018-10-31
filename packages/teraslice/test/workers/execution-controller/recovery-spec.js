@@ -2,6 +2,7 @@
 
 const eventsModule = require('events');
 const Promise = require('bluebird');
+const pWhilst = require('p-whilst');
 const recoveryCode = require('../../../lib/workers/execution-controller/recovery');
 
 const eventEmitter = new eventsModule.EventEmitter();
@@ -18,7 +19,6 @@ describe('execution recovery', () => {
 
     const startingPoints = {};
 
-    let executionFailureMsg = null; // eslint-disable-line
     let testSlices = [{ slice_id: 1 }, { slice_id: 2 }];
 
     beforeEach(() => {
@@ -33,7 +33,6 @@ describe('execution recovery', () => {
             }
         }
     };
-    const executionFailed = (err) => { executionFailureMsg = err; };
 
     const stateStore = {
         executionStartingSlice: (exId, ind) => {
@@ -56,7 +55,6 @@ describe('execution recovery', () => {
 
     let recoveryModule = recoveryCode(
         context,
-        executionFailed,
         stateStore,
         executionContext
     );
@@ -80,20 +78,14 @@ describe('execution recovery', () => {
     }
 
     it('has the proper methods', () => {
-        expect(recoveryModule.initialize).toBeDefined();
-        expect(typeof recoveryModule.initialize).toEqual('function');
-        expect(recoveryModule.recoverSlices).toBeDefined();
-        expect(typeof recoveryModule.recoverSlices).toEqual('function');
-        expect(recoveryModule.__test_context).toBeDefined();
-        expect(typeof recoveryModule.__test_context).toEqual('function');
-        expect(recoveryModule.newSlicer).toBeDefined();
-        expect(typeof recoveryModule.newSlicer).toEqual('function');
-        expect(recoveryModule.getSlicerStartingPosition).toBeDefined();
-        expect(typeof recoveryModule.getSlicerStartingPosition).toEqual('function');
-        expect(recoveryModule.recoveryComplete).toBeDefined();
-        expect(typeof recoveryModule.recoveryComplete).toEqual('function');
-        expect(recoveryModule.shutdown).toBeDefined();
-        expect(typeof recoveryModule.shutdown).toEqual('function');
+        expect(recoveryModule.initialize).toBeFunction();
+        expect(recoveryModule.__test_context).toBeFunction();
+        expect(recoveryModule.handle).toBeFunction();
+        expect(recoveryModule.getSlice).toBeFunction();
+        expect(recoveryModule.getSlices).toBeFunction();
+        expect(recoveryModule.getSlicerStartingPosition).toBeFunction();
+        expect(recoveryModule.recoveryComplete).toBeFunction();
+        expect(recoveryModule.shutdown).toBeFunction();
     });
 
     it('manages retry slice state', () => {
@@ -110,15 +102,12 @@ describe('execution recovery', () => {
         expect(recovery._recoveryBatchCompleted()).toEqual(true);
     });
 
-    it('initializes and sets up listeners', (done) => {
+    it('initializes and sets up listeners', () => {
         recoveryModule = recoveryCode(
             context,
-            executionFailed,
             stateStore,
             executionContext
         );
-
-        executionFailureMsg = null;
 
         recovery = recoveryModule.__test_context();
         recoveryModule.initialize();
@@ -127,11 +116,12 @@ describe('execution recovery', () => {
         expect(recovery._recoveryBatchCompleted()).toEqual(true);
 
         recovery._setId({ slice_id: 1 });
+        recovery._setId({ slice_id: 2 });
 
         const sendSucess = sendEvent('slice:success', { slice: { slice_id: 1 } });
         const sendSucess2 = sendEvent('slice:success', { slice: { slice_id: 2 } });
 
-        Promise.all([
+        return Promise.all([
             recovery._waitForRecoveryBatchCompletion(),
             waitFor(sendSucess, 100),
             waitFor(sendSucess2, 250)
@@ -143,16 +133,13 @@ describe('execution recovery', () => {
                 });
                 expect(recovery._recoveryBatchCompleted()).toEqual(true);
                 return recovery._setId({ slice_id: 2 });
-            })
-            .catch(fail)
-            .finally(() => done());
+            });
     });
 
-    it('can recover slices', (done) => {
+    it('can recover slices', () => {
         context.apis.foundation.getSystemEvents = () => eventEmitter2;
         recoveryModule = recoveryCode(
             context,
-            executionFailed,
             stateStore,
             executionContext
         );
@@ -172,14 +159,21 @@ describe('execution recovery', () => {
         eventEmitter2.on('execution:recovery:complete', () => { allDoneEventFired = true; });
 
         expect(recoveryModule.recoveryComplete()).toEqual(false);
-        let slicer;
 
-        Promise.all([recoveryModule.newSlicer(), waitFor(sendSucess1, 100)])
-            .spread((slicerArray) => {
-                expect(Array.isArray(slicerArray)).toEqual(true);
-                expect(slicerArray.length).toEqual(1);
-                expect(typeof slicerArray[0]).toEqual('function');
-                [slicer] = slicerArray;
+        let finished = false;
+        const createSlices = pWhilst(() => !finished, async () => {
+            finished = await recoveryModule.handle();
+        });
+
+        const shouldWait = () => !recoveryModule.sliceCount() && !recoveryModule.recoveryComplete();
+
+        const slicer = async () => {
+            await pWhilst(shouldWait, () => Promise.delay(10));
+            return recoveryModule.getSlice();
+        };
+
+        return Promise.all([waitFor(sendSucess1, 100)])
+            .spread(() => {
                 expect(recoveryModule.recoveryComplete()).toEqual(false);
                 return slicer();
             })
@@ -202,8 +196,7 @@ describe('execution recovery', () => {
             })
             .then(() => {
                 expect(startingPoints).toEqual({ 0: '9999', 1: '9999' });
-            })
-            .catch(fail)
-            .finally(() => { done(); });
+                return createSlices;
+            });
     });
 });

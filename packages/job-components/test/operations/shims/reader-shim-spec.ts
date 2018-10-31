@@ -1,5 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { readerShim, TestContext, newTestExecutionConfig, SlicerContext, WorkerContext } from '../../../src';
+import { readerShim, TestContext, newTestExecutionConfig, SlicerContext, WorkerContext, ValidatedJobConfig } from '../../../src';
 
 describe('Reader Shim', () => {
     const context = new TestContext('teraslice-operations');
@@ -11,7 +11,11 @@ describe('Reader Shim', () => {
     exConfig.slicers = 2;
     exConfig.operations.push(opConfig);
 
-    const mod = readerShim({
+    interface ExampleOpConfig {
+        example: string;
+    }
+
+    const mod = readerShim<ExampleOpConfig>({
         slicerQueueLength() {
             return 'QUEUE_MINIMUM_SIZE';
         },
@@ -25,9 +29,34 @@ describe('Reader Shim', () => {
         },
         async newReader(context, opConfig, executionConfig) {
             context.logger.debug(opConfig, executionConfig);
-            return async () => {
-                return [{ say: 'howdy' }];
+
+            return async ({ dataType = 'json' } = {}) => {
+                const data = { say: 'howdy' };
+                if (dataType === 'buffer') {
+                    return [
+                        Buffer.from(JSON.stringify(data)),
+                    ];
+                }
+
+                if (dataType === 'string') {
+                    return [
+                        JSON.stringify(data)
+                    ];
+                }
+
+                return [data];
             };
+        },
+        crossValidation(job, sysconfig) {
+            if (job.slicers !== exConfig.slicers) {
+                throw new Error('Incorrect slicers');
+            }
+            if (!sysconfig.teraslice.name) {
+                throw new Error('No teraslice name');
+            }
+        },
+        selfValidation() {
+
         },
         schema() {
             return {
@@ -56,6 +85,19 @@ describe('Reader Shim', () => {
                 format: 'String',
             }
         });
+
+        const result = schema.validate({ _op: 'hi', example: 'hello' });
+        expect(result.example).toEqual('hello');
+
+        if (schema.validateJob) {
+            expect(schema.validateJob(exConfig as ValidatedJobConfig)).toBeNil();
+        }
+
+        expect(() => {
+            if (!schema.validateJob) return;
+            const testConfig = { slicers: 1000 };
+            schema.validateJob(testConfig as ValidatedJobConfig);
+        }).toThrow();
     });
 
     it('should have a functioning Slicer', async () => {
@@ -79,16 +121,42 @@ describe('Reader Shim', () => {
         });
 
         expect(slicer.getSlice()).toBeNull();
+
+        expect(slicer.isRecoverable()).toBeTrue();
+        expect(slicer.maxQueueLength()).toEqual(0);
     });
 
     it('should have a functioning Fetcher', async () => {
         const fetcher = new mod.Fetcher(context as WorkerContext, opConfig, exConfig);
         await fetcher.initialize();
 
-        const result = await fetcher.handle();
+        const [result] = await fetcher.handle();
 
-        expect(result.toArray()[0].toJSON()).toEqual({
+        expect(result).toEqual({
             say: 'howdy'
         });
+    });
+
+    it('should be able handle different buffer results', async () => {
+        const fetcher = new mod.Fetcher(context as WorkerContext, opConfig, exConfig);
+        await fetcher.initialize();
+
+        const [result] = await fetcher.handle({ dataType: 'buffer' });
+
+        expect(result).toBeInstanceOf(Buffer);
+
+        // @ts-ignore
+        const decoded = result.toString('utf-8');
+        expect(decoded).toEqual(JSON.stringify({ say: 'howdy' }));
+    });
+
+    it('should be able handle different string results', async () => {
+        const fetcher = new mod.Fetcher(context as WorkerContext, opConfig, exConfig);
+        await fetcher.initialize();
+
+        const [result] = await fetcher.handle({ dataType: 'string' });
+
+        expect(result).toBeString();
+        expect(result).toEqual(JSON.stringify({ say: 'howdy' }));
     });
 });

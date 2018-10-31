@@ -28,7 +28,7 @@ export interface LegacyReader extends LegacyOperation {
     ): Promise<SlicerFns>;
 }
 
-export type ReaderFn<T> = (sliceRequest: SliceRequest) => Promise<T>|T;
+export type ReaderFn<T> = (sliceRequest: SliceRequest, logger: Logger) => Promise<T>|T;
 
 export interface LegacyProcessor extends LegacyOperation {
     schema(context?: Context): Schema<any>;
@@ -65,7 +65,6 @@ export type SlicerResult = Slice|SliceRequest|SliceRequest[]|null;
 export interface SliceResult {
     slice: Slice;
     analytics: SliceAnalyticsData;
-    retry?: boolean;
     error?: string;
 }
 

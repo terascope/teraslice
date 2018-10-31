@@ -26,38 +26,39 @@ describe('APICore', () => {
     });
 
     describe('->onSliceInitialized', () => {
-        it('should resolve undefined', () => {
-            return expect(api.onSliceInitialized('slice-id')).resolves.toBeUndefined();
+        it('should not have the method by default', () => {
+            expect(api).not.toHaveProperty('onSliceInitialized');
         });
     });
 
     describe('->onSliceStarted', () => {
-        it('should resolve undefined', () => {
-            return expect(api.onSliceStarted('slice-id')).resolves.toBeUndefined();
+        it('should not have the method by default', () => {
+            expect(api).not.toHaveProperty('onSliceStarted');
         });
     });
 
     describe('->onSliceFinalizing', () => {
-        it('should resolve undefined', () => {
-            return expect(api.onSliceFinalizing('slice-id')).resolves.toBeUndefined();
+        it('should not have the method by default', () => {
+            expect(api).not.toHaveProperty('onSliceFinalizing');
         });
     });
 
     describe('->onSliceFinished', () => {
-        it('should resolve undefined', () => {
-            return expect(api.onSliceFinished('slice-id')).resolves.toBeUndefined();
+        it('should not have the method by default', () => {
+            expect(api).not.toHaveProperty('onSliceFinished');
         });
     });
 
     describe('->onSliceFailed', () => {
-        it('should resolve undefined', () => {
-            return expect(api.onSliceFailed('slice-id')).resolves.toBeUndefined();
+        it('should not have the method by default', () => {
+            expect(api).not.toHaveProperty('onSliceFailed');
         });
     });
 
     describe('->onSliceRetry', () => {
-        it('should resolve undefined', () => {
-            return expect(api.onSliceRetry('slice-id')).resolves.toBeUndefined();
+        it('should not have the method by default', () => {
+            expect(api).not.toHaveProperty('onSliceRetry');
         });
     });
+
 });

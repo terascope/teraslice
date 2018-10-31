@@ -5,7 +5,8 @@ import {
     validateJobConfig,
     validateOpConfig,
     TestContext,
-    K8sJobConfig
+    K8sJobConfig,
+    ClusterManagerType
 } from '../src';
 
 describe('When using native clustering', () => {
@@ -133,7 +134,7 @@ describe('When using native clustering', () => {
 
 describe('When validating k8s clustering', () => {
     const context = new TestContext('teraslice-operations');
-    context.sysconfig.teraslice.cluster_manager_type = 'kubernetes';
+    context.sysconfig.teraslice.cluster_manager_type = ClusterManagerType.Kubernetes;
 
     describe('When passed a jobConfig with resources', () => {
         it('returns a completed and valid jobConfig', () => {

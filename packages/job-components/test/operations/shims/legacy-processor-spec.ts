@@ -7,6 +7,7 @@ import {
     DataEntity,
     TestContext,
     newTestExecutionConfig,
+    OpConfig,
 } from '../../../src';
 
 describe('Legacy Processor Shim', () => {
@@ -26,7 +27,11 @@ describe('Legacy Processor Shim', () => {
         }
     }
 
-    class ExampleSchema extends ConvictSchema {
+    interface ExampleOpConfig extends OpConfig {
+        example: string;
+    }
+
+    class ExampleSchema extends ConvictSchema<ExampleOpConfig> {
         build() {
             return {
                 example: {
@@ -38,7 +43,7 @@ describe('Legacy Processor Shim', () => {
         }
     }
 
-    class InvalidSchema extends ConvictSchema {
+    class InvalidSchema extends ConvictSchema<OpConfig> {
         static type() {
             return 'invalid';
         }

@@ -1,14 +1,61 @@
 // @ts-ignore
 import bunyan from '@types/bunyan';
+import Stream from 'stream';
 import { EventEmitter } from 'events';
 
+export type LoggerStream = Stream|WritableStream|undefined;
+
 export interface Logger extends bunyan {
+    streams: LoggerStream[];
     flush(): Promise<void>;
 }
 
+export interface ClusterStateConfig {
+    connection: string|'default';
+}
+
+export enum RolloverFrequency {
+    Daily = 'daily',
+    Monthly = 'monthly',
+    Yearly = 'yearly'
+}
+
+export interface IndexRolloverFrequency {
+    state: RolloverFrequency|RolloverFrequency.Monthly;
+    analytics: RolloverFrequency|RolloverFrequency.Monthly;
+}
+
+export enum ClusterManagerType {
+    Native = 'native',
+    Kubernetes = 'kubernetes'
+}
+
 export interface TerasliceConfig {
+    action_timeout: number|300000;
+    analytics_rate: number|60000;
     assets_directory?: string;
-    cluster_manager_type?: string;
+    assets_volume?: string;
+    cluster_manager_type: ClusterManagerType|ClusterManagerType.Native;
+    hostname: string;
+    index_rollover_frequency: IndexRolloverFrequency;
+    kubernetes_config_map_name?: string|'teraslice-worker';
+    kubernetes_image_pull_secret?: string|'';
+    kubernetes_image?: string|'terascope/teraslice';
+    kubernetes_namespace?: string|'default';
+    master_hostname: string|'localhost';
+    master: boolean|false;
+    name: string|'teracluster';
+    network_latency_buffer: number|15000;
+    node_disconnect_timeout: number|300000;
+    node_state_interval: number|5000;
+    port: number|5678;
+    shutdown_timeout: number|number;
+    slicer_allocation_attempts: number|3;
+    slicer_port_range: string|'45679:46678';
+    slicer_timeout: number|180000;
+    state: ClusterStateConfig;
+    worker_disconnect_timeout: number|300000;
+    workers: number|4;
 }
 
 export interface TerafoundationConfig {
@@ -45,16 +92,20 @@ export interface ContextApis {
 }
 
 export interface Context {
-    logger: Logger;
-    sysconfig: SysConfig;
     apis: ContextApis;
+    arch: string;
+    assignment: string;
     foundation: LegacyFoundationApis;
+    logger: Logger;
+    name: string;
+    platform: string;
+    sysconfig: SysConfig;
 }
 
 export enum Assignment {
-    Worker = 'worker',
+    AssetsService = 'assets_service',
+    ClusterMaster = 'cluster_master',
     ExecutionController = 'execution_controller',
     NodeMaster = 'node_master',
-    ClusterMaster = 'cluster_master',
-    AssetsService = 'assets_service'
+    Worker = 'worker',
 }

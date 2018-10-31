@@ -3,7 +3,7 @@
 const _ = require('lodash');
 
 module.exports = function _sliceAnalytics(context, executionContext) {
-    const { ex_id: exId, job_id: jobId } = executionContext;
+    const { exId, jobId } = executionContext;
 
     const logger = context.apis.foundation.makeLogger({
         module: 'slice_analytics',

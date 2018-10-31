@@ -5,7 +5,8 @@ import {
     ExecutionConfig,
     ContextApis,
     SlicerOperationLifeCycle,
-    WorkerOperationLifeCycle
+    WorkerOperationLifeCycle,
+    Assignment
 } from '../interfaces';
 
 export interface ExecutionContextConfig {
@@ -31,6 +32,7 @@ export interface SlicerContextApis extends ContextApis {
 */
 export interface SlicerContext extends Context {
     apis: SlicerContextApis;
+    assignment: Assignment;
 }
 
 export interface WorkerOperations extends Set<WorkerOperationLifeCycle> {}
@@ -51,9 +53,28 @@ interface WorkerContextApis extends ContextApis {
 */
 export interface WorkerContext extends Context {
     apis: WorkerContextApis;
+    assignment: Assignment;
 }
 
 /** event handlers that should be cleaned up */
 export interface EventHandlers {
     [eventName: string]: (...args: any[]) => void;
+}
+
+export interface SlicerMethodRegistry {
+    readonly onSliceComplete: Set<number>;
+    readonly onSliceDispatch: Set<number>;
+    readonly onSliceEnqueued: Set<number>;
+    readonly onExecutionStats: Set<number>;
+}
+
+export interface WorkerMethodRegistry {
+    readonly onSliceInitialized: Set<number>;
+    readonly onSliceStarted: Set<number>;
+    readonly onSliceFinalizing: Set<number>;
+    readonly onSliceFinished: Set<number>;
+    readonly onSliceFailed: Set<number>;
+    readonly onSliceRetry: Set<number>;
+    readonly onOperationStart: Set<number>;
+    readonly onOperationComplete: Set<number>;
 }

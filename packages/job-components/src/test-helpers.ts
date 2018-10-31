@@ -1,12 +1,14 @@
 
-import debugnyan from 'debugnyan';
+import debugFn from 'debug';
 import { EventEmitter } from 'events';
+import path from 'path';
 import * as i from './interfaces';
 import { random, isString, uniq } from './utils';
 
 interface DebugParamObj {
     module: string;
     assignment?: string;
+    [name: string]: any;
 }
 
 function newId(prefix: string): string {
@@ -16,8 +18,8 @@ function newId(prefix: string): string {
 type debugParam = DebugParamObj | string;
 
 export function debugLogger(testName: string, param?: debugParam, otherName?: string): i.Logger {
-    let logger: i.Logger;
-    const options = {};
+    const logger: i.Logger = new EventEmitter() as i.Logger;
+
     const parts: string[] = ['teraslice', testName];
     if (param) {
         if (isString(param)) {
@@ -29,14 +31,44 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
             }
         }
     }
+    const name = uniq(parts).join(':');
 
     if (otherName) {
         parts.push(otherName);
     }
 
-    logger = debugnyan(uniq(parts).join(':'), options) as i.Logger;
+    logger.streams = [];
 
+    logger.addStream = function (stream) {
+        // @ts-ignore
+        this.streams.push(stream);
+    };
+
+    logger.child = (opts: debugParam) => debugLogger(testName, opts);
     logger.flush = () => Promise.resolve();
+    logger.reopenFileStreams = () => {};
+    logger.level = () => 50;
+    // @ts-ignore
+    logger.levels = () => 50;
+
+    logger.src = false;
+
+    const levels = [
+        'trace',
+        'debug',
+        'info',
+        'warn',
+        'error',
+        'fatal'
+    ];
+
+    for (const level of levels) {
+        const fLevel = `[${level.toUpperCase()}]`;
+        const debug = debugFn(name);
+        logger[level] = (...args: any[]) => {
+            debug(fLevel, ...args);
+        };
+    }
 
     return logger;
 }
@@ -67,7 +99,7 @@ export function newTestJobConfig(): i.ValidatedJobConfig {
 }
 
 export function newTestExecutionConfig(): i.ExecutionConfig {
-    const exConfig: i.ExecutionConfig = newTestJobConfig();
+    const exConfig = newTestJobConfig() as i.ExecutionConfig;
     exConfig.slicer_hostname = 'example.com';
     exConfig.slicer_port = random(8000, 60000);
     exConfig.ex_id = newId('ex-id');
@@ -120,12 +152,18 @@ function testContextApis(testName: string): i.ContextApis {
 }
 
 export class TestContext implements i.Context {
-    public logger: i.Logger;
-    public sysconfig: i.SysConfig;
-    public apis: i.ContextApis;
-    public foundation: i.LegacyFoundationApis;
+    logger: i.Logger;
+    sysconfig: i.SysConfig;
+    apis: i.ContextApis;
+    foundation: i.LegacyFoundationApis;
+    name: string;
+    assignment = 'worker';
+    platform = process.platform;
+    arch = process.arch;
 
     constructor(testName: string) {
+        this.name = testName;
+
         this.logger = debugLogger(testName);
 
         this.sysconfig = {
@@ -137,6 +175,31 @@ export class TestContext implements i.Context {
                 },
             },
             teraslice: {
+                action_timeout: 10000,
+                analytics_rate: 10000,
+                assets_directory: path.join(process.cwd(), 'assets'),
+                cluster_manager_type: i.ClusterManagerType.Native,
+                hostname: 'localhost',
+                index_rollover_frequency: {
+                    analytics: i.RolloverFrequency.Yearly,
+                    state: i.RolloverFrequency.Monthly,
+                },
+                master_hostname: 'localhost',
+                master: false,
+                name: testName,
+                network_latency_buffer: 100,
+                node_disconnect_timeout: 5000,
+                node_state_interval: 5000,
+                port: 55678,
+                shutdown_timeout: 10000,
+                slicer_allocation_attempts: 1,
+                slicer_port_range: '55679:56678',
+                slicer_timeout: 10000,
+                state: {
+                    connection: 'default'
+                },
+                worker_disconnect_timeout: 3000,
+                workers: 1,
             },
         };
 

@@ -4,7 +4,8 @@ import {
     DataEntity,
     TestContext,
     newTestExecutionConfig,
-    WorkerContext
+    WorkerContext,
+    ValidatedJobConfig
 } from '../../../src';
 
 describe('Processor Shim', () => {
@@ -16,7 +17,11 @@ describe('Processor Shim', () => {
     };
     exConfig.operations.push(opConfig);
 
-    const mod = processorShim({
+    interface ExampleOpConfig {
+        example: string;
+    }
+
+    const mod = processorShim<ExampleOpConfig>({
         async newProcessor(context, opConfig, executionConfig) {
             context.logger.debug(opConfig, executionConfig);
             return async (input) => {
@@ -25,6 +30,18 @@ describe('Processor Shim', () => {
                     return d;
                 });
             };
+        },
+        crossValidation(job, sysconfig) {
+            if (job.slicers !== exConfig.slicers) {
+                throw new Error('Incorrect slicers');
+            }
+
+            if (!sysconfig.teraslice.name) {
+                throw new Error('No teraslice name');
+            }
+        },
+        selfValidation() {
+
         },
         schema() {
             return {
@@ -52,17 +69,30 @@ describe('Processor Shim', () => {
                 format: 'String',
             }
         });
+
+        const result = schema.validate({ _op: 'hi', example: 'hello' });
+        expect(result.example).toEqual('hello');
+
+        if (schema.validateJob) {
+            expect(schema.validateJob(exConfig as ValidatedJobConfig)).toBeNil();
+        }
+
+        expect(() => {
+            if (!schema.validateJob) return;
+            const testConfig = { slicers: 1000 };
+            schema.validateJob(testConfig as ValidatedJobConfig);
+        }).toThrow();
     });
 
     it('should have a functioning Processor', async () => {
         const processor = new mod.Processor(context as WorkerContext, opConfig, exConfig);
         await processor.initialize();
 
-        const input = DataEntity.makeList([{ say: 'hi' }]);
+        const input = DataEntity.makeArray([{ say: 'hi' }]);
 
         const result = await processor.handle(input);
 
-        expect(result.toArray()[0].toJSON()).toEqual({
+        expect(result[0]).toEqual({
             say: 'hello'
         });
     });

@@ -34,7 +34,7 @@ describe('MapProcessor', () => {
 
     describe('->handle', () => {
         it('should resolve the modified data entities which are passed in', async () => {
-            const input = DataEntity.makeList([
+            const input = DataEntity.makeArray([
                 {
                     hello: 'there',
                 },
@@ -44,7 +44,7 @@ describe('MapProcessor', () => {
             ]);
 
             const output = await operation.handle(input);
-            const result = output.toArray();
+            const result = output;
 
             expect(result).toBeArrayOfSize(2);
             expect(result[0]).toHaveProperty('hello', 'there');

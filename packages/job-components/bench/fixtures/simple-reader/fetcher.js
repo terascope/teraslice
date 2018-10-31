@@ -1,9 +1,9 @@
 'use strict';
 
-const { Fetcher, DataEntity } = require('../../dist');
+const { Fetcher, DataEntity } = require('../../../dist');
 
 class SimpleFetcher extends Fetcher {
-    async fetch({ count = 10000, precreate } = {}) {
+    async fetch({ count = 1000, precreate, addMetadata } = {}) {
         const result = [];
         for (let i = 0; i < count; i++) {
             const data = {
@@ -15,6 +15,13 @@ class SimpleFetcher extends Fetcher {
                     Math.random(),
                 ]
             };
+
+            // used when no data entity is created
+            // in order to keep it as close to possible
+            if (addMetadata) {
+                data.metadata = { createdAt: Date.now() };
+            }
+
             if (precreate) {
                 result.push(DataEntity.make(data));
             } else {

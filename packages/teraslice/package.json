@@ -1,6 +1,6 @@
 {
     "name": "teraslice",
-    "version": "0.42.3",
+    "version": "0.43.0",
     "description": "Slice and dice your Elasticsearch data",
     "bin": "service.js",
     "main": "index.js",
@@ -36,7 +36,7 @@
     "dependencies": {
         "@terascope/elasticsearch-api": "^1.1.2",
         "@terascope/error-parser": "^1.0.1",
-        "@terascope/job-components": "^0.6.2",
+        "@terascope/job-components": "^0.7.0",
         "@terascope/queue": "^1.1.4",
         "@terascope/teraslice-messaging": "^0.2.4",
         "async-mutex": "^0.1.3",
@@ -71,7 +71,7 @@
         "bufferstreams": "^2.0.1",
         "chance": "^1.0.16",
         "elasticsearch": "^15.1.1",
-        "eslint": "^5.7.0",
+        "eslint": "^5.8.0",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "^2.14.0",
         "jest": "^23.6.0",

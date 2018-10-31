@@ -20,7 +20,7 @@ class Worker {
         const {
             slicer_port: slicerPort,
             slicer_hostname: slicerHostname
-        } = executionContext;
+        } = executionContext.config;
 
         const networkLatencyBuffer = _.get(context, 'sysconfig.teraslice.network_latency_buffer');
         const actionTimeout = _.get(context, 'sysconfig.teraslice.action_timeout');
@@ -56,6 +56,8 @@ class Worker {
     async initialize() {
         const { context } = this;
         this.isInitialized = true;
+
+        await this.executionContext.initialize();
 
         const stateStore = makeStateStore(context);
         const analyticsStore = makeAnalyticsStore(context);
@@ -117,19 +119,22 @@ class Worker {
 
         this.isProcessing = true;
 
-        const { ex_id: exId } = this.executionContext;
+        const { exId } = this.executionContext;
 
         try {
             await this.slice.initialize(msg, this.stores);
 
             await this.slice.run();
 
+            const { slice_id: sliceId } = this.slice.slice;
             this.logger.info(`slice complete for execution ${exId}`);
 
             await this.client.sendSliceComplete({
                 slice: this.slice.slice,
                 analytics: this.slice.analyticsData,
             });
+
+            await this.executionContext.onSliceFinished(sliceId);
         } catch (err) {
             if (!err.alreadyLogged) {
                 this.logger.error(`slice run error for execution ${exId}`, err);
@@ -155,7 +160,7 @@ class Worker {
             return;
         }
 
-        const { ex_id: exId } = this.executionContext;
+        const { exId } = this.executionContext;
 
         this.isShuttingDown = true;
 
@@ -170,6 +175,7 @@ class Worker {
         }
 
         this.events.emit('worker:shutdown');
+        await this.executionContext.shutdown();
 
         // make sure ->run() resolves the promise
         this.forceShutdown = true;

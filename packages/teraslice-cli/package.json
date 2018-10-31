@@ -30,8 +30,8 @@
     "archiver": "^2.1.1",
     "bluebird": "^3.5.1",
     "chalk": "^2.3.2",
-    "eslint": "^5.5.0",
     "easy-table": "^1.1.1",
+    "eslint": "^5.5.0",
     "fs-extra": "^7.0.0",
     "json-diff": "^0.5.3",
     "lodash": "^4.17.11",
@@ -51,7 +51,7 @@
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
     "jest": "^23.5.0",
-    "jest-extended": "^0.8.1",
+    "jest-extended": "^0.11.0",
     "jest-fixtures": "^0.6.0"
   }
 }

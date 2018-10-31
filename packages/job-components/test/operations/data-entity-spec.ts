@@ -1,4 +1,3 @@
-import * as L from 'list';
 import 'jest-extended'; // require for type definitions
 import { DataEntity } from '../../src';
 
@@ -10,6 +9,11 @@ describe('DataEntity', () => {
                 uh: 'oh',
             },
             purple: 'pink',
+        });
+
+        it('should be an instance of DataEntity', () => {
+            expect(dataEntity).toBeInstanceOf(DataEntity);
+            expect(DataEntity.isDataEntity(dataEntity)).toBeTrue();
         });
 
         it('should be to set an additional property', () => {
@@ -25,8 +29,22 @@ describe('DataEntity', () => {
             expect(dataEntity).toHaveProperty('purple', 'pink');
         });
 
+        it('should not be able to enumerate metadata methods', () => {
+            const keys = Object.keys(dataEntity);
+            expect(keys).not.toInclude('getMetadata');
+            expect(keys).not.toInclude('setMetadata');
+
+            for (const prop in dataEntity) {
+                expect(prop).not.toEqual('getMetadata');
+                expect(prop).not.toEqual('setMetadata');
+            }
+        });
+
         it('should only convert non-metadata properties with stringified', () => {
             const object = JSON.parse(JSON.stringify(dataEntity));
+            expect(object).not.toHaveProperty('getMetadata');
+            expect(object).not.toHaveProperty('setMetadata');
+
             expect(object).toHaveProperty('teal', 'neal');
             expect(object).toHaveProperty('blue', 'green');
             expect(object).toHaveProperty('metadata', {
@@ -47,7 +65,7 @@ describe('DataEntity', () => {
 
         it('should be able to get the metadata by key', () => {
             const createdAt = dataEntity.getMetadata('createdAt');
-            expect(createdAt).toBeDate();
+            expect(createdAt).toBeNumber();
         });
 
         it('should not be able to set createdAt', () => {
@@ -59,15 +77,6 @@ describe('DataEntity', () => {
         it('should be return undefined if getting a metadata that does not exist', () => {
             expect(dataEntity.getMetadata('hello')).toBeUndefined();
         });
-
-        it('should be both metadata and data', () => {
-            const metadata = dataEntity.getMetadata();
-            const object = JSON.parse(JSON.stringify(dataEntity));
-            expect(dataEntity.toJSON(true)).toEqual({
-                data: object,
-                metadata,
-            });
-        });
     });
 
     describe('#make', () => {
@@ -76,6 +85,7 @@ describe('DataEntity', () => {
                 const dataEntity = DataEntity.make({
                     hello: 'there',
                 });
+                expect(DataEntity.isDataEntity(dataEntity)).toBeTrue();
                 expect(dataEntity).toBeInstanceOf(DataEntity);
                 expect(dataEntity).toHaveProperty('hello', 'there');
             });
@@ -86,6 +96,7 @@ describe('DataEntity', () => {
                 const dataEntity = DataEntity.make(DataEntity.make({
                     hello: 'there',
                 }));
+                expect(DataEntity.isDataEntity(dataEntity)).toBeTrue();
                 expect(dataEntity).toBeInstanceOf(DataEntity);
                 expect(dataEntity).toHaveProperty('hello', 'there');
             });
@@ -98,6 +109,7 @@ describe('DataEntity', () => {
                 hello: 'there',
             });
 
+            expect(DataEntity.isDataEntityArray(dataEntities)).toBeTrue();
             expect(dataEntities).toBeArrayOfSize(1);
             expect(dataEntities[0]).toBeInstanceOf(DataEntity);
             expect(dataEntities[0]).toHaveProperty('hello', 'there');
@@ -115,25 +127,7 @@ describe('DataEntity', () => {
                 },
             ]);
 
-            expect(dataEntities).toBeArrayOfSize(2);
-            expect(dataEntities[0]).toBeInstanceOf(DataEntity);
-            expect(dataEntities[0]).toHaveProperty('hello', 'there');
-            expect(dataEntities[1]).toBeInstanceOf(DataEntity);
-            expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
-
-            expect(DataEntity.makeArray(dataEntities)).toEqual(dataEntities);
-        });
-
-        it('should return a batch of data entities when given a list', () => {
-            const dataEntities = DataEntity.makeArray(DataEntity.makeList([
-                {
-                    hello: 'there',
-                },
-                {
-                    howdy: 'partner',
-                },
-            ]));
-
+            expect(DataEntity.isDataEntityArray(dataEntities)).toBeTrue();
             expect(dataEntities).toBeArrayOfSize(2);
             expect(dataEntities[0]).toBeInstanceOf(DataEntity);
             expect(dataEntities[0]).toHaveProperty('hello', 'there');
@@ -144,87 +138,70 @@ describe('DataEntity', () => {
         });
     });
 
-    describe('#makeList', () => {
-        describe('when wrapped', () => {
-            it('should return a list with a single data entity', () => {
-                const list = DataEntity.makeList(DataEntity.makeList({
-                    hello: 'there',
-                }));
-
-                const dataEntities = list.toArray();
-                expect(dataEntities).toBeArrayOfSize(1);
-                expect(dataEntities[0]).toBeInstanceOf(DataEntity);
-                expect(dataEntities[0]).toHaveProperty('hello', 'there');
-            });
-
-            it('should return a batch of data entities', () => {
-                const list = DataEntity.makeList(DataEntity.makeList([
-                    {
-                        hello: 'there',
-                    },
-                    {
-                        howdy: 'partner',
-                    },
-                ]));
-
-                const dataEntities = list.toArray();
-                expect(dataEntities).toBeArrayOfSize(2);
-                expect(dataEntities[0]).toBeInstanceOf(DataEntity);
-                expect(dataEntities[0]).toHaveProperty('hello', 'there');
-                expect(dataEntities[1]).toBeInstanceOf(DataEntity);
-                expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
-            });
+    describe('#isDataEntity', () => {
+        it('should return false when given object', () => {
+            expect(DataEntity.isDataEntity({})).toBeFalse();
         });
 
-        describe('when a List but not of data entities', () => {
-            it('should return a batch of data entities', () => {
-                const list = DataEntity.makeList(L.from([
-                    {
-                        hello: 'there',
-                    },
-                    {
-                        howdy: 'partner',
-                    },
-                ]));
-
-                const dataEntities = list.toArray();
-                expect(dataEntities).toBeArrayOfSize(2);
-                expect(dataEntities[0]).toBeInstanceOf(DataEntity);
-                expect(dataEntities[0]).toHaveProperty('hello', 'there');
-                expect(dataEntities[1]).toBeInstanceOf(DataEntity);
-                expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
-            });
+        it('should return false when given null', () => {
+            expect(DataEntity.isDataEntity(null)).toBeFalse();
         });
 
-        describe('when not wrapped', () => {
-            it('should return a list with a single data entity', () => {
-                const list = DataEntity.makeList({
-                    hello: 'there',
-                });
+        it('should return false when given array of object', () => {
+            expect(DataEntity.isDataEntity([{}])).toBeFalse();
+        });
 
-                const dataEntities = list.toArray();
-                expect(dataEntities).toBeArrayOfSize(1);
-                expect(dataEntities[0]).toBeInstanceOf(DataEntity);
-                expect(dataEntities[0]).toHaveProperty('hello', 'there');
-            });
+        it('should return true when given a DataEntity', () => {
+            expect(DataEntity.isDataEntity(DataEntity.make({}))).toBeTrue();
+        });
 
-            it('should return a batch of data entities', () => {
-                const list = DataEntity.makeList([
-                    {
-                        hello: 'there',
-                    },
-                    {
-                        howdy: 'partner',
-                    },
-                ]);
+        it('should return false when given an array of DataEntities', () => {
+            const input = DataEntity.makeArray([
+                { hi: true },
+                { hi: true },
+            ]);
+            expect(DataEntity.isDataEntity(input)).toBeFalse();
+        });
+    });
 
-                const dataEntities = list.toArray();
-                expect(dataEntities).toBeArrayOfSize(2);
-                expect(dataEntities[0]).toBeInstanceOf(DataEntity);
-                expect(dataEntities[0]).toHaveProperty('hello', 'there');
-                expect(dataEntities[1]).toBeInstanceOf(DataEntity);
-                expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
-            });
+    describe('#isDataEntityArray', () => {
+        it('should return false when given object', () => {
+            expect(DataEntity.isDataEntityArray({})).toBeFalse();
+        });
+
+        it('should return false when given null', () => {
+            expect(DataEntity.isDataEntityArray(null)).toBeFalse();
+        });
+
+        it('should return false when given array of object', () => {
+            expect(DataEntity.isDataEntityArray([{}])).toBeFalse();
+        });
+
+        it('should return true when given an array of DataEntities', () => {
+            const input = DataEntity.makeArray([
+                { hi: true },
+                { hi: true },
+            ]);
+            expect(DataEntity.isDataEntityArray(input)).toBeTrue();
+        });
+    });
+
+    describe('#getMetadata', () => {
+        it('should be able to get metadata from object', () => {
+            const input = { hello: true };
+            expect(DataEntity.getMetadata(input, 'hello')).toBeTrue();
+            expect(DataEntity.getMetadata(input, 'hi')).toBeNil();
+        });
+
+        it('should be able to get metadata from a DataEntity', () => {
+            const input = DataEntity.make({ name: 'Batman' }, { hello: true });
+            expect(DataEntity.getMetadata(input, 'hello')).toBeTrue();
+            expect(DataEntity.getMetadata(input, 'hi')).toBeNil();
+        });
+
+        it('should not be able to get metadata from null', () => {
+            // @ts-ignore
+            expect(DataEntity.getMetadata(null, 'hi')).toBeNil();
         });
     });
 });

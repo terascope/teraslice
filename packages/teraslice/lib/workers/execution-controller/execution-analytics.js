@@ -49,10 +49,7 @@ class ExecutionAnalytics {
     }
 
     start() {
-        const {
-            ex_id: exId,
-            job_id: jobId,
-        } = this.executionContext;
+        const { exId, jobId } = this.executionContext;
         const { name } = this.executionContext.config;
 
         this.set('started', newFormattedDate());
@@ -86,7 +83,10 @@ class ExecutionAnalytics {
         this.executionAnalytics[key] += 1;
     }
 
-    get() {
+    get(key) {
+        if (key) {
+            return this.executionAnalytics[key];
+        }
         return this.executionAnalytics;
     }
 
@@ -137,7 +137,7 @@ class ExecutionAnalytics {
     }
 
     _registerHandlers() {
-        const { ex_id: exId } = this.executionContext;
+        const { exId } = this.executionContext;
 
         this._handlers['slicer:slice:recursion'] = () => {
             this.logger.trace('id subslicing has occurred');

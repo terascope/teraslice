@@ -10,6 +10,8 @@ export default abstract class APICore extends Core implements WorkerOperationLif
         const logger = context.apis.foundation.makeLogger({
             module: 'operation-api',
             jobName: executionConfig.name,
+            jobId: executionConfig.job_id,
+            exId: executionConfig.ex_id,
         });
         super(context, executionConfig, logger);
     }
@@ -20,35 +22,5 @@ export default abstract class APICore extends Core implements WorkerOperationLif
 
     async shutdown(): Promise<void> {
         this.context.logger.trace(`${this.executionConfig.name}->api is shutting down...`);
-    }
-
-    // @ts-ignore
-    async onSliceInitialized(sliceId: string): Promise<void> {
-
-    }
-
-    // @ts-ignore
-    async onSliceStarted(sliceId: string): Promise<void> {
-
-    }
-
-    // @ts-ignore
-    async onSliceFinalizing(sliceId: string): Promise<void> {
-
-    }
-
-    // @ts-ignore
-    async onSliceFinished(sliceId: string): Promise<void> {
-
-    }
-
-    // @ts-ignore
-    async onSliceFailed(sliceId: string): Promise<void> {
-
-    }
-
-    // @ts-ignore
-    async onSliceRetry(sliceId: string): Promise<void> {
-
     }
 }

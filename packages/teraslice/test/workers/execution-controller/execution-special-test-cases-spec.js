@@ -1,7 +1,8 @@
 'use strict';
 
-const Promise = require('bluebird');
 const _ = require('lodash');
+const uuidv4 = require('uuid/v4');
+const Promise = require('bluebird');
 const Messaging = require('@terascope/teraslice-messaging');
 const { TestContext } = require('../helpers');
 const { makeShutdownEarlyFn, getTestCases } = require('../helpers/execution-controller-helper');
@@ -28,7 +29,7 @@ describe('ExecutionController Special Tests', () => {
                     {
                         state: 'start',
                         slice: {
-                            slice_id: newId(),
+                            slice_id: uuidv4(),
                             request: {
                                 example: 'slice-recovery'
                             },
@@ -40,7 +41,7 @@ describe('ExecutionController Special Tests', () => {
                     {
                         state: 'start',
                         slice: {
-                            slice_id: newId(),
+                            slice_id: uuidv4(),
                             request: {
                                 example: 'slice-recovery'
                             },
@@ -83,7 +84,7 @@ describe('ExecutionController Special Tests', () => {
                     {
                         state: 'idk',
                         slice: {
-                            slice_id: newId(),
+                            slice_id: uuidv4(),
                             request: {
                                 example: 'slice-recovery-error-idk'
                             },
@@ -95,7 +96,7 @@ describe('ExecutionController Special Tests', () => {
                     {
                         state: 'error',
                         slice: {
-                            slice_id: newId(),
+                            slice_id: uuidv4(),
                             request: {
                                 example: 'slice-recovery-error'
                             },
@@ -123,7 +124,7 @@ describe('ExecutionController Special Tests', () => {
                     {
                         state: 'error',
                         slice: {
-                            slice_id: newId(),
+                            slice_id: uuidv4(),
                             request: {
                                 example: 'slice-recovery-all'
                             },
@@ -135,7 +136,7 @@ describe('ExecutionController Special Tests', () => {
                     {
                         state: 'start',
                         slice: {
-                            slice_id: newId(),
+                            slice_id: uuidv4(),
                             request: {
                                 example: 'slice-recovery-all'
                             },
@@ -222,7 +223,7 @@ describe('ExecutionController Special Tests', () => {
             exStore = await testContext.addExStore();
 
             if (shutdownEarly) {
-                testContext.executionContext.queueLength = 1;
+                testContext.executionContext.slicer.maxQueueLength = () => 1;
             }
 
             if (recover) {
@@ -376,7 +377,7 @@ describe('ExecutionController Special Tests', () => {
         afterEach(() => testContext.cleanup());
 
         it('should process the execution correctly', async () => {
-            const { ex_id: exId } = testContext.executionContext;
+            const { exId } = testContext.executionContext;
 
             if (shutdownEarly) {
                 expect(slices.length).toBeGreaterThanOrEqual(count);

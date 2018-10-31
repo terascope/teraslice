@@ -5,9 +5,9 @@ import {
     OpConfig,
     Slice,
     SliceRequest,
-    SliceResult,
     SlicerOperationLifeCycle,
     ExecutionStats,
+    LifeCycle,
 } from '../../interfaces';
 import Queue from '@terascope/queue';
 import Core from './core';
@@ -31,6 +31,8 @@ export default abstract class SlicerCore extends Core implements SlicerOperation
             module: 'slicer',
             opName: opConfig._op,
             jobName: executionConfig.name,
+            jobId: executionConfig.job_id,
+            exId: executionConfig.ex_id,
         });
 
         super(context, executionConfig, logger);
@@ -52,7 +54,7 @@ export default abstract class SlicerCore extends Core implements SlicerOperation
 
     async initialize(recoveryData: object[]): Promise<void> {
         this.recoveryData = recoveryData;
-        this.context.logger.debug(`${this.executionConfig.name}->${this.opConfig._op} is initializing...`, recoveryData);
+        this.context.logger.trace(`${this.executionConfig.name}->${this.opConfig._op} is initializing...`, recoveryData);
     }
 
     async shutdown(): Promise<void> {
@@ -65,6 +67,11 @@ export default abstract class SlicerCore extends Core implements SlicerOperation
     * @returns a boolean depending on whether the slicer is done
     */
     abstract async handle(): Promise<boolean>;
+
+    /**
+     * Return the number of registered slicers
+    */
+    abstract slicers(): number;
 
     /**
      * Create a Slice object from a slice request.
@@ -89,14 +96,40 @@ export default abstract class SlicerCore extends Core implements SlicerOperation
      * A method called by the "Execution Controller" to dequeue a created "Slice"
     */
     getSlice(): Slice|null {
+        if (!this.sliceCount()) return null;
         return this.queue.dequeue();
+    }
+
+    /**
+     * A method called by the "Execution Controller" to dequeue many created slices
+    */
+    getSlices(max: number): Slice[] {
+        const count = max > this.sliceCount() ? this.sliceCount() : max;
+
+        const slices: Slice[] = [];
+
+        for (let i = 0; i < count; i++) {
+            const slice = this.queue.dequeue();
+            if (!slice) return slices;
+
+            slices.push(slice);
+        }
+
+        return slices;
+    }
+
+    /**
+     * The number of enqueued slices
+    */
+    sliceCount(): number {
+        return this.queue.size();
     }
 
     /**
      * Used to indicate whether this slicer is recoverable.
     */
     isRecoverable() {
-        return true;
+        return false;
     }
 
     /**
@@ -113,19 +146,8 @@ export default abstract class SlicerCore extends Core implements SlicerOperation
         this.stats = stats;
     }
 
-    // @ts-ignore
-    onSliceEnqueued(slice: Slice): void {
-
-    }
-
-    // @ts-ignore
-    onSliceDispatch(slice: Slice): void {
-
-    }
-
-    // @ts-ignore
-    onSliceComplete(result: SliceResult): void {
-
+    protected canComplete(): boolean {
+        return this.executionConfig.lifecycle === LifeCycle.Once;
     }
 
     protected get workersConnected() {

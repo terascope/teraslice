@@ -245,7 +245,10 @@ describe('Worker', () => {
 
             await worker.initialize();
 
-            worker.executionContext.queue[1] = jest.fn().mockRejectedValue(new Error('Bad news bears'));
+            const operations = worker.executionContext.getOperations();
+            for (const op of operations) {
+                op.processorFn = jest.fn().mockRejectedValue(new Error('Bad news bears'));
+            }
 
             server.onSliceSuccess((workerId, _msg) => {
                 sliceSuccess = _msg;

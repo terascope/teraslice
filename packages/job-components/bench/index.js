@@ -12,15 +12,20 @@ benchmarks.forEach((file) => {
     console.log(`- ${file}`);
 });
 
-function run(list) {
-    function visit(length, i) {
-        if (length > i) {
-            require(`./${list[i]}`).on('complete', () => {
-                visit(length, i + 1);
+async function run(list) {
+    for (const initSuite of list) {
+        const suite = await initSuite();
+
+        await new Promise((resolve) => {
+            suite.on('complete', () => {
+                resolve();
             });
-        }
+        });
     }
-    visit(list.length, 0);
 }
 
-run(benchmarks);
+run(benchmarks.map(file => require(`./${file}`)))
+    .then(() => {})
+    .catch((err) => {
+        console.error(err);
+    });

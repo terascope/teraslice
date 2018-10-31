@@ -150,8 +150,9 @@ describe('ExecutionController', () => {
                     exController.slicerAnalytics = {};
                     exController.slicerAnalytics.shutdown = () => Promise.reject(new Error('Slicer Analytics Error'));
 
-                    exController.recover = {};
-                    exController.recover.shutdown = () => Promise.reject(new Error('Recover Error'));
+                    exController.scheduler = {};
+                    exController.scheduler.stop = () => {};
+                    exController.scheduler.shutdown = () => Promise.reject(new Error('Scheduler Error'));
 
                     exController.server = {};
                     exController.server.shutdown = () => Promise.reject(new Error('Execution Controller Server Error'));
@@ -170,7 +171,7 @@ describe('ExecutionController', () => {
                         expect(errMsg).toInclude('Store Error');
                         expect(errMsg).toInclude('Execution Analytics Error');
                         expect(errMsg).toInclude('Slicer Analytics Error');
-                        expect(errMsg).toInclude('Recover Error');
+                        expect(errMsg).toInclude('Scheduler Error');
                         expect(errMsg).toInclude('Execution Controller Server Error');
                         expect(errMsg).toInclude('Cluster Master Client Error');
                     }

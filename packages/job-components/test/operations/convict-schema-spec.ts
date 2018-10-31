@@ -1,10 +1,13 @@
 import 'jest-extended'; // require for type definitions
-import { ConvictSchema, TestContext } from '../../src';
+import { ConvictSchema, TestContext, OpConfig } from '../../src';
 
 describe('Convict Schema', () => {
     const context = new TestContext('job-components');
+    interface ExampleOpConfig extends OpConfig {
+        example: string;
+    }
 
-    class ExampleSchema extends ConvictSchema {
+    class ExampleSchema extends ConvictSchema<ExampleOpConfig> {
         build() {
             return {
                 example: {

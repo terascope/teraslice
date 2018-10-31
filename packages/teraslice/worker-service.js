@@ -4,47 +4,31 @@ const _ = require('lodash');
 const Promise = require('bluebird');
 const { shutdownHandler } = require('./lib/workers/helpers/worker-shutdown');
 const { safeDecode } = require('./lib/utils/encoding_utils');
-const ExecutionContext = require('./lib/workers/context/execution-context');
+const makeExecutionContext = require('./lib/workers/context/execution-context');
 const makeTerafoundationContext = require('./lib/workers/context/terafoundation-context');
 const ExecutionController = require('./lib/workers/execution-controller');
 const Worker = require('./lib/workers/worker');
 
 class Service {
     constructor(context) {
-        const ex = this._getExecutionConfigFromEnv();
-
+        this.executionConfig = this._getExecutionConfigFromEnv();
         this.context = context;
-
-        this.executionConfig = {
-            assignment: this.context.assignment,
-            job: _.omit(ex, [
-                'node_id',
-                'ex_id',
-                'job_id',
-                'slicer_port',
-                'slicer_hostname',
-            ]),
-            ex_id: ex.ex_id,
-            job_id: ex.job_id,
-            slicer_port: ex.slicer_port,
-            slicer_hostname: ex.slicer_hostname,
-        };
 
         this.logger = this.context.logger;
         this.shutdownTimeout = _.get(this.context, 'sysconfig.teraslice.shutdown_timeout', 60 * 1000);
     }
 
     async initialize() {
-        const { assignment, ex_id: exId } = this.executionConfig;
+        const { assignment } = this.context;
+        const { ex_id: exId } = this.executionConfig;
         this.logger.trace(`Initializing ${assignment} for execution ${exId}...`, this.executionConfig);
 
-        const exContext = new ExecutionContext(this.context, this.executionConfig);
-        const executionContext = await exContext.initialize();
+        const executionContext = await makeExecutionContext(this.context, this.executionConfig);
 
         if (assignment === 'worker') {
-            this.instance = new Worker(this.context, executionContext);
+            this.instance = new Worker(executionContext.context, executionContext);
         } else if (assignment === 'execution_controller') {
-            this.instance = new ExecutionController(this.context, executionContext);
+            this.instance = new ExecutionController(executionContext.context, executionContext);
         }
 
         await this.instance.initialize();

@@ -31,7 +31,6 @@ describe('reindex', () => {
             })
             .then((stats) => {
                 expect(stats.count).toBe(10);
-                expect(stats.deleted).toBe(0);
             })
             .catch(fail)
             .finally(() => { done(); });
@@ -153,8 +152,8 @@ describe('reindex', () => {
         })
             .then(async () => {
                 const stats = await misc.indexStats(`test-reindex-${iterations}times`);
-                expect(stats.count).toBe(10 * iterations);
-                expect(stats.deleted).toBe(0);
+
+                expect(stats.count).toBe(10);
             })
             .catch(fail)
             .finally(() => { done(); });

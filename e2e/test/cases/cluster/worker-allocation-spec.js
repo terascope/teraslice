@@ -29,7 +29,6 @@ function workersTest(workers, workersExpected, records, done) {
             .then(() => misc.indexStats(`test-allocation-${workers}-worker`)
                 .then((stats) => {
                     expect(stats.count).toBe(records);
-                    expect(stats.deleted).toBe(0);
                 })))
         .catch(fail)
         .finally(() => {

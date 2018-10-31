@@ -37,9 +37,7 @@ export default function legacyProcessorShim(Processor: ProcessorConstructor, Sch
                 // @ts-ignore
                 processor.logger = logger;
 
-                const data = DataEntity.makeList(input);
-
-                const output = await processor.handle(data, sliceRequest);
+                const output = await processor.handle(DataEntity.makeArray(input), sliceRequest);
                 return DataEntity.makeArray(output);
             };
         }

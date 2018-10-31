@@ -142,7 +142,6 @@ describe('cluster state', () => {
             .then(() => misc.indexStats('test-clusterstate-job-1-1000')
                 .then((stats) => {
                     expect(stats.count).toBe(1000);
-                    expect(stats.deleted).toBe(0);
                 }))
             .catch((err) => {
                 fail(err);

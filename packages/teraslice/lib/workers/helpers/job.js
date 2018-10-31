@@ -13,7 +13,7 @@ async function validateJob(context, jobSpec) {
     });
 
     try {
-        return jobValidator.validate(jobSpec);
+        return jobValidator.validateConfig(jobSpec);
     } catch (error) {
         throw new Error(`validating job: ${error}`);
     }
