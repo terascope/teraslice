@@ -7,7 +7,7 @@ const path = require('path');
 const _ = require('lodash');
 const parseError = require('@terascope/error-parser');
 const fse = require('fs-extra');
-const { saveAsset, normalizeZipFile } = require('../../utils/file_utils');
+const { saveAsset } = require('../../utils/file_utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
 
@@ -26,35 +26,21 @@ module.exports = function module(context) {
         let metaData;
         const esData = data.toString('base64');
         const id = crypto.createHash('sha1').update(esData).digest('hex');
-        return fs.openAsync(`${assetsPath}/${id}`, 'r')
+        return fs.openAsync(path.join(assetsPath, id), 'r')
             .then(() => {
                 // directory exists, need to check if the index has it, if not then save it
                 logger.debug(`asset ${id} exists, verifying that it exists in backend`);
                 return backend.get(id, null, ['name'])
-                // it exists, just return the id
+                    // it exists, just return the id
                     .then(() => id)
                     .catch((err) => {
-                        if (_recoverableError(err)) {
-                            logger.info(`asset: ${id} exists on disk but not in index, saving asset to index`);
-                            return normalizeZipFile(id, `${assetsPath}/${id}`, logger)
-                                .then((_metaData) => {
-                                    metaData = _metaData;
-                                    const fileData = { blob: esData, _created: new Date() };
-                                    const file = _.assign(fileData, _metaData);
-                                    return backend.indexWithId(id, file);
-                                })
-                                .then(() => {
-                                    logger.info(`assets: ${metaData.name}, id: ${id} has been saved to elasticsearch`);
-                                    return id;
-                                });
-                        }
                         const error = new Error(`Failure checking asset index, could not get asset with id: ${id}, error: ${parseError(err)}`);
                         return Promise.reject(error);
                     });
             })
             .catch((fileError) => {
                 if (fileError.code === 'ENOENT') {
-                    return Promise.resolve(saveAsset(logger, assetsPath, id, data, _metaIsUnqiue))
+                    return saveAsset(logger, assetsPath, id, data, _metaIsUnqiue)
                         .then((_metaData) => {
                             metaData = _metaData;
                             const file = _.assign({ blob: esData, _created: new Date() }, metaData);
@@ -63,19 +49,11 @@ module.exports = function module(context) {
                         .then(() => {
                             logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
                             return id;
-                        })
-                        .catch((err) => {
-                            logger.error(err);
-                            return Promise.reject(err);
                         });
                 }
 
                 return Promise.reject(fileError);
             });
-    }
-
-    function _recoverableError(error) {
-        return typeof error === 'string' && (error.includes('Not Found') || error.includes('index_not_found_exception,'));
     }
 
     function search(query, from, size, sort, fields) {
@@ -172,11 +150,13 @@ module.exports = function module(context) {
                     return meta;
                 }
                 const error = new Error(`asset name:${meta.name} and version:${meta.version} already exists, please increment the version and send again`);
+                error.alreadyExists = true;
                 return Promise.reject(error);
             });
     }
 
     function _registerContextAPI() {
+        // THIS CURRENTLY IS NOT LOADED FOR JOBS
         // This will register the API under context.apis.assets
         context.apis.registerAPI('assets', {
             getPath: _getPath
@@ -190,7 +170,7 @@ module.exports = function module(context) {
 
     function _getPath(assetIdentifier) {
         return _getAssetId(assetIdentifier)
-            .then(id => `${assetsPath}/${id}`);
+            .then(id => path.join(assetsPath, id));
     }
 
     function shutdown(forceShutdown) {
@@ -199,7 +179,10 @@ module.exports = function module(context) {
     }
 
     function remove(assetId) {
-        return Promise.all([backend.remove(assetId), fse.remove(`${assetsPath}/${assetId}`)]);
+        return Promise.all([
+            backend.remove(assetId),
+            fse.remove(path.join(assetsPath, assetId))
+        ]);
     }
 
     function ensureAssetDir() {
@@ -232,7 +215,15 @@ module.exports = function module(context) {
         for (const asset of assets) {
             logger.info(`autoloading asset ${asset}...`);
             const assetPath = path.join(autoloadDir, asset);
-            await save(await fse.readFile(assetPath));
+            try {
+                await save(await fse.readFile(assetPath));
+            } catch (err) {
+                if (err.alreadyExists) {
+                    logger.debug(`autoloaded asset ${asset} already exists`);
+                } else {
+                    throw err;
+                }
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const path = require('path');
 const Promise = require('bluebird');
 const fse = require('fs-extra');
 const parseError = require('@terascope/error-parser');
@@ -17,13 +18,13 @@ function existsSync(filename) {
     }
 }
 
-function deleteDir(path) {
-    return fse.remove(path);
+function deleteDir(dirPath) {
+    return fse.remove(dirPath);
 }
 
 function normalizeZipFile(id, newPath, logger) {
     const metaData = { id };
-    const packagePath = `${newPath}/asset.json`;
+    const packagePath = path.join(newPath, 'asset.json');
 
     return fse.open(packagePath, 'r')
         .then(() => fse.readJson(packagePath)
@@ -32,47 +33,52 @@ function normalizeZipFile(id, newPath, logger) {
                 return metaData;
             })
             .catch(() => {
-                const errMsg = "error occurred while parsing asset.json, please ensure that's it formatted correctly";
-                logger.error(errMsg);
-                return Promise.reject({ parseError: true, msg: errMsg });
+                const error = new Error("Failure parsing asset.json, please ensure that's it formatted correctly");
+                error.parseError = true;
+                logger.error(error);
+                return Promise.reject(error);
             }))
         .catch((err) => {
             // JSON is formatted incorrectly
             if (err.parseError) {
-                return Promise.reject(err.msg);
+                return Promise.reject(err);
             }
 
             // check one subdir down for asset.sjon
             const assetJSON = fs.readdirSync(newPath)
-                .filter(filename => existsSync(`${newPath}/${filename}/asset.json`));
+                .filter(filename => existsSync(path.join(newPath, filename, 'asset.json')));
 
             if (assetJSON.length === 0) {
-                return Promise.reject('asset.json was not found in root directory of asset bundle nor any immediate sub directory');
+                return Promise.reject(new Error('asset.json was not found in root directory of asset bundle nor any immediate sub directory'));
             }
 
-            return fse.readJson(`${newPath}/${assetJSON[0]}/asset.json`)
+            return fse.readJson(path.join(newPath, assetJSON[0], 'asset.json'))
                 .then((packageData) => {
                     _.assign(metaData, packageData);
 
-                    return Promise.resolve(moveContents(newPath, `${newPath}/${assetJSON[0]}`))
+                    return Promise.resolve(moveContents(newPath, path.join(newPath, assetJSON[0])))
                         .then(() => metaData);
                 })
                 .catch(() => {
-                    const errMsg = "error occurred while parsing asset.json, please ensure that's it formatted correctly";
-                    return Promise.reject(errMsg);
+                    const error = new Error("Failure parsing asset.json, please ensure that's it formatted correctly");
+                    error.parseError = true;
+                    return Promise.reject(error);
                 });
         });
 }
 
 function moveContents(rootPath, subDirPath) {
     const children = fs.readdirSync(subDirPath);
-    return Promise.map(children, child => fse.move(`${subDirPath}/${child}`, `${rootPath}/${child}`))
-        .then(() => fse.remove(subDirPath));
+    return Promise.map(children, (child) => {
+        const src = path.join(subDirPath, child);
+        const dest = path.join(rootPath, child);
+        return fse.move(src, dest);
+    }).then(() => fse.remove(subDirPath));
 }
 
 function saveAsset(logger, assetsPath, id, binaryData, metaCheck) {
-    const newPath = `${assetsPath}/${id}`;
-    const tempFileName = `${newPath}/${shortid.generate()}.zip`;
+    const newPath = path.join(assetsPath, id);
+    const tempFileName = path.join(newPath, `${shortid.generate()}.zip`);
 
     return fse.mkdir(newPath)
         .then(() => fse.writeFile(tempFileName, binaryData))
@@ -86,14 +92,8 @@ function saveAsset(logger, assetsPath, id, binaryData, metaCheck) {
                 }
                 return metaData;
             }))
-
-        .catch((err) => {
-            const errMsg = parseError(err);
-            logger.error('Error downloading assets', errMsg);
-            // cleanup remnant directory
-            return deleteDir(newPath)
-                .then(() => Promise.reject(errMsg));
-        });
+        .catch(err => deleteDir(newPath)
+            .then(() => Promise.reject(err)));
 }
 
 
