@@ -3,7 +3,7 @@
 const path = require('path');
 const { promisify } = require('util');
 const fs = require('fs');
-const downloadRelease = require('download-github-release');
+const downloadRelease = require('@terascope/fetch-github-release');
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -14,6 +14,7 @@ const nodeVersion = '8';
 const autoloadDir = path.join(__dirname, '..', 'autoload');
 const downloadAtFile = path.join(autoloadDir, '.downloadedAt');
 const leaveZipped = true;
+const disableLogging = true;
 
 function touchDownloadAt() {
     return writeFile(downloadAtFile, new Date().toISOString());
@@ -56,7 +57,7 @@ async function downloadAssets() {
     ];
 
     const promises = bundles.map(async (repo) => {
-        await downloadRelease('terascope', repo, autoloadDir, filterRelease, filterAsset, leaveZipped);
+        await downloadRelease('terascope', repo, autoloadDir, filterRelease, filterAsset, leaveZipped, disableLogging);
     });
 
     await Promise.all(promises);

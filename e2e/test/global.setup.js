@@ -215,10 +215,17 @@ module.exports = async () => {
 
     signale.time('global setup');
 
-    await downloadAssets();
-    await dockerDown();
-    await dockerBuild();
-    await dockerUp();
+    const dockerInit = async () => {
+        await dockerDown();
+        await dockerBuild();
+        await dockerUp();
+    };
+
+    await Promise.all([
+        downloadAssets(),
+        dockerInit(),
+    ]);
+
     await waitForTeraslice();
 
     try {
