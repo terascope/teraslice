@@ -4,7 +4,6 @@ const fs = require('fs');
 const path = require('path');
 const Promise = require('bluebird');
 const fse = require('fs-extra');
-const parseError = require('@terascope/error-parser');
 const shortid = require('shortid');
 const decompress = require('decompress');
 const _ = require('lodash');

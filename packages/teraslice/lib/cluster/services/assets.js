@@ -34,7 +34,8 @@ module.exports = function module(context) {
                 })
                 .catch((err) => {
                     logger.error(err);
-                    res.status(500).json({ error: err });
+                    const errMsg = _.isError(err) ? err.message : _.toString(err);
+                    res.status(500).json({ error: errMsg });
                 });
         });
 
