@@ -6,6 +6,7 @@ const Promise = require('bluebird');
 const uuid = require('uuid/v4');
 const { waitForClusterState, waitForJobStatus } = require('./wait');
 const misc = require('./misc');
+const downloadAssets = require('./download-assets');
 
 const jobList = [];
 
@@ -211,7 +212,10 @@ function generateTestData() {
 
 module.exports = async () => {
     process.stdout.write('\n');
+
     signale.time('global setup');
+
+    await downloadAssets();
     await dockerDown();
     await dockerBuild();
     await dockerUp();

@@ -14,21 +14,27 @@ directory - utils like `docker-compose` look for files in current dir.
 
 You can run `yarn test` from the directory to run the tests.
 
-There are currently two supported "modes": developer mode & QA/CI mode. The
-default dev. To override, `export MODE=qa` in your environment.
+## Development
 
-## Dev Mode
+When in dev mode, the teraslice project root will be built in a docker container, including any uncommitted changes. Currently this e2e tests do not support symlinked directories. The recommended workflow is:
 
-When in dev mode, the teraslice project root and any npm-linked dependencies
-will be bind-mounted into the test image to avoid rebuilds between edits. The
-recommended workflow is:
+1. From the teraslice project root, `yarn setup` and it will link the teraslice packages together
 
-1. From the teraslice project root, `yarn bootstrap` and it will link the teraslice packages together
-
-1. From the teraslice project root, `yarn test:e2e` will run
+1. From the e2e directory, `yarn test` will run
    the test suite against latest stable versions.
 
-1. Repeat as needed.
+1. Repeat as needed. When done, run `yarn clean` from this directory.
+
+## CI Tests
+
+When in CI, the teraslice tests will run until a failure happens then bail, output the logs, and cleanup the docker stack. To run in CI tests, use `yarn test:ci` from inside the e2e directory or `yarn test:e2e:ci` from inside the
+project root. Running the CI tests will also force downloading assets.
+
+## Assets
+
+Currently the `elasticsearch-assets` are automatically download the latest bundle and load into `${root}/e2e/autoload` when the tests are ran. If the asset has already been downloaded in the past 24 hours it will skip downloading. In order to force downloading the latest remove the file `${root}/e2e/autoload/.downloadedAt`.
+
+To add additionally asset bundles, edit `${root}/e2e/test/download-assets.js`.
 
 # Trouble-Shooting
 
@@ -39,12 +45,14 @@ prettify the teraslice logs:
 ```sh
 # from this directory
 yarn logs
+# if you want to follow the logs use:
+yarn logs-follow
 # from the parent directory
 yarn test:e2e:logs
 ```
 
 ## Notes
 
-- Teraslice will attempt to listen on port 45678, make sure to stop an local instance to prevent port collisions
+- Teraslice will attempt to listen on port `45678`, make sure to stop an local instance to prevent port collisions
 
-- The port for docker's elasticsearch instance listens on 49200, so you can check it at localhost:49200
+- The port for docker's elasticsearch instance listens on `49200`, so you can check it at `localhost:49200`

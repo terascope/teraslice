@@ -30,11 +30,12 @@ build/Release
 node_modules
 
 # teraslice assets
-assets/*/
-packages/*/assets/*/
-autoload/*/
-e2e/autoload/*/
-packages/*/assets/*/
+assets/*
+!assets/README.md
+packages/*/assets/*
+autoload/*
+e2e/autoload/*
+packages/*/assets/*
 !autoload/.gitkeep
 !e2e/autoload/.gitkeep
 
