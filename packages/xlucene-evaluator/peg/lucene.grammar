@@ -283,15 +283,20 @@ range_term
     }
 
 rangevalue
-	= num:decimal_or_int_exp {
-    	return num;
-    }
-    / termValue:term {
-    	return termValue.term
-    }     
-
+    = termValue:range_chars
+        {
+            const { term } = termValue;
+            const num = Number(term);
+            if (!isNaN(num)) return num;
+            return term
+        }
+   / termValue:quoted_term
+        {
+            return termValue
+        }
+    
 fieldname
-    = fieldname:unquoted_term _* [:] _*
+    = fieldname:unquoted_restricted_term _* [:] _*
         {
             return fieldname;
         }
@@ -329,6 +334,22 @@ term
 
             return result;
         }
+    / op:prefix_operator_exp? term:unquoted_restricted_term similarity:fuzzy_modifier? boost:boost_modifier? _*
+        {
+            const result = { term };
+
+            if('' != similarity) {
+                result.similarity = similarity;
+            }
+            if('' != boost) {
+                result.boost = boost;
+            }
+            if('' != op) {
+                result.prefix = op;
+            }
+
+            return result;
+        }    
     / op:prefix_operator_exp? term:regexpr_term boost:boost_modifier? _*
         {
             const result = { term, 'regexpr': true };
@@ -343,6 +364,27 @@ term
             return result;
         }
 
+range_chars
+    =  term_start:term_start_char terms:guarded_char*
+        {
+            const term = term_start + terms.join('');
+            return { term };
+        }
+
+unquoted_restricted_term
+    = term_start:term_start_char term:field_char*
+        {
+            const res = term_start + term.join('');
+
+            if (/^(?:AND|OR|NOT|\|\||&&)$/.test(res)) {
+                const e = new Error('Term can not be AND, OR, NOT, ||, &&')
+                e.name = 'SyntaxError'
+                e.column = location
+                throw e
+            }
+
+            return res
+        }
 
 unquoted_term
     = term_start:term_start_char term:term_char*
@@ -368,8 +410,17 @@ term_escaping_char
             return '\\' + escaping_char;
         }
 
+field_char
+    = '+' / '-' / term_escaping_char / term_start_char 
+
 term_char
-    = '+' / '-' / term_escaping_char / term_start_char
+    = field_char / other_chars  
+
+other_chars
+    = guarded_char / ['\[''\{''\]''\}''\*']
+
+guarded_char
+    = [A-Z_a-z:0-9,'\_''\-''\+''\:'] 
 
 regexpr_term
     = '/' term:regexpr_char+ '/'
@@ -385,7 +436,7 @@ quoted_term
     = '"' term:[^"]+ '"'
         {
             return term.join('');
-        }
+        }   
 
 proximity_modifier
     = '~' proximity:int_exp
@@ -410,13 +461,13 @@ decimal_or_int_exp
     / int_exp
 
 decimal_exp
-    = '0.' val:[0-9]+
+    = '0.' val:[0-9]+ _*
         {
             return parseFloat(`0.${val.join('')}`);
         }
 
 int_exp
-    = val:[0-9]+
+    = val:[0-9]+ _*
         {
             return parseInt(val.join(''));
         }

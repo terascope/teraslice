@@ -1,6 +1,5 @@
 const { DocumentMatcher } = require('../src');
 
-// //TODO: add tests
 describe('document matcher', () => {
     let documentMatcher;
 
@@ -685,6 +684,34 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data4)).toEqual(false);
         });
 
+        it('can do more complex regex matches', () => {
+            const data1 = { key : 'abbccc' };
+            const data2 = { key: 'field' };
+            const data3 = { key : 'abc' };
+            const data4 = { key : 'zabcde' };
+
+            documentMatcher.parse('key:ab{2}c{3}', { key: 'regex' });
+
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(false);
+            expect(documentMatcher.match(data3)).toEqual(false);
+            expect(documentMatcher.match(data4)).toEqual(false);
+
+            documentMatcher.parse('key:abcd?', { key: 'regex' });
+
+            expect(documentMatcher.match(data1)).toEqual(false);
+            expect(documentMatcher.match(data2)).toEqual(false);
+            expect(documentMatcher.match(data3)).toEqual(true);
+            expect(documentMatcher.match(data4)).toEqual(false);
+
+            documentMatcher.parse('key:.*abcd?e?', { key: 'regex' });
+
+            expect(documentMatcher.match(data1)).toEqual(false);
+            expect(documentMatcher.match(data2)).toEqual(false);
+            expect(documentMatcher.match(data3)).toEqual(true);
+            expect(documentMatcher.match(data4)).toEqual(true);
+        });
+
         it('can do complex queries', () => {
             const data1 = { key : 'abcde', other: 'data2343' };
             const data2 = { key: 'field' };
@@ -707,7 +734,7 @@ describe('document matcher', () => {
         });
     });
 
-    describe('works properly with chaotic data', () => {
+    describe('works properly with chaotic data/queries', () => {
 
         it('does not throw when fields are not present', () => {
             const data1 = {};
@@ -725,7 +752,7 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data2)).toEqual(false);
         });
 
-        it('should not throw', () => {
+        it('should not throw with AND NOT chaining', () => {
             const data1 = { date: '2018-10-10T17:36:13Z', value: 252, type: 'example' };
             const data2 = { date: '2018-10-10T17:36:13Z', value: 253, type: 'other' };
             const data3 = { date: '["2018-10-10T17:36:13Z" TO "2018-10-10T17:36:13Z"]', value: 253, type: 'other' }
@@ -736,6 +763,18 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data1)).toEqual(false);
             expect(documentMatcher.match(data2)).toEqual(true);
             expect(documentMatcher.match(data3)).toEqual(false);
+        });
+
+        it('can accept unquoted dates', () => {
+            const data1 = { date: '2018-10-10T17:36:13Z', value: 252, type: 'example' };
+            const data2 = { date: '2018-10-10T18:36:13Z', value: 253, type: 'other' };
+
+            const luceneQuery = 'date:[2018-10-10T17:36:13Z TO 2018-10-10T20:36:13Z]'; 
+
+            documentMatcher.parse(luceneQuery);
+
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(true);
         });
     });
 });

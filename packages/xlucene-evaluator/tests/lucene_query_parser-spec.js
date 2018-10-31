@@ -404,7 +404,7 @@ describe('luceneQueryParser', () => {
             expect(luceneQueryParser._ast['left']['inclusive_max']).toBe(true);
         });
 
-        it('parses inclusive/exclusive unnbounded range expression', () => {
+        it('throws error if < > chars is used incorrectly', () => {
             expect((() => luceneQueryParser.parse('age:> 10'))).toThrowError('cannot have a space between a (<, <=, >, >=) and the value');
         });
 

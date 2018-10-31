@@ -1,5 +1,5 @@
 {
-  "name": "tlucene-evaluator",
+  "name": "xlucene-evaluator",
   "version": "1.0.0",
   "srcMain": "src/index.ts",
   "main": "dist/index.js",
