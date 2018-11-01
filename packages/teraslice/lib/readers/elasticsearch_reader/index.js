@@ -1,8 +1,8 @@
 'use strict';
 
 const util = require('util');
-const dateMath = require('datemath-parser');
 const moment = require('moment');
+const dateMath = require('datemath-parser');
 const elasticApi = require('@terascope/elasticsearch-api');
 const { getOpConfig, getClient } = require('@terascope/job-components');
 const { dateOptions } = require('../../utils/date_utils');

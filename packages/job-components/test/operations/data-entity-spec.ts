@@ -155,6 +155,18 @@ describe('DataEntity', () => {
             expect(DataEntity.isDataEntity(DataEntity.make({}))).toBeTrue();
         });
 
+        it('should return true when given a DataEntity compatible object', () => {
+            const fakeDataEntity = {
+                getMetadata() {
+
+                },
+                setMetadata() {
+
+                }
+            };
+            expect(DataEntity.isDataEntity(fakeDataEntity)).toBeTrue();
+        });
+
         it('should return false when given an array of DataEntities', () => {
             const input = DataEntity.makeArray([
                 { hi: true },
@@ -183,6 +195,18 @@ describe('DataEntity', () => {
                 { hi: true },
             ]);
             expect(DataEntity.isDataEntityArray(input)).toBeTrue();
+        });
+
+        it('should return true when given an array of DataEntity compatible objects', () => {
+            const fakeDataEntities = [{
+                getMetadata() {
+
+                },
+                setMetadata() {
+
+                }
+            }];
+            expect(DataEntity.isDataEntityArray(fakeDataEntities)).toBeTrue();
         });
     });
 

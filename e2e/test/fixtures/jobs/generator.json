@@ -4,6 +4,7 @@
   "lifecycle": "persistent",
   "workers": 3,
   "analytics": false,
+  "assets": ["elasticsearch"],
   "operations": [
     {
       "_op": "elasticsearch_data_generator",

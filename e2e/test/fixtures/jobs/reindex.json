@@ -3,6 +3,7 @@
     "lifecycle": "once",
     "workers": 1,
     "analytics": true,
+    "assets": ["elasticsearch"],
     "operations": [
         {
             "_op": "elasticsearch_reader",

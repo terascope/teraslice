@@ -8,7 +8,7 @@ const { waitForJobStatus } = wait;
 
 const teraslice = misc.teraslice();
 
-function workersTest(workers, workersExpected, records, done) {
+function workersTest(workers, workersExpected, records, done, diff = 0) {
     const jobSpec = misc.newJob('reindex');
     jobSpec.name = 'worker allocation';
     jobSpec.operations[0].index = `example-logs-${records}`;
@@ -19,7 +19,13 @@ function workersTest(workers, workersExpected, records, done) {
         .then(job => waitForJobStatus(job, 'running')
             .then(() => job.workers())
             .then((runningWorkers) => {
-                expect(runningWorkers.length).toBe(workersExpected);
+                if (diff === 0) {
+                    expect(runningWorkers.length).toBe(workersExpected);
+                } else {
+                    const min = workersExpected - diff;
+                    const max = workersExpected + diff;
+                    expect(runningWorkers.length).toBeWithin(min, max);
+                }
             })
             .then(() => waitForJobStatus(job, 'completed'))
             .then(() => wait.forLength(job.workers, 0))
@@ -49,7 +55,7 @@ describe('worker allocation', () => {
 
     it('with more workers than available', (done) => {
         const total = misc.WORKERS_PER_NODE * misc.DEFAULT_NODES;
-        workersTest(total + 2, total - 3, 10000, done);
+        workersTest(total, total, 10000, done, 4);
     });
 
     // TODO: Debug this test

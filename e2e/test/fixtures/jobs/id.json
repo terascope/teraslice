@@ -5,6 +5,7 @@
   "analytics": true,
   "slicers": 2,
   "workers": 4,
+  "assets": ["elasticsearch"],
   "operations": [
     {
       "_op": "id_reader",

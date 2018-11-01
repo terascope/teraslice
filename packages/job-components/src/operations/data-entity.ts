@@ -1,4 +1,4 @@
-import { fastAssign, fastMap } from '../utils';
+import { fastAssign, fastMap, isFunction, isPlainObject } from '../utils';
 
 // WeakMaps are used as a memory efficient reference to private data
 const _metadata = new WeakMap();
@@ -42,7 +42,7 @@ export default class DataEntity {
     static isDataEntity(input: any): input is DataEntity {
         if (input == null) return false;
         if (input instanceof DataEntity) return true;
-        return false;
+        return isFunction(input.getMetadata) && isFunction(input.setMetadata);
     }
 
     /**
@@ -72,6 +72,10 @@ export default class DataEntity {
     [prop: string]: any;
 
     constructor(data: object, metadata?: object) {
+        if (!isPlainObject(data)) {
+            throw new Error(`Invalid data source, must be an object, got ${typeof data}`);
+        }
+
         _metadata.set(this, fastAssign({ createdAt: Date.now() }, metadata));
 
         fastAssign(this, data);

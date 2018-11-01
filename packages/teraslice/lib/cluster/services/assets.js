@@ -33,7 +33,9 @@ module.exports = function module(context) {
                     res.json({ _id: assetId });
                 })
                 .catch((err) => {
-                    res.status(500).json({ error: err });
+                    logger.error(err);
+                    const errMsg = _.isError(err) ? err.message : _.toString(err);
+                    res.status(500).json({ error: errMsg });
                 });
         });
 
@@ -130,14 +132,28 @@ module.exports = function module(context) {
             .catch(handleApiError);
     }
 
+
     return {
         initialize() {
             return Promise.resolve(makeAssetsStore(context))
                 .then((store) => {
                     assetsStore = store;
+                    return assetsStore.autoload();
+                })
+                .then(() => {
                     const { port } = process.env;
-                    logger.info(`assets_service is listening on port ${port}`);
-                    app.listen(port);
+                    return new Promise((resolve, reject) => {
+                        app.listen(port, (err) => {
+                            if (err) {
+                                reject(err);
+                                return;
+                            }
+                            logger.info(`assets_service is listening on port ${port}`);
+                            resolve();
+                        });
+                    });
+                })
+                .then(() => {
                     running = true;
                 })
                 .catch((err) => {
