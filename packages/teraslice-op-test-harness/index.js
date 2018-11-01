@@ -6,7 +6,9 @@ const {
     validateJobConfig,
     validateOpConfig,
     jobSchema,
-    TestContext
+    TestContext,
+    newTestExecutionConfig,
+    schemaShim,
 } = require('@terascope/job-components');
 const { bindThis } = require('./lib/utils');
 const Operation = require('./lib/operation');
@@ -22,15 +24,12 @@ const simpleData = [
     { name: 'Dippy', age: 23 },
 ];
 
-function jobSpec(opConfig) {
-    return {
-        operations: [
-            {
-                _op: 'noop'
-            },
-            opConfig
-        ],
-    };
+function executionSpec(inputExConfig, opConfig, isProcessor) {
+    const newExConfig = newTestExecutionConfig();
+    let operationsArray = [opConfig, { _op: 'noop' }];
+    if (isProcessor) operationsArray = [{ _op: 'noop' }, opConfig];
+
+    return Object.assign({}, newExConfig, { operations: operationsArray });
 }
 
 function wrapper(clientList) {
@@ -52,7 +51,7 @@ class TestHarness {
         this._getConnetionIsWrapped = false;
         this.clientList = {};
         // This is for backwards compatiblity
-        this._jobSpec = jobSpec;
+        this._jobSpec = executionSpec;
         bindThis(this, TestHarness);
     }
 
@@ -82,49 +81,35 @@ class TestHarness {
 
     async init({
         opConfig: newOpConfig = null,
-        executionConfig: newExecutionConfig = null,
-        context: newContext = null,
+        executionConfig: exConfig = {},
         retryData = [],
         clients = null,
         type = 'slicer'
     }) {
         const {
-            context: _context,
+            context,
             logger,
             operationFn: op,
         } = this;
 
-        let opConfig;
-        let executionConfig;
-        let executionContext;
-        let context = _context;
+        const isProcessor = op.Processor || (op.newProcessor !== undefined);
+        const Schema = op.schema ? schemaShim(op).Schema : op.Schema;
+        const schema = new Schema(context);
 
-        if (newOpConfig) opConfig = validateOpConfig(op.schema(), newOpConfig);
-        if (!newOpConfig) opConfig = { _op: 'test-op-name' };
+        const opPostition = isProcessor ? 1 : 0;
+        const opConfigToValidate = newOpConfig || (exConfig && exConfig.operations[opPostition]);
+        const opConfig = schema.validate(opConfigToValidate);
+        this.opConfig = opConfig;
+        const parsedExConfig = executionSpec(exConfig, opConfig, isProcessor);
+        const executionConfig = validateJobConfig(this.schema, parsedExConfig);
+        schema.validateJob(executionConfig);
 
-        if (newExecutionConfig) {
-            executionConfig = newExecutionConfig;
-            this.executionConfig = executionConfig;
-            executionContext = { config: _.cloneDeep(executionConfig) };
-            this.executionContext = executionContext;
-        }
-        if (!newExecutionConfig) {
-            executionConfig = validateJobConfig(this.schema, jobSpec(opConfig));
-            this.executionConfig = executionConfig;
-            executionContext = { config: _.cloneDeep(executionConfig) };
-            this.executionContext = executionContext;
-        }
+        this.executionConfig = executionConfig;
         this.retryData = retryData;
-
-        if (newContext) {
-            context = Object.assign({}, _context, newContext);
-            this.context = context;
-        }
 
         if (clients) {
             this.setClients(clients);
         }
-
         const instance = new Operation({
             op,
             context,
@@ -132,7 +117,6 @@ class TestHarness {
             logger,
             retryData,
             executionConfig,
-            executionContext,
             type
         });
 
@@ -182,7 +166,7 @@ class TestHarness {
         const { schema, context } = this;
         // run the jobConfig and opConfig through the validator to get
         // complete and convict validated configs
-        const jobConfig = validateJobConfig(schema, jobSpec(opConfig));
+        const jobConfig = validateJobConfig(schema, { operations: [{ _op: 'noop' }, opConfig] });
         return operation.newProcessor(
             _.assign({}, context, extraContext),
             validateOpConfig(operation.schema(), opConfig),

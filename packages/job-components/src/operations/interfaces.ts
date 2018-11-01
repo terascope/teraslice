@@ -51,6 +51,10 @@ export interface OperationModule {
     API?: OperationAPIConstructor;
 }
 
+export interface SchemaModule {
+    Schema: SchemaConstructor;
+}
+
 export interface APIModule {
     API: OperationAPIConstructor;
 }

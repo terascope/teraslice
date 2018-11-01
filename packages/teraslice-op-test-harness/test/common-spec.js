@@ -1,6 +1,6 @@
 'use strict';
 
-const processor = require('./processors/foo');
+const processor = require('./legacy-processors/foo');
 const harness = require('../index')();
 
 harness.runProcessorSpecs(processor);
