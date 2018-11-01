@@ -8,8 +8,7 @@ const downloadRelease = require('@terascope/fetch-github-release');
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 
-// Enable the next line once node 10 builds are made
-// const nodeVersion = process.version.split('.')[0].substr(1);
+// When the docker image is switched to use node:10 this value needs to be changed to '10'
 const nodeVersion = '8';
 const autoloadDir = path.join(__dirname, '..', 'autoload');
 const downloadAtFile = path.join(autoloadDir, '.downloadedAt');
