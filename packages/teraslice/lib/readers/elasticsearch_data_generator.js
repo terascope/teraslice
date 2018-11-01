@@ -1,10 +1,10 @@
 'use strict';
 
+const _ = require('lodash');
 const path = require('path');
 const Promise = require('bluebird');
-const parseError = require('@terascope/error-parser');
+const { existsSync } = require('fs');
 const { getOpConfig } = require('@terascope/job-components');
-const { pathExistsSync } = require('fs-extra');
 
 function parsedSchema(opConfig) {
     let dataSchema = false;
@@ -14,7 +14,7 @@ function parsedSchema(opConfig) {
         const nextPath = path.join(process.cwd(), opConfig.json_schema);
 
         try {
-            if (pathExistsSync(firstPath)) {
+            if (existsSync(firstPath)) {
                 dataSchema = require(firstPath);
             } else {
                 dataSchema = require(nextPath);
@@ -30,8 +30,8 @@ function parsedSchema(opConfig) {
 
 function newReader(context, opConfig) {
     const mocker = require('mocker-data-generator').default;
-
     const dataSchema = parsedSchema(opConfig);
+
     return function _newReader(msg) {
         if (opConfig.stress_test) {
             return mocker()
@@ -45,14 +45,14 @@ function newReader(context, opConfig) {
                     }
                     return results;
                 })
-                .catch(err => Promise.reject(`could not generate data error: ${parseError(err)}`));
+                .catch(err => Promise.reject(new Error(`could not generate data error: ${_.toString(err)}`)));
         }
 
         return mocker()
             .schema('schema', dataSchema, msg)
             .build()
             .then(dataObj => dataObj.schema)
-            .catch(err => Promise.reject(`could not generate data error: ${parseError(err)}`));
+            .catch(err => Promise.reject(new Error(`could not generate data error: ${_.toString(err)}`)));
     };
 }
 
