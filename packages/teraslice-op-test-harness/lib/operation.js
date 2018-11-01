@@ -1,7 +1,13 @@
 'use strict';
 
-const _ = require('lodash');
+const {
+    readerShim,
+    processorShim,
+    registerApis,
+    DataEntity
+} = require('@terascope/job-components');
 const { bindThis } = require('./utils');
+
 
 class Operation {
     constructor({
@@ -11,7 +17,6 @@ class Operation {
         logger,
         retryData,
         executionConfig,
-        executionContext,
         type
     }) {
         this.operationFn = op;
@@ -19,12 +24,11 @@ class Operation {
         this.logger = logger;
         this.retryData = retryData;
         this.executionConfig = executionConfig;
-        this.executionContext = executionContext;
         this.opConfig = opConfig;
-
-        this.isProcessor = op.newProcessor !== undefined;
-        this.isReader = type === 'reader' && op.newReader !== undefined;
-        this.isSlicer = type === 'slicer' && op.newSlicer !== undefined;
+        registerApis(context, executionConfig);
+        this.isProcessor = op.Processor || (op.newProcessor !== undefined);
+        this.isReader = op.Fetcher || (type === 'reader' && op.newReader !== undefined);
+        this.isSlicer = op.Slicer || (type === 'slicer' && op.newSlicer !== undefined);
         this._hasInit = false;
         bindThis(this, Operation);
     }
@@ -34,24 +38,35 @@ class Operation {
             context,
             logger,
             retryData = [],
-            executionContext,
             operationFn: op,
             opConfig,
-            executionConfig
+            executionConfig: exConfig
         } = this;
+        const oldStyle = (op.newReader !== undefined || op.newProcessor !== undefined);
 
         if (!this._hasInit) {
-            if (this.isProcessor) {
-                this.operation = await op.newProcessor(context, opConfig, executionConfig);
+            if (oldStyle) {
+                if (this.isProcessor) {
+                    const { Processor } = processorShim(op);
+                    this.operation = new Processor(context, opConfig, exConfig);
+                } else {
+                    const { Fetcher, Slicer } = readerShim(op);
+                    if (this.isReader) this.operation = new Fetcher(context, opConfig, exConfig);
+                    if (this.isSlicer) this.operation = new Slicer(context, opConfig, exConfig);
+                }
+                if (logger) this.operation.logger = logger;
+                await this.operation.initialize(retryData);
+            } else {
+                let newOp;
+                if (op.Processor) newOp = new op.Processor(context, opConfig, exConfig);
+                if (op.Fetcher) newOp = new op.Fetcher(context, opConfig, exConfig);
+                if (op.Slicer) newOp = new op.Slicer(context, opConfig, exConfig);
+
+                this.operation = newOp;
+                if (logger) this.operation.logger = logger;
+                await newOp.initialize();
             }
-            if (this.isReader) {
-                // readers and slicers are currently mixed in the same file,
-                // this will change with the new operations
-                this.operation = await op.newReader(context, opConfig, executionConfig);
-            }
-            if (this.isSlicer) {
-                this.operation = await op.newSlicer(context, executionContext, retryData, logger);
-            }
+
             this._hasInit = true;
         }
         return this;
@@ -60,17 +75,13 @@ class Operation {
     async run(data) {
         if (!this._hasInit) await this.init();
         if (this.isSlicer) {
-            // if just one slicer, return one value
-            if (this.operation.length === 1) {
-                return this.operation[0](data);
-            }
-            const invocations = this.operation.map((fn, ind) => {
-                const respData = _.get(data, ind, data);
-                return fn(respData);
-            });
-            return Promise.all(invocations);
+            await this.operation.handle();
+            return this.operation.getSlices(100);
         }
-        return this.operation(data, this.logger);
+        if (this.isProcessor) {
+            return this.operation.handle(DataEntity.makeArray(data));
+        }
+        return this.operation.handle(data);
     }
 }
 
