@@ -4,7 +4,7 @@ import FetcherCore from '../core/fetcher-core';
 import ParallelSlicer from '../parallel-slicer';
 import ConvictSchema from '../convict-schema';
 import { ReaderModule } from '../interfaces';
-import { isInteger } from '../../utils';
+import { isInteger, isFunction } from '../../utils';
 import { convertResult } from './shim-utils';
 
 export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule {
@@ -13,7 +13,6 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
             private _maxQueueLength = 10000;
             private _dynamicQueueLength = false;
             private slicerFns: SlicerFns|undefined;
-            private _slicerCount = 0;
 
             /** legacy slicers should recoverable by default */
             isRecoverable() {
@@ -26,7 +25,7 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
                     config: this.executionConfig,
                 };
 
-                if (legacy.slicerQueueLength && typeof legacy.slicerQueueLength === 'function') {
+                if (isFunction(legacy.slicerQueueLength)) {
                     const result = await legacy.slicerQueueLength(executionContext);
                     if (result === 'QUEUE_MINIMUM_SIZE') {
                         this._maxQueueLength = this.executionConfig.workers;
@@ -37,7 +36,6 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
                 }
 
                 this.slicerFns = await legacy.newSlicer(this.context, executionContext, recoveryData, this.logger);
-                this._slicerCount = this.slicerFns.length;
 
                 await super.initialize(recoveryData);
             }
@@ -46,15 +44,7 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
                 if (this.slicerFns == null) {
                     throw new Error('Slicer has not been initialized');
                 }
-                const fn = this.slicerFns.shift();
-                if (!fn) {
-                    return async () => null;
-                }
-                return fn;
-            }
-
-            slicers() {
-                return this._slicerCount;
+                return this.slicerFns.shift();
             }
 
             maxQueueLength() {

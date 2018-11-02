@@ -1,6 +1,6 @@
 import { SlicerFn, SlicerResult } from '../interfaces';
 import SlicerCore from './core/slicer-core';
-import { times } from '../utils';
+import { times, isFunction } from '../utils';
 
 /**
  * A varient of a "Slicer" for running a parallel stream of slicers.
@@ -20,6 +20,8 @@ export default abstract class ParallelSlicer extends SlicerCore {
 
         const promises = times(slicers, async (id) => {
             const fn = await this.newSlicer();
+            if (!isFunction(fn)) return;
+
             this._slicers.push({
                 done: false,
                 fn,
@@ -45,7 +47,7 @@ export default abstract class ParallelSlicer extends SlicerCore {
      * Called by {@link ParallelSlicer#handle} for every count of `slicers` in the ExecutionConfig
      * @returns a function which will be called in parallel
     */
-    abstract async newSlicer(): Promise<SlicerFn>;
+    abstract async newSlicer(): Promise<SlicerFn|undefined>;
 
     slicers() {
         return this._slicers.length;
@@ -55,19 +57,20 @@ export default abstract class ParallelSlicer extends SlicerCore {
         if (this.isFinished) return true;
 
         const promises = this._slicers
-            .filter((slicer) => {
-                return !slicer.processing || !slicer.done;
-            }).map((slicer) => this.processSlicer(slicer));
+            .filter((slicer) => !slicer.processing)
+            .map((slicer) => this.processSlicer(slicer));
 
         await Promise.race(promises);
         return this.isFinished;
     }
 
     get isFinished(): boolean {
-        return this._slicers.every((slicer) => slicer.done && !slicer.processing);
+        return this._slicers.every((slicer) => slicer.done);
     }
 
     private async processSlicer(slicer: SlicerObj) {
+        if (slicer.done || slicer.processing) return;
+
         slicer.processing = true;
         let result: SlicerResult;
 
