@@ -13,6 +13,7 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
             private _maxQueueLength = 10000;
             private _dynamicQueueLength = false;
             private slicerFns: SlicerFns|undefined;
+            private _slicerCount = 0;
 
             /** legacy slicers should recoverable by default */
             isRecoverable() {
@@ -36,6 +37,7 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
                 }
 
                 this.slicerFns = await legacy.newSlicer(this.context, executionContext, recoveryData, this.logger);
+                this._slicerCount = this.slicerFns.length;
 
                 await super.initialize(recoveryData);
             }
@@ -49,6 +51,10 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
                     return async () => null;
                 }
                 return fn;
+            }
+
+            slicers() {
+                return this._slicerCount;
             }
 
             maxQueueLength() {

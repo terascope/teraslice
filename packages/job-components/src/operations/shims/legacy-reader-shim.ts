@@ -28,6 +28,10 @@ type SchemaType = SchemaConstructor;
 // tslint:disable-next-line:variable-name
 export default function legacyReaderShim(Slicer: SlicerType, Fetcher: FetcherType, Schema: SchemaType, apis?: APIs): LegacyReader {
     return {
+        // @ts-ignore
+        Slicer,
+        Fetcher,
+        Schema,
         schema: (context) => {
             if (Schema.type() !== 'convict') {
                 throw new Error('Backwards compatibility only works for "convict" schemas');
