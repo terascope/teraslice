@@ -1,4 +1,4 @@
-import { SlicerFn } from '../interfaces';
+import { SlicerFn, SlicerResult } from '../interfaces';
 import SlicerCore from './core/slicer-core';
 import { times } from '../utils';
 
@@ -56,7 +56,7 @@ export default abstract class ParallelSlicer extends SlicerCore {
 
         const promises = this._slicers
             .filter((slicer) => {
-                return !slicer.processing && !slicer.done;
+                return !slicer.processing || !slicer.done;
             }).map((slicer) => this.processSlicer(slicer));
 
         await Promise.race(promises);
@@ -64,13 +64,18 @@ export default abstract class ParallelSlicer extends SlicerCore {
     }
 
     get isFinished(): boolean {
-        return this._slicers.every((slicer) => slicer.done);
+        return this._slicers.every((slicer) => slicer.done && !slicer.processing);
     }
 
     private async processSlicer(slicer: SlicerObj) {
         slicer.processing = true;
-        const result = await slicer.fn();
-        slicer.processing = false;
+        let result: SlicerResult;
+
+        try {
+            result = await slicer.fn();
+        } finally {
+            slicer.processing = false;
+        }
 
         if (result == null && this.canComplete()) {
             this.logger.info(`slicer ${slicer.id} has completed its range`);
