@@ -16,7 +16,7 @@ export default abstract class ParallelSlicer extends SlicerCore {
     */
     async initialize(recoveryData: object[]): Promise<void> {
         await super.initialize(recoveryData);
-        const { slicers } = this.executionConfig;
+        const { slicers = 1 } = this.executionConfig;
 
         const promises = times(slicers, async (id) => {
             const fn = await this.newSlicer();
@@ -24,6 +24,7 @@ export default abstract class ParallelSlicer extends SlicerCore {
                 done: false,
                 fn,
                 id,
+                processing: false,
                 order: 0,
             });
         });
@@ -53,7 +54,10 @@ export default abstract class ParallelSlicer extends SlicerCore {
     async handle(): Promise<boolean> {
         if (this.isFinished) return true;
 
-        const promises = this._slicers.map((slicer) => this.processSlicer(slicer));
+        const promises = this._slicers
+            .filter((slicer) => {
+                return !slicer.processing && !slicer.done;
+            }).map((slicer) => this.processSlicer(slicer));
 
         await Promise.all(promises);
         return this.isFinished;
@@ -64,9 +68,10 @@ export default abstract class ParallelSlicer extends SlicerCore {
     }
 
     private async processSlicer(slicer: SlicerObj) {
-        if (slicer.done) return;
-
+        slicer.processing = true;
         const result = await slicer.fn();
+        slicer.processing = false;
+
         if (result == null && this.canComplete()) {
             this.logger.info(`slicer ${slicer.id} has completed its range`);
             slicer.done = true;
@@ -91,5 +96,6 @@ interface SlicerObj {
     done: boolean;
     fn: SlicerFn;
     id: number;
+    processing: boolean;
     order: number;
 }

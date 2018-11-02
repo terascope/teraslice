@@ -75,21 +75,21 @@ class Operation {
     async run(data) {
         if (!this._hasInit) await this.init();
         if (this.isSlicer) {
-            const { slicers } = this.operation.slicers();
-            const finished = await this.operation.handle();
+            const slicers = this.operation.slicers();
+            await this.operation.handle();
 
             const slices = this.operation.getSlices(10000);
-            const sliceRequests = slices
-                .sort((a, b) => a.slicer_id - b.slicer_id)
-                .map((slice) => {
-                    if (data && data.fullSlice) {
-                        return slice;
-                    }
-                    return slice.request;
-                });
+            const sliceRequests = [];
+            const slicesBySlicers = _.values(_.groupBy(slices, 'slicer_id'));
 
-            if (finished && !sliceRequests.length) {
-                return null;
+            for (const perSlicer of slicesBySlicers) {
+                const sorted = _.sortBy(perSlicer, 'slicer_order');
+                if (data && data.fullSlice) {
+                    sliceRequests.push(...sorted);
+                } else {
+                    const mapped = _.map(sorted, 'request');
+                    sliceRequests.push(...mapped);
+                }
             }
 
             const remaining = slicers - sliceRequests.length;
@@ -97,6 +97,7 @@ class Operation {
                 const nulls = _.times(remaining, () => null);
                 return sliceRequests.concat(nulls);
             }
+
             return sliceRequests;
         }
         if (this.isProcessor) {
