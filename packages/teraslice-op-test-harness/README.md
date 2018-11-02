@@ -50,7 +50,7 @@ describe('setting up an operation', () => {
     it('can make a reader instance', async () => {
         const executionConfig = {
             lifecycle: 'once',
-            operations: [{ _op: 'foo', some: 'config' }
+            operations: [{ _op: 'foo', some: 'config' }]
         };
         const data = { some: 'data' };
         const type = 'reader';
@@ -63,7 +63,7 @@ describe('setting up an operation', () => {
     it('can make a slicer instance', async () => {
         const executionConfig = {
             lifecycle: 'once',
-            operations: [{ _op: 'foo', some: 'config' }
+            operations: [{ _op: 'foo', some: 'config' }]
         };
         // type defaults to slicer
         const sTest = await readerOpTest.init({ executionConfig });
@@ -72,6 +72,33 @@ describe('setting up an operation', () => {
         expect(results).toBeDefined();
     });
 
+    it('can make a multiple slicer instances', async () => {
+        const executionConfig = {
+            lifecycle: 'once',
+            slicers: 3,
+            operations: [{ _op: 'foo', some: 'config' }]
+        };
+
+        // type defaults to slicer
+        const sTest = await readerOpTest.init({ executionConfig });
+
+        const results = await sTest.run()
+        expect(results).toBeDefined();
+    });
+
+    it('can return the full metadata of slice', async () => {
+        const executionConfig = {
+            lifecycle: 'once',
+            slicers: 3,
+            operations: [{ _op: 'foo', some: 'config' }]
+        };
+
+        // type defaults to slicer
+        const sTest = await readerOpTest.init({ executionConfig });
+
+        const results = await sTest.run({ fullSlice: true })
+        expect(results).toBeDefined();
+    });
 })
 ```
 ## Processor Execution Function - `setClients()`
@@ -107,7 +134,7 @@ describe('setting up an operation', () => {
     it('can make a reader instance', async () => {
         const executionConfig = {
             lifecycle: 'once',
-            operations: [{ _op: 'foo', some: 'config' }
+            operations: [{ _op: 'foo', some: 'config' }]
         };
         const data = { some: 'data' };
         const type = 'reader';
@@ -120,7 +147,7 @@ describe('setting up an operation', () => {
     it('can make a slicer instance', async () => {
         const executionConfig = {
             lifecycle: 'once',
-            operations: [{ _op: 'foo', some: 'config' }
+            operations: [{ _op: 'foo', some: 'config' }]
         };
         // you can override the clients at init time
         const clients = [{ client: new OtherClient(), type: 'elasticsearch', endpoint: 'default'}]
