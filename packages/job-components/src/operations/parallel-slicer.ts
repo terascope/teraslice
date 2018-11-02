@@ -59,7 +59,7 @@ export default abstract class ParallelSlicer extends SlicerCore {
                 return !slicer.processing && !slicer.done;
             }).map((slicer) => this.processSlicer(slicer));
 
-        await Promise.all(promises);
+        await Promise.race(promises);
         return this.isFinished;
     }
 
