@@ -4,7 +4,7 @@ import FetcherCore from '../core/fetcher-core';
 import ParallelSlicer from '../parallel-slicer';
 import ConvictSchema from '../convict-schema';
 import { ReaderModule } from '../interfaces';
-import { isInteger } from '../../utils';
+import { isInteger, isFunction } from '../../utils';
 import { convertResult } from './shim-utils';
 
 export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule {
@@ -25,7 +25,7 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
                     config: this.executionConfig,
                 };
 
-                if (legacy.slicerQueueLength && typeof legacy.slicerQueueLength === 'function') {
+                if (isFunction(legacy.slicerQueueLength)) {
                     const result = await legacy.slicerQueueLength(executionContext);
                     if (result === 'QUEUE_MINIMUM_SIZE') {
                         this._maxQueueLength = this.executionConfig.workers;
@@ -44,11 +44,7 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
                 if (this.slicerFns == null) {
                     throw new Error('Slicer has not been initialized');
                 }
-                const fn = this.slicerFns.shift();
-                if (!fn) {
-                    return async () => null;
-                }
-                return fn;
+                return this.slicerFns.shift();
             }
 
             maxQueueLength() {

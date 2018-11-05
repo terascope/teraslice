@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const {
     readerShim,
     processorShim,
@@ -7,7 +8,6 @@ const {
     DataEntity
 } = require('@terascope/job-components');
 const { bindThis } = require('./utils');
-
 
 class Operation {
     constructor({
@@ -75,8 +75,30 @@ class Operation {
     async run(data) {
         if (!this._hasInit) await this.init();
         if (this.isSlicer) {
+            const slicers = this.operation.slicers();
             await this.operation.handle();
-            return this.operation.getSlices(100);
+
+            const slices = this.operation.getSlices(10000);
+            const sliceRequests = [];
+            const slicesBySlicers = _.values(_.groupBy(slices, 'slicer_id'));
+
+            for (const perSlicer of slicesBySlicers) {
+                const sorted = _.sortBy(perSlicer, 'slicer_order');
+                if (data && data.fullSlice) {
+                    sliceRequests.push(...sorted);
+                } else {
+                    const mapped = _.map(sorted, 'request');
+                    sliceRequests.push(...mapped);
+                }
+            }
+
+            const remaining = slicers - sliceRequests.length;
+            if (remaining > 0) {
+                const nulls = _.times(remaining, () => null);
+                return sliceRequests.concat(nulls);
+            }
+
+            return sliceRequests;
         }
         if (this.isProcessor) {
             return this.operation.handle(DataEntity.makeArray(data));

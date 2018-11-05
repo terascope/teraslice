@@ -690,10 +690,15 @@
   dependencies:
     "@types/node" "*"
 
-"@types/node@*", "@types/node@^10.12.0":
+"@types/node@*":
   version "10.12.1"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.1.tgz#da61b64a2930a80fa708e57c45cd5441eb379d5b"
   integrity sha512-i1sl+WCX2OCHeUi9oi7PiCNUtYFrpWhpcx878vpeq/tlZTKzcFdHePlyFHVbWqeuKN0SRPl/9ZFDSTsfv9h7VQ==
+
+"@types/node@^10.12.2":
+  version "10.12.2"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.2.tgz#d77f9faa027cadad9c912cd47f4f8b07b0fb0864"
+  integrity sha512-53ElVDSnZeFUUFIYzI8WLQ25IhWzb6vbddNp8UHlXQyU0ET2RhV5zg0NfubzU7iNMh5bBXb0htCzfvrSVNgzaQ==
 
 "@types/p-event@^1.3.0":
   version "1.3.0"
@@ -8399,17 +8404,6 @@ terafoundation@^0.5.0:
     redis "^2.8.0"
     yargs "^12.0.2"
 
-teraslice-client-js@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/teraslice-client-js/-/teraslice-client-js-0.3.0.tgz#fffcc46612a8e857b6a6fc523f2377c45312e380"
-  integrity sha512-nndHXhfqSG2Ta94HmWxv6BdgOICfB/mr4Nxk3ybJC+5bd/d/bLSVYV7ee6x9/gPkr7/9QYbVgUN1qiIpGGRzWA==
-  dependencies:
-    auto-bind "^1.2.1"
-    bluebird "^3.5.2"
-    lodash "^4.17.11"
-    request "^2.88.0"
-    request-promise "^4.2.2"
-
 terminal-kit@^1.26.0:
   version "1.26.4"
   resolved "https://registry.yarnpkg.com/terminal-kit/-/terminal-kit-1.26.4.tgz#4d44c237d9ba68294cfcc67f91157336bf9db76f"
@@ -8714,10 +8708,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@^3.1.3:
-  version "3.1.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.1.4.tgz#c74ef7b3c2da65beff548b903022cb8c3cd997ed"
-  integrity sha512-JZHJtA6ZL15+Q3Dqkbh8iCUmvxD3iJ7ujXS+fVkKnwIVAdHc5BJTDNM0aTrnr2luKulFjU7W+SRhDZvi66Ru7Q==
+typescript@^3.1.6:
+  version "3.1.6"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.1.6.tgz#b6543a83cfc8c2befb3f4c8fba6896f5b0c9be68"
+  integrity sha512-tDMYfVtvpb96msS1lDX9MEdHrW4yOuZ4Kdc4Him9oU796XldPYF/t2+uKoX0BBa0hXXwDlqYQbXY5Rzjzc5hBA==
 
 typpy@^2.3.1:
   version "2.3.10"

@@ -16,6 +16,9 @@ import {
 // tslint:disable-next-line:variable-name
 export default function legacyProcessorShim(Processor: ProcessorConstructor, Schema: SchemaConstructor, apis?: APIs): LegacyProcessor {
     return {
+        // @ts-ignore
+        Processor,
+        Schema,
         schema: (context) => {
             if (Schema.type() !== 'convict') {
                 throw new Error('Backwards compatibility only works for "convict" schemas');

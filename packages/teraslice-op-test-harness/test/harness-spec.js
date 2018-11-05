@@ -135,11 +135,16 @@ describe('tests for new op harness', () => {
         opTest.setClients([{ client, type: 'elasticsearch' }]);
 
         const test = await opTest.init({ executionConfig });
-        const [results] = await test.run();
+        const [results] = await test.run({ fullSlice: true });
 
         expect(results).toBeDefined();
         expect(results.request.count).toEqual(5);
         expect(results.request.now instanceof Date).toEqual(true);
+
+        const [request] = await test.run();
+
+        expect(request.count).toEqual(5);
+        expect(request.now instanceof Date).toEqual(true);
     });
 });
 
@@ -175,11 +180,15 @@ describe('op harness can handle new style procossors/readers/slicers', () => {
         const opConfig = { _op: 'example-reader', some: 'config' };
         const test = await opTest.init({ opConfig });
 
-        const [results] = await test.run();
+        const [results] = await test.run({ fullSlice: true });
 
         expect(results).toBeDefined();
         expect(results.slicer_id).toEqual(0);
         expect(results.slicer_order).toEqual(1);
         expect(results.request.fetchFrom).toEqual('https://httpstat.us/200');
+
+        const [request] = await test.run();
+
+        expect(request.fetchFrom).toEqual('https://httpstat.us/200');
     });
 });
