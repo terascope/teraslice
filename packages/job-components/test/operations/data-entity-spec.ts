@@ -34,10 +34,12 @@ describe('DataEntity', () => {
             const keys = Object.keys(dataEntity);
             expect(keys).not.toInclude('getMetadata');
             expect(keys).not.toInclude('setMetadata');
+            expect(keys).not.toInclude('toBuffer');
 
             for (const prop in dataEntity) {
                 expect(prop).not.toEqual('getMetadata');
                 expect(prop).not.toEqual('setMetadata');
+                expect(prop).not.toEqual('toBuffer');
             }
         });
 
@@ -45,6 +47,7 @@ describe('DataEntity', () => {
             const object = JSON.parse(JSON.stringify(dataEntity));
             expect(object).not.toHaveProperty('getMetadata');
             expect(object).not.toHaveProperty('setMetadata');
+            expect(object).not.toHaveProperty('toBuffer');
 
             expect(object).toHaveProperty('teal', 'neal');
             expect(object).toHaveProperty('blue', 'green');
