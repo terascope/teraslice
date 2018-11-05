@@ -1,5 +1,6 @@
 import 'jest-extended'; // require for type definitions
 import { DataEntity, DataEncoding } from '../../src';
+import { parseJSON } from '../../src/utils';
 
 describe('DataEntity', () => {
     describe('when constructed with an object', () => {
@@ -76,6 +77,35 @@ describe('DataEntity', () => {
 
         it('should be return undefined if getting a metadata that does not exist', () => {
             expect(dataEntity.getMetadata('hello')).toBeUndefined();
+        });
+    });
+
+    describe('->toBuffer', () => {
+        it('should be convertable to a buffer', () => {
+            const dataEntity = new DataEntity({ foo: 'bar' }, { hello: 'there' });
+            const buf = dataEntity.toBuffer({ _encoding: DataEncoding.JSON });
+            expect(Buffer.isBuffer(buf)).toBeTrue();
+            const obj = parseJSON(buf);
+
+            expect(obj).toEqual({ foo: 'bar' });
+        });
+
+        it('should be able to handle no config', () => {
+            const dataEntity = new DataEntity({ foo: 'bar' }, { hello: 'there' });
+            const buf = dataEntity.toBuffer();
+            expect(Buffer.isBuffer(buf)).toBeTrue();
+            const obj = parseJSON(buf);
+
+            expect(obj).toEqual({ foo: 'bar' });
+        });
+
+        it('should fail if given an invalid encoding', () => {
+            const dataEntity = new DataEntity({ foo: 'bar' }, { hello: 'there' });
+
+            expect(() => {
+                // @ts-ignore
+                dataEntity.toBuffer({ _encoding: 'baz' });
+            }).toThrowError('Unsupported encoding type, got "baz"');
         });
     });
 
@@ -243,6 +273,13 @@ describe('DataEntity', () => {
             expect(entity.getMetadata('howdy')).toEqual('there');
         });
 
+        it('should be able handle no config', () => {
+            const buf = Buffer.from(JSON.stringify({ foo: 'bar' }));
+            const entity = DataEntity.fromBuffer(buf);
+
+            expect(entity.foo).toEqual('bar');
+        });
+
         it('should throw an error if given invalid buffer', () => {
             const buf = Buffer.from('hello:there');
             expect(() => {
@@ -256,12 +293,13 @@ describe('DataEntity', () => {
         it('should throw an error if given an unsupported encoding', () => {
             const buf = Buffer.from(JSON.stringify({ hi: 'there' }));
             expect(() => {
+                // @ts-ignore
                 DataEntity.fromBuffer(buf, {
                     _op: 'test',
-                    // @ts-ignore
                     _encoding: 'crazy',
                 });
             }).toThrowError('Unsupported encoding type, got "crazy"');
         });
+
     });
 });
