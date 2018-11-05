@@ -1,5 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { DataEntity } from '../../src';
+import { DataEntity, DataEncoding } from '../../src';
 
 describe('DataEntity', () => {
     describe('when constructed with an object', () => {
@@ -226,6 +226,42 @@ describe('DataEntity', () => {
         it('should not be able to get metadata from null', () => {
             // @ts-ignore
             expect(DataEntity.getMetadata(null, 'hi')).toBeNil();
+        });
+    });
+
+    describe('#fromBuffer', () => {
+        it('should be able to create a DataEntity from a buffer', () => {
+            const buf = Buffer.from(JSON.stringify({ foo: 'bar' }));
+            const entity = DataEntity.fromBuffer(buf, {
+                _op: 'baz',
+                _encoding: DataEncoding.JSON,
+            }, {
+                howdy: 'there'
+            });
+
+            expect(entity.foo).toEqual('bar');
+            expect(entity.getMetadata('howdy')).toEqual('there');
+        });
+
+        it('should throw an error if given invalid buffer', () => {
+            const buf = Buffer.from('hello:there');
+            expect(() => {
+                DataEntity.fromBuffer(buf, {
+                    _op: 'test',
+                    _encoding: DataEncoding.JSON,
+                });
+            }).toThrow();
+        });
+
+        it('should throw an error if given an unsupported encoding', () => {
+            const buf = Buffer.from(JSON.stringify({ hi: 'there' }));
+            expect(() => {
+                DataEntity.fromBuffer(buf, {
+                    _op: 'test',
+                    // @ts-ignore
+                    _encoding: 'crazy',
+                });
+            }).toThrowError('Unsupported encoding type, got "crazy"');
         });
     });
 });

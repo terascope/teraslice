@@ -1,6 +1,6 @@
 'use strict';
 
-import { Context } from './interfaces';
+import { Context, DataEncoding, dataEncodings } from './interfaces';
 import convict from 'convict';
 import { flatten } from './utils';
 import os from 'os';
@@ -190,4 +190,9 @@ export const opSchema: convict.Schema<any> = {
         doc: 'Name of operation, it must reflect the name of the file',
         format: 'required_String',
     },
+    _encoding: {
+        doc: 'Used to specify the encoding type of the data',
+        default: DataEncoding.JSON,
+        format: dataEncodings,
+    }
 };

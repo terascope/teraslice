@@ -40,7 +40,8 @@ describe('Convict Schema', () => {
                 example: 'hi'
             })).toEqual({
                 _op: 'hello',
-                example: 'hi'
+                _encoding: 'json',
+                example: 'hi',
             });
         });
 

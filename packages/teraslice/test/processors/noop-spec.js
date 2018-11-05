@@ -24,7 +24,7 @@ describe('Noop Processor', () => {
 
     it('should be able to pass validation', () => {
         const result = schema.validate({ _op: 'delay' });
-        expect(result).toEqual({ _op: 'delay' });
+        expect(result).toMatchObject({ _op: 'delay' });
     });
 
     it('should not mutate the data when given an empty array', () => {

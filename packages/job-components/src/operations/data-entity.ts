@@ -1,4 +1,5 @@
-import { fastAssign, fastMap, isFunction, isPlainObject } from '../utils';
+import { fastAssign, fastMap, isFunction, isPlainObject, parseJSON } from '../utils';
+import { OpConfig, DataEncoding } from '../interfaces';
 
 // WeakMaps are used as a memory efficient reference to private data
 const _metadata = new WeakMap();
@@ -17,6 +18,20 @@ export default class DataEntity {
             return input;
         }
         return new DataEntity(input, metadata);
+    }
+
+    /**
+     * A utility for safely converting an buffer to a DataEntity.
+     * @param input A buffer to parse to JSON
+     * @param opConfig The operation config used to get the encoding type of the buffer, defaults to "json"
+     * @param metadata Optionally add any metadata
+    */
+    static fromBuffer(input: Buffer, opConfig: OpConfig, metadata?: object): DataEntity {
+        const { _encoding = DataEncoding.JSON } = opConfig || {};
+        if (_encoding === DataEncoding.JSON) {
+            return new DataEntity(parseJSON(input), metadata);
+        }
+        throw new Error(`Unsupported encoding type, got "${_encoding}"`);
     }
 
     /**

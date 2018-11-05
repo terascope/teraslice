@@ -98,7 +98,7 @@ describe('tests for new op harness', () => {
         const test = await opTest.init({ opConfig });
 
         expect(test).toBeDefined();
-        expect(test.opConfig).toEqual({ _op: 'foo', field: 'foo', some: 'config' });
+        expect(test.opConfig).toMatchObject({ _op: 'foo', field: 'foo', some: 'config' });
         expect(test.operation).toBeDefined();
         expect(test.isProcessor).toEqual(true);
 
