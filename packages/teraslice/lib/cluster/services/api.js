@@ -189,7 +189,7 @@ module.exports = function module(context, app, { assetsUrl }) {
 
     v1routes.post('/jobs/:jobId/_recover', (req, res) => {
         const { jobId } = req.params;
-        const { cleanup } = req.params;
+        const { cleanup } = req.query;
 
         logger.trace(`POST /jobs/:jobId/_recover endpoint has been called, job_id: ${jobId}`);
         const handleApiError = handleError(res, logger, 500, `Could not recover execution for job: ${jobId}`);
@@ -328,7 +328,7 @@ module.exports = function module(context, app, { assetsUrl }) {
         logger.trace(`POST /ex/:exId/_stop endpoint has been called, ex_id: ${exId}, removing any pending workers for the job`);
         const handleApiError = handleError(res, logger, 500, `Could not stop execution: ${exId}`);
 
-        return executionService.stopExecution(exId, timeout)
+        executionService.stopExecution(exId, timeout)
             .then(() => _waitForStop(exId, blocking))
             .then(status => res.status(200).json({ status }))
             .catch(handleApiError);

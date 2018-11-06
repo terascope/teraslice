@@ -13,7 +13,7 @@ function makeTable(req, defaults, data, mappingFn) {
     }
 
     return Table.print(data, (item, cell) => {
-        const fn = mappingFn ? mappingFn(item) : field => item[field];
+        const fn = mappingFn ? mappingFn(item) : field => item[field] || 'N/A';
         _.each(query, (field) => {
             cell(field, fn(field));
         });
