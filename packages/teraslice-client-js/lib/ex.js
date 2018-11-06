@@ -37,9 +37,19 @@ class Ex extends Client {
         return this.get('/ex', { qs });
     }
 
-    errors(options) {
-        const qs = _parseListOptions(options);
-        return this.get('/ex/errors', { qs });
+    errors(exId, opts) {
+        const options = {};
+        if (_.isString(exId)) {
+            if (_.isPlainObject(opts)) {
+                options.qs = opts;
+            }
+            return this.get(`/ex/${exId}/errors`, options);
+        }
+
+        if (_.isPlainObject(exId)) {
+            options.qs = exId;
+        }
+        return this.get('/ex/errors', options);
     }
 }
 

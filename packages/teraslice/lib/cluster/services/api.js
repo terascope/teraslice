@@ -321,6 +321,43 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
+    v1routes.get('/ex/:exId/errors', (req, res) => {
+        const { exId } = req.params;
+        const { size = 10000, from } = req.query;
+
+        logger.trace(`GET /ex/:exId/errors endpoint has been called, ex_id: ${exId}, from: ${from}, size: ${size}`);
+        const handleApiError = handleError(res, logger, 500, `Could not get errors for ex_id ${exId}`);
+
+        const query = `ex_id:${exId} AND state:error`;
+
+        stateStore.search(query, from, size, '_updated:asc')
+            .then(errorStates => res.status(200).json(errorStates))
+            .catch(handleApiError);
+    });
+
+    v1routes.get('/ex/:exId/slicer', _deprecateSlicerName((req, res) => {
+        const { exId } = req.params;
+
+        logger.trace(`GET /ex/:exId/slicer endpoint has been called, ex_id: ${exId}`);
+        const handleApiError = handleError(res, logger, 500, `Could not get statistics for execution: ${exId}`);
+
+        _controllerStats(exId)
+            .then(results => res.status(200).json(results))
+            .catch(handleApiError);
+    }));
+
+    v1routes.get('/ex/:exId/controller', (req, res) => {
+        const { exId } = req.params;
+
+        logger.trace(`GET /ex/:exId/controller endpoint has been called, ex_id: ${exId}`);
+        const handleApiError = handleError(res, logger, 500, `Could not get statistics for execution: ${exId}`);
+
+        _controllerStats(exId)
+            .then(results => res.status(200).json(results))
+            .catch(handleApiError);
+    });
+
+
     v1routes.post('/ex/:exId/_stop', (req, res) => {
         const { exId } = req.params;
         const { timeout, blocking = true } = req.query;
@@ -388,28 +425,6 @@ module.exports = function module(context, app, { assetsUrl }) {
 
         _changeWorkers('execution', exId, query)
             .then(responseObj => res.status(200).send(`${responseObj.workerNum} workers have been ${responseObj.action} for execution: ${responseObj.ex_id}`))
-            .catch(handleApiError);
-    });
-
-    v1routes.get('/ex/:exId/slicer', _deprecateSlicerName((req, res) => {
-        const { exId } = req.params;
-
-        logger.trace(`GET /ex/:exId/slicer endpoint has been called, ex_id: ${exId}`);
-        const handleApiError = handleError(res, logger, 500, `Could not get statistics for execution: ${exId}`);
-
-        _controllerStats(exId)
-            .then(results => res.status(200).json(results))
-            .catch(handleApiError);
-    }));
-
-    v1routes.get('/ex/:exId/controller', (req, res) => {
-        const { exId } = req.params;
-
-        logger.trace(`GET /ex/:exId/controller endpoint has been called, ex_id: ${exId}`);
-        const handleApiError = handleError(res, logger, 500, `Could not get statistics for execution: ${exId}`);
-
-        _controllerStats(exId)
-            .then(results => res.status(200).json(results))
             .catch(handleApiError);
     });
 
