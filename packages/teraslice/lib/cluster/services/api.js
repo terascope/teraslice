@@ -269,9 +269,15 @@ module.exports = function module(context, app, { assetsUrl }) {
         const { status, from, size, sort } = req.query;  //eslint-disable-line
         const handleApiError = handleError(res, logger, 500, 'Could not retrieve list of execution contexts');
 
+        const statuses = status.split(',').map(s => s.trim()).filter(s => !!s);
+
         logger.trace(`GET /ex endpoint has been called, status: ${status}, from: ${from}, size: ${size}, sort: ${sort}`);
         let query = 'ex_id:*';
-        if (status) query += ` AND _status:${status}`;
+
+        if (statuses.length) {
+            const statusTerms = statuses.map(s => `_status:${s}`).join(' OR ');
+            query += ` AND (${statusTerms})`;
+        }
 
         executionService.searchExecutionContexts(query, from, size, sort)
             .then(results => res.status(200).json(results))
