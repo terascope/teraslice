@@ -61,7 +61,7 @@ function sendError(res, code, error) {
 
 // NOTE: This only works for counters, if you're trying to extend this, you
 // should probably switch to using prom-client.
-function makePrometheus(stats) {
+function makePrometheus(stats, defaultLabels = {}) {
     const metricMapping = {
         processed: 'teraslice_slices_processed',
         failed: 'teraslice_slices_failed',
@@ -77,13 +77,34 @@ function makePrometheus(stats) {
         const name = metricMapping[key];
         if (name !== '') {
             returnString += `# TYPE ${name} counter\n`;
-            returnString += `${value}\n`;
+            const labels = makePrometheusLabels(defaultLabels);
+            returnString += `${name}${labels} ${value}\n`;
         }
     });
     return returnString;
 }
 
+function makePrometheusLabels(defaults, custom) {
+    const labels = Object.assign({}, defaults, custom);
+    const keys = Object.keys(labels);
+    if (!keys.length) return '';
+
+    const labelsStr = keys.map((key) => {
+        const val = labels[key];
+        return `${key}="${val}"`;
+    }).join(',');
+
+    return `{${labelsStr}}`;
+}
+
+function isPrometheusRequest(req) {
+    const acceptHeader = _.get(req, 'headers.accept', '');
+    return acceptHeader && acceptHeader.indexOf('application/openmetrics-text;') > -1;
+}
+
+
 module.exports = {
+    isPrometheusRequest,
     makePrometheus,
     makeTable,
     handleError,

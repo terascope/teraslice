@@ -8,6 +8,7 @@ const request = require('request');
 const util = require('util');
 const {
     makePrometheus,
+    isPrometheusRequest,
     makeTable,
     sendError,
     handleError
@@ -387,11 +388,11 @@ module.exports = function module(context, app, { assetsUrl }) {
 
     v1routes.get('/cluster/stats', (req, res) => {
         logger.trace('GET /cluster/stats endpoint has been called');
-        const acceptHeader = _.get(req, 'headers.accept', '');
         const stats = executionService.getClusterStats();
+        const { name: cluster } = context.sysconfig.teraslice;
 
-        if ((acceptHeader !== '') && (acceptHeader.indexOf('application/openmetrics-text;') > -1)) {
-            res.status(200).send(makePrometheus(stats));
+        if (isPrometheusRequest(req)) {
+            res.status(200).send(makePrometheus(stats, { cluster }));
         } else {
             // for backwards compatability (unsupported for prometheus)
             stats.slicer = stats.controllers;
