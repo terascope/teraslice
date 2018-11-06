@@ -71,22 +71,21 @@ module.exports = function module(context, app, { assetsUrl }) {
         // if no job was posted an empty object is returned, so we check if it has values
         if (!req.body.operations) {
             sendError(res, 400, 'No job was posted');
-        } else {
-            const jobSpec = req.body;
-            let shouldRun = true;
-
-            if (req.query.start && req.query.start === 'false') {
-                shouldRun = false;
-            }
-            logger.trace(`POST /jobs endpoint has received shouldRun: ${shouldRun}, job:`, jobSpec);
-            const handleApiError = handleError(res, logger, 500, 'Job submission failed');
-
-            jobsService.submitJob(jobSpec, shouldRun)
-                .then((ids) => {
-                    res.status(202).json(ids);
-                })
-                .catch(handleApiError);
+            return;
         }
+
+        const { start } = req.query;
+        const jobSpec = req.body;
+        const shouldRun = start !== 'false';
+
+        logger.trace(`POST /jobs endpoint has received shouldRun: ${shouldRun}, job:`, jobSpec);
+        const handleApiError = handleError(res, logger, 500, 'Job submission failed');
+
+        jobsService.submitJob(jobSpec, shouldRun)
+            .then((ids) => {
+                res.status(202).json(ids);
+            })
+            .catch(handleApiError);
     });
 
     v1routes.get('/jobs', (req, res) => {
@@ -102,9 +101,10 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.get('/jobs/:job_id', (req, res) => {
-        const { job_id: jobId } = req.params;
-        logger.trace(`GET /jobs/:job_id endpoint has been called, job_id: ${jobId}`);
+    v1routes.get('/jobs/:jobId', (req, res) => {
+        const { jobId } = req.params;
+
+        logger.trace(`GET /jobs/:jobId endpoint has been called, job_id: ${jobId}`);
         const handleApiError = handleError(res, logger, 500, 'Could not retrieve job');
 
         jobsService.getJob(jobId)
@@ -112,14 +112,16 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.put('/jobs/:job_id', (req, res) => {
-        const { job_id: jobId } = req.params;
+    v1routes.put('/jobs/:jobId', (req, res) => {
+        const { jobId } = req.params;
         const jobSpec = req.body;
+
         if (Object.keys(jobSpec).length === 0) {
             sendError(res, 400, `no data was provided to update job ${jobId}`);
             return;
         }
-        logger.trace(`PUT /jobs/:job_id endpoint has been called, job_id: ${jobId}, update changes: `, jobSpec);
+
+        logger.trace(`PUT /jobs/:jobId endpoint has been called, job_id: ${jobId}, update changes: `, jobSpec);
         const handleApiError = handleError(res, logger, 500, 'Could not update job');
 
         jobsService.updateJob(jobId, jobSpec)
@@ -127,9 +129,10 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.get('/jobs/:job_id/ex', (req, res) => {
-        const { job_id: jobId } = req.params;
-        logger.trace(`GET /jobs/:job_id endpoint has been called, job_id: ${jobId}`);
+    v1routes.get('/jobs/:jobId/ex', (req, res) => {
+        const { jobId } = req.params;
+
+        logger.trace(`GET /jobs/:jobId endpoint has been called, job_id: ${jobId}`);
         const handleApiError = handleError(res, logger, 500, 'Could not retrieve list of execution contexts');
 
         jobsService.getLatestExecution(jobId)
@@ -137,13 +140,10 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.post('/jobs/:job_id/_start', (req, res) => {
-        const { job_id: jobId } = req.params;
-        if (!jobId) {
-            sendError(res, 400, 'no job_id was posted');
-            return;
-        }
-        logger.trace(`GET /jobs/:job_id/_start endpoint has been called, job_id: ${jobId}`);
+    v1routes.post('/jobs/:jobId/_start', (req, res) => {
+        const { jobId } = req.params;
+
+        logger.trace(`GET /jobs/:jobId/_start endpoint has been called, job_id: ${jobId}`);
         const handleApiError = handleError(res, logger, 500, `Could not start job: ${jobId}`);
 
         jobsService.startJob(jobId)
@@ -151,10 +151,11 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.post('/jobs/:job_id/_stop', (req, res) => {
-        const { query: { timeout, blocking = true }, params: { job_id: jobId } } = req;
-        logger.trace(`POST /jobs/:job_id/_stop endpoint has been called, job_id: ${jobId}, removing any pending workers for the job`);
+    v1routes.post('/jobs/:jobId/_stop', (req, res) => {
+        const { timeout, blocking = true } = req.query;
+        const { jobId } = req.params;
 
+        logger.trace(`POST /jobs/:jobId/_stop endpoint has been called, job_id: ${jobId}, removing any pending workers for the job`);
         const handleApiError = handleError(res, logger, 500, `Could not stop execution for job: ${jobId}`);
 
         jobsService.getLatestExecutionId(jobId)
@@ -164,9 +165,10 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.post('/jobs/:job_id/_pause', (req, res) => {
-        const { job_id: jobId } = req.params;
-        logger.trace(`POST /jobs/:job_id/_pause endpoint has been called, job_id: ${jobId}`);
+    v1routes.post('/jobs/:jobId/_pause', (req, res) => {
+        const { jobId } = req.params;
+
+        logger.trace(`POST /jobs/:jobId/_pause endpoint has been called, job_id: ${jobId}`);
         const handleApiError = handleError(res, logger, 500, `Could not pause execution for job: ${jobId}`);
 
         jobsService.pauseJob(jobId)
@@ -174,9 +176,10 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.post('/jobs/:job_id/_resume', (req, res) => {
-        const { job_id: jobId } = req.params;
-        logger.trace(`POST /jobs/:job_id/_resume endpoint has been called, job_id: ${jobId}`);
+    v1routes.post('/jobs/:jobId/_resume', (req, res) => {
+        const { jobId } = req.params;
+
+        logger.trace(`POST /jobs/:jobId/_resume endpoint has been called, job_id: ${jobId}`);
         const handleApiError = handleError(res, logger, 500, `Could not resume execution for job: ${jobId}`);
 
         jobsService.resumeJob(jobId)
@@ -184,9 +187,11 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.post('/jobs/:job_id/_recover', (req, res) => {
-        const { params: { job_id: jobId }, query: { cleanup } } = req;
-        logger.trace(`POST /jobs/:job_id/_recover endpoint has been called, job_id: ${jobId}`);
+    v1routes.post('/jobs/:jobId/_recover', (req, res) => {
+        const { jobId } = req.params;
+        const { cleanup } = req.params;
+
+        logger.trace(`POST /jobs/:jobId/_recover endpoint has been called, job_id: ${jobId}`);
         const handleApiError = handleError(res, logger, 500, `Could not recover execution for job: ${jobId}`);
 
         if (cleanup && !(cleanup === 'all' || cleanup === 'errors')) {
@@ -199,9 +204,11 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.post('/jobs/:job_id/_workers', (req, res) => {
-        const { query, params: { job_id: jobId } } = req;
-        logger.trace('POST /jobs/:job_id/_workers endpoint has been called, query:', query);
+    v1routes.post('/jobs/:jobId/_workers', (req, res) => {
+        const { query } = req;
+        const { jobId } = req.params;
+
+        logger.trace('POST /jobs/:jobId/_workers endpoint has been called, query:', query);
         const handleApiError = handleError(res, logger, 500, `Could not change workers for job: ${jobId}`);
 
         _changeWorkers('job', jobId, query)
@@ -209,9 +216,10 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.get('/jobs/:job_id/slicer', _deprecateSlicerName((req, res) => {
-        const { job_id: jobId } = req.params;
-        logger.trace(`GET /jobs/:job_id/slicer endpoint has been called, job_id: ${jobId}`);
+    v1routes.get('/jobs/:jobId/slicer', _deprecateSlicerName((req, res) => {
+        const { jobId } = req.params;
+
+        logger.trace(`GET /jobs/:jobId/slicer endpoint has been called, job_id: ${jobId}`);
         const handleApiError = handleError(res, logger, 500, `Could not get slicer statistics for job: ${jobId}`);
 
         jobsService.getLatestExecutionId(jobId)
@@ -220,9 +228,10 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     }));
 
-    v1routes.get('/jobs/:job_id/controller', (req, res) => {
-        const { job_id: jobId } = req.params;
-        logger.trace(`GET /jobs/:job_id/controller endpoint has been called, job_id: ${jobId}`);
+    v1routes.get('/jobs/:jobId/controller', (req, res) => {
+        const { jobId } = req.params;
+
+        logger.trace(`GET /jobs/:jobId/controller endpoint has been called, job_id: ${jobId}`);
         const handleApiError = handleError(res, logger, 500, `Could not get controller statistics for job: ${jobId}`);
 
         jobsService.getLatestExecutionId(jobId)
@@ -231,11 +240,12 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.get('/jobs/:job_id/errors', (req, res) => {
-        const { query: { size = 10000, from }, params: { job_id: jobId } } = req;
-        const handleApiError = handleError(res, logger, 500, `Could not get errors for job: ${jobId}`);
+    v1routes.get('/jobs/:jobId/errors', (req, res) => {
+        const { size = 10000, from } = req.query;
+        const { jobId } = req.params;
 
-        logger.trace(`GET /jobs/:job_id/errors endpoint has been called, job_id: ${jobId}, from: ${from}, size: ${size}`);
+        logger.trace(`GET /jobs/:jobId/errors endpoint has been called, job_id: ${jobId}, from: ${from}, size: ${size}`);
+        const handleApiError = handleError(res, logger, 500, `Could not get errors for job: ${jobId}`);
 
         jobsService.getLatestExecutionId(jobId)
             .then((exId) => {
@@ -251,11 +261,12 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.get('/jobs/:job_id/errors/:ex_id', (req, res) => {
-        const { params: { job_id: jobId, ex_id: exId }, query: { from, size = 10000 } } = req;
-        const handleApiError = handleError(res, logger, 500, `Could not get errors for job: ${jobId}, execution: ${exId}`);
+    v1routes.get('/jobs/:jobId/errors/:exId', (req, res) => {
+        const { jobId, exId } = req.params;
+        const { from, size = 10000 } = req.query;
 
-        logger.trace(`GET /jobs/:job_id/errors endpoint has been called, job_id: ${jobId}, ex_id: ${exId}, from: ${from}, size: ${size}`);
+        logger.trace(`GET /jobs/:jobId/errors endpoint has been called, job_id: ${jobId}, ex_id: ${exId}, from: ${from}, size: ${size}`);
+        const handleApiError = handleError(res, logger, 500, `Could not get errors for job: ${jobId}, execution: ${exId}`);
 
         const query = `ex_id:${exId} AND state:error`;
 
@@ -267,12 +278,13 @@ module.exports = function module(context, app, { assetsUrl }) {
     });
 
     v1routes.get('/ex', (req, res) => {
-        const { status, from, size, sort } = req.query;  //eslint-disable-line
+        const { status, from, size, sort } = req.query; //eslint-disable-line
+
+        logger.trace(`GET /ex endpoint has been called, status: ${status}, from: ${from}, size: ${size}, sort: ${sort}`);
         const handleApiError = handleError(res, logger, 500, 'Could not retrieve list of execution contexts');
 
         const statuses = status.split(',').map(s => s.trim()).filter(s => !!s);
 
-        logger.trace(`GET /ex endpoint has been called, status: ${status}, from: ${from}, size: ${size}, sort: ${sort}`);
         let query = 'ex_id:*';
 
         if (statuses.length) {
@@ -287,9 +299,9 @@ module.exports = function module(context, app, { assetsUrl }) {
 
     v1routes.get('/ex/errors', (req, res) => {
         const { size = 10000, from } = req.query;
-        const handleApiError = handleError(res, logger, 500, 'Could not get errors');
 
         logger.trace(`GET /ex/errors endpoint has been called, from: ${from}, size: ${size}`);
+        const handleApiError = handleError(res, logger, 500, 'Could not get errors');
 
         const query = 'ex_id:* AND state:error';
 
@@ -298,9 +310,10 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.get('/ex/:ex_id', (req, res) => {
-        const { ex_id: exId } = req.params;
-        logger.trace(`GET /ex/:ex_id endpoint has been called, ex_id: ${exId}`);
+    v1routes.get('/ex/:exId', (req, res) => {
+        const { exId } = req.params;
+
+        logger.trace(`GET /ex/:exId endpoint has been called, ex_id: ${exId}`);
         const handleApiError = handleError(res, logger, 500, `Could not retrieve execution context ${exId}`);
 
         executionService.getExecutionContext(exId)
@@ -308,9 +321,11 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.post('/ex/:ex_id/_stop', (req, res) => {
-        const { params: { ex_id: exId }, query: { timeout, blocking = true } } = req;
-        logger.trace(`POST /ex/:ex_id/_stop endpoint has been called, ex_id: ${exId}, removing any pending workers for the job`);
+    v1routes.post('/ex/:exId/_stop', (req, res) => {
+        const { exId } = req.params;
+        const { timeout, blocking = true } = req.query;
+
+        logger.trace(`POST /ex/:exId/_stop endpoint has been called, ex_id: ${exId}, removing any pending workers for the job`);
         const handleApiError = handleError(res, logger, 500, `Could not stop execution: ${exId}`);
 
         return executionService.stopExecution(exId, timeout)
@@ -319,10 +334,12 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.post('/ex/:ex_id/_pause', (req, res) => {
-        const { ex_id: exId } = req.params;
-        logger.trace(`POST /ex_id/:id/_pause endpoint has been called, ex_id: ${exId}`);
+    v1routes.post('/ex/:exId/_pause', (req, res) => {
+        const { exId } = req.params;
+
+        logger.trace(`POST /ex/:exId/_pause endpoint has been called, ex_id: ${exId}`);
         const handleApiError = handleError(res, logger, 500, `Could not pause execution: ${exId}`);
+
         // for lifecyle events, we need to ensure that the execution is alive first
         executionService.getActiveExecution(exId)
             .then(() => executionService.pauseExecution(exId))
@@ -330,13 +347,17 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.post('/ex/:ex_id/_recover', (req, res) => {
-        const { params: { ex_id: exId }, query: { cleanup } } = req;
+    v1routes.post('/ex/:exId/_recover', (req, res) => {
+        const { exId } = req.params;
+        const { cleanup } = req.query;
+
         const handleApiError = handleError(res, logger, 500, `Could not recover execution: ${exId}`);
-        logger.trace(`POST /ex_id/:id/_recover endpoint has been called, ex_id: ${exId}`);
+        logger.trace(`POST /ex/:exId/_recover endpoint has been called, ex_id: ${exId}`);
 
         if (cleanup && !(cleanup === 'all' || cleanup === 'errors')) {
-            res.status(400).json({ error: 'if cleanup is specified it must be set to "all" or "errors"' });
+            res.status(400).json({
+                error: 'if cleanup is specified it must be set to "all" or "errors"'
+            });
             return;
         }
 
@@ -345,10 +366,12 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.post('/ex/:ex_id/_resume', (req, res) => {
-        const { ex_id: exId } = req.params;
+    v1routes.post('/ex/:exId/_resume', (req, res) => {
+        const { exId } = req.params;
+
         logger.trace(`POST /ex/:id/_resume endpoint has been called, ex_id: ${exId}`);
         const handleApiError = handleError(res, logger, 500, `Could not resume execution: ${exId}`);
+
         // for lifecyle events, we need to ensure that the execution is alive first
         executionService.getActiveExecution(exId)
             .then(() => executionService.resumeExecution(exId))
@@ -356,8 +379,10 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.post('/ex/:ex_id/_workers', (req, res) => {
-        const { params: { ex_id: exId }, query } = req;
+    v1routes.post('/ex/:exId/_workers', (req, res) => {
+        const { exId } = req.params;
+        const { query } = req;
+
         logger.trace(`POST /ex/:id/_workers endpoint has been called, ex_id: ${exId} query: ${JSON.stringify(query)}`);
         const handleApiError = handleError(res, logger, 500, `Could not change workers for execution: ${exId}`);
 
@@ -366,9 +391,10 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.get('/ex/:ex_id/slicer', _deprecateSlicerName((req, res) => {
-        const { ex_id: exId } = req.params;
-        logger.trace(`GET /ex/:ex_id/slicer endpoint has been called, ex_id: ${exId}`);
+    v1routes.get('/ex/:exId/slicer', _deprecateSlicerName((req, res) => {
+        const { exId } = req.params;
+
+        logger.trace(`GET /ex/:exId/slicer endpoint has been called, ex_id: ${exId}`);
         const handleApiError = handleError(res, logger, 500, `Could not get statistics for execution: ${exId}`);
 
         _controllerStats(exId)
@@ -376,9 +402,10 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     }));
 
-    v1routes.get('/ex/:ex_id/controller', (req, res) => {
-        const { ex_id: exId } = req.params;
-        logger.trace(`GET /ex/:ex_id/controller endpoint has been called, ex_id: ${exId}`);
+    v1routes.get('/ex/:exId/controller', (req, res) => {
+        const { exId } = req.params;
+
+        logger.trace(`GET /ex/:exId/controller endpoint has been called, ex_id: ${exId}`);
         const handleApiError = handleError(res, logger, 500, `Could not get statistics for execution: ${exId}`);
 
         _controllerStats(exId)
@@ -388,6 +415,7 @@ module.exports = function module(context, app, { assetsUrl }) {
 
     v1routes.get('/cluster/stats', (req, res) => {
         logger.trace('GET /cluster/stats endpoint has been called');
+
         const stats = executionService.getClusterStats();
         const { name: cluster } = context.sysconfig.teraslice;
 
@@ -451,13 +479,10 @@ module.exports = function module(context, app, { assetsUrl }) {
 
     app.get('/txt/jobs', (req, res) => {
         logger.trace('GET /txt/jobs endpoint has been called');
-        const defaults = ['job_id', 'name', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
-        let size = 10000;
         const handleApiError = handleError(res, logger, 500, 'Could not get all jobs');
 
-        if (req.query.size && !isNaN(req.query.size) && req.query.size >= 0) {
-            ({ size } = req.query);
-        }
+        const defaults = ['job_id', 'name', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
+        const { size = 10000 } = req.query;
 
         jobsService.getJobs(null, size, '_updated:desc')
             .then((jobs) => {
@@ -469,14 +494,13 @@ module.exports = function module(context, app, { assetsUrl }) {
 
     app.get('/txt/ex', (req, res) => {
         logger.trace('GET /txt/ex endpoint has been called');
-        const defaults = ['name', 'lifecycle', 'slicers', 'workers', '_status', 'ex_id', 'job_id', '_created', '_updated'];
-        const query = 'ex_id:*';
-        let size = 10000;
         const handleApiError = handleError(res, logger, 500, 'Could not get all executions');
 
-        if (req.query.size && !isNaN(req.query.size) && req.query.size >= 0) {
-            ({ size } = req.query);
-        }
+        const { size = 10000 } = req.query;
+
+        const defaults = ['name', 'lifecycle', 'slicers', 'workers', '_status', 'ex_id', 'job_id', '_created', '_updated'];
+        const query = 'ex_id:*';
+
         executionService.searchExecutionContexts(query, null, size, '_updated:desc')
             .then((jobs) => {
                 const tableStr = makeTable(req, defaults, jobs);
@@ -487,6 +511,7 @@ module.exports = function module(context, app, { assetsUrl }) {
 
     app.get('/txt/slicers', _deprecateSlicerName((req, res) => {
         logger.trace('GET /txt/slicers endpoint has been called');
+        const handleApiError = handleError(res, logger, 500, 'Could not get all execution statistics');
 
         const defaults = [
             'name',
@@ -497,8 +522,6 @@ module.exports = function module(context, app, { assetsUrl }) {
             'queued',
             'processed'
         ];
-
-        const handleApiError = handleError(res, logger, 500, 'Could not get all execution statistics');
 
         _controllerStats()
             .then((results) => {
@@ -510,6 +533,7 @@ module.exports = function module(context, app, { assetsUrl }) {
 
     app.get('/txt/controllers', (req, res) => {
         logger.trace('GET /txt/controllers endpoint has been called');
+        const handleApiError = handleError(res, logger, 500, 'Could not get all execution statistics');
 
         const defaults = [
             'name',
@@ -520,8 +544,6 @@ module.exports = function module(context, app, { assetsUrl }) {
             'queued',
             'processed'
         ];
-
-        const handleApiError = handleError(res, logger, 500, 'Could not get all execution statistics');
 
         _controllerStats()
             .then((results) => {
