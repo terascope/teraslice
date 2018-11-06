@@ -137,7 +137,7 @@ describe('Teraslice Jobs', () => {
         describe('when called with nothing', () => {
             let result;
             beforeEach((done) => {
-                scope.get('/ex')
+                scope.get('/jobs')
                     .query({ status: '*' })
                     .reply(200, [
                         {
@@ -170,7 +170,7 @@ describe('Teraslice Jobs', () => {
         describe('when called with a string', () => {
             let result;
             beforeEach((done) => {
-                scope.get('/ex')
+                scope.get('/jobs')
                     .query({ status: 'hello' })
                     .reply(200, [
                         {
@@ -203,7 +203,7 @@ describe('Teraslice Jobs', () => {
         describe('when called with an object', () => {
             let result;
             beforeEach((done) => {
-                scope.get('/ex')
+                scope.get('/jobs')
                     .query({ anything: true })
                     .reply(200, [
                         {
