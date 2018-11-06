@@ -11,7 +11,8 @@ const {
     isPrometheusRequest,
     makeTable,
     sendError,
-    handleError
+    handleError,
+    getSearchOptions
 } = require('../../utils/api_utils');
 const terasliceVersion = require('../../../package.json').version;
 
@@ -89,7 +90,7 @@ module.exports = function module(context, app, { assetsUrl }) {
     });
 
     v1routes.get('/jobs', (req, res) => {
-        const { from, size, sort } = req.query;
+        const { size, from, sort } = getSearchOptions(req);
 
         logger.trace(`GET /jobs endpoint has been called, from: ${from}, size: ${size}, sort: ${sort}`);
         const handleApiError = handleError(res, logger, 500, 'Could not retrieve list of jobs');
@@ -152,8 +153,8 @@ module.exports = function module(context, app, { assetsUrl }) {
     });
 
     v1routes.post('/jobs/:jobId/_stop', (req, res) => {
-        const { timeout, blocking = true } = req.query;
         const { jobId } = req.params;
+        const { timeout, blocking = true } = req.query;
 
         logger.trace(`POST /jobs/:jobId/_stop endpoint has been called, job_id: ${jobId}, removing any pending workers for the job`);
         const handleApiError = handleError(res, logger, 500, `Could not stop execution for job: ${jobId}`);
@@ -172,7 +173,7 @@ module.exports = function module(context, app, { assetsUrl }) {
         const handleApiError = handleError(res, logger, 500, `Could not pause execution for job: ${jobId}`);
 
         jobsService.pauseJob(jobId)
-            .then(status => res.status(200).json({ status }))
+            .then(body => res.status(200).json(body))
             .catch(handleApiError);
     });
 
@@ -183,7 +184,7 @@ module.exports = function module(context, app, { assetsUrl }) {
         const handleApiError = handleError(res, logger, 500, `Could not resume execution for job: ${jobId}`);
 
         jobsService.resumeJob(jobId)
-            .then(status => res.status(200).json({ status }))
+            .then(body => res.status(200).json(body))
             .catch(handleApiError);
     });
 
@@ -200,7 +201,7 @@ module.exports = function module(context, app, { assetsUrl }) {
         }
 
         jobsService.recoverJob(jobId, cleanup)
-            .then(status => res.status(200).json({ status }))
+            .then(body => res.status(200).json(body))
             .catch(handleApiError);
     });
 
@@ -241,8 +242,8 @@ module.exports = function module(context, app, { assetsUrl }) {
     });
 
     v1routes.get('/jobs/:jobId/errors', (req, res) => {
-        const { size = 10000, from } = req.query;
         const { jobId } = req.params;
+        const { size, from, sort } = getSearchOptions(req);
 
         logger.trace(`GET /jobs/:jobId/errors endpoint has been called, job_id: ${jobId}, from: ${from}, size: ${size}`);
         const handleApiError = handleError(res, logger, 500, `Could not get errors for job: ${jobId}`);
@@ -255,7 +256,7 @@ module.exports = function module(context, app, { assetsUrl }) {
                     return Promise.reject(error);
                 }
                 const query = `state:error AND ex_id:${exId}`;
-                return stateStore.search(query, from, size, '_updated:asc');
+                return stateStore.search(query, from, size, sort);
             })
             .then(errorStates => res.status(200).json(errorStates))
             .catch(handleApiError);
@@ -263,14 +264,14 @@ module.exports = function module(context, app, { assetsUrl }) {
 
     v1routes.get('/jobs/:jobId/errors/:exId', (req, res) => {
         const { jobId, exId } = req.params;
-        const { from, size = 10000 } = req.query;
+        const { size, from, sort } = getSearchOptions(req);
 
         logger.trace(`GET /jobs/:jobId/errors endpoint has been called, job_id: ${jobId}, ex_id: ${exId}, from: ${from}, size: ${size}`);
         const handleApiError = handleError(res, logger, 500, `Could not get errors for job: ${jobId}, execution: ${exId}`);
 
         const query = `ex_id:${exId} AND state:error`;
 
-        stateStore.search(query, from, size, '_updated:asc')
+        stateStore.search(query, from, size, sort)
             .then((errorStates) => {
                 res.status(200).json(errorStates);
             })
@@ -278,7 +279,8 @@ module.exports = function module(context, app, { assetsUrl }) {
     });
 
     v1routes.get('/ex', (req, res) => {
-        const { status, from, size, sort } = req.query; //eslint-disable-line
+        const { status = '' } = req.query;
+        const { size, from, sort } = getSearchOptions(req);
 
         logger.trace(`GET /ex endpoint has been called, status: ${status}, from: ${from}, size: ${size}, sort: ${sort}`);
         const handleApiError = handleError(res, logger, 500, 'Could not retrieve list of execution contexts');
@@ -298,14 +300,14 @@ module.exports = function module(context, app, { assetsUrl }) {
     });
 
     v1routes.get('/ex/errors', (req, res) => {
-        const { size = 10000, from } = req.query;
+        const { size, from, sort } = getSearchOptions(req);
 
         logger.trace(`GET /ex/errors endpoint has been called, from: ${from}, size: ${size}`);
         const handleApiError = handleError(res, logger, 500, 'Could not get errors');
 
         const query = 'ex_id:* AND state:error';
 
-        stateStore.search(query, from, size, '_updated:asc')
+        stateStore.search(query, from, size, sort)
             .then(errorStates => res.status(200).json(errorStates))
             .catch(handleApiError);
     });
@@ -323,14 +325,14 @@ module.exports = function module(context, app, { assetsUrl }) {
 
     v1routes.get('/ex/:exId/errors', (req, res) => {
         const { exId } = req.params;
-        const { size = 10000, from } = req.query;
+        const { size, from, sort } = getSearchOptions(req);
 
         logger.trace(`GET /ex/:exId/errors endpoint has been called, ex_id: ${exId}, from: ${from}, size: ${size}`);
         const handleApiError = handleError(res, logger, 500, `Could not get errors for ex_id ${exId}`);
 
         const query = `ex_id:${exId} AND state:error`;
 
-        stateStore.search(query, from, size, '_updated:asc')
+        stateStore.search(query, from, size, sort)
             .then(errorStates => res.status(200).json(errorStates))
             .catch(handleApiError);
     });
@@ -493,13 +495,14 @@ module.exports = function module(context, app, { assetsUrl }) {
     });
 
     app.get('/txt/jobs', (req, res) => {
+        const { size, from, sort } = getSearchOptions(req);
+
         logger.trace('GET /txt/jobs endpoint has been called');
         const handleApiError = handleError(res, logger, 500, 'Could not get all jobs');
 
         const defaults = ['job_id', 'name', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
-        const { size = 10000 } = req.query;
 
-        jobsService.getJobs(null, size, '_updated:desc')
+        jobsService.getJobs(from, size, sort)
             .then((jobs) => {
                 const tableStr = makeTable(req, defaults, jobs);
                 res.status(200).send(tableStr);
@@ -508,15 +511,15 @@ module.exports = function module(context, app, { assetsUrl }) {
     });
 
     app.get('/txt/ex', (req, res) => {
+        const { size, from, sort } = getSearchOptions(req);
+
         logger.trace('GET /txt/ex endpoint has been called');
         const handleApiError = handleError(res, logger, 500, 'Could not get all executions');
-
-        const { size = 10000 } = req.query;
 
         const defaults = ['name', 'lifecycle', 'slicers', 'workers', '_status', 'ex_id', 'job_id', '_created', '_updated'];
         const query = 'ex_id:*';
 
-        executionService.searchExecutionContexts(query, null, size, '_updated:desc')
+        executionService.searchExecutionContexts(query, from, size, sort)
             .then((jobs) => {
                 const tableStr = makeTable(req, defaults, jobs);
                 res.status(200).send(tableStr);

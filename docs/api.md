@@ -2,45 +2,42 @@
 # API Endpoints
 default endpoint in development is localhost:5678
 
-
 #### GET /cluster/state
-   returns a json object representing the state of the cluster
+returns a json object representing the state of the cluster
 
-   query :
-   ```curl localhost:5678/v1/cluster/state```
+USAGE:
 
-   response:
-
-    {
-        "myCompName": {
-            "node_id": "myCompName",
-            "hostname": "192.168.1.4",
-            "pid": 36733,
-            "node_version": "v4.4.5",
-            "teraslice_version": "0.3.0",
-            "total": 8,
-            "state": "connected",
-            "available": 7,
-            "active": [
-                {
-                    "worker_id": 1,
-                    "assignment": "cluster_master",
-                    "pid": 36735
-                }
-            ]
-        }
+```sh
+$ curl localhost:5678/v1/cluster/state
+{
+    "myCompName": {
+        "node_id": "myCompName",
+        "hostname": "192.168.1.4",
+        "pid": 36733,
+        "node_version": "v4.4.5",
+        "teraslice_version": "0.3.0",
+        "total": 8,
+        "state": "connected",
+        "available": 7,
+        "active": [
+            {
+                "worker_id": 1,
+                "assignment": "cluster_master",
+                "pid": 36735
+            }
+        ]
     }
-
+}
+```
 
 #### GET /cluster/controllers
 
 returns an array of all active execution controllers and their associated statistics
 
-query:
-```curl localhost:5678/v1/cluster/controllers ```
+USAGE:
 
-response:
-```
+```sh
+$ curl localhost:5678/v1/cluster/controllers
 [
     {
         "ex_id": "1cb20d4c-520a-44fe-a802-313f41dd5b05",
@@ -67,21 +64,18 @@ response:
 
 submit a zip file containing custom readers/processors for jobs to use
 
-query:
- ```
-  curl -XPOST -H "Content-Type: application/octet-stream" localhost:5678/assets --data-binary @zipFile.zip
- ```
+USAGE:
 
- response:
+```sh
+$ curl -XPOST -H "Content-Type: application/octet-stream" localhost:5678/assets --data-binary @zipFile.zip
+{
+    "_id": "ec2d5465609571590fdfe5b371ed7f98a04db5cb"
+}
+```
 
- ```
- {
-     "_id": "ec2d5465609571590fdfe5b371ed7f98a04db5cb"
- }
- ```
-the _id returned is the id of elasticsearch document where the zip file has been saved
+the `_id` returned is the id of elasticsearch document where the zip file has been saved
 
-The zip file must contain an asset.json containing a name for the asset bundle and a version number which can be used to query the asset besides using the _id
+The zip file must contain an asset.json containing a name for the asset bundle and a version number which can be used to query the asset besides using the `_id`
 ```javascript
  /enclosing_dir
     asset_op
@@ -95,139 +89,271 @@ The zip file must contain an asset.json containing a name for the asset bundle a
 You may zip the enclosing directory or piecemeal the file together
 
 ```javascript
-zip -r zipfile.zip enclosing_dir    
-zip -r zipfile.zip asset_op another_asset.cvs asset.json    
+zip -r zipfile.zip enclosing_dir
+zip -r zipfile.zip asset_op another_asset.cvs asset.json
 ```
 
 ### DELETE /assets
 
 delete an asset
 
-query:
- ```
-  curl -XDELETE localhost:5678/assets/ec2d5465609571590fdfe5b371ed7f98a04db5cb
- ```
+USAGE:
 
- response:
+```sh
+$ curl -XDELETE localhost:5678/assets/ec2d5465609571590fdfe5b371ed7f98a04db5cb
+{
+    "_id": "ec2d5465609571590fdfe5b371ed7f98a04db5cb"
+}
+```
 
- ```
- {
-     "_id": "ec2d5465609571590fdfe5b371ed7f98a04db5cb"
- }
- ```
-the _id returned is the id of elasticsearch document that was deleted
+the `_id` returned is the id of elasticsearch document that was deleted
 
 #### POST /jobs
 
 submit a job to be enqueued
 
-parameter options:
+query options:
 
-- start = [Boolean]
+- `start: boolean = false`
 
-Setting start to false will just store the job and not automatically enqueue it, in this case only the job_id will be returned
+Setting start to false will just store the job and not automatically enqueue it, in this case only the job id will be returned
 
-query:
- ```
- curl -XPOST YOUR_MASTER_IP:5678/v1/jobs -d@job.json
- ```
+USAGE:
 
- response:
-
- ```
- {
-     "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
- }
- ```
+```sh
+$ curl -XPOST YOUR_MASTER_IP:5678/v1/jobs -d@job.json
+{
+    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd"
+}
+```
 
 #### GET /jobs
 
-returns an array of all jobs listed in teracluster__jobs index
+returns an array of all jobs listed in `teracluster__jobs` index
 
-parameter options:
+query options:
 
-- from = [Number]
-- size = [Number]
-- sort = [String]
+- `from: number = 0`
+- `size: number = 100`
+- `sort: string = "_updated:asc"`
 
 size is the number of documents returned, from is how many documents in and sort is a lucene query
 
-  query :
-   ```curl localhost:5678/v1/jobs```
+USAGE:
+
+```sh
+$ curl localhost:5678/v1/jobs
+[
+    {
+        "name": "Example",
+        "lifecycle": "persistent",
+        "workers": 1,
+        "operations": [
+            {
+                "_op": "noop"
+            }
+        ]
+        "job_id": "013b52c3-a4db-4fc4-8a65-7569b6b61951",
+        "_created": "2018-09-21T17:49:05.029Z",
+        "_updated": "2018-11-01T13:15:22.743Z",
+        "_context": "job"
+    }
+]
+```
 
 #### GET /jobs/{job_id}
 
 returns the job that matches given job_id
 
-query:
-``` curl localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd```
+USAGE:
+
+```sh
+$ curl localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd
+{
+    "name": "Example",
+    "lifecycle": "persistent",
+    "workers": 1,
+    "operations": [
+        {
+            "_op": "noop"
+        }
+    ]
+    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
+    "_created": "2018-09-21T17:49:05.029Z",
+    "_updated": "2018-11-01T13:15:22.743Z",
+    "_context": "job"
+}
+```
 
 #### PUT /jobs/{job_id}
 
-updates a stored job that has the given job_id
+updates a stored job that has the given job id
+
+USAGE:
+
+```sh
+$ curl -XPUT localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd -d@job.json
+{
+    "name": "Example",
+    "lifecycle": "persistent",
+    "workers": 1,
+    "operations": [
+        {
+            "_op": "noop"
+        }
+    ]
+    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
+    "_created": "2018-09-21T17:49:05.029Z",
+    "_updated": "2018-11-01T13:15:22.743Z",
+    "_context": "job"
+}
+```
 
 #### GET /jobs/:job_id/ex
-returns the current or latest job execution context that matches given job_id
 
-   query:
-   ``` curl localhost:5678/v1/jobs/{job_id}/ex```
+returns the current or latest job execution context that matches given job id
+
+USAGE:
+
+```sh
+$ curl localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/ex
+{
+    "analytics": true,
+    "lifecycle": "persistent",
+    "max_retries": 3,
+    "name": "Example",
+    "operations": [
+        {
+            "_op": "noop"
+        }
+    ],
+    "probation_window": 300000,
+    "recycle_worker": null,
+    "slicers": 1,
+    "workers": 1,
+    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
+    "ex_id": "863678b3-daf3-4ea9-8cb0-88b846cd7e57",
+    "_created": "2018-11-01T13:15:50.704Z",
+    "_updated": "2018-11-01T13:16:14.122Z",
+    "_context": "ex",
+    "_status": "completed",
+    "slicer_hostname": "localhost",
+    "slicer_port": 46292,
+    "_has_errors": false,
+    "_slicer_stats": {
+        "workers_active": 0,
+        "workers_joined": 1,
+        "queued": 0,
+        "job_duration": 1,
+        "subslice_by_key": 0,
+        "started": "2018-11-01T06:15:58.912-07:00",
+        "failed": 0,
+        "subslices": 0,
+        "queuing_complete": "2018-11-01T06:15:59.503-07:00",
+        "slice_range_expansion": 2,
+        "processed": 1,
+        "workers_available": 1,
+        "workers_reconnected": 0,
+        "workers_disconnected": 0,
+        "slicers": 1
+    }
+}
+```
 
 #### POST /jobs/{job_id}/_start
 
-issues a start command, this will start a fresh new job associated with the job_id
+issues a start command, this will start a fresh new job associated with the job id
 
-query:
-``` curl -XPOST localhost:5678/v1/jobs/{job_id}/_start```
+USAGE:
+
+```sh
+$ curl -XPOST localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_start
+{
+    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd"
+}
+```
 
 
 #### POST /jobs/{job_id}/_stop
 
-parameter options:
+query options:
 
 - timeout = [Number]
 
 issues a stop command which will shutdown the execution controllers and workers, marks the job execution context state as stopped. You can optionally add a timeout query parameter to dynamically change how long it will wait as the time the controller/readers will exit will vary. Note: the timeout your provide will be added to the network_latency_buffer for the final timeout used.
 
-query:
-```curl -XPOST localhost:5678/v1/jobs/{job_id}/_stop?timeout=120000```
+USAGE:
+
+```sh
+$ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_stop?timeout=120000'
+{
+    "status": "completed"
+}
+```
 
 #### POST /jobs/{job_id}/_pause
 
 issues a pause command, this will prevent the execution controller from invoking slicers and also prevent the allocation of slices to workers, marks the job execution context state as paused
 
+USAGE:
+
+```sh
+$ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_pause'
+{
+    "status": "completed"
+}
+```
+
 #### POST /jobs/{job_id}/_resume
 
 issues a resume command, this allows the execution controller to continue invoking slicers and allocating work if they were in a paused state, marks the job execution context as running
 
+```sh
+$ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_resume'
+{
+    "status": "completed"
+}
+```
+
 #### POST /jobs/{job_id}/_recover
 
 THIS API ENDPOINT IS BEING DEPRECATED: issues a recover command, this can only be run if the job is stopped, the job will attempt to retry failed slices and to resume where it previously left off
+
+```sh
+$ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_recover'
+{
+    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd"
+}
+```
 
 
 #### POST /jobs/{job_id}/_workers
 
 you can dynamically change the amount of workers that are allocated for a specific job execution.
 
-parameter options:
+query options:
 
-- add = [Number]
-- remove = [Number]
-- total = [Number]
+- `add: number`
+- `remove: number`
+- `total: number`
 
 if you use total, it will dynamically determine if it needs to add or remove to reach the number of workers you set
 
-query:
-``` curl -XPOST localhost:5678/v1/jobs/{job_id}/_workers?add=5```
+USAGE:
+
+```sh
+$ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_workers?add=5'
+"5 workers have been add for execution: 863678b3-daf3-4ea9-8cb0-88b846cd7e57"
+```
 
 #### GET /jobs/{job_id}/controller
 
 same concept as cluster/controllers, but only get stats on execution controller associated with the given job_id
 
-query:
-```curl localhost:5678/v1/jobs/{job_id}/controller```
+USAGE:
 
-response:
-```
+```sh
+$ curl localhost:5678/v1/jobs/a8e2be53-fe17-4727-9336-c9f09db9485f/controller
 [
     {
         "job_id": "a8e2be53-fe17-4727-9336-c9f09db9485f",
@@ -246,7 +372,6 @@ response:
         "slicers": 2,
         "subslice_by_key": 0,
         "started": "2016-07-29T13:24:12.558-07:00"
-       
     }
 ]
 ```
@@ -257,49 +382,158 @@ This endpoint will return an array of all errors from all executions from oldest
 Note that elasticsearch has a window size limit of 10000, please use from to get more if needed
 parameter options:
 
-- from = [Number]
-- size = [Number]
+- `from: number = 0`
+- `size: number = 100`
+- `sort: string = "_updated:asc"`
 
+size is the number of documents returned, from is how many documents in and sort is a lucene query
 
-query:
-```curl -XGET localhost:5678/v1/jobs/{job_id}/errors
+USAGE:
+
+```sh
+$ curl localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/errors
+[
+    {
+        "slice_id": "f82c0bbd-7ee3-4677-b48e-ca132fad3d73",
+        "slicer_id": 0,
+        "slicer_order": 23,
+        "request": "{\"foo\":\"bar\"}",
+        "state": "error",
+        "ex_id": "863678b3-daf3-4ea9-8cb0-88b846cd7e57",
+        "_created": "2018-10-24T20:56:41.712Z",
+        "_updated": "2018-10-24T20:58:40.015Z",
+        "error": "Error: Uh-oh"
+    }
+]
 ```
-
 
 #### GET /jobs/{job_id}/errors/{ex_id}
 
 This endpoint will return an array of all errors from the specified  execution from oldest to newest
 Note that elasticsearch has a window size limit of 10000, please use from to get more if needed
-parameter options:
 
-- from = [Number]
-- size = [Number]
+query options:
 
+- `from: number = 0`
+- `size: number = 100`
+- `sort: string = "_updated:asc"`
 
-query:
-```curl -XGET localhost:5678/v1/jobs/{job_id}/errors/{ex_id}
+size is the number of documents returned, from is how many documents in and sort is a lucene query
+
+USAGE:
+
+```sh
+$ curl localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/errors/863678b3-daf3-4ea9-8cb0-88b846cd7e57
+[
+    {
+        "slice_id": "f82c0bbd-7ee3-4677-b48e-ca132fad3d73",
+        "slicer_id": 0,
+        "slicer_order": 23,
+        "request": "{\"foo\":\"bar\"}",
+        "state": "error",
+        "ex_id": "863678b3-daf3-4ea9-8cb0-88b846cd7e57",
+        "_created": "2018-10-24T20:56:41.712Z",
+        "_updated": "2018-10-24T20:58:40.015Z",
+        "error": "Error: Uh-oh"
+    }
+]
 ```
-
 
 #### GET /ex
 
 returns all execution contexts (job invocations)
 
-parameter options:
+query options:
 
-- status [String]
-- from = [Number]
-- size = [Number]
-- sort = [String]
+- `from: number = 0`
+- `size: number = 100`
+- `sort: string = "_updated:asc"`
+- `status: string = "*"`
 
 size is the number of documents returned, from is how many documents in and sort is a lucene query
 
-  query :
-   ```curl localhost:5678/v1/ex?status=running&size=10```
+USAGE
+```sh
+$ curl 'localhost:5678/v1/ex?status=running&size=10'
+[
+    {
+        "analytics": true,
+        "lifecycle": "persistent",
+        "max_retries": 3,
+        "name": "Example",
+        "operations": [
+            {
+                "_op": "noop"
+            }
+        ],
+        "probation_window": 300000,
+        "recycle_worker": null,
+        "slicers": 1,
+        "workers": 1,
+        "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
+        "ex_id": "863678b3-daf3-4ea9-8cb0-88b846cd7e57",
+        "_created": "2018-11-01T13:15:50.704Z",
+        "_updated": "2018-11-01T13:16:14.122Z",
+        "_context": "ex",
+        "_status": "completed",
+        "slicer_hostname": "localhost",
+        "slicer_port": 46292,
+        "_has_errors": false,
+        "_slicer_stats": {
+            "workers_active": 0,
+            "workers_joined": 1,
+            "queued": 0,
+            "job_duration": 1,
+            "subslice_by_key": 0,
+            "started": "2018-11-01T06:15:58.912-07:00",
+            "failed": 0,
+            "subslices": 0,
+            "queuing_complete": "2018-11-01T06:15:59.503-07:00",
+            "slice_range_expansion": 2,
+            "processed": 1,
+            "workers_available": 1,
+            "workers_reconnected": 0,
+            "workers_disconnected": 0,
+            "slicers": 1
+        }
+    }
+]
+```
+
+#### GET /ex/errors
+
+returns all execution errors
+
+query options:
+
+- `from: number = 0`
+- `size: number = 100`
+- `sort: string = "_updated:asc"`
+
+size is the number of documents returned, from is how many documents in and sort is a lucene query
+
+USAGE:
+
+```sh
+$ curl localhost:5678/v1/ex/errors
+[
+    {
+        "slice_id": "f82c0bbd-7ee3-4677-b48e-ca132fad3d73",
+        "slicer_id": 0,
+        "slicer_order": 23,
+        "request": "{\"foo\":\"bar\"}",
+        "state": "error",
+        "ex_id": "863678b3-daf3-4ea9-8cb0-88b846cd7e57",
+        "_created": "2018-10-24T20:56:41.712Z",
+        "_updated": "2018-10-24T20:58:40.015Z",
+        "error": "Error: Uh-oh"
+    }
+]
+```
 
 #### GET /ex/{ex_id}
 
- returns the job execution context that matches given ex_id
+returns the job execution context that matches given ex_id
 
    query:
    ``` curl localhost:5678/v1/ex/77c94621-48cf-459f-9d95-dfbccf010f5c```

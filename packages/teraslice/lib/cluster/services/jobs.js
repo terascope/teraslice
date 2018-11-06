@@ -31,9 +31,9 @@ module.exports = function module(context) {
                     return executionService.createExecutionContext(executableJobConfig);
                 }))
             .catch((err) => {
-                const errMsg = parseError(err);
-                logger.error(`Could not submit job, ${errMsg}`);
-                return Promise.reject(errMsg);
+                const error = new Error(`Failure to submit job, ${_.toString(err)}`);
+                logger.error(error.message, parseError(err));
+                return Promise.reject(error);
             });
     }
 
@@ -46,9 +46,9 @@ module.exports = function module(context) {
                 return jobStore.update(jobId, updatedJob);
             })
             .catch((err) => {
-                const errMsg = parseError(err);
-                logger.error('could not updateJob', errMsg);
-                return Promise.reject(errMsg);
+                const error = new Error(`Failure to update job, ${_.toString(err)}`);
+                logger.error(error.message, parseError(err));
+                return Promise.reject(error);
             });
     }
 
@@ -56,13 +56,17 @@ module.exports = function module(context) {
         return _getActiveExecution(jobId, true)
             .then((execution) => {
                 // searching for an active execution, if there is then we reject
-                if (execution !== undefined) {
-                    return Promise.reject(`job_id: ${jobId} is currently running, cannot have the same job concurrently running`);
+                if (execution != null) {
+                    const error = new Error(`job_id: ${jobId} is currently running, cannot have the same job concurrently running`);
+                    error.code = 409;
+                    return Promise.reject(error);
                 }
                 return getJob(jobId)
                     .then((jobConfig) => {
                         if (!jobConfig) {
-                            return Promise.reject(`no job for job_id: ${jobId} could be found`);
+                            const error = new Error(`no job for job_id: ${jobId} could be found`);
+                            error.code = 404;
+                            return Promise.reject(error);
                         }
                         return _ensureAssets(jobConfig);
                     })
@@ -70,9 +74,9 @@ module.exports = function module(context) {
                     .then(validJob => executionService.createExecutionContext(validJob));
             })
             .catch((err) => {
-                const errMsg = `could not start job, error: ${parseError(err)}`;
-                logger.error(errMsg);
-                return Promise.reject(errMsg);
+                const error = new Error(`Failure to start job, ${_.toString(err)}`);
+                logger.error(error.message, parseError(err));
+                return Promise.reject(error);
             });
     }
 
@@ -83,19 +87,31 @@ module.exports = function module(context) {
             .then(assetIdJob => _validateJob(assetIdJob))
             .then(() => getLatestExecutionId(jobId))
             .then(exId => executionService.recoverExecution(exId, cleanup))
-            .catch(err => Promise.reject(parseError(err)));
+            .catch((err) => {
+                const error = new Error(`Failure to recover job, ${_.toString(err)}`);
+                logger.error(error.message, parseError(err));
+                return Promise.reject(error);
+            });
     }
 
     function pauseJob(jobId) {
         return getLatestExecutionId(jobId)
             .then(exId => executionService.pauseExecution(exId))
-            .catch(err => Promise.reject(parseError(err)));
+            .catch((err) => {
+                const error = new Error(`Failure to pause job, ${_.toString(err)}`);
+                logger.error(error.message, parseError(err));
+                return Promise.reject(error);
+            });
     }
 
     function resumeJob(jobId) {
         return getLatestExecutionId(jobId)
             .then(exId => executionService.resumeExecution(exId))
-            .catch(err => Promise.reject(parseError(err)));
+            .catch((err) => {
+                const error = new Error(`Failure to resume job, ${_.toString(err)}`);
+                logger.error(error.message, parseError(err));
+                return Promise.reject(error);
+            });
     }
 
     function getJob(jobId) {
@@ -113,7 +129,9 @@ module.exports = function module(context) {
         return executionService.searchExecutionContexts(query, null, 1, '_created:desc')
             .then((ex) => {
                 if (!allowZeroResults && ex.length === 0) {
-                    return Promise.reject(`no execution context was found for job_id: ${jobId}`);
+                    const error = new Error(`no execution context was found for job_id: ${jobId}`);
+                    error.code = 404;
+                    return Promise.reject(error);
                 }
                 return ex[0];
             });
@@ -141,8 +159,8 @@ module.exports = function module(context) {
             let validJob;
             try {
                 validJob = jobValidator.validateConfig(jobSpec);
-            } catch (ev) {
-                reject(`Error validating job: ${ev}`);
+            } catch (err) {
+                reject(new Error(`Failure validating job: ${_.toString(err)}`));
             }
 
             resolve(validJob);

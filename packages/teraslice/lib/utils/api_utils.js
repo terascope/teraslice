@@ -41,9 +41,10 @@ function fieldsQuery(query, defaults) {
 
 function handleError(res, logger, defualtCode, defaultErrorMsg) {
     return (errObj) => {
-        if (errObj.code) {
+        if (_.isError(errObj) || errObj.code || errObj.statusCode) {
+            const code = errObj.statusCode || errObj.code || 500;
             logger.error(errObj.message);
-            sendError(res, errObj.code, errObj.message);
+            sendError(res, code, errObj.message);
             return;
         }
         const errMsg = `${defaultErrorMsg}, error: ${parseError(errObj)}`;
@@ -102,11 +103,16 @@ function isPrometheusRequest(req) {
     return acceptHeader && acceptHeader.indexOf('application/openmetrics-text;') > -1;
 }
 
+function getSearchOptions(req) {
+    const { size = 1000, from, sort = '_updated:asc' } = req.query;
+    return { size, from, sort };
+}
 
 module.exports = {
     isPrometheusRequest,
     makePrometheus,
     makeTable,
+    getSearchOptions,
     handleError,
     sendError
 };
