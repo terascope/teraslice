@@ -111,10 +111,55 @@ describe('When using native clustering', () => {
             const config = validateOpConfig(schema, op);
             expect(config as object).toEqual({
                 _op: 'some-op',
+                _encoding: 'json',
                 example: 'example',
                 formatted_value: 'hi',
                 test: true,
             });
+        });
+
+        it('should handle a custom encoding', () => {
+            const op = {
+                _op: 'some-op',
+                _encoding: 'json',
+                example: 'example',
+                formatted_value: 'hi',
+            };
+
+            const config = validateOpConfig(schema, op);
+            expect(config as object).toEqual({
+                _op: 'some-op',
+                _encoding: 'json',
+                example: 'example',
+                formatted_value: 'hi',
+                test: true,
+            });
+        });
+
+        it('should handle an invalid encoding', () => {
+            const op = {
+                _op: 'some-op',
+                _encoding: 'uh-oh',
+                example: 'example',
+                formatted_value: 'hi',
+            };
+
+            expect(() => {
+                validateOpConfig(schema, op);
+            }).toThrow();
+        });
+
+        it('should handle a non-string encoding', () => {
+            const op = {
+                _op: 'some-op',
+                _encoding: 123,
+                example: 'example',
+                formatted_value: 'hi',
+            };
+
+            expect(() => {
+                validateOpConfig(schema, op);
+            }).toThrow();
         });
 
         it('should fail when given invalid input', () => {

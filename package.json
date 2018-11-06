@@ -28,7 +28,7 @@
         "@types/convict": "^4.2.0",
         "@types/debug": "^0.0.31",
         "@types/fs-extra": "^5.0.4",
-        "@types/lodash": "^4.14.117",
+        "@types/lodash": "^4.14.118",
         "@types/lodash.clonedeep": "^4.5.4",
         "@types/nanoid": "^1.2.0",
         "@types/node": "^10.12.2",

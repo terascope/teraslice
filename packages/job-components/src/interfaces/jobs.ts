@@ -2,11 +2,23 @@
  * OpConfig is the configuration that user specifies
  * for a Operation.
  * The only required property is `_op` since that is used
- * to find the operation
+ * to find the operation.
+ * Encoding defaults to "JSON" when DataEntity.fromBuffer() is called
 */
 export interface OpConfig {
     _op: string;
+    _encoding?: DataEncoding;
 }
+
+/**
+ * An enum of available encoding formats
+*/
+export enum DataEncoding {
+    JSON = 'json',
+}
+
+/** A list of supported encoding formats */
+export const dataEncodings = [DataEncoding.JSON];
 
 export enum LifeCycle {
     Once = 'once',
