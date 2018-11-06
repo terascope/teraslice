@@ -63,7 +63,7 @@ module.exports = (cliConfig) => {
             }
             if (jobs.length === 0) {
                 reply.error(`No jobs to ${action}`);
-                return;
+                return null;
             }
 
             if (cliConfig.yes || await showPrompt(action)) {
@@ -132,8 +132,7 @@ module.exports = (cliConfig) => {
                     reply.fatal(`Unable to start job: ${cliConfig.job_id}`);
                 }
             }
-        }
-        else {
+        } else {
             const jobs = [];
             jobs.push(jobContents.__metadata.cli);
             await changeStatus(jobs, action);
@@ -158,7 +157,13 @@ module.exports = (cliConfig) => {
         await asset.load();
         const jobContents = cliConfig.job_file_content;
         const registeredResponse = await terasliceClient.jobs.submit(jobContents, !cliConfig.run);
-        cliConfig.job_id = registeredResponse ? registeredResponse.id() : cliConfig.job_file_content.cli.job_id;
+
+        if (registeredResponse) {
+            cliConfig.job_id = registeredResponse.id();
+        } else {
+            cliConfig.job_id = cliConfig.job_file_content.cli.job_id;
+        }
+
         reply.green(`Successfully registered job: ${cliConfig.job_id} on ${cliConfig.cluster}`);
         await updateJobFile();
         if (cliConfig.run) {
@@ -235,7 +240,9 @@ module.exports = (cliConfig) => {
 
 
     async function workers() {
-        const response = await terasliceClient.jobs.wrap(cliConfig.deets.id).changeWorkers(cliConfig.action, cliConfig.num);
+        const response = await terasliceClient.jobs
+            .wrap(cliConfig.deets.id)
+            .changeWorkers(cliConfig.action, cliConfig.num);
         await reply.green(response);
     }
 
@@ -316,7 +323,7 @@ module.exports = (cliConfig) => {
         }
         for (const jobStatus of cliConfig.statusList) {
             let jobsTemp = '';
-            const exResult = await terasliceClient.jobs.list(jobStatus);
+            const exResult = await terasliceClient.ex.list(jobStatus);
             jobsTemp = await controllerStatus(exResult, jobStatus, controllers);
 
             _.each(jobsTemp, (job) => {
@@ -344,7 +351,7 @@ module.exports = (cliConfig) => {
         if (cliConfig.info) {
             await displayInfo();
         }
-        const jobs = await terasliceClient.jobs.jobs();
+        const jobs = await terasliceClient.jobs.list();
         if (jobs.length > 0) {
             await displayJobsList(jobs, false);
         }
@@ -412,7 +419,7 @@ module.exports = (cliConfig) => {
 
     async function view() {
         // view job on cluster using details from job file
-        if (cliConfig.deets.file !== undefined) {
+        if (cliConfig.deets.file != null) {
             await checks.returnJobData();
             const jobId = cliConfig.job_file_content.__metadata.cli.job_id;
             cliConfig.cluster = cliConfig.job_file_content.__metadata.cli.cluster;
@@ -430,7 +437,8 @@ module.exports = (cliConfig) => {
             let jobDiff = false;
             _.each(jobSpec, (value, key) => {
                 if (!excludeList.includes(key)) {
-                    if (jsonDiff.diff(cliConfig.job_file_content[key], jobSpec[key]) !== undefined) {
+                    const obj = cliConfig.job_file_content[key];
+                    if (jsonDiff.diff(obj, jobSpec[key]) != null) {
                         jobDiff = true;
                     }
                 }
@@ -439,9 +447,10 @@ module.exports = (cliConfig) => {
                 reply.error('Job file differences local -> cluster:');
                 _.each(jobSpec, (value, key) => {
                     if (!excludeList.includes(key)) {
-                        if (jsonDiff.diff(cliConfig.job_file_content[key], jobSpec[key]) !== undefined) {
+                        const diffed = jsonDiff.diff(cliConfig.job_file_content[key], jobSpec[key]);
+                        if (diffed != null) {
                             console.log(`${key}:`);
-                            console.log(jsonDiff.diffString(cliConfig.job_file_content[key], jobSpec[key]));
+                            console.log(diffed);
                         }
                     }
                 });
@@ -470,9 +479,7 @@ module.exports = (cliConfig) => {
                 });
                 count += 1;
                 console.log('--------------------------------------------------------------------------------------');
-                if (count >= size) {
-                    return false;
-                }
+                return count < size;
             });
         }
     }
