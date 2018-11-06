@@ -7,7 +7,10 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const util = require('util');
 const {
-    makePrometheus, makeTable, sendError, handleError
+    makePrometheus,
+    makeTable,
+    sendError,
+    handleError
 } = require('../../utils/api_utils');
 const terasliceVersion = require('../../../package.json').version;
 
@@ -227,7 +230,7 @@ module.exports = function module(context, app, { assetsUrl }) {
             .catch(handleApiError);
     });
 
-    v1routes.get('/jobs/:job_id/errors/', (req, res) => {
+    v1routes.get('/jobs/:job_id/errors', (req, res) => {
         const { query: { size = 10000, from }, params: { job_id: jobId } } = req;
         const handleApiError = handleError(res, logger, 500, `Could not get errors for job: ${jobId}`);
 
@@ -236,7 +239,9 @@ module.exports = function module(context, app, { assetsUrl }) {
         jobsService.getLatestExecutionId(jobId)
             .then((exId) => {
                 if (!exId) {
-                    return Promise.reject(`no executions were found for job: ${jobId}`);
+                    const error = new Error(`no executions were found for job: ${jobId}`);
+                    error.code = 404;
+                    return Promise.reject(error);
                 }
                 const query = `state:error AND ex_id:${exId}`;
                 return stateStore.search(query, from, size, '_updated:asc');
@@ -270,6 +275,19 @@ module.exports = function module(context, app, { assetsUrl }) {
 
         executionService.searchExecutionContexts(query, from, size, sort)
             .then(results => res.status(200).json(results))
+            .catch(handleApiError);
+    });
+
+    v1routes.get('/ex/errors', (req, res) => {
+        const { size = 10000, from } = req.query;
+        const handleApiError = handleError(res, logger, 500, 'Could not get errors');
+
+        logger.trace(`GET /ex/errors endpoint has been called, from: ${from}, size: ${size}`);
+
+        const query = 'ex_id:* AND state:error';
+
+        stateStore.search(query, from, size, '_updated:asc')
+            .then(errorStates => res.status(200).json(errorStates))
             .catch(handleApiError);
     });
 
@@ -520,10 +538,9 @@ module.exports = function module(context, app, { assetsUrl }) {
         const queryKeys = Object.keys(query);
 
         if (!query) {
-            return Promise.reject({
-                code: 400,
-                message: 'Must provide a query parameter in request'
-            });
+            const error = new Error('Must provide a query parameter in request');
+            error.code = 400;
+            return Promise.reject(error);
         }
         queryKeys.forEach((key) => {
             if (keyOptions[key]) {
@@ -533,10 +550,9 @@ module.exports = function module(context, app, { assetsUrl }) {
         });
 
         if (!msg || isNaN(workerNum) || workerNum <= 0) {
-            return Promise.reject({
-                code: 400,
-                message: 'Must provide a valid worker parameter(add/remove/total) that is a number and greater than zero'
-            });
+            const error = new Error('Must provide a valid worker parameter(add/remove/total) that is a number and greater than zero');
+            error.code = 400;
+            return Promise.reject(error);
         }
 
         if (msg === 'add') {
