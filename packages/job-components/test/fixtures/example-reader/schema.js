@@ -3,6 +3,13 @@
 const { ConvictSchema } = require('../../..');
 
 class Schema extends ConvictSchema {
+    validateJob(job) {
+        const shouldFail = job.operations.find(op => op.failCrossValidation);
+        if (shouldFail) {
+            throw new Error('Failing job validation');
+        }
+    }
+
     build() {
         return {
             example: {

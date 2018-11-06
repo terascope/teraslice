@@ -2,6 +2,7 @@
     "name": "Hit Counter",
     "lifecycle": "persistent",
     "workers": 2,
+    "assets": ["elasticsearch"],
     "operations": [
         {
           "_op": "elasticsearch_reader",
