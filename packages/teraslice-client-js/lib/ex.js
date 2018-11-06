@@ -36,7 +36,13 @@ class Ex extends Client {
         const qs = _parseListOptions(options);
         return this.get('/ex', { qs });
     }
+
+    errors(options) {
+        const qs = _parseListOptions(options);
+        return this.get('/ex/errors', { qs });
+    }
 }
+
 function _checkID(exId) {
     if (!exId) {
         throw new Error('Ex requires exId');

@@ -8,4 +8,4 @@ const teraslice = require('../index')({
 
 teraslice.cluster.state().then(console.log);
 
-teraslice.cluster.slicers().then(console.log);
+teraslice.cluster.controllers().then(console.log);
