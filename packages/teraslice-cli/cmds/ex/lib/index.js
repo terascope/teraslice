@@ -13,6 +13,7 @@ module.exports = (cliConfig) => {
     const terasliceClient = require('teraslice-client-js')({
         host: cliConfig.cluster_url
     });
+    cliConfig.type = 'ex';
 
     async function stop() {
         let waitCountStop = 0;
@@ -85,6 +86,9 @@ module.exports = (cliConfig) => {
 
         return exIds;
     }
+    async function errors() {
+       reply.fatal('function currently no implemented');
+    }
 
     async function displayExIds(exIds, file = false) {
         const headerExIds = await setHeaderDefaults(file);
@@ -151,6 +155,7 @@ module.exports = (cliConfig) => {
 
     return {
         list,
+        errors,
         stop,
         save,
         status

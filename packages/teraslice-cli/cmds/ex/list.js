@@ -14,7 +14,7 @@ exports.builder = (yargs) => {
         .option('status', {
             alias: 's',
             describe: 'list of ex status to include',
-            default: 'running,failing'
+            default: '*'
         });
 };
 

@@ -3,10 +3,10 @@
 
 const _ = require('lodash');
 const reply = require('../lib/reply')();
-const configChecks = require('../lib/config');
+const config = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'stop <cluster_sh>';
+exports.command = 'stop <cluster_sh> [job]';
 exports.desc = 'stops job(s) running or failing on the cluster, saves running job(s) to a json file.\n';
 exports.builder = (yargs) => {
     cli().args('jobs', 'stop', yargs);
@@ -28,7 +28,7 @@ exports.builder = (yargs) => {
 
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
-    configChecks(cliConfig, 'jobs:stop').returnConfigData();
+    config(cliConfig, 'jobs:stop').returnConfigData();
     const job = _testFunctions || require('./lib')(cliConfig);
 
     return job.stop()

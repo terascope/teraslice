@@ -17,22 +17,15 @@ module.exports = (cliConfig) => {
     }
 
     function handler() {
-        let fName = cliConfig.deets.file;
+        const fName = cliConfig.deets.file;
         if (!fName) {
             reply.fatal('Missing the job file!');
         }
 
-        if (fName.lastIndexOf('.json') !== fName.length - 5) {
-            fName += '.json';
-        }
-
         const jobFilePath = path.isAbsolute(fName) ? fName : path.join(cliConfig.baseDir, fName);
         let jobContents;
-        jobContents = require(jobFilePath);
-
         try {
             jobContents = require(jobFilePath);
-
         } catch (err) {
             console.log(err);
             reply.fatal(`Error reading JSON file: ${fName}`);

@@ -10,11 +10,12 @@ const exec = promisify(require('child_process').exec);
 
 const TerasliceClient = require('teraslice-client-js');
 const reply = require('../../lib/reply')();
-
+const display = require('../../lib/display')();
 module.exports = (cliConfig = {}, _terasliceClient) => {
     const terasliceClient = _terasliceClient || TerasliceClient({
         host: cliConfig.cluster_url
     });
+    cliConfig.type = 'asset';
 
     function _urlCheck(url) {
         // check that url starts with http:// but allow for https://
@@ -52,7 +53,6 @@ module.exports = (cliConfig = {}, _terasliceClient) => {
     }
 
     function postAsset(client = terasliceClient) {
-        console.log(cliConfig.cluster_url);
         /*
         let baseDir = path.join(cliConfig.baseDir, cliConfig.asset_name);
         if (path.basename(cliConfig.baseDir) === cliConfig.asset_name) {
@@ -142,6 +142,37 @@ module.exports = (cliConfig = {}, _terasliceClient) => {
         return installed;
     }
 
+    async function displayAssets(assets) {
+        const headerAssets = ['name', 'version','id', '_created', 'description'];
+        let assetsParsed;
+        if (cliConfig.output_style === 'txt') {
+            assetsParsed = assets;
+        } else {
+            assetsParsed = await parseAssetResponse(assets);
+        }
+        await display.display(headerAssets, assetsParsed, cliConfig.output_style);
+    }
+
+    async function parseAssetResponse(response) {
+        const rows = [];
+
+        _.each(response, (value, asset) => {
+            const row = [];
+            row.push(response[asset].name);
+            row.push(response[asset].version);
+            row.push(response[asset].id);
+            row.push(response[asset]._created);
+            row.push(response[asset].description);
+            rows.push(row);
+        });
+        return rows;
+    }
+
+    async function list() {
+        const result = await terasliceClient.assets.list();
+        await displayAssets(result);
+    }
+
     return {
         alreadyRegisteredCheck,
         command,
@@ -152,6 +183,7 @@ module.exports = (cliConfig = {}, _terasliceClient) => {
         postAsset,
         terasliceClient,
         updateAssetMetadata,
-        zipAsset
+        zipAsset,
+        list
     };
 };

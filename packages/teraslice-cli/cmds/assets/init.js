@@ -54,7 +54,7 @@ exports.handler = async (argv, _testFunctions) => {
         }
     ];
     const assetData = await prompts(questions);
-    // package.jsons and asset.json all have this data
+    // package.json and asset.json all have this data
     const packageJson = {
         name: cliConfig.asset_name,
         version: assetData.asset_version,
@@ -126,12 +126,12 @@ exports.handler = async (argv, _testFunctions) => {
     // install dependencies in root dir and asset dir
     try {
         // install in base dir
-        reply.green('installing root dependences, this could take a few minutes');
+        reply.green('installing root dependencies, this could take a few minutes');
         const rootDependencies = await assetFunctions.command(installCmd);
         reply.yellow(rootDependencies.stderr);
         reply.green(rootDependencies.stdout);
         // install in base/asset dir
-        reply.green('installing asset dependences, this could take a few minutes');
+        reply.green('installing asset dependencies, this could take a few minutes');
         const assetDependencies = await assetFunctions.command(`cd asset && ${installCmd}`);
         reply.yellow(assetDependencies.stderr);
         reply.green(assetDependencies.stdout);

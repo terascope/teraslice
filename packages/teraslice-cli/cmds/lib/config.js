@@ -35,7 +35,7 @@ module.exports = (cliConfig, command) => {
         }
 
         if (cliConfig.cluster_sh !== undefined) {
-            cliConfig.deets = shortHand.parse(cliConfig.cluster_sh);
+            cliConfig.deets = shortHand.parse(cliConfig.cluster_sh, cliConfig.type);
         }
         if (_.has(cliConfig.deets, 'file')) {
             const jobFile = require('./job_file')(cliConfig);
@@ -72,6 +72,9 @@ module.exports = (cliConfig, command) => {
             }
             return;
         }
+        if (command === 'jobs:init') {
+            return;
+        }
 
         if (command === 'aliases:add' || command === 'aliases:remove' || command === 'aliases:update') {
             cliConfig.cluster = cliConfig.deets.cluster;
@@ -83,6 +86,7 @@ module.exports = (cliConfig, command) => {
             } else {
                 cliConfig.statusList = ['running', 'failing'];
             }
+
             if (_.has(cliConfig, 'deets.cluster')) {
                 cliConfig.cluster = cliConfig.deets.cluster;
                 if (_.has(cliConfig.config.clusters, cliConfig.deets.cluster)) {
@@ -176,6 +180,9 @@ module.exports = (cliConfig, command) => {
         // check that url starts with http:// but allow for https://
         const defaultPort = 5678;
         let outUrl = '';
+        if (inUrl === '') {
+            reply.fatal('empty url');
+        }
         if (inUrl.indexOf(':') === -1) {
             outUrl = inUrl.indexOf('http') === -1 ? `http://${inUrl}:${defaultPort}` : `${inUrl}:${defaultPort}`;
         } else {
@@ -187,6 +194,7 @@ module.exports = (cliConfig, command) => {
     return {
         returnConfigData,
         stateFileHandler,
+        getClusterHost,
         _urlCheck
     };
 };

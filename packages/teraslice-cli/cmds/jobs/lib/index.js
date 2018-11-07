@@ -19,6 +19,7 @@ module.exports = (cliConfig) => {
     const annotation = require('../../lib/annotation')(cliConfig);
     const checks = require('../../lib/checks')(cliConfig);
     const asset = require('../../lib/asset')(cliConfig);
+    cliConfig.type = 'job';
 
     async function showPrompt(actionIn) {
         let answer = false;
@@ -53,6 +54,7 @@ module.exports = (cliConfig) => {
             if (cliConfig.all_jobs) {
                 jobs = await save();
             } else {
+                await checkForId();
                 jobs = await save(false);
                 const id = _.find(jobs, { job_id: cliConfig.deets.id });
                 if (id !== undefined) {
@@ -86,7 +88,7 @@ module.exports = (cliConfig) => {
                 const waitMax = 15;
                 while (!allJobsStopped) {
                     jobsStopped = await status(false, false);
-                    await _.delay(() => {}, 500);
+                    await _.delay(() => {}, 50);
                     if (jobsStopped.length === 0) {
                         allJobsStopped = true;
                     }
@@ -98,7 +100,7 @@ module.exports = (cliConfig) => {
                 if (allJobsStopped) {
                     console.log('> All jobs %s.', await setAction(action, 'past'));
                     if (cliConfig.add_annotation) {
-                        console.log('adding annotaion');
+                        console.log('adding annotation');
                         await annotation.add(_.startCase(action));
                     }
                 }
@@ -166,6 +168,11 @@ module.exports = (cliConfig) => {
         }
     }
 
+    async function checkForId() {
+        if (!_.has(cliConfig.deets, 'id')) {
+            reply.fatal('job id required');
+        }
+    }
     async function start(action = 'start') {
         let jobs = [];
         // start job with job file
@@ -173,6 +180,7 @@ module.exports = (cliConfig) => {
             await startWithJobFile(action);
         } else {
             if (!cliConfig.all_jobs) {
+                await checkForId();
                 const id = await terasliceClient.jobs.wrap(cliConfig.deets.id)
                     .config();
                 if (id !== undefined) {
@@ -196,13 +204,13 @@ module.exports = (cliConfig) => {
             if (cliConfig.yes || await showPrompt(action)) {
                 await changeStatus(jobs, action);
                 let waitCount = 0;
-                const waitMax = 15;
+                const waitMax = 10;
                 let jobsStarted = 0;
                 let allWorkersStarted = false;
                 // TODO check for json?
+                console.log('> Waiting for workers to start');
                 while (!allWorkersStarted || waitCount < waitMax) {
                     jobsStarted = await status(false, false);
-                    await _.delay(() => {}, 5000);
                     waitCount += 1;
                     allWorkersStarted = await checkWorkerCount(jobs, jobsStarted);
                 }
@@ -214,8 +222,6 @@ module.exports = (cliConfig) => {
                     await addWorkers(jobs, jobsStarted);
                     while (!allAddedWorkersStarted || waitCount < waitMax) {
                         jobsStarted = await status(false, false);
-                        await _.delay(() => {
-                        }, 5000);
                         waitCount += 1;
                         allAddedWorkersStarted = await checkWorkerCount(jobs, jobsStarted, true);
                     }
@@ -258,11 +264,14 @@ module.exports = (cliConfig) => {
                         continue;
                     }
                     if (addWorkersOnce) {
-                        const workers2add = expectedJob.slicer.workers_active - expectedJob.workers;
+                        let workers2add = 0;
+                        if (_.has(expectedJob, 'slicer.workers_active')) {
+                            workers2add = expectedJob.slicer.workers_active - expectedJob.workers;
+                        }
                         if (workers2add > 0) {
                             console.log(`> Adding ${workers2add} worker(s) to ${job.job_id}`);
                             await terasliceClient.jobs.wrap(job.job_id).changeWorkers('add', workers2add);
-                            await _.delay(() => {}, 5000);
+                            await _.delay(() => {}, 50);
                         }
                         addWorkersOnce = false;
                     }
@@ -275,19 +284,27 @@ module.exports = (cliConfig) => {
         let allWorkersStartedCount = 0;
         let allWorkers = false;
         let expectedWorkers = 0;
+        let activeWorkers = 0;
         for (const job of actualJobs) {
             for (const expectedJob of expectedJobs) {
                 if (expectedJob.job_id === job.job_id) {
                     if (addedWorkers) {
-                        expectedWorkers = expectedJob.slicer.workers_active;
+                        if (_.has(expectedJob, 'slicer.workers_active')) {
+                            expectedWorkers = job.slicer.workers_active;
+                        } else {
+                            reply.fatal('no expected workers');
+                        }
                     } else {
                         expectedWorkers = expectedJob.workers;
                     }
                     // virgil doesn't always have active workers, so ignore active workers
                     // todo add exceptions to this check in a config file
+                    if (_.has(job, 'slicer.workers_active')) {
+                        activeWorkers = job.slicer.workers_active;
+                    }
                     if (expectedJob.name.toLowerCase().includes('virgil')) {
                         allWorkersStartedCount += 1;
-                    } else if (expectedWorkers === job.slicer.workers_active) {
+                    } else if (expectedWorkers === activeWorkers) {
                         allWorkersStartedCount += 1;
                     }
                 }
@@ -353,7 +370,35 @@ module.exports = (cliConfig) => {
     }
 
     async function init() {
-        // todo
+        const newExampleJobFile = {
+            name: 'Data Generator',
+            lifecycle: 'persistent',
+            workers: 1,
+            operations: [
+                {
+                    _op: 'elasticsearch_data_generator',
+                    size: 5000
+                },
+                {
+                    _op: 'elasticsearch_index_selector',
+                    index: 'example-logs',
+                    type: 'events'
+                },
+                {
+                    _op: 'elasticsearch_bulk',
+                    size: 5000
+                }]
+        };
+        if (fs.existsSync(cliConfig.job_file)) {
+            reply.fatal(`${cliConfig.job_file} already exists`);
+        }
+
+        try {
+            createJsonFile(cliConfig.job_file, newExampleJobFile);
+            reply.green(`created ${cliConfig.job_file}`);
+        } catch (e) {
+            reply.fatal(e);
+        }
     }
 
     async function reset() {
@@ -555,10 +600,10 @@ module.exports = (cliConfig) => {
     async function parseJobResponseTxt(response, isList = false) {
         if (!isList) {
             _.each(response, (value, node) => {
-                if (response[node].slicer.workers_active === undefined) {
-                    response[node].workers_active = 0;
-                } else {
+                if (_.has(response[node], 'slicer.workers_active')) {
                     response[node].workers_active = response[node].slicer.workers_active;
+                } else {
+                    response[node].workers_active = 0;
                 }
             });
         }
@@ -579,10 +624,10 @@ module.exports = (cliConfig) => {
             row.push(response[node].slicers);
             row.push(response[node].workers);
             if (!isList) {
-                if (response[node].slicer.workers_active === undefined) {
-                    row.push(0);
-                } else {
+                if (_.has(response[node], 'slicer.workers_active')) {
                     row.push(response[node].slicer.workers_active);
+                } else {
+                    row.push(0);
                 }
             }
             row.push(response[node]._created);
@@ -603,43 +648,74 @@ module.exports = (cliConfig) => {
     }
 
     async function changeStatus(jobs, action) {
-        let response = '';
         console.log(`> Waiting for jobs to ${action}`);
-        for (const job of jobs) {
+        const response = jobs.map((job) => {
             if (action === 'stop') {
-                response = await terasliceClient.jobs.wrap(job.job_id).stop();
-                if (response.status.status === 'stopped') {
-                    console.log('> job: %s %s', job.job_id, await setAction(action, 'past'));
-                } else {
-                    console.log('> job: %s error %s', job.job_id, await setAction(action, 'present'));
-                }
+                return terasliceClient.jobs.wrap(job.job_id).stop()
+                    .then((stopResponse) => {
+                        if (stopResponse.status.status === 'stopped' || stopResponse.status === 'stopped') {
+                            return setAction(action, 'past')
+                                .then((setActionResult) => {
+                                    console.log('> job: %s %s', job.job_id, setActionResult);
+                                });
+                        } else {
+                            return setAction(action, 'present')
+                                .then((setActionResult) => {
+                                    console.log('> job: %s error %s', job.job_id, setActionResult);
+                                });
+                        }
+                    });
             }
             if (action === 'start') {
-                response = await terasliceClient.jobs.wrap(job.job_id).start();
-                if (response.job_id === job.job_id) {
-                    console.log('> job: %s %s', job.job_id, await setAction(action, 'past'));
-                } else {
-                    console.log('> job: %s error %s', job.job_id, await setAction(action, 'present'));
-                }
+                return terasliceClient.jobs.wrap(job.job_id).start()
+                    .then((startResponse) => {
+                        if (startResponse.job_id === job.job_id) {
+                            return setAction(action, 'past')
+                                .then((setActionResult) => {
+                                    console.log('> job: %s %s', job.job_id, setActionResult);
+                                });
+                        } else {
+                            return setAction(action, 'present')
+                                .then((setActionResult) => {
+                                    console.log('> job: %s error %s', job.job_id, setActionResult);
+                                });
+                        }
+                    });
             }
             if (action === 'resume') {
-                response = await terasliceClient.jobs.wrap(job.job_id).resume();
-                if (response.status.status === 'running') {
-                    console.log('> job: %s %s', job.job_id, await setAction(action, 'past'));
-                } else {
-                    console.log('> job: %s error %s', job.job_id, await setAction(action, 'present'));
-                }
+                return terasliceClient.jobs.wrap(job.job_id).resume()
+                    .then((resumeResponse) => {
+                        if (resumeResponse.status.status === 'running' || resumeResponse.status === 'running') {
+                            return setAction(action, 'past')
+                                .then((setActionResult) => {
+                                    console.log('> job: %s %s', job.job_id, setActionResult);
+                                });
+                        } else {
+                            return setAction(action, 'present')
+                                .then((setActionResult) => {
+                                    console.log('> job: %s error %s', job.job_id, setActionResult);
+                                });
+                        }
+                    });
             }
             if (action === 'pause') {
-                response = await terasliceClient.jobs.wrap(job.job_id).pause();
-                if (response.status.status === 'paused') {
-                    console.log('> job: %s %s', job.job_id, await setAction(action, 'past'));
-                } else {
-                    console.log('> job: %s error %s', job.job_id, await setAction(action, 'present'));
-                }
+                return terasliceClient.jobs.wrap(job.job_id).resume()
+                    .then((pauseResponse) => {
+                        if (pauseResponse.status.status === 'paused' || pauseResponse.status === 'paused') {
+                            return setAction(action, 'past')
+                                .then((setActionResult) => {
+                                    console.log('> job: %s %s', job.job_id, setActionResult);
+                                });
+                        } else {
+                            return setAction(action, 'present')
+                                .then((setActionResult) => {
+                                    console.log('> job: %s error %s', job.job_id, setActionResult);
+                                });
+                        }
+                    });
             }
-        }
-        return response;
+        });
+        return Promise.all(response);
     }
 
     async function controllerStatus(result, jobStatus, controllerList) {
