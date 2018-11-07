@@ -8399,17 +8399,6 @@ terafoundation@^0.5.0:
     redis "^2.8.0"
     yargs "^12.0.2"
 
-teraslice-client-js@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/teraslice-client-js/-/teraslice-client-js-0.3.0.tgz#fffcc46612a8e857b6a6fc523f2377c45312e380"
-  integrity sha512-nndHXhfqSG2Ta94HmWxv6BdgOICfB/mr4Nxk3ybJC+5bd/d/bLSVYV7ee6x9/gPkr7/9QYbVgUN1qiIpGGRzWA==
-  dependencies:
-    auto-bind "^1.2.1"
-    bluebird "^3.5.2"
-    lodash "^4.17.11"
-    request "^2.88.0"
-    request-promise "^4.2.2"
-
 terminal-kit@^1.26.0:
   version "1.26.4"
   resolved "https://registry.yarnpkg.com/terminal-kit/-/terminal-kit-1.26.4.tgz#4d44c237d9ba68294cfcc67f91157336bf9db76f"

@@ -27,6 +27,7 @@
     "url": "https://github.com/terascope/teraslice/issues"
   },
   "dependencies": {
+    "@terascope/fetch-github-release": "^0.4.1",
     "archiver": "^2.1.1",
     "bluebird": "^3.5.1",
     "chalk": "^2.3.2",
