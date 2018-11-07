@@ -20,7 +20,6 @@ describe('shorthand valid() testing', () => {
 });
 
 describe('shorthand parse() testing', () => {
-
     const testString1 = 'test1:job:99999999-9999-9999-9999-999999999999';
     const testString2 = 'test2:job:test2.json';
     const testString3 = 'test3:ex:99999999-9999-9999-9999-999999999999';
