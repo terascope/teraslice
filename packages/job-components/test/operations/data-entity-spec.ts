@@ -103,7 +103,7 @@ describe('DataEntity', () => {
             expect(() => {
                 // @ts-ignore
                 new DataEntity(arr);
-            }).toThrowError('Invalid data source, must be an object, got array');
+            }).toThrowError('Invalid data source, must be an object, got "array"');
         });
 
         it('should throw an error when called with a Buffer', () => {
@@ -111,7 +111,7 @@ describe('DataEntity', () => {
             expect(() => {
                 // @ts-ignore
                 new DataEntity(buf);
-            }).toThrowError('Invalid data source, must be an object, got buffer');
+            }).toThrowError('Invalid data source, must be an object, got "buffer"');
         });
     });
 

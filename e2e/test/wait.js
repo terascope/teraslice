@@ -161,6 +161,29 @@ function waitForJobStatus(job, status) {
         });
 }
 
+async function waitForIndexCount(index, expected, remainingMs = 15 * 1000) {
+    if (remainingMs <= 0) {
+        expect().fail(`Timeout waiting for ${index} to have count of ${expected}`);
+        return 0;
+    }
+
+    const start = Date.now();
+    let count = 0;
+
+    try {
+        ({ count } = await misc.indexStats(index));
+        if (count >= expected) {
+            return count;
+        }
+    } catch (err) {
+        // it probably okay
+    }
+
+    await Promise.delay(100);
+    const elapsed = Date.now() - start;
+    return waitForIndexCount(expected, remainingMs - elapsed);
+}
+
 module.exports = {
     forValue,
     forLength,
@@ -169,5 +192,6 @@ module.exports = {
     scaleWorkersAndWait,
     forWorkersJoined,
     waitForJobStatus,
+    waitForIndexCount,
     waitForClusterState
 };

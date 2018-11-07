@@ -212,7 +212,7 @@ module.exports = function module(context) {
 
         const assets = await findAssetsToAutoload(autoloadDir);
 
-        for (const asset of assets) {
+        const promises = assets.map(async (asset) => {
             logger.info(`autoloading asset ${asset}...`);
             const assetPath = path.join(autoloadDir, asset);
             try {
@@ -224,7 +224,9 @@ module.exports = function module(context) {
                     throw err;
                 }
             }
-        }
+        });
+
+        await Promise.all(promises);
     }
 
 

@@ -5,7 +5,7 @@ const misc = require('../../misc');
 const wait = require('../../wait');
 const { resetState } = require('../../helpers');
 
-const { waitForJobStatus } = wait;
+const { waitForJobStatus, waitForIndexCount } = wait;
 
 describe('Kafka Tests', () => {
     beforeAll(() => resetState());
@@ -30,16 +30,18 @@ describe('Kafka Tests', () => {
 
         await waitForJobStatus(sender, 'completed');
 
+        await waitForIndexCount('kafka-logs-10', 10);
+
         await reader.stop();
         await waitForJobStatus(reader, 'stopped');
 
         let count = 0;
         try {
-            ({ count } = await misc.indexStats('kafka-logs-100'));
+            ({ count } = await misc.indexStats('kafka-logs-10'));
         } catch (err) {
             signale.error(err);
         }
 
-        expect(count).toBe(100);
+        expect(count).toBe(10);
     });
 });

@@ -72,11 +72,10 @@ services:
       - cluster
     environment:
       ES_JAVA_OPTS: "-Xms512m -Xmx512m"
-      ADVERTISED_HOST: "127.0.0.1"
+      ADVERTISED_HOST: "kafka"
       ADVERTISED_PORT: "49092"
       AUTO_CREATE_TOPICS: "true"
       ZOOKEEPER_PORT: "42181"
-      NUM_PARTITIONS: "1"
     ulimits:
       memlock:
         soft: -1

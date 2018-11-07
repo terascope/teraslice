@@ -7,16 +7,18 @@
     "operations": [
         {
             "_op": "elasticsearch_reader",
-            "index": "example-logs-100",
-            "type": "change",
-            "size": 100,
+            "index": "example-logs-10",
+            "type": "events",
+            "size": 10,
             "date_field_name": "created",
             "preserve_id": true
         },
         {
             "_op": "teraslice_kafka_sender",
-            "topic": "example-logs-100",
-            "timestamp_field": "created"
+            "connection": "default",
+            "topic": "example-logs-10",
+            "timestamp_field": "created",
+            "_encoding": "json"
         }
     ]
 }
