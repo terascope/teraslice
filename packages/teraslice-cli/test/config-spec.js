@@ -1,20 +1,10 @@
 'use strict';
+
 const { createTempDirSync } = require('jest-fixtures');
-const path = require('path');
-const fs = require('fs-extra');
 const config = require('../cmds/lib/config')();
+
 const tmpDir = createTempDirSync();
 
-/*
-describe('initial test', () => {
-    it('should return undefined empty cliConfig', async () => {
-        const cliConfig = {};
-        cliConfig.version = '0.0.1';
-        const result = await config.returnConfigData(cliConfig);
-        expect(result).toBe(undefined);
-    });
-});
-*/
 describe('_urlCheck', () => {
     it('full url should be passed unchanged', () => {
         const testUrl = 'http://test1.net:80';
