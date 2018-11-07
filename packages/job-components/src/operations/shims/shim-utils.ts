@@ -19,8 +19,8 @@ export function convertResult(input: DataInput[]|Buffer[]|string[]): DataEntity[
     // @ts-ignore
     if (Array.isArray(first)) return input;
 
-    if (isPlainObject(first)) return DataEntity.makeArray(input);
     if (Buffer.isBuffer(first) || isString(first)) return deprecateType(input);
+    if (isPlainObject(first)) return DataEntity.makeArray(input);
 
     throw new Error('Invalid return type for processor');
 }

@@ -41,6 +41,8 @@
         "convict": "^4.4.0",
         "datemath-parser": "^1.0.6",
         "debug": "^4.1.0",
+        "is-plain-object": "^2.0.4",
+        "kind-of": "^6.0.2",
         "lodash.clonedeep": "^4.5.0",
         "uuid": "^3.3.2"
     },
