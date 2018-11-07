@@ -52,7 +52,8 @@ async function downloadAssets() {
     if (!shouldDownload) return;
 
     const bundles = [
-        'elasticsearch-assets'
+        'elasticsearch-assets',
+        'kafka-assets'
     ];
 
     const promises = bundles.map(async (repo) => {

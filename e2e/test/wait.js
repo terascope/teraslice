@@ -97,7 +97,7 @@ function forWorkersJoined(jobId, workerCount, iterations) {
         });
 }
 
-function waitForClusterState(timeoutMs = 60000) {
+function waitForClusterState(timeoutMs = 120000) {
     const endAt = Date.now() + timeoutMs;
     const { cluster } = misc.teraslice();
     function _try() {

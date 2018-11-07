@@ -1,0 +1,26 @@
+{
+    "name": "Kafka Reader",
+    "lifecycle": "once",
+    "workers": 1,
+    "analytics": true,
+    "assets": ["kafka", "elasticsearch"],
+    "operations": [
+        {
+            "_op": "teraslice_kafka_reader",
+            "topic": "example-logs-100",
+            "group": "example-kafka-group",
+            "size": 100,
+            "wait": 1000
+        },
+        {
+            "_op": "elasticsearch_index_selector",
+            "type": "change",
+            "index": "kafka-logs-100",
+            "preserve_id": true
+        },
+        {
+            "_op": "elasticsearch_bulk",
+            "size": 100
+        }
+    ]
+}

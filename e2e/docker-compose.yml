@@ -63,6 +63,24 @@ services:
       memlock:
         soft: -1
         hard: -1
+  kafka:
+    image: terascope/kafka-zookeeper:2.11-1.1.0
+    ports:
+      - "42181:42181"
+      - "49092:49092"
+    networks:
+      - cluster
+    environment:
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      ADVERTISED_HOST: "127.0.0.1"
+      ADVERTISED_PORT: "49092"
+      AUTO_CREATE_TOPICS: "true"
+      ZOOKEEPER_PORT: "42181"
+      NUM_PARTITIONS: "1"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
 volumes:
   teraslice-assets:
     driver_opts:
