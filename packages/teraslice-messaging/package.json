@@ -37,7 +37,7 @@
     },
     "dependencies": {
         "@terascope/queue": "^1.1.4",
-        "bluebird": "^3.5.2",
+        "bluebird": "^3.5.3",
         "debug": "^4.1.0",
         "nanoid": "^2.0.0",
         "p-event": "^2.1.0",

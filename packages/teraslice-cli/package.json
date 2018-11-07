@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "archiver": "^2.1.1",
-    "bluebird": "^3.5.1",
+    "bluebird": "^3.5.3",
     "chalk": "^2.3.2",
     "easy-table": "^1.1.1",
     "eslint": "^5.5.0",
