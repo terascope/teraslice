@@ -227,6 +227,9 @@ describe('DataEntity', () => {
                 },
                 setMetadata() {
 
+                },
+                toBuffer() {
+
                 }
             };
             expect(DataEntity.isDataEntity(fakeDataEntity)).toBeTrue();
@@ -268,6 +271,9 @@ describe('DataEntity', () => {
 
                 },
                 setMetadata() {
+
+                },
+                toBuffer() {
 
                 }
             }];
