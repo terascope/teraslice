@@ -1,5 +1,6 @@
 'use strict';
 
+const uuidv4 = require('uuid/v4');
 const signale = require('signale');
 const misc = require('../../misc');
 const wait = require('../../wait');
@@ -13,20 +14,33 @@ describe('Kafka Tests', () => {
     const teraslice = misc.teraslice();
 
     it('should be able to read and write from kafka', async () => {
-        const sender = await teraslice.jobs.submit(misc.newJob('kafka-sender'));
-        const reader = await teraslice.jobs.submit(misc.newJob('kafka-reader', true));
+        const topic = uuidv4();
+        const groupId = uuidv4();
 
-        await waitForJobStatus(sender, 'completed');
+        const senderSpec = misc.newJob('kafka-sender');
+        const readerSpec = misc.newJob('kafka-reader');
 
-        await reader.start();
-        await waitForIndexCount('kafka-logs-10', 10);
+        senderSpec.operations[1].topic = topic;
+
+        readerSpec.operations[0].topic = topic;
+        readerSpec.operations[0].group = groupId;
+        const { index } = readerSpec.operations[1];
+
+        const sender = await teraslice.jobs.submit(senderSpec);
+
+        const [reader] = await Promise.all([
+            teraslice.jobs.submit(readerSpec),
+            waitForJobStatus(sender, 'completed'),
+        ]);
+
+        await waitForIndexCount(index, 10);
         await reader.stop();
 
         await waitForJobStatus(reader, 'stopped');
 
         let count = 0;
         try {
-            ({ count } = await misc.indexStats('kafka-logs-10'));
+            ({ count } = await misc.indexStats(index));
         } catch (err) {
             signale.error(err);
         }

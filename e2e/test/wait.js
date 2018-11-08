@@ -161,10 +161,9 @@ function waitForJobStatus(job, status) {
         });
 }
 
-async function waitForIndexCount(index, expected, remainingMs = 15 * 1000) {
+async function waitForIndexCount(index, expected, remainingMs = 30 * 1000) {
     if (remainingMs <= 0) {
-        expect().fail(`Timeout waiting for ${index} to have count of ${expected}`);
-        return 0;
+        throw new Error(`Timeout waiting for ${index} to have count of ${expected}`);
     }
 
     const start = Date.now();
@@ -181,7 +180,7 @@ async function waitForIndexCount(index, expected, remainingMs = 15 * 1000) {
 
     await Promise.delay(100);
     const elapsed = Date.now() - start;
-    return waitForIndexCount(expected, remainingMs - elapsed);
+    return waitForIndexCount(index, expected, remainingMs - elapsed);
 }
 
 module.exports = {

@@ -17,6 +17,7 @@
             "_op": "teraslice_kafka_sender",
             "connection": "default",
             "topic": "example-logs-10",
+            "size": 10,
             "timestamp_field": "created",
             "_encoding": "json"
         }
