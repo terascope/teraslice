@@ -180,7 +180,10 @@ group_exp
 paren_exp
     = "(" node:node+ ")" _*
         {
-            return node[0];
+            const results = node[0];
+            // only mark if there is further logic to group
+            if (results.left || results.right) results.parens = true;
+            return results;
         }
 
 field_exp
@@ -420,7 +423,7 @@ other_chars
     = guarded_char / ['\[''\{''\]''\}''\*']
 
 guarded_char
-    = [A-Z_a-z:0-9,'\_''\-''\+''\:'] 
+    = [A-Z_a-z:0-9,'\_''\-''\+''\:''\.'] 
 
 regexpr_term
     = '/' term:regexpr_char+ '/'

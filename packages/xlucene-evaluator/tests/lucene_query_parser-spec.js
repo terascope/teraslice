@@ -1,8 +1,7 @@
-//@ts-ignore
-const LuceneQueryParser = require('../src/lib/lucene-query-parser').default;
+'use strict';
+const { LuceneQueryParser } = require('../src');
 
 describe('luceneQueryParser', () => {
-
     let luceneQueryParser;
 
     beforeEach(() => {

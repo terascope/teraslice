@@ -18,9 +18,10 @@ export default class BaseType {
             this.injectorFns[`${this.fnBaseName}${this.fnID}`] = cb;
         };
 
-        this.createParsedField = (field: string): string => {
+        this.createParsedField = (field?: string): string => {
             const { fnBaseName, fnID } = this;
-            return `${fnBaseName}${fnID}(data.${field})`;
+            const args = field !== undefined ? `data.${field}` : 'data';
+            return `${fnBaseName}${fnID}(${args})`;
         };
 
         this.injectTypeFilterFns = () => {

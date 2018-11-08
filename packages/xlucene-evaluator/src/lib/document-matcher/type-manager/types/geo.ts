@@ -56,13 +56,11 @@ const feetUnits = {
 
 const UNIT_DICTONARY = Object.assign({}, MileUnits, NMileUnits, inchUnits, yardUnits, meterUnits, kilometerUnits, millimeterUnits, centimetersUnits, feetUnits);
 
-// TODO: is geo_sort_unit correct name for units?
 const geoParameters = {
     _geo_point_: 'geoPoint',
     _geo_distance_: 'geoDistance',
     _geo_box_top_left_: 'geoBoxTopLeft',
     _geo_box_bottom_right_: 'geoBoxBottomRight',
-    _geo_sort_unit_: 'geoSortUnit'
 };
 
 const fnBaseName = 'geoFn';
@@ -73,13 +71,14 @@ interface geoResults{
     geoBoxBottomRight?: string;
     geoPoint?: string;
     geoDistance?: string;
-    geoSortUnit ?: string;
 }
 
 interface geoDistance {
     distance: number;
     unit: Units;
 }
+
+//TODO: allow ranges to be input and compare the two regions if they intersect
 
 export default class GeoType extends BaseType {
     private fields: object;
@@ -139,7 +138,7 @@ export default class GeoType extends BaseType {
 
         function parseGeoAst(node: ast, _field:string): ast {
             const topField = node.field || _field;
-            //TODO: check topfield and _field passed in
+
             if (topField && fields[topField]) {
                 const geoQueryParameters = { geoField: topField };
                 function gatherGeoQueries(node: ast) {

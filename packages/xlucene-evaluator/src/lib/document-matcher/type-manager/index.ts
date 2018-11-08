@@ -3,7 +3,7 @@
 import DateType from './types/dates';
 import IpType from './types/ip';
 import GeoType from './types/geo';
-import RegexType from './types/regex';
+import StringType from './types/string';
 import BaseType from './types/base';
 
 import { ast } from '../../utils';
@@ -11,8 +11,7 @@ import { ast } from '../../utils';
 const typeMapping = {
     date: DateType,
     ip: IpType,
-    geo: GeoType,
-    regex: RegexType
+    geo: GeoType
 };
 
 export default class TypeManager {
@@ -26,7 +25,8 @@ export default class TypeManager {
         const typeList:BaseType[] = [];
         const results = {};
 
-        if (!typeConfig) return typeList;
+        // by default we allow wildcard and regex searches on all fields
+        typeList.push(new StringType())
 
         for (const field in typeConfig) {
             const type = typeConfig[field];

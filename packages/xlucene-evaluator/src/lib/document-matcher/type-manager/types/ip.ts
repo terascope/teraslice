@@ -24,7 +24,7 @@ export default class IpType extends BaseType {
 
     processAst(ast: ast): ast {
         const { filterFnBuilder, createParsedField, fields } = this;
-        // used to denote the various filter functions with fnBaseName
+
         function populateIpQueries(node: ast, _field?: string) {
             const topField = node.field || _field;
 
@@ -33,7 +33,7 @@ export default class IpType extends BaseType {
                    const argeCidr = isCidr(node.term);
                    if (argeCidr > 0) {
                        const range = ip6addr.createCIDR(node.term);
-                       // This needs to be dynamic
+
                        filterFnBuilder((ip: string) => {
                            if (isCidr(ip) > 0) {
                                 const argRange = ip6addr.createCIDR(ip);

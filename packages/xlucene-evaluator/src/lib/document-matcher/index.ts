@@ -9,8 +9,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
     private filterFn: Function|undefined;
     private types: TypeManger;
 
-    // TODO: chang the any on typeConfig
-    constructor(luceneStr?: string, typeConfig?:any) {
+    constructor(luceneStr?: string, typeConfig?:object) {
         super();
         this.types = new TypeManger(typeConfig);
         bindThis(this, DocumentMatcher);
@@ -21,7 +20,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
         }
     }
 
-    public parse(luceneStr: string, typeConfig?: any) {
+    public parse(luceneStr: string, typeConfig?: object) {
         if (typeConfig) {
             this.types = new TypeManger(typeConfig);
         }
@@ -31,71 +30,75 @@ export default class DocumentMatcher extends LuceneQueryParser {
 
     private _buildFilterFn() {
         const { _ast: ast, types, _parseRange: parseRange } = this;
-        let fnStrBody = '';
-        let addParens = false;
-        const parensDepth = {};
         const parsedAst = types.processAst(ast);
+        const AND_MAPPING = { AND: true, 'AND NOT': true, NOT: 'true' };
+        // default operator in elasticsearch is OR
+        const OR_MAPPING = { OR: true, '<implicit>': true };
 
-        function isOpenEnded(str) {
-            let count = 0;        
-            for (const ind in str) {
-                if (str[ind] === '(') {
-                    count += 1;
-                }
-                if (str[ind] === ')') {
-                    count -= 1;
-                }
+        function functionBuilder(node:ast, parent: ast, fnStrBody: string, _field:string, isNegation:Boolean) {
+            const field = (node.field && node.field !== "<implicit>") ? node.field : _field;
+            let addParens = false;
+            let negation  = isNegation || false;
+            let negateLeftExp = false;
+            let fnStr = '';
+
+            if (node.operator === 'AND NOT' || node.operator === 'NOT') {
+                negation = true;
             }
-            return count !== 0;
-        }
 
-        function strBuilder(ast:ast, field:string, depth:number) {
-            if (field && ast.term) {
+            if (negation && parent.operator === 'AND NOT' || parent.operator === 'NOT') {
+                negateLeftExp = true;
+            }
+
+            if (node.parens) {
+                fnStr += '(';
+                addParens = true;
+            }
+            if (field && node.term) {
                 if (field === '_exists_') {
-                    fnStrBody += `data.${ast.term} != null`;
+                    if (negation) { 
+                        fnStr += `data.${node.term} == null`;
+                    } else {
+                        fnStr += `data.${node.term} != null`;
+                    }
                 } else if (field === '__parsed') {
-                    fnStrBody += `${ast.term}`;
+                    if (negation) {
+                        fnStr += `!(${node.term})`;
+                    } else {
+                        fnStr += `${node.term}`;
+                    }
                 } else {
-                    fnStrBody += `data.${field} == "${ast.term}"`;
-                }
-            }
-            if (ast.term_min) {
-                fnStrBody += parseRange(ast, field);
-            }
-
-            if (ast.operator) {
-                let opStr = ' || ';
-
-                if (ast.operator === 'AND') {
-                    opStr = ' && ';
-                    // only add a () around deeply recursive structures
-                    if ((ast.right && (ast.right.left || ast.right.right)) || (ast.left && (ast.left.left || ast.left.right))) {
-                        addParens = true;
-                        opStr = ' && (';
-                        parensDepth[depth] = true;
+                    if (negation) {
+                        fnStr += `data.${field} != "${node.term}"`;
+                    } else {
+                        fnStr += `data.${field} == "${node.term}"`;
                     }
                 }
-
-                if(ast.operator === 'AND NOT' || ast.operator === 'NOT') {
-                    addParens = true;
-                    opStr = ' && !(';
-                    if (isOpenEnded(fnStrBody)) opStr = ') && !(';            
-                    parensDepth[depth] = true;
-                }
-
-                fnStrBody += opStr;
             }
-        }
+            if (node.term_min) {
+                fnStr += parseRange(node, field, negation);
+            }
 
-        function postParens(_ast:ast, _field:string, depth:number) {
-            if (addParens && parensDepth[depth]) {
+            if (node.left) {
+                fnStr += functionBuilder(node.left, node, '', field, negateLeftExp);
+            }
+
+            if (OR_MAPPING[node.operator]) fnStr += ' || ';
+            if (AND_MAPPING[node.operator]) fnStr += ' && ';
+
+            if (node.right) {
+                fnStr += functionBuilder(node.right, node, '', field, negation);
+            }
+
+            if (addParens) {
                 addParens = false;
-                fnStrBody += ')';
+                fnStr += ')';
             }
+
+            return fnStrBody + fnStr;
         }
 
-        this.walkLuceneAst(strBuilder, postParens, parsedAst);
-
+        const fnStr = functionBuilder(parsedAst, {}, '', null, false); 
         const argsObj = types.injectTypeFilterFns();
         const argsFns: Function[] = [];
         const strFnArgs:string[] = [];
@@ -105,7 +108,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
             argsFns.push(value);
         });
 
-        strFnArgs.push('data', `return ${fnStrBody}`);
+        strFnArgs.push('data', `return ${fnStr}`);
 
         try {
             const strFilterFunction = new Function(...strFnArgs);
@@ -115,7 +118,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
         }
     }
 
-    private _parseRange(node:ast, topFieldName:string):string {
+    private _parseRange(node:ast, topFieldName:string, isNegation:Boolean):string {
         let {
             inclusive_min: incMin,
             inclusive_max: incMax,
@@ -123,7 +126,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
             term_max: maxValue,
             field = topFieldName
         } = node;
-
+        let resultStr = ''
         if (minValue === '*') minValue = -Infinity;
         if (maxValue === '*') maxValue = Infinity;
 
@@ -137,34 +140,38 @@ export default class DocumentMatcher extends LuceneQueryParser {
         // ie age:>10 || age:(>10 AND <=20)
         if (!incMin && incMax) {
             if (maxValue === Infinity) {
-                return `data.${field} > ${minValue}`;
+                resultStr = `data.${field} > ${minValue}`;
+            } else {
+                resultStr = `((${maxValue} >= data.${field}) && (data.${field}> ${minValue}))`
             }
-            return  `((${maxValue} >= data.${field}) && (data.${field}> ${minValue}))`;
         }
         // ie age:<10 || age:(<=10 AND >20)
         if (incMin && !incMax) {
             if (minValue === -Infinity) {
-                return `data.${field} < ${maxValue}`;
+                resultStr = `data.${field} < ${maxValue}`;
+            } else {
+                resultStr =  `((${minValue} <= data.${field}) && (data.${field} < ${maxValue}))`;
             }
-            return  `((${minValue} <= data.${field}) && (data.${field} < ${maxValue}))`;
         }
 
         // ie age:<=10, age:>=10, age:(>=10 AND <=20)
         if (incMin && incMax) {
             if (maxValue === Infinity) {
-                return `data.${field} >= ${minValue}`;
+                resultStr = `data.${field} >= ${minValue}`;
+            } else if (minValue === -Infinity) {
+                resultStr = `data.${field} <= ${maxValue}`;
+            } else {
+                resultStr = `((${maxValue} >= data.${field}) && (data.${field} >= ${minValue}))`;
             }
-            if (minValue === -Infinity) {
-                return `data.${field} <= ${maxValue}`;
-            }
-            return  `((${maxValue} >= data.${field}) && (data.${field} >= ${minValue}))`;
         }
 
         // ie age:(>10 AND <20)
         if (!incMin && !incMax) {
-            return  `((${maxValue} > data.${field}) && (data.${field} > ${minValue}))`;
+            resultStr = `((${maxValue} > data.${field}) && (data.${field} > ${minValue}))`;
         }
-        return '';
+
+        if (isNegation) return `!(${resultStr})`
+        return resultStr;
     }
 
     public match(doc:object) {
