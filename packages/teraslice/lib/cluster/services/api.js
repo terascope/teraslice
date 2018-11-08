@@ -5,23 +5,24 @@ const { Router } = require('express');
 const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const request = require('request');
-const util = require('util');
 const {
     makePrometheus,
     isPrometheusRequest,
     makeTable,
     sendError,
-    handleError,
-    getSearchOptions
+    handleRequest,
+    getSearchOptions,
 } = require('../../utils/api_utils');
+const makeStateStore = require('../storage/state');
 const terasliceVersion = require('../../../package.json').version;
 
-module.exports = function module(context, app, { assetsUrl }) {
+module.exports = async function makeAPI(context, app, options) {
+    const { assetsUrl, stateStore: _stateStore } = options;
     const logger = context.apis.foundation.makeLogger({ module: 'api_service' });
     const executionService = context.services.execution;
     const jobsService = context.services.jobs;
     const v1routes = new Router();
-    let stateStore;
+    const stateStore = _stateStore || await makeStateStore(context);
 
     app.use(bodyParser.json({
         type(req) {
@@ -37,22 +38,28 @@ module.exports = function module(context, app, { assetsUrl }) {
         }
     });
 
+    app.use((req, res, next) => {
+        req.logger = logger;
+        next();
+    });
+
     app.set('json spaces', 4);
 
     v1routes.get('/', (req, res) => {
-        const responseObj = {
+        const requestHandler = handleRequest(req, res);
+        requestHandler(() => ({
             arch: context.arch,
             clustering_type: context.sysconfig.teraslice.cluster_manager_type,
             name: context.sysconfig.teraslice.name,
             node_version: process.version,
             platform: context.platform,
             teraslice_version: `v${terasliceVersion}`
-        };
-        res.status(200).json(responseObj);
+        }));
     });
 
     v1routes.get('/cluster/state', (req, res) => {
-        res.status(200).json(executionService.getClusterState());
+        const requestHandler = handleRequest(req, res);
+        requestHandler(() => executionService.getClusterState());
     });
 
     v1routes.route('/assets*')
@@ -79,38 +86,25 @@ module.exports = function module(context, app, { assetsUrl }) {
         const jobSpec = req.body;
         const shouldRun = start !== 'false';
 
-        logger.trace(`POST /jobs endpoint has received shouldRun: ${shouldRun}, job:`, jobSpec);
-        const handleApiError = handleError(res, logger, 500, 'Job submission failed');
+        const requestHandler = handleRequest(req, res, 'Job submission failed');
 
-        jobsService.submitJob(jobSpec, shouldRun)
-            .then((ids) => {
-                res.status(202).json(ids);
-            })
-            .catch(handleApiError);
+        requestHandler(() => jobsService.submitJob(jobSpec, shouldRun));
     });
 
     v1routes.get('/jobs', (req, res) => {
         const { size, from, sort } = getSearchOptions(req);
 
-        logger.trace(`GET /jobs endpoint has been called, from: ${from}, size: ${size}, sort: ${sort}`);
-        const handleApiError = handleError(res, logger, 500, 'Could not retrieve list of jobs');
-
-        jobsService.getJobs(from, size, sort)
-            .then((results) => {
-                res.status(200).json(results);
-            })
-            .catch(handleApiError);
+        const requestHandler = handleRequest(req, res, 'Could not retrieve list of jobs');
+        requestHandler(() => jobsService.getJobs(from, size, sort));
     });
 
     v1routes.get('/jobs/:jobId', (req, res) => {
         const { jobId } = req.params;
 
-        logger.trace(`GET /jobs/:jobId endpoint has been called, job_id: ${jobId}`);
-        const handleApiError = handleError(res, logger, 500, 'Could not retrieve job');
+        const requestHandler = handleRequest(req, res, 'Could not retrieve job');
 
-        jobsService.getJob(jobId)
-            .then(jobSpec => res.status(200).json(jobSpec))
-            .catch(handleApiError);
+
+        requestHandler(async () => jobsService.getJob(jobId));
     });
 
     v1routes.put('/jobs/:jobId', (req, res) => {
@@ -122,345 +116,166 @@ module.exports = function module(context, app, { assetsUrl }) {
             return;
         }
 
-        logger.trace(`PUT /jobs/:jobId endpoint has been called, job_id: ${jobId}, update changes: `, jobSpec);
-        const handleApiError = handleError(res, logger, 500, 'Could not update job');
+        const requestHandler = handleRequest(req, res, 'Could not update job');
 
-        jobsService.updateJob(jobId, jobSpec)
-            .then(status => res.status(200).json(status))
-            .catch(handleApiError);
+        requestHandler(async () => jobsService.updateJob(jobId, jobSpec));
     });
 
     v1routes.get('/jobs/:jobId/ex', (req, res) => {
         const { jobId } = req.params;
 
-        logger.trace(`GET /jobs/:jobId endpoint has been called, job_id: ${jobId}`);
-        const handleApiError = handleError(res, logger, 500, 'Could not retrieve list of execution contexts');
+        const requestHandler = handleRequest(req, res, 'Could not retrieve list of execution contexts');
 
-        jobsService.getLatestExecution(jobId)
-            .then(execution => res.status(200).json(execution))
-            .catch(handleApiError);
+        requestHandler(async () => jobsService.getLatestExecution(jobId));
     });
 
     v1routes.post('/jobs/:jobId/_start', (req, res) => {
         const { jobId } = req.params;
+        const requestHandler = handleRequest(req, res, `Could not start job: ${jobId}`);
 
-        logger.trace(`GET /jobs/:jobId/_start endpoint has been called, job_id: ${jobId}`);
-        const handleApiError = handleError(res, logger, 500, `Could not start job: ${jobId}`);
-
-        jobsService.startJob(jobId)
-            .then(ids => res.status(200).json(ids))
-            .catch(handleApiError);
+        requestHandler(async () => jobsService.startJob(jobId));
     });
 
-    v1routes.post('/jobs/:jobId/_stop', (req, res) => {
-        const { jobId } = req.params;
+    v1routes.post(['/jobs/:jobId/_stop', '/ex/:exId/_stop'], (req, res) => {
         const { timeout, blocking = true } = req.query;
 
-        logger.trace(`POST /jobs/:jobId/_stop endpoint has been called, job_id: ${jobId}, removing any pending workers for the job`);
-        const handleApiError = handleError(res, logger, 500, `Could not stop execution for job: ${jobId}`);
+        const requestHandler = handleRequest(req, res, 'Could not stop execution');
 
-        jobsService.getLatestExecutionId(jobId)
-            .then(exId => executionService.stopExecution(exId, timeout)
-                .then(() => _waitForStop(exId, blocking))
-                .then(status => res.status(200).json({ status })))
-            .catch(handleApiError);
+        requestHandler(async () => {
+            const exId = await _getExIdFromRequest(req);
+            await executionService.stopExecution(exId, timeout);
+            return _waitForStop(exId, blocking);
+        });
     });
 
-    v1routes.post('/jobs/:jobId/_pause', (req, res) => {
-        const { jobId } = req.params;
+    v1routes.post(['/jobs/:jobId/_pause', '/ex/:exId/_pause'], (req, res) => {
+        const requestHandler = handleRequest(req, res, 'Could not pause execution');
 
-        logger.trace(`POST /jobs/:jobId/_pause endpoint has been called, job_id: ${jobId}`);
-        const handleApiError = handleError(res, logger, 500, `Could not pause execution for job: ${jobId}`);
-
-        jobsService.pauseJob(jobId)
-            .then(body => res.status(200).json(body))
-            .catch(handleApiError);
+        requestHandler(async () => {
+            const exId = await _getExIdFromRequest(req);
+            await executionService.getActiveExecution(exId);
+            return executionService.pauseExecution(exId);
+        });
     });
 
-    v1routes.post('/jobs/:jobId/_resume', (req, res) => {
-        const { jobId } = req.params;
+    v1routes.post(['/jobs/:jobId/_resume', '/ex/:exId/_resume'], (req, res) => {
+        const requestHandler = handleRequest(req, res, 'Could not resume execution');
 
-        logger.trace(`POST /jobs/:jobId/_resume endpoint has been called, job_id: ${jobId}`);
-        const handleApiError = handleError(res, logger, 500, `Could not resume execution for job: ${jobId}`);
-
-        jobsService.resumeJob(jobId)
-            .then(body => res.status(200).json(body))
-            .catch(handleApiError);
+        requestHandler(async () => {
+            const exId = await _getExIdFromRequest(req);
+            await executionService.getActiveExecution(exId);
+            return executionService.resumeExecution(exId);
+        });
     });
 
-    v1routes.post('/jobs/:jobId/_recover', (req, res) => {
-        const { jobId } = req.params;
+    v1routes.post(['/jobs/:jobId/_recover', '/ex/:exId/_recover'], (req, res) => {
         const { cleanup } = req.query;
 
-        logger.trace(`POST /jobs/:jobId/_recover endpoint has been called, job_id: ${jobId}`);
-        const handleApiError = handleError(res, logger, 500, `Could not recover execution for job: ${jobId}`);
+        const requestHandler = handleRequest(req, res, 'Could not recover execution');
 
         if (cleanup && !(cleanup === 'all' || cleanup === 'errors')) {
-            res.status(400).json({ error: 'if cleanup is specified it must be set to "all" or "errors"' });
+            const errorMsg = 'if cleanup is specified it must be set to "all" or "errors"';
+            res.status(400).json({ error: errorMsg });
             return;
         }
 
-        jobsService.recoverJob(jobId, cleanup)
-            .then(body => res.status(200).json(body))
-            .catch(handleApiError);
+        requestHandler(async () => {
+            const exId = await _getExIdFromRequest(req);
+            return executionService.recoverExecution(exId, cleanup);
+        });
     });
 
-    v1routes.post('/jobs/:jobId/_workers', (req, res) => {
+    v1routes.post(['/jobs/:jobId/_workers', '/ex/:exId/_workers'], (req, res) => {
         const { query } = req;
-        const { jobId } = req.params;
 
-        logger.trace('POST /jobs/:jobId/_workers endpoint has been called, query:', query);
-        const handleApiError = handleError(res, logger, 500, `Could not change workers for job: ${jobId}`);
+        const requestHandler = handleRequest(req, res, 'Could not change workers count');
 
-        _changeWorkers('job', jobId, query)
-            .then(responseObj => res.status(200).send(`${responseObj.workerNum} workers have been ${responseObj.action} for execution: ${responseObj.ex_id}`))
-            .catch(handleApiError);
+        requestHandler(async () => {
+            const exId = await _getExIdFromRequest(req);
+            const result = await _changeWorkers(exId, query);
+            return `${result.workerNum} workers have been ${result.action} for execution: ${result.ex_id}`;
+        });
     });
 
-    v1routes.get('/jobs/:jobId/slicer', _deprecateSlicerName((req, res) => {
-        const { jobId } = req.params;
+    v1routes.get([
+        '/jobs/:jobId/slicer',
+        '/jobs/:jobId/controller',
+        '/ex/:exId/slicer',
+        '/ex/:exId/controller'
+    ], (req, res) => {
+        const requestHandler = handleRequest(req, res, 'Could not get slicer statistics');
 
-        logger.trace(`GET /jobs/:jobId/slicer endpoint has been called, job_id: ${jobId}`);
-        const handleApiError = handleError(res, logger, 500, `Could not get slicer statistics for job: ${jobId}`);
-
-        jobsService.getLatestExecutionId(jobId)
-            .then(exId => _controllerStats(exId))
-            .then(results => res.status(200).json(results))
-            .catch(handleApiError);
-    }));
-
-    v1routes.get('/jobs/:jobId/controller', (req, res) => {
-        const { jobId } = req.params;
-
-        logger.trace(`GET /jobs/:jobId/controller endpoint has been called, job_id: ${jobId}`);
-        const handleApiError = handleError(res, logger, 500, `Could not get controller statistics for job: ${jobId}`);
-
-        jobsService.getLatestExecutionId(jobId)
-            .then(exId => _controllerStats(exId))
-            .then(results => res.status(200).json(results))
-            .catch(handleApiError);
+        requestHandler(async () => {
+            const exId = await _getExIdFromRequest(req);
+            return _controllerStats(exId);
+        });
     });
 
-    v1routes.get('/jobs/:jobId/errors', (req, res) => {
-        const { jobId } = req.params;
+    v1routes.get([
+        '/jobs/:jobId/errors',
+        '/jobs/:jobId/errors/:exId',
+        '/ex/:exId/errors',
+        '/ex/errors',
+    ], (req, res) => {
         const { size, from, sort } = getSearchOptions(req);
 
-        logger.trace(`GET /jobs/:jobId/errors endpoint has been called, job_id: ${jobId}, from: ${from}, size: ${size}`);
-        const handleApiError = handleError(res, logger, 500, `Could not get errors for job: ${jobId}`);
+        const requestHandler = handleRequest(req, res, 'Could not get errors for job');
 
-        jobsService.getLatestExecutionId(jobId)
-            .then((exId) => {
-                if (!exId) {
-                    const error = new Error(`no executions were found for job: ${jobId}`);
-                    error.code = 404;
-                    return Promise.reject(error);
-                }
-                const query = `state:error AND ex_id:${exId}`;
-                return stateStore.search(query, from, size, sort);
-            })
-            .then(errorStates => res.status(200).json(errorStates))
-            .catch(handleApiError);
-    });
+        requestHandler(async () => {
+            const exId = await _getExIdFromRequest(req, true);
 
-    v1routes.get('/jobs/:jobId/errors/:exId', (req, res) => {
-        const { jobId, exId } = req.params;
-        const { size, from, sort } = getSearchOptions(req);
-
-        logger.trace(`GET /jobs/:jobId/errors endpoint has been called, job_id: ${jobId}, ex_id: ${exId}, from: ${from}, size: ${size}`);
-        const handleApiError = handleError(res, logger, 500, `Could not get errors for job: ${jobId}, execution: ${exId}`);
-
-        const query = `ex_id:${exId} AND state:error`;
-
-        stateStore.search(query, from, size, sort)
-            .then((errorStates) => {
-                res.status(200).json(errorStates);
-            })
-            .catch(handleApiError);
+            const query = `state:error AND ex_id:${exId}`;
+            return stateStore.search(query, from, size, sort);
+        });
     });
 
     v1routes.get('/ex', (req, res) => {
         const { status = '' } = req.query;
         const { size, from, sort } = getSearchOptions(req);
 
-        logger.trace(`GET /ex endpoint has been called, status: ${status}, from: ${from}, size: ${size}, sort: ${sort}`);
-        const handleApiError = handleError(res, logger, 500, 'Could not retrieve list of execution contexts');
+        const requestHandler = handleRequest(req, res, 'Could not retrieve list of execution contexts');
 
-        const statuses = status.split(',').map(s => s.trim()).filter(s => !!s);
+        requestHandler(async () => {
+            const statuses = status.split(',').map(s => s.trim()).filter(s => !!s);
 
-        let query = 'ex_id:*';
+            let query = 'ex_id:*';
 
-        if (statuses.length) {
-            const statusTerms = statuses.map(s => `_status:${s}`).join(' OR ');
-            query += ` AND (${statusTerms})`;
-        }
+            if (statuses.length) {
+                const statusTerms = statuses.map(s => `_status:${s}`).join(' OR ');
+                query += ` AND (${statusTerms})`;
+            }
 
-        executionService.searchExecutionContexts(query, from, size, sort)
-            .then(results => res.status(200).json(results))
-            .catch(handleApiError);
-    });
-
-    v1routes.get('/ex/errors', (req, res) => {
-        const { size, from, sort } = getSearchOptions(req);
-
-        logger.trace(`GET /ex/errors endpoint has been called, from: ${from}, size: ${size}`);
-        const handleApiError = handleError(res, logger, 500, 'Could not get errors');
-
-        const query = 'ex_id:* AND state:error';
-
-        stateStore.search(query, from, size, sort)
-            .then(errorStates => res.status(200).json(errorStates))
-            .catch(handleApiError);
+            return executionService.searchExecutionContexts(query, from, size, sort);
+        });
     });
 
     v1routes.get('/ex/:exId', (req, res) => {
         const { exId } = req.params;
 
-        logger.trace(`GET /ex/:exId endpoint has been called, ex_id: ${exId}`);
-        const handleApiError = handleError(res, logger, 500, `Could not retrieve execution context ${exId}`);
+        const requestHandler = handleRequest(req, res, `Could not retrieve execution context ${exId}`);
 
-        executionService.getExecutionContext(exId)
-            .then(results => res.status(200).json(results))
-            .catch(handleApiError);
-    });
-
-    v1routes.get('/ex/:exId/errors', (req, res) => {
-        const { exId } = req.params;
-        const { size, from, sort } = getSearchOptions(req);
-
-        logger.trace(`GET /ex/:exId/errors endpoint has been called, ex_id: ${exId}, from: ${from}, size: ${size}`);
-        const handleApiError = handleError(res, logger, 500, `Could not get errors for ex_id ${exId}`);
-
-        const query = `ex_id:${exId} AND state:error`;
-
-        stateStore.search(query, from, size, sort)
-            .then(errorStates => res.status(200).json(errorStates))
-            .catch(handleApiError);
-    });
-
-    v1routes.get('/ex/:exId/slicer', _deprecateSlicerName((req, res) => {
-        const { exId } = req.params;
-
-        logger.trace(`GET /ex/:exId/slicer endpoint has been called, ex_id: ${exId}`);
-        const handleApiError = handleError(res, logger, 500, `Could not get statistics for execution: ${exId}`);
-
-        _controllerStats(exId)
-            .then(results => res.status(200).json(results))
-            .catch(handleApiError);
-    }));
-
-    v1routes.get('/ex/:exId/controller', (req, res) => {
-        const { exId } = req.params;
-
-        logger.trace(`GET /ex/:exId/controller endpoint has been called, ex_id: ${exId}`);
-        const handleApiError = handleError(res, logger, 500, `Could not get statistics for execution: ${exId}`);
-
-        _controllerStats(exId)
-            .then(results => res.status(200).json(results))
-            .catch(handleApiError);
-    });
-
-
-    v1routes.post('/ex/:exId/_stop', (req, res) => {
-        const { exId } = req.params;
-        const { timeout, blocking = true } = req.query;
-
-        logger.trace(`POST /ex/:exId/_stop endpoint has been called, ex_id: ${exId}, removing any pending workers for the job`);
-        const handleApiError = handleError(res, logger, 500, `Could not stop execution: ${exId}`);
-
-        executionService.stopExecution(exId, timeout)
-            .then(() => _waitForStop(exId, blocking))
-            .then(status => res.status(200).json({ status }))
-            .catch(handleApiError);
-    });
-
-    v1routes.post('/ex/:exId/_pause', (req, res) => {
-        const { exId } = req.params;
-
-        logger.trace(`POST /ex/:exId/_pause endpoint has been called, ex_id: ${exId}`);
-        const handleApiError = handleError(res, logger, 500, `Could not pause execution: ${exId}`);
-
-        // for lifecyle events, we need to ensure that the execution is alive first
-        executionService.getActiveExecution(exId)
-            .then(() => executionService.pauseExecution(exId))
-            .then(() => res.status(200).json({ status: 'paused' }))
-            .catch(handleApiError);
-    });
-
-    v1routes.post('/ex/:exId/_recover', (req, res) => {
-        const { exId } = req.params;
-        const { cleanup } = req.query;
-
-        const handleApiError = handleError(res, logger, 500, `Could not recover execution: ${exId}`);
-        logger.trace(`POST /ex/:exId/_recover endpoint has been called, ex_id: ${exId}`);
-
-        if (cleanup && !(cleanup === 'all' || cleanup === 'errors')) {
-            res.status(400).json({
-                error: 'if cleanup is specified it must be set to "all" or "errors"'
-            });
-            return;
-        }
-
-        executionService.recoverExecution(exId, cleanup)
-            .then(response => res.status(200).json(response))
-            .catch(handleApiError);
-    });
-
-    v1routes.post('/ex/:exId/_resume', (req, res) => {
-        const { exId } = req.params;
-
-        logger.trace(`POST /ex/:id/_resume endpoint has been called, ex_id: ${exId}`);
-        const handleApiError = handleError(res, logger, 500, `Could not resume execution: ${exId}`);
-
-        // for lifecyle events, we need to ensure that the execution is alive first
-        executionService.getActiveExecution(exId)
-            .then(() => executionService.resumeExecution(exId))
-            .then(() => res.status(200).json({ status: 'resumed' }))
-            .catch(handleApiError);
-    });
-
-    v1routes.post('/ex/:exId/_workers', (req, res) => {
-        const { exId } = req.params;
-        const { query } = req;
-
-        logger.trace(`POST /ex/:id/_workers endpoint has been called, ex_id: ${exId} query: ${JSON.stringify(query)}`);
-        const handleApiError = handleError(res, logger, 500, `Could not change workers for execution: ${exId}`);
-
-        _changeWorkers('execution', exId, query)
-            .then(responseObj => res.status(200).send(`${responseObj.workerNum} workers have been ${responseObj.action} for execution: ${responseObj.ex_id}`))
-            .catch(handleApiError);
+        requestHandler(async () => executionService.getExecutionContext(exId));
     });
 
     v1routes.get('/cluster/stats', (req, res) => {
-        logger.trace('GET /cluster/stats endpoint has been called');
-
-        const stats = executionService.getClusterStats();
         const { name: cluster } = context.sysconfig.teraslice;
 
-        if (isPrometheusRequest(req)) {
-            res.status(200).send(makePrometheus(stats, { cluster }));
-        } else {
+        const requestHandler = handleRequest(req, res, 'Could not get cluster statistics');
+
+        requestHandler(() => {
+            const stats = executionService.getClusterStats();
+
+            if (isPrometheusRequest(req)) return makePrometheus(stats, { cluster });
             // for backwards compatability (unsupported for prometheus)
             stats.slicer = stats.controllers;
-            res.status(200).json(stats);
-        }
+            return stats;
+        });
     });
 
-    v1routes.get('/cluster/slicers', _deprecateSlicerName((req, res) => {
-        logger.trace('GET /cluster/slicers endpoint has been called');
-        const handleApiError = handleError(res, logger, 500, 'Could not get execution statistics');
+    v1routes.get(['/cluster/slicers', '/cluster/controllers'], (req, res) => {
+        const requestHandler = handleRequest(req, res, 'Could not get execution statistics');
 
-        _controllerStats()
-            .then(results => res.status(200).send(results))
-            .catch(handleApiError);
-    }));
-
-    v1routes.get('/cluster/controllers', (req, res) => {
-        logger.trace('GET /cluster/controllers endpoint has been called');
-        const handleApiError = handleError(res, logger, 500, 'Could not get execution statistics');
-
-        _controllerStats()
-            .then(results => res.status(200).send(results))
-            .catch(handleApiError);
+        requestHandler(() => _controllerStats());
     });
 
     // backwards compatibility for /v1 routes
@@ -471,65 +286,60 @@ module.exports = function module(context, app, { assetsUrl }) {
         .get(_redirect);
 
     app.get('/txt/workers', (req, res) => {
-        logger.trace('GET /txt/workers endpoint has been called');
-
         const defaults = ['assignment', 'job_id', 'ex_id', 'node_id', 'pid'];
-        const workers = executionService.findAllWorkers();
-        const tableStr = makeTable(req, defaults, workers);
-        res.status(200).send(tableStr);
+        const requestHandler = handleRequest(req, res, 'Could not get all workers');
+
+        requestHandler(async () => {
+            const workers = await executionService.findAllWorkers();
+            return makeTable(req, defaults, workers);
+        });
     });
 
     app.get('/txt/nodes', (req, res) => {
-        logger.trace('GET /txt/nodes endpoint has been called');
-
         const defaults = ['node_id', 'state', 'hostname', 'total', 'active', 'pid', 'teraslice_version', 'node_version'];
-        const nodes = executionService.getClusterState();
+        const requestHandler = handleRequest(req, res, 'Could not get all nodes');
 
-        const transform = _.map(nodes, (node) => {
-            node.active = node.active.length;
-            return node;
+        requestHandler(async () => {
+            const nodes = await executionService.getClusterState();
+
+            const transform = _.map(nodes, (node) => {
+                node.active = node.active.length;
+                return node;
+            });
+
+            return makeTable(req, defaults, transform);
         });
-
-        const tableStr = makeTable(req, defaults, transform);
-        res.status(200).send(tableStr);
     });
 
     app.get('/txt/jobs', (req, res) => {
         const { size, from, sort } = getSearchOptions(req);
 
-        logger.trace('GET /txt/jobs endpoint has been called');
-        const handleApiError = handleError(res, logger, 500, 'Could not get all jobs');
+        const requestHandler = handleRequest(req, res, 'Could not get all jobs');
 
         const defaults = ['job_id', 'name', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
 
-        jobsService.getJobs(from, size, sort)
-            .then((jobs) => {
-                const tableStr = makeTable(req, defaults, jobs);
-                res.status(200).send(tableStr);
-            })
-            .catch(handleApiError);
+        requestHandler(async () => {
+            const jobs = await jobsService.getJobs(from, size, sort);
+            return makeTable(req, defaults, jobs);
+        });
     });
 
     app.get('/txt/ex', (req, res) => {
         const { size, from, sort } = getSearchOptions(req);
 
-        logger.trace('GET /txt/ex endpoint has been called');
-        const handleApiError = handleError(res, logger, 500, 'Could not get all executions');
+        const requestHandler = handleRequest(req, res, 'Could not get all executions');
 
         const defaults = ['name', 'lifecycle', 'slicers', 'workers', '_status', 'ex_id', 'job_id', '_created', '_updated'];
         const query = 'ex_id:*';
 
-        executionService.searchExecutionContexts(query, from, size, sort)
-            .then((jobs) => {
-                const tableStr = makeTable(req, defaults, jobs);
-                res.status(200).send(tableStr);
-            })
-            .catch(handleApiError);
+        requestHandler(async () => {
+            const exs = await executionService.searchExecutionContexts(query, from, size, sort);
+            return makeTable(req, defaults, exs);
+        });
     });
 
-    app.get('/txt/slicers', _deprecateSlicerName((req, res) => {
-        logger.trace('GET /txt/slicers endpoint has been called');
-        const handleApiError = handleError(res, logger, 500, 'Could not get all execution statistics');
+    app.get(['/txt/slicers', '/txt/controllers'], (req, res) => {
+        const requestHandler = handleRequest(req, res, 'Could not get all execution statistics');
 
         const defaults = [
             'name',
@@ -541,34 +351,10 @@ module.exports = function module(context, app, { assetsUrl }) {
             'processed'
         ];
 
-        _controllerStats()
-            .then((results) => {
-                const tableStr = makeTable(req, defaults, results);
-                res.status(200).send(tableStr);
-            })
-            .catch(handleApiError);
-    }));
-
-    app.get('/txt/controllers', (req, res) => {
-        logger.trace('GET /txt/controllers endpoint has been called');
-        const handleApiError = handleError(res, logger, 500, 'Could not get all execution statistics');
-
-        const defaults = [
-            'name',
-            'job_id',
-            'workers_available',
-            'workers_active',
-            'failed',
-            'queued',
-            'processed'
-        ];
-
-        _controllerStats()
-            .then((results) => {
-                const tableStr = makeTable(req, defaults, results);
-                res.status(200).send(tableStr);
-            })
-            .catch(handleApiError);
+        requestHandler(async () => {
+            const stats = await _controllerStats();
+            return makeTable(req, defaults, stats);
+        });
     });
 
     // This is a catch all, any none supported api endpoints will return an error
@@ -577,8 +363,7 @@ module.exports = function module(context, app, { assetsUrl }) {
             sendError(res, 405, `cannot ${req.method} endpoint ${req.originalUrl}`);
         });
 
-    function _changeWorkers(type, id, query) {
-        const serviceContext = type === 'job' ? jobsService : executionService;
+    function _changeWorkers(exId, query) {
         let msg;
         let workerNum;
         const keyOptions = { add: true, remove: true, total: true };
@@ -589,6 +374,7 @@ module.exports = function module(context, app, { assetsUrl }) {
             error.code = 400;
             return Promise.reject(error);
         }
+
         queryKeys.forEach((key) => {
             if (keyOptions[key]) {
                 msg = key;
@@ -603,19 +389,44 @@ module.exports = function module(context, app, { assetsUrl }) {
         }
 
         if (msg === 'add') {
-            return serviceContext.addWorkers(id, workerNum);
+            return executionService.addWorkers(exId, workerNum);
         }
 
         if (msg === 'remove') {
-            return serviceContext.removeWorkers(id, workerNum);
+            return executionService.removeWorkers(exId, workerNum);
         }
 
-        return serviceContext.setWorkers(id, workerNum);
+        return executionService.setWorkers(exId, workerNum);
     }
 
-    function _deprecateSlicerName(fn) {
-        const msg = 'api endpoints with /slicers are being deprecated in favor of the semantically correct term of /controllers';
-        return util.deprecate(fn, msg);
+    async function _getExIdFromRequest(req, allowWildcard = false) {
+        const { path } = req;
+        if (_.startsWith(path, '/ex')) {
+            const { exId } = req.params;
+            if (exId) return exId;
+
+            if (allowWildcard) {
+                return '*';
+            }
+            const error = new Error('Execution Context ID is required');
+            error.code = 406;
+            throw error;
+        }
+
+        if (_.startsWith(path, '/jobs')) {
+            const { jobId } = req.params;
+            const exId = await jobsService.getLatestExecutionId(jobId);
+            if (!exId) {
+                const error = new Error(`No executions were found for job: ${jobId}`);
+                error.code = 404;
+                throw error;
+            }
+            return exId;
+        }
+
+        const error = new Error('Only /ex and /jobs are allowed');
+        error.code = 405;
+        throw error;
     }
 
     function _redirect(req, res) {
@@ -638,14 +449,6 @@ module.exports = function module(context, app, { assetsUrl }) {
         return Promise.resolve(true);
     }
 
-    const api = {
-        shutdown
-    };
-
-    function _initialize() {
-        return Promise.resolve(api);
-    }
-
     function _waitForStop(exId, blocking) {
         return new Promise((resolve) => {
             function checkExecution() {
@@ -653,8 +456,11 @@ module.exports = function module(context, app, { assetsUrl }) {
                     .then((execution) => {
                         const terminalList = executionService.terminalStatusList();
                         const isTerminal = terminalList.find(tStat => tStat === execution._status);
-                        if (isTerminal || !(blocking === true || blocking === 'true')) resolve(execution._status);
-                        else setTimeout(checkExecution, 3000);
+                        if (isTerminal || !(blocking === true || blocking === 'true')) {
+                            resolve({ status: execution._status });
+                        } else {
+                            setTimeout(checkExecution, 3000);
+                        }
                     })
                     .catch((err) => {
                         logger.error(err);
@@ -666,10 +472,9 @@ module.exports = function module(context, app, { assetsUrl }) {
         });
     }
 
-    return require('../storage/state')(context)
-        .then((state) => {
-            logger.info('api service is initializing...');
-            stateStore = state;
-            return _initialize(); // Load the initial pendingJobs state.
-        });
+    logger.info('api service is initializing...');
+
+    return {
+        shutdown,
+    };
 };
