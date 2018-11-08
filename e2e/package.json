@@ -28,7 +28,7 @@
     "devDependencies": {
         "@terascope/docker-compose-js": "^1.0.0",
         "@terascope/fetch-github-release": "^0.4.1",
-        "bluebird": "^3.5.2",
+        "bluebird": "^3.5.3",
         "bunyan": "^1.8.12",
         "elasticsearch": "^15.1.1",
         "jest": "^23.6.0",

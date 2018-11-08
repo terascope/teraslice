@@ -83,6 +83,38 @@ describe('DataEntity', () => {
         });
     });
 
+    describe('when constructed with a non-object', () => {
+        it('should do nothing when called with null', () => {
+            expect(() => {
+                // @ts-ignore
+                new DataEntity(null);
+            }).not.toThrow();
+        });
+
+        it('should do nothing with called with undefined', () => {
+            expect(() => {
+                // @ts-ignore
+                new DataEntity();
+            }).not.toThrow();
+        });
+
+        it('should throw an error when called with an Array', () => {
+            const arr = [{ hello: true }];
+            expect(() => {
+                // @ts-ignore
+                new DataEntity(arr);
+            }).toThrowError('Invalid data source, must be an object, got "array"');
+        });
+
+        it('should throw an error when called with a Buffer', () => {
+            const buf = Buffer.from(JSON.stringify({ hello:true }));
+            expect(() => {
+                // @ts-ignore
+                new DataEntity(buf);
+            }).toThrowError('Invalid data source, must be an object, got "buffer"');
+        });
+    });
+
     describe('->toBuffer', () => {
         it('should be convertable to a buffer', () => {
             const dataEntity = new DataEntity({ foo: 'bar' }, { hello: 'there' });
@@ -195,6 +227,9 @@ describe('DataEntity', () => {
                 },
                 setMetadata() {
 
+                },
+                toBuffer() {
+
                 }
             };
             expect(DataEntity.isDataEntity(fakeDataEntity)).toBeTrue();
@@ -236,6 +271,9 @@ describe('DataEntity', () => {
 
                 },
                 setMetadata() {
+
+                },
+                toBuffer() {
 
                 }
             }];
