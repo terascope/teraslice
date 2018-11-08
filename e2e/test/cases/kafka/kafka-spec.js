@@ -12,27 +12,16 @@ describe('Kafka Tests', () => {
 
     const teraslice = misc.teraslice();
 
-    function startJobs(fileNames = []) {
-        return Promise.all(fileNames.map(async (fileName) => {
-            const jobSpec = misc.newJob(fileName);
-            const job = await teraslice.jobs.submit(jobSpec);
-
-            expect(job).toBeDefined();
-            expect(job.id()).toBeDefined();
-
-            await waitForJobStatus(job, 'running');
-            return job;
-        }));
-    }
-
     it('should be able to read and write from kafka', async () => {
-        const [sender, reader] = await startJobs(['kafka-sender', 'kafka-reader']);
+        const sender = await teraslice.jobs.submit(misc.newJob('kafka-sender'));
+        const reader = await teraslice.jobs.submit(misc.newJob('kafka-reader', true));
 
         await waitForJobStatus(sender, 'completed');
 
+        await reader.start();
         await waitForIndexCount('kafka-logs-10', 10);
-
         await reader.stop();
+
         await waitForJobStatus(reader, 'stopped');
 
         let count = 0;

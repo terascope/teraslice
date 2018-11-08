@@ -11,7 +11,8 @@
             "topic": "example-logs-10",
             "group": "example-kafka-group",
             "size": 10,
-            "wait": 1000,
+            "wait": 5000,
+            "offset_reset": "beginning",
             "_encoding": "json"
         },
         {

@@ -64,28 +64,33 @@ services:
         soft: -1
         hard: -1
   kafka:
-    image: terascope/kafka-zookeeper:2.11-1.1.0
+    image: terascope/kafka-zookeeper:v1.0.0
     ports:
       - "42181:42181"
       - "49092:49092"
     networks:
       - cluster
     environment:
-      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
-      ADVERTISED_HOST: "kafka"
-      ADVERTISED_PORT: "49092"
-      AUTO_CREATE_TOPICS: "true"
-      ZOOKEEPER_PORT: "42181"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
+      - "ADVERTISED_HOST=kafka"
+      - "ADVERTISED_PORT=49092"
+      - "ZOOKEEPER_PORT=42181"
+    volumes:
+        - kafka-data:/kafka
+        - zookeeper-data:/zookeeper
 volumes:
   teraslice-assets:
     driver_opts:
       type: tmpfs
       device: tmpfs
   elasticsearch-data:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  kafka-data:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  zookeeper-data:
     driver_opts:
       type: tmpfs
       device: tmpfs
