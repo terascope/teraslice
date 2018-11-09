@@ -4,7 +4,6 @@ const _ = require('lodash');
 const Table = require('easy-table');
 const parseError = require('@terascope/error-parser');
 
-
 function makeTable(req, defaults, data, mappingFn) {
     const query = fieldsQuery(req.query, defaults);
     let emptyChar = 'N/A';
@@ -16,7 +15,7 @@ function makeTable(req, defaults, data, mappingFn) {
     }
 
     return Table.print(data, (item, cell) => {
-        const fn = mappingFn ? mappingFn(item) : field => item[field] || emptyChar;
+        const fn = mappingFn ? mappingFn(item) : field => _.get(item, field, emptyChar);
         _.each(query, (field) => {
             cell(field, fn(field));
         });
