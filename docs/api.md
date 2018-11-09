@@ -1,14 +1,15 @@
 
 # Teraslice HTTP API
 
-Default endpoint in development is `localhost:5678`
-Current API version s `/v1/`
+Default endpoint in development is `localhost:5678`.
 
-### GET / or /v1/
+**Note:** Current API version s `v1`, but all endpoints can be accessed without the `/v1` prefix.
+
+### GET /v1
 
 Teraslice system information.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678'
@@ -26,7 +27,7 @@ $ curl 'localhost:5678'
 
 Returns a json object representing the state of the cluster.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/v1/cluster/state'
@@ -55,7 +56,7 @@ $ curl 'localhost:5678/v1/cluster/state'
 
 Returns an array of all active execution controllers and their associated statistics.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/v1/cluster/controllers'
@@ -85,7 +86,7 @@ $ curl 'localhost:5678/v1/cluster/controllers'
 
 Submit a zip file containing custom readers/processors for jobs to use.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl -XPOST -H 'Content-Type: application/octet-stream' 'localhost:5678/v1/assets' --data-binary @zipFile.zip
@@ -118,7 +119,7 @@ $ zip -r zipfile.zip asset_op another_asset.cvs asset.json
 
 Delete an asset
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl -XDELETE 'localhost:5678/assets/ec2d5465609571590fdfe5b371ed7f98a04db5cb'
@@ -133,13 +134,13 @@ The `_id` returned is the id of elasticsearch document that was deleted.
 
 Submit a job to be enqueued.
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `start: boolean = false`
 
 Setting start to false will just store the job and not automatically enqueue it, in this case only the job id will be returned.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl -XPOST 'localhost:5678/v1/jobs' -d@job.json
@@ -152,7 +153,7 @@ $ curl -XPOST 'localhost:5678/v1/jobs' -d@job.json
 
 Returns an array of all jobs listed in `${clusterName}__jobs` index.
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `from: number = 0`
 - `size: number = 100`
@@ -160,7 +161,7 @@ Returns an array of all jobs listed in `${clusterName}__jobs` index.
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/v1/jobs'
@@ -186,7 +187,7 @@ $ curl 'localhost:5678/v1/jobs'
 
 Returns the job that matches given job id.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd'
@@ -210,7 +211,7 @@ $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd'
 
 Updates a stored job that has the given job id.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl -XPUT 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd' -d@job.json
@@ -234,7 +235,7 @@ $ curl -XPUT 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd' -d@jo
 
 Returns the current or latest job execution context that matches given job id.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/ex'
@@ -285,7 +286,7 @@ $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/ex'
 
 Issues a start command, this will start a fresh new job associated with the job id.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_start'
@@ -300,12 +301,12 @@ Issues a stop command which will shutdown the execution controllers and workers,
 
 **Note:** the timeout your provide will be added to the `network_latency_buffer` for the final timeout used.
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `timeout: number`
 - `blocking: boolean = true`
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_stop'
@@ -318,7 +319,7 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_stop
 
 Issues a pause command, this will prevent the execution controller from invoking slicers and also prevent the allocation of slices to workers, marks the job execution context state as paused.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_pause'
@@ -353,7 +354,7 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_reco
 
 You can dynamically change the amount of workers that are allocated for a specific job execution.
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `add: number`
 - `remove: number`
@@ -361,7 +362,7 @@ You can dynamically change the amount of workers that are allocated for a specif
 
 If you use total, it will dynamically determine if it needs to add or remove to reach the number of workers you set.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_workers?add=5'
@@ -372,7 +373,7 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_work
 
 Same concept as cluster/controllers, but only get stats on execution controller associated with the given job_id.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/v1/jobs/a8e2be53-fe17-4727-9336-c9f09db9485f/controller'
@@ -404,7 +405,7 @@ This endpoint will return an array of all errors from all executions from oldest
 
 **Note:** Elasticsearch has a window size limit of 10000, please use from to get more if needed
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `from: number = 0`
 - `size: number = 100`
@@ -412,7 +413,7 @@ This endpoint will return an array of all errors from all executions from oldest
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/errors'
@@ -435,7 +436,7 @@ $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/errors'
 
 Returns all execution contexts (job invocations).
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `from: number = 0`
 - `size: number = 100`
@@ -444,7 +445,7 @@ Returns all execution contexts (job invocations).
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/v1/ex?status=running&size=10'
@@ -497,7 +498,7 @@ $ curl 'localhost:5678/v1/ex?status=running&size=10'
 
 Returns the job execution context that matches given execution context id.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/v1/ex/77c94621-48cf-459f-9d95-dfbccf010f5c'
@@ -548,7 +549,7 @@ $ curl 'localhost:5678/v1/ex/77c94621-48cf-459f-9d95-dfbccf010f5c'
 
 Returns all execution errors.
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `from: number = 0`
 - `size: number = 100`
@@ -556,7 +557,7 @@ Returns all execution errors.
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/v1/ex/errors'
@@ -581,7 +582,7 @@ This endpoint will return an array of all errors from the specified execution fr
 
 **Note:** Elasticsearch has a window size limit of 10000, please use from to get more if needed
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `from: number = 0`
 - `size: number = 100`
@@ -589,7 +590,7 @@ This endpoint will return an array of all errors from the specified execution fr
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/errors'
@@ -614,12 +615,12 @@ Issues a stop command which will shutdown execution controller and workers for t
 
 **Note:** The timeout your provide will be added to the `network_latency_buffer` for the final timeout used.
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `timeout: number`
 - `blocking: boolean = true`
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_stop'
@@ -632,7 +633,7 @@ $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_stop'
 
 Issues a pause command, this will prevent the execution controller from invoking slicers and also prevent the allocation of slices to workers, marks the job execution context state as paused.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_pause'
@@ -645,7 +646,7 @@ $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_pause'
 
 Issues a resume command, this allows the execution controller to continue invoking slicers and allocating work if they were in a paused state, marks the job execution context as running.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_resume'
@@ -658,11 +659,11 @@ $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_resume
 
 Issues a recover command, this can only be run if the execution is stopped, the job will attempt to retry failed slices and to resume where it previously left off. If cleanup parameter is specified it will NOT resume where it left off and exit after recovery completes. If the cleanup parameter is set to `all`, then it will attempt to reprocess all slices left in error or started status, if it is set to  `errors` then it will only reprocess state records that are marked as error.
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `cleanup: enum [ 'all', 'errors' ]`;
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_recover?cleanup=errors'
@@ -675,7 +676,7 @@ $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_recove
 
 You can dynamically change the amount of workers that are allocated for a specific job execution.
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `add: number`
 - `remove: number`
@@ -683,7 +684,7 @@ You can dynamically change the amount of workers that are allocated for a specif
 
 If you use total, it will dynamically determine if it needs to add or remove to reach the number of workers you set.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_workers?add=5'
@@ -694,7 +695,7 @@ $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_worker
 
 Same concept as cluster/controllers, but only get stats on execution controller associated with the given execution context id.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/v1/ex/1cb20d4c-520a-44fe-a802-313f41dd5b05/controller'
@@ -724,14 +725,14 @@ $ curl 'localhost:5678/v1/ex/1cb20d4c-520a-44fe-a802-313f41dd5b05/controller'
 
 Returns a textual graph of all workers and controllers.
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `fields: string`
 
 The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie `fields="job_id,pid"` or `fields="job_id pid"`.
 
-all fields:
+**All Fields:**
 
 - `worker_id`
 - `assignment`
@@ -739,14 +740,14 @@ all fields:
 - `ex_id`
 - `hostname`
 
-default:
+**Default Fields:**
 
 - `assignment`
 - `node_id`
 - `ex_id`
 - `pid`
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/txt/workers'
@@ -762,14 +763,14 @@ worker                123      456    your.host.name      82301
 
 Returns a textual graph of all nodes in the cluster.
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `fields: string`
 
 The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie `fields="job_id,pid"` or `fields="job_id pid"`.
 
-all fields:
+**All Fields:**
 
 - `node_id`
 - `state`
@@ -781,7 +782,7 @@ all fields:
 - `node_version`
 - `active`
 
-defaults:
+**Default Fields:**
 
 - `node_id`
 - `state`
@@ -792,7 +793,7 @@ defaults:
 - `teraslice_version`
 - `node_version`
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/txt/nodes'
@@ -805,14 +806,14 @@ your.host.name  connected  10.1.45.235  12     2       82028  0.43.0            
 
 Returns a textual graph of all job listings.
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `fields: string`
 
 The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie `fields="job_id,pid"` or `fields="job_id pid"`.
 
-all fields:
+**All Fields:**
 
 - `name`
 - `lifecycle`
@@ -825,7 +826,7 @@ all fields:
 - `_created`
 - `_updated`
 
-defaults:
+**Default Fields:**
 
 - `name`
 - `lifecycle`
@@ -835,7 +836,7 @@ defaults:
 - `_created`
 - `_updated`
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/txt/jobs'
@@ -849,14 +850,14 @@ job_id  name            lifecycle   slicers  workers  _created                  
 
 Returns a textual graph of all job execution contexts.
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `fields: string`
 
 The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie `fields="job_id,pid"` or `fields="job_id pid"`.
 
-all fields:
+**All Fields:**
 
 - `name`
 - `lifecycle`
@@ -870,7 +871,7 @@ all fields:
 - `_created`
 - `_updated`
 
-defaults:
+**Default Fields:**
 
 - `name`
 - `lifecycle`
@@ -881,7 +882,7 @@ defaults:
 - `_created`
 - `_updated`
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/txt/ex'
@@ -895,14 +896,14 @@ Reindex         once        N/A      1        running  456    654     2018-...  
 
 Returns a textual graph of all active execution controllers.
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `fields: string`
 
 The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie `fields="ex_id,pid"` or `fields="ex_id pid"`.
 
-all fields:
+**All Fields:**
 
 - `name`
 - `node_id`
@@ -922,7 +923,7 @@ all fields:
 - `started`
 - `queuing_complete`
 
-defaults:
+**Default Fields:**
 
 - `name`
 - `job_id`
@@ -932,7 +933,7 @@ defaults:
 - `queued`
 - `processed`
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/txt/controllers'
@@ -945,14 +946,14 @@ Example  123     2                  2               0       20      10
 
 Returns a textual graph of all assets sorted by the most recent at the top.
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `fields: string`
 
 The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie `fields="name,version"` or `fields="name version"`.
 
-all fields:
+**All Fields:**
 
 - `id`
 - `name`
@@ -960,7 +961,7 @@ all fields:
 - `description`
 - `_created`
 
-default:
+**Default Fields:**
 
 - `id`
 - `name`
@@ -970,7 +971,7 @@ default:
 
 **Note:** The description field is capped to 30 chars.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/txt/assets'
@@ -986,14 +987,14 @@ Returns a textual graph of all assets by the given name, sorted by the most rece
 
 **Note:** `{assetName}` supports the wildcard character, `*`.
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `fields: string`
 
 The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie `fields="name,version"` or `fields="name version"`
 
-all fields:
+**All Fields:**
 
 - `id`
 - `name`
@@ -1001,7 +1002,7 @@ all fields:
 - `description`
 - `_created`
 
-default:
+**Default Fields:**
 
 - `id`
 - `name`
@@ -1011,7 +1012,7 @@ default:
 
 **Note:** The description field is capped to 30 chars.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/txt/assets/zipfi*'
@@ -1027,14 +1028,14 @@ Returns a textual graph of all assets by a given name and version, sorted by the
 
 **Note:** `{assetName}` and `{version}` supports the wildcard character, `*`.
 
-**QUERY OPTIONS:**
+#### QUERY OPTIONS:
 
 - `fields: string`
 
 The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie `fields="name,version"` or `fields="name version"`.
 
-all fields:
+**All Fields:**
 
 - `id: string`
 - `name: string`
@@ -1042,7 +1043,7 @@ all fields:
 - `description: string`
 - `_created: Date`
 
-default:
+**Default Fields:**
 
 - `id: string`
 - `name: string`
@@ -1052,7 +1053,7 @@ default:
 
 **Note:** The description field is capped to 30 chars.
 
-**USAGE:**
+#### USAGE:
 
 ```sh
 $ curl 'localhost:5678/txt/assets/zipfi*/0.3.*'
