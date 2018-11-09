@@ -32,7 +32,7 @@
     "chalk": "^2.3.2",
     "easy-table": "^1.1.1",
     "eslint": "^5.5.0",
-    "fs-extra": "^7.0.0",
+    "fs-extra": "^7.0.1",
     "json-diff": "^0.5.3",
     "lodash": "^4.17.11",
     "mkdirp": "^0.5.1",
