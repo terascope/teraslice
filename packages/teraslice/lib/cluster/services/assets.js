@@ -117,7 +117,6 @@ module.exports = function module(context) {
         }
 
         const requestHandler = handleRequest(req, res, 'Could not get assets');
-
         requestHandler(async () => {
             const results = await assetsStore.search(query, from, size, sort, defaults);
             const data = results.hits.hits;
@@ -132,8 +131,8 @@ module.exports = function module(context) {
 
     function assetsSearch(query, req, res) {
         const { size, from, sort } = getSearchOptions(req, '_created:desc');
-        const requestHandler = handleRequest(req, res, 'Could not get assets');
 
+        const requestHandler = handleRequest(req, res, 'Could not get assets');
         requestHandler(async () => {
             const fields = ['_created', 'name', 'version', 'description'];
             const results = await assetsStore.search(query, from, size, sort, fields);

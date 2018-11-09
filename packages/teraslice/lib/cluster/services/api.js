@@ -87,7 +87,6 @@ module.exports = async function makeAPI(context, app, options) {
         const shouldRun = start !== 'false';
 
         const requestHandler = handleRequest(req, res, 'Job submission failed');
-
         requestHandler(() => jobsService.submitJob(jobSpec, shouldRun));
     });
 
@@ -102,8 +101,6 @@ module.exports = async function makeAPI(context, app, options) {
         const { jobId } = req.params;
 
         const requestHandler = handleRequest(req, res, 'Could not retrieve job');
-
-
         requestHandler(async () => jobsService.getJob(jobId));
     });
 
@@ -117,7 +114,6 @@ module.exports = async function makeAPI(context, app, options) {
         }
 
         const requestHandler = handleRequest(req, res, 'Could not update job');
-
         requestHandler(async () => jobsService.updateJob(jobId, jobSpec));
     });
 
@@ -125,14 +121,13 @@ module.exports = async function makeAPI(context, app, options) {
         const { jobId } = req.params;
 
         const requestHandler = handleRequest(req, res, 'Could not retrieve list of execution contexts');
-
         requestHandler(async () => jobsService.getLatestExecution(jobId));
     });
 
     v1routes.post('/jobs/:jobId/_start', (req, res) => {
         const { jobId } = req.params;
-        const requestHandler = handleRequest(req, res, `Could not start job: ${jobId}`);
 
+        const requestHandler = handleRequest(req, res, `Could not start job: ${jobId}`);
         requestHandler(async () => jobsService.startJob(jobId));
     });
 
@@ -140,7 +135,6 @@ module.exports = async function makeAPI(context, app, options) {
         const { timeout, blocking = true } = req.query;
 
         const requestHandler = handleRequest(req, res, 'Could not stop execution');
-
         requestHandler(async () => {
             const exId = await _getExIdFromRequest(req);
             await executionService.stopExecution(exId, timeout);
@@ -150,7 +144,6 @@ module.exports = async function makeAPI(context, app, options) {
 
     v1routes.post(['/jobs/:jobId/_pause', '/ex/:exId/_pause'], (req, res) => {
         const requestHandler = handleRequest(req, res, 'Could not pause execution');
-
         requestHandler(async () => {
             const exId = await _getExIdFromRequest(req);
             await executionService.getActiveExecution(exId);
@@ -160,7 +153,6 @@ module.exports = async function makeAPI(context, app, options) {
 
     v1routes.post(['/jobs/:jobId/_resume', '/ex/:exId/_resume'], (req, res) => {
         const requestHandler = handleRequest(req, res, 'Could not resume execution');
-
         requestHandler(async () => {
             const exId = await _getExIdFromRequest(req);
             await executionService.getActiveExecution(exId);
@@ -171,14 +163,13 @@ module.exports = async function makeAPI(context, app, options) {
     v1routes.post(['/jobs/:jobId/_recover', '/ex/:exId/_recover'], (req, res) => {
         const { cleanup } = req.query;
 
-        const requestHandler = handleRequest(req, res, 'Could not recover execution');
-
         if (cleanup && !(cleanup === 'all' || cleanup === 'errors')) {
             const errorMsg = 'if cleanup is specified it must be set to "all" or "errors"';
             res.status(400).json({ error: errorMsg });
             return;
         }
 
+        const requestHandler = handleRequest(req, res, 'Could not recover execution');
         requestHandler(async () => {
             const exId = await _getExIdFromRequest(req);
             return executionService.recoverExecution(exId, cleanup);
@@ -189,7 +180,6 @@ module.exports = async function makeAPI(context, app, options) {
         const { query } = req;
 
         const requestHandler = handleRequest(req, res, 'Could not change workers count');
-
         requestHandler(async () => {
             const exId = await _getExIdFromRequest(req);
             const result = await _changeWorkers(exId, query);
@@ -204,7 +194,6 @@ module.exports = async function makeAPI(context, app, options) {
         '/ex/:exId/controller'
     ], (req, res) => {
         const requestHandler = handleRequest(req, res, 'Could not get slicer statistics');
-
         requestHandler(async () => {
             const exId = await _getExIdFromRequest(req);
             return _controllerStats(exId);
@@ -220,7 +209,6 @@ module.exports = async function makeAPI(context, app, options) {
         const { size, from, sort } = getSearchOptions(req);
 
         const requestHandler = handleRequest(req, res, 'Could not get errors for job');
-
         requestHandler(async () => {
             const exId = await _getExIdFromRequest(req, true);
 
@@ -234,7 +222,6 @@ module.exports = async function makeAPI(context, app, options) {
         const { size, from, sort } = getSearchOptions(req);
 
         const requestHandler = handleRequest(req, res, 'Could not retrieve list of execution contexts');
-
         requestHandler(async () => {
             const statuses = status.split(',').map(s => s.trim()).filter(s => !!s);
 
@@ -253,7 +240,6 @@ module.exports = async function makeAPI(context, app, options) {
         const { exId } = req.params;
 
         const requestHandler = handleRequest(req, res, `Could not retrieve execution context ${exId}`);
-
         requestHandler(async () => executionService.getExecutionContext(exId));
     });
 
@@ -261,9 +247,8 @@ module.exports = async function makeAPI(context, app, options) {
         const { name: cluster } = context.sysconfig.teraslice;
 
         const requestHandler = handleRequest(req, res, 'Could not get cluster statistics');
-
-        requestHandler(() => {
-            const stats = executionService.getClusterStats();
+        requestHandler(async () => {
+            const stats = await executionService.getClusterStats();
 
             if (isPrometheusRequest(req)) return makePrometheus(stats, { cluster });
             // for backwards compatability (unsupported for prometheus)
@@ -274,7 +259,6 @@ module.exports = async function makeAPI(context, app, options) {
 
     v1routes.get(['/cluster/slicers', '/cluster/controllers'], (req, res) => {
         const requestHandler = handleRequest(req, res, 'Could not get execution statistics');
-
         requestHandler(() => _controllerStats());
     });
 
@@ -287,8 +271,8 @@ module.exports = async function makeAPI(context, app, options) {
 
     app.get('/txt/workers', (req, res) => {
         const defaults = ['assignment', 'job_id', 'ex_id', 'node_id', 'pid'];
-        const requestHandler = handleRequest(req, res, 'Could not get all workers');
 
+        const requestHandler = handleRequest(req, res, 'Could not get all workers');
         requestHandler(async () => {
             const workers = await executionService.findAllWorkers();
             return makeTable(req, defaults, workers);
@@ -297,8 +281,8 @@ module.exports = async function makeAPI(context, app, options) {
 
     app.get('/txt/nodes', (req, res) => {
         const defaults = ['node_id', 'state', 'hostname', 'total', 'active', 'pid', 'teraslice_version', 'node_version'];
-        const requestHandler = handleRequest(req, res, 'Could not get all nodes');
 
+        const requestHandler = handleRequest(req, res, 'Could not get all nodes');
         requestHandler(async () => {
             const nodes = await executionService.getClusterState();
 
@@ -314,10 +298,9 @@ module.exports = async function makeAPI(context, app, options) {
     app.get('/txt/jobs', (req, res) => {
         const { size, from, sort } = getSearchOptions(req);
 
-        const requestHandler = handleRequest(req, res, 'Could not get all jobs');
-
         const defaults = ['job_id', 'name', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
 
+        const requestHandler = handleRequest(req, res, 'Could not get all jobs');
         requestHandler(async () => {
             const jobs = await jobsService.getJobs(from, size, sort);
             return makeTable(req, defaults, jobs);
@@ -327,11 +310,10 @@ module.exports = async function makeAPI(context, app, options) {
     app.get('/txt/ex', (req, res) => {
         const { size, from, sort } = getSearchOptions(req);
 
-        const requestHandler = handleRequest(req, res, 'Could not get all executions');
-
         const defaults = ['name', 'lifecycle', 'slicers', 'workers', '_status', 'ex_id', 'job_id', '_created', '_updated'];
         const query = 'ex_id:*';
 
+        const requestHandler = handleRequest(req, res, 'Could not get all executions');
         requestHandler(async () => {
             const exs = await executionService.searchExecutionContexts(query, from, size, sort);
             return makeTable(req, defaults, exs);
@@ -339,8 +321,6 @@ module.exports = async function makeAPI(context, app, options) {
     });
 
     app.get(['/txt/slicers', '/txt/controllers'], (req, res) => {
-        const requestHandler = handleRequest(req, res, 'Could not get all execution statistics');
-
         const defaults = [
             'name',
             'job_id',
@@ -351,6 +331,7 @@ module.exports = async function makeAPI(context, app, options) {
             'processed'
         ];
 
+        const requestHandler = handleRequest(req, res, 'Could not get all execution statistics');
         requestHandler(async () => {
             const stats = await _controllerStats();
             return makeTable(req, defaults, stats);
