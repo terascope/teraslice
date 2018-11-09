@@ -253,7 +253,7 @@ Returns an array of all jobs listed in `${clusterName}__jobs` index.
 
 - `from: number = 0`
 - `size: number = 100`
-- `sort: string = "_updated:asc"`
+- `sort: string = "_updated:desc"`
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
@@ -509,7 +509,7 @@ This endpoint will return an array of all errors from all executions from oldest
 
 - `from: number = 0`
 - `size: number = 100`
-- `sort: string = "_updated:asc"`
+- `sort: string = "_updated:desc"`
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
@@ -540,7 +540,7 @@ Returns all execution contexts (job invocations).
 
 - `from: number = 0`
 - `size: number = 100`
-- `sort: string = "_updated:asc"`
+- `sort: string = "_updated:desc"`
 - `status: string = "*"`
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
@@ -653,7 +653,7 @@ Returns all execution errors.
 
 - `from: number = 0`
 - `size: number = 100`
-- `sort: string = "_updated:asc"`
+- `sort: string = "_updated:desc"`
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
@@ -686,7 +686,7 @@ This endpoint will return an array of all errors from the specified execution fr
 
 - `from: number = 0`
 - `size: number = 100`
-- `sort: string = "_updated:asc"`
+- `sort: string = "_updated:desc"`
 
 Size is the number of documents returned, from is how many documents in and sort is a lucene query.
 
