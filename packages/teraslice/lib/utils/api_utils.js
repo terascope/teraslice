@@ -116,7 +116,7 @@ function isPrometheusRequest(req) {
     return acceptHeader && acceptHeader.indexOf('application/openmetrics-text;') > -1;
 }
 
-function getSearchOptions(req, defaultSort = '_updated:asc') {
+function getSearchOptions(req, defaultSort = '_updated:desc') {
     const { size = 100, from = null, sort = defaultSort } = req.query;
     return { size, from, sort };
 }
