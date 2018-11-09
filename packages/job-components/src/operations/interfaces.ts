@@ -10,15 +10,15 @@ import ParallelSlicer from './parallel-slicer';
 import OperationAPI from './operation-api';
 
 export type SlicerConstructor = {
-    new(context: SlicerContext, opConfig: OpConfig, executionConfig: ExecutionConfig): SlicerCore;
+    new<T = object>(context: SlicerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig): SlicerCore<T>;
 };
 
 export type SingleSlicerConstructor = {
-    new(context: SlicerContext, opConfig: OpConfig, executionConfig: ExecutionConfig): Slicer;
+    new<T = object>(context: SlicerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig): Slicer<T>;
 };
 
 export type ParallelSlicerConstructor = {
-    new(context: SlicerContext, opConfig: OpConfig, executionConfig: ExecutionConfig): ParallelSlicer;
+    new<T = object>(context: SlicerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig): ParallelSlicer<T>;
 };
 
 export type OperationAPIConstructor = {
@@ -39,11 +39,11 @@ export type APIConstructor = {
 };
 
 export type FetcherConstructor = {
-    new(context: WorkerContext, opConfig: OpConfig, executionConfig: ExecutionConfig): FetcherCore;
+    new<T = object>(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig): FetcherCore<T>;
 };
 
 export type ProcessorConstructor = {
-    new(context: WorkerContext, opConfig: OpConfig, executionConfig: ExecutionConfig): ProcessorCore;
+    new<T = object>(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig): ProcessorCore<T>;
 };
 
 export interface OperationModule {

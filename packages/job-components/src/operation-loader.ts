@@ -19,14 +19,14 @@ import { readerShim, processorShim } from './operations/shims';
 import { isString } from './utils';
 
 export interface LoaderOptions {
-    terasliceOpPath: string;
+    terasliceOpPath?: string;
     assetPath?: string;
 }
 
 export class OperationLoader {
     private readonly options: LoaderOptions;
 
-    constructor(options: LoaderOptions) {
+    constructor(options: LoaderOptions = {}) {
         this.options = options;
     }
 
@@ -48,6 +48,11 @@ export class OperationLoader {
         };
 
         findCodeByConvention(this.options.assetPath, assetIds);
+
+        if (!filePath) {
+            const builtInPath = path.join(__dirname, '..', 'dist');
+            findCodeByConvention(builtInPath, ['builtin']);
+        }
 
         if (!filePath) {
             findCodeByConvention(this.options.terasliceOpPath, ['readers', 'processors']);
@@ -90,18 +95,24 @@ export class OperationLoader {
 
         try {
             Processor = require(path.join(codePath, 'processor.js'));
+            // @ts-ignore
+            Processor = Processor.default || Processor;
         } catch (err) {
             throw new Error(`Failure loading processor from module: ${name}, error: ${err.stack}`);
         }
 
         try {
             Schema = require(path.join(codePath, 'schema.js'));
+            // @ts-ignore
+            Schema = Schema.default || Schema;
         } catch (err) {
             throw new Error(`Failure loading schema from module: ${name}, error: ${err.stack}`);
         }
 
         try {
             API = require(path.join(codePath, 'api.js'));
+            // @ts-ignore
+            API = API.default || API;
         } catch (err) {
         }
 
@@ -131,24 +142,32 @@ export class OperationLoader {
 
         try {
             Slicer = require(path.join(codePath, 'slicer.js'));
+            // @ts-ignore
+            Slicer = Slicer.default || Slicer;
         } catch (err) {
             throw new Error(`Failure loading processor from module: ${name}, error: ${err.stack}`);
         }
 
         try {
             Fetcher = require(path.join(codePath, 'fetcher.js'));
+            // @ts-ignore
+            Fetcher = Fetcher.default || Fetcher;
         } catch (err) {
             throw new Error(`Failure loading processor from module: ${name}, error: ${err.stack}`);
         }
 
         try {
             Schema = require(path.join(codePath, 'schema.js'));
+            // @ts-ignore
+            Schema = Schema.default || Schema;
         } catch (err) {
             throw new Error(`Failure loading schema from module: ${name}, error: ${err.stack}`);
         }
 
         try {
             API = require(path.join(codePath, 'api.js'));
+            // @ts-ignore
+            API = API.default || API;
         } catch (err) {
         }
 
@@ -171,6 +190,8 @@ export class OperationLoader {
 
         try {
             Observer = require(path.join(codePath, 'observer.js'));
+            // @ts-ignore
+            Observer = Observer.default || Observer;
         } catch (err) {
             throw new Error(`Failure loading observer from module: ${name}, error: ${err.stack}`);
         }
@@ -189,6 +210,8 @@ export class OperationLoader {
 
         try {
             API = require(path.join(codePath, 'api.js'));
+            // @ts-ignore
+            API = API.default || API;
         } catch (err) {
             throw new Error(`Failure loading api from module: ${name}, error: ${err.stack}`);
         }

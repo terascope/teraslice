@@ -8,7 +8,7 @@ import {
 } from '../../src';
 
 describe('BatchProcessor', () => {
-    class ExampleBatchProcessor extends BatchProcessor {
+    class ExampleBatchProcessor extends BatchProcessor<object> {
         public async onBatch(batch: DataEntity[]): Promise<DataEntity[]> {
             batch.push(new DataEntity({
                 hi: 'there'

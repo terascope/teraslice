@@ -15,7 +15,7 @@ import {
     SlicerFns,
     LegacyReader,
 } from '../../interfaces';
-import { WorkerContext, SlicerContext } from '../../execution-context';
+import { WorkerContext } from '../../execution-context';
 import { times } from '../../utils';
 
 // This file for backwards compatibility and functionality will be limited
@@ -58,7 +58,8 @@ export default function legacyReaderShim(Slicer: SlicerType, Fetcher: FetcherTyp
             const executionConfig = executionContext.config;
             const opConfig = executionConfig.operations[0];
 
-            const slicer = new Slicer(context as SlicerContext, opConfig, executionConfig);
+            // @ts-ignore
+            const slicer = new Slicer(context, opConfig, executionConfig);
 
             // @ts-ignore
             slicer.logger = logger;

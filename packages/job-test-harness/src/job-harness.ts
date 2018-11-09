@@ -1,24 +1,34 @@
 import {
-    Context,
     TestContext,
     JobConfig,
     Assignment,
+    makeJobSchema,
+    makeExecutionContext,
     validateJobConfig,
-    jobSchema,
-    ValidatedJobConfig
+    WorkerExecutionContext,
+    SlicerExecutionContext,
+    ExecutionConfig,
 } from '@terascope/job-components';
 
 export default class JobHarness {
-    protected context: Context;
-    protected jobConfig: ValidatedJobConfig;
+    protected context: WorkerExecutionContext|SlicerExecutionContext;
 
-    constructor(job: JobConfig, assignment: Assignment = Assignment.Worker) {
-        this.context = new TestContext(`job-harness:${job.name}`);
-        this.context.assignment = assignment;
-        this.jobConfig = validateJobConfig(jobSchema(this.context), job);
+    constructor(job: JobConfig, options: JobHarnessOptions) {
+        const context = new TestContext(`job-harness:${job.name}`);
+        context.assignment = options.assignment || Assignment.Worker;
+        const jobSchema = makeJobSchema(context);
+        const executionConfig = validateJobConfig(jobSchema, job) as ExecutionConfig;
+        this.context = makeExecutionContext({
+            context,
+            executionConfig
+        });
     }
 
     async initialize() {
-
     }
+}
+
+export interface JobHarnessOptions {
+    assignment?: Assignment;
+    assetDir: string;
 }

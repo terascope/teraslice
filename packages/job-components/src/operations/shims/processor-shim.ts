@@ -8,7 +8,7 @@ import { toString } from '../../utils';
 
 export default function processorShim<S = any>(legacy: LegacyProcessor): ProcessorModule {
     return {
-        Processor: class LegacyProcessorShim extends ProcessorCore {
+        Processor: class LegacyProcessorShim<T = object> extends ProcessorCore<T> {
             private processorFn: ProcessorFn<DataEntity[]>|undefined;
 
             async initialize() {

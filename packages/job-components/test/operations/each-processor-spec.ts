@@ -9,7 +9,7 @@ import {
 
 describe('EachProcessor', () => {
     let processedCount = 0;
-    class ExampleProcessor extends EachProcessor {
+    class ExampleProcessor extends EachProcessor<object> {
         forEach(data: DataEntity): void {
             if (data) {
                 processedCount += 1;

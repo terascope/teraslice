@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { newTestJobConfig } from '@terascope/job-components';
+import { newTestJobConfig, Assignment } from '@terascope/job-components';
 import { JobHarness } from '../src';
 
 describe('JobHarness', () => {
@@ -7,13 +7,17 @@ describe('JobHarness', () => {
         const job = newTestJobConfig();
         job.operations = [
             {
-                _op: 'hello',
+                _op: 'test-reader',
             },
             {
-                _op: 'there',
+                _op: 'noop',
             }
         ];
-        const jobHarness = new JobHarness(job);
+
+        const jobHarness = new JobHarness(job, {
+            assignment: Assignment.Worker,
+            assetDir: __dirname,
+        });
 
         it('should be able to to call initialize', () => {
             return expect(jobHarness.initialize()).resolves.toBeNil();

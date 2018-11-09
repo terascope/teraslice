@@ -36,14 +36,14 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     readonly assetIds: string[] = [];
 
     /** The instance of a "Fetcher" */
-    readonly fetcher: FetcherCore;
+    readonly fetcher: FetcherCore<object>;
 
     /**
      * A Set of a Processors available to Job.
      * This does not include the Fetcher since they have
      * different APIs.
     */
-    readonly processors: Set<ProcessorCore>;
+    readonly processors: Set<ProcessorCore<object>>;
 
     readonly exId: string;
     readonly jobId: string;

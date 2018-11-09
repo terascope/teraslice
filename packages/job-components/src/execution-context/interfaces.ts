@@ -12,7 +12,7 @@ import {
 export interface ExecutionContextConfig {
     context: Context;
     executionConfig: ExecutionConfig;
-    terasliceOpPath: string;
+    terasliceOpPath?: string;
     assetIds?: string[];
 }
 

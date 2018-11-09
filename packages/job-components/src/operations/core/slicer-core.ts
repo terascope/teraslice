@@ -20,13 +20,13 @@ import Core from './core';
  * @see Core
  */
 
-export default abstract class SlicerCore extends Core implements SlicerOperationLifeCycle {
+export default abstract class SlicerCore<T> extends Core implements SlicerOperationLifeCycle {
     protected stats: ExecutionStats;
     protected recoveryData: object[];
-    protected readonly opConfig: Readonly<OpConfig>;
+    protected readonly opConfig: Readonly<OpConfig & T>;
     private readonly queue: Queue<Slice>;
 
-    constructor(context: SlicerContext, opConfig: OpConfig, executionConfig: ExecutionConfig) {
+    constructor(context: SlicerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {
         const logger = context.apis.foundation.makeLogger({
             module: 'slicer',
             opName: opConfig._op,
