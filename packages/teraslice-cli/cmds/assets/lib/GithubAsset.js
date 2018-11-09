@@ -21,9 +21,9 @@ class GithubAsset {
         return this.nodeVersion.split('.')[0].substr(1);
     }
 
-    async download(outDir = '/tmp') {
+    async download(outDir = '/tmp', quiet = false) {
+        let assetPath;
         const leaveZipped = true;
-        const disableLogging = true;
 
         try {
             await fs.ensureDir(outDir);
@@ -32,18 +32,20 @@ class GithubAsset {
         }
 
         try {
-            await downloadRelease(
+            const r = await downloadRelease(
                 this.user,
                 this.name,
                 outDir,
                 GithubAsset.filterRelease,
                 GithubAsset.genFilterAsset(this.nodeMajorVersion(), this.platform, this.arch),
                 leaveZipped,
-                disableLogging
+                quiet
             );
+            [assetPath] = r;
         } catch (err) {
             throw new Error(`Error downloading ${this.assetString}: ${err}`);
         }
+        return assetPath;
     }
 
     static filterRelease(release) {
