@@ -13,91 +13,94 @@ Default endpoint in development is `localhost:5678`.
     - [Usage](#usage-1)
 - [GET /v1/cluster/controllers](#get-v1clustercontrollers)
     - [Usage](#usage-2)
-- [POST /v1/assets](#post-v1assets)
-    - [Usage](#usage-3)
-- [DELETE /v1/assets](#delete-v1assets)
-    - [Usage](#usage-4)
-- [POST /v1/jobs](#post-v1jobs)
+- [GET /v1/assets](#get-v1assets)
     - [Query Options](#query-options)
+    - [Usage](#usage-3)
+- [POST /v1/assets](#post-v1assets)
+    - [Usage](#usage-4)
+- [DELETE /v1/assets](#delete-v1assets)
     - [Usage](#usage-5)
-- [GET /v1/jobs](#get-v1jobs)
+- [POST /v1/jobs](#post-v1jobs)
     - [Query Options](#query-options-1)
     - [Usage](#usage-6)
-- [GET /v1/jobs/{jobId}](#get-v1jobsjobid)
-    - [Usage](#usage-7)
-- [PUT /v1/jobs/{jobId}](#put-v1jobsjobid)
-    - [Usage](#usage-8)
-- [GET /v1/jobs/{jobId}/ex](#get-v1jobsjobidex)
-    - [Usage](#usage-9)
-- [POST /v1/jobs/{jobId}/_start](#post-v1jobsjobid_start)
-    - [Usage](#usage-10)
-- [POST /v1/jobs/{jobId}/_stop](#post-v1jobsjobid_stop)
+- [GET /v1/jobs](#get-v1jobs)
     - [Query Options](#query-options-2)
+    - [Usage](#usage-7)
+- [GET /v1/jobs/{jobId}](#get-v1jobsjobid)
+    - [Usage](#usage-8)
+- [PUT /v1/jobs/{jobId}](#put-v1jobsjobid)
+    - [Usage](#usage-9)
+- [GET /v1/jobs/{jobId}/ex](#get-v1jobsjobidex)
+    - [Usage](#usage-10)
+- [POST /v1/jobs/{jobId}/_start](#post-v1jobsjobid_start)
     - [Usage](#usage-11)
-- [POST /v1/jobs/{jobId}/_pause](#post-v1jobsjobid_pause)
-    - [Usage](#usage-12)
-- [POST /v1/jobs/{jobId}/_resume](#post-v1jobsjobid_resume)
-    - [Usage](#usage-13)
-- [POST /v1/jobs/{jobId}/_recover](#post-v1jobsjobid_recover)
-    - [Usage](#usage-14)
-- [POST /v1/jobs/{jobId}/_workers](#post-v1jobsjobid_workers)
+- [POST /v1/jobs/{jobId}/_stop](#post-v1jobsjobid_stop)
     - [Query Options](#query-options-3)
+    - [Usage](#usage-12)
+- [POST /v1/jobs/{jobId}/_pause](#post-v1jobsjobid_pause)
+    - [Usage](#usage-13)
+- [POST /v1/jobs/{jobId}/_resume](#post-v1jobsjobid_resume)
+    - [Usage](#usage-14)
+- [POST /v1/jobs/{jobId}/_recover](#post-v1jobsjobid_recover)
     - [Usage](#usage-15)
-- [GET /v1/jobs/{jobId}/controller](#get-v1jobsjobidcontroller)
-    - [Usage](#usage-16)
-- [GET /v1/jobs/{jobId}/errors](#get-v1jobsjobiderrors)
+- [POST /v1/jobs/{jobId}/_workers](#post-v1jobsjobid_workers)
     - [Query Options](#query-options-4)
+    - [Usage](#usage-16)
+- [GET /v1/jobs/{jobId}/controller](#get-v1jobsjobidcontroller)
     - [Usage](#usage-17)
-- [GET /v1/ex](#get-v1ex)
+- [GET /v1/jobs/{jobId}/errors](#get-v1jobsjobiderrors)
     - [Query Options](#query-options-5)
     - [Usage](#usage-18)
-- [GET /v1/ex/{exId}](#get-v1exexid)
-    - [Usage](#usage-19)
-- [GET /v1/ex/errors](#get-v1exerrors)
+- [GET /v1/ex](#get-v1ex)
     - [Query Options](#query-options-6)
+    - [Usage](#usage-19)
+- [GET /v1/ex/{exId}](#get-v1exexid)
     - [Usage](#usage-20)
-- [GET /v1/ex/{jobId}/errors/{exId}](#get-v1exjobiderrorsexid)
+- [GET /v1/ex/errors](#get-v1exerrors)
     - [Query Options](#query-options-7)
     - [Usage](#usage-21)
-- [POST /v1/ex/{exId}/_stop](#post-v1exexid_stop)
+- [GET /v1/ex/{jobId}/errors/{exId}](#get-v1exjobiderrorsexid)
     - [Query Options](#query-options-8)
     - [Usage](#usage-22)
-- [POST /ex/{exId}/_pause](#post-exexid_pause)
-    - [Usage](#usage-23)
-- [POST /ex/{exId}/_resume](#post-exexid_resume)
-    - [Usage](#usage-24)
-- [POST /ex/{exId}/_recover](#post-exexid_recover)
+- [POST /v1/ex/{exId}/_stop](#post-v1exexid_stop)
     - [Query Options](#query-options-9)
+    - [Usage](#usage-23)
+- [POST /ex/{exId}/_pause](#post-exexid_pause)
+    - [Usage](#usage-24)
+- [POST /ex/{exId}/_resume](#post-exexid_resume)
     - [Usage](#usage-25)
-- [POST /ex/{exId}/_workers](#post-exexid_workers)
+- [POST /ex/{exId}/_recover](#post-exexid_recover)
     - [Query Options](#query-options-10)
     - [Usage](#usage-26)
-- [GET /ex/{exId}/controller](#get-exexidcontroller)
-    - [Usage](#usage-27)
-- [GET /txt/workers](#get-txtworkers)
+- [POST /ex/{exId}/_workers](#post-exexid_workers)
     - [Query Options](#query-options-11)
+    - [Usage](#usage-27)
+- [GET /ex/{exId}/controller](#get-exexidcontroller)
     - [Usage](#usage-28)
-- [GET /txt/nodes](#get-txtnodes)
+- [GET /txt/workers](#get-txtworkers)
     - [Query Options](#query-options-12)
     - [Usage](#usage-29)
-- [GET /txt/jobs](#get-txtjobs)
+- [GET /txt/nodes](#get-txtnodes)
     - [Query Options](#query-options-13)
     - [Usage](#usage-30)
-- [GET /txt/ex](#get-txtex)
+- [GET /txt/jobs](#get-txtjobs)
     - [Query Options](#query-options-14)
     - [Usage](#usage-31)
-- [GET /txt/controllers](#get-txtcontrollers)
+- [GET /txt/ex](#get-txtex)
     - [Query Options](#query-options-15)
     - [Usage](#usage-32)
-- [GET /txt/assets](#get-txtassets)
+- [GET /txt/controllers](#get-txtcontrollers)
     - [Query Options](#query-options-16)
     - [Usage](#usage-33)
-- [GET /txt/assets/{assetName}](#get-txtassetsassetname)
+- [GET /txt/assets](#get-txtassets)
     - [Query Options](#query-options-17)
     - [Usage](#usage-34)
-- [GET /txt/assets/{assetName}/{version}](#get-txtassetsassetnameversion)
+- [GET /txt/assets/{assetName}](#get-txtassetsassetname)
     - [Query Options](#query-options-18)
     - [Usage](#usage-35)
+- [GET /txt/assets/{assetName}/{version}](#get-txtassetsassetnameversion)
+    - [Query Options](#query-options-19)
+    - [Usage](#usage-36)
 
 <!-- /TOC -->
 
@@ -174,6 +177,38 @@ $ curl 'localhost:5678/v1/cluster/controllers'
         "slicers": 1,
         "subslice_by_key": 0,
         "started": "2018-09-20T08:36:23.901-07:00"
+    }
+]
+```
+
+## GET /v1/assets
+
+Retreives a list of assets
+
+### Query Options
+
+- `from: number = 0`
+- `size: number = 100`
+- `sort: string = "_created:desc"`
+
+Size is the number of documents returned, from is how many documents in and sort is a lucene query.
+
+### Usage
+
+```sh
+$ curl 'localhost:5678/v1/assets'
+[
+    {
+        "_created": "2018-11-01T13:13:58.281Z",
+        "name": "elasticsearch",
+        "version": "1.1.0",
+        "id": "21cbf11859584730ecfcf916a64ecd6c5757f115"
+    },
+    {
+        "_created": "2018-10-29T20:48:30.354Z",
+        "name": "kafka",
+        "version": "1.2.0",
+        "id": "b370ed016fd411d2184fc8a609ea569a5e194732"
     }
 ]
 ```
