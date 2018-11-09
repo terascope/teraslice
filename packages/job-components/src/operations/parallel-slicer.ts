@@ -1,6 +1,6 @@
-import { SlicerFn } from '../interfaces';
+import { SlicerFn, SlicerResult } from '../interfaces';
 import SlicerCore from './core/slicer-core';
-import { times } from '../utils';
+import { times, isFunction } from '../utils';
 
 /**
  * A varient of a "Slicer" for running a parallel stream of slicers.
@@ -16,14 +16,17 @@ export default abstract class ParallelSlicer extends SlicerCore {
     */
     async initialize(recoveryData: object[]): Promise<void> {
         await super.initialize(recoveryData);
-        const { slicers } = this.executionConfig;
+        const { slicers = 1 } = this.executionConfig;
 
         const promises = times(slicers, async (id) => {
             const fn = await this.newSlicer();
+            if (!isFunction(fn)) return;
+
             this._slicers.push({
                 done: false,
                 fn,
                 id,
+                processing: false,
                 order: 0,
             });
         });
@@ -44,7 +47,7 @@ export default abstract class ParallelSlicer extends SlicerCore {
      * Called by {@link ParallelSlicer#handle} for every count of `slicers` in the ExecutionConfig
      * @returns a function which will be called in parallel
     */
-    abstract async newSlicer(): Promise<SlicerFn>;
+    abstract async newSlicer(): Promise<SlicerFn|undefined>;
 
     slicers() {
         return this._slicers.length;
@@ -53,9 +56,11 @@ export default abstract class ParallelSlicer extends SlicerCore {
     async handle(): Promise<boolean> {
         if (this.isFinished) return true;
 
-        const promises = this._slicers.map((slicer) => this.processSlicer(slicer));
+        const promises = this._slicers
+            .filter((slicer) => !slicer.processing)
+            .map((slicer) => this.processSlicer(slicer));
 
-        await Promise.all(promises);
+        await Promise.race(promises);
         return this.isFinished;
     }
 
@@ -64,9 +69,17 @@ export default abstract class ParallelSlicer extends SlicerCore {
     }
 
     private async processSlicer(slicer: SlicerObj) {
-        if (slicer.done) return;
+        if (slicer.done || slicer.processing) return;
 
-        const result = await slicer.fn();
+        slicer.processing = true;
+        let result: SlicerResult;
+
+        try {
+            result = await slicer.fn();
+        } finally {
+            slicer.processing = false;
+        }
+
         if (result == null && this.canComplete()) {
             this.logger.info(`slicer ${slicer.id} has completed its range`);
             slicer.done = true;
@@ -91,5 +104,6 @@ interface SlicerObj {
     done: boolean;
     fn: SlicerFn;
     id: number;
+    processing: boolean;
     order: number;
 }

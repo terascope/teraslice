@@ -21,9 +21,13 @@ Now, you can access functionality using the `harness` object.
 ## Processor Execution Function - `init()`
 
 The manner to instanciate a new instance of your operation is by using init
-You make pass in optional clients under the `clients` key but they must follow the format listed in the setClients definition
+You make pass in optional clients under the `clients` key but they must follow the format listed in the setClients definition. This will work with both the new and old Job APIs.
 
 ```javascript
+const { DataEntity } = require('@terascope/job-components');
+const processor = require('../asset/example-op');
+const reader = require('../asset/example-reader');
+
 describe('setting up an operation', () => {
     const processorOpTest = opHarness(processor);
     const readerOpTest = opHarness(reader);
@@ -43,35 +47,77 @@ describe('setting up an operation', () => {
         const data = { some: 'data' };
         const pTest = await processorOpTest.init({ opConfig });
 
-        const results = await pTest.run(data)
-        expect(results).toBeDefined();
+        const results = await pTest.run(data);
+
+        expect(Array.isArray(results)).toBe(true);
+        expect(DataEntity.isDataEntity(results[0])).toBe(true);
     });
 
     it('can make a reader instance', async () => {
         const executionConfig = {
             lifecycle: 'once',
-            operations: [{ _op: 'foo', some: 'config' }
+            operations: [{ _op: 'foo', some: 'config' }]
         };
         const data = { some: 'data' };
         const type = 'reader';
         const rTest = await readerOpTest.init({ executionConfig, type });
 
-        const results = await rTest.run(data)
-        expect(results).toBeDefined();
+        const results = await rTest.run(data);
+
+        expect(Array.isArray(results)).toBe(true);
+        expect(results[0] instanceof DataEntity).toBe(true);
     });
 
     it('can make a slicer instance', async () => {
         const executionConfig = {
             lifecycle: 'once',
-            operations: [{ _op: 'foo', some: 'config' }
+            operations: [{ _op: 'foo', some: 'config' }]
         };
         // type defaults to slicer
         const sTest = await readerOpTest.init({ executionConfig });
 
-        const results = await sTest.run()
-        expect(results).toBeDefined();
+        const results = await sTest.run();
+
+        expect(Array.isArray(results)).toBe(true);
+        expect(results[0]).toEqual({ foo: 'bar' });
     });
 
+    it('can make a multiple slicer instances', async () => {
+        const executionConfig = {
+            lifecycle: 'once',
+            slicers: 3,
+            operations: [{ _op: 'foo', some: 'config' }]
+        };
+
+        // type defaults to slicer
+        const sTest = await readerOpTest.init({ executionConfig });
+
+        const results = await sTest.run();
+
+        expect(Array.isArray(results)).toBe(true);
+        expect(results[0]).toEqual({ foo: 'bar' });
+    });
+
+    it('can return the full metadata of slice', async () => {
+        const executionConfig = {
+            lifecycle: 'once',
+            slicers: 3,
+            operations: [{ _op: 'foo', some: 'config' }]
+        };
+
+        // type defaults to slicer
+        const sTest = await readerOpTest.init({ executionConfig });
+
+        const results = await sTest.run({ fullSlice: true });
+
+        expect(Array.isArray(results)).toBe(true);
+        expect(results[0]).toEqual({
+            slice_id: 'd994d423-f3a3-411d-8973-4a4ccccd1afd',
+            slicer_id: 0,
+            slicer_order: 10,
+            request: { foo: 'bar' }
+        });
+    });
 })
 ```
 ## Processor Execution Function - `setClients()`
@@ -79,6 +125,9 @@ This takes an array of client configurations that will be used internally.
 The obejct must have a client key and a type key set.
 
 ```javascript
+const { DataEntity } = require('@terascope/job-components');
+const reader = require('../asset/example-reader');
+
 describe('setting up an operation', () => {
     const opTest = opHarness(reader);
     let client;
@@ -107,20 +156,22 @@ describe('setting up an operation', () => {
     it('can make a reader instance', async () => {
         const executionConfig = {
             lifecycle: 'once',
-            operations: [{ _op: 'foo', some: 'config' }
+            operations: [{ _op: 'foo', some: 'config' }]
         };
         const data = { some: 'data' };
         const type = 'reader';
         const test = await opTest.init({ executionConfig, type });
 
         const results = await test.run(data)
-        expect(results).toBeDefined();
+
+        expect(Array.isArray(results)).toBe(true);
+        expect(DataEntity.isDataEntity(results[0])).toBe(true);
     });
 
     it('can make a slicer instance', async () => {
         const executionConfig = {
             lifecycle: 'once',
-            operations: [{ _op: 'foo', some: 'config' }
+            operations: [{ _op: 'foo', some: 'config' }]
         };
         // you can override the clients at init time
         const clients = [{ client: new OtherClient(), type: 'elasticsearch', endpoint: 'default'}]
@@ -130,21 +181,30 @@ describe('setting up an operation', () => {
 
         const [results1, results2 ] = await Promise.all([ test1.run(), test2.run()]);
 
-        expect(results1).toBeDefined();
-        expect(results2).toBeDefined();
+        expect(Array.isArray(results1)).toBe(true);
+        expect(results1[0]).toEqual({ foo: 'bar' });
+
+        expect(Array.isArray(results2)).toBe(true);
+        expect(results2[0]).toEqual({ foo: 'bar' });
     });
 })
 ```
 ## Processor Execution Function `processData()`
-This provides a short hand for processors to instantiate a new operation, run some data with it and return the results
+This provides a short hand for processors to instantiate a new operation, run some data with it and return the results.
 
 ```javascript
+const processor = require('../asset/example-op');
+
 describe('processor operation test', () => {
+    const opTest = opHarness(processor);
+
     it('has a shorthand method', async () => {
         const opConfig = { _op: 'foo', some: 'config' };
         const data = [{ some: 'data' }];
         const results = await processorOpTest.processData(opConfig, data);
-        expect(results).toBeDefined();
+
+        expect(Array.isArray(results)).toBe(true);
+        expect(DataEntity.isDataEntity(results[0])).toBe(true);
     })
 })
 

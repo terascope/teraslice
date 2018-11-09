@@ -24,12 +24,9 @@ const simpleData = [
     { name: 'Dippy', age: 23 },
 ];
 
-function executionSpec(inputExConfig, opConfig, isProcessor) {
+function executionSpec(inputExConfig) {
     const newExConfig = newTestExecutionConfig();
-    let operationsArray = [opConfig, { _op: 'noop' }];
-    if (isProcessor) operationsArray = [{ _op: 'noop' }, opConfig];
-
-    return Object.assign({}, newExConfig, { operations: operationsArray });
+    return Object.assign({}, newExConfig, inputExConfig);
 }
 
 function wrapper(clientList) {
@@ -81,7 +78,7 @@ class TestHarness {
 
     async init({
         opConfig: newOpConfig = null,
-        executionConfig: exConfig = {},
+        executionConfig: newExConfig,
         retryData = [],
         clients = null,
         type = 'slicer'
@@ -92,16 +89,34 @@ class TestHarness {
             operationFn: op,
         } = this;
 
+        const exConfig = executionSpec(newExConfig);
+
         const isProcessor = op.Processor || (op.newProcessor !== undefined);
         const Schema = op.schema ? schemaShim(op).Schema : op.Schema;
         const schema = new Schema(context);
 
-        const opPostition = isProcessor ? 1 : 0;
-        const opConfigToValidate = newOpConfig || (exConfig && exConfig.operations[opPostition]);
-        const opConfig = schema.validate(opConfigToValidate);
+        let opConfig;
+        // This is kind of pain to deal with
+        // this can only work with exectionConfig
+        // with two operations
+        if (exConfig.operations.length < 2) {
+            opConfig = schema.validate(newOpConfig || exConfig.operations[0]);
+            if (isProcessor) {
+                exConfig.operations = [{ _op: 'noop' }, opConfig];
+            } else {
+                exConfig.operations = [opConfig, { _op: 'noop' }];
+            }
+        } else {
+            const opPosition = isProcessor ? 1 : 0;
+            opConfig = schema.validate(newOpConfig || exConfig.operations[opPosition]);
+
+            exConfig.operations[opPosition] = opConfig;
+        }
+
         this.opConfig = opConfig;
-        const parsedExConfig = executionSpec(exConfig, opConfig, isProcessor);
-        const executionConfig = validateJobConfig(this.schema, parsedExConfig);
+
+
+        const executionConfig = validateJobConfig(this.schema, exConfig);
         schema.validateJob(executionConfig);
 
         this.executionConfig = executionConfig;

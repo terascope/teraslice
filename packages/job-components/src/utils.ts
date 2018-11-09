@@ -1,6 +1,34 @@
+import isPlainObject from 'is-plain-object';
+import kindOf from 'kind-of';
+
 /** A simplified implemation of lodash isString */
 export function isString(val: any): val is string {
     return typeof val === 'string' ? true : false;
+}
+
+/** Safely convert any input to a string */
+export function toString(val: any): string {
+    if (val && isFunction(val.toString)) {
+        return val.toString();
+    }
+
+    return JSON.stringify(val);
+}
+
+/**
+ * A utility for serializing a buffer to a json object
+ */
+export function parseJSON<T = object>(buf: Buffer|string): T {
+    if (!Buffer.isBuffer(buf) && !isString(buf)) {
+        throw new TypeError(`Failure to serialize non-buffer, got "${kindOf(buf)}"`);
+    }
+
+    try {
+        // @ts-ignore because it does work with buffers
+        return JSON.parse(buf);
+    } catch (err) {
+        throw new Error(`Failure to parse buffer, ${toString(err)}`);
+    }
 }
 
 /** A simplified implemation of lodash isInteger */
@@ -9,14 +37,7 @@ export function isInteger(val: any): val is number {
     return Number.isInteger(val);
 }
 
-/** A simplified implemation of lodash isPlainObject */
-export function isPlainObject(input: any): input is object {
-    if (input == null) return false;
-    if (Array.isArray(input)) return false;
-    if (Buffer.isBuffer(input)) return false;
-    if (typeof input !== 'object') return false;
-    return true;
-}
+export { isPlainObject };
 
 /** A simplified implemation of lodash castArray */
 export function castArray<T>(input: any): T[] {

@@ -47,10 +47,13 @@ describe('Shim Utils', () => {
 
         it('should handle an array of Objects', () => {
             const data = { hello: true };
-            const result = convertResult([data]);
+            // @ts-ignore
+            const result = convertResult([data, data, null]);
 
-            expect(result).toBeArrayOfSize(1);
+            expect(result).toBeArrayOfSize(3);
             expect(result[0]).toEqual(data);
+            expect(result[1]).toEqual(data);
+            expect(result[2]).toEqual({});
         });
 
         it('should handle null', () => {

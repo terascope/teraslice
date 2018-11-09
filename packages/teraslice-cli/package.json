@@ -29,11 +29,11 @@
   "dependencies": {
     "@terascope/fetch-github-release": "^0.6.0",
     "archiver": "^2.1.1",
-    "bluebird": "^3.5.1",
+    "bluebird": "^3.5.3",
     "chalk": "^2.3.2",
     "easy-table": "^1.1.1",
     "eslint": "^5.5.0",
-    "fs-extra": "^7.0.0",
+    "fs-extra": "^7.0.1",
     "json-diff": "^0.5.3",
     "lodash": "^4.17.11",
     "mkdirp": "^0.5.1",

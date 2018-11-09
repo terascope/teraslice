@@ -40,6 +40,7 @@ describe('Delay Processor', () => {
 
         await delay.handle([]);
 
-        expect(Date.now() - startTime).toBeGreaterThanOrEqual(150);
+        // this is 148 because bluebird.delay isn't as predicatable
+        expect(Date.now() - startTime).toBeGreaterThanOrEqual(148);
     });
 });

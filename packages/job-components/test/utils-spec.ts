@@ -1,5 +1,6 @@
 import 'jest-extended';
-import { waterfall, isPlainObject } from '../src/utils';
+import { DataEntity } from '../src';
+import { waterfall, isPlainObject, parseJSON } from '../src/utils';
 
 describe('Utils', () => {
     describe('waterfall', () => {
@@ -45,13 +46,52 @@ describe('Utils', () => {
         }
 
         it('should correctly detect the an object type', () => {
+            // @ts-ignore
+            expect(isPlainObject()).toBeFalse();
             expect(isPlainObject(null)).toBeFalse();
             expect(isPlainObject(true)).toBeFalse();
             expect(isPlainObject([])).toBeFalse();
+            expect(isPlainObject([{ hello: true }])).toBeFalse();
             expect(isPlainObject('some-string')).toBeFalse();
             expect(isPlainObject(Buffer.from('some-string'))).toBeFalse();
-            expect(isPlainObject(new TestObj())).toBeTrue();
+            expect(isPlainObject(new TestObj())).toBeFalse();
+            expect(isPlainObject(new DataEntity({}))).toBeFalse();
+            expect(isPlainObject(Promise.resolve())).toBeFalse();
+            expect(isPlainObject(Object.create({}))).toBeTrue();
+            expect(isPlainObject(Object.create({ hello: true }))).toBeTrue();
             expect(isPlainObject({})).toBeTrue();
+            expect(isPlainObject({ hello: true })).toBeTrue();
+        });
+    });
+
+    describe('parseJSON', () => {
+        it('should handle a json encoded Buffer', () => {
+            const input = Buffer.from(JSON.stringify({ foo: 'bar' }));
+            expect(parseJSON(input)).toEqual({ foo: 'bar' });
+        });
+
+        // TODO: We may need to add support for this?
+        xit('should handle a json base64 encoded Buffer', () => {
+            const input = Buffer.from(JSON.stringify({ foo: 'bar' }), 'base64');
+            expect(parseJSON(input)).toEqual({ foo: 'bar' });
+        });
+
+        it('should handle a json encoded string', () => {
+            const input = JSON.stringify({ foo: 'bar' });
+            expect(parseJSON(input)).toEqual({ foo: 'bar' });
+        });
+
+        it('should throw a TypeError if given a non-buffer', () => {
+            expect(() => {
+                // @ts-ignore
+                parseJSON(123);
+            }).toThrowError('Failure to serialize non-buffer, got "number"');
+        });
+
+        it('should throw an Error if given invalid json', () => {
+            expect(() => {
+                parseJSON(Buffer.from('foo:bar'));
+            }).toThrowError(/^Failure to parse buffer, SyntaxError:/);
         });
     });
 });

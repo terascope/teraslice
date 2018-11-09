@@ -32,7 +32,7 @@ describe('Asset Tests', () => {
             .then((result) => {
                 // NOTE: In this case, the asset is referenced by the ID
                 // assigned by teraslice and not it's name.
-                jobSpec.assets = [JSON.parse(result)._id];
+                jobSpec.assets = [JSON.parse(result)._id, 'elasticsearch'];
                 return teraslice.jobs.submit(jobSpec)
                     .then(job => waitForJobStatus(job, 'running')
                         .then(() => wait.forWorkersJoined(job.id(), workers, 20))
@@ -128,7 +128,7 @@ describe('Asset Tests', () => {
 
     it('can directly ask for the new asset to be used', async () => {
         const jobSpec = misc.newJob('generator-asset');
-        jobSpec.assets = ['ex1:0.1.1'];
+        jobSpec.assets = ['ex1:0.1.1', 'elasticsearch'];
         const { workers } = jobSpec;
 
         const assetResponse = await teraslice.assets.get('ex1/0.1.1');

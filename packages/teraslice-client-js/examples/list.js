@@ -8,8 +8,8 @@ const teraslice = require('../index')({
 
 teraslice.jobs.list().then(console.log);
 
-teraslice.jobs.list('completed').then(console.log);
+teraslice.ex.list('completed').then(console.log);
 
-teraslice.jobs.list('running').then(console.log);
+teraslice.ex.list('running').then(console.log);
 
-teraslice.jobs.list('pending').then(console.log);
+teraslice.ex.list('pending').then(console.log);

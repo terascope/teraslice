@@ -29,11 +29,6 @@ class Jobs extends Client {
 
     list(options) {
         const qs = _parseListOptions(options);
-        return this.get('/ex', { qs });
-    }
-
-    jobs(options) {
-        const qs = _parseListOptions(options);
         return this.get('/jobs', { qs });
     }
 

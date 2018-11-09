@@ -97,7 +97,7 @@ function forWorkersJoined(jobId, workerCount, iterations) {
         });
 }
 
-function waitForClusterState(timeoutMs = 60000) {
+function waitForClusterState(timeoutMs = 120000) {
     const endAt = Date.now() + timeoutMs;
     const { cluster } = misc.teraslice();
     function _try() {
@@ -161,6 +161,28 @@ function waitForJobStatus(job, status) {
         });
 }
 
+async function waitForIndexCount(index, expected, remainingMs = 30 * 1000) {
+    if (remainingMs <= 0) {
+        throw new Error(`Timeout waiting for ${index} to have count of ${expected}`);
+    }
+
+    const start = Date.now();
+    let count = 0;
+
+    try {
+        ({ count } = await misc.indexStats(index));
+        if (count >= expected) {
+            return count;
+        }
+    } catch (err) {
+        // it probably okay
+    }
+
+    await Promise.delay(100);
+    const elapsed = Date.now() - start;
+    return waitForIndexCount(index, expected, remainingMs - elapsed);
+}
+
 module.exports = {
     forValue,
     forLength,
@@ -169,5 +191,6 @@ module.exports = {
     scaleWorkersAndWait,
     forWorkersJoined,
     waitForJobStatus,
+    waitForIndexCount,
     waitForClusterState
 };
