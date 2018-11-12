@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import cloneDeep from 'lodash.clonedeep';
-import { enumerable, isFunction } from '../utils';
+import { hide, isFunction } from '../utils';
 import {
     SlicerOperationLifeCycle,
     ExecutionConfig,
@@ -45,7 +45,8 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
     readonly jobId: string;
 
     /** The terafoundation EventEmitter */
-    private events: EventEmitter;
+    readonly events: EventEmitter;
+
     private _handlers: EventHandlers = {};
 
     private _methodRegistry: SlicerMethodRegistry = {
@@ -96,7 +97,7 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
     /**
      * Called to initialize all of the registered operations available to the Execution Controller
     */
-    @enumerable(false)
+    @hide()
     async initialize(recoveryData: object[] = []) {
         const promises = [];
         for (const op of this.getOperations()) {
@@ -109,7 +110,7 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
     /**
      * Called to cleanup all of the registered operations available to the Execution Controller
     */
-    @enumerable(false)
+    @hide()
     async shutdown() {
         const promises = [];
         for (const op of this.getOperations()) {
@@ -125,33 +126,33 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
             });
     }
 
-    @enumerable(false)
+    @hide()
     onExecutionStats(stats: ExecutionStats) {
         this.runMethod('onExecutionStats', stats);
     }
 
-    @enumerable(false)
+    @hide()
     onSliceEnqueued(slice: Slice) {
         this.runMethod('onSliceEnqueued', slice);
     }
 
-    @enumerable(false)
+    @hide()
     onSliceDispatch(slice: Slice) {
         this.runMethod('onSliceDispatch', slice);
     }
 
-    @enumerable(false)
+    @hide()
     onSliceComplete(result: SliceResult): void {
         this.runMethod('onSliceComplete', result);
     }
 
-    @enumerable(false)
+    @hide()
     getOperations() {
         const ops = _operations.get(this) as SlicerOperations;
         return ops.values();
     }
 
-    @enumerable(false)
+    @hide()
     private addOperation(op: SlicerOperationLifeCycle) {
         const ops = _operations.get(this) as SlicerOperations;
         ops.add(op);
@@ -159,7 +160,7 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
         this.resetMethodRegistry();
     }
 
-    @enumerable(false)
+    @hide()
     private runMethod<T>(method: string, arg: T) {
         const set = this._methodRegistry[method] as Set<number>;
         if (set.size === 0) return;
@@ -173,7 +174,7 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
         }
     }
 
-    @enumerable(false)
+    @hide()
     private resetMethodRegistry() {
         for (const method of Object.keys(this._methodRegistry)) {
             this._methodRegistry[method].clear();

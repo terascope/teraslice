@@ -16,6 +16,7 @@ export default class JobHarness {
     constructor(job: JobConfig, options: JobHarnessOptions) {
         const context = new TestContext(`job-harness:${job.name}`);
         context.assignment = options.assignment || Assignment.Worker;
+
         const jobSchema = makeJobSchema(context);
         const executionConfig = validateJobConfig(jobSchema, job) as ExecutionConfig;
         this.context = makeExecutionContext({
@@ -25,6 +26,8 @@ export default class JobHarness {
     }
 
     async initialize() {
+        await this.context.initialize();
+        return this.context;
     }
 }
 

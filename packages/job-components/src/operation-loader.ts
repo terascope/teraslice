@@ -74,7 +74,8 @@ export class OperationLoader {
         const codePath = this.findOrThrow(name, assetIds);
 
         try {
-            return require(codePath);
+            const op = require(codePath);
+            return op.default || op;
         } catch (err) {
             throw new Error(`Failure loading module: ${name}, error: ${err.stack}`);
         }

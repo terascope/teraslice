@@ -19,7 +19,7 @@ describe('JobHarness', () => {
             assetDir: __dirname,
         });
 
-        it('should be able to to call initialize', () => {
+        it('should be able to call initialize', () => {
             return expect(jobHarness.initialize()).resolves.toBeNil();
         });
     });
