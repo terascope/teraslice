@@ -15,7 +15,7 @@ describe('JobValidator', () => {
                 name: 'noop',
                 operations: [
                     {
-                        _op: 'noop',
+                        _op: 'test-reader',
                     },
                     {
                         _op: 'noop',
@@ -123,7 +123,7 @@ describe('JobValidator', () => {
                 name: 'noop',
                 operations: [
                     {
-                        _op: 'noop',
+                        _op: 'test-reader',
                     },
                     {
                         _op: 'noop',

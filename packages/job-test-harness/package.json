@@ -37,7 +37,9 @@
         "benchmark": "yarn build; node bench/index.js"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.9.1"
+        "@terascope/job-components": "^0.9.1",
+        "@types/lodash": "^4.14.118",
+        "lodash": "^4.17.11"
     },
     "devDependencies": {
         "@types/jest": "^23.3.8",

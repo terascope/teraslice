@@ -2,7 +2,6 @@
     "extends": "../../tsconfig",
     "compilerOptions": {
         "baseUrl": ".",
-        "composite": false,
         "outDir": "dist"
     },
     "include": [
