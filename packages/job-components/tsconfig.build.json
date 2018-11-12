@@ -2,6 +2,7 @@
     "extends": "./tsconfig",
     "compilerOptions": {
         "rootDir": "src",
+        "composite": true,
         "paths": {
             "@terascope/*": [
                 "../*",

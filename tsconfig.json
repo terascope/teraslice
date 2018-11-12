@@ -1,5 +1,4 @@
 {
-    "compileOnSave": true,
     "compilerOptions": {
         "baseUrl": ".",
         "module": "commonjs",
