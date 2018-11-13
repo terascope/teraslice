@@ -1,6 +1,6 @@
 {
   "name": "xlucene-evaluator",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "srcMain": "src/index.ts",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -18,7 +18,7 @@
     "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
     "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand true --verbose false"
   },
-  "author": "",
+  "author": "Terascope, LLC <info@terascope.io>",
   "license": "MIT",
   "description": "",
   "dependencies": {
