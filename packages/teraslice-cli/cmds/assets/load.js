@@ -17,7 +17,7 @@ exports.builder = (yargs) => {
     cli().args('assets', 'load', yargs);
     yargs.option('a', {
         alias: 'arch',
-        describe: 'The node version of the Teraslice cluster, like: `x32`, `x64`.'
+        describe: 'TThe architecture of the Teraslice cluster, like: `x32`, `x64`.'
                 + '  Determined automatically on newer Teraslice releases.'
     });
     yargs.option('n', {
