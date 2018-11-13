@@ -9,9 +9,12 @@ import {
     WorkerExecutionContext,
     SlicerExecutionContext,
     ExecutionConfig,
+    SliceRequest,
     Slice,
     isWorkerExecutionContext,
     isSlicerExecutionContext,
+    DataEntity,
+    RunSliceResult,
 } from '@terascope/job-components';
 
 export default class JobHarness {
@@ -33,11 +36,12 @@ export default class JobHarness {
         await this.context.initialize();
     }
 
-    async createSlices({ fullSlice = false } = {}) {
+    async createSlices({ fullResponse = false } = {}): Promise<SliceRequest[]|Slice[]> {
         if (!isSlicerExecutionContext(this.context)) {
             throwInvalidContext('createSlices', this.context);
-            return;
+            return [];
         }
+
         const { slicer } = this.context;
         const slicers = slicer.slicers();
         await slicer.handle();
@@ -48,7 +52,7 @@ export default class JobHarness {
 
         for (const perSlicer of slicesBySlicers) {
             const sorted = sortBy(perSlicer, 'slicer_order');
-            if (fullSlice) {
+            if (fullResponse) {
                 sliceRequests.push(...sorted);
             } else {
                 const mapped = map(sorted, 'request');
@@ -65,12 +69,20 @@ export default class JobHarness {
         return sliceRequests;
     }
 
-    async runSlice(slice: Slice) {
+    async runSlice(slice: Slice, { fullResponse = false } = {}): Promise<DataEntity[]|RunSliceResult> {
         if (!isWorkerExecutionContext(this.context)) {
             throwInvalidContext('runSlice', this.context);
-            return;
+            return [];
         }
-        return this.context.runSlice(slice);
+
+        const result = await this.context.runSlice(slice);
+        if (fullResponse) {
+            return result || {
+                results: [],
+            };
+        }
+
+        return result.results || [];
     }
 
     async cleanup() {
@@ -78,7 +90,7 @@ export default class JobHarness {
     }
 }
 
-function throwInvalidContext(method: string, context: WorkerExecutionContext|SlicerExecutionContext) {
+function throwInvalidContext(method: string, context: WorkerExecutionContext|SlicerExecutionContext): never {
     const { assignment } = context.context;
     const expected = assignment === Assignment.Worker ? Assignment.ExecutionController : Assignment.Worker;
     const error = new Error(`${method} can only be run with assignment of "${expected}"`);

@@ -6,8 +6,10 @@ import {
     ContextApis,
     SlicerOperationLifeCycle,
     WorkerOperationLifeCycle,
-    Assignment
+    Assignment,
+    SliceAnalyticsData
 } from '../interfaces';
+import { DataEntity } from '../operations';
 
 export interface ExecutionContextConfig {
     context: Context;
@@ -44,6 +46,11 @@ interface WorkerContextApis extends ContextApis {
     job_runner: JobRunnerAPI;
     /** An API for registering and loading the new Job APIs */
     executionContext: ExecutionContextAPI;
+}
+
+export interface RunSliceResult {
+    analytics?: SliceAnalyticsData;
+    results: DataEntity[];
 }
 
 /**

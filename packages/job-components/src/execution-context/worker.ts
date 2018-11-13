@@ -4,7 +4,7 @@ import { hide, isFunction, waterfall } from '../utils';
 import { OperationLoader } from '../operation-loader';
 import FetcherCore from '../operations/core/fetcher-core';
 import ProcessorCore from '../operations/core/processor-core';
-import { OperationAPIConstructor } from '../operations';
+import { OperationAPIConstructor, DataEntity } from '../operations';
 import { registerApis } from '../register-apis';
 import { WorkerOperationLifeCycle, ExecutionConfig, Slice } from '../interfaces';
 import {
@@ -13,6 +13,7 @@ import {
     WorkerContext,
     ExecutionContextConfig,
     WorkerMethodRegistry,
+    RunSliceResult,
 } from './interfaces';
 import JobObserver from '../operations/job-observer';
 
@@ -155,7 +156,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
      * Run a slice against the fetcher and then processors.
      * TODO: this should handle slice retries.
     */
-    async runSlice(slice: Slice) {
+    async runSlice(slice: Slice): Promise<RunSliceResult> {
         const sliceId = slice.slice_id;
         const sliceRequest = cloneDeep(slice.request);
 
@@ -183,7 +184,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
             });
         }
 
-        const results = await waterfall(sliceRequest, queue);
+        const results = await waterfall(sliceRequest, queue) as DataEntity[];
 
         return {
             results,
