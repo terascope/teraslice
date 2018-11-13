@@ -22,7 +22,7 @@ exports.builder = (yargs) => {
     });
     yargs.option('n', {
         alias: 'node-version',
-        describe: 'The architecture of the Teraslice cluster, like: `v8.11.1`, `v10.13.0`'
+        describe: 'The node version of the Teraslice cluster, like: `v8.11.1`, `v10.13.0`'
                 + '  Determined automatically on newer Teraslice releases.'
     });
     yargs.option('p', {
