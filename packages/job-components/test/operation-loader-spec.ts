@@ -18,12 +18,12 @@ describe('OperationLoader', () => {
     const testDir = path.join(__dirname, 'op_test');
     const assetPath = path.join(testDir, assetId);
     const terasliceOpPath = path.join(__dirname, '../../teraslice/lib');
-    const processorPath = path.join(terasliceOpPath, 'processors/noop');
+    const processorPath = path.join(__dirname, '..', 'examples', 'asset', 'example-filter-op');
     const context = new TestContext('teraslice-op-loader');
 
     beforeAll(async () => {
         await fse.ensureDir(testDir);
-        await fse.copy(processorPath, path.join(assetPath, 'noop'));
+        await fse.copy(processorPath, path.join(assetPath, 'example-filter-op'));
     });
 
     afterAll(() => fse.remove(testDir));
@@ -105,7 +105,7 @@ describe('OperationLoader', () => {
             assetPath: testDir,
         });
 
-        const results = opLoader.load('noop', [assetId]) as LegacyProcessor;
+        const results = opLoader.load('example-filter-op', [assetId]) as LegacyProcessor;
 
         expect(results).toBeDefined();
         expect(results).toBeObject();
@@ -126,7 +126,7 @@ describe('OperationLoader', () => {
 
         const someData =  [{ key: 'someData' }];
         const processorResults = await processor(someData, logger, {});
-        expect(processorResults).toEqual(someData);
+        expect(processorResults).toEqual([]);
     });
 
     it('can load the new processor', async () => {
