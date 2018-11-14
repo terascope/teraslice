@@ -44,9 +44,9 @@ exports.builder = (yargs) => {
         alias: 'skip-upload',
         describe: 'Skips upload to Teraslice, useful to just download the asset.'
     });
-    yargs.example('earl load ts-qa1 terascope/file-assets');
-    yargs.example('earl load ts-qa1 terascope/file-assets -a x64 -p linux -n v8.10.1');
-    yargs.example('earl load ts-qa1 -f /tmp/file-assets-v0.2.1-node-8-linux-x64.zip');
+    yargs.example('earl assets load ts-qa1 terascope/file-assets');
+    yargs.example('earl assets load ts-qa1 terascope/file-assets -a x64 -p linux -n v8.10.1');
+    yargs.example('earl assets load ts-qa1 -f /tmp/file-assets-v0.2.1-node-8-linux-x64.zip');
 };
 
 
