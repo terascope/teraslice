@@ -706,6 +706,7 @@
 
 
 
+
 "@types/p-event@^1.3.0":
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/@types/p-event/-/p-event-1.3.0.tgz#4af0869918751f75a51d78533d73e225bd1b13ba"
@@ -8178,7 +8179,7 @@ strict-uri-encode@^1.0.0:
   resolved "https://registry.yarnpkg.com/strict-uri-encode/-/strict-uri-encode-1.1.0.tgz#279b225df1d582b1f54e65addd4352e18faa0713"
   integrity sha1-J5siXfHVgrH1TmWt3UNS4Y+qBxM=
 
-string-kit@^0.8.14:
+string-kit@^0.8.15:
   version "0.8.15"
   resolved "https://registry.yarnpkg.com/string-kit/-/string-kit-0.8.15.tgz#1db186a261c28249cd47e694a990cc92bd22542a"
   integrity sha512-pJxPyZ9zASsEBb7s9tWECM7bxKBdPoc/Kd+NzBHRcKMw7mso4GXTjN2BiIlaQ5aD1j3+cIIW7cWNuNg0z4To0A==
@@ -8438,17 +8439,17 @@ terafoundation@^0.5.0:
     yargs "^12.0.2"
 
 terminal-kit@^1.26.0:
-  version "1.26.4"
-  resolved "https://registry.yarnpkg.com/terminal-kit/-/terminal-kit-1.26.4.tgz#4d44c237d9ba68294cfcc67f91157336bf9db76f"
-  integrity sha512-6MWV8CGnsuGe1hlfbUsWM/BMMBryqnxb0S/XUjCBsBSWwM21Zhmsra4dHLRS0iJvE/fsmmyZ0CTau346K9uXcw==
+  version "1.26.5"
+  resolved "https://registry.yarnpkg.com/terminal-kit/-/terminal-kit-1.26.5.tgz#78b28f8fb721123e025c3aa8795188f978c20a66"
+  integrity sha512-co0xO1n7u/iqg2KBNvEiIMYsgI57hnmUkys5a9PAhJTXwKbpzcCRmxJYNDrePFIoKLpjqS//mmmfPurYv+hZjA==
   dependencies:
     "@cronvel/get-pixels" "^3.3.1"
     lazyness "^1.0.1"
     ndarray "^1.0.18"
     nextgen-events "^1.1.0"
     seventh "^0.7.17"
-    string-kit "^0.8.14"
-    tree-kit "^0.5.27"
+    string-kit "^0.8.15"
+    tree-kit "^0.6.0"
 
 test-exclude@^4.2.1:
   version "4.2.3"
@@ -8566,10 +8567,10 @@ tr46@^1.0.1:
   dependencies:
     punycode "^2.1.0"
 
-tree-kit@^0.5.27:
-  version "0.5.27"
-  resolved "https://registry.yarnpkg.com/tree-kit/-/tree-kit-0.5.27.tgz#d055a7ae6a087dda918cd92ac8c8c2abf5cfaea3"
-  integrity sha512-0AtAzYDYaKSzeEPK3SI72lg/io5jrBxnT1gIRxEQasJycpQf5iXGh6YAl1kkh9wHmLlNRhDx0oj+GZEQHVe+cw==
+tree-kit@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/tree-kit/-/tree-kit-0.6.0.tgz#22d750c3031e068da24f64426a105a53206e692c"
+  integrity sha512-zhziPwc97WQaLYAFEpsUGr4z/imMnRkjjKEqFTnSY8tUFbVzVnJkyVUiq4xb/+/FD/9QryNc38iU+URPEU0zaQ==
 
 trim-newlines@^1.0.0:
   version "1.0.0"
