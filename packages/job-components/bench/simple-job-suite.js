@@ -41,7 +41,7 @@ const each = new SimpleEach(context, opConfig, executionConfig);
 const map = new SimpleMap(context, opConfig, executionConfig);
 const filter = new SimpleFilter(context, opConfig, executionConfig);
 
-module.exports = async () => {
+const run = async () => {
     const executionContext = new WorkerExecutionContext({
         terasliceOpPath: path.join(__dirname, '..', '..', 'teraslice', 'lib'),
         context,
@@ -140,3 +140,13 @@ module.exports = async () => {
             maxTime: 5,
         });
 };
+
+if (require.main === module) {
+    run().then((suite) => {
+        suite.on('complete', () => {
+            console.log('DONE!'); // eslint-disable-line
+        });
+    });
+} else {
+    module.exports = run;
+}

@@ -12,7 +12,7 @@ const data = JSON.stringify({
 
 const dataBuf = Buffer.from(data);
 
-module.exports = () => Suite('DataEncoding')
+const run = async () => Suite('DataEncoding')
     .add('without DataEntities', {
         fn() {
             const obj = JSON.parse(dataBuf);
@@ -30,3 +30,13 @@ module.exports = () => Suite('DataEncoding')
         initCount: 2,
         maxTime: 5,
     });
+
+if (require.main === module) {
+    run().then((suite) => {
+        suite.on('complete', () => {
+            console.log('DONE!'); // eslint-disable-line
+        });
+    });
+} else {
+    module.exports = run;
+}

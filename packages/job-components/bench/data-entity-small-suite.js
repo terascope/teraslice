@@ -13,7 +13,7 @@ const data = {
 
 const metadata = { id: Math.random() * 1000 };
 
-module.exports = () => Suite('DataEntity (small records)')
+const run = async () => Suite('DataEntity (small records)')
     .add('new data', {
         fn() {
             let entity = Object.assign({}, data);
@@ -77,3 +77,13 @@ module.exports = () => Suite('DataEntity (small records)')
         initCount: 2,
         maxTime: 5,
     });
+
+if (require.main === module) {
+    run().then((suite) => {
+        suite.on('complete', () => {
+            console.log('DONE!'); // eslint-disable-line
+        });
+    });
+} else {
+    module.exports = run;
+}
