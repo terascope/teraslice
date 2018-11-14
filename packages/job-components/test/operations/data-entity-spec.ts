@@ -151,7 +151,6 @@ describe('DataEntity', () => {
                     hello: 'there',
                 });
                 expect(DataEntity.isDataEntity(dataEntity)).toBeTrue();
-                expect(dataEntity).toBeInstanceOf(DataEntity);
                 expect(dataEntity).toHaveProperty('hello', 'there');
             });
         });
@@ -162,7 +161,6 @@ describe('DataEntity', () => {
                     hello: 'there',
                 }));
                 expect(DataEntity.isDataEntity(dataEntity)).toBeTrue();
-                expect(dataEntity).toBeInstanceOf(DataEntity);
                 expect(dataEntity).toHaveProperty('hello', 'there');
             });
         });
@@ -176,7 +174,6 @@ describe('DataEntity', () => {
 
             expect(DataEntity.isDataEntityArray(dataEntities)).toBeTrue();
             expect(dataEntities).toBeArrayOfSize(1);
-            expect(dataEntities[0]).toBeInstanceOf(DataEntity);
             expect(dataEntities[0]).toHaveProperty('hello', 'there');
 
             expect(DataEntity.makeArray(dataEntities)).toEqual(dataEntities);
@@ -194,9 +191,7 @@ describe('DataEntity', () => {
 
             expect(DataEntity.isDataEntityArray(dataEntities)).toBeTrue();
             expect(dataEntities).toBeArrayOfSize(2);
-            expect(dataEntities[0]).toBeInstanceOf(DataEntity);
             expect(dataEntities[0]).toHaveProperty('hello', 'there');
-            expect(dataEntities[1]).toBeInstanceOf(DataEntity);
             expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
 
             expect(DataEntity.makeArray(dataEntities)).toEqual(dataEntities);

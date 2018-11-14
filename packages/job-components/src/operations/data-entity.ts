@@ -15,7 +15,52 @@ export default class DataEntity {
      * This will detect if passed an already converted input and return it.
     */
     static make(input: DataInput, metadata?: object): DataEntity {
-        return new DataEntity(input, metadata);
+        if (input == null) return new DataEntity({});
+        if (DataEntity.isDataEntity(input)) return input;
+
+        Object.defineProperty(input, 'getMetadata', {
+            value(key?: string) {
+                const metadata = _metadata.get(this) as DataEntityMetadata;
+                if (key) {
+                    return metadata[key];
+                }
+                return metadata;
+            },
+            enumerable: false,
+            writable: false
+        });
+
+        Object.defineProperty(input, 'setMetadata', {
+            value(key: string, value: any) {
+                const readonlyMetadataKeys: string[] = ['createdAt'];
+                if (readonlyMetadataKeys.includes(key)) {
+                    throw new Error(`Cannot set readonly metadata property ${key}`);
+                }
+
+                const metadata = _metadata.get(this) as DataEntityMetadata;
+                metadata[key] = value;
+                _metadata.set(this, metadata);
+            },
+            enumerable: false,
+            writable: false
+        });
+
+        Object.defineProperty(input, 'toBuffer', {
+            value(config: EncodingConfig = {}) {
+                const { _encoding = DataEncoding.JSON } = config;
+                if (_encoding === DataEncoding.JSON) {
+                    return Buffer.from(JSON.stringify(this));
+                }
+
+                throw new Error(`Unsupported encoding type, got "${_encoding}"`);
+            },
+            enumerable: false,
+            writable: false
+        });
+
+        const proxy = new Proxy(input, {});
+        _metadata.set(proxy, Object.assign({ createdAt: Date.now() }, metadata));
+        return proxy as DataEntity;
     }
 
     /**
@@ -27,7 +72,7 @@ export default class DataEntity {
     static fromBuffer(input: Buffer, opConfig: EncodingConfig = {}, metadata?: object): DataEntity {
         const { _encoding = DataEncoding.JSON } = opConfig || {};
         if (_encoding === DataEncoding.JSON) {
-            return new DataEntity(parseJSON(input), metadata);
+            return DataEntity.make(parseJSON(input), metadata);
         }
 
         throw new Error(`Unsupported encoding type, got "${_encoding}"`);
@@ -47,7 +92,7 @@ export default class DataEntity {
             return input;
         }
 
-        return fastMap(input, (d) => new DataEntity(d));
+        return fastMap(input, (d) =>  DataEntity.make(d));
     }
 
     /**
