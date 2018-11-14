@@ -10,7 +10,7 @@ const reply = require('../lib/reply')();
 
 
 exports.command = 'load <cluster_sh> [<asset>]';
-exports.desc = 'Retrives specified asset from github.\n';
+exports.desc = 'Uploads asset from file, github, or source to Teraslice\n';
 exports.builder = (yargs) => {
     // I think much of the stuff inserted by this should not be global, though
     // my asset commands are inherently different
