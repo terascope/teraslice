@@ -18,6 +18,10 @@ class Cluster extends Client {
         autoBind(this);
     }
 
+    info() {
+        return this.get('/');
+    }
+
     state() {
         return this.get('/cluster/state');
     }

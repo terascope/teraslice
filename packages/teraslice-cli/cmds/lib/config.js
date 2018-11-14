@@ -128,7 +128,10 @@ module.exports = (cliConfig, command) => {
         const defaultConfigData = {
             clusters:
                { localhost: { host: 'http://localhost:5678', cluster_manager_type: 'native' } },
-            paths: { job_state_dir: `${configDir}/job_state_files` }
+            paths: {
+                job_state_dir: `${configDir}/job_state_files`,
+                asset_dir: `${configDir}/assets`
+            }
         };
         if (!fs.existsSync(configDir)) {
             fs.mkdirSync(configDir);
