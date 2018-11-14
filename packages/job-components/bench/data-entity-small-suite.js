@@ -2,6 +2,7 @@
 
 const { Suite } = require('./helpers');
 const FakeDataEntity = require('./fixtures/fake-data-entity');
+const makeProxyEntity = require('./fixtures/proxy-entity');
 const { DataEntity } = require('../dist');
 
 const data = {
@@ -72,17 +73,29 @@ const run = async () => Suite('DataEntity (small records)')
             return entity;
         }
     })
+    .add('new proxy entity', {
+        fn() {
+            let entity = makeProxyEntity(data);
+            entity = null;
+            return entity;
+        }
+    })
+    .add('new proxy entity with metadata', {
+        fn() {
+            let entity = makeProxyEntity(data, metadata);
+            entity = null;
+            return entity;
+        }
+    })
     .run({
         async: true,
-        initCount: 2,
-        maxTime: 5,
+        initCount: 1,
+        maxTime: 3,
     });
 
 if (require.main === module) {
     run().then((suite) => {
-        suite.on('complete', () => {
-            console.log('DONE!'); // eslint-disable-line
-        });
+        suite.on('complete', () => {});
     });
 } else {
     module.exports = run;

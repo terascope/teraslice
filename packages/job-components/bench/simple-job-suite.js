@@ -136,16 +136,14 @@ const run = async () => {
         })
         .run({
             async: true,
-            initCount: 2,
-            maxTime: 5,
+            initCount: 1,
+            maxTime: 3,
         });
 };
 
 if (require.main === module) {
     run().then((suite) => {
-        suite.on('complete', () => {
-            console.log('DONE!'); // eslint-disable-line
-        });
+        suite.on('complete', () => {});
     });
 } else {
     module.exports = run;
