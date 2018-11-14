@@ -46,6 +46,7 @@ exports.builder = (yargs) => {
     });
     yargs.example('earl load ts-qa1 terascope/file-assets');
     yargs.example('earl load ts-qa1 terascope/file-assets -a x64 -p linux -n v8.10.1');
+    yargs.example('earl load ts-qa1 -f /tmp/file-assets-v0.2.1-node-8-linux-x64.zip');
 };
 
 
