@@ -7,12 +7,20 @@ const _metadata = new WeakMap();
 
 /**
  * A wrapper for data that can hold additional metadata properties.
- * A DataEntity should be essentially transparent to use within operations
+ * A DataEntity should be essentially transparent to use within operations.
+ *
+ * IMPORTANT: Use `DataEntity.make`, `DataEntity.fromBuffer` and `DataEntity.makeArray`
+ * to create DataEntities that are significantly faster (600x-1000x faster).
  */
 export default class DataEntity {
     /**
-     * A utility for safely converting an object a DataEntity.
+     * A utility for safely converting an object a `DataEntity`.
      * This will detect if passed an already converted input and return it.
+     *
+     * NOTE: `DataEntity.make` is different from using `new DataEntity`
+     * because it creates a `Proxy` instead of shallow cloning the object
+     * onto the `DataEntity` instance, this is significatly faster and so it
+     * is recommended to use this in production.
     */
     static make(input: DataInput, metadata?: object): DataEntity {
         if (input == null) return new DataEntity({});
@@ -67,9 +75,9 @@ export default class DataEntity {
     }
 
     /**
-     * A utility for safely converting an buffer to a DataEntity.
-     * @param input A buffer to parse to JSON
-     * @param opConfig The operation config used to get the encoding type of the buffer, defaults to "json"
+     * A utility for safely converting an `Buffer` to a `DataEntity`.
+     * @param input A `Buffer` to parse to JSON
+     * @param opConfig The operation config used to get the encoding type of the Buffer, defaults to "json"
      * @param metadata Optionally add any metadata
     */
     static fromBuffer(input: Buffer, opConfig: EncodingConfig = {}, metadata?: object): DataEntity {
@@ -99,7 +107,7 @@ export default class DataEntity {
     }
 
     /**
-     * Verify that an input is the DataEntity
+     * Verify that an input is the `DataEntity`
     */
     static isDataEntity(input: any): input is DataEntity {
         if (input == null) return false;
@@ -119,7 +127,7 @@ export default class DataEntity {
     }
 
     /**
-     * Safely get the metadata from a DataEntity.
+     * Safely get the metadata from a `DataEntity`.
      * If the input is object it will get the property from the object
     */
     static getMetadata(input: DataInput, key: string): any {
