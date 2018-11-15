@@ -1,48 +1,55 @@
-import { sortBy, map, groupBy, times } from 'lodash';
-import {
-    TestContext,
-    JobConfig,
-    Assignment,
-    makeJobSchema,
-    makeExecutionContext,
-    validateJobConfig,
-    WorkerExecutionContext,
-    SlicerExecutionContext,
-    ExecutionConfig,
-    SliceRequest,
-    Slice,
-    isWorkerExecutionContext,
-    isSlicerExecutionContext,
-    DataEntity,
-    RunSliceResult,
-} from '@terascope/job-components';
+import { sortBy, map, groupBy, times, set } from 'lodash';
+import * as c from '@terascope/job-components';
 
 export default class JobHarness {
-    protected context: WorkerExecutionContext|SlicerExecutionContext;
+    protected executionContext: c.WorkerExecutionContext|c.SlicerExecutionContext;
+    protected context: c.WorkerContext|c.SlicerContext;
 
-    constructor(job: JobConfig, options: JobHarnessOptions) {
-        const context = new TestContext(`job-harness:${job.name}`);
-        context.assignment = options.assignment || Assignment.Worker;
+    private clients: Clients = {};
 
-        const jobSchema = makeJobSchema(context);
-        const executionConfig = validateJobConfig(jobSchema, job) as ExecutionConfig;
-        this.context = makeExecutionContext({
+    constructor(job: c.JobConfig, options: JobHarnessOptions) {
+        const context = new c.TestContext(`job-harness:${job.name}`);
+        context.assignment = options.assignment || c.Assignment.Worker;
+
+        const jobSchema = c.makeJobSchema(context);
+        const executionConfig = c.validateJobConfig(jobSchema, job) as c.ExecutionConfig;
+        this.executionContext = c.makeExecutionContext({
             context,
             executionConfig
         });
+        this.context = this.executionContext.context;
+
+        if (options.clients) {
+            this.setClients(options.clients);
+        }
+    }
+
+    async setClients(clients: Client[]) {
+        clients.forEach((clientConfig) => {
+            const { client, type, endpoint = 'default' } = clientConfig;
+
+            if (!type || (typeof type !== 'string')) throw new Error('you must specify a type when setting a client');
+
+            this.clients[`${type}:${endpoint}`] = client;
+            set(this.context, ['sysconfig', 'terafoundation', 'connectors', type, endpoint], {});
+        });
+
+        this.context.apis.foundation.getConnection = this.getConnection.bind(this);
+        this.context.foundation.getConnection = this.getConnection.bind(this);
     }
 
     async initialize() {
-        await this.context.initialize();
+        this.clients = {};
+        await this.executionContext.initialize();
     }
 
-    async createSlices({ fullResponse = false } = {}): Promise<SliceRequest[]|Slice[]> {
-        if (!isSlicerExecutionContext(this.context)) {
-            throwInvalidContext('createSlices', this.context);
+    async createSlices({ fullResponse = false } = {}): Promise<c.SliceRequest[]|c.Slice[]> {
+        if (!c.isSlicerExecutionContext(this.executionContext)) {
+            throwInvalidContext('createSlices', this.executionContext);
             return [];
         }
 
-        const { slicer } = this.context;
+        const { slicer } = this.executionContext;
         const slicers = slicer.slicers();
         await slicer.handle();
 
@@ -69,13 +76,13 @@ export default class JobHarness {
         return sliceRequests;
     }
 
-    async runSlice(slice: Slice, { fullResponse = false } = {}): Promise<DataEntity[]|RunSliceResult> {
-        if (!isWorkerExecutionContext(this.context)) {
-            throwInvalidContext('runSlice', this.context);
+    async runSlice(slice: c.Slice, { fullResponse = false } = {}): Promise<c.DataEntity[]|c.RunSliceResult> {
+        if (!c.isWorkerExecutionContext(this.executionContext)) {
+            throwInvalidContext('runSlice', this.executionContext);
             return [];
         }
 
-        const result = await this.context.runSlice(slice);
+        const result = await this.executionContext.runSlice(slice);
         if (fullResponse) {
             return result || {
                 results: [],
@@ -86,19 +93,37 @@ export default class JobHarness {
     }
 
     async cleanup() {
-        return this.context.shutdown();
+        return this.executionContext.shutdown();
+    }
+
+    private getConnection(config: c.GetClientConfig) {
+        const { connection, endpoint } = config;
+        const client = this.clients[`${connection}:${endpoint}`];
+        if (!client) throw new Error(`No client was found at type ${connection}, endpoint: ${endpoint}`);
+        return { client };
     }
 }
 
-function throwInvalidContext(method: string, context: WorkerExecutionContext|SlicerExecutionContext): never {
+function throwInvalidContext(method: string, context: c.WorkerExecutionContext|c.SlicerExecutionContext): never {
     const { assignment } = context.context;
-    const expected = assignment === Assignment.Worker ? Assignment.ExecutionController : Assignment.Worker;
+    const expected = assignment === c.Assignment.Worker ? c.Assignment.ExecutionController : c.Assignment.Worker;
     const error = new Error(`${method} can only be run with assignment of "${expected}"`);
     Error.captureStackTrace(error, throwInvalidContext);
     throw error;
 }
 
 export interface JobHarnessOptions {
-    assignment?: Assignment;
+    assignment?: c.Assignment;
     assetDir: string;
+    clients?: Client[];
+}
+
+export interface Client {
+    type: string;
+    client: any;
+    endpoint?: string;
+}
+
+export interface Clients {
+    [prop: string]: Client;
 }

@@ -11,6 +11,16 @@ import {
 import { JobHarness } from '../src';
 
 describe('JobHarness', () => {
+    const clients = [
+        {
+            type: 'example',
+            client: {
+                say() {
+                    return 'hello';
+                }
+            }
+        }
+    ];
     describe('assignment === "worker"', () => {
         describe('when given a valid job config', () => {
             const job = newTestJobConfig();
@@ -27,6 +37,7 @@ describe('JobHarness', () => {
             const jobHarness = new JobHarness(job, {
                 assignment: Assignment.Worker,
                 assetDir: __dirname,
+                clients
             });
 
             it('should be able to call initialize', () => {
@@ -71,6 +82,7 @@ describe('JobHarness', () => {
             const jobHarness = new JobHarness(job, {
                 assignment: Assignment.ExecutionController,
                 assetDir: __dirname,
+                clients,
             });
 
             it('should be able to call initialize', () => {

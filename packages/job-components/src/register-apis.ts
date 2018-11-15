@@ -1,7 +1,7 @@
 import { ConnectionConfig, Context, ValidatedJobConfig, ExecutionConfig, OpConfig } from './interfaces';
 import { ExecutionContextAPI } from './execution-context';
 
-interface GetClientConfig {
+export interface GetClientConfig {
     connection?: string;
     endpoint?: string;
     connection_cache?: boolean;
