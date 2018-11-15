@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import cloneDeep from 'lodash.clonedeep';
-import { hide, isFunction, waterfall } from '../utils';
+import { enumerable, isFunction, waterfall } from '../utils';
 import { OperationLoader } from '../operation-loader';
 import FetcherCore from '../operations/core/fetcher-core';
 import ProcessorCore from '../operations/core/processor-core';
@@ -123,7 +123,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     /**
      * Called to initialize all of the registered operations available to the Worker
     */
-    @hide()
+    @enumerable(false)
     async initialize() {
         const promises = [];
         for (const op of this.getOperations()) {
@@ -136,7 +136,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     /**
      * Called to cleanup all of the registered operations available to the Worker
     */
-    @hide()
+    @enumerable(false)
     async shutdown() {
         const promises = [];
         for (const op of this.getOperations()) {
@@ -192,42 +192,42 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         };
     }
 
-    @hide()
+    @enumerable(false)
     async onSliceInitialized(sliceId: string) {
         await this.runMethodAsync('onSliceInitialized', sliceId);
     }
 
-    @hide()
+    @enumerable(false)
     async onSliceStarted(sliceId: string) {
         await this.runMethodAsync('onSliceStarted', sliceId);
     }
 
-    @hide()
+    @enumerable(false)
     async onSliceFinalizing(sliceId: string) {
         await this.runMethodAsync('onSliceFinalizing', sliceId);
     }
 
-    @hide()
+    @enumerable(false)
     async onSliceFinished(sliceId: string) {
         await this.runMethodAsync('onSliceFinished', sliceId);
     }
 
-    @hide()
+    @enumerable(false)
     async onSliceFailed(sliceId: string) {
         await this.runMethodAsync('onSliceFailed', sliceId);
     }
 
-    @hide()
+    @enumerable(false)
     async onSliceRetry(sliceId: string) {
         await this.runMethodAsync('onSliceRetry', sliceId);
     }
 
-    @hide()
+    @enumerable(false)
     onOperationComplete(sliceId: string, index: number, processed: number) {
         this.runMethod('onOperationComplete', sliceId, index, processed);
     }
 
-    @hide()
+    @enumerable(false)
     onOperationStart(sliceId: string, index: number) {
         this.runMethod('onOperationStart', sliceId, index);
     }
@@ -236,13 +236,13 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
      * Returns a list of any registered Operation that has been
      * initialized.
     */
-    @hide()
+    @enumerable(false)
     getOperations() {
         const ops = _operations.get(this) as WorkerOperations;
         return ops.values();
     }
 
-    @hide()
+    @enumerable(false)
     private addOperation(op: WorkerOperationLifeCycle) {
         const ops = _operations.get(this) as WorkerOperations;
         ops.add(op);
@@ -250,14 +250,14 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         this.resetMethodRegistry();
     }
 
-    @hide()
+    @enumerable(false)
     private registerAPI(name: string, API?: OperationAPIConstructor) {
         if (API == null) return;
 
         this.context.apis.executionContext.addToRegistry(name, API);
     }
 
-    @hide()
+    @enumerable(false)
     private runMethodAsync(method: string, sliceId: string) {
         const set = this._methodRegistry[method] as Set<number>;
         if (set.size === 0) return;
@@ -274,7 +274,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         return Promise.all(promises);
     }
 
-    @hide()
+    @enumerable(false)
     private runMethod(method: string, ...args: any[]) {
         const set = this._methodRegistry[method] as Set<number>;
         if (set.size === 0) return;
@@ -288,7 +288,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         }
     }
 
-    @hide()
+    @enumerable(false)
     private resetMethodRegistry() {
         for (const method of Object.keys(this._methodRegistry)) {
             this._methodRegistry[method].clear();

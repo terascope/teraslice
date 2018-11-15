@@ -143,11 +143,11 @@ export function locked() {
     };
 }
 
-/** A decorator for making a method non-enumerable */
-export function hide() {
+/** A decorator for making a method enumerable or none-enumerable */
+export function enumerable(enabled = true) {
     // @ts-ignore
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-        descriptor.enumerable = false;
+        descriptor.enumerable = enabled;
     };
 }
 
