@@ -3,144 +3,178 @@ import { DataEntity, DataEncoding } from '../../src';
 import { parseJSON } from '../../src/utils';
 
 describe('DataEntity', () => {
-    describe('when constructed with an object', () => {
-        const dataEntity = new DataEntity({
-            blue: 'green',
-            metadata: {
-                uh: 'oh',
-            },
-            purple: 'pink',
-        });
+    const testCases = [
+        [
+            'when using new DataEntity',
+            true, // use class
+        ],
+        [
+            'when using make',
+            false, // use make
+        ]
+    ];
 
-        it('should be an instance of DataEntity', () => {
-            expect(dataEntity).toBeInstanceOf(DataEntity);
-            expect(DataEntity.isDataEntity(dataEntity)).toBeTrue();
-        });
+    // @ts-ignore
+    describe.each(testCases)('%s', (m, useClass) => {
+        describe('when constructed with an object', () => {
+            const data = {
+                blue: 'green',
+                metadata: {
+                    uh: 'oh',
+                },
+                purple: 'pink',
+            };
+            const dataEntity = useClass ? new DataEntity(data) : DataEntity.make(data);
 
-        it('should be to set an additional property', () => {
-            dataEntity.teal = 'neal';
-        });
-
-        it('should have the input properties top-level', () => {
-            expect(dataEntity).toHaveProperty('teal', 'neal');
-            expect(dataEntity).toHaveProperty('blue', 'green');
-            expect(dataEntity).toHaveProperty('metadata', {
-                uh: 'oh',
+            it('should be a DataEntity', () => {
+                expect(DataEntity.isDataEntity(dataEntity)).toBeTrue();
             });
-            expect(dataEntity).toHaveProperty('purple', 'pink');
-        });
 
-        it('should not be able to enumerate metadata methods', () => {
-            const keys = Object.keys(dataEntity);
-            expect(keys).not.toInclude('getMetadata');
-            expect(keys).not.toInclude('setMetadata');
-            expect(keys).not.toInclude('toBuffer');
-
-            for (const prop in dataEntity) {
-                expect(prop).not.toEqual('getMetadata');
-                expect(prop).not.toEqual('setMetadata');
-                expect(prop).not.toEqual('toBuffer');
-            }
-        });
-
-        it('should only convert non-metadata properties with stringified', () => {
-            const object = JSON.parse(JSON.stringify(dataEntity));
-            expect(object).not.toHaveProperty('getMetadata');
-            expect(object).not.toHaveProperty('setMetadata');
-            expect(object).not.toHaveProperty('toBuffer');
-
-            expect(object).toHaveProperty('teal', 'neal');
-            expect(object).toHaveProperty('blue', 'green');
-            expect(object).toHaveProperty('metadata', {
-                uh: 'oh',
+            it('should be to set an additional property', () => {
+                dataEntity.teal = 'neal';
             });
-            expect(object).toHaveProperty('purple', 'pink');
+
+            it('should have the input properties top-level', () => {
+                expect(dataEntity).toHaveProperty('teal', 'neal');
+                expect(dataEntity).toHaveProperty('blue', 'green');
+                expect(dataEntity).toHaveProperty('metadata', {
+                    uh: 'oh',
+                });
+                expect(dataEntity).toHaveProperty('purple', 'pink');
+            });
+
+            it('should not be able to enumerate metadata methods', () => {
+                const keys = Object.keys(dataEntity);
+                expect(keys).not.toInclude('getMetadata');
+                expect(keys).not.toInclude('setMetadata');
+                expect(keys).not.toInclude('toBuffer');
+
+                for (const prop in dataEntity) {
+                    expect(prop).not.toEqual('getMetadata');
+                    expect(prop).not.toEqual('setMetadata');
+                    expect(prop).not.toEqual('toBuffer');
+                }
+            });
+
+            it('should only convert non-metadata properties with stringified', () => {
+                const object = JSON.parse(JSON.stringify(dataEntity));
+                expect(object).not.toHaveProperty('getMetadata');
+                expect(object).not.toHaveProperty('setMetadata');
+                expect(object).not.toHaveProperty('toBuffer');
+
+                expect(object).toHaveProperty('teal', 'neal');
+                expect(object).toHaveProperty('blue', 'green');
+                expect(object).toHaveProperty('metadata', {
+                    uh: 'oh',
+                });
+                expect(object).toHaveProperty('purple', 'pink');
+            });
+
+            it('should be able to get the metadata', () => {
+                const metadata = dataEntity.getMetadata();
+                expect(metadata).toHaveProperty('createdAt');
+            });
+
+            it('should be able to set and get a metadata property', () => {
+                dataEntity.setMetadata('yellow', 'mellow');
+                expect(dataEntity.getMetadata('yellow')).toEqual('mellow');
+            });
+
+            it('should be able to get the metadata by key', () => {
+                const createdAt = dataEntity.getMetadata('createdAt');
+                expect(createdAt).toBeNumber();
+            });
+
+            it('should not be able to set createdAt', () => {
+                expect(() => {
+                    dataEntity.setMetadata('createdAt', 'hello');
+                }).toThrowError('Cannot set readonly metadata property createdAt');
+            });
+
+            it('should be return undefined if getting a metadata that does not exist', () => {
+                expect(dataEntity.getMetadata('hello')).toBeUndefined();
+            });
         });
 
-        it('should be able to get the metadata', () => {
-            const metadata = dataEntity.getMetadata();
-            expect(metadata).toHaveProperty('createdAt');
+        describe('when constructed with a non-object', () => {
+            it('should do nothing when called with null', () => {
+                expect(() => {
+                    if (useClass) {
+                        // @ts-ignore
+                        new DataEntity(null);
+                    } else {
+                        // @ts-ignore
+                        DataEntity.make(null);
+                    }
+                }).not.toThrow();
+            });
+
+            it('should do nothing with called with undefined', () => {
+                expect(() => {
+                    if (useClass) {
+                        // @ts-ignore
+                        new DataEntity();
+                    } else {
+                        // @ts-ignore
+                        DataEntity.make();
+                    }
+                }).not.toThrow();
+            });
+
+            it('should throw an error when called with an Array', () => {
+                const arr = [{ hello: true }];
+                expect(() => {
+                    if (useClass) {
+                        // @ts-ignore
+                        new DataEntity(arr);
+                    } else {
+                        // @ts-ignore
+                        DataEntity.make(arr);
+                    }
+                }).toThrowError('Invalid data source, must be an object, got "array"');
+            });
+
+            it('should throw an error when called with a Buffer', () => {
+                const buf = Buffer.from(JSON.stringify({ hello:true }));
+                expect(() => {
+                    if (useClass) {
+                        // @ts-ignore
+                        new DataEntity(buf);
+                    } else {
+                        // @ts-ignore
+                        DataEntity.make(buf);
+                    }
+                }).toThrowError('Invalid data source, must be an object, got "buffer"');
+            });
         });
 
-        it('should be able to set and get a metadata property', () => {
-            dataEntity.setMetadata('yellow', 'mellow');
-            expect(dataEntity.getMetadata('yellow')).toEqual('mellow');
-        });
+        describe('->toBuffer', () => {
+            const data = { foo: 'bar' };
+            const metadata = { hello: 'there' };
+            const dataEntity = useClass ? new DataEntity(data, metadata) : DataEntity.make(data);
 
-        it('should be able to get the metadata by key', () => {
-            const createdAt = dataEntity.getMetadata('createdAt');
-            expect(createdAt).toBeNumber();
-        });
+            it('should be convertable to a buffer', () => {
+                const buf = dataEntity.toBuffer({ _encoding: DataEncoding.JSON });
+                expect(Buffer.isBuffer(buf)).toBeTrue();
+                const obj = parseJSON(buf);
 
-        it('should not be able to set createdAt', () => {
-            expect(() => {
-                dataEntity.setMetadata('createdAt', 'hello');
-            }).toThrowError('Cannot set readonly metadata property createdAt');
-        });
+                expect(obj).toEqual({ foo: 'bar' });
+            });
 
-        it('should be return undefined if getting a metadata that does not exist', () => {
-            expect(dataEntity.getMetadata('hello')).toBeUndefined();
-        });
-    });
+            it('should be able to handle no config', () => {
+                const buf = dataEntity.toBuffer();
+                expect(Buffer.isBuffer(buf)).toBeTrue();
+                const obj = parseJSON(buf);
 
-    describe('when constructed with a non-object', () => {
-        it('should do nothing when called with null', () => {
-            expect(() => {
-                // @ts-ignore
-                new DataEntity(null);
-            }).not.toThrow();
-        });
+                expect(obj).toEqual({ foo: 'bar' });
+            });
 
-        it('should do nothing with called with undefined', () => {
-            expect(() => {
-                // @ts-ignore
-                new DataEntity();
-            }).not.toThrow();
-        });
-
-        it('should throw an error when called with an Array', () => {
-            const arr = [{ hello: true }];
-            expect(() => {
-                // @ts-ignore
-                new DataEntity(arr);
-            }).toThrowError('Invalid data source, must be an object, got "array"');
-        });
-
-        it('should throw an error when called with a Buffer', () => {
-            const buf = Buffer.from(JSON.stringify({ hello:true }));
-            expect(() => {
-                // @ts-ignore
-                new DataEntity(buf);
-            }).toThrowError('Invalid data source, must be an object, got "buffer"');
-        });
-    });
-
-    describe('->toBuffer', () => {
-        it('should be convertable to a buffer', () => {
-            const dataEntity = new DataEntity({ foo: 'bar' }, { hello: 'there' });
-            const buf = dataEntity.toBuffer({ _encoding: DataEncoding.JSON });
-            expect(Buffer.isBuffer(buf)).toBeTrue();
-            const obj = parseJSON(buf);
-
-            expect(obj).toEqual({ foo: 'bar' });
-        });
-
-        it('should be able to handle no config', () => {
-            const dataEntity = new DataEntity({ foo: 'bar' }, { hello: 'there' });
-            const buf = dataEntity.toBuffer();
-            expect(Buffer.isBuffer(buf)).toBeTrue();
-            const obj = parseJSON(buf);
-
-            expect(obj).toEqual({ foo: 'bar' });
-        });
-
-        it('should fail if given an invalid encoding', () => {
-            const dataEntity = new DataEntity({ foo: 'bar' }, { hello: 'there' });
-
-            expect(() => {
-                // @ts-ignore
-                dataEntity.toBuffer({ _encoding: 'baz' });
-            }).toThrowError('Unsupported encoding type, got "baz"');
+            it('should fail if given an invalid encoding', () => {
+                expect(() => {
+                    // @ts-ignore
+                    dataEntity.toBuffer({ _encoding: 'baz' });
+                }).toThrowError('Unsupported encoding type, got "baz"');
+            });
         });
     });
 

@@ -17,45 +17,48 @@ export default class DataEntity {
     static make(input: DataInput, metadata?: object): DataEntity {
         if (input == null) return new DataEntity({});
         if (DataEntity.isDataEntity(input)) return input;
+        if (!isPlainObject(input)) {
+            throw new Error(`Invalid data source, must be an object, got "${kindOf(input)}"`);
+        }
 
-        Object.defineProperty(input, 'getMetadata', {
-            value(key?: string) {
-                const metadata = _metadata.get(this) as DataEntityMetadata;
-                if (key) {
-                    return metadata[key];
-                }
-                return metadata;
+        Object.defineProperties(input, {
+            getMetadata: {
+                value(key?: string) {
+                    const metadata = _metadata.get(this) as DataEntityMetadata;
+                    if (key) {
+                        return metadata[key];
+                    }
+                    return metadata;
+                },
+                enumerable: false,
+                writable: false
             },
-            enumerable: false,
-            writable: false
-        });
+            setMetadata: {
+                value(key: string, value: any) {
+                    const readonlyMetadataKeys: string[] = ['createdAt'];
+                    if (readonlyMetadataKeys.includes(key)) {
+                        throw new Error(`Cannot set readonly metadata property ${key}`);
+                    }
 
-        Object.defineProperty(input, 'setMetadata', {
-            value(key: string, value: any) {
-                const readonlyMetadataKeys: string[] = ['createdAt'];
-                if (readonlyMetadataKeys.includes(key)) {
-                    throw new Error(`Cannot set readonly metadata property ${key}`);
-                }
-
-                const metadata = _metadata.get(this) as DataEntityMetadata;
-                metadata[key] = value;
-                _metadata.set(this, metadata);
+                    const metadata = _metadata.get(this) as DataEntityMetadata;
+                    metadata[key] = value;
+                    _metadata.set(this, metadata);
+                },
+                enumerable: false,
+                writable: false
             },
-            enumerable: false,
-            writable: false
-        });
+            toBuffer: {
+                value(config: EncodingConfig = {}) {
+                    const { _encoding = DataEncoding.JSON } = config;
+                    if (_encoding === DataEncoding.JSON) {
+                        return Buffer.from(JSON.stringify(this));
+                    }
 
-        Object.defineProperty(input, 'toBuffer', {
-            value(config: EncodingConfig = {}) {
-                const { _encoding = DataEncoding.JSON } = config;
-                if (_encoding === DataEncoding.JSON) {
-                    return Buffer.from(JSON.stringify(this));
-                }
-
-                throw new Error(`Unsupported encoding type, got "${_encoding}"`);
-            },
-            enumerable: false,
-            writable: false
+                    throw new Error(`Unsupported encoding type, got "${_encoding}"`);
+                },
+                enumerable: false,
+                writable: false
+            }
         });
 
         const proxy = new Proxy(input, {});
