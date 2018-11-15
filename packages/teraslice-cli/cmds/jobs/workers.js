@@ -4,16 +4,16 @@
 const _ = require('lodash');
 const reply = require('../lib/reply')();
 const config = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 
-exports.command = 'workers <action> <num> [cluster_sh]';
+exports.command = 'workers <cluster_sh> <job_id> <action> <num>';
 exports.desc = 'Manage workers in job\n';
 exports.builder = (yargs) => {
     cli().args('jobs', 'workers', yargs);
     yargs
         .choices('action', ['add', 'remove'])
-        .example('earl jobs workers add 5 cluster1:job:99999999-9999-9999-9999-999999999999')
-        .example('earl jobs workers remove 5 cluster1:job:99999999-9999-9999-9999-999999999999')
+        .example('teraslice-cli jobs workers cluster1 99999999-9999-9999-9999-999999999999 add 5')
+        .example('teraslice-cli jobs workers cluster1 99999999-9999-9999-9999-999999999999 remove 5');
 };
 
 exports.handler = (argv, _testFunctions) => {

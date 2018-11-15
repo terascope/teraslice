@@ -4,9 +4,9 @@
 const _ = require('lodash');
 const reply = require('../lib/reply')();
 const config = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 
-exports.command = 'stop <cluster_sh> [job]';
+exports.command = 'stop <cluster_sh> [job_id]';
 exports.desc = 'stops job(s) running or failing on the cluster, saves running job(s) to a json file.\n';
 exports.builder = (yargs) => {
     cli().args('jobs', 'stop', yargs);
@@ -21,9 +21,9 @@ exports.builder = (yargs) => {
             describe: 'stop all running/failing jobs',
             default: false
         })
-        .example('earl jobs stop cluster1:job:99999999-9999-9999-9999-999999999999')
-        .example('earl jobs stop cluster1:job:99999999-9999-9999-9999-999999999999 --yes')
-        .example('earl jobs stop cluster1 --all');
+        .example('teraslice-cli jobs stop cluster1 99999999-9999-9999-9999-999999999999')
+        .example('teraslice-cli jobs stop cluster1 99999999-9999-9999-9999-999999999999 --yes')
+        .example('teraslice-cli jobs stop cluster1 --all');
 };
 
 exports.handler = (argv, _testFunctions) => {

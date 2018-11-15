@@ -6,17 +6,19 @@ const reply = require('../lib/reply')();
 const configChecks = require('../lib/config');
 const cli = require('./lib/cli');
 
-exports.command = 'stop <cluster_sh> <ex_id>';
-exports.desc = 'stops ex that is running or failing on the cluster.\n';
+exports.command = 'run <job_file>';
+exports.desc = 'Run job specified in job file on cluster';
 exports.builder = (yargs) => {
-    cli().args('ex', 'stop', yargs);
+    cli().args('tjm', 'run', yargs);
+    yargs
+        .example('teraslice-cli tjm run test.json');
 };
 
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
-    configChecks(cliConfig, 'ex:stop').returnConfigData();
-    const tsuFunctions = _testFunctions || require('./lib')(cliConfig);
+    configChecks(cliConfig, 'tjm:run').returnConfigData();
+    const tjm = _testFunctions || require('./lib')(cliConfig);
 
-    return tsuFunctions.stop()
+    return tjm.start()
         .catch(err => reply.fatal(err.message));
 };

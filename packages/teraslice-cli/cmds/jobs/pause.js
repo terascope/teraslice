@@ -4,12 +4,12 @@
 const _ = require('lodash');
 const reply = require('../lib/reply')();
 const config = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 
-exports.command = 'pause <cluster_sh> [job]';
+exports.command = 'pause <cluster_sh> [job_id]';
 exports.desc = 'Pause all running and failing job on cluster.\n';
 exports.builder = (yargs) => {
-    cli().args('job', 'pause', yargs);
+    cli().args('jobs', 'pause', yargs);
     yargs
         .option('annotate', {
             alias: 'n',
@@ -21,9 +21,9 @@ exports.builder = (yargs) => {
             describe: 'pause all running/failing jobs',
             default: false
         })
-        .example('earl jobs pause cluster1:job:99999999-9999-9999-9999-999999999999')
-        .example('earl jobs pause cluster1:job:99999999-9999-9999-9999-999999999999 --yes')
-        .example('earl jobs pause cluster1 --all');
+        .example('teraslice-cli jobs pause cluster1 99999999-9999-9999-9999-999999999999')
+        .example('teraslice-cli jobs pause cluster1 99999999-9999-9999-9999-999999999999 --yes')
+        .example('teraslice-cli jobs pause cluster1 --all');
 };
 
 exports.handler = (argv, _testFunctions) => {

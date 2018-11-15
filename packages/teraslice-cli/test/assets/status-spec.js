@@ -133,7 +133,7 @@ describe('status', () => {
         }
     });
 
-    it('should ensure that earl data is in the asset.json file', async () => {
+    it('should ensure that teraslice-cli data is in the asset.json file', async () => {
         delete assetJson.tjm;
         const tmpDirX = createTempDirSync();
         const argvX = {
@@ -148,7 +148,7 @@ describe('status', () => {
         try {
             await status.handler(argvX, _cliFunctions);
         } catch (e) {
-            expect(e).toBe('asset.json file does not have earl data, has the asset been deployed?');
+            expect(e).toBe('asset.json file does not have teraslice-cli data, has the asset been deployed?');
         }
     });
 });

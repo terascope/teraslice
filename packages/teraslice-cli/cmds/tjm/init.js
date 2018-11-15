@@ -6,20 +6,19 @@ const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('../lib/cli');
 
-exports.command = 'find <cluster_sh> [job]';
-exports.desc = 'Find a job across clusters\n';
+exports.command = 'init <job_file>';
+exports.desc = 'Initialize a new job file with an example job definition';
 exports.builder = (yargs) => {
-    cli().args('job', 'find', yargs);
+    cli().args('tjm', 'init', yargs);
     yargs
-        .demandCommand(1)
-        .example('earl jobs find cluster1');
+        .example('teraslice-cli tjm init example.json');
 };
 
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
-    config(cliConfig, 'jobs:find').returnConfigData();
-    const job = _testFunctions || require('./lib')(cliConfig);
+    config(cliConfig, 'tjm:init').returnConfigData();
+    const tjm = _testFunctions || require('./lib')(cliConfig);
 
-    return job.view()
+    return tjm.init()
         .catch(err => reply.fatal(err.message));
 };

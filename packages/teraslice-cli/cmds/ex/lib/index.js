@@ -26,9 +26,9 @@ module.exports = (cliConfig) => {
                 break;
             }
             try {
-                response = await terasliceClient.ex.stop(cliConfig.deets.id);
+                response = await terasliceClient.ex.stop(cliConfig.ex_id);
                 stopTimedOut = true;
-                console.log(`> ex_id: ${cliConfig.deets.id} stopped`);
+                console.log(`> ex_id: ${cliConfig.ex_id} stopped`);
             } catch (err) {
                 reply.error(`> Stopping ex_id had an error [${err.message}]`);
                 if (err.message.indexOf(' no active execution context was found') > 0) {
@@ -52,8 +52,8 @@ module.exports = (cliConfig) => {
     }
 
     async function status() {
-        if (cliConfig.deets.id === undefined) {
-            console.log('ex_id required for status');
+        if (cliConfig.ex_id === undefined) {
+            reply.error('ex_id required for status');
         } else {
             await list();
         }
@@ -67,9 +67,9 @@ module.exports = (cliConfig) => {
             const exResult = await terasliceClient.ex.list(statusEx);
             if (exResult.length > 0) {
                 _.each(exResult, (ex) => {
-                    if (cliConfig.deets.id === undefined) {
+                    if (cliConfig.ex_id === undefined) {
                         exIds.push(ex);
-                    } else if (cliConfig.deets.id === ex.ex_id) {
+                    } else if (cliConfig.ex_id === ex.ex_id) {
                         exIds.push(ex);
                     }
                 });

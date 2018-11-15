@@ -33,22 +33,43 @@ module.exports = (cliConfig) => {
         }
     }
 
-    async function alreadyRegistered() {
+    async function alreadyRegistered(show = true) {
         let registered = false;
         const jobContents = cliConfig.job_file_content;
         if (_.has(jobContents, '__metadata.cli.cluster')) {
             const jobSpec = await terasliceClient.jobs.wrap(jobContents.__metadata.cli.job_id).config();
             if (jobSpec.job_id === jobContents.__metadata.cli.job_id) {
                 // return true for testing purposes
-                reply.green(`${jobSpec.job_id} is registered`);
+                if (show) {
+                    reply.green(`${jobSpec.job_id} is registered`);
+                }
                 registered = true;
+            } else {
+                reply.error(`${jobSpec.job_id} is not registered`);
             }
         }
         return registered;
     }
 
+    async function getClusteringType() {
+        let clusterInfo = {};
+        try {
+            clusterInfo = await terasliceClient.cluster.info();
+            if (_.has(clusterInfo, 'clustering_type')) {
+                cliConfig.cluster_manager_type = clusterInfo.clustering_type;
+            } else {
+                cliConfig.cluster_manager_type = 'native';
+            }
+        } catch (err) {
+            if (err.code === 405 && err.error === 405) {
+                cliConfig.cluster_manager_type = 'native';
+            }
+        }
+    }
+
     return {
         getAssetClusters,
+        getClusteringType,
         alreadyRegistered,
         _dataCheck
     };

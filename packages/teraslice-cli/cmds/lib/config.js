@@ -5,21 +5,22 @@ const path = require('path');
 const url = require('url');
 const yaml = require('node-yaml');
 const fs = require('fs');
+const request = require('request');
+
+// const rp = require('request-promise');
 const homeDir = require('os').homedir();
 const process = require('process');
 const reply = require('./reply')();
 const shortHand = require('./shorthand')();
 
 module.exports = (cliConfig, command) => {
-    function returnConfigData(notsuCheck) {
+    function returnConfigData() {
         cliConfig.version = require('../../package.json').version;
-        // some commands should not have tsu data, otherwise file is checked for tsu data
-        cliConfig.tsu_check = !notsuCheck;
-        // add job data to the cliConfig object for easy reference
-        // explicitly state the cluster that the code will reference for the job
+        cliConfig.cluster_manager_type = 'native';
         // read config file
         cliConfig.configFile = createConfigFile(cliConfig);
         cliConfig.config = yaml.readSync(cliConfig.configFile);
+
         // set output format
         cliConfig.output_style = cliConfig.o;
         // set annotation
@@ -34,22 +35,49 @@ module.exports = (cliConfig, command) => {
             cliConfig.baseDir = process.cwd();
         }
 
-        if (cliConfig.cluster_sh !== undefined) {
-            cliConfig.deets = shortHand.parse(cliConfig.cluster_sh, cliConfig.type);
-        }
-        if (_.has(cliConfig.deets, 'file')) {
-            const jobFile = require('./job_file')(cliConfig);
-            jobFile.read();
-            if (_.has(cliConfig.job_file_content, '__metadata.cli')) {
-                cliConfig.cluster = cliConfig.job_file_content.__metadata.cli.cluster;
-                cliConfig.cluster_url = cliConfig.job_file_content.__metadata.cli.cluster_url;
-                cliConfig.deets.id = cliConfig.job_file_content.__metadata.cli.job_id;
-                cliConfig.deets.cluster_url = cliConfig.job_file_content.__metadata.cli.cluster_url;
-                cliConfig.deets.cluster = cliConfig.job_file_content.__metadata.cli.cluster;
+        // tjm command config
+        if (command.startsWith('tjm')) {
+            if (command === 'tjm:init') {
+                return;
             }
-            if (!_.has(cliConfig.deets, 'cluster') && command !== 'jobs:reset') {
+
+            if (_.has(cliConfig, 'cluster')) {
+                cliConfig.cluster_url = getClusterHost(cliConfig);
+            }
+            const jobFile = require('./job_file')(cliConfig);
+
+            if (command === 'tjm:reset') {
+                jobFile.read(false);
+            } else {
+                jobFile.read();
+            }
+
+            if (_.has(cliConfig.job_file_content, '__metadata.cli')) {
+                cliConfig.cluster_url = cliConfig.job_file_content.__metadata.cli.cluster;
+                cliConfig.deets = {};
+                cliConfig.deets.file = cliConfig.job_file;
+                cliConfig.deets.id = cliConfig.job_file_content.__metadata.cli.job_id;
+                let match = false;
+                _.each(cliConfig.config.clusters, (clusterAliasItem, clusterAlias) => {
+                    if (clusterAliasItem.host === cliConfig.cluster_url) {
+                        cliConfig.cluster = clusterAlias;
+                        match = true;
+                    }
+                });
+                if (!match) {
+                    cliConfig.cluster = cliConfig.cluster_url;
+                }
+            }
+
+            if (!_.has(cliConfig, 'cluster') && command !== 'tjm:reset') {
                 reply.fatal('cluster is required with an unregistered job');
             }
+            return;
+        }
+
+        // other command configs
+        if (cliConfig.cluster_sh !== undefined) {
+            cliConfig.deets = shortHand.parse(cliConfig.cluster_sh, cliConfig.type);
         }
 
         if (command === 'aliases:list' || command === 'jobs:reset') {
@@ -65,7 +93,6 @@ module.exports = (cliConfig, command) => {
                 cliConfig.cluster = cliConfig.deets.cluster;
                 if (_.has(cliConfig.config.clusters, cliConfig.deets.cluster)) {
                     cliConfig.cluster_url = getClusterHost(cliConfig);
-                    cliConfig.cluster_manager_type = cliConfig.config.clusters[cliConfig.cluster].cluster_manager_type;
                 } else {
                     reply.fatal(`cluster alias ${cliConfig.deets.cluster} not defined`);
                 }
@@ -116,6 +143,8 @@ module.exports = (cliConfig, command) => {
         }
     }
 
+
+
     function getClusterHost(config) {
         let clusterUrl = '';
         if (config.cluster in config.config.clusters) {
@@ -124,6 +153,8 @@ module.exports = (cliConfig, command) => {
             clusterUrl = _urlCheck(config.cluster);
         }
         return clusterUrl;
+
+
     }
 
     function createConfigFile() {

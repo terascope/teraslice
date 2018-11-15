@@ -10,10 +10,10 @@ const { argv } = require('yargs') // eslint-disable-line no-unused-vars
     .command(require('./cmds/nodes'))
     .command(require('./cmds/workers'))
     .command(require('./cmds/controllers'))
+    .command(require('./cmds/tjm'))
     .demandCommand(1)
     .help('help')
     .alias('help', 'h')
-    .version()
     .strict();
 
 process.on('unhandledRejection', (error) => {

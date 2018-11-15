@@ -12,10 +12,14 @@ module.exports = (cliConfig) => {
         host: cliConfig.cluster_url
     });
 
+    const checks = require('../../lib/checks')(cliConfig);
+
     async function list() {
+        await checks.getClusteringType();
         let parsedResponse = '';
         let header = ['node_id', 'state', 'hostname', 'total', 'active', 'pid', 'teraslice_version', 'node_version'];
         const response = await terasliceClient.cluster.state();
+
         if (cliConfig.cluster_manager_type === 'kubernetes') {
             // total and pid are n/a with kubernetes, so they are removed from the output
             header = ['node_id', 'state', 'hostname', 'active', 'teraslice_version', 'node_version'];

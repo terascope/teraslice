@@ -4,9 +4,9 @@
 const _ = require('lodash');
 const reply = require('../lib/reply')();
 const configChecks = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 
-exports.command = 'start <cluster_sh> [job]';
+exports.command = 'start <cluster_sh> [job_id]';
 exports.desc = 'starts all job on the specified in the saved state file \n';
 exports.builder = (yargs) => {
     cli().args('jobs', 'start', yargs);
@@ -21,9 +21,9 @@ exports.builder = (yargs) => {
             describe: 'stop all running/failing jobs',
             default: false
         })
-        .example('earl jobs start cluster1:job:99999999-9999-9999-9999-999999999999')
-        .example('earl jobs start cluster1:job:99999999-9999-9999-9999-999999999999 --yes')
-        .example('earl jobs start cluster1 --all');
+        .example('teraslice-cli jobs start cluster1 99999999-9999-9999-9999-999999999999')
+        .example('teraslice-cli jobs start cluster1 99999999-9999-9999-9999-999999999999 --yes')
+        .example('teraslice-cli jobs start cluster1 --all');
 };
 
 exports.handler = (argv, _testFunctions) => {

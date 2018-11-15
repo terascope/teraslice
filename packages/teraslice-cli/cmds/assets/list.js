@@ -4,7 +4,7 @@
 const _ = require('lodash');
 const reply = require('../lib/reply')();
 const config = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 
 exports.command = 'list <cluster_sh>';
 exports.desc = 'List assets on a cluster.\n';

@@ -6,17 +6,17 @@ const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('./lib/cli');
 
-exports.command = 'status <cluster_sh> <ex_id>';
-exports.desc = 'List the ex status of running and failing job.\n';
+exports.command = 'reset <job_file>';
+exports.desc = 'Reset a job file, removes teraslice-cli metadata';
 exports.builder = (yargs) => {
-    cli().args('ex', 'status', yargs);
+    cli().args('tjm', 'reset', yargs);
 };
 
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
-    config(cliConfig, 'ex:status').returnConfigData();
-    const exLib = _testFunctions || require('./lib')(cliConfig);
+    config(cliConfig, 'tjm:reset').returnConfigData();
+    const tjm = _testFunctions || require('./lib')(cliConfig);
 
-    return exLib.status()
+    return tjm.reset()
         .catch(err => reply.fatal(err.message));
 };

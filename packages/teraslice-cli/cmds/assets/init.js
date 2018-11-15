@@ -55,6 +55,9 @@ exports.handler = async (argv, _testFunctions) => {
     ];
     const assetData = await prompts(questions);
     // package.json and asset.json all have this data
+    if (assetData.asset_version === "") {
+        assetData.asset_version = '0.0.1';
+    }
     const packageJson = {
         name: cliConfig.asset_name,
         version: assetData.asset_version,

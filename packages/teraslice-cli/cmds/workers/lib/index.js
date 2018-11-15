@@ -14,7 +14,11 @@ module.exports = (cliConfig) => {
         host: cliConfig.cluster_url
     });
 
+    const checks = require('../../lib/checks')(cliConfig);
+
     async function list() {
+        await checks.getClusteringType();
+
         let header = ['assignment', 'job_id', 'ex_id', 'node_id', 'pid'];
         if (cliConfig.cluster_manager_type === 'kubernetes') {
             // total and pid are n/a with kubernetes, so they are removed from the output

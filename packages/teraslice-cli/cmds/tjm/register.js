@@ -4,17 +4,15 @@
 const _ = require('lodash');
 const reply = require('../lib/reply')();
 const configChecks = require('../lib/config');
-const cli = require('../lib/cli');
-
-exports.command = 'register <cluster_sh>';
-exports.desc = 'starts all job on the specified in the saved state file \n';
+const cli = require('./lib/cli');
+exports.command = 'register <job_file>';
+exports.desc = 'Register a job file on a cluster';
 exports.builder = (yargs) => {
-    cli().args('jobs', 'register', yargs);
+    cli().args('tjm', 'register', yargs);
     yargs
-        .option('annotate', {
-            alias: 'n',
-            describe: 'add grafana annotation',
-            default: ''
+        .option('cluster', {
+            alias: 'c',
+            default: 'http://localhost:5678'
         })
         .option('run', {
             alias: 'r',
@@ -28,14 +26,16 @@ exports.builder = (yargs) => {
             default: false,
             type: 'boolean'
         })
-        .example('earl jobs register cluster1:job:jobfile.json -a');
+        .example('teraslice-cli tjm register jobfile.json')
+        .example('teraslice-cli tjm register jobfile')
+        .example('teraslice-cli tjm register jobfile.json --run -c mycluster');
 };
 
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
-    configChecks(cliConfig, 'jobs:register').returnConfigData();
-    const jobsLib = _testFunctions || require('./lib')(cliConfig);
+    configChecks(cliConfig, 'tjm:register').returnConfigData();
+    const tjm = _testFunctions || require('./lib')(cliConfig);
 
-    return jobsLib.register()
+    return tjm.register()
         .catch(err => reply.fatal(err.message));
 };

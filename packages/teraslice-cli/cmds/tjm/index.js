@@ -1,7 +1,7 @@
 'use strict';
 
-exports.command = 'ex <command>';
-exports.desc = 'commands to manage execution ids';
+exports.command = 'tjm <command> <job_file>';
+exports.desc = 'Commands to manage job files on a teraslice cluster';
 exports.builder = function builder(yargs) {
     return yargs.commandDir('.')
         .demandCommand(2);

@@ -170,7 +170,11 @@ module.exports = (cliConfig = {}, _terasliceClient) => {
 
     async function list() {
         const result = await terasliceClient.assets.list();
-        await displayAssets(result);
+        if (result.length > 0) {
+            await displayAssets(result);
+        } else {
+            reply.error(`> No assets deployed on ${cliConfig.cluster}`);
+        }
     }
 
     return {
