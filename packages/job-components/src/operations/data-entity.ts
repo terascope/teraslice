@@ -29,14 +29,7 @@ export default class DataEntity {
             throw new Error(`Invalid data source, must be an object, got "${kindOf(input)}"`);
         }
 
-        const proxy = new Proxy(input, {
-            // @ts-ignore
-            getPrototypeOf(target) {
-                return DataEntity.prototype;
-            }
-        });
-
-        Object.defineProperties(proxy, {
+        Object.defineProperties(input, {
             getMetadata: {
                 value(key?: string) {
                     return getMetadata(this, key);
@@ -60,7 +53,7 @@ export default class DataEntity {
             }
         });
 
-        const entity = proxy as DataEntity;
+        const entity = input as DataEntity;
         _metadata.set(entity, Object.assign({ createdAt: Date.now() }, metadata));
         return entity as DataEntity;
     }

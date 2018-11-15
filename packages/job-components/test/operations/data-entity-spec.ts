@@ -28,7 +28,6 @@ describe('DataEntity', () => {
 
             it('should be a DataEntity', () => {
                 expect(DataEntity.isDataEntity(dataEntity)).toBeTrue();
-                expect(dataEntity).toBeInstanceOf(DataEntity);
             });
 
             it('should be to set an additional property', () => {
@@ -186,7 +185,6 @@ describe('DataEntity', () => {
                     hello: 'there',
                 });
                 expect(DataEntity.isDataEntity(dataEntity)).toBeTrue();
-                expect(dataEntity).toBeInstanceOf(DataEntity);
                 expect(dataEntity).toHaveProperty('hello', 'there');
             });
         });
@@ -197,7 +195,6 @@ describe('DataEntity', () => {
                     hello: 'there',
                 }));
                 expect(DataEntity.isDataEntity(dataEntity)).toBeTrue();
-                expect(dataEntity).toBeInstanceOf(DataEntity);
                 expect(dataEntity).toHaveProperty('hello', 'there');
             });
         });
