@@ -29,7 +29,7 @@ describe('Delay Processor', () => {
     it('should delay at least 100ms', async () => {
         const startTime = Date.now();
         await delay.handle([new DataEntity({ hi: true })]);
-        expect(Date.now() - startTime).toBeGreaterThanOrEqual(100);
+        expect(Date.now() - startTime).toBeGreaterThanOrEqual(98);
     });
 
     it('should be use a custom delay', async () => {

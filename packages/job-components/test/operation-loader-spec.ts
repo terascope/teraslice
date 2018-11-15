@@ -1,4 +1,5 @@
 import 'jest-extended'; // require for type definitions
+import { createTempDirSync } from 'jest-fixtures';
 import fse from 'fs-extra';
 import path from 'path';
 import {
@@ -15,18 +16,15 @@ import {
 describe('OperationLoader', () => {
     const logger = debugLogger('operation-loader');
     const assetId = '1234';
-    const testDir = path.join(__dirname, 'op_test');
-    const assetPath = path.join(testDir, assetId);
+    const tmpDir = createTempDirSync();
+    const assetPath = path.join(tmpDir, assetId);
     const terasliceOpPath = path.join(__dirname, '../../teraslice/lib');
     const processorPath = path.join(__dirname, '..', 'examples', 'asset', 'example-filter-op');
     const context = new TestContext('teraslice-op-loader');
 
     beforeAll(async () => {
-        await fse.ensureDir(testDir);
         await fse.copy(processorPath, path.join(assetPath, 'example-filter-op'));
     });
-
-    afterAll(() => fse.remove(testDir));
 
     it('can instantiate', () => {
         const opLoader = new OperationLoader({
@@ -102,7 +100,7 @@ describe('OperationLoader', () => {
     it('can load asset ops', async () => {
         const opLoader = new OperationLoader({
             terasliceOpPath,
-            assetPath: testDir,
+            assetPath: tmpDir,
         });
 
         const results = opLoader.load('example-filter-op', [assetId]) as LegacyProcessor;
