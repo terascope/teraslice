@@ -13,10 +13,12 @@ export default class JobHarness {
 
         const jobSchema = c.makeJobSchema(context);
         const executionConfig = c.validateJobConfig(jobSchema, job) as c.ExecutionConfig;
+
         this.executionContext = c.makeExecutionContext({
             context,
             executionConfig
         });
+
         this.context = this.executionContext.context;
 
         if (options.clients) {
@@ -38,9 +40,13 @@ export default class JobHarness {
         this.context.foundation.getConnection = this.getConnection.bind(this);
     }
 
-    async initialize() {
+    async initialize(retryData?: []) {
         this.clients = {};
-        await this.executionContext.initialize();
+        if (c.isSlicerExecutionContext(this.executionContext)) {
+            await this.executionContext.initialize(retryData);
+        } else {
+            await this.executionContext.initialize();
+        }
     }
 
     async createSlices({ fullResponse = false } = {}): Promise<c.SliceRequest[]|c.Slice[]> {
