@@ -116,7 +116,6 @@ module.exports = (cliConfig) => {
     async function start(action = 'start') {
         let jobs = [];
 
-        reply.green(cliConfig.job_id);
         // start job with job file
         if (!cliConfig.all_jobs) {
             await checkForId();

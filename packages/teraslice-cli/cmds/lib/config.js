@@ -106,7 +106,6 @@ module.exports = (cliConfig, command) => {
         if (command === 'aliases:add' || command === 'aliases:remove' || command === 'aliases:update') {
             cliConfig.cluster = cliConfig.deets.cluster;
             cliConfig.host = cliConfig.c;
-            cliConfig.cluster_manager_type = cliConfig.t;
         } else {
             if (cliConfig.status) {
                 cliConfig.statusList = _.split(cliConfig.status, ',');
@@ -118,7 +117,6 @@ module.exports = (cliConfig, command) => {
                 cliConfig.cluster = cliConfig.deets.cluster;
                 if (_.has(cliConfig.config.clusters, cliConfig.deets.cluster)) {
                     cliConfig.cluster_url = getClusterHost(cliConfig);
-                    cliConfig.cluster_manager_type = cliConfig.config.clusters[cliConfig.cluster].cluster_manager_type;
                 } else {
                     reply.fatal(`cluster alias ${cliConfig.deets.cluster} not defined`);
                 }
@@ -136,9 +134,6 @@ module.exports = (cliConfig, command) => {
                 cliConfig.state_file = path.join(cliConfig.d, `${cliConfig.cluster}-state.json`);
             } else {
                 cliConfig.state_file = path.join(cliConfig.config.paths.job_state_dir, `${cliConfig.cluster}-state.json`);
-            }
-            if (cliConfig.cluster_manager_type !== undefined) {
-                cliConfig.cluster_manager_type = cliConfig.config.clusters[cliConfig.cluster].cluster_manager_type;
             }
         }
     }
@@ -162,7 +157,7 @@ module.exports = (cliConfig, command) => {
         const configFile = `${configDir}/config-cli.yaml`;
         const defaultConfigData = {
             clusters:
-               { localhost: { host: 'http://localhost:5678', cluster_manager_type: 'native' } },
+               { localhost: { host: 'http://localhost:5678' } },
             paths: { job_state_dir: `${configDir}/job_state_files` }
         };
         if (!fs.existsSync(configDir)) {
