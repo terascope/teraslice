@@ -18,7 +18,7 @@ export default class DataEntity {
      * This will detect if passed an already converted input and return it.
      *
      * NOTE: `DataEntity.make` is different from using `new DataEntity`
-     * because it creates a `Proxy` instead of shallow cloning the object
+     * because it attaching it doesn't shallow cloning the object
      * onto the `DataEntity` instance, this is significatly faster and so it
      * is recommended to use this in production.
     */
@@ -69,9 +69,8 @@ export default class DataEntity {
             }
         });
 
-        const proxy = new Proxy(input, {});
-        _metadata.set(proxy, Object.assign({ createdAt: Date.now() }, metadata));
-        return proxy as DataEntity;
+        _metadata.set(input, Object.assign({ createdAt: Date.now() }, metadata));
+        return input as DataEntity;
     }
 
     /**
