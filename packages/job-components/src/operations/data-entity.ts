@@ -29,48 +29,40 @@ export default class DataEntity {
             throw new Error(`Invalid data source, must be an object, got "${kindOf(input)}"`);
         }
 
-        Object.defineProperties(input, {
+        const proxy = new Proxy(input, {
+            // @ts-ignore
+            getPrototypeOf(target) {
+                return DataEntity.prototype;
+            }
+        });
+
+        Object.defineProperties(proxy, {
             getMetadata: {
                 value(key?: string) {
-                    const metadata = _metadata.get(this) as DataEntityMetadata;
-                    if (key) {
-                        return metadata[key];
-                    }
-                    return metadata;
+                    return getMetadata(this, key);
                 },
                 enumerable: false,
                 writable: false
             },
             setMetadata: {
                 value(key: string, value: any) {
-                    const readonlyMetadataKeys: string[] = ['createdAt'];
-                    if (readonlyMetadataKeys.includes(key)) {
-                        throw new Error(`Cannot set readonly metadata property ${key}`);
-                    }
-
-                    const metadata = _metadata.get(this) as DataEntityMetadata;
-                    metadata[key] = value;
-                    _metadata.set(this, metadata);
+                    return setMetadata(this, key, value);
                 },
                 enumerable: false,
                 writable: false
             },
             toBuffer: {
-                value(config: EncodingConfig = {}) {
-                    const { _encoding = DataEncoding.JSON } = config;
-                    if (_encoding === DataEncoding.JSON) {
-                        return Buffer.from(JSON.stringify(this));
-                    }
-
-                    throw new Error(`Unsupported encoding type, got "${_encoding}"`);
+                value(opConfig: EncodingConfig = {}) {
+                    return toBuffer(this, opConfig);
                 },
                 enumerable: false,
                 writable: false
             }
         });
 
-        _metadata.set(input, Object.assign({ createdAt: Date.now() }, metadata));
-        return input as DataEntity;
+        const entity = proxy as DataEntity;
+        _metadata.set(entity, Object.assign({ createdAt: Date.now() }, metadata));
+        return entity as DataEntity;
     }
 
     /**
@@ -156,37 +148,49 @@ export default class DataEntity {
         fastAssign(this, data);
     }
 
-    getMetadata(key?: string): DataEntityMetadata|any {
-        const metadata = _metadata.get(this) as DataEntityMetadata;
-        if (key) {
-            return metadata[key];
-        }
-        return metadata;
+    getMetadata(key?: string) {
+        return getMetadata(this, key);
     }
 
-    setMetadata(key: string, value: any): void {
-        const readonlyMetadataKeys: string[] = ['createdAt'];
-        if (readonlyMetadataKeys.includes(key)) {
-            throw new Error(`Cannot set readonly metadata property ${key}`);
-        }
-
-        const metadata = _metadata.get(this) as DataEntityMetadata;
-        metadata[key] = value;
-        _metadata.set(this, metadata);
+    setMetadata(key: string, value: any) {
+        return setMetadata(this, key, value);
     }
 
     /**
      * Convert the DataEntity to an encoded buffer
      * @param opConfig The operation config used to get the encoding type of the buffer, defaults to "json"
     */
-    toBuffer(config: EncodingConfig = {}): Buffer {
-        const { _encoding = DataEncoding.JSON } = config;
-        if (_encoding === DataEncoding.JSON) {
-            return Buffer.from(JSON.stringify(this));
-        }
-
-        throw new Error(`Unsupported encoding type, got "${_encoding}"`);
+    toBuffer(opConfig: EncodingConfig = {}): Buffer {
+        return toBuffer(this, opConfig);
     }
+}
+
+function getMetadata(ctx: any, key?: string): DataEntityMetadata|any {
+    const metadata = _metadata.get(ctx) as DataEntityMetadata;
+    if (key) {
+        return metadata[key];
+    }
+    return metadata;
+}
+
+function setMetadata(ctx: any, key: string, value: string):void {
+    const readonlyMetadataKeys: string[] = ['createdAt'];
+    if (readonlyMetadataKeys.includes(key)) {
+        throw new Error(`Cannot set readonly metadata property ${key}`);
+    }
+
+    const metadata = _metadata.get(ctx) as DataEntityMetadata;
+    metadata[key] = value;
+    _metadata.set(ctx, metadata);
+}
+
+function toBuffer(ctx: any, opConfig: EncodingConfig): Buffer {
+    const { _encoding = DataEncoding.JSON } = opConfig;
+    if (_encoding === DataEncoding.JSON) {
+        return Buffer.from(JSON.stringify(ctx));
+    }
+
+    throw new Error(`Unsupported encoding type, got "${_encoding}"`);
 }
 
 /** an encoding focused interfaces */

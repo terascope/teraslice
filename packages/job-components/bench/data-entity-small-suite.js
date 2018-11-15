@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint-disable no-unused-expressions */
+
 const { Suite } = require('./helpers');
 const FakeDataEntity = require('./fixtures/fake-data-entity');
 const makeProxyEntity = require('./fixtures/proxy-entity');
@@ -19,6 +21,8 @@ const run = async () => Suite('DataEntity (small records)')
         fn() {
             let entity = Object.assign({}, data);
             entity.metadata = Object.assign({ createdAt: Date.now() });
+            entity.hello = Math.random();
+            entity.hello;
             entity = null;
             return entity;
         }
@@ -27,6 +31,8 @@ const run = async () => Suite('DataEntity (small records)')
         fn() {
             let entity = Object.assign({}, data);
             entity.metadata = Object.assign({}, metadata, { createdAt: Date.now() });
+            entity.hello = Math.random();
+            entity.hello;
             entity = null;
             return entity;
         }
@@ -34,6 +40,8 @@ const run = async () => Suite('DataEntity (small records)')
     .add('new FakeDataEntity', {
         fn() {
             let entity = new FakeDataEntity(data);
+            entity.hello = Math.random();
+            entity.hello;
             entity = null;
             return entity;
         }
@@ -41,6 +49,8 @@ const run = async () => Suite('DataEntity (small records)')
     .add('new FakeDataEntity metadata', {
         fn() {
             let entity = new FakeDataEntity(data, metadata);
+            entity.hello = Math.random();
+            entity.hello;
             entity = null;
             return entity;
         }
@@ -48,6 +58,8 @@ const run = async () => Suite('DataEntity (small records)')
     .add('new DataEntity', {
         fn() {
             let entity = new DataEntity(data);
+            entity.hello = Math.random();
+            entity.hello;
             entity = null;
             return entity;
         }
@@ -55,6 +67,8 @@ const run = async () => Suite('DataEntity (small records)')
     .add('new DataEntity with metadata', {
         fn() {
             let entity = new DataEntity(data, metadata);
+            entity.hello = Math.random();
+            entity.hello;
             entity = null;
             return entity;
         }
@@ -62,6 +76,8 @@ const run = async () => Suite('DataEntity (small records)')
     .add('DataEntity.make', {
         fn() {
             let entity = DataEntity.make(data);
+            entity.hello = Math.random();
+            entity.hello;
             entity = null;
             return entity;
         }
@@ -69,6 +85,8 @@ const run = async () => Suite('DataEntity (small records)')
     .add('DataEntity.make with metadata', {
         fn() {
             let entity = DataEntity.make(data, metadata);
+            entity.hello = Math.random();
+            entity.hello;
             entity = null;
             return entity;
         }
@@ -76,6 +94,8 @@ const run = async () => Suite('DataEntity (small records)')
     .add('new proxy entity', {
         fn() {
             let entity = makeProxyEntity(data);
+            entity.hello = Math.random();
+            entity.hello;
             entity = null;
             return entity;
         }
@@ -83,6 +103,8 @@ const run = async () => Suite('DataEntity (small records)')
     .add('new proxy entity with metadata', {
         fn() {
             let entity = makeProxyEntity(data, metadata);
+            entity.hello = Math.random();
+            entity.hello;
             entity = null;
             return entity;
         }
