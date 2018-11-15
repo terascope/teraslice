@@ -9,7 +9,7 @@ import { convertResult } from './shim-utils';
 
 export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule {
     return {
-        Slicer: class LegacySlicerShim extends ParallelSlicer  {
+        Slicer: class LegacySlicerShim<T = object> extends ParallelSlicer<T>  {
             private _maxQueueLength = 10000;
             private _dynamicQueueLength = false;
             private slicerFns: SlicerFns|undefined;
@@ -54,7 +54,7 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
                 return this._maxQueueLength;
             }
         },
-        Fetcher: class LegacyFetcherShim extends FetcherCore {
+        Fetcher: class LegacyFetcherShim<T = object> extends FetcherCore<T> {
             private fetcherFn: ReaderFn<DataEntity[]>|undefined;
 
             async initialize() {

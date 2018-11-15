@@ -133,7 +133,7 @@ export function flatten<T>(val: Many<T[]>): T[] {
 interface Many<T> extends Array<T> {
 }
 
-/** A decorator for locking down a property or method */
+/** A decorator for locking down a method */
 export function locked() {
     // @ts-ignore
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
@@ -143,8 +143,8 @@ export function locked() {
     };
 }
 
-/** A decorator for making a property, or method enumerable */
-export function enumerable(enabled: boolean) {
+/** A decorator for making a method enumerable or none-enumerable */
+export function enumerable(enabled = true) {
     // @ts-ignore
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         descriptor.enumerable = enabled;

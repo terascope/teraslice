@@ -39,13 +39,14 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
     readonly assetIds: string[] = [];
 
     /** The instance of a "Slicer" */
-    readonly slicer: SlicerCore;
+    readonly slicer: SlicerCore<object>;
 
     readonly exId: string;
     readonly jobId: string;
 
     /** The terafoundation EventEmitter */
-    private events: EventEmitter;
+    readonly events: EventEmitter;
+
     private _handlers: EventHandlers = {};
 
     private _methodRegistry: SlicerMethodRegistry = {

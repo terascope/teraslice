@@ -1,8 +1,7 @@
-'use strict';
-
-const { TestContext, newTestExecutionConfig } = require('@terascope/job-components');
-const Delay = require('../../lib/processors/delay/processor');
-const Schema = require('../../lib/processors/delay/schema');
+import 'jest-extended';
+import { TestContext, newTestExecutionConfig, WorkerContext, DataEntity } from '../../src';
+import Delay from '../../src/builtin/delay/processor';
+import Schema from '../../src/builtin/delay/schema';
 
 describe('Delay Processor', () => {
     const context = new TestContext('delay');
@@ -10,7 +9,7 @@ describe('Delay Processor', () => {
     const exConfig = newTestExecutionConfig();
 
     const delay = new Delay(
-        context,
+        context as WorkerContext,
         opConfig,
         exConfig
     );
@@ -29,11 +28,12 @@ describe('Delay Processor', () => {
 
     it('should delay at least 100ms', async () => {
         const startTime = Date.now();
-        await delay.handle([]);
-        expect(Date.now() - startTime).toBeGreaterThanOrEqual(100);
+        await delay.handle([new DataEntity({ hi: true })]);
+        expect(Date.now() - startTime).toBeGreaterThanOrEqual(98);
     });
 
     it('should be use a custom delay', async () => {
+        // @ts-ignore
         delay.opConfig.ms = 150;
 
         const startTime = Date.now();

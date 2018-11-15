@@ -6,7 +6,7 @@ import SlicerCore from './core/slicer-core';
  * @see SlicerCore
  */
 
-export default abstract class Slicer extends SlicerCore {
+export default abstract class Slicer<T> extends SlicerCore<T> {
     /**
      * @private
     */

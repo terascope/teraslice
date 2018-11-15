@@ -10,7 +10,7 @@ import { SliceRequest } from '../../interfaces';
  * @see OperationCore
  */
 
-export default abstract class ProcessorCore extends OperationCore {
+export default abstract class ProcessorCore<T> extends OperationCore<T> {
     /**
     * A generic method called by the Teraslice framework to a give a "Processor"
     * the ability to handle the input and output of operation

@@ -5,7 +5,7 @@ import FetcherCore from './core/fetcher-core';
  * The simpliest varient of "Fetcher"
  */
 
-export default abstract class Fetcher extends FetcherCore {
+export default abstract class Fetcher<T> extends FetcherCore<T> {
     /**
      * A method called by {@link Fetcher#handle}
      * @returns a DataEntity compatible array

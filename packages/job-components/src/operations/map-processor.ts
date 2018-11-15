@@ -6,7 +6,7 @@ import ProcessorCore from './core/processor-core';
  * This processor should return a modified DataEntity.
  */
 
-export default abstract class MapProcessor extends ProcessorCore {
+export default abstract class MapProcessor<T> extends ProcessorCore<T> {
     /**
     * Called by {@link Processor#handle} and will handle single {@link DataEntity}
     * @returns a DataEntity

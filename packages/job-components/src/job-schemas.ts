@@ -184,6 +184,8 @@ export function jobSchema(context: Context): convict.Schema<any> {
     return schemas;
 }
 
+export const makeJobSchema = jobSchema;
+
 export const opSchema: convict.Schema<any> = {
     _op: {
         default: '',

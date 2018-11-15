@@ -1,8 +1,7 @@
-'use strict';
+import { DelayConfig } from './interfaces';
+import { ConvictSchema } from '../../operations';
 
-const { ConvictSchema } = require('@terascope/job-components');
-
-class Schema extends ConvictSchema {
+export default class Schema extends ConvictSchema<DelayConfig> {
     build() {
         return {
             ms: {
@@ -13,5 +12,3 @@ class Schema extends ConvictSchema {
         };
     }
 }
-
-module.exports = Schema;

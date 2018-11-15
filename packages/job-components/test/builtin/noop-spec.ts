@@ -1,8 +1,7 @@
-'use strict';
-
-const { TestContext, newTestExecutionConfig } = require('@terascope/job-components');
-const Noop = require('../../lib/processors/noop/processor');
-const Schema = require('../../lib/processors/noop/schema');
+import 'jest-extended';
+import { TestContext, newTestExecutionConfig, WorkerContext, DataEntity } from '../../src';
+import Noop from '../../src/builtin/noop/processor';
+import Schema from '../../src/builtin/noop/schema';
 
 describe('Noop Processor', () => {
     const context = new TestContext('noop');
@@ -10,7 +9,7 @@ describe('Noop Processor', () => {
     const exConfig = newTestExecutionConfig();
 
     const noop = new Noop(
-        context,
+        context as WorkerContext,
         opConfig,
         exConfig
     );
@@ -28,19 +27,18 @@ describe('Noop Processor', () => {
     });
 
     it('should not mutate the data when given an empty array', () => {
-        const input = [];
+        const input = [
+            new DataEntity({ hi: true }),
+        ];
         return expect(noop.onBatch(input)).resolves.toBe(input);
     });
 
     it('should not mutate the data when given an simple array', () => {
         const input = [
-            { a: 1 },
-            { a: 2 },
-            { a: 3 }
+            new DataEntity({ a: 1 }),
+            new DataEntity({ a: 2 }),
+            new DataEntity({ a: 3 })
         ];
         return expect(noop.onBatch(input)).resolves.toBe(input);
     });
-});
-
-describe('The data remains unchanged when', () => {
 });

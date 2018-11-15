@@ -6,7 +6,7 @@ import ProcessorCore from './core/processor-core';
  * This processor should have zero side-effects on the data.
  */
 
-export default abstract class EachProcessor extends ProcessorCore {
+export default abstract class EachProcessor<T> extends ProcessorCore<T> {
     /**
     * Called by {@link Processor#handle} and will handle single {@link DataEntity}
     * @returns void in order to avoid side-effects

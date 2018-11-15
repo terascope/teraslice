@@ -8,7 +8,7 @@ import {
 } from '../../src';
 
 describe('Slicer', () => {
-    class ExampleSlicer extends Slicer {
+    class ExampleSlicer<T = object> extends Slicer<T> {
         calls = 0;
         subslice = false;
 
