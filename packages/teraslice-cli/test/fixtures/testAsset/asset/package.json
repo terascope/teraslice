@@ -1,0 +1,8 @@
+{
+    "name": "testAsset",
+    "version": "0.0.1",
+    "description": "testAsset",
+    "main": "index.js",
+    "author": "",
+    "dependencies": {}
+}
