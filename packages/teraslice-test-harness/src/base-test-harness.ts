@@ -17,6 +17,9 @@ import {
     TestMode
 } from './interfaces';
 
+/**
+ * A base class for the Slicer and Worker TestHarnesses
+*/
 export default abstract class BaseTestHarness {
     protected abstract executionContext: ExecutionContext;
     protected abstract context: Context;
@@ -28,6 +31,10 @@ export default abstract class BaseTestHarness {
         this.testMode = testMode;
     }
 
+    /**
+     * Set Terafoundation Connector clients
+     * so they can be accessed from with in the pipeline
+    */
     async setClients(clients: Client[] = []) {
         clients.forEach((clientConfig) => {
             const { client, type, endpoint = 'default' } = clientConfig;
@@ -42,9 +49,15 @@ export default abstract class BaseTestHarness {
         this.context.foundation.getConnection = this._getConnection.bind(this);
     }
 
+    /**
+     * Initialize any test code
+    */
     async initialize() {
     }
 
+    /**
+     * Cleanup test code
+    */
     async shutdown() {
         this.clients = {};
     }
@@ -68,5 +81,4 @@ export default abstract class BaseTestHarness {
         if (!client) throw new Error(`No client was found at type ${type}, endpoint: ${endpoint}`);
         return { client };
     }
-
 }
