@@ -2,7 +2,7 @@ import 'jest-extended'; // require for type definitions
 import { Fetcher, DataEntity, newTestExecutionConfig, TestContext, WorkerContext } from '../../src';
 
 describe('Fetcher', () => {
-    class ExampleFetcher extends Fetcher {
+    class ExampleFetcher extends Fetcher<object> {
         public async fetch(): Promise<DataEntity[]> {
             return [
                 new DataEntity({ hi: true })

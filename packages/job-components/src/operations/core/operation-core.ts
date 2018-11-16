@@ -16,10 +16,10 @@ import {
  * @see Core
  */
 
-export default class OperationCore extends Core implements WorkerOperationLifeCycle {
-    protected readonly opConfig: Readonly<OpConfig>;
+export default class OperationCore<T> extends Core implements WorkerOperationLifeCycle {
+    protected readonly opConfig: Readonly<OpConfig & T>;
 
-    constructor(context: WorkerContext, opConfig: OpConfig, executionConfig: ExecutionConfig) {
+    constructor(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {
         const logger = context.apis.foundation.makeLogger({
             module: 'operation',
             opName: opConfig._op,

@@ -7,7 +7,7 @@ import OperationCore from './operation-core';
  * @see OperationCore
  */
 
-export default abstract class FetcherCore extends OperationCore {
+export default abstract class FetcherCore<T> extends OperationCore<T> {
     /**
     * A generic method called by the Teraslice framework to a give a "Fetcher"
     * the ability to handle the fetch operation

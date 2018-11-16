@@ -12,7 +12,6 @@ module.exports = (cliConfig) => {
         // TODO, move to config??
         if (_.has(cliConfig.job_file_content, '__metadata.cli.cluster') && !cliConfig.m) {
             cliConfig.cluster = cliConfig.job_file_content.__metadata.cli.cluster;
-            return;
         }
     }
 
@@ -32,10 +31,8 @@ module.exports = (cliConfig) => {
 
         try {
             jobContents = require(jobFilePath);
-
         } catch (err) {
-            console.log(err);
-            reply.fatal(`Error reading JSON file: ${fName}`);
+            reply.fatal(`Error reading JSON file: ${fName}: ${err.stack}`);
         }
 
         if (_.isEmpty(jobContents)) {

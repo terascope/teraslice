@@ -8,7 +8,7 @@ import {
 } from '../../src';
 
 describe('ParallelSlicer', () => {
-    class ExampleParallelSlicer extends ParallelSlicer {
+    class ExampleParallelSlicer<T = object> extends ParallelSlicer<T> {
         subslice = false;
         newSlicerCalled = 0;
         public async newSlicer(): Promise<SlicerFn> {

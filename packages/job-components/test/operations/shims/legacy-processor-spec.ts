@@ -11,14 +11,14 @@ import {
 } from '../../../src';
 
 describe('Legacy Processor Shim', () => {
-    class ExampleProcessor extends MapProcessor {
+    class ExampleProcessor<T = object> extends MapProcessor<T> {
         map(data: DataEntity) {
             data.name = 'hello';
             return data;
         }
     }
 
-    class ExampleBatchProcessor extends BatchProcessor {
+    class ExampleBatchProcessor<T = object> extends BatchProcessor<T> {
         async onBatch(data: DataEntity[]) {
             return data.map((d) => {
                 d.name = 'hello';

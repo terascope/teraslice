@@ -13,7 +13,7 @@ import {
 } from '../../../src';
 
 describe('Legacy Reader Shim', () => {
-    class ExampleParallelSlicer extends ParallelSlicer {
+    class ExampleParallelSlicer<T = object> extends ParallelSlicer<T> {
         async newSlicer() {
             return async () => ({
                 hello: true
@@ -23,7 +23,7 @@ describe('Legacy Reader Shim', () => {
 
     const slicerShutdown = jest.fn();
 
-    class ExampleSlicer extends Slicer {
+    class ExampleSlicer<T = object> extends Slicer<T> {
         async slice() {
             return {
                 hello: true
@@ -35,7 +35,7 @@ describe('Legacy Reader Shim', () => {
         }
     }
 
-    class ExampleFetcher extends Fetcher {
+    class ExampleFetcher<T = object> extends Fetcher<T> {
         async fetch() {
             return [
                 {

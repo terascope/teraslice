@@ -16,7 +16,7 @@ describe('OperationCore', () => {
         }
     }
 
-    let operation: OperationCore;
+    let operation: OperationCore<object>;
 
     beforeAll(() => {
         const context = new TestContext('teraslice-operations');

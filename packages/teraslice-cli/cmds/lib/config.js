@@ -65,7 +65,8 @@ module.exports = (cliConfig, command) => {
                 cliConfig.cluster = cliConfig.deets.cluster;
                 if (_.has(cliConfig.config.clusters, cliConfig.deets.cluster)) {
                     cliConfig.cluster_url = getClusterHost(cliConfig);
-                    cliConfig.cluster_manager_type = cliConfig.config.clusters[cliConfig.cluster].cluster_manager_type;
+                    const type = cliConfig.config.clusters[cliConfig.cluster].cluster_manager_type;
+                    cliConfig.cluster_manager_type = type;
                 } else {
                     reply.fatal(`cluster alias ${cliConfig.deets.cluster} not defined`);
                 }
@@ -87,7 +88,8 @@ module.exports = (cliConfig, command) => {
                 cliConfig.cluster = cliConfig.deets.cluster;
                 if (_.has(cliConfig.config.clusters, cliConfig.deets.cluster)) {
                     cliConfig.cluster_url = getClusterHost(cliConfig);
-                    cliConfig.cluster_manager_type = cliConfig.config.clusters[cliConfig.cluster].cluster_manager_type;
+                    const type = cliConfig.config.clusters[cliConfig.cluster].cluster_manager_type;
+                    cliConfig.cluster_manager_type = type;
                 } else {
                     reply.fatal(`cluster alias ${cliConfig.deets.cluster} not defined`);
                 }
@@ -107,7 +109,8 @@ module.exports = (cliConfig, command) => {
                 cliConfig.state_file = path.join(cliConfig.config.paths.job_state_dir, `${cliConfig.cluster}-state.json`);
             }
             if (cliConfig.cluster_manager_type !== undefined) {
-                cliConfig.cluster_manager_type = cliConfig.config.clusters[cliConfig.cluster].cluster_manager_type;
+                const type = cliConfig.config.clusters[cliConfig.cluster].cluster_manager_type;
+                cliConfig.cluster_manager_type = type;
             }
         }
     }

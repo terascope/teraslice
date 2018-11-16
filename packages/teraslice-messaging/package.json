@@ -1,6 +1,6 @@
 {
     "name": "@terascope/teraslice-messaging",
-    "version": "0.2.4",
+    "version": "0.2.5",
     "publishConfig": {
         "access": "public"
     },
@@ -47,7 +47,7 @@
     },
     "devDependencies": {
         "@types/jest": "^23.3.8",
-        "@types/node": "^10.12.3",
+        "@types/node": "^10.12.9",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "jest": "^23.6.0",
