@@ -22,3 +22,10 @@ export interface Client {
 export interface Clients {
     [prop: string]: Client;
 }
+
+export enum TestMode {
+    Worker = 'worker',
+    Slicer = 'slicer',
+    Job = 'job',
+    None = 'none'
+}

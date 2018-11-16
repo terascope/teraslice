@@ -2,22 +2,21 @@ import {
     WorkerExecutionContext,
     WorkerContext,
     JobConfig,
-    Assignment,
     Slice,
     DataEntity,
     RunSliceResult,
 } from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness';
-import { JobHarnessOptions } from './interfaces';
+import { JobHarnessOptions, TestMode } from './interfaces';
 
 export default class WorkerTestHarness extends BaseTestHarness {
     protected executionContext: WorkerExecutionContext;
     protected context: WorkerContext;
 
     constructor(job: JobConfig, options: JobHarnessOptions) {
-        super();
+        super(TestMode.Worker);
 
-        const config = this.makeContextConfig(job, Assignment.Worker);
+        const config = this.makeContextConfig(job);
         this.executionContext = new WorkerExecutionContext(config);
         this.context = this.executionContext.context;
 

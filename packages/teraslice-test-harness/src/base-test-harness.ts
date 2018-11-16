@@ -6,21 +6,27 @@ import {
     ConnectionConfig,
     JobConfig,
     validateJobConfig,
-    Assignment,
     ExecutionContextConfig,
+    Assignment,
 } from '@terascope/job-components';
 import {
     ExecutionContext,
     Context,
     Client,
-    Clients
+    Clients,
+    TestMode
 } from './interfaces';
 
 export default abstract class BaseTestHarness {
     protected abstract executionContext: ExecutionContext;
     protected abstract context: Context;
 
+    private testMode: TestMode;
     private clients: Clients = {};
+
+    constructor(testMode: TestMode) {
+        this.testMode = testMode;
+    }
 
     async setClients(clients: Client[] = []) {
         clients.forEach((clientConfig) => {
@@ -43,9 +49,10 @@ export default abstract class BaseTestHarness {
         this.clients = {};
     }
 
-    protected makeContextConfig(job: JobConfig, assignment: Assignment): ExecutionContextConfig {
-        const context = new TestContext(`job-harness:${job.name}`);
-        context.assignment = assignment;
+    protected makeContextConfig(job: JobConfig): ExecutionContextConfig {
+        const isSlicer = this.testMode === TestMode.Slicer;
+        const context = new TestContext(`${this.testMode}-test:${job.name}`);
+        context.assignment = isSlicer ? Assignment.ExecutionController : Assignment.Worker;
 
         const jobSchema = makeJobSchema(context);
         const executionConfig = validateJobConfig(jobSchema, job) as ExecutionConfig;

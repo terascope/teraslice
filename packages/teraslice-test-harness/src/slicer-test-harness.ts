@@ -3,21 +3,20 @@ import {
     SlicerExecutionContext,
     SlicerContext,
     JobConfig,
-    Assignment,
     Slice,
     SliceRequest,
 } from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness';
-import { JobHarnessOptions } from './interfaces';
+import { JobHarnessOptions, TestMode } from './interfaces';
 
 export default class SlicerTestHarness extends BaseTestHarness {
     protected executionContext: SlicerExecutionContext;
     protected context: SlicerContext;
 
     constructor(job: JobConfig, options: JobHarnessOptions) {
-        super();
+        super(TestMode.Slicer);
 
-        const config = this.makeContextConfig(job, Assignment.ExecutionController);
+        const config = this.makeContextConfig(job);
         this.executionContext = new SlicerExecutionContext(config);
         this.context = this.executionContext.context;
 
