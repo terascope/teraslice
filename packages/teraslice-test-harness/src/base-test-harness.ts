@@ -1,4 +1,4 @@
-import { set } from 'lodash';
+import { set, get } from 'lodash';
 import {
     ExecutionConfig,
     makeJobSchema,
@@ -13,9 +13,11 @@ import {
     ExecutionContext,
     Context,
     Client,
-    Clients,
-    TestMode
+    ClientFactoryFns,
+    CachedClients,
+    TestMode,
 } from './interfaces';
+import { resolveAssetDir } from './utils';
 
 /**
  * A base class for the Slicer and Worker TestHarnesses
@@ -25,7 +27,8 @@ export default abstract class BaseTestHarness {
     protected abstract context: Context;
 
     private testMode: TestMode;
-    private clients: Clients = {};
+    private clients: ClientFactoryFns = {};
+    private cachedClients: CachedClients = {};
 
     constructor(testMode: TestMode) {
         this.testMode = testMode;
@@ -37,12 +40,12 @@ export default abstract class BaseTestHarness {
     */
     async setClients(clients: Client[] = []) {
         clients.forEach((clientConfig) => {
-            const { client, type, endpoint = 'default' } = clientConfig;
+            const { create, type, endpoint = 'default', config = {} } = clientConfig;
 
             if (!type || (typeof type !== 'string')) throw new Error('you must specify a type when setting a client');
 
-            this.clients[`${type}:${endpoint}`] = client;
-            set(this.context, ['sysconfig', 'terafoundation', 'connectors', type, endpoint], {});
+            this.clients[`${type}:${endpoint}`] = create;
+            set(this.context, ['sysconfig', 'terafoundation', 'connectors', type, endpoint], config);
         });
 
         this.context.apis.foundation.getConnection = this._getConnection.bind(this);
@@ -53,6 +56,7 @@ export default abstract class BaseTestHarness {
      * Initialize any test code
     */
     async initialize() {
+        this.cachedClients = {};
     }
 
     /**
@@ -60,25 +64,44 @@ export default abstract class BaseTestHarness {
     */
     async shutdown() {
         this.clients = {};
+        this.cachedClients = {};
     }
 
-    protected makeContextConfig(job: JobConfig): ExecutionContextConfig {
+    protected makeContextConfig(job: JobConfig, assetDir: string = process.cwd()): ExecutionContextConfig {
+        const resolvedAssetDir = resolveAssetDir(assetDir);
         const isSlicer = this.testMode === TestMode.Slicer;
         const context = new TestContext(`${this.testMode}-test:${job.name}`);
         context.assignment = isSlicer ? Assignment.ExecutionController : Assignment.Worker;
+        context.sysconfig.teraslice.assets_directory = resolvedAssetDir;
 
         const jobSchema = makeJobSchema(context);
         const executionConfig = validateJobConfig(jobSchema, job) as ExecutionConfig;
         return {
             context,
             executionConfig,
+            assetIds: ['.']
         };
     }
 
-    private _getConnection(config: ConnectionConfig) {
-        const { type, endpoint } = config;
-        const client = this.clients[`${type}:${endpoint}`];
-        if (!client) throw new Error(`No client was found at type ${type}, endpoint: ${endpoint}`);
+    private _getConnection(options: ConnectionConfig): { client: any } {
+        const { type, endpoint, cached } = options;
+
+        const key = `${type}:${endpoint}`;
+        if (cached && this.cachedClients[key] != null) {
+            return {
+                client: this.cachedClients[key]
+            };
+        }
+
+        const create = this.clients[key];
+        if (!create) throw new Error(`No client was found at type ${type}, endpoint: ${endpoint}`);
+        if (typeof create !== 'function') throw new Error(`Client for type ${type}:${endpoint} is not a function`);
+
+        const config = get(this.context, ['sysconfig', 'terafoundation', 'connectors', type, endpoint], {});
+
+        const client = create(config, this.context.logger, options);
+        this.cachedClients[key] = client;
+
         return { client };
     }
 }

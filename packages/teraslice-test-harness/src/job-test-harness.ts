@@ -30,11 +30,11 @@ export default class JobTestHarness {
     /**
      * Initialize the Operations in both of the Slicer
      * and Worker contexts.
-     * @param retryData is an array of recovery data
+     * @param recoveryData is an array of starting points to recover from
      * the retry data is only passed to slicer
     */
-    async initialize(retryData?: []) {
-        await this.slicer.initialize(retryData);
+    async initialize(recoveryData?: object[]) {
+        await this.slicer.initialize(recoveryData);
         await this.worker.initialize();
     }
 

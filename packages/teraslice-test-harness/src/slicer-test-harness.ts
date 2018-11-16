@@ -24,7 +24,7 @@ export default class SlicerTestHarness extends BaseTestHarness {
     constructor(job: JobConfig, options: JobHarnessOptions) {
         super(TestMode.Slicer);
 
-        const config = this.makeContextConfig(job);
+        const config = this.makeContextConfig(job, options.assetDir);
         this.executionContext = new SlicerExecutionContext(config);
         this.context = this.executionContext.context;
 
@@ -33,11 +33,11 @@ export default class SlicerTestHarness extends BaseTestHarness {
 
     /**
      * Initialize the Operations on the ExecutionContext
-     * @param retryData is an array of recovery data
+     * @param recoveryData is an array of starting points to recover from
     */
-    async initialize(retryData?: []) {
+    async initialize(recoveryData?: object[]) {
         await super.initialize();
-        await this.executionContext.initialize(retryData);
+        await this.executionContext.initialize(recoveryData);
     }
 
     /**

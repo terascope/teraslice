@@ -1,4 +1,5 @@
 import 'jest-extended';
+import path from 'path';
 import {
     newTestJobConfig,
     SliceRequest,
@@ -10,11 +11,11 @@ describe('SlicerTestHarness', () => {
     const clients = [
         {
             type: 'example',
-            client: {
+            create: () => ({
                 say() {
                     return 'hello';
                 }
-            }
+            })
         }
     ];
     describe('when given a valid job config', () => {
@@ -30,7 +31,7 @@ describe('SlicerTestHarness', () => {
         ];
 
         const jobHarness = new SlicerTestHarness(job, {
-            assetDir: __dirname,
+            assetDir: path.join(__dirname, 'fixtures'),
             clients,
         });
 

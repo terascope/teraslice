@@ -1,4 +1,5 @@
 import 'jest-extended';
+import path from 'path';
 import { newTestJobConfig, DataEntity } from '@terascope/job-components';
 import { JobTestHarness } from '../src';
 
@@ -6,11 +7,11 @@ describe('JobTestHarness', () => {
     const clients = [
         {
             type: 'example',
-            client: {
+            create: () => ({
                 say() {
                     return 'hello';
                 }
-            }
+            })
         }
     ];
 
@@ -27,7 +28,7 @@ describe('JobTestHarness', () => {
         ];
 
         const jobHarness = new JobTestHarness(job, {
-            assetDir: __dirname,
+            assetDir: path.join(__dirname, 'fixtures'),
             clients,
         });
 

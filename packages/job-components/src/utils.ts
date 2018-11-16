@@ -60,6 +60,13 @@ export function getFirst<T>(input: T|T[]): T {
     return Array.isArray(input) ? input[0] : input;
 }
 
+export function parseError(input: any, withStack = false) {
+    if (!input) return 'Unknown Error Occurred';
+    if (isString(input)) return input;
+    if (withStack && input.stack) return input.stack;
+    return toString(input).replace(/^Error:/, '');
+}
+
 /**
  * Perform a shallow clone of an object to another, in the fastest way possible
 */

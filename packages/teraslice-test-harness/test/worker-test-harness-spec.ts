@@ -1,4 +1,5 @@
 import 'jest-extended';
+import path from 'path';
 import {
     newTestJobConfig,
     newTestSlice,
@@ -11,11 +12,11 @@ describe('WorkerTestHarness', () => {
     const clients = [
         {
             type: 'example',
-            client: {
+            create: () => ({
                 say() {
                     return 'hello';
                 }
-            }
+            })
         }
     ];
 
@@ -32,7 +33,7 @@ describe('WorkerTestHarness', () => {
         ];
 
         const jobHarness = new WorkerTestHarness(job, {
-            assetDir: __dirname,
+            assetDir: path.join(__dirname, 'fixtures'),
             clients
         });
 

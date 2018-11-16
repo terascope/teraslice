@@ -23,7 +23,7 @@ export default class WorkerTestHarness extends BaseTestHarness {
     constructor(job: JobConfig, options: JobHarnessOptions) {
         super(TestMode.Worker);
 
-        const config = this.makeContextConfig(job);
+        const config = this.makeContextConfig(job, options.assetDir);
         this.executionContext = new WorkerExecutionContext(config);
         this.context = this.executionContext.context;
 
