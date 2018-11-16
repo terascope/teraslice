@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-const path = require('path');
 const reply = require('./reply')();
 
 module.exports = (cliConfig) => {
@@ -37,7 +36,8 @@ module.exports = (cliConfig) => {
         let registered = false;
         const jobContents = cliConfig.job_file_content;
         if (_.has(jobContents, '__metadata.cli.cluster')) {
-            const jobSpec = await terasliceClient.jobs.wrap(jobContents.__metadata.cli.job_id).config();
+            const jobId = jobContents.__metadata.cli.job_id;
+            const jobSpec = await terasliceClient.jobs.wrap(jobId).config();
             if (jobSpec.job_id === jobContents.__metadata.cli.job_id) {
                 // return true for testing purposes
                 reply.green(`${jobSpec.job_id} is registered`);

@@ -52,12 +52,10 @@ module.exports = () => {
             } else if (_.endsWith(handArray[pos], '.json')) {
                 _.set(hand, 'file', handArray[pos]);
             }
+        } else if (_.endsWith(str, '.json')) {
+            hand.file = str;
         } else {
-            if (_.endsWith(str, '.json')) {
-                hand.file = str;
-            } else {
-                hand.cluster = str;
-            }
+            hand.cluster = str;
         }
         return hand;
     }
