@@ -1,5 +1,7 @@
 'use strict';
+
 const { DocumentMatcher } = require('../src');
+const _ = require('lodash');
 
 describe('document matcher', () => {
     let documentMatcher;
@@ -21,6 +23,33 @@ describe('document matcher', () => {
             expect(documentMatcher.match(badData)).toEqual(false);
             expect(documentMatcher.match(badData2)).toEqual(false);
             expect(documentMatcher.match(badData3)).toEqual(false);
+        });
+
+        it('can match boolean terms', () => {
+            const data1 = { bool: false };
+            const data2 = { bool: true };
+            const data3 = { bool: 'false' };
+            const data4= { bool: 'true' };
+            const data5 = { something: 'else' };
+            const data6 = {};
+
+            documentMatcher.parse('bool:false');
+
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(false);
+            expect(documentMatcher.match(data3)).toEqual(false);
+            expect(documentMatcher.match(data4)).toEqual(false);
+            expect(documentMatcher.match(data5)).toEqual(false);
+            expect(documentMatcher.match(data6)).toEqual(false);
+
+            documentMatcher.parse('bool:true');
+
+            expect(documentMatcher.match(data1)).toEqual(false);
+            expect(documentMatcher.match(data2)).toEqual(true);
+            expect(documentMatcher.match(data3)).toEqual(false);
+            expect(documentMatcher.match(data4)).toEqual(false);
+            expect(documentMatcher.match(data5)).toEqual(false);
+            expect(documentMatcher.match(data6)).toEqual(false);
         });
 
         it('can handle "&& AND" operators', () => {
@@ -62,7 +91,7 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data3)).toEqual(false);
             expect(documentMatcher.match(data4)).toEqual(false);
 
-            documentMatcher.parse('some:data AND NOT other:stuff');
+            documentMatcher.parse('some:data ! other:stuff');
 
             expect(documentMatcher.match(data1)).toEqual(true);
             expect(documentMatcher.match(data2)).toEqual(false);
@@ -77,6 +106,13 @@ describe('document matcher', () => {
             const data4 = { some: 'data', other: 'stuff' };
 
             documentMatcher.parse('some:data AND NOT other:stuff');
+
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(true);
+            expect(documentMatcher.match(data3)).toEqual(false);
+            expect(documentMatcher.match(data4)).toEqual(false);
+
+            documentMatcher.parse('some:data AND ! other:stuff');
 
             expect(documentMatcher.match(data1)).toEqual(true);
             expect(documentMatcher.match(data2)).toEqual(true);
@@ -98,6 +134,13 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data4)).toEqual(false);
 
              documentMatcher.parse('some:data AND NOT other:stuff AND NOT bytes:1234');
+
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(true);
+            expect(documentMatcher.match(data3)).toEqual(true);
+            expect(documentMatcher.match(data4)).toEqual(false);
+
+            documentMatcher.parse('some:data AND ! other:stuff AND ! bytes:1234');
 
             expect(documentMatcher.match(data1)).toEqual(true);
             expect(documentMatcher.match(data2)).toEqual(true);
@@ -153,6 +196,14 @@ describe('document matcher', () => {
             const data3 = { age: 8100 };
             const data4 = { other: 33 };
             const data5 = { age: 10 };
+
+            documentMatcher.parse('age:>0');
+
+            expect(documentMatcher.match(data)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(true);
+            expect(documentMatcher.match(data3)).toEqual(true);
+            expect(documentMatcher.match(data4)).toEqual(false);
+            expect(documentMatcher.match(data5)).toEqual(true);
 
             documentMatcher.parse('age:>10');
 
@@ -248,6 +299,15 @@ describe('document matcher', () => {
             const data4 = { age: 20 };
             const data5 = { age: 50 };
             const data6 = { age: 100 };
+
+            documentMatcher.parse('age:[0 TO *]');
+
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(true);
+            expect(documentMatcher.match(data3)).toEqual(true);
+            expect(documentMatcher.match(data4)).toEqual(true);
+            expect(documentMatcher.match(data5)).toEqual(true);
+            expect(documentMatcher.match(data6)).toEqual(true);
 
             documentMatcher.parse('age:[10 TO 20]');
 
@@ -352,6 +412,7 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data2)).toEqual(true);
             expect(documentMatcher.match(data3)).toEqual(false);
             expect(documentMatcher.match(data4)).toEqual(false);
+
            // TODO: test cidrs that intersect from both ways
 
             documentMatcher.parse('ipfield:1:2:3:4:5:6:7:8', { ipfield: 'ip' });
@@ -635,6 +696,36 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data2)).toEqual(false);
         });
 
+        it('can do basic matches with funky spaces', () => {
+            const data1 = { location: '33.435967,  -111.867710 ' };
+            const data2 = { location: '22.435967,-150.867710' };
+
+            documentMatcher.parse('location:(_geo_box_top_left_:" 33.906320,  -112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")', { location: 'geo' });
+
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(false);
+
+            documentMatcher.parse('location:( _geo_point_:"33.435518,    -111.873616" _geo_distance_: 5000m   )', { location: 'geo' });
+
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(false);
+        });
+
+        it('can do basic matches with non string based geo points', () => {
+            const data1 = { location: { lat: '33.435967', lon: '-111.867710' } };
+            const data2 = { location: { latitude: '33.435967', longitude: '-111.867710' } };
+            const data3 = { location: [33.435967, -111.867710] };
+            // this is a geohash below
+            const data4 = { location: '9tbqnqu6tkj8' };
+
+            documentMatcher.parse('location:(_geo_box_top_left_:" 33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")', { location: 'geo' });
+           
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(true);
+            expect(documentMatcher.match(data3)).toEqual(true);
+            expect(documentMatcher.match(data4)).toEqual(true);
+        });
+
         it('can do complicated matches', () => {
             const data1 = { location: '33.435967,-111.867710', some: 'key', bytes: 123432 };
             const data2 = { location: '22.435967,-150.867710', other: 'key', bytes: 123432 };
@@ -822,6 +913,30 @@ describe('document matcher', () => {
     });
 
     describe('works properly with chaotic/crazy data/queries', () => {
+
+        it('does not mutate orignal data', () => {
+            const data1 = {
+                key : 'abbccc',
+                ipfield: '192.198.0.0/30',
+                location: '33.435967,-111.867710',
+                _created: '2018-11-18T18:13:20.683Z'
+            };
+            const clone = _.cloneDeep(data1);
+
+            const typeConfig = { ipfield: 'ip', _created: 'date', location: 'geo' }
+            const query = 'ipfield:[192.198.0.0 TO 192.198.0.255] AND _created:[2018-10-18T18:13:20.683Z TO *] AND key:/ab{2}c{3}/ AND location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")';
+
+            documentMatcher.parse(query);
+
+            expect(documentMatcher.match(query)).toEqual(false);
+            expect(data1).toEqual(clone);
+
+            documentMatcher.parse(query, typeConfig);
+
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(data1).toEqual(clone);
+        })
+
         it('does not throw when fields are not present', () => {
             const data1 = {};
             documentMatcher.parse('some:field', { ip: 'ip', key: 'regex', created: 'date', location: 'geo' });
@@ -843,8 +958,15 @@ describe('document matcher', () => {
             const data2 = { date: '2018-10-10T17:36:13Z', value: 253, type: 'other' };
             const data3 = { date: '["2018-10-10T17:36:13Z" TO "2018-10-10T17:36:13Z"]', value: 253, type: 'other' }
             const luceneQuery = 'date:["2018-10-10T17:36:13Z" TO "2018-10-10T17:36:13Z"] AND NOT value:(251 OR 252) AND NOT type:example';
+            const luceneQuery2 = 'date:["2018-10-10T17:36:13Z" TO "2018-10-10T17:36:13Z"] AND ! value:(251 OR 252) AND ! type:example';
 
             documentMatcher.parse(luceneQuery);
+
+            expect(documentMatcher.match(data1)).toEqual(false);
+            expect(documentMatcher.match(data2)).toEqual(true);
+            expect(documentMatcher.match(data3)).toEqual(false);
+
+            documentMatcher.parse(luceneQuery2);
 
             expect(documentMatcher.match(data1)).toEqual(false);
             expect(documentMatcher.match(data2)).toEqual(true);

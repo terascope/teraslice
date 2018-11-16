@@ -20,7 +20,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
         }
     }
 
-    public parse(luceneStr: string, typeConfig?: object) {
+    public parse(luceneStr: string, typeConfig?: object):void {
         if (typeConfig) {
             this.types = new TypeManger(typeConfig);
         }
@@ -28,7 +28,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
         this._buildFilterFn();
     }
 
-    private _buildFilterFn() {
+    private _buildFilterFn(): void {
         const { _ast: ast, types, _parseRange: parseRange } = this;
         const parsedAst = types.processAst(ast);
         const AND_MAPPING = { AND: true, 'AND NOT': true, NOT: 'true' };
@@ -54,7 +54,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
                 fnStr += '(';
                 addParens = true;
             }
-            if (field && node.term) {
+            if (field && _.has(node, 'term')) {
                 if (field === '_exists_') {
                     if (negation) { 
                         fnStr += `data.${node.term} == null`;
@@ -68,25 +68,28 @@ export default class DocumentMatcher extends LuceneQueryParser {
                         fnStr += `${node.term}`;
                     }
                 } else {
+                    let term = `"${node.term}"`;
+                    if (node.term === 'true') term = JSON.parse(node.term);
+                    if (node.term === 'false') term = JSON.parse(node.term);
                     if (negation) {
-                        fnStr += `data.${field} != "${node.term}"`;
+                        fnStr += `data.${field} != ${term}`;
                     } else {
-                        fnStr += `data.${field} == "${node.term}"`;
+                        fnStr += `data.${field} == ${term}`;
                     }
                 }
             }
-            if (node.term_min) {
+            if (_.has(node, 'term_min')) {
                 fnStr += parseRange(node, field, negation);
             }
 
-            if (node.left) {
+            if (_.has(node, 'left')) {
                 fnStr += functionBuilder(node.left, node, '', field, negateLeftExp);
             }
 
             if (OR_MAPPING[node.operator]) fnStr += ' || ';
             if (AND_MAPPING[node.operator]) fnStr += ' && ';
 
-            if (node.right) {
+            if (_.has(node, 'right')) {
                 fnStr += functionBuilder(node.right, node, '', field, negation);
             }
 
@@ -142,7 +145,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
             if (maxValue === Infinity) {
                 resultStr = `data.${field} > ${minValue}`;
             } else {
-                resultStr = `((${maxValue} >= data.${field}) && (data.${field}> ${minValue}))`
+                resultStr = `((${maxValue} >= data.${field}) && (data.${field} > ${minValue}))`
             }
         }
         // ie age:<10 || age:(<=10 AND >20)
@@ -174,7 +177,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
         return resultStr;
     }
 
-    public match(doc:object) {
+    public match(doc:object):boolean {
         const { types } = this;
         if (!this.filterFn) throw new Error('DocumentMatcher must be initialized with a lucene query');
         const data = types.formatData(doc);

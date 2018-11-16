@@ -1,4 +1,5 @@
 
+import _ from 'lodash';
 import pointInPolygon from '@turf/boolean-point-in-polygon';
 import createCircle from '@turf/circle';
 import bbox from '@turf/bbox';
@@ -6,6 +7,7 @@ import bboxPolygon from '@turf/bbox-polygon';
 import { lineString, Units, } from '@turf/helpers';
 import BaseType from './base';
 import { bindThis, ast } from '../../../utils';
+import geoHash from 'latlon-geohash';
 
 // feet
 const MileUnits = {
@@ -78,6 +80,13 @@ interface geoDistance {
     unit: Units;
 }
 
+type geoPointArr = [number, number];
+type geoPointStr = string;
+type geoObjShort = {lat: string | number, lon: string | number};
+type geoObjLong = {latitude: string | number, longitude: string | number};
+type geoPoint = geoPointArr | geoPointStr | geoObjShort | geoObjLong
+
+
 //TODO: allow ranges to be input and compare the two regions if they intersect
 
 export default class GeoType extends BaseType {
@@ -92,8 +101,31 @@ export default class GeoType extends BaseType {
     processAst(ast: ast): ast {
         const { walkAst, filterFnBuilder, createParsedField, fields } = this;
         
-        function parsePoint(str: string): number[] {
-            return str.split(',').map(st => st.trim()).map(numStr => Number(numStr)).reverse();
+        function parsePoint(point: geoPoint | number[] | object): number[] {
+            let results = null;
+
+            if (typeof point === 'string') {
+                if (point.match(',')) {
+                    results = point.split(',').map(st => st.trim()).map(numStr => Number(numStr));
+                } else {
+                    results = _.values(geoHash.decode(point));
+                }
+            }
+
+            if (Array.isArray(point)) results = point.map(_.toNumber);
+
+            if (_.isPlainObject(point)) {
+                const lat = _.get(point, 'lat') || _.get(point, 'latitude');
+                const lon = _.get(point, 'lon') || _.get(point, 'longitude');
+
+                if (!lat || !lon) throw new Error('geopoint must contain keys lat,lon or latitude/longitude');
+                results = [lat, lon].map(_.toNumber)
+            }
+
+            if (!results) throw new Error(`incorrect point given to parse, point:${point}`)
+
+            // data incoming is lat,lon and we must return lon,lat
+            return results.reverse();
         }
         function parseDistance(str: string): geoDistance {
             const trimed = str.trim();

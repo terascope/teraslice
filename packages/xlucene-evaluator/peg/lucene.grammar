@@ -178,7 +178,7 @@ group_exp
     / paren_exp
 
 paren_exp
-    = "(" node:node+ ")" _*
+    = "(" _* node:node+ _* ")" _*
         {
             const results = node[0];
             // only mark if there is further logic to group

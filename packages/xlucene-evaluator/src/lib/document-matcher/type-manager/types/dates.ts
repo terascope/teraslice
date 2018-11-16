@@ -1,6 +1,7 @@
 
 import BaseType from './base';
 import { bindThis, ast } from '../../../utils';
+import _ from 'lodash';
 
 // TODO: handle datemath
 
@@ -38,12 +39,14 @@ export default class DateType extends BaseType {
 
     formatData(data: object): object {
         const { fields } = this;
+        const clone = _.cloneDeep(data);
+
         for (const key in fields) {
-            if (data[key]) {
-                data[key] = new Date(data[key]).getTime();
+            if (clone[key]) {
+                clone[key] = new Date(data[key]).getTime();
             }
         }
-        return data;
+        return clone;
     }
 
 }

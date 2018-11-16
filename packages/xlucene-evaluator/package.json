@@ -1,11 +1,11 @@
 {
   "name": "xlucene-evaluator",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "srcMain": "src/index.ts",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "directories": {
-    "lib": "lib",
+    "lib": "dist",
     "test": "tests"
   },
   "scripts": {
@@ -26,6 +26,7 @@
     "ip-num": "^1.1.1",
     "ip6addr": "^0.2.2",
     "is-cidr": "^3.0.0",
+    "latlon-geohash": "^1.1.0",
     "lodash": "^4.17.11",
     "pegjs": "^0.10.0"
   },

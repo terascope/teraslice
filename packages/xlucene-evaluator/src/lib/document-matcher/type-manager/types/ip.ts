@@ -91,7 +91,7 @@ export default class IpType extends BaseType {
                         range = ip6addr.createAddrRange(minValue, maxValue);
                     }
 
-                   filterFnBuilder((ip: string) => {
+                    filterFnBuilder((ip: string) => {
                         if (isCidr(ip) > 0) {
                             const argRange = ip6addr.createCIDR(ip);
                             const argFirst = argRange.first().toString();

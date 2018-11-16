@@ -1,0 +1,5 @@
+
+tests/
+!peg/peg_engine.js
+scripts
+coverage/
