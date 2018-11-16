@@ -1,6 +1,6 @@
 {
     "name": "@terascope/teraslice-op-test-harness",
-    "version": "1.3.2",
+    "version": "1.3.3",
     "publishConfig": {
         "access": "public"
     },
@@ -8,8 +8,8 @@
     "main": "index.js",
     "scripts": {
         "docs": "jsdoc -P package.json index.js",
-        "lint": "eslint *.js test",
-        "lint:fix": "eslint --fix *.js test",
+        "lint": "eslint *.js lib/**/*.js test/**/*.js",
+        "lint:fix": "eslint --fix *.js test/**/*.js",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
         "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
