@@ -8,4 +8,11 @@ describe('index', () => {
         expect(index).toHaveProperty('SlicerTestHarness');
         expect(index).toHaveProperty('WorkerTestHarness');
     });
+
+    it('should have some test helpers', () => {
+        expect(index).toHaveProperty('newTestSlice');
+        expect(index.newTestSlice).toBeFunction();
+        expect(index).toHaveProperty('newTestJobConfig');
+        expect(index.newTestJobConfig).toBeFunction();
+    });
 });

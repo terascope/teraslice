@@ -1,4 +1,4 @@
-import { newTestSlice } from '@terascope/job-components';
+import { newTestSlice, newTestJobConfig } from '@terascope/job-components';
 import JobTestHarness from './job-test-harness';
 import SlicerTestHarness from './slicer-test-harness';
 import WorkerTestHarness from './worker-test-harness';
@@ -9,4 +9,5 @@ export {
     SlicerTestHarness,
     WorkerTestHarness,
     newTestSlice,
+    newTestJobConfig,
 };
