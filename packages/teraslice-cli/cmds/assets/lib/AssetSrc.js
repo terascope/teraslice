@@ -4,8 +4,6 @@
 
 const { spawnSync } = require('child_process');
 
-// const _ = require('lodash');
-// const mktemp = require('mktemp');
 const fs = require('fs-extra');
 const archiver = require('archiver');
 const Promise = require('bluebird');
@@ -28,7 +26,6 @@ class AssetSrc {
         return path.join(this.srcDir, 'build');
     }
 
-
     get zipFileName() {
         const asset = require(path.join(this.srcDir, 'asset', 'asset.json'));
 
@@ -38,9 +35,10 @@ class AssetSrc {
 
     async build() {
         let zipOutput;
+        const outputFileName = path.join(this.buildDir, this.zipFileName);
 
-        // make sure the build dir is in the srcDir path
         try {
+            // make sure the build dir exists in the srcDir directory
             fs.ensureDirSync(this.buildDir);
         } catch (err) {
             throw new Error(`Failed to create directory ${this.buildDir}: ${err}`);
@@ -54,6 +52,9 @@ class AssetSrc {
         // remove srcDir/asset/node_modules
         fs.removeSync(path.join(tmpDir.name, 'asset', 'node_modules'));
 
+        // TODO: This has a dependency on the external executable `yarn`,
+        //       we should test that this exists earlier than this and also
+        //       support `npm`.
         // run yarn --cwd srcDir/asset --prod --silent --no-progress
         const yarn = spawnSync(
             'yarn',
@@ -70,10 +71,8 @@ class AssetSrc {
         // Run asset:build commnd
         // TODO: run yarn --cwd srcDir/asset --prod --silent --no-progress asset:build
 
-        // create zipfile
-        const outputFileName = path.join(this.buildDir, this.zipFileName);
-
         try {
+            // create zipfile
             zipOutput = await this.zip(path.join(tmpDir.name, 'asset'), outputFileName);
             // remove temp directory
             fs.removeSync(tmpDir.name);
