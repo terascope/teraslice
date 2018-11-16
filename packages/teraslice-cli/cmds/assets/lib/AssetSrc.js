@@ -12,8 +12,6 @@ const Promise = require('bluebird');
 const path = require('path');
 const tmp = require('tmp');
 
-const reply = require('../../lib/reply')();
-
 
 class AssetSrc {
     constructor(srcDir) {
@@ -39,15 +37,16 @@ class AssetSrc {
     }
 
     async build() {
+        let zipOutput;
+
         // make sure the build dir is in the srcDir path
         try {
             fs.ensureDirSync(this.buildDir);
         } catch (err) {
-            throw new Error(`Error creating directory ${this.buildDir}: ${err}`);
+            throw new Error(`Failed to create directory ${this.buildDir}: ${err}`);
         }
         // make temp dir
         const tmpDir = tmp.dirSync();
-        // tmpDir.removeCallback();
 
         // copy entire asset dir (srcDir) to tempdir
         fs.copySync(this.srcDir, tmpDir.name);
@@ -62,7 +61,7 @@ class AssetSrc {
         );
 
         if (yarn.status !== 0) {
-            reply.fatal(
+            throw new Error(
                 `yarn command exited with non-zero status: ${yarn.status}\n`
                 + `yarn stdout:\n${yarn.stdout}\n`
                 + `yarn stderr:\n${yarn.stderr}`
@@ -72,27 +71,34 @@ class AssetSrc {
         // TODO: run yarn --cwd srcDir/asset --prod --silent --no-progress asset:build
 
         // create zipfile
-        await this.zip(path.join(tmpDir.name, 'asset'));
+        const outputFileName = path.join(this.buildDir, this.zipFileName);
+
+        try {
+            zipOutput = await this.zip(path.join(tmpDir.name, 'asset'), outputFileName);
+            // remove temp directory
+            fs.removeSync(tmpDir.name);
+        } catch (err) {
+            throw new Error(`Error creating asset zipfile: ${err}`);
+        }
+        return zipOutput.success;
     }
 
     /**
      * zip - Creates properly named zip archive of asset from tmpAssetDir
      * @param {string} tmpAssetDir Path to the temporary asset source directory
      */
-    zip(tmpAssetDir) {
+    zip(tmpAssetDir, outputFileName) {
         const zipMessage = {};
 
         return new Promise((resolve, reject) => {
-            const outputFileName = path.join(this.buildDir, this.zipFileName);
-            console.log(`Output File: ${outputFileName}`);
             const output = fs.createWriteStream(outputFileName);
             const archive = archiver('zip', {
-                zlib: { level: 9 } // Sets the compression level.
+                zlib: { level: 9 }
             });
 
             output.on('finish', () => {
                 zipMessage.bytes = `${archive.pointer()} total bytes`;
-                zipMessage.success = 'Assets have been zipped to builds/processors.zip';
+                zipMessage.success = outputFileName;
                 resolve(zipMessage);
             });
 

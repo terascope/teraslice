@@ -1,7 +1,7 @@
 'use strict';
-'use console';
 
 const AssetSrc = require('./lib/AssetSrc');
+const reply = require('../lib/reply')();
 
 
 exports.command = 'build';
@@ -16,14 +16,19 @@ exports.builder = (yargs) => {
         alias: 'quiet',
         describe: 'Silence non-error logging.'
     });
-    // build asset in cwd
+    // build asset found in in cwd
     yargs.example('earl assets build');
-    // build asset in specified baseDir
+    // build asset found in specified baseDir
     yargs.example('earl assets build --baseDir /path/to/myAsset/');
 };
 
 
 exports.handler = async (argv) => {
-    const asset = new AssetSrc(argv.srcDir);
-    asset.build();
+    try {
+        const asset = new AssetSrc(argv.srcDir);
+        const buildResult = await asset.build();
+        reply.green(`Asset created:\n\t${buildResult}`);
+    } catch (err) {
+        reply.fatal(`Error building asset: ${err}`);
+    }
 };
