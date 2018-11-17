@@ -3,6 +3,7 @@
 
 const _ = require('lodash');
 const fs = require('fs-extra');
+const AssetSrc = require('./lib/AssetSrc');
 const GithubAsset = require('./lib/GithubAsset');
 const config = require('../lib/config');
 const cli = require('../lib/cli');
@@ -10,7 +11,7 @@ const reply = require('../lib/reply')();
 
 
 exports.command = 'load <cluster_sh> [<asset>]';
-exports.desc = 'Uploads asset from file, github, or source to Teraslice\n';
+exports.desc = 'Uploads asset from zipfile, github, or source to Teraslice\n';
 exports.builder = (yargs) => {
     // I think much of the stuff inserted by this should not be global, though
     // my asset commands are inherently different
@@ -19,6 +20,11 @@ exports.builder = (yargs) => {
         alias: 'arch',
         describe: 'The architecture of the Teraslice cluster, like: `x32`, `x64`.'
                 + '  Determined automatically on newer Teraslice releases.'
+    });
+    yargs.option('b', {
+        alias: 'build',
+        describe: 'Build asset from source, then upload to Teraslice.  The current'
+                + ' directory is used if no argument is passed to this option',
     });
     yargs.option('f', {
         alias: 'file',
@@ -61,12 +67,15 @@ exports.handler = async (argv) => {
     const otherConfig = require('./lib')(cliConfig);
 
     if (cliConfig.file) {
+        // assetPath explicitly from a user provided file (-f/--file)
         if (fs.existsSync(cliConfig.file)) {
             assetPath = cliConfig.file;
         } else {
             reply.fatal(`Specified asset file not found: ${cliConfig.file}`);
         }
     } else if (cliConfig.asset) {
+        // assetPath from a file downloaded from GitHub (argument)
+
         // We need to get the arch, platform and nodeVersion of the Teraslice
         // cluster (not from current host) to know which assets to retrieve.  To
         // remain compatible with older teraslice versions, we allow these values
@@ -101,6 +110,24 @@ exports.handler = async (argv) => {
             }
         } catch (err) {
             reply.fatal(`Unable to download ${cliConfig.asset} asset: ${err}`);
+        }
+    } else if (cliConfig.build) {
+        // assetPath from a zipFile created by building from a local asset
+        // source directory (-b/-b ./file-assets)
+        let srcDir;
+        if (cliConfig.build === true) {
+            srcDir = process.cwd();
+        } else {
+            srcDir = cliConfig.build;
+        }
+        try {
+            const asset = new AssetSrc(srcDir);
+            assetPath = await asset.build();
+            if (!cliConfig.quiet) {
+                reply.green(`Asset created:\n\t${assetPath}`);
+            }
+        } catch (err) {
+            reply.fatal(`Error building asset: ${err}`);
         }
     } else {
         reply.fatal('You must specify an asset name or use -f /path/to/asset.zip');
