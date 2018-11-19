@@ -8,39 +8,38 @@ import {
     ExecutionContextConfig,
     Assignment,
     makeExecutionContext,
-    WorkerExecutionContext,
-    SlicerExecutionContext,
 } from '@terascope/job-components';
+import { EventEmitter } from 'events';
 import {
     Context,
     Client,
     ClientFactoryFns,
     CachedClients,
-    TestMode,
     JobHarnessOptions,
+    ExecutionContext,
 } from './interfaces';
 import { resolveAssetDir } from './utils';
 
 /**
  * A base class for the Slicer and Worker TestHarnesses
 */
-export default abstract class BaseTestHarness<T extends Context, U extends SlicerExecutionContext|WorkerExecutionContext> {
+export default class BaseTestHarness<T extends Context, U extends ExecutionContext> {
+    events: EventEmitter;
     protected executionContext: U;
     protected context: T;
 
-    private testMode: TestMode;
     private clients: ClientFactoryFns = {};
     private cachedClients: CachedClients = {};
 
-    constructor(job: JobConfig, options: JobHarnessOptions, testMode: TestMode) {
-        this.testMode = testMode;
-
-        this.context = new TestContext(`${this.testMode}-test:${job.name}`) as T;
-        const isSlicer = this.testMode === TestMode.Slicer;
-        this.context.assignment = isSlicer ? Assignment.ExecutionController : Assignment.Worker;
+    constructor(job: JobConfig, options: JobHarnessOptions, assignment: Assignment) {
+        const testName = [assignment, job.name].filter((s) => s).join(':');
+        this.context = new TestContext(testName) as T;
+        this.context.assignment = assignment;
 
         this.context.apis.foundation.getConnection = this._getConnection.bind(this);
         this.context.foundation.getConnection = this._getConnection.bind(this);
+
+        this.events = this.context.apis.foundation.getSystemEvents();
         this.setClients(options.clients);
 
         const config = this.makeContextConfig(job, options.assetDir);

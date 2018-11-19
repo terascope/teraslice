@@ -31,10 +31,3 @@ export interface ClientFactoryFns {
 export interface CachedClients {
     [prop: string]: any;
 }
-
-export enum TestMode {
-    Worker = 'worker',
-    Slicer = 'slicer',
-    Job = 'job',
-    None = 'none'
-}

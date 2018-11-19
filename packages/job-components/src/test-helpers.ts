@@ -73,12 +73,12 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
     return logger;
 }
 
-export function newTestSlice(): i.Slice {
+export function newTestSlice(request: i.SliceRequest = {}): i.Slice {
     return {
         slice_id: newId('slice-id'),
         slicer_id: random(0, 99999),
         slicer_order: random(0, 99999),
-        request: {},
+        request,
         _created: new Date().toISOString(),
     };
 }

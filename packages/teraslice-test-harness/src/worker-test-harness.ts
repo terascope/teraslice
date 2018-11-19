@@ -5,9 +5,12 @@ import {
     Slice,
     DataEntity,
     RunSliceResult,
+    Assignment,
+    SliceRequest,
+    newTestSlice,
 } from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness';
-import { JobHarnessOptions, TestMode } from './interfaces';
+import { JobHarnessOptions } from './interfaces';
 
 /**
  * A Teraslice Test Harness for testing the Operations
@@ -18,7 +21,7 @@ import { JobHarnessOptions, TestMode } from './interfaces';
 */
 export default class WorkerTestHarness extends BaseTestHarness<WorkerContext, WorkerExecutionContext> {
     constructor(job: JobConfig, options: JobHarnessOptions) {
-        super(job, options, TestMode.Worker);
+        super(job, options, Assignment.Worker);
     }
 
     /**
@@ -34,7 +37,7 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerContext, Wo
      * operations. This will also fire lifecycle events
      * which may be triggered any extra APIs.
      *
-     * @param slice The input slice, must include all of the slice metadata.
+     * @param input The input slice, can optionally include all of the slice metadata.
      * Use `newTestSlice()` to create a test slice.
      * @param options an optional object of additional configruation
      * @param options.fullResponse if specified it will return an object
@@ -42,8 +45,28 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerContext, Wo
      *
      * @returns an Array of DataEntities or a SliceResult
     */
-    async runSlice(slice: Slice, { fullResponse = false } = {}): Promise<DataEntity[]|RunSliceResult> {
-        const result = await this.executionContext.runSlice(slice);
+    async runSlice(input: Slice|SliceRequest, { fullResponse = false } = {}): Promise<DataEntity[]|RunSliceResult> {
+        const slice: Slice = isSlice(input) ? input : newTestSlice(input);
+
+        this.events.emit('slice:initialize', slice);
+        await this.executionContext.onSliceInitialized(slice.slice_id);
+
+        let result: RunSliceResult;
+
+        try {
+            result = await this.executionContext.runSlice(slice);
+        } catch (err) {
+            this.events.emit('slice:failure', slice);
+            await this.executionContext.onSliceFailed(slice.slice_id);
+            throw err;
+        } finally {
+            this.events.emit('slice:finalize', slice);
+            await this.executionContext.onSliceFinalizing(slice.slice_id);
+        }
+
+        this.events.emit('slice:success', slice);
+        this.executionContext.onSliceFinished(slice.slice_id);
+
         if (fullResponse) {
             return result || {
                 results: [],
@@ -60,4 +83,8 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerContext, Wo
         await super.shutdown();
         await this.executionContext.shutdown();
     }
+}
+
+function isSlice(input: Slice|SliceRequest): input is Slice {
+    return input.slice_id && input.slicer_id != null;
 }

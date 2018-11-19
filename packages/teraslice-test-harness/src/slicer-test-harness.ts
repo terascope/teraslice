@@ -5,9 +5,10 @@ import {
     JobConfig,
     Slice,
     SliceRequest,
+    Assignment,
 } from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness';
-import { JobHarnessOptions, TestMode } from './interfaces';
+import { JobHarnessOptions } from './interfaces';
 
 /**
  * A Teraslice Test Harness for testing the Operations
@@ -19,7 +20,7 @@ import { JobHarnessOptions, TestMode } from './interfaces';
 */
 export default class SlicerTestHarness extends BaseTestHarness<SlicerContext, SlicerExecutionContext> {
     constructor(job: JobConfig, options: JobHarnessOptions) {
-        super(job, options, TestMode.Slicer);
+        super(job, options, Assignment.ExecutionController);
     }
 
     /**

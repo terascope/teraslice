@@ -47,6 +47,12 @@ describe('WorkerTestHarness', () => {
             expect(DataEntity.isDataEntityArray(result)).toBeTrue();
         });
 
+        it('should be able to call runSlice with just a request object', async () => {
+            const result = await jobHarness.runSlice({ hello: true }) as DataEntity[];
+            expect(result).toBeArray();
+            expect(DataEntity.isDataEntityArray(result)).toBeTrue();
+        });
+
         it('should be able to call runSlice with fullResponse', async () => {
             const result = await jobHarness.runSlice(newTestSlice(), { fullResponse: true }) as RunSliceResult;
             expect(result.analytics).not.toBeNil();
