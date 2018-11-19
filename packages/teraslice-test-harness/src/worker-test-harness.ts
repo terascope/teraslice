@@ -16,7 +16,6 @@ import { JobHarnessOptions } from './interfaces';
  * A Teraslice Test Harness for testing the Operations
  * ran on the Worker and an associated lifecycle events.
  *
- * @todo Add support for lifecycle events
  * @todo Add support for attaching APIs and Observers
 */
 export default class WorkerTestHarness extends BaseTestHarness<WorkerContext, WorkerExecutionContext> {

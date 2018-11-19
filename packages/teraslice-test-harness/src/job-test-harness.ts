@@ -7,7 +7,7 @@ import { JobHarnessOptions, Client } from './interfaces';
  * A Teraslice Test Harness for testing the interactions
  * between both the Slicer and the Worker operations.
  *
- * @todo Handle more than worker?
+ * @todo Handle more than one worker?
 */
 export default class JobTestHarness {
     private workerHarness: WorkerTestHarness;
