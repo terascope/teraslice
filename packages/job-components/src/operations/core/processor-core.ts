@@ -1,6 +1,6 @@
 import DataEntity from '../data-entity';
 import OperationCore from './operation-core';
-import { SliceRequest } from '../../interfaces';
+import { SliceRequest, OpConfig } from '../../interfaces';
 
 /**
  * A base class for supporting "Processors" that run on a "Worker".
@@ -10,7 +10,7 @@ import { SliceRequest } from '../../interfaces';
  * @see OperationCore
  */
 
-export default abstract class ProcessorCore<T> extends OperationCore<T> {
+export default abstract class ProcessorCore<T = OpConfig> extends OperationCore<T> {
     /**
     * A generic method called by the Teraslice framework to a give a "Processor"
     * the ability to handle the input and output of operation

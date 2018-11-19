@@ -1,11 +1,11 @@
 import { SimpleReaderConfig } from './interfaces';
-import { Fetcher } from '@terascope/job-components';
+import times from 'lodash/times';
+import { Fetcher, SliceRequest } from '@terascope/job-components';
 
-export default class TestFetcher<T = SimpleReaderConfig>  extends Fetcher<T> {
-    async fetch() {
-        const result = Array(10);
-        for (let i = 0; i < 10; i++) {
-            result[i] = {
+export default class TestFetcher extends Fetcher<SimpleReaderConfig> {
+    async fetch(request: SliceRequest) {
+        return times(request.count, (i) => {
+            return {
                 id: i,
                 data: [
                     Math.random(),
@@ -13,7 +13,6 @@ export default class TestFetcher<T = SimpleReaderConfig>  extends Fetcher<T> {
                     Math.random(),
                 ]
             };
-        }
-        return result;
+        });
     }
 }

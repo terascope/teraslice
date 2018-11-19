@@ -1,8 +1,8 @@
 import uuidv4 from 'uuid/v4';
 import { SlicerContext } from '../../execution-context';
 import {
-    ExecutionConfig,
     OpConfig,
+    ExecutionConfig,
     Slice,
     SliceRequest,
     SlicerOperationLifeCycle,
@@ -20,7 +20,7 @@ import Core from './core';
  * @see Core
  */
 
-export default abstract class SlicerCore<T> extends Core implements SlicerOperationLifeCycle {
+export default abstract class SlicerCore<T = OpConfig> extends Core implements SlicerOperationLifeCycle {
     protected stats: ExecutionStats;
     protected recoveryData: object[];
     protected readonly opConfig: Readonly<OpConfig & T>;

@@ -39,7 +39,7 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
     readonly assetIds: string[] = [];
 
     /** The instance of a "Slicer" */
-    readonly slicer: SlicerCore<object>;
+    readonly slicer: SlicerCore;
 
     readonly exId: string;
     readonly jobId: string;

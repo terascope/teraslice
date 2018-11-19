@@ -42,11 +42,12 @@ export default class JobTestHarness {
      * Create a batch of slices in the Slicer context
      * and then run each slice on the Worker context
      * in series.
+     * @returns batches of results
     */
-    async run(): Promise<JobResults[]> {
+    async run(): Promise<BatchedResults> {
         const slices = await this.slicer.createSlices({ fullResponse: true }) as Slice[];
 
-        const results: JobResults[] = [];
+        const results: BatchedResults = [];
 
         for (const slice of slices) {
             const sliceResults = await this.worker.runSlice(slice) as DataEntity[];
@@ -67,4 +68,4 @@ export default class JobTestHarness {
     }
 }
 
-export type JobResults = DataEntity[];
+export type BatchedResults = DataEntity[][];

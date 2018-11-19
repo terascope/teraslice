@@ -1,11 +1,10 @@
 import { set, get } from 'lodash';
 import {
     ExecutionConfig,
-    makeJobSchema,
+    JobValidator,
     TestContext,
     ConnectionConfig,
     JobConfig,
-    validateJobConfig,
     ExecutionContextConfig,
     Assignment,
 } from '@terascope/job-components';
@@ -68,14 +67,18 @@ export default abstract class BaseTestHarness {
     }
 
     protected makeContextConfig(job: JobConfig, assetDir: string = process.cwd()): ExecutionContextConfig {
-        const resolvedAssetDir = resolveAssetDir(assetDir);
-        const isSlicer = this.testMode === TestMode.Slicer;
         const context = new TestContext(`${this.testMode}-test:${job.name}`);
-        context.assignment = isSlicer ? Assignment.ExecutionController : Assignment.Worker;
+
+        const resolvedAssetDir = resolveAssetDir(assetDir);
         context.sysconfig.teraslice.assets_directory = resolvedAssetDir;
 
-        const jobSchema = makeJobSchema(context);
-        const executionConfig = validateJobConfig(jobSchema, job) as ExecutionConfig;
+        const isSlicer = this.testMode === TestMode.Slicer;
+        context.assignment = isSlicer ? Assignment.ExecutionController : Assignment.Worker;
+
+        job.assets = job.assets ? [...job.assets, '.'] : ['.'];
+
+        const jobValidator = new JobValidator(context);
+        const executionConfig = jobValidator.validateConfig(job) as ExecutionConfig;
         return {
             context,
             executionConfig,

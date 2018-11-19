@@ -5,7 +5,7 @@ import convict from 'convict';
 import cloneDeep from 'lodash.clonedeep';
 import { validateJobConfig, validateOpConfig } from './config-validators';
 import { jobSchema } from './job-schemas';
-import { LoaderOptions, OperationLoader } from './operation-loader';
+import { OperationLoader } from './operation-loader';
 import { registerApis } from './register-apis';
 import { OperationModule } from './operations';
 
@@ -14,9 +14,12 @@ export class JobValidator {
     private readonly context: Context;
     private readonly opLoader: OperationLoader;
 
-    constructor(context: Context, options: LoaderOptions) {
+    constructor(context: Context, options: { terasliceOpPath?: string } = {}) {
         this.context = context;
-        this.opLoader = new OperationLoader(options);
+        this.opLoader = new OperationLoader({
+            terasliceOpPath: options.terasliceOpPath,
+            assetPath: context.sysconfig.teraslice.assets_directory,
+        });
         this.schema = jobSchema(context);
     }
 

@@ -1,4 +1,4 @@
-import { OpConfig, ExecutionConfig, Context } from '../interfaces';
+import { ExecutionConfig, Context, OpConfig } from '../interfaces';
 import { SlicerContext, WorkerContext } from '../execution-context';
 import FetcherCore from './core/fetcher-core';
 import SchemaCore from './core/schema-core';
@@ -9,24 +9,16 @@ import Slicer from './slicer';
 import ParallelSlicer from './parallel-slicer';
 import OperationAPI from './operation-api';
 
-export type SlicerConstructor = {
-    new<T = object>(context: SlicerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig): SlicerCore<T>;
+export type APICoreConstructor<U> = {
+    new(context: WorkerContext, executionConfig: ExecutionConfig): U;
 };
 
-export type SingleSlicerConstructor = {
-    new<T = object>(context: SlicerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig): Slicer<T>;
+export type OperationCoreConstructor<U> = {
+    new<T = OpConfig>(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig): U;
 };
 
-export type ParallelSlicerConstructor = {
-    new<T = object>(context: SlicerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig): ParallelSlicer<T>;
-};
-
-export type OperationAPIConstructor = {
-    new(context: WorkerContext, executionConfig: ExecutionConfig): OperationAPI;
-};
-
-export type ObserverConstructor = {
-    new(context: WorkerContext, executionConfig: ExecutionConfig): APICore;
+export type SlicerCoreConstructor<U> = {
+    new<T = OpConfig>(context: SlicerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig): U;
 };
 
 export type SchemaConstructor<T = any> = {
@@ -34,17 +26,14 @@ export type SchemaConstructor<T = any> = {
     new(context: Context): SchemaCore<T>;
 };
 
-export type APIConstructor = {
-    new(context: Context, executionConfig: ExecutionConfig): APICore;
-};
-
-export type FetcherConstructor = {
-    new<T = object>(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig): FetcherCore<T>;
-};
-
-export type ProcessorConstructor = {
-    new<T = object>(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig): ProcessorCore<T>;
-};
+export type OperationAPIConstructor = APICoreConstructor<OperationAPI>;
+export type ObserverConstructor = APICoreConstructor<APICore>;
+export type APIConstructor = APICoreConstructor<APICore>;
+export type SlicerConstructor = SlicerCoreConstructor<SlicerCore>;
+export type SingleSlicerConstructor = SlicerCoreConstructor<Slicer>;
+export type ParallelSlicerConstructor = SlicerCoreConstructor<ParallelSlicer>;
+export type FetcherConstructor = OperationCoreConstructor<FetcherCore>;
+export type ProcessorConstructor = OperationCoreConstructor<ProcessorCore>;
 
 export interface OperationModule {
     Schema: SchemaConstructor;

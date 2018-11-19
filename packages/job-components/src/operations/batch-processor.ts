@@ -1,3 +1,4 @@
+import { OpConfig } from '../interfaces';
 import DataEntity from './data-entity';
 import ProcessorCore from './core/processor-core';
 
@@ -5,7 +6,7 @@ import ProcessorCore from './core/processor-core';
  * A variation of "Processor" that can handle a batch of data at a time.
  */
 
-export default abstract class BatchProcessor<T> extends ProcessorCore<T> {
+export default abstract class BatchProcessor<T = OpConfig> extends ProcessorCore<T> {
     /**
      * A method called by {@link BatchProcessor#handle}
      * @returns an array of DataEntities

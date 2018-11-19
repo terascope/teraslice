@@ -1,10 +1,13 @@
+import times from 'lodash/times';
 import { Slicer } from '@terascope/job-components';
 import { SimpleReaderConfig } from './interfaces';
 
-export default class TestSlicer<T = SimpleReaderConfig> extends Slicer<T> {
+export default class TestSlicer extends Slicer<SimpleReaderConfig> {
     async slice() {
-        return {
-            getRecords: 1,
-        };
+        const { slicesToCreate, recordsToFetch } = this.opConfig;
+
+        return times(slicesToCreate, () => ({
+            count: recordsToFetch,
+        }));
     }
 }

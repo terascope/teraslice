@@ -5,7 +5,7 @@
  * to find the operation.
  * Encoding defaults to "JSON" when DataEntity.fromBuffer() is called
 */
-export interface OpConfig {
+export interface OpConfig extends Object {
     _op: string;
     _encoding?: DataEncoding;
 }
