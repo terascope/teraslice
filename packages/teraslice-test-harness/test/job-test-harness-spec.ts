@@ -1,6 +1,12 @@
 import 'jest-extended';
 import path from 'path';
-import { newTestJobConfig, DataEntity } from '@terascope/job-components';
+import {
+    newTestJobConfig,
+    DataEntity,
+    Slicer,
+    Fetcher,
+    BatchProcessor
+} from '@terascope/job-components';
 import { JobTestHarness } from '../src';
 
 describe('JobTestHarness', () => {
@@ -34,6 +40,19 @@ describe('JobTestHarness', () => {
 
         it('should be able to call initialize', () => {
             return expect(jobHarness.initialize()).resolves.toBeNil();
+        });
+
+        it('should have a slicer', () => {
+            expect(jobHarness.slicer).toBeInstanceOf(Slicer);
+        });
+
+        it('should have fetcher', () => {
+            expect(jobHarness.fetcher).toBeInstanceOf(Fetcher);
+        });
+
+        it('should have on processor', () => {
+            expect(jobHarness.processors).toBeArrayOfSize(1);
+            expect(jobHarness.processors[0]).toBeInstanceOf(BatchProcessor);
         });
 
         it('should be able to call run', async () => {

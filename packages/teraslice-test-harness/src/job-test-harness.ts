@@ -1,4 +1,4 @@
-import { DataEntity, JobConfig, Slice } from '@terascope/job-components';
+import { DataEntity, JobConfig, Slice, RunSliceResult, SliceAnalyticsData } from '@terascope/job-components';
 import SlicerTestHarness from './slicer-test-harness';
 import WorkerTestHarness from './worker-test-harness';
 import { JobHarnessOptions, Client } from './interfaces';
@@ -10,12 +10,24 @@ import { JobHarnessOptions, Client } from './interfaces';
  * @todo Handle more than worker?
 */
 export default class JobTestHarness {
-    private worker: WorkerTestHarness;
-    private slicer: SlicerTestHarness;
+    private workerHarness: WorkerTestHarness;
+    private slicerHarness: SlicerTestHarness;
 
     constructor(job: JobConfig, options: JobHarnessOptions) {
-        this.worker = new WorkerTestHarness(job, options);
-        this.slicer = new SlicerTestHarness(job, options);
+        this.workerHarness = new WorkerTestHarness(job, options);
+        this.slicerHarness = new SlicerTestHarness(job, options);
+    }
+
+    get slicer() {
+        return this.slicerHarness.slicer;
+    }
+
+    get fetcher() {
+        return this.workerHarness.fetcher;
+    }
+
+    get processors() {
+        return this.workerHarness.processors;
     }
 
     /**
@@ -23,8 +35,8 @@ export default class JobTestHarness {
      * the Slicer and Worker contexts
     */
     async setClients(clients: Client[]) {
-        this.worker.setClients(clients);
-        this.slicer.setClients(clients);
+        this.workerHarness.setClients(clients);
+        this.slicerHarness.setClients(clients);
     }
 
     /**
@@ -34,8 +46,8 @@ export default class JobTestHarness {
      * the retry data is only passed to slicer
     */
     async initialize(recoveryData?: object[]) {
-        await this.slicer.initialize(recoveryData);
-        await this.worker.initialize();
+        await this.slicerHarness.initialize(recoveryData);
+        await this.workerHarness.initialize();
     }
 
     /**
@@ -45,13 +57,35 @@ export default class JobTestHarness {
      * @returns batches of results
     */
     async run(): Promise<BatchedResults> {
-        const slices = await this.slicer.createSlices({ fullResponse: true }) as Slice[];
+        const slices = await this.slicerHarness.createSlices({ fullResponse: true }) as Slice[];
 
         const results: BatchedResults = [];
 
         for (const slice of slices) {
-            const sliceResults = await this.worker.runSlice(slice) as DataEntity[];
-            results.push(sliceResults);
+            this.slicerHarness.onSliceDispatch(slice);
+
+            let analytics: SliceAnalyticsData = {
+                time: [],
+                size: [],
+                memory: [],
+            };
+
+            try {
+                const result = await this.workerHarness.runSlice(slice, { fullResponse: true }) as RunSliceResult;
+                if (result.analytics) {
+                    analytics = result.analytics;
+                }
+                results.push(result.results);
+                this.slicerHarness.stats.slices.processed++;
+            } catch (err) {
+                this.slicerHarness.stats.slices.failed++;
+                throw err;
+            } finally {
+                this.slicerHarness.onSliceComplete({
+                    slice,
+                    analytics
+                });
+            }
         }
 
         return results;
@@ -62,8 +96,8 @@ export default class JobTestHarness {
     */
     async shutdown() {
         await Promise.all([
-            this.slicer.shutdown(),
-            this.worker.shutdown(),
+            this.slicerHarness.shutdown(),
+            this.workerHarness.shutdown(),
         ]);
     }
 }

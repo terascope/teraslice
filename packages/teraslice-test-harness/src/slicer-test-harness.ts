@@ -5,7 +5,9 @@ import {
     JobConfig,
     Slice,
     SliceRequest,
+    SliceResult,
     Assignment,
+    ExecutionStats,
 } from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness';
 import { JobHarnessOptions } from './interfaces';
@@ -19,8 +21,25 @@ import { JobHarnessOptions } from './interfaces';
  * @todo Add support for attaching APIs and Observers
 */
 export default class SlicerTestHarness extends BaseTestHarness<SlicerContext, SlicerExecutionContext> {
+    readonly stats: ExecutionStats = {
+        workers: {
+            available: 1,
+            connected: 1,
+        },
+        slices: {
+            processed: 0,
+            failed: 0,
+        }
+    };
+
+    private _emitInterval: NodeJS.Timer|undefined;
+
     constructor(job: JobConfig, options: JobHarnessOptions) {
         super(job, options, Assignment.ExecutionController);
+    }
+
+    get slicer() {
+        return this.executionContext.slicer;
     }
 
     /**
@@ -30,6 +49,11 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerContext, Sl
     async initialize(recoveryData?: object[]) {
         await super.initialize();
         await this.executionContext.initialize(recoveryData);
+
+        this.executionContext.onExecutionStats(this.stats);
+        this._emitInterval = setInterval(() => {
+            this.executionContext.onExecutionStats(this.stats);
+        }, 100);
     }
 
     /**
@@ -56,6 +80,10 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerContext, Sl
 
         for (const perSlicer of slicesBySlicers) {
             const sorted = sortBy(perSlicer, 'slicer_order');
+            sorted.forEach((slice) => {
+                this.executionContext.onSliceEnqueued(slice);
+            });
+
             if (fullResponse) {
                 sliceRequests.push(...sorted);
             } else {
@@ -73,10 +101,27 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerContext, Sl
         return sliceRequests;
     }
 
+    setWorkers(count: number) {
+        this.stats.workers.connected = count;
+        this.stats.workers.available = count;
+        this.executionContext.onExecutionStats(this.stats);
+    }
+
+    onSliceDispatch(slice: Slice) {
+        this.executionContext.onSliceDispatch(slice);
+    }
+
+    onSliceComplete(result: SliceResult) {
+        this.executionContext.onSliceComplete(result);
+    }
+
     /**
      * Shutdown the Operations on the ExecutionContext
     */
     async shutdown() {
+        if (this._emitInterval) {
+            clearInterval(this._emitInterval);
+        }
         await super.shutdown();
         await this.executionContext.shutdown();
     }

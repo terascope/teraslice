@@ -3,7 +3,8 @@ import path from 'path';
 import {
     newTestJobConfig,
     SliceRequest,
-    Slice
+    Slice,
+    Slicer
 } from '@terascope/job-components';
 import { SlicerTestHarness } from '../src';
 
@@ -30,17 +31,21 @@ describe('SlicerTestHarness', () => {
             }
         ];
 
-        const jobHarness = new SlicerTestHarness(job, {
+        const slicerHarness = new SlicerTestHarness(job, {
             assetDir: path.join(__dirname, 'fixtures'),
             clients,
         });
 
         it('should be able to call initialize', () => {
-            return expect(jobHarness.initialize()).resolves.toBeNil();
+            return expect(slicerHarness.initialize()).resolves.toBeNil();
+        });
+
+        it('should have a slicer', () => {
+            expect(slicerHarness.slicer).toBeInstanceOf(Slicer);
         });
 
         it('should be able to call createSlices', async () => {
-            const result = await jobHarness.createSlices() as SliceRequest[];
+            const result = await slicerHarness.createSlices() as SliceRequest[];
             expect(result).toBeArray();
 
             expect(result[0]).not.toHaveProperty('slice_id');
@@ -49,7 +54,7 @@ describe('SlicerTestHarness', () => {
         });
 
         it('should be able to call createSlices with fullResponse', async () => {
-            const result = await jobHarness.createSlices({ fullResponse: true }) as Slice[];
+            const result = await slicerHarness.createSlices({ fullResponse: true }) as Slice[];
             expect(result).toBeArray();
             expect(result[0]).toHaveProperty('slice_id');
             expect(result[0]).toHaveProperty('slicer_id');
@@ -57,7 +62,7 @@ describe('SlicerTestHarness', () => {
         });
 
         it('should be able to call shutdown', () => {
-            return expect(jobHarness.shutdown()).resolves.toBeNil();
+            return expect(slicerHarness.shutdown()).resolves.toBeNil();
         });
     });
 });

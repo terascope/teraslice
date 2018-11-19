@@ -24,6 +24,14 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerContext, Wo
         super(job, options, Assignment.Worker);
     }
 
+    get fetcher() {
+        return this.executionContext.fetcher;
+    }
+
+    get processors() {
+        return [...this.executionContext.processors];
+    }
+
     /**
      * Initialize the Operations on the ExecutionContext
     */
