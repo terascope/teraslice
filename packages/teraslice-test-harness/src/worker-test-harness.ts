@@ -16,18 +16,9 @@ import { JobHarnessOptions, TestMode } from './interfaces';
  * @todo Add support for lifecycle events
  * @todo Add support for attaching APIs and Observers
 */
-export default class WorkerTestHarness extends BaseTestHarness {
-    protected executionContext: WorkerExecutionContext;
-    protected context: WorkerContext;
-
+export default class WorkerTestHarness extends BaseTestHarness<WorkerContext, WorkerExecutionContext> {
     constructor(job: JobConfig, options: JobHarnessOptions) {
-        super(TestMode.Worker);
-
-        const config = this.makeContextConfig(job, options.assetDir);
-        this.executionContext = new WorkerExecutionContext(config);
-        this.context = this.executionContext.context;
-
-        this.setClients(options.clients);
+        super(job, options, TestMode.Worker);
     }
 
     /**

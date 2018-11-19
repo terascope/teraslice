@@ -16,7 +16,7 @@ import {
  * @see Core
  */
 
-export default class OperationCore<T = OpConfig> extends Core implements WorkerOperationLifeCycle {
+export default class OperationCore<T = OpConfig> extends Core<WorkerContext> implements WorkerOperationLifeCycle {
     protected readonly opConfig: Readonly<OpConfig & T>;
 
     constructor(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {

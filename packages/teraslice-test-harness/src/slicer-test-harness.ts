@@ -17,18 +17,9 @@ import { JobHarnessOptions, TestMode } from './interfaces';
  * @todo Add support for lifecycle events
  * @todo Add support for attaching APIs and Observers
 */
-export default class SlicerTestHarness extends BaseTestHarness {
-    protected executionContext: SlicerExecutionContext;
-    protected context: SlicerContext;
-
+export default class SlicerTestHarness extends BaseTestHarness<SlicerContext, SlicerExecutionContext> {
     constructor(job: JobConfig, options: JobHarnessOptions) {
-        super(TestMode.Slicer);
-
-        const config = this.makeContextConfig(job, options.assetDir);
-        this.executionContext = new SlicerExecutionContext(config);
-        this.context = this.executionContext.context;
-
-        this.setClients(options.clients);
+        super(job, options, TestMode.Slicer);
     }
 
     /**

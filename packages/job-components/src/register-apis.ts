@@ -66,7 +66,7 @@ export function registerApis(context: Context, job: ValidatedJobConfig|Execution
 }
 
 export interface OpRunnerAPI {
-    getClient(config: GetClientConfig, type: string): { client: any };
+    getClient(config: GetClientConfig, type: string): any;
 }
 
 export interface JobRunnerAPI {

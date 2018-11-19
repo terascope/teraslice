@@ -1,13 +1,18 @@
 export default class SimpleClient {
-    fetchRecord() {
+    fetchRecord(id: number) {
         return {
-            hi: true
+            id,
+            data: [
+                Math.random(),
+                Math.random(),
+                Math.random(),
+            ]
         };
     }
 
-    sliceRequest() {
+    sliceRequest(count: number) {
         return {
-            hello: true
+            count
         };
     }
 }

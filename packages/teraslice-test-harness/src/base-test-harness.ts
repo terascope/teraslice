@@ -7,30 +7,44 @@ import {
     JobConfig,
     ExecutionContextConfig,
     Assignment,
+    makeExecutionContext,
+    WorkerExecutionContext,
+    SlicerExecutionContext,
 } from '@terascope/job-components';
 import {
-    ExecutionContext,
     Context,
     Client,
     ClientFactoryFns,
     CachedClients,
     TestMode,
+    JobHarnessOptions,
 } from './interfaces';
 import { resolveAssetDir } from './utils';
 
 /**
  * A base class for the Slicer and Worker TestHarnesses
 */
-export default abstract class BaseTestHarness {
-    protected abstract executionContext: ExecutionContext;
-    protected abstract context: Context;
+export default abstract class BaseTestHarness<T extends Context, U extends SlicerExecutionContext|WorkerExecutionContext> {
+    protected executionContext: U;
+    protected context: T;
 
     private testMode: TestMode;
     private clients: ClientFactoryFns = {};
     private cachedClients: CachedClients = {};
 
-    constructor(testMode: TestMode) {
+    constructor(job: JobConfig, options: JobHarnessOptions, testMode: TestMode) {
         this.testMode = testMode;
+
+        this.context = new TestContext(`${this.testMode}-test:${job.name}`) as T;
+        const isSlicer = this.testMode === TestMode.Slicer;
+        this.context.assignment = isSlicer ? Assignment.ExecutionController : Assignment.Worker;
+
+        this.context.apis.foundation.getConnection = this._getConnection.bind(this);
+        this.context.foundation.getConnection = this._getConnection.bind(this);
+        this.setClients(options.clients);
+
+        const config = this.makeContextConfig(job, options.assetDir);
+        this.executionContext = makeExecutionContext(config) as U;
     }
 
     /**
@@ -46,9 +60,6 @@ export default abstract class BaseTestHarness {
             this.clients[`${type}:${endpoint}`] = create;
             set(this.context, ['sysconfig', 'terafoundation', 'connectors', type, endpoint], config);
         });
-
-        this.context.apis.foundation.getConnection = this._getConnection.bind(this);
-        this.context.foundation.getConnection = this._getConnection.bind(this);
     }
 
     /**
@@ -67,22 +78,17 @@ export default abstract class BaseTestHarness {
     }
 
     protected makeContextConfig(job: JobConfig, assetDir: string = process.cwd()): ExecutionContextConfig {
-        const context = new TestContext(`${this.testMode}-test:${job.name}`);
-
+        const assetIds = job.assets ? [...job.assets, '.'] : ['.'];
         const resolvedAssetDir = resolveAssetDir(assetDir);
-        context.sysconfig.teraslice.assets_directory = resolvedAssetDir;
+        this.context.sysconfig.teraslice.assets_directory = resolvedAssetDir;
+        job.assets = assetIds;
 
-        const isSlicer = this.testMode === TestMode.Slicer;
-        context.assignment = isSlicer ? Assignment.ExecutionController : Assignment.Worker;
-
-        job.assets = job.assets ? [...job.assets, '.'] : ['.'];
-
-        const jobValidator = new JobValidator(context);
+        const jobValidator = new JobValidator(this.context);
         const executionConfig = jobValidator.validateConfig(job) as ExecutionConfig;
         return {
-            context,
+            context: this.context,
             executionConfig,
-            assetIds: ['.']
+            assetIds
         };
     }
 
@@ -104,7 +110,6 @@ export default abstract class BaseTestHarness {
 
         const client = create(config, this.context.logger, options);
         this.cachedClients[key] = client;
-
         return { client };
     }
 }

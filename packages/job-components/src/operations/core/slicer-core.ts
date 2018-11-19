@@ -20,7 +20,7 @@ import Core from './core';
  * @see Core
  */
 
-export default abstract class SlicerCore<T = OpConfig> extends Core implements SlicerOperationLifeCycle {
+export default abstract class SlicerCore<T = OpConfig> extends Core<SlicerContext> implements SlicerOperationLifeCycle {
     protected stats: ExecutionStats;
     protected recoveryData: object[];
     protected readonly opConfig: Readonly<OpConfig & T>;

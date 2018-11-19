@@ -5,13 +5,13 @@ import { Context, ExecutionConfig, Logger, OperationLifeCycle } from '../../inte
  * The core class for creating for all varients or base classes for an operation.
  */
 
-export default abstract class Core implements OperationLifeCycle {
-    protected readonly context: Readonly<Context>;
+export default abstract class Core<T extends Context> implements OperationLifeCycle {
+    protected readonly context: Readonly<T>;
     protected readonly executionConfig: Readonly<ExecutionConfig>;
     protected readonly logger: Logger;
     readonly events: EventEmitter;
 
-    constructor(context: Context, executionConfig: ExecutionConfig, logger: Logger) {
+    constructor(context: T, executionConfig: ExecutionConfig, logger: Logger) {
         this.context = context;
         this.executionConfig = executionConfig;
         this.logger = logger;
