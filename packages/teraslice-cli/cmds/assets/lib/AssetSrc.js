@@ -52,18 +52,31 @@ class AssetSrc {
     runAssetBuild(assetDir) {
         let yarn = {};
         if (_.has(this.assetPackageJson, ['scripts', 'asset:build'])) {
-            yarn = spawnSync(
-                'yarn',
-                ['--cwd', path.join(assetDir, 'asset'), 'run', 'asset:build']
-            );
+            yarn = this._yarnCmd(path.join(assetDir, 'asset'), ['run', 'asset:build']);
+        }
+        return yarn;
+    }
 
-            if (yarn.status !== 0) {
-                throw new Error(
-                    `yarn command exited with non-zero status: ${yarn.status}\n`
-                    + `yarn stdout:\n${yarn.stdout}\n`
-                    + `yarn stderr:\n${yarn.stderr}`
-                );
-            }
+    // TODO: This has a dependency on the external executable `yarn`,
+    //       we should test that this exists earlier than this and also
+    //       support `npm`.
+    /**
+     * runs yarn command
+     * @param {string} dir - Path to directory containing package.json
+     * @param {Array} yarnArgs - Array of arguments or options to be passed to yarn command
+     */
+    _yarnCmd(dir, yarnArgs) {
+        const yarn = spawnSync(
+            'yarn',
+            ['--cwd', dir].concat(yarnArgs)
+        );
+
+        if (yarn.status !== 0) {
+            throw new Error(
+                `yarn command exited with non-zero status: ${yarn.status}\n`
+                + `yarn stdout:\n${yarn.stdout}\n`
+                + `yarn stderr:\n${yarn.stderr}`
+            );
         }
         return yarn;
     }
@@ -87,25 +100,10 @@ class AssetSrc {
         // remove srcDir/asset/node_modules
         fs.removeSync(path.join(tmpDir.name, 'asset', 'node_modules'));
 
-        // TODO: This has a dependency on the external executable `yarn`,
-        //       we should test that this exists earlier than this and also
-        //       support `npm`.
         // run yarn --cwd srcDir/asset --prod --silent --no-progress
-        const yarn = spawnSync(
-            'yarn',
-            ['--cwd', path.join(tmpDir.name, 'asset'), '--prod', '--no-progress']
-        );
+        this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
 
-        if (yarn.status !== 0) {
-            throw new Error(
-                `yarn command exited with non-zero status: ${yarn.status}\n`
-                + `yarn stdout:\n${yarn.stdout}\n`
-                + `yarn stderr:\n${yarn.stderr}`
-            );
-        }
-
-        // Run asset:build commnd
-        // TODO: run yarn --cwd srcDir/asset --prod --silent --no-progress asset:build
+        // run yarn --cwd srcDir/asset --prod --silent --no-progress asset:build
         this.runAssetBuild(tmpDir.name);
 
         try {
