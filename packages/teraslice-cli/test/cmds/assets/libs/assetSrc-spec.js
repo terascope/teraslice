@@ -4,7 +4,7 @@ const path = require('path');
 
 const fs = require('fs-extra');
 
-const AssetSrc = require('../../../../cmds/assets/lib/AssetSrc');
+const AssetSrc = require('../../../../cmds/assets/lib/asset-src');
 
 describe('AssetSrc', () => {
     let testAsset;

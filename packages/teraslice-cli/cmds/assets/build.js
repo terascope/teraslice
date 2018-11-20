@@ -1,6 +1,6 @@
 'use strict';
 
-const AssetSrc = require('./lib/AssetSrc');
+const AssetSrc = require('./lib/asset-src');
 const reply = require('../lib/reply')();
 
 

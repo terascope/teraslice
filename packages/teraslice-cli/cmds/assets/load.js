@@ -3,8 +3,8 @@
 
 const _ = require('lodash');
 const fs = require('fs-extra');
-const AssetSrc = require('./lib/AssetSrc');
-const GithubAsset = require('./lib/GithubAsset');
+const AssetSrc = require('./lib/asset-src');
+const GithubAsset = require('./lib/github-asset');
 const config = require('../lib/config');
 const cli = require('../lib/cli');
 const reply = require('../lib/reply')();
