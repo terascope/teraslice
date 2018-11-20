@@ -46,6 +46,6 @@ describe('AssetSrc with build', () => {
         const runReturnObj = testAsset.runAssetBuild(srcDir);
         expect(runReturnObj).toBeObject();
         expect(runReturnObj.status).toEqual(0);
-        expect(runReturnObj.stdout.toString()).toEqual('$ echo foo\nfoo\n');
+        expect(runReturnObj.stdout.toString()).toStartWith('$ echo');
     });
 });
