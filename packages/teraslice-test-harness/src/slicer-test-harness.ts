@@ -1,12 +1,10 @@
 import { sortBy, map, groupBy, times } from 'lodash';
 import {
     SlicerExecutionContext,
-    SlicerContext,
     JobConfig,
     Slice,
     SliceRequest,
     SliceResult,
-    Assignment,
     ExecutionStats,
 } from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness';
@@ -17,7 +15,7 @@ import { JobHarnessOptions } from './interfaces';
  * ran on the Execution Controller, maining the Slicer,
  * and an associated lifecycle events.
 */
-export default class SlicerTestHarness extends BaseTestHarness<SlicerContext, SlicerExecutionContext> {
+export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionContext> {
     readonly stats: ExecutionStats = {
         workers: {
             available: 1,
@@ -32,7 +30,7 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerContext, Sl
     private _emitInterval: NodeJS.Timer|undefined;
 
     constructor(job: JobConfig, options: JobHarnessOptions) {
-        super(job, options, Assignment.ExecutionController);
+        super(job, options, 'execution_controller');
     }
 
     get slicer() {

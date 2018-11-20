@@ -1,11 +1,9 @@
 import {
     WorkerExecutionContext,
-    WorkerContext,
     JobConfig,
     Slice,
     DataEntity,
     RunSliceResult,
-    Assignment,
     SliceRequest,
     newTestSlice,
 } from '@terascope/job-components';
@@ -19,9 +17,9 @@ import { JobHarnessOptions } from './interfaces';
  * @todo Add support for attaching APIs and Observers
  * @todo Add support for slice retries
 */
-export default class WorkerTestHarness extends BaseTestHarness<WorkerContext, WorkerExecutionContext> {
+export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionContext> {
     constructor(job: JobConfig, options: JobHarnessOptions) {
-        super(job, options, Assignment.Worker);
+        super(job, options, 'worker');
     }
 
     get fetcher() {

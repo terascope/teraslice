@@ -1,7 +1,7 @@
-import { DataEntity, JobConfig, Slice, RunSliceResult, SliceAnalyticsData } from '@terascope/job-components';
+import { DataEntity, JobConfig, Slice, RunSliceResult, SliceAnalyticsData, TestClientConfig } from '@terascope/job-components';
 import SlicerTestHarness from './slicer-test-harness';
 import WorkerTestHarness from './worker-test-harness';
-import { JobHarnessOptions, Client } from './interfaces';
+import { JobHarnessOptions } from './interfaces';
 
 /**
  * A Teraslice Test Harness for testing the interactions
@@ -34,7 +34,7 @@ export default class JobTestHarness {
      * Set the Terafoundation Clients on both
      * the Slicer and Worker contexts
     */
-    async setClients(clients: Client[]) {
+    async setClients(clients: TestClientConfig[]) {
         this.workerHarness.setClients(clients);
         this.slicerHarness.setClients(clients);
     }

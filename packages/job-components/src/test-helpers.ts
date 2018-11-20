@@ -152,103 +152,39 @@ export interface TestClientConfig {
     endpoint?: string;
 }
 
-const _cachedClients = new WeakMap<i.Context, CachedClients>();
-const _availableClients = new WeakMap<i.Context, ClientFactoryFns>();
-
 export interface TestContextAPIs extends i.ContextAPIs {
     setTestClients(clients: TestClientConfig[]): void;
 }
+type GetKeyOpts = {
+    type: string;
+    endpoint?: string;
+};
 
-function newTestContextAPIs(testName: string, context: i.Context): TestContextAPIs {
-    const events = new EventEmitter();
-    _cachedClients.set(context, {});
-    _availableClients.set(context, {});
-
-    type opts = {
-        type: string;
-        endpoint: string;
-    };
-
-    function getKey({ type, endpoint }: opts) {
-        if (!isString(type)) throw new Error('A type must be specified when registering a Client');
-        return `${type}:${endpoint}`;
-    }
-
-    function setConnectorConfig<T extends Object>({ type, endpoint }: opts, config: T, override = true): T {
-        const { connectors } = context.sysconfig.terafoundation;
-        if (connectors[type] == null) connectors[type] = {};
-        if (connectors[type][endpoint] == null) {
-            connectors[type][endpoint] = config;
-        } else if (override) {
-            connectors[type][endpoint] = config;
-        }
-        return connectors[type][endpoint];
-    }
-
-    const apis: TestContextAPIs = {
-        foundation: {
-            makeLogger(...params: any[]): i.Logger {
-                return debugLogger(testName, ...params);
-            },
-            getConnection(options: i.ConnectionConfig): { client: any } {
-                const { type, endpoint, cached } = options;
-
-                const key = getKey(options);
-                const cachedClients: ClientFactoryFns = _cachedClients.get(context) as CachedClients;
-
-                if (cached && cachedClients[key] != null) {
-                    return { client: cachedClients[key] };
-                }
-
-                const clients: ClientFactoryFns = _availableClients.get(context) as ClientFactoryFns;
-
-                const create = clients[key];
-                if (!create) throw new Error(`No client was found for connection "${type}:${endpoint}"`);
-                if (!isFunction(create)) {
-                    const actual = kindOf(create);
-                    throw new Error(`Registered Client for connection "${type}:${endpoint}" is not a function, got ${actual}`);
-                }
-
-                const config = setConnectorConfig(options, {});
-
-                const client = create(config, context.logger, options);
-
-                cachedClients[key] = client;
-
-                _cachedClients.set(context, cachedClients);
-
-                return { client };
-            },
-            getSystemEvents(): EventEmitter {
-                return events;
-            },
-        },
-        registerAPI(namespace: string, apis: any): void {
-            this[namespace] = apis;
-        },
-        setTestClients(clients: TestClientConfig[] = []) {
-            clients.forEach((clientConfig) => {
-                const {
-                    create,
-                    type,
-                    endpoint = 'default',
-                    config = {}
-                } = clientConfig;
-
-                const key = getKey({ type, endpoint });
-
-                const clients = _availableClients.get(context) as ClientFactoryFns;
-
-                clients[key] = create;
-
-                setConnectorConfig({ type, endpoint }, config, true);
-
-                _availableClients.set(context, clients);
-            });
-        }
-    };
-    return apis;
+function getKey(opts: GetKeyOpts) {
+    const { type, endpoint = 'default' } = opts;
+    if (!isString(type)) throw new Error('A type must be specified when registering a Client');
+    return `${type}:${endpoint}`;
 }
+
+function setConnectorConfig<T extends Object>(sysconfig: i.SysConfig, opts: GetKeyOpts, config: T, override = true): T {
+    const { type, endpoint = 'default' } = opts;
+    const { connectors } = sysconfig.terafoundation;
+    if (connectors[type] == null) connectors[type] = {};
+    if (connectors[type][endpoint] == null) {
+        connectors[type][endpoint] = config;
+    } else if (override) {
+        connectors[type][endpoint] = config;
+    }
+    return connectors[type][endpoint];
+}
+
+export interface TestContextOptions {
+    assignment?: i.Assignment;
+    clients?: TestClientConfig[];
+}
+
+const _cachedClients = new WeakMap<TestContext, CachedClients>();
+const _createClientFns = new WeakMap<TestContext, ClientFactoryFns>();
 
 export class TestContext implements i.Context {
     logger: i.Logger;
@@ -260,15 +196,17 @@ export class TestContext implements i.Context {
     platform: string = process.platform;
     arch: string = process.arch;
 
-    constructor(testName: string, assignment?: i.Assignment) {
+    constructor(testName: string, options: TestContextOptions = {}) {
+        const logger = debugLogger(testName);
+        const events = new EventEmitter();
+
         this.name = testName;
-        if (assignment) {
-            this.assignment = assignment;
+        if (options.assignment) {
+            this.assignment = options.assignment;
         }
+        this.logger = logger;
 
-        this.logger = debugLogger(testName);
-
-        this.sysconfig = {
+        const sysconfig: i.SysConfig = {
             terafoundation: {
                 connectors: {
                     elasticsearch: {
@@ -305,12 +243,78 @@ export class TestContext implements i.Context {
             },
         };
 
-        this.apis = newTestContextAPIs(testName, this);
+        this.sysconfig = sysconfig;
+
+        // tslint:disable-next-line
+        const ctx = this;
+        _cachedClients.set(this, {});
+        _createClientFns.set(this, {});
+
+        this.apis = {
+            foundation: {
+                makeLogger(...params: any[]): i.Logger {
+                    return debugLogger(testName, ...params);
+                },
+                getConnection(options: i.ConnectionConfig): { client: any } {
+                    const { cached } = options;
+
+                    const cachedClients = _cachedClients.get(ctx) || {};
+                    const key = getKey(options);
+                    if (cached && cachedClients[key] != null) {
+                        return { client: cachedClients[key] };
+                    }
+
+                    const clientFns = _createClientFns.get(ctx) || {};
+                    const create = clientFns[key];
+
+                    if (!create) throw new Error(`No client was found for connection "${key}"`);
+                    if (!isFunction(create)) {
+                        const actual = kindOf(create);
+                        throw new Error(`Registered Client for connection "${key}" is not a function, got ${actual}`);
+                    }
+
+                    const config = setConnectorConfig(sysconfig, options, {});
+
+                    const client = create(config, logger, options);
+                    cachedClients[key] = client;
+                    _cachedClients.set(ctx, cachedClients);
+
+                    return { client };
+                },
+                getSystemEvents(): EventEmitter {
+                    return events;
+                },
+            },
+            registerAPI(namespace: string, apis: any): void {
+                this[namespace] = apis;
+            },
+            setTestClients(clients: TestClientConfig[] = []) {
+                clients.forEach((clientConfig) => {
+                    const { create, config = {} } = clientConfig;
+
+                    const clientFns = _createClientFns.get(ctx) || {};
+                    const key = getKey(clientConfig);
+                    if (!isFunction(create)) {
+                        const actual = kindOf(create);
+                        throw new Error(`Test Client for connection "${key}" is not a function, got ${actual}`);
+                    }
+
+                    logger.trace(`Setting test client for connection "${key}"`, config);
+
+                    clientFns[key] = create;
+                    _createClientFns.set(ctx, clientFns);
+
+                    setConnectorConfig(sysconfig, clientConfig, config, true);
+                });
+            }
+        } as TestContextAPIs;
 
         this.foundation = {
             getConnection: this.apis.foundation.getConnection,
             getEventEmitter: this.apis.foundation.getSystemEvents,
             makeLogger: this.apis.foundation.makeLogger,
         };
+
+        this.apis.setTestClients(options.clients);
     }
 }

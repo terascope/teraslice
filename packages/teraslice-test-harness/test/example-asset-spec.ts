@@ -1,6 +1,6 @@
 import 'jest-extended';
 import path from 'path';
-import { DataEntity, SliceRequest } from '@terascope/job-components';
+import { DataEntity, SliceRequest, TestClientConfig } from '@terascope/job-components';
 import SimpleClient from './fixtures/asset/simple-connector/client';
 import {
     JobTestHarness,
@@ -15,7 +15,7 @@ jest.mock('./fixtures/asset/simple-connector/client');
 describe('Example Asset', () => {
     const assetDir = path.join(__dirname, 'fixtures');
     const simpleClient = new SimpleClient();
-    const clientConfig = {
+    const clientConfig: TestClientConfig = {
         type: 'simple-client',
         create: jest.fn(() => simpleClient),
     };

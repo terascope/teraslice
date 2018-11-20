@@ -1,20 +1,15 @@
-import { set, get } from 'lodash';
 import {
     ExecutionConfig,
     JobValidator,
     TestContext,
-    ConnectionConfig,
     JobConfig,
     ExecutionContextConfig,
     Assignment,
     makeExecutionContext,
+    TestClientConfig,
 } from '@terascope/job-components';
 import { EventEmitter } from 'events';
 import {
-    Context,
-    Client,
-    ClientFactoryFns,
-    CachedClients,
     JobHarnessOptions,
     ExecutionContext,
 } from './interfaces';
@@ -22,58 +17,42 @@ import { resolveAssetDir } from './utils';
 
 /**
  * A base class for the Slicer and Worker TestHarnesses
+ *
+ * @todo Add support for validating the asset.json?
 */
-export default class BaseTestHarness<T extends Context, U extends ExecutionContext> {
+export default class BaseTestHarness<U extends ExecutionContext> {
     events: EventEmitter;
     protected executionContext: U;
-    protected context: T;
-
-    private clients: ClientFactoryFns = {};
-    private cachedClients: CachedClients = {};
+    protected context: TestContext;
 
     constructor(job: JobConfig, options: JobHarnessOptions, assignment: Assignment) {
         const testName = [assignment, job.name].filter((s) => s).join(':');
-        this.context = new TestContext(testName) as T;
-        this.context.assignment = assignment;
-
-        this.context.apis.foundation.getConnection = this._getConnection.bind(this);
-        this.context.foundation.getConnection = this._getConnection.bind(this);
+        this.context = new TestContext(testName, {
+            assignment,
+            clients: options.clients,
+        });
 
         this.events = this.context.apis.foundation.getSystemEvents();
-        this.setClients(options.clients);
 
         const config = this.makeContextConfig(job, options.assetDir);
         this.executionContext = makeExecutionContext(config) as U;
     }
 
     /**
-     * Set Terafoundation Connector clients
-     * so they can be accessed from with in the pipeline
-    */
-    async setClients(clients: Client[] = []) {
-        clients.forEach((clientConfig) => {
-            const { create, type, endpoint = 'default', config = {} } = clientConfig;
-
-            if (!type || (typeof type !== 'string')) throw new Error('you must specify a type when setting a client');
-
-            this.clients[`${type}:${endpoint}`] = create;
-            set(this.context, ['sysconfig', 'terafoundation', 'connectors', type, endpoint], config);
-        });
-    }
-
-    /**
-     * Initialize any test code
+     * Initialize any test cod
     */
     async initialize() {
-        this.cachedClients = {};
+    }
+
+    setClients(clients: TestClientConfig[]) {
+        this.context.apis.setTestClients(clients);
     }
 
     /**
      * Cleanup test code
     */
     async shutdown() {
-        this.clients = {};
-        this.cachedClients = {};
+        this.events.removeAllListeners();
     }
 
     protected makeContextConfig(job: JobConfig, assetDir: string = process.cwd()): ExecutionContextConfig {
@@ -89,26 +68,5 @@ export default class BaseTestHarness<T extends Context, U extends ExecutionConte
             executionConfig,
             assetIds
         };
-    }
-
-    private _getConnection(options: ConnectionConfig): { client: any } {
-        const { type, endpoint, cached } = options;
-
-        const key = `${type}:${endpoint}`;
-        if (cached && this.cachedClients[key] != null) {
-            return {
-                client: this.cachedClients[key]
-            };
-        }
-
-        const create = this.clients[key];
-        if (!create) throw new Error(`No client was found at type ${type}, endpoint: ${endpoint}`);
-        if (typeof create !== 'function') throw new Error(`Client for type ${type}:${endpoint} is not a function`);
-
-        const config = get(this.context, ['sysconfig', 'terafoundation', 'connectors', type, endpoint], {});
-
-        const client = create(config, this.context.logger, options);
-        this.cachedClients[key] = client;
-        return { client };
     }
 }
