@@ -31,4 +31,21 @@ describe('AssetSrc', () => {
     test('should generate correct name with zipFileName()', () => {
         expect(testAsset.zipFileName).toMatch(/testAsset-v0.0.1-node-.*.zip/);
     });
+
+    test('->runAssetBuild', () => {
+        expect(testAsset.runAssetBuild(srcDir)).toEqual({});
+    });
+});
+
+describe('AssetSrc with build', () => {
+    let testAsset;
+    const srcDir = path.join(__dirname, '../../../fixtures/testAssetWithBuild');
+
+    test('->runAssetBuild', () => {
+        testAsset = new AssetSrc(srcDir);
+        const runReturnObj = testAsset.runAssetBuild(srcDir);
+        expect(runReturnObj).toBeObject();
+        expect(runReturnObj.status).toEqual(0);
+        expect(runReturnObj.stdout.toString()).toEqual('$ echo foo\nfoo\n');
+    });
 });

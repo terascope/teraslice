@@ -4,6 +4,7 @@
 
 const { spawnSync } = require('child_process');
 
+const _ = require('lodash');
 const fs = require('fs-extra');
 const archiver = require('archiver');
 const Promise = require('bluebird');
@@ -12,9 +13,15 @@ const tmp = require('tmp');
 
 
 class AssetSrc {
+    /**
+     *
+     * @param {string} srcDir Path to a valid asset source directory, must
+     * must contain `asset/asset.json` and `asset/package.json` files.
+     */
     constructor(srcDir) {
         this.srcDir = path.resolve(srcDir);
         this.assetFile = path.join(this.srcDir, 'asset', 'asset.json');
+        this.assetPackageJson = require(path.join(this.srcDir, 'asset', 'package.json'));
 
         if (!fs.pathExistsSync(this.assetFile)) {
             throw new Error(`${this.srcDir} is not a valid asset source directory.`);
@@ -31,6 +38,34 @@ class AssetSrc {
 
         const nodeVersion = process.version.split('.')[0].substr(1);
         return `${asset.name}-v${asset.version}-node-${nodeVersion}-${process.platform}-${process.arch}.zip`;
+    }
+
+    /**
+     * If the assets package.json file script asset:build exists, it will be
+     * executed
+     *
+     * @param {string} assetDir - Path to directory containing asset, in the
+     * primary use case this will be tmpDir.name found in build, but differs
+     * for testing.
+     * @returns {object} - spawnSync return object.
+     */
+    runAssetBuild(assetDir) {
+        let yarn = {};
+        if (_.has(this.assetPackageJson, ['scripts', 'asset:build'])) {
+            yarn = spawnSync(
+                'yarn',
+                ['--cwd', path.join(assetDir, 'asset'), 'run', 'asset:build']
+            );
+
+            if (yarn.status !== 0) {
+                throw new Error(
+                    `yarn command exited with non-zero status: ${yarn.status}\n`
+                    + `yarn stdout:\n${yarn.stdout}\n`
+                    + `yarn stderr:\n${yarn.stderr}`
+                );
+            }
+        }
+        return yarn;
     }
 
     async build() {
@@ -68,8 +103,10 @@ class AssetSrc {
                 + `yarn stderr:\n${yarn.stderr}`
             );
         }
+
         // Run asset:build commnd
         // TODO: run yarn --cwd srcDir/asset --prod --silent --no-progress asset:build
+        this.runAssetBuild(tmpDir.name);
 
         try {
             // create zipfile
