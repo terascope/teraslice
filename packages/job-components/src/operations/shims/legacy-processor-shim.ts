@@ -2,12 +2,12 @@ import operationAPIShim, { APIs } from './operation-api-shim';
 import legacySliceEventsShim from './legacy-slice-events-shim';
 import DataEntity, { DataInput } from '../data-entity';
 import { SchemaConstructor } from '../interfaces';
-import { WorkerContext } from '../../execution-context';
 import {
     LegacyProcessor,
     Logger,
     SliceRequest,
     ProcessorFn,
+    WorkerContext,
 } from '../../interfaces';
 
 // This file for backwards compatibility and functionality will be limited

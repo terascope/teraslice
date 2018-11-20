@@ -6,11 +6,10 @@ import FetcherCore from '../operations/core/fetcher-core';
 import ProcessorCore from '../operations/core/processor-core';
 import { OperationAPIConstructor, DataEntity } from '../operations';
 import { registerApis } from '../register-apis';
-import { WorkerOperationLifeCycle, ExecutionConfig, Slice } from '../interfaces';
+import { WorkerOperationLifeCycle, ExecutionConfig, Slice, WorkerContext } from '../interfaces';
 import {
     EventHandlers,
     WorkerOperations,
-    WorkerContext,
     ExecutionContextConfig,
     WorkerMethodRegistry,
     RunSliceResult,

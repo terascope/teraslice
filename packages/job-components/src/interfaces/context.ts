@@ -2,6 +2,8 @@
 import bunyan from '@types/bunyan';
 import Stream from 'stream';
 import { EventEmitter } from 'events';
+import { OpConfig } from './jobs';
+import { ExecutionContextAPI } from '../execution-context';
 
 export type LoggerStream = Stream|WritableStream|undefined;
 
@@ -73,6 +75,8 @@ export interface ConnectionConfig {
     type: string;
 }
 
+export type ClientFactoryFn = (config: object, logger: Logger, options: ConnectionConfig) => any;
+
 export interface FoundationApis {
     makeLogger(...params: any[]): Logger;
     getSystemEvents(): EventEmitter;
@@ -86,15 +90,54 @@ export interface LegacyFoundationApis {
 }
 
 export interface ContextApis {
-    foundation: FoundationApis;
+    readonly foundation: FoundationApis;
     registerAPI(namespace: string, apis: any): void;
     [namespace: string]: any;
 }
 
+export interface ContextAPIs extends ContextApis {}
+
+export interface GetClientConfig {
+    connection?: string;
+    endpoint?: string;
+    connection_cache?: boolean;
+}
+
+export interface OpRunnerAPI {
+    getClient(config: GetClientConfig, type: string): any;
+}
+
+export interface JobRunnerAPI {
+    getOpConfig(name: string): OpConfig|undefined;
+}
+
+export interface WorkerContext extends Context {
+    apis: WorkerContextAPIs;
+}
+
+/**
+ * WorkerContext includes the type definitions for
+ * the APIs available to Worker.
+ * This extends the Terafoundation Context.
+*/
+export interface WorkerContextAPIs extends ContextAPIs {
+    /** Includes an API for getting a client from Terafoundation */
+    op_runner: OpRunnerAPI;
+    /** Includes an API for getting a opConfig from the job */
+    job_runner: JobRunnerAPI;
+    /** An API for registering and loading the new Job APIs */
+    executionContext: ExecutionContextAPI;
+}
+
+export interface WorkerContext extends Context {
+    apis: WorkerContextAPIs;
+    assignment: 'execution_controller'|'worker';
+}
+
 export interface Context {
-    apis: ContextApis;
+    apis: ContextAPIs;
     arch: string;
-    assignment: string;
+    assignment: Assignment;
     foundation: LegacyFoundationApis;
     logger: Logger;
     name: string;
@@ -102,10 +145,4 @@ export interface Context {
     sysconfig: SysConfig;
 }
 
-export enum Assignment {
-    AssetsService = 'assets_service',
-    ClusterMaster = 'cluster_master',
-    ExecutionController = 'execution_controller',
-    NodeMaster = 'node_master',
-    Worker = 'worker',
-}
+export type Assignment = 'assets_service'|'cluster_master'|'node_master'|'execution_controller'|'worker';

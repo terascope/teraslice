@@ -1,11 +1,11 @@
 import '../../formats'; // require to add the schema formats
 import Core from './core';
-import { WorkerContext } from '../../execution-context';
 import {
     ExecutionConfig,
     WorkerOperationLifeCycle,
     OpAPI,
     OpConfig,
+    WorkerContext,
 } from '../../interfaces';
 
 /**

@@ -1,5 +1,4 @@
-import { ExecutionConfig, Context, OpConfig } from '../interfaces';
-import { SlicerContext, WorkerContext } from '../execution-context';
+import { ExecutionConfig, Context, OpConfig, WorkerContext } from '../interfaces';
 import FetcherCore from './core/fetcher-core';
 import SchemaCore from './core/schema-core';
 import SlicerCore from './core/slicer-core';
@@ -18,7 +17,7 @@ export type OperationCoreConstructor<U> = {
 };
 
 export type SlicerCoreConstructor<U> = {
-    new<T = OpConfig>(context: SlicerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig): U;
+    new<T = OpConfig>(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig): U;
 };
 
 export type SchemaConstructor<T = any> = {

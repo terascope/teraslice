@@ -7,13 +7,13 @@ import {
     ExecutionStats,
     Slice,
     SliceResult,
+    WorkerContext
 } from '../interfaces';
 import { OperationLoader } from '../operation-loader';
 import SlicerCore from '../operations/core/slicer-core';
 import { registerApis } from '../register-apis';
 import {
     EventHandlers,
-    SlicerContext,
     SlicerOperations,
     ExecutionContextConfig,
     SlicerMethodRegistry,
@@ -30,7 +30,7 @@ const _operations = new WeakMap<SlicerExecutionContext, SlicerOperations>();
 */
 export class SlicerExecutionContext implements SlicerOperationLifeCycle {
     readonly config: ExecutionConfig;
-    readonly context: SlicerContext;
+    readonly context: WorkerContext;
 
     /**
      * A list of assetIds available to the job.
@@ -72,7 +72,7 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
         });
 
         registerApis(config.context, executionConfig);
-        this.context = config.context as SlicerContext;
+        this.context = config.context as WorkerContext;
 
         this.assetIds = config.assetIds || [];
 

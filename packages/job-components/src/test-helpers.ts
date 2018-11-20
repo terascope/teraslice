@@ -1,9 +1,11 @@
 
 import debugFn from 'debug';
 import { EventEmitter } from 'events';
+import kindOf from 'kind-of';
 import path from 'path';
 import * as i from './interfaces';
 import { random, isString, uniq } from './utils';
+import { isFunction } from 'util';
 
 interface DebugParamObj {
     module: string;
@@ -83,23 +85,23 @@ export function newTestSlice(request: i.SliceRequest = {}): i.Slice {
     };
 }
 
-export function newTestJobConfig(): i.ValidatedJobConfig {
-    return {
+const defaultJobConfig = { name: 'test-job', operations: [] };
+
+export function newTestJobConfig(defaults: i.JobConfig = defaultJobConfig): i.ValidatedJobConfig {
+    return Object.assign({
         analytics: false,
         assets: [],
         lifecycle: i.LifeCycle.Once,
-        max_retries: 1,
-        name: 'test-job',
-        operations: [],
+        max_retries: 0,
         probation_window: 30000,
         recycle_worker: 0,
         slicers: 1,
         workers: 1,
-    };
+    }, defaults);
 }
 
-export function newTestExecutionConfig(): i.ExecutionConfig {
-    const exConfig = newTestJobConfig() as i.ExecutionConfig;
+export function newTestExecutionConfig(jobConfig?: i.JobConfig): i.ExecutionConfig {
+    const exConfig = (jobConfig || newTestJobConfig()) as i.ExecutionConfig;
     exConfig.slicer_hostname = 'example.com';
     exConfig.slicer_port = random(8000, 60000);
     exConfig.ex_id = newId('ex-id');
@@ -107,8 +109,12 @@ export function newTestExecutionConfig(): i.ExecutionConfig {
     return exConfig;
 }
 
+/**
+ * Create a new Execution Context
+ * @deprecated use the new WorkerExecutionContext and SlicerExecutionContext
+*/
 export function newTestExecutionContext(type: i.Assignment, config: i.ExecutionConfig): i.LegacyExecutionContext {
-    if (type === i.Assignment.ExecutionController) {
+    if (type === 'execution_controller') {
         return {
             config,
             queue: [],
@@ -131,15 +137,87 @@ export function newTestExecutionContext(type: i.Assignment, config: i.ExecutionC
     };
 }
 
-function testContextApis(testName: string): i.ContextApis {
+interface ClientFactoryFns {
+    [prop: string]: i.ClientFactoryFn;
+}
+
+export interface CachedClients {
+    [prop: string]: any;
+}
+
+export interface TestClientConfig {
+    type: string;
+    create: i.ClientFactoryFn;
+    config?: object;
+    endpoint?: string;
+}
+
+const _cachedClients = new WeakMap<i.Context, CachedClients>();
+const _availableClients = new WeakMap<i.Context, ClientFactoryFns>();
+
+export interface TestContextAPIs extends i.ContextAPIs {
+    setTestClients(clients: TestClientConfig[]): void;
+}
+
+function newTestContextAPIs(testName: string, context: i.Context): TestContextAPIs {
     const events = new EventEmitter();
-    return {
+    _cachedClients.set(context, {});
+    _availableClients.set(context, {});
+
+    type opts = {
+        type: string;
+        endpoint: string;
+    };
+
+    function getKey({ type, endpoint }: opts) {
+        if (!isString(type)) throw new Error('A type must be specified when registering a Client');
+        return `${type}:${endpoint}`;
+    }
+
+    function setConnectorConfig<T extends Object>({ type, endpoint }: opts, config: T, override = true): T {
+        const { connectors } = context.sysconfig.terafoundation;
+        if (connectors[type] == null) connectors[type] = {};
+        if (connectors[type][endpoint] == null) {
+            connectors[type][endpoint] = config;
+        } else if (override) {
+            connectors[type][endpoint] = config;
+        }
+        return connectors[type][endpoint];
+    }
+
+    const apis: TestContextAPIs = {
         foundation: {
             makeLogger(...params: any[]): i.Logger {
                 return debugLogger(testName, ...params);
             },
-            getConnection(config: i.ConnectionConfig): { client: any } {
-                return { client: config };
+            getConnection(options: i.ConnectionConfig): { client: any } {
+                const { type, endpoint, cached } = options;
+
+                const key = getKey(options);
+                const cachedClients: ClientFactoryFns = _cachedClients.get(context) as CachedClients;
+
+                if (cached && cachedClients[key] != null) {
+                    return { client: cachedClients[key] };
+                }
+
+                const clients: ClientFactoryFns = _availableClients.get(context) as ClientFactoryFns;
+
+                const create = clients[key];
+                if (!create) throw new Error(`No client was found for connection "${type}:${endpoint}"`);
+                if (!isFunction(create)) {
+                    const actual = kindOf(create);
+                    throw new Error(`Registered Client for connection "${type}:${endpoint}" is not a function, got ${actual}`);
+                }
+
+                const config = setConnectorConfig(options, {});
+
+                const client = create(config, context.logger, options);
+
+                cachedClients[key] = client;
+
+                _cachedClients.set(context, cachedClients);
+
+                return { client };
             },
             getSystemEvents(): EventEmitter {
                 return events;
@@ -148,21 +226,45 @@ function testContextApis(testName: string): i.ContextApis {
         registerAPI(namespace: string, apis: any): void {
             this[namespace] = apis;
         },
+        setTestClients(clients: TestClientConfig[] = []) {
+            clients.forEach((clientConfig) => {
+                const {
+                    create,
+                    type,
+                    endpoint = 'default',
+                    config = {}
+                } = clientConfig;
+
+                const key = getKey({ type, endpoint });
+
+                const clients = _availableClients.get(context) as ClientFactoryFns;
+
+                clients[key] = create;
+
+                setConnectorConfig({ type, endpoint }, config, true);
+
+                _availableClients.set(context, clients);
+            });
+        }
     };
+    return apis;
 }
 
 export class TestContext implements i.Context {
     logger: i.Logger;
     sysconfig: i.SysConfig;
-    apis: i.ContextApis;
+    apis: TestContextAPIs|i.WorkerContextAPIs|i.ContextAPIs;
     foundation: i.LegacyFoundationApis;
     name: string;
-    assignment = 'worker';
-    platform = process.platform;
-    arch = process.arch;
+    assignment: i.Assignment = 'worker';
+    platform: string = process.platform;
+    arch: string = process.arch;
 
-    constructor(testName: string) {
+    constructor(testName: string, assignment?: i.Assignment) {
         this.name = testName;
+        if (assignment) {
+            this.assignment = assignment;
+        }
 
         this.logger = debugLogger(testName);
 
@@ -203,7 +305,7 @@ export class TestContext implements i.Context {
             },
         };
 
-        this.apis = testContextApis(testName);
+        this.apis = newTestContextAPIs(testName, this);
 
         this.foundation = {
             getConnection: this.apis.foundation.getConnection,

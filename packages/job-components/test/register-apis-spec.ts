@@ -1,5 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { registerApis, OperationAPI, newTestJobConfig, TestContext } from '../src';
+import { registerApis, OperationAPI, newTestJobConfig, TestContext, TestClientConfig } from '../src';
 
 describe('registerApis', () => {
     const context = new TestContext('teraslice-operations');
@@ -43,22 +43,48 @@ describe('registerApis', () => {
     describe('->getClient', () => {
         const { getClient } = context.apis.op_runner;
 
-        it('op_runner.getClient should return a client', () => {
-            expect(getClient({}, 'elasticsearch')).toEqual({
-                cached: true,
-                endpoint: 'default',
+        const clients: TestClientConfig[] = [
+            {
                 type: 'elasticsearch',
-            });
-            expect(getClient({ connection: 'someConnection' }, 'kafka')).toEqual({
-                cached: true,
-                endpoint: 'someConnection',
+                create() {
+                    return { elasticsearch: true };
+                }
+            },
+            {
+                type: 'elasticsearch',
+                endpoint: 'otherConnection',
+                create() {
+                    return { elasticsearch: true, endpoint: 'otherConnection' };
+                }
+            },
+            {
+                type: 'elasticsearch',
+                endpoint: 'thirdConnection',
+                create() {
+                    return { elasticsearch: true, endpoint: 'thirdConnection' };
+                }
+            },
+            {
                 type: 'kafka',
-            });
-            expect(getClient({ connection_cache: false }, 'mongo')).toEqual({
-                cached: true,
-                endpoint: 'default',
+                endpoint: 'someConnection',
+                create() {
+                    return { kafka: true };
+                }
+            },
+            {
                 type: 'mongo',
-            });
+                create() {
+                    return { mongo: true };
+                }
+            }
+        ];
+
+        context.apis.setTestClients(clients);
+
+        it('op_runner.getClient should return a client', () => {
+            expect(getClient({}, 'elasticsearch')).toEqual({ elasticsearch: true });
+            expect(getClient({ connection: 'someConnection' }, 'kafka')).toEqual({ kafka: true });
+            expect(getClient({ connection_cache: false }, 'mongo')).toEqual({ mongo: true });
         });
 
         it('getClient will error properly', done => {
@@ -82,8 +108,8 @@ describe('registerApis', () => {
 
             const events = failingContext.apis.foundation.getSystemEvents();
             const errStr =
-                'No configuration for endpoint default ' +
-                'was found in the terafoundation connectors';
+                    'No configuration for endpoint default ' +
+                    'was found in the terafoundation connectors';
 
             events.once('client:initialization:error', errMsg => {
                 expect(errMsg.error.includes(errStr)).toEqual(true);
@@ -96,7 +122,7 @@ describe('registerApis', () => {
         it('getClient returns client with certain defaults', () => {
             const opConfig1 = {};
             const opConfig2 = {
-                connection: 'otherConnection',
+                connection: 'otherConnection'
             };
             const opConfig3 = {
                 connection: 'thirdConnection',
@@ -109,18 +135,16 @@ describe('registerApis', () => {
             const results2 = getClient(opConfig2, type);
             const results3 = getClient(opConfig3, type);
 
-            expect(results1).toEqual({ endpoint: 'default', cached: true, type: 'elasticsearch' });
+            expect(results1).toEqual({ elasticsearch: true });
 
             expect(results2).toEqual({
-                cached: true,
+                elasticsearch: true,
                 endpoint: 'otherConnection',
-                type: 'elasticsearch',
             });
 
             expect(results3).toEqual({
-                cached: false,
+                elasticsearch: true,
                 endpoint: 'thirdConnection',
-                type: 'elasticsearch',
             });
         });
     });

@@ -4,7 +4,7 @@ import {
     SlicerFn,
     newTestExecutionConfig,
     TestContext,
-    SlicerContext
+    WorkerContext
 } from '../../src';
 
 describe('ParallelSlicer', () => {
@@ -50,7 +50,7 @@ describe('ParallelSlicer', () => {
 
             const opConfig = exConfig.operations[0];
 
-            slicer = new ExampleParallelSlicer(context as SlicerContext, opConfig, exConfig);
+            slicer = new ExampleParallelSlicer(context as WorkerContext, opConfig, exConfig);
             await slicer.initialize([]);
         });
 
@@ -209,7 +209,7 @@ describe('ParallelSlicer', () => {
 
             const opConfig = exConfig.operations[0];
 
-            slicer = new ExampleParallelSlicer(context as SlicerContext, opConfig, exConfig);
+            slicer = new ExampleParallelSlicer(context as WorkerContext, opConfig, exConfig);
             slicer.subslice = true;
 
             await slicer.initialize([]);

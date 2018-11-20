@@ -11,8 +11,8 @@ import {
     ReaderFn,
     SlicerFns,
     LegacyReader,
+    WorkerContext,
 } from '../../interfaces';
-import { WorkerContext } from '../../execution-context';
 import { times } from '../../utils';
 
 // This file for backwards compatibility and functionality will be limited

@@ -6,7 +6,6 @@ import {
     newTestExecutionContext,
     newTestExecutionConfig,
     TestContext,
-    Assignment
 } from '../src';
 
 describe('Test Helpers', () => {
@@ -62,7 +61,7 @@ describe('Test Helpers', () => {
         expect(newTestExecutionConfig).toBeFunction();
 
         const exConfig = newTestExecutionConfig();
-        const exContext = newTestExecutionContext(Assignment.ExecutionController, exConfig);
+        const exContext = newTestExecutionContext('execution_controller', exConfig);
         expect(exContext.config).toEqual(exConfig);
         expect(exContext.reader).toBeNull();
         expect(exContext.slicer).toBeFunction();
@@ -72,7 +71,7 @@ describe('Test Helpers', () => {
         expect(newTestExecutionContext).toBeFunction();
 
         const exConfig = newTestExecutionConfig();
-        const exContext = newTestExecutionContext(Assignment.Worker, exConfig);
+        const exContext = newTestExecutionContext('worker', exConfig);
         expect(exContext.config).toEqual(exConfig);
         expect(exContext.reader).toBeFunction();
         expect(exContext.slicer).toBeFunction();
@@ -85,12 +84,12 @@ describe('Test Helpers', () => {
         expect(context).toHaveProperty('apis');
         expect(context).toHaveProperty('foundation');
         expect(context.apis.foundation.getSystemEvents()).toBeInstanceOf(EventEmitter);
-        expect(
+        expect(() => {
             context.apis.foundation.getConnection({
                 endpoint: 'default',
                 type: 'example',
-            }),
-        ).toEqual({ client: { endpoint: 'default', type: 'example' } });
+            });
+        }).toThrowError('No client was found for connection "example:default"');
         expect(context.apis.foundation.makeLogger()).toBeTruthy();
         expect(context.apis.foundation.makeLogger({ module: 'hi' })).toBeTruthy();
         expect(context.apis.foundation.makeLogger('hello')).toBeTruthy();
