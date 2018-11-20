@@ -58,6 +58,6 @@ describe('AssetSrc with build', () => {
     test('->_yarnCmd', () => {
         const yarn = testAsset._yarnCmd(path.join(testAsset.srcDir, 'asset'), ['run', 'asset:build']);
         expect(yarn.status).toEqual(0);
-        expect(yarn.stdout.toString()).toStartWith('$ echo');
+        expect(yarn.stdout.toString()).toInclude('$ echo');
     });
 });
