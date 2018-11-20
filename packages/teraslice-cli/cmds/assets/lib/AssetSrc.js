@@ -40,23 +40,6 @@ class AssetSrc {
         return `${asset.name}-v${asset.version}-node-${nodeVersion}-${process.platform}-${process.arch}.zip`;
     }
 
-    /**
-     * If the assets package.json file script asset:build exists, it will be
-     * executed
-     *
-     * @param {string} assetDir - Path to directory containing asset, in the
-     * primary use case this will be tmpDir.name found in build, but differs
-     * for testing.
-     * @returns {object} - spawnSync return object.
-     */
-    runAssetBuild(assetDir) {
-        let yarn = {};
-        if (_.has(this.assetPackageJson, ['scripts', 'asset:build'])) {
-            yarn = this._yarnCmd(path.join(assetDir, 'asset'), ['run', 'asset:build']);
-        }
-        return yarn;
-    }
-
     // TODO: This has a dependency on the external executable `yarn`,
     //       we should test that this exists earlier than this and also
     //       support `npm`.
@@ -104,11 +87,13 @@ class AssetSrc {
         this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
 
         // run yarn --cwd srcDir/asset --prod --silent --no-progress asset:build
-        this.runAssetBuild(tmpDir.name);
+        if (_.has(this.assetPackageJson, ['scripts', 'asset:build'])) {
+            this._yarnCmd(path.join(tmpDir.name, 'asset'), ['run', 'asset:build']);
+        }
 
         try {
             // create zipfile
-            zipOutput = await this.zip(path.join(tmpDir.name, 'asset'), outputFileName);
+            zipOutput = await AssetSrc.zip(path.join(tmpDir.name, 'asset'), outputFileName);
             // remove temp directory
             fs.removeSync(tmpDir.name);
         } catch (err) {
@@ -121,7 +106,7 @@ class AssetSrc {
      * zip - Creates properly named zip archive of asset from tmpAssetDir
      * @param {string} tmpAssetDir Path to the temporary asset source directory
      */
-    zip(tmpAssetDir, outputFileName) {
+    static zip(tmpAssetDir, outputFileName) {
         const zipMessage = {};
 
         return new Promise((resolve, reject) => {

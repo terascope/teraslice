@@ -2,6 +2,8 @@
 
 const path = require('path');
 
+const fs = require('fs-extra');
+
 const AssetSrc = require('../../../../cmds/assets/lib/AssetSrc');
 
 describe('AssetSrc', () => {
@@ -32,8 +34,12 @@ describe('AssetSrc', () => {
         expect(testAsset.zipFileName).toMatch(/testAsset-v0.0.1-node-.*.zip/);
     });
 
-    test('->runAssetBuild', () => {
-        expect(testAsset.runAssetBuild(srcDir)).toEqual({});
+    test('->zip', async () => {
+        const outFile = 'out.zip';
+        const zipOutput = await AssetSrc.zip('../../../fixtures/testAsset/asset', outFile);
+        // console.log(`zipOutput ${JSON.stringify(zipOutput, null, 2)}`);
+        expect(zipOutput.success).toEqual('out.zip');
+        fs.removeSync(outFile);
     });
 });
 
@@ -41,11 +47,17 @@ describe('AssetSrc with build', () => {
     let testAsset;
     const srcDir = path.join(__dirname, '../../../fixtures/testAssetWithBuild');
 
-    test('->runAssetBuild', () => {
+    beforeEach(() => {
         testAsset = new AssetSrc(srcDir);
-        const runReturnObj = testAsset.runAssetBuild(srcDir);
-        expect(runReturnObj).toBeObject();
-        expect(runReturnObj.status).toEqual(0);
-        expect(runReturnObj.stdout.toString()).toStartWith('$ echo');
+    });
+
+    afterEach(() => {
+        testAsset = {};
+    });
+
+    test('->_yarnCmd', () => {
+        const yarn = testAsset._yarnCmd(path.join(testAsset.srcDir, 'asset'), ['run', 'asset:build']);
+        expect(yarn.status).toEqual(0);
+        expect(yarn.stdout.toString()).toStartWith('$ echo');
     });
 });
