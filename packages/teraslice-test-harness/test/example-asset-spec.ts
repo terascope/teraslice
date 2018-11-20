@@ -1,26 +1,24 @@
 import 'jest-extended';
 import path from 'path';
 import { DataEntity, SliceRequest } from '@terascope/job-components';
-import SimpleClient from './helpers/simple-client';
+import SimpleClient from './fixtures/asset/simple-connector/client';
 import {
     JobTestHarness,
     newTestJobConfig,
     newTestSlice,
     SlicerTestHarness,
     WorkerTestHarness,
-} from '../../src';
+} from '../src';
 
-jest.mock('./helpers/simple-client');
+jest.mock('./fixtures/asset/simple-connector/client');
 
 describe('Example Asset', () => {
+    const assetDir = path.join(__dirname, 'fixtures');
     const simpleClient = new SimpleClient();
     const clientConfig = {
         type: 'simple-client',
         create: jest.fn(() => simpleClient),
     };
-    const clients = [
-        clientConfig
-    ];
 
     beforeEach(() => {
         jest.restoreAllMocks();
@@ -58,8 +56,8 @@ describe('Example Asset', () => {
             });
 
             harness = new WorkerTestHarness(job, {
-                clients,
-                assetDir: path.join(__dirname, '..', 'fixtures'),
+                clients: [clientConfig],
+                assetDir,
             });
 
             await harness.initialize();
@@ -113,8 +111,8 @@ describe('Example Asset', () => {
             });
 
             harness = new SlicerTestHarness(job, {
-                clients,
-                assetDir: path.join(__dirname, '..', 'fixtures'),
+                clients: [clientConfig],
+                assetDir,
             });
 
             await harness.initialize();
@@ -165,8 +163,8 @@ describe('Example Asset', () => {
 
         beforeEach(async () => {
             harness = new JobTestHarness(job, {
-                clients,
-                assetDir: path.join(__dirname, '..', 'fixtures'),
+                clients: [clientConfig],
+                assetDir,
             });
 
             await harness.initialize();
@@ -182,6 +180,24 @@ describe('Example Asset', () => {
 
         it('should batches of results', async () => {
             const batches = await harness.run();
+
+            expect(batches).toBeArrayOfSize(10);
+
+            for (const results of batches) {
+                expect(results).toBeArrayOfSize(10);
+
+                for (const result of results) {
+                    expect(DataEntity.isDataEntity(result)).toBeTrue();
+                    expect(result).toHaveProperty('scale', 6);
+                }
+            }
+        });
+
+        it('should be finished for the second batch of slices', async () => {
+            const batches = await harness.run();
+
+            // @ts-ignore
+            simpleClient.isFinished.mockReturnValue(true);
 
             expect(batches).toBeArrayOfSize(10);
 

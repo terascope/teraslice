@@ -17,6 +17,7 @@ import { JobHarnessOptions } from './interfaces';
  * ran on the Worker and an associated lifecycle events.
  *
  * @todo Add support for attaching APIs and Observers
+ * @todo Add support for slice retries
 */
 export default class WorkerTestHarness extends BaseTestHarness<WorkerContext, WorkerExecutionContext> {
     constructor(job: JobConfig, options: JobHarnessOptions) {

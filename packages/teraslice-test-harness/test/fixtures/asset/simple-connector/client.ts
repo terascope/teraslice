@@ -15,4 +15,8 @@ export = class SimpleClient {
             count
         };
     }
+
+    isFinished() {
+        return false;
+    }
 };
