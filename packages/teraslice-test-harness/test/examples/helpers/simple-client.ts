@@ -1,4 +1,4 @@
-export default class SimpleClient {
+export = class SimpleClient {
     fetchRecord(id: number) {
         return {
             id,
@@ -15,4 +15,4 @@ export default class SimpleClient {
             count
         };
     }
-}
+};
