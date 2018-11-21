@@ -21,6 +21,7 @@ class AssetSrc {
     constructor(srcDir) {
         this.srcDir = path.resolve(srcDir);
         this.assetFile = path.join(this.srcDir, 'asset', 'asset.json');
+        this.packageJson = require(path.join(this.srcDir, 'package.json'));
         this.assetPackageJson = require(path.join(this.srcDir, 'asset', 'package.json'));
 
         if (!fs.pathExistsSync(this.assetFile)) {
@@ -83,13 +84,13 @@ class AssetSrc {
         // remove srcDir/asset/node_modules
         fs.removeSync(path.join(tmpDir.name, 'asset', 'node_modules'));
 
+        // run yarn --cwd srcDir --prod --silent --no-progress asset:build
+        if (_.has(this.packageJson, ['scripts', 'asset:build'])) {
+            this._yarnCmd(tmpDir.name, ['run', 'asset:build']);
+        }
+
         // run yarn --cwd srcDir/asset --prod --silent --no-progress
         this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
-
-        // run yarn --cwd srcDir/asset --prod --silent --no-progress asset:build
-        if (_.has(this.assetPackageJson, ['scripts', 'asset:build'])) {
-            this._yarnCmd(path.join(tmpDir.name, 'asset'), ['run', 'asset:build']);
-        }
 
         try {
             // create zipfile
