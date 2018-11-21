@@ -20,7 +20,7 @@ executionConfig.operations = [
     },
 ];
 
-module.exports = async () => {
+const run = async () => {
     const executionContext = new WorkerExecutionContext({
         terasliceOpPath: path.join(__dirname, '..', '..', 'teraslice', 'lib'),
         context,
@@ -93,7 +93,15 @@ module.exports = async () => {
         })
         .run({
             async: true,
-            initCount: 2,
-            maxTime: 5,
+            initCount: 1,
+            maxTime: 3,
         });
 };
+
+if (require.main === module) {
+    run().then((suite) => {
+        suite.on('complete', () => {});
+    });
+} else {
+    module.exports = run;
+}
