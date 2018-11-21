@@ -17,10 +17,7 @@ describe('job_file read() testing', () => {
             baseDir: tmpDir,
             cluster_url: clusterUrl,
             c: clusterUrl,
-            deets: {
-                cluster: 'clusterTwo',
-                file: jobFile
-            }
+            job_file: jobFile
         };
         const jobFileLib = require('../cmds/lib/job_file')(cliConfig);
         const result = await jobFileLib.read();

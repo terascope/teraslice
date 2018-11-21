@@ -7,13 +7,13 @@
 const _ = require('lodash');
 const reply = require('../lib/reply')();
 const config = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 
 exports.command = 'remove  <cluster_sh>';
 exports.desc = 'List the clusters defined in the config file.\n';
 exports.builder = (yargs) => {
     cli().args('aliases', 'remove', yargs);
-    yargs.example('earl aliases remove cluster1');
+    yargs.example('teraslice-cli aliases remove cluster1');
 };
 
 exports.handler = (argv, _testFunctions) => {

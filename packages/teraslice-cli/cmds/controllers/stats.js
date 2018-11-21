@@ -4,14 +4,14 @@
 const _ = require('lodash');
 const reply = require('../lib/reply')();
 const config = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 
 exports.command = 'stats <cluster_sh>';
 exports.desc = 'Show stats of the controller(s) on a cluster.\n';
 exports.builder = (yargs) => {
     cli().args('controller', 'stats', yargs);
-    yargs.example('earl controller stats cluster1');
-    yargs.example('earl controller stats http://cluster1.net:5678');
+    yargs.example('teraslice-cli controller stats cluster1');
+    yargs.example('teraslice.cli controller stats http://cluster1.net:5678');
 };
 
 exports.handler = (argv, _testFunctions) => {

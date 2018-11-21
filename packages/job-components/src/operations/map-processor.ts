@@ -19,6 +19,6 @@ export default abstract class MapProcessor<T> extends ProcessorCore<T> {
      * @returns an array of DataEntities
     */
     async handle(input: DataEntity[]): Promise<DataEntity[]> {
-        return input.map((data) => this.map(data));
+        return input.map((data) => DataEntity.make(this.map(data)));
     }
 }

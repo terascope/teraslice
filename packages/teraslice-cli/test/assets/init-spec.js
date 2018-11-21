@@ -39,7 +39,7 @@ const _testFunctions = {
 const tmpDir = createTempDirSync();
 
 const argv = {
-     _: ['assets', 'replace'],
+    _: ['assets', 'replace'],
     baseDir: tmpDir,
     init: true,
     cluster: 'cluster.com:5678',

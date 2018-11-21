@@ -1,6 +1,6 @@
 'use strict';
 
-exports.command = 'jobs <command> <cluster_sh> [job]';
+exports.command = 'jobs';
 exports.desc = 'commands to manage job';
 exports.builder = function builder(yargs) {
     return yargs.commandDir('.')

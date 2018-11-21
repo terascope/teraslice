@@ -7,27 +7,67 @@ const _metadata = new WeakMap();
 
 /**
  * A wrapper for data that can hold additional metadata properties.
- * A DataEntity should be essentially transparent to use within operations
+ * A DataEntity should be essentially transparent to use within operations.
+ *
+ * IMPORTANT: Use `DataEntity.make`, `DataEntity.fromBuffer` and `DataEntity.makeArray`
+ * to create DataEntities that are significantly faster (600x-1000x faster).
  */
 export default class DataEntity {
     /**
-     * A utility for safely converting an object a DataEntity.
+     * A utility for safely converting an object a `DataEntity`.
      * This will detect if passed an already converted input and return it.
+     *
+     * NOTE: `DataEntity.make` is different from using `new DataEntity`
+     * because it attaching it doesn't shallow cloning the object
+     * onto the `DataEntity` instance, this is significatly faster and so it
+     * is recommended to use this in production.
     */
     static make(input: DataInput, metadata?: object): DataEntity {
-        return new DataEntity(input, metadata);
+        if (input == null) return new DataEntity({});
+        if (DataEntity.isDataEntity(input)) return input;
+        if (!isPlainObject(input)) {
+            throw new Error(`Invalid data source, must be an object, got "${kindOf(input)}"`);
+        }
+
+        Object.defineProperties(input, {
+            getMetadata: {
+                value(key?: string) {
+                    return getMetadata(this, key);
+                },
+                enumerable: false,
+                writable: false
+            },
+            setMetadata: {
+                value(key: string, value: any) {
+                    return setMetadata(this, key, value);
+                },
+                enumerable: false,
+                writable: false
+            },
+            toBuffer: {
+                value(opConfig: EncodingConfig = {}) {
+                    return toBuffer(this, opConfig);
+                },
+                enumerable: false,
+                writable: false
+            }
+        });
+
+        const entity = input as DataEntity;
+        _metadata.set(entity, Object.assign({ createdAt: Date.now() }, metadata));
+        return entity as DataEntity;
     }
 
     /**
-     * A utility for safely converting an buffer to a DataEntity.
-     * @param input A buffer to parse to JSON
-     * @param opConfig The operation config used to get the encoding type of the buffer, defaults to "json"
+     * A utility for safely converting an `Buffer` to a `DataEntity`.
+     * @param input A `Buffer` to parse to JSON
+     * @param opConfig The operation config used to get the encoding type of the Buffer, defaults to "json"
      * @param metadata Optionally add any metadata
     */
     static fromBuffer(input: Buffer, opConfig: EncodingConfig = {}, metadata?: object): DataEntity {
         const { _encoding = DataEncoding.JSON } = opConfig || {};
         if (_encoding === DataEncoding.JSON) {
-            return new DataEntity(parseJSON(input), metadata);
+            return DataEntity.make(parseJSON(input), metadata);
         }
 
         throw new Error(`Unsupported encoding type, got "${_encoding}"`);
@@ -47,11 +87,11 @@ export default class DataEntity {
             return input;
         }
 
-        return fastMap(input, (d) => new DataEntity(d));
+        return fastMap(input, (d) =>  DataEntity.make(d));
     }
 
     /**
-     * Verify that an input is the DataEntity
+     * Verify that an input is the `DataEntity`
     */
     static isDataEntity(input: any): input is DataEntity {
         if (input == null) return false;
@@ -71,7 +111,7 @@ export default class DataEntity {
     }
 
     /**
-     * Safely get the metadata from a DataEntity.
+     * Safely get the metadata from a `DataEntity`.
      * If the input is object it will get the property from the object
     */
     static getMetadata(input: DataInput, key: string): any {
@@ -101,37 +141,49 @@ export default class DataEntity {
         fastAssign(this, data);
     }
 
-    getMetadata(key?: string): DataEntityMetadata|any {
-        const metadata = _metadata.get(this) as DataEntityMetadata;
-        if (key) {
-            return metadata[key];
-        }
-        return metadata;
+    getMetadata(key?: string) {
+        return getMetadata(this, key);
     }
 
-    setMetadata(key: string, value: any): void {
-        const readonlyMetadataKeys: string[] = ['createdAt'];
-        if (readonlyMetadataKeys.includes(key)) {
-            throw new Error(`Cannot set readonly metadata property ${key}`);
-        }
-
-        const metadata = _metadata.get(this) as DataEntityMetadata;
-        metadata[key] = value;
-        _metadata.set(this, metadata);
+    setMetadata(key: string, value: any) {
+        return setMetadata(this, key, value);
     }
 
     /**
      * Convert the DataEntity to an encoded buffer
      * @param opConfig The operation config used to get the encoding type of the buffer, defaults to "json"
     */
-    toBuffer(config: EncodingConfig = {}): Buffer {
-        const { _encoding = DataEncoding.JSON } = config;
-        if (_encoding === DataEncoding.JSON) {
-            return Buffer.from(JSON.stringify(this));
-        }
-
-        throw new Error(`Unsupported encoding type, got "${_encoding}"`);
+    toBuffer(opConfig: EncodingConfig = {}): Buffer {
+        return toBuffer(this, opConfig);
     }
+}
+
+function getMetadata(ctx: any, key?: string): DataEntityMetadata|any {
+    const metadata = _metadata.get(ctx) as DataEntityMetadata;
+    if (key) {
+        return metadata[key];
+    }
+    return metadata;
+}
+
+function setMetadata(ctx: any, key: string, value: string):void {
+    const readonlyMetadataKeys: string[] = ['createdAt'];
+    if (readonlyMetadataKeys.includes(key)) {
+        throw new Error(`Cannot set readonly metadata property ${key}`);
+    }
+
+    const metadata = _metadata.get(ctx) as DataEntityMetadata;
+    metadata[key] = value;
+    _metadata.set(ctx, metadata);
+}
+
+function toBuffer(ctx: any, opConfig: EncodingConfig): Buffer {
+    const { _encoding = DataEncoding.JSON } = opConfig;
+    if (_encoding === DataEncoding.JSON) {
+        return Buffer.from(JSON.stringify(ctx));
+    }
+
+    throw new Error(`Unsupported encoding type, got "${_encoding}"`);
 }
 
 /** an encoding focused interfaces */

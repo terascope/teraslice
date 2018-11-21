@@ -4,15 +4,14 @@
 const _ = require('lodash');
 const reply = require('../lib/reply')();
 const config = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 
-exports.command = 'view <cluster_sh>';
+exports.command = 'view <cluster_sh> <job_id>';
 exports.desc = 'View the job definition\n';
 exports.builder = (yargs) => {
     cli().args('jobs', 'views', yargs);
     yargs
-        .example('earl jobs view cluster1:job:test.json')
-        .example('earl jobs view cluster1:job:999999-XXX');
+        .example('teraslice-cli jobs view cluster1 99999999-9999-9999-9999-999999999999');
 };
 
 exports.handler = (argv, _testFunctions) => {

@@ -2,16 +2,24 @@
 'use console';
 
 const _ = require('lodash');
+const homeDir = require('os').homedir();
+
 const reply = require('../lib/reply')();
 const configChecks = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 
-exports.command = 'save <cluster_sh> [job]';
+exports.command = 'save <cluster_sh>';
 exports.desc = 'Saves all running job on the specified cluster to a json file.\n';
 exports.builder = (yargs) => {
     cli().args('jobs', 'save', yargs);
+
     yargs
-        .example('earl jobs save cluster1');
+        .option('state-file-dir', {
+            alias: 'd',
+            describe: 'Directory to save job state files to.',
+            default: `${homeDir}/.teraslice/job_state_files`
+        })
+        .example('teraslice-cli jobs save cluster1');
 };
 
 exports.handler = (argv, _testFunctions) => {
