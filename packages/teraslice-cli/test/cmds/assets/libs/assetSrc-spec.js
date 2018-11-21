@@ -34,6 +34,12 @@ describe('AssetSrc', () => {
         expect(testAsset.zipFileName).toMatch(/testAsset-v0.0.1-node-.*.zip/);
     });
 
+    test('build', async () => {
+        const r = await testAsset.build();
+        console.log(`build ${JSON.stringify(r, null, 2)}`);
+        expect(r).toInclude('.zip');
+    });
+
     test('->zip', async () => {
         const outFile = 'out.zip';
         const zipOutput = await AssetSrc.zip('../../../fixtures/testAsset/asset', outFile);
