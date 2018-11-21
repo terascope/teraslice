@@ -11,7 +11,7 @@ const reply = require('../../lib/reply')();
 const config = require('../../lib/config')();
 
 async function displayClusters(clusters, style) {
-    const header = ['cluster', 'host', 'cluster_manager_type'];
+    const header = ['cluster', 'host'];
     let parsedClusters = '';
 
     if (style === 'txt') {
@@ -70,8 +70,7 @@ module.exports = (cliConfig) => {
         reply.green(`> Added cluster alias ${cliConfig.cluster}`);
 
         cliConfig.config.clusters[cliConfig.cluster] = {
-            host: config._urlCheck(cliConfig.host),
-            cluster_manager_type: cliConfig.cluster_manager_type,
+            host: config._urlCheck(cliConfig.cluster_url),
         };
         yaml.writeSync(cliConfig.configFile, cliConfig.config);
         await list();
@@ -80,11 +79,8 @@ module.exports = (cliConfig) => {
     async function update() {
         if (_.has(cliConfig.config.clusters, cliConfig.cluster)) {
             reply.green(`> Updated cluster alias ${cliConfig.cluster}`);
-            if (process.argv.indexOf('-t') > 0 || process.argv.indexOf('--cluster-manager-type') > 0) {
-                cliConfig.config.clusters[cliConfig.cluster].cluster_manager_type = cliConfig.cluster_manager_type;
-            }
             if (process.argv.indexOf('-c') > 0 || process.argv.indexOf('--host-cluster')) {
-                cliConfig.config.clusters[cliConfig.cluster].host = config._urlCheck(cliConfig.host);
+                cliConfig.config.clusters[cliConfig.cluster].host = config._urlCheck(cliConfig.cluster_url);
             }
             yaml.writeSync(cliConfig.configFile, cliConfig.config);
         } else {

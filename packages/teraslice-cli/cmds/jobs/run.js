@@ -2,11 +2,12 @@
 'use console';
 
 const _ = require('lodash');
+const homeDir = require('os').homedir();
 const reply = require('../lib/reply')();
 const config = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 
-exports.command = 'run <cluster_sh> [job]';
+exports.command = 'run <cluster_sh> [job_id]';
 exports.desc = 'Run a job\n';
 exports.builder = (yargs) => {
     cli().args('jobs', 'run', yargs);
@@ -16,10 +17,14 @@ exports.builder = (yargs) => {
             describe: 'add grafana annotation',
             default: ''
         })
-        .example('earl jobs run cluster1:job:99999999-9999-9999-9999-999999999999')
-        .example('earl jobs run cluster1:job:99999999-9999-9999-9999-999999999999 --yes');
+        .option('state-file-dir', {
+            alias: 'd',
+            describe: 'Directory to save job state files to.',
+            default: `${homeDir}/.teraslice/job_state_files`
+        })
+        .example('teraslice-cli jobs run cluster1 99999999-9999-9999-9999-999999999999')
+        .example('teraslice-cli jobs run cluster1 99999999-9999-9999-9999-999999999999 --yes');
 };
-
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
     config(cliConfig, 'jobs:run').returnConfigData();

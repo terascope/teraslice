@@ -4,15 +4,15 @@
 const _ = require('lodash');
 const reply = require('../lib/reply')();
 const config = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 
-exports.command = 'list <cluster_sh> [job]';
-exports.desc = 'List the status of running and failing job.\n';
+exports.command = 'list <cluster_sh>';
+exports.desc = 'List the jobs on the cluster. Defaults to 10 jobs.';
 exports.builder = (yargs) => {
     cli().args('jobs', 'list', yargs);
     yargs
-        .example('earl jobs list cluster1')
-        .example('earl jobs list http://cluster1.net:80');
+        .example('teraslice-cli jobs list cluster1')
+        .example('teraslice-cli jobs list http://cluster1.net:80');
 };
 
 exports.handler = (argv, _testFunctions) => {

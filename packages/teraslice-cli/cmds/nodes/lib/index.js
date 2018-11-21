@@ -12,7 +12,10 @@ module.exports = (cliConfig) => {
         host: cliConfig.cluster_url
     });
 
+    const checks = require('../../lib/checks')(cliConfig);
+
     async function list() {
+        await checks.getClusteringType();
         let parsedResponse = '';
         let header = ['node_id', 'state', 'hostname', 'total', 'active', 'pid', 'teraslice_version', 'node_version'];
         const response = await terasliceClient.cluster.state();
@@ -23,7 +26,7 @@ module.exports = (cliConfig) => {
         if (cliConfig.output_style === 'txt') {
             parsedResponse = await parseNodeResponseTxt(response);
         } else {
-            parsedResponse = await parseNodeResponse(response, cliConfig.deets.id);
+            parsedResponse = await parseNodeResponse(response);
         }
         await display.display(header, parsedResponse, cliConfig.output_style);
     }

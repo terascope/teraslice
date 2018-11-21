@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const reply = require('../lib/reply')();
 const config = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 
 exports.command = 'deploy <cluster_sh> [asset_name]';
 exports.desc = 'zips and deploys an asset to a cluster or a group of clusters';
@@ -17,8 +17,8 @@ exports.builder = (yargs) => {
         type: 'boolean',
         default: false,
     });
-    yargs.example('earl deploy cluster-url');
-    yargs.example('earl deploy -a');
+    yargs.example('teraslice-cli deploy cluster-url');
+    yargs.example('teraslice-cli deploy -a');
 };
 
 exports.handler = (argv, _testTjmFunctions) => {

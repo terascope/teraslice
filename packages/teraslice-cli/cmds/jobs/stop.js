@@ -2,11 +2,12 @@
 'use console';
 
 const _ = require('lodash');
+const homeDir = require('os').homedir();
 const reply = require('../lib/reply')();
-const configChecks = require('../lib/config');
-const cli = require('../lib/cli');
+const config = require('../lib/config');
+const cli = require('./lib/cli');
 
-exports.command = 'stop <cluster_sh>';
+exports.command = 'stop <cluster_sh> [job_id]';
 exports.desc = 'stops job(s) running or failing on the cluster, saves running job(s) to a json file.\n';
 exports.builder = (yargs) => {
     cli().args('jobs', 'stop', yargs);
@@ -21,14 +22,19 @@ exports.builder = (yargs) => {
             describe: 'stop all running/failing jobs',
             default: false
         })
-        .example('earl jobs stop cluster1:job:99999999-9999-9999-9999-999999999999')
-        .example('earl jobs stop cluster1:job:99999999-9999-9999-9999-999999999999 --yes')
-        .example('earl jobs stop cluster1 --all');
+        .option('state-file-dir', {
+            alias: 'd',
+            describe: 'Directory to save job state files to.',
+            default: `${homeDir}/.teraslice/job_state_files`
+        })
+        .example('teraslice-cli jobs stop cluster1 99999999-9999-9999-9999-999999999999')
+        .example('teraslice-cli jobs stop cluster1 99999999-9999-9999-9999-999999999999 --yes')
+        .example('teraslice-cli jobs stop cluster1 --all');
 };
 
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
-    configChecks(cliConfig, 'jobs:stop').returnConfigData();
+    config(cliConfig, 'jobs:stop').returnConfigData();
     const job = _testFunctions || require('./lib')(cliConfig);
 
     return job.stop()
