@@ -54,9 +54,9 @@ const argv = {
 
 describe('deploy', () => {
     it('should deploy asset to a single cluster', async () => {
-        argv.cluster = 'example.dev:5678';
+        argv.cluster_sh = 'example.dev:5678';
         argv.c = 'example.dev:5678';
-        argvCluster = argv.cluster;
+        argvCluster = argv.cluster_sh;
         // returned json file should match assetMetaData
         assetMetaData = _.cloneDeep(assetJson);
         assetMetaData.tjm = {
@@ -85,9 +85,9 @@ describe('deploy', () => {
             deploy: true,
         };
 
-        argvX.cluster = 'example.dev:5678';
+        argvX.cluster_sh = 'example.dev:5678';
         argvX.c = 'example.dev:5678';
-        argvCluster = argvX.cluster;
+        argvCluster = argvX.cluster_sh;
         // no asset.json file
 
         try {
@@ -98,9 +98,9 @@ describe('deploy', () => {
     });
 
     it('should handle post errors', async () => {
-        argv.cluster = 'example.dev:5678';
+        argv.cluster_sh = 'example.dev:5678';
         argv.c = 'example.dev:5678';
-        argvCluster = argv.cluster;
+        argvCluster = argv.cluster_sh;
         postError = 'This is a post error';
         try {
             await deploy.handler(argv, _cliFunctions);
@@ -112,9 +112,9 @@ describe('deploy', () => {
     });
 
     it('should handle zip errors', async () => {
-        argv.cluster = 'example.dev:5678';
+        argv.cluster_sh = 'example.dev:5678';
         argv.c = 'example.dev:5678';
-        argvCluster = argv.cluster;
+        argvCluster = argv.cluster_sh;
         zipError = 'This is a zip error';
         try {
             await deploy.handler(argv, _cliFunctions);
@@ -136,7 +136,7 @@ describe('deploy', () => {
             deploy: true,
         };
 
-        argv2.cluster = 'example.dev:5678';
+        argv2.cluster_sh = 'example.dev:5678';
         argv2.c = 'example.dev:5678';
         argv2.a = true;
         argv2.all = true;
@@ -178,7 +178,7 @@ describe('deploy', () => {
             deploy: true,
         };
 
-        argv2.cluster = 'example.dev:5678';
+        argv2.cluster_sh = 'example.dev:5678';
         argv2.c = 'example.dev:5678';
         argv2.a = true;
         argv2.all = true;

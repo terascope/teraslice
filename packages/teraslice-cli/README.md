@@ -1,7 +1,7 @@
 # teraslice-cli
 Command line teraslice job management helper.
 
-The teraslice command line utility looks for the cluster name and job id in the job file to execute most commands. Registering a job with the teraslice job manager will cause the metadata to be added to the job file as `earl: { job_id: jobid, cluster: clusterName, version: version}`.  The earl data can then be referenced by the teraslice job manager for other functions.  This also applies to assets.  Cluster data is stored in `asset.json` as `earl: { clusters: [ clustername1, clustername2 ] }`.
+The teraslice command line utility looks for the cluster name and job id in the job file to execute most commands. Registering a job with the teraslice job manager will cause the metadata to be added to the job file as `teraslice-cli: { job_id: jobid, cluster: clusterName, version: version}`.  The teraslice-cli data can then be referenced by the teraslice job manager for other functions.  This also applies to assets.  Cluster data is stored in `asset.json` as `teraslice-cli: { clusters: [ clustername1, clustername2 ] }`.
 
 
 ## Installation
@@ -25,7 +25,7 @@ Defaults:
 **ADD** - adds a cluster alias to the config file
 
 command:
-`earl alias add cluster1 -c http://cluster1.net:80`
+`teraslice-cli alias add cluster1 -c http://cluster1.net:80`
 
 config entry:
 ```
@@ -34,7 +34,7 @@ cluster      host                                    cluster_manager_type
 cluster1     http://cluster1.net:80                  kubernetes
 ```
 
-command: `earl alias add local`
+command: `teraslice-cli alias add local`
 ```
 cluster      host                                    cluster_manager_type
 -----------  --------------------------------------  --------------------
@@ -44,14 +44,14 @@ local        http://localhost:5678                   native
 **REMOVE** - Removes a cluster alias to the config file
 
 command:
-`earl alias remove local`
+`teraslice-cli alias remove local`
 
 output:
 `> Removed cluster alias local`
 
 **LIST** - List cluster aliases defined in the config file
 
-command: `earl alias list`
+command: `teraslice-cli alias list`
 
 output:
 ```
@@ -62,60 +62,60 @@ cluster1     http://cluster1.net:80                  kubernetes
 ```
 
 ### ASSETS - commands to manage assets
-Compresses files in `${cwd}/assets` and creates a zip file in `${cwd}/builds/processors.zip`.  Once the asset has been deployed with earl the cluster data is stored in `${cwd}/asset/asset.json`.  The builds dir is deleted before a new processors.zip file is created on all functions that build assets.
-- `earl assets deploy -l` *Deploys asset to localhost*
-- `earl assets deploy -c clusterName` *Deploys assets to a cluster*
-- `earl assets deploy -a` *if -a is used then deploys to all the clusters in the asset.json file*
-- `earl assets status -c clusterName` *Shows the latest asset version in the specified cluster*
-- `earl assets status -a clusterName` *Shows the latest asset version in the cluster(s) in asset.json*
-- `earl assets replace -c clusterName` *Deletes and replaces an asset, this is intended to be used for asset development and not for production asset management*
-- `earl assets init newAssetName` *Creates new asset directory structure and associated files.  This will install dependencies from npmjs.org with yarn or npm as well as create package.json and asset.json files*
+Compresses files in `${cwd}/assets` and creates a zip file in `${cwd}/builds/processors.zip`.  Once the asset has been deployed with teraslice-cli the cluster data is stored in `${cwd}/asset/asset.json`.  The builds dir is deleted before a new processors.zip file is created on all functions that build assets.
+- `teraslice-cli assets deploy -l` *Deploys asset to localhost*
+- `teraslice-cli assets deploy -c clusterName` *Deploys assets to a cluster*
+- `teraslice-cli assets deploy -a` *if -a is used then deploys to all the clusters in the asset.json file*
+- `teraslice-cli assets status -c clusterName` *Shows the latest asset version in the specified cluster*
+- `teraslice-cli assets status -a clusterName` *Shows the latest asset version in the cluster(s) in asset.json*
+- `teraslice-cli assets replace -c clusterName` *Deletes and replaces an asset, this is intended to be used for asset development and not for production asset management*
+- `teraslice-cli assets init newAssetName` *Creates new asset directory structure and associated files.  This will install dependencies from npmjs.org with yarn or npm as well as create package.json and asset.json files*
 
 ### JOBS - commands to manage jobs  
 **REGISTER** - Registers a job to a cluster with an option to deploy assets.  Updates the jobFile.json with the cluster and job id data.  Use -a to deploy assets, -r to run immediately after registering.
-- `earl jobs register clustername jobFile.json`
-- `earl jobs register clustername -a jobFile.json`
-- `earl jobs register clustername -ar jobFile.json`
+- `teraslice-cli jobs register clustername jobFile.json`
+- `teraslice-cli jobs register clustername -a jobFile.json`
+- `teraslice-cli jobs register clustername -ar jobFile.json`
 
 **Cluster and job id data must be in the jobsFile.json for all commands below**
 
 **ERRORS** - Displays errors for a job.  
-- `earl jobs errors jobFile.json`
+- `teraslice-cli jobs errors jobFile.json`
 
 **PAUSE** - Pauses a job.
-- `earl jobs pause jobFile.json`
+- `teraslice-cli jobs pause jobFile.json`
 
 **RESET** - Removes cli metadata from job file or asset file, just specify the relative path.
-- `earl jobs reset jobFile.json`
+- `teraslice-cli jobs reset jobFile.json`
 
 **Restart** - Stops and restarts a job.
-- `earl jobs restart jobFile.json`
+- `teraslice-cli jobs restart jobFile.json`
 
 **RESUME** - Resumes a paused job.
-- `earl jobs resume jobFile.json`
+- `teraslice-cli jobs resume jobFile.json`
 
 **START (RUN)** - Starts a job. Run is an alias for start, run and start can be used interchangeably.  Start will automatically register and start a new job, just remember to specify the cluster with `-c`.  Start can also be used to move a job to a new cluster with `-m`, this does not move the asset only the job file.
-- `earl jobs start jobFile.json`
-- `earl jobs run jobFile.json`
-- `earl jobs start jobFile -c clustername` *register and run a new job, same as earl register -r jobfile -c clustername*
-- `earl jobs run -m jobFile -c clusterName` *runs a job on a new cluster, replaces the old earl data in the jobFile*
+- `teraslice-cli jobs start jobFile.json`
+- `teraslice-cli jobs run jobFile.json`
+- `teraslice-cli jobs start jobFile -c clustername` *register and run a new job, same as teraslice-cli register -r jobfile -c clustername*
+- `teraslice-cli jobs run -m jobFile -c clusterName` *runs a job on a new cluster, replaces the old teraslice-cli data in the jobFile*
 
 
 **STATUS** - Reports the status of a job.
-- `earl jobs status jobFile.json`
+- `teraslice-cli jobs status jobFile.json`
 
 **STOP** - Stops a job.
-- `earl jobs stop jobFile.json`
+- `teraslice-cli jobs stop jobFile.json`
 
 **UPDATE** - Updates a job.
-- `earl jobs update jobFile.json`
+- `teraslice-cli jobs update jobFile.json`
 
 **VIEW** - Displays job file as it is saved on the cluster.
-- `earl jobs view jobFile.json`
+- `teraslice-cli jobs view jobFile.json`
 
 **WORKERS** - Adds to or removes workers from a job.
-- `earl jobs workers add 10 jobFile.json`
-- `earl jobs workers remove 5 jobFile.json`
+- `teraslice-cli jobs workers add 10 jobFile.json`
+- `teraslice-cli jobs workers remove 5 jobFile.json`
 
 **JOB CONTROL (start, stop, pause, resume, and restart)** - Job control commands start, stop, pause, resume, and restart all function with the same syntax.
 - `-all` or `-a` performs action on all the jobs on a given cluster.
@@ -125,94 +125,94 @@ Compresses files in `${cwd}/assets` and creates a zip file in `${cwd}/builds/pro
 
 Commands:
 ```bash
-earl jobs <command> <cluster> [-all|-a]
+teraslice-cli jobs <command> <cluster> [-all|-a]
 # stop
-earl jobs stop local:job:99999999-9999-9999-9999-999999999999
+teraslice-cli jobs stop local 99999999-9999-9999-9999-999999999999
 # start
-earl jobs start local:job:99999999-9999-9999-9999-999999999999
+teraslice-cli jobs start local 99999999-9999-9999-9999-999999999999
 # pause
-earl jobs pause local:job:99999999-9999-9999-9999-999999999999
+teraslice-cli jobs pause local 99999999-9999-9999-9999-999999999999
 # resume
-earl jobs resume local:job:99999999-9999-9999-9999-999999999999
+teraslice-cli jobs resume local 99999999-9999-9999-9999-999999999999
 # restart job
-earl jobs restart local:job:99999999-9999-9999-9999-999999999999
+teraslice-cli jobs restart local 99999999-9999-9999-9999-999999999999
 # restart all jobs, no prompt
-earl jobs restart local --all -y
+teraslice-cli jobs restart local --all -y
 ```
 
 **ERRORS** - List errors for a given job
 - `--size` Limit the number of errors to display, default is `100`.
 
 ```
-earl jobs erorrs <cluster>:job:<job_id>
-earl jobs errors local:job:99999999-9999-9999-9999-999999999999
+teraslice-cli jobs errors <cluster> <job_id>
+teraslice-cli jobs errors local 99999999-9999-9999-9999-999999999999
 ```
 
 **STATUS** - Display the status of jobs on the cluster
 - `--status` or `-s` define status to display, default is `running` and `failing.
 
 ```bash
-earl jobs status <cluster> [--status status1:status2]
+teraslice-cli jobs status <cluster> [--status status1,status2]
 # default
-earl jobs status local
+teraslice-cli jobs status local
 # list only failed and stopped jobs
-earl jobs status local --status failed:stopped
+teraslice-cli jobs status local --status failed:stopped
 # list only failing jobs
-earl jobs status local --status failing
+teraslice-cli jobs status local --status failing
 ```
 
 **LIST** - Display jobs registered on the cluster
 ```bash
-earl jobs list <cluster>
+teraslice-cli jobs list <cluster>
 # list jobs
-earl jobs list local
+teraslice-cli jobs list local
 ```
 **VIEW** - Display config for a giving job in `json`.
 ```
-earl jobs view <cluster>:job:<job_id>
+teraslice-cli jobs view <cluster> <job_id>
 # view job
-earl jobs view local:job:99999999-9999-9999-9999-999999999999
+teraslice-cli jobs view local 99999999-9999-9999-9999-999999999999
 ```
 
 **RECOVER** - Recover a crashed jobs
 ```bash
-earl jobs recover <cluster>:ex:<ex_id>
+teraslice-cli jobs recover <cluster> <ex_id>
 # recover job with ex id
-earl jobs recover cluster1:ex:99999999-9999-9999-9999-999999999999
+teraslice-cli jobs recover cluster1 99999999-9999-9999-9999-999999999999
 # recover job with ex id, no prompt
-earl jobs recover cluster1:ex:99999999-9999-9999-9999-999999999999 --yes
+teraslice-cli jobs recover cluster1 99999999-9999-9999-9999-999999999999 --yes
 ```
 
 **WORKERS** - Adds to or removes workers from a job.
-- `earl jobs workers add 5 cluster1:job:99999999-9999-9999-9999-999999999999`
-- `earl jobs workers remove 5 cluster1:job:99999999-9999-9999-9999-999999999999`
+- `teraslice-cli jobs workers add 5 cluster1 99999999-9999-9999-9999-999999999999`
+- `teraslice-cli jobs workers remove 5 cluster1 99999999-9999-9999-9999-999999999999`
 
 
 ### NODES - Commands to view nodes
 **LIST** - List nodes in a cluster
 ```bash
-earl nodes list <cluster>
-earl nodes list local
+teraslice-cli nodes list <cluster>
+teraslice-cli nodes list local
 ```
 
 ### NODES - Commands to view nodes
 **LIST** - List nodes in a cluster
 ```bash
-earl nodes list <cluster>
-earl nodes list local
+teraslice-cli nodes list <cluster>
+teraslice-cli nodes list local
 ```
 
 ### CONTROLLERS - Commands to view controllers
 **LIST** - List controllers in a cluster
 ```bash
-earl controllers list <cluster>
-earl controllers list local
+teraslice-cli controllers list <cluster>
+teraslice-cli controllers list local
 ```
 
 **STATS** - Shows stats for controllers in a cluster
 ```bash
-earl controllers stats <cluster>
-earl controllers stats local
+teraslice-cli controllers stats <cluster>
+teraslice-cli controllers stats local
 ```
 
 ### EX - Commands to manager execution ids.
@@ -221,28 +221,28 @@ earl controllers stats local
 - `--size` Limit the number of errors to display, default is `100`.
 
 ```
-earl ex erorrs <cluster>:ex:<ex_id>
-earl ex errors local:ex:99999999-9999-9999-9999-999999999999
+teraslice-cli ex errors <cluster> <ex_id>
+teraslice-cli ex errors local 99999999-9999-9999-9999-999999999999
 ```
 
 **STATUS** - Display the status of jobs on the cluster
 - `--status` or `-s` define status to display, default is `running` and `failing`.
 
 ```bash
-earl ex status <cluster> [--status status1,status2]
+teraslice-cli ex status <cluster> [--status status1,status2]
 # default
-earl ex status local
+teraslice-cli ex status local
 # list only failed and stopped jobs
-earl ex status local --status failed,stopped
+teraslice-cli ex status local --status failed,stopped
 # list only failing jobs
-earl jobs status local --status failing
+teraslice-cli jobs status local --status failing
 ```
 
 **LIST** - Display execution ids on the cluster, default is `running` and `failing`
 ```bash
-earl ex list <cluster>
+teraslice-cli ex list <cluster>
 # list ex_ids
-earl ex list local
+teraslice-cli ex list local
 # list failed ex_ids
-earl ex list local --status failed
+teraslice-cli ex list local --status failed
 ```

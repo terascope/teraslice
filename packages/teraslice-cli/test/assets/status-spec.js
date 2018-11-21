@@ -47,7 +47,7 @@ const argv = {
     _: ['assets', 'status'],
     baseDir: tmpDir,
     status: true,
-    cluster: 'http://localhost:5678'
+    cluster_sh: 'http://localhost:5678'
 };
 
 describe('status', () => {
@@ -82,9 +82,10 @@ describe('status', () => {
         delete argv.l;
     });
 
-    it('should show status on many clusters', async () => {
+    it('should show status on single cluster', async () => {
         assetNames = [];
-        argv.c = 'http://localhost:5678';
+        argv.cluster_sh = 'http://cluster1:5678';
+        //argv.c = 'http://localhost:5678';
         clientResponse = [
             {
                 name: 'testing_123',
@@ -99,9 +100,8 @@ describe('status', () => {
         await fs.writeJson(assetPath, assetJson, { spaces: 4 });
         try {
             await status.handler(argv, _cliFunctions);
-            expect(assetNames.length).toBe(2);
+            expect(assetNames.length).toBe(1);
             expect(assetNames[0]).toBe('assets/testing_123');
-            expect(assetNames[1]).toBe('assets/testing_123');
         } catch (e) {
             fail(e);
         }
@@ -109,7 +109,7 @@ describe('status', () => {
 
     it('should show status on many clusters if -a', async () => {
         assetNames = [];
-        argv.c = 'http://localhost:5678';
+        argv.all = true;
         clientResponse = [
             {
                 name: 'testing_123',
@@ -117,7 +117,7 @@ describe('status', () => {
                 _create: '01/01/2018',
                 id: '123456789',
                 description: 'dummy asset.json for testing',
-                a: true
+                all: true
             }
         ];
 
@@ -133,14 +133,14 @@ describe('status', () => {
         }
     });
 
-    it('should ensure that earl data is in the asset.json file', async () => {
+    it('should ensure that teraslice-cli data is in the asset.json file', async () => {
         delete assetJson.tjm;
         const tmpDirX = createTempDirSync();
         const argvX = {
             _: ['asset', 'status'],
             baseDir: tmpDirX,
             status: true,
-            cluster: 'http://localhost:5678'
+            cluster_sh: 'http://localhost:5678'
         };
         const assetPathX = path.join(tmpDirX, 'asset/asset.json');
         await fs.ensureFile(assetPathX);
@@ -148,7 +148,7 @@ describe('status', () => {
         try {
             await status.handler(argvX, _cliFunctions);
         } catch (e) {
-            expect(e).toBe('asset.json file does not have earl data, has the asset been deployed?');
+            expect(e).toBe('asset.json file does not have teraslice-cli data, has the asset been deployed?');
         }
     });
 });

@@ -4,22 +4,21 @@
 const _ = require('lodash');
 const reply = require('../lib/reply')();
 const config = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 
-exports.command = 'find <cluster_sh> [job]';
-exports.desc = 'Find a job across clusters\n';
+exports.command = 'stop <job_file>';
+exports.desc = 'Stop job specified in job file on cluster';
 exports.builder = (yargs) => {
-    cli().args('job', 'find', yargs);
+    cli().args('tjm', 'stop', yargs);
     yargs
-        .demandCommand(1)
-        .example('earl jobs find cluster1');
+        .example('teraslice-cli stop test1.json');
 };
 
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
-    config(cliConfig, 'jobs:find').returnConfigData();
+    config(cliConfig, 'tjm:stop').returnConfigData();
     const job = _testFunctions || require('./lib')(cliConfig);
 
-    return job.view()
+    return job.stop()
         .catch(err => reply.fatal(err.message));
 };

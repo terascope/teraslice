@@ -4,7 +4,7 @@ const _ = require('lodash');
 const path = require('path');
 const reply = require('../lib/reply')();
 const config = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 
 exports.command = 'status [cluster_sh]';
 exports.desc = 'shows the status of the asset on a cluster or a group of clusters';
@@ -16,9 +16,9 @@ exports.builder = (yargs) => {
         type: 'boolean',
         default: false,
     });
-    yargs.example('earl assets status -c clustername:port#');
-    yargs.example('earl assets status -c clusteralias');
-    yargs.example('earl assets status -a');
+    yargs.example('teraslice-cli assets status clustername:port#');
+    yargs.example('teraslice-cli assets status clusteralias');
+    yargs.example('teraslice-cli assets status -a');
 };
 
 exports.handler = (argv, _testCliFunctions) => {
@@ -47,11 +47,11 @@ exports.handler = (argv, _testCliFunctions) => {
         });
     }
     if (!_.has(cliConfig, 'asset_file_content.tjm.clusters')) {
-        reply.fatal('asset.json file does not have earl data, has the asset been deployed?');
+        reply.fatal('asset.json file does not have teraslice-cli data, has the asset been deployed?');
     }
     let { clusters } = cliConfig.asset_file_content.tjm;
     // if cluster is not specifically called out then show status for all
-    if (cliConfig.l || cliConfig.c !== 'http://localhost:5678') {
+    if (cliConfig.cluster_url !== undefined) {
         clusters = [cliConfig.c];
     }
     if (_.has(cliConfig, 'cluster_url')) {

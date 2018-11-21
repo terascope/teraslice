@@ -6,14 +6,14 @@ const prompts = require('prompts');
 const fs = require('fs-extra');
 const reply = require('../lib/reply')();
 const config = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 
 
 exports.command = 'replace <cluster_sh>';
 exports.desc = 'replaces an asset on a cluster, intended for dev work only';
 exports.builder = (yargs) => {
     cli().args('assets', 'replace', yargs);
-    yargs.example('earl replace clustername:port#');
+    yargs.example('teraslice-cli replace cluster1');
 };
 
 exports.handler = (argv, _testTjmFunctions) => {

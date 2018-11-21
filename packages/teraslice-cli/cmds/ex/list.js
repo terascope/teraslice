@@ -4,7 +4,7 @@
 const _ = require('lodash');
 const reply = require('../lib/reply')();
 const config = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 
 exports.command = 'list <cluster_sh>';
 exports.desc = 'List the executions ids with status of running and failing.\n';
@@ -14,7 +14,7 @@ exports.builder = (yargs) => {
         .option('status', {
             alias: 's',
             describe: 'list of ex status to include',
-            default: 'running,failing'
+            default: '*'
         });
 };
 

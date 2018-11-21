@@ -4,7 +4,7 @@
 const _ = require('lodash');
 const reply = require('../lib/reply')();
 const config = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 
 exports.command = 'errors <cluster_sh>';
 exports.desc = 'List errors for all running and failing ex ids on cluster.\n';
@@ -32,8 +32,8 @@ exports.builder = (yargs) => {
 exports.handler = (argv, _testFunctions) => {
     const cliConfig = _.clone(argv);
     config(cliConfig, 'ex:errors').returnConfigData();
-    const tsuFunctions = _testFunctions || require('./lib')(cliConfig);
+    const ex = _testFunctions || require('./lib')(cliConfig);
 
-    return tsuFunctions.errors()
+    return ex.errors()
         .catch(err => reply.fatal(err.message));
 };

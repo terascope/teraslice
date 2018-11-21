@@ -32,7 +32,7 @@ module.exports = (cliConfig) => {
         }
     }
 
-    async function alreadyRegistered() {
+    async function alreadyRegistered(show = true) {
         let registered = false;
         const jobContents = cliConfig.job_file_content;
         if (_.has(jobContents, '__metadata.cli.cluster')) {
@@ -40,16 +40,62 @@ module.exports = (cliConfig) => {
             const jobSpec = await terasliceClient.jobs.wrap(jobId).config();
             if (jobSpec.job_id === jobContents.__metadata.cli.job_id) {
                 // return true for testing purposes
-                reply.green(`${jobSpec.job_id} is registered`);
+                if (show) {
+                    reply.green(`${jobSpec.job_id} is registered`);
+                }
                 registered = true;
+            } else {
+                reply.error(`${jobSpec.job_id} is not registered`);
             }
         }
         return registered;
     }
 
+    async function getClusteringType() {
+        let clusterInfo = {};
+        try {
+            clusterInfo = await terasliceClient.cluster.info();
+            if (_.has(clusterInfo, 'clustering_type')) {
+                cliConfig.cluster_manager_type = clusterInfo.clustering_type;
+            } else {
+                cliConfig.cluster_manager_type = 'native';
+            }
+        } catch (err) {
+            if (err.code === 405 && err.error === 405) {
+                cliConfig.cluster_manager_type = 'native';
+            }
+        }
+    }
+
+    function matchId(specId, responseId) {
+        let includeId = false;
+        if (specId === undefined || responseId.job_id === specId || responseId.ex_id === specId) {
+            includeId = true;
+        }
+        return includeId;
+    }
+
+    function validId(str) {
+        let isId = false;
+        let dashCount = 0;
+        let pos = str.indexOf('-');
+        while (pos !== -1) {
+            dashCount += 1;
+            pos = str.indexOf('-', pos + 1);
+        }
+        if (dashCount === 4 && str.length === 36) {
+            isId = true;
+        }
+        return (isId);
+    }
+
+
     return {
         getAssetClusters,
+        getClusteringType,
         alreadyRegistered,
-        _dataCheck
+        _dataCheck,
+        validId,
+        matchId
     };
 };

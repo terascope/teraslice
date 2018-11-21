@@ -4,14 +4,14 @@
 const _ = require('lodash');
 const reply = require('../lib/reply')();
 const config = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 
 exports.command = 'list';
 exports.desc = 'List the clusters defined in the config file.\n';
 exports.builder = (yargs) => {
     cli().args('aliases', 'list', yargs);
     yargs.strict()
-        .example('earl aliases list cluster1');
+        .example('teraslice-cli aliases list cluster1');
 };
 
 exports.handler = (argv, _testFunctions) => {
