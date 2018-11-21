@@ -149,6 +149,7 @@ function generateTestData() {
             name: `Generate: ${indexName}`,
             lifecycle: 'once',
             workers: 1,
+            assets: ['elasticsearch'],
             operations: [
                 {
                     _op: 'elasticsearch_data_generator',

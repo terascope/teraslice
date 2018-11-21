@@ -1,6 +1,6 @@
 {
     "name": "@terascope/docker-compose-js",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "publishConfig": {
         "access": "public"
     },
@@ -26,11 +26,11 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "dependencies": {
-        "bluebird": "^3.5.2",
+        "bluebird": "^3.5.3",
         "debug": "^4.1.0"
     },
     "devDependencies": {
-        "eslint": "^5.8.0",
+        "eslint": "^5.9.0",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "^2.14.0",
         "jest": "^23.6.0",

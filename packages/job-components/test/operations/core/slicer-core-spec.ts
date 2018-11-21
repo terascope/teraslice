@@ -3,7 +3,7 @@ import { newTestExecutionConfig, TestContext, SlicerContext } from '../../../src
 import SlicerCore from '../../../src/operations/core/slicer-core';
 
 describe('SlicerCore', () => {
-    class ExampleSlicerCore extends SlicerCore {
+    class ExampleSlicerCore<T = object> extends SlicerCore<T> {
         async handle(): Promise<boolean> {
             return false;
         }

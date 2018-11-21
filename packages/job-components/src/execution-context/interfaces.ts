@@ -6,13 +6,15 @@ import {
     ContextApis,
     SlicerOperationLifeCycle,
     WorkerOperationLifeCycle,
-    Assignment
+    Assignment,
+    SliceAnalyticsData
 } from '../interfaces';
+import { DataEntity } from '../operations';
 
 export interface ExecutionContextConfig {
     context: Context;
     executionConfig: ExecutionConfig;
-    terasliceOpPath: string;
+    terasliceOpPath?: string;
     assetIds?: string[];
 }
 
@@ -44,6 +46,11 @@ interface WorkerContextApis extends ContextApis {
     job_runner: JobRunnerAPI;
     /** An API for registering and loading the new Job APIs */
     executionContext: ExecutionContextAPI;
+}
+
+export interface RunSliceResult {
+    analytics?: SliceAnalyticsData;
+    results: DataEntity[];
 }
 
 /**

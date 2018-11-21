@@ -1,5 +1,4 @@
 {
-    "compileOnSave": true,
     "compilerOptions": {
         "baseUrl": ".",
         "module": "commonjs",
@@ -7,7 +6,6 @@
         "target": "es2017",
         "skipLibCheck": true,
         "experimentalDecorators": true,
-        "composite": true,
         "declaration": true,
         "sourceMap": false,
         "inlineSourceMap": true,

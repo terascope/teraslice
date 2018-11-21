@@ -7,7 +7,7 @@ import { times, isFunction } from '../utils';
  * @see SlicerCore
  */
 
-export default abstract class ParallelSlicer extends SlicerCore {
+export default abstract class ParallelSlicer<T> extends SlicerCore<T> {
     protected _slicers: SlicerObj[] = [];
 
     /**

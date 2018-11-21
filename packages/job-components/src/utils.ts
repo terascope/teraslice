@@ -1,3 +1,6 @@
+import isPlainObject from 'is-plain-object';
+import kindOf from 'kind-of';
+
 /** A simplified implemation of lodash isString */
 export function isString(val: any): val is string {
     return typeof val === 'string' ? true : false;
@@ -17,7 +20,7 @@ export function toString(val: any): string {
  */
 export function parseJSON<T = object>(buf: Buffer|string): T {
     if (!Buffer.isBuffer(buf) && !isString(buf)) {
-        throw new TypeError(`Failure to serialize non-buffer, got "${typeof buf}"`);
+        throw new TypeError(`Failure to serialize non-buffer, got "${kindOf(buf)}"`);
     }
 
     try {
@@ -34,14 +37,7 @@ export function isInteger(val: any): val is number {
     return Number.isInteger(val);
 }
 
-/** A simplified implemation of lodash isPlainObject */
-export function isPlainObject(input: any): input is object {
-    if (input == null) return false;
-    if (Array.isArray(input)) return false;
-    if (Buffer.isBuffer(input)) return false;
-    if (typeof input !== 'object') return false;
-    return true;
-}
+export { isPlainObject };
 
 /** A simplified implemation of lodash castArray */
 export function castArray<T>(input: any): T[] {
@@ -137,7 +133,7 @@ export function flatten<T>(val: Many<T[]>): T[] {
 interface Many<T> extends Array<T> {
 }
 
-/** A decorator for locking down a property or method */
+/** A decorator for locking down a method */
 export function locked() {
     // @ts-ignore
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
@@ -147,8 +143,8 @@ export function locked() {
     };
 }
 
-/** A decorator for making a property, or method enumerable */
-export function enumerable(enabled: boolean) {
+/** A decorator for making a method enumerable or none-enumerable */
+export function enumerable(enabled = true) {
     // @ts-ignore
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         descriptor.enumerable = enabled;

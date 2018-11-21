@@ -9,6 +9,13 @@ terafoundation:
             default:
                 host:
                     - "elasticsearch:49200"
+        # ***********************
+        # Kafka Configuration
+        # ***********************
+        kafka:
+            default:
+                brokers:
+                    - "kafka:49092"
 
 teraslice:
     worker_disconnect_timeout: 120000

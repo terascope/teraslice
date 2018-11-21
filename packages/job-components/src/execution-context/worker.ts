@@ -4,7 +4,7 @@ import { enumerable, isFunction, waterfall } from '../utils';
 import { OperationLoader } from '../operation-loader';
 import FetcherCore from '../operations/core/fetcher-core';
 import ProcessorCore from '../operations/core/processor-core';
-import { OperationAPIConstructor } from '../operations';
+import { OperationAPIConstructor, DataEntity } from '../operations';
 import { registerApis } from '../register-apis';
 import { WorkerOperationLifeCycle, ExecutionConfig, Slice } from '../interfaces';
 import {
@@ -13,6 +13,7 @@ import {
     WorkerContext,
     ExecutionContextConfig,
     WorkerMethodRegistry,
+    RunSliceResult,
 } from './interfaces';
 import JobObserver from '../operations/job-observer';
 
@@ -36,22 +37,23 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     readonly assetIds: string[] = [];
 
     /** The instance of a "Fetcher" */
-    readonly fetcher: FetcherCore;
+    readonly fetcher: FetcherCore<object>;
 
     /**
      * A Set of a Processors available to Job.
      * This does not include the Fetcher since they have
      * different APIs.
     */
-    readonly processors: Set<ProcessorCore>;
+    readonly processors: Set<ProcessorCore<object>>;
 
     readonly exId: string;
     readonly jobId: string;
 
+    /** The terafoundation EventEmitter */
+    readonly events: EventEmitter;
+
     private readonly jobObserver: JobObserver;
 
-    /** The terafoundation EventEmitter */
-    private events: EventEmitter;
     private _handlers: EventHandlers = {};
 
     private _methodRegistry: WorkerMethodRegistry = {
@@ -154,7 +156,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
      * Run a slice against the fetcher and then processors.
      * TODO: this should handle slice retries.
     */
-    async runSlice(slice: Slice) {
+    async runSlice(slice: Slice): Promise<RunSliceResult> {
         const sliceId = slice.slice_id;
         const sliceRequest = cloneDeep(slice.request);
 
@@ -182,7 +184,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
             });
         }
 
-        const results = await waterfall(sliceRequest, queue);
+        const results = await waterfall(sliceRequest, queue) as DataEntity[];
 
         return {
             results,

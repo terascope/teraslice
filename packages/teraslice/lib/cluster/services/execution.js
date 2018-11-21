@@ -135,7 +135,7 @@ module.exports = function module(context, { clusterMasterServer }) {
 
     function _isTerminalStatus(execution) {
         const terminalList = terminalStatusList();
-        return terminalList.find(tStat => tStat === execution._status) !== undefined;
+        return terminalList.find(tStat => tStat === execution._status) != null;
     }
 
     // safely stop the execution without setting the ex status to stopping or stopped
@@ -250,12 +250,12 @@ module.exports = function module(context, { clusterMasterServer }) {
                 .catch((err) => {
                     const errMsg = parseError(err);
                     logger.error('could not set to pending', errMsg);
-                    return Promise.reject(errMsg);
+                    return Promise.reject(new Error('Failure to set job to pending'));
                 }))
             .catch((err) => {
                 const errMsg = parseError(err);
                 logger.error('could not create execution context', errMsg);
-                return Promise.reject(errMsg);
+                return Promise.reject(new Error('Failure to create execution context'));
             });
     }
 
@@ -278,7 +278,9 @@ module.exports = function module(context, { clusterMasterServer }) {
         return searchExecutionContexts(query, null, 1, '_created:desc')
             .then((ex) => {
                 if (ex.length === 0) {
-                    return Promise.reject(`no active execution context was found for ex_id: ${exId}`);
+                    const error = new Error(`no active execution context was found for ex_id: ${exId}`);
+                    error.code = 404;
+                    return Promise.reject(error);
                 }
                 return ex[0];
             });
@@ -350,8 +352,7 @@ module.exports = function module(context, { clusterMasterServer }) {
                 execution.recovered_execution = exId;
                 if (cleanup) execution.recovered_slice_type = cleanup;
                 return createExecutionContext(execution);
-            })
-            .catch(err => Promise.reject(parseError(err)));
+            });
     }
 
     const api = {

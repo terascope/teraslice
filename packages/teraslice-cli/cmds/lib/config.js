@@ -112,7 +112,6 @@ module.exports = (cliConfig, command) => {
             } else {
                 cliConfig.statusList = ['running', 'failing'];
             }
-
             cliConfig.hostname = url.parse(cliConfig.cluster_url).hostname;
             cliConfig.all_jobs = !(cliConfig.a === undefined || cliConfig.a === false);
 

@@ -267,7 +267,7 @@ module.exports = (cliConfig) => {
         }
         for (const jobStatus of cliConfig.statusList) {
             let jobsTemp = '';
-            const exResult = await terasliceClient.jobs.list(jobStatus);
+            const exResult = await terasliceClient.ex.list(jobStatus);
             jobsTemp = await controllerStatus(exResult, jobStatus, controllers);
 
             _.each(jobsTemp, (job) => {
@@ -293,7 +293,7 @@ module.exports = (cliConfig) => {
         if (cliConfig.info) {
             await displayInfo();
         }
-        const jobs = await terasliceClient.jobs.jobs();
+        const jobs = await terasliceClient.jobs.list();
         if (jobs.length > 0) {
             await displayJobsList(jobs, false);
         }

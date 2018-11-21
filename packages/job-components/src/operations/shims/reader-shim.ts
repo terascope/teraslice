@@ -4,12 +4,12 @@ import FetcherCore from '../core/fetcher-core';
 import ParallelSlicer from '../parallel-slicer';
 import ConvictSchema from '../convict-schema';
 import { ReaderModule } from '../interfaces';
-import { isInteger, isFunction } from '../../utils';
+import { isInteger, isFunction, toString } from '../../utils';
 import { convertResult } from './shim-utils';
 
 export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule {
     return {
-        Slicer: class LegacySlicerShim extends ParallelSlicer  {
+        Slicer: class LegacySlicerShim<T = object> extends ParallelSlicer<T>  {
             private _maxQueueLength = 10000;
             private _dynamicQueueLength = false;
             private slicerFns: SlicerFns|undefined;
@@ -54,7 +54,7 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
                 return this._maxQueueLength;
             }
         },
-        Fetcher: class LegacyFetcherShim extends FetcherCore {
+        Fetcher: class LegacyFetcherShim<T = object> extends FetcherCore<T> {
             private fetcherFn: ReaderFn<DataEntity[]>|undefined;
 
             async initialize() {
@@ -64,8 +64,12 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
             async handle(sliceRequest: SliceRequest): Promise<DataEntity[]> {
                 if (this.fetcherFn) {
                     const result = await this.fetcherFn(sliceRequest, this.logger);
-                    // @ts-ignore
-                    return convertResult(result);
+                    try {
+                        // @ts-ignore
+                        return convertResult(result);
+                    } catch (err) {
+                        throw new Error(`${this.opConfig._op} failed to convert result: ${toString(err)}`);
+                    }
                 }
 
                 throw new Error('Fetcher has not been initialized');

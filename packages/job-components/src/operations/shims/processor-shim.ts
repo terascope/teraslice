@@ -4,10 +4,11 @@ import ProcessorCore from '../core/processor-core';
 import ConvictSchema from '../convict-schema';
 import { ProcessorModule } from '../interfaces';
 import { convertResult } from './shim-utils';
+import { toString } from '../../utils';
 
 export default function processorShim<S = any>(legacy: LegacyProcessor): ProcessorModule {
     return {
-        Processor: class LegacyProcessorShim extends ProcessorCore {
+        Processor: class LegacyProcessorShim<T = object> extends ProcessorCore<T> {
             private processorFn: ProcessorFn<DataEntity[]>|undefined;
 
             async initialize() {
@@ -17,8 +18,12 @@ export default function processorShim<S = any>(legacy: LegacyProcessor): Process
             async handle(input: DataEntity[], sliceRequest: SliceRequest): Promise<DataEntity[]> {
                 if (this.processorFn != null) {
                     const result = await this.processorFn(input, this.logger, sliceRequest);
-                    // @ts-ignore
-                    return convertResult(result);
+                    try {
+                        // @ts-ignore
+                        return convertResult(result);
+                    } catch (err) {
+                        throw new Error(`${this.opConfig._op} failed to convert result: ${toString(err)}`);
+                    }
                 }
 
                 throw new Error('Processor has not been initialized');

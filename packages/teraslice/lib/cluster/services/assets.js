@@ -5,7 +5,7 @@ const _ = require('lodash');
 const express = require('express');
 const parseError = require('@terascope/error-parser');
 const makeAssetsStore = require('../storage/assets');
-const { makeTable, handleError } = require('../../utils/api_utils');
+const { makeTable, handleRequest, getSearchOptions } = require('../../utils/api_utils');
 
 module.exports = function module(context) {
     const logger = context.apis.foundation.makeLogger({ module: 'assets_service' });
@@ -14,8 +14,16 @@ module.exports = function module(context) {
     let assetsStore;
     let running = false;
 
+    app.set('json spaces', 4);
+
+    app.use((req, res, next) => {
+        req.logger = logger;
+        next();
+    });
+
     app.get('/status', (req, res) => {
-        res.send({ available: running });
+        const requestHandler = handleRequest(req, res);
+        requestHandler(() => ({ available: running }));
     });
 
     app.post('/assets', (req, res) => {
@@ -44,18 +52,17 @@ module.exports = function module(context) {
         });
     });
 
-    app.delete('/assets/:asset_id', (req, res) => {
-        const assetId = req.params.asset_id;
-        const handleApiError = handleError(res, logger, 500, `Could not delete asset ${assetId}`);
+    app.delete('/assets/:assetId', (req, res) => {
+        const { assetId } = req.params;
+        const requestHandler = handleRequest(req, res, `Could not delete asset ${assetId}`);
 
         if (assetId.length !== 40) {
             res.status(400).json({ error: `asset ${assetId} is not formatted correctly, please provide the full asset_id` });
         } else {
-            assetsStore.remove(assetId)
-                .then(() => {
-                    res.status(200).json({ assetId });
-                })
-                .catch(handleApiError);
+            requestHandler(async () => {
+                await assetsStore.remove(assetId);
+                return { assetId };
+            });
         }
     });
 
@@ -76,23 +83,22 @@ module.exports = function module(context) {
 
     app.get('/assets', (req, res) => {
         const query = 'id:*';
-        assetsSearch(query, req, res)
-            .then(results => res.status(200).send(JSON.stringify(results, null, 4)));
+        assetsSearch(query, req, res);
     });
 
     app.get('/assets/:name', (req, res) => {
         const query = `id:* AND name:${req.params.name}`;
-        assetsSearch(query, req, res)
-            .then(results => res.status(200).send(JSON.stringify(results, null, 4)));
+        assetsSearch(query, req, res);
     });
 
     app.get('/assets/:name/:version', (req, res) => {
         const query = `id:* AND name:${req.params.name} AND version:${req.params.version}`;
-        assetsSearch(query, req, res)
-            .then(results => res.status(200).send(JSON.stringify(results, null, 4)));
+        assetsSearch(query, req, res);
     });
 
     function createAssetTable(query, req, res) {
+        const { size, from, sort } = getSearchOptions(req, '_created:desc');
+
         const defaults = [
             'name',
             'version',
@@ -110,26 +116,33 @@ module.exports = function module(context) {
             };
         }
 
-        assetsSearch(query, res, res)
-            .then((queryResults) => {
-                const tableStr = makeTable(req, defaults, queryResults, mapping);
-                res.status(200).send(tableStr);
+        const requestHandler = handleRequest(req, res, 'Could not get assets');
+        requestHandler(async () => {
+            const results = await assetsStore.search(query, from, size, sort, defaults);
+            const data = results.hits.hits;
+            const assets = _.map(data, (asset) => {
+                const record = asset._source;
+                record.id = asset._id;
+                return record;
             });
+            return makeTable(req, defaults, assets, mapping);
+        });
     }
 
     function assetsSearch(query, req, res) {
-        const handleApiError = handleError(res, logger, 500, 'Could not get assets');
+        const { size, from, sort } = getSearchOptions(req, '_created:desc');
 
-        return assetsStore.search(query, null, 10000, '_created:desc', ['_created', 'name', 'version', 'description'])
-            .then((results) => {
-                const data = results.hits.hits;
-                return _.map(data, (asset) => {
-                    const record = asset._source;
-                    record.id = asset._id;
-                    return record;
-                });
-            })
-            .catch(handleApiError);
+        const requestHandler = handleRequest(req, res, 'Could not get assets');
+        requestHandler(async () => {
+            const fields = ['_created', 'name', 'version', 'description'];
+            const results = await assetsStore.search(query, from, size, sort, fields);
+            const data = results.hits.hits;
+            return _.map(data, (asset) => {
+                const record = asset._source;
+                record.id = asset._id;
+                return record;
+            });
+        });
     }
 
 

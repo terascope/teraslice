@@ -1,6 +1,6 @@
 {
     "name": "@terascope/job-components",
-    "version": "0.9.0",
+    "version": "0.10.0",
     "publishConfig": {
         "access": "public"
     },
@@ -41,18 +41,21 @@
         "convict": "^4.4.0",
         "datemath-parser": "^1.0.6",
         "debug": "^4.1.0",
+        "is-plain-object": "^2.0.4",
+        "kind-of": "^6.0.2",
         "lodash.clonedeep": "^4.5.0",
         "uuid": "^3.3.2"
     },
     "devDependencies": {
         "@types/jest": "^23.3.8",
-        "@types/node": "^10.12.2",
+        "@types/node": "^10.12.9",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "benchmark": "^2.1.4",
-        "fs-extra": "^7.0.0",
+        "fs-extra": "^7.0.1",
         "jest": "^23.6.0",
         "jest-extended": "^0.11.0",
+        "jest-fixtures": "^0.6.0",
         "ts-jest": "^23.10.4",
         "tslint": "^5.0.0",
         "tslint-config-airbnb": "^5.11.0",

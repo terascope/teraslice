@@ -1,6 +1,6 @@
 {
     "name": "@terascope/teraslice-messaging",
-    "version": "0.2.4",
+    "version": "0.2.5",
     "publishConfig": {
         "access": "public"
     },
@@ -37,7 +37,7 @@
     },
     "dependencies": {
         "@terascope/queue": "^1.1.4",
-        "bluebird": "^3.5.2",
+        "bluebird": "^3.5.3",
         "debug": "^4.1.0",
         "nanoid": "^2.0.0",
         "p-event": "^2.1.0",
@@ -47,7 +47,7 @@
     },
     "devDependencies": {
         "@types/jest": "^23.3.8",
-        "@types/node": "^10.12.2",
+        "@types/node": "^10.12.9",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "jest": "^23.6.0",

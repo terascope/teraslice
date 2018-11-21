@@ -2,7 +2,7 @@ import 'jest-extended'; // require for type definitions
 import { DataEntity, FilterProcessor, newTestExecutionConfig, TestContext, WorkerContext } from '../../src';
 
 describe('FilterProcessor', () => {
-    class ExampleProcessor extends FilterProcessor {
+    class ExampleProcessor extends FilterProcessor<object> {
         filter(data: DataEntity): boolean {
             return data.keep;
         }

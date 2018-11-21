@@ -4,16 +4,18 @@ const _ = require('lodash');
 const Table = require('easy-table');
 const parseError = require('@terascope/error-parser');
 
-
 function makeTable(req, defaults, data, mappingFn) {
     const query = fieldsQuery(req.query, defaults);
+    let emptyChar = 'N/A';
+
     // used to create an empty table if there are no jobs
     if (data.length === 0) {
+        emptyChar = '';
         data.push({});
     }
 
     return Table.print(data, (item, cell) => {
-        const fn = mappingFn ? mappingFn(item) : field => item[field];
+        const fn = mappingFn ? mappingFn(item) : field => _.get(item, field, emptyChar);
         _.each(query, (field) => {
             cell(field, fn(field));
         });
@@ -39,16 +41,28 @@ function fieldsQuery(query, defaults) {
     return results;
 }
 
-function handleError(res, logger, defualtCode, defaultErrorMsg) {
-    return (errObj) => {
-        if (errObj.code) {
-            logger.error(errObj.message);
-            sendError(res, errObj.code, errObj.message);
-            return;
+function handleRequest(req, res, defaultErrorMsg = 'Failure to process request', { errorCode = 500, successCode = 200 } = {}) {
+    logRequest(req);
+    return async (fn) => {
+        try {
+            const result = await fn();
+            if (_.isString(result)) {
+                res.status(successCode).send(result);
+            } else {
+                res.status(successCode).json(result);
+            }
+        } catch (err) {
+            if (_.isError(err) || err.code || err.statusCode) {
+                const code = err.statusCode || err.code || errorCode;
+                req.logger.error(err.message);
+                sendError(res, code, err.message);
+                return;
+            }
+
+            const errMsg = `${defaultErrorMsg}, error: ${parseError(err)}`;
+            req.logger.error(errMsg);
+            sendError(res, errorCode, errMsg);
         }
-        const errMsg = `${defaultErrorMsg}, error: ${parseError(errObj)}`;
-        logger.error(errMsg);
-        sendError(res, defualtCode, errMsg);
     };
 }
 
@@ -61,7 +75,7 @@ function sendError(res, code, error) {
 
 // NOTE: This only works for counters, if you're trying to extend this, you
 // should probably switch to using prom-client.
-function makePrometheus(stats) {
+function makePrometheus(stats, defaultLabels = {}) {
     const metricMapping = {
         processed: 'teraslice_slices_processed',
         failed: 'teraslice_slices_failed',
@@ -77,15 +91,48 @@ function makePrometheus(stats) {
         const name = metricMapping[key];
         if (name !== '') {
             returnString += `# TYPE ${name} counter\n`;
-            returnString += `${value}\n`;
+            const labels = makePrometheusLabels(defaultLabels);
+            returnString += `${name}${labels} ${value}\n`;
         }
     });
     return returnString;
 }
 
+function makePrometheusLabels(defaults, custom) {
+    const labels = Object.assign({}, defaults, custom);
+    const keys = Object.keys(labels);
+    if (!keys.length) return '';
+
+    const labelsStr = keys.map((key) => {
+        const val = labels[key];
+        return `${key}="${val}"`;
+    }).join(',');
+
+    return `{${labelsStr}}`;
+}
+
+function isPrometheusRequest(req) {
+    const acceptHeader = _.get(req, 'headers.accept', '');
+    return acceptHeader && acceptHeader.indexOf('application/openmetrics-text;') > -1;
+}
+
+function getSearchOptions(req, defaultSort = '_updated:desc') {
+    const { size = 100, from = null, sort = defaultSort } = req.query;
+    return { size, from, sort };
+}
+
+function logRequest(req) {
+    const queryInfo = _.map(req.query, (val, key) => `${key}: ${val}`).join(', ');
+    const { method, path } = req;
+    req.logger.trace(`${_.toUpper(method)} ${path} endpoint has been called, ${queryInfo}`);
+}
+
 module.exports = {
+    isPrometheusRequest,
     makePrometheus,
     makeTable,
-    handleError,
+    logRequest,
+    getSearchOptions,
+    handleRequest,
     sendError
 };
