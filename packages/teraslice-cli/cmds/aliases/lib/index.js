@@ -70,7 +70,7 @@ module.exports = (cliConfig) => {
         reply.green(`> Added cluster alias ${cliConfig.cluster}`);
 
         cliConfig.config.clusters[cliConfig.cluster] = {
-            host: config._urlCheck(cliConfig.host),
+            host: config._urlCheck(cliConfig.cluster_url),
         };
         yaml.writeSync(cliConfig.configFile, cliConfig.config);
         await list();
@@ -80,7 +80,7 @@ module.exports = (cliConfig) => {
         if (_.has(cliConfig.config.clusters, cliConfig.cluster)) {
             reply.green(`> Updated cluster alias ${cliConfig.cluster}`);
             if (process.argv.indexOf('-c') > 0 || process.argv.indexOf('--host-cluster')) {
-                cliConfig.config.clusters[cliConfig.cluster].host = config._urlCheck(cliConfig.host);
+                cliConfig.config.clusters[cliConfig.cluster].host = config._urlCheck(cliConfig.cluster_url);
             }
             yaml.writeSync(cliConfig.configFile, cliConfig.config);
         } else {

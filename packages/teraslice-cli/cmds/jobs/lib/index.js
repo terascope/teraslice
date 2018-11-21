@@ -15,9 +15,6 @@ module.exports = (cliConfig) => {
         host: cliConfig.cluster_url
     });
 
-    const checks = require('../../lib/checks')(cliConfig);
-    checks.getClusteringType();
-
     const annotation = require('../../lib/annotation')(cliConfig);
     cliConfig.type = 'job';
 
@@ -185,7 +182,8 @@ module.exports = (cliConfig) => {
 
     async function workers() {
         await checkForId();
-        const response = await terasliceClient.jobs.wrap(cliConfig.job_id).changeWorkers(cliConfig.action, cliConfig.num);
+        const response = await terasliceClient.jobs.wrap(cliConfig.job_id)
+            .changeWorkers(cliConfig.action, cliConfig.num);
         console.log(`> job: ${cliConfig.job_id} ${response}`);
     }
 
@@ -203,9 +201,6 @@ module.exports = (cliConfig) => {
                 let addWorkersOnce = true;
 
                 if (expectedJob.job_id === job.job_id) {
-                    if (expectedJob.name.toLowerCase().includes('virgil')) {
-                        continue;
-                    }
                     if (addWorkersOnce) {
                         let workers2add = 0;
                         if (_.has(expectedJob, 'slicer.workers_active')) {
@@ -240,14 +235,10 @@ module.exports = (cliConfig) => {
                     } else {
                         expectedWorkers = expectedJob.workers;
                     }
-                    // virgil doesn't always have active workers, so ignore active workers
-                    // todo add exceptions to this check in a config file
                     if (_.has(job, 'slicer.workers_active')) {
                         activeWorkers = job.slicer.workers_active;
                     }
-                    if (expectedJob.name.toLowerCase().includes('virgil')) {
-                        allWorkersStartedCount += 1;
-                    } else if (expectedWorkers === activeWorkers) {
+                    if (expectedWorkers === activeWorkers) {
                         allWorkersStartedCount += 1;
                     }
                 }
@@ -291,13 +282,11 @@ module.exports = (cliConfig) => {
             if (saveState) {
                 await fs.writeJson(cliConfig.state_file, jobs, { spaces: 4 });
             }
+        } else {
+            reply.error(`no jobs on ${cliConfig.cluster}`);
         }
 
         return jobs;
-    }
-
-    function createJsonFile(filePath, jsonObject) {
-        return fs.writeJson(filePath, jsonObject, { spaces: 4 });
     }
 
     async function list() {
@@ -318,10 +307,12 @@ module.exports = (cliConfig) => {
     }
 
     async function recover() {
-        // todo set options
-        const response = await terasliceClient.jobs.wrap(cliConfig.deets.id).recover();
-        // todo parse response
-        console.log(response);
+        const response = await terasliceClient.jobs.wrap(cliConfig.job_id).recover();
+        if (_.has(response, 'job_id')) {
+            console.log(`> job_id ${cliConfig.job_id} recovered`);
+        } else {
+            console.log(response);
+        }
     }
 
     async function view() {
@@ -345,7 +336,7 @@ module.exports = (cliConfig) => {
                     console.log(`${key} : ${value}`);
                 });
                 count += 1;
-                console.log('--------------------------------------------------------------------------------------');
+                console.log('-'.repeat(80));
                 if (count >= size) {
                     return false;
                 }

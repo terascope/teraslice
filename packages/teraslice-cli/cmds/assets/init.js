@@ -7,7 +7,7 @@ const fs = require('fs-extra');
 
 const reply = require('../lib/reply')();
 const config = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 const rootPackageJson = require('./lib/init_files/rootPackage');
 const assetPackageJson = require('./lib/init_files/assetPackage');
 const eslintrc = require('./lib/init_files/eslintrc');
@@ -55,7 +55,7 @@ exports.handler = async (argv, _testFunctions) => {
     ];
     const assetData = await prompts(questions);
     // package.json and asset.json all have this data
-    if (assetData.asset_version === "") {
+    if (assetData.asset_version === '') {
         assetData.asset_version = '0.0.1';
     }
     const packageJson = {

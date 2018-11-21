@@ -14,7 +14,7 @@ exports.desc = 'Add an alias to the clusters defined in the config file.\n';
 exports.builder = (yargs) => {
     cli().args('aliases', 'list', yargs);
     yargs
-        .option('host-cluster', {
+        .option('cluster_url', {
             alias: 'c',
             describe: 'cluster host name',
             default: 'http://localhost:5678'

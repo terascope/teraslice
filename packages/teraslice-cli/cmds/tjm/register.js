@@ -5,13 +5,14 @@ const _ = require('lodash');
 const reply = require('../lib/reply')();
 const configChecks = require('../lib/config');
 const cli = require('./lib/cli');
+
 exports.command = 'register <job_file>';
 exports.desc = 'Register a job file on a cluster';
 exports.builder = (yargs) => {
     cli().args('tjm', 'register', yargs);
     yargs
         .option('cluster', {
-            alias: 'c',
+            alias: ['c', 'cluster_sh'],
             default: 'http://localhost:5678'
         })
         .option('run', {

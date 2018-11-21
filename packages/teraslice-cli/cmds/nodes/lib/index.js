@@ -19,7 +19,6 @@ module.exports = (cliConfig) => {
         let parsedResponse = '';
         let header = ['node_id', 'state', 'hostname', 'total', 'active', 'pid', 'teraslice_version', 'node_version'];
         const response = await terasliceClient.cluster.state();
-
         if (cliConfig.cluster_manager_type === 'kubernetes') {
             // total and pid are n/a with kubernetes, so they are removed from the output
             header = ['node_id', 'state', 'hostname', 'active', 'teraslice_version', 'node_version'];
@@ -27,7 +26,7 @@ module.exports = (cliConfig) => {
         if (cliConfig.output_style === 'txt') {
             parsedResponse = await parseNodeResponseTxt(response);
         } else {
-            parsedResponse = await parseNodeResponse(response, cliConfig.deets.id);
+            parsedResponse = await parseNodeResponse(response);
         }
         await display.display(header, parsedResponse, cliConfig.output_style);
     }

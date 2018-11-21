@@ -9,6 +9,11 @@ module.exports = () => {
                 alias: 'conf',
                 describe: 'Config file',
                 default: `${homeDir}/.teraslice/config-cli.yaml`
+            })
+            .option('l', {
+                alias: 'localhost',
+                describe: 'cluster running on local machine',
+                default: false
             });
         return yargs.option;
     }

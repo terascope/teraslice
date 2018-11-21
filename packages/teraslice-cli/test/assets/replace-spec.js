@@ -61,7 +61,7 @@ const argv = {
     _: ['asset', 'replace'],
     baseDir: tmpDir,
     replace: true,
-    cluster: 'cluster.com:5678',
+    cluster_sh: 'cluster.com:5678',
     c: 'cluster.com:5678'
 };
 

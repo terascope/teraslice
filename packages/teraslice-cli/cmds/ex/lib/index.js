@@ -31,7 +31,7 @@ module.exports = (cliConfig) => {
                 console.log(`> ex_id: ${cliConfig.ex_id} stopped`);
             } catch (err) {
                 reply.error(`> Stopping ex_id had an error [${err.message}]`);
-                if (err.message.indexOf(' no active execution context was found') > 0) {
+                if (_.includes(err.message, ' no active execution context was found')) {
                     stopTimedOut = true;
                 } else {
                     stopTimedOut = false;
@@ -87,7 +87,7 @@ module.exports = (cliConfig) => {
         return exIds;
     }
     async function errors() {
-       reply.fatal('function currently no implemented');
+        reply.fatal('function currently no implemented');
     }
 
     async function displayExIds(exIds, file = false) {

@@ -18,14 +18,13 @@ module.exports = (cliConfig) => {
     const asset = require('../../lib/asset')(cliConfig);
     cliConfig.type = 'tjm';
 
-
     async function stop() {
         if (await checks.alreadyRegistered(false)) {
-            const response = await terasliceClient.jobs.wrap(cliConfig.deets.id).stop();
+            const response = await terasliceClient.jobs.wrap(cliConfig.job_id).stop();
             if (response.status.status === 'stopped' || response.status === 'stopped') {
-                console.log('> job: %s stopped', cliConfig.deets.id);
+                console.log('> job: %s stopped', cliConfig.job_id);
             } else {
-                console.log('> job: %s error stopping', cliConfig.deets.id);
+                console.log('> job: %s error stopping', cliConfig.job_id);
             }
         }
     }
@@ -34,7 +33,7 @@ module.exports = (cliConfig) => {
         let response = '';
         const jobContents = cliConfig.job_file_content;
         if (await checks.alreadyRegistered(false)) {
-            response = await terasliceClient.jobs.wrap(cliConfig.deets.id).start();
+            response = await terasliceClient.jobs.wrap(cliConfig.job_id).start();
             if (_.has(response, 'job_id')) {
                 cliConfig.job_id = response.job_id;
                 console.log(`> job: ${cliConfig.job_id} started`);
@@ -66,7 +65,9 @@ module.exports = (cliConfig) => {
     async function register() {
         if (!await checks.alreadyRegistered(false)) {
             await asset.load();
-            const registeredResponse = await terasliceClient.jobs.submit(cliConfig.job_file_content, !cliConfig.run);
+            const registeredResponse = await terasliceClient.jobs.submit(
+                cliConfig.job_file_content, !cliConfig.run
+            );
             cliConfig.job_id = registeredResponse ? registeredResponse.id() : cliConfig.job_file_content.cli.job_id;
             reply.green(`Successfully registered job: ${cliConfig.job_id} on ${cliConfig.cluster}`);
             await updateJobFile();
@@ -74,41 +75,8 @@ module.exports = (cliConfig) => {
                 reply.green(`New job started on ${cliConfig.cluster}`);
             }
         } else {
-            reply.yellow(`job: ${cliConfig.deets.id} is already registered on ${cliConfig.cluster}`);
+            reply.yellow(`job: ${cliConfig.job_id} is already registered on ${cliConfig.cluster}`);
         }
-    }
-
-    async function status(saveState = false, showJobs = true) {
-        const jobs = [];
-        if (cliConfig.info) {
-            await displayInfo();
-        }
-        let controllers = '';
-        try {
-            controllers = await terasliceClient.cluster.controllers();
-        } catch (e) {
-            controllers = await terasliceClient.cluster.slicers();
-        }
-        for (const jobStatus of cliConfig.statusList) {
-            let jobsTemp = '';
-            const exResult = await terasliceClient.jobs.list(jobStatus);
-            jobsTemp = await controllerStatus(exResult, jobStatus, controllers);
-
-            _.each(jobsTemp, (job) => {
-                jobs.push(job);
-            });
-        }
-
-        if (jobs.length > 0) {
-            if (showJobs) {
-                await displayJobs(jobs);
-            }
-            if (saveState) {
-                await fs.writeJson(cliConfig.state_file, jobs, { spaces: 4 });
-            }
-        }
-
-        return jobs;
     }
 
     function createJsonFile(filePath, jsonObject) {
@@ -230,19 +198,19 @@ module.exports = (cliConfig) => {
     }
 
     async function errors() {
-        const response = await terasliceClient.jobs.wrap(cliConfig.deets.id).errors();
+        const response = await terasliceClient.jobs.wrap(cliConfig.job_id).errors();
         if (response.length === 0) {
-            console.log(`job_id:${cliConfig.deets.id} no errors`);
+            console.log(`job_id:${cliConfig.job_id} no errors`);
         } else {
             let count = 0;
             const size = parseInt(cliConfig.size, 10);
-            console.log(`Errors job_id:${cliConfig.deets.id}`);
+            console.log(`Errors job_id:${cliConfig.job_id}`);
             _.each(response, (error) => {
                 _.each(error, (value, key) => {
                     console.log(`${key} : ${value}`);
                 });
                 count += 1;
-                console.log('--------------------------------------------------------------------------------------');
+                console.log('-'.repeat(80));
                 if (count >= size) {
                     return false;
                 }
@@ -257,7 +225,6 @@ module.exports = (cliConfig) => {
         run,
         register,
         start,
-        status,
         stop,
         view,
         update

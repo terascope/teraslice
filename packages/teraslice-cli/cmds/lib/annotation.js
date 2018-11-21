@@ -1,7 +1,7 @@
 'use strict';
 
 const request = require('request-promise');
-const reply = require('./display')();
+const reply = require('./reply')();
 
 async function send(host, key, tags, text) {
     const timestamp = +new Date();

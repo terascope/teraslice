@@ -11,7 +11,8 @@ exports.desc = 'View the job file definition on cluster';
 exports.builder = (yargs) => {
     cli().args('tjm', 'view', yargs);
     yargs
-        .example('teraslice-cli view test.json');
+        .example('teraslice-cli view test.json')
+        .example('teraslice-cli view test.json -l');
 };
 
 exports.handler = (argv, _testFunctions) => {

@@ -11,6 +11,7 @@ const exec = promisify(require('child_process').exec);
 const TerasliceClient = require('teraslice-client-js');
 const reply = require('../../lib/reply')();
 const display = require('../../lib/display')();
+
 module.exports = (cliConfig = {}, _terasliceClient) => {
     const terasliceClient = _terasliceClient || TerasliceClient({
         host: cliConfig.cluster_url
@@ -143,7 +144,7 @@ module.exports = (cliConfig = {}, _terasliceClient) => {
     }
 
     async function displayAssets(assets) {
-        const headerAssets = ['name', 'version','id', '_created', 'description'];
+        const headerAssets = ['name', 'version', 'id', '_created', 'description'];
         let assetsParsed;
         if (cliConfig.output_style === 'txt') {
             assetsParsed = assets;

@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-const path = require('path');
 const reply = require('./reply')();
 
 module.exports = (cliConfig) => {
@@ -67,10 +66,35 @@ module.exports = (cliConfig) => {
         }
     }
 
+    function matchId(specId, responseId) {
+        let includeId = false;
+        if (specId === undefined || responseId.job_id === specId || responseId.ex_id === specId) {
+            includeId = true;
+        }
+        return includeId;
+    }
+
+    function validId(str) {
+        let isId = false;
+        let dashCount = 0;
+        let pos = str.indexOf('-');
+        while (pos !== -1) {
+            dashCount += 1;
+            pos = str.indexOf('-', pos + 1);
+        }
+        if (dashCount === 4 && str.length === 36) {
+            isId = true;
+        }
+        return (isId);
+    }
+
+
     return {
         getAssetClusters,
         getClusteringType,
         alreadyRegistered,
-        _dataCheck
+        _dataCheck,
+        validId,
+        matchId
     };
 };

@@ -6,7 +6,7 @@ const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('./lib/cli');
 
-exports.command = 'view <cluster_sh> [job_id]';
+exports.command = 'view <cluster_sh> <job_id>';
 exports.desc = 'View the job definition\n';
 exports.builder = (yargs) => {
     cli().args('jobs', 'views', yargs);

@@ -6,7 +6,7 @@ const reply = require('../lib/reply')();
 const config = require('../lib/config');
 const cli = require('./lib/cli');
 
-exports.command = 'status <cluster_sh>';
+exports.command = 'status [cluster_sh]';
 exports.desc = 'shows the status of the asset on a cluster or a group of clusters';
 exports.builder = (yargs) => {
     cli().args('assets', 'status', yargs);
@@ -51,7 +51,7 @@ exports.handler = (argv, _testCliFunctions) => {
     }
     let { clusters } = cliConfig.asset_file_content.tjm;
     // if cluster is not specifically called out then show status for all
-    if (cliConfig.l || cliConfig.c !== 'http://localhost:5678') {
+    if (cliConfig.cluster_url !== undefined) {
         clusters = [cliConfig.c];
     }
     if (_.has(cliConfig, 'cluster_url')) {

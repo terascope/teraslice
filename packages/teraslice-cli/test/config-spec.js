@@ -39,7 +39,7 @@ describe('getClusterHost', () => {
             paths: { job_state_dir: `${tmpDir}/job_state_files` }
         };
         configVar.config = defaultConfigData;
-        configVar.cluster = 'localhost';
+        configVar.cluster_sh = 'localhost';
         const result = config.getClusterHost(configVar);
         expect(result).toBe('http://localhost:5678');
     });

@@ -6,10 +6,9 @@ const fs = require('fs-extra');
 const archiver = require('archiver');
 const Promise = require('bluebird');
 const path = require('path');
-const reply = require('./reply');
+const reply = require('./reply')();
 
 module.exports = (cliConfig) => {
-
     const terasliceClient = require('teraslice-client-js')({
         host: cliConfig.cluster_url
     });

@@ -15,16 +15,6 @@ module.exports = () => {
                 describe: 'Output display format pretty or txt, default is txt',
                 choices: ['txt', 'pretty'],
                 default: 'txt'
-            })
-            .option('info', {
-                alias: 'i',
-                describe: 'show cluster info',
-                default: false
-            })
-            .option('yes', {
-                alias: 'y',
-                describe: 'Answer \'Yes\' or \'Y\' to all prompts',
-                default: false
             });
         return yargs.option;
     }
