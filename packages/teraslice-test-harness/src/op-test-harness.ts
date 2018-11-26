@@ -37,8 +37,14 @@ export default class OpTestHarness {
     /**
      * Initialize the Operations on the ExecutionContext
     */
-    async initialize(options: OpHarness.InitOptions) {
-        this.opTester = await this.harness.init(options);
+    async initialize(options?: OpHarness.InitOptions) {
+        const initOptions: OpHarness.InitOptions = options != null ? options : {
+            opConfig: {
+                _op: 'test'
+            },
+            type: 'reader'
+        };
+        this.opTester = await this.harness.init(initOptions);
     }
 
     async run(input: OpHarness.RunInput): Promise<OpHarness.RunResult> {

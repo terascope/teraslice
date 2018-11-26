@@ -14,9 +14,9 @@ export default class Schema extends ConvictSchema<TransformerConfig> {
                 doc: 'The key to transform on the data. (Required)',
                 format: 'String'
             },
-            addValue: {
+            setValue: {
                 default: '',
-                doc: 'The value to set when using action "add"',
+                doc: 'The value to set when using action "set"',
                 format: 'String'
             },
             incBy: {

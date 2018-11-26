@@ -24,7 +24,7 @@ export = OpTestHarness;
 declare function OpTestHarness(op: OpTestHarness.OpTestHarnessInput): OpTestHarness.TestHarness;
 
 export type OpTestHarnessInput = ProcessorModule|ReaderModule|LegacyProcessor|LegacyReader;
-export type OpType = 'slicer'|'reader';
+export type OpType = 'slicer'|'reader'|'processor';
 export interface InitOptions {
     opConfig?: OpConfig,
     executionConfig?: ExecutionConfig;

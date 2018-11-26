@@ -29,11 +29,7 @@ class OperationTester {
         this.isProcessor = op.Processor || (op.newProcessor !== undefined);
         this.isReader = op.Fetcher || (type === 'reader' && op.newReader !== undefined);
         this.isSlicer = op.Slicer || (type === 'slicer' && op.newSlicer !== undefined);
-        if (this.isSlicer) {
-            this.context.assigment = 'execution_controller';
-        } else {
-            this.context.assigment = 'worker';
-        }
+        this.context.assignment = this.isSlicer ? 'execution_controller' : 'worker';
         this._hasInit = false;
         bindThis(this, OperationTester);
     }
