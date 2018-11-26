@@ -11,9 +11,9 @@ import BaseTestHarness from './base-test-harness';
 import { JobHarnessOptions } from './interfaces';
 
 /**
- * A Teraslice Test Harness for testing the Operations
- * ran on the Execution Controller, maining the Slicer,
- * and an associated lifecycle events.
+ * A test harness for testing Operations that run on
+ * the Execution Controller, mainly the Slicer.
+ * This is useful for testing Slicers.
 */
 export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionContext> {
     readonly stats: ExecutionStats = {

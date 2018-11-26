@@ -11,8 +11,10 @@ import BaseTestHarness from './base-test-harness';
 import { JobHarnessOptions } from './interfaces';
 
 /**
- * A Teraslice Test Harness for testing the Operations
- * ran on the Worker and an associated lifecycle events.
+ * A test harness for testing Operations that run on Workers,
+ * mainly Fetchers and Processors.
+ *
+ * This is useful for testing Fetcher and Processors together or individually.
  *
  * @todo Add support for attaching APIs and Observers
  * @todo Add support for slice retries

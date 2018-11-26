@@ -4,8 +4,10 @@ import WorkerTestHarness from './worker-test-harness';
 import { JobHarnessOptions } from './interfaces';
 
 /**
- * A Teraslice Test Harness for testing the interactions
- * between both the Slicer and the Worker operations.
+ * A test harness for both the Slicer and Fetcher,
+ * utilizing both the Slicer and Worker test harnesses.
+ *
+ * This is useful for testing Readers.
  *
  * @todo Handle more than one worker?
 */

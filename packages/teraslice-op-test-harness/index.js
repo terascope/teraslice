@@ -74,7 +74,7 @@ class TestHarness {
 
         const exConfig = executionSpec(newExConfig);
 
-        const isProcessor = op.Processor || (op.newProcessor !== undefined);
+        const isProcessor = op.Processor || (op.newProcessor != null);
         const Schema = op.schema ? schemaShim(op).Schema : op.Schema;
         const schema = new Schema(context);
 
@@ -85,7 +85,7 @@ class TestHarness {
         if (exConfig.operations.length < 2) {
             opConfig = schema.validate(newOpConfig || exConfig.operations[0]);
             if (isProcessor) {
-                exConfig.operations = [{ _op: 'noop' }, opConfig];
+                exConfig.operations = [{ _op: 'test-reader' }, opConfig];
             } else {
                 exConfig.operations = [opConfig, { _op: 'noop' }];
             }

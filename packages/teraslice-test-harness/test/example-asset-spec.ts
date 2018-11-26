@@ -1,4 +1,3 @@
-import 'jest-extended';
 import path from 'path';
 import { DataEntity, SliceRequest, TestClientConfig } from '@terascope/job-components';
 import SimpleClient from './fixtures/asset/simple-connector/client';
@@ -76,10 +75,11 @@ describe('Example Asset', () => {
             testSlice.request = { count: 10 };
             const results = await harness.runSlice(testSlice) as DataEntity[];
 
-            expect(results).toBeArrayOfSize(10);
+            expect(Array.isArray(results)).toBe(true);
+            expect(results.length).toBe(10);
 
             for (const result of results) {
-                expect(DataEntity.isDataEntity(result)).toBeTrue();
+                expect(DataEntity.isDataEntity(result)).toBe(true);
                 expect(result).toHaveProperty('foo', 'bar');
                 expect(result.data).toEqual({
                     a: 'b',
@@ -128,12 +128,13 @@ describe('Example Asset', () => {
 
         it('should return a list of records', async () => {
             const results = await harness.createSlices() as SliceRequest[];
-            expect(results).toBeArrayOfSize(10);
+            expect(Array.isArray(results)).toBe(true);
+            expect(results.length).toBe(10);
 
             for (const result of results) {
-                expect(DataEntity.isDataEntity(result)).toBeFalse();
-                expect(result).toHaveProperty('count', 10);
-                expect(result).toHaveProperty('super', 'man');
+                expect(DataEntity.isDataEntity(result)).toBe(false);
+                expect(result.count).toEqual(10);
+                expect(result.super).toEqual('man');
             }
         });
     });
@@ -181,14 +182,16 @@ describe('Example Asset', () => {
         it('should batches of results', async () => {
             const batches = await harness.run();
 
-            expect(batches).toBeArrayOfSize(10);
+            expect(Array.isArray(batches)).toBe(true);
+            expect(batches.length).toBe(10);
 
             for (const results of batches) {
-                expect(results).toBeArrayOfSize(10);
+                expect(Array.isArray(results)).toBe(true);
+                expect(results.length).toBe(10);
 
                 for (const result of results) {
-                    expect(DataEntity.isDataEntity(result)).toBeTrue();
-                    expect(result).toHaveProperty('scale', 6);
+                    expect(DataEntity.isDataEntity(result)).toBe(true);
+                    expect(result.scale).toBe(6);
                 }
             }
         });
@@ -199,14 +202,16 @@ describe('Example Asset', () => {
             // @ts-ignore
             simpleClient.isFinished.mockReturnValue(true);
 
-            expect(batches).toBeArrayOfSize(10);
+            expect(Array.isArray(batches)).toBe(true);
+            expect(batches.length).toBe(10);
 
             for (const results of batches) {
-                expect(results).toBeArrayOfSize(10);
+                expect(Array.isArray(results)).toBe(true);
+                expect(results.length).toBe(10);
 
                 for (const result of results) {
-                    expect(DataEntity.isDataEntity(result)).toBeTrue();
-                    expect(result).toHaveProperty('scale', 6);
+                    expect(DataEntity.isDataEntity(result)).toBe(true);
+                    expect(result.scale).toBe(6);
                 }
             }
         });

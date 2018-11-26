@@ -11,7 +11,7 @@ export default class Schema extends ConvictSchema<TestReaderConfig> {
             },
             slicerDataFilePath: {
                 default: null,
-                doc: 'File to path to JSON array of data records. Defaults to ./data/slicer-data.json this directroy',
+                doc: 'File to path to JSON array of slice requests. Defaults to ./data/slicer-data.json this directroy',
                 format: 'optional_String'
             },
         };

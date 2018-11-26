@@ -4,7 +4,11 @@ import { OpTestHarnessOptions } from './interfaces';
 
 /**
  * A simple test harness for running an single operation
- * with minimal changes
+ * with minimal customizations. Based of the older
+ * teraslice-op-test-harness package.
+ *
+ * This is useful for testing Data in -> out on a Fetcher,
+ * Reader, or Processor.
 */
 export default class OpTestHarness {
     harness: OpHarness.TestHarness;
