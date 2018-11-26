@@ -10,7 +10,6 @@ export default class OpTestHarness {
     harness: OpHarness.TestHarness;
     opTester: OpHarness.OperationTester|undefined;
 
-    // @ts-ignore
     constructor(op: OpHarness.OpTestHarnessInput, options?: OpTestHarnessOptions) {
         this.harness = OpHarness(op);
         if (options) {
