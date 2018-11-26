@@ -9,7 +9,7 @@ const {
 } = require('@terascope/job-components');
 const { bindThis } = require('./utils');
 
-class Operation {
+class OperationTester {
     constructor({
         op,
         context,
@@ -29,8 +29,13 @@ class Operation {
         this.isProcessor = op.Processor || (op.newProcessor !== undefined);
         this.isReader = op.Fetcher || (type === 'reader' && op.newReader !== undefined);
         this.isSlicer = op.Slicer || (type === 'slicer' && op.newSlicer !== undefined);
+        if (this.isSlicer) {
+            this.context.assigment = 'execution_controller';
+        } else {
+            this.context.assigment = 'worker';
+        }
         this._hasInit = false;
-        bindThis(this, Operation);
+        bindThis(this, OperationTester);
     }
 
     async init() {
@@ -107,4 +112,4 @@ class Operation {
     }
 }
 
-module.exports = Operation;
+module.exports = OperationTester;

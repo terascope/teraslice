@@ -6,6 +6,7 @@
     },
     "description": "A testing harness to simplify testing Teraslice processors and operations.",
     "main": "index.js",
+    "typings": "dist/index.d.ts",
     "scripts": {
         "docs": "jsdoc -P package.json index.js",
         "lint": "eslint *.js lib/**/*.js test/**/*.js",

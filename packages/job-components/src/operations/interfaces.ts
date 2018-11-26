@@ -34,6 +34,8 @@ export type ParallelSlicerConstructor = SlicerCoreConstructor<ParallelSlicer>;
 export type FetcherConstructor = OperationCoreConstructor<FetcherCore>;
 export type ProcessorConstructor = OperationCoreConstructor<ProcessorCore>;
 
+export type CoreOperation = FetcherCore|SlicerCore|ProcessorCore;
+
 export interface OperationModule {
     Schema: SchemaConstructor;
     API?: OperationAPIConstructor;

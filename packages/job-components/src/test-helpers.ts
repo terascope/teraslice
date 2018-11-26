@@ -152,9 +152,19 @@ export interface TestClientConfig {
     endpoint?: string;
 }
 
+export interface TestClientsByEndpoint {
+    [endpoint: string]: any;
+}
+
+export interface TestClients {
+    [type: string]: TestClientsByEndpoint;
+}
+
 export interface TestContextAPIs extends i.ContextAPIs {
     setTestClients(clients: TestClientConfig[]): void;
+    getTestClients(): TestClients;
 }
+
 type GetKeyOpts = {
     type: string;
     endpoint?: string;
@@ -306,6 +316,21 @@ export class TestContext implements i.Context {
 
                     setConnectorConfig(sysconfig, clientConfig, config, true);
                 });
+            },
+            getTestClients(): TestClients {
+                const cachedClients = _cachedClients.get(ctx) || {};
+                const clients = {};
+
+                Object.keys(cachedClients)
+                    .forEach((key) => {
+                        const [type, endpoint] = key.split(':') as [string, string];
+                        if (clients[type] == null) {
+                            clients[type] = {};
+                        }
+                        clients[type][endpoint] = cachedClients[key];
+                    });
+
+                return clients;
             }
         } as TestContextAPIs;
 

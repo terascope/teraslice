@@ -1,7 +1,7 @@
 import { SimpleReaderConfig } from './interfaces';
 import times from 'lodash/times';
 import { Fetcher, SliceRequest } from '@terascope/job-components';
-import SimpleClient from '../../../examples/helpers/simple-client';
+import SimpleClient from '../simple-connector/client';
 
 export default class TestFetcher extends Fetcher<SimpleReaderConfig> {
     client: SimpleClient;
