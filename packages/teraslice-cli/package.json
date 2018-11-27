@@ -11,8 +11,8 @@
     "access": "public"
   },
   "scripts": {
-    "lint": "eslint *.js **/*.js",
-    "lint:fix": "eslint --fix **/*.js",
+    "lint": "eslint *.js cmds/**/*.js",
+    "lint:fix": "npm run lint -- --fix",
     "test": "jest",
     "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
   },
@@ -27,12 +27,12 @@
     "url": "https://github.com/terascope/teraslice/issues"
   },
   "dependencies": {
-    "archiver": "^2.1.1",
-    "bluebird": "^3.5.1",
+    "archiver": "^3.0.0",
+    "bluebird": "^3.5.3",
     "chalk": "^2.3.2",
     "easy-table": "^1.1.1",
     "eslint": "^5.9.0",
-    "fs-extra": "^7.0.0",
+    "fs-extra": "^7.0.1",
     "json-diff": "^0.5.3",
     "lodash": "^4.17.11",
     "mkdirp": "^0.5.1",
@@ -41,7 +41,7 @@
     "process": "^0.11.10",
     "prompts": "^1.1.1",
     "syncprompt": "^2.0.0",
-    "teraslice-client-js": "^0.4.0",
+    "teraslice-client-js": "^0.6.1",
     "terminal-kit": "^1.26.0",
     "tty-table": "^2.6.8",
     "yargs": "^12.0.2"
@@ -50,7 +50,7 @@
     "eslint": "^5.9.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
-    "jest": "^23.5.0",
+    "jest": "^23.6.0",
     "jest-extended": "^0.11.0",
     "jest-fixtures": "^0.6.0"
   }

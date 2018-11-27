@@ -1,11 +1,12 @@
-import { ConnectionConfig, Context, ValidatedJobConfig, ExecutionConfig, OpConfig } from './interfaces';
+import {
+    ConnectionConfig,
+    Context,
+    ValidatedJobConfig,
+    ExecutionConfig,
+    OpConfig,
+    GetClientConfig,
+} from './interfaces';
 import { ExecutionContextAPI } from './execution-context';
-
-interface GetClientConfig {
-    connection?: string;
-    endpoint?: string;
-    connection_cache?: boolean;
-}
 
 /*
 * Returns the first op that matches name.
@@ -39,7 +40,7 @@ export function getClient(context: Context, config: GetClientConfig, type: strin
         return context.foundation.getConnection(clientConfig).client;
     } catch (err) {
         const error = new Error(`No configuration for endpoint ${clientConfig.endpoint} was found in the terafoundation connectors config`);
-        context.logger.error(error);
+        context.logger.error(error.message, err.stack);
         events.emit('client:initialization:error', { error: error.message });
     }
 }
@@ -63,12 +64,4 @@ export function registerApis(context: Context, job: ValidatedJobConfig|Execution
             return getOpConfig(job, name);
         },
     });
-}
-
-export interface OpRunnerAPI {
-    getClient(config: GetClientConfig, type: string): { client: any };
-}
-
-export interface JobRunnerAPI {
-    getOpConfig(name: string): OpConfig|undefined;
 }

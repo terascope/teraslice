@@ -1,11 +1,11 @@
 import '../../formats'; // require to add the schema formats
 import Core from './core';
-import { WorkerContext } from '../../execution-context';
 import {
     ExecutionConfig,
-    OpConfig,
     WorkerOperationLifeCycle,
-    OpAPI
+    OpAPI,
+    OpConfig,
+    WorkerContext,
 } from '../../interfaces';
 
 /**
@@ -16,7 +16,7 @@ import {
  * @see Core
  */
 
-export default class OperationCore<T> extends Core implements WorkerOperationLifeCycle {
+export default class OperationCore<T = OpConfig> extends Core<WorkerContext> implements WorkerOperationLifeCycle {
     protected readonly opConfig: Readonly<OpConfig & T>;
 
     constructor(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {

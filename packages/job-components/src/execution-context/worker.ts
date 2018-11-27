@@ -1,16 +1,15 @@
 import { EventEmitter } from 'events';
 import cloneDeep from 'lodash.clonedeep';
-import { enumerable, isFunction, waterfall } from '../utils';
+import { isFunction, waterfall } from '../utils';
 import { OperationLoader } from '../operation-loader';
 import FetcherCore from '../operations/core/fetcher-core';
 import ProcessorCore from '../operations/core/processor-core';
 import { OperationAPIConstructor, DataEntity } from '../operations';
 import { registerApis } from '../register-apis';
-import { WorkerOperationLifeCycle, ExecutionConfig, Slice } from '../interfaces';
+import { WorkerOperationLifeCycle, ExecutionConfig, Slice, WorkerContext } from '../interfaces';
 import {
     EventHandlers,
     WorkerOperations,
-    WorkerContext,
     ExecutionContextConfig,
     WorkerMethodRegistry,
     RunSliceResult,
@@ -37,14 +36,14 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     readonly assetIds: string[] = [];
 
     /** The instance of a "Fetcher" */
-    readonly fetcher: FetcherCore<object>;
+    readonly fetcher: FetcherCore;
 
     /**
      * A Set of a Processors available to Job.
      * This does not include the Fetcher since they have
      * different APIs.
     */
-    readonly processors: Set<ProcessorCore<object>>;
+    readonly processors: Set<ProcessorCore>;
 
     readonly exId: string;
     readonly jobId: string;
@@ -123,7 +122,6 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     /**
      * Called to initialize all of the registered operations available to the Worker
     */
-    @enumerable(false)
     async initialize() {
         const promises = [];
         for (const op of this.getOperations()) {
@@ -136,7 +134,6 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     /**
      * Called to cleanup all of the registered operations available to the Worker
     */
-    @enumerable(false)
     async shutdown() {
         const promises = [];
         for (const op of this.getOperations()) {
@@ -192,42 +189,34 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         };
     }
 
-    @enumerable(false)
     async onSliceInitialized(sliceId: string) {
         await this.runMethodAsync('onSliceInitialized', sliceId);
     }
 
-    @enumerable(false)
     async onSliceStarted(sliceId: string) {
         await this.runMethodAsync('onSliceStarted', sliceId);
     }
 
-    @enumerable(false)
     async onSliceFinalizing(sliceId: string) {
         await this.runMethodAsync('onSliceFinalizing', sliceId);
     }
 
-    @enumerable(false)
     async onSliceFinished(sliceId: string) {
         await this.runMethodAsync('onSliceFinished', sliceId);
     }
 
-    @enumerable(false)
     async onSliceFailed(sliceId: string) {
         await this.runMethodAsync('onSliceFailed', sliceId);
     }
 
-    @enumerable(false)
     async onSliceRetry(sliceId: string) {
         await this.runMethodAsync('onSliceRetry', sliceId);
     }
 
-    @enumerable(false)
     onOperationComplete(sliceId: string, index: number, processed: number) {
         this.runMethod('onOperationComplete', sliceId, index, processed);
     }
 
-    @enumerable(false)
     onOperationStart(sliceId: string, index: number) {
         this.runMethod('onOperationStart', sliceId, index);
     }
@@ -236,13 +225,11 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
      * Returns a list of any registered Operation that has been
      * initialized.
     */
-    @enumerable(false)
     getOperations() {
         const ops = _operations.get(this) as WorkerOperations;
         return ops.values();
     }
 
-    @enumerable(false)
     private addOperation(op: WorkerOperationLifeCycle) {
         const ops = _operations.get(this) as WorkerOperations;
         ops.add(op);
@@ -250,14 +237,12 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         this.resetMethodRegistry();
     }
 
-    @enumerable(false)
     private registerAPI(name: string, API?: OperationAPIConstructor) {
         if (API == null) return;
 
         this.context.apis.executionContext.addToRegistry(name, API);
     }
 
-    @enumerable(false)
     private runMethodAsync(method: string, sliceId: string) {
         const set = this._methodRegistry[method] as Set<number>;
         if (set.size === 0) return;
@@ -274,7 +259,6 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         return Promise.all(promises);
     }
 
-    @enumerable(false)
     private runMethod(method: string, ...args: any[]) {
         const set = this._methodRegistry[method] as Set<number>;
         if (set.size === 0) return;
@@ -288,7 +272,6 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         }
     }
 
-    @enumerable(false)
     private resetMethodRegistry() {
         for (const method of Object.keys(this._methodRegistry)) {
             this._methodRegistry[method].clear();

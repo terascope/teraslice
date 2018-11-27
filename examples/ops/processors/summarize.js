@@ -1,25 +1,24 @@
 'use strict';
 
-var _ = require('lodash');
+const _ = require('lodash');
 
 function newProcessor(context, opConfig, jobConfig) {
-    var logger = jobConfig.logger;
+    const { logger } = jobConfig;
 
-    return function(data) {
-        var records = {};
-
+    logger.debug('summarizing...');
+    return function processFn(data) {
         // Collect the data types we're interested in
-        var urls = {};
-        var ips = {};
+        const urls = {};
+        const ips = {};
 
-        data.forEach(function(item) {
-            count_key(urls, item.url);
-            count_key(ips, item.ip);
+        data.forEach((item) => {
+            countKey(urls, item.url);
+            countKey(ips, item.ip);
         });
 
         // flatten into the records we'll index
-        var result = [];
-        _.forOwn(urls, function(record, url) {
+        const result = [];
+        _.forOwn(urls, (record, url) => {
             result.push({
                 _key: url,
                 type: 'url',
@@ -29,7 +28,7 @@ function newProcessor(context, opConfig, jobConfig) {
             });
         });
 
-        _.forOwn(ips, function(record, ip) {
+        _.forOwn(ips, (record, ip) => {
             result.push({
                 _key: ip,
                 type: 'ip',
@@ -40,24 +39,23 @@ function newProcessor(context, opConfig, jobConfig) {
         });
 
         return result;
-    }
+    };
 }
 
-function count_key(collection, key) {
-    if (! collection.hasOwnProperty(key)) {
+function countKey(collection, key) {
+    if (!Object.hasOwnProperty.call(collection, key)) {
         collection[key] = 1;
-    }
-    else {
+    } else {
         collection[key]++;
     }
 }
 
-function schema(){
+function schema() {
     return {
-    }
+    };
 }
 
 module.exports = {
-    newProcessor: newProcessor,
-    schema: schema
+    newProcessor,
+    schema
 };

@@ -8,6 +8,7 @@
 export interface OpConfig {
     _op: string;
     _encoding?: DataEncoding;
+    [prop: string]: any;
 }
 
 /**

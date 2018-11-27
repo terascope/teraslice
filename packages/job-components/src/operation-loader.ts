@@ -2,7 +2,8 @@
 
 import fs from 'fs';
 import path from 'path';
-import { LegacyOperation, LegacyReader, LegacyProcessor } from './interfaces';
+import cloneDeep from 'lodash.clonedeep';
+import { LegacyOperation } from './interfaces';
 import {
     OperationAPIConstructor,
     FetcherConstructor,
@@ -16,18 +17,22 @@ import {
     ReaderModule,
 } from './operations';
 import { readerShim, processorShim } from './operations/shims';
-import { isString } from './utils';
+import { isString, uniq, parseError } from './utils';
 
 export interface LoaderOptions {
+    /** Path to teraslice lib directory */
     terasliceOpPath?: string;
+    /** Path to where the assets are stored */
     assetPath?: string;
 }
 
 export class OperationLoader {
     private readonly options: LoaderOptions;
+    private readonly availableExtensions: string[];
 
     constructor(options: LoaderOptions = {}) {
-        this.options = options;
+        this.options = cloneDeep(options);
+        this.availableExtensions = availableExtensions();
     }
 
     find(name: string, assetIds?: string[]): string | null {
@@ -50,8 +55,7 @@ export class OperationLoader {
         findCodeByConvention(this.options.assetPath, assetIds);
 
         if (!filePath) {
-            const builtInPath = path.join(__dirname, '..', 'dist');
-            findCodeByConvention(builtInPath, ['builtin']);
+            findCodeByConvention(this.getBuiltinDir(), ['.']);
         }
 
         if (!filePath) {
@@ -74,10 +78,9 @@ export class OperationLoader {
         const codePath = this.findOrThrow(name, assetIds);
 
         try {
-            const op = require(codePath);
-            return op.default || op;
+            return this.require(codePath);
         } catch (err) {
-            throw new Error(`Failure loading module: ${name}, error: ${err.stack}`);
+            throw new Error(`Failure loading module: ${name}, error: ${parseError(err, true)}`);
         }
     }
 
@@ -95,25 +98,19 @@ export class OperationLoader {
         let API: OperationAPIConstructor|undefined;
 
         try {
-            Processor = require(path.join(codePath, 'processor.js'));
-            // @ts-ignore
-            Processor = Processor.default || Processor;
+            Processor = this.require(codePath, 'processor');
         } catch (err) {
-            throw new Error(`Failure loading processor from module: ${name}, error: ${err.stack}`);
+            throw new Error(`Failure loading processor from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            Schema = require(path.join(codePath, 'schema.js'));
-            // @ts-ignore
-            Schema = Schema.default || Schema;
+            Schema = this.require(codePath, 'schema');
         } catch (err) {
-            throw new Error(`Failure loading schema from module: ${name}, error: ${err.stack}`);
+            throw new Error(`Failure loading schema from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            API = require(path.join(codePath, 'api.js'));
-            // @ts-ignore
-            API = API.default || API;
+            API = this.require(codePath, 'api');
         } catch (err) {
         }
 
@@ -142,33 +139,25 @@ export class OperationLoader {
         let API: OperationAPIConstructor|undefined;
 
         try {
-            Slicer = require(path.join(codePath, 'slicer.js'));
-            // @ts-ignore
-            Slicer = Slicer.default || Slicer;
+            Slicer = this.require(codePath, 'slicer');
         } catch (err) {
-            throw new Error(`Failure loading processor from module: ${name}, error: ${err.stack}`);
+            throw new Error(`Failure loading slicer from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            Fetcher = require(path.join(codePath, 'fetcher.js'));
-            // @ts-ignore
-            Fetcher = Fetcher.default || Fetcher;
+            Fetcher = this.require(codePath, 'fetcher');
         } catch (err) {
-            throw new Error(`Failure loading processor from module: ${name}, error: ${err.stack}`);
+            throw new Error(`Failure loading fetcher from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            Schema = require(path.join(codePath, 'schema.js'));
-            // @ts-ignore
-            Schema = Schema.default || Schema;
+            Schema = this.require(codePath, 'schema');
         } catch (err) {
-            throw new Error(`Failure loading schema from module: ${name}, error: ${err.stack}`);
+            throw new Error(`Failure loading schema from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            API = require(path.join(codePath, 'api.js'));
-            // @ts-ignore
-            API = API.default || API;
+            API = this.require(codePath, 'api');
         } catch (err) {
         }
 
@@ -190,11 +179,9 @@ export class OperationLoader {
         let Observer: ObserverConstructor|undefined;
 
         try {
-            Observer = require(path.join(codePath, 'observer.js'));
-            // @ts-ignore
-            Observer = Observer.default || Observer;
+            Observer = this.require(codePath, 'observer');
         } catch (err) {
-            throw new Error(`Failure loading observer from module: ${name}, error: ${err.stack}`);
+            throw new Error(`Failure loading observer from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         return {
@@ -210,11 +197,9 @@ export class OperationLoader {
         let API: OperationAPIConstructor|undefined;
 
         try {
-            API = require(path.join(codePath, 'api.js'));
-            // @ts-ignore
-            API = API.default || API;
+            API = this.require(codePath, 'api');
         } catch (err) {
-            throw new Error(`Failure loading api from module: ${name}, error: ${err.stack}`);
+            throw new Error(`Failure loading api from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         return {
@@ -235,30 +220,64 @@ export class OperationLoader {
     }
 
     private isLegacyReader(codePath: string): boolean {
-        const fetcherPath = fs.existsSync(path.join(codePath, 'fetcher.js'));
-        const slicerPath = fs.existsSync(path.join(codePath, 'slicer.js'));
-        return !fetcherPath && !slicerPath;
+        return !this.fileExists(codePath, 'fetcher') && !this.fileExists(codePath, 'slicer');
     }
 
     private shimLegacyReader(name: string, codePath: string): ReaderModule {
         try {
-            const legacy: LegacyReader = require(codePath);
-            return readerShim(legacy);
+            return readerShim(this.require(codePath));
         } catch (err) {
-            throw new Error(`Failure loading reader: ${name}, error: ${err.stack}`);
+            throw new Error(`Failure loading reader: ${name}, error: ${parseError(err, true)}`);
         }
     }
 
     private isLegacyProcessor(codePath: string): boolean {
-        return !fs.existsSync(path.join(codePath, 'processor.js'));
+        return !this.fileExists(codePath, 'processor');
     }
 
     private shimLegacyProcessor(name: string, codePath: string): ProcessorModule {
         try {
-            const legacy: LegacyProcessor = require(codePath);
-            return processorShim(legacy);
+            return processorShim(this.require(codePath));
         } catch (err) {
-            throw new Error(`Failure loading processor: ${name}, error: ${err.stack}`);
+            throw new Error(`Failure loading processor: ${name}, error: ${parseError(err, true)}`);
+        }
+    }
+
+    private fileExists(dir: string, name: string): boolean {
+        const filePaths = this.availableExtensions.map((ext) => {
+            return path.format({
+                dir,
+                name,
+                ext,
+            });
+        });
+        return filePaths.some((filePath) => fs.existsSync(filePath));
+    }
+
+    private require<T>(dir: string, name?: string): T {
+        const filePaths = name ? this.availableExtensions.map((ext) => {
+            return path.format({
+                dir,
+                name,
+                ext,
+            });
+        }) : [dir];
+
+        let err: Error|undefined;
+
+        for (const filePath of filePaths) {
+            try {
+                const mod = require(filePath);
+                return mod.default || mod;
+            } catch (_err) {
+                err = _err;
+            }
+        }
+
+        if (err) {
+            throw err;
+        } else {
+            throw new Error(`Unable to find module at paths: ${filePaths.join(', ')}`);
         }
     }
 
@@ -280,11 +299,15 @@ export class OperationLoader {
 
     private findCode(name: string) {
         let filePath: string | null = null;
-        let codeName: string = '';
 
-        if (!name.match(/.js$/)) {
-            codeName = `${name}.js`;
-        }
+        const codeNames = this.availableExtensions.map((ext) => {
+            return path.format({
+                name,
+                ext,
+            });
+        });
+
+        const allowedNames = uniq([name, ...codeNames]);
 
         const invalid = [
             'node_modules'
@@ -300,7 +323,7 @@ export class OperationLoader {
                 const nextPath = path.join(rootDir, fileName);
 
                 // if name is same as fileName/dir then we found it
-                if (fileName === name || fileName === codeName) {
+                if (allowedNames.includes(fileName)) {
                     filePath = this.resolvePath(nextPath);
                 }
 
@@ -318,4 +341,17 @@ export class OperationLoader {
     private isDir(filePath: string) {
         return fs.statSync(filePath).isDirectory();
     }
+
+    private getBuiltinDir() {
+        if (this.availableExtensions.includes('.ts')) {
+            return path.join(__dirname, 'builtin');
+        }
+        return path.join(__dirname, '..', 'dist', 'builtin');
+    }
+}
+
+function availableExtensions(): string[] {
+    // populated by teraslice Jest configuration
+    // @ts-ignore
+    return global.availableExtensions ? global.availableExtensions : ['.js'];
 }

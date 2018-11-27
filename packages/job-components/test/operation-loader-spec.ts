@@ -10,7 +10,6 @@ import {
     debugLogger,
     TestContext,
     WorkerContext,
-    SlicerContext,
 } from '../src';
 
 describe('OperationLoader', () => {
@@ -214,7 +213,7 @@ describe('OperationLoader', () => {
 
         expect(op.Slicer).not.toBeNil();
         expect(() => {
-            new op.Slicer(context as SlicerContext, opConfig, exConfig);
+            new op.Slicer(context as WorkerContext, opConfig, exConfig);
         }).not.toThrow();
 
         expect(op.Fetcher).not.toBeNil();
@@ -251,7 +250,7 @@ describe('OperationLoader', () => {
 
         expect(op.Slicer).not.toBeNil();
         expect(() => {
-            new op.Slicer(context as SlicerContext, opConfig, exConfig);
+            new op.Slicer(context as WorkerContext, opConfig, exConfig);
         }).not.toThrow();
 
         expect(op.Fetcher).not.toBeNil();

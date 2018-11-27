@@ -1,5 +1,4 @@
-import { WorkerContext } from '../execution-context';
-import { ExecutionConfig, SliceAnalyticsData } from '../interfaces';
+import { ExecutionConfig, SliceAnalyticsData, WorkerContext } from '../interfaces';
 import APICore from './core/api-core';
 import { times } from '../utils';
 

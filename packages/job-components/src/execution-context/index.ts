@@ -3,29 +3,25 @@ export * from './interfaces';
 export * from './slicer';
 export * from './worker';
 
-import { Context, Assignment } from '../interfaces';
+import { Context, WorkerContext } from '../interfaces';
 import { SlicerExecutionContext } from './slicer';
 import { WorkerExecutionContext } from './worker';
-import {
-    ExecutionContextConfig,
-    WorkerContext,
-    SlicerContext
-} from './interfaces';
+import { ExecutionContextConfig } from './interfaces';
 
 export function isWorkerContext(context: Context): context is WorkerContext {
-    return context.assignment === Assignment.Worker;
+    return context.assignment === 'worker';
 }
 
-export function isSlicerContext(context: Context): context is SlicerContext {
-    return context.assignment === Assignment.ExecutionController;
+export function isSlicerContext(context: Context): context is WorkerContext {
+    return context.assignment === 'execution_controller';
 }
 
-export function isWorkerExecutionContext(context: WorkerExecutionContext|SlicerExecutionContext): context is WorkerExecutionContext  {
-    return context.context.assignment === Assignment.Worker;
+export function isWorkerExecutionContext(context: any): context is WorkerExecutionContext  {
+    return context instanceof WorkerExecutionContext;
 }
 
-export function isSlicerExecutionContext(context: WorkerExecutionContext|SlicerExecutionContext): context is SlicerExecutionContext  {
-    return context.context.assignment === Assignment.ExecutionController;
+export function isSlicerExecutionContext(context: any): context is SlicerExecutionContext  {
+    return context instanceof SlicerExecutionContext;
 }
 
 export function makeExecutionContext(config: ExecutionContextConfig) {
