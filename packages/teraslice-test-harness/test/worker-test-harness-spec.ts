@@ -15,8 +15,10 @@ describe('WorkerTestHarness', () => {
         {
             type: 'example',
             create: () => ({
-                say() {
-                    return 'hello';
+                client: {
+                    say() {
+                        return 'hello';
+                    }
                 }
             })
         }

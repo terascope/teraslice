@@ -14,8 +14,10 @@ describe('JobTestHarness', () => {
         {
             type: 'example',
             create: () => ({
-                say() {
-                    return 'hello';
+                client: {
+                    say() {
+                        return 'hello';
+                    }
                 }
             })
         }
