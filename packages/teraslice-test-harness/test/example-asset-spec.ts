@@ -1,5 +1,5 @@
 import path from 'path';
-import { DataEntity, SliceRequest, TestClientConfig } from '@terascope/job-components';
+import { DataEntity, TestClientConfig } from '@terascope/job-components';
 import SimpleClient from './fixtures/asset/simple-connector/client';
 import {
     JobTestHarness,
@@ -77,7 +77,7 @@ describe('Example Asset', () => {
         it('should return a list of records', async () => {
             const testSlice = newTestSlice();
             testSlice.request = { count: 10 };
-            const results = await harness.runSlice(testSlice) as DataEntity[];
+            const results = await harness.runSlice(testSlice);
 
             expect(Array.isArray(results)).toBe(true);
             expect(results.length).toBe(10);
@@ -131,7 +131,7 @@ describe('Example Asset', () => {
         });
 
         it('should return a list of records', async () => {
-            const results = await harness.createSlices() as SliceRequest[];
+            const results = await harness.createSlices();
             expect(Array.isArray(results)).toBe(true);
             expect(results.length).toBe(10);
 

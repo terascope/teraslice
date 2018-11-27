@@ -3,7 +3,6 @@ import path from 'path';
 import {
     newTestJobConfig,
     newTestSlice,
-    RunSliceResult,
     DataEntity,
     Fetcher,
     BatchProcessor,
@@ -55,19 +54,19 @@ describe('WorkerTestHarness', () => {
         });
 
         it('should be able to call runSlice', async () => {
-            const result = await workerHarness.runSlice(newTestSlice()) as DataEntity[];
+            const result = await workerHarness.runSlice(newTestSlice());
             expect(result).toBeArray();
             expect(DataEntity.isDataEntityArray(result)).toBeTrue();
         });
 
         it('should be able to call runSlice with just a request object', async () => {
-            const result = await workerHarness.runSlice({ hello: true }) as DataEntity[];
+            const result = await workerHarness.runSlice({ hello: true });
             expect(result).toBeArray();
             expect(DataEntity.isDataEntityArray(result)).toBeTrue();
         });
 
         it('should be able to call runSlice with fullResponse', async () => {
-            const result = await workerHarness.runSlice(newTestSlice(), { fullResponse: true }) as RunSliceResult;
+            const result = await workerHarness.runSlice(newTestSlice(), { fullResponse: true });
             expect(result.analytics).not.toBeNil();
             expect(result.results).toBeArray();
         });
