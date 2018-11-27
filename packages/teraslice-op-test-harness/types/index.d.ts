@@ -19,14 +19,14 @@ import {
 } from '@terascope/job-components';
 import { EventEmitter } from 'events';
 
-export = OpTestHarness;
+export = opTestHarness;
 
-declare function OpTestHarness(op: OpTestHarness.OpTestHarnessInput): OpTestHarness.TestHarness;
+declare function opTestHarness(op: opTestHarness.OpTestHarnessInput): opTestHarness.TestHarness;
 
 export type OpTestHarnessInput = ProcessorModule|ReaderModule|LegacyProcessor|LegacyReader;
 export type OpType = 'slicer'|'reader'|'processor';
 export interface InitOptions {
-    opConfig?: OpConfig,
+    opConfig?: OpConfig;
     executionConfig?: ExecutionConfig;
     retryData?: object[];
     clients?: TestClientConfig[];

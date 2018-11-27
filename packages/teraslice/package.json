@@ -6,8 +6,8 @@
     "main": "index.js",
     "scripts": {
         "start": "node service.js",
-        "lint": "eslint *.js lib test",
-        "lint:fix": "eslint --fix *.js lib test",
+        "lint": "eslint *.js lib/**/*.js test/**/*.js",
+        "lint:fix": "npm run lint -- --fix",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
         "test:debug": "env DEBUG='*teraslice*,-teraslice-messaging*' jest --colors --forceExit --detectOpenHandles --coverage=false --runInBand"
