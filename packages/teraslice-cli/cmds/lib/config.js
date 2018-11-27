@@ -116,10 +116,10 @@ module.exports = (cliConfig, command) => {
             cliConfig.all_jobs = !(cliConfig.a === undefined || cliConfig.a === false);
 
             // set the state file name
-            if (cliConfig.d) {
-                cliConfig.state_file = path.join(cliConfig.d, `${cliConfig.cluster}-state.json`);
-            } else {
+            if (_.has(cliConfig.config.paths, 'job_state_dir')) {
                 cliConfig.state_file = path.join(cliConfig.config.paths.job_state_dir, `${cliConfig.cluster}-state.json`);
+            } else {
+                cliConfig.state_file = path.join('/tmp', `${cliConfig.cluster}-state.json`);
             }
         }
     }

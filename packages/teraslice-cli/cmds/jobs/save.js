@@ -2,7 +2,6 @@
 'use console';
 
 const _ = require('lodash');
-const homeDir = require('os').homedir();
 
 const reply = require('../lib/reply')();
 const configChecks = require('../lib/config');
@@ -14,11 +13,6 @@ exports.builder = (yargs) => {
     cli().args('jobs', 'save', yargs);
 
     yargs
-        .option('state-file-dir', {
-            alias: 'd',
-            describe: 'Directory to save job state files to.',
-            default: `${homeDir}/.teraslice/job_state_files`
-        })
         .example('teraslice-cli jobs save cluster1');
 };
 
