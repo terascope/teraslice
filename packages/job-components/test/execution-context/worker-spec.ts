@@ -11,21 +11,24 @@ import {
 describe('WorkerExecutionContext', () => {
     const assetIds = ['fixtures'];
     const assetDir = path.join(__dirname, '..');
-    const executionConfig = newTestExecutionConfig();
-    executionConfig.operations = [
-        {
-            _op: 'example-reader'
-        },
-        {
-            _op: 'example-op'
-        }
-    ];
+
+    const context = new TestContext('worker-execution-context');
+
+    context.sysconfig.teraslice.assets_directory = assetDir;
+
+    const events = context.apis.foundation.getSystemEvents();
 
     describe('when constructed', () => {
-        const context = new TestContext('worker-execution-context');
-        context.sysconfig.teraslice.assets_directory = assetDir;
+        const executionConfig = newTestExecutionConfig();
 
-        const events = context.apis.foundation.getSystemEvents();
+        executionConfig.operations = [
+            {
+                _op: 'example-reader'
+            },
+            {
+                _op: 'example-op'
+            }
+        ];
 
         const executionContext = new WorkerExecutionContext({
             context,
@@ -118,6 +121,47 @@ describe('WorkerExecutionContext', () => {
                 expect(item).toHaveProperty('data');
                 expect(item).toHaveProperty('touchedAt');
             }
+        });
+    });
+
+    describe('when testing edge cases', () => {
+        const executionConfig = newTestExecutionConfig();
+        executionConfig.operations = [
+            {
+                _op: 'failing-reader'
+            },
+            {
+                _op: 'noop'
+            }
+        ];
+
+        const executionContext = new WorkerExecutionContext({
+            context,
+            executionConfig,
+            assetIds,
+            terasliceOpPath,
+        });
+
+        beforeAll(() => {
+            return executionContext.initialize();
+        });
+
+        afterAll(() => {
+            events.removeAllListeners();
+            return executionContext.shutdown();
+        });
+
+        it('should be able fail a "slice"', () => {
+            const slice = {
+                slice_id: '1',
+                slicer_id: 1,
+                slicer_order: 1,
+                request: { hello: true },
+                _created: 'hi'
+            };
+
+            return expect(executionContext.runSlice(slice))
+                        .rejects.toThrowError(/Failure to parse buffer/);
         });
     });
 });
