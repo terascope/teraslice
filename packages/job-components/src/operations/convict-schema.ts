@@ -7,7 +7,7 @@ import { validateOpConfig } from '../config-validators';
  * A base class for supporting convict "Schema" definitions
  */
 
-export default abstract class ConvictSchema<T, S = any> extends SchemaCore<T> {
+export default abstract class ConvictSchema<T extends Object, S = any> extends SchemaCore<T> {
     schema: convict.Schema<S>;
 
     constructor(context: Context) {

@@ -1,13 +1,13 @@
 import uuidv4 from 'uuid/v4';
-import { SlicerContext } from '../../execution-context';
 import {
-    ExecutionConfig,
     OpConfig,
+    ExecutionConfig,
     Slice,
     SliceRequest,
     SlicerOperationLifeCycle,
     ExecutionStats,
     LifeCycle,
+    WorkerContext,
 } from '../../interfaces';
 import Queue from '@terascope/queue';
 import Core from './core';
@@ -20,13 +20,13 @@ import Core from './core';
  * @see Core
  */
 
-export default abstract class SlicerCore<T> extends Core implements SlicerOperationLifeCycle {
+export default abstract class SlicerCore<T = OpConfig> extends Core<WorkerContext> implements SlicerOperationLifeCycle {
     protected stats: ExecutionStats;
     protected recoveryData: object[];
     protected readonly opConfig: Readonly<OpConfig & T>;
     private readonly queue: Queue<Slice>;
 
-    constructor(context: SlicerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {
+    constructor(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {
         const logger = context.apis.foundation.makeLogger({
             module: 'slicer',
             opName: opConfig._op,

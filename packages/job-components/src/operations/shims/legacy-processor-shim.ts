@@ -1,20 +1,20 @@
 import operationAPIShim, { APIs } from './operation-api-shim';
 import legacySliceEventsShim from './legacy-slice-events-shim';
 import DataEntity, { DataInput } from '../data-entity';
-import { SchemaConstructor, ProcessorConstructor } from '../interfaces';
-import { WorkerContext } from '../../execution-context';
+import { SchemaConstructor } from '../interfaces';
 import {
     LegacyProcessor,
     Logger,
     SliceRequest,
     ProcessorFn,
+    WorkerContext,
 } from '../../interfaces';
 
 // This file for backwards compatibility and functionality will be limited
 // but it should allow you to write processors using the new way today
 
 // tslint:disable-next-line:variable-name
-export default function legacyProcessorShim(Processor: ProcessorConstructor, Schema: SchemaConstructor, apis?: APIs): LegacyProcessor {
+export default function legacyProcessorShim(Processor: any, Schema: SchemaConstructor, apis?: APIs): LegacyProcessor {
     return {
         // @ts-ignore
         Processor,

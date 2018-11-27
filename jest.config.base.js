@@ -57,7 +57,9 @@ module.exports = (projectDir) => {
         config.setupTestFrameworkScriptFile = `${projectRoot}/test/test.setup.js`;
     }
 
-    config.globals = {};
+    config.globals = {
+        availableExtensions: ['.js', '.ts']
+    };
 
     if (isTypescript) {
         if (runInPackage) {

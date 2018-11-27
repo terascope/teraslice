@@ -3,9 +3,6 @@ import SlicerClass from '../slicer';
 import operationAPIShim, { APIs } from './operation-api-shim';
 import legacySliceEventsShim from './legacy-slice-events-shim';
 import {
-    ParallelSlicerConstructor,
-    SingleSlicerConstructor,
-    FetcherConstructor,
     SchemaConstructor,
 } from '../interfaces';
 import {
@@ -14,19 +11,17 @@ import {
     ReaderFn,
     SlicerFns,
     LegacyReader,
+    WorkerContext,
 } from '../../interfaces';
-import { WorkerContext } from '../../execution-context';
 import { times } from '../../utils';
 
 // This file for backwards compatibility and functionality will be limited
 // but it should allow you to write processors using the new way today
 
-type SlicerType = SingleSlicerConstructor|ParallelSlicerConstructor;
-type FetcherType = FetcherConstructor;
 type SchemaType = SchemaConstructor;
 
 // tslint:disable-next-line:variable-name
-export default function legacyReaderShim(Slicer: SlicerType, Fetcher: FetcherType, Schema: SchemaType, apis?: APIs): LegacyReader {
+export default function legacyReaderShim(Slicer: any, Fetcher: any, Schema: SchemaType, apis?: APIs): LegacyReader {
     return {
         // @ts-ignore
         Slicer,

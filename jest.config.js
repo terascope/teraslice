@@ -4,6 +4,9 @@ module.exports = {
     rootDir: '.',
     verbose: true,
     projects: ['<rootDir>/packages/*'],
+    globals: {
+        availableExtensions: ['.js', '.ts']
+    },
     globalSetup: '<rootDir>/packages/teraslice/test/global.setup.js',
     globalTeardown: '<rootDir>/packages/teraslice/test/global.teardown.js',
     testMatch: [

@@ -1,4 +1,4 @@
-import { SlicerResult } from '../interfaces';
+import { SlicerResult, OpConfig } from '../interfaces';
 import SlicerCore from './core/slicer-core';
 
 /**
@@ -6,7 +6,7 @@ import SlicerCore from './core/slicer-core';
  * @see SlicerCore
  */
 
-export default abstract class Slicer<T> extends SlicerCore<T> {
+export default abstract class Slicer<T = OpConfig> extends SlicerCore<T> {
     /**
      * @private
     */

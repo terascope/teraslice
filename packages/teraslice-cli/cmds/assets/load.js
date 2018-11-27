@@ -5,9 +5,8 @@ const _ = require('lodash');
 const fs = require('fs-extra');
 const GithubAsset = require('./lib/GithubAsset');
 const config = require('../lib/config');
-const cli = require('../lib/cli');
+const cli = require('./lib/cli');
 const reply = require('../lib/reply')();
-
 
 exports.command = 'load <cluster_sh> [<asset>]';
 exports.desc = 'Uploads asset from file, github, or source to Teraslice\n';

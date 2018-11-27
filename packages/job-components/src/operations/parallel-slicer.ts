@@ -1,4 +1,4 @@
-import { SlicerFn, SlicerResult } from '../interfaces';
+import { SlicerFn, SlicerResult, OpConfig } from '../interfaces';
 import SlicerCore from './core/slicer-core';
 import { times, isFunction } from '../utils';
 
@@ -7,7 +7,7 @@ import { times, isFunction } from '../utils';
  * @see SlicerCore
  */
 
-export default abstract class ParallelSlicer<T> extends SlicerCore<T> {
+export default abstract class ParallelSlicer<T = OpConfig> extends SlicerCore<T> {
     protected _slicers: SlicerObj[] = [];
 
     /**

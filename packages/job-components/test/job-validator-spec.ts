@@ -34,8 +34,8 @@ describe('JobValidator', () => {
             const jobSpec: JobConfig = {
                 name: 'test',
                 operations: [
-                    {
                     // @ts-ignore
+                    {
                         something: 'else',
                     },
                     {
@@ -142,8 +142,8 @@ describe('JobValidator', () => {
             const jobSpec: JobConfig = {
                 name: 'test',
                 operations: [
+                    // @ts-ignore
                     {
-                        // @ts-ignore
                         something: 'else',
                     },
                     {
