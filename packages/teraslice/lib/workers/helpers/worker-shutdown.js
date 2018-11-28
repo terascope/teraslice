@@ -59,7 +59,7 @@ function shutdownHandler(context, shutdownFn) {
         }
 
         api.exiting = true;
-        logger.warn(`${assignment} exiting in ${shutdownTimeout}ms...`);
+        logger.debug(`${assignment} exiting in ${shutdownTimeout}ms...`);
 
         const startTime = Date.now();
         Promise.race([
