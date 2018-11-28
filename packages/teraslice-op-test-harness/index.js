@@ -53,7 +53,9 @@ class TestHarness {
     setClients(clients = []) {
         const testClients = clients.map((config) => {
             const { client } = config;
-            config.create = _.isFunction(config.create) ? config.create : () => client;
+            if (!_.isFunction(config.create)) {
+                config.create = () => ({ client });
+            }
             return config;
         });
         this.context.apis.setTestClients(testClients);

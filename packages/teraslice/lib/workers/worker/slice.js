@@ -42,7 +42,10 @@ class Slice {
         let result;
 
         try {
-            result = await retry(() => this._runOnce(), retryOptions);
+            result = await retry(() => {
+                const shouldRetry = maxRetries > 0;
+                return this._runOnce(shouldRetry);
+            }, retryOptions);
             await this._markCompleted();
         } catch (err) {
             await this._markFailed(err);
@@ -118,15 +121,19 @@ class Slice {
         return Promise.reject(sliceError);
     }
 
-    _runOnce() {
+    _runOnce(shouldRetry = true) {
         if (this._isShutdown) {
             throw new retry.StopError('Slice shutdown during slice execution');
         }
+
         const { slice } = this;
 
         return this.executionContext.runSlice(slice)
             .catch((err) => {
                 this.logger.error(`An error has occurred: ${toString(err)}, slice:`, slice);
+                if (!shouldRetry) {
+                    return Promise.reject(err);
+                }
 
                 // for backwards compatibility
                 this.events.emit('slice:retry', slice);

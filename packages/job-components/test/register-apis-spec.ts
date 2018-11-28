@@ -47,44 +47,101 @@ describe('registerApis', () => {
             {
                 type: 'elasticsearch',
                 create() {
-                    return { elasticsearch: true };
+                    return {
+                        client: {
+                            elasticsearch: true
+                        }
+                    };
                 }
             },
             {
                 type: 'elasticsearch',
                 endpoint: 'otherConnection',
                 create() {
-                    return { elasticsearch: true, endpoint: 'otherConnection' };
+                    return {
+                        client: {
+                            elasticsearch: true,
+                            endpoint: 'otherConnection'
+                        }
+                    };
                 }
             },
             {
                 type: 'elasticsearch',
                 endpoint: 'thirdConnection',
                 create() {
-                    return { elasticsearch: true, endpoint: 'thirdConnection' };
+                    return {
+                        client: {
+                            elasticsearch: true,
+                            endpoint: 'thirdConnection'
+                        }
+                    };
                 }
             },
             {
                 type: 'kafka',
                 endpoint: 'someConnection',
                 create() {
-                    return { kafka: true };
+                    return {
+                        client: {
+                            kafka: true
+                        }
+                    };
                 }
             },
             {
                 type: 'mongo',
                 create() {
-                    return { mongo: true };
+                    return {
+                        client: {
+                            mongo: true
+                        }
+                    };
                 }
             }
         ];
 
         context.apis.setTestClients(clients);
 
-        it('op_runner.getClient should return a client', () => {
-            expect(getClient({}, 'elasticsearch')).toEqual({ elasticsearch: true });
-            expect(getClient({ connection: 'someConnection' }, 'kafka')).toEqual({ kafka: true });
-            expect(getClient({ connection_cache: false }, 'mongo')).toEqual({ mongo: true });
+        it('getClient should return a client', () => {
+            expect(getClient({}, 'elasticsearch')).toEqual({
+                elasticsearch: true
+            });
+
+            const firstResult = getClient({
+                connection: 'otherConnection',
+                connection_cache: true
+            }, 'elasticsearch');
+
+            expect(firstResult).toEqual({
+                elasticsearch: true,
+                endpoint: 'otherConnection'
+            });
+
+            expect(getClient({
+                connection: 'otherConnection',
+                connection_cache: true
+            }, 'elasticsearch')).toBe(firstResult);
+
+            expect(getClient({
+                connection: 'thirdConnection',
+                connection_cache: false,
+            }, 'elasticsearch')).toEqual({
+                elasticsearch: true,
+                endpoint: 'thirdConnection',
+            });
+
+            expect(getClient({
+                connection: 'someConnection'
+            }, 'kafka')).toEqual({
+                kafka: true
+            });
+
+            expect(getClient({
+                connection_cache: false
+            }, 'mongo')).toEqual({
+                mongo: true
+            });
         });
 
         it('getClient will error properly', done => {
@@ -117,35 +174,6 @@ describe('registerApis', () => {
             });
 
             failingContext.apis.op_runner.getClient();
-        });
-
-        it('getClient returns client with certain defaults', () => {
-            const opConfig1 = {};
-            const opConfig2 = {
-                connection: 'otherConnection'
-            };
-            const opConfig3 = {
-                connection: 'thirdConnection',
-                connection_cache: false,
-            };
-
-            const type = 'elasticsearch';
-
-            const results1 = getClient(opConfig1, type);
-            const results2 = getClient(opConfig2, type);
-            const results3 = getClient(opConfig3, type);
-
-            expect(results1).toEqual({ elasticsearch: true });
-
-            expect(results2).toEqual({
-                elasticsearch: true,
-                endpoint: 'otherConnection',
-            });
-
-            expect(results3).toEqual({
-                elasticsearch: true,
-                endpoint: 'thirdConnection',
-            });
         });
     });
 

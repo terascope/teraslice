@@ -310,7 +310,8 @@ export class OperationLoader {
         const allowedNames = uniq([name, ...codeNames]);
 
         const invalid = [
-            'node_modules'
+            'node_modules',
+            ...ignoreDirectories(),
         ];
 
         const findCode = (rootDir: string): string|null => {
@@ -354,4 +355,10 @@ function availableExtensions(): string[] {
     // populated by teraslice Jest configuration
     // @ts-ignore
     return global.availableExtensions ? global.availableExtensions : ['.js'];
+}
+
+function ignoreDirectories() {
+    // populated by teraslice Jest configuration
+    // @ts-ignore
+    return global.ignoreDirectories || [];
 }

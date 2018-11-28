@@ -103,12 +103,16 @@ describe('Example Asset', () => {
     const simpleClient = new SimpleClient();
     const clientConfig = {
         type: 'simple-client',
-        create: jest.fn(() => simpleClient),
+        create: jest.fn(() => {
+            return { client: simpleClient };
+        }),
     };
 
     beforeEach(() => {
         jest.restoreAllMocks();
-        clientConfig.create = jest.fn(() => simpleClient);
+        clientConfig.create = jest.fn(() => {
+            return { client: simpleClient };
+        });
     });
 
     describe('using the WorkerTestHarness', () => {

@@ -2,8 +2,6 @@ import 'jest-extended';
 import path from 'path';
 import {
     newTestJobConfig,
-    SliceRequest,
-    Slice,
     Slicer
 } from '@terascope/job-components';
 import { SlicerTestHarness } from '../src';
@@ -13,8 +11,10 @@ describe('SlicerTestHarness', () => {
         {
             type: 'example',
             create: () => ({
-                say() {
-                    return 'hello';
+                client: {
+                    say() {
+                        return 'hello';
+                    }
                 }
             })
         }
@@ -45,7 +45,7 @@ describe('SlicerTestHarness', () => {
         });
 
         it('should be able to call createSlices', async () => {
-            const result = await slicerHarness.createSlices() as SliceRequest[];
+            const result = await slicerHarness.createSlices();
             expect(result).toBeArray();
 
             expect(result[0]).not.toHaveProperty('slice_id');
@@ -54,7 +54,7 @@ describe('SlicerTestHarness', () => {
         });
 
         it('should be able to call createSlices with fullResponse', async () => {
-            const result = await slicerHarness.createSlices({ fullResponse: true }) as Slice[];
+            const result = await slicerHarness.createSlices({ fullResponse: true });
             expect(result).toBeArray();
             expect(result[0]).toHaveProperty('slice_id');
             expect(result[0]).toHaveProperty('slicer_id');

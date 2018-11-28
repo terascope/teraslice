@@ -64,6 +64,9 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
      *
      * @returns an array of Slices including the metadata or the just the Slice Request.
     */
+    async createSlices(): Promise<SliceRequest[]>;
+    async createSlices(options: { fullResponse: false }): Promise<SliceRequest[]>;
+    async createSlices(options: { fullResponse: true }): Promise<Slice[]>;
     async createSlices({ fullResponse = false } = {}): Promise<SliceRequest[]|Slice[]> {
         const { slicer } = this.executionContext;
         const slicers = slicer.slicers();

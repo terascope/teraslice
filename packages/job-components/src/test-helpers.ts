@@ -271,7 +271,7 @@ export class TestContext implements i.Context {
                     const cachedClients = _cachedClients.get(ctx) || {};
                     const key = getKey(options);
                     if (cached && cachedClients[key] != null) {
-                        return { client: cachedClients[key] };
+                        return cachedClients[key];
                     }
 
                     const clientFns = _createClientFns.get(ctx) || {};
@@ -286,10 +286,11 @@ export class TestContext implements i.Context {
                     const config = setConnectorConfig(sysconfig, options, {});
 
                     const client = create(config, logger, options);
+
                     cachedClients[key] = client;
                     _cachedClients.set(ctx, cachedClients);
 
-                    return { client };
+                    return client;
                 },
                 getSystemEvents(): EventEmitter {
                     return events;
