@@ -2,27 +2,21 @@
 
 const _ = require('lodash');
 
+function formatVal(value) {
+    if (_.isString(value)) return `"${value}"`;
+    if (_.isArray(value)) return `[${value.join(', ')}]`;
+
+    return _.truncate(JSON.stringify(value));
+}
+
+function format(input) {
+    return _.map(input, (value, key) => `${key}: ${formatVal(value)}`).join(', ');
+}
+
 function logOpStats(logger, slice, analyticsData) {
-    const str = 'analytics for slice: ';
-    let dataStr = '';
+    const obj = Object.assign({}, _.omit(slice, 'request'), analyticsData);
 
-    if (_.isString(slice)) {
-        dataStr = `${slice}, `;
-    } else {
-        _.forOwn(slice, (value, key) => {
-            if (_.isString(value)) {
-                dataStr += `${key} : ${value} `;
-            } else {
-                dataStr += `${key} : ${JSON.stringify(value)} `;
-            }
-        });
-    }
-
-    _.forOwn(analyticsData, (value, key) => {
-        dataStr += `${key} : ${value} `;
-    });
-
-    logger.info(str + dataStr);
+    logger.info(`analytics for slice: ${format(obj)}`);
 }
 
 module.exports = { logOpStats };

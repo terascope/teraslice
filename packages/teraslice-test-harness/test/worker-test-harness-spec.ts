@@ -25,6 +25,7 @@ describe('WorkerTestHarness', () => {
 
     describe('when given a valid job config', () => {
         const job = newTestJobConfig();
+        job.max_retries = 2;
         job.analytics = true;
         job.operations = [
             {
@@ -38,6 +39,10 @@ describe('WorkerTestHarness', () => {
         const workerHarness = new WorkerTestHarness(job, {
             assetDir: path.join(__dirname, 'fixtures'),
             clients
+        });
+
+        workerHarness.processors[0].handle = jest.fn(async (data: DataEntity[]) => {
+            return data;
         });
 
         it('should be able to call initialize', () => {
@@ -63,6 +68,26 @@ describe('WorkerTestHarness', () => {
             const result = await workerHarness.runSlice({ hello: true });
             expect(result).toBeArray();
             expect(DataEntity.isDataEntityArray(result)).toBeTrue();
+        });
+
+        it('should call slice retry', async () => {
+            const onSliceRetryEvent = jest.fn();
+            workerHarness.events.on('slice:retry', onSliceRetryEvent);
+            const err = new Error('oh no');
+
+            workerHarness.processors[0].handle
+                // @ts-ignore
+                .mockClear()
+                // @ts-ignore
+                .mockRejectedValueOnce(err)
+                // @ts-ignore
+                .mockRejectedValueOnce(err);
+
+            const results = await workerHarness.runSlice({ });
+            expect(results).toBeArray();
+
+            expect(onSliceRetryEvent).toHaveBeenCalledTimes(2);
+            expect(workerHarness.processors[0].handle).toHaveBeenCalledTimes(3);
         });
 
         it('should be able to call runSlice with fullResponse', async () => {

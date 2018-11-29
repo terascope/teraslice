@@ -33,18 +33,21 @@ class Slice {
 
         const { slice } = this;
         const maxRetries = get(this.executionContext, 'config.max_retries', 3);
+        const maxTries = maxRetries > 0 ? maxRetries + 1 : 0;
         const retryOptions = {
-            max_tries: maxRetries,
+            max_tries: maxTries,
             throw_original: true,
             interval: 100,
+            backoff: 2
         };
 
         let result;
+        let remaining = maxTries;
 
         try {
             result = await retry(() => {
-                const shouldRetry = maxRetries > 0;
-                return this._runOnce(shouldRetry);
+                remaining -= 1;
+                return this._runOnce(remaining > 0);
             }, retryOptions);
             await this._markCompleted();
         } catch (err) {
@@ -121,7 +124,7 @@ class Slice {
         return Promise.reject(sliceError);
     }
 
-    _runOnce(shouldRetry = true) {
+    _runOnce(shouldRetry) {
         if (this._isShutdown) {
             throw new retry.StopError('Slice shutdown during slice execution');
         }
@@ -131,6 +134,7 @@ class Slice {
         return this.executionContext.runSlice(slice)
             .catch((err) => {
                 this.logger.error(`An error has occurred: ${toString(err)}, slice:`, slice);
+
                 if (!shouldRetry) {
                     return Promise.reject(err);
                 }

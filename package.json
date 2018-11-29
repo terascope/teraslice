@@ -35,11 +35,11 @@
         "@types/socket.io": "^1.4.38",
         "@types/socket.io-client": "^1.4.32",
         "@types/uuid": "^3.4.4",
-        "lerna": "^3.4.3",
+        "lerna": "^3.5.1",
         "typescript": "^3.1.6"
     },
     "devDependencies": {
-        "@types/jest": "^23.3.8",
+        "@types/jest": "^23.3.10",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "eslint": "^5.9.0",

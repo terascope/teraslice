@@ -283,7 +283,7 @@ export class TestContext implements i.Context {
                         throw new Error(`Registered Client for connection "${key}" is not a function, got ${actual}`);
                     }
 
-                    const config = setConnectorConfig(sysconfig, options, {});
+                    const config = setConnectorConfig(sysconfig, options, {}, false);
 
                     const client = create(config, logger, options);
 
