@@ -1,10 +1,6 @@
 'use strict';
 
 const fs = require('fs');
-const homeDir = require('os').homedir();
-const path = require('path');
-const process = require('process');
-const url = require('url');
 
 const _ = require('lodash');
 const yaml = require('node-yaml');
