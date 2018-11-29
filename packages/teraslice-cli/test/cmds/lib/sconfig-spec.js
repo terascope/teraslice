@@ -38,30 +38,29 @@ describe('TerasliceCliConfig', () => {
         };
         testConfig = new Sconfig(cliArgs);
         expect(fs.existsSync(cliArgs.config_dir)).toBeTrue();
-
     });
 
-    // describe('-> baseDir', () => {
-    //     test('should be the the temp directory', () => {
-    //         cliArgs = {
-    //             config_dir: path.join(__dirname, '../../fixtures/config_dir'),
-    //             base_dir: tmpDir,
-    //         };
-    //         testConfig = new Sconfig(cliArgs);
-    //         expect(testConfig.baseDir).toBe(tmpDir);
-    //     });
-    // });
-    
-    // describe('-> assetName', () => {
-    //     test('should defined ', () => {
-    //         cliArgs = {
-    //             config_dir: path.join(__dirname, '../../fixtures/config_dir'),
-    //             asset_name: 'testasset',
-    //         };
-    //         testConfig = new Sconfig(cliArgs);
-    //         expect(testConfig.assetName).toBe('testasset');
-    //     });
-    // });
+    describe('-> baseDir', () => {
+        test('should be the the temp directory', () => {
+            cliArgs = {
+                config_dir: path.join(__dirname, '../../fixtures/config_dir'),
+                base_dir: tmpDir,
+            };
+            testConfig = new Sconfig(cliArgs);
+            expect(testConfig.baseDir).toBe(tmpDir);
+        });
+    });
+
+    describe('-> assetName', () => {
+        test('should defined ', () => {
+            cliArgs = {
+                config_dir: path.join(__dirname, '../../fixtures/config_dir'),
+                asset_name: 'testasset',
+            };
+            testConfig = new Sconfig(cliArgs);
+            expect(testConfig.assetName).toBe('testasset');
+        });
+    });
 
     describe('-> clusterAlias', () => {
         test('should be an empty string when an alias is not specified', () => {
@@ -101,7 +100,7 @@ describe('TerasliceCliConfig', () => {
             testConfig = new Sconfig(cliArgs);
             expect(testConfig.clusterAlias).toBe('test3');
         });
-    })
+    });
 
     describe('-> clusterUrl', () => {
         test('should be set when cluster_url is specfied', () => {
