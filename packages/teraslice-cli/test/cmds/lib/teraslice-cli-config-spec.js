@@ -3,7 +3,7 @@
 const path = require('path');
 const fs = require('fs');
 const { createTempDirSync } = require('jest-fixtures');
-const Sconfig = require('../../../cmds/lib/sconfig');
+const TerasliceCliConfig = require('../../../cmds/lib/teraslice-cli-config');
 
 const tmpDir = createTempDirSync();
 
@@ -19,7 +19,7 @@ describe('TerasliceCliConfig', () => {
             base_dir: path.join(tmpDir),
             cluster_alias: 'test1-cluster1'
         };
-        testConfig = new Sconfig(cliArgs);
+        testConfig = new TerasliceCliConfig(cliArgs);
     });
 
     afterEach(() => {
@@ -36,7 +36,7 @@ describe('TerasliceCliConfig', () => {
         cliArgs = {
             config_dir: path.join(tmpDir, 'config_dir/'),
         };
-        testConfig = new Sconfig(cliArgs);
+        testConfig = new TerasliceCliConfig(cliArgs);
         expect(fs.existsSync(cliArgs.config_dir)).toBeTrue();
     });
 
@@ -46,7 +46,7 @@ describe('TerasliceCliConfig', () => {
                 config_dir: path.join(__dirname, '../../fixtures/config_dir'),
                 base_dir: tmpDir,
             };
-            testConfig = new Sconfig(cliArgs);
+            testConfig = new TerasliceCliConfig(cliArgs);
             expect(testConfig.baseDir).toBe(tmpDir);
         });
     });
@@ -57,7 +57,7 @@ describe('TerasliceCliConfig', () => {
                 config_dir: path.join(__dirname, '../../fixtures/config_dir'),
                 asset_name: 'testasset',
             };
-            testConfig = new Sconfig(cliArgs);
+            testConfig = new TerasliceCliConfig(cliArgs);
             expect(testConfig.assetName).toBe('testasset');
         });
     });
@@ -67,7 +67,7 @@ describe('TerasliceCliConfig', () => {
             cliArgs = {
                 config_dir: path.join(__dirname, '../../fixtures/config_dir'),
             };
-            testConfig = new Sconfig(cliArgs);
+            testConfig = new TerasliceCliConfig(cliArgs);
             expect(testConfig.clusterAlias).toBe('');
         });
 
@@ -76,7 +76,7 @@ describe('TerasliceCliConfig', () => {
                 config_dir: path.join(__dirname, '../../fixtures/config_dir'),
                 cluster_alias: ''
             };
-            testConfig = new Sconfig(cliArgs);
+            testConfig = new TerasliceCliConfig(cliArgs);
             expect(testConfig.clusterAlias).toBe('');
         });
 
@@ -85,7 +85,7 @@ describe('TerasliceCliConfig', () => {
                 config_dir: path.join(__dirname, '../../fixtures/config_dir'),
                 cluster_alias: 'test1-cluster2'
             };
-            testConfig = new Sconfig(cliArgs);
+            testConfig = new TerasliceCliConfig(cliArgs);
             expect(() => {
                 testConfig.clusterAlias();
             }).toThrow('alias not defined in config file: test1-cluster2');
@@ -97,7 +97,7 @@ describe('TerasliceCliConfig', () => {
                 cluster_alias: 'test3',
                 cluster_url: 'http://test3.net'
             };
-            testConfig = new Sconfig(cliArgs);
+            testConfig = new TerasliceCliConfig(cliArgs);
             expect(testConfig.clusterAlias).toBe('test3');
         });
     });
@@ -108,7 +108,7 @@ describe('TerasliceCliConfig', () => {
                 config_dir: path.join(__dirname, '../../fixtures/config_dir'),
                 cluster_url: 'test3-cluster3'
             };
-            testConfig = new Sconfig(cliArgs);
+            testConfig = new TerasliceCliConfig(cliArgs);
             expect(testConfig.clusterUrl).toBe('http://test3-cluster3:5678');
         });
 
@@ -117,7 +117,7 @@ describe('TerasliceCliConfig', () => {
                 config_dir: path.join(__dirname, '../../fixtures/config_dir'),
                 cluster_alias: 'test1-cluster1'
             };
-            testConfig = new Sconfig(cliArgs);
+            testConfig = new TerasliceCliConfig(cliArgs);
             expect(testConfig.clusterUrl).toBe('http://test1-cluster1.net:80');
         });
 
@@ -127,7 +127,7 @@ describe('TerasliceCliConfig', () => {
                 cluster_alias: 'test1-cluster1',
                 cluster_url: 'http://test3-cluster3.net:80'
             };
-            testConfig = new Sconfig(cliArgs);
+            testConfig = new TerasliceCliConfig(cliArgs);
             expect(testConfig.clusterUrl).toBe('http://test3-cluster3.net:80');
         });
 
@@ -135,7 +135,7 @@ describe('TerasliceCliConfig', () => {
             cliArgs = {
                 config_dir: path.join(__dirname, '../../fixtures/config_dir'),
             };
-            testConfig = new Sconfig(cliArgs);
+            testConfig = new TerasliceCliConfig(cliArgs);
             expect(() => {
                 testConfig.clusterUrl();
             }).toThrow(/cluster_alias or cluster_url must be set/);
@@ -144,7 +144,7 @@ describe('TerasliceCliConfig', () => {
 
     describe('-> _urlCheck', () => {
         test('output correct cluster url', () => {
-            testConfig = new Sconfig(cliArgs);
+            testConfig = new TerasliceCliConfig(cliArgs);
             expect(testConfig._urlCheck('test3-cluster3'))
                 .toBe('http://test3-cluster3:5678');
             expect(testConfig._urlCheck('https://test3-cluster3:80'))

@@ -2,7 +2,7 @@
 'use console';
 
 const reply = require('../lib/reply')();
-const Sconfig = require('../lib/sconfig');
+const TerasliceCliConfig = require('../lib/teraslice-cli-config');
 const appCli = require('../lib/app-cli');
 const cmdCli = require('./lib/cmd-cli');
 
@@ -15,7 +15,7 @@ exports.builder = (yargs) => {
 };
 
 exports.handler = (argv, _testFunctions) => {
-    const cliConfig = new Sconfig(argv);
+    const cliConfig = new TerasliceCliConfig(argv);
     const libAliases = _testFunctions || require('./lib')(cliConfig);
 
     return libAliases.remove()

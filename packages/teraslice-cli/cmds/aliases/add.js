@@ -5,7 +5,7 @@
 'use console';
 
 const reply = require('../lib/reply')();
-const Sconfig = require('../lib/sconfig');
+const TerasliceCliConfig = require('../lib/teraslice-cli-config');
 const appCli = require('../lib/app-cli');
 const cmdCli = require('./lib/cmd-cli');
 const clusterUrlCli = require('../lib/cli/cluster-url');
@@ -21,8 +21,12 @@ exports.builder = (yargs) => {
 };
 
 exports.handler = (argv, _testFunctions) => {
-    const cliConfig = new Sconfig(argv);
+    const cliConfig = new TerasliceCliConfig(argv);
     const libAliases = _testFunctions || require('./lib')(cliConfig);
+
+    if (!(cliConfig.args.cluster_alias && cliConfig.args.cluster_url)) {
+        reply.fatal('You must specify both a cluster alias and cluster URL');
+    }
 
     return libAliases.add()
         .catch(err => reply.fatal(err.message));
