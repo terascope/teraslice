@@ -5,7 +5,7 @@ const path = require('path');
 const url = require('url');
 const yaml = require('node-yaml');
 const fs = require('fs');
-
+// const TerasliceClient = require('teraslice-client-js');
 const homeDir = require('os').homedir();
 const process = require('process');
 
@@ -21,13 +21,24 @@ class TerasliceCliConfig {
         this.config = this.getConfig();
         this.output_style = _.get(this.args, 'o', 'txt');
         this.annotation = _.get(this.args, 'n', null);
-
         // this.cluster_alias = this.getClusterAlias();
         // this.cluster_url = this.getClusterUrl();
 
         //this.cluster_alias = _.get(this, `config.clusters[${this.args.cluster_sh}]`, null);
         //this.cluster_url = _.get(this, `config.clusters.${this.args.c}.host`, 'http://localhost:5678');
     }
+
+    // get assetName() {
+    //     return this.args.asset_name;
+    // }
+
+    // get baseDir() {
+    //     return this.args.base_dir;
+    // }
+
+    // get terasliceClient() {
+    //     return terasliceClient({ host: this.clusterUrl});
+    // };
 
     get configDir() {
         return this.args.config_dir;
@@ -44,15 +55,23 @@ class TerasliceCliConfig {
         };
     }
 
-
+    // clusterAlias should support the following scenarios
+    //   earl alias add -c url alias
+    //   earl alias list
+    //   earl alias remove alias
+    //   earl alias update -c url alias
     get clusterAlias() {
-        const clusterAlias = _.get(this.args, 'cluster_alias', '');
-        if (clusterAlias !== '') {
-            if (!_.has(this.config.clusters, clusterAlias)) {
-                throw new Error(`alias not defined in config file: ${clusterAlias}`);
+        let clusterAlias;
+        if (_.has(this.args, 'cluster_alias') && _.has(this.args, 'cluster_url')) {
+            clusterAlias = _.get(this.args, 'cluster_alias', '');
+        } else {
+            clusterAlias = _.get(this.args, 'cluster_alias', '');
+            if (clusterAlias !== '') {
+                if (!_.has(this.config.clusters, clusterAlias)) {
+                    throw new Error(`alias not defined in config file: ${clusterAlias}`);
+                }
             }
         }
-
         return clusterAlias;
     }
 
@@ -63,7 +82,6 @@ class TerasliceCliConfig {
             if (r === '') {
                 r = _.get(this.config.clusters[this.clusterAlias], 'host');
             }
-            // return this._urlCheck(_.get(this.args, 'cluster_url', ''));
         } else {
             throw new Error('Either cluster_alias or cluster_url must be set on the command line.');
         }
