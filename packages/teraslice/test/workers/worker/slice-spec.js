@@ -173,7 +173,7 @@ describe('Slice', () => {
                 testContext = new TestContext({
                     maxRetries: 5,
                     analytics: false,
-                    opErrorAt: times(5)
+                    opErrorAt: times(6)
                 });
 
                 slice = await setupSlice(testContext, eventMocks);
