@@ -1,16 +1,17 @@
 'use strict';
-'use console';
 
 const reply = require('../lib/reply')();
 const TerasliceCliConfig = require('../lib/teraslice-cli-config');
-const appCli = require('../lib/app-cli');
-const cmdCli = require('./lib/cmd-cli');
+const Options = require('../../lib/options');
+
+const options = new Options();
 
 exports.command = 'remove  <cluster_alias>';
 exports.desc = 'List the clusters defined in the config file.\n';
 exports.builder = (yargs) => {
-    appCli.args(yargs);
-    cmdCli.args(yargs);
+    yargs.positional('cluster_alias', options.build('cluster_alias'));
+    yargs.options('config_dir', options.build('config_dir'));
+    yargs.options('output', options.build('output'));
     yargs.example('teraslice-cli aliases remove cluster1');
 };
 
