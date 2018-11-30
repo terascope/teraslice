@@ -1,24 +1,21 @@
-// update existing cluster
-// create new
-
 'use strict';
 'use console';
 
-const _ = require('lodash');
 const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
+const TerasliceCliConfig = require('../lib/teraslice-cli-config');
+const appCli = require('../lib/app-cli');
+const cmdCli = require('./lib/cmd-cli');
 
-exports.command = 'remove  <cluster_sh>';
+exports.command = 'remove  <cluster_alias>';
 exports.desc = 'List the clusters defined in the config file.\n';
 exports.builder = (yargs) => {
-    cli().args('aliases', 'remove', yargs);
+    appCli.args(yargs);
+    cmdCli.args(yargs);
     yargs.example('teraslice-cli aliases remove cluster1');
 };
 
 exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    config(cliConfig, 'aliases:remove').returnConfigData(false, false);
+    const cliConfig = new TerasliceCliConfig(argv);
     const libAliases = _testFunctions || require('./lib')(cliConfig);
 
     return libAliases.remove()
