@@ -292,6 +292,42 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data6)).toEqual(true);
         });
 
+        it('can handle nested values', () => {
+            const data1 = { person: { age: 8 } };
+            const data2 = { person: { age: 10 } };
+            const data3 = { person: { age: 15 } };
+            const data4 = { person: { age: 20 } };
+            const data5 = { person: { age: 50 } };
+            const data6 = { person: { age: 100 } };
+
+            documentMatcher.parse('person.age:[0 TO *]');
+
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(true);
+            expect(documentMatcher.match(data3)).toEqual(true);
+            expect(documentMatcher.match(data4)).toEqual(true);
+            expect(documentMatcher.match(data5)).toEqual(true);
+            expect(documentMatcher.match(data6)).toEqual(true);
+        });
+
+        it('can handle bad values', () => {
+            const data1 = {  };
+            const data2 = { person: 'asdfasdf' };
+            const data3 = [123, 4234];
+            const data4 = { person: null };
+            const data5 = { person: ['asdf'] };
+            const data6 = { other: { age: 100 } };
+
+            documentMatcher.parse('person.age:[0 TO *]');
+
+            expect(documentMatcher.match(data1)).toEqual(false);
+            expect(documentMatcher.match(data2)).toEqual(false);
+            expect(documentMatcher.match(data3)).toEqual(false);
+            expect(documentMatcher.match(data4)).toEqual(false);
+            expect(documentMatcher.match(data5)).toEqual(false);
+            expect(documentMatcher.match(data6)).toEqual(false);
+        });
+
         it('can handle elasticsearch range queries ([],{},[}, {])', () => {
             const data1 = { age: 8 };
             const data2 = { age: 10 };
@@ -428,6 +464,24 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data2)).toEqual(false);
             expect(documentMatcher.match(data3)).toEqual(false);
             expect(documentMatcher.match(data4)).toEqual(true);
+        });
+
+        it('can do ip type anotations with crazy data', () => {
+            const data1 = { ipfield: '123u0987324asdf' };
+            const data2 = { ipfield: null };
+            const data3 = { ipfield: { some: 'data' } };
+            const data4 = { ipfield: 12341234 };
+            const data5 = { ipfield: [{ other: 'things' }] };
+            const data6 = {};
+
+            documentMatcher.parse('ipfield:"192.198.0.0/24"', { ipfield: 'ip' });
+
+            expect(documentMatcher.match(data1)).toEqual(false);
+            expect(documentMatcher.match(data2)).toEqual(false);
+            expect(documentMatcher.match(data3)).toEqual(false);
+            expect(documentMatcher.match(data4)).toEqual(false);
+            expect(documentMatcher.match(data5)).toEqual(false);
+            expect(documentMatcher.match(data6)).toEqual(false);
         });
 
         it('can support ip range modifiers [], {}, [}', () => {
@@ -615,6 +669,21 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data3)).toEqual(true);
         });
 
+        it('date fields do not throw with wrong data', () => {
+            const data1 = { _created: {some: 'thing'} };
+            const data2 = { _created: [3, 53, 2342] };
+            const data3 = { _created: false };
+            const data4 = { _created: null };
+            const data5 = { _created: 'asdfiuyasdf8yhkjlasdf' };
+            documentMatcher.parse('_created:"2018-10-18T18:13:20.683Z"', { _created: 'date' });
+
+            expect(documentMatcher.match(data1)).toEqual(false);
+            expect(documentMatcher.match(data2)).toEqual(false);
+            expect(documentMatcher.match(data3)).toEqual(false);
+            expect(documentMatcher.match(data4)).toEqual(false);
+            expect(documentMatcher.match(data5)).toEqual(false);
+        });
+
         it('can can handle "< > <= >=", with type changes', () => {
             const data1 = { _created: 'Thu Oct 18 2018 22:13:20 GMT-0700' };
             const data2 = { _created: '2018-10-18T18:13:20.683Z' };
@@ -709,6 +778,24 @@ describe('document matcher', () => {
 
             expect(documentMatcher.match(data1)).toEqual(true);
             expect(documentMatcher.match(data2)).toEqual(false);
+        });
+
+        it('geo fields do not throw with wrong data', () => {
+            const data1 = { location: null };
+            const data2 = { location: { some: 'data'} };
+            const data3 = { location: [1234, 4234234, 223] };
+            const data4 = { location: 'asdop234' };
+            const data5 = { location: 1233.435967 };
+            const data6  = {};
+
+            documentMatcher.parse('location:(_geo_box_top_left_:" 33.906320,  -112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")', { location: 'geo' });
+
+            expect(documentMatcher.match(data1)).toEqual(false);
+            expect(documentMatcher.match(data2)).toEqual(false);
+            expect(documentMatcher.match(data3)).toEqual(false);
+            expect(documentMatcher.match(data4)).toEqual(false);
+            expect(documentMatcher.match(data5)).toEqual(false);
+            expect(documentMatcher.match(data6)).toEqual(false);
         });
 
         it('can do basic matches with non string based geo points', () => {
@@ -913,7 +1000,6 @@ describe('document matcher', () => {
     });
 
     describe('works properly with chaotic/crazy data/queries', () => {
-
         it('does not mutate orignal data', () => {
             const data1 = {
                 key : 'abbccc',
@@ -939,8 +1025,10 @@ describe('document matcher', () => {
 
         it('does not throw when fields are not present', () => {
             const data1 = {};
+            const data2 = { ip: null, key: null, created: null, location: null };
             documentMatcher.parse('some:field', { ip: 'ip', key: 'regex', created: 'date', location: 'geo' });
             expect(documentMatcher.match(data1)).toEqual(false);
+            expect(documentMatcher.match(data2)).toEqual(false);
         });
 
         it('does not throw when types are not present', () => {

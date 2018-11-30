@@ -5,6 +5,8 @@ import LuceneQueryParser from '../lucene-query-parser';
 import TypeManger from './type-manager';
 import { bindThis, ast } from '../utils';
 
+//@ts-ignore
+//global._ = _
 export default class DocumentMatcher extends LuceneQueryParser {
     private filterFn: Function|undefined;
     private types: TypeManger;
@@ -110,7 +112,9 @@ export default class DocumentMatcher extends LuceneQueryParser {
             strFnArgs.push(key);
             argsFns.push(value);
         });
-
+        // injecting lodash
+        strFnArgs.push('get');
+        argsFns.push(_.get);
         strFnArgs.push('data', `return ${fnStr}`);
 
         try {
@@ -143,37 +147,37 @@ export default class DocumentMatcher extends LuceneQueryParser {
         // ie age:>10 || age:(>10 AND <=20)
         if (!incMin && incMax) {
             if (maxValue === Infinity) {
-                resultStr = `data.${field} > ${minValue}`;
+                resultStr = `get(data, "${field}") > ${minValue}`;
             } else {
-                resultStr = `((${maxValue} >= data.${field}) && (data.${field} > ${minValue}))`
+                resultStr = `((${maxValue} >= get(data, "${field}")) && (get(data, "${field}") > ${minValue}))`
             }
         }
         // ie age:<10 || age:(<=10 AND >20)
         if (incMin && !incMax) {
             if (minValue === -Infinity) {
-                resultStr = `data.${field} < ${maxValue}`;
+                resultStr = `get(data, "${field}") < ${maxValue}`;
             } else {
-                resultStr =  `((${minValue} <= data.${field}) && (data.${field} < ${maxValue}))`;
+                resultStr =  `((${minValue} <= get(data, "${field}")) && (get(data, "${field}") < ${maxValue}))`;
             }
         }
 
         // ie age:<=10, age:>=10, age:(>=10 AND <=20)
         if (incMin && incMax) {
             if (maxValue === Infinity) {
-                resultStr = `data.${field} >= ${minValue}`;
+                resultStr = `get(data, "${field}") >= ${minValue}`;
             } else if (minValue === -Infinity) {
-                resultStr = `data.${field} <= ${maxValue}`;
+                resultStr = `get(data, "${field}") <= ${maxValue}`;
             } else {
-                resultStr = `((${maxValue} >= data.${field}) && (data.${field} >= ${minValue}))`;
+                resultStr = `((${maxValue} >= get(data, "${field}")) && (get(data, "${field}") >= ${minValue}))`;
             }
         }
 
         // ie age:(>10 AND <20)
         if (!incMin && !incMax) {
-            resultStr = `((${maxValue} > data.${field}) && (data.${field} > ${minValue}))`;
+            resultStr = `((${maxValue} > get(data, "${field}")) && (get(data, "${field}") > ${minValue}))`;
         }
 
-        if (isNegation) return `!(${resultStr})`
+        if (isNegation) return `!(${resultStr})`;
         return resultStr;
     }
 

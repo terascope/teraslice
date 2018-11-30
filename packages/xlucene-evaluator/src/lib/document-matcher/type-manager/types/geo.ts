@@ -86,7 +86,6 @@ type geoObjShort = {lat: string | number, lon: string | number};
 type geoObjLong = {latitude: string | number, longitude: string | number};
 type geoPoint = geoPointArr | geoPointStr | geoObjShort | geoObjLong
 
-
 //TODO: allow ranges to be input and compare the two regions if they intersect
 
 export default class GeoType extends BaseType {
@@ -100,32 +99,39 @@ export default class GeoType extends BaseType {
 
     processAst(ast: ast): ast {
         const { walkAst, filterFnBuilder, createParsedField, fields } = this;
+
+        function getLonAndLat(input: any, isInit?: boolean): [number, number] {
+            const lat = input.lat || input.latitude;
+            const lon = input.lon || input.longitude;
+            if (isInit && (!lat || !lon)) throw new Error('geopoint must contain keys lat,lon or latitude/longitude');
         
-        function parsePoint(point: geoPoint | number[] | object): number[] {
+            return [_.toNumber(lat), _.toNumber(lon)];
+        }
+        
+        function parsePoint(point: geoPoint | number[] | object, isInit?: boolean): number[] | null {
             let results = null;
 
             if (typeof point === 'string') {
                 if (point.match(',')) {
                     results = point.split(',').map(st => st.trim()).map(numStr => Number(numStr));
                 } else {
-                    results = _.values(geoHash.decode(point));
+                    try {
+                        results = _.values(geoHash.decode(point));
+                    } catch(err){}
                 }
             }
 
             if (Array.isArray(point)) results = point.map(_.toNumber);
 
             if (_.isPlainObject(point)) {
-                const lat = _.get(point, 'lat') || _.get(point, 'latitude');
-                const lon = _.get(point, 'lon') || _.get(point, 'longitude');
-
-                if (!lat || !lon) throw new Error('geopoint must contain keys lat,lon or latitude/longitude');
-                results = [lat, lon].map(_.toNumber)
+                results = getLonAndLat(point, isInit)
             }
 
-            if (!results) throw new Error(`incorrect point given to parse, point:${point}`)
+            if (isInit && !results) throw new Error(`incorrect point given to parse, point:${point}`)
 
             // data incoming is lat,lon and we must return lon,lat
-            return results.reverse();
+            if (results) return results.reverse();
+            return results;
         }
         function parseDistance(str: string): geoDistance {
             const trimed = str.trim();
@@ -147,9 +153,10 @@ export default class GeoType extends BaseType {
             } = geoResults;
 
             let polygon: any;
+            let initSetup = true;
 
             if (geoBoxTopLeft && geoBoxBottomRight) {
-                const line = lineString([parsePoint(geoBoxTopLeft), parsePoint(geoBoxBottomRight)]);
+            const line = lineString([parsePoint(geoBoxTopLeft, initSetup), parsePoint(geoBoxBottomRight, initSetup)]);
                 const box = bbox(line);
                 polygon = bboxPolygon(box);
             }
@@ -157,13 +164,14 @@ export default class GeoType extends BaseType {
             if (geoPoint && geoDistance) {
                 const { distance, unit } = parseDistance(geoDistance);
                 const config = { units: unit };
-                polygon =  createCircle(parsePoint(geoPoint), distance, config);
+                polygon =  createCircle(parsePoint(geoPoint, initSetup), distance, config);
             }
 
             // Nothing matches so return false
             if (polygon === undefined) return (): boolean => false;
             return (fieldData: string): Boolean => {
                 const point = parsePoint(fieldData);
+                if (!point) return false;
                 return pointInPolygon(point, polygon);
             };
         }

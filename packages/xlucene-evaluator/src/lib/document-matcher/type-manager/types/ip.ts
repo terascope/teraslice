@@ -1,6 +1,6 @@
 
 import isCidr from 'is-cidr';
-import { isIPv6 } from'net';
+import { isIPv6, isIP } from'net';
 import ip6addr from 'ip6addr';
 import BaseType from'./base';
 import { bindThis, ast } from '../../../utils';
@@ -8,7 +8,7 @@ import { bindThis, ast } from '../../../utils';
 const MIN_IPV4_IP = '0.0.0.0';
 const MAX_IPV4_IP = '255.255.255.255';
 
-const MIN_IPV6_IP = '0.0.0.0.0.0.0.0';
+const MIN_IPV6_IP = '::';
 const MAX_IPV6_IP = 'ffff.ffff.ffff.ffff.ffff.ffff.ffff.ffff';
 
 const fnBaseName = 'ipFn';
@@ -43,7 +43,8 @@ export default class IpType extends BaseType {
                                 const rangeLast = range.last().toString();
                                 return (range.contains(argFirst) || range.contains(argLast) || argRange.contains(rangeFirst) || argRange.contains(rangeLast));
                             }
-                           return range.contains(ip);
+                           if (isIP(ip) > 0) return range.contains(ip);
+                           return false;
                        });
                    } else {
                        filterFnBuilder((ip: string) => {
@@ -100,7 +101,8 @@ export default class IpType extends BaseType {
                             const rangeLast = range.last().toString();
                             return (range.contains(argFirst) || range.contains(argLast) || argRange.contains(rangeFirst) || argRange.contains(rangeLast));
                         }
-                        return range.contains(ip);
+                        if (isIP(ip) > 0) return range.contains(ip);
+                        return false;
                     });
                }
 
