@@ -1,11 +1,10 @@
 'use strict';
-'use console';
 
-/* eslint-disable no-console */
 /* eslint-disable no-await-in-loop */
 
 const _ = require('lodash');
 const display = require('../../lib/display')();
+const reply = require('../../lib/reply')();
 
 
 async function displayControllers(header, controllers, style) {
@@ -43,16 +42,13 @@ async function parseControllersTxt(header, controllers) {
 }
 
 module.exports = (cliConfig) => {
-    const terasliceClient = require('teraslice-client-js')({
-        host: cliConfig.cluster_url
-    });
     async function list() {
         const header = ['name', 'job_id', 'workers_available', 'workers_active', 'failed', 'queued', 'processed'];
-        const response = await terasliceClient.cluster.slicers();
+        const response = await cliConfig.terasliceClient.cluster.slicers();
         if (response.length > 0) {
             await displayControllers(header, response, cliConfig.output_style);
         } else {
-            console.log('> no active controllers');
+            reply.error('> no active controllers');
         }
     }
 
@@ -71,15 +67,15 @@ module.exports = (cliConfig) => {
         // TODO make output configurable
         let response = '';
         try {
-            response = await terasliceClient.cluster.controllers();
+            response = await cliConfig.terasliceClient.cluster.controllers();
         } catch (e) {
-            response = await terasliceClient.cluster.slicers();
+            response = await cliConfig.terasliceClient.cluster.slicers();
         }
         if (response.length > 0) {
             const header = await setHeader(response);
             await displayControllers(header, response, cliConfig.output_style);
         } else {
-            console.log('> no active controllers');
+            reply.error('> no active controllers');
         }
     }
 
