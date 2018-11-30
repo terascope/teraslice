@@ -1,0 +1,3 @@
+clusters:
+  test1-cluster1:
+    host: 'http://test1-cluster1.net:80'

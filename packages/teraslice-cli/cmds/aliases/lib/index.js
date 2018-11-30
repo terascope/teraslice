@@ -8,7 +8,6 @@ const yaml = require('node-yaml');
 const _ = require('lodash');
 const display = require('../../lib/display')();
 const reply = require('../../lib/reply')();
-const config = require('../../lib/config')();
 
 async function displayClusters(clusters, style) {
     const header = ['cluster', 'host'];
@@ -56,35 +55,38 @@ async function parseClustersTxt(header, clusters) {
 
 module.exports = (cliConfig) => {
     async function remove() {
-        if (_.has(cliConfig.config.clusters, cliConfig.cluster)) {
-            reply.green(`> Removed cluster alias ${cliConfig.cluster}`);
-            delete cliConfig.config.clusters[cliConfig.cluster];
+        if (_.has(cliConfig.config.clusters, cliConfig.clusterAlias)) {
+            reply.green(`> Removed cluster alias ${cliConfig.clusterAlias}`);
+            delete cliConfig.config.clusters[cliConfig.clusterAlias];
             yaml.writeSync(cliConfig.configFile, cliConfig.config);
         } else {
-            reply.error(`alias ${cliConfig.cluster} not in aliases list`);
+            reply.error(`alias ${cliConfig.clusterAlias} not in aliases list`);
         }
         await list();
     }
 
     async function add() {
-        reply.green(`> Added cluster alias ${cliConfig.cluster}`);
+        reply.green(`> Added cluster alias ${cliConfig.clusterAlias}`);
 
-        cliConfig.config.clusters[cliConfig.cluster] = {
-            host: config._urlCheck(cliConfig.cluster_url),
+        cliConfig.config.clusters[cliConfig.clusterAlias] = {
+            host: urlCheck(cliConfig.clusterUrl),
         };
         yaml.writeSync(cliConfig.configFile, cliConfig.config);
         await list();
     }
 
+    function urlCheck(url) {
+        // check that url starts with http:// but allow for https://
+        return url.indexOf('http') === -1 ? `http://${url}` : url;
+    }
+
     async function update() {
-        if (_.has(cliConfig.config.clusters, cliConfig.cluster)) {
-            reply.green(`> Updated cluster alias ${cliConfig.cluster}`);
-            if (process.argv.indexOf('-c') > 0 || process.argv.indexOf('--host-cluster')) {
-                cliConfig.config.clusters[cliConfig.cluster].host = config._urlCheck(cliConfig.cluster_url);
-            }
+        if (_.has(cliConfig.config.clusters, cliConfig.clusterAlias)) {
+            reply.green(`> Updated cluster alias ${cliConfig.clusterAlias}`);
+            cliConfig.config.clusters[cliConfig.clusterAlias].host = urlCheck(cliConfig.clusterUrl);
             yaml.writeSync(cliConfig.configFile, cliConfig.config);
         } else {
-            reply.error(`alias ${cliConfig.cluster} not in aliases list`);
+            reply.error(`alias ${cliConfig.clusterAlias} not in aliases list`);
         }
         await list();
     }
