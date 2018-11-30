@@ -1,16 +1,7 @@
-// @ts-ignore
-import bunyan from '@types/bunyan';
-import Stream from 'stream';
 import { EventEmitter } from 'events';
 import { OpConfig } from './jobs';
 import { ExecutionContextAPI } from '../execution-context';
-
-export type LoggerStream = Stream|WritableStream|undefined;
-
-export interface Logger extends bunyan {
-    streams: LoggerStream[];
-    flush(): Promise<void>;
-}
+import { Logger } from './logger';
 
 export interface ClusterStateConfig {
     connection: string|'default';
@@ -75,7 +66,7 @@ export interface ConnectionConfig {
     type: string;
 }
 
-export type ClientFactoryFn = (config: object, logger: Logger, options: ConnectionConfig) => any;
+export type ClientFactoryFn = (config: object, logger: Logger, options: ConnectionConfig) => { client: any };
 
 export interface FoundationApis {
     makeLogger(...params: any[]): Logger;
