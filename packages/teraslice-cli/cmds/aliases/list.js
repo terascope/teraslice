@@ -4,7 +4,7 @@
 const reply = require('../lib/reply')();
 const TerasliceCliConfig = require('../lib/teraslice-cli-config');
 
-const Options = require('../../lib/options');
+const Options = require('../../lib/yargs/options');
 
 const options = new Options();
 exports.command = 'list';

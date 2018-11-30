@@ -43,10 +43,10 @@ class TerasliceCliConfig {
     }
 
     // clusterAlias should support the following scenarios
-    //   earl alias add -c url alias
+    //   earl alias add alias url
     //   earl alias list
     //   earl alias remove alias
-    //   earl alias update -c url alias
+    //   earl alias update alias url
     get clusterAlias() {
         let clusterAlias;
         if (_.has(this.args, 'cluster_alias') && _.has(this.args, 'cluster_url')) {
@@ -75,6 +75,13 @@ class TerasliceCliConfig {
         return this._urlCheck(r);
     }
 
+    get newClusterUrl() {
+        return this._urlCheck(_.get(this.args, 'new_cluster_url'));
+    }
+
+    get newClusterAlias() {
+        return _.get(this.args, 'new_cluster_alias');
+    }
 
     _urlCheck(inUrl) {
         // check that url starts with http:// but allow for https://

@@ -1,30 +1,30 @@
 'use strict';
 
-const Options = require('../../lib/yargs/options');
+const Positionals = require('../../lib/yargs/positionals');
 
-describe('options', () => {
-    let options;
+describe('positionals', () => {
+    let positionals;
 
     beforeEach(() => {
-        options = new Options();
+        positionals = new Positionals();
     });
 
     afterEach(() => {
-        options = null;
+        positionals = null;
     });
 
     test('should return a defined object', () => {
-        expect(options).toBeDefined();
+        expect(positionals).toBeDefined();
     });
 
     test('should build an option', () => {
-        options.options = {
+        positionals.positionals = {
             config: () => ({
                 alias: 'conf',
                 describe: 'Config file',
                 default: 'test.json'
             }),
         };
-        expect(options.build('config').alias).toBe('conf');
+        expect(positionals.build('config').alias).toBe('conf');
     });
 });

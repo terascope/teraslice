@@ -66,10 +66,10 @@ module.exports = (cliConfig) => {
     }
 
     async function add() {
-        reply.green(`> Added cluster alias ${cliConfig.clusterAlias}`);
+        reply.green(`> Added cluster alias ${cliConfig.newClusterAlias}`);
 
-        cliConfig.config.clusters[cliConfig.clusterAlias] = {
-            host: urlCheck(cliConfig.clusterUrl),
+        cliConfig.config.clusters[cliConfig.newClusterAlias] = {
+            host: urlCheck(cliConfig.newClusterUrl),
         };
         yaml.writeSync(cliConfig.configFile, cliConfig.config);
         await list();
@@ -83,7 +83,7 @@ module.exports = (cliConfig) => {
     async function update() {
         if (_.has(cliConfig.config.clusters, cliConfig.clusterAlias)) {
             reply.green(`> Updated cluster alias ${cliConfig.clusterAlias}`);
-            cliConfig.config.clusters[cliConfig.clusterAlias].host = urlCheck(cliConfig.clusterUrl);
+            cliConfig.config.clusters[cliConfig.clusterAlias].host = urlCheck(cliConfig.newClusterUrl);
             yaml.writeSync(cliConfig.configFile, cliConfig.config);
         } else {
             reply.error(`alias ${cliConfig.clusterAlias} not in aliases list`);

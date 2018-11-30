@@ -23,8 +23,12 @@ class Options {
             }),
             cluster_url: () => ({
                 alias: 'c',
-                describe: 'cluster host name',
+                describe: 'cluster url',
                 requiresArg: 1,
+                type: 'string'
+            }),
+            new_cluster_url: () => ({
+                describe: 'new cluster url',
                 type: 'string'
             }),
             cluster_alias: () => ({
