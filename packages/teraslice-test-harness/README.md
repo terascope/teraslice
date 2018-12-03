@@ -9,6 +9,7 @@
     - [WorkerTestHarness](#workertestharness)
     - [JobTestHarness](#jobtestharness)
 - [Builtin Operations](#builtin-operations)
+    - [Collect](#collect)
     - [Noop](#noop)
     - [Delay](#delay)
     - [Test Reader](#test-reader)
@@ -55,6 +56,15 @@ A test harness for both the Slicer and Fetcher, utilizing both the Slicer and Wo
 ## Builtin Operations
 
 There a several builtin operations that are useful for writing and configuring your tests.
+
+### Collect
+
+**Configuration:**
+
+- `size: number`: The target count records to collect before resolving.
+- `wait: number`: Maximum time to wait before resolving the currently queued records.
+
+**Description:** Collect data in batches. Useful for testing jobs.
 
 ### Noop
 
