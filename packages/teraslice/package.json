@@ -69,7 +69,7 @@
         "@terascope/teraslice-op-test-harness": "^1.4.2",
         "archiver": "^3.0.0",
         "bufferstreams": "^2.0.1",
-        "chance": "^1.0.16",
+        "chance": "^1.0.17",
         "elasticsearch": "^15.1.1",
         "eslint": "^5.9.0",
         "eslint-config-airbnb-base": "^13.1.0",
