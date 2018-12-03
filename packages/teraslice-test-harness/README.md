@@ -74,8 +74,8 @@ There a several builtin operations that are useful for writing and configuring y
 
 **Configuration:**
 
-- `fetcherDataFilePath?: string`: File to path to JSON array of data records. (optional)
-- `slicerDataFilePath?: string`: File to path to JSON array of slice request. (optional)
+- `fetcher_data_file_path?: string`: File to path to JSON array of data records. (optional)
+- `slicer_data_file_path?: string`: File to path to JSON array of slice request. (optional)
 
 **Description:** Slice and fetch data specified in a file. Useful for testing Processors.
 

@@ -1,18 +1,10 @@
 import 'jest-extended';
-import fs from 'fs';
-import path from 'path';
 import { TestContext, newTestExecutionConfig, WorkerContext } from '../../src';
 import Fetcher from '../../src/builtin/test-reader/fetcher';
 import Slicer from '../../src/builtin/test-reader/slicer';
 import Schema from '../../src/builtin/test-reader/schema';
-
-const readerPath = path.join(__dirname, '..', '..', 'src', 'builtin', 'test-reader');
-
-const slicerDataFilePath = path.join(readerPath, 'data', 'slicer-data.json');
-const slicerData = JSON.parse(fs.readFileSync(slicerDataFilePath, 'utf8'));
-
-const fetcherDataFilePath = path.join(readerPath, 'data', 'fetcher-data.json');
-const fetcherData = JSON.parse(fs.readFileSync(fetcherDataFilePath, 'utf8'));
+import slicerData from '../../src/builtin/test-reader/data/slicer-data.json';
+import fetcherData from '../../src/builtin/test-reader/data/fetcher-data.json';
 
 describe('Test Reader', () => {
     it('should have a Schema, Fetcher and Slicer class', () => {
@@ -27,18 +19,18 @@ describe('Test Reader', () => {
 
         it('should be able to return the correct opConfig with not additional config', () => {
             const result = schema.validate({ _op: 'test-reader' });
-            expect(result).toHaveProperty('fetcherDataFilePath', null);
-            expect(result).toHaveProperty('slicerDataFilePath', null);
+            expect(result).toHaveProperty('fetcher_data_file_path', null);
+            expect(result).toHaveProperty('slicer_data_file_path', null);
         });
 
         it('should be able to return the correct opConfig with additional config', () => {
             const result = schema.validate({
                 _op: 'test-reader',
-                fetcherDataFilePath: 'hello',
-                slicerDataFilePath: 'hi',
+                fetcher_data_file_path: 'hello',
+                slicer_data_file_path: 'hi',
             });
-            expect(result).toHaveProperty('fetcherDataFilePath', 'hello');
-            expect(result).toHaveProperty('slicerDataFilePath', 'hi');
+            expect(result).toHaveProperty('fetcher_data_file_path', 'hello');
+            expect(result).toHaveProperty('slicer_data_file_path', 'hi');
         });
     });
 
