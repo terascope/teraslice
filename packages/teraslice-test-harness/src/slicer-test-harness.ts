@@ -6,6 +6,7 @@ import {
     SliceRequest,
     SliceResult,
     ExecutionStats,
+    SlicerCore,
 } from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness';
 import { JobHarnessOptions } from './interfaces';
@@ -33,8 +34,8 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
         super(job, options, 'execution_controller');
     }
 
-    get slicer() {
-        return this.executionContext.slicer;
+    slicer<T extends SlicerCore = SlicerCore>(): T {
+        return this.executionContext.slicer<T>();
     }
 
     /**
@@ -68,11 +69,10 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
     async createSlices(options: { fullResponse: false }): Promise<SliceRequest[]>;
     async createSlices(options: { fullResponse: true }): Promise<Slice[]>;
     async createSlices({ fullResponse = false } = {}): Promise<SliceRequest[]|Slice[]> {
-        const { slicer } = this.executionContext;
-        const slicers = slicer.slicers();
-        await slicer.handle();
+        const slicers = this.slicer().slicers();
+        await this.slicer().handle();
 
-        const slices = slicer.getSlices(10000);
+        const slices = this.slicer().getSlices(10000);
         const sliceRequests = [];
         const slicesBySlicers = Object.values(groupBy(slices, 'slicer_id'));
 

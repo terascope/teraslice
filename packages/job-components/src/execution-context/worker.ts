@@ -35,16 +35,6 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     */
     readonly assetIds: string[] = [];
 
-    /** The instance of a "Fetcher" */
-    readonly fetcher: FetcherCore;
-
-    /**
-     * A Set of a Processors available to Job.
-     * This does not include the Fetcher since they have
-     * different APIs.
-    */
-    readonly processors: Set<ProcessorCore>;
-
     readonly exId: string;
     readonly jobId: string;
 
@@ -65,6 +55,10 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         onOperationStart: new Set(),
         onOperationComplete: new Set(),
     };
+
+    private readonly _fetcher: FetcherCore;
+
+    private readonly _processors: ProcessorCore[];
 
     constructor(config: ExecutionContextConfig) {
         this.events = config.context.apis.foundation.getSystemEvents();
@@ -99,24 +93,42 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         this.registerAPI(readerConfig._op, mod.API);
 
         const op = new mod.Fetcher(this.context, cloneDeep(readerConfig), this.config);
-        this.fetcher = op;
+        this._fetcher = op;
         this.addOperation(op);
 
-        this.processors = new Set();
+        this._processors = [];
 
         for (const opConfig of this.config.operations.slice(1)) {
             const name = opConfig._op;
             const mod = loader.loadProcessor(name, this.assetIds);
             this.registerAPI(name, mod.API);
 
-            const op = new mod.Processor(this.context, cloneDeep(opConfig), this.config);
+            const op = new mod.Processor(
+                this.context,
+                cloneDeep(opConfig),
+                this.config
+            );
             this.addOperation(op);
-            this.processors.add(op);
+            this._processors.push(op);
         }
 
         const jobObserver = new JobObserver(this.context, this.config);
         this.addOperation(jobObserver);
         this.jobObserver = jobObserver;
+    }
+
+    /**
+     * An array of a Processors available to Job.
+     * This does not include the Fetcher since they have
+     * different APIs.
+    */
+    processors<T extends ProcessorCore[] = ProcessorCore[]>(): T {
+        return this._processors as T;
+    }
+
+     /** The instance of a "Fetcher" */
+    fetcher<T extends FetcherCore = FetcherCore>(): T {
+        return this._fetcher as T;
     }
 
     /**
@@ -160,7 +172,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         const queue = [
             async (input: any) => {
                 this.onOperationStart(sliceId, 0);
-                const results = await this.fetcher.handle(input);
+                const results = await this.fetcher().handle(input);
                 this.onOperationComplete(sliceId, 0, results.length);
                 return results;
             },
@@ -171,7 +183,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         ];
 
         let i = 0;
-        for (const processor of this.processors.values()) {
+        for (const processor of this._processors) {
             const index = ++i;
             queue.push(async (input: any) => {
                 this.onOperationStart(sliceId, index);

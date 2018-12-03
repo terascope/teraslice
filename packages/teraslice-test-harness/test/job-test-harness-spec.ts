@@ -45,16 +45,16 @@ describe('JobTestHarness', () => {
         });
 
         it('should have a slicer', () => {
-            expect(jobHarness.slicer).toBeInstanceOf(Slicer);
+            expect(jobHarness.slicer()).toBeInstanceOf(Slicer);
         });
 
         it('should have fetcher', () => {
-            expect(jobHarness.fetcher).toBeInstanceOf(Fetcher);
+            expect(jobHarness.fetcher()).toBeInstanceOf(Fetcher);
         });
 
         it('should have on processor', () => {
-            expect(jobHarness.processors).toBeArrayOfSize(1);
-            expect(jobHarness.processors[0]).toBeInstanceOf(BatchProcessor);
+            expect(jobHarness.processors()).toBeArrayOfSize(1);
+            expect(jobHarness.processors()[0]).toBeInstanceOf(BatchProcessor);
         });
 
         it('should be able to call run', async () => {

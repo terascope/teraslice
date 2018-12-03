@@ -47,7 +47,7 @@ describe('SlicerExecutionContext', () => {
 
         it('should have the Slicer', async () => {
             expect(executionContext).toHaveProperty('slicer');
-            const result = await executionContext.slicer.handle();
+            const result = await executionContext.slicer().handle();
             expect(result).toBeFalse();
         });
 
@@ -84,7 +84,7 @@ describe('SlicerExecutionContext', () => {
             };
 
             executionContext.onExecutionStats(stats);
-            expect(executionContext.slicer).toHaveProperty('stats', stats);
+            expect(executionContext.slicer()).toHaveProperty('stats', stats);
 
             executionContext.onSliceComplete({
                 slice,

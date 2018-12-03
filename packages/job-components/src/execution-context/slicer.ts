@@ -38,9 +38,6 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
     */
     readonly assetIds: string[] = [];
 
-    /** The instance of a "Slicer" */
-    readonly slicer: SlicerCore;
-
     readonly exId: string;
     readonly jobId: string;
 
@@ -55,6 +52,8 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
         onSliceEnqueued: new Set(),
         onExecutionStats: new Set(),
     };
+
+    private readonly _slicer: SlicerCore;
 
     constructor(config: ExecutionContextConfig) {
         this.events = config.context.apis.foundation.getSystemEvents();
@@ -88,10 +87,15 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
         const mod = loader.loadReader(readerConfig._op, this.assetIds);
 
         const op = new mod.Slicer(this.context, cloneDeep(readerConfig), this.config);
-        this.slicer = op;
+        this._slicer = op;
         this.addOperation(op);
 
         this.resetMethodRegistry();
+    }
+
+    /** The instance of a "Slicer" */
+    slicer<T extends SlicerCore = SlicerCore>(): T {
+        return this._slicer as T;
     }
 
     /**
