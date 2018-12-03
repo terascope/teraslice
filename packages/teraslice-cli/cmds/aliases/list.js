@@ -2,24 +2,23 @@
 'use console';
 
 const reply = require('../lib/reply')();
-const TerasliceCliConfig = require('../lib/teraslice-cli-config');
+const Config = require('../../lib/config');
 
-const Options = require('../../lib/yargs/options');
+const YargsOptions = require('../../lib/yargs-options');
 
-const options = new Options();
+const yargsOptions = new YargsOptions();
+
 exports.command = 'list';
 exports.desc = 'List the clusters defined in the config file.\n';
 exports.builder = (yargs) => {
-    yargs.options('config_dir', options.build('config_dir'));
-    yargs.options('output', options.build('output'));
+    yargs.options('config_dir', yargsOptions.buildOption('config_dir'));
+    yargs.options('output', yargsOptions.buildOption('output'));
     yargs.strict()
         .example('teraslice-cli aliases list cluster1');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = new TerasliceCliConfig(argv);
-    const libAliases = _testFunctions || require('./lib')(cliConfig);
+exports.handler = (argv) => {
+    const cliConfig = new Config(argv);
 
-    return libAliases.list()
-        .catch(err => reply.fatal(err.message));
+    return cliConfig.aliases.list();
 };
