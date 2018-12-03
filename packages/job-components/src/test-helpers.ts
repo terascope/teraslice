@@ -22,7 +22,11 @@ type debugParam = DebugParamObj | string;
 export function debugLogger(testName: string, param?: debugParam, otherName?: string): i.Logger {
     const logger: i.Logger = new EventEmitter() as i.Logger;
 
-    const parts: string[] = ['teraslice', testName];
+    const parts: string[] = [testName];
+    if (testName.indexOf('teraslice') < 0) {
+        parts.unshift('teraslice');
+    }
+
     if (param) {
         if (isString(param)) {
             parts.push(param as string);
@@ -33,11 +37,12 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
             }
         }
     }
-    const name = uniq(parts).join(':');
 
     if (otherName) {
         parts.push(otherName);
     }
+
+    const name = uniq(parts).join(':');
 
     logger.streams = [];
 
@@ -46,7 +51,7 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
         this.streams.push(stream);
     };
 
-    logger.child = (opts: debugParam) => debugLogger(testName, opts);
+    logger.child = (opts: debugParam) => debugLogger(name, opts);
     logger.flush = () => Promise.resolve();
     logger.reopenFileStreams = () => {};
     logger.level = () => 50;
