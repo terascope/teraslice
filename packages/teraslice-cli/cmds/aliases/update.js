@@ -1,7 +1,7 @@
 'use strict';
 
 const reply = require('../lib/reply')();
-const TerasliceCliConfig = require('../lib/teraslice-cli-config');
+const Config = require('../../lib/config');
 const YargsOptions = require('../../lib/yargs-options');
 
 const yargsOptions = new YargsOptions();
@@ -17,10 +17,17 @@ exports.builder = (yargs) => {
         .example('teraslice-cli aliases update cluster1 http://cluster1.net:80');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = new TerasliceCliConfig(argv);
-    const libAliases = _testFunctions || require('./lib')(cliConfig);
+exports.handler = (argv) => {
+    const cliConfig = new Config(argv);
 
-    return libAliases.update()
-        .catch(err => reply.fatal(err.message));
+    try {
+        cliConfig.aliases.update(
+            cliConfig.args.clusterAlias,
+            cliConfig.args.newClusterUrl
+        );
+    } catch (e) {
+        reply.error(e);
+    } finally {
+        reply.green(`> Updated ${cliConfig.args.clusterAlias} host:${cliConfig.args.newClusterUrl}`);
+    }
 };

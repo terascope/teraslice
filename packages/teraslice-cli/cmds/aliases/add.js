@@ -19,10 +19,17 @@ exports.builder = (yargs) => {
 
 exports.handler = (argv) => {
     const cliConfig = new Config(argv);
-
-    return cliConfig.aliases.add(
-        cliConfig.args.new_cluster_alias,
-        cliConfig.args.new_cluster_url
-    );
-    // TODO: We'll have to change this if we really want it to list at the end.
+    try {
+        cliConfig.aliases.add(
+            cliConfig.args.newClusterAlias,
+            cliConfig.args.newClusterUrl
+        );
+    } catch (e) {
+        reply.error(e);
+    } finally {
+        reply.green(
+            `> Added ${cliConfig.args.newClusterAlias} host:${cliConfig.args.newClusterUrl}`
+        );
+        cliConfig.aliases.list();
+    }
 };

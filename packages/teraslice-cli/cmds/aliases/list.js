@@ -1,7 +1,6 @@
 'use strict';
 'use console';
 
-const reply = require('../lib/reply')();
 const Config = require('../../lib/config');
 
 const YargsOptions = require('../../lib/yargs-options');
@@ -19,6 +18,5 @@ exports.builder = (yargs) => {
 
 exports.handler = (argv) => {
     const cliConfig = new Config(argv);
-
-    return cliConfig.aliases.list();
+    return cliConfig.aliases.list(cliConfig.args.output);
 };

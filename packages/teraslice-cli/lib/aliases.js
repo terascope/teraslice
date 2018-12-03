@@ -13,7 +13,6 @@ const defaultConfigData = {
     }
 };
 
-
 class Aliases {
     constructor(aliasesFile) {
         this.aliasesFile = aliasesFile;
@@ -45,62 +44,33 @@ class Aliases {
         yaml.writeSync(this.aliasesFile, this.config);
     }
 
-    async list() {
-        await this.displayClusters(this.config.clusters, 'txt');
-    }
-
-    remove() {
-
-    }
-
-    update() {
-
-    }
-
-    // TODO: these "presentation" functions should probably be generalized and
-    // moved out to its own lib
-    async displayClusters(clusters, style) {
+    list(output) {
         const header = ['cluster', 'host'];
-        let parsedClusters = '';
+        const clusters = _.map(
+            _.mapValues(this.config.clusters, o => o.host),
+            (value, key) => ({ cluster: key, host: value })
+        );
+        display.display(header, clusters, output);
+    }
 
-        if (style === 'txt') {
-            parsedClusters = await this.parseClustersTxt(header, clusters);
+    remove(clusterAlias) {
+        if (_.has(this.config.clusters, clusterAlias)) {
+            delete this.config.clusters[clusterAlias];
+            yaml.writeSync(this.aliasesFile, this.config);
         } else {
-            parsedClusters = await this.parseClustersPretty(header, clusters);
+            throw new Error(`Alias ${clusterAlias} not in aliases list`);
         }
-        await display.display(header, parsedClusters, style);
     }
 
-    async parseClustersPretty(header, clusters) {
-        const rows = [];
-        _.each(clusters, (value, cluster) => {
-            const row = [];
-            _.each(header, (item) => {
-                if (item === 'cluster') {
-                    row.push(cluster);
-                } else {
-                    row.push(clusters[cluster][item]);
-                }
-            });
-            rows.push(row);
-        });
-        return rows;
-    }
-
-    async parseClustersTxt(header, clusters) {
-        const rows = [];
-        _.each(clusters, (value, cluster) => {
-            const row = {};
-            _.each(header, (item) => {
-                if (item === 'cluster') {
-                    row.cluster = cluster;
-                } else {
-                    row[item] = clusters[cluster][item];
-                }
-            });
-            rows.push(row);
-        });
-        return rows;
+    update(clusterAlias, newClusterUrl) {
+        if (_.has(this.config.clusters, clusterAlias)) {
+            this.config.clusters[clusterAlias] = {
+                host: newClusterUrl,
+            };
+            yaml.writeSync(this.aliasesFile, this.config);
+        } else {
+            throw new Error(`Alias ${clusterAlias} not in aliases list`);
+        }
     }
 }
 

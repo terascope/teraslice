@@ -15,8 +15,8 @@ const Aliases = require('./aliases');
  */
 class Config {
     constructor(cliArgs) {
-        this.args = _.clone(cliArgs);
-        this.configDir = this.args.config_dir;
+        this.args = _.clone(_.mapKeys(cliArgs, (value, key) => _.camelCase(key)));
+        this.configDir = this.args.configDir;
         this._setupConfigDir();
         this.aliases = new Aliases(this.aliasesFile);
     }
