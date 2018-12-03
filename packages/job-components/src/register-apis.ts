@@ -18,6 +18,8 @@ export function getOpConfig(job: ValidatedJobConfig, name: string): OpConfig|und
 /*
 * This will request a connection based on the 'connection' attribute of
 * an opConfig. Intended as a context API endpoint.
+* If there is an error getting the connection, it will not throw an error
+* it will log it and emit `client:initialization:error`
 */
 export function getClient(context: Context, config: GetClientConfig, type: string): any {
     const clientConfig: ConnectionConfig = {
