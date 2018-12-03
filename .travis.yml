@@ -39,10 +39,10 @@ jobs:
     after_success:
       - bash <(curl -s https://codecov.io/bash)
 
-  # benchmarks only on master and on pull-request
+  # benchmarks and linting, only on pull-requests
   - script:
     name: Benchmarks and Linting
-    if: branch = master
+    if: branch = master AND type = pull_request
     script: yarn lint && yarn benchmark
 
   # test end-to-end tests, only on pull-requests
