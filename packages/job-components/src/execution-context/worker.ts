@@ -1,9 +1,10 @@
 import { EventEmitter } from 'events';
 import cloneDeep from 'lodash.clonedeep';
-import { isFunction, waterfall } from '../utils';
+import { isFunction, waterfall, isString, isInteger } from '../utils';
 import { OperationLoader } from '../operation-loader';
 import FetcherCore from '../operations/core/fetcher-core';
 import ProcessorCore from '../operations/core/processor-core';
+import OperationCore from '../operations/core/operation-core';
 import { OperationAPIConstructor, DataEntity } from '../operations';
 import { registerApis } from '../register-apis';
 import { WorkerOperationLifeCycle, ExecutionConfig, Slice, WorkerContext } from '../interfaces';
@@ -41,6 +42,8 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     /** The terafoundation EventEmitter */
     readonly events: EventEmitter;
 
+    readonly processors: ProcessorCore[];
+
     private readonly jobObserver: JobObserver;
 
     private _handlers: EventHandlers = {};
@@ -57,8 +60,6 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     };
 
     private readonly _fetcher: FetcherCore;
-
-    private readonly _processors: ProcessorCore[];
 
     constructor(config: ExecutionContextConfig) {
         this.events = config.context.apis.foundation.getSystemEvents();
@@ -96,7 +97,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         this._fetcher = op;
         this.addOperation(op);
 
-        this._processors = [];
+        this.processors = [];
 
         for (const opConfig of this.config.operations.slice(1)) {
             const name = opConfig._op;
@@ -109,7 +110,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
                 this.config
             );
             this.addOperation(op);
-            this._processors.push(op);
+            this.processors.push(op);
         }
 
         const jobObserver = new JobObserver(this.context, this.config);
@@ -118,12 +119,31 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     }
 
     /**
-     * An array of a Processors available to Job.
-     * This does not include the Fetcher since they have
-     * different APIs.
+     * Get a operation by name or index.
+     * If name is used it will return the first match.
     */
-    processors<T extends ProcessorCore[] = ProcessorCore[]>(): T {
-        return this._processors as T;
+    getOperation<T extends OperationCore = OperationCore>(findBy: string|number): T {
+        let index = -1;
+        if (isString(findBy)) {
+            index = this.config.operations.findIndex((op) => {
+                return op._op === findBy;
+            });
+        } else if (isInteger(findBy) && findBy >= 0) {
+            index = findBy;
+        }
+
+        if (index === 0) {
+            // @ts-ignore
+            return this._fetcher as T;
+        }
+
+        const processor = this.processors[index - 1];
+        if (processor == null) {
+            throw new Error(`Unable to find operation by ${findBy}`);
+        }
+
+        // @ts-ignore
+        return processor as T;
     }
 
      /** The instance of a "Fetcher" */
@@ -183,7 +203,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
         ];
 
         let i = 0;
-        for (const processor of this._processors) {
+        for (const processor of this.processors) {
             const index = ++i;
             queue.push(async (input: any) => {
                 this.onOperationStart(sliceId, index);

@@ -6,6 +6,7 @@ import {
     DataEntity,
     Fetcher,
     BatchProcessor,
+    NoopProcessor,
 } from '@terascope/job-components';
 import { WorkerTestHarness } from '../src';
 
@@ -41,7 +42,7 @@ describe('WorkerTestHarness', () => {
             clients
         });
 
-        workerHarness.processors()[0].handle = jest.fn(async (data: DataEntity[]) => {
+        workerHarness.processors[0].handle = jest.fn(async (data: DataEntity[]) => {
             return data;
         });
 
@@ -54,8 +55,8 @@ describe('WorkerTestHarness', () => {
         });
 
         it('should have on processor', () => {
-            expect(workerHarness.processors()).toBeArrayOfSize(1);
-            expect(workerHarness.processors()[0]).toBeInstanceOf(BatchProcessor);
+            expect(workerHarness.processors).toBeArrayOfSize(1);
+            expect(workerHarness.processors[0]).toBeInstanceOf(BatchProcessor);
         });
 
         it('should be able to call runSlice', async () => {
@@ -75,7 +76,7 @@ describe('WorkerTestHarness', () => {
             workerHarness.events.on('slice:retry', onSliceRetryEvent);
             const err = new Error('oh no');
 
-            workerHarness.processors()[0].handle
+            workerHarness.processors[0].handle
                 // @ts-ignore
                 .mockClear()
                 // @ts-ignore
@@ -87,7 +88,7 @@ describe('WorkerTestHarness', () => {
             expect(results).toBeArray();
 
             expect(onSliceRetryEvent).toHaveBeenCalledTimes(2);
-            expect(workerHarness.processors()[0].handle).toHaveBeenCalledTimes(3);
+            expect(workerHarness.getOperation<NoopProcessor>('noop').handle).toHaveBeenCalledTimes(3);
         });
 
         it('should be able to call runSlice with fullResponse', async () => {

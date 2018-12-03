@@ -7,7 +7,7 @@ import {
     SliceRequest,
     newTestSlice,
     FetcherCore,
-    ProcessorCore,
+    OperationCore,
 } from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness';
 import { JobHarnessOptions } from './interfaces';
@@ -29,8 +29,12 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
         return this.executionContext.fetcher<T>();
     }
 
-    processors<T extends ProcessorCore[] = ProcessorCore[]>(): T {
-        return this.executionContext.processors();
+    get processors() {
+        return this.executionContext.processors;
+    }
+
+    getOperation<T extends OperationCore = OperationCore>(findBy: string|number): T {
+        return this.executionContext.getOperation<T>(findBy);
     }
 
     /**

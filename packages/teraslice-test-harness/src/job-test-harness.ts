@@ -6,7 +6,6 @@ import {
     SliceAnalyticsData,
     TestClientConfig,
     FetcherCore,
-    ProcessorCore,
     SlicerCore,
 } from '@terascope/job-components';
 import SlicerTestHarness from './slicer-test-harness';
@@ -38,8 +37,8 @@ export default class JobTestHarness {
         return this.workerHarness.fetcher<T>();
     }
 
-    processors<T extends ProcessorCore[] = ProcessorCore[]>(): T {
-        return this.workerHarness.processors<T>();
+    get processors() {
+        return this.workerHarness.processors;
     }
 
     /**

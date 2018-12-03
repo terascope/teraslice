@@ -53,8 +53,8 @@ describe('JobTestHarness', () => {
         });
 
         it('should have on processor', () => {
-            expect(jobHarness.processors()).toBeArrayOfSize(1);
-            expect(jobHarness.processors()[0]).toBeInstanceOf(BatchProcessor);
+            expect(jobHarness.processors).toBeArrayOfSize(1);
+            expect(jobHarness.processors[0]).toBeInstanceOf(BatchProcessor);
         });
 
         it('should be able to call run', async () => {
