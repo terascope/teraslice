@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { TestReaderConfig } from './interfaces';
 import { Slicer } from '../../operations';
-import { LifeCycle } from '../../interfaces';
 import { parseJSON } from '../../utils';
 
 const defaultFilePath = path.join(__dirname, 'data', 'slicer-data.json');
@@ -27,7 +26,7 @@ export default class TestSlicer extends Slicer<TestReaderConfig> {
     }
 
     async slice() {
-        if (this.executionConfig.lifecycle === LifeCycle.Once) {
+        if (this.executionConfig.lifecycle === 'once') {
             const request = this.requests.shift();
             if (request == null) return null;
             return request;

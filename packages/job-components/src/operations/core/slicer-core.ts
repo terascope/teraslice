@@ -6,7 +6,6 @@ import {
     SliceRequest,
     SlicerOperationLifeCycle,
     ExecutionStats,
-    LifeCycle,
     WorkerContext,
 } from '../../interfaces';
 import Queue from '@terascope/queue';
@@ -147,7 +146,7 @@ export default abstract class SlicerCore<T = OpConfig> extends Core<WorkerContex
     }
 
     protected canComplete(): boolean {
-        return this.executionConfig.lifecycle === LifeCycle.Once;
+        return this.executionConfig.lifecycle === 'once';
     }
 
     protected get workersConnected() {

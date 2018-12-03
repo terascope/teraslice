@@ -1,7 +1,7 @@
 import 'jest-extended';
 import fs from 'fs';
 import path from 'path';
-import { TestContext, newTestExecutionConfig, WorkerContext, LifeCycle } from '../../src';
+import { TestContext, newTestExecutionConfig, WorkerContext } from '../../src';
 import Fetcher from '../../src/builtin/test-reader/fetcher';
 import Slicer from '../../src/builtin/test-reader/slicer';
 import Schema from '../../src/builtin/test-reader/schema';
@@ -46,7 +46,7 @@ describe('Test Reader', () => {
         const context = new TestContext('test-reader');
         const opConfig = { _op: 'test-reader' };
         const exConfig = newTestExecutionConfig();
-        exConfig.lifecycle = LifeCycle.Once;
+        exConfig.lifecycle = 'once';
 
         const slicer = new Slicer(
             context as WorkerContext,
@@ -71,7 +71,7 @@ describe('Test Reader', () => {
         const context = new TestContext('test-reader');
         const opConfig = { _op: 'test-reader' };
         const exConfig = newTestExecutionConfig();
-        exConfig.lifecycle = LifeCycle.Once;
+        exConfig.lifecycle = 'once';
 
         const fetcher = new Fetcher(
             context as WorkerContext,

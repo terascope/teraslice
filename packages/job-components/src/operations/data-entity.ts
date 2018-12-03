@@ -65,8 +65,8 @@ export default class DataEntity {
      * @param metadata Optionally add any metadata
     */
     static fromBuffer(input: Buffer, opConfig: EncodingConfig = {}, metadata?: object): DataEntity {
-        const { _encoding = DataEncoding.JSON } = opConfig || {};
-        if (_encoding === DataEncoding.JSON) {
+        const { _encoding = 'json' } = opConfig || {};
+        if (_encoding === 'json') {
             return DataEntity.make(parseJSON(input), metadata);
         }
 
@@ -178,8 +178,8 @@ function setMetadata(ctx: any, key: string, value: string):void {
 }
 
 function toBuffer(ctx: any, opConfig: EncodingConfig): Buffer {
-    const { _encoding = DataEncoding.JSON } = opConfig;
-    if (_encoding === DataEncoding.JSON) {
+    const { _encoding = 'json' } = opConfig;
+    if (_encoding === 'json') {
         return Buffer.from(JSON.stringify(ctx));
     }
 

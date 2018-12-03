@@ -90,23 +90,23 @@ export function newTestSlice(request: i.SliceRequest = {}): i.Slice {
     };
 }
 
-const defaultJobConfig = { name: 'test-job', operations: [] };
-
-export function newTestJobConfig(defaults: i.JobConfig = defaultJobConfig): i.ValidatedJobConfig {
+export function newTestJobConfig(defaults: Partial<i.JobConfig> = {}) {
     return Object.assign({
+        name: 'test-job',
+        operations: [],
         analytics: false,
         assets: [],
-        lifecycle: i.LifeCycle.Once,
+        lifecycle: 'once',
         max_retries: 0,
         probation_window: 30000,
         recycle_worker: 0,
         slicers: 1,
         workers: 1,
-    }, defaults);
+    }, defaults) as i.ValidatedJobConfig;
 }
 
-export function newTestExecutionConfig(jobConfig?: i.JobConfig): i.ExecutionConfig {
-    const exConfig = (jobConfig || newTestJobConfig()) as i.ExecutionConfig;
+export function newTestExecutionConfig(jobConfig: Partial<i.JobConfig> = {}): i.ExecutionConfig {
+    const exConfig = newTestJobConfig(jobConfig) as i.ExecutionConfig;
     exConfig.slicer_hostname = 'example.com';
     exConfig.slicer_port = random(8000, 60000);
     exConfig.ex_id = newId('ex-id');
@@ -233,11 +233,11 @@ export class TestContext implements i.Context {
                 action_timeout: 10000,
                 analytics_rate: 10000,
                 assets_directory: path.join(process.cwd(), 'assets'),
-                cluster_manager_type: i.ClusterManagerType.Native,
+                cluster_manager_type: 'native',
                 hostname: 'localhost',
                 index_rollover_frequency: {
-                    analytics: i.RolloverFrequency.Yearly,
-                    state: i.RolloverFrequency.Monthly,
+                    analytics: 'yearly',
+                    state: 'montly',
                 },
                 master_hostname: 'localhost',
                 master: false,

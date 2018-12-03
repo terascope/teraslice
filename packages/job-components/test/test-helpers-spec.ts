@@ -26,8 +26,12 @@ describe('Test Helpers', () => {
     it('should have a newTestJobConfig', () => {
         expect(newTestJobConfig).toBeFunction();
 
-        const jobConfig = newTestJobConfig();
+        const jobConfig = newTestJobConfig({
+            lifecycle: 'persistent',
+        });
+
         expect(jobConfig).toHaveProperty('name', 'test-job');
+        expect(jobConfig.lifecycle).toEqual('persistent');
         expect(jobConfig.operations).toBeArrayOfSize(0);
         expect(jobConfig.assets).toBeArrayOfSize(0);
     });
@@ -35,8 +39,9 @@ describe('Test Helpers', () => {
     it('should have a newTestExecutionConfig', () => {
         expect(newTestSlice).toBeFunction();
 
-        const exConfig = newTestExecutionConfig();
+        const exConfig = newTestExecutionConfig({ probation_window: 100 });
         expect(exConfig).toHaveProperty('name', 'test-job');
+        expect(exConfig.probation_window).toEqual(100);
         expect(exConfig.operations).toBeArrayOfSize(0);
         expect(exConfig.assets).toBeArrayOfSize(0);
     });
@@ -44,7 +49,7 @@ describe('Test Helpers', () => {
     it('should have a newTestSlice', () => {
         expect(newTestSlice).toBeFunction();
 
-        const slice = newTestSlice();
+        const slice = newTestSlice({ hello: true });
         expect(slice).toHaveProperty('slice_id');
         expect(slice.slice_id).toBeString();
         expect(slice).toHaveProperty('slicer_id');
@@ -52,7 +57,7 @@ describe('Test Helpers', () => {
         expect(slice).toHaveProperty('slicer_order');
         expect(slice.slicer_order).toBeNumber();
         expect(slice).toHaveProperty('request');
-        expect(slice.request).toBeObject();
+        expect(slice.request).toEqual({ hello: true });
         expect(slice).toHaveProperty('_created');
         expect(slice._created).toBeString();
     });
