@@ -6,12 +6,12 @@ const YargsOptions = require('../../lib/yargs-options');
 
 const yargsOptions = new YargsOptions();
 
-exports.command = 'update <cluster_alias> <new_cluster_url>';
+exports.command = 'update <cluster-alias> <new-cluster-url>';
 exports.desc = 'Update an alias to the clusters defined in the config file.\n';
 exports.builder = (yargs) => {
-    yargs.positional('cluster_alias', yargsOptions.buildPositional('cluster_alias'));
-    yargs.positional('new_cluster_url', yargsOptions.buildPositional('new_cluster_url'));
-    yargs.options('config_dir', yargsOptions.buildOption('config_dir'));
+    yargs.positional('cluster-alias', yargsOptions.buildPositional('cluster-alias'));
+    yargs.positional('new-cluster-url', yargsOptions.buildPositional('new-cluster-url'));
+    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
     yargs.options('output', yargsOptions.buildOption('output'));
     yargs
         .example('teraslice-cli aliases update cluster1 http://cluster1.net:80');

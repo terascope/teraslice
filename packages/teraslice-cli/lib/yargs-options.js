@@ -10,8 +10,8 @@ class Options {
                 describe: 'Config file',
                 default: `${homeDir}/.teraslice/config-cli.yaml`
             }),
-            config_dir: () => ({
-                alias: 'config_directory',
+            'config-dir': () => ({
+                alias: 'd',
                 describe: 'Config directory',
                 default: `${homeDir}/.teraslice`
             }),
@@ -21,21 +21,21 @@ class Options {
                 choices: ['txt', 'pretty'],
                 default: 'txt'
             }),
-            cluster_url: () => ({
+            'cluster-url': () => ({
                 alias: 'c',
                 describe: 'cluster url',
                 requiresArg: 1,
                 type: 'string'
             }),
-            new_cluster_url: () => ({
+            'new-cluster-url': () => ({
                 describe: 'new cluster url',
                 type: 'string'
             }),
-            cluster_alias: () => ({
+            'cluster-alias': () => ({
                 describe: 'cluster alias',
                 type: 'string'
             }),
-            base_dir: () => ({
+            'base-dir': () => ({
                 describe: 'specify the base directory to use, defaults to cwd',
                 default: process.cwd(),
                 type: 'string'
@@ -43,15 +43,15 @@ class Options {
         };
 
         this.positionals = {
-            cluster_alias: () => ({
+            'cluster-alias': () => ({
                 describe: 'cluster alias',
                 type: 'string'
             }),
-            new_cluster_alias: () => ({
+            'new-cluster-alias': () => ({
                 describe: 'new cluster alias to add to config file',
                 type: 'string'
             }),
-            new_cluster_url: () => ({
+            'new-cluster-url': () => ({
                 describe: 'new cluster url to add to the config file',
                 type: 'string'
             }),
