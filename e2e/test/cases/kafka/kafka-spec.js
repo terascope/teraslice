@@ -16,6 +16,7 @@ describe('Kafka Tests', () => {
     it('should be able to read and write from kafka', async () => {
         const topic = uuidv4();
         const groupId = uuidv4();
+        const total = 1000;
 
         const senderSpec = misc.newJob('kafka-sender');
         const readerSpec = misc.newJob('kafka-reader');
@@ -33,7 +34,7 @@ describe('Kafka Tests', () => {
             waitForJobStatus(sender, 'completed'),
         ]);
 
-        await waitForIndexCount(index, 10);
+        await waitForIndexCount(index, total);
         await reader.stop();
 
         await waitForJobStatus(reader, 'stopped');
@@ -45,6 +46,6 @@ describe('Kafka Tests', () => {
             signale.error(err);
         }
 
-        expect(count).toBe(10);
+        expect(count).toBe(total);
     });
 });

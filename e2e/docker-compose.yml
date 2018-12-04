@@ -12,7 +12,6 @@ services:
     ports:
       - "45678:45678"
     environment:
-      - BLUEBIRD_LONG_STACK_TRACES=1
       - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.yaml
   teraslice-worker:
     build:
