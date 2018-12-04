@@ -1,5 +1,4 @@
-import { fastAssign, fastMap, isFunction, isPlainObject, parseJSON } from '../utils';
-import kindOf from 'kind-of';
+import { fastAssign, fastMap, isFunction, isPlainObject, parseJSON, kindOf } from '../utils';
 import { DataEncoding } from '../interfaces';
 
 // WeakMaps are used as a memory efficient reference to private data
@@ -15,7 +14,10 @@ const _metadata = new WeakMap();
 export default class DataEntity {
     /**
      * A utility for safely converting an object a `DataEntity`.
-     * This will detect if passed an already converted input and return it.
+     * If the input is a DataEntity it will return it and have no side-effect.
+     * If you want a create new DataEntity from an existing DataEntity
+     * either use `new DataEntity` or shallow clone the input before
+     * passing it to `DataEntity.make`.
      *
      * NOTE: `DataEntity.make` is different from using `new DataEntity`
      * because it attaching it doesn't shallow cloning the object
@@ -30,6 +32,11 @@ export default class DataEntity {
         }
 
         Object.defineProperties(input, {
+            __isDataEntity: {
+                value: true,
+                enumerable: false,
+                writable: false,
+            },
             getMetadata: {
                 value(key?: string) {
                     return getMetadata(this, key);
@@ -96,6 +103,7 @@ export default class DataEntity {
     static isDataEntity(input: any): input is DataEntity {
         if (input == null) return false;
         if (input instanceof DataEntity) return true;
+        if (input.__isDataEntity) return true;
         return isFunction(input.getMetadata)
             && isFunction(input.setMetadata)
             && isFunction(input.toBuffer);
@@ -130,11 +138,15 @@ export default class DataEntity {
     constructor(data: object, metadata?: object) {
         _metadata.set(this, fastAssign({ createdAt: Date.now() }, metadata));
 
+        Object.defineProperty(this, '__isDataEntity', {
+            value: true,
+            writable: false,
+            enumerable: false
+        });
+
         if (data == null) return;
 
-        if (DataEntity.isDataEntity(data)) return data;
-
-        if (!isPlainObject(data)) {
+        if (!isPlainObject(data) && !DataEntity.isDataEntity(data)) {
             throw new Error(`Invalid data source, must be an object, got "${kindOf(data)}"`);
         }
 

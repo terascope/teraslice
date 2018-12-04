@@ -1,5 +1,5 @@
 import isPlainObject from 'is-plain-object';
-import kindOf from 'kind-of';
+import _kindOf from 'kind-of';
 
 /** A simplified implemation of lodash isString */
 export function isString(val: any): val is string {
@@ -29,6 +29,21 @@ export function parseJSON<T = object>(buf: Buffer|string): T {
     } catch (err) {
         throw new Error(`Failure to parse buffer, ${toString(err)}`);
     }
+}
+
+export function kindOf(val: any): string {
+    if (val) {
+        if (val.__isDataEntity) return 'DataEntity';
+        if (val.constructor && val.constructor.name) {
+            return val.constructor.name;
+        }
+        if (val.prototype && val.prototype.name) {
+            return val.prototype.name;
+        }
+    }
+
+    const kind = _kindOf(val);
+    return firstCharToUpperCase(kind);
 }
 
 /** A simplified implemation of lodash isInteger */
@@ -169,4 +184,8 @@ export function waterfall(input: any, fns: PromiseFn[]): Promise<any> {
     return fns.reduce(async (last, fn) => {
         return fn(await last);
     }, input);
+}
+
+function firstCharToUpperCase(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }

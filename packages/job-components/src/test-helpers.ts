@@ -1,11 +1,9 @@
 
 import debugFn from 'debug';
 import { EventEmitter } from 'events';
-import kindOf from 'kind-of';
 import path from 'path';
 import * as i from './interfaces';
-import { random, isString, uniq } from './utils';
-import { isFunction } from 'util';
+import { random, isString, uniq, kindOf, isFunction } from './utils';
 
 interface DebugParamObj {
     module: string;

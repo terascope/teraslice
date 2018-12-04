@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { DataEntity } from '../src';
-import { waterfall, isPlainObject, parseJSON } from '../src/utils';
+import { waterfall, isPlainObject, parseJSON, kindOf } from '../src/utils';
 
 describe('Utils', () => {
     describe('waterfall', () => {
@@ -85,13 +85,46 @@ describe('Utils', () => {
             expect(() => {
                 // @ts-ignore
                 parseJSON(123);
-            }).toThrowError('Failure to serialize non-buffer, got "number"');
+            }).toThrowError('Failure to serialize non-buffer, got "Number"');
         });
 
         it('should throw an Error if given invalid json', () => {
             expect(() => {
                 parseJSON(Buffer.from('foo:bar'));
             }).toThrowError(/^Failure to parse buffer, SyntaxError:/);
+        });
+    });
+
+    describe('kindOf', () => {
+        it('should return the correct kind', () => {
+            expect(kindOf({})).toEqual('Object');
+
+            expect(kindOf(new DataEntity({}))).toEqual('DataEntity');
+            expect(kindOf(DataEntity.make({}))).toEqual('DataEntity');
+
+            expect(kindOf([])).toEqual('Array');
+
+            const fn = () => {
+                return 123;
+            };
+
+            function hello() {
+                return 'hello';
+            }
+
+            expect(kindOf(fn)).toEqual('Function');
+            expect(kindOf(hello)).toEqual('Function');
+
+            expect(kindOf(Buffer.from('hello'))).toEqual('Buffer');
+            expect(kindOf('hello')).toEqual('String');
+
+            expect(kindOf(123)).toEqual('Number');
+
+            expect(kindOf(null)).toEqual('Null');
+            expect(kindOf(undefined)).toEqual('Undefined');
+
+            const error = new Error('Hello');
+            expect(kindOf(error)).toEqual('Error');
         });
     });
 });
