@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events';
-import cloneDeep from 'lodash.clonedeep';
-import { isFunction, waterfall, isString, isInteger } from '../utils';
+import { isFunction, waterfall, isString, isInteger, cloneDeep } from '../utils';
 import { OperationLoader } from '../operation-loader';
 import FetcherCore from '../operations/core/fetcher-core';
 import ProcessorCore from '../operations/core/processor-core';

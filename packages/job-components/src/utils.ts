@@ -1,4 +1,5 @@
 import isPlainObject from 'is-plain-object';
+import cloneDeep from 'lodash.clonedeep';
 import _kindOf from 'kind-of';
 
 /** A simplified implemation of lodash isString */
@@ -15,9 +16,7 @@ export function toString(val: any): string {
     return JSON.stringify(val);
 }
 
-/**
- * A utility for serializing a buffer to a json object
- */
+/** JSON encoded buffer into a json object */
 export function parseJSON<T = object>(buf: Buffer|string): T {
     if (!Buffer.isBuffer(buf) && !isString(buf)) {
         throw new TypeError(`Failure to serialize non-buffer, got "${kindOf(buf)}"`);
@@ -31,6 +30,12 @@ export function parseJSON<T = object>(buf: Buffer|string): T {
     }
 }
 
+/** Check if an input has an error compatible api */
+export function isError(err: any): err is Error {
+    return err && err.stack && err.message;
+}
+
+/** Get a display friendly kindof an input */
 export function kindOf(val: any): string {
     if (val) {
         if (val.__isDataEntity) return 'DataEntity';
@@ -52,7 +57,8 @@ export function isInteger(val: any): val is number {
     return Number.isInteger(val);
 }
 
-export { isPlainObject };
+// export a few dependencies
+export { isPlainObject, cloneDeep };
 
 /** A simplified implemation of lodash castArray */
 export function castArray<T>(input: any): T[] {
@@ -60,9 +66,7 @@ export function castArray<T>(input: any): T[] {
     return [input] as T[];
 }
 
-/**
- * Verify an input is a function
-*/
+/** Verify an input is a function */
 export function isFunction(input: any): input is Function {
     return input && typeof input === 'function' ? true : false;
 }
@@ -75,16 +79,15 @@ export function getFirst<T>(input: T|T[]): T {
     return Array.isArray(input) ? input[0] : input;
 }
 
-export function parseError(input: any, withStack = false) {
+/** parse input to get error message or stack */
+export function parseError(input: any, withStack = false): string {
     if (!input) return 'Unknown Error Occurred';
     if (isString(input)) return input;
     if (withStack && input.stack) return input.stack;
     return toString(input).replace(/^Error:/, '');
 }
 
-/**
- * Perform a shallow clone of an object to another, in the fastest way possible
-*/
+/** Perform a shallow clone of an object to another, in the fastest way possible */
 export function fastAssign<T, U>(target: T, source: U) {
     if (!isPlainObject(source)) {
         return target;
@@ -97,9 +100,7 @@ export function fastAssign<T, U>(target: T, source: U) {
     return target;
 }
 
-/**
- * Map an array faster without sparse array handling
-*/
+/** Map an array faster without sparse array handling */
 export function fastMap<T, U>(arr: T[], fn: (val: T, index: number) => U): U[] {
     const length = arr.length;
     const result = Array(length);
@@ -146,6 +147,13 @@ export function isValidDate(val: any): boolean {
     return d instanceof Date && !isNaN(d);
 }
 
+/** Check if the data is valid and return if it is */
+export function getValidDate(val: any): Date|false {
+    const d = new Date(val);
+    // @ts-ignore
+    return d instanceof Date && !isNaN(d) && d;
+}
+
 /** A native implemation of lodash flatten */
 export function flatten<T>(val: Many<T[]>): T[] {
     return val.reduce((a, b) => a.concat(b), []);
@@ -177,15 +185,14 @@ interface PromiseFn {
     (input: any): Promise<any>;
 }
 
-/**
- * Async waterfall function
- */
+/** Async waterfall function */
 export function waterfall(input: any, fns: PromiseFn[]): Promise<any> {
     return fns.reduce(async (last, fn) => {
         return fn(await last);
     }, input);
 }
 
+/** Change first character in string to upper case */
 function firstCharToUpperCase(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }

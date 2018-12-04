@@ -2,7 +2,7 @@
 
 import { Context, crossValidationFn, OpConfig, JobConfig, ValidatedJobConfig } from './interfaces';
 import convict from 'convict';
-import cloneDeep from 'lodash.clonedeep';
+import { cloneDeep } from './utils';
 import { validateJobConfig, validateOpConfig } from './config-validators';
 import { jobSchema } from './job-schemas';
 import { OperationLoader } from './operation-loader';

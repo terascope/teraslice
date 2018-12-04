@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events';
-import cloneDeep from 'lodash.clonedeep';
-import { isFunction } from '../utils';
+import { isFunction, cloneDeep } from '../utils';
 import {
     SlicerOperationLifeCycle,
     ExecutionConfig,
