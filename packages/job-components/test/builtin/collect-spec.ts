@@ -22,6 +22,11 @@ describe('Collect Processor', () => {
     let context: WorkerContext;
     let collect: Collect;
 
+    const getQueue = (): DataEntity[] => {
+        // @ts-ignore
+        return collect.collector._queue;
+    };
+
     beforeEach(() => {
         context = new TestContext('collect') as WorkerContext;
         collect = new Collect(context, opConfig, exConfig);
@@ -59,7 +64,7 @@ describe('Collect Processor', () => {
             const result = await collect.handle(input);
 
             expect(result).toEqual(input);
-            expect(collect.queue).toBeArrayOfSize(0);
+            expect(getQueue()).toBeArrayOfSize(0);
         });
     });
 
@@ -70,14 +75,14 @@ describe('Collect Processor', () => {
             const result1 = await collect.handle(input1);
 
             expect(result1).toBeArrayOfSize(0);
-            expect(collect.queue).toBeArrayOfSize(50);
+            expect(getQueue()).toBeArrayOfSize(50);
 
             const data2 = times(opConfig.size / 2, (n) => ({ n }));
             const input2 = DataEntity.makeArray(data2);
             const result2 = await collect.handle(input2);
 
             expect(result2).toBeArrayOfSize(opConfig.size);
-            expect(collect.queue).toBeArrayOfSize(0);
+            expect(getQueue()).toBeArrayOfSize(0);
         });
     });
 
@@ -88,14 +93,14 @@ describe('Collect Processor', () => {
             const result1 = await collect.handle(input1);
 
             expect(result1).toBeArrayOfSize(opConfig.size);
-            expect(collect.queue).toBeArrayOfSize(50);
+            expect(getQueue()).toBeArrayOfSize(50);
 
             const data2 = times(opConfig.size / 2, (n) => ({ n }));
             const input2 = DataEntity.makeArray(data2);
             const result2 = await collect.handle(input2);
 
             expect(result2).toBeArrayOfSize(opConfig.size);
-            expect(collect.queue).toBeArrayOfSize(0);
+            expect(getQueue()).toBeArrayOfSize(0);
         });
     });
 
@@ -106,14 +111,14 @@ describe('Collect Processor', () => {
             const result1 = await collect.handle(input1);
 
             expect(result1).toBeArrayOfSize(0);
-            expect(collect.queue).toBeArrayOfSize(50);
+            expect(getQueue()).toBeArrayOfSize(50);
 
             await delay(150);
 
             const result2 = await collect.handle([]);
 
             expect(result2).toBeArrayOfSize(input1.length);
-            expect(collect.queue).toBeArrayOfSize(0);
+            expect(getQueue()).toBeArrayOfSize(0);
         });
     });
 

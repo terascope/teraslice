@@ -1,4 +1,5 @@
 export * from './builtin';
+export * from './collector';
 export * from './config-validators';
 export * from './execution-context';
 export * from './formats';
