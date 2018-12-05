@@ -1,4 +1,4 @@
-import { fastAssign, fastMap, isFunction, isPlainObject, parseJSON, kindOf } from '../utils';
+import { fastAssign, fastMap, isFunction, isPlainObject, parseJSON, getTypeOf } from '../utils';
 import { DataEncoding } from '../interfaces';
 
 // WeakMaps are used as a memory efficient reference to private data
@@ -28,7 +28,7 @@ export default class DataEntity {
         if (input == null) return new DataEntity({});
         if (DataEntity.isDataEntity(input)) return input;
         if (!isPlainObject(input)) {
-            throw new Error(`Invalid data source, must be an object, got "${kindOf(input)}"`);
+            throw new Error(`Invalid data source, must be an object, got "${getTypeOf(input)}"`);
         }
 
         Object.defineProperties(input, {
@@ -147,7 +147,7 @@ export default class DataEntity {
         if (data == null) return;
 
         if (!isPlainObject(data) && !DataEntity.isDataEntity(data)) {
-            throw new Error(`Invalid data source, must be an object, got "${kindOf(data)}"`);
+            throw new Error(`Invalid data source, must be an object, got "${getTypeOf(data)}"`);
         }
 
         fastAssign(this, data);

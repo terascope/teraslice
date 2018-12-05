@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { DataEntity } from '../src';
-import { waterfall, isPlainObject, parseJSON, kindOf } from '../src/utils';
+import { waterfall, isPlainObject, parseJSON, getTypeOf } from '../src/utils';
 
 describe('Utils', () => {
     describe('waterfall', () => {
@@ -95,14 +95,14 @@ describe('Utils', () => {
         });
     });
 
-    describe('kindOf', () => {
+    describe('getTypeOf', () => {
         it('should return the correct kind', () => {
-            expect(kindOf({})).toEqual('Object');
+            expect(getTypeOf({})).toEqual('Object');
 
-            expect(kindOf(new DataEntity({}))).toEqual('DataEntity');
-            expect(kindOf(DataEntity.make({}))).toEqual('DataEntity');
+            expect(getTypeOf(new DataEntity({}))).toEqual('DataEntity');
+            expect(getTypeOf(DataEntity.make({}))).toEqual('DataEntity');
 
-            expect(kindOf([])).toEqual('Array');
+            expect(getTypeOf([])).toEqual('Array');
 
             const fn = () => {
                 return 123;
@@ -112,19 +112,19 @@ describe('Utils', () => {
                 return 'hello';
             }
 
-            expect(kindOf(fn)).toEqual('Function');
-            expect(kindOf(hello)).toEqual('Function');
+            expect(getTypeOf(fn)).toEqual('Function');
+            expect(getTypeOf(hello)).toEqual('Function');
 
-            expect(kindOf(Buffer.from('hello'))).toEqual('Buffer');
-            expect(kindOf('hello')).toEqual('String');
+            expect(getTypeOf(Buffer.from('hello'))).toEqual('Buffer');
+            expect(getTypeOf('hello')).toEqual('String');
 
-            expect(kindOf(123)).toEqual('Number');
+            expect(getTypeOf(123)).toEqual('Number');
 
-            expect(kindOf(null)).toEqual('Null');
-            expect(kindOf(undefined)).toEqual('Undefined');
+            expect(getTypeOf(null)).toEqual('Null');
+            expect(getTypeOf(undefined)).toEqual('Undefined');
 
             const error = new Error('Hello');
-            expect(kindOf(error)).toEqual('Error');
+            expect(getTypeOf(error)).toEqual('Error');
         });
     });
 });

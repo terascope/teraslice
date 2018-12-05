@@ -1,7 +1,7 @@
 import { promisify } from 'util';
 import isPlainObject from 'is-plain-object';
 import cloneDeep from 'lodash.clonedeep';
-import _kindOf from 'kind-of';
+import kindOf from 'kind-of';
 
 /** A simplified implemation of lodash isString */
 export function isString(val: any): val is string {
@@ -20,7 +20,7 @@ export function toString(val: any): string {
 /** JSON encoded buffer into a json object */
 export function parseJSON<T = object>(buf: Buffer|string): T {
     if (!Buffer.isBuffer(buf) && !isString(buf)) {
-        throw new TypeError(`Failure to serialize non-buffer, got "${kindOf(buf)}"`);
+        throw new TypeError(`Failure to serialize non-buffer, got "${getTypeOf(buf)}"`);
     }
 
     try {
@@ -36,8 +36,11 @@ export function isError(err: any): err is Error {
     return err && err.stack && err.message;
 }
 
-/** Get a display friendly kindof an input */
-export function kindOf(val: any): string {
+/**
+ * Determine the type of an input
+ * @return a human friendly string that describes the input
+*/
+export function getTypeOf(val: any): string {
     if (val) {
         if (val.__isDataEntity) return 'DataEntity';
         if (val.constructor && val.constructor.name) {
@@ -48,7 +51,7 @@ export function kindOf(val: any): string {
         }
     }
 
-    const kind = _kindOf(val);
+    const kind = kindOf(val);
     return firstToUpper(kind);
 }
 

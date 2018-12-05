@@ -3,7 +3,7 @@ import debugFn from 'debug';
 import { EventEmitter } from 'events';
 import path from 'path';
 import * as i from './interfaces';
-import { random, isString, uniq, kindOf, isFunction } from './utils';
+import { random, isString, uniq, getTypeOf, isFunction } from './utils';
 
 interface DebugParamObj {
     module: string;
@@ -282,7 +282,7 @@ export class TestContext implements i.Context {
 
                     if (!create) throw new Error(`No client was found for connection "${key}"`);
                     if (!isFunction(create)) {
-                        const actual = kindOf(create);
+                        const actual = getTypeOf(create);
                         throw new Error(`Registered Client for connection "${key}" is not a function, got ${actual}`);
                     }
 
@@ -309,7 +309,7 @@ export class TestContext implements i.Context {
                     const clientFns = _createClientFns.get(ctx) || {};
                     const key = getKey(clientConfig);
                     if (!isFunction(create)) {
-                        const actual = kindOf(create);
+                        const actual = getTypeOf(create);
                         throw new Error(`Test Client for connection "${key}" is not a function, got ${actual}`);
                     }
 
