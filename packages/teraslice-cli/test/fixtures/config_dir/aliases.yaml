@@ -1,0 +1,3 @@
+clusters:
+  localhost:
+    host: 'http://localhost:5678'

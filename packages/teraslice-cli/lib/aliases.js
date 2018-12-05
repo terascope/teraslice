@@ -29,7 +29,7 @@ class Aliases {
         try {
             config = yaml.readSync(this.aliasesFile);
         } catch (err) {
-            throw new Error(`Failed to load ${this.Aliases}: ${err}`);
+            throw new Error(`Failed to load ${this.aliasesFile}: ${err}`);
         }
         return config;
     }
@@ -38,13 +38,17 @@ class Aliases {
     //   1: a valid URL
     //   2: an actual cluster that responds
     add(newClusterAlias, newClusterUrl) {
-        this.config.clusters[newClusterAlias] = {
-            host: newClusterUrl,
-        };
-        yaml.writeSync(this.aliasesFile, this.config);
+        if (_.has(this.config.clusters, newClusterAlias)) {
+            throw new Error(`${newClusterAlias} already exists`);
+        } else {
+            this.config.clusters[newClusterAlias] = {
+                host: newClusterUrl,
+            };
+            yaml.writeSync(this.aliasesFile, this.config);
+        }
     }
 
-    list(output) {
+    list(output = 'txt') {
         const header = ['cluster', 'host'];
         const clusters = _.map(
             _.mapValues(this.config.clusters, o => o.host),
@@ -58,7 +62,7 @@ class Aliases {
             delete this.config.clusters[clusterAlias];
             yaml.writeSync(this.aliasesFile, this.config);
         } else {
-            throw new Error(`Alias ${clusterAlias} not in aliases list`);
+            throw new Error(`${clusterAlias} not in aliases list`);
         }
     }
 
@@ -69,7 +73,7 @@ class Aliases {
             };
             yaml.writeSync(this.aliasesFile, this.config);
         } else {
-            throw new Error(`Alias ${clusterAlias} not in aliases list`);
+            throw new Error(`${clusterAlias} not in aliases list`);
         }
     }
 }

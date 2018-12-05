@@ -11,10 +11,12 @@ exports.desc = 'Add an alias to the clusters defined in the config file.\n';
 exports.builder = (yargs) => {
     yargs.positional('new-cluster_alias', yargsOptions.buildPositional('new-cluster-alias'));
     yargs.positional('new-cluster_url', yargsOptions.buildPositional('new-cluster-url'));
+    yargs.coerce('new-cluster-url', yargsOptions.buildCoerce('new-cluster-url'));
     yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
     yargs.options('output', yargsOptions.buildOption('output'));
+    yargs.options('list', yargsOptions.buildOption('list'));
     yargs
-        .example('teraslice-cli aliases add cluster1 http://cluster1.net:80');
+        .example('$0 aliases add cluster1 http://cluster1.net:80');
 };
 
 exports.handler = (argv) => {
@@ -24,12 +26,11 @@ exports.handler = (argv) => {
             cliConfig.args.newClusterAlias,
             cliConfig.args.newClusterUrl
         );
+        if (cliConfig.args.list) {
+            cliConfig.aliases.list(cliConfig.args.output);
+        }
+        reply.green(`> Added alias ${cliConfig.args.newClusterAlias} host: ${cliConfig.args.newClusterUrl}`);
     } catch (e) {
-        reply.error(e);
-    } finally {
-        reply.green(
-            `> Added ${cliConfig.args.newClusterAlias} host:${cliConfig.args.newClusterUrl}`
-        );
-        cliConfig.aliases.list();
+        reply.error(`error adding alias ${e}`);
     }
 };

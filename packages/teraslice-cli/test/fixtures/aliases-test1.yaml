@@ -1,0 +1,5 @@
+clusters:
+  localhost:
+    host: 'http://localhost:5678'
+  test1:
+    host: 'http://test1.net:5678'

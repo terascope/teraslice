@@ -2,14 +2,13 @@
 
 const homeDir = require('os').homedir();
 
+const Url = require('../lib/url');
+
+const url = new Url();
+
 class Options {
     constructor() {
         this.options = {
-            config: () => ({
-                alias: 'conf',
-                describe: 'Config file',
-                default: `${homeDir}/.teraslice/config-cli.yaml`
-            }),
             'config-dir': () => ({
                 alias: 'd',
                 describe: 'Config directory',
@@ -20,6 +19,11 @@ class Options {
                 describe: 'Output display format pretty or txt, default is txt',
                 choices: ['txt', 'pretty'],
                 default: 'txt'
+            }),
+            list: () => ({
+                describe: 'Output list display',
+                type: 'boolean',
+                default: false
             }),
             'cluster-url': () => ({
                 alias: 'c',
@@ -56,6 +60,11 @@ class Options {
                 type: 'string'
             }),
         };
+
+        this.coerce = {
+            'cluster-url': newUrl => url.build(newUrl),
+            'new-cluster-url': newUrl => url.build(newUrl)
+        };
     }
 
     buildOption(key, ...args) {
@@ -64,6 +73,10 @@ class Options {
 
     buildPositional(key, ...args) {
         return this.positionals[key](...args);
+    }
+
+    buildCoerce(key) {
+        return this.coerce[key];
     }
 }
 

@@ -13,7 +13,7 @@ exports.builder = (yargs) => {
     yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
     yargs.options('output', yargsOptions.buildOption('output'));
     yargs.strict()
-        .example('teraslice-cli aliases list cluster1');
+        .example('$0 aliases list cluster1');
 };
 
 exports.handler = (argv) => {
