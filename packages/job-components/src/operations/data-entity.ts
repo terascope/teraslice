@@ -153,7 +153,9 @@ export default class DataEntity {
         fastAssign(this, data);
     }
 
-    getMetadata(key?: string) {
+    getMetadata(): DataEntityMetadata;
+    getMetadata(key: string): any;
+    getMetadata(key?: string): DataEntityMetadata|any {
         return getMetadata(this, key);
     }
 

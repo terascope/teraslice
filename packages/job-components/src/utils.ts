@@ -1,3 +1,4 @@
+import { promisify } from 'util';
 import isPlainObject from 'is-plain-object';
 import cloneDeep from 'lodash.clonedeep';
 import _kindOf from 'kind-of';
@@ -48,7 +49,7 @@ export function kindOf(val: any): string {
     }
 
     const kind = _kindOf(val);
-    return firstCharToUpperCase(kind);
+    return firstToUpper(kind);
 }
 
 /** A simplified implemation of lodash isInteger */
@@ -193,6 +194,12 @@ export function waterfall(input: any, fns: PromiseFn[]): Promise<any> {
 }
 
 /** Change first character in string to upper case */
-function firstCharToUpperCase(str: string) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+export function firstToUpper(str: string): string {
+    return `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
 }
+
+/** promisified setTimeout */
+export const pDelay = promisify(setTimeout);
+
+/** promisified setImmediate */
+export const pImmediate = promisify(setImmediate);
