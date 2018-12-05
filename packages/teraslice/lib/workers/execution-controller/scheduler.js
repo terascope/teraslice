@@ -16,7 +16,7 @@ class Scheduler {
         this.exId = executionContext.exId;
 
         const jobCanRecover = _.get(executionContext.config, 'recovered_execution', false);
-        const slicerCanRecover = executionContext.slicer.isRecoverable();
+        const slicerCanRecover = executionContext.slicer().isRecoverable();
 
         this.recoverExecution = jobCanRecover && slicerCanRecover;
         this.recovering = this.recoverExecution;
@@ -45,7 +45,7 @@ class Scheduler {
             }
         }
 
-        this.events.emit('slicers:registered', this.executionContext.slicer.slicers);
+        this.events.emit('slicers:registered', this.executionContext.slicer().slicers);
         await this.executionContext.initialize(this.startingPoints);
 
         this.ready = true;
@@ -111,7 +111,7 @@ class Scheduler {
     }
 
     get maxQueueLength() {
-        return this.executionContext.slicer.maxQueueLength();
+        return this.executionContext.slicer().maxQueueLength();
     }
 
     get queueLength() {
@@ -130,7 +130,7 @@ class Scheduler {
             return this.recover.sliceCount();
         }
 
-        return this.executionContext.slicer.sliceCount();
+        return this.executionContext.slicer().sliceCount();
     }
 
     get pendingSlices() {
@@ -277,7 +277,7 @@ class Scheduler {
                 if (this.recovering && this.recover) {
                     _finished = await this.recover.handle();
                 } else {
-                    _finished = await this.executionContext.slicer.handle();
+                    _finished = await this.executionContext.slicer().handle();
                 }
             } catch (err) {
                 await onSlicerFailure(err);
@@ -340,7 +340,7 @@ class Scheduler {
             return this.recover.getSlices(this.queueRemainder);
         }
 
-        return this.executionContext.slicer.getSlices(this.queueRemainder);
+        return this.executionContext.slicer().getSlices(this.queueRemainder);
     }
 
     // In the case of recovery slices have already been

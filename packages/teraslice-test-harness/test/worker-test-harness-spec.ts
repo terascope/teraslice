@@ -6,6 +6,7 @@ import {
     DataEntity,
     Fetcher,
     BatchProcessor,
+    NoopProcessor,
 } from '@terascope/job-components';
 import { WorkerTestHarness } from '../src';
 
@@ -50,7 +51,7 @@ describe('WorkerTestHarness', () => {
         });
 
         it('should have fetcher', () => {
-            expect(workerHarness.fetcher).toBeInstanceOf(Fetcher);
+            expect(workerHarness.fetcher()).toBeInstanceOf(Fetcher);
         });
 
         it('should have on processor', () => {
@@ -87,7 +88,7 @@ describe('WorkerTestHarness', () => {
             expect(results).toBeArray();
 
             expect(onSliceRetryEvent).toHaveBeenCalledTimes(2);
-            expect(workerHarness.processors[0].handle).toHaveBeenCalledTimes(3);
+            expect(workerHarness.getOperation<NoopProcessor>('noop').handle).toHaveBeenCalledTimes(3);
         });
 
         it('should be able to call runSlice with fullResponse', async () => {

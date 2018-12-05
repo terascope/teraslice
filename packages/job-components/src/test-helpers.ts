@@ -1,11 +1,9 @@
 
 import debugFn from 'debug';
 import { EventEmitter } from 'events';
-import kindOf from 'kind-of';
 import path from 'path';
 import * as i from './interfaces';
-import { random, isString, uniq } from './utils';
-import { isFunction } from 'util';
+import { random, isString, uniq, getTypeOf, isFunction } from './utils';
 
 interface DebugParamObj {
     module: string;
@@ -22,7 +20,11 @@ type debugParam = DebugParamObj | string;
 export function debugLogger(testName: string, param?: debugParam, otherName?: string): i.Logger {
     const logger: i.Logger = new EventEmitter() as i.Logger;
 
-    const parts: string[] = ['teraslice', testName];
+    const parts: string[] = [testName];
+    if (testName.indexOf('teraslice') < 0) {
+        parts.unshift('teraslice');
+    }
+
     if (param) {
         if (isString(param)) {
             parts.push(param as string);
@@ -33,11 +35,12 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
             }
         }
     }
-    const name = uniq(parts).join(':');
 
     if (otherName) {
         parts.push(otherName);
     }
+
+    const name = uniq(parts).join(':');
 
     logger.streams = [];
 
@@ -46,7 +49,7 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
         this.streams.push(stream);
     };
 
-    logger.child = (opts: debugParam) => debugLogger(testName, opts);
+    logger.child = (opts: debugParam) => debugLogger(name, opts);
     logger.flush = () => Promise.resolve();
     logger.reopenFileStreams = () => {};
     logger.level = () => 50;
@@ -85,23 +88,23 @@ export function newTestSlice(request: i.SliceRequest = {}): i.Slice {
     };
 }
 
-const defaultJobConfig = { name: 'test-job', operations: [] };
-
-export function newTestJobConfig(defaults: i.JobConfig = defaultJobConfig): i.ValidatedJobConfig {
+export function newTestJobConfig(defaults: Partial<i.JobConfig> = {}) {
     return Object.assign({
+        name: 'test-job',
+        operations: [],
         analytics: false,
         assets: [],
-        lifecycle: i.LifeCycle.Once,
+        lifecycle: 'once',
         max_retries: 0,
         probation_window: 30000,
         recycle_worker: 0,
         slicers: 1,
         workers: 1,
-    }, defaults);
+    }, defaults) as i.ValidatedJobConfig;
 }
 
-export function newTestExecutionConfig(jobConfig?: i.JobConfig): i.ExecutionConfig {
-    const exConfig = (jobConfig || newTestJobConfig()) as i.ExecutionConfig;
+export function newTestExecutionConfig(jobConfig: Partial<i.JobConfig> = {}): i.ExecutionConfig {
+    const exConfig = newTestJobConfig(jobConfig) as i.ExecutionConfig;
     exConfig.slicer_hostname = 'example.com';
     exConfig.slicer_port = random(8000, 60000);
     exConfig.ex_id = newId('ex-id');
@@ -228,11 +231,11 @@ export class TestContext implements i.Context {
                 action_timeout: 10000,
                 analytics_rate: 10000,
                 assets_directory: path.join(process.cwd(), 'assets'),
-                cluster_manager_type: i.ClusterManagerType.Native,
+                cluster_manager_type: 'native',
                 hostname: 'localhost',
                 index_rollover_frequency: {
-                    analytics: i.RolloverFrequency.Yearly,
-                    state: i.RolloverFrequency.Monthly,
+                    analytics: 'yearly',
+                    state: 'montly',
                 },
                 master_hostname: 'localhost',
                 master: false,
@@ -279,7 +282,7 @@ export class TestContext implements i.Context {
 
                     if (!create) throw new Error(`No client was found for connection "${key}"`);
                     if (!isFunction(create)) {
-                        const actual = kindOf(create);
+                        const actual = getTypeOf(create);
                         throw new Error(`Registered Client for connection "${key}" is not a function, got ${actual}`);
                     }
 
@@ -306,7 +309,7 @@ export class TestContext implements i.Context {
                     const clientFns = _createClientFns.get(ctx) || {};
                     const key = getKey(clientConfig);
                     if (!isFunction(create)) {
-                        const actual = kindOf(create);
+                        const actual = getTypeOf(create);
                         throw new Error(`Test Client for connection "${key}" is not a function, got ${actual}`);
                     }
 

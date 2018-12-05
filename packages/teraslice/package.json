@@ -7,7 +7,7 @@
     "scripts": {
         "start": "node service.js",
         "lint": "eslint *.js lib/**/*.js test/**/*.js",
-        "lint:fix": "npm run lint -- --fix",
+        "lint:fix": "yarn lint --fix",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
         "test:debug": "env DEBUG='*teraslice*,-teraslice-messaging*' jest --colors --forceExit --detectOpenHandles --coverage=false --runInBand"
@@ -36,7 +36,7 @@
     "dependencies": {
         "@terascope/elasticsearch-api": "^1.1.3",
         "@terascope/error-parser": "^1.0.1",
-        "@terascope/job-components": "^0.11.2",
+        "@terascope/job-components": "^0.12.0",
         "@terascope/queue": "^1.1.4",
         "@terascope/teraslice-messaging": "^0.2.5",
         "async-mutex": "^0.1.3",
@@ -66,10 +66,10 @@
         "yargs": "^12.0.2"
     },
     "devDependencies": {
-        "@terascope/teraslice-op-test-harness": "^1.4.2",
+        "@terascope/teraslice-op-test-harness": "^1.4.3",
         "archiver": "^3.0.0",
         "bufferstreams": "^2.0.1",
-        "chance": "^1.0.16",
+        "chance": "^1.0.18",
         "elasticsearch": "^15.1.1",
         "eslint": "^5.9.0",
         "eslint-config-airbnb-base": "^13.1.0",
@@ -79,6 +79,6 @@
         "jest-extended": "^0.11.0",
         "jest-fixtures": "^0.6.0",
         "json-schema-faker": "^0.5.0-rc16",
-        "nock": "^10.0.2"
+        "nock": "^10.0.3"
     }
 }

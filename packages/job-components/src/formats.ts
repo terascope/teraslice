@@ -3,13 +3,18 @@
 import { addFormat, Format } from 'convict';
 // @ts-ignore
 import dateMath from 'datemath-parser';
-import { startsWith, isValidDate } from './utils';
+import {
+    startsWith,
+    isValidDate,
+    isString,
+    isInteger
+} from './utils';
 
 export const formats : Format[] = [
     {
         name: 'required_String',
         validate(val: any) {
-            if (!(val && typeof val === 'string')) {
+            if (!val || !isString(val)) {
                 throw new Error('This field is required and must by of type string');
             }
         },
@@ -21,7 +26,7 @@ export const formats : Format[] = [
         name: 'optional_String',
         validate(val: any) {
             if (!val) { return; }
-            if (val && typeof val === 'string') { return; }
+            if (isString(val)) { return; }
             throw new Error('This field is optional but if specified it must be of type string');
         },
         coerce(val: any) {
@@ -32,7 +37,7 @@ export const formats : Format[] = [
         name: 'optional_Date',
         validate(val: any) {
             if (!val) { return; }
-            if (typeof val === 'string' || typeof val === 'number') {
+            if (isString(val) || isInteger(val)) {
                 if (isValidDate(val)) { return; }
                 try {
                     dateMath.parse(val);

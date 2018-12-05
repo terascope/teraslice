@@ -3,8 +3,8 @@ import path from 'path';
 import { TestReaderConfig } from './interfaces';
 import { Fetcher } from '../../operations';
 import { parseJSON } from '../../utils';
-
-const defaultFilePath = path.join(__dirname, 'data', 'fetcher-data.json');
+import { dataClone } from './utils';
+import defaultData from './data/fetcher-data.json';
 
 export default class TestFetcher extends Fetcher<TestReaderConfig> {
     cachedData: Buffer|null = null;
@@ -15,7 +15,11 @@ export default class TestFetcher extends Fetcher<TestReaderConfig> {
     }
 
     async fetch() {
-        const filePath = this.opConfig.fetcherDataFilePath || defaultFilePath;
+        const filePath = this.opConfig.fetcher_data_file_path;
+        if (!filePath) {
+            return dataClone(defaultData);
+        }
+
         if (this.lastFilePath !== filePath) {
             this.cachedData = null;
             this.lastFilePath = filePath;
@@ -26,7 +30,7 @@ export default class TestFetcher extends Fetcher<TestReaderConfig> {
                 return parseJSON(this.cachedData);
             }
 
-            const data = fs.readFileSync(filePath);
+            const data = fs.readFileSync(path.resolve(filePath));
             this.cachedData = data;
             return parseJSON(data);
         } catch (err) {

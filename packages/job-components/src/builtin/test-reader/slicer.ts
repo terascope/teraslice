@@ -2,10 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import { TestReaderConfig } from './interfaces';
 import { Slicer } from '../../operations';
-import { LifeCycle } from '../../interfaces';
 import { parseJSON } from '../../utils';
-
-const defaultFilePath = path.join(__dirname, 'data', 'slicer-data.json');
+import { dataClone } from './utils';
+import defaultData from './data/slicer-data.json';
 
 export default class TestSlicer extends Slicer<TestReaderConfig> {
     requests: object[] = [];
@@ -13,9 +12,15 @@ export default class TestSlicer extends Slicer<TestReaderConfig> {
 
     async initialize(recoveryData: object[]) {
         await super.initialize(recoveryData);
-        const filePath = this.opConfig.slicerDataFilePath || defaultFilePath;
+        const filePath = this.opConfig.slicer_data_file_path;
+
+        if (!filePath) {
+            this.requests = dataClone(defaultData);
+            return;
+        }
+
         try {
-            this.requests = parseJSON(fs.readFileSync(filePath));
+            this.requests = parseJSON(fs.readFileSync(path.resolve(filePath)));
         } catch (err) {
             throw new Error(`Unable to read file at path ${filePath}`);
         }
@@ -27,7 +32,7 @@ export default class TestSlicer extends Slicer<TestReaderConfig> {
     }
 
     async slice() {
-        if (this.executionConfig.lifecycle === LifeCycle.Once) {
+        if (this.executionConfig.lifecycle === 'once') {
             const request = this.requests.shift();
             if (request == null) return null;
             return request;

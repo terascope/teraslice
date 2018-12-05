@@ -1,5 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { DataEntity, DataEncoding } from '../../src';
+import { DataEntity } from '../../src';
 import { parseJSON } from '../../src/utils';
 
 describe('DataEntity', () => {
@@ -96,6 +96,22 @@ describe('DataEntity', () => {
             });
         });
 
+        describe('when constructed with a DataEntity', () => {
+            it('should either create a new instance or do nothing', () => {
+                const og = new DataEntity({});
+                const ogMetadata = og.getMetadata();
+                if (useClass) {
+                    const entity = new DataEntity(og);
+                    expect(entity).not.toBe(og);
+                    expect(entity.getMetadata()).not.toBe(ogMetadata);
+                } else {
+                    const entity = DataEntity.make(og);
+                    expect(entity).toBe(og);
+                    expect(entity.getMetadata()).toBe(ogMetadata);
+                }
+            });
+        });
+
         describe('when constructed with a non-object', () => {
             it('should do nothing when called with null', () => {
                 expect(() => {
@@ -131,7 +147,7 @@ describe('DataEntity', () => {
                         // @ts-ignore
                         DataEntity.make(arr);
                     }
-                }).toThrowError('Invalid data source, must be an object, got "array"');
+                }).toThrowError('Invalid data source, must be an object, got "Array"');
             });
 
             it('should throw an error when called with a Buffer', () => {
@@ -144,7 +160,7 @@ describe('DataEntity', () => {
                         // @ts-ignore
                         DataEntity.make(buf);
                     }
-                }).toThrowError('Invalid data source, must be an object, got "buffer"');
+                }).toThrowError('Invalid data source, must be an object, got "Buffer"');
             });
         });
 
@@ -154,7 +170,7 @@ describe('DataEntity', () => {
             const dataEntity = useClass ? new DataEntity(data, metadata) : DataEntity.make(data);
 
             it('should be convertable to a buffer', () => {
-                const buf = dataEntity.toBuffer({ _encoding: DataEncoding.JSON });
+                const buf = dataEntity.toBuffer({ _encoding: 'json' });
                 expect(Buffer.isBuffer(buf)).toBeTrue();
                 const obj = parseJSON(buf);
 
@@ -334,7 +350,7 @@ describe('DataEntity', () => {
             const buf = Buffer.from(JSON.stringify({ foo: 'bar' }));
             const entity = DataEntity.fromBuffer(buf, {
                 _op: 'baz',
-                _encoding: DataEncoding.JSON,
+                _encoding: 'json',
             }, {
                 howdy: 'there'
             });
@@ -355,7 +371,7 @@ describe('DataEntity', () => {
             expect(() => {
                 DataEntity.fromBuffer(buf, {
                     _op: 'test',
-                    _encoding: DataEncoding.JSON,
+                    _encoding: 'json',
                 });
             }).toThrow();
         });
