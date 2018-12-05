@@ -42,6 +42,9 @@ jobs:
   - script:
     name: Benchmarks and Linting
     if: branch = master AND type = pull_request
+    sudo: false
+    services: []
+    addons: []
     before_install:
       # install latest yarn
       - curl -o- -L https://yarnpkg.com/install.sh | bash
@@ -54,9 +57,7 @@ jobs:
   - script:
     name: End-to-End Tests
     if: branch = master AND type = pull_request
-    sudo: false
-    services:
-    addons:
+    services: []
     before_script: cd e2e
     script: yarn test:ci
 
@@ -65,8 +66,11 @@ jobs:
     name: Release
     if: tag IS blank AND branch = master AND type != pull_request
     sudo: false
-    services:
-    addons:
+    addons: []
+    before_install:
+      # install latest yarn
+      - curl -o- -L https://yarnpkg.com/install.sh | bash
+      - export PATH="$HOME/.yarn/bin:$PATH"
     script: cp README.md ./packages/teraslice/README.md
     before_deploy: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
     deploy:
