@@ -1,30 +1,37 @@
 'use strict';
-'use console';
 
 const reply = require('../lib/reply')();
-const TerasliceCliConfig = require('../lib/teraslice-cli-config');
-const appCli = require('../lib/app-cli');
-const clusterUrlCli = require('../lib/cli/cluster-url');
-const cmdCli = require('./lib/cmd-cli');
+const Config = require('../../lib/config');
+const YargsOptions = require('../../lib/yargs-options');
 
-exports.command = 'update <cluster_alias>';
+const yargsOptions = new YargsOptions();
+
+exports.command = 'update <cluster-alias> <new-cluster-url>';
 exports.desc = 'Update an alias to the clusters defined in the config file.\n';
 exports.builder = (yargs) => {
-    appCli.args(yargs);
-    cmdCli.args(yargs);
-    clusterUrlCli.args(yargs);
+    yargs.positional('cluster-alias', yargsOptions.buildPositional('cluster-alias'));
+    yargs.positional('new-cluster-url', yargsOptions.buildPositional('new-cluster-url'));
+    yargs.coerce('new-cluster-url', yargsOptions.buildCoerce('new-cluster-url'));
+    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.options('output', yargsOptions.buildOption('output'));
+    yargs.options('list', yargsOptions.buildOption('list'));
     yargs
-        .example('teraslice-cli aliases update cluster1 -c http://cluster1.net:80');
+        .example('$0 aliases update cluster1 http://cluster1.net:80');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = new TerasliceCliConfig(argv);
-    const libAliases = _testFunctions || require('./lib')(cliConfig);
+exports.handler = (argv) => {
+    const cliConfig = new Config(argv);
 
-    if (!(cliConfig.args.cluster_alias && cliConfig.args.cluster_url)) {
-        reply.fatal('You must specify both a cluster alias and cluster URL');
+    try {
+        cliConfig.aliases.update(
+            cliConfig.args.clusterAlias,
+            cliConfig.args.newClusterUrl
+        );
+        if (cliConfig.args.list) {
+            cliConfig.aliases.list(cliConfig.args.output);
+        }
+        reply.green(`> Updated alias ${cliConfig.args.clusterAlias} host: ${cliConfig.args.newClusterUrl}`);
+    } catch (e) {
+        reply.error(`error updating alias ${e}`);
     }
-
-    return libAliases.update()
-        .catch(err => reply.fatal(err.message));
 };
