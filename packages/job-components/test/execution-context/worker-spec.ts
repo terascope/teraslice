@@ -5,7 +5,9 @@ import {
     WorkerExecutionContext,
     TestContext,
     newTestExecutionConfig,
-    DataEntity
+    DataEntity,
+    FetcherCore,
+    ProcessorCore
 } from '../../src';
 
 describe('WorkerExecutionContext', () => {
@@ -54,24 +56,44 @@ describe('WorkerExecutionContext', () => {
 
         it('should have the Fetcher', async () => {
             expect(executionContext).toHaveProperty('fetcher');
-            const result = await executionContext.fetcher.handle({});
+            const result = await executionContext.fetcher().handle({});
             expect(result).toBeArrayOfSize(10);
         });
 
         it('should have the Processors', async () => {
             expect(executionContext).toHaveProperty('processors');
-            expect(executionContext.processors.size).toEqual(1);
+            expect(executionContext.processors.length).toEqual(1);
             const input = DataEntity.makeArray([
                 {
                     hello: true,
                 }
             ]);
 
-            for (const processor of executionContext.processors.values()) {
+            for (const processor of executionContext.processors) {
                 const result = await processor.handle(input);
                 expect(result).toBeArrayOfSize(1);
                 expect(result[0]).toHaveProperty('touchedAt');
             }
+        });
+
+        it('should be able to an operation instance by index', async () => {
+            const fetcher = executionContext.getOperation<FetcherCore>(0);
+            // @ts-ignore
+            expect(fetcher.opConfig._op).toEqual('example-reader');
+
+            const processor = executionContext.getOperation<ProcessorCore>(1);
+            // @ts-ignore
+            expect(processor.opConfig._op).toEqual('example-op');
+        });
+
+        it('should be able to an operation instance by name', async () => {
+            const fetcher = executionContext.getOperation<FetcherCore>('example-reader');
+            // @ts-ignore
+            expect(fetcher.opConfig._op).toEqual('example-reader');
+
+            const processor = executionContext.getOperation<ProcessorCore>('example-op');
+            // @ts-ignore
+            expect(processor.opConfig._op).toEqual('example-op');
         });
 
         it('should have the registered apis', () => {

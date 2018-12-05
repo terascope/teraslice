@@ -180,27 +180,33 @@ class Worker {
         // make sure ->run() resolves the promise
         this.forceShutdown = true;
 
-        try {
-            await Promise.map(_.values(this.stores), (store) => {
-                // attempt to shutdown but if it takes longer than shutdown_timeout, cleanup
-                const forceShutdown = true;
-                return store.shutdown(forceShutdown);
-            });
-        } catch (err) {
-            shutdownErrs.push(err);
-        }
-
-        try {
-            await this.slice.shutdown();
-        } catch (err) {
-            shutdownErrs.push(err);
-        }
-
-        try {
-            await this.client.shutdown();
-        } catch (err) {
-            shutdownErrs.push(err);
-        }
+        await Promise.all([
+            (async () => {
+                try {
+                    await Promise.map(_.values(this.stores), (store) => {
+                        // attempt to shutdown but if it takes longer than shutdown_timeout, cleanup
+                        const forceShutdown = true;
+                        return store.shutdown(forceShutdown);
+                    });
+                } catch (err) {
+                    shutdownErrs.push(err);
+                }
+            })(),
+            (async () => {
+                try {
+                    await this.slice.shutdown();
+                } catch (err) {
+                    shutdownErrs.push(err);
+                }
+            })(),
+            (async () => {
+                try {
+                    await this.client.shutdown();
+                } catch (err) {
+                    shutdownErrs.push(err);
+                }
+            })()
+        ]);
 
         this.logger.warn(`worker ${this.workerId} is shutdown for execution ${exId}, processed ${this.slicesProcessed} slices`);
         this.isShutdown = true;

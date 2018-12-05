@@ -13,6 +13,7 @@ import Slicer from './slicer';
 
 export * from './shims';
 export * from './interfaces';
+export * from './core';
 export {
     BatchProcessor,
     ConvictSchema,

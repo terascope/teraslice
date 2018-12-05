@@ -2,7 +2,6 @@
 
 import fs from 'fs';
 import path from 'path';
-import cloneDeep from 'lodash.clonedeep';
 import { LegacyOperation } from './interfaces';
 import {
     OperationAPIConstructor,
@@ -17,7 +16,7 @@ import {
     ReaderModule,
 } from './operations';
 import { readerShim, processorShim } from './operations/shims';
-import { isString, uniq, parseError } from './utils';
+import { isString, uniq, parseError, cloneDeep } from './utils';
 
 export interface LoaderOptions {
     /** Path to teraslice lib directory */

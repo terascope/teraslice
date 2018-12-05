@@ -1,4 +1,13 @@
-import { DataEntity, JobConfig, Slice, RunSliceResult, SliceAnalyticsData, TestClientConfig } from '@terascope/job-components';
+import {
+    DataEntity,
+    JobConfig,
+    Slice,
+    RunSliceResult,
+    SliceAnalyticsData,
+    TestClientConfig,
+    FetcherCore,
+    SlicerCore,
+} from '@terascope/job-components';
 import SlicerTestHarness from './slicer-test-harness';
 import WorkerTestHarness from './worker-test-harness';
 import { JobHarnessOptions } from './interfaces';
@@ -20,12 +29,12 @@ export default class JobTestHarness {
         this.slicerHarness = new SlicerTestHarness(job, options);
     }
 
-    get slicer() {
-        return this.slicerHarness.slicer;
+    slicer<T extends SlicerCore = SlicerCore>(): T {
+        return this.slicerHarness.slicer<T>();
     }
 
-    get fetcher() {
-        return this.workerHarness.fetcher;
+    fetcher<T extends FetcherCore = FetcherCore>(): T {
+        return this.workerHarness.fetcher<T>();
     }
 
     get processors() {

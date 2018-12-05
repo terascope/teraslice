@@ -1,5 +1,4 @@
-import { fastAssign, fastMap, isFunction, isPlainObject, parseJSON } from '../utils';
-import kindOf from 'kind-of';
+import { fastAssign, fastMap, isFunction, isPlainObject, parseJSON, getTypeOf } from '../utils';
 import { DataEncoding } from '../interfaces';
 
 // WeakMaps are used as a memory efficient reference to private data
@@ -15,7 +14,10 @@ const _metadata = new WeakMap();
 export default class DataEntity {
     /**
      * A utility for safely converting an object a `DataEntity`.
-     * This will detect if passed an already converted input and return it.
+     * If the input is a DataEntity it will return it and have no side-effect.
+     * If you want a create new DataEntity from an existing DataEntity
+     * either use `new DataEntity` or shallow clone the input before
+     * passing it to `DataEntity.make`.
      *
      * NOTE: `DataEntity.make` is different from using `new DataEntity`
      * because it attaching it doesn't shallow cloning the object
@@ -26,10 +28,15 @@ export default class DataEntity {
         if (input == null) return new DataEntity({});
         if (DataEntity.isDataEntity(input)) return input;
         if (!isPlainObject(input)) {
-            throw new Error(`Invalid data source, must be an object, got "${kindOf(input)}"`);
+            throw new Error(`Invalid data source, must be an object, got "${getTypeOf(input)}"`);
         }
 
         Object.defineProperties(input, {
+            __isDataEntity: {
+                value: true,
+                enumerable: false,
+                writable: false,
+            },
             getMetadata: {
                 value(key?: string) {
                     return getMetadata(this, key);
@@ -65,8 +72,8 @@ export default class DataEntity {
      * @param metadata Optionally add any metadata
     */
     static fromBuffer(input: Buffer, opConfig: EncodingConfig = {}, metadata?: object): DataEntity {
-        const { _encoding = DataEncoding.JSON } = opConfig || {};
-        if (_encoding === DataEncoding.JSON) {
+        const { _encoding = 'json' } = opConfig || {};
+        if (_encoding === 'json') {
             return DataEntity.make(parseJSON(input), metadata);
         }
 
@@ -96,6 +103,7 @@ export default class DataEntity {
     static isDataEntity(input: any): input is DataEntity {
         if (input == null) return false;
         if (input instanceof DataEntity) return true;
+        if (input.__isDataEntity) return true;
         return isFunction(input.getMetadata)
             && isFunction(input.setMetadata)
             && isFunction(input.toBuffer);
@@ -130,18 +138,24 @@ export default class DataEntity {
     constructor(data: object, metadata?: object) {
         _metadata.set(this, fastAssign({ createdAt: Date.now() }, metadata));
 
+        Object.defineProperty(this, '__isDataEntity', {
+            value: true,
+            writable: false,
+            enumerable: false
+        });
+
         if (data == null) return;
 
-        if (DataEntity.isDataEntity(data)) return data;
-
-        if (!isPlainObject(data)) {
-            throw new Error(`Invalid data source, must be an object, got "${kindOf(data)}"`);
+        if (!isPlainObject(data) && !DataEntity.isDataEntity(data)) {
+            throw new Error(`Invalid data source, must be an object, got "${getTypeOf(data)}"`);
         }
 
         fastAssign(this, data);
     }
 
-    getMetadata(key?: string) {
+    getMetadata(): DataEntityMetadata;
+    getMetadata(key: string): any;
+    getMetadata(key?: string): DataEntityMetadata|any {
         return getMetadata(this, key);
     }
 
@@ -178,8 +192,8 @@ function setMetadata(ctx: any, key: string, value: string):void {
 }
 
 function toBuffer(ctx: any, opConfig: EncodingConfig): Buffer {
-    const { _encoding = DataEncoding.JSON } = opConfig;
-    if (_encoding === DataEncoding.JSON) {
+    const { _encoding = 'json' } = opConfig;
+    if (_encoding === 'json') {
         return Buffer.from(JSON.stringify(ctx));
     }
 

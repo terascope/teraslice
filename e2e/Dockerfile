@@ -1,4 +1,5 @@
-FROM terascope/teraslice-base:v0.1.4
+# use the latest for e2e tests and avoid caches
+FROM terascope/teraslice:latest
 
 RUN mkdir -p /app/source/packages/teraslice \
     && mkdir -p /app/source/packages/teraslice-messaging \
@@ -16,9 +17,7 @@ COPY packages/elasticsearch-api/package.json /app/source/packages/elasticsearch-
 COPY packages/error-parser/package.json /app/source/packages/error-parser/package.json
 COPY packages/queue/package.json /app/source/packages/queue/package.json
 
-RUN yarn --frozen-lockfile --link-duplicates \
-    && yarn bootstrap:prod \
-    && yarn cache clean
+RUN yarn --frozen-lockfile --link-duplicates && yarn bootstrap:prod
 
 # Build just the typescript
 COPY tsconfig.json /app/source/
@@ -27,15 +26,9 @@ COPY packages/queue /app/source/packages/queue
 COPY packages/job-components /app/source/packages/job-components
 COPY packages/teraslice-messaging /app/source/packages/teraslice-messaging
 
-RUN yarn build:prod \
-    && rm -rf node_modules/typescript \
-    && rm -rf node_modules/@types
+RUN yarn build:prod
 
 # copy everything else
 COPY service.js /app/source/
 COPY scripts /app/source/scripts
 COPY packages /app/source/packages
-
-ENV NODE_OPTIONS "--max-old-space-size=2048"
-
-CMD ["node", "service.js"]

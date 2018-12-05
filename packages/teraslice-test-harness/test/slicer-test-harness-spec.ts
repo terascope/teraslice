@@ -41,7 +41,7 @@ describe('SlicerTestHarness', () => {
         });
 
         it('should have a slicer', () => {
-            expect(slicerHarness.slicer).toBeInstanceOf(Slicer);
+            expect(slicerHarness.slicer()).toBeInstanceOf(Slicer);
         });
 
         it('should be able to call createSlices', async () => {

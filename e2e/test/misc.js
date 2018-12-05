@@ -35,7 +35,7 @@ function es() {
 
 function indexStats(indexName) {
     return new Promise(((resolve, reject) => {
-        // delay for 500ms because sometimes the execution
+        // delay for 100ms because sometimes the execution
         // is marked as complete but the indices stats is one off
         // because it happened too quickly
         setTimeout(() => {
@@ -52,7 +52,7 @@ function indexStats(indexName) {
                 .catch((err) => {
                     reject(err);
                 });
-        }, 500);
+        }, 100);
     }));
 }
 

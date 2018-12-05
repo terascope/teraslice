@@ -7,7 +7,6 @@
         "bootstrap": {
             "npmClientArgs": [
                 "--silent",
-                "--link-duplicates",
                 "--pure-lockfile",
                 "--no-progress"
             ]
@@ -17,7 +16,7 @@
         },
         "run": {
             "ignore": "teraslice-e2e",
-            "concurrency": 6
+            "concurrency": 12
         }
     },
     "sort": true,
