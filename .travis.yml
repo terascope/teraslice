@@ -10,7 +10,6 @@ addons:
 services:
   - docker
   - elasticsearch
-cache: yarn
 before_install:
   # install latest docker-compose
   - sudo rm /usr/local/bin/docker-compose
@@ -23,7 +22,7 @@ before_install:
   # make it colorful
   - export FORCE_COLOR=1
 install:
-  - yarn install --pure-lockfile --link-duplicates
+  - yarn install --no-progress
   - yarn setup
 before_deploy:
 jobs:
@@ -43,12 +42,21 @@ jobs:
   - script:
     name: Benchmarks and Linting
     if: branch = master AND type = pull_request
-    script: yarn lint && yarn benchmark
+    before_install:
+      # install latest yarn
+      - curl -o- -L https://yarnpkg.com/install.sh | bash
+      - export PATH="$HOME/.yarn/bin:$PATH"
+    script:
+        - yarn lint
+        - yarn benchmark
 
   # test end-to-end tests, only on pull-requests
   - script:
     name: End-to-End Tests
     if: branch = master AND type = pull_request
+    sudo: false
+    services:
+    addons:
     before_script: cd e2e
     script: yarn test:ci
 
@@ -56,6 +64,9 @@ jobs:
   - stage: Release (NPM)
     name: Release
     if: tag IS blank AND branch = master AND type != pull_request
+    sudo: false
+    services:
+    addons:
     script: cp README.md ./packages/teraslice/README.md
     before_deploy: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
     deploy:
