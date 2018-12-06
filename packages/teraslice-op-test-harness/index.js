@@ -29,15 +29,6 @@ function executionSpec(inputExConfig) {
     return Object.assign({}, newExConfig, inputExConfig);
 }
 
-function wrapper(clientList) {
-    return (config) => {
-        const { type, endpoint } = config;
-        const client = _.get(clientList, [type, endpoint], null);
-        if (!client) throw new Error(`No client was found at type ${type}, endpoint: ${endpoint}`);
-        return { client };
-    };
-}
-
 class TestHarness {
     constructor(op) {
         this.context = new TestContext('teraslice-op-test-harness');
@@ -45,8 +36,6 @@ class TestHarness {
         this.events = this.context.apis.foundation.getSystemEvents();
         this.logger = this.context.logger;
         this.operationFn = op;
-        this._getConnetionIsWrapped = false;
-        this.clientList = {};
         // This is for backwards compatiblity
         this._jobSpec = executionSpec;
         bindThis(this, TestHarness);
@@ -57,23 +46,19 @@ class TestHarness {
         return op.run(data);
     }
 
+    get clientList() {
+        return this.context.apis.getTestClients();
+    }
+
     setClients(clients = []) {
-        const { clientList, context } = this;
-
-        clients.forEach((clientConfig) => {
-            const { client, type, endpoint = 'default' } = clientConfig;
-
-            if (!type || (typeof type !== 'string')) throw new Error('you must specify a type when setting a client');
-
-            _.set(clientList, [type, endpoint], client);
-            _.set(context, ['sysconfig', 'terafoundation', 'connectors', type, endpoint], {});
+        const testClients = clients.map((config) => {
+            const { client } = config;
+            if (!_.isFunction(config.create)) {
+                config.create = () => ({ client });
+            }
+            return config;
         });
-
-        if (!this._getConnetionIsWrapped) {
-            this._getConnetionIsWrapped = true;
-            this.context.apis.foundation.getConnection = wrapper(clientList);
-            this.context.foundation.getConnection = wrapper(clientList);
-        }
+        this.context.apis.setTestClients(testClients);
     }
 
     async init({
@@ -91,7 +76,7 @@ class TestHarness {
 
         const exConfig = executionSpec(newExConfig);
 
-        const isProcessor = op.Processor || (op.newProcessor !== undefined);
+        const isProcessor = op.Processor || (op.newProcessor != null);
         const Schema = op.schema ? schemaShim(op).Schema : op.Schema;
         const schema = new Schema(context);
 
@@ -102,7 +87,7 @@ class TestHarness {
         if (exConfig.operations.length < 2) {
             opConfig = schema.validate(newOpConfig || exConfig.operations[0]);
             if (isProcessor) {
-                exConfig.operations = [{ _op: 'noop' }, opConfig];
+                exConfig.operations = [{ _op: 'test-reader' }, opConfig];
             } else {
                 exConfig.operations = [opConfig, { _op: 'noop' }];
             }
@@ -114,7 +99,6 @@ class TestHarness {
         }
 
         this.opConfig = opConfig;
-
 
         const executionConfig = validateJobConfig(this.schema, exConfig);
         schema.validateJob(executionConfig);
@@ -231,11 +215,11 @@ class TestHarness {
     }
 
     get data() {
-        return {
-            simple: simpleData.slice(),
-            arrayLike: sampleDataArrayLike.slice(),
-            esLike: _.cloneDeep(sampleDataEsLike)
-        };
+        return _.cloneDeep({
+            simple: simpleData,
+            arrayLike: sampleDataArrayLike,
+            esLike: sampleDataEsLike
+        });
     }
 }
 

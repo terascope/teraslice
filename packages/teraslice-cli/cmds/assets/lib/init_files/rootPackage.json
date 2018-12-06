@@ -23,7 +23,7 @@
     },
     "devDependencies": {
       "@terascope/teraslice-op-test-harness": "^1.0.0",
-      "bluebird": "^3.5.1",
+      "bluebird": "^3.5.3",
       "codecov": "^3.0.4",
       "eslint": "^4.6.1",
       "eslint-config-airbnb": "^15.1.0",

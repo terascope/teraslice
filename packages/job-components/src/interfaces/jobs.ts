@@ -8,22 +8,18 @@
 export interface OpConfig {
     _op: string;
     _encoding?: DataEncoding;
+    [prop: string]: any;
 }
 
 /**
  * An enum of available encoding formats
 */
-export enum DataEncoding {
-    JSON = 'json',
-}
+export type DataEncoding = 'json';
 
 /** A list of supported encoding formats */
-export const dataEncodings = [DataEncoding.JSON];
+export const dataEncodings: DataEncoding[] = ['json'];
 
-export enum LifeCycle {
-    Once = 'once',
-    Persistent = 'persistent',
-}
+export type LifeCycle = 'once'|'persistent';
 
 /**
  * JobConfig is the configuration that user specifies

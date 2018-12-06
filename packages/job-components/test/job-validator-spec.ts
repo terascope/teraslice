@@ -1,6 +1,6 @@
 import 'jest-extended'; // require for type definitions
 import * as path from 'path';
-import { JobValidator, TestContext, JobConfig, LifeCycle } from '../src';
+import { JobValidator, TestContext, JobConfig } from '../src';
 
 describe('JobValidator', () => {
     const context = new TestContext('teraslice-operations');
@@ -34,8 +34,8 @@ describe('JobValidator', () => {
             const jobSpec: JobConfig = {
                 name: 'test',
                 operations: [
-                    {
                     // @ts-ignore
+                    {
                         something: 'else',
                     },
                     {
@@ -142,8 +142,8 @@ describe('JobValidator', () => {
             const jobSpec: JobConfig = {
                 name: 'test',
                 operations: [
+                    // @ts-ignore
                     {
-                        // @ts-ignore
                         something: 'else',
                     },
                     {
@@ -205,7 +205,7 @@ describe('JobValidator', () => {
             // if persistent, then interval cannot be auto
             const jobSpec: JobConfig = {
                 name: 'test',
-                lifecycle: LifeCycle.Persistent,
+                lifecycle: 'persistent',
                 operations: [
                     {
                         _op: 'elasticsearch_reader',

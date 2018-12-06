@@ -1,26 +1,31 @@
-// update existing cluster
-// create new
-
 'use strict';
-'use console';
 
-const _ = require('lodash');
 const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
+const Config = require('../../lib/config');
+const YargsOptions = require('../../lib/yargs-options');
 
-exports.command = 'remove  <cluster_sh>';
+const yargsOptions = new YargsOptions();
+
+exports.command = 'remove  <cluster-alias>';
 exports.desc = 'List the clusters defined in the config file.\n';
 exports.builder = (yargs) => {
-    cli().args('aliases', 'remove', yargs);
-    yargs.example('teraslice-cli aliases remove cluster1');
+    yargs.positional('cluster-alias', yargsOptions.buildPositional('cluster-alias'));
+    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.options('output', yargsOptions.buildOption('output'));
+    yargs.options('list', yargsOptions.buildOption('list'));
+    yargs.example('$0 aliases remove cluster1');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    config(cliConfig, 'aliases:remove').returnConfigData(false, false);
-    const libAliases = _testFunctions || require('./lib')(cliConfig);
+exports.handler = (argv) => {
+    const cliConfig = new Config(argv);
 
-    return libAliases.remove()
-        .catch(err => reply.fatal(err.message));
+    try {
+        cliConfig.aliases.remove(cliConfig.args.clusterAlias);
+        if (cliConfig.args.list) {
+            cliConfig.aliases.list(cliConfig.args.output);
+        }
+        reply.green(`> Removed alias ${cliConfig.args.clusterAlias}`);
+    } catch (e) {
+        reply.error(`error removing alias ${e}`);
+    }
 };

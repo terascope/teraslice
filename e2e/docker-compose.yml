@@ -12,11 +12,11 @@ services:
     ports:
       - "45678:45678"
     environment:
-      - BLUEBIRD_LONG_STACK_TRACES=1
       - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.yaml
   teraslice-worker:
     build:
       context: ..
+      dockerfile: e2e/Dockerfile
     command: [
       "./scripts/wait-for-it.sh",
       "elasticsearch:49200",
@@ -30,7 +30,6 @@ services:
     scale: 2
     stop_grace_period: 30s
     environment:
-      - BLUEBIRD_LONG_STACK_TRACES=1
       - TERAFOUNDATION_CONFIG=/app/config/teraslice-worker.yaml
     networks:
       - cluster
@@ -39,7 +38,7 @@ services:
       - ./autoload:/app/autoload:delegated
       - ./config:/app/config:delegated
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.11
+    image: blacktop/elasticsearch:5.6
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:49200"]
       interval: 15s
@@ -54,7 +53,6 @@ services:
       - "http.port=49200"
       - "transport.tcp.port=49300"
       - "discovery.type=single-node"
-      - "xpack.security.enabled=false"
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     networks:

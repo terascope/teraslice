@@ -1,19 +1,18 @@
 import { EventEmitter } from 'events';
-import cloneDeep from 'lodash.clonedeep';
-import { enumerable, isFunction } from '../utils';
+import { isFunction, cloneDeep } from '../utils';
 import {
     SlicerOperationLifeCycle,
     ExecutionConfig,
     ExecutionStats,
     Slice,
     SliceResult,
+    WorkerContext
 } from '../interfaces';
 import { OperationLoader } from '../operation-loader';
 import SlicerCore from '../operations/core/slicer-core';
 import { registerApis } from '../register-apis';
 import {
     EventHandlers,
-    SlicerContext,
     SlicerOperations,
     ExecutionContextConfig,
     SlicerMethodRegistry,
@@ -30,16 +29,13 @@ const _operations = new WeakMap<SlicerExecutionContext, SlicerOperations>();
 */
 export class SlicerExecutionContext implements SlicerOperationLifeCycle {
     readonly config: ExecutionConfig;
-    readonly context: SlicerContext;
+    readonly context: WorkerContext;
 
     /**
      * A list of assetIds available to the job.
      * This will be replaced by `resolvedAssets`
     */
     readonly assetIds: string[] = [];
-
-    /** The instance of a "Slicer" */
-    readonly slicer: SlicerCore<object>;
 
     readonly exId: string;
     readonly jobId: string;
@@ -55,6 +51,8 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
         onSliceEnqueued: new Set(),
         onExecutionStats: new Set(),
     };
+
+    private readonly _slicer: SlicerCore;
 
     constructor(config: ExecutionContextConfig) {
         this.events = config.context.apis.foundation.getSystemEvents();
@@ -72,7 +70,7 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
         });
 
         registerApis(config.context, executionConfig);
-        this.context = config.context as SlicerContext;
+        this.context = config.context as WorkerContext;
 
         this.assetIds = config.assetIds || [];
 
@@ -88,16 +86,20 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
         const mod = loader.loadReader(readerConfig._op, this.assetIds);
 
         const op = new mod.Slicer(this.context, cloneDeep(readerConfig), this.config);
-        this.slicer = op;
+        this._slicer = op;
         this.addOperation(op);
 
         this.resetMethodRegistry();
     }
 
+    /** The instance of a "Slicer" */
+    slicer<T extends SlicerCore = SlicerCore>(): T {
+        return this._slicer as T;
+    }
+
     /**
      * Called to initialize all of the registered operations available to the Execution Controller
     */
-    @enumerable(false)
     async initialize(recoveryData: object[] = []) {
         const promises = [];
         for (const op of this.getOperations()) {
@@ -110,7 +112,6 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
     /**
      * Called to cleanup all of the registered operations available to the Execution Controller
     */
-    @enumerable(false)
     async shutdown() {
         const promises = [];
         for (const op of this.getOperations()) {
@@ -126,33 +127,27 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
             });
     }
 
-    @enumerable(false)
     onExecutionStats(stats: ExecutionStats) {
         this.runMethod('onExecutionStats', stats);
     }
 
-    @enumerable(false)
     onSliceEnqueued(slice: Slice) {
         this.runMethod('onSliceEnqueued', slice);
     }
 
-    @enumerable(false)
     onSliceDispatch(slice: Slice) {
         this.runMethod('onSliceDispatch', slice);
     }
 
-    @enumerable(false)
     onSliceComplete(result: SliceResult): void {
         this.runMethod('onSliceComplete', result);
     }
 
-    @enumerable(false)
     getOperations() {
         const ops = _operations.get(this) as SlicerOperations;
         return ops.values();
     }
 
-    @enumerable(false)
     private addOperation(op: SlicerOperationLifeCycle) {
         const ops = _operations.get(this) as SlicerOperations;
         ops.add(op);
@@ -160,7 +155,6 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
         this.resetMethodRegistry();
     }
 
-    @enumerable(false)
     private runMethod<T>(method: string, arg: T) {
         const set = this._methodRegistry[method] as Set<number>;
         if (set.size === 0) return;
@@ -174,7 +168,6 @@ export class SlicerExecutionContext implements SlicerOperationLifeCycle {
         }
     }
 
-    @enumerable(false)
     private resetMethodRegistry() {
         for (const method of Object.keys(this._methodRegistry)) {
             this._methodRegistry[method].clear();

@@ -1,31 +1,37 @@
-// update existing cluster
-// create new
-
 'use strict';
-'use console';
 
-const _ = require('lodash');
 const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
+const Config = require('../../lib/config');
+const YargsOptions = require('../../lib/yargs-options');
 
-exports.command = 'update <cluster_sh>';
+const yargsOptions = new YargsOptions();
+
+exports.command = 'update <cluster-alias> <new-cluster-url>';
 exports.desc = 'Update an alias to the clusters defined in the config file.\n';
 exports.builder = (yargs) => {
-    cli().args('aliases', 'list', yargs);
+    yargs.positional('cluster-alias', yargsOptions.buildPositional('cluster-alias'));
+    yargs.positional('new-cluster-url', yargsOptions.buildPositional('new-cluster-url'));
+    yargs.coerce('new-cluster-url', yargsOptions.buildCoerce('new-cluster-url'));
+    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.options('output', yargsOptions.buildOption('output'));
+    yargs.options('list', yargsOptions.buildOption('list'));
     yargs
-        .option('host-cluster', {
-            alias: 'c',
-            describe: 'cluster host name',
-            default: 'http://localhost:5678'
-        })
-        .example('teraslice-cli aliases update cluster1 -c http://cluster1.net:80');
+        .example('$0 aliases update cluster1 http://cluster1.net:80');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    config(cliConfig, 'aliases:update').returnConfigData(false, false);
-    const libAliases = _testFunctions || require('./lib')(cliConfig);
-    return libAliases.update()
-        .catch(err => reply.fatal(err.message));
+exports.handler = (argv) => {
+    const cliConfig = new Config(argv);
+
+    try {
+        cliConfig.aliases.update(
+            cliConfig.args.clusterAlias,
+            cliConfig.args.newClusterUrl
+        );
+        if (cliConfig.args.list) {
+            cliConfig.aliases.list(cliConfig.args.output);
+        }
+        reply.green(`> Updated alias ${cliConfig.args.clusterAlias} host: ${cliConfig.args.newClusterUrl}`);
+    } catch (e) {
+        reply.error(`error updating alias ${e}`);
+    }
 };

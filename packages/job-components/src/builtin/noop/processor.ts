@@ -1,6 +1,6 @@
 import { BatchProcessor, DataEntity } from '../../operations';
 
-export default class Noop<T = object> extends BatchProcessor<T> {
+export default class Noop extends BatchProcessor {
     async onBatch(data: DataEntity[]) {
         return data;
     }

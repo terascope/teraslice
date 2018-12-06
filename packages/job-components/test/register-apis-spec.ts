@@ -1,5 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { registerApis, OperationAPI, newTestJobConfig, TestContext } from '../src';
+import { registerApis, OperationAPI, newTestJobConfig, TestContext, TestClientConfig } from '../src';
 
 describe('registerApis', () => {
     const context = new TestContext('teraslice-operations');
@@ -43,21 +43,104 @@ describe('registerApis', () => {
     describe('->getClient', () => {
         const { getClient } = context.apis.op_runner;
 
-        it('op_runner.getClient should return a client', () => {
-            expect(getClient({}, 'elasticsearch')).toEqual({
-                cached: true,
-                endpoint: 'default',
+        const clients: TestClientConfig[] = [
+            {
                 type: 'elasticsearch',
-            });
-            expect(getClient({ connection: 'someConnection' }, 'kafka')).toEqual({
-                cached: true,
-                endpoint: 'someConnection',
+                create() {
+                    return {
+                        client: {
+                            elasticsearch: true
+                        }
+                    };
+                }
+            },
+            {
+                type: 'elasticsearch',
+                endpoint: 'otherConnection',
+                create() {
+                    return {
+                        client: {
+                            elasticsearch: true,
+                            endpoint: 'otherConnection'
+                        }
+                    };
+                }
+            },
+            {
+                type: 'elasticsearch',
+                endpoint: 'thirdConnection',
+                create() {
+                    return {
+                        client: {
+                            elasticsearch: true,
+                            endpoint: 'thirdConnection'
+                        }
+                    };
+                }
+            },
+            {
                 type: 'kafka',
-            });
-            expect(getClient({ connection_cache: false }, 'mongo')).toEqual({
-                cached: true,
-                endpoint: 'default',
+                endpoint: 'someConnection',
+                create() {
+                    return {
+                        client: {
+                            kafka: true
+                        }
+                    };
+                }
+            },
+            {
                 type: 'mongo',
+                create() {
+                    return {
+                        client: {
+                            mongo: true
+                        }
+                    };
+                }
+            }
+        ];
+
+        context.apis.setTestClients(clients);
+
+        it('getClient should return a client', () => {
+            expect(getClient({}, 'elasticsearch')).toEqual({
+                elasticsearch: true
+            });
+
+            const firstResult = getClient({
+                connection: 'otherConnection',
+                connection_cache: true
+            }, 'elasticsearch');
+
+            expect(firstResult).toEqual({
+                elasticsearch: true,
+                endpoint: 'otherConnection'
+            });
+
+            expect(getClient({
+                connection: 'otherConnection',
+                connection_cache: true
+            }, 'elasticsearch')).toBe(firstResult);
+
+            expect(getClient({
+                connection: 'thirdConnection',
+                connection_cache: false,
+            }, 'elasticsearch')).toEqual({
+                elasticsearch: true,
+                endpoint: 'thirdConnection',
+            });
+
+            expect(getClient({
+                connection: 'someConnection'
+            }, 'kafka')).toEqual({
+                kafka: true
+            });
+
+            expect(getClient({
+                connection_cache: false
+            }, 'mongo')).toEqual({
+                mongo: true
             });
         });
 
@@ -82,8 +165,8 @@ describe('registerApis', () => {
 
             const events = failingContext.apis.foundation.getSystemEvents();
             const errStr =
-                'No configuration for endpoint default ' +
-                'was found in the terafoundation connectors';
+                    'No configuration for endpoint default ' +
+                    'was found in the terafoundation connectors';
 
             events.once('client:initialization:error', errMsg => {
                 expect(errMsg.error.includes(errStr)).toEqual(true);
@@ -91,37 +174,6 @@ describe('registerApis', () => {
             });
 
             failingContext.apis.op_runner.getClient();
-        });
-
-        it('getClient returns client with certain defaults', () => {
-            const opConfig1 = {};
-            const opConfig2 = {
-                connection: 'otherConnection',
-            };
-            const opConfig3 = {
-                connection: 'thirdConnection',
-                connection_cache: false,
-            };
-
-            const type = 'elasticsearch';
-
-            const results1 = getClient(opConfig1, type);
-            const results2 = getClient(opConfig2, type);
-            const results3 = getClient(opConfig3, type);
-
-            expect(results1).toEqual({ endpoint: 'default', cached: true, type: 'elasticsearch' });
-
-            expect(results2).toEqual({
-                cached: true,
-                endpoint: 'otherConnection',
-                type: 'elasticsearch',
-            });
-
-            expect(results3).toEqual({
-                cached: false,
-                endpoint: 'thirdConnection',
-                type: 'elasticsearch',
-            });
         });
     });
 

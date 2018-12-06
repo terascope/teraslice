@@ -20,3 +20,4 @@ packages/docker-compose-js
 packages/teraslice-op-test-harness
 packages/teraslice-client-js
 packages/teraslice-cli
+packages/teraslice-test-harness

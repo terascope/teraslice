@@ -362,43 +362,53 @@ class ExecutionController {
 
         await this._waitForExecutionFinished();
 
-        if (this.collectAnalytics) {
-            try {
-                await this.slicerAnalytics.shutdown();
-            } catch (err) {
-                shutdownErrs.push(err);
-            }
-        }
+        await Promise.all([
+            (async () => {
+                if (!this.collectAnalytics) return;
 
-        try {
-            await this.executionAnalytics.shutdown();
-        } catch (err) {
-            shutdownErrs.push(err);
-        }
-
-        try {
-            await this.scheduler.shutdown();
-        } catch (err) {
-            shutdownErrs.push(err);
-        }
-
-        try {
-            await this.server.shutdown();
-        } catch (err) {
-            shutdownErrs.push(err);
-        }
-
-        try {
-            await this.client.shutdown();
-        } catch (err) {
-            shutdownErrs.push(err);
-        }
-
-        try {
-            await Promise.map(Object.values(this.stores), store => store.shutdown(true));
-        } catch (err) {
-            shutdownErrs.push(err);
-        }
+                try {
+                    await this.slicerAnalytics.shutdown();
+                } catch (err) {
+                    shutdownErrs.push(err);
+                }
+            })(),
+            (async () => {
+                try {
+                    await this.executionAnalytics.shutdown();
+                } catch (err) {
+                    shutdownErrs.push(err);
+                }
+            })(),
+            (async () => {
+                try {
+                    await this.scheduler.shutdown();
+                } catch (err) {
+                    shutdownErrs.push(err);
+                }
+            })(),
+            (async () => {
+                try {
+                    await this.server.shutdown();
+                } catch (err) {
+                    shutdownErrs.push(err);
+                }
+            })(),
+            (async () => {
+                try {
+                    await this.client.shutdown();
+                } catch (err) {
+                    shutdownErrs.push(err);
+                }
+            })(),
+            (async () => {
+                const stores = Object.values(this.stores);
+                try {
+                    await Promise.map(stores, store => store.shutdown(true));
+                } catch (err) {
+                    shutdownErrs.push(err);
+                }
+            })(),
+        ]);
 
         this.logger.warn(`execution controller ${this.exId} is shutdown`);
         this.isShutdown = true;

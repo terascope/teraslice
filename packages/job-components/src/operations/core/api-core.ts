@@ -1,11 +1,10 @@
 import Core from './core';
-import { WorkerContext } from '../../execution-context';
-import { ExecutionConfig, WorkerOperationLifeCycle } from '../../interfaces';
+import { ExecutionConfig, WorkerOperationLifeCycle, WorkerContext } from '../../interfaces';
 
 /**
  * A base class for supporting APIs that run within an Execution Context.
  */
-export default abstract class APICore extends Core implements WorkerOperationLifeCycle {
+export default abstract class APICore extends Core<WorkerContext> implements WorkerOperationLifeCycle {
     constructor(context: WorkerContext, executionConfig: ExecutionConfig) {
         const logger = context.apis.foundation.makeLogger({
             module: 'operation-api',

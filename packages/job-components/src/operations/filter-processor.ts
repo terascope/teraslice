@@ -1,3 +1,4 @@
+import { OpConfig } from '../interfaces';
 import DataEntity from './data-entity';
 import ProcessorCore from './core/processor-core';
 
@@ -6,7 +7,7 @@ import ProcessorCore from './core/processor-core';
  * This processor is used to removed data from the batch of data
  */
 
-export default abstract class FilterProcessor<T> extends ProcessorCore<T> {
+export default abstract class FilterProcessor<T = OpConfig> extends ProcessorCore<T> {
     /**
     * Called by {@link Processor#handle} and will handle single {@link DataEntity}
     * @returns a thruthy value to indicate whether the data should be passed on.

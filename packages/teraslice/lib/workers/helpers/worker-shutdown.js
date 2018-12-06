@@ -52,6 +52,8 @@ function shutdownHandler(context, shutdownFn) {
             .then(() => Promise.delay(1000));
     }
 
+    const exitingIn = `exiting in ${shutdownTimeout}ms...`;
+
     function exit(event, err) {
         if (api.exiting) {
             logger.debug(`${assignment} already shutting down`);
@@ -59,14 +61,13 @@ function shutdownHandler(context, shutdownFn) {
         }
 
         api.exiting = true;
-        logger.warn(`${assignment} exiting in ${shutdownTimeout}ms...`);
 
         const startTime = Date.now();
         Promise.race([
             shutdownFn(event, err),
             Promise.delay(shutdownTimeout - 2000)
         ]).then(() => {
-            logger.debug(`${assignment} shutdown took ${Date.now() - startTime}ms`);
+            logger.info(`${assignment} shutdown took ${Date.now() - startTime}ms`);
         }).catch((error) => {
             logger.error(`${assignment} while shutting down`, error);
         }).then(() => {
@@ -80,7 +81,7 @@ function shutdownHandler(context, shutdownFn) {
     }
 
     process.on('SIGINT', () => {
-        logger.info('Received process:SIGINT');
+        logger.info(`${assignment} received process:SIGINT, ${exitingIn}`);
         if (!api.exiting) {
             process.exitCode = 0;
         }
@@ -88,7 +89,7 @@ function shutdownHandler(context, shutdownFn) {
     });
 
     process.on('SIGTERM', () => {
-        logger.info(`${assignment} received process:SIGTERM`);
+        logger.info(`${assignment} received process:SIGTERM, ${exitingIn}`);
         if (!api.exiting) {
             process.exitCode = 0;
         }
@@ -96,7 +97,7 @@ function shutdownHandler(context, shutdownFn) {
     });
 
     process.on('uncaughtException', (err) => {
-        logger.fatal(`${assignment} received an uncaughtException`, err);
+        logger.fatal(`${assignment} received an uncaughtException, ${exitingIn}`, err);
         if (!api.exiting) {
             process.exitCode = restartOnFailure ? 1 : 0;
         }
@@ -104,7 +105,7 @@ function shutdownHandler(context, shutdownFn) {
     });
 
     process.once('unhandledRejection', (err) => {
-        logger.fatal(`${assignment} received an unhandledRejection`, err);
+        logger.fatal(`${assignment} received an unhandledRejection, ${exitingIn}`, err);
         if (!api.exiting) {
             process.exitCode = restartOnFailure ? 1 : 0;
         }
@@ -113,7 +114,7 @@ function shutdownHandler(context, shutdownFn) {
 
     // event is fired from terafoundation when an error occurs during instantiation of a client
     events.once('client:initialization:error', (err) => {
-        logger.fatal(`${assignment} received a client initialization error`, err);
+        logger.fatal(`${assignment} received a client initialization error, ${exitingIn}`, err);
         if (!api.exiting) {
             process.exitCode = restartOnFailure ? 1 : 0;
         }
@@ -125,9 +126,9 @@ function shutdownHandler(context, shutdownFn) {
             process.exitCode = 0;
         }
         if (err) {
-            logger.fatal(`${assignment} shutdown error`, err);
+            logger.fatal(`${assignment} shutdown error, ${exitingIn}`, err);
         } else {
-            logger.info(`${assignment} shutdown`);
+            logger.info(`${assignment} shutdown, ${exitingIn}`);
         }
         exit('worker:shutdown:complete', err);
     });

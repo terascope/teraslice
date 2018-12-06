@@ -1,6 +1,6 @@
 {
     "name": "teraslice-test-harness",
-    "version": "0.1.0",
+    "version": "0.4.0",
     "publishConfig": {
         "access": "public"
     },
@@ -25,7 +25,7 @@
     "main": "dist/index.js",
     "typings": "dist/index.d.ts",
     "scripts": {
-        "lint": "tslint --project tsconfig.json --format verbose",
+        "lint": "tslint -p tsconfig.build.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
         "build": "tsc --project tsconfig.build.json --pretty",
@@ -36,21 +36,22 @@
         "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.10.0",
-        "@types/lodash": "^4.14.118",
+        "@terascope/job-components": "^0.12.0",
+        "@terascope/teraslice-op-test-harness": "^1.4.3",
+        "@types/lodash": "^4.14.119",
         "lodash": "^4.17.11"
     },
     "devDependencies": {
-        "@types/jest": "^23.3.8",
-        "@types/node": "^10.12.9",
+        "@types/jest": "^23.3.10",
+        "@types/node": "^10.12.12",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "jest": "^23.6.0",
         "jest-extended": "^0.11.0",
-        "ts-jest": "^23.10.4",
+        "ts-jest": "^23.10.5",
         "tslint": "^5.0.0",
         "tslint-config-airbnb": "^5.11.0",
-        "typescript": "^3.1.6"
+        "typescript": "^3.2.1"
     },
     "engines": {
         "node": ">=8.0.0"

@@ -87,7 +87,7 @@ function forWorkersJoined(jobId, workerCount, iterations) {
         .controllers()
         .then((controllers) => {
             const controller = _.find(controllers, s => s.job_id === jobId);
-            if (controller !== undefined) {
+            if (controller != null) {
                 return controller.workers_joined;
             }
             return 0;
@@ -100,6 +100,8 @@ function forWorkersJoined(jobId, workerCount, iterations) {
 function waitForClusterState(timeoutMs = 120000) {
     const endAt = Date.now() + timeoutMs;
     const { cluster } = misc.teraslice();
+    const requiredNodes = misc.DEFAULT_NODES - 1;
+
     function _try() {
         if (Date.now() > endAt) {
             return Promise.reject(new Error(`Failure to communicate with the Cluster Master as ${timeoutMs}ms`));
@@ -110,7 +112,7 @@ function waitForClusterState(timeoutMs = 120000) {
         })
             .then((result) => {
                 const nodes = _.size(_.keys(result));
-                if (nodes >= misc.DEFAULT_NODES) {
+                if (nodes >= requiredNodes) {
                     return nodes;
                 }
                 return _try();
@@ -178,7 +180,7 @@ async function waitForIndexCount(index, expected, remainingMs = 30 * 1000) {
         // it probably okay
     }
 
-    await Promise.delay(100);
+    await Promise.delay(50);
     const elapsed = Date.now() - start;
     return waitForIndexCount(index, expected, remainingMs - elapsed);
 }

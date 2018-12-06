@@ -10,6 +10,9 @@ const downloadAssets = require('./download-assets');
 
 const jobList = [];
 
+const { GENERATE_ONLY } = process.env;
+const generateOnly = GENERATE_ONLY ? parseInt(GENERATE_ONLY, 10) : null;
+
 function getElapsed(time) {
     const elapsed = Date.now() - time;
     if (elapsed < 1000) {
@@ -139,6 +142,8 @@ function generateTestData() {
     }
 
     function generate(count, hex) {
+        if (generateOnly && generateOnly !== count) return Promise.resolve();
+
         const genStartTime = Date.now();
         let indexName = `example-logs-${count}`;
         if (hex) {

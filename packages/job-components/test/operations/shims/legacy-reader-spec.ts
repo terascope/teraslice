@@ -8,12 +8,11 @@ import {
     TestContext,
     newTestExecutionConfig,
     newTestExecutionContext,
-    Assignment,
     OpConfig
 } from '../../../src';
 
 describe('Legacy Reader Shim', () => {
-    class ExampleParallelSlicer<T = object> extends ParallelSlicer<T> {
+    class ExampleParallelSlicer extends ParallelSlicer<ExampleOpConfig> {
         async newSlicer() {
             return async () => ({
                 hello: true
@@ -23,7 +22,7 @@ describe('Legacy Reader Shim', () => {
 
     const slicerShutdown = jest.fn();
 
-    class ExampleSlicer<T = object> extends Slicer<T> {
+    class ExampleSlicer extends Slicer<ExampleOpConfig> {
         async slice() {
             return {
                 hello: true
@@ -35,7 +34,7 @@ describe('Legacy Reader Shim', () => {
         }
     }
 
-    class ExampleFetcher<T = object> extends Fetcher<T> {
+    class ExampleFetcher extends Fetcher<ExampleOpConfig> {
         async fetch() {
             return [
                 {
@@ -98,7 +97,7 @@ describe('Legacy Reader Shim', () => {
         it('should handle newSlicer correctly', async () => {
             expect(shim.newSlicer).toBeFunction();
 
-            const exContext = newTestExecutionContext(Assignment.ExecutionController, exConfig);
+            const exContext = newTestExecutionContext('execution_controller', exConfig);
             const slicers = await shim.newSlicer(context, exContext, [], context.logger);
 
             const result = await Promise.all(slicers.map((fn) => fn()));
@@ -148,7 +147,7 @@ describe('Legacy Reader Shim', () => {
             expect(shim.newSlicer).toBeFunction();
             const events = context.apis.foundation.getSystemEvents();
 
-            const exContext = newTestExecutionContext(Assignment.ExecutionController, exConfig);
+            const exContext = newTestExecutionContext('execution_controller', exConfig);
             const slicers = await shim.newSlicer(context, exContext, [], context.logger);
 
             events.emit('worker:shutdown');
