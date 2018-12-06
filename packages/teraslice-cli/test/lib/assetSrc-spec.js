@@ -36,7 +36,6 @@ describe('AssetSrc', () => {
 
     test('build', async () => {
         const r = await testAsset.build();
-        console.log(`build ${JSON.stringify(r, null, 2)}`);
         expect(r).toInclude('.zip');
     });
 
