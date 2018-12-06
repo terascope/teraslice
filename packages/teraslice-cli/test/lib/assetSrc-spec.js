@@ -4,11 +4,11 @@ const path = require('path');
 
 const fs = require('fs-extra');
 
-const AssetSrc = require('../../../../cmds/assets/lib/asset-src');
+const AssetSrc = require('../../lib/asset-src');
 
 describe('AssetSrc', () => {
     let testAsset;
-    const srcDir = path.join(__dirname, '../../../fixtures/testAsset');
+    const srcDir = path.join(__dirname, '../fixtures/testAsset');
 
     beforeEach(() => {
         testAsset = new AssetSrc(srcDir);
@@ -26,7 +26,7 @@ describe('AssetSrc', () => {
     });
 
     test('should throw in constructor when provided non-asset path', () => {
-        const nonAssetDir = path.join(__dirname, '../../../fixtures');
+        const nonAssetDir = path.join(__dirname, '../fixtures');
         expect(() => new AssetSrc(nonAssetDir)).toThrow();
     });
 
@@ -42,7 +42,7 @@ describe('AssetSrc', () => {
 
     test('->zip', async () => {
         const outFile = 'out.zip';
-        const zipOutput = await AssetSrc.zip('../../../fixtures/testAsset/asset', outFile);
+        const zipOutput = await AssetSrc.zip('../fixtures/testAsset/asset', outFile);
         // console.log(`zipOutput ${JSON.stringify(zipOutput, null, 2)}`);
         expect(zipOutput.success).toEqual('out.zip');
         fs.removeSync(outFile);
@@ -51,7 +51,7 @@ describe('AssetSrc', () => {
 
 describe('AssetSrc with build', () => {
     let testAsset;
-    const srcDir = path.join(__dirname, '../../../fixtures/testAssetWithBuild');
+    const srcDir = path.join(__dirname, '../fixtures/testAssetWithBuild');
 
     beforeEach(() => {
         testAsset = new AssetSrc(srcDir);
