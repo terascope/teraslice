@@ -83,9 +83,12 @@ describe('reindex', () => {
     it('should complete after lifecycle changes', (done) => {
         const jobSpec = misc.newJob('reindex');
         jobSpec.name = 'reindex after lifecycle changes';
+
         // Job needs to be able to run long enough to cycle
-        jobSpec.operations[0].index = 'example-logs-10000';
+        jobSpec.operations[0].index = 'example-logs-1000';
         jobSpec.operations[1].index = 'test-reindex-lifecycle';
+
+        misc.injectDelay(jobSpec);
 
         teraslice.jobs.submit(jobSpec)
             .then((job) => {
@@ -95,14 +98,12 @@ describe('reindex', () => {
                     .then(() => job.pause())
                     .then(() => waitForJobStatus(job, 'paused'))
                     .then(() => job.resume())
-                    .then(() => waitForJobStatus(job, 'running'))
                     .then(() => job.stop())
-                    .then(() => waitForJobStatus(job, 'stopped'))
                     .then(() => job.recover())
                     .then(() => waitForJobStatus(job, 'completed'))
                     .then(() => misc.indexStats('test-reindex-lifecycle')
                         .then((stats) => {
-                            expect(stats.count).toBe(10000);
+                            expect(stats.count).toBe(1000);
                             expect(stats.deleted).toBe(0);
                         }));
             })

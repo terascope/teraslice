@@ -1,8 +1,9 @@
 'use strict';
 
-const path = require('path');
-const { promisify } = require('util');
 const fs = require('fs');
+const path = require('path');
+const signale = require('signale');
+const { promisify } = require('util');
 const downloadRelease = require('@terascope/fetch-github-release');
 
 const readFile = promisify(fs.readFile);
@@ -47,9 +48,21 @@ function filterAsset(asset) {
     return asset.name.indexOf(mustContain) >= 0;
 }
 
+function logAssets() {
+    const assets = fs.readdirSync(autoloadDir).filter((file) => {
+        const ext = path.extname(file);
+        return ext === '.zip';
+    });
+
+    signale.info(`Autoload assets ${assets.join(', ')}`);
+}
+
 async function downloadAssets() {
     const shouldDownload = await checkDownloadedAt();
-    if (!shouldDownload) return;
+    if (!shouldDownload) {
+        logAssets();
+        return;
+    }
 
     const bundles = [
         'elasticsearch-assets',
@@ -62,6 +75,8 @@ async function downloadAssets() {
 
     await Promise.all(promises);
     await touchDownloadAt();
+
+    logAssets();
 }
 
 if (require.main === module) {

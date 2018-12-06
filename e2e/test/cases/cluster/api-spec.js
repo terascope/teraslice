@@ -31,8 +31,9 @@ describe('api endpoint', () => {
     it('should update job config', (done) => {
         // NOTE that this relies on the asset loaded in the test above
         const jobSpec = misc.newJob('generator-asset');
+        const { workers, slicers } = jobSpec;
         const alteredJob = _.cloneDeep(jobSpec);
-        alteredJob.workers = 2;
+        alteredJob.workers = 3;
         delete alteredJob.slicers;
         let jobId;
 
@@ -42,8 +43,8 @@ describe('api endpoint', () => {
                 expect(jobId).toBeDefined();
                 return job.config()
                     .then((jobConfig) => {
-                        expect(jobConfig.slicers).toEqual(1);
-                        expect(jobConfig.workers).toEqual(3);
+                        expect(jobConfig.slicers).toEqual(slicers);
+                        expect(jobConfig.workers).toEqual(workers);
                         return teraslice.cluster.put(`/jobs/${jobId}`, alteredJob);
                     })
                     .then(() => job.config())

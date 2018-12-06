@@ -4,6 +4,7 @@
     "workers": 1,
     "analytics": true,
     "assets": ["kafka", "elasticsearch"],
+    "max_retries": 0,
     "operations": [
         {
             "_op": "elasticsearch_reader",
@@ -14,8 +15,7 @@
             "preserve_id": true
         },
         {
-            "_op": "teraslice_kafka_sender",
-            "connection": "default",
+            "_op": "kafka_sender",
             "topic": "example-logs-1000",
             "size": 100,
             "timestamp_field": "created",

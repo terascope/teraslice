@@ -4,14 +4,14 @@
     "workers": 1,
     "analytics": true,
     "assets": ["kafka", "elasticsearch"],
+    "max_retries": 0,
     "operations": [
         {
-            "_op": "teraslice_kafka_reader",
-            "connection": "default",
+            "_op": "kafka_reader",
             "topic": "example-logs-1000",
             "group": "example-kafka-group",
             "size": 300,
-            "wait": 5000,
+            "wait": 500,
             "_encoding": "json"
         },
         {

@@ -116,6 +116,8 @@ describe('cluster state', () => {
         jobSpec.operations[1].index = 'test-clusterstate-job-1-1000';
         let jobId;
 
+        misc.injectDelay(jobSpec);
+
         teraslice.jobs.submit(jobSpec)
             .then((job) => {
                 jobId = job.id();
@@ -157,6 +159,8 @@ describe('cluster state', () => {
         jobSpec.operations[0].size = 20;
         jobSpec.operations[1].index = 'test-clusterstate-job-4-1000';
         let jobId;
+
+        misc.injectDelay(jobSpec, 5000);
 
         teraslice.jobs.submit(jobSpec)
             .then((job) => {

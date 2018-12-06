@@ -7,7 +7,7 @@
     "operations": [
         {
             "_op": "elasticsearch_reader",
-            "index": "example-logs-10000",
+            "index": "example-logs-1000",
             "preserve_id": true,
             "date_field_name": "created",
             "type": "change",
@@ -15,7 +15,7 @@
         },
         {
             "_op": "elasticsearch_index_selector",
-            "index": "multisend-10000",
+            "index": "multisend-1000",
             "preserve_id": true,
             "type": "change"
         },

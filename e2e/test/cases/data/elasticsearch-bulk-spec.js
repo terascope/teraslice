@@ -12,7 +12,7 @@ describe('elasticsearch bulk', () => {
     it('should support multisend', (done) => {
         const jobSpec = misc.newJob('multisend');
         jobSpec.name = 'multisend';
-        jobSpec.operations[1].index = 'test-multisend-10000';
+        jobSpec.operations[1].index = 'test-multisend-1000';
 
         teraslice.jobs.submit(jobSpec)
             .then((job) => {
@@ -20,9 +20,9 @@ describe('elasticsearch bulk', () => {
                 expect(job.id()).toBeDefined();
                 return waitForJobStatus(job, 'completed');
             })
-            .then(() => misc.indexStats('test-multisend-10000')
+            .then(() => misc.indexStats('test-multisend-1000')
                 .then((stats) => {
-                    expect(stats.count).toBe(10000);
+                    expect(stats.count).toBe(1000);
                 }))
             .catch(fail)
             .finally(() => { done(); });

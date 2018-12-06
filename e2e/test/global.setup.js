@@ -167,7 +167,7 @@ function generateTestData() {
                 },
                 {
                     _op: 'elasticsearch_bulk',
-                    size: 10000
+                    size: 1000
                 }
             ]
         };
@@ -199,8 +199,7 @@ function generateTestData() {
     return Promise.all([
         generate(10),
         generate(1000),
-        generate(10000),
-        generate(10000, ['d', '3'])
+        generate(1000, ['d', '3'])
     ])
         // we need fully active jobs so we can get proper meta data for recovery state tests
         .then(() => Promise.all([
