@@ -7,28 +7,21 @@ export interface ClusterStateConfig {
     connection: string|'default';
 }
 
-export enum RolloverFrequency {
-    Daily = 'daily',
-    Monthly = 'monthly',
-    Yearly = 'yearly'
-}
+export type RolloverFrequency = 'daily'|'montly'|'yearly';
 
 export interface IndexRolloverFrequency {
-    state: RolloverFrequency|RolloverFrequency.Monthly;
-    analytics: RolloverFrequency|RolloverFrequency.Monthly;
+    state: RolloverFrequency;
+    analytics: RolloverFrequency;
 }
 
-export enum ClusterManagerType {
-    Native = 'native',
-    Kubernetes = 'kubernetes'
-}
+export type ClusterManagerType = 'native'|'kubernetes';
 
 export interface TerasliceConfig {
     action_timeout: number|300000;
     analytics_rate: number|60000;
     assets_directory?: string;
     assets_volume?: string;
-    cluster_manager_type: ClusterManagerType|ClusterManagerType.Native;
+    cluster_manager_type: ClusterManagerType;
     hostname: string;
     index_rollover_frequency: IndexRolloverFrequency;
     kubernetes_config_map_name?: string|'teraslice-worker';

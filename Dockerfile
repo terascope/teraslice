@@ -1,4 +1,4 @@
-FROM terascope/teraslice-base:v0.1.3
+FROM terascope/teraslice-base:v0.1.4
 
 RUN mkdir -p /app/source/packages/teraslice \
     && mkdir -p /app/source/packages/teraslice-messaging \

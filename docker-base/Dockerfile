@@ -1,4 +1,4 @@
-FROM node:8.12
+FROM node:8.14
 LABEL MAINTAINER Terascope, LLC <info@terascope.io>
 
 ENV NODE_ENV production

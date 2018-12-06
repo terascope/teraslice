@@ -9,6 +9,7 @@
     - [WorkerTestHarness](#workertestharness)
     - [JobTestHarness](#jobtestharness)
 - [Builtin Operations](#builtin-operations)
+    - [Collect](#collect)
     - [Noop](#noop)
     - [Delay](#delay)
     - [Test Reader](#test-reader)
@@ -56,6 +57,15 @@ A test harness for both the Slicer and Fetcher, utilizing both the Slicer and Wo
 
 There a several builtin operations that are useful for writing and configuring your tests.
 
+### Collect
+
+**Configuration:**
+
+- `size: number`: The target count records to collect before resolving.
+- `wait: number`: Maximum time to wait before resolving the currently queued records.
+
+**Description:** Collect data in batches. Useful for testing jobs.
+
 ### Noop
 
 **Configuration:** N/A
@@ -74,8 +84,8 @@ There a several builtin operations that are useful for writing and configuring y
 
 **Configuration:**
 
-- `fetcherDataFilePath?: string`: File to path to JSON array of data records. (optional)
-- `slicerDataFilePath?: string`: File to path to JSON array of slice request. (optional)
+- `fetcher_data_file_path?: string`: File to path to JSON array of data records. (optional)
+- `slicer_data_file_path?: string`: File to path to JSON array of slice request. (optional)
 
 **Description:** Slice and fetch data specified in a file. Useful for testing Processors.
 

@@ -8,7 +8,7 @@
     "main": "index.js",
     "scripts": {
         "lint": "eslint *.js test/**/*.js",
-        "lint:fix": "npm run lint -- --fix",
+        "lint:fix": "yarn lint --fix",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
         "test:debug": "env DEBUG='*elasticsearch-api*' jest --detectOpenHandles --coverage=false --runInBand"

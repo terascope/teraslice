@@ -8,21 +8,21 @@
         {
             "_op": "teraslice_kafka_reader",
             "connection": "default",
-            "topic": "example-logs-10",
+            "topic": "example-logs-1000",
             "group": "example-kafka-group",
-            "size": 10,
+            "size": 300,
             "wait": 5000,
             "_encoding": "json"
         },
         {
             "_op": "elasticsearch_index_selector",
             "type": "events",
-            "index": "kafka-logs-10",
+            "index": "kafka-logs-1000",
             "preserve_id": true
         },
         {
             "_op": "elasticsearch_bulk",
-            "size": 10
+            "size": 500
         }
     ]
 }
