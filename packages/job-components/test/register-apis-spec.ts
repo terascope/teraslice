@@ -1,9 +1,13 @@
 import 'jest-extended'; // require for type definitions
+import path from 'path';
 import { registerApis, OperationAPI, newTestJobConfig, TestContext, TestClientConfig } from '../src';
 
 describe('registerApis', () => {
     const context = new TestContext('teraslice-operations');
+    context.sysconfig.teraslice.assets_directory = __dirname;
     const jobConfig = newTestJobConfig();
+
+    jobConfig.assets = ['fixtures'];
 
     jobConfig.operations.push({
         _op: 'hello',
@@ -18,8 +22,13 @@ describe('registerApis', () => {
     it('should have the correct apis', () => {
         expect(context.apis).toHaveProperty('op_runner');
         expect(context.apis.op_runner.getClient).toBeFunction();
+
+        expect(context.apis).toHaveProperty('assets');
+        expect(context.apis.assets.getPath).toBeFunction();
+
         expect(context.apis).toHaveProperty('job_runner');
         expect(context.apis.job_runner.getOpConfig).toBeFunction();
+
         expect(context.apis).toHaveProperty('executionContext');
         expect(context.apis.executionContext.addToRegistry).toBeFunction();
         expect(context.apis.executionContext.initAPI).toBeFunction();
@@ -37,6 +46,19 @@ describe('registerApis', () => {
 
         it('should return undefined if not found', () => {
             expect(getOpConfig('unknown')).toBeUndefined();
+        });
+    });
+
+    describe('->getPath', () => {
+        const { getPath } = context.apis.assets;
+
+        it('should return the given operation', () => {
+            const assetPath = path.join(__dirname, 'fixtures');
+            return expect(getPath('fixtures')).resolves.toEqual(assetPath);
+        });
+
+        it('should throw an error if asset is not found', () => {
+            return expect(getPath('unknown')).rejects.toThrowError('Unable to find asset "unknown"');
         });
     });
 

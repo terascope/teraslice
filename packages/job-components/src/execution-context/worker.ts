@@ -75,7 +75,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
             assetPath: config.context.sysconfig.teraslice.assets_directory,
         });
 
-        registerApis(config.context, executionConfig);
+        registerApis(config.context, executionConfig, config.assetIds);
         this.context = config.context as WorkerContext;
 
         this.assetIds = config.assetIds || [];
