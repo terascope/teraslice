@@ -100,7 +100,7 @@ function forWorkersJoined(jobId, workerCount, iterations) {
 function waitForClusterState(timeoutMs = 120000) {
     const endAt = Date.now() + timeoutMs;
     const { cluster } = misc.teraslice();
-    const requiredNodes = misc.DEFAULT_NODES - 1;
+    const requiredNodes = misc.DEFAULT_NODES - 2;
 
     function _try() {
         if (Date.now() > endAt) {
@@ -148,16 +148,16 @@ function waitForJobStatus(job, status) {
                 }
                 const reasons = _.pick(exStatus, ['_failureReason', '_hasErrors']);
 
-                signale.debug(`job for status failure:
-                    job: ${exStatus.job_id};
-                    job name: ${exStatus.name};
-                    ex: ${exStatus.ex_id};
-                    workers: ${exStatus.workers};
-                    slicers: ${exStatus.slicers};
-                    status: expected ${exStatus._status} to equal ${status};
-                    slicer stats: ${JSON.stringify(exStatus._slicer_stats, null, 2)};
-                    failed after: ${Date.now() - start}ms;
-                    failure reasons: ${JSON.stringify(reasons)};
+                signale.debug(`Job Status Failure:
+                job: ${exStatus.job_id};
+                job name: ${exStatus.name};
+                ex: ${exStatus.ex_id};
+                workers: ${exStatus.workers};
+                slicers: ${exStatus.slicers};
+                status: expected ${exStatus._status} to equal ${status};
+                slicer stats: ${JSON.stringify(exStatus._slicer_stats, null, 2)};
+                failed after: ${Date.now() - start}ms;
+                failure reasons: ${JSON.stringify(reasons)};
                 `);
 
                 return null;
@@ -169,7 +169,7 @@ function waitForJobStatus(job, status) {
         // since most of the time we are chaining this with other actions
         // make sure we avoid unrealistic test conditions by giving the
         // it a little bit of time
-        .then(result => Promise.delay(500).then(() => result))
+        .then(result => Promise.delay(100).then(() => result))
         .catch(async (err) => {
             err.message = `Job: ${jobId}: ${err.message}`;
             await logExErrors();
