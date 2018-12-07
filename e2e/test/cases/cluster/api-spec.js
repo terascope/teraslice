@@ -37,54 +37,50 @@ describe('api endpoint', () => {
 
         const jobId = job.id();
 
-        const jobConfig = await job.config();
+        let jobConfig = await job.config();
+
         expect(jobConfig.slicers).toEqual(slicers);
         expect(jobConfig.workers).toEqual(workers);
+
         await teraslice.cluster.put(`/jobs/${jobId}`, alteredJob);
 
-        await job.config();
+        jobConfig = await job.config();
 
         expect(jobConfig.assets).toEqual(alteredJob.assets);
         expect(jobConfig.workers).toEqual(alteredJob.workers);
         expect(jobConfig.slicers).not.toBeDefined();
     });
 
-    it('will not send lifecycle changes to executions that are not active', (done) => {
+    it('will not send lifecycle changes to executions that are not active', async () => {
         const jobSpec = misc.newJob('reindex');
         jobSpec.name = 'basic reindex for lifecycle';
         jobSpec.operations[1].index = 'test-reindex-10-lifecycle';
-        let jobId;
-        let exId;
 
-        function didError(Prom) {
-            return Promise.resolve()
-                .then(() => Prom)
-                .then(() => false)
-                .catch(() => true);
+        async function didError(p) {
+            try {
+                await p;
+                return true;
+            } catch (err) {
+                return false;
+            }
         }
 
-        teraslice.jobs.submit(jobSpec)
-            .then((job) => {
-                expect(job).toBeDefined();
-                expect(job.id()).toBeDefined();
-                jobId = job.id();
+        const job = await teraslice.jobs.submit(jobSpec);
+        const jobId = job.id();
+        await waitForJobStatus(job, 'completed');
+        const ex = await teraslice.cluster.get(`/jobs/${jobId}/ex`);
+        const exId = ex.ex_id;
 
-                return waitForJobStatus(job, 'completed');
-            })
-            .then(() => teraslice.cluster.get(`/jobs/${jobId}/ex`))
-            .then((ex) => {
-                exId = ex.ex_id;
-                return Promise.all([
-                    didError(teraslice.cluster.post(`/jobs/${jobId}/_stop`)),
-                    didError(teraslice.cluster.post(`/jobs/${jobId}/_resume`)),
-                    didError(teraslice.cluster.post(`/jobs/${jobId}/_pause`)),
-                    didError(teraslice.cluster.post(`/ex/${exId}/_stop`)),
-                    didError(teraslice.cluster.post(`/ex/${exId}/_resume`)),
-                    didError(teraslice.cluster.post(`/ex/${exId}/_pause`)),
-                ]);
-            })
-            .catch(fail)
-            .finally(() => { done(); });
+        const result = await Promise.all([
+            didError(teraslice.cluster.post(`/jobs/${jobId}/_stop`)),
+            didError(teraslice.cluster.post(`/jobs/${jobId}/_resume`)),
+            didError(teraslice.cluster.post(`/jobs/${jobId}/_pause`)),
+            didError(teraslice.cluster.post(`/ex/${exId}/_stop`)),
+            didError(teraslice.cluster.post(`/ex/${exId}/_resume`)),
+            didError(teraslice.cluster.post(`/ex/${exId}/_pause`)),
+        ]);
+
+        expect(result.every(v => v === true)).toBeTrue();
     });
 
     it('api end point /assets should return an array of json objects of asset metadata', async () => {

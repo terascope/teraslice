@@ -71,41 +71,22 @@ describe('cluster state', () => {
         verifyClusterMaster(state);
     }
 
-    it('should match default configuration', (done) => {
-        teraslice.cluster.state()
-            .then((state) => {
-                verifyClusterState(state);
-            })
-            .catch(fail)
-            .finally(() => { done(); });
+    it('should match default configuration', async () => {
+        const state = await teraslice.cluster.state();
+        verifyClusterState(state);
     });
 
-    it('should update after adding and removing a worker node', (done) => {
+    it('should update after adding and removing a worker node', async () => {
         // Add a second worker node
-        scaleWorkersAndWait(1)
-            .then((state) => {
-                verifyClusterState(state, 1);
-            })
-            .then(() => scaleWorkersAndWait())
-            .then((state) => {
-                verifyClusterState(state);
-            })
-            .catch(fail)
-            .finally(() => { done(); });
+        verifyClusterState(await scaleWorkersAndWait(1), 1);
+        verifyClusterState(await scaleWorkersAndWait(0));
     });
 
-    it('should update after adding and removing 3 worker nodes', (done) => {
+    it('should update after adding and removing 3 worker nodes', async () => {
         // Add additional worker nodes. There's one already and we want 13 more.
-        scaleWorkersAndWait(3)
-            .then((state) => {
-                verifyClusterState(state, 3);
-            })
-            .then(() => scaleWorkersAndWait())
-            .then((state) => {
-                verifyClusterState(state);
-            })
-            .catch(fail)
-            .finally(() => { done(); });
+        verifyClusterState(await scaleWorkersAndWait(3), 3);
+
+        verifyClusterState(await scaleWorkersAndWait());
     });
 
     it('should be correct for running job with 1 worker', async () => {
@@ -115,7 +96,7 @@ describe('cluster state', () => {
         jobSpec.operations[0].size = 100;
         jobSpec.operations[1].index = 'test-clusterstate-job-1-1000';
 
-        const job = submitAndStart(jobSpec);
+        const job = await submitAndStart(jobSpec);
         const jobId = job.id();
         const state = await teraslice.cluster.state();
 
@@ -168,7 +149,7 @@ describe('cluster state', () => {
         });
 
         await complete;
-        const { count } = misc.indexStats('test-clusterstate-job-4-1000');
+        const { count } = await misc.indexStats('test-clusterstate-job-4-1000');
         expect(count).toBe(1000);
     });
 });

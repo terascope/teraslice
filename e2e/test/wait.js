@@ -166,7 +166,7 @@ async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
 
             signale.debug(`Job Status Failure:
                 job: ${exStatus.job_id};
-                job name: ${exStatus.name};
+                job name: "${exStatus.name}";
                 ex: ${exStatus.ex_id};
                 workers: ${exStatus.workers};
                 slicers: ${exStatus.slicers};
