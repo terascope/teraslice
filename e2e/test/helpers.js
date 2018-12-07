@@ -65,28 +65,25 @@ async function runEsJob(jobSpec, index) {
 /**
  * Test pause
 */
-async function testJobLifeCycle(jobSpec, delay = 1000) {
+async function testJobLifeCycle(jobSpec, delay = 2000) {
     const job = await submitAndStart(jobSpec, delay);
 
-    await Promise.all([
-        job.pause(),
-        wait.waitForJobStatus(job, 'paused')
-    ]);
+    const waitForStatus = status => wait.waitForJobStatus(job, status, 50, 0);
 
-    await Promise.all([
-        job.resume(),
-        wait.waitForJobStatus(job, 'running')
-    ]);
+    let p = waitForStatus('paused');
+    job.pause();
+    await p;
 
-    await Promise.all([
-        job.stop(),
-        wait.waitForJobStatus(job, 'stopped')
-    ]);
+    p = waitForStatus('running');
+    job.resume();
+    await p;
 
-    await Promise.all([
-        job.recover(),
-        wait.waitForJobStatus(job, 'completed')
-    ]);
+    job.stop();
+    p = waitForStatus('stopped');
+    await p;
+
+    await job.recover();
+    await waitForStatus('completed');
 
     return job;
 }

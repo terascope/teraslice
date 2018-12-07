@@ -46,6 +46,7 @@ describe('id reader', () => {
         jobSpec.operations[1].index = 'test-id_reindex-lifecycle-1000';
 
         await testJobLifeCycle(jobSpec);
+
         const stats = await misc.indexStats('test-id_reindex-lifecycle-1000');
         expect(stats.count).toBe(1000);
     });

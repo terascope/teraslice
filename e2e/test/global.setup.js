@@ -75,10 +75,14 @@ function generateTestData() {
     signale.pending('Generating example data...');
 
     function populateStateForRecoveryTests(textExId, indexName) {
+        if (generateOnly) return Promise.resolve();
+
+        const exId = jobList.shift();
+        if (!exId) return Promise.resolve();
+
         const recoveryStartTime = Date.now();
         signale.info(`Populating recovery state for exId: ${textExId}`);
-        const exId = jobList.shift();
-        if (!exId) return Promise.resolve(true);
+
         const client = misc.es();
         return misc.teraslice().cluster.get(`/ex/${exId}`)
             .then((exConfig) => {
@@ -173,7 +177,6 @@ function generateTestData() {
         };
 
         return Promise.resolve()
-            .then(() => misc.cleanupIndex(indexName))
             .then(() => {
                 if (!hex) return postJob(jobSpec);
                 jobSpec.operations[0].size = count / hex.length;

@@ -11,52 +11,42 @@ describe('api endpoint', () => {
     beforeAll(() => resetState());
 
     const teraslice = misc.teraslice();
-    it('submitted jobs are not saved in validated form', (done) => {
+    it('submitted jobs are not saved in validated form', async () => {
         const assetPath = 'test/fixtures/assets/example_asset_1.zip';
         const testStream = fs.createReadStream(assetPath);
         const jobSpec = misc.newJob('generator-asset');
 
-        teraslice.assets.post(testStream)
-            .then(() => teraslice.jobs.submit(jobSpec, 'shouldNotStart'))
-            .then(job => job.config())
-            .then((jobConfig) => {
-                _.forOwn(jobSpec, (value, key) => {
-                    expect(jobConfig[key]).toEqual(value);
-                });
-            })
-            .catch(fail)
-            .finally(() => { done(); });
+        await teraslice.assets.post(testStream);
+        const job = await teraslice.jobs.submit(jobSpec, 'shouldNotStart');
+        const jobConfig = await job.config();
+
+        _.forOwn(jobSpec, (value, key) => {
+            expect(jobConfig[key]).toEqual(value);
+        });
     });
 
-    it('should update job config', (done) => {
+    it('should update job config', async () => {
         // NOTE that this relies on the asset loaded in the test above
         const jobSpec = misc.newJob('generator-asset');
         const { workers, slicers } = jobSpec;
         const alteredJob = _.cloneDeep(jobSpec);
         alteredJob.workers = 3;
         delete alteredJob.slicers;
-        let jobId;
 
-        teraslice.jobs.submit(jobSpec, 'shouldNotStart')
-            .then((job) => {
-                jobId = job.id();
-                expect(jobId).toBeDefined();
-                return job.config()
-                    .then((jobConfig) => {
-                        expect(jobConfig.slicers).toEqual(slicers);
-                        expect(jobConfig.workers).toEqual(workers);
-                        return teraslice.cluster.put(`/jobs/${jobId}`, alteredJob);
-                    })
-                    .then(() => job.config())
-                    .then((jobConfig) => {
-                        // This will check that assets are not parsed as well
-                        expect(jobConfig.assets).toEqual(alteredJob.assets);
-                        expect(jobConfig.workers).toEqual(alteredJob.workers);
-                        expect(jobConfig.slicers).not.toBeDefined();
-                    });
-            })
-            .catch(fail)
-            .finally(() => { done(); });
+        const job = await teraslice.jobs.submit(jobSpec, 'shouldNotStart');
+
+        const jobId = job.id();
+
+        const jobConfig = await job.config();
+        expect(jobConfig.slicers).toEqual(slicers);
+        expect(jobConfig.workers).toEqual(workers);
+        await teraslice.cluster.put(`/jobs/${jobId}`, alteredJob);
+
+        await job.config();
+
+        expect(jobConfig.assets).toEqual(alteredJob.assets);
+        expect(jobConfig.workers).toEqual(alteredJob.workers);
+        expect(jobConfig.slicers).not.toBeDefined();
     });
 
     it('will not send lifecycle changes to executions that are not active', (done) => {
@@ -97,73 +87,51 @@ describe('api endpoint', () => {
             .finally(() => { done(); });
     });
 
-    it('api end point /assets should return an array of json objects of asset metadata', done => teraslice.cluster.get('/assets')
-        .then((response) => {
-            expect(_.isArray(response)).toBe(true);
-            expect(_.isPlainObject(response[0])).toBe(true);
-            expect(_.has(response[0], '_created')).toBe(true);
-            expect(_.has(response[0], 'name')).toBe(true);
-            expect(_.has(response[0], 'id')).toBe(true);
-            expect(_.has(response[0], 'version')).toBe(true);
-        })
-        .catch(fail)
-        .finally(() => { done(); }));
+    it('api end point /assets should return an array of json objects of asset metadata', async () => {
+        const response = await teraslice.cluster.get('/assets');
 
-    it('api end point /assets/assetName should return an array of json objects of asset metadata', (done) => {
-        teraslice.cluster.get('/assets/ex1')
-            .then((response) => {
-                expect(_.isArray(response)).toBe(true);
-                expect(_.isPlainObject(response[0])).toBe(true);
-                expect(_.has(response[0], '_created')).toBe(true);
-                expect(_.has(response[0], 'name')).toBe(true);
-                expect(_.has(response[0], 'id')).toBe(true);
-                expect(_.has(response[0], 'version')).toBe(true);
-            })
-            .catch(fail)
-            .finally(() => { done(); });
+        expect(_.isArray(response)).toBe(true);
+        expect(_.isPlainObject(response[0])).toBe(true);
+        expect(_.has(response[0], '_created')).toBe(true);
+        expect(_.has(response[0], 'name')).toBe(true);
+        expect(_.has(response[0], 'id')).toBe(true);
+        expect(_.has(response[0], 'version')).toBe(true);
     });
 
-    it('api end point /assets/assetName/version should return an array of json objects of asset metadata', (done) => {
-        teraslice.cluster.get('/assets/ex1/0.0.1')
-            .then((response) => {
-                expect(_.isArray(response)).toBe(true);
-                expect(_.isPlainObject(response[0])).toBe(true);
-                expect(_.has(response[0], '_created')).toBe(true);
-                expect(_.has(response[0], 'name')).toBe(true);
-                expect(_.has(response[0], 'id')).toBe(true);
-                expect(_.has(response[0], 'version')).toBe(true);
-            })
-            .catch(fail)
-            .finally(() => { done(); });
+    it('api end point /assets/assetName should return an array of json objects of asset metadata', async () => {
+        const response = await teraslice.cluster.get('/assets/ex1');
+
+        expect(_.isArray(response)).toBe(true);
+        expect(_.isPlainObject(response[0])).toBe(true);
+        expect(_.has(response[0], '_created')).toBe(true);
+        expect(_.has(response[0], 'name')).toBe(true);
+        expect(_.has(response[0], 'id')).toBe(true);
+        expect(_.has(response[0], 'version')).toBe(true);
     });
 
-    it('api end point /txt/assets should return a text table', (done) => {
-        teraslice.cluster.txt('assets')
-            .then((response) => {
-                expect(_.isArray(response)).toBe(false);
-                expect(typeof response).toBe('string');
-            })
-            .catch(fail)
-            .finally(() => { done(); });
+    it('api end point /assets/assetName/version should return an array of json objects of asset metadata', async () => {
+        const response = await teraslice.cluster.get('/assets/ex1/0.0.1');
+
+        expect(response).toBeArray();
+        expect(_.isPlainObject(response[0])).toBe(true);
+        expect(_.has(response[0], '_created')).toBe(true);
+        expect(_.has(response[0], 'name')).toBe(true);
+        expect(_.has(response[0], 'id')).toBe(true);
+        expect(_.has(response[0], 'version')).toBe(true);
     });
 
-    it('api end point /txt/assets/assetName should return a text table', (done) => {
-        teraslice.cluster.txt('assets/ex1')
-            .then((response) => {
-                expect(_.isArray(response)).toBe(false);
-                expect(typeof response).toBe('string');
-            })
-            .catch(fail)
-            .finally(() => { done(); });
+    it('api end point /txt/assets should return a text table', async () => {
+        const response = await teraslice.cluster.txt('assets');
+        expect(response).toBeString();
     });
 
-    it('api end point /txt/assets/assetName/version should return a text table', (done) => {
-        teraslice.cluster.txt('assets/ex1/0.0.1')
-            .then((response) => {
-                expect(_.isArray(response)).toBe(false);
-                expect(typeof response).toBe('string');
-            })
-            .catch(fail)
-            .finally(() => { done(); });
+    it('api end point /txt/assets/assetName should return a text table', async () => {
+        const response = await teraslice.cluster.txt('assets/ex1');
+        expect(response).toBeString();
+    });
+
+    it('api end point /txt/assets/assetName/version should return a text table', async () => {
+        const response = await teraslice.cluster.txt('assets/ex1/0.0.1');
+        expect(response).toBeString();
     });
 });
