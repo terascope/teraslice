@@ -32,7 +32,7 @@ project root. Running the CI tests will also force downloading assets.
 
 ## Assets
 
-Currently the `elasticsearch-assets` are automatically download the latest bundle and load into `${root}/e2e/autoload` when the tests are ran. If the asset has already been downloaded in the past 24 hours it will skip downloading. In order to force downloading the latest remove the file `${root}/e2e/autoload/.downloadedAt`.
+Currently only the `elasticsearch-assets` and `kafka-assets` are automatically downloaded to the latest bundle and loaded into `${root}/e2e/autoload` when the tests are ran. When downloading it will delete any older assets in order to prevent loading two different versions of the same asset.
 
 To add additionally asset bundles, edit `${root}/e2e/test/download-assets.js`.
 

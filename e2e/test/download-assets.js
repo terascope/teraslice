@@ -4,16 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const semver = require('semver');
 const signale = require('signale');
-const { promisify } = require('util');
 const downloadRelease = require('@terascope/fetch-github-release');
-
-const readFile = promisify(fs.readFile);
-const writeFile = promisify(fs.writeFile);
 
 // When the docker image is switched to use node:10 this value needs to be changed to '10'
 const nodeVersion = '8';
 const autoloadDir = path.join(__dirname, '..', 'autoload');
-const downloadAtFile = path.join(autoloadDir, '.downloadedAt');
 const leaveZipped = true;
 const disableLogging = true;
 
@@ -27,28 +22,6 @@ const bundles = [
         name: 'kafka'
     }
 ];
-
-function touchDownloadAt() {
-    return writeFile(downloadAtFile, new Date().toISOString());
-}
-
-async function getDownloadedAt() {
-    const _lastDate = await readFile(downloadAtFile, { encoding: 'utf-8' });
-    const lastDate = _lastDate.trim();
-    return new Date(lastDate);
-}
-
-async function checkDownloadedAt() {
-    if (!fs.existsSync(downloadAtFile)) return true;
-
-    const currentTime = Date.now();
-
-    const downloadAt = await getDownloadedAt();
-    const expiresInMs = 24 * 60 * 60 * 1000; // 24 hours
-    const expiresAt = downloadAt.getTime() + expiresInMs;
-
-    return currentTime > expiresAt;
-}
 
 function assetFileInfo(assetName) {
     const [name, version] = assetName.split('-');
@@ -120,23 +93,15 @@ function deleteOlderAssets() {
 function logAssets() {
     const assets = listAssets()
         .map(({ name, version }) => `${name}@v${version}`);
-    signale.info(`Autoload assets ${assets.join(', ')}`);
+    signale.info(`Autoload assets: ${assets.join(', ')}`);
 }
 
 async function downloadAssets() {
-    const shouldDownload = await checkDownloadedAt();
-    if (!shouldDownload) {
-        deleteOlderAssets();
-        logAssets();
-        return;
-    }
-
     const promises = bundles.map(async ({ repo }) => {
         await downloadRelease('terascope', repo, autoloadDir, filterRelease, filterAsset, leaveZipped, disableLogging);
     });
 
     await Promise.all(promises);
-    await touchDownloadAt();
 
     deleteOlderAssets();
     logAssets();
