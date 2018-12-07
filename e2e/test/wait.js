@@ -126,6 +126,7 @@ function waitForClusterState(timeoutMs = 120000) {
 
 function waitForJobStatus(job, status) {
     const jobId = job._jobId;
+    const start = Date.now();
 
     function logExErrors() {
         return job.errors()
@@ -145,7 +146,20 @@ function waitForJobStatus(job, status) {
                 if (_.isEmpty(exStatus)) {
                     return null;
                 }
-                signale.debug(`waitForStatus: ${jobId} ex status`, exStatus);
+                const reasons = _.pick(exStatus, ['_failureReason', '_hasErrors']);
+
+                signale.debug(`job for status failure:
+                    job: ${exStatus.job_id};
+                    job name: ${exStatus.name};
+                    ex: ${exStatus.ex_id};
+                    workers: ${exStatus.workers};
+                    slicers: ${exStatus.slicers};
+                    status: expected ${exStatus._status} to equal ${status};
+                    slicer stats: ${JSON.stringify(exStatus._slicer_stats, null, 2)};
+                    failed after: ${Date.now() - start}ms;
+                    failure reasons: ${JSON.stringify(reasons)};
+                `);
+
                 return null;
             })
             .catch(() => null);

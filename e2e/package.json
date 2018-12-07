@@ -4,8 +4,8 @@
     "version": "0.1.0",
     "description": "Teraslice integration test suite",
     "scripts": {
-        "test": "echo '[WARN] Make sure to remember to run yarn clean or yarn test:e2e:clean to remove the docker containers'; jest --maxWorkers=1",
-        "test:ci": "env CI_MODE=true jest --maxWorkers=1 --bail=true || (sleep 2; yarn logs; yarn clean; exit 1) && (yarn clean; exit 0)",
+        "test": "echo '[WARN] Make sure to remember to run yarn clean or yarn test:e2e:clean to remove the docker containers'; jest --runInBand",
+        "test:ci": "env CI_MODE=true jest --runInBand --bail=true || (sleep 2; yarn logs; yarn clean; exit 1) && (yarn clean; exit 0)",
         "logs": "docker-compose logs --no-color teraslice-worker teraslice-master | awk -F' [|] ' '{print $2}' | bunyan -o short",
         "logs-follow": "docker-compose logs --follow --no-color teraslice-worker teraslice-master | awk -F' [|] ' '{print $2}' | bunyan -o short",
         "clean": "docker-compose down --volumes --remove-orphans --timeout=5"
