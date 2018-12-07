@@ -59,15 +59,15 @@ describe('api endpoint', () => {
         async function didError(p) {
             try {
                 await p;
-                return true;
-            } catch (err) {
                 return false;
+            } catch (err) {
+                return true;
             }
         }
 
         const job = await teraslice.jobs.submit(jobSpec);
         const jobId = job.id();
-        await waitForJobStatus(job, 'completed');
+        await waitForJobStatus(job, 'completed', 100, 1000);
         const ex = await teraslice.cluster.get(`/jobs/${jobId}/ex`);
         const exId = ex.ex_id;
 
@@ -80,7 +80,16 @@ describe('api endpoint', () => {
             didError(teraslice.cluster.post(`/ex/${exId}/_pause`)),
         ]);
 
-        expect(result.every(v => v === true)).toBeTrue();
+        expect(result).toEqual([
+            // _stop should not error
+            false,
+            true,
+            true,
+            // _stop should not error
+            false,
+            true,
+            true,
+        ]);
     });
 
     it('api end point /assets should return an array of json objects of asset metadata', async () => {
