@@ -58,6 +58,7 @@ class TestHarness {
             }
             return config;
         });
+
         this.context.apis.setTestClients(testClients);
     }
 
