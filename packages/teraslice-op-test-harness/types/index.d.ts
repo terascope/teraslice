@@ -16,8 +16,10 @@ import {
     DataEntity,
     Slice,
     TestContext,
+    TestClients,
 } from '@terascope/job-components';
 import { EventEmitter } from 'events';
+import { Client } from 'packages/teraslice-messaging/dist/execution-controller';
 
 export = opTestHarness;
 
@@ -96,6 +98,7 @@ export interface TestHarness {
     opConfig: OpConfig;
     executionConfig: ExecutionConfig;
     retryData?: object[];
+    clientList: TestClients;
 
     /**
      * Initialize and run an operation
