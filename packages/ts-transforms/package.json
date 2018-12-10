@@ -1,0 +1,48 @@
+{
+  "name": "transforms",
+  "version": "0.1.0",
+  "description": "An ETL framework built upon xlucene-evaluator",
+  "srcMain": "src/index.ts",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "directories": {
+    "lib": "dist",
+    "test": "tests"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "scripts": {
+    "prepare": "npm run build",
+    "lint": "tslint --project tsconfig.json --format verbose",
+    "build": "rimraf asset/dist; tsc --project tsconfig.json --pretty",
+    "build:watch": "yarn build --watch",
+    "test": "jest",
+    "test:ci": "env FIXED_KAFKA_TOPICS=true yarn test:all",
+    "test:all": "yarn workspaces run test",
+    "test:watch": "jest --forceExit=true --coverage=false --notify --watch --onlyChanged",
+    "test:debug": "env DEBUG='*teraslice*' jest --forceExit=true --detectOpenHandles --coverage=false --runInBand"
+  },
+  "dependencies": {
+    "@terascope/job-components": "^0.13.1",
+    "lodash": "^4.17.11",
+    "valid-url": "^1.0.9",
+    "xlucene-evaluator": "^0.2.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.7",
+    "@types/lodash": "^4.14.117",
+    "@types/valid-url": "^1.0.2",
+    "@types/node": "^10.12.12",
+    "rimraf": "^2.6.2",
+    "jest": "^23.6.0",
+    "jest-extended": "^0.11.0",
+    "ts-jest": "^23.10.4",
+    "tslint": "^5.11.0",
+    "tslint-config-airbnb": "^5.11.0",
+    "typescript": "^3.2.1"
+  },
+  "repository": "https://github.com/terascope/transforms.git",
+  "author": "Jared Noble <jsnoble1@gmail.com>",
+  "license": "MIT"
+}

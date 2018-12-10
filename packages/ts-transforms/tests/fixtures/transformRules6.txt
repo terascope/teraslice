@@ -1,0 +1,5 @@
+{"selector": "hello:world", "source_field": "first", "target_field": "first_name"}
+{"selector": "hello:world", "source_field": "last", "target_field": "last_name"}
+{"selector": "hello:world", "post_process": "join", "fields": ["first_name", "last_name"], "delimiter": " ", "target_field": "full_name", "id": "myId"}
+{"refs": "myId", "post_process": "selector", "selector": "full_name:\"Jane Doe\"", "id": "second_id" }
+{"refs": "second_id", "post_process": "transform", "source_field":"full_name", "target_field": "name"}

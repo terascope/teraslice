@@ -1,0 +1,15 @@
+language: node_js
+node_js:
+- '8'
+after_install:
+- yarn build
+after_success:
+- yarn lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
+- yarn report-coverage
+deploy:
+  provider: npm
+  email: peter@terascope.io
+  on:
+    branch: master
+    tags: true
+    condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+
