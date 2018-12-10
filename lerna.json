@@ -16,7 +16,7 @@
         },
         "run": {
             "ignore": "teraslice-e2e",
-            "concurrency": 12
+            "concurrency": 6
         }
     },
     "sort": true,
