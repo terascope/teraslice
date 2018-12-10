@@ -63,20 +63,21 @@ describe('With multiple slices', () => {
     });
 });
 
-// Any test above this line is for backward compatability
-describe('tests for new op harness', () => {
-    class Client {
-        async get(data) {
-            data.wasFetched = true;
-            return data;
-        }
-
-        async count(data) {
-            data.count = 5;
-            return data;
-        }
+class Client {
+    async get(data) {
+        data.wasFetched = true;
+        return data;
     }
 
+    async count(data) {
+        data.count = 5;
+        return data;
+    }
+}
+
+
+// Any test above this line is for backward compatability
+describe('tests for new op harness', () => {
     it('can instantiate and return methods', () => {
         const opTest = opHarness(reader);
 
@@ -190,5 +191,59 @@ describe('op harness can handle new style procossors/readers/slicers', () => {
         const [request] = await test.run();
 
         expect(request.fetchFrom).toEqual('https://httpstat.us/200');
+    });
+});
+
+
+describe('when dealing with clients', () => {
+    it('can handle multi-inits with the same client', async () => {
+        const opTest = opHarness(reader);
+        const client = new Client();
+        const type = 'reader';
+
+        const executionConfig = {
+            lifecycle: 'once',
+            operations: [{ _op: 'reader' }]
+        };
+
+        opTest.setClients([{
+            client,
+            type: 'elasticsearch'
+        }]);
+
+        expect(opTest.context.apis.foundation.getConnection({
+            endpoint: 'default',
+            type: 'elasticsearch'
+        })).toEqual({
+            client
+        });
+
+        expect(opTest.clientList).toEqual({
+            elasticsearch: {
+                default: {
+                    client
+                }
+            }
+        });
+
+        await opTest.init({ executionConfig, type });
+
+        expect(opTest.clientList).toEqual({
+            elasticsearch: {
+                default: {
+                    client
+                }
+            }
+        });
+
+        await opTest.init({ executionConfig, type });
+
+        expect(opTest.clientList).toEqual({
+            elasticsearch: {
+                default: {
+                    client
+                }
+            }
+        });
     });
 });

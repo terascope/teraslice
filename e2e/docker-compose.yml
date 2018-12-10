@@ -16,7 +16,6 @@ services:
   teraslice-worker:
     build:
       context: ..
-      dockerfile: e2e/Dockerfile
     command: [
       "./scripts/wait-for-it.sh",
       "elasticsearch:49200",
