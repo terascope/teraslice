@@ -192,7 +192,7 @@ async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
     } catch (err) {
         err.message = `Job: ${jobId}: ${err.message}`;
 
-        Promise.all([
+        await Promise.all([
             logExErrors(err.lastStatus),
             logExStatus(),
         ]);
