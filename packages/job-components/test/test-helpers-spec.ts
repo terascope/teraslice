@@ -103,4 +103,56 @@ describe('Test Helpers', () => {
         expect(context.apis.registerAPI('hello', api)).toBeUndefined();
         expect(context.apis.hello.there()).toEqual('peter');
     });
+
+    it('should be able to get and set clients', () => {
+        const context = new TestContext('test-clients', {
+            clients: [
+                {
+                    create() {
+                        return { client: 'hello' };
+                    },
+                    type: 'test'
+                }
+            ]
+        });
+
+        expect(context.apis.getTestClients()).toEqual({});
+
+        expect(context.apis.foundation.getConnection({
+            type: 'test',
+            endpoint: 'default'
+        })).toEqual({ client: 'hello' });
+
+        expect(context.apis.getTestClients()).toEqual({
+            test: {
+                default: {
+                    client: 'hello'
+                }
+            }
+        });
+
+        context.apis.setTestClients([
+            {
+                create() {
+                    return { client: 'howdy' };
+                },
+                type: 'test'
+            }
+        ]);
+
+        expect(context.apis.getTestClients()).toEqual({});
+
+        expect(context.apis.foundation.getConnection({
+            type: 'test',
+            endpoint: 'default'
+        })).toEqual({ client: 'howdy' });
+
+        expect(context.apis.getTestClients()).toEqual({
+            test: {
+                default: {
+                    client: 'howdy'
+                }
+            }
+        });
+    });
 });

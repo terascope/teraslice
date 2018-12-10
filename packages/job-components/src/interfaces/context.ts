@@ -87,12 +87,24 @@ export interface GetClientConfig {
     connection_cache?: boolean;
 }
 
+/*
+* This will request a connection based on the 'connection' attribute of
+* an opConfig. Intended as a context API endpoint.
+* If there is an error getting the connection, it will not throw an error
+* it will log it and emit `client:initialization:error`
+*/
 export interface OpRunnerAPI {
     getClient(config: GetClientConfig, type: string): any;
 }
 
 export interface JobRunnerAPI {
+    /** Get the first opConfig from an operation name */
     getOpConfig(name: string): OpConfig|undefined;
+}
+
+export interface AssetsAPI {
+    /* Get the asset path from a asset name or ID */
+    getPath(name: string): Promise<string>;
 }
 
 export interface WorkerContext extends Context {
@@ -105,6 +117,8 @@ export interface WorkerContext extends Context {
  * This extends the Terafoundation Context.
 */
 export interface WorkerContextAPIs extends ContextAPIs {
+    /** Includes an API for getting a client from Terafoundation */
+    assets: AssetsAPI;
     /** Includes an API for getting a client from Terafoundation */
     op_runner: OpRunnerAPI;
     /** Includes an API for getting a opConfig from the job */

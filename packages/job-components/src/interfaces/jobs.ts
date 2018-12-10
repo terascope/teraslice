@@ -45,6 +45,7 @@ export interface JobConfig {
 export interface NativeJobConfig {
     analytics: boolean;
     assets: string[];
+    assetIds?: string[];
     lifecycle: LifeCycle;
     max_retries: number;
     name: string;
