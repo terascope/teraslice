@@ -163,6 +163,54 @@ describe('Slice', () => {
             });
         });
 
+        describe('when the slice fails to retry', () => {
+            let slice;
+            let err;
+            let testContext;
+            const eventMocks = {};
+
+            beforeEach(async () => {
+                testContext = new TestContext({
+                    maxRetries: 3,
+                    analytics: false,
+                    newOps: true,
+                    failOnSliceRetry: true
+                });
+
+                slice = await setupSlice(testContext, eventMocks);
+
+                try {
+                    await slice.run();
+                } catch (_err) {
+                    err = _err;
+                }
+            });
+
+            afterEach(async () => {
+                await testContext.cleanup();
+            });
+
+            it('should handle the slice correctly', () => {
+                // should have reject with the error
+                expect(err).toBeDefined();
+                expect(err.toString()).toStartWith('Error: Slice failed to retry: Error: I will not allow it, caused by');
+
+                // should emit the events
+                expect(eventMocks['slice:retry']).toHaveBeenCalledTimes(1);
+                expect(eventMocks['slice:retry']).toHaveBeenCalledWith(slice.slice);
+                expect(eventMocks['slice:failure']).toHaveBeenCalledTimes(1);
+                expect(eventMocks['slice:failure']).toHaveBeenCalledWith(slice.slice);
+                expect(eventMocks['slice:success']).not.toHaveBeenCalled();
+                expect(eventMocks['slice:finalize']).toHaveBeenCalledTimes(1);
+                expect(eventMocks['slice:finalize']).toHaveBeenCalledWith(slice.slice);
+
+                // should have the correct state storage
+                const { exId } = slice.executionContext;
+                const query = `ex_id:${exId} AND state:error`;
+                return expect(slice.stateStore.count(query, 0)).resolves.toEqual(1);
+            });
+        });
+
         describe('when the slice fails', () => {
             let slice;
             let testContext;
