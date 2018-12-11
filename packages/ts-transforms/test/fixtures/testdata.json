@@ -1,0 +1,23 @@
+[
+    {
+		"some": "data",
+		"bytes": 200,
+		"myfield": "hello"
+	},
+	{
+		"some": "data",
+		"bytes": 200
+	},
+	{
+		"some": "other",
+		"bytes": 1200
+	},
+	{
+		"other": "xabcd",
+		"myfield": "hello"
+	},
+	{
+		"_created": "2018-12-16T15:16:09.076Z",
+		"myfield": "hello"
+	}
+]

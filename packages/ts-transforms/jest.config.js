@@ -8,8 +8,8 @@ module.exports = {
     coverageReporters: ['json', 'lcov', 'text', 'html'],
     coverageDirectory: 'coverage',
     testMatch: [
-        '<rootDir>/tests/**/*-spec.{ts,js}',
-        '<rootDir>/tests/*-spec.{ts,js}',
+        '<rootDir>/test/**/*-spec.{ts,js}',
+        '<rootDir>/test/*-spec.{ts,js}',
     ],
     preset: 'ts-jest',
     globals: {
