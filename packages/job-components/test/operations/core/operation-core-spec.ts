@@ -93,4 +93,99 @@ describe('OperationCore', () => {
             return expect(api()).toEqual('hello');
         });
     });
+
+    describe('->rejectRecord', () => {
+        const record = Buffer.from('hello');
+        const err = new Error('Bad news bears');
+
+        describe('when the action is log', () => {
+            let ogError: any;
+
+            beforeAll(() => {
+                ogError = operation.logger.error;
+                operation.deadLetterAction = 'log';
+                operation.logger.error = jest.fn();
+            });
+
+            afterAll(() => {
+                operation.logger.error = ogError;
+            });
+
+            it('should log the record', () => {
+                const result = operation.rejectRecord(record, err);
+                expect(operation.logger.error).toHaveBeenCalledWith('Bad record', record, err);
+                expect(result).toBeNull();
+            });
+        });
+
+        describe('when the action is throw', () => {
+            beforeAll(() => {
+                operation.deadLetterAction = 'throw';
+            });
+
+            it('should throw the original error', () => {
+                expect(() => {
+                    operation.rejectRecord(record, err);
+                }).toThrowError('Bad news bears');
+            });
+        });
+
+        describe('when the action is custom', () => {
+            beforeAll(() => {
+                operation.deadLetterAction = 'custom';
+            });
+
+            it('should throw until we implement this (TODO)', () => {
+                expect(() => {
+                    operation.rejectRecord(record, err);
+                }).toThrowError('Custom dead letter queues are not suppported yet');
+            });
+        });
+
+        describe('when the action is none', () => {
+            beforeAll(() => {
+                operation.deadLetterAction = 'none';
+            });
+
+            it('should return null', () => {
+                const result = operation.rejectRecord(record, err);
+                expect(result).toBeNull();
+            });
+        });
+    });
+
+    describe('->tryRecord', () => {
+        const record = Buffer.from('hello');
+        const err = new Error('Bad news bears');
+
+        let ogReject : any;
+        beforeEach(() => {
+            ogReject = operation.rejectRecord;
+            operation.rejectRecord = jest.fn();
+        });
+
+        afterEach(() => {
+            operation.rejectRecord = ogReject;
+        });
+
+        describe('when the fn fails', () => {
+            it('should call operation.rejectRecord', () => {
+                const result = operation.tryRecord(record, () => {
+                    throw err;
+                });
+                expect(operation.rejectRecord).toHaveBeenCalledWith(record, err);
+                expect(result).toBeNull();
+            });
+        });
+
+        describe('when the fn succceds', () => {
+            it('should not call operation.rejectRecord', () => {
+                const result = operation.tryRecord(record, () => {
+                    return { hello: true };
+                });
+                expect(operation.rejectRecord).not.toHaveBeenCalled();
+                expect(result).toEqual({ hello: true });
+            });
+        });
+    });
 });

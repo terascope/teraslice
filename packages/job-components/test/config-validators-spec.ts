@@ -8,9 +8,9 @@ import {
     K8sJobConfig,
 } from '../src';
 
-describe('When using native clustering', () => {
-    describe('When passed a valid jobSchema and jobConfig', () => {
-        it('returns a completed and valid jobConfig', () => {
+describe('when using native clustering', () => {
+    describe('when passed a valid jobSchema and jobConfig', () => {
+        it('should return a completed and valid jobConfig', () => {
             const context = new TestContext('teraslice-operations');
 
             const schema = jobSchema(context);
@@ -42,8 +42,8 @@ describe('When using native clustering', () => {
         });
     });
 
-    describe('When passed a job without a known connector', () => {
-        it('raises an exception', () => {
+    describe('when passed a job without a known connector', () => {
+        it('should raises an exception', () => {
             const context = new TestContext('teraslice-operations');
             context.sysconfig.terafoundation = {
                 connectors: {
@@ -73,7 +73,7 @@ describe('When using native clustering', () => {
         });
     });
 
-    describe('When validating opConfig', () => {
+    describe('when validating opConfig', () => {
         const schema: Schema<any> = {
             example: {
                 default: '',
@@ -107,10 +107,12 @@ describe('When using native clustering', () => {
                 example: 'example',
                 formatted_value: 'hi',
             };
+
             const config = validateOpConfig(schema, op);
             expect(config as object).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
+                _dead_letter_action: 'none',
                 example: 'example',
                 formatted_value: 'hi',
                 test: true,
@@ -129,6 +131,7 @@ describe('When using native clustering', () => {
             expect(config as object).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
+                _dead_letter_action: 'none',
                 example: 'example',
                 formatted_value: 'hi',
                 test: true,
@@ -161,6 +164,52 @@ describe('When using native clustering', () => {
             }).toThrow();
         });
 
+        it('should handle a custom dead letter action', () => {
+            const op = {
+                _op: 'some-op',
+                _encoding: 'json',
+                _dead_letter_action: 'log',
+                example: 'example',
+                formatted_value: 'hi',
+            };
+
+            const config = validateOpConfig(schema, op);
+            expect(config as object).toEqual({
+                _op: 'some-op',
+                _encoding: 'json',
+                _dead_letter_action: 'log',
+                example: 'example',
+                formatted_value: 'hi',
+                test: true,
+            });
+        });
+
+        it('should handle a non-string dead letter action', () => {
+            const op = {
+                _op: 'some-op',
+                _dead_letter_action: 'this-wont-work',
+                example: 'example',
+                formatted_value: 'hi',
+            };
+
+            expect(() => {
+                validateOpConfig(schema, op);
+            }).toThrow();
+        });
+
+        it('should handle an invalid dead letter action', () => {
+            const op = {
+                _op: 'some-op',
+                _dead_letter_action: 123,
+                example: 'example',
+                formatted_value: 'hi',
+            };
+
+            expect(() => {
+                validateOpConfig(schema, op);
+            }).toThrow();
+        });
+
         it('should fail when given invalid input', () => {
             const op = {
                 _op: 'some-op',
@@ -176,12 +225,12 @@ describe('When using native clustering', () => {
 
 });
 
-describe('When validating k8s clustering', () => {
+describe('when validating k8s clustering', () => {
     const context = new TestContext('teraslice-operations');
     context.sysconfig.teraslice.cluster_manager_type = 'kubernetes';
 
-    describe('When passed a jobConfig with resources', () => {
-        it('returns a completed and valid jobConfig', () => {
+    describe('when passed a jobConfig with resources', () => {
+        it('should return a completed and valid jobConfig', () => {
 
             const schema = jobSchema(context);
             const job = {
@@ -203,8 +252,8 @@ describe('When validating k8s clustering', () => {
         });
     });
 
-    describe('When passed a jobConfig with targets', () => {
-        it('returns a completed and valid jobConfig', () => {
+    describe('when passed a jobConfig with targets', () => {
+        it('should return a completed and valid jobConfig', () => {
             const schema = jobSchema(context);
             const job = {
                 targets: [
@@ -250,8 +299,8 @@ describe('When validating k8s clustering', () => {
         });
     });
 
-    describe('When passed a jobConfig with volumes', () => {
-        it('returns a completed and valid jobConfig', () => {
+    describe('when passed a jobConfig with volumes', () => {
+        it('should return a completed and valid jobConfig', () => {
             const schema = jobSchema(context);
             const job = {
                 volumes: [

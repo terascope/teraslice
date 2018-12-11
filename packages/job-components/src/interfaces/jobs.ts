@@ -8,16 +8,25 @@
 export interface OpConfig {
     _op: string;
     _encoding?: DataEncoding;
+    _dead_letter_action?: DeadLetterAction;
     [prop: string]: any;
 }
 
 /**
- * An enum of available encoding formats
+ * available data encoding types
 */
 export type DataEncoding = 'json';
 
 /** A list of supported encoding formats */
 export const dataEncodings: DataEncoding[] = ['json'];
+
+/**
+ * available dead letter queue actions
+*/
+export type DeadLetterAction = 'throw'|'log'|'custom'|'none';
+
+/** A list of supported dead letter actions */
+export const deadLetterActions = ['throw', 'log', 'custom', 'none'];
 
 export type LifeCycle = 'once'|'persistent';
 

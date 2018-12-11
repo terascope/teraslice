@@ -1,6 +1,6 @@
 'use strict';
 
-import { Context, dataEncodings } from './interfaces';
+import { Context, dataEncodings, deadLetterActions } from './interfaces';
 import convict from 'convict';
 import { flatten } from './utils';
 import os from 'os';
@@ -196,5 +196,10 @@ export const opSchema: convict.Schema<any> = {
         doc: 'Used to specify the encoding type of the data',
         default: 'json',
         format: dataEncodings,
+    },
+    _dead_letter_action: {
+        doc: 'This action will specify what to do when failing to parse or transform a record. Defaults to doing nothing.',
+        default: 'none',
+        format: deadLetterActions,
     }
 };

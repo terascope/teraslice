@@ -42,7 +42,8 @@ export interface WorkerOperationLifeCycle extends OperationLifeCycle {
     /**
      * Called after the operation failed to process the slice
      * but before the slice is retried.
-     * [DEPRECATION NOTICE]: this will be deprecated in near future
+     *
+     * NOTE: A retry can be stopped by throw an error inside this function
     */
     onSliceRetry?(sliceId: string): Promise <void>;
 
