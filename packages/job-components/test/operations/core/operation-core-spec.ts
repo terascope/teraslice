@@ -170,9 +170,11 @@ describe('OperationCore', () => {
 
         describe('when the fn fails', () => {
             it('should call operation.rejectRecord', () => {
-                const result = operation.tryRecord(record, () => {
+                const fn = operation.tryRecord(() => {
                     throw err;
                 });
+
+                const result = fn(record);
                 expect(operation.rejectRecord).toHaveBeenCalledWith(record, err);
                 expect(result).toBeNull();
             });
@@ -180,9 +182,11 @@ describe('OperationCore', () => {
 
         describe('when the fn succceds', () => {
             it('should not call operation.rejectRecord', () => {
-                const result = operation.tryRecord(record, () => {
+                const fn = operation.tryRecord(() => {
                     return { hello: true };
                 });
+
+                const result = fn(record);
                 expect(operation.rejectRecord).not.toHaveBeenCalled();
                 expect(result).toEqual({ hello: true });
             });

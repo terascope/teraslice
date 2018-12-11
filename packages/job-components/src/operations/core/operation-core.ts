@@ -56,17 +56,18 @@ export default class OperationCore<T = OpConfig> extends Core<WorkerContext> imp
      *
      * See {@link #rejectRecord} for handling
      *
-     * @param data the data to transform
      * @param fn a function to transform the data with
-     * @returns the transformed record or null if it failed
+     * @returns a curried a function that will be called with the data and handle the dead letter action
     */
-    tryRecord<I, R>(input: I, fn: (input: I) => R): R|null {
-        try {
-            return fn(input);
-        } catch (err) {
-            this.rejectRecord(input, err);
-            return null;
-        }
+    tryRecord<I, R>(fn: (input: I) => R): (input: I) => R|null {
+        return (input) => {
+            try {
+                return fn(input);
+            } catch (err) {
+                this.rejectRecord(input, err);
+                return null;
+            }
+        };
     }
 
     /**
