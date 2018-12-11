@@ -1,29 +1,82 @@
 
+import yargs from 'yargs';
 import { PhaseManager } from './index';
+import { WatcherConfig } from './lib/interfaces';
 import { DataEntity } from '@terascope/job-components';
 import path from 'path';
+import readline from 'readline';
+import fs from 'fs';
 
 const dir = process.cwd();
-console.log('the process args', process.argv)
-const filePath = process.argv[2];
-const dataPath = process.argv[3];
+
+const command = yargs
+    .alias('t', 'typesFields')
+    .alias('T', 'typesFile' )
+    .alias('r', 'rulesFile')
+    .alias('-d', 'dataFile')
+    .argv
+
+const filePath = command.rulesFile;
+const dataPath = command.dataFile;
+let typesConfig = {};
+const type = yargs['$0'].match('ts-transform') ? 'transform' : 'matcher';
+console.log('what type am i', type)
+try {
+    if (command.t) {
+        const segments = command.t.split(',');
+        segments.forEach((segment: string) => {
+            const pieces = segment.split(':');
+            typesConfig[pieces[0].trim()] = pieces[1].trim()
+        });
+    }
+    if (command.T) {
+        typesConfig = require(command.T)
+    }
+} catch(err) {
+    console.error('could not load and parse types', err);
+    process.exit(1);
+}
 
 if (!filePath || !dataPath) {
     console.error('a rule file and data file must be given');
     process.exit(1);
 }
- //@ts-ignore
-let data: DataEntity[];
-const opConfig = {
-    file_path: path.resolve(dir, filePath)
+
+const opConfig: WatcherConfig = {
+    _op: 'transform',
+    file_path: path.resolve(dir, filePath),
+    selector_config: typesConfig,
+    type 
 };
 
-try {
-    const dataFromFile = require(path.resolve(dir, dataPath));
-    data = DataEntity.makeArray(dataFromFile);
-} catch(err) {
-    console.error(`could not load data file ${err.message}`)
-    process.exit(1);
+async function dataLoader(dataPath: string): Promise<object[]> {
+    const results: object[] = [];
+    
+    const rl = readline.createInterface({
+        input: fs.createReadStream(dataPath),
+        crlfDelay: Infinity
+      });
+    //TODO: error handling here
+      return new Promise<object[]>((resolve) => {
+        rl.on('line', (str) => {
+            if (str) {
+                results.push(JSON.parse(str))
+            }
+        });
+          
+        rl.on('close', () => resolve(results));
+      });
+}
+
+async function getData(dataPath: string) {
+    let parsedData;
+    try {
+        parsedData = require(path.resolve(dir, dataPath));
+    } catch(err) {
+        parsedData = await dataLoader(dataPath);
+    }
+    
+    return DataEntity.makeArray(parsedData);
 }
 
 const logger = {
@@ -37,7 +90,8 @@ const logger = {
 const manager = new PhaseManager(opConfig, logger);
 
 Promise.resolve(manager.init())
-    .then(() => {
+    .then(() => getData(path.resolve(dir, dataPath)))
+    .then((data) => {
         process.stdout.write('\n');
         console.time('execution-time');
         const results = manager.run(data);
@@ -46,7 +100,10 @@ Promise.resolve(manager.init())
         process.stdout.write(JSON.stringify(results, null, 4));
         process.stdout.write('\n');
     })
-    .catch(console.error)
+    .catch((err) => {
+        console.error(err);
+        process.exit(1);
+    });
 
 
 

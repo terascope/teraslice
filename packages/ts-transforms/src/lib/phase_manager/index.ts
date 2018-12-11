@@ -13,23 +13,33 @@ export default class PhaseManager {
     private loader: Loader;
     private logger: Logger;
     private sequence: PhaseBase[];
+    private isMatcher: boolean;
+
 
     constructor(opConfig: WatcherConfig, logger:Logger) {
         this.opConfig = opConfig;
         this.loader = new Loader(opConfig)
         this.logger = logger;
         this.sequence = [];
+        this.isMatcher = opConfig.type === 'matcher';
     }
 
     public async init () {
         const { opConfig } = this;
         try {
             const configList = await this.loader.load();
-            this.sequence = [
+            const sequence: PhaseBase[] = [
                 new SelectionPhase(opConfig, configList),
-                new TransformPhase(opConfig, configList),
-                new PostProcessPhase(opConfig, configList)
             ];
+
+            if (!this.isMatcher) {
+                sequence.push(
+                    new TransformPhase(opConfig, configList),
+                    new PostProcessPhase(opConfig, configList)
+                )
+            }
+           
+            this.sequence = sequence;
         } 
         catch(err) {
             const errMsg = `could not instantiate phase manager: ${err.message}`;

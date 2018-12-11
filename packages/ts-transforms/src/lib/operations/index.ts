@@ -12,6 +12,7 @@ import Email from './lib/validations/email';
 import Ip from './lib/validations/ip';
 import Base64Decode from './lib/ops/base64decode';
 import UrlDecode from './lib/ops/urldecode';
+import HexDecode from './lib/ops/hexdecode';
 
 const opNames = {
     join: Join,
@@ -25,7 +26,8 @@ const opNames = {
     email: Email,
     ip: Ip,
     base64encode: Base64Decode,
-    UrlDecode: UrlDecode
+    urldecode: UrlDecode,
+    hexdecode: HexDecode
 };
 
 export {
@@ -42,5 +44,6 @@ export {
     Ip,
     Base64Decode,
     UrlDecode,
+    HexDecode,
     opNames
 };

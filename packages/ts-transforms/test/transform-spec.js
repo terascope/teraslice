@@ -3,7 +3,7 @@ const path = require('path');
 const _ = require('lodash');
 const TestHarness = require('./test-harness');
 
-describe('can transform matches', () => {
+fdescribe('can transform matches', () => {
 
     const transformRules1Path = path.join(__dirname, './fixtures/transformRules1.txt');
     const transformRules2Path = path.join(__dirname, './fixtures/transformRules2.txt');
@@ -11,6 +11,9 @@ describe('can transform matches', () => {
     const transformRules4Path = path.join(__dirname, './fixtures/transformRules4.txt');
     const transformRules5Path = path.join(__dirname, './fixtures/transformRules5.txt');
     const transformRules6Path = path.join(__dirname, './fixtures/transformRules6.txt');
+    const transformRules7Path = path.join(__dirname, './fixtures/transformRules7.txt');
+    const transformRules8Path = path.join(__dirname, './fixtures/transformRules8.txt');
+    const transformRules9Path = path.join(__dirname, './fixtures/transformRules9.txt');
 
     let opTest;
 
@@ -269,5 +272,51 @@ describe('can transform matches', () => {
 
         const metaData = results[0].getMetadata();
         expect(metaData.selectors).toEqual({ 'hello:world': true, 'full_name:"Jane Doe"': true });
+    });
+
+   fit("validations work with the different ways to configure them", async() => {
+        const opConfig = {
+            _op: 'transform',
+            file_path: transformRules7Path
+        };
+
+        const opConfig2 = {
+            _op: 'transform',
+            file_path: transformRules8Path
+        };
+
+        const data = [
+            { hello: 'world', txt: 'first' },
+            { hello: 'world',  txt: 'second' },
+            { hello: 'world', txt: 'third' },
+            { hello: 'world' }
+        ];
+
+        const transformedData = data.map((doc) => {
+            if (doc.txt) {
+                doc.txt = Buffer.from(doc.txt).toString('hex');
+            }
+            return doc;
+        });
+
+        const resultsData1 = transformedData.map(data => ({ hex: data.txt }));
+
+        const finalData = DataEntity.makeArray(transformedData);
+
+        const test1 = await opTest.init({ opConfig });
+        const results1 =  await test1.run(finalData);
+
+        // const test2 = await opTest.init({ opConfig2 });
+        // const results2 =  await test2.run(finalData);
+        // console.log('what are results2 ', results1)
+
+        expect(results1.length).toEqual(3);
+        _.each(results1, (result, ind) => {
+            expect(result).toEqual(resultsData1[ind]);
+            expect(DataEntity.isDataEntity(result)).toEqual(true);
+        });
+
+        // const metaData = results1[0].getMetadata();
+        // expect(metaData.selectors).toEqual({ 'hello:world': true, 'full_name:"Jane Doe"': true });
     });
 });

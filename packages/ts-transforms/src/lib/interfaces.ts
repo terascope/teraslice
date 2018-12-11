@@ -1,7 +1,7 @@
 
 import { DataEntity, OpConfig } from '@terascope/job-components';
 import PhaseBase from './operations/lib/base';
-export enum NotifyType { matcher = "matcher", extraction = "extraction" }
+export enum NotifyType { matcher = "matcher", transform = "transform" }
 
 export interface TypeOutput {
     selector: string,
@@ -78,10 +78,10 @@ export interface InjectConfig {
 export interface WatcherConfig extends OpConfig {
     type: string;
     file_path: string | undefined;
-    connection: string | undefined;
-    index: string | undefined;
+    connection?: string | undefined;
+    index?: string | undefined;
     selector_config: object | undefined;
-    actions: object[];
+    actions?: object[];
 }
 
 export interface Notifier {

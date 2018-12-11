@@ -1,0 +1,2 @@
+{ "selector": "hello:world", "source_field": "txt", "target_field": "hex", "id": "hexId" }
+{ "refs": "hexId", "validation": "hexdecode", "target_field": "final", "remove_source": true }

@@ -13,7 +13,8 @@
     "node": ">=8.0.0"
   },
   "bin": {
-    "ts-transform": "./bin/ts-transform.js"
+    "ts-transform": "./bin/ts-transform.js",
+    "ts-match": "./bin/ts-transform.js"
   },
   "scripts": {
     "prepare": "npm run build",
@@ -22,22 +23,26 @@
     "build:watch": "yarn build --watch",
     "test": "jest",
     "test:watch": "jest --forceExit=true --coverage=false --notify --watch --onlyChanged",
-    "test:debug": "env DEBUG='*teraslice*' jest --forceExit=true --detectOpenHandles --coverage=false --runInBand"
+    "test:debug": "env DEBUG='*teraslice*' jest --forceExit=true --detectOpenHandles --coverage=false --runInBand",
+    "ts-transform": "./bin/ts-transform.js",
+    "ts-match": "./bin/ts-transform.js"
   },
   "dependencies": {
     "@terascope/job-components": "^0.13.1",
+    "@types/yargs": "^12.0.1",
     "lodash": "^4.17.11",
     "valid-url": "^1.0.9",
-    "xlucene-evaluator": "^0.2.1"
+    "xlucene-evaluator": "^0.2.1",
+    "yargs": "^12.0.5"
   },
   "devDependencies": {
     "@types/jest": "^23.3.7",
     "@types/lodash": "^4.14.117",
-    "@types/valid-url": "^1.0.2",
     "@types/node": "^10.12.12",
-    "rimraf": "^2.6.2",
+    "@types/valid-url": "^1.0.2",
     "jest": "^23.6.0",
     "jest-extended": "^0.11.0",
+    "rimraf": "^2.6.2",
     "ts-jest": "^23.10.4",
     "tslint": "^5.11.0",
     "tslint-config-airbnb": "^5.11.0",

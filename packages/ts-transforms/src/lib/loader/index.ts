@@ -5,12 +5,10 @@ import { WatcherConfig, OperationConfig } from '../interfaces';
 
 //TODO: need story around how to load from other assets
 export default class Loader {
-    private isMatcher: boolean;
     private opConfig: WatcherConfig;
 
     constructor(opConfig: WatcherConfig) {
         this.opConfig = opConfig;
-        this.isMatcher = opConfig.type === 'matcher';
     }
 
     public async load():Promise<OperationConfig[]> {
@@ -22,7 +20,7 @@ export default class Loader {
     // }
 
     private parseConfig(config: string): OperationConfig {
-        if (this.isMatcher) {
+        if (config.charAt(0) !== '{') {
             return { selector: config as string };
         }
         const results =  JSON.parse(config);
