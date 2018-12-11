@@ -140,10 +140,10 @@ class Slice {
             this.logger.error(`An error has occurred: ${toString(err)}, slice:`, this.slice);
 
             if (shouldRetry) {
-                // for backwards compatibility
-                this.events.emit('slice:retry', this.slice);
-
                 try {
+                    // for backwards compatibility
+                    this.events.emit('slice:retry', this.slice);
+
                     await this.executionContext.onSliceRetry(this.slice.slice_id);
                 } catch (retryErr) {
                     throw new retry.StopError(`Slice failed to retry: ${toString(retryErr)}, caused by: ${toString(err)}`);
