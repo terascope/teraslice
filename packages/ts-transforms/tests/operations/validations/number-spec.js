@@ -1,8 +1,8 @@
 
-const { Number } = require('../../../asset/src/transform/lib/operations');
+const { Number } = require('../../../dist/lib/operations');
 const { DataEntity } = require ('@terascope/job-components');
 
-xdescribe('number validation', () => {
+describe('number validation', () => {
    
     it('can instantiate', () => {
         const opConfig = { target_field: 'someField' };

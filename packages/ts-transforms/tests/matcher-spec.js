@@ -1,18 +1,16 @@
 
-const opTestHarness  = require ('@terascope/teraslice-op-test-harness');
 const { DataEntity } = require ('@terascope/job-components');
 const path = require('path');
-const Matcher = require('../asset/src/matcher');
 const _ = require('lodash');
+const TestHarness = require('./test-harness');
 
-
-xdescribe('matcher', () => {
+fdescribe('matcher', () => {
     const matchRules1Path = path.join(__dirname, './fixtures/matchRules1.txt');
 
     let opTest;
 
     beforeEach(() => {
-        opTest = opTestHarness({ Processor: Matcher.Processor.default, Schema: Matcher.Schema.default });
+        opTest = new TestHarness;
     });
 
     it('can return matching documents', async () => {
@@ -20,7 +18,8 @@ xdescribe('matcher', () => {
         const opConfig = {
             _op: 'watcher',
             file_path: matchRules1Path,
-            selector_config: { _created: 'date' }
+            selector_config: { _created: 'date' },
+            type: 'matcher'
         };
 
         const data = DataEntity.makeArray([
@@ -41,7 +40,8 @@ xdescribe('matcher', () => {
         const opConfig = {
             _op: 'watcher',
             file_path: matchRules1Path,
-            selector_config: { _created: 'date' }
+            selector_config: { _created: 'date' },
+            type: 'matcher'
         };
 
         const data = DataEntity.makeArray([
@@ -63,7 +63,8 @@ xdescribe('matcher', () => {
         const opConfig = {
             _op: 'watcher',
             file_path: matchRules1Path,
-            selector_config: { _created: 'date' }
+            selector_config: { _created: 'date' },
+            type: 'matcher'
         }
 
         const data = DataEntity.makeArray([

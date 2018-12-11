@@ -1,8 +1,8 @@
 
-const { Url } = require('../../../asset/src/transform/lib/operations');
+const { Url } = require('../../../dist/lib/operations');
 const { DataEntity } = require ('@terascope/job-components');
 
-xdescribe('url validation', () => {
+describe('url validation', () => {
    
     it('can instantiate', () => {
         const opConfig = { target_field: 'someField' };

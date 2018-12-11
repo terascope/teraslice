@@ -1,8 +1,8 @@
 
-const { Ip } = require('../../../asset/src/transform/lib/operations');
+const { Ip } = require('../../../dist/lib/operations');
 const { DataEntity } = require ('@terascope/job-components');
 
-xdescribe('ip validation', () => {
+describe('ip validation', () => {
    
     it('can instantiate', () => {
         const opConfig = { target_field: 'someField' };

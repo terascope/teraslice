@@ -1,8 +1,8 @@
 
-const { Boolean } = require('../../../asset/src/transform/lib/operations');
+const { Boolean } = require('../../../dist/lib/operations');
 const { DataEntity } = require ('@terascope/job-components');
 
-xdescribe('boolean validation', () => {
+describe('boolean validation', () => {
    
     it('can instantiate', () => {
         const opConfig = { target_field: 'someField' };

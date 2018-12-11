@@ -1,8 +1,8 @@
 
-const { Join } = require('../../../asset/src/transform/lib/operations');
+const { Join } = require('../../../dist/lib/operations');
 const { DataEntity } = require ('@terascope/job-components');
 
-xdescribe('join operator', () => {
+describe('join operator', () => {
 
     it('can instantiate', () => {
         const opConfig = { fields: ['first', 'last'], target_field: 'someField' };

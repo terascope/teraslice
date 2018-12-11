@@ -1,8 +1,8 @@
 
-const { Base64Decode } = require('../../../asset/src/transform/lib/operations');
+const { Base64Decode } = require('../../../dist/lib/operations');
 const { DataEntity } = require ('@terascope/job-components');
 
-xdescribe('base64 operation', () => {
+describe('base64 operation', () => {
 
     function encode(str) {
         const buff = Buffer.from(str);

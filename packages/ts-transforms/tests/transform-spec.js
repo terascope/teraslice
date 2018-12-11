@@ -1,10 +1,9 @@
-const opTestHarness  = require ('@terascope/teraslice-op-test-harness');
 const { DataEntity } = require ('@terascope/job-components');
 const path = require('path');
-const Transform = require('../asset/src/transform');
 const _ = require('lodash');
+const TestHarness = require('./test-harness');
 
-xdescribe('can transform matches', () => {
+describe('can transform matches', () => {
 
     const transformRules1Path = path.join(__dirname, './fixtures/transformRules1.txt');
     const transformRules2Path = path.join(__dirname, './fixtures/transformRules2.txt');
@@ -16,7 +15,7 @@ xdescribe('can transform matches', () => {
     let opTest;
 
     beforeEach(() => {
-        opTest = opTestHarness({ Processor: Transform.Processor.default, Schema: Transform.Schema.default });
+        opTest = new TestHarness;
     });
 
     it('it can transform matching data', async () => {

@@ -1,9 +1,9 @@
 
 const path = require('path');
-const LoaderModule = require('../asset/src/transform/lib/loader');
+const LoaderModule = require('../dist/lib/loader');
 const Loader = LoaderModule.default || LoaderModule;
 
-xdescribe('Loader', () => {
+describe('Loader', () => {
     const matchRules1Path = path.join(__dirname, './fixtures/matchRules1.txt');
     const transformRules2Path = path.join(__dirname, './fixtures/transformRules2.txt');
 

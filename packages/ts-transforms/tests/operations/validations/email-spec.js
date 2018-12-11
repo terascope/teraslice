@@ -1,8 +1,8 @@
 
-const { Email } = require('../../../asset/src/transform/lib/operations');
+const { Email } = require('../../../dist/lib/operations');
 const { DataEntity } = require ('@terascope/job-components');
 
-xdescribe('email validation', () => {
+describe('email validation', () => {
    
     it('can instantiate', () => {
         const opConfig = { target_field: 'someField' };

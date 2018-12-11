@@ -1,8 +1,8 @@
 
-const { UrlDecode } = require('../../../asset/src/transform/lib/operations');
+const { UrlDecode } = require('../../../dist/lib/operations');
 const { DataEntity } = require ('@terascope/job-components');
 
-xdescribe('base64 operation', () => {
+describe('base64 operation', () => {
 
     function encode(str) {
         const buff = Buffer.from(str);
@@ -41,8 +41,8 @@ xdescribe('base64 operation', () => {
 
         expect(results).toEqual(null);
     });
-
-    it('can base64 decode fields', () => {
+    //TODO: fix me and check for the right fields are being used
+    xit('can base64 decode fields', () => {
         const opConfig = { target_field: 'final', source_field: 'source' };
         const test =  new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
@@ -88,7 +88,7 @@ xdescribe('base64 operation', () => {
         expect(results11).toEqual({ final: 'hello world', source: encode('hello world')});
     });
 
-    it('can base64 decode fields and remove source', () => {
+    xit('can base64 decode fields and remove source', () => {
         const opConfig = { target_field: 'final', source_field: 'source', remove_source: true };
         const test =  new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
