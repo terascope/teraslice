@@ -26,6 +26,7 @@ services:
       "--max-old-space-size=512",
       "service.js"
     ]
+    restart: unless-stopped
     scale: 2
     stop_grace_period: 30s
     environment:
@@ -43,6 +44,7 @@ services:
       interval: 15s
       timeout: 10s
       retries: 3
+    restart: unless-stopped
     ports:
       - "49200:49200"
       - "49300:49300"
@@ -65,6 +67,7 @@ services:
     ports:
       - "42181:42181"
       - "49092:49092"
+    restart: unless-stopped
     networks:
       - cluster
     environment:

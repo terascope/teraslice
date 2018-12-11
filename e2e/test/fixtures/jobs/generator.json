@@ -5,6 +5,7 @@
   "workers": 3,
   "analytics": false,
   "assets": ["elasticsearch"],
+  "max_retries": 0,
   "operations": [
     {
       "_op": "elasticsearch_data_generator",

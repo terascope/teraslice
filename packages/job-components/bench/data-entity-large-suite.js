@@ -28,29 +28,10 @@ data['big-array'] = times(100, n => `item-${n}`);
 const metadata = { id: Math.random() * 1000 * 1000 };
 
 const run = async () => Suite('DataEntity (large records)')
-    .add('new data', {
-        fn() {
-            let entity = Object.assign({}, data);
-            entity.metadata = Object.assign({ createdAt: Date.now() });
-            entity.hello = Math.random();
-            entity.hello;
-            entity = null;
-            return entity;
-        }
-    })
     .add('new data with metadata', {
         fn() {
             let entity = Object.assign({}, data);
             entity.metadata = Object.assign({}, metadata, { createdAt: Date.now() });
-            entity.hello = Math.random();
-            entity.hello;
-            entity = null;
-            return entity;
-        }
-    })
-    .add('new FakeDataEntity', {
-        fn() {
-            let entity = new FakeDataEntity(data);
             entity.hello = Math.random();
             entity.hello;
             entity = null;
@@ -66,15 +47,6 @@ const run = async () => Suite('DataEntity (large records)')
             return entity;
         }
     })
-    .add('new DataEntity', {
-        fn() {
-            let entity = new DataEntity(data);
-            entity.hello = Math.random();
-            entity.hello;
-            entity = null;
-            return entity;
-        }
-    })
     .add('new DataEntity with metadata', {
         fn() {
             let entity = new DataEntity(data, metadata);
@@ -84,27 +56,9 @@ const run = async () => Suite('DataEntity (large records)')
             return entity;
         }
     })
-    .add('DataEntity.make', {
-        fn() {
-            let entity = DataEntity.make(data);
-            entity.hello = Math.random();
-            entity.hello;
-            entity = null;
-            return entity;
-        }
-    })
     .add('DataEntity.make with metadata', {
         fn() {
             let entity = DataEntity.make(data, metadata);
-            entity.hello = Math.random();
-            entity.hello;
-            entity = null;
-            return entity;
-        }
-    })
-    .add('new proxy entity', {
-        fn() {
-            let entity = makeProxyEntity(data);
             entity.hello = Math.random();
             entity.hello;
             entity = null;

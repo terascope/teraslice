@@ -7,7 +7,7 @@ RUN mkdir -p /app/source/packages/teraslice \
     && mkdir -p /app/source/packages/error-parser \
     && mkdir -p /app/source/packages/queue
 
-# copy just the package.json's so we can have faster build times
+# copy just the package.json's so wecan have faster build times
 COPY package.json yarn.lock lerna.json /app/source/
 COPY packages/teraslice/package.json /app/source/packages/teraslice/package.json
 COPY packages/teraslice-messaging/package.json /app/source/packages/teraslice-messaging/package.json

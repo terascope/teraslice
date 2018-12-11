@@ -10,11 +10,12 @@ const misc = require('./misc');
  * then waits for the length of that array to match 'value'.
  */
 function forLength(func, value, iterations) {
-    return forValue(
-        () => func()
-            .then(result => result.length),
-        value, iterations
-    );
+    const fn = async () => {
+        const result = await func();
+        return result.length;
+    };
+
+    return forValue(fn, value, iterations);
 }
 
 /*
@@ -26,46 +27,52 @@ function forLength(func, value, iterations) {
 function forValue(func, value, iterations = 100) {
     let counter = 0;
 
-    return new Promise(((resolve, reject) => {
-        function checkValue() {
-            func()
-                .then((result) => {
-                    counter += 1;
-                    if (result === value) {
-                        resolve(result);
-                        return;
-                    }
-                    if (counter > iterations) {
-                        signale.debug('forValue last target value', {
-                            actual: result,
-                            expected: value,
-                            iterations,
-                            counter
-                        });
-                        reject(new Error(`forValue didn't find target value after ${iterations} iterations.`));
-                    } else {
-                        setTimeout(checkValue, 500);
-                    }
-                });
+    // to keep compatibility since I change delay to 100 from 500
+    const _iterations = 100 * 2;
+
+    async function checkValue() {
+        counter++;
+
+        const result = await func();
+        if (result === value) return Promise.resolve(result);
+
+        if (counter > _iterations) {
+            signale.debug('forValue last target value', {
+                actual: result,
+                expected: value,
+                iterations,
+                counter
+            });
+
+            throw new Error(`forValue didn't find target value after ${iterations} iterations.`);
         }
 
-        checkValue();
-    }));
+        await Promise.delay(250);
+        return checkValue();
+    }
+
+    return checkValue();
 }
 
 /*
  * Wait for 'node_count' nodes to be available.
  */
 function forNodes(nodeCount = misc.DEFAULT_NODES) {
-    return forLength(() => misc.teraslice().cluster
-        .state()
-        .then(state => _.keys(state)), nodeCount);
+    const fn = async () => {
+        const state = await misc.teraslice().cluster.state();
+        return Object.keys(state);
+    };
+
+    return forLength(fn, nodeCount);
 }
 
 function forWorkers(workerCount = misc.DEFAULT_WORKERS) {
-    return forLength(() => misc.teraslice().cluster
-        .state()
-        .then(state => _.keys(state)), workerCount + 1);
+    const fn = async () => {
+        const state = await misc.teraslice().cluster.state();
+        return Object.keys(state);
+    };
+
+    return forLength(fn, workerCount + 1);
 }
 
 function scaleWorkersAndWait(workersToAdd = 0) {
@@ -83,84 +90,115 @@ function scaleWorkersAndWait(workersToAdd = 0) {
  * 'joined'
  */
 function forWorkersJoined(jobId, workerCount, iterations) {
-    return forValue(() => misc.teraslice().cluster
-        .controllers()
-        .then((controllers) => {
-            const controller = _.find(controllers, s => s.job_id === jobId);
-            if (controller != null) {
-                return controller.workers_joined;
-            }
-            return 0;
-        }), workerCount, iterations)
-        .catch((e) => {
-            throw (new Error(`(forWorkersJoined) ${e}`));
-        });
+    const fn = async () => {
+        const controllers = await misc.teraslice().cluster.controllers();
+        const controller = _.find(controllers, s => s.job_id === jobId);
+        if (!controller) return 0;
+        return controller.workers_joined;
+    };
+
+    return forValue(fn, workerCount, iterations);
 }
 
 function waitForClusterState(timeoutMs = 120000) {
     const endAt = Date.now() + timeoutMs;
     const { cluster } = misc.teraslice();
-    const requiredNodes = misc.DEFAULT_NODES - 1;
+    const requiredNodes = misc.DEFAULT_NODES - 2;
 
-    function _try() {
+    async function _try() {
         if (Date.now() > endAt) {
-            return Promise.reject(new Error(`Failure to communicate with the Cluster Master as ${timeoutMs}ms`));
+            throw new Error(`Failure to communicate with the Cluster Master as ${timeoutMs}ms`);
         }
-        return cluster.get('/cluster/state', {
-            timeout: 1000,
-            json: true,
-        })
-            .then((result) => {
-                const nodes = _.size(_.keys(result));
-                if (nodes >= requiredNodes) {
-                    return nodes;
-                }
-                return _try();
-            })
-            .catch(() => _try());
+
+        let nodes = -1;
+        try {
+            const result = await cluster.get('/cluster/state', {
+                timeout: 500,
+                json: true,
+            });
+            nodes = _.size(_.keys(result));
+        } catch (err) {
+            return _try();
+        }
+
+        if (nodes >= requiredNodes) return nodes;
+        return _try();
     }
 
     return _try();
 }
 
-function waitForJobStatus(job, status) {
+async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
     const jobId = job._jobId;
+    const start = Date.now();
 
-    function logExErrors() {
-        return job.errors()
-            .then((errors) => {
-                if (_.isEmpty(errors)) {
-                    return null;
-                }
-                signale.debug(`waitForStatus: ${jobId} errors`, errors);
-                return null;
-            })
-            .catch(() => null);
+    async function logExErrors() {
+        try {
+            const errors = await job.errors();
+            signale.debug(`waitForStatus: ${jobId} errors`, printObj(errors));
+            return null;
+        } catch (err) {
+            return null;
+        }
     }
 
-    function logExStatus() {
-        return job.get(`/jobs/${jobId}/ex`)
-            .then((exStatus) => {
-                if (_.isEmpty(exStatus)) {
-                    return null;
-                }
-                signale.debug(`waitForStatus: ${jobId} ex status`, exStatus);
-                return null;
-            })
-            .catch(() => null);
+    function printObj(obj) {
+        if (_.isEmpty(obj)) return 'none';
+        return JSON.stringify(obj);
     }
 
-    return job.waitForStatus(status, 100, 2 * 60 * 1000)
+    async function logExStatus(lastStatus) {
+        try {
+            const exStatus = await job.get(`/jobs/${jobId}/ex`);
+            if (_.isEmpty(exStatus)) return null;
+
+            const reasons = _.pick(exStatus, [
+                '_failureReason',
+                '_hasErrors'
+            ]);
+
+            const slicerStats = _.pick(exStatus._slicer_stats, [
+                'queued',
+                'failed',
+                'processed',
+                'job_duration',
+            ]);
+
+            signale.debug(`Job Status Failure:
+                job: ${exStatus.job_id};
+                job name: "${exStatus.name}";
+                ex: ${exStatus.ex_id};
+                workers: ${exStatus.workers};
+                slicers: ${exStatus.slicers};
+                status: expected ${exStatus._status || lastStatus} to equal ${status};
+                slicer stats: ${printObj(slicerStats)};
+                failed after: ${Date.now() - start}ms;
+                failure reasons: ${printObj(reasons)};
+                `);
+
+            return null;
+        } catch (err) {
+            return null;
+        }
+    }
+
+    try {
+        const result = await job.waitForStatus(status, interval, 2 * 60 * 1000);
         // since most of the time we are chaining this with other actions
         // make sure we avoid unrealistic test conditions by giving the
         // it a little bit of time
-        .then(result => Promise.delay(500).then(() => result))
-        .catch(async (err) => {
-            err.message = `Job: ${jobId}: ${err.message}`;
-            await logExErrors();
-            await logExStatus();
-            return Promise.reject(err);
-        });
+        await Promise.delay(endDelay);
+        return result;
+    } catch (err) {
+        err.message = `Job: ${jobId}: ${err.message}`;
+
+        await Promise.all([
+            logExErrors(err.lastStatus),
+            logExStatus(),
+        ]);
+
+        throw err;
+    }
 }
 
 async function waitForIndexCount(index, expected, remainingMs = 30 * 1000) {

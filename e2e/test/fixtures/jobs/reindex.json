@@ -21,7 +21,7 @@
         },
         {
             "_op": "elasticsearch_bulk",
-            "size": 100
+            "size": 50
         }
     ]
 }
