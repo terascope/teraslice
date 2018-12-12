@@ -5,7 +5,6 @@ import {
     validateJobConfig,
     validateOpConfig,
     TestContext,
-    K8sJobConfig,
 } from '../src';
 
 describe('when using native clustering', () => {
@@ -30,6 +29,7 @@ describe('when using native clustering', () => {
                 lifecycle: 'once',
                 max_retries: 3,
                 name: 'Custom Job',
+                apis: [],
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],
                 probation_window: 300000,
                 recycle_worker: null,
@@ -42,7 +42,60 @@ describe('when using native clustering', () => {
         });
     });
 
-    describe('when passed a job without a known connector', () => {
+    describe('when passed a job with an invalid op', () => {
+        it('should raises an exception', () => {
+            const context = new TestContext('teraslice-operations');
+            context.sysconfig.terafoundation = {
+                connectors: {
+                    elasticsearch: {
+                        t1: {
+                            host: ['1.1.1.1:9200'],
+                        },
+                    },
+                },
+            };
+
+            const schema = jobSchema(context);
+            const job = {
+                operations: [
+                    {
+                        _op: 'test-reader'
+                    },
+                    123,
+                ],
+            };
+
+            expect(() => {
+                validateJobConfig(schema, job);
+            }).toThrowError(/Invalid Operation config in operations, got Number/);
+        });
+    });
+
+    describe('when passed a job with an invalid operations', () => {
+        it('should raises an exception', () => {
+            const context = new TestContext('teraslice-operations');
+            context.sysconfig.terafoundation = {
+                connectors: {
+                    elasticsearch: {
+                        t1: {
+                            host: ['1.1.1.1:9200'],
+                        },
+                    },
+                },
+            };
+
+            const schema = jobSchema(context);
+            const job = {
+                operations: [{ _op: 'noop' }],
+            };
+
+            expect(() => {
+                validateJobConfig(schema, job);
+            }).toThrowError(/Operations need to be of type array with at least two operations in it/);
+        });
+    });
+
+    describe('when passed a job without a known operation connector', () => {
         it('should raises an exception', () => {
             const context = new TestContext('teraslice-operations');
             context.sysconfig.terafoundation = {
@@ -67,9 +120,113 @@ describe('when using native clustering', () => {
                     },
                 ],
             };
+
             expect(() => {
                 validateJobConfig(schema, job);
-            }).toThrowError(/undefined connection/);
+            }).toThrowError(/Operation elasticsearch_reader refers to connection "unknown" which is unavailable/);
+        });
+    });
+
+    describe('when passed a job with an invalid api', () => {
+        it('should raises an exception', () => {
+            const context = new TestContext('teraslice-operations');
+            context.sysconfig.terafoundation = {
+                connectors: {
+                    elasticsearch: {
+                        t1: {
+                            host: ['1.1.1.1:9200'],
+                        },
+                    },
+                },
+            };
+
+            const schema = jobSchema(context);
+            const job = {
+                apis: [
+                    123
+                ],
+                operations: [
+                    {
+                        _op: 'test-reader'
+                    },
+                    {
+                        _op: 'noop'
+                    },
+                ],
+            };
+
+            expect(() => {
+                validateJobConfig(schema, job);
+            }).toThrowError(/Invalid API config in apis, got Number/);
+        });
+    });
+
+    describe('when passed a job without api _name', () => {
+        it('should raises an exception', () => {
+            const context = new TestContext('teraslice-operations');
+            context.sysconfig.terafoundation = {
+                connectors: {
+                    elasticsearch: {
+                        t1: {
+                            host: ['1.1.1.1:9200'],
+                        },
+                    },
+                },
+            };
+
+            const schema = jobSchema(context);
+            const job = {
+                apis: [
+                    {}
+                ],
+                operations: [
+                    {
+                        _op: 'test-reader',
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+            expect(() => {
+                validateJobConfig(schema, job);
+            }).toThrowError(/API requires an _name/);
+        });
+    });
+
+    describe('when passed a job without a known api connector', () => {
+        it('should raises an exception', () => {
+            const context = new TestContext('teraslice-operations');
+            context.sysconfig.terafoundation = {
+                connectors: {
+                    elasticsearch: {
+                        t1: {
+                            host: ['1.1.1.1:9200'],
+                        },
+                    },
+                },
+            };
+
+            const schema = jobSchema(context);
+            const job = {
+                apis: [
+                    {
+                        _name: 'test-api',
+                        connection: 'unknown'
+                    }
+                ],
+                operations: [
+                    {
+                        _op: 'test-reader',
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+            expect(() => {
+                validateJobConfig(schema, job);
+            }).toThrowError(/API test-api refers to connection "unknown" which is unavailable/);
         });
     });
 
@@ -233,7 +390,7 @@ describe('when validating k8s clustering', () => {
                 ],
             };
 
-            const jobConfig = validateJobConfig(schema, job) as K8sJobConfig;
+            const jobConfig = validateJobConfig(schema, job);
             expect(jobConfig.cpu).toEqual(job.cpu);
             expect(jobConfig.memory).toEqual(job.memory);
         });
@@ -267,6 +424,7 @@ describe('when validating k8s clustering', () => {
                 max_retries: 3,
                 memory: -1,
                 name: 'Custom Job',
+                apis: [],
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],
                 probation_window: 300000,
                 recycle_worker: null,
@@ -313,6 +471,7 @@ describe('when validating k8s clustering', () => {
                 max_retries: 3,
                 memory: -1,
                 name: 'Custom Job',
+                apis: [],
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],
                 probation_window: 300000,
                 recycle_worker: null,

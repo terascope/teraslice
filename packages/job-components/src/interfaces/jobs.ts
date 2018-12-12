@@ -39,30 +39,25 @@ export type DeadLetterAction = 'throw'|'log'|'none'|string;
 /** A supported DeadLetterAPIFn */
 export type DeadLetterAPIFn = (input: any, err: Error) => void;
 
+/**
+ * APIConfig is the configuration for loading APIs and Observers
+ * into a ExecutionContext.
+*/
+export interface APIConfig {
+    /** The name of the operation */
+    _name: string;
+    [prop: string]: any;
+}
+
 export type LifeCycle = 'once'|'persistent';
 
 /**
  * JobConfig is the configuration that user specifies
  * for a Job
 */
-export interface JobConfig {
-    analytics?: boolean;
-    assets?: string[];
-    lifecycle?: LifeCycle;
-    max_retries?: number;
-    name: string;
-    operations: OpConfig[];
-    probation_window?: number;
-    recycle_worker?: number;
-    slicers?: number;
-    workers?: number;
-    targets?: Targets[];
-    cpu?: number;
-    memory?: number;
-    volumes?: Volume[];
-}
+export type JobConfig = Partial<ValidatedJobConfig>;
 
-export interface NativeJobConfig {
+export interface ValidatedJobConfig {
     analytics: boolean;
     assets: string[];
     assetIds?: string[];
@@ -74,6 +69,14 @@ export interface NativeJobConfig {
     recycle_worker: number;
     slicers: number;
     workers: number;
+    /** This will only be available in the context of k8s */
+    targets?: Targets[];
+    /** This will only be available in the context of k8s */
+    cpu?: number;
+    /** This will only be available in the context of k8s */
+    memory?: number;
+    /** This will only be available in the context of k8s */
+    volumes?: Volume[];
 }
 
 export interface Targets {
@@ -86,33 +89,12 @@ export interface Volume {
     path: string;
 }
 
-export interface K8sJobConfig extends NativeJobConfig {
-    targets: Targets[];
-    cpu: number;
-    memory: number;
-    volumes: Volume[];
-}
-
-export type ValidatedJobConfig = NativeJobConfig|K8sJobConfig;
-
-export interface NativeExecutionConfig extends NativeJobConfig {
+export interface ExecutionConfig extends ValidatedJobConfig {
     ex_id: string;
     job_id: string;
     slicer_hostname: string;
     slicer_port: number;
 }
-
-export interface K8sExecutionConfig extends K8sJobConfig {
-    ex_id: string;
-    job_id: string;
-    slicer_hostname: string;
-    slicer_port: number;
-}
-
-/**
- * ExecutionConfig a unique configuration instance for a running Job
-*/
-export type ExecutionConfig = NativeExecutionConfig|K8sExecutionConfig;
 
 /**
  * LegacyExecutionContext is the old ExecutionContext available
