@@ -4,8 +4,8 @@ node_js:
 after_install:
 - yarn build
 after_success:
-- yarn lint || echo "Let's show the lint output here but we don't want it cause a failure yet"
-- yarn report-coverage
+- bash <(curl -s https://codecov.io/bash)
+- yarn lint
 deploy:
   provider: npm
   email: peter@terascope.io
