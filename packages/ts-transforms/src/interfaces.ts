@@ -55,7 +55,7 @@ export interface StringRefs extends Refs {
 }
 
 export interface ConfigResults {
-    registrationSelector: string;
+    registrationSelector?: string;
     targetConfig: OperationConfig | null
 }
 

@@ -54,7 +54,8 @@ export default class PostProcessPhase implements PhaseBase {
     }
 
     normalizeConfig(config: OperationConfig, configList:OperationConfig[]): NormalizedConfig {
-        const data = { registrationSelector: config.selector, targetConfig: null }
+        const data = { registrationSelector: config.selector, targetConfig: null };
+
         function findConfiguration(myConfig: OperationConfig, container: ConfigResults): ConfigResults {
             if (myConfig.refs) {
                 const id = myConfig.refs;
