@@ -23,7 +23,7 @@ describe('JobValidator', () => {
                 ],
             };
 
-            const validJob = api.validate(jobSpec);
+            const validJob = api.validateConfig(jobSpec);
             expect(validJob.max_retries).toBeDefined();
             expect(validJob.lifecycle).toBeDefined();
             expect(validJob.operations).toBeDefined();
@@ -33,8 +33,8 @@ describe('JobValidator', () => {
         it('throws an error with faulty operation configuration', () => {
             const jobSpec: JobConfig = {
                 name: 'test',
+                // @ts-ignore
                 operations: [
-                    // @ts-ignore
                     {
                         something: 'else',
                     },
@@ -45,7 +45,7 @@ describe('JobValidator', () => {
             };
 
             expect(() => {
-                api.validate(jobSpec);
+                api.validateConfig(jobSpec);
             }).toThrowError();
         });
 
@@ -66,12 +66,12 @@ describe('JobValidator', () => {
             };
 
             expect(() => {
-                api.validate(jobSpec);
+                api.validateConfig(jobSpec);
             }).not.toThrowError();
         });
 
         it('will throw based off opValition errors', () => {
-        // if subslice_by_key, then it needs type specified or it will error
+            // if subslice_by_key, then it needs type specified or it will error
             const jobSpec: JobConfig = {
                 name: 'test',
                 operations: [
@@ -89,13 +89,13 @@ describe('JobValidator', () => {
             };
 
             expect(() => {
-                api.validate(jobSpec);
+                api.validateConfig(jobSpec);
             }).toThrowError();
         });
 
         it('will throw based off crossValidation errors', () => {
             // if persistent, then interval cannot be auto
-            const jobSpec = {
+            const jobSpec: JobConfig = {
                 lifecycle: 'persistent',
                 operations: [
                     {
@@ -112,7 +112,7 @@ describe('JobValidator', () => {
             };
 
             expect(() => {
-                api.validate(jobSpec);
+                api.validateConfig(jobSpec);
             }).toThrowError();
         });
     });
