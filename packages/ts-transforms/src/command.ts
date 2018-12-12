@@ -1,7 +1,7 @@
 
 import yargs from 'yargs';
 import { PhaseManager } from './index';
-import { WatcherConfig } from './lib/interfaces';
+import { WatcherConfig } from './interfaces';
 import { DataEntity } from '@terascope/job-components';
 import path from 'path';
 import readline from 'readline';
@@ -10,14 +10,14 @@ import fs from 'fs';
 const dir = process.cwd();
 
 const command = yargs
-    .alias('t', 'typesFields')
-    .alias('T', 'typesFile' )
-    .alias('r', 'rulesFile')
-    .alias('-d', 'dataFile')
+    .alias('t', 'types-fields')
+    .alias('T', 'types-file' )
+    .alias('r', 'rules')
+    .alias('d', 'data')
     .argv
 
-const filePath = command.rulesFile;
-const dataPath = command.dataFile;
+const filePath = command.rules;
+const dataPath = command.data;
 let typesConfig = {};
 const type = yargs['$0'].match('ts-transform') ? 'transform' : 'matcher';
 
