@@ -2,11 +2,12 @@
 import yargs from 'yargs';
 import { PhaseManager } from './index';
 import { WatcherConfig } from './interfaces';
-import { DataEntity } from '@terascope/job-components';
 import path from 'path';
 import readline from 'readline';
 import fs from 'fs';
+import { debugLogger, DataEntity } from '@terascope/job-components';
 
+const logger = debugLogger('ts-transform-cli');
 const dir = process.cwd();
 
 const command = yargs
@@ -14,6 +15,14 @@ const command = yargs
     .alias('T', 'types-file' )
     .alias('r', 'rules')
     .alias('d', 'data')
+    .help('h')
+    .alias('h', 'help')
+    .describe('r', 'path to load the rules file')
+    .describe('d', 'path to load  the data file')
+    .describe('t', 'specify type configs ie field:value, otherfield:value')
+    .describe('T', 'specify type configs from file')
+    .demandOption(['r', 'd'])
+    .version("0.1.0")
     .argv
 
 const filePath = command.rules;
@@ -43,7 +52,6 @@ if (!filePath || !dataPath) {
 }
 
 const opConfig: WatcherConfig = {
-    _op: 'transform',
     file_path: path.resolve(dir, filePath),
     selector_config: typesConfig,
     type 
@@ -79,26 +87,19 @@ async function getData(dataPath: string) {
     return DataEntity.makeArray(parsedData);
 }
 
-const logger = {
-    info(logs:string) {console.log('info', logs)},
-    debug(logs:string) {console.log('debug', logs)},
-    warn(logs:string) {console.log('warn', logs)},
-    error(logs:string) {console.error('error',logs)}
-}
-
  //@ts-ignore
 const manager = new PhaseManager(opConfig, logger);
 
 Promise.resolve(manager.init())
     .then(() => getData(path.resolve(dir, dataPath)))
     .then((data) => {
-        process.stdout.write('\n');
+        process.stderr.write('\n');
         console.time('execution-time');
         const results = manager.run(data);
         console.timeEnd('execution-time');
-        process.stdout.write('\nresults:\n');
+        process.stderr.write('\nresults:\n');
         process.stdout.write(JSON.stringify(results, null, 4));
-        process.stdout.write('\n');
+        process.stderr.write('\n');
     })
     .catch((err) => {
         console.error(err);
