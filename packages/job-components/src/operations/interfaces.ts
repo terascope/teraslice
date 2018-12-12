@@ -1,6 +1,6 @@
-import { ExecutionConfig, Context, OpConfig, WorkerContext } from '../interfaces';
+import { ExecutionConfig, Context, OpConfig, APIConfig, WorkerContext } from '../interfaces';
 import FetcherCore from './core/fetcher-core';
-import SchemaCore from './core/schema-core';
+import SchemaCore, { OpType } from './core/schema-core';
 import SlicerCore from './core/slicer-core';
 import APICore from './core/api-core';
 import ProcessorCore from './core/processor-core';
@@ -9,7 +9,7 @@ import ParallelSlicer from './parallel-slicer';
 import OperationAPI from './operation-api';
 
 export type APICoreConstructor<U> = {
-    new(context: WorkerContext, executionConfig: ExecutionConfig): U;
+    new(context: WorkerContext, apiConfig: APIConfig, executionConfig: ExecutionConfig): U;
 };
 
 export type OperationCoreConstructor<U> = {
@@ -22,7 +22,7 @@ export type SlicerCoreConstructor<U> = {
 
 export type SchemaConstructor<T = any> = {
     type(): string;
-    new(context: Context): SchemaCore<T>;
+    new(context: Context, opType?: OpType): SchemaCore<T>;
 };
 
 export type OperationAPIConstructor = APICoreConstructor<OperationAPI>;
@@ -45,12 +45,9 @@ export interface SchemaModule {
     Schema: SchemaConstructor;
 }
 
-export interface APIModule {
-    API: OperationAPIConstructor;
-}
-
-export interface ObserverModule {
-    Observer: ObserverConstructor;
+export interface APIModule extends SchemaModule {
+    API?: OperationAPIConstructor;
+    Observer?: ObserverConstructor;
 }
 
 export interface ReaderModule extends OperationModule {

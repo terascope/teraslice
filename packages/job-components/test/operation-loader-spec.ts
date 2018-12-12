@@ -229,7 +229,7 @@ describe('OperationLoader', () => {
         expect(op.API).not.toBeNil();
         expect(() => {
             // @ts-ignore
-            new op.API(context, exConfig);
+            new op.API(context, { _name: 'test' }, exConfig);
         }).not.toThrow();
     });
 
@@ -279,11 +279,14 @@ describe('OperationLoader', () => {
             assetPath: path.join(__dirname),
         });
 
-        const op = opLoader.loadAPI('example-api', ['fixtures']);
+        const op = opLoader.loadAPI('example-api', [
+            'fixtures'
+        ]);
 
         expect(op.API).not.toBeNil();
         expect(() => {
-            new op.API(context as WorkerContext, exConfig);
+            // @ts-ignore
+            new op.API(context as WorkerContext, { _name: 'example-api' }, exConfig);
         }).not.toThrow();
     });
 
@@ -300,11 +303,14 @@ describe('OperationLoader', () => {
             assetPath: path.join(__dirname),
         });
 
-        const op = opLoader.loadObserver('example-observer', ['fixtures']);
+        const op = opLoader.loadAPI('example-observer', [
+            'fixtures'
+        ]);
 
         expect(op.Observer).not.toBeNil();
         expect(() => {
-            new op.Observer(context as WorkerContext, exConfig);
+            // @ts-ignore
+            new op.Observer(context, { _name: 'example-observer' }, exConfig);
         }).not.toThrow();
     });
 });

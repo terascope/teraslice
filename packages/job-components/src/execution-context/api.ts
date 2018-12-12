@@ -1,6 +1,5 @@
-import { OpAPI, Context, ExecutionConfig } from '../interfaces';
+import { OpAPI, Context, ExecutionConfig, APIConfig } from '../interfaces';
 import { OperationAPIConstructor } from '../operations';
-import legacySliceEventsShim from '../operations/shims/legacy-slice-events-shim';
 
 // WeakMaps are used as a memory efficient reference to private data
 const _registry = new WeakMap();
@@ -72,12 +71,16 @@ export class ExecutionContextAPI {
 
         const API = this.registry[name];
 
-        const api = new API(config.context, config.executionConfig);
+        const { apis = [] } = config.executionConfig;
+
+        const apiConfig = apis.find((a: APIConfig) => a._name === name) || {
+            _name: name,
+        };
+
+        const api = new API(config.context, apiConfig, config.executionConfig);
         await api.initialize();
 
         config.events.emit('execution:add-to-lifecycle', api);
-
-        legacySliceEventsShim(api);
 
         this.apis[name] = await api.createAPI(...params);
         return this.apis[name];

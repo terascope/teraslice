@@ -1,4 +1,4 @@
-import { ExecutionConfig, SliceAnalyticsData, WorkerContext } from '../interfaces';
+import { ExecutionConfig, APIConfig, SliceAnalyticsData, WorkerContext } from '../interfaces';
 import APICore from './core/api-core';
 import { times } from '../utils';
 
@@ -20,8 +20,8 @@ export default class JobObserver extends APICore {
     // in-flight analytics
     private _initialized: OpAnalytics|null;
 
-    constructor(context: WorkerContext, executionConfig: ExecutionConfig) {
-        super(context, executionConfig);
+    constructor(context: WorkerContext, apiConfig: APIConfig, executionConfig: ExecutionConfig) {
+        super(context, apiConfig, executionConfig);
 
         this._opLength = executionConfig.operations.length;
 

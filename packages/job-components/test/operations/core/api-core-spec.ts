@@ -8,9 +8,9 @@ describe('APICore', () => {
     let api: ExampleAPI;
 
     beforeAll(() => {
-        const context = new TestContext('teraslice-operations');
+        const context = new TestContext('teraslice-operations') as WorkerContext;
         const exConfig = newTestExecutionConfig();
-        api = new ExampleAPI(context as WorkerContext, exConfig);
+        api = new ExampleAPI(context, { _name: 'example' }, exConfig);
     });
 
     describe('->initialize', () => {

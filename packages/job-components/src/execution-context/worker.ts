@@ -108,11 +108,14 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
                 cloneDeep(opConfig),
                 this.config
             );
+
             this.addOperation(op);
             this.processors.push(op);
         }
 
-        const jobObserver = new JobObserver(this.context, this.config);
+        const apiConfig = { _name: 'job-observer' };
+        const jobObserver = new JobObserver(this.context, apiConfig, this.config);
+
         this.addOperation(jobObserver);
         this.jobObserver = jobObserver;
     }

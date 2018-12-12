@@ -7,6 +7,7 @@
 export interface OpConfig {
     /** The name of the operation */
     _op: string;
+
     /** Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`. */
     _encoding?: DataEncoding;
     /**
@@ -64,6 +65,7 @@ export interface ValidatedJobConfig {
     lifecycle: LifeCycle;
     max_retries: number;
     name: string;
+    apis: APIConfig[];
     operations: OpConfig[];
     probation_window: number;
     recycle_worker: number;

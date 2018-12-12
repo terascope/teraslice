@@ -4,15 +4,23 @@ import { JobValidator, TestContext, JobConfig } from '../src';
 
 describe('JobValidator', () => {
     const context = new TestContext('teraslice-operations');
+    context.sysconfig.teraslice.assets_directory = __dirname;
+
     const terasliceOpPath = path.join(__dirname, '../../teraslice/lib');
     const api = new JobValidator(context, {
         terasliceOpPath,
     });
 
-    describe('->validate', () => {
+    describe('->validateConfig', () => {
         it('returns a completed and valid jobConfig', () => {
             const jobSpec: JobConfig = {
                 name: 'noop',
+                assets: ['fixtures'],
+                apis: [
+                    {
+                        _name: 'example-api'
+                    }
+                ],
                 operations: [
                     {
                         _op: 'test-reader',
@@ -35,114 +43,6 @@ describe('JobValidator', () => {
                 name: 'test',
                 // @ts-ignore
                 operations: [
-                    {
-                        something: 'else',
-                    },
-                    {
-                        _op: 'noop',
-                    },
-                ],
-            };
-
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).toThrowError();
-        });
-
-        it('will properly read an operation', () => {
-            const jobSpec: JobConfig = {
-                name: 'test',
-                operations: [
-                    {
-                        _op: 'elasticsearch_reader',
-                    // @ts-ignore
-                        date_field_name: 'created',
-                        index: 'some_index',
-                    },
-                    {
-                        _op: 'noop',
-                    },
-                ],
-            };
-
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).not.toThrowError();
-        });
-
-        it('will throw based off opValition errors', () => {
-            // if subslice_by_key, then it needs type specified or it will error
-            const jobSpec: JobConfig = {
-                name: 'test',
-                operations: [
-                    {
-                        _op: 'elasticsearch_reader',
-                    // @ts-ignore
-                        date_field_name: 'created',
-                        index: 'some_index',
-                        subslice_by_key: true,
-                    },
-                    {
-                        _op: 'noop',
-                    },
-                ],
-            };
-
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).toThrowError();
-        });
-
-        it('will throw based off crossValidation errors', () => {
-            // if persistent, then interval cannot be auto
-            const jobSpec: JobConfig = {
-                lifecycle: 'persistent',
-                operations: [
-                    {
-                        _op: 'elasticsearch_reader',
-                        date_field_name: 'created',
-                        index: 'some_index',
-                        interval: 'auto',
-                        subslice_by_key: true,
-                    },
-                    {
-                        _op: 'noop',
-                    },
-                ],
-            };
-
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).toThrowError();
-        });
-    });
-
-    describe('->validateConfig', () => {
-        it('returns a completed and valid jobConfig', () => {
-            const jobSpec: JobConfig = {
-                name: 'noop',
-                operations: [
-                    {
-                        _op: 'test-reader',
-                    },
-                    {
-                        _op: 'noop',
-                    },
-                ],
-            };
-
-            const validJob = api.validateConfig(jobSpec);
-            expect(validJob.max_retries).toBeDefined();
-            expect(validJob.lifecycle).toBeDefined();
-            expect(validJob.operations).toBeDefined();
-            expect(validJob.assets).toBeDefined();
-        });
-
-        it('throws an error with faulty operation configuration', () => {
-            const jobSpec: JobConfig = {
-                name: 'test',
-                operations: [
-                    // @ts-ignore
                     {
                         something: 'else',
                     },

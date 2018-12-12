@@ -19,7 +19,7 @@ import {
  */
 
 export default class OperationCore<T = OpConfig> extends Core<WorkerContext> implements WorkerOperationLifeCycle {
-    protected readonly opConfig: Readonly<OpConfig & T>;
+    readonly opConfig: Readonly<OpConfig & T>;
     deadLetterAction: DeadLetterAction;
 
     constructor(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {

@@ -1,5 +1,4 @@
-'use strict';
-
+/* tslint:disable:variable-name */
 import fs from 'fs';
 import path from 'path';
 import { LegacyOperation } from './interfaces';
@@ -10,7 +9,6 @@ import {
     ProcessorConstructor,
     ObserverConstructor,
     SchemaConstructor,
-    ObserverModule,
     ProcessorModule,
     APIModule,
     ReaderModule,
@@ -90,9 +88,7 @@ export class OperationLoader {
             return this.shimLegacyProcessor(name, codePath);
         }
 
-        /* tslint:disable-next-line:variable-name */
         let Processor: ProcessorConstructor|undefined;
-        /* tslint:disable-next-line:variable-name */
         let Schema: SchemaConstructor|undefined;
         let API: OperationAPIConstructor|undefined;
 
@@ -129,11 +125,8 @@ export class OperationLoader {
             return this.shimLegacyReader(name, codePath);
         }
 
-        /* tslint:disable-next-line:variable-name */
         let Fetcher: FetcherConstructor|undefined;
-        /* tslint:disable-next-line:variable-name */
         let Slicer: SlicerConstructor|undefined;
-        /* tslint:disable-next-line:variable-name */
         let Schema: SchemaConstructor|undefined;
         let API: OperationAPIConstructor|undefined;
 
@@ -171,39 +164,42 @@ export class OperationLoader {
         };
     }
 
-    loadObserver(name: string, assetIds?: string[]): ObserverModule {
-        const codePath = this.findOrThrow(name, assetIds);
-
-        /* tslint:disable-next-line:variable-name */
-        let Observer: ObserverConstructor|undefined;
-
-        try {
-            Observer = this.require(codePath, 'observer');
-        } catch (err) {
-            throw new Error(`Failure loading observer from module: ${name}, error: ${parseError(err, true)}`);
-        }
-
-        return {
-            // @ts-ignore
-            Observer,
-        };
-    }
-
     loadAPI(name: string, assetIds?: string[]): APIModule {
         const codePath = this.findOrThrow(name, assetIds);
 
-        /* tslint:disable-next-line:variable-name */
         let API: OperationAPIConstructor|undefined;
 
         try {
             API = this.require(codePath, 'api');
         } catch (err) {
-            throw new Error(`Failure loading api from module: ${name}, error: ${parseError(err, true)}`);
+        }
+
+        let Observer: ObserverConstructor|undefined;
+
+        try {
+            Observer = this.require(codePath, 'observer');
+        } catch (err) {
+        }
+
+        let Schema: SchemaConstructor|undefined;
+
+        try {
+            Schema = this.require(codePath, 'schema');
+        } catch (err) {
+            throw new Error(`Failure loading schema from module: ${name}, error: ${parseError(err, true)}`);
+        }
+
+        if (Observer == null && API == null) {
+            throw new Error(`Failure to load api module: ${name}, requires at least an api.js or observer.js`);
         }
 
         return {
             // @ts-ignore
             API,
+            // @ts-ignore
+            Observer,
+            // @ts-ignore
+            Schema,
         };
     }
 
