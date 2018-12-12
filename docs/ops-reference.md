@@ -59,7 +59,6 @@ Note that the job configuration is divided into top level job configuration, and
 
 #### Job level configuration options ####
 
-
 | Configuration | Description | Type |  Notes |
 | --------- | -------- | ------ | ------ |
 | name | Name for the given job | String | optional |
@@ -72,6 +71,16 @@ Note that the job configuration is divided into top level job configuration, and
 | recycle_worker | The number of slices a worker processes before it exits and restarts, only use if you have leaky workers | Null/Number | optional, defaults to null, if specified it must be a number. |
 | operations | An array containing all the operations as well as their configurations. Typically the first is the reader/slicer. | Array | required |
 | probation_window | time in ms that the execution controller checks for failed slices, if there are none then it updates the state of the execution to running (this is only when lifecycle is set to persistent) | Number | optional |
+
+#### Operation level configuration options ####
+
+Here is a list of configuration options that all operations have available to them.
+
+| Configuration | Description | Type |  Notes |
+| --------- | -------- | ------ | ------ |
+| `_op` | Name of operation, it must reflect the exact name of the file | `String` | required |
+| `_encoding` | Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`. | `String` | optional |
+| `_dead_letter_action` | This action will specify what to do when failing to parse or transform a record. ​​​​​The following builtin actions are supported, "throw", "log", or "none". If none of the actions are specified it will try and use a registered Dead Letter Queue API under that name.The API must be already be created by a operation before it can used.​ | `String` | required |
 
 ## Readers ##
 
