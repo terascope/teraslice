@@ -7,6 +7,7 @@ import {
     OpConfig,
     WorkerContext,
     DeadLetterAction,
+    DeadLetterAPIFn,
 } from '../../interfaces';
 
 /**
@@ -52,6 +53,13 @@ export default class OperationCore<T = OpConfig> extends Core<WorkerContext> imp
     }
 
     /**
+     * Get a reference to an existing API
+    */
+    getAPI(name: string): OpAPI {
+        return this.context.apis.executionContext.getAPI(name);
+    }
+
+    /**
      * Try catch a transformation on a record and place any failed records in a dead letter queue
      *
      * See {@link #rejectRecord} for handling
@@ -77,36 +85,27 @@ export default class OperationCore<T = OpConfig> extends Core<WorkerContext> imp
      * be handled any of the following ways:
      *   - "throw": throw the original error
      *   - "log": log the error and the data
-     *   - "custom": send the error to a specified dead letter queue
      *   - "none": skip the error entirely
+     *   OR a string to specify the api to use as the dead letter queue
      *
      * @param data the data to transform
      * @param fn a function to transform the data with
      * @returns the transformed record
     */
     rejectRecord(input: any, err: Error): never|null {
-        switch (this.deadLetterAction) {
-            case 'throw': {
-                throw err;
-            }
-            case 'log': {
-                this.logger.error('Bad record', input, err);
-                return null;
-            }
-            case 'custom': {
-                // TODO add support custom dead letter queues
-                throw new Error('Custom dead letter queues are not suppported yet');
-            }
-            default: {
-                return null;
-            }
-        }
-    }
+        if (!this.deadLetterAction) return null;
+        if (this.deadLetterAction === 'none') return null;
 
-    /**
-     * Get a reference to an existing API
-    */
-    getAPI(name: string): OpAPI {
-        return this.context.apis.executionContext.getAPI(name);
+        if (this.deadLetterAction === 'throw') {
+            throw err;
+        }
+        if (this.deadLetterAction === 'log') {
+            this.logger.error('Bad record', input, err);
+            return null;
+        }
+
+        const api = this.getAPI(this.deadLetterAction) as DeadLetterAPIFn;
+        api(input, err);
+        return null;
     }
 }

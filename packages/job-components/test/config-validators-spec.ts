@@ -187,19 +187,6 @@ describe('when using native clustering', () => {
         it('should handle a non-string dead letter action', () => {
             const op = {
                 _op: 'some-op',
-                _dead_letter_action: 'this-wont-work',
-                example: 'example',
-                formatted_value: 'hi',
-            };
-
-            expect(() => {
-                validateOpConfig(schema, op);
-            }).toThrow();
-        });
-
-        it('should handle an invalid dead letter action', () => {
-            const op = {
-                _op: 'some-op',
                 _dead_letter_action: 123,
                 example: 'example',
                 formatted_value: 'hi',

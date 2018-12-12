@@ -1,6 +1,6 @@
 'use strict';
 
-import { Context, dataEncodings, deadLetterActions } from './interfaces';
+import { Context, dataEncodings } from './interfaces';
 import convict from 'convict';
 import { flatten } from './utils';
 import os from 'os';
@@ -193,13 +193,20 @@ export const opSchema: convict.Schema<any> = {
         format: 'required_String',
     },
     _encoding: {
-        doc: 'Used to specify the encoding type of the data',
+        doc: 'Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`.',
         default: 'json',
         format: dataEncodings,
     },
     _dead_letter_action: {
-        doc: 'This action will specify what to do when failing to parse or transform a record. Defaults to doing nothing.',
+        doc: `This action will specify what to do when failing to parse or transform a record. ​​​​​
+​​​​​The following builtin actions are supported: ​​​
+​​​​​  - "throw": throw the original error ​​​​​
+​​​​​  - "log": log the error and the data ​​​​​
+​​​​​  - "none": (default) skip the error entirely
+
+​​​​​If none of the actions are specified it will try and use a registered Dead Letter Queue API under that name.
+The API must be already be created by a operation before it can used.​`.trim(),
         default: 'none',
-        format: deadLetterActions,
+        format: 'optional_String',
     }
 };

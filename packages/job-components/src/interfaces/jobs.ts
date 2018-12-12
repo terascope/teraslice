@@ -23,10 +23,10 @@ export const dataEncodings: DataEncoding[] = ['json'];
 /**
  * available dead letter queue actions
 */
-export type DeadLetterAction = 'throw'|'log'|'custom'|'none';
+export type DeadLetterAction = 'throw'|'log'|'none'|string;
 
-/** A list of supported dead letter actions */
-export const deadLetterActions = ['throw', 'log', 'custom', 'none'];
+/** A supported DeadLetterAPIFn */
+export type DeadLetterAPIFn = (input: any, err: Error) => void;
 
 export type LifeCycle = 'once'|'persistent';
 

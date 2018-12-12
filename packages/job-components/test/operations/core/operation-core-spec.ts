@@ -130,15 +130,38 @@ describe('OperationCore', () => {
             });
         });
 
-        describe('when the action is custom', () => {
+        describe('when the action is example', () => {
+            const deadLetterAPI = jest.fn();
+
+            class ExampleDeadLetterAPI extends OperationAPI {
+                async createAPI() {
+                    return deadLetterAPI;
+                }
+            }
+
             beforeAll(() => {
-                operation.deadLetterAction = 'custom';
+                operation.deadLetterAction = 'example';
+                operation.context.apis.executionContext.addToRegistry('example', ExampleDeadLetterAPI);
+                operation.createAPI('example');
             });
 
-            it('should throw until we implement this (TODO)', () => {
+            it('should call the dead letter queue API with the record and err', () => {
+                const result = operation.rejectRecord(record, err);
+                expect(result).toBeNull();
+
+                expect(deadLetterAPI).toHaveBeenCalledWith(record, err);
+            });
+        });
+
+        describe('when the action is not registered', () => {
+            beforeAll(() => {
+                operation.deadLetterAction = 'thiswontwork';
+            });
+
+            it('should throw an error', () => {
                 expect(() => {
                     operation.rejectRecord(record, err);
-                }).toThrowError('Custom dead letter queues are not suppported yet');
+                }).toThrowError('Unable to find API by name "thiswontwork"');
             });
         });
 
