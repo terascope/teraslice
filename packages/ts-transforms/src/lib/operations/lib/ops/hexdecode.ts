@@ -4,7 +4,6 @@ import { OperationConfig } from '../../../interfaces';
 import _ from 'lodash';
 import OperationBase from '../base';
 
-
 export default class HexDecode extends OperationBase { 
     protected source: string;
     protected target: string;
@@ -19,7 +18,8 @@ export default class HexDecode extends OperationBase {
     }
 
     validate(config: OperationConfig) {
-        const { target_field: tField, source_field: sField, remove_source } = config;
+        const { target_field: targetField, source_field: sField, remove_source } = config;
+        let tField = targetField || sField;
         if (remove_source && typeof remove_source !== 'boolean') throw new Error('remove_source if specified must be of type boolean')
         if (!tField || typeof tField !== 'string' || tField.length === 0) throw new Error(`could not find target_field for ${this.constructor.name} validation or it is improperly formatted, config: ${JSON.stringify(config)}`);
         if (!sField || typeof sField !== 'string' || sField.length === 0) throw new Error(`could not find source_field for ${this.constructor.name} validation or it is improperly formatted, config: ${JSON.stringify(config)}`);
@@ -31,7 +31,6 @@ export default class HexDecode extends OperationBase {
     
     run(doc: DataEntity | null): DataEntity | null {
         if (!doc) return doc;
-
         try {
             const data = doc[this.source];
             if (typeof data !== 'string') {
@@ -40,7 +39,6 @@ export default class HexDecode extends OperationBase {
                 doc[this.target] = Buffer.from(data, 'hex').toString('utf8');
             }
         } catch(err) {
-            console.log('am i catching', this.source, 'and', doc)
             _.unset(doc, this.source);
         }
         if (this.removeSource) _.unset(doc, this.source);

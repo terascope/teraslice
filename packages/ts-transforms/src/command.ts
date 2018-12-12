@@ -20,7 +20,7 @@ const filePath = command.rulesFile;
 const dataPath = command.dataFile;
 let typesConfig = {};
 const type = yargs['$0'].match('ts-transform') ? 'transform' : 'matcher';
-console.log('what type am i', type)
+
 try {
     if (command.t) {
         const segments = command.t.split(',');
@@ -56,7 +56,7 @@ async function dataLoader(dataPath: string): Promise<object[]> {
         input: fs.createReadStream(dataPath),
         crlfDelay: Infinity
       });
-    //TODO: error handling here
+
       return new Promise<object[]>((resolve) => {
         rl.on('line', (str) => {
             if (str) {

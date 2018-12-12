@@ -274,7 +274,7 @@ fdescribe('can transform matches', () => {
         expect(metaData.selectors).toEqual({ 'hello:world': true, 'full_name:"Jane Doe"': true });
     });
 
-   fit("validations work with the different ways to configure them", async() => {
+   it("validations work with the different ways to configure them", async() => {
         const opConfig = {
             _op: 'transform',
             file_path: transformRules7Path
@@ -283,6 +283,11 @@ fdescribe('can transform matches', () => {
         const opConfig2 = {
             _op: 'transform',
             file_path: transformRules8Path
+        };
+
+        const opConfig3 = {
+            _op: 'transform',
+            file_path: transformRules9Path
         };
 
         const data = [
@@ -294,21 +299,19 @@ fdescribe('can transform matches', () => {
 
         const transformedData = data.map((doc) => {
             if (doc.txt) {
-                doc.txt = Buffer.from(doc.txt).toString('hex');
+                const txt = Buffer.from(doc.txt).toString('hex');
+                return Object.assign({}, doc, { txt })
             }
             return doc;
         });
 
-        const resultsData1 = transformedData.map(data => ({ hex: data.txt }));
+        const resultsData1 = data.map(doc => ({ hex: doc.txt }));
+        const finalResults = data.map(doc => ({ final: doc.txt }));
 
         const finalData = DataEntity.makeArray(transformedData);
 
         const test1 = await opTest.init({ opConfig });
         const results1 =  await test1.run(finalData);
-
-        // const test2 = await opTest.init({ opConfig2 });
-        // const results2 =  await test2.run(finalData);
-        // console.log('what are results2 ', results1)
 
         expect(results1.length).toEqual(3);
         _.each(results1, (result, ind) => {
@@ -316,7 +319,22 @@ fdescribe('can transform matches', () => {
             expect(DataEntity.isDataEntity(result)).toEqual(true);
         });
 
-        // const metaData = results1[0].getMetadata();
-        // expect(metaData.selectors).toEqual({ 'hello:world': true, 'full_name:"Jane Doe"': true });
+        const test2 = await opTest.init({ opConfig: opConfig2 });
+        const results2 =  await test2.run(finalData);
+
+        expect(results2.length).toEqual(3);
+        _.each(results2, (result, ind) => {
+            expect(result).toEqual(resultsData1[ind]);
+            expect(DataEntity.isDataEntity(result)).toEqual(true);
+        });
+
+        const test3 = await opTest.init({ opConfig: opConfig3 });
+        const results3 =  await test3.run(finalData);
+
+        expect(results3.length).toEqual(3);
+        _.each(results3, (result, ind) => {
+            expect(result).toEqual(finalResults[ind]);
+            expect(DataEntity.isDataEntity(result)).toEqual(true);
+        });
     });
 });

@@ -4,7 +4,7 @@ const path = require('path');
 const _ = require('lodash');
 const TestHarness = require('./test-harness');
 
-fdescribe('matcher', () => {
+describe('matcher', () => {
     const matchRules1Path = path.join(__dirname, './fixtures/matchRules1.txt');
 
     let opTest;

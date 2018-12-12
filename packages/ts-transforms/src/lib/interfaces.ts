@@ -19,11 +19,11 @@ export interface MatcherConfig {
 export interface TransformConfig extends MatcherConfig {
     source_field: string;
     start: string;
-    end: string,
+    end: string;
     target_field: string;
-    regex?: string,
+    regex?: string;
     validation?: string;
-    decoder?: string
+    decoder?: string;
 }
 
 export interface OperationConfig {
@@ -32,16 +32,17 @@ export interface OperationConfig {
     selector_config?: object | undefined;
     source_field?: string;
     start?: string;
-    end?: string,
+    end?: string;
     target_field?: string;
     regex?: string,
     validation?: string;
     decoder?: string;
     refs?: string;
-    post_process?: string,
-    remove_source?: boolean
+    post_process?: string;
+    remove_source?: boolean;
+    registration_selector?:string;
 }
-
+//TODO: fix registrationSelector above
 export interface Refs {
     refs: string;
     validation?: string;
@@ -53,9 +54,14 @@ export interface StringRefs extends Refs {
     target_field: string;
 }
 
+export interface ConfigResults {
+    registrationSelector: string;
+    targetConfig: OperationConfig | null
+}
+
 export interface NormalizedConfig {
-    originalSelector: string;
-    configuration: OperationConfig
+    configuration: OperationConfig;
+    registrationSelector: string;
 }
 
 export interface ChainedPostProcess {
@@ -66,7 +72,7 @@ export interface ChainedPostProcess {
 }
 
 export interface OperationsDictionary {
-    [key: string]: PhaseBase[]
+    [key: string]: PhaseBase[];
 }
 
 export interface InjectConfig {
@@ -96,5 +102,5 @@ export interface JoinConfig {
     fields: string[];
     target_field: string;
     delimiter?: string;
-    remove_source?: boolean
+    remove_source?: boolean;
 }
