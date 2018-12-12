@@ -9,6 +9,8 @@ after_success:
 deploy:
   provider: npm
   email: peter@terascope.io
+  api_key:
+    secure: "DBbFr2KkiaiAea+mV/12DppJ+W5WXyLPfHNBYo1xG4sux5yso5Fc02Ojvx4goun9ONVeStxNybI2Nbay3TSu3/S1Mm9KVjZquAD8NeMY/vtOEV4CkS2XsgcMjlr9OPV+ufO+oDWL5EJf1aPdTHW5fUA2nf6f4rtPj2MzCnQ2snp6DhGlugexWcRp9DmMR+cftjG/4hrfy/LFOeKVbnQBIJ+PZ37ZBdBrpCFh1bXEMBIyaHJafMNGuLN6R876CFktEFQ6xREGOyi5EwANDQ+nuJ0meiALUSjR5/R/W4PfYlgwdaCRMN1JxmzOLiNGjlqZR2DKem5xSrdjKstuI7dJWOJ4TMyNHzwa96QxQS+qnAIZ64/zyHqAdRO//AB2lcLjOogF3Q6UdYImL508egJLhyVhH8P20j02X/gF6OFfGDfxjZnNxLgjL0Cna6I8cV0aUdt0jMeIW7U2OfBnCzk2abw7jQHFTP8+n0GKTjNTn/6B6DyXa+DHqULp/awgykssinUSGOUABnpJfcNvsYT1znkSDF1wfgSGiBHjRG2/BqDzXvZMDW/MjTca5TbmefXhqSyG+jnQUtH38BCNdSfNtrOzKjj404qTgyVFg2MJs1KxfUsS9aOmUVxjGaOZ5I1HSKcijc5MxLbpJi+6hCYld2yqyeVdVwFXvICstMOEMW0="
   on:
     branch: master
     tags: true
