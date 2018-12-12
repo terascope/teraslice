@@ -1,5 +1,5 @@
 {
-  "name": "transforms",
+  "name": "ts-transforms",
   "version": "0.1.0",
   "description": "An ETL framework built upon xlucene-evaluator",
   "srcMain": "src/index.ts",
@@ -7,7 +7,7 @@
   "typings": "dist/index.d.ts",
   "directories": {
     "lib": "dist",
-    "test": "tests"
+    "test": "test"
   },
   "engines": {
     "node": ">=8.0.0"
@@ -19,7 +19,7 @@
   "scripts": {
     "prepare": "npm run build",
     "lint": "tslint --project tsconfig.json --format verbose",
-    "build": "rimraf asset/dist; tsc --project tsconfig.json --pretty",
+    "build": "rimraf dist; tsc --project tsconfig.json --pretty",
     "build:watch": "yarn build --watch",
     "test": "jest",
     "test:watch": "jest --forceExit=true --coverage=false --notify --watch --onlyChanged",
@@ -48,7 +48,7 @@
     "tslint-config-airbnb": "^5.11.0",
     "typescript": "^3.2.1"
   },
-  "repository": "https://github.com/terascope/transforms.git",
-  "author": "Jared Noble <jsnoble1@gmail.com>",
+  "repository": "https://github.com/terascope/ts-transforms.git",
+  "author": "Terascope, LLC <info@terascope.io>",
   "license": "MIT"
 }
