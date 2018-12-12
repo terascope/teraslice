@@ -1,13 +1,13 @@
 
-const { DataEntity } = require ('@terascope/job-components');
-const path = require('path');
-const _ = require('lodash');
-const TestHarness = require('./test-harness');
+import { DataEntity } from '@terascope/job-components';
+import path from 'path';
+import _ from 'lodash';
+import TestHarness from './test-harness';
 
 describe('matcher', () => {
     const matchRules1Path = path.join(__dirname, './fixtures/matchRules1.txt');
 
-    let opTest;
+    let opTest: TestHarness;
 
     beforeEach(() => {
         opTest = new TestHarness;
@@ -15,8 +15,7 @@ describe('matcher', () => {
 
     it('can return matching documents', async () => {
         //TODO: file path needs to be from asset
-        const opConfig = {
-            _op: 'watcher',
+        const config = {
             file_path: matchRules1Path,
             selector_config: { _created: 'date' },
             type: 'matcher'
@@ -30,15 +29,14 @@ describe('matcher', () => {
             { _created: "2018-12-16T15:16:09.076Z" }
         ]);
 
-        const test = await opTest.init({ opConfig });
+        const test = await opTest.init(config);
         const results =  await test.run(data);
 
         expect(results.length).toEqual(3);
     });
 
     it('it add metadata to returning docs', async () => {
-        const opConfig = {
-            _op: 'watcher',
+        const config = {
             file_path: matchRules1Path,
             selector_config: { _created: 'date' },
             type: 'matcher'
@@ -52,16 +50,15 @@ describe('matcher', () => {
             { _created: "2018-12-16T15:16:09.076Z" }
         ]);
 
-        const test = await opTest.init({ opConfig });
-        const results =  await test.run(data);
+        const test = await opTest.init(config);
+        const results: DataEntity[] =  await test.run(data);
 
         expect(results.length).toEqual(3)
         results.forEach(doc => expect(doc.getMetadata('selectors')).toBeDefined());
     });
 
     it('it can match multiple rules', async () => {
-        const opConfig = {
-            _op: 'watcher',
+        const config = {
             file_path: matchRules1Path,
             selector_config: { _created: 'date' },
             type: 'matcher'
@@ -78,7 +75,7 @@ describe('matcher', () => {
             'other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z': true
         };
 
-        const test = await opTest.init({ opConfig });
+        const test = await opTest.init(config);
         const results =  await test.run(data);
         // each match will be inserted into the results
         expect(results.length).toEqual(1);

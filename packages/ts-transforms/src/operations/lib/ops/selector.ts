@@ -12,7 +12,7 @@ export default class Selector extends OperationBase {
 
     constructor(config: OperationConfig, typeConfigs?: object) {
         super();
-        let luceneQuery = config.selector;
+        let luceneQuery = config.selector as string;
         this.selector = luceneQuery;
         this.isMatchAll = luceneQuery === '*';
         if (this.isMatchAll) luceneQuery = '';

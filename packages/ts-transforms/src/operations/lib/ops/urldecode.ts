@@ -32,7 +32,6 @@ export default class UrlDecode extends OperationBase {
     
     run(doc: DataEntity | null): DataEntity | null {
         if (!doc) return doc;
-
         try {
             const data = doc[this.source];
             if (typeof data !== 'string') {

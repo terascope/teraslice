@@ -1,34 +1,38 @@
 
-const { Join } = require('../../../dist/lib/operations');
-const { DataEntity } = require ('@terascope/job-components');
+import { Join } from '../../../src/operations';
+import { DataEntity } from '@terascope/job-components';
 
 describe('join operator', () => {
 
     it('can instantiate', () => {
-        const opConfig = { fields: ['first', 'last'], target_field: 'someField' };
+        const opConfig = { operation: 'join', fields: ['first', 'last'], target_field: 'someField' };
         expect(() => new Join(opConfig)).not.toThrow()
     });
 
     it('can properly throw with bad config values', () => {
-        const badConfig1 = { fields: ['first', 'last'], target_field: 1324 };
-        const badConfig2 = { fields: ['first', 'last'], target_field: "" };
-        const badConfig3 = { fields: ['first', 'last'] };
-        const badConfig4 = { fields: 1234 , target_field: 'someField' };
-        const badConfig5 = { fields: ['first'], target_field: 'someField' };
-        const badConfig6 = { fields: {first: 'first', last:'last' }, target_field: 'someField' };
-        const badConfig7 = { fields: ['first', 'last'], target_field: 'someField', delimiter: 1324 };
-
+        const badConfig1 = { operation: 'join', fields: ['first', 'last'], target_field: 1324 };
+        const badConfig2 = { operation: 'join', fields: ['first', 'last'], target_field: "" };
+        const badConfig3 = { operation: 'join', fields: ['first', 'last'] };
+        const badConfig4 = { operation: 'join', fields: 1234 , target_field: 'someField' };
+        const badConfig5 = { operation: 'join', fields: ['first'], target_field: 'someField' };
+        const badConfig6 = { operation: 'join', fields: {first: 'first', last:'last' }, target_field: 'someField' };
+        const badConfig7 = { operation: 'join', fields: ['first', 'last'], target_field: 'someField', delimiter: 1324 };
+        //@ts-ignore
         expect(() => new Join(badConfig1)).toThrow();
         expect(() => new Join(badConfig2)).toThrow();
+         //@ts-ignore
         expect(() => new Join(badConfig3)).toThrow();
+         //@ts-ignore
         expect(() => new Join(badConfig4)).toThrow();
         expect(() => new Join(badConfig5)).toThrow();
+         //@ts-ignore
         expect(() => new Join(badConfig6)).toThrow();
+         //@ts-ignore
         expect(() => new Join(badConfig7)).toThrow();
     });
 
     it('can and deal with null', () => {
-        const opConfig = { fields: ['first', 'last'], target_field: 'someField' };
+        const opConfig = { operation: 'join', fields: ['first', 'last'], target_field: 'someField' };
         const test =  new Join(opConfig);
         const results = test.run(null);
 
@@ -36,7 +40,7 @@ describe('join operator', () => {
     });
 
     it('can join fields of data entities', () => {
-        const opConfig = { fields: ['first', 'last'], target_field: 'full' };
+        const opConfig = { operation: 'join', fields: ['first', 'last'], target_field: 'full' };
         const test =  new Join(opConfig);
         const data = new DataEntity({ first: 'John', last: 'Doe' })
         const results = test.run(data);
@@ -47,12 +51,14 @@ describe('join operator', () => {
 
     it('various delimiter options', () => {
         const opConfig = { 
+            operation: 'join',
             fields: ['first', 'last'],
             target_field: 'full',
             delimiter: ' '
         };
 
         const opConfig2 = { 
+            operation: 'join',
             fields: ['first', 'last'],
             target_field: 'full',
             delimiter: ' & '
@@ -74,14 +80,14 @@ describe('join operator', () => {
     });
 
     it('can just return only the target_field', () => {
-        const opConfig = { fields: ['first', 'last'], target_field: 'full', remove_source: true };
+        const opConfig = { operation: 'join', fields: ['first', 'last'], target_field: 'full', remove_source: true };
         const test =  new Join(opConfig);
         const metaData = { selectors: { 'some:data': true } }
         const data = new DataEntity({ first: 'John', last: 'Doe' }, metaData)
         const results = test.run(data);
 
         expect(DataEntity.isDataEntity(results)).toEqual(true);
-        expect(results.getMetadata().selectors).toEqual(metaData.selectors);
+        expect(DataEntity.getMetadata(results as DataEntity, 'selectors')).toEqual(metaData.selectors);
         expect(results).toEqual({ full: 'JohnDoe' });
     });
 });

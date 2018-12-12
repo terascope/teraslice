@@ -16,8 +16,8 @@ export default class TransformPhase implements PhaseBase {
 
         _.forEach(configList, (config: OperationConfig) => {
             if (!config.refs && (config.source_field && config.target_field)) {
-                if (!transformPhase[config.selector]) transformPhase[config.selector] = [];
-                transformPhase[config.selector].push(new Ops.Transform(config))
+                if (!transformPhase[config.selector as string]) transformPhase[config.selector as string] = [];
+                transformPhase[config.selector as string].push(new Ops.Transform(config))
             }
         });
         this.transformPhase = transformPhase;

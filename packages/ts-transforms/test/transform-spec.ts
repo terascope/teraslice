@@ -1,9 +1,10 @@
-const { DataEntity } = require ('@terascope/job-components');
-const path = require('path');
-const _ = require('lodash');
-const TestHarness = require('./test-harness');
+import { DataEntity } from '@terascope/job-components';
+import path from 'path';
+import _ from 'lodash';
+import TestHarness from './test-harness';
+import { WatcherConfig } from '../src/interfaces';
 
-fdescribe('can transform matches', () => {
+describe('can transform matches', () => {
 
     const transformRules1Path = path.join(__dirname, './fixtures/transformRules1.txt');
     const transformRules2Path = path.join(__dirname, './fixtures/transformRules2.txt');
@@ -15,17 +16,17 @@ fdescribe('can transform matches', () => {
     const transformRules8Path = path.join(__dirname, './fixtures/transformRules8.txt');
     const transformRules9Path = path.join(__dirname, './fixtures/transformRules9.txt');
 
-    let opTest;
+    let opTest: TestHarness;
 
     beforeEach(() => {
         opTest = new TestHarness;
     });
 
     it('it can transform matching data', async () => {
-        const opConfig = {
-            _op: 'transform',
+        const config: WatcherConfig = {
             file_path: transformRules1Path,
-            selector_config: { _created: 'date' } 
+            selector_config: { _created: 'date' },
+            type: 'transform'
         };
 
         const data = DataEntity.makeArray([
@@ -36,7 +37,7 @@ fdescribe('can transform matches', () => {
             { _created: "2018-12-16T15:16:09.076Z", myfield: 'hello' }
         ]);
 
-        const test = await opTest.init({ opConfig });
+        const test = await opTest.init(config);
         const results =  await test.run(data);
 
         expect(results.length).toEqual(1);
@@ -48,10 +49,10 @@ fdescribe('can transform matches', () => {
     });
 
     it('can uses typeConifg', async () => {
-        const opConfig = {
-            _op: 'transform',
+        const config: WatcherConfig = {
             file_path: transformRules1Path,
-            selector_config: { location: 'geo' }
+            selector_config: { location: 'geo' },
+            type: 'transform'
         };
 
         const data = DataEntity.makeArray([
@@ -59,7 +60,7 @@ fdescribe('can transform matches', () => {
             { hostname: "www.example.com", location: '22.435967,-150.867710' }  // false
         ]);
 
-        const test = await opTest.init({ opConfig });
+        const test = await opTest.init(config);
         const results =  await test.run(data);
 
         expect(results.length).toEqual(1);
@@ -67,9 +68,9 @@ fdescribe('can transform matches', () => {
     });
 
     it('it can transform matching data with no selector', async () => {
-        const opConfig = {
-            _op: 'transform',
-            file_path: transformRules3Path
+        const config: WatcherConfig = {
+            file_path: transformRules3Path,
+            type: 'transform'
         };
 
         const data = DataEntity.makeArray([
@@ -78,7 +79,7 @@ fdescribe('can transform matches', () => {
            {}
         ]);
         const resultSet = data.map(obj => obj.data)
-        const test = await opTest.init({ opConfig });
+        const test = await opTest.init(config);
         const results =  await test.run(data);
 
         expect(results.length).toEqual(2);
@@ -90,9 +91,9 @@ fdescribe('can transform matches', () => {
     });
 
     it('can work with regex transform queries', async () => {
-        const opConfig = {
-            _op: 'transform',
-            file_path: transformRules1Path
+        const config: WatcherConfig = {
+            file_path: transformRules1Path,
+            type: 'transform'
         };
 
         const data = DataEntity.makeArray([
@@ -101,7 +102,7 @@ fdescribe('can transform matches', () => {
             { some: 'data' },    // should not return anyting
         ]);
 
-        const test = await opTest.init({ opConfig });
+        const test = await opTest.init(config);
         const results =  await test.run(data);
         // NOTE:   "regex": "some.*?$" will give you the entire matched string => wholeRegexResponse
         // NOTE:   "regex": "some(.*?)$" will give you the captured part of the string => partRegexResponse
@@ -111,9 +112,9 @@ fdescribe('can transform matches', () => {
     });
 
     it('can extract using start/end', async () => {
-        const opConfig = {
-            _op: 'transform',
-            file_path: transformRules1Path
+        const config: WatcherConfig = {
+            file_path: transformRules1Path,
+            type: 'transform'
         };
 
         const data1 = DataEntity.makeArray([
@@ -124,22 +125,22 @@ fdescribe('can transform matches', () => {
                 { some: 'data', bytes: 1200 , myfield: 'http://google.com?field1=helloThere'},
             ]);
 
-        const test = await opTest.init({ opConfig });
+        const test = await opTest.init(config);
         const results1 =  await test.run(data1);
 
         expect(results1.length).toEqual(1);
         expect(results1[0]).toEqual({ topfield: { value1: 'helloThere' } });
 
-        const results2 =  await test.run(data1);
+        const results2 =  await test.run(data2);
 
         expect(results2.length).toEqual(1);
         expect(results2[0]).toEqual({ topfield: { value1: 'helloThere' } });
     });
 
     it('can merge extacted results', async () => {
-        const opConfig = {
-            _op: 'transform',
-            file_path: transformRules1Path
+        const config: WatcherConfig = {
+            file_path: transformRules1Path,
+            type: 'transform'
         };
 
         const data = DataEntity.makeArray([
@@ -148,7 +149,7 @@ fdescribe('can transform matches', () => {
             { hostname: "www.example.com", location: '22.435967,-150.867710' }  // false
         ]);
 
-        const test = await opTest.init({ opConfig });
+        const test = await opTest.init(config);
         const results =  await test.run(data);
 
         expect(results.length).toEqual(1);
@@ -156,16 +157,16 @@ fdescribe('can transform matches', () => {
     });
 
     it('can use post process operations', async () => {
-        const opConfig = {
-            _op: 'transform',
-            file_path: transformRules2Path
+        const config: WatcherConfig = {
+            file_path: transformRules2Path,
+            type: 'transform'
         };
 
         const data = DataEntity.makeArray([
             { hello: 'world', first: 'John', last: 'Doe'}
         ]);
 
-        const test = await opTest.init({ opConfig });
+        const test = await opTest.init(config);
         const results =  await test.run(data);
 
         expect(results.length).toEqual(1);
@@ -173,9 +174,9 @@ fdescribe('can transform matches', () => {
     });
 
     it('false validations remove the fields', async () => {
-        const opConfig = {
-            _op: 'transform',
-            file_path: transformRules2Path
+        const config: WatcherConfig = {
+            file_path: transformRules2Path,
+            type: 'transform'
         };
 
         const data = DataEntity.makeArray([
@@ -188,7 +189,7 @@ fdescribe('can transform matches', () => {
             { geo: true, lon: '2233'}
         ]);
 
-        const test = await opTest.init({ opConfig });
+        const test = await opTest.init(config);
         const results =  await test.run(data);
 
         expect(results.length).toEqual(1);
@@ -199,9 +200,9 @@ fdescribe('can transform matches', () => {
     });
 
     it('refs can target the right field', async () => {
-        const opConfig = {
-            _op: 'transform',
-            file_path: transformRules4Path
+        const config: WatcherConfig = {
+            file_path: transformRules4Path,
+            type: 'transform'
         };
 
         const data = DataEntity.makeArray([
@@ -218,7 +219,7 @@ fdescribe('can transform matches', () => {
             { location: { lat: 23.423, lon: 93.33 } } 
         ];
 
-        const test = await opTest.init({ opConfig });
+        const test = await opTest.init(config);
         const results =  await test.run(data);
 
         _.each(results, (data, index) => {
@@ -229,9 +230,9 @@ fdescribe('can transform matches', () => {
     });
 
     it('can chain selection => transform => selection', async() => {
-        const opConfig = {
-            _op: 'transform',
-            file_path: transformRules5Path
+        const config: WatcherConfig = {
+            file_path: transformRules5Path,
+            type: 'transform'
         };
 
         const data = DataEntity.makeArray([
@@ -241,7 +242,7 @@ fdescribe('can transform matches', () => {
             { hello: 'world' }
         ]);
 
-        const test = await opTest.init({ opConfig });
+        const test = await opTest.init(config);
         const results =  await test.run(data);
 
         expect(results.length).toEqual(1);
@@ -252,9 +253,9 @@ fdescribe('can transform matches', () => {
     });
 
     it('can chain selection => transform => selection => transform', async() => {
-        const opConfig = {
-            _op: 'transform',
-            file_path: transformRules6Path
+        const config: WatcherConfig = {
+            file_path: transformRules6Path,
+            type: 'transform'
         };
 
         const data = DataEntity.makeArray([
@@ -264,7 +265,7 @@ fdescribe('can transform matches', () => {
             { hello: 'world' }
         ]);
 
-        const test = await opTest.init({ opConfig });
+        const test = await opTest.init(config);
         const results =  await test.run(data);
 
         expect(results.length).toEqual(1);
@@ -275,19 +276,19 @@ fdescribe('can transform matches', () => {
     });
 
    it("validations work with the different ways to configure them", async() => {
-        const opConfig = {
-            _op: 'transform',
-            file_path: transformRules7Path
+        const config: WatcherConfig = {
+            file_path: transformRules7Path,
+            type: 'transform'
         };
 
-        const opConfig2 = {
-            _op: 'transform',
-            file_path: transformRules8Path
+        const config2: WatcherConfig = {
+            file_path: transformRules8Path,
+            type: 'transform'
         };
 
-        const opConfig3 = {
-            _op: 'transform',
-            file_path: transformRules9Path
+        const config3: WatcherConfig = {
+            file_path: transformRules9Path,
+            type: 'transform'
         };
 
         const data = [
@@ -310,7 +311,7 @@ fdescribe('can transform matches', () => {
 
         const finalData = DataEntity.makeArray(transformedData);
 
-        const test1 = await opTest.init({ opConfig });
+        const test1 = await opTest.init(config);
         const results1 =  await test1.run(finalData);
 
         expect(results1.length).toEqual(3);
@@ -319,7 +320,7 @@ fdescribe('can transform matches', () => {
             expect(DataEntity.isDataEntity(result)).toEqual(true);
         });
 
-        const test2 = await opTest.init({ opConfig: opConfig2 });
+        const test2 = await opTest.init(config2);
         const results2 =  await test2.run(finalData);
 
         expect(results2.length).toEqual(3);
@@ -328,7 +329,7 @@ fdescribe('can transform matches', () => {
             expect(DataEntity.isDataEntity(result)).toEqual(true);
         });
 
-        const test3 = await opTest.init({ opConfig: opConfig3 });
+        const test3 = await opTest.init(config3);
         const results3 =  await test3.run(finalData);
 
         expect(results3.length).toEqual(3);

@@ -1,6 +1,6 @@
 
-const { Url } = require('../../../dist/lib/operations');
-const { DataEntity } = require ('@terascope/job-components');
+import { Url } from '../../../src/operations';
+import { DataEntity } from '@terascope/job-components';
 
 describe('url validation', () => {
    
@@ -14,9 +14,10 @@ describe('url validation', () => {
         const badConfig2 = { target_field: "" };
         const badConfig3 = { target_field: {} };
         const badConfig4 = {};
-
+        //@ts-ignore
         expect(() => new Url(badConfig1)).toThrow();
         expect(() => new Url(badConfig2)).toThrow();
+         //@ts-ignore
         expect(() => new Url(badConfig3)).toThrow();
         expect(() => new Url(badConfig4)).toThrow();
     });
@@ -45,7 +46,6 @@ describe('url validation', () => {
         const data9 = new DataEntity({ uri: 'google.com '});
         const data10 = new DataEntity({ uri: 'google.com?some=key '});
 
-
         const results1 = test.run(data1);
         const results2 = test.run(data2);
         const results3 = test.run(data3);
@@ -57,16 +57,17 @@ describe('url validation', () => {
         const results9 = test.run(data9);
         const results10 = test.run(data10);
 
+
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(DataEntity.getMetadata(results1).selectors).toEqual(metaData.selectors)
+        expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors)
         expect(results1).toEqual({});
-        expect(DataEntity.getMetadata(results2).selectors).toEqual(metaData.selectors)
+        expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors)
         expect(results2).toEqual({});
         expect(results3).toEqual({});
         expect(results4).toEqual({});
         expect(results5).toEqual({});
         expect(results6).toEqual({});
-        expect(DataEntity.getMetadata(results6).selectors).toEqual(metaData.selectors)
+        expect(DataEntity.getMetadata(results6 as DataEntity, 'selectors')).toEqual(metaData.selectors)
         expect(results7).toEqual({});
         expect(results8).toEqual(data8);
         expect(results9).toEqual(data9);

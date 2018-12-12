@@ -1,6 +1,6 @@
 
-const { Number } = require('../../../dist/lib/operations');
-const { DataEntity } = require ('@terascope/job-components');
+import { Number } from '../../../src/operations';
+import { DataEntity } from '@terascope/job-components';
 
 describe('number validation', () => {
    
@@ -14,9 +14,10 @@ describe('number validation', () => {
         const badConfig2 = { target_field: "" };
         const badConfig3 = { target_field: {} };
         const badConfig4 = {};
-
+        //@ts-ignore
         expect(() => new Number(badConfig1)).toThrow();
         expect(() => new Number(badConfig2)).toThrow();
+         //@ts-ignore
         expect(() => new Number(badConfig3)).toThrow();
         expect(() => new Number(badConfig4)).toThrow();
     });
@@ -51,9 +52,9 @@ describe('number validation', () => {
         const results7 = test.run(data7);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(DataEntity.getMetadata(results1).selectors).toEqual(metaData.selectors)
+        expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors)
         expect(results1).toEqual({});
-        expect(DataEntity.getMetadata(results2).selectors).toEqual(metaData.selectors)
+        expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors)
         expect(results2).toEqual(data2);
         expect(results3).toEqual({});
         expect(results4).toEqual({});

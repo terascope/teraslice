@@ -1,10 +1,10 @@
 
-const { Base64Decode } = require('../../../dist/lib/operations');
-const { DataEntity } = require ('@terascope/job-components');
+import { Base64Decode } from '../../../src/operations';
+import { DataEntity } from '@terascope/job-components';
 
 describe('base64 operation', () => {
 
-    function encode(str) {
+    function encode(str: string) {
         const buff = Buffer.from(str);
         return buff.toString('base64');
     }
@@ -23,13 +23,18 @@ describe('base64 operation', () => {
         const badConfig6 = { source_field: {} };
         const badConfig7 = { source_field: null };
         const badConfig8 = { source_field: '', target_field: '' };
-
+        //@ts-ignore
         expect(() => new Base64Decode(badConfig1)).toThrow();
         expect(() => new Base64Decode(badConfig2)).toThrow();
+        //@ts-ignore
         expect(() => new Base64Decode(badConfig3)).toThrow();
+        //@ts-ignore
         expect(() => new Base64Decode(badConfig4)).toThrow();
+        //@ts-ignore
         expect(() => new Base64Decode(badConfig5)).toThrow();
+        //@ts-ignore
         expect(() => new Base64Decode(badConfig6)).toThrow();
+        //@ts-ignore
         expect(() => new Base64Decode(badConfig7)).toThrow();
         expect(() => new Base64Decode(badConfig8)).toThrow();
     });
@@ -72,9 +77,9 @@ describe('base64 operation', () => {
         const results11 = test.run(data11);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(DataEntity.getMetadata(results1).selectors).toEqual(metaData.selectors)
+        expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors)
         expect(results1).toEqual({});
-        expect(DataEntity.getMetadata(results2).selectors).toEqual(metaData.selectors)
+        expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors)
         expect(results2).toEqual({});
         expect(results3).toEqual({});
         expect(results4).toEqual({});
@@ -84,7 +89,7 @@ describe('base64 operation', () => {
         expect(results8).toEqual({ final: 'ha3ke5@pawnage.com', source: encode('ha3ke5@pawnage.com') });
         expect(results9).toEqual({ final: '::' , source: encode('::') });
         expect(results10).toEqual({ final: '193.0.0.23', source: encode('193.0.0.23') });
-        expect(DataEntity.getMetadata(results11).selectors).toEqual(metaData.selectors)
+        expect(DataEntity.getMetadata(results11 as DataEntity, 'selectors')).toEqual(metaData.selectors)
         expect(results11).toEqual({ final: 'hello world', source: encode('hello world')});
     });
 
@@ -97,7 +102,7 @@ describe('base64 operation', () => {
 
         const results = test.run(data);
 
-        expect(DataEntity.getMetadata(results).selectors).toEqual(metaData.selectors)
+        expect(DataEntity.getMetadata(results as DataEntity, 'selectors')).toEqual(metaData.selectors)
         expect(results).toEqual({ final: 'hello world' });
     });
 });

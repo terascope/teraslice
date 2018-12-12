@@ -1,6 +1,6 @@
 
-const { Ip } = require('../../../dist/lib/operations');
-const { DataEntity } = require ('@terascope/job-components');
+import { Ip } from '../../../src/operations';
+import { DataEntity } from '@terascope/job-components';
 
 describe('ip validation', () => {
    
@@ -14,9 +14,10 @@ describe('ip validation', () => {
         const badConfig2 = { target_field: "" };
         const badConfig3 = { target_field: {} };
         const badConfig4 = {};
-
+        //@ts-ignore
         expect(() => new Ip(badConfig1)).toThrow();
         expect(() => new Ip(badConfig2)).toThrow();
+        //@ts-ignore
         expect(() => new Ip(badConfig3)).toThrow();
         expect(() => new Ip(badConfig4)).toThrow();
     });
@@ -61,21 +62,21 @@ describe('ip validation', () => {
         const results12 = test.run(data12);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(DataEntity.getMetadata(results1).selectors).toEqual(metaData.selectors)
+        expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors)
         expect(results1).toEqual({});
-        expect(DataEntity.getMetadata(results2).selectors).toEqual(metaData.selectors)
+        expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors)
         expect(results2).toEqual({});
         expect(results3).toEqual({});
         expect(results4).toEqual({});
         expect(results5).toEqual({});
         expect(results6).toEqual({});
-        expect(DataEntity.getMetadata(results6).selectors).toEqual(metaData.selectors)
+        expect(DataEntity.getMetadata(results6 as DataEntity, 'selectors')).toEqual(metaData.selectors)
         expect(results7).toEqual({});
         expect(results8).toEqual({});
         expect(results9).toEqual({});
         expect(results10).toEqual(data10);
         expect(results11).toEqual(data11);
-        expect(DataEntity.getMetadata(results11).selectors).toEqual(metaData.selectors)
+        expect(DataEntity.getMetadata(results11 as DataEntity, 'selectors')).toEqual(metaData.selectors)
         expect(results12).toEqual({});
     });
 });

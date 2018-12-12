@@ -1,6 +1,6 @@
 
-const { Email } = require('../../../dist/lib/operations');
-const { DataEntity } = require ('@terascope/job-components');
+import { Email } from '../../../src/operations';
+import { DataEntity } from '@terascope/job-components';
 
 describe('email validation', () => {
    
@@ -14,9 +14,10 @@ describe('email validation', () => {
         const badConfig2 = { target_field: "" };
         const badConfig3 = { target_field: {} };
         const badConfig4 = {};
-
+        //@ts-ignore
         expect(() => new Email(badConfig1)).toThrow();
         expect(() => new Email(badConfig2)).toThrow();
+        //@ts-ignore
         expect(() => new Email(badConfig3)).toThrow();
         expect(() => new Email(badConfig4)).toThrow();
     });
@@ -58,19 +59,19 @@ describe('email validation', () => {
         const results10 = test.run(data10);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(DataEntity.getMetadata(results1).selectors).toEqual(metaData.selectors)
+        expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors)
         expect(results1).toEqual({});
-        expect(DataEntity.getMetadata(results2).selectors).toEqual(metaData.selectors)
+        expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors)
         expect(results2).toEqual({});
         expect(results3).toEqual({});
         expect(results4).toEqual({});
         expect(results5).toEqual({});
         expect(results6).toEqual({});
-        expect(DataEntity.getMetadata(results6).selectors).toEqual(metaData.selectors)
+        expect(DataEntity.getMetadata(results6 as DataEntity, 'selectors')).toEqual(metaData.selectors)
         expect(results7).toEqual({});
         expect(results8).toEqual({});
         expect(results9).toEqual(data9);
-        expect(DataEntity.getMetadata(results9).selectors).toEqual(metaData.selectors)
+        expect(DataEntity.getMetadata(results9 as DataEntity, 'selectors')).toEqual(metaData.selectors)
         expect(results10).toEqual({});
     });
 });

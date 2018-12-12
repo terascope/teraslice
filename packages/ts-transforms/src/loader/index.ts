@@ -3,14 +3,13 @@ import fs from 'fs';
 import readline from 'readline';
 import { WatcherConfig, OperationConfig } from '../interfaces';
 
-//TODO: need story around how to load from other assets
 export default class Loader {
     private opConfig: WatcherConfig;
 
     constructor(opConfig: WatcherConfig) {
         this.opConfig = opConfig;
     }
-
+    
     public async load():Promise<OperationConfig[]> {
         return this.fileLoader();
     }
