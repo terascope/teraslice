@@ -48,7 +48,7 @@
     },
     "devDependencies": {
         "@types/jest": "^23.3.10",
-        "@types/node": "^10.12.12",
+        "@types/node": "^10.12.15",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "benchmark": "^2.1.4",
