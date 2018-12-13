@@ -5,6 +5,7 @@ import {
     validateJobConfig,
     validateOpConfig,
     TestContext,
+    validateAPIConfig,
 } from '../src';
 
 describe('when using native clustering', () => {
@@ -363,10 +364,66 @@ describe('when using native clustering', () => {
 
             expect(() => {
                 validateOpConfig(schema, op);
-            }).toThrowError();
+            }).toThrowError(/Invalid schema for formatted value/);
         });
     });
 
+    describe('when validating apiConfig', () => {
+        const schema: Schema<any> = {
+            example: {
+                default: '',
+                doc: 'some example value',
+                format: 'required_String',
+            },
+            formatted_value: {
+                default: 'hi',
+                doc: 'some formatted value',
+                format(val: any) {
+                    const obj = {
+                        hi: 'there',
+                    };
+                    if (!obj[val]) {
+                        throw new Error('Invalid schema for formatted value');
+                    } else {
+                        return obj[val];
+                    }
+                },
+            },
+            test: {
+                default: true,
+                doc: 'some test value',
+                format: 'Boolean',
+            },
+        };
+
+        it('should return a config when given valid input', () => {
+            const api = {
+                _name: 'some-api',
+                example: 'example',
+                formatted_value: 'hi',
+            };
+
+            const config = validateAPIConfig(schema, api);
+            expect(config as object).toEqual({
+                _name: 'some-api',
+                example: 'example',
+                formatted_value: 'hi',
+                test: true,
+            });
+        });
+
+        it('should fail when given invalid input', () => {
+            const api = {
+                _name: 'some-op',
+                example: 'example',
+                formatted_value: 'hello',
+            };
+
+            expect(() => {
+                validateAPIConfig(schema, api);
+            }).toThrowError(/Invalid schema for formatted value/);
+        });
+    });
 });
 
 describe('when validating k8s clustering', () => {

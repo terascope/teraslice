@@ -8,7 +8,7 @@ export default abstract class SchemaCore<T> {
     protected context: Context;
     readonly opType: OpType;
 
-    constructor(context: Context, opType: OpType = 'operation') {
+    constructor(context: Context, opType: OpType) {
         this.context = context;
         this.opType = opType;
     }
