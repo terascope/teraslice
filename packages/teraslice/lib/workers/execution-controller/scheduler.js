@@ -174,8 +174,6 @@ class Scheduler {
         this.queue.each((slice) => {
             this.queue.remove(slice.slice_id, 'slice_id');
         });
-
-        this.stateStore = null;
     }
 
     getSlices(limit = 1) {
