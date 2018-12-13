@@ -5,14 +5,11 @@ import { OperationConfig } from '../../../interfaces'
 import _ from 'lodash';
 
 export default class Geolocation extends OperationBase {
-
     constructor(config: OperationConfig) {
-        super();
-        this.validate(config);
+        super(config);
     }
 
-    run(doc: DataEntity | null): DataEntity | null {
-        if (!doc) return doc;
+    run(doc: DataEntity): DataEntity | null {
         const { source } = this;
         const geoData = _.get(doc, source);
         let hasError = true;

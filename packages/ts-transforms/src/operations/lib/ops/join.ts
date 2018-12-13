@@ -5,33 +5,34 @@ import _ from 'lodash';
 import OperationBase from '../base'
 
 export default class Join extends OperationBase { 
-    private config: JoinConfig
+    private delimiter: string;
+    private fields: string[];
 
     constructor(config: JoinConfig) {
-        super();
-        this.validate(config);
-        this.config = config;
+        super(config);
+        this.delimiter = config.delimiter !== undefined ? config.delimiter : '';
+        this.fields = config.fields;
     }
-
+    // source work differently here so we do not use the inherited validate
     protected validate(config: JoinConfig) {
+        const { target_field: tField, remove_source } = config;
+        if (!tField || typeof tField !== 'string' || tField.length === 0) throw new Error(`could not find target_field for ${this.constructor.name} validation or it is improperly formatted, config: ${JSON.stringify(config)}`);
         if (!config.fields || !(Array.isArray(config.fields)) || config.fields.length < 2) throw new Error('fields configuration must be properly set for a join operator');
-        if (!config.target_field || typeof config.target_field !== 'string' || config.target_field.length === 0) throw new Error('target_field parameter must be set in a join operator');
-        if (config.delimiter && typeof config.delimiter !== 'string') throw new Error('paramter delimiter must be a string if defined')
+        if (config.delimiter && typeof config.delimiter !== 'string') throw new Error('paramter delimiter must be a string if defined');
+        if (remove_source) this.removeSource = remove_source;
+        this.target = this.parseField(tField);
     }
     
-    run(doc: DataEntity | null): DataEntity | null {
-        if (!doc) return doc;
-        const { config } = this;
-        const delimiter = config.delimiter !== undefined ? config.delimiter : '';
-        const fields = config.fields.map(field => _.get(doc, field));
-        const results = fields.join(delimiter);
+    run(doc: DataEntity): DataEntity | null {
+        const { delimiter, fields, removeSource, target} = this;
+        const fieldsData = fields.map(field => _.get(doc, field));
+        const results = fieldsData.join(delimiter);
 
-        if (config.remove_source) {
-            const final = {}
-            if (results.length !== delimiter.length) final[config.target_field] = results;
-            return new DataEntity(final, doc.getMetadata())
+        if (results.length !== delimiter.length) doc[target] = results;
+
+        if (removeSource) {
+            _.each(fields, (field: string) => _.unset(doc, field))
         }
-        if (results.length !== delimiter.length) doc[config.target_field] = results;
 
         return doc;
     }

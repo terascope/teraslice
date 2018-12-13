@@ -6,25 +6,19 @@ import { WatcherConfig } from '../src/interfaces';
 
 describe('can transform matches', () => {
 
-    const transformRules1Path = path.join(__dirname, './fixtures/transformRules1.txt');
-    const transformRules2Path = path.join(__dirname, './fixtures/transformRules2.txt');
-    const transformRules3Path = path.join(__dirname, './fixtures/transformRules3.txt');
-    const transformRules4Path = path.join(__dirname, './fixtures/transformRules4.txt');
-    const transformRules5Path = path.join(__dirname, './fixtures/transformRules5.txt');
-    const transformRules6Path = path.join(__dirname, './fixtures/transformRules6.txt');
-    const transformRules7Path = path.join(__dirname, './fixtures/transformRules7.txt');
-    const transformRules8Path = path.join(__dirname, './fixtures/transformRules8.txt');
-    const transformRules9Path = path.join(__dirname, './fixtures/transformRules9.txt');
-
     let opTest: TestHarness;
 
     beforeEach(() => {
         opTest = new TestHarness;
     });
 
+    function getPath(fileName:string) {
+        return path.join(__dirname, `./fixtures/${fileName}`);
+    }
+
     it('it can transform matching data', async () => {
         const config: WatcherConfig = {
-            file_path: transformRules1Path,
+            file_path: getPath("transformRules1.txt"),
             selector_config: { _created: 'date' },
             type: 'transform'
         };
@@ -50,7 +44,7 @@ describe('can transform matches', () => {
 
     it('can uses typeConifg', async () => {
         const config: WatcherConfig = {
-            file_path: transformRules1Path,
+            file_path: getPath("transformRules1.txt"),
             selector_config: { location: 'geo' },
             type: 'transform'
         };
@@ -69,7 +63,7 @@ describe('can transform matches', () => {
 
     it('it can transform matching data with no selector', async () => {
         const config: WatcherConfig = {
-            file_path: transformRules3Path,
+            file_path: getPath("transformRules3.txt"),
             type: 'transform'
         };
 
@@ -92,7 +86,7 @@ describe('can transform matches', () => {
 
     it('can work with regex transform queries', async () => {
         const config: WatcherConfig = {
-            file_path: transformRules1Path,
+            file_path: getPath("transformRules1.txt"),
             type: 'transform'
         };
 
@@ -113,7 +107,7 @@ describe('can transform matches', () => {
 
     it('can extract using start/end', async () => {
         const config: WatcherConfig = {
-            file_path: transformRules1Path,
+            file_path: getPath("transformRules1.txt"),
             type: 'transform'
         };
 
@@ -139,7 +133,7 @@ describe('can transform matches', () => {
 
     it('can merge extacted results', async () => {
         const config: WatcherConfig = {
-            file_path: transformRules1Path,
+            file_path: getPath("transformRules1.txt"),
             type: 'transform'
         };
 
@@ -158,7 +152,7 @@ describe('can transform matches', () => {
 
     it('can use post process operations', async () => {
         const config: WatcherConfig = {
-            file_path: transformRules2Path,
+            file_path: getPath("transformRules2.txt"),
             type: 'transform'
         };
 
@@ -175,7 +169,7 @@ describe('can transform matches', () => {
 
     it('false validations remove the fields', async () => {
         const config: WatcherConfig = {
-            file_path: transformRules2Path,
+            file_path: getPath("transformRules2.txt"),
             type: 'transform'
         };
 
@@ -201,7 +195,7 @@ describe('can transform matches', () => {
 
     it('refs can target the right field', async () => {
         const config: WatcherConfig = {
-            file_path: transformRules4Path,
+            file_path: getPath("transformRules4.txt"),
             type: 'transform'
         };
 
@@ -231,7 +225,7 @@ describe('can transform matches', () => {
 
     it('can chain selection => transform => selection', async() => {
         const config: WatcherConfig = {
-            file_path: transformRules5Path,
+            file_path: getPath("transformRules5.txt"),
             type: 'transform'
         };
 
@@ -254,7 +248,7 @@ describe('can transform matches', () => {
 
     it('can chain selection => transform => selection => transform', async() => {
         const config: WatcherConfig = {
-            file_path: transformRules6Path,
+            file_path: getPath("transformRules6.txt"),
             type: 'transform'
         };
 
@@ -277,17 +271,17 @@ describe('can transform matches', () => {
 
    it("validations work with the different ways to configure them", async() => {
         const config: WatcherConfig = {
-            file_path: transformRules7Path,
+            file_path: getPath("transformRules7.txt"),
             type: 'transform'
         };
 
         const config2: WatcherConfig = {
-            file_path: transformRules8Path,
+            file_path: getPath("transformRules8.txt"),
             type: 'transform'
         };
 
         const config3: WatcherConfig = {
-            file_path: transformRules9Path,
+            file_path: getPath("transformRules9.txt"),
             type: 'transform'
         };
 
@@ -337,5 +331,62 @@ describe('can transform matches', () => {
             expect(result).toEqual(finalResults[ind]);
             expect(DataEntity.isDataEntity(result)).toEqual(true);
         });
+    });
+
+    it('can target multiple transforms on the same field', async () => {
+        const config: WatcherConfig = {
+            file_path: getPath("transformRules10.txt"),
+            type: 'transform'
+        };
+
+        const data = DataEntity.makeArray([
+            { "domain": "example.com", "url": "http://www.example.com/path?field1=blah&field2=moreblah&field3=evenmoreblah" },
+            { "domain": "other.com", "url": "http://www.example.com/path?field1=blah&field2=moreblah&field3=evenmoreblah" },
+            { "domain": "example.com", "url": "http://www.example.com/path?field5=blah&field6=moreblah&field7=evenmoreblah" }
+        ]);
+
+        const test = await opTest.init(config);
+        const results =  await test.run(data);
+
+        expect(results.length).toEqual(1);
+        expect(results[0]).toEqual({ field1: 'blah', field2: 'moreblah', field3: 'evenmoreblah' });
+        expect(DataEntity.isDataEntity(results[0])).toEqual(true);
+    });
+
+    it('can run', async () => {
+        const config: WatcherConfig = {
+            file_path: getPath("transformRules11.txt"),
+            type: 'transform'
+        };
+
+        const config2: WatcherConfig = {
+            file_path: getPath("transformRules12.txt"),
+            type: 'transform'
+        };
+        
+        const formatedWord = Buffer.from('evenmoreblah').toString('base64');
+        const url = `http://www.example.com/path?field1=blah&field2=moreblah&field3=${formatedWord}`;
+
+        const data = [
+            { "domain": "example.com", url },
+            { "domain": "other.com", url },
+            { "domain": "example.com", "url": "http://www.example.com/path?field5=blah&field6=moreblah&field7=evenmoreblah" }
+        ];
+
+        const finalData = DataEntity.makeArray(data);
+
+        const test1 = await opTest.init(config);
+        const results1 =  await test1.run(finalData);
+
+        expect(results1.length).toEqual(1);
+        expect(results1[0]).toEqual({ field3: 'evenmoreblah' });
+        expect(DataEntity.isDataEntity(results1[0])).toEqual(true);
+
+        const test2 = await opTest.init(config2);
+        const results2 =  await test2.run(finalData);
+
+        expect(results2.length).toEqual(1);
+        expect(results2[0]).toEqual({ field3: 'evenmoreblah' });
+        expect(DataEntity.isDataEntity(results2[0])).toEqual(true);
     });
 });

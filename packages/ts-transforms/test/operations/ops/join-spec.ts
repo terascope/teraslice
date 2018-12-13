@@ -5,7 +5,7 @@ import { DataEntity } from '@terascope/job-components';
 describe('join operator', () => {
 
     it('can instantiate', () => {
-        const opConfig = { operation: 'join', fields: ['first', 'last'], target_field: 'someField' };
+        const opConfig = { operation: 'join', fields: ['first', 'last'], source_field: 'someField', target_field: 'otherField' };
         expect(() => new Join(opConfig)).not.toThrow()
     });
 
@@ -29,14 +29,6 @@ describe('join operator', () => {
         expect(() => new Join(badConfig6)).toThrow();
          //@ts-ignore
         expect(() => new Join(badConfig7)).toThrow();
-    });
-
-    it('can and deal with null', () => {
-        const opConfig = { operation: 'join', fields: ['first', 'last'], target_field: 'someField' };
-        const test =  new Join(opConfig);
-        const results = test.run(null);
-
-        expect(results).toEqual(null);
     });
 
     it('can join fields of data entities', () => {

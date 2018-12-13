@@ -7,12 +7,10 @@ import OperationBase from '../base'
 
 export default class Ip extends OperationBase { 
     constructor(config: OperationConfig) {
-        super();
-        this.validate(config);
+        super(config);
     }
     
-    run(doc: DataEntity | null): DataEntity | null {
-        if (!doc) return doc;
+    run(doc: DataEntity): DataEntity | null {
         if (net.isIP(doc[this.source]) === 0) _.unset(doc, this.source);
         return doc;
     }

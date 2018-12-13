@@ -1,30 +1,6 @@
 
-import { DataEntity } from '@terascope/job-components';
 import PhaseBase from './operations/lib/base';
 export enum NotifyType { matcher = "matcher", transform = "transform" }
-
-export interface TypeOutput {
-    selector: string,
-    data: DataEntity | object
-}
-
-export interface MatcherConfig {
-    name?: string;
-    selector?: string;
-    selector_config?: object | undefined;
-    type: NotifyType;
-    actions: object[]
-} 
-
-export interface TransformConfig extends MatcherConfig {
-    source_field: string;
-    start: string;
-    end: string;
-    target_field: string;
-    regex?: string;
-    validation?: string;
-    decoder?: string;
-}
 
 export interface OperationConfig {
     id?: string;
@@ -51,7 +27,8 @@ export interface Refs {
 
 export interface StringRefs extends Refs {
     length?: number;
-    target_field: string;
+    target_field?: string;
+    source_field: string;
 }
 
 export interface ConfigResults {
@@ -64,21 +41,8 @@ export interface NormalizedConfig {
     registrationSelector: string;
 }
 
-export interface ChainedPostProcess {
-    refs: string;
-    validation?: string;
-    target_field?: string;
-    [key: string]: any;
-}
-
 export interface OperationsDictionary {
     [key: string]: PhaseBase[];
-}
-
-export interface InjectConfig {
-    validation?: string;
-    operation?: string;
-    selector: string;
 }
 
 export interface WatcherConfig {
@@ -88,12 +52,6 @@ export interface WatcherConfig {
     index?: string | undefined;
     selector_config?: object | undefined;
     actions?: object[];
-}
-
-export interface Notifier {
-    match(doc: DataEntity): boolean;
-    output (): null | TypeOutput;
-    extraction(doc: DataEntity): void
 }
 
 export interface JoinConfig {

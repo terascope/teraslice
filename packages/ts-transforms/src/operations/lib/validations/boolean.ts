@@ -6,12 +6,10 @@ import OperationBase from '../base'
 
 export default class Boolean extends OperationBase { 
     constructor(config: OperationConfig) {
-        super();
-        this.validate(config);
+        super(config);
     }
     
-    run(doc: DataEntity | null): DataEntity | null {
-        if (!doc) return doc;
+    run(doc: DataEntity): DataEntity | null {
         if (!_.isBoolean(doc[this.source])) _.unset(doc, this.source);
         return doc;
     }

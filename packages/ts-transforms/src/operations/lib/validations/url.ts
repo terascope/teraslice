@@ -7,12 +7,10 @@ import OperationBase from '../base'
 
 export default class Url extends OperationBase { 
     constructor(config: OperationConfig) {
-        super();
-        this.validate(config);
+        super(config);
     }
     
-    run(doc: DataEntity | null): DataEntity | null {
-        if (!doc) return doc;
+    run(doc: DataEntity): DataEntity | null {
         if (typeof doc[this.source] !== 'string' || !url.isUri(doc[this.source])) _.unset(doc, this.source);
         return doc;
     }

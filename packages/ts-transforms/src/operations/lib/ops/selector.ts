@@ -11,7 +11,7 @@ export default class Selector extends OperationBase {
     private isMatchAll: boolean;
 
     constructor(config: OperationConfig, typeConfigs?: object) {
-        super();
+        super(config);
         let luceneQuery = config.selector as string;
         this.selector = luceneQuery;
         this.isMatchAll = luceneQuery === '*';
@@ -31,9 +31,8 @@ export default class Selector extends OperationBase {
         }
     }
 
-    run(doc: DataEntity | null): DataEntity | null {
+    run(doc: DataEntity): DataEntity | null {
         const { selector, addMetaData, documentMatcher, isMatchAll} = this;
-        if (!doc) return doc;
         if (isMatchAll || documentMatcher.match(doc)) {
             addMetaData(doc, selector)
             return doc

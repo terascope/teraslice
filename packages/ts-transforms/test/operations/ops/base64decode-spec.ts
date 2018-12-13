@@ -39,14 +39,6 @@ describe('base64 operation', () => {
         expect(() => new Base64Decode(badConfig8)).toThrow();
     });
 
-    it('can and deal with null', () => {
-        const opConfig = { target_field: 'final', source_field: 'source' };
-        const test =  new Base64Decode(opConfig);
-        const results = test.run(null);
-
-        expect(results).toEqual(null);
-    });
-
     it('can base64 decode fields', () => {
         const opConfig = { target_field: 'final', source_field: 'source' };
         const test =  new Base64Decode(opConfig);

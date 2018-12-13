@@ -8,12 +8,11 @@ export default class Transform extends OperationBase {
     private config: OperationConfig;
 
     constructor(config: OperationConfig) {
-        super()
+        super(config);
         this.config = config;
     }
 
-    run(doc: DataEntity | null): DataEntity | null {
-        if (!doc) return doc;
+    run(doc: DataEntity): DataEntity | null {
         const { config } = this;
         let data = doc[config.source_field as string];
 
@@ -31,12 +30,15 @@ export default class Transform extends OperationBase {
                 }
             } else if (config.start && config.end) {
                     let { end } = config;
-                    if (end === "EOP") end = '&'
-                    const indexStart = data.indexOf(config.start) + config.start.length;
-                    let endInd = data.indexOf(end);
-                    if (endInd === -1) endInd = data.length;
-                    const extractedSlice = data.slice(indexStart, endInd);
-                    if (extractedSlice) transformedResult = data.slice(indexStart, endInd);
+                    if (end === "EOP") end = '&';
+                    const indexStart = data.indexOf(config.start);
+                    if (indexStart !== -1) {
+                        const sliceStart = indexStart + config.start.length;
+                        let endInd = data.indexOf(end, sliceStart);
+                        if (endInd === -1) endInd = data.length;
+                        const extractedSlice = data.slice(sliceStart, endInd);
+                        if (extractedSlice) transformedResult = data.slice(sliceStart, endInd);
+                    }
             } else {
                 transformedResult = data;
             }

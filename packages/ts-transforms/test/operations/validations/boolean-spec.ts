@@ -5,14 +5,14 @@ import { DataEntity } from '@terascope/job-components';
 describe('boolean validation', () => {
    
     it('can instantiate', () => {
-        const opConfig = { target_field: 'someField' };
+        const opConfig = { source_field: 'someField' };
         expect(() => new Boolean(opConfig)).not.toThrow()
     });
 
     it('can properly throw with bad config values', () => {
-        const badConfig1 = { target_field: 1324 };
-        const badConfig2 = { target_field: "" };
-        const badConfig3 = { target_field: {} };
+        const badConfig1 = { source_field: 1324 };
+        const badConfig2 = { source_field: "" };
+        const badConfig3 = { source_field: {} };
         const badConfig4 = {};
         //@ts-ignore
         expect(() => new Boolean(badConfig1)).toThrow();
@@ -22,16 +22,8 @@ describe('boolean validation', () => {
         expect(() => new Boolean(badConfig4)).toThrow();
     });
 
-    it('can and deal with null', () => {
-        const opConfig = { target_field: 'someField' };
-        const test =  new Boolean(opConfig);
-        const results = test.run(null);
-
-        expect(results).toEqual(null);
-    });
-
     it('can validate boolean fields', () => {
-        const opConfig = { target_field: 'isTall' };
+        const opConfig = { source_field: 'isTall' };
         const test =  new Boolean(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 

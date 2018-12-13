@@ -25,7 +25,7 @@ const opNames = {
     url: Url,
     email: Email,
     ip: Ip,
-    base64encode: Base64Decode,
+    base64decode: Base64Decode,
     urldecode: UrlDecode,
     hexdecode: HexDecode
 };
