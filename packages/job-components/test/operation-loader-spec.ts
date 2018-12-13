@@ -285,6 +285,25 @@ describe('OperationLoader', () => {
         }).not.toThrow();
     });
 
+    it('should load an api with a namespace', () => {
+        const exConfig = newTestExecutionConfig();
+
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: path.join(__dirname),
+        });
+
+        const op = opLoader.loadAPI('example-api:hello', [
+            'fixtures'
+        ]);
+
+        expect(op.API).not.toBeNil();
+        expect(() => {
+            // @ts-ignore
+            new op.API(context as WorkerContext, { _name: 'example-api' }, exConfig);
+        }).not.toThrow();
+    });
+
     it('should load an observer', () => {
         const exConfig = newTestExecutionConfig();
         const opLoader = new OperationLoader({

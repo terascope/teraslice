@@ -86,7 +86,7 @@ Here is a list of configuration options that all APIs have available to them.
 
 | Configuration | Description | Type |  Notes |
 | --------- | -------- | ------ | ------ |
-| `_name` | Name of API, it must reflect the exact name of the file | `String` | required |
+| `_name` | The _name property is required, and it is required to be unqiue but can be suffixed with a identifier by using the format "example:0", anything after the ":" is stripped out when searching for the file or folder. | `String` | required |
 
 ## Processors ##
 
@@ -195,7 +195,7 @@ Example configuration
 
 | Configuration | Description | Type |  Notes   |
 | --------- | -------- | ------ | ------ |
-| `ms` | Milliseconds to delay before passing data through | `Number` | required |
+| `ms` | Milliseconds to delay before passing data through | `Number` | optional, defaults to `100` |
 
 ## Bundles ##
 

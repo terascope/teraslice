@@ -165,7 +165,8 @@ export class OperationLoader {
     }
 
     loadAPI(name: string, assetIds?: string[]): APIModule {
-        const codePath = this.findOrThrow(name, assetIds);
+        const [apiName] = name.split(':');
+        const codePath = this.findOrThrow(apiName, assetIds);
 
         let API: OperationAPIConstructor|undefined;
 
@@ -186,13 +187,13 @@ export class OperationLoader {
         try {
             Schema = this.require(codePath, 'schema');
         } catch (err) {
-            throw new Error(`Failure loading schema from module: ${name}, error: ${parseError(err, true)}`);
+            throw new Error(`Failure loading schema from module: ${apiName}, error: ${parseError(err, true)}`);
         }
 
         if (Observer == null && API == null) {
-            throw new Error(`Failure to load api module: ${name}, requires at least an api.js or observer.js`);
+            throw new Error(`Failure to load api module: ${apiName}, requires at least an api.js or observer.js`);
         } else if (Observer != null && API != null) {
-            throw new Error(`Failure to load api module: ${name}, required only one api.js or observer.js`);
+            throw new Error(`Failure to load api module: ${apiName}, required only one api.js or observer.js`);
         }
 
         const type = API != null ? 'api' : 'observer';

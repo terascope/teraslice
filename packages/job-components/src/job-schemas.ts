@@ -86,7 +86,10 @@ export function jobSchema(context: Context): convict.Schema<any> {
         apis: {
             default: [],
             doc: `An array of apis to load and any configurations they require.
-            Validated similar to operations, with the exception of no apis are required and the _name must be unqiue.`,
+            Validated similar to operations, with the exception of no apis are required.
+            The _name property is required, and it is required to be unqiue
+            but can be suffixed with a identifier by using the format "example:0",
+            anything after the ":" is stripped out when searching for the file or folder.`,
             format(arr: any[]) {
                 if (!Array.isArray(arr)) {
                     throw new Error('APIs is required to be an array');
@@ -249,7 +252,9 @@ The API must be already be created by a operation before it can used.​`.trim()
 export const apiSchema: convict.Schema<any> = {
     _name: {
         default: '',
-        doc: 'Name of api, it must reflect the name of the file or folder, and it must unqiue among the other APIs',
+        doc: `The _name property is required, and it is required to be unqiue
+        but can be suffixed with a identifier by using the format "example:0",
+        anything after the ":" is stripped out when searching for the file or folder.`,
         format: 'required_String',
     }
 };
