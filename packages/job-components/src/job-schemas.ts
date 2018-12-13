@@ -85,7 +85,8 @@ export function jobSchema(context: Context): convict.Schema<any> {
         },
         apis: {
             default: [],
-            doc: 'An array of apis to load and any configurations they require. Constructed similar to operations.',
+            doc: `An array of apis to load and any configurations they require.
+            Validated similar to operations, with the exception of no apis are required and the _name must be unqiue.`,
             format(arr: any[]) {
                 if (!Array.isArray(arr)) {
                     throw new Error('APIs is required to be an array');
@@ -95,14 +96,22 @@ export function jobSchema(context: Context): convict.Schema<any> {
                 const connectors = Object.values(connectorsObject);
 
                 const connections = flatten(connectors.map((conn) => Object.keys(conn)));
+                const names: string[] = [];
 
                 for (const api of arr) {
                     if (!api || !isPlainObject(api)) {
                         throw new Error(`Invalid API config in apis, got ${getTypeOf(api)}`);
                     }
+
                     if (!api._name) {
                         throw new Error('API requires an _name');
                     }
+
+                    if (names.includes(api._name)) {
+                        throw new Error(`Duplicate API configurations for ${api._name} found`);
+                    }
+
+                    names.push(api._name);
                     if (api.connection && !connections.includes(api.connection)) {
                         throw new Error(`API ${api._name} refers to connection "${api.connection}" which is unavailable`);
                     }
@@ -240,7 +249,7 @@ The API must be already be created by a operation before it can used.​`.trim()
 export const apiSchema: convict.Schema<any> = {
     _name: {
         default: '',
-        doc: 'Name of api, it must reflect the name of the file or folder',
+        doc: 'Name of api, it must reflect the name of the file or folder, and it must unqiue among the other APIs',
         format: 'required_String',
     }
 };

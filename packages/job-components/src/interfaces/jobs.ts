@@ -45,7 +45,7 @@ export type DeadLetterAPIFn = (input: any, err: Error) => void;
  * into a ExecutionContext.
 */
 export interface APIConfig {
-    /** The name of the operation */
+    /** The name of the api, this must be unique among any loaded APIs */
     _name: string;
     [prop: string]: any;
 }

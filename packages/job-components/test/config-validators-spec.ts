@@ -44,7 +44,7 @@ describe('when using native clustering', () => {
     });
 
     describe('when passed a job with an invalid op', () => {
-        it('should raises an exception', () => {
+        it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
             context.sysconfig.terafoundation = {
                 connectors: {
@@ -73,7 +73,7 @@ describe('when using native clustering', () => {
     });
 
     describe('when passed a job with an invalid operations', () => {
-        it('should raises an exception', () => {
+        it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
             context.sysconfig.terafoundation = {
                 connectors: {
@@ -97,7 +97,7 @@ describe('when using native clustering', () => {
     });
 
     describe('when passed a job without a known operation connector', () => {
-        it('should raises an exception', () => {
+        it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
             context.sysconfig.terafoundation = {
                 connectors: {
@@ -129,7 +129,7 @@ describe('when using native clustering', () => {
     });
 
     describe('when passed a job with an invalid api', () => {
-        it('should raises an exception', () => {
+        it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
             context.sysconfig.terafoundation = {
                 connectors: {
@@ -163,7 +163,7 @@ describe('when using native clustering', () => {
     });
 
     describe('when passed a job without api _name', () => {
-        it('should raises an exception', () => {
+        it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
             context.sysconfig.terafoundation = {
                 connectors: {
@@ -195,8 +195,46 @@ describe('when using native clustering', () => {
         });
     });
 
+    describe('when passed a job with duplicate api names', () => {
+        it('should raise an exception', () => {
+            const context = new TestContext('teraslice-operations');
+            context.sysconfig.terafoundation = {
+                connectors: {
+                    elasticsearch: {
+                        t1: {
+                            host: ['1.1.1.1:9200'],
+                        },
+                    },
+                },
+            };
+
+            const schema = jobSchema(context);
+            const job = {
+                apis: [
+                    {
+                        _name: 'hello'
+                    },
+                    {
+                        _name: 'hello'
+                    }
+                ],
+                operations: [
+                    {
+                        _op: 'test-reader',
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+            expect(() => {
+                validateJobConfig(schema, job);
+            }).toThrowError(/Duplicate API configurations for/);
+        });
+    });
+
     describe('when passed a job without a known api connector', () => {
-        it('should raises an exception', () => {
+        it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
             context.sysconfig.terafoundation = {
                 connectors: {

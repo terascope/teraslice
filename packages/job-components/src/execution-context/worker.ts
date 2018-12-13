@@ -1,7 +1,7 @@
 import { waterfall, isString, isInteger, cloneDeep, isFunction } from '../utils';
 import { APICore, FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
-import { DataEntity, OperationAPI } from '../operations';
-import { WorkerOperationLifeCycle, Slice } from '../interfaces';
+import { DataEntity, OperationAPI, OperationAPIConstructor } from '../operations';
+import { WorkerOperationLifeCycle, Slice, OpAPI } from '../interfaces';
 import {
     ExecutionContextConfig,
     RunSliceResult,
@@ -200,6 +200,23 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
 
     onOperationStart(sliceId: string, index: number) {
         this._runMethod('onOperationStart', sliceId, index);
+    }
+
+    /** Add an API to the executionContext api registry */
+    protected registerAPI(name: string, API?: OperationAPIConstructor) {
+        if (API == null) return;
+        const { apis = [] } = this.config;
+        const hasName = apis.some(({ _name }) => _name === name);
+        if (hasName) {
+            throw new Error(`Cannot register API ${name} due to conflict`);
+        }
+
+        this.context.apis.executionContext.addToRegistry(name, API);
+    }
+
+    /** Add an API to the executionContext api */
+    protected addAPI(name: string, opAPI: OpAPI) {
+        this.context.apis.executionContext.addAPI(name, opAPI);
     }
 }
 
