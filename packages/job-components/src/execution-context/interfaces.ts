@@ -3,7 +3,7 @@ import {
     ExecutionConfig,
     SlicerOperationLifeCycle,
     WorkerOperationLifeCycle,
-    SliceAnalyticsData
+    SliceAnalyticsData,
 } from '../interfaces';
 import { DataEntity } from '../operations';
 
@@ -26,22 +26,4 @@ export interface RunSliceResult {
 /** event handlers that should be cleaned up */
 export interface EventHandlers {
     [eventName: string]: (...args: any[]) => void;
-}
-
-export interface SlicerMethodRegistry {
-    readonly onSliceComplete: Set<number>;
-    readonly onSliceDispatch: Set<number>;
-    readonly onSliceEnqueued: Set<number>;
-    readonly onExecutionStats: Set<number>;
-}
-
-export interface WorkerMethodRegistry {
-    readonly onSliceInitialized: Set<number>;
-    readonly onSliceStarted: Set<number>;
-    readonly onSliceFinalizing: Set<number>;
-    readonly onSliceFinished: Set<number>;
-    readonly onSliceFailed: Set<number>;
-    readonly onSliceRetry: Set<number>;
-    readonly onOperationStart: Set<number>;
-    readonly onOperationComplete: Set<number>;
 }
