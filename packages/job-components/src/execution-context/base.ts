@@ -58,10 +58,10 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
     /**
      * Called to initialize all of the registered operations
     */
-    async initialize() {
+    async initialize(initConfig?: any) {
         const promises = [];
         for (const op of this.getOperations()) {
-            promises.push(op.initialize());
+            promises.push(op.initialize(initConfig));
         }
 
         await Promise.all(promises);

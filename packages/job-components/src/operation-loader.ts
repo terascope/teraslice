@@ -191,15 +191,18 @@ export class OperationLoader {
 
         if (Observer == null && API == null) {
             throw new Error(`Failure to load api module: ${name}, requires at least an api.js or observer.js`);
+        } else if (Observer != null && API != null) {
+            throw new Error(`Failure to load api module: ${name}, required only one api.js or observer.js`);
         }
+
+        const type = API != null ? 'api' : 'observer';
 
         return {
             // @ts-ignore
-            API,
-            // @ts-ignore
-            Observer,
+            API: API || Observer,
             // @ts-ignore
             Schema,
+            type,
         };
     }
 

@@ -1,7 +1,5 @@
 import { waterfall, isString, isInteger, cloneDeep } from '../utils';
-import FetcherCore from '../operations/core/fetcher-core';
-import ProcessorCore from '../operations/core/processor-core';
-import OperationCore from '../operations/core/operation-core';
+import { APICore, FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
 import { DataEntity } from '../operations';
 import { WorkerOperationLifeCycle, Slice } from '../interfaces';
 import {
@@ -18,6 +16,7 @@ import BaseExecutionContext from './base';
 */
 export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperationLifeCycle> implements WorkerOperationLifeCycle {
     readonly processors: ProcessorCore[];
+    readonly apis: APICore[];
 
     private readonly jobObserver: JobObserver;
 
@@ -66,6 +65,27 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
 
         this.addOperation(jobObserver);
         this.jobObserver = jobObserver;
+
+        this.apis = [];
+
+        for (const apiConfig of this.config.apis || []) {
+            const name = apiConfig._name;
+            const mod = this._loader.loadAPI(name, this.assetIds);
+
+            if (mod.type === 'api') {
+                // @ts-ignore
+                this.registerAPI(name, mod.API);
+            }
+
+            const api = new mod.API(
+                this.context,
+                cloneDeep(apiConfig),
+                this.config
+            );
+
+            this.addOperation(api);
+            this.apis.push(api);
+        }
     }
 
     /**

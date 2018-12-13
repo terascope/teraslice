@@ -37,6 +37,14 @@ export class SlicerExecutionContext  extends BaseExecutionContext<SlicerOperatio
         this._resetMethodRegistry();
     }
 
+    /**
+     * Called during execution initialization
+     * @param recoveryData is the data to recover from
+    */
+    async initialize(recoveryData?: object[]) {
+        return super.initialize(recoveryData);
+    }
+
     /** The instance of a "Slicer" */
     slicer<T extends SlicerCore = SlicerCore>(): T {
         return this._slicer as T;

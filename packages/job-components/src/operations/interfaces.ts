@@ -46,8 +46,8 @@ export interface SchemaModule {
 }
 
 export interface APIModule extends SchemaModule {
-    API?: OperationAPIConstructor;
-    Observer?: ObserverConstructor;
+    API: OperationAPIConstructor|ObserverConstructor;
+    type: 'api'|'observer';
 }
 
 export interface ReaderModule extends OperationModule {

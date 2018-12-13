@@ -23,9 +23,10 @@ export class JobValidator {
         this.schema = jobSchema(context);
     }
 
-    validateConfig(_jobConfig: JobConfig): ValidatedJobConfig {
+    /** Validate the job configuration, including the Operations and APIs configuration */
+    validateConfig(jobSpec: JobConfig): ValidatedJobConfig {
         // top level job validation occurs, but not operations
-        const jobConfig = validateJobConfig(this.schema, cloneDeep(_jobConfig));
+        const jobConfig = validateJobConfig(this.schema, cloneDeep(jobSpec));
         const assetIds = jobConfig.assets || [];
         const apis = {};
 

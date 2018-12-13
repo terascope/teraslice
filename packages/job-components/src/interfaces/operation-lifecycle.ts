@@ -66,6 +66,12 @@ export interface WorkerOperationLifeCycle extends OperationLifeCycle {
 
 export interface SlicerOperationLifeCycle extends OperationLifeCycle {
     /**
+     * Called during execution initialization
+     * @param recoveryData is the data to recover from
+    */
+    initialize(recoveryData?: object[]): Promise<void>;
+
+    /**
      * A method called by the "Execution Controller" to give a "Slicer"
      * the opportunity to track the slices enqueued by the execution controller
     */

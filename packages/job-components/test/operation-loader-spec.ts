@@ -25,7 +25,7 @@ describe('OperationLoader', () => {
         await fse.copy(processorPath, path.join(assetPath, 'example-filter-op'));
     });
 
-    it('can instantiate', () => {
+    it('should instantiate', () => {
         const opLoader = new OperationLoader({
             terasliceOpPath,
         });
@@ -35,7 +35,7 @@ describe('OperationLoader', () => {
         expect(opLoader.load).toBeFunction();
     });
 
-    it('can load an operation', async () => {
+    it('should load an operation', async () => {
         const opLoader = new OperationLoader({
             terasliceOpPath,
         });
@@ -63,7 +63,7 @@ describe('OperationLoader', () => {
         expect(processorResults).toEqual(someData);
     });
 
-    it('can load by file path', () => {
+    it('should load by file path', () => {
         const opLoader = new OperationLoader({
             terasliceOpPath,
         });
@@ -86,7 +86,7 @@ describe('OperationLoader', () => {
         expect(reader.schema).toBeFunction();
     });
 
-    it('can throw proper errors if op code does not exits', () => {
+    it('should throw proper errors if op code does not exits', () => {
         const opLoader = new OperationLoader({
             terasliceOpPath,
         });
@@ -96,7 +96,7 @@ describe('OperationLoader', () => {
         }).toThrowError();
     });
 
-    it('can load asset ops', async () => {
+    it('should load asset ops', async () => {
         const opLoader = new OperationLoader({
             terasliceOpPath,
             assetPath: tmpDir,
@@ -126,7 +126,7 @@ describe('OperationLoader', () => {
         expect(processorResults).toEqual([]);
     });
 
-    it('can load the new processor', async () => {
+    it('should load the new processor', () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {
             _op: 'example-op'
@@ -161,7 +161,7 @@ describe('OperationLoader', () => {
         expect(op.API).toBeNil();
     });
 
-    it('can load a shimmed processor', async () => {
+    it('should load a shimmed processor', () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {
             _op: 'example-op'
@@ -192,7 +192,7 @@ describe('OperationLoader', () => {
         expect(op.API).toBeNil();
     });
 
-    it('can load the new reader', async () => {
+    it('should load the new reader', () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {
             _op: 'example-reader'
@@ -233,7 +233,7 @@ describe('OperationLoader', () => {
         }).not.toThrow();
     });
 
-    it('can load a shimmed reader', async () => {
+    it('should load a shimmed reader', () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {
             _op: 'test-reader'
@@ -266,13 +266,8 @@ describe('OperationLoader', () => {
         expect(op.API).toBeNil();
     });
 
-    it('can load an api', async () => {
+    it('should load an api', () => {
         const exConfig = newTestExecutionConfig();
-        const opConfig = {
-            _op: 'test-reader'
-        };
-
-        exConfig.operations.push(opConfig);
 
         const opLoader = new OperationLoader({
             terasliceOpPath,
@@ -290,14 +285,8 @@ describe('OperationLoader', () => {
         }).not.toThrow();
     });
 
-    it('can load an observer', async () => {
+    it('should load an observer', () => {
         const exConfig = newTestExecutionConfig();
-        const opConfig = {
-            _op: 'test-reader'
-        };
-
-        exConfig.operations.push(opConfig);
-
         const opLoader = new OperationLoader({
             terasliceOpPath,
             assetPath: path.join(__dirname),
@@ -307,10 +296,36 @@ describe('OperationLoader', () => {
             'fixtures'
         ]);
 
-        expect(op.Observer).not.toBeNil();
+        expect(op.API).not.toBeNil();
         expect(() => {
             // @ts-ignore
-            new op.Observer(context, { _name: 'example-observer' }, exConfig);
+            new op.API(context, { _name: 'example-observer' }, exConfig);
         }).not.toThrow();
+    });
+
+    it('should fail if given an api without the required files', () => {
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: path.join(__dirname),
+        });
+
+        expect(() => {
+            opLoader.loadAPI('empty-api', [
+                'fixtures'
+            ]);
+        }).toThrowError(/requires at least an api\.js or observer\.js/);
+    });
+
+    it('should fail if given an api with both an observer and api', () => {
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: path.join(__dirname),
+        });
+
+        expect(() => {
+            opLoader.loadAPI('invalid-api-observer', [
+                'fixtures'
+            ]);
+        }).toThrowError(/required only one api\.js or observer\.js/);
     });
 });
