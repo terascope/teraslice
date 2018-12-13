@@ -41,6 +41,10 @@ export default class JobTestHarness {
         return this.workerHarness.processors;
     }
 
+    get apis() {
+        return this.workerHarness.apis;
+    }
+
     /**
      * Set the Terafoundation Clients on both
      * the Slicer and Worker contexts

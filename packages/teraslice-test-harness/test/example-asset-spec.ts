@@ -8,6 +8,7 @@ import {
     SlicerTestHarness,
     WorkerTestHarness,
 } from '../src';
+import Transformer from './fixtures/asset/transformer/processor';
 
 jest.mock('./fixtures/asset/simple-connector/client');
 
@@ -31,6 +32,11 @@ describe('Example Asset', () => {
     describe('using the WorkerTestHarness', () => {
         const job = newTestJobConfig();
         job.analytics = true;
+        job.apis = [
+            {
+                _name: 'simple-api',
+            }
+        ];
         job.operations = [
             {
                 _op: 'simple-reader'
@@ -92,6 +98,14 @@ describe('Example Asset', () => {
                 });
             }
         });
+
+        it('should have use the simple api', async () => {
+            expect(harness.apis).toBeArrayOfSize(1);
+            const transformer: Transformer = harness.getOperation('transformer');
+            const api = transformer.simpleAPI();
+
+            expect(api).toHaveProperty('count', 0);
+        });
     });
 
     describe('using the SlicerTestHarness', () => {
@@ -146,6 +160,11 @@ describe('Example Asset', () => {
     describe('using the JobTestHarness', () => {
         const job = newTestJobConfig();
         job.analytics = true;
+        job.apis = [
+            {
+                _name: 'simple-api',
+            }
+        ];
         job.operations = [
             {
                 _op: 'simple-reader'
@@ -198,6 +217,10 @@ describe('Example Asset', () => {
                     expect(result.scale).toBe(6);
                 }
             }
+        });
+
+        it('should have one api', async () => {
+            expect(harness.apis).toBeArrayOfSize(1);
         });
 
         it('should be finished for the second batch of slices', async () => {
