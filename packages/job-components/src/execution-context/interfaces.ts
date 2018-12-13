@@ -4,8 +4,9 @@ import {
     SlicerOperationLifeCycle,
     WorkerOperationLifeCycle,
     SliceAnalyticsData,
+    OpAPI,
 } from '../interfaces';
-import { DataEntity } from '../operations';
+import { DataEntity, APICore } from '../operations';
 
 export interface ExecutionContextConfig {
     context: Context;
@@ -26,4 +27,14 @@ export interface RunSliceResult {
 /** event handlers that should be cleaned up */
 export interface EventHandlers {
     [eventName: string]: (...args: any[]) => void;
+}
+
+export interface JobAPIInstance {
+    instance: APICore;
+    opAPI?: OpAPI;
+    type: 'api'|'observer';
+}
+
+export interface JobAPIInstances {
+    [name: string]: JobAPIInstance;
 }

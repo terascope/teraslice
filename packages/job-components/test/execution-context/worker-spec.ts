@@ -85,8 +85,11 @@ describe('WorkerExecutionContext', () => {
             }
         });
 
-        it('should have the APIs', async () => {
-            expect(executionContext.apis).toBeArrayOfSize(2);
+        it('should have the APIs', () => {
+            expect(Object.keys(executionContext.apis)).toEqual([
+                'example-observer',
+                'example-api',
+            ]);
         });
 
         it('should be able to an operation instance by index', async () => {

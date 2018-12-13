@@ -1,10 +1,11 @@
 import { waterfall, isString, isInteger, cloneDeep, isFunction } from '../utils';
-import { APICore, FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
+import { FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
 import { DataEntity, OperationAPI, OperationAPIConstructor } from '../operations';
 import { WorkerOperationLifeCycle, Slice, OpAPI } from '../interfaces';
 import {
     ExecutionContextConfig,
     RunSliceResult,
+    JobAPIInstances,
 } from './interfaces';
 import JobObserver from '../operations/job-observer';
 import BaseExecutionContext from './base';
@@ -16,7 +17,7 @@ import BaseExecutionContext from './base';
 */
 export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperationLifeCycle> implements WorkerOperationLifeCycle {
     readonly processors: ProcessorCore[];
-    readonly apis: APICore[];
+    readonly apis: JobAPIInstances = {};
 
     private readonly jobObserver: JobObserver;
 
@@ -66,8 +67,6 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         this.addOperation(jobObserver);
         this.jobObserver = jobObserver;
 
-        this.apis = [];
-
         for (const apiConfig of this.config.apis || []) {
             const name = apiConfig._name;
             const mod = this._loader.loadAPI(name, this.assetIds);
@@ -78,23 +77,34 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
                 this.config
             );
 
+            this.apis[name] = {
+                instance: api,
+                type: mod.type,
+            };
             this.addOperation(api);
-            this.apis.push(api);
         }
     }
 
     async initialize() {
-        const promises = this.apis
-            .filter(isOperationAPI)
-            .map(async (api) => {
-                await api.initialize();
-                const opAPI = await api.createAPI();
-                this.addAPI(api.apiConfig._name, opAPI);
-            });
+        await super.initialize();
+
+        const promises = [];
+
+        for (const [name, api] of Object.entries(this.apis)) {
+            const { instance } = api;
+
+            if (isOperationAPI(instance)) {
+                promises.push((async () => {
+                    const opAPI = await instance.createAPI();
+                    api.opAPI = opAPI;
+
+                    this.addAPI(name, opAPI);
+                    this.apis[name] = api;
+                })());
+            }
+        }
 
         await Promise.all(promises);
-
-        await super.initialize();
     }
 
     /**
