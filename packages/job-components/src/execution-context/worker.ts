@@ -87,8 +87,9 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         const promises = this.apis
             .filter(isOperationAPI)
             .map(async (api) => {
-                await api.createAPI();
-                this.addAPI(api.apiConfig._name, api);
+                await api.initialize();
+                const opAPI = await api.createAPI();
+                this.addAPI(api.apiConfig._name, opAPI);
             });
 
         await Promise.all(promises);
