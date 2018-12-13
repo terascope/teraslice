@@ -36,7 +36,7 @@
         "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@terascope/queue": "^1.1.4",
+        "@terascope/queue": "^1.1.5",
         "bluebird": "^3.5.3",
         "debug": "^4.1.0",
         "nanoid": "^2.0.0",
@@ -47,7 +47,7 @@
     },
     "devDependencies": {
         "@types/jest": "^23.3.10",
-        "@types/node": "^10.12.12",
+        "@types/node": "^10.12.15",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "jest": "^23.6.0",

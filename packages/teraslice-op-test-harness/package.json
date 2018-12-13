@@ -1,12 +1,12 @@
 {
     "name": "@terascope/teraslice-op-test-harness",
-    "version": "1.5.0",
+    "version": "1.5.1",
     "publishConfig": {
         "access": "public"
     },
     "description": "A testing harness to simplify testing Teraslice processors and operations.",
     "main": "index.js",
-    "typings": "dist/index.d.ts",
+    "typings": "types/index.d.ts",
     "scripts": {
         "docs": "jsdoc -P package.json index.js",
         "lint": "eslint *.js lib/**/*.js test/**/*.js",
@@ -23,7 +23,7 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.14.0",
+        "@terascope/job-components": "^0.14.1",
         "bluebird": "^3.5.3",
         "lodash": "^4.17.11"
     },

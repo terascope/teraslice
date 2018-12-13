@@ -1,6 +1,6 @@
 {
     "name": "@terascope/job-components",
-    "version": "0.14.0",
+    "version": "0.14.1",
     "publishConfig": {
         "access": "public"
     },
@@ -37,7 +37,7 @@
         "benchmark": "yarn build; node bench/index.js"
     },
     "dependencies": {
-        "@terascope/queue": "^1.1.4",
+        "@terascope/queue": "^1.1.5",
         "convict": "^4.4.0",
         "datemath-parser": "^1.0.6",
         "debug": "^4.1.0",
@@ -48,7 +48,7 @@
     },
     "devDependencies": {
         "@types/jest": "^23.3.10",
-        "@types/node": "^10.12.12",
+        "@types/node": "^10.12.15",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "benchmark": "^2.1.4",
