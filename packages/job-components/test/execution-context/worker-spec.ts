@@ -113,7 +113,6 @@ describe('WorkerExecutionContext', () => {
             const registry = Object.keys(context.apis.executionContext.registry);
             expect(registry).toEqual([
                 'example-reader',
-                'example-api'
             ]);
         });
 

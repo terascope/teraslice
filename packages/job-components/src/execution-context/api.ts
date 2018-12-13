@@ -44,6 +44,12 @@ export class ExecutionContextAPI {
         return _apis.get(this);
     }
 
+    /** Set an api to be used */
+    addAPI(name: string, opAPI: OpAPI) {
+        const apis = _apis.get(this);
+        apis[name] = opAPI;
+    }
+
     /**
      * Get a reference to a specific API,
      * the must be initialized.
@@ -82,7 +88,7 @@ export class ExecutionContextAPI {
 
         config.events.emit('execution:add-to-lifecycle', api);
 
-        this.apis[name] = await api.createAPI(...params);
+        this.addAPI(name, await api.createAPI(...params));
         return this.apis[name];
     }
 }

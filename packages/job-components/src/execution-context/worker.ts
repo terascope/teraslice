@@ -1,6 +1,6 @@
-import { waterfall, isString, isInteger, cloneDeep } from '../utils';
+import { waterfall, isString, isInteger, cloneDeep, isFunction } from '../utils';
 import { APICore, FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
-import { DataEntity } from '../operations';
+import { DataEntity, OperationAPI } from '../operations';
 import { WorkerOperationLifeCycle, Slice } from '../interfaces';
 import {
     ExecutionContextConfig,
@@ -72,11 +72,6 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
             const name = apiConfig._name;
             const mod = this._loader.loadAPI(name, this.assetIds);
 
-            if (mod.type === 'api') {
-                // @ts-ignore
-                this.registerAPI(name, mod.API);
-            }
-
             const api = new mod.API(
                 this.context,
                 cloneDeep(apiConfig),
@@ -86,6 +81,19 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
             this.addOperation(api);
             this.apis.push(api);
         }
+    }
+
+    async initialize() {
+        const promises = this.apis
+            .filter(isOperationAPI)
+            .map(async (api) => {
+                await api.createAPI();
+                this.addAPI(api.apiConfig._name, api);
+            });
+
+        await Promise.all(promises);
+
+        await super.initialize();
     }
 
     /**
@@ -192,4 +200,8 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
     onOperationStart(sliceId: string, index: number) {
         this._runMethod('onOperationStart', sliceId, index);
     }
+}
+
+function isOperationAPI(api: any): api is OperationAPI {
+    return api && isFunction(api.createAPI);
 }

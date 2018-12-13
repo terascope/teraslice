@@ -1,11 +1,11 @@
 import { ExecutionConfig, APIConfig, SliceAnalyticsData, WorkerContext } from '../interfaces';
-import APICore from './core/api-core';
+import Observer from './observer';
 import { times } from '../utils';
 
 /**
  * An Observer for monitoring the Slice Analyitcs
  */
-export default class JobObserver extends APICore {
+export default class JobObserver extends Observer {
     collectAnalytics: boolean;
     analyticsData: SliceAnalyticsData|undefined;
 

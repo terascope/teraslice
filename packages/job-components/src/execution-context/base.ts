@@ -3,7 +3,7 @@ import { isFunction, cloneDeep } from '../utils';
 import { OperationLoader } from '../operation-loader';
 import { OperationAPIConstructor } from '../operations';
 import { registerApis } from '../register-apis';
-import { ExecutionConfig, WorkerContext, OperationLifeCycle } from '../interfaces';
+import { ExecutionConfig, WorkerContext, OperationLifeCycle, OpAPI } from '../interfaces';
 import {
     EventHandlers,
     ExecutionContextConfig,
@@ -105,6 +105,11 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
         if (API == null) return;
 
         this.context.apis.executionContext.addToRegistry(name, API);
+    }
+
+    /** Add an API to the executionContext api */
+    protected addAPI(name: string, opAPI: OpAPI) {
+        this.context.apis.executionContext.addAPI(name, opAPI);
     }
 
     /** Run an async method on the operation lifecycle */
