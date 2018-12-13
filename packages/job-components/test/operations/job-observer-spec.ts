@@ -5,7 +5,7 @@ import { TestContext, newTestExecutionConfig, WorkerContext, JobObserver, SliceA
 describe('JobObserver', () => {
     let observer: JobObserver;
 
-    const context = new TestContext('teraslice-operations');
+    const context = new TestContext('teraslice-operations') as WorkerContext;
     const exConfig = newTestExecutionConfig();
     exConfig.operations = [
         {
@@ -27,7 +27,7 @@ describe('JobObserver', () => {
         beforeAll(() => {
             exConfig.analytics = true;
 
-            observer = new JobObserver(context as WorkerContext, exConfig);
+            observer = new JobObserver(context, { _name: 'example' }, exConfig);
             return observer.initialize();
         });
 
@@ -66,7 +66,7 @@ describe('JobObserver', () => {
         beforeAll(() => {
             exConfig.analytics = false;
 
-            observer = new JobObserver(context as WorkerContext, exConfig);
+            observer = new JobObserver(context, { _name: 'job-observer' }, exConfig);
             return observer.initialize();
         });
 

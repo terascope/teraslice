@@ -5,9 +5,11 @@ import { SchemaModule } from '../interfaces';
 export default function schemaShim<S = any>(legacy: LegacyProcessor): SchemaModule {
     return {
         Schema: class LegacySchemaShim extends ConvictSchema<S> {
+            // @ts-ignore
             validate(inputConfig: any) {
                 const opConfig = super.validate(inputConfig);
                 if (legacy.selfValidation) {
+                    // @ts-ignore
                     legacy.selfValidation(opConfig);
                 }
                 return opConfig;

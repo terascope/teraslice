@@ -1,8 +1,13 @@
+import { SimpleAPI } from '../simple-api/interfaces';
 import { MapProcessor, DataEntity } from '@terascope/job-components';
 import { TransformerConfig } from './interfaces';
 
 export default class Transformer extends MapProcessor<TransformerConfig> {
     map(data: DataEntity) {
+        const api = this.simpleAPI();
+        if (api != null) {
+            api.sub();
+        }
         const { action, key } = this.opConfig;
         if (action === 'set') {
             const { setValue } = this.opConfig;
@@ -18,5 +23,13 @@ export default class Transformer extends MapProcessor<TransformerConfig> {
             }
         }
         return data;
+    }
+
+    simpleAPI() {
+        try {
+            return this.getAPI('simple-api') as SimpleAPI;
+        } catch (err) {
+            return null;
+        }
     }
 }

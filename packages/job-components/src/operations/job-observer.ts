@@ -1,11 +1,11 @@
-import { ExecutionConfig, SliceAnalyticsData, WorkerContext } from '../interfaces';
-import APICore from './core/api-core';
+import { ExecutionConfig, APIConfig, SliceAnalyticsData, WorkerContext } from '../interfaces';
+import Observer from './observer';
 import { times } from '../utils';
 
 /**
  * An Observer for monitoring the Slice Analyitcs
  */
-export default class JobObserver extends APICore {
+export default class JobObserver extends Observer {
     collectAnalytics: boolean;
     analyticsData: SliceAnalyticsData|undefined;
 
@@ -20,8 +20,8 @@ export default class JobObserver extends APICore {
     // in-flight analytics
     private _initialized: OpAnalytics|null;
 
-    constructor(context: WorkerContext, executionConfig: ExecutionConfig) {
-        super(context, executionConfig);
+    constructor(context: WorkerContext, apiConfig: APIConfig, executionConfig: ExecutionConfig) {
+        super(context, apiConfig, executionConfig);
 
         this._opLength = executionConfig.operations.length;
 

@@ -1,10 +1,11 @@
 'use strict';
 
-const { MapProcessor } = require('@terascope/job-components');
+const { BatchProcessor } = require('@terascope/job-components');
 
-class ExampleMap extends MapProcessor {
+class ExampleBatch extends BatchProcessor {
     async initialize() {
         this.initialized = true;
+        this.logger.debug('example map initalized', this.opConfig);
         return super.initialize();
     }
 
@@ -13,10 +14,22 @@ class ExampleMap extends MapProcessor {
         return super.shutdown();
     }
 
-    map(data) {
-        data.touchedAt = new Date().toISOString();
-        return data;
+    async onBatch(batch) {
+        if (this.opConfig.failOnSliceRetry) {
+            throw new Error('Fail slices');
+        }
+
+        return batch.map((data) => {
+            data.touchedAt = new Date().toISOString();
+            return data;
+        });
+    }
+
+    onSliceRetry() {
+        if (this.opConfig.failOnSliceRetry) {
+            throw new Error('I will not allow it');
+        }
     }
 }
 
-module.exports = ExampleMap;
+module.exports = ExampleBatch;

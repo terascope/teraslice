@@ -1,95 +1,42 @@
-import { EventEmitter } from 'events';
-import { isFunction, waterfall, isString, isInteger, cloneDeep } from '../utils';
-import { OperationLoader } from '../operation-loader';
-import FetcherCore from '../operations/core/fetcher-core';
-import ProcessorCore from '../operations/core/processor-core';
-import OperationCore from '../operations/core/operation-core';
-import { OperationAPIConstructor, DataEntity } from '../operations';
-import { registerApis } from '../register-apis';
-import { WorkerOperationLifeCycle, ExecutionConfig, Slice, WorkerContext } from '../interfaces';
+import { waterfall, isString, isInteger, cloneDeep, isFunction } from '../utils';
+import { FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
+import { DataEntity, OperationAPI, OperationAPIConstructor } from '../operations';
+import { WorkerOperationLifeCycle, Slice, OpAPI } from '../interfaces';
 import {
-    EventHandlers,
-    WorkerOperations,
     ExecutionContextConfig,
-    WorkerMethodRegistry,
     RunSliceResult,
+    JobAPIInstances,
 } from './interfaces';
 import JobObserver from '../operations/job-observer';
-
-// WeakMaps are used as a memory efficient reference to private data
-const _loaders = new WeakMap<WorkerExecutionContext, OperationLoader>();
-const _operations = new WeakMap<WorkerExecutionContext, WorkerOperations>();
+import BaseExecutionContext from './base';
 
 /**
  * WorkerExecutionContext is designed to add more
  * functionality to interface with the
  * Execution Configuration and any Operation.
 */
-export class WorkerExecutionContext implements WorkerOperationLifeCycle {
-    readonly config: ExecutionConfig;
-    readonly context: WorkerContext;
-
-    /**
-     * A list of assetIds available to the job.
-     * This will be replaced by `resolvedAssets`
-    */
-    readonly assetIds: string[] = [];
-
-    readonly exId: string;
-    readonly jobId: string;
-
-    /** The terafoundation EventEmitter */
-    readonly events: EventEmitter;
-
+export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperationLifeCycle> implements WorkerOperationLifeCycle {
     readonly processors: ProcessorCore[];
+    readonly apis: JobAPIInstances = {};
 
     private readonly jobObserver: JobObserver;
-
-    private _handlers: EventHandlers = {};
-
-    private _methodRegistry: WorkerMethodRegistry = {
-        onSliceInitialized: new Set(),
-        onSliceStarted: new Set(),
-        onSliceFinalizing: new Set(),
-        onSliceFinished: new Set(),
-        onSliceFailed: new Set(),
-        onSliceRetry: new Set(),
-        onOperationStart: new Set(),
-        onOperationComplete: new Set(),
-    };
 
     private readonly _fetcher: FetcherCore;
 
     constructor(config: ExecutionContextConfig) {
-        this.events = config.context.apis.foundation.getSystemEvents();
+        super(config);
 
-        this._handlers['execution:add-to-lifecycle'] = (op: WorkerOperationLifeCycle) => {
-            this.addOperation(op);
-        };
-
-        this.events.on('execution:add-to-lifecycle', this._handlers['execution:add-to-lifecycle']);
-
-        const executionConfig = cloneDeep(config.executionConfig);
-        const loader = new OperationLoader({
-            terasliceOpPath: config.terasliceOpPath,
-            assetPath: config.context.sysconfig.teraslice.assets_directory,
-        });
-
-        registerApis(config.context, executionConfig, config.assetIds);
-        this.context = config.context as WorkerContext;
-
-        this.assetIds = config.assetIds || [];
-
-        this.config = executionConfig;
-        this.exId = executionConfig.ex_id;
-        this.jobId = executionConfig.job_id;
-
-        _loaders.set(this, loader);
-
-        _operations.set(this, new Set());
+        this._methodRegistry.set('onSliceInitialized', new Set());
+        this._methodRegistry.set('onSliceStarted', new Set());
+        this._methodRegistry.set('onSliceFinalizing', new Set());
+        this._methodRegistry.set('onSliceFinished', new Set());
+        this._methodRegistry.set('onSliceFailed', new Set());
+        this._methodRegistry.set('onSliceRetry', new Set());
+        this._methodRegistry.set('onOperationStart', new Set());
+        this._methodRegistry.set('onOperationComplete', new Set());
 
         const readerConfig = this.config.operations[0];
-        const mod = loader.loadReader(readerConfig._op, this.assetIds);
+        const mod = this._loader.loadReader(readerConfig._op, this.assetIds);
         this.registerAPI(readerConfig._op, mod.API);
 
         const op = new mod.Fetcher(this.context, cloneDeep(readerConfig), this.config);
@@ -100,7 +47,7 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
 
         for (const opConfig of this.config.operations.slice(1)) {
             const name = opConfig._op;
-            const mod = loader.loadProcessor(name, this.assetIds);
+            const mod = this._loader.loadProcessor(name, this.assetIds);
             this.registerAPI(name, mod.API);
 
             const op = new mod.Processor(
@@ -108,13 +55,56 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
                 cloneDeep(opConfig),
                 this.config
             );
+
             this.addOperation(op);
             this.processors.push(op);
         }
 
-        const jobObserver = new JobObserver(this.context, this.config);
+        const jobObserver = new JobObserver(this.context, {
+            _name: 'job-observer'
+        }, this.config);
+
         this.addOperation(jobObserver);
         this.jobObserver = jobObserver;
+
+        for (const apiConfig of this.config.apis || []) {
+            const name = apiConfig._name;
+            const mod = this._loader.loadAPI(name, this.assetIds);
+
+            const api = new mod.API(
+                this.context,
+                cloneDeep(apiConfig),
+                this.config
+            );
+
+            this.apis[name] = {
+                instance: api,
+                type: mod.type,
+            };
+            this.addOperation(api);
+        }
+    }
+
+    async initialize() {
+        await super.initialize();
+
+        const promises = [];
+
+        for (const [name, api] of Object.entries(this.apis)) {
+            const { instance } = api;
+
+            if (isOperationAPI(instance)) {
+                promises.push((async () => {
+                    const opAPI = await instance.createAPI();
+                    api.opAPI = opAPI;
+
+                    this.addAPI(name, opAPI);
+                    this.apis[name] = api;
+                })());
+            }
+        }
+
+        await Promise.all(promises);
     }
 
     /**
@@ -148,36 +138,6 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
      /** The instance of a "Fetcher" */
     fetcher<T extends FetcherCore = FetcherCore>(): T {
         return this._fetcher as T;
-    }
-
-    /**
-     * Called to initialize all of the registered operations available to the Worker
-    */
-    async initialize() {
-        const promises = [];
-        for (const op of this.getOperations()) {
-            promises.push(op.initialize());
-        }
-
-        await Promise.all(promises);
-    }
-
-    /**
-     * Called to cleanup all of the registered operations available to the Worker
-    */
-    async shutdown() {
-        const promises = [];
-        for (const op of this.getOperations()) {
-            promises.push(op.shutdown());
-        }
-
-        await Promise.all(promises);
-
-        Object.keys(this._handlers)
-            .forEach((event) => {
-                const listener = this._handlers[event];
-                this.events.removeListener(event, listener);
-            });
     }
 
     /**
@@ -221,104 +181,55 @@ export class WorkerExecutionContext implements WorkerOperationLifeCycle {
     }
 
     async onSliceInitialized(sliceId: string) {
-        await this.runMethodAsync('onSliceInitialized', sliceId);
+        await this._runMethodAsync('onSliceInitialized', sliceId);
     }
 
     async onSliceStarted(sliceId: string) {
-        await this.runMethodAsync('onSliceStarted', sliceId);
+        await this._runMethodAsync('onSliceStarted', sliceId);
     }
 
     async onSliceFinalizing(sliceId: string) {
-        await this.runMethodAsync('onSliceFinalizing', sliceId);
+        await this._runMethodAsync('onSliceFinalizing', sliceId);
     }
 
     async onSliceFinished(sliceId: string) {
-        await this.runMethodAsync('onSliceFinished', sliceId);
+        await this._runMethodAsync('onSliceFinished', sliceId);
     }
 
     async onSliceFailed(sliceId: string) {
-        await this.runMethodAsync('onSliceFailed', sliceId);
+        await this._runMethodAsync('onSliceFailed', sliceId);
     }
 
     async onSliceRetry(sliceId: string) {
-        await this.runMethodAsync('onSliceRetry', sliceId);
+        await this._runMethodAsync('onSliceRetry', sliceId);
     }
 
     onOperationComplete(sliceId: string, index: number, processed: number) {
-        this.runMethod('onOperationComplete', sliceId, index, processed);
+        this._runMethod('onOperationComplete', sliceId, index, processed);
     }
 
     onOperationStart(sliceId: string, index: number) {
-        this.runMethod('onOperationStart', sliceId, index);
+        this._runMethod('onOperationStart', sliceId, index);
     }
 
-    /**
-     * Returns a list of any registered Operation that has been
-     * initialized.
-    */
-    getOperations() {
-        const ops = _operations.get(this) as WorkerOperations;
-        return ops.values();
-    }
-
-    private addOperation(op: WorkerOperationLifeCycle) {
-        const ops = _operations.get(this) as WorkerOperations;
-        ops.add(op);
-
-        this.resetMethodRegistry();
-    }
-
-    private registerAPI(name: string, API?: OperationAPIConstructor) {
+    /** Add an API to the executionContext api registry */
+    protected registerAPI(name: string, API?: OperationAPIConstructor) {
         if (API == null) return;
+        const { apis = [] } = this.config;
+        const hasName = apis.some(({ _name }) => _name === name);
+        if (hasName) {
+            throw new Error(`Cannot register API ${name} due to conflict`);
+        }
 
         this.context.apis.executionContext.addToRegistry(name, API);
     }
 
-    private runMethodAsync(method: string, sliceId: string) {
-        const set = this._methodRegistry[method] as Set<number>;
-        if (set.size === 0) return;
-
-        let i = 0;
-        const promises = [];
-        for (const operation of this.getOperations()) {
-            const index = i++;
-            if (set.has(index)) {
-                promises.push(operation[method](sliceId));
-            }
-        }
-
-        return Promise.all(promises);
+    /** Add an API to the executionContext api */
+    protected addAPI(name: string, opAPI: OpAPI) {
+        this.context.apis.executionContext.addAPI(name, opAPI);
     }
+}
 
-    private runMethod(method: string, ...args: any[]) {
-        const set = this._methodRegistry[method] as Set<number>;
-        if (set.size === 0) return;
-
-        let index = 0;
-        for (const operation of this.getOperations()) {
-            if (set.has(index)) {
-                operation[method](...args);
-            }
-            index++;
-        }
-    }
-
-    private resetMethodRegistry() {
-        for (const method of Object.keys(this._methodRegistry)) {
-            this._methodRegistry[method].clear();
-        }
-
-        const methods = Object.keys(this._methodRegistry);
-
-        let index = 0;
-        for (const op of this.getOperations()) {
-            for (const method of methods) {
-                if (isFunction(op[method])) {
-                    this._methodRegistry[method].add(index);
-                }
-            }
-
-            index++;
-        }
-    }
+function isOperationAPI(api: any): api is OperationAPI {
+    return api && isFunction(api.createAPI);
 }

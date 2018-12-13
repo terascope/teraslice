@@ -6,6 +6,8 @@ import {
     OpAPI,
     OpConfig,
     WorkerContext,
+    DeadLetterAction,
+    DeadLetterAPIFn,
 } from '../../interfaces';
 
 /**
@@ -17,7 +19,8 @@ import {
  */
 
 export default class OperationCore<T = OpConfig> extends Core<WorkerContext> implements WorkerOperationLifeCycle {
-    protected readonly opConfig: Readonly<OpConfig & T>;
+    readonly opConfig: Readonly<OpConfig & T>;
+    deadLetterAction: DeadLetterAction;
 
     constructor(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {
         const logger = context.apis.foundation.makeLogger({
@@ -30,6 +33,7 @@ export default class OperationCore<T = OpConfig> extends Core<WorkerContext> imp
 
         super(context, executionConfig, logger);
 
+        this.deadLetterAction = opConfig._dead_letter_action || 'none';
         this.opConfig = opConfig;
     }
 
@@ -53,5 +57,55 @@ export default class OperationCore<T = OpConfig> extends Core<WorkerContext> imp
     */
     getAPI(name: string): OpAPI {
         return this.context.apis.executionContext.getAPI(name);
+    }
+
+    /**
+     * Try catch a transformation on a record and place any failed records in a dead letter queue
+     *
+     * See {@link #rejectRecord} for handling
+     *
+     * @param fn a function to transform the data with
+     * @returns a curried a function that will be called with the data and handle the dead letter action
+    */
+    tryRecord<I, R>(fn: (input: I) => R): (input: I) => R|null {
+        return (input) => {
+            try {
+                return fn(input);
+            } catch (err) {
+                this.rejectRecord(input, err);
+                return null;
+            }
+        };
+    }
+
+    /**
+     * Reject a record using the dead letter action
+     *
+     * Based on {@link OpConfig._dead_letter_action} the transformation can
+     * be handled any of the following ways:
+     *   - "throw": throw the original error
+     *   - "log": log the error and the data
+     *   - "none": skip the error entirely
+     *   OR a string to specify the api to use as the dead letter queue
+     *
+     * @param data the data to transform
+     * @param fn a function to transform the data with
+     * @returns the transformed record
+    */
+    rejectRecord(input: any, err: Error): never|null {
+        if (!this.deadLetterAction) return null;
+        if (this.deadLetterAction === 'none') return null;
+
+        if (this.deadLetterAction === 'throw') {
+            throw err;
+        }
+        if (this.deadLetterAction === 'log') {
+            this.logger.error('Bad record', input, err);
+            return null;
+        }
+
+        const api = this.getAPI(this.deadLetterAction) as DeadLetterAPIFn;
+        api(input, err);
+        return null;
     }
 }
