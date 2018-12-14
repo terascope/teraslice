@@ -38,7 +38,7 @@
     },
     "dependencies": {
         "@terascope/job-components": "^0.14.1",
-        "@terascope/teraslice-op-test-harness": "^1.5.1",
+        "@terascope/teraslice-op-test-harness": "^1.5.2",
         "@types/lodash": "^4.14.119",
         "lodash": "^4.17.11"
     },

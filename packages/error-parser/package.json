@@ -1,6 +1,6 @@
 {
     "name": "@terascope/error-parser",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Generic error parser",
     "main": "index.js",
     "publishConfig": {
