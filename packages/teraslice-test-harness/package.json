@@ -9,6 +9,7 @@
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
     },
+    "author": "Terascope, LLC <info@terascope.io>",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/terascope/teraslice.git"
