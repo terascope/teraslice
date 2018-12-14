@@ -53,7 +53,7 @@
         "kubernetes-client": "^5.4.0",
         "lodash": "^4.17.11",
         "mocker-data-generator": "^2.6.6",
-        "moment": "^2.22.2",
+        "moment": "^2.23.0",
         "node-cache": "^4.2.0",
         "p-whilst": "^1.0.0",
         "porty": "^3.1.1",
