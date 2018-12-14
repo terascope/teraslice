@@ -9,6 +9,7 @@
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
     },
+    "author": "Terascope, LLC <info@terascope.io>",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/terascope/teraslice.git"
@@ -37,7 +38,7 @@
     },
     "dependencies": {
         "@terascope/job-components": "^0.14.1",
-        "@terascope/teraslice-op-test-harness": "^1.5.1",
+        "@terascope/teraslice-op-test-harness": "^1.5.2",
         "@types/lodash": "^4.14.119",
         "lodash": "^4.17.11"
     },

@@ -26,7 +26,7 @@
     },
     "homepage": "https://github.com/terascope/teraslice/tree/master/e2e/#readme",
     "devDependencies": {
-        "@terascope/docker-compose-js": "^1.1.1",
+        "@terascope/docker-compose-js": "^1.1.2",
         "@terascope/fetch-github-release": "^0.6.0",
         "bluebird": "^3.5.3",
         "bunyan": "^1.8.12",
