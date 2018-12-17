@@ -17,7 +17,8 @@ export default class PostProcessPhase implements PhaseBase {
             { type: 'post_process', filterFn: (config: OperationConfig) => config.refs && config.post_process },
             { type: 'validation', filterFn: (config: OperationConfig) => config.refs && config.validation },
         ];
-        sequence.forEach((loadingConfig) => this.installOps(loadingConfig, configList))
+        sequence.forEach((loadingConfig) => this.installOps(loadingConfig, configList));
+        this.transformRequirements(configList)
         this.hasPostProcessing = Object.keys(this.postProcessPhase).length > 0;
     }
 
@@ -33,6 +34,25 @@ export default class PostProcessPhase implements PhaseBase {
                 postProcessPhase[configData.registrationSelector].push(new Op(configData.configuration));
             }
         });
+    }
+
+    transformRequirements(configList:OperationConfig[]) {
+        const requirements = {};
+        _.each(configList, (config: OperationConfig) => {
+            if (config.other_match_required) {
+                const key = config.target_field || config.source_field;
+                requirements[key as string] = true;
+            }
+        });
+        if (Object.keys(requirements).length > 0) {
+            const Op = Operations.Keys;
+            if (Object.keys(this.postProcessPhase).length === 0) {
+                this.postProcessPhase['*'] = [];
+            }
+            _.forOwn(this.postProcessPhase, (sequence: Operations.OperationBase[], _key) => {
+                sequence.push(new Op(requirements));
+            });
+        }
     }
 
     normalizeConfig(config: OperationConfig, configList:OperationConfig[]): NormalizedConfig {

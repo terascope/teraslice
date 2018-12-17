@@ -17,7 +17,7 @@ export default abstract class OperationBase {
 
     protected validate(config: OperationConfig) {
         // we don't need to check target or source for selector ops
-        if (this.constructor.name === 'Selector') return;
+        if (this.constructor.name === 'Selector' || this.constructor.name === 'Keys') return;
         const { target_field: targetField, source_field: sField, remove_source } = config;
         let tField = targetField || sField;
         if (remove_source && typeof remove_source !== 'boolean') throw new Error('remove_source if specified must be of type boolean')
@@ -25,7 +25,7 @@ export default abstract class OperationBase {
         if (!sField || typeof sField !== 'string' || sField.length === 0) throw new Error(`could not find source_field for ${this.constructor.name} validation or it is improperly formatted, config: ${JSON.stringify(config)}`);
         if (remove_source) this.removeSource = remove_source;
         this.source = this.parseField(sField);
-        this.target = this.parseField(tField);
+        this.target = tField;
     }
 
     protected parseField(str: string): string {

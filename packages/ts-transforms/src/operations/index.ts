@@ -13,6 +13,7 @@ import Ip from './lib/validations/ip';
 import Base64Decode from './lib/ops/base64decode';
 import UrlDecode from './lib/ops/urldecode';
 import HexDecode from './lib/ops/hexdecode';
+import Keys from './lib/validations/keys';
 
 const opNames = {
     join: Join,
@@ -27,7 +28,8 @@ const opNames = {
     ip: Ip,
     base64decode: Base64Decode,
     urldecode: UrlDecode,
-    hexdecode: HexDecode
+    hexdecode: HexDecode,
+    keys: Keys
 };
 
 export {
@@ -45,5 +47,6 @@ export {
     Base64Decode,
     UrlDecode,
     HexDecode,
+    Keys,
     opNames
 };

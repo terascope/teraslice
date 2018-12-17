@@ -6,6 +6,7 @@ import path from 'path';
 import readline from 'readline';
 import fs from 'fs';
 import { debugLogger, DataEntity } from '@terascope/job-components';
+import _ from 'lodash';
 
 const logger = debugLogger('ts-transform-cli');
 const dir = process.cwd();
@@ -22,7 +23,7 @@ const command = yargs
     .describe('t', 'specify type configs ie field:value, otherfield:value')
     .describe('T', 'specify type configs from file')
     .describe('p', 'output the time it took to run the data')
-    .demandOption(['r', 'd'])
+    .demandOption(['r'])
     .version("0.2.0")
     .argv
 
@@ -30,6 +31,10 @@ const filePath = command.rules;
 const dataPath = command.data;
 let typesConfig = {};
 const type = yargs['$0'].match('ts-transform') ? 'transform' : 'matcher';
+
+interface ESData {
+    _source: object
+}
 
 try {
     if (command.t) {
@@ -47,16 +52,10 @@ try {
     process.exit(1);
 }
 
-if (!filePath || !dataPath) {
+if (!filePath) {
     console.error('a rule file and data file must be given');
     process.exit(1);
 }
-
-const opConfig: WatcherConfig = {
-    file_path: path.resolve(dir, filePath),
-    selector_config: typesConfig,
-    type 
-};
 
 async function dataLoader(dataPath: string): Promise<object[]> {
     const results: object[] = [];
@@ -77,35 +76,76 @@ async function dataLoader(dataPath: string): Promise<object[]> {
       });
 }
 
+function getPipedData() {
+    return new Promise((resolve, reject) => {
+        let strResults = '';
+        if (process.stdin.isTTY) {
+            reject('please pipe an elasticsearch response or provide the data parameter -d with path to data file');
+            return;
+        }
+        process.stdin.resume();
+        process.stdin.setEncoding('utf8');
+        process.stdin.on('data', (data: string) => {
+            strResults += data;
+        });
+
+        process.stdin.on('end', () => {
+           try {
+               const json = JSON.parse(strResults);
+                if (Array.isArray(json)) resolve(json);
+                const results = _.get(json, 'hits.hits', null);
+                if (results) {
+                    resolve(results.map((doc:ESData) => doc._source));
+                    return;
+                } 
+                throw new Error('could not get parse data')
+           } catch(err) {
+               reject(err)
+           }
+        });
+    });
+}
+
 async function getData(dataPath: string) {
     let parsedData;
-    try {
-        parsedData = require(path.resolve(dir, dataPath));
-    } catch(err) {
-        parsedData = await dataLoader(dataPath);
+    if (dataPath) {
+        try {
+            parsedData = require(path.resolve(dir, dataPath));
+        } catch(err) {
+            parsedData = await dataLoader(dataPath);
+        } 
+    } else {
+        parsedData = await getPipedData();
     }
+    if (!parsedData) throw new Error('could not get data, please provide a data file or pipe an elasticsearch request')
     
     return DataEntity.makeArray(parsedData);
 }
 
-const manager = new PhaseManager(opConfig, logger);
+async function InitCommand() {
+    try {
+        const opConfig: WatcherConfig = {
+            file_path: path.resolve(dir, filePath),
+            selector_config: typesConfig,
+            type 
+        };
+        const manager = new PhaseManager(opConfig, logger);
 
-Promise.resolve(manager.init())
-    .then(() => getData(path.resolve(dir, dataPath)))
-    .then((data) => {
+        await manager.init();
+        
+        const data = await getData(dataPath);
+
         if (command.p) {
             process.stderr.write('\n');
             console.time('execution-time');
         }
         const results = manager.run(data);
         if (command.p) console.timeEnd('execution-time');
-        process.stderr.write('\nresults:\n');
-        process.stdout.write(`${JSON.stringify(results, null, 4)} \n`);
-    })
-    .catch((err) => {
-        console.error(err);
-        process.exit(1);
-    });
+        process.stdout.write(`${JSON.stringify(results, null, 4)} \n`); 
+    } catch(err) {
+        console.error(err)
+        process.exit(1)
+    }
+}
 
-
-
+InitCommand()
