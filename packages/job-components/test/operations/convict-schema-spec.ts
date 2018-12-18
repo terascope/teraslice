@@ -41,6 +41,7 @@ describe('Convict Schema', () => {
             })).toEqual({
                 _op: 'hello',
                 _encoding: 'json',
+                _dead_letter_action: 'none',
                 example: 'hi',
             });
         });

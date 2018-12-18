@@ -16,6 +16,7 @@ import {
     DataEntity,
     Slice,
     TestContext,
+    TestClients,
 } from '@terascope/job-components';
 import { EventEmitter } from 'events';
 
@@ -48,8 +49,8 @@ export interface SampleData {
 export interface SampleDataElasticSearch {
     took:      number;
     timed_out: boolean;
-    _shards:   Shards;
     hits:      Hits;
+    _shards:   Shards;
 }
 
 interface Shards {
@@ -96,6 +97,7 @@ export interface TestHarness {
     opConfig: OpConfig;
     executionConfig: ExecutionConfig;
     retryData?: object[];
+    clientList: TestClients;
 
     /**
      * Initialize and run an operation

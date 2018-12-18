@@ -1,6 +1,6 @@
-import { ValidatedJobConfig, OpConfig } from './interfaces';
 import convict from 'convict';
-import { opSchema } from './job-schemas';
+import { ValidatedJobConfig, OpConfig, APIConfig } from './interfaces';
+import { opSchema, apiSchema } from './job-schemas';
 
 // @ts-ignore
 const validateOptions: convict.ValidateOptions = { allowed: true };
@@ -18,6 +18,24 @@ export function validateOpConfig<T>(inputSchema: convict.Schema<any>, inputConfi
         config.validate(validateOptions);
     } catch (err) {
         throw new Error(`Validation failed for opConfig: ${inputConfig._op} - ${err.message}`);
+    }
+
+    return config.getProperties();
+}
+
+/**
+ * Merges the provided inputSchema with commonSchema and then validates the
+ * provided apiConfig against the resulting schema.
+ */
+export function validateAPIConfig<T>(inputSchema: convict.Schema<any>, inputConfig: any) {
+    const schema = Object.assign({}, apiSchema, inputSchema) as convict.Schema<APIConfig & T>;
+    const config = convict(schema);
+
+    try {
+        config.load(inputConfig);
+        config.validate(validateOptions);
+    } catch (err) {
+        throw new Error(`Validation failed for apiConfig: ${inputConfig._name} - ${err.message}`);
     }
 
     return config.getProperties();

@@ -1,39 +1,23 @@
 'use strict';
 
-const Promise = require('bluebird');
-const signale = require('signale');
 const _ = require('lodash');
+const Promise = require('bluebird');
 const misc = require('../../misc');
 const { waitForJobStatus } = require('../../wait');
-const { resetState } = require('../../helpers');
+const { resetState, testJobLifeCycle, runEsJob } = require('../../helpers');
 
 const teraslice = misc.teraslice();
 
 describe('reindex', () => {
     beforeAll(() => resetState());
 
-    it('should work for simple case', (done) => {
+    it('should work for simple case', async () => {
         const jobSpec = misc.newJob('reindex');
         jobSpec.name = 'basic reindex';
         jobSpec.operations[1].index = 'test-reindex-10';
 
-        teraslice.jobs.submit(jobSpec)
-            .then((job) => {
-                expect(job).toBeDefined();
-                expect(job.id()).toBeDefined();
-
-                return waitForJobStatus(job, 'completed');
-            })
-            .then(() => misc.indexStats('test-reindex-10'))
-            .catch((err) => {
-                signale.error(err);
-                expect('The index test-reindex-10').not.toBeNil();
-            })
-            .then((stats) => {
-                expect(stats.count).toBe(10);
-            })
-            .catch(fail)
-            .finally(() => { done(); });
+        const count = await runEsJob(jobSpec, 'test-reindex-10');
+        expect(count).toBe(10);
     });
 
     it('should work when no data is returned with lucene query', (done) => {
@@ -80,34 +64,18 @@ describe('reindex', () => {
             .finally(() => { done(); });
     });
 
-    it('should complete after lifecycle changes', (done) => {
+    it('should complete after lifecycle changes', async () => {
         const jobSpec = misc.newJob('reindex');
         jobSpec.name = 'reindex after lifecycle changes';
+
         // Job needs to be able to run long enough to cycle
-        jobSpec.operations[0].index = 'example-logs-10000';
+        jobSpec.operations[0].index = 'example-logs-1000';
         jobSpec.operations[1].index = 'test-reindex-lifecycle';
 
-        teraslice.jobs.submit(jobSpec)
-            .then((job) => {
-                expect(job.id()).toBeDefined();
+        await testJobLifeCycle(jobSpec);
 
-                return waitForJobStatus(job, 'running')
-                    .then(() => job.pause())
-                    .then(() => waitForJobStatus(job, 'paused'))
-                    .then(() => job.resume())
-                    .then(() => waitForJobStatus(job, 'running'))
-                    .then(() => job.stop())
-                    .then(() => waitForJobStatus(job, 'stopped'))
-                    .then(() => job.recover())
-                    .then(() => waitForJobStatus(job, 'completed'))
-                    .then(() => misc.indexStats('test-reindex-lifecycle')
-                        .then((stats) => {
-                            expect(stats.count).toBe(10000);
-                            expect(stats.deleted).toBe(0);
-                        }));
-            })
-            .catch(fail)
-            .finally(() => { done(); });
+        const stats = await misc.indexStats('test-reindex-lifecycle');
+        expect(stats.count).toBe(1000);
     });
 
     it('can support different recovery mode cleanup=errors', (done) => {

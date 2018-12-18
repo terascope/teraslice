@@ -23,6 +23,15 @@ describe('WorkerExecutionContext', () => {
     describe('when constructed', () => {
         const executionConfig = newTestExecutionConfig();
 
+        executionConfig.apis = [
+            {
+                _name: 'example-observer'
+            },
+            {
+                _name: 'example-api'
+            }
+        ];
+
         executionConfig.operations = [
             {
                 _op: 'example-reader'
@@ -76,6 +85,13 @@ describe('WorkerExecutionContext', () => {
             }
         });
 
+        it('should have the APIs', () => {
+            expect(Object.keys(executionContext.apis)).toEqual([
+                'example-observer',
+                'example-api',
+            ]);
+        });
+
         it('should be able to an operation instance by index', async () => {
             const fetcher = executionContext.getOperation<FetcherCore>(0);
             // @ts-ignore
@@ -99,7 +115,7 @@ describe('WorkerExecutionContext', () => {
         it('should have the registered apis', () => {
             const registry = Object.keys(context.apis.executionContext.registry);
             expect(registry).toEqual([
-                'example-reader'
+                'example-reader',
             ]);
         });
 

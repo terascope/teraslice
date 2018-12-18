@@ -91,6 +91,7 @@ export function newTestSlice(request: i.SliceRequest = {}): i.Slice {
 export function newTestJobConfig(defaults: Partial<i.JobConfig> = {}) {
     return Object.assign({
         name: 'test-job',
+        apis: [],
         operations: [],
         analytics: false,
         assets: [],
@@ -307,6 +308,7 @@ export class TestContext implements i.Context {
                     const { create, config = {} } = clientConfig;
 
                     const clientFns = _createClientFns.get(ctx) || {};
+
                     const key = getKey(clientConfig);
                     if (!isFunction(create)) {
                         const actual = getTypeOf(create);
@@ -317,6 +319,10 @@ export class TestContext implements i.Context {
 
                     clientFns[key] = create;
                     _createClientFns.set(ctx, clientFns);
+
+                    const cachedClients = _cachedClients.get(ctx) || {};
+                    delete cachedClients[key];
+                    _cachedClients.set(ctx, cachedClients);
 
                     setConnectorConfig(sysconfig, clientConfig, config, true);
                 });

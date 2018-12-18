@@ -33,6 +33,10 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
         return this.executionContext.processors;
     }
 
+    get apis() {
+        return this.executionContext.apis;
+    }
+
     getOperation<T extends OperationCore = OperationCore>(findBy: string|number): T {
         return this.executionContext.getOperation<T>(findBy);
     }

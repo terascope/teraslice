@@ -155,24 +155,6 @@ module.exports = function module(context) {
             });
     }
 
-    function _registerContextAPI() {
-        // THIS CURRENTLY IS NOT LOADED FOR JOBS
-        // This will register the API under context.apis.assets
-        context.apis.registerAPI('assets', {
-            getPath: _getPath
-        });
-
-        // FIXME: this form of the api call is deprecated and should be removed
-        // prior to 1.0
-        context.assets = {};
-        context.assets.getPath = _getPath;
-    }
-
-    function _getPath(assetIdentifier) {
-        return _getAssetId(assetIdentifier)
-            .then(id => path.join(assetsPath, id));
-    }
-
     function shutdown(forceShutdown) {
         logger.info('shutting asset store down.');
         return backend.shutdown(forceShutdown);
@@ -244,9 +226,6 @@ module.exports = function module(context) {
         .then(() => elasticsearchBackend(context, indexName, 'asset', '_id', null, true))
         .then((elasticsearch) => {
             backend = elasticsearch;
-
-            _registerContextAPI();
-
             return api;
         });
 };

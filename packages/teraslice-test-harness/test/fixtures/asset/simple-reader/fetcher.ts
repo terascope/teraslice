@@ -2,6 +2,7 @@ import { SimpleReaderConfig } from './interfaces';
 import times from 'lodash/times';
 import { Fetcher, SliceRequest } from '@terascope/job-components';
 import SimpleClient from '../simple-connector/client';
+import { SimpleAPI } from '../simple-api/interfaces';
 
 export default class TestFetcher extends Fetcher<SimpleReaderConfig> {
     client: SimpleClient;
@@ -15,7 +16,9 @@ export default class TestFetcher extends Fetcher<SimpleReaderConfig> {
     }
 
     async fetch(request: SliceRequest) {
+        const api = this.getAPI('simple-api') as SimpleAPI;
         return times(request.count, (id) => {
+            api.add(2);
             return this.client.fetchRecord(id);
         });
     }

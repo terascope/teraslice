@@ -51,6 +51,10 @@ export default abstract class SlicerCore<T = OpConfig> extends Core<WorkerContex
         };
     }
 
+    /**
+     * Called during execution initialization
+     * @param recoveryData is the data to recover from
+    */
     async initialize(recoveryData: object[]): Promise<void> {
         this.recoveryData = recoveryData;
         this.context.logger.trace(`${this.executionConfig.name}->${this.opConfig._op} is initializing...`, recoveryData);

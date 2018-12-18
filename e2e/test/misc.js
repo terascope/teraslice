@@ -19,6 +19,17 @@ function newJob(name) {
     return _.cloneDeep(require(`./fixtures/jobs/${name}.json`));
 }
 
+function injectDelay(jobSpec, ms = 1000) {
+    jobSpec.operations = [
+        jobSpec.operations[0],
+        {
+            _op: 'delay',
+            ms
+        },
+        ...jobSpec.operations.slice(1, jobSpec.operations.length)
+    ];
+}
+
 function teraslice() {
     return TerasliceClient({
         host: `http://${DOCKER_IP}:45678`,
@@ -80,6 +91,7 @@ module.exports = {
     es: _.memoize(es),
     indexStats,
     compose,
+    injectDelay,
     scaleWorkers,
     DEFAULT_NODES,
     DEFAULT_WORKERS,

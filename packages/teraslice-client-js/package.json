@@ -34,11 +34,11 @@
         "request-promise": "^4.2.2"
     },
     "devDependencies": {
-        "eslint": "^5.9.0",
+        "eslint": "^5.10.0",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "^2.14.0",
         "jest": "^23.6.0",
         "jest-extended": "^0.11.0",
-        "nock": "^10.0.3"
+        "nock": "^10.0.4"
     }
 }

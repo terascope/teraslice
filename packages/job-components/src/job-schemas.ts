@@ -1,9 +1,9 @@
 'use strict';
 
-import { Context, dataEncodings } from './interfaces';
-import convict from 'convict';
-import { flatten } from './utils';
 import os from 'os';
+import convict from 'convict';
+import { Context, dataEncodings } from './interfaces';
+import { flatten, getTypeOf, isPlainObject } from './utils';
 
 const cpuCount = os.cpus().length;
 const workers = cpuCount < 5 ? cpuCount : 5;
@@ -64,23 +64,61 @@ export function jobSchema(context: Context): convict.Schema<any> {
             doc: 'An array of actions to execute, typically the first is a reader ' +
                 'and the last is a sender with '
                 + 'any number of processing function in-between',
-            format: function checkJobProcess(arr: any) {
+            format(arr: any) {
                 if (!(Array.isArray(arr) && arr.length >= 2)) {
-                    throw new Error('operations need to be of type array ' +
-                        'with at least two operations in it');
+                    throw new Error('Operations need to be of type array with at least two operations in it');
                 }
 
                 const connectorsObject = context.sysconfig.terafoundation && context.sysconfig.terafoundation.connectors || {};
                 const connectors = Object.values(connectorsObject);
 
                 const connections = flatten(connectors.map((conn) => Object.keys(conn)));
-                arr.forEach((op) => {
-                    if (!op.connection) { return; }
-
-                    if (!connections.includes(op.connection)) {
-                        throw new Error(`operation ${op._op} refers to an undefined connection`);
+                for (const op of arr) {
+                    if (!op || !isPlainObject(op)) {
+                        throw new Error(`Invalid Operation config in operations, got ${getTypeOf(op)}`);
                     }
-                });
+                    if (op.connection && !connections.includes(op.connection)) {
+                        throw new Error(`Operation ${op._op} refers to connection "${op.connection}" which is unavailable`);
+                    }
+                }
+            },
+        },
+        apis: {
+            default: [],
+            doc: `An array of apis to load and any configurations they require.
+            Validated similar to operations, with the exception of no apis are required.
+            The _name property is required, and it is required to be unqiue
+            but can be suffixed with a identifier by using the format "example:0",
+            anything after the ":" is stripped out when searching for the file or folder.`,
+            format(arr: any[]) {
+                if (!Array.isArray(arr)) {
+                    throw new Error('APIs is required to be an array');
+                }
+
+                const connectorsObject = context.sysconfig.terafoundation && context.sysconfig.terafoundation.connectors || {};
+                const connectors = Object.values(connectorsObject);
+
+                const connections = flatten(connectors.map((conn) => Object.keys(conn)));
+                const names: string[] = [];
+
+                for (const api of arr) {
+                    if (!api || !isPlainObject(api)) {
+                        throw new Error(`Invalid API config in apis, got ${getTypeOf(api)}`);
+                    }
+
+                    if (!api._name) {
+                        throw new Error('API requires an _name');
+                    }
+
+                    if (names.includes(api._name)) {
+                        throw new Error(`Duplicate API configurations for ${api._name} found`);
+                    }
+
+                    names.push(api._name);
+                    if (api.connection && !connections.includes(api.connection)) {
+                        throw new Error(`API ${api._name} refers to connection "${api.connection}" which is unavailable`);
+                    }
+                }
             },
         },
         probation_window: {
@@ -189,12 +227,34 @@ export const makeJobSchema = jobSchema;
 export const opSchema: convict.Schema<any> = {
     _op: {
         default: '',
-        doc: 'Name of operation, it must reflect the name of the file',
+        doc: 'Name of operation, , it must reflect the name of the file or folder',
         format: 'required_String',
     },
     _encoding: {
-        doc: 'Used to specify the encoding type of the data',
+        doc: 'Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`.',
         default: 'json',
         format: dataEncodings,
+    },
+    _dead_letter_action: {
+        doc: `This action will specify what to do when failing to parse or transform a record. ​​​​​
+​​​​​The following builtin actions are supported: ​​​
+​​​​​  - "throw": throw the original error ​​​​​
+​​​​​  - "log": log the error and the data ​​​​​
+​​​​​  - "none": (default) skip the error entirely
+
+​​​​​If none of the actions are specified it will try and use a registered Dead Letter Queue API under that name.
+The API must be already be created by a operation before it can used.​`.trim(),
+        default: 'none',
+        format: 'optional_String',
+    }
+};
+
+export const apiSchema: convict.Schema<any> = {
+    _name: {
+        default: '',
+        doc: `The _name property is required, and it is required to be unqiue
+        but can be suffixed with a identifier by using the format "example:0",
+        anything after the ":" is stripped out when searching for the file or folder.`,
+        format: 'required_String',
     }
 };
