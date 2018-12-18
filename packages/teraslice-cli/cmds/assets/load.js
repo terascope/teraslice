@@ -1,7 +1,6 @@
 'use strict';
 'use console';
 
-const _ = require('lodash');
 const fs = require('fs-extra');
 
 const AssetSrc = require('../../lib/asset-src');
