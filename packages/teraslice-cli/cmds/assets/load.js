@@ -3,57 +3,43 @@
 
 const _ = require('lodash');
 const fs = require('fs-extra');
-const AssetSrc = require('./lib/asset-src');
-const GithubAsset = require('./lib/github-asset');
-const config = require('../lib/config');
-const cli = require('./lib/cli');
-const reply = require('../lib/reply')();
 
-exports.command = 'load <cluster_sh> [<asset>]';
+const AssetSrc = require('../../lib/asset-src');
+const GithubAsset = require('../../lib/github-asset');
+const Config = require('../../lib/config');
+const reply = require('../lib/reply')();
+const YargsOptions = require('../../lib/yargs-options');
+
+const yargsOptions = new YargsOptions();
+
+// TODO: I can't figure out how to resolve the ambiguity of having to optional
+// positional arguments.  It may not be possible.  If I omit the cluster-alias
+// and try to use cluster-url we end up with
+//  -> clusterAlias: 'terascope/file-assets'
+// We could go back to cluster-alias being an alias OR a URL, but the URL would
+// have to be fully specified, otherwise we couldn't distinguish between the URL
+// and the alias.
+exports.command = 'load <cluster-alias> [<asset>]';
 exports.desc = 'Uploads asset from zipfile, github, or source to Teraslice\n';
 exports.builder = (yargs) => {
-    // I think much of the stuff inserted by this should not be global, though
-    // my asset commands are inherently different
-    cli().args('assets', 'load', yargs);
-    yargs.option('a', {
-        alias: 'arch',
-        describe: 'The architecture of the Teraslice cluster, like: `x32`, `x64`.'
-                + '  Determined automatically on newer Teraslice releases.'
-    });
-    yargs.option('b', {
-        alias: 'build',
-        describe: 'Build asset from source, then upload to Teraslice.  The current'
-                + ' directory is used if no argument is passed to this option',
-    });
-    yargs.option('f', {
-        alias: 'file',
-        describe: 'When specified with a path to an asset file, uploads provided'
-                + ' asset without retriving from GitHub.  Useful for offline use.',
-        type: 'string'
-    });
-    yargs.option('n', {
-        alias: 'node-version',
-        describe: 'The node version of the Teraslice cluster, like: `v8.11.1`, `v10.13.0`'
-                + '  Determined automatically on newer Teraslice releases.'
-    });
-    yargs.option('p', {
-        alias: 'platform',
-        describe: 'The platform of the Teraslice cluster, like: `darwin`, `linux`.'
-                + '  Determined automatically on newer Teraslice releases.'
-    });
-    yargs.option('q', {
-        alias: 'quiet',
-        describe: 'Silence non-error logging.'
-    });
-    yargs.option('s', {
-        alias: 'skip-upload',
-        describe: 'Skips upload to Teraslice, useful to just download the asset.'
-    });
-    yargs.example('earl assets load ts-qa1 terascope/file-assets');
-    yargs.example('earl assets load ts-qa1 terascope/file-assets -a x64 -p linux -n v8.10.1');
-    yargs.example('earl assets load ts-qa1 -f /tmp/file-assets-v0.2.1-node-8-linux-x64.zip');
-    yargs.example('earl assets load ts-qa1 -b');
-    yargs.example('earl assets load ts-qa1 -b ./file-assets');
+    yargs.positional('cluster-alias', yargsOptions.buildPositional('cluster-alias'));
+    yargs.positional('asset', yargsOptions.buildPositional('asset'));
+    yargs.option('arch', yargsOptions.buildOption('arch'));
+    yargs.option('build', yargsOptions.buildOption('build'));
+    // yargs.options('cluster-url', yargsOptions.buildOption('cluster-url')); TODO
+    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.option('file', yargsOptions.buildOption('file'));
+    yargs.option('node-version', yargsOptions.buildOption('node-version'));
+    yargs.option('platform', yargsOptions.buildOption('platform'));
+    yargs.option('quiet', yargsOptions.buildOption('quiet'));
+    yargs.option('skip-upload', yargsOptions.buildOption('skip-upload'));
+    yargs.conflicts('asset', ['build', 'file']);
+    yargs.example('$0 assets load ts-test1 terascope/file-assets');
+    yargs.example('$0 assets load ts-test1 terascope/file-assets --arch x64 --platform linux --node-version v8.10.1');
+    yargs.example('$0 assets load ts-test1 -f /tmp/file-assets-v0.2.1-node-8-linux-x64.zip');
+    yargs.example('$0 assets load ts-test1 --build');
+    // yargs.example('$0 assets load ts-test1 --build-dir ./file-assets'); TODO
+    // yargs.example('$0 assets load terascope/file-assets -c http://localhost:5678/'); TODO
 };
 
 
@@ -61,20 +47,16 @@ exports.handler = async (argv) => {
     let assetPath;
     let assetZip;
     let clusterInfo = {};
-    const cliConfig = _.clone(argv);
+    const cliConfig = new Config(argv);
 
-    config(cliConfig, 'assets:load').returnConfigData();
-
-    const otherConfig = require('./lib')(cliConfig);
-
-    if (cliConfig.file) {
+    if (cliConfig.args.file) {
         // assetPath explicitly from a user provided file (-f/--file)
-        if (fs.existsSync(cliConfig.file)) {
-            assetPath = cliConfig.file;
+        if (fs.existsSync(cliConfig.args.file)) {
+            assetPath = cliConfig.args.file;
         } else {
-            reply.fatal(`Specified asset file not found: ${cliConfig.file}`);
+            reply.fatal(`Specified asset file not found: ${cliConfig.args.file}`);
         }
-    } else if (cliConfig.asset) {
+    } else if (cliConfig.args.asset) {
         // assetPath from a file downloaded from GitHub (argument)
 
         // We need to get the arch, platform and nodeVersion of the Teraslice
@@ -83,48 +65,48 @@ exports.handler = async (argv) => {
         // to be specified on the command line, but newer versions of Teraslice
         // expose this info on the root url, so we get it there if all three are
         // not provided on the command line.
-        if (cliConfig.arch && cliConfig.platform && cliConfig['node-version']) {
-            clusterInfo.arch = cliConfig.arch;
-            clusterInfo.platform = cliConfig.platform;
-            clusterInfo.nodeVersion = cliConfig['node-version'];
+        if (cliConfig.args.arch && cliConfig.args.platform && cliConfig.args.nodeVersion) {
+            clusterInfo.arch = cliConfig.args.arch;
+            clusterInfo.platform = cliConfig.args.platform;
+            clusterInfo.nodeVersion = cliConfig.args.nodeVersion;
         } else {
             try {
-                clusterInfo = await otherConfig.terasliceClient.cluster.info();
+                clusterInfo = await cliConfig.terasliceClient.cluster.info();
                 // Teraslice returns node_version but should be nodeVersion here
                 clusterInfo.nodeVersion = clusterInfo.node_version;
             } catch (err) {
-                reply.fatal(`Unable to get cluster information from ${cliConfig.cluster_sh}: ${err}`);
+                reply.fatal(`Unable to get cluster information from ${cliConfig.args.clusterAlias}: ${err.stack}`);
             }
         }
 
         const asset = new GithubAsset({
             arch: clusterInfo.arch,
-            assetString: cliConfig.asset,
+            assetString: cliConfig.args.asset,
             platform: clusterInfo.platform,
             nodeVersion: clusterInfo.nodeVersion
         });
 
         try {
-            assetPath = await asset.download(cliConfig.config.paths.asset_dir, cliConfig.quiet);
-            if (!cliConfig.quiet) {
-                reply.green(`${cliConfig.asset} has either been downloaded or was already present on disk.`);
+            assetPath = await asset.download(cliConfig.assetDir, cliConfig.args.quiet);
+            if (!cliConfig.args.quiet) {
+                reply.green(`${cliConfig.args.asset} has either been downloaded or was already present on disk.`);
             }
         } catch (err) {
-            reply.fatal(`Unable to download ${cliConfig.asset} asset: ${err}`);
+            reply.fatal(`Unable to download ${cliConfig.args.asset} asset: ${err.stack}`);
         }
-    } else if (cliConfig.build) {
+    } else if (cliConfig.args.build) {
         // assetPath from a zipFile created by building from a local asset
-        // source directory (-b/-b ./file-assets)
+        // source directory (--build) PWD ONLY for now
         let srcDir;
-        if (cliConfig.build === true) {
+        if (cliConfig.args.build === true) {
             srcDir = process.cwd();
         } else {
-            srcDir = cliConfig.build;
+            srcDir = cliConfig.args.build;
         }
         try {
             const asset = new AssetSrc(srcDir);
             assetPath = await asset.build();
-            if (!cliConfig.quiet) {
+            if (!cliConfig.args.quiet) {
                 reply.green(`Asset created:\n\t${assetPath}`);
             }
         } catch (err) {
@@ -134,20 +116,22 @@ exports.handler = async (argv) => {
         reply.fatal('You must specify an asset name or use -f /path/to/asset.zip');
     }
 
-    if (!cliConfig['skip-upload']) {
+    if (!cliConfig.args.skipUpload) {
         try {
             assetZip = await fs.readFile(assetPath);
         } catch (err) {
-            throw new Error(`Error reading file: ${assetPath}, ${err}`);
+            throw new Error(`Error reading file: ${assetPath}, ${err.stack}`);
         }
 
         try {
-            await otherConfig.terasliceClient.assets.post(assetZip);
-            if (!cliConfig.quiet) {
-                reply.green(`Asset posted to ${cliConfig.cluster_sh}`);
+            await cliConfig.terasliceClient.assets.post(assetZip);
+            if (!cliConfig.args.quiet) {
+                reply.green(`Asset posted to ${cliConfig.args.clusterAlias}`);
             }
         } catch (err) {
-            throw new Error(`Error posting asset: ${err}`);
+            throw new Error(`Error posting asset: ${err.stack}`);
         }
+    } else {
+        reply.green('Upload skipped.');
     }
 };

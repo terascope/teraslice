@@ -31,6 +31,7 @@ describe('aliases', () => {
             expect(fs.existsSync(aliases.aliasesFile)).toBeTruthy();
             expect(aliasesOutput.clusters.test1.host).toBe('test1.net');
         });
+
         test('should throw an error when existing alias added', () => {
             aliases.add('test1', 'test1.net');
             function aliasAdd() {
@@ -44,8 +45,21 @@ describe('aliases', () => {
         test('should display txt table', () => {
             expect(aliases.list('txt')).toBe(undefined);
         });
+
         test('should display pretty table', () => {
             expect(aliases.list('pretty')).toBe(undefined);
+        });
+    });
+
+    describe('-> present', () => {
+        test('should return true if alias is present in file', () => {
+            aliases.add('test1', 'test1.net');
+            expect(aliases.present('test1')).toBeTruthy();
+        });
+
+        test('should return false if alias is not present in file', () => {
+            aliases.add('test1', 'test1.net');
+            expect(aliases.present('test2')).toBeFalsy();
         });
     });
 
@@ -62,6 +76,7 @@ describe('aliases', () => {
             expect(aliasesOutput.clusters.test1).toBe(undefined);
             expect(aliasesOutput.clusters.localhost.host).toBe('http://localhost:5678');
         });
+
         test('should throw an error when existing alias added', () => {
             function aliasRemove() {
                 aliases.remove('test2');
@@ -80,6 +95,7 @@ describe('aliases', () => {
             const aliasesOutput = yaml.readSync(aliases.aliasesFile);
             expect(aliasesOutput.clusters.test1.host).toBe('http://test1.net:9999');
         });
+
         test('should throw an error when updating a missing alias', () => {
             function aliasUpdate() {
                 aliases.update('test2', 'http://test2.net');

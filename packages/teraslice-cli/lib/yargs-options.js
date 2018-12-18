@@ -9,10 +9,45 @@ const url = new Url();
 class Options {
     constructor() {
         this.options = {
+            arch: () => ({
+                choices: ['x32', 'x64'],
+                describe: 'The architecture of the Teraslice cluster.'
+                        + '  Determined automatically on newer Teraslice releases.',
+                nargs: 1,
+                type: 'string'
+            }),
+            build: () => ({
+                describe: 'Build asset from source, then upload to Teraslice.  The current'
+                        + ' directory is used if no argument is passed to this option',
+                type: 'boolean'
+            }),
             'config-dir': () => ({
                 alias: 'd',
                 describe: 'Config directory',
-                default: `${homeDir}/.teraslice`
+                default: `${homeDir}/.teraslice`,
+                nargs: 1,
+            }),
+            file: () => ({
+                alias: 'f',
+                describe: 'When specified with a path to an asset file, uploads provided'
+                        + ' asset without retriving from GitHub.  Useful for offline use.',
+                nargs: 1,
+                type: 'string'
+            }),
+            list: () => ({
+                describe: 'Output list display',
+                type: 'boolean',
+                default: false
+            }),
+            'new-cluster-url': () => ({
+                describe: 'new cluster url',
+                type: 'string'
+            }),
+            'node-version': () => ({
+                describe: 'The node version of the Teraslice cluster, like: `v8.11.1`, `v10.13.0`'
+                        + '  Determined automatically on newer Teraslice releases.',
+                nargs: 1,
+                type: 'string'
             }),
             output: () => ({
                 alias: 'o',
@@ -20,35 +55,39 @@ class Options {
                 choices: ['txt', 'pretty'],
                 default: 'txt'
             }),
-            list: () => ({
-                describe: 'Output list display',
+            platform: () => ({
+                choices: ['darwin', 'linux'],
+                describe: 'The platform of the Teraslice cluster.'
+                        + '  Determined automatically on newer Teraslice releases.',
+                nargs: 1,
+                type: 'string'
+            }),
+            'skip-upload': () => ({
+                describe: 'Skips upload to Teraslice, useful to just download the asset.',
                 type: 'boolean',
-                default: false
             }),
-            'cluster-url': () => ({
-                alias: 'c',
-                describe: 'cluster url',
-                requiresArg: 1,
-                type: 'string'
-            }),
-            'new-cluster-url': () => ({
-                describe: 'new cluster url',
-                type: 'string'
-            }),
-            'cluster-alias': () => ({
-                describe: 'cluster alias',
-                type: 'string'
-            }),
-            'base-dir': () => ({
-                describe: 'specify the base directory to use, defaults to cwd',
+            'src-dir': () => ({
+                describe: 'Path to directory containing asset',
                 default: process.cwd(),
+                nargs: 1,
                 type: 'string'
-            })
+            }),
+            quiet: () => ({
+                alias: 'q',
+                describe: 'Silence non-error logging.',
+                type: 'boolean'
+            }),
         };
 
         this.positionals = {
+            asset: () => ({
+                describe: 'Github user/repo of asset to load, e.g.: terascope/file-assets',
+                nargs: 1,
+                type: 'string'
+            }),
             'cluster-alias': () => ({
-                describe: 'cluster alias',
+                describe: 'Teraslice cluster alias',
+                nargs: 1,
                 type: 'string'
             }),
             'new-cluster-alias': () => ({

@@ -57,6 +57,10 @@ class Aliases {
         display.display(header, clusters, output);
     }
 
+    present(alias) {
+        return _.has(this.config.clusters, alias);
+    }
+
     remove(clusterAlias) {
         if (_.has(this.config.clusters, clusterAlias)) {
             delete this.config.clusters[clusterAlias];
