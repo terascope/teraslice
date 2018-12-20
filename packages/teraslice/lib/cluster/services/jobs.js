@@ -61,6 +61,7 @@ module.exports = function module(context) {
                     error.code = 409;
                     return Promise.reject(error);
                 }
+
                 return getJob(jobId)
                     .then((jobConfig) => {
                         if (!jobConfig) {
@@ -75,6 +76,9 @@ module.exports = function module(context) {
             })
             .catch((err) => {
                 const error = new Error(`Failure to start job, ${_.toString(err)}`);
+                if (err && err.code) {
+                    error.code = err.code;
+                }
                 logger.error(error.message, parseError(err));
                 return Promise.reject(error);
             });
