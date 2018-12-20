@@ -1,68 +1,78 @@
-export interface StoreOptions {
-    client: any;
+import * as es from 'elasticsearch';
+
+export interface Options {
     index: string;
     mapping: object;
-    indexType: string;
+    indexType: es.NameList;
+}
+
+export interface OptionsWithClient extends Options {
+    client: es.Client;
+}
+
+export interface OptionsWithConfig extends Options {
+    clientConfig: es.ConfigOptions;
 }
 
 export interface CoreAPI {
-    initialize(): Promise<any>;
-    shutdown(): Promise<any>;
+    initialize(): Promise<void>;
+    shutdown(): Promise<void>;
 }
 
 export interface IndexStoreAPI<T extends object> extends CoreAPI {
-    /** Safely make many requests aginsts an index */
-    bulk(data: BulkRequest): Promise<any>;
+    constructor(params: OptionsWithClient|OptionsWithConfig): IndexStoreAPI<T>;
+
     /** Count records by a given Lucene Query or Elasticsearch Query DSL */
-    count(query: string|QueryDSL): Promise<number>;
-    /** Index a document but will throw if doc already exists */
-    create(doc: T, id: string, type?: string): Promise<any>;
+    count(query: es.CountParams): Promise<number>;
     /** Get a single document */
-    get(id: string, type?: string): Promise<T>;
-    /** Index a document */
-    index(doc: T, type?: string): Promise<any>;
-    /** Index a document by id */
-    indexWithId(doc: T, id: string, type?: string): Promise<any>;
+    get(id: string, type?: es.NameList): Promise<T>;
     /** Get multiple documents at the same time */
-    mget(query: any): Promise<any>;
-    /** Deletes a document for a given id */
-    remove(id: string, type?: string): Promise<any>;
+    mget(query: es.MGetParams): Promise<T[]>;
     /** Search with a given Lucene Query or Elasticsearch Query DSL */
-    search(query: string|QueryDSL): Promise<T[]>;
+    search(query: es.SearchParams): Promise<T[]>;
+
+    /** Index a document */
+    index(doc: T, type?: es.NameList): Promise<any>;
+    /** Index a document by id */
+    indexWithId(doc: T, id: string, type?: es.NameList): Promise<any>;
+    /** Safely make many requests aginsts an index */
+    bulk(data: es.BulkIndexDocumentsParams): Promise<any>;
+    /** Index a document but will throw if doc already exists */
+    create(doc: T, id: string, type?: es.NameList): Promise<any>;
     /**
      * Update parts of a document, body is a partial document,
      * which will be merged with the existing one
     */
-    update(doc: Partial<T>, id: string, type?: string): Promise<any>;
-    validateGeoParameters(geo: any): boolean;
-}
-
-// TODO
-export interface BulkRequest {
-}
-
-// TODO
-export interface QueryDSL {
+    update(doc: Partial<T>, id: string, type?: es.NameList): Promise<any>;
+    /** Deletes a document for a given id */
+    remove(id: string, type?: es.NameList): Promise<any>;
 }
 
 /** Manage Many Indicies */
 export interface IndexManagerAPI extends CoreAPI {
-    /** Add a template to the index */
-    addTemplate(template: any, name: string): Promise<any>;
+    constructor(client: es.Client): IndexManagerAPI;
+    constructor(clientConfig: es.ConfigOptions): IndexManagerAPI;
+
+    /** Create a template */
+    createTemplate(template: any, name: string): Promise<any>;
+    /** Safely update an index */
+    updateTemplate(template: any, name: string): Promise<any>;
+
     /** Verify the index exists */
-    exists(query: any): Promise<boolean>;
+    exists(params: es.IndicesExistsParams): Promise<boolean>;
     /** Create an index */
-    create(query: any): Promise<any>;
+    create(params: es.IndicesCreateParams): Promise<any>;
     /** Refresh an index */
-    refresh(query: any): Promise<any>;
+    refresh(params: es.IndicesRefreshParams): Promise<any>;
     /** Index recovery */
-    recovery(query: any): Promise<any>;
-    /** Index Setup API */
-    setup(query: any): Promise<any>;
+    recovery(params: es.IndicesRecoveryParams): Promise<any>;
 }
 
 export interface ClusterAPI extends CoreAPI {
+    constructor(client: es.Client): ClusterAPI;
+    constructor(clientConfig: es.ConfigOptions): ClusterAPI;
+
     version(): Promise<any>;
-    nodeInfo(): Promise<any>;
-    nodeStats(): Promise<any>;
+    nodeInfo(params: es.NodesInfoParams): Promise<any>;
+    nodeStats(params: es.NodesStatsParams): Promise<any>;
 }
