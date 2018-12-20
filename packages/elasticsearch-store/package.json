@@ -13,6 +13,7 @@
         "dist/**/*"
     ],
     "main": "index.js",
+    "srcMain": "src/index.ts",
     "typings": "dist/index.d.ts",
     "scripts": {
         "build": "rimraf ./dist; tsc --project tsconfig.build.json --pretty",
@@ -33,6 +34,7 @@
         "@types/node": "^10.12.18",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
+        "elasticsearch": "^15.2.0",
         "jest": "^23.6.0",
         "jest-extended": "^0.11.0",
         "rimraf": "^2.6.2",
@@ -43,9 +45,5 @@
     },
     "publishConfig": {
         "access": "public"
-    },
-    "srcMain": "src/index.ts",
-    "optionalDependencies": {
-        "elasticsearch": "^15.2.0"
     }
 }
