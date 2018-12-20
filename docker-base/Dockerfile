@@ -17,7 +17,6 @@ RUN yarn global add \
 COPY package.json yarn.lock /app/
 
 RUN export WITH_SASL=0 && yarn \
-    --silent \
     --no-progress \
     --no-emoji \
     --no-cache
