@@ -1,4 +1,5 @@
 import * as es from 'elasticsearch';
+import { IndexConfig } from './interfaces';
 
 /** Manage ElasticSearch Indicies */
 export default class IndexManager {
@@ -9,13 +10,23 @@ export default class IndexManager {
     }
 
     /** Create a template */
-    async createTemplate(name: string, template: any) {
+    async createTemplate(name: string, version: string, template: any) {
         return;
     }
 
     /** Safely update an index */
-    async updateTemplate(name: string, template: any) {
+    async updateTemplate(name: string, version: string, template: any) {
         return;
+    }
+
+    /**
+     * Perform an Index Migration
+     *
+     * **IMPORTANT** This is a potentionally dangerous operation
+     * and should only when the cluster is properly shutdown.
+    */
+    async migrateIndex(config: MigrateIndexConfig): Promise<void> {
+
     }
 
     /** Verify the index exists */
@@ -37,4 +48,10 @@ export default class IndexManager {
     async recovery(params: es.IndicesRecoveryParams) {
         return;
     }
+}
+
+export interface MigrateIndexConfig {
+    to: IndexConfig;
+    from: IndexConfig;
+    timeout: number;
 }

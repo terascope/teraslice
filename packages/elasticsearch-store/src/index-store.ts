@@ -1,19 +1,27 @@
 import * as es from 'elasticsearch';
+import { IndexConfig } from './interfaces';
 
 export default class IndexStore<T extends Object> {
     readonly client: es.Client;
-    constructor(client: es.Client, options: Options) {
+    readonly config: IndexConfig;
+
+    constructor(client: es.Client, config: IndexConfig) {
         this.client = client;
+        this.config = config;
     }
 
-    /** Connect and prepare IndexStore */
+    /**
+     * Connect and validate the index configuration.
+    */
     async initialize() {
-
+        return;
     }
 
-    /** Shutdown, flush any pending requests and cleanup */
+    /**
+     * Shutdown, flush any pending requests and cleanup
+    */
     async shutdown() {
-
+        return;
     }
 
     /** Count records by a given Lucene Query or Elasticsearch Query DSL */
@@ -65,10 +73,4 @@ export default class IndexStore<T extends Object> {
     async remove(id: string, type?: es.NameList) {
         return;
     }
-}
-
-export interface Options {
-    index: string;
-    mapping: any;
-    indexType: es.NameList;
 }

@@ -8,7 +8,11 @@ describe('IndexStore', () => {
     const indexStore = new IndexStore(client, {
         index: 'hello',
         indexType: 'events',
-        mapping: {}
+        indexSchema: {
+            version: '1.0.0',
+            mapping: {},
+            strict: true,
+        }
     });
 
     it('should be an instance of IndexStore', () => {
