@@ -2,35 +2,40 @@
 # yarn lockfile v1
 
 
-bindings@1.x:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/bindings/-/bindings-1.3.0.tgz#b346f6ecf6a95f5a815c5839fc7cdb22502f1ed7"
+bindings@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/bindings/-/bindings-1.3.1.tgz#21fc7c6d67c18516ec5aaa2815b145ff77b26ea5"
+  integrity sha512-i47mqjF9UbjxJhxGf+pZ6kSxrnI3wBLlnGI2ArWJ4r0VrvDS7ZYXkprq/pLaBWYq4GM0r4zdHY+NNRqEMU7uew==
 
 bluebird@^3.5.0:
-  version "3.5.2"
-  resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.2.tgz#1be0908e054a751754549c270489c1505d4ab15a"
+  version "3.5.3"
+  resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.3.tgz#7d01c6f9616c9a51ab0f8c549a79dfe6ec33efa7"
+  integrity sha512-/qKPUQlaW1OyR51WeCPBvRnAlnZFUJkCSG5HzGnuIqhgyJtF+T94lFnn33eiazjRm2LAHVy2guNnaq48X9SJuw==
 
 lodash@^4.17.4:
   version "4.17.11"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
+  integrity sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg==
 
-nan@2.x:
-  version "2.10.0"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.10.0.tgz#96d0cd610ebd58d4b4de9cc0c6828cda99c7548f"
+nan@^2.11.1:
+  version "2.11.1"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.11.1.tgz#90e22bccb8ca57ea4cd37cc83d3819b52eea6766"
+  integrity sha512-iji6k87OSXa0CcrLl9z+ZiYSuR2o+c0bGuNmXdrhTQTakxytAFsC56SArGYoiHlJlFoHSnvmhpceZJaXkVuOtA==
 
-node-rdkafka@^2.2.0:
-  version "2.3.3"
-  resolved "https://registry.yarnpkg.com/node-rdkafka/-/node-rdkafka-2.3.3.tgz#47536136359af2c101217317936796575486d5a7"
+node-rdkafka@^2.5.1:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/node-rdkafka/-/node-rdkafka-2.5.1.tgz#69830c9ca814e5b553dba8bf0b4fd3db69c62e87"
+  integrity sha512-tC7LeyshdZEds+nx0RicLn9Cam0ahpGIDNY+QAD82K/UpD2rAMIM4K/Z8NUnlnvCaLukA7229agSMogG23XcTA==
   dependencies:
-    bindings "1.x"
-    nan "2.x"
+    bindings "^1.3.1"
+    nan "^2.11.1"
 
-terafoundation_kafka_connector@terascope/terafoundation_kafka_connector:
-  version "0.2.1"
-  resolved "https://codeload.github.com/terascope/terafoundation_kafka_connector/tar.gz/150f8abdcf35d48855ace6e146bb5f60015b3737"
+terafoundation_kafka_connector@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/terafoundation_kafka_connector/-/terafoundation_kafka_connector-0.3.0.tgz#3aa894d25ab43fde3bbdf61ce8a38d54eb15d256"
+  integrity sha512-46hIQrfF+tA4Pq7V8TS/85fwqN/CtP4i1/yBqrLFkRwhEh8ke7aVqBHCdJYbzbph8USzNfunvr0ozdpjo8J81Q==
   dependencies:
-    lodash "^4.17.4"
-    node-rdkafka "^2.2.0"
+    node-rdkafka "^2.5.1"
 
 teraslice_kafka_reader@terascope/teraslice_kafka_reader:
   version "0.1.0"
