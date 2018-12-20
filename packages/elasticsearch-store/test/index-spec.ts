@@ -9,4 +9,8 @@ describe('index', () => {
     it('should export IndexStore', () => {
         expect(index.IndexStore).not.toBeNil();
     });
+
+    it('should export Cluster', () => {
+        expect(index.Cluster).not.toBeNil();
+    });
 });
