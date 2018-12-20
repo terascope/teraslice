@@ -150,6 +150,7 @@ module.exports = function module(context) {
                     return meta;
                 }
                 const error = new Error(`asset name:${meta.name} and version:${meta.version} already exists, please increment the version and send again`);
+                error.code = 409;
                 error.alreadyExists = true;
                 return Promise.reject(error);
             });
