@@ -27,8 +27,11 @@ module.exports = function module(context) {
                     if (!shouldRun) {
                         return { job_id: job.job_id };
                     }
-                    const executableJobConfig = Object.assign({}, jobSpec, validJob);
-                    return executionService.createExecutionContext(executableJobConfig);
+
+                    const exConfig = Object.assign({}, jobSpec, validJob, {
+                        job_id: job.job_id,
+                    });
+                    return executionService.createExecutionContext(exConfig);
                 }))
             .catch((err) => {
                 const error = new Error(`Failure to submit job, ${_.toString(err)}`);
