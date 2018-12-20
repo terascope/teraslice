@@ -1,6 +1,6 @@
 
 import PhaseBase from './operations/lib/base';
-export enum NotifyType { matcher = "matcher", transform = "transform" }
+export enum NotifyType { matcher = 'matcher', transform = 'transform' }
 
 export interface OperationConfig {
     id?: string;
@@ -10,7 +10,7 @@ export interface OperationConfig {
     start?: string;
     end?: string;
     target_field?: string;
-    regex?: string,
+    regex?: string;
     validation?: string;
     decoder?: string;
     refs?: string;
@@ -20,7 +20,7 @@ export interface OperationConfig {
     mutate?: boolean;
     other_match_required?: boolean;
 }
-//TODO: fix registrationSelector above
+// TODO: fix registrationSelector above
 export interface Refs {
     refs: string;
     validation?: string;
@@ -35,7 +35,7 @@ export interface StringRefs extends Refs {
 
 export interface ConfigResults {
     registrationSelector?: string;
-    targetConfig: OperationConfig | null
+    targetConfig: OperationConfig | null;
 }
 
 export interface NormalizedConfig {
@@ -64,3 +64,6 @@ export interface JoinConfig {
     delimiter?: string;
     remove_source?: boolean;
 }
+
+export type injectFn = (config: OperationConfig, list: OperationConfig[]) => void;
+export type filterFn = (config: OperationConfig) => boolean;

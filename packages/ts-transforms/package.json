@@ -1,6 +1,6 @@
 {
   "name": "ts-transforms",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "An ETL framework built upon xlucene-evaluator",
   "srcMain": "src/index.ts",
   "main": "dist/index.js",
@@ -19,6 +19,7 @@
   "scripts": {
     "prepare": "npm run build",
     "lint": "tslint --project tsconfig.json --format verbose",
+    "lint:fix": "yarn lint --fix",
     "build": "rimraf dist; tsc --project tsconfig.json --pretty",
     "build:watch": "yarn build --watch",
     "test": "jest",

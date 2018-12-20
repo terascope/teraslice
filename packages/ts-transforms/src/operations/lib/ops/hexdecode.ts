@@ -8,12 +8,12 @@ export default class HexDecode extends OperationBase {
     constructor(config: OperationConfig) {
         super(config);
     }
-    
-    decoderFn(doc: DataEntity, data:string, target: string) {
-        doc[target] = Buffer.from(data, 'hex').toString('utf8');
+
+    decoderFn(data:string) {
+        return Buffer.from(data, 'hex').toString('utf8');
     }
 
     run(record: DataEntity): DataEntity | null {
-        return this.decode(record, this.decoderFn)
+        return this.decode(record, this.decoderFn);
     }
 }

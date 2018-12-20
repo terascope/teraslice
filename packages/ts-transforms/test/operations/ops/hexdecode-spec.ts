@@ -1,16 +1,16 @@
 
-import { Base64Decode } from '../../../src/operations';
+import { HexDecode } from '../../../src/operations';
 import { DataEntity } from '@terascope/job-components';
 
 describe('base64 operator', () => {
 
     function encode(str: string) {
-        return Buffer.from(str).toString('base64');
+        return Buffer.from(str).toString('hex');
     }
 
     it('can instantiate', () => {
         const opConfig = { target_field: 'final', source_field: 'source' };
-        expect(() => new Base64Decode(opConfig)).not.toThrow();
+        expect(() => new HexDecode(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
@@ -23,24 +23,24 @@ describe('base64 operator', () => {
         const badConfig7 = { source_field: null };
         const badConfig8 = { source_field: '', target_field: '' };
         // @ts-ignore
-        expect(() => new Base64Decode(badConfig1)).toThrow();
-        expect(() => new Base64Decode(badConfig2)).toThrow();
+        expect(() => new HexDecode(badConfig1)).toThrow();
+        expect(() => new HexDecode(badConfig2)).toThrow();
         // @ts-ignore
-        expect(() => new Base64Decode(badConfig3)).toThrow();
+        expect(() => new HexDecode(badConfig3)).toThrow();
         // @ts-ignore
-        expect(() => new Base64Decode(badConfig4)).toThrow();
+        expect(() => new HexDecode(badConfig4)).toThrow();
         // @ts-ignore
-        expect(() => new Base64Decode(badConfig5)).toThrow();
+        expect(() => new HexDecode(badConfig5)).toThrow();
         // @ts-ignore
-        expect(() => new Base64Decode(badConfig6)).toThrow();
+        expect(() => new HexDecode(badConfig6)).toThrow();
         // @ts-ignore
-        expect(() => new Base64Decode(badConfig7)).toThrow();
-        expect(() => new Base64Decode(badConfig8)).toThrow();
+        expect(() => new HexDecode(badConfig7)).toThrow();
+        expect(() => new HexDecode(badConfig8)).toThrow();
     });
 
-    it('can base64 decode fields', () => {
+    it('can hex decode fields', () => {
         const opConfig = { target_field: 'final', source_field: 'source' };
-        const test =  new Base64Decode(opConfig);
+        const test =  new HexDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
         const data1 = new DataEntity({ source: 123423 }, metaData);
@@ -84,9 +84,9 @@ describe('base64 operator', () => {
         expect(results11).toEqual({ final: 'hello world', source: encode('hello world') });
     });
 
-    it('can base64 decode fields and remove source', () => {
+    it('can hex decode fields and remove source', () => {
         const opConfig = { target_field: 'final', source_field: 'source', remove_source: true };
-        const test =  new Base64Decode(opConfig);
+        const test =  new HexDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
         const data = new DataEntity({ source: encode('hello world') }, metaData);
@@ -97,9 +97,9 @@ describe('base64 operator', () => {
         expect(results).toEqual({ final: 'hello world' });
     });
 
-    it('can base64 decode nested fields and remove source', () => {
+    it('can hex decode nested fields and remove source', () => {
         const opConfig = { target_field: 'final.data', source_field: 'source.field', remove_source: true };
-        const test =  new Base64Decode(opConfig);
+        const test =  new HexDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
         const data = new DataEntity({ source: { field: encode('hello world') } }, metaData);

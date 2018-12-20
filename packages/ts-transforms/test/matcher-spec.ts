@@ -14,7 +14,7 @@ describe('matcher', () => {
     });
 
     it('can return matching documents', async () => {
-        //TODO: file path needs to be from asset
+        // TODO: file path needs to be from asset
         const config = {
             file_path: matchRules1Path,
             selector_config: { _created: 'date' },
@@ -26,7 +26,7 @@ describe('matcher', () => {
             { some: 'data', bytes: 200 },
             { some: 'other', bytes: 1200 },
             { other: 'xabcd' },
-            { _created: "2018-12-16T15:16:09.076Z" }
+            { _created: '2018-12-16T15:16:09.076Z' }
         ]);
 
         const test = await opTest.init(config);
@@ -47,13 +47,13 @@ describe('matcher', () => {
             { some: 'data', bytes: 200 },
             { some: 'other', bytes: 1200 },
             { other: 'xabcd' },
-            { _created: "2018-12-16T15:16:09.076Z" }
+            { _created: '2018-12-16T15:16:09.076Z' }
         ]);
 
         const test = await opTest.init(config);
         const results: DataEntity[] =  await test.run(data);
 
-        expect(results.length).toEqual(3)
+        expect(results.length).toEqual(3);
         results.forEach(doc => expect(doc.getMetadata('selectors')).toBeDefined());
     });
 
@@ -62,10 +62,10 @@ describe('matcher', () => {
             file_path: matchRules1Path,
             selector_config: { _created: 'date' },
             type: 'matcher'
-        }
+        };
 
         const data = DataEntity.makeArray([
-            { some: 'data', bytes: 1200, _created: "2018-12-16T15:16:09.076Z" },
+            { some: 'data', bytes: 1200, _created: '2018-12-16T15:16:09.076Z' },
             { some: 'data', bytes: 200 },
             { some: 'other', bytes: 1200 }
         ]);
@@ -81,4 +81,4 @@ describe('matcher', () => {
         expect(results.length).toEqual(1);
         expect(results[0].getMetadata('selectors')).toEqual(rules);
     });
-})
+});

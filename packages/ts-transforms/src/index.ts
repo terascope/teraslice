@@ -1,6 +1,6 @@
 
-import PhaseManager from './phase_manager'
+import PhaseManager from './phase_manager';
 
 export {
     PhaseManager
-}
+};

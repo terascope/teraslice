@@ -1,0 +1,2 @@
+{ "selector": "host:example.com", "source_field": "field1", "start": "field1=", "end": "EOP", "target_field": "field1", "id": "field1" }
+{ "refs": "field1",  "post_process": "base64decode", "target_field": "field1" }
