@@ -1,6 +1,6 @@
 
 import { DataEntity } from '@terascope/job-components';
-import ExtractionPhase from '../../src/phase_manager/extraction_phase';
+import { ExtractionPhase } from '../../src';
 import Loader from '../../src/loader';
 import { OperationConfig } from '../../src/interfaces';
 

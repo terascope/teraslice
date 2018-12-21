@@ -1,6 +1,6 @@
 
 import { DataEntity } from '@terascope/job-components';
-import ValidationPhase from '../../src/phase_manager/validation_phase';
+import { ValidationPhase } from '../../src';
 import Loader from '../../src/loader';
 import { OperationConfig } from '../../src/interfaces';
 

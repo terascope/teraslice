@@ -1,6 +1,6 @@
 
 import { DataEntity } from '@terascope/job-components';
-import PostProcessPhase from '../../src/phase_manager/post_process_phase';
+import { PostProcessPhase } from '../../src';
 import Loader from '../../src/loader';
 import { OperationConfig } from '../../src/interfaces';
 

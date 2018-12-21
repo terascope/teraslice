@@ -1,6 +1,6 @@
 
 import { DataEntity } from '@terascope/job-components';
-import SelectorPhase from '../../src/phase_manager/selector_phase';
+import { SelectionPhase } from '../../src';
 import Loader from '../../src/loader';
 import { OperationConfig } from '../../src/interfaces';
 
@@ -19,12 +19,12 @@ describe('selector phase', () => {
     it('can instantiate', async () => {
         const configList = await getConfigList('transformRules1.txt');
 
-        expect(() => new SelectorPhase(transformOpconfig, configList)).not.toThrow();
+        expect(() => new SelectionPhase(transformOpconfig, configList)).not.toThrow();
     });
 
     it('has the proper properties', async () => {
         const configList = await getConfigList('transformRules1.txt');
-        const selectorPhase = new SelectorPhase(transformOpconfig, configList);
+        const selectorPhase = new SelectionPhase(transformOpconfig, configList);
 
         expect(selectorPhase.selectionPhase).toBeDefined();
         expect(selectorPhase.selectionPhase.length).toEqual(6);
@@ -33,7 +33,7 @@ describe('selector phase', () => {
     it('can run data to match based on selector and selector_config', async () => {
         const configList = await getConfigList('transformRules1.txt');
         const myOpConfig = Object.assign({}, transformOpconfig, { selector_config: { location: 'geo' } });
-        const selectorPhase = new SelectorPhase(myOpConfig, configList);
+        const selectorPhase = new SelectionPhase(myOpConfig, configList);
         const data = DataEntity.makeArray([
             { some: 'data', isTall: true },
             { some: 'thing else', person: {} },
@@ -52,7 +52,7 @@ describe('selector phase', () => {
 
     it('can match all', async () => {
         const configList = await getConfigList('transformRules3.txt');
-        const selectorPhase = new SelectorPhase(transformOpconfig, configList);
+        const selectorPhase = new SelectionPhase(transformOpconfig, configList);
         const data = DataEntity.makeArray([
             { some: 'data', isTall: true },
             { some: 'thing else', person: {} },
@@ -69,7 +69,7 @@ describe('selector phase', () => {
 
     it('can loads only the appropriate selectors and disregards certain ones', async () => {
         const configList = await getConfigList('transformRules16.txt');
-        const selectorPhase = new SelectorPhase(transformOpconfig, configList);
+        const selectorPhase = new SelectionPhase(transformOpconfig, configList);
 
         // this is to check that a match-all has not been added
         // by the other_match_required or refs (ie the second and third config in file)
