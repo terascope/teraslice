@@ -3,7 +3,7 @@ import PhaseBase from './operations/lib/base';
 export enum NotifyType { matcher = 'matcher', transform = 'transform' }
 
 export interface OperationConfig {
-    id?: string;
+    tag?: string;
     selector?: string;
     selector_config?: object | undefined;
     source_field?: string;
@@ -13,7 +13,7 @@ export interface OperationConfig {
     regex?: string;
     validation?: string;
     decoder?: string;
-    refs?: string;
+    follow?: string;
     post_process?: string;
     remove_source?: boolean;
     registration_selector?:string;

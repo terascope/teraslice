@@ -24,7 +24,7 @@ export default class Loader {
         }
         const results =  JSON.parse(config);
         // if its not set and its not a post process then set the selecter to *
-        if (!results.selector && !results.refs && !results.other_match_required) results.selector = '*';
+        if (!results.selector && !results.follow && !results.other_match_required) results.selector = '*';
         return results;
     }
 

@@ -5,24 +5,22 @@ import _ from 'lodash';
 import * as Operations from '../operations';
 
 export default class ValidationPhase extends PhaseBase {
-    private hasPostProcessing: boolean;
-
     constructor(_opConfig: WatcherConfig, configList:OperationConfig[]) {
         super();
 
         function isPrimaryValidation(config: OperationConfig): boolean {
-            return !_.has(config, 'refs') && (_.has(config, 'selector') && _.has(config, 'validation'));
+            return !_.has(config, 'follow') && (_.has(config, 'selector') && _.has(config, 'validation'));
         }
 
         function isRefsValidation(config: OperationConfig): boolean {
-            return _.has(config, 'refs') && _.has(config, 'validation') ;
+            return _.has(config, 'follow') && _.has(config, 'validation') ;
         }
 
         function isMatchRequired(config: OperationConfig): boolean {
             return _.has(config, 'other_match_required');
         }
 
-        const transformRequirements = _.once((_config, configList:OperationConfig[]) => {
+        const extractionRequirements = _.once((_config, configList:OperationConfig[]) => {
             const requirements = {};
             _.each(configList, (config: OperationConfig) => {
                 if (config.other_match_required) {
@@ -31,24 +29,21 @@ export default class ValidationPhase extends PhaseBase {
                 }
             });
             if (Object.keys(requirements).length > 0) {
-                // tslint:disable-next-line
-                const Op = Operations.RequiredTransforms;
                 if (!this.phase['__all']) this.phase['__all'] = [];
-                this.phase.__all.push(new Op(requirements));
+                this.phase.__all.push(new Operations.RequiredExtractions(requirements));
             }
         });
 
         const sequence = [
             { type: 'validation', filterFn: isPrimaryValidation },
             { type: 'validation', filterFn: isRefsValidation },
-            { type: 'validation', filterFn: isMatchRequired, injectFn: transformRequirements }
+            { type: 'validation', filterFn: isMatchRequired, injectFn: extractionRequirements }
         ];
         sequence.forEach((loadingConfig) => this.installOps(loadingConfig, configList));
-        this.hasPostProcessing = Object.keys(this.phase).length > 0;
     }
 
     run(dataArray: DataEntity[]): DataEntity[] {
-        if (!this.hasPostProcessing) return dataArray;
+        if (!this.hasProcessing) return dataArray;
         const resultsList: DataEntity[] = [];
 
         _.each(dataArray, (data) => {

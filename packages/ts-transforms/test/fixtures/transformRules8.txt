@@ -1,2 +1,2 @@
-{ "selector": "hello:world", "source_field": "txt", "target_field": "hex", "id": "hexId" }
-{ "refs": "hexId", "validation": "hexdecode" }
+{ "selector": "hello:world", "source_field": "txt", "target_field": "hex", "tag": "hexId" }
+{ "follow": "hexId", "validation": "hexdecode" }

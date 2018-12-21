@@ -1,12 +1,12 @@
 
-import { Transform } from '../../../src/operations';
+import { Extraction } from '../../../src/operations';
 import { DataEntity } from '@terascope/job-components';
 
 describe('transform operator', () => {
 
     it('can instantiate', () => {
         const opConfig = { target_field: 'someField', source_field: 'someField' };
-        expect(() => new Transform(opConfig)).not.toThrow();
+        expect(() => new Extraction(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
@@ -15,18 +15,18 @@ describe('transform operator', () => {
         const badConfig3 = { source_field: false, target_field: 'someField' };
         const badConfig4 = {};
         // @ts-ignore
-        expect(() => new Transform(badConfig1)).toThrow();
+        expect(() => new Extraction(badConfig1)).toThrow();
         // @ts-ignore
-        expect(() => new Transform(badConfig2)).toThrow();
+        expect(() => new Extraction(badConfig2)).toThrow();
         // @ts-ignore
-        expect(() => new Transform(badConfig3)).toThrow();
+        expect(() => new Extraction(badConfig3)).toThrow();
         // @ts-ignore
-        expect(() => new Transform(badConfig4)).toThrow();
+        expect(() => new Extraction(badConfig4)).toThrow();
     });
 
     it('can transform data', () => {
         const opConfig = { source_field: 'someField', target_field: 'otherField' };
-        const test = new Transform(opConfig);
+        const test = new Extraction(opConfig);
 
         const data1 = new DataEntity({ someField: '56.234,95.234' });
         const data2 = new DataEntity({});
@@ -56,7 +56,7 @@ describe('transform operator', () => {
 
     it('can transform data with start/end', () => {
         const opConfig = { source_field: 'someField', target_field: 'otherField', start: 'field=', end: 'SomeStr' };
-        const test = new Transform(opConfig);
+        const test = new Extraction(opConfig);
 
         const data1 = new DataEntity({ someField: '56.234,95.234' });
         const data2 = new DataEntity({});
@@ -88,7 +88,7 @@ describe('transform operator', () => {
 
     it('can transform data end = ', () => {
         const opConfig = { source_field: 'someField', target_field: 'otherField', start: 'field=', end: 'EOP' };
-        const test = new Transform(opConfig);
+        const test = new Extraction(opConfig);
 
         const data1 = new DataEntity({ someField: 'field=data&SomeStr' });
         const data2 = new DataEntity({ someField: 'field=data' });
@@ -105,7 +105,7 @@ describe('transform operator', () => {
 
     it('can transform data with regex', () => {
         const opConfig = { regex: 'd.*ta', source_field: 'someField', target_field: 'otherField' };
-        const test = new Transform(opConfig);
+        const test = new Extraction(opConfig);
 
         const data1 = new DataEntity({ someField: '56.234,95.234' });
         const data2 = new DataEntity({});
@@ -137,7 +137,7 @@ describe('transform operator', () => {
 
     it('can mutate existing doc instead of returning a new one', () => {
         const opConfig = { source_field: 'someField', target_field: 'otherField', mutate: true };
-        const test = new Transform(opConfig);
+        const test = new Extraction(opConfig);
 
         const dataArray = DataEntity.makeArray([
             { someField: '56.234,95.234' },
@@ -167,8 +167,8 @@ describe('transform operator', () => {
         const opConfig = { source_field: 'someField', target_field: 'otherField', mutate: true };
         const opConfig2 = { source_field: 'someField', target_field: 'otherField' };
 
-        const test1 =  new Transform(opConfig);
-        const test2 =  new Transform(opConfig2);
+        const test1 =  new Extraction(opConfig);
+        const test2 =  new Extraction(opConfig2);
 
         const metaData = { selectors: { 'some:data': true } };
 

@@ -1,3 +1,3 @@
-{ "selector": "host:fc2.com", "source_field": "field1", "start": "field1=", "end": "EOP", "target_field": "field1", "id": "ID1" }
-{ "refs": "ID1", "post_process": "base64decode" }
+{ "selector": "host:fc2.com", "source_field": "field1", "start": "field1=", "end": "EOP", "target_field": "field1", "tag": "ID1" }
+{ "follow": "ID1", "post_process": "base64decode" }
 { "source_field": "date", "target_field": "date", "other_match_required": true }

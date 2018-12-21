@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { WatcherConfig } from '../interfaces';
 import Loader from '../loader';
 import SelectionPhase from './selector_phase';
-import TransformPhase from './transform_phase';
+import ExtractionPhase from './extraction_phase';
 import PostProcessPhase from './post_process_phase';
 import ValidationPhase from './validation_phase';
 
@@ -14,8 +14,8 @@ export default class PhaseManager {
     private opConfig: WatcherConfig;
     private loader: Loader;
     private logger: Logger;
-    private sequence: PhaseBase[];
-    private isMatcher: boolean;
+    public sequence: PhaseBase[];
+    readonly isMatcher: boolean;
 
     constructor(opConfig: WatcherConfig, logger:Logger) {
         this.opConfig = opConfig;
@@ -34,7 +34,7 @@ export default class PhaseManager {
 
             if (!this.isMatcher) {
                 sequence.push(
-                    new TransformPhase(this.opConfig, configList),
+                    new ExtractionPhase(this.opConfig, configList),
                     new PostProcessPhase(this.opConfig, configList),
                     new ValidationPhase(this.opConfig, configList)
                 );

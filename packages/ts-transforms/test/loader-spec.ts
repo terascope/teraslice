@@ -51,7 +51,7 @@ describe('Loader', () => {
         const selectors = results.filter(config => config.selector != null);
 
         expect(selectors.length).toEqual(1);
-        expect(selectors[0]).toEqual({ selector: 'host:fc2.com', source_field: 'field1', start: 'field1=', end: 'EOP', target_field: 'field1', id: 'ID1' });
+        expect(selectors[0]).toEqual({ selector: 'host:fc2.com', source_field: 'field1', start: 'field1=', end: 'EOP', target_field: 'field1', tag: 'ID1' });
     });
 
 });

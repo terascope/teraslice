@@ -1,17 +1,17 @@
 
-import { RequiredTransforms } from '../../../src/operations';
+import { RequiredExtractions } from '../../../src/operations';
 import { DataEntity } from '@terascope/job-components';
 
 describe('number validation', () => {
 
     it('can instantiate', () => {
         const opConfig = { someField: true };
-        expect(() => new RequiredTransforms(opConfig)).not.toThrow();
+        expect(() => new RequiredExtractions(opConfig)).not.toThrow();
     });
 
     it('can ensure keys exists and that there are more then the keys specified', () => {
         const config = { field: true, otherField: true };
-        const test =  new RequiredTransforms(config);
+        const test =  new RequiredExtractions(config);
 
         const data1 = new DataEntity({});
         const data2 = new DataEntity({ bytes: 123423 });

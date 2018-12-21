@@ -4,7 +4,7 @@ import { OperationConfig } from '../../../interfaces';
 import OperationBase from '../base';
 import _ from 'lodash';
 
-export default class Transform extends OperationBase {
+export default class Extraction extends OperationBase {
     private config: OperationConfig;
     private isMutation: Boolean;
 
@@ -29,7 +29,7 @@ export default class Transform extends OperationBase {
     run(doc: DataEntity): DataEntity | null {
         const data = _.get(doc, this.source);
         if (data !== undefined) {
-            let transformedResult;
+            let extractedResult;
 
             if (this.config.regex) {
                 const { regex } = this.config;
@@ -47,7 +47,7 @@ export default class Transform extends OperationBase {
 
                 if (extractedField) {
                     const regexResult = extractedField.length === 1 ? extractedField[0] : extractedField[1];
-                    if (regexResult) transformedResult = regexResult;
+                    if (regexResult) extractedResult = regexResult;
                 }
 
             } else if (this.config.start && this.config.end) {
@@ -57,25 +57,25 @@ export default class Transform extends OperationBase {
 
                 if (typeof data === 'string') {
                     const extractedSlice = this.sliceString(data, start, end);
-                    if (extractedSlice) transformedResult = extractedSlice;
+                    if (extractedSlice) extractedResult = extractedSlice;
                 }
                 if (Array.isArray(data)) {
                     data.forEach((subData:any) => {
                         if (typeof subData === 'string') {
                             const extractedSlice = this.sliceString(subData, start, end);
-                            if (extractedSlice) transformedResult = extractedSlice;
+                            if (extractedSlice) extractedResult = extractedSlice;
                         }
                     });
                 }
             } else {
-                transformedResult = data;
+                extractedResult = data;
             }
 
-            if (transformedResult !== undefined)  {
+            if (extractedResult !== undefined)  {
                 if (this.isMutation) {
-                    return _.set(doc, this.target, transformedResult);
+                    return _.set(doc, this.target, extractedResult);
                 }
-                return new DataEntity(_.set({}, this.target, transformedResult), doc.getMetadata());
+                return new DataEntity(_.set({}, this.target, extractedResult), doc.getMetadata());
             }
         }
         if (this.isMutation) return doc;

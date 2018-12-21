@@ -2,6 +2,6 @@
 {"selector": "hello:world", "source_field": "lon", "target_field": "location.lon"}
 {"selector": "hello:world", "source_field": "first", "target_field": "first_name"}
 {"selector": "hello:world", "source_field": "last", "target_field": "last_name"}
-{"selector": "hello:world", "post_process": "join", "fields": ["first_name", "last_name"], "delimiter": " ", "target_field": "full_name", "id": "myId"}
+{"selector": "hello:world", "post_process": "join", "fields": ["first_name", "last_name"], "delimiter": " ", "target_field": "full_name", "tag": "myId"}
 {"selector": "hello:world", "validation": "geolocation", "target_field": "location"}
-{"refs": "myId", "validation": "string"}
+{"follow": "myId", "validation": "string"}

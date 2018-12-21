@@ -2,7 +2,7 @@
 import OperationBase from './lib/base';
 import Join from './lib/ops/join';
 import Selector from './lib/ops/selector';
-import Transform  from './lib/ops/transform';
+import Extraction  from './lib/ops/extraction';
 import Geolocation from './lib/validations/geolocation';
 import String from './lib/validations/string';
 import Number from './lib/validations/number';
@@ -13,12 +13,12 @@ import Ip from './lib/validations/ip';
 import Base64Decode from './lib/ops/base64decode';
 import UrlDecode from './lib/ops/urldecode';
 import HexDecode from './lib/ops/hexdecode';
-import RequiredTransforms from './lib/validations/requiredtransforms';
+import RequiredExtractions from './lib/validations/required_extractions';
 
 const opNames = {
     join: Join,
     selector: Selector,
-    transform: Transform,
+    extraction: Extraction,
     geolocation: Geolocation,
     string: String,
     boolean: Boolean,
@@ -29,14 +29,14 @@ const opNames = {
     base64decode: Base64Decode,
     urldecode: UrlDecode,
     hexdecode: HexDecode,
-    requiredtransforms: RequiredTransforms
+    requiredExtractions: RequiredExtractions
 };
 
 export {
     OperationBase,
     Join,
     Selector,
-    Transform,
+    Extraction,
     Geolocation,
     String,
     Number,
@@ -47,6 +47,6 @@ export {
     Base64Decode,
     UrlDecode,
     HexDecode,
-    RequiredTransforms,
+    RequiredExtractions,
     opNames
 };
