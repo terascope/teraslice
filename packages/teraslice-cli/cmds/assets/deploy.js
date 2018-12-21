@@ -21,6 +21,13 @@ const yargsOptions = new YargsOptions();
 exports.command = 'deploy <cluster-alias> [<asset>]';
 exports.desc = 'Uploads asset from zipfile, github, or source to Teraslice\n';
 exports.builder = (yargs) => {
+    yargs.check((argv) => {
+        if (!(argv.file || argv.asset || argv.build)) {
+            reply.yellow('You must specify an asset, --file /path/to/file.zip, or --build');
+            return false;
+        }
+        return true;
+    });
     yargs.positional('cluster-alias', yargsOptions.buildPositional('cluster-alias'));
     yargs.positional('asset', yargsOptions.buildPositional('asset'));
     yargs.option('arch', yargsOptions.buildOption('arch'));
@@ -39,6 +46,7 @@ exports.builder = (yargs) => {
     yargs.example('$0 assets deploy ts-test1 -f /tmp/file-assets-v0.2.1-node-8-linux-x64.zip');
     yargs.example('$0 assets deploy ts-test1 --build');
     yargs.example('$0 assets deploy ts-test1 --build --replace');
+    yargs.implies('replace', 'build');
     // yargs.example('$0 assets deploy ts-test1 --build-dir ./file-assets'); TODO
     // yargs.example('$0 assets deploy terascope/file-assets -c http://localhost:5678/'); TODO
 };
@@ -138,7 +146,8 @@ exports.handler = async (argv) => {
             }
         }
     } else {
-        // TODO: We should print out yargs.showHelp() usage along with this message.
+        // The yargs.check() function should prevent users from reaching this
+        // error.
         reply.fatal('You must specify an asset name or use -f /path/to/asset.zip');
     }
 
