@@ -12,28 +12,21 @@ class Assets extends Client {
         autoBind(this);
     }
 
-    post(stream, parseResponse) {
+    post(stream) {
         if (_.isEmpty(stream)) {
             return Promise.reject(new Error('Asset stream must not be empty'));
         }
 
-        return super.post('/assets', stream).then((response) => {
-            if (!parseResponse) return response;
-
-            return JSON.parse(response);
-        });
+        return super.post('/assets', stream)
+            .then(response => JSON.parse(response));
     }
 
-    delete(id, parseResponse) {
+    delete(id) {
         if (_.isEmpty(id)) {
             return Promise.reject(new Error('Asset delete requires a ID'));
         }
 
-        return super.delete(`/assets/${id}`, { json: false }).then((response) => {
-            if (!parseResponse) return response;
-
-            return JSON.parse(response);
-        });
+        return super.delete(`/assets/${id}`);
     }
 
     list() {

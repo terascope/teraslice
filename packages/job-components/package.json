@@ -39,7 +39,7 @@
     },
     "dependencies": {
         "@terascope/queue": "^1.1.6",
-        "convict": "^4.4.0",
+        "convict": "^4.4.1",
         "datemath-parser": "^1.0.6",
         "debug": "^4.1.0",
         "is-plain-object": "^2.0.4",
@@ -49,7 +49,7 @@
     },
     "devDependencies": {
         "@types/jest": "^23.3.10",
-        "@types/node": "^10.12.15",
+        "@types/node": "^10.12.18",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "benchmark": "^2.1.4",
@@ -59,7 +59,7 @@
         "jest-fixtures": "^0.6.0",
         "rimraf": "^2.6.2",
         "ts-jest": "^23.10.5",
-        "tslint": "^5.0.0",
+        "tslint": "^5.12.0",
         "tslint-config-airbnb": "^5.11.0",
         "typescript": "^3.2.2"
     },

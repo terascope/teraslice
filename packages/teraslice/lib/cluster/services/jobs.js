@@ -20,6 +20,12 @@ module.exports = function module(context) {
     let jobStore;
 
     function submitJob(jobSpec, shouldRun) {
+        if (jobSpec.job_id) {
+            const error = new Error('Job cannot include a job_id');
+            error.code = 422;
+            return Promise.reject(error);
+        }
+
         return _ensureAssets(jobSpec)
             .then(parsedAssetJob => _validateJob(parsedAssetJob))
             .then(validJob => jobStore.create(jobSpec)
@@ -27,11 +33,17 @@ module.exports = function module(context) {
                     if (!shouldRun) {
                         return { job_id: job.job_id };
                     }
-                    const executableJobConfig = Object.assign({}, jobSpec, validJob);
-                    return executionService.createExecutionContext(executableJobConfig);
+
+                    const exConfig = Object.assign({}, jobSpec, validJob, {
+                        job_id: job.job_id,
+                    });
+                    return executionService.createExecutionContext(exConfig);
                 }))
             .catch((err) => {
                 const error = new Error(`Failure to submit job, ${_.toString(err)}`);
+                if (err && err.code) {
+                    error.code = err.code;
+                }
                 logger.error(error.message, parseError(err));
                 return Promise.reject(error);
             });
@@ -61,6 +73,7 @@ module.exports = function module(context) {
                     error.code = 409;
                     return Promise.reject(error);
                 }
+
                 return getJob(jobId)
                     .then((jobConfig) => {
                         if (!jobConfig) {
@@ -75,6 +88,9 @@ module.exports = function module(context) {
             })
             .catch((err) => {
                 const error = new Error(`Failure to start job, ${_.toString(err)}`);
+                if (err && err.code) {
+                    error.code = err.code;
+                }
                 logger.error(error.message, parseError(err));
                 return Promise.reject(error);
             });
