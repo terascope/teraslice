@@ -11,7 +11,7 @@ const YargsOptions = require('../../lib/yargs-options');
 
 const yargsOptions = new YargsOptions();
 
-// TODO: I can't figure out how to resolve the ambiguity of having to optional
+// TODO: I can't figure out how to resolve the ambiguity of having two optional
 // positional arguments.  It may not be possible.  If I omit the cluster-alias
 // and try to use cluster-url we end up with
 //  -> clusterAlias: 'terascope/file-assets'
