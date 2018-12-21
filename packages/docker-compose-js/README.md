@@ -7,7 +7,7 @@ A larger example of the API used in this way is available in the [integration te
 ## Installation
 
 ```
-npm install docker-compose-js
+npm install @terascope/docker-compose-js
 ```
 
 ## Usage
@@ -21,7 +21,7 @@ The examples below show the common patterns for calls. Since this is a wrapper a
 Note: Each function takes an object for keyword parameters as the last argument.
 
 ```
-var compose = require('docker-compose-js')('docker-compose.yaml');
+var compose = require('@terascope/docker-compose-js')('docker-compose.yaml');
 
 compose.up()
     .then(function() {
@@ -45,7 +45,7 @@ compose.up()
 Example of scaling a particular task
 
 ```
-var compose = require('docker-compose-js')('docker-compose.yaml');
+var compose = require('@terascope/docker-compose-js')('docker-compose.yaml');
 
 compose.up()
     .then(function(result) {

@@ -174,8 +174,6 @@ class Scheduler {
         this.queue.each((slice) => {
             this.queue.remove(slice.slice_id, 'slice_id');
         });
-
-        this.stateStore = null;
     }
 
     getSlices(limit = 1) {
@@ -249,13 +247,18 @@ class Scheduler {
             resetCleanup();
         };
 
+        const drain = () => {
+            if (this.pendingSlicerCount) {
+                logger.debug(`draining the remaining ${this.pendingSlicerCount} pending slices from the slicer`);
+            }
+            return this._drainPendingSlices(false);
+        };
+
         const onSlicerFinished = async () => {
             cleanup();
             logger.info(`all slicers for execution: ${exId} have been completed`);
 
-            logger.debug(`draining the remaining ${this.pendingSlicerCount} from the slicer`);
-            await this._drainPendingSlices(false);
-
+            await drain();
             events.emit('slicers:finished');
         };
 
@@ -263,9 +266,7 @@ class Scheduler {
             cleanup();
             logger.warn('slicer failed', _.toString(err));
 
-            logger.debug(`draining the remaining ${this.pendingSlicerCount} from the slicer`);
-            await this._drainPendingSlices(false);
-
+            await drain();
             // before removing listeners make sure we've received all of the events
             await Promise.delay(100);
 

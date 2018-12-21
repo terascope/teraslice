@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const fs = require('fs');
 const path = require('path');
 const Promise = require('bluebird');
 const { fork } = require('child_process');
@@ -8,9 +9,25 @@ const { safeEncode } = require('../../utils/encoding_utils');
 
 const loaderPath = path.join(__dirname, 'loader.js');
 
-function spawnAssetLoader(assets) {
+function spawnAssetLoader(assets, context) {
+    // if assets is empty return early
     if (_.isEmpty(assets)) {
         return Promise.resolve();
+    }
+
+    // if the assets are ids and are already loaded, return early
+    if (context) {
+        const assetDir = _.get(context, 'sysconfig.teraslice.assets_directory');
+        const alreadyExists = _.every(assets, (id) => {
+            const assetPath = path.join(assetDir, id);
+            return fs.existsSync(assetPath);
+        });
+
+        if (alreadyExists) {
+            const logger = context.apis.foundation.makeLogger({ module: 'assets_loader' });
+            logger.debug('assets already loaded...');
+            return Promise.resolve(assets);
+        }
     }
 
     return new Promise((resolve, reject) => {

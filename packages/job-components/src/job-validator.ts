@@ -1,9 +1,9 @@
 'use strict';
 
-import { Context, crossValidationFn, OpConfig, JobConfig, ValidatedJobConfig } from './interfaces';
+import { Context, OpConfig, JobConfig, ValidatedJobConfig } from './interfaces';
 import convict from 'convict';
 import { cloneDeep } from './utils';
-import { validateJobConfig, validateOpConfig } from './config-validators';
+import { validateJobConfig } from './config-validators';
 import { jobSchema } from './job-schemas';
 import { OperationLoader } from './operation-loader';
 import { registerApis } from './register-apis';
@@ -23,9 +23,10 @@ export class JobValidator {
         this.schema = jobSchema(context);
     }
 
-    validateConfig(_jobConfig: JobConfig): ValidatedJobConfig {
+    /** Validate the job configuration, including the Operations and APIs configuration */
+    validateConfig(jobSpec: JobConfig): ValidatedJobConfig {
         // top level job validation occurs, but not operations
-        const jobConfig = validateJobConfig(this.schema, cloneDeep(_jobConfig));
+        const jobConfig = validateJobConfig(this.schema, cloneDeep(jobSpec));
         const assetIds = jobConfig.assets || [];
         const apis = {};
 
@@ -57,6 +58,18 @@ export class JobValidator {
             return handleModule(opConfig, this.opLoader.loadProcessor(opConfig._op, assetIds));
         });
 
+        jobConfig.apis = jobConfig.apis.map((apiConfig) => {
+            const { Schema } = this.opLoader.loadAPI(apiConfig._name, assetIds);
+            const schema = new Schema(this.context, 'api');
+
+            validateJobFns.push((job) => {
+                if (!schema.validateJob) return;
+                schema.validateJob(job);
+            });
+
+            return schema.validate(apiConfig);
+        });
+
         registerApis(this.context, jobConfig);
 
         validateJobFns.forEach((fn) => { fn(jobConfig); });
@@ -66,49 +79,7 @@ export class JobValidator {
             this.context.apis.executionContext.addToRegistry(name, api);
         });
 
-        // @ts-ignore
         return jobConfig;
-    }
-
-    /**
-     * Validate Legacy Jobs
-     * DEPRECATED to accommadate for new Job APIs,
-     * use validateConfig
-    */
-    validate(job: any) {
-        let validJob = cloneDeep(job);
-
-        // this is used if an operation needs to provide additional validation beyond its own scope
-        const topLevelJobValidators : crossValidationFn[] = [];
-
-        // top level job validation occurs, but not operations
-        validJob = validateJobConfig(this.schema, validJob);
-
-        validJob.operations = job.operations.map((opConfig: OpConfig) => {
-            const operation = this.opLoader.load(opConfig._op, job.assets);
-
-            this.hasSchema(operation, opConfig._op);
-
-            const validOP = validateOpConfig(operation.schema(), opConfig);
-
-            if (operation.selfValidation) {
-                operation.selfValidation(validOP);
-            }
-
-            if (operation.crossValidation) {
-                topLevelJobValidators.push(operation.crossValidation);
-            }
-
-            return validOP;
-        });
-
-        registerApis(this.context, job);
-
-        topLevelJobValidators.forEach((fn) => {
-            fn(validJob, this.context.sysconfig);
-        });
-
-        return validJob;
     }
 
     hasSchema(obj: any, name: string) {

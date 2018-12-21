@@ -32,7 +32,11 @@ const newConfig = (options = {}) => {
                 }),
                 pickBy({
                     _op: path.join(opsPath, 'new-op'),
-                })
+                    failOnSliceRetry: options.failOnSliceRetry || false,
+                }),
+                {
+                    _op: 'noop'
+                }
             ];
         } else {
             operations = [

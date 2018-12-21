@@ -5,7 +5,7 @@ const _ = require('lodash');
 const parseError = require('@terascope/error-parser');
 const { Mutex } = require('async-mutex');
 const messageModule = require('./services/cluster/backends/native/messaging');
-const spawnAssetsLoader = require('../workers/assets/spawn');
+const spawnAssetLoader = require('../workers/assets/spawn');
 const { safeEncode } = require('../utils/encoding_utils');
 const { findPort, getPorts } = require('../utils/port_utils');
 
@@ -276,7 +276,7 @@ module.exports = async function nodeMaster(context) {
         const assets = getAssetsFromJob(job);
         if (assets.length > 0) {
             logger.info(`node ${context.sysconfig._nodeName} is checking assets for job, exId: ${exId}`);
-            return Promise.resolve().then(() => spawnAssetsLoader(assets));
+            return spawnAssetLoader(assets, context);
         }
         return Promise.resolve();
     }

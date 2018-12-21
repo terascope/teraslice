@@ -75,10 +75,14 @@ function generateTestData() {
     signale.pending('Generating example data...');
 
     function populateStateForRecoveryTests(textExId, indexName) {
+        if (generateOnly) return Promise.resolve();
+
+        const exId = jobList.shift();
+        if (!exId) return Promise.resolve();
+
         const recoveryStartTime = Date.now();
         signale.info(`Populating recovery state for exId: ${textExId}`);
-        const exId = jobList.shift();
-        if (!exId) return Promise.resolve(true);
+
         const client = misc.es();
         return misc.teraslice().cluster.get(`/ex/${exId}`)
             .then((exConfig) => {
@@ -167,13 +171,12 @@ function generateTestData() {
                 },
                 {
                     _op: 'elasticsearch_bulk',
-                    size: 10000
+                    size: 1000
                 }
             ]
         };
 
         return Promise.resolve()
-            .then(() => misc.cleanupIndex(indexName))
             .then(() => {
                 if (!hex) return postJob(jobSpec);
                 jobSpec.operations[0].size = count / hex.length;
@@ -199,8 +202,7 @@ function generateTestData() {
     return Promise.all([
         generate(10),
         generate(1000),
-        generate(10000),
-        generate(10000, ['d', '3'])
+        generate(1000, ['d', '3'])
     ])
         // we need fully active jobs so we can get proper meta data for recovery state tests
         .then(() => Promise.all([

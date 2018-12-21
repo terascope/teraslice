@@ -1,6 +1,6 @@
 {
     "name": "@terascope/job-components",
-    "version": "0.13.1",
+    "version": "0.14.1",
     "publishConfig": {
         "access": "public"
     },
@@ -9,6 +9,7 @@
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
     },
+    "author": "Terascope, LLC <info@terascope.io>",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/terascope/teraslice.git"
@@ -28,7 +29,7 @@
         "lint": "tslint -p tsconfig.build.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
-        "build": "tsc --project tsconfig.build.json --pretty",
+        "build": "rimraf ./dist; tsc --project tsconfig.build.json --pretty",
         "build:prod": "tsc --project tsconfig.build.json",
         "build:watch": "yarn build --watch",
         "test": "jest",
@@ -37,7 +38,7 @@
         "benchmark": "yarn build; node bench/index.js"
     },
     "dependencies": {
-        "@terascope/queue": "^1.1.4",
+        "@terascope/queue": "^1.1.6",
         "convict": "^4.4.0",
         "datemath-parser": "^1.0.6",
         "debug": "^4.1.0",
@@ -48,7 +49,7 @@
     },
     "devDependencies": {
         "@types/jest": "^23.3.10",
-        "@types/node": "^10.12.12",
+        "@types/node": "^10.12.15",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "benchmark": "^2.1.4",
@@ -56,10 +57,11 @@
         "jest": "^23.6.0",
         "jest-extended": "^0.11.0",
         "jest-fixtures": "^0.6.0",
+        "rimraf": "^2.6.2",
         "ts-jest": "^23.10.5",
         "tslint": "^5.0.0",
         "tslint-config-airbnb": "^5.11.0",
-        "typescript": "^3.2.1"
+        "typescript": "^3.2.2"
     },
     "engines": {
         "node": ">=8.0.0"

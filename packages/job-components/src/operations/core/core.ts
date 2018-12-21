@@ -6,9 +6,9 @@ import { Context, ExecutionConfig, Logger, OperationLifeCycle } from '../../inte
  */
 
 export default abstract class Core<T extends Context> implements OperationLifeCycle {
-    protected readonly context: Readonly<T>;
-    protected readonly executionConfig: Readonly<ExecutionConfig>;
-    protected readonly logger: Logger;
+    readonly context: Readonly<T>;
+    readonly executionConfig: Readonly<ExecutionConfig>;
+    readonly logger: Logger;
     readonly events: EventEmitter;
 
     constructor(context: T, executionConfig: ExecutionConfig, logger: Logger) {

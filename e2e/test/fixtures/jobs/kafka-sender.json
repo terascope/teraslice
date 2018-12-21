@@ -4,6 +4,7 @@
     "workers": 1,
     "analytics": true,
     "assets": ["kafka", "elasticsearch"],
+    "max_retries": 0,
     "operations": [
         {
             "_op": "elasticsearch_reader",

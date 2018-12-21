@@ -91,6 +91,7 @@ export function newTestSlice(request: i.SliceRequest = {}): i.Slice {
 export function newTestJobConfig(defaults: Partial<i.JobConfig> = {}) {
     return Object.assign({
         name: 'test-job',
+        apis: [],
         operations: [],
         analytics: false,
         assets: [],

@@ -30,6 +30,7 @@ module.exports = {
         '<rootDir>/packages/*/cmds/**/*.js',
         '<rootDir>/packages/*/src/**/*.ts',
         '<rootDir>/packages/*/src/*.ts',
+        '!<rootDir>/packages/**/*.json',
         '!<rootDir>/packages/**/*.d.ts',
         '!<rootDir>/packages/**/dist/**',
         '!<rootDir>/packages/**/coverage/**',

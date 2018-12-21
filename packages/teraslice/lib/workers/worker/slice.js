@@ -1,6 +1,5 @@
 'use strict';
 
-const Promise = require('bluebird');
 const retry = require('bluebird-retry');
 const get = require('lodash/get');
 const toString = require('lodash/toString');
@@ -119,33 +118,40 @@ class Slice {
         this.events.emit('slice:failure', slice);
         await this.executionContext.onSliceFailed(slice.slice_id);
 
+        if (err instanceof retry.StopError) {
+            const stopError = new Error(err.message);
+            throw stopError;
+        }
+
         const sliceError = new Error(prependErrorMsg('Slice failed processing', err, true));
         sliceError.alreadyLogged = true;
-        return Promise.reject(sliceError);
+        throw sliceError;
     }
 
-    _runOnce(shouldRetry) {
+    async _runOnce(shouldRetry) {
         if (this._isShutdown) {
             throw new retry.StopError('Slice shutdown during slice execution');
         }
 
-        const { slice } = this;
+        try {
+            const result = await this.executionContext.runSlice(this.slice);
+            return result;
+        } catch (err) {
+            this.logger.error(`An error has occurred: ${toString(err)}, slice:`, this.slice);
 
-        return this.executionContext.runSlice(slice)
-            .catch((err) => {
-                this.logger.error(`An error has occurred: ${toString(err)}, slice:`, slice);
+            if (shouldRetry) {
+                try {
+                    // for backwards compatibility
+                    this.events.emit('slice:retry', this.slice);
 
-                if (!shouldRetry) {
-                    return Promise.reject(err);
+                    await this.executionContext.onSliceRetry(this.slice.slice_id);
+                } catch (retryErr) {
+                    throw new retry.StopError(`Slice failed to retry: ${toString(retryErr)}, caused by: ${toString(err)}`);
                 }
+            }
 
-                // for backwards compatibility
-                this.events.emit('slice:retry', slice);
-                return this.executionContext
-                    .onSliceRetry(this.slice.slice_id)
-                    .then(() => Promise.reject(err))
-                    .catch(() => Promise.reject(err));
-            });
+            throw err;
+        }
     }
 }
 

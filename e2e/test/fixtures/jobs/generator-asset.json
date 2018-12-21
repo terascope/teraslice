@@ -2,14 +2,15 @@
     "name": "generator-asset",
     "slicers": 1,
     "lifecycle": "persistent",
-    "workers": 3,
+    "workers": 2,
     "assets": ["ex1", "elasticsearch"],
+    "max_retries": 0,
     "analytics": false,
     "operations": [
         {
             "_op": "elasticsearch_data_generator",
-            "size": 10000,
-            "stress_test": false
+            "size": 1000,
+            "stress_test": true
         },
         {
             "_op": "drop_property",

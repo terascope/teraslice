@@ -204,7 +204,7 @@ module.exports = function messaging(context, logger) {
                 return;
             }
 
-            logger.debug(`setting listener key ${key}`);
+            logger.trace(`setting listener key ${key}`);
 
             socket.on(key, func);
         });

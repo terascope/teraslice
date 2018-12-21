@@ -12,9 +12,12 @@ function workersTest(workers, workersExpected, records, done, diff = 0) {
     const jobSpec = misc.newJob('reindex');
     jobSpec.name = 'worker allocation';
     jobSpec.operations[0].index = `example-logs-${records}`;
-    jobSpec.operations[0].size = Math.round(records / workers);
+    jobSpec.operations[0].size = 100;
     jobSpec.operations[1].index = `test-allocation-${workers}-worker`;
     jobSpec.workers = workers;
+
+    misc.injectDelay(jobSpec);
+
     teraslice.jobs.submit(jobSpec)
         .then(job => waitForJobStatus(job, 'running')
             .then(() => job.workers())
@@ -49,13 +52,16 @@ describe('worker allocation', () => {
         workersTest(1, 1, 1000, done);
     });
 
-    it('with 5 workers', (done) => {
-        workersTest(5, 5, 10000, done);
+    it('with 3 workers', (done) => {
+        workersTest(5, 5, 1000, done);
     });
 
-    it('with more workers than available', (done) => {
+    // since this can be incredible slow
+    // and it may not be need to run all of the time
+    // in addition it is prone to errs (see the diff arg to workersTest)
+    xit('with more workers than available', (done) => {
         const total = misc.WORKERS_PER_NODE * misc.DEFAULT_NODES;
-        workersTest(total, total, 10000, done, 4);
+        workersTest(total, total, 1000, done, 4);
     });
 
     // TODO: Debug this test
@@ -66,7 +72,7 @@ describe('worker allocation', () => {
         // the when we add another worker. 4 more should become available.
         // And all 20 should schedule.
         const workers = 20;
-        const records = 10000;
+        const records = 1000;
 
         const jobSpec = misc.newJob('reindex');
         jobSpec.name = 'scale 13 to 20 workers';
