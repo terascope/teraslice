@@ -11,7 +11,7 @@ describe('Teraslice Ex', () => {
         ex = new Ex({
             baseUrl: 'http://teraslice.example.dev'
         });
-        scope = nock('http://teraslice.example.dev');
+        scope = nock('http://teraslice.example.dev/v1');
     });
 
     afterEach(() => {

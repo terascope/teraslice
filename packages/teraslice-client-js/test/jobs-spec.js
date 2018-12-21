@@ -12,7 +12,7 @@ describe('Teraslice Jobs', () => {
         jobs = new Jobs({
             baseUrl: 'http://teraslice.example.dev'
         });
-        scope = nock('http://teraslice.example.dev');
+        scope = nock('http://teraslice.example.dev/v1');
     });
 
     afterEach(() => {

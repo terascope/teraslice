@@ -13,7 +13,7 @@ describe('Teraslice Assets', () => {
         assets = new Assets({
             baseUrl: 'http://teraslice.example.dev'
         });
-        scope = nock('http://teraslice.example.dev');
+        scope = nock('http://teraslice.example.dev/v1');
     });
 
     afterEach(() => {
@@ -52,25 +52,6 @@ describe('Teraslice Assets', () => {
                     }).catch(fail);
             });
 
-            it('should resolve the json stringified result from Teraslice', () => {
-                expect(result).toEqual(JSON.stringify({ _id: 'some-asset-id' }));
-            });
-        });
-
-        describe('when called with a string and parse response is set', () => {
-            let result;
-            beforeEach((done) => {
-                const contents = 'example-input';
-                scope.post('/assets', contents)
-                    .reply(200, { _id: 'some-asset-id' });
-
-                assets.post(contents, true)
-                    .then((_result) => {
-                        result = _result;
-                        done();
-                    }).catch(fail);
-            });
-
             it('should resolve the json result from Teraslice', () => {
                 expect(result).toEqual({ _id: 'some-asset-id' });
             });
@@ -92,8 +73,8 @@ describe('Teraslice Assets', () => {
                     }).catch(fail);
             });
 
-            it('should resolve the json stringified result from Teraslice', () => {
-                expect(result).toEqual(JSON.stringify({ _id: 'some-asset-id' }));
+            it('should resolve the json result from Teraslice', () => {
+                expect(result).toEqual({ _id: 'some-asset-id' });
             });
         });
     });
@@ -124,25 +105,6 @@ describe('Teraslice Assets', () => {
                     .reply(200, { ok: true });
 
                 assets.delete('some-asset-id')
-                    .then((_result) => {
-                        result = _result;
-                        done();
-                    }).catch(fail);
-            });
-
-            it('should resolve the json result from Teraslice', () => {
-                expect(result).toEqual(JSON.stringify({ ok: true }));
-            });
-        });
-
-        describe('when called an id and parse response is set', () => {
-            let result;
-
-            beforeEach((done) => {
-                scope.delete('/assets/some-asset-id')
-                    .reply(200, { ok: true });
-
-                assets.delete('some-asset-id', true)
                     .then((_result) => {
                         result = _result;
                         done();
