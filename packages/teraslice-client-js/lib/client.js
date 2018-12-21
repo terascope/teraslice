@@ -10,7 +10,6 @@ class Client {
     constructor(config = {}) {
         const baseUrl = new URL(config.host || config.baseUrl || 'http://localhost:5678');
         delete baseUrl.path;
-        baseUrl.pathname = '/v1';
         delete baseUrl.hash;
 
         this._request = rp.defaults({

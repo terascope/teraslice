@@ -5,7 +5,7 @@ const Job = require('../lib/job');
 
 describe('Teraslice Job', () => {
     let scope;
-    const baseUrl = 'http://teraslice.example.dev/v1';
+    const baseUrl = 'http://teraslice.example.dev';
 
     beforeEach(() => {
         scope = nock(baseUrl);
