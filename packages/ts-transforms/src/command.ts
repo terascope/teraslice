@@ -24,7 +24,7 @@ const command = yargs
     .describe('T', 'specify type configs from file')
     .describe('p', 'output the time it took to run the data')
     .demandOption(['r'])
-    .version('0.2.0')
+    .version('0.3.0')
     .argv;
 
 const filePath = command.rules;
@@ -93,14 +93,29 @@ function getPipedData() {
             try {
                 const json = JSON.parse(strResults);
                 if (Array.isArray(json)) resolve(json);
-                const results = _.get(json, 'hits.hits', null);
-                if (results) {
-                    resolve(results.map((doc:ESData) => doc._source));
+                // input from elasticsearch
+                const elasticSearchResults = _.get(json, 'hits.hits', null);
+                if (elasticSearchResults) {
+                    resolve(elasticSearchResults.map((doc:ESData) => doc._source));
                     return;
                 }
+                // input from teraserver
+                const teraserverResults = _.get(json, 'results', null);
+                if (teraserverResults) {
+                    resolve(teraserverResults);
+                    return;
+                }
+
                 throw new Error('could not get parse data');
             } catch (err) {
-                reject(err);
+                // try to see if its line delimited JSON;
+                try {
+                    const data = strResults.split('\n');
+                    const dataArray = data.map(jsonStr => JSON.parse(jsonStr));
+                    resolve(dataArray);
+                } catch (_secondError) {
+                    reject(err);
+                }
             }
         });
     });
