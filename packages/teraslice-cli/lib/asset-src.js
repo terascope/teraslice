@@ -27,6 +27,10 @@ class AssetSrc {
         if (!fs.pathExistsSync(this.assetFile)) {
             throw new Error(`${this.srcDir} is not a valid asset source directory.`);
         }
+
+        const asset = require(this.assetFile);
+        this.name = asset.name;
+        this.version = asset.version;
     }
 
     /** @returns {string} Path to the output drectory for the finished asset zipfile */
@@ -35,10 +39,8 @@ class AssetSrc {
     }
 
     get zipFileName() {
-        const asset = require(path.join(this.srcDir, 'asset', 'asset.json'));
-
         const nodeVersion = process.version.split('.')[0].substr(1);
-        return `${asset.name}-v${asset.version}-node-${nodeVersion}-${process.platform}-${process.arch}.zip`;
+        return `${this.name}-v${this.version}-node-${nodeVersion}-${process.platform}-${process.arch}.zip`;
     }
 
     // TODO: This has a dependency on the external executable `yarn`,

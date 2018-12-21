@@ -62,6 +62,10 @@ class Options {
                 nargs: 1,
                 type: 'string'
             }),
+            replace: () => ({
+                describe: 'Deletes asset prior to upload',
+                type: 'boolean'
+            }),
             'skip-upload': () => ({
                 describe: 'Skips upload to Teraslice, useful to just download the asset.',
                 type: 'boolean',
@@ -82,6 +86,11 @@ class Options {
         this.positionals = {
             asset: () => ({
                 describe: 'Github user/repo of asset to load, e.g.: terascope/file-assets',
+                nargs: 1,
+                type: 'string'
+            }),
+            'asset-id': () => ({
+                describe: 'Hexidecimal ID of asset.',
                 nargs: 1,
                 type: 'string'
             }),

@@ -23,6 +23,8 @@ describe('AssetSrc', () => {
         expect(testAsset.assetFile).toEqual(
             path.join(srcDir, 'asset', 'asset.json')
         );
+        expect(testAsset.name).toEqual('testAsset');
+        expect(testAsset.version).toEqual('0.0.1');
     });
 
     test('should throw in constructor when provided non-asset path', () => {

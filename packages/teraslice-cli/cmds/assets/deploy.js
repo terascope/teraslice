@@ -31,12 +31,14 @@ exports.builder = (yargs) => {
     yargs.option('node-version', yargsOptions.buildOption('node-version'));
     yargs.option('platform', yargsOptions.buildOption('platform'));
     yargs.option('quiet', yargsOptions.buildOption('quiet'));
+    yargs.option('replace', yargsOptions.buildOption('replace'));
     yargs.option('skip-upload', yargsOptions.buildOption('skip-upload'));
     yargs.conflicts('asset', ['build', 'file']);
     yargs.example('$0 assets deploy ts-test1 terascope/file-assets');
     yargs.example('$0 assets deploy ts-test1 terascope/file-assets --arch x64 --platform linux --node-version v8.10.1');
     yargs.example('$0 assets deploy ts-test1 -f /tmp/file-assets-v0.2.1-node-8-linux-x64.zip');
     yargs.example('$0 assets deploy ts-test1 --build');
+    yargs.example('$0 assets deploy ts-test1 --build --replace');
     // yargs.example('$0 assets deploy ts-test1 --build-dir ./file-assets'); TODO
     // yargs.example('$0 assets deploy terascope/file-assets -c http://localhost:5678/'); TODO
 };
@@ -96,6 +98,7 @@ exports.handler = async (argv) => {
     } else if (cliConfig.args.build) {
         // assetPath from a zipFile created by building from a local asset
         // source directory (--build) PWD ONLY for now
+        let asset;
         let srcDir;
         if (cliConfig.args.build === true) {
             srcDir = process.cwd();
@@ -103,7 +106,7 @@ exports.handler = async (argv) => {
             srcDir = cliConfig.args.build;
         }
         try {
-            const asset = new AssetSrc(srcDir);
+            asset = new AssetSrc(srcDir);
             assetPath = await asset.build();
             if (!cliConfig.args.quiet) {
                 reply.green(`Asset created:\n\t${assetPath}`);
@@ -111,7 +114,31 @@ exports.handler = async (argv) => {
         } catch (err) {
             reply.fatal(`Error building asset: ${err}`);
         }
+
+        // NOTE: --replace only works if you're doing --build, we can change
+        // this if necessary, but since the build case is the primary case where
+        // this is needed, I do it here.  In the github and file cases, I would
+        // have to extract the asset name from the zipfile.
+        if (cliConfig.args.replace) {
+            reply.yellow('*** Warning ***\n'
+                + 'This function is intended for asset development only.  \n'
+                + 'Using it for production asset management is a bad idea.');
+            const clusterAssetData = await cliConfig.terasliceClient.assets.get(asset.name);
+
+            // NOTE: We assume the 0th element of the list is the one that needs
+            // to be deleted.  This probably only works due to the order that
+            // assets are typically posted to a server is by increasing version.
+            // Basically, this assumes the asset currently being deployed has
+            // the same version of the last asset posted to the cluster.
+            if (clusterAssetData.length >= 1) {
+                const response = JSON.parse(
+                    await cliConfig.terasliceClient.assets.delete(clusterAssetData[0].id)
+                );
+                reply.green(`Asset ${response.assetId} deleted from ${cliConfig.args.clusterAlias}`);
+            }
+        }
     } else {
+        // TODO: We should print out yargs.showHelp() usage along with this message.
         reply.fatal('You must specify an asset name or use -f /path/to/asset.zip');
     }
 
@@ -123,9 +150,11 @@ exports.handler = async (argv) => {
         }
 
         try {
-            await cliConfig.terasliceClient.assets.post(assetZip);
+            const resp = JSON.parse(
+                await cliConfig.terasliceClient.assets.post(assetZip)
+            );
             if (!cliConfig.args.quiet) {
-                reply.green(`Asset posted to ${cliConfig.args.clusterAlias}`);
+                reply.green(`Asset posted to ${cliConfig.args.clusterAlias}: ${resp._id}`);
             }
         } catch (err) {
             throw new Error(`Error posting asset: ${err.stack}`);
