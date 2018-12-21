@@ -32,7 +32,10 @@ module.exports = function module(context) {
                 logger.debug(`asset ${id} exists, verifying that it exists in backend`);
                 return backend.get(id, null, ['name'])
                     // it exists, just return the id
-                    .then(() => id)
+                    .then(() => ({
+                        assetId: id,
+                        created: false,
+                    }))
                     .catch((err) => {
                         const error = new Error(`Failure checking asset index, could not get asset with id: ${id}, error: ${parseError(err)}`);
                         return Promise.reject(error);
@@ -43,12 +46,18 @@ module.exports = function module(context) {
                     return saveAsset(logger, assetsPath, id, data, _metaIsUnqiue)
                         .then((_metaData) => {
                             metaData = _metaData;
-                            const file = _.assign({ blob: esData, _created: new Date() }, metaData);
+                            const file = Object.assign({
+                                blob: esData,
+                                _created: new Date()
+                            }, metaData);
                             return backend.indexWithId(id, file);
                         })
                         .then(() => {
                             logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
-                            return id;
+                            return {
+                                assetId: id,
+                                created: true,
+                            };
                         });
                 }
 
@@ -162,10 +171,18 @@ module.exports = function module(context) {
     }
 
     function remove(assetId) {
-        return Promise.all([
-            backend.remove(assetId),
-            fse.remove(path.join(assetsPath, assetId))
-        ]);
+        return Promise.resolve()
+            .then(() => backend.get(assetId, null, ['name']))
+            .catch((err) => {
+                if (_.toString(err).indexOf('Not Found')) {
+                    const error = new Error(`Unable to find asset ${assetId}`);
+                    error.code = 404;
+                    return Promise.reject(error);
+                }
+                return Promise.reject(err);
+            })
+            .then(() => backend.remove(assetId))
+            .then(() => fse.remove(path.join(assetsPath, assetId)));
     }
 
     function ensureAssetDir() {
