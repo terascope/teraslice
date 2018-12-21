@@ -30,7 +30,7 @@ describe('Teraslice Client', () => {
             client = new Client({
                 baseUrl: 'http://teraslice.example.dev'
             });
-            scope = nock('http://teraslice.example.dev');
+            scope = nock('http://teraslice.example.dev/v1');
         });
 
         afterEach(() => {
@@ -294,6 +294,7 @@ describe('Teraslice Client', () => {
                     expect(err.toString()).toEqual('Error: Oh no');
                     expect(err.error).toEqual(1232);
                     expect(err.code).toEqual(1232);
+                    expect(err.statusCode).toEqual(1232);
                 });
             });
 

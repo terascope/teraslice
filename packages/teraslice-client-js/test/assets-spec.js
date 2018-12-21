@@ -13,7 +13,8 @@ describe('Teraslice Assets', () => {
         assets = new Assets({
             baseUrl: 'http://teraslice.example.dev'
         });
-        scope = nock('http://teraslice.example.dev');
+
+        scope = nock('http://teraslice.example.dev/v1');
     });
 
     afterEach(() => {
