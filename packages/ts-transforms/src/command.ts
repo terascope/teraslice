@@ -16,6 +16,7 @@ const command = yargs
     .alias('r', 'rules')
     .alias('d', 'data')
     .alias('p', 'performance')
+    .alias('m', 'match')
     .help('h')
     .alias('h', 'help')
     .describe('r', 'path to load the rules file')
@@ -24,13 +25,13 @@ const command = yargs
     .describe('T', 'specify type configs from file')
     .describe('p', 'output the time it took to run the data')
     .demandOption(['r'])
-    .version('0.3.0')
+    .version('0.4.0')
     .argv;
 
 const filePath = command.rules;
 const dataPath = command.data;
 let typesConfig = {};
-const type = yargs['$0'].match('ts-transform') ? 'transform' : 'matcher';
+const type = command.m ? 'matcher' : 'transform';
 
 interface ESData {
     _source: object;
