@@ -1,6 +1,6 @@
 
 import path from 'path';
-import Loader from '../src/loader';
+import { Loader } from '../src';
 import { WatcherConfig } from '../src/interfaces';
 
 describe('Loader', () => {

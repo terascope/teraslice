@@ -1,10 +1,8 @@
 
-import { DataEntity } from '@terascope/job-components';
-import { ExtractionPhase } from '../../src';
-import Loader from '../../src/loader';
-import { OperationConfig } from '../../src/interfaces';
-
 import path from 'path';
+import { DataEntity } from '@terascope/job-components';
+import { ExtractionPhase, Loader } from '../../src';
+import { OperationConfig } from '../../src/interfaces';
 
 describe('extraction phase', () => {
 
