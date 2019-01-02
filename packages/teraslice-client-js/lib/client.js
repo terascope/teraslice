@@ -9,9 +9,11 @@ const { URL } = require('url');
 class Client {
     constructor(config = {}) {
         const baseUrl = new URL(config.host || config.baseUrl || 'http://localhost:5678');
-        delete baseUrl.path;
-        delete baseUrl.hash;
+        baseUrl.pathname = '';
+        baseUrl.hash = '';
+        const { apiVersion = '/v1' } = config;
 
+        this._apiVersion = apiVersion;
         this._request = rp.defaults({
             baseUrl: baseUrl.toString(),
             headers: {
@@ -54,9 +56,18 @@ class Client {
             }
         }
 
-        const args = [endpoint, options];
+        const args = [getAPIEndpoint(endpoint, this._apiVersion), options];
         return handleResponse(this._request[method](...args));
     }
+}
+
+function getAPIEndpoint(endpoint, apiVersion) {
+    if (!apiVersion) return endpoint;
+    const txtIndex = endpoint.indexOf('txt');
+    const isTxt = txtIndex < 2 && txtIndex > -1;
+    if (isTxt) return endpoint;
+    if (endpoint.indexOf(apiVersion) > -1) return endpoint;
+    return `/${_.trim(apiVersion, '/')}/${_.trimStart(endpoint, '/')}`;
 }
 
 function handleResponse(req) {
@@ -92,6 +103,7 @@ function handleResponse(req) {
         const error = new Error(message);
         error.error = code; // for legacy support
         error.code = code;
+        error.statusCode = code;
         return error;
     };
 

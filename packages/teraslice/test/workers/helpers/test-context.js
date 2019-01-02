@@ -122,7 +122,7 @@ class TestContext {
             throw err;
         }
         const assetZip = await zipDirectory(assetDir);
-        const assetId = await stores.assetStore.save(assetZip);
+        const { assetId } = await stores.assetStore.save(assetZip);
         if (cleanup) await fs.remove(path.join(this.assetDir, assetId));
         return assetId;
     }
