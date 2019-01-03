@@ -3,7 +3,7 @@
 const eventsModule = require('events');
 const Promise = require('bluebird');
 const pWhilst = require('p-whilst');
-const debugLogger = require('@terascope/job-components');
+const { debugLogger } = require('@terascope/job-components');
 const recoveryCode = require('../../../lib/workers/execution-controller/recovery');
 
 const eventEmitter = new eventsModule.EventEmitter();
