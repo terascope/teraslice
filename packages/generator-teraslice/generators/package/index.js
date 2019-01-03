@@ -97,35 +97,27 @@ module.exports = class extends Generator {
                 this.templatePath('tsconfig.build.json'),
                 this.destinationPath('tsconfig.build.json')
             );
+        }
 
+        const folderName = this.props.typescript ? 'src' : 'lib';
+        const ext = this.props.typescript ? '.ts' : '.js';
+
+        if (!this.fs.exists(this.destinationPath(folderName))) {
             this.fs.copy(
-                this.templatePath('src'),
-                this.destinationPath('src')
+                this.templatePath(folderName),
+                this.destinationPath(folderName)
+            );
+        }
+
+        if (!this.fs.exists(this.destinationPath('test'))) {
+            this.fs.copy(
+                this.templatePath(`test/index-spec${ext}`),
+                this.destinationPath(`test/index-spec${ext}`)
             );
 
             this.fs.copy(
-                this.templatePath('test/index-spec.ts'),
-                this.destinationPath('test/index-spec.ts')
-            );
-
-            this.fs.copy(
-                this.templatePath('test/example-spec.ts'),
-                this.destinationPath('test/example-spec.ts')
-            );
-        } else {
-            this.fs.copy(
-                this.templatePath('lib'),
-                this.destinationPath('lib')
-            );
-
-            this.fs.copy(
-                this.templatePath('test/index-spec.js'),
-                this.destinationPath('test/index-spec.js')
-            );
-
-            this.fs.copy(
-                this.templatePath('test/example-spec.js'),
-                this.destinationPath('test/example-spec.js')
+                this.templatePath(`test/example-spec${ext}`),
+                this.destinationPath(`test/example-spec${ext}`)
             );
         }
     }

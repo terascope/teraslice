@@ -27,10 +27,10 @@
     },
     "dependencies": {
         "bluebird": "^3.5.3",
-        "debug": "^4.1.0"
+        "debug": "^4.1.1"
     },
     "devDependencies": {
-        "eslint": "^5.10.0",
+        "eslint": "^5.11.1",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "^2.14.0",
         "jest": "^23.6.0",

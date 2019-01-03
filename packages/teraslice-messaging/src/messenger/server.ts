@@ -429,8 +429,13 @@ export class Server extends Core {
             });
         });
 
-        socket.on('disconnect', (error: Error|string) => {
-            debug(`client ${clientId} disconnected with error`, error);
+        socket.on('disconnect', (error?: Error|string) => {
+            if (error) {
+                debug(`client ${clientId} disconnected with error`, error);
+            } else {
+                debug(`client ${clientId} disconnected`);
+            }
+
             socket.removeAllListeners();
             socket.disconnect(true);
 
