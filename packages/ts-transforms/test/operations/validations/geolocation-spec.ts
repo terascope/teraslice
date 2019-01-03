@@ -36,6 +36,7 @@ describe('geolocation validation', () => {
         const data7 = new DataEntity({ location: { lat: '56.234', lon: '95.234' } });
         const data8 = new DataEntity({ location: { latitude: '56.234', longitude: '95.234' } }, metaData);
         const data9 = new DataEntity({ location: { longitude: { other:'things' } } });
+        const data10 = new DataEntity({ location: '56.23424357895435,95.23423450985438972' }, metaData);
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -46,6 +47,7 @@ describe('geolocation validation', () => {
         const results7 = test.run(data7);
         const results8 = test.run(data8);
         const results9 = test.run(data9);
+        const results10 = test.run(data10);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
@@ -61,6 +63,7 @@ describe('geolocation validation', () => {
         expect(results8).toEqual(data8);
         expect(DataEntity.getMetadata(results8 as DataEntity, 'selectors')).toEqual(metaData.selectors);
         expect(results9).toEqual({});
+        expect(results10).toEqual(data10);
     });
 
     it('can validate nested fields', async() => {

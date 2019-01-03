@@ -51,14 +51,16 @@ describe('can transform matches', () => {
 
         const data = DataEntity.makeArray([
             { hostname: 'www.other.com', location: '33.435967,  -111.867710 ' }, //  true
+            { hostname: 'www.other.com', location: '33.435967412341452595678,  -111.8677102345324523452345467456 ' }, //  true
             { hostname: 'www.example.com', location: '22.435967,-150.867710' }  //  false
         ]);
 
         const test = await opTest.init(config);
         const results =  await test.run(data);
 
-        expect(results.length).toEqual(1);
+        expect(results.length).toEqual(2);
         expect(results[0]).toEqual({ point: data[0].location });
+        expect(results[1]).toEqual({ point: data[1].location });
     });
 
     it('it can transform matching data with no selector', async () => {

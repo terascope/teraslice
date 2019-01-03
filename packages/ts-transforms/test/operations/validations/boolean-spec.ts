@@ -56,6 +56,43 @@ describe('boolean validation', () => {
         expect(results7).toEqual(data7);
     });
 
+    it('can validate special boolean fields', () => {
+        const opConfig = { source_field: 'isTall' };
+        const test =  new BooleanOp(opConfig);
+        const metaData = { selectors: { 'some:query' : true } };
+
+        const data1 = new DataEntity({ isTall: true }, metaData);
+        const data2 = new DataEntity({ isTall: 'true' }, metaData);
+        const data3 = new DataEntity({ isTall: false }, metaData);
+        const data4 = new DataEntity({ isTall: 'false' });
+        const data5 = new DataEntity({ isTall: 1 }, metaData);
+        const data6 = new DataEntity({ isTall: '1' }, metaData);
+        const data7 = new DataEntity({ isTall: 0 }, metaData);
+        const data8 = new DataEntity({ isTall: '0' });
+
+        const results1 = test.run(data1);
+        const results2 = test.run(data2);
+        const results3 = test.run(data3);
+        const results4 = test.run(data4);
+        const results5 = test.run(data5);
+        const results6 = test.run(data6);
+        const results7 = test.run(data7);
+        const results8 = test.run(data8);
+
+        expect(DataEntity.isDataEntity(results1)).toEqual(true);
+        expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results1).toEqual(data1);
+        expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results2).toEqual(data2);
+        expect(results3).toEqual(data3);
+        expect(results4).toEqual(data4);
+        expect(results5).toEqual(data5);
+        expect(results6).toEqual(data6);
+        expect(DataEntity.getMetadata(results6 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results7).toEqual(data7);
+        expect(results8).toEqual(data8);
+    });
+
     it('can validate nested fields', async() => {
         const opConfig = { source_field: 'person.isTall' };
         const test =  new BooleanOp(opConfig);
