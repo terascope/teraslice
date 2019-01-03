@@ -5,9 +5,8 @@
     ],
     "command": {
         "bootstrap": {
+            "forceLocal": true,
             "npmClientArgs": [
-                "--silent",
-                "--pure-lockfile",
                 "--no-progress"
             ]
         },
@@ -20,7 +19,7 @@
         }
     },
     "sort": true,
-    "loglevel": "warn",
+    "loglevel": "debug",
     "reject-cycles": true,
     "npmClient": "yarn",
     "useWorkspaces": true,

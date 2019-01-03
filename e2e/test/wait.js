@@ -165,12 +165,12 @@ async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
             ]);
 
             signale.debug(`Job Status Failure:
-                job: ${exStatus.job_id};
+                job: "${exStatus.job_id}";
                 job name: "${exStatus.name}";
-                ex: ${exStatus.ex_id};
+                ex: "${exStatus.ex_id}";
                 workers: ${exStatus.workers};
                 slicers: ${exStatus.slicers};
-                status: expected ${exStatus._status || lastStatus} to equal ${status};
+                status: expected "${exStatus._status || lastStatus}" to equal "${status}";
                 slicer stats: ${printObj(slicerStats)};
                 failed after: ${Date.now() - start}ms;
                 failure reasons: ${printObj(reasons)};
