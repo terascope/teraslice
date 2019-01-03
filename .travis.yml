@@ -34,7 +34,8 @@ jobs:
   - stage: Tests
     name: Test Packages
     if: branch = master
-    script: yarn test:ci
+    script:
+        - '[[ -z "$DEBUG" ]] && yarn test:ci || yarn test:debug'
     after_success:
       - bash <(curl -s https://codecov.io/bash)
 
