@@ -1,7 +1,7 @@
 {
     "name": "testAssetPackage",
     "version": "0.0.1",
-    "description": "",
+    "description": "test",
     "main": "index.js",
     "author": "",
     "scripts": { },
