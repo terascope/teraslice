@@ -38,7 +38,7 @@ services:
       - ./autoload:/app/autoload:delegated
       - ./config:/app/config:delegated
   elasticsearch:
-    image: blacktop/elasticsearch:5.6
+    image: blacktop/elasticsearch:6
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:49200"]
       interval: 15s
