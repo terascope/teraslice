@@ -7,21 +7,10 @@
 const fs = require('fs');
 const nock = require('nock');
 const path = require('path');
+const { debugLogger } = require('@terascope/job-components');
 const K8s = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8s');
 
-function print(err, result) {
-    // FIXME: How much does this smell, do we have an existing convention?
-    if (process.env.DEBUG) {
-        console.error(JSON.stringify(err || result, null, 2)); // eslint-disable-line no-console
-    }
-}
-
-const logger = {
-    debug: print,
-    info: print,
-    warn: print,
-    error: print
-};
+const logger = debugLogger('k8s-spec');
 
 const swaggerFile = path.join(__dirname, 'files', 'swagger.json');
 
