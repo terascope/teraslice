@@ -34,7 +34,8 @@ jobs:
   - stage: Tests
     name: Test Packages
     if: branch = master
-    script: yarn test:ci
+    script:
+        - '[[ -z "$DEBUG" ]] && yarn test:ci || yarn test:debug | yarn bunyan -o short'
     after_success:
       - bash <(curl -s https://codecov.io/bash)
 
@@ -66,7 +67,6 @@ jobs:
     name: Release
     if: tag IS blank AND branch = master AND type != pull_request
     sudo: false
-    addons: []
     before_install:
       # install latest yarn
       - curl -o- -L https://yarnpkg.com/install.sh | bash

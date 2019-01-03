@@ -78,7 +78,7 @@ function getErrorMsgAndCode(err, defaultCode = 500, defaultMsg) {
         };
     }
 
-    return { code, message };
+    return { code: defaultCode, message };
 }
 
 function sendError(res, code, message) {

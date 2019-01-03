@@ -219,7 +219,6 @@ class ExecutionController {
 
         this._handlers['slicers:finished'] = (err) => {
             if (err) {
-                this.logger.error('slicers finished due to failure', err);
                 this._terminalError(err);
             }
         };

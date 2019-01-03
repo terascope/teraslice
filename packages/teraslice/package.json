@@ -40,7 +40,7 @@
         "@terascope/queue": "^1.1.6",
         "@terascope/teraslice-messaging": "^0.2.6",
         "async-mutex": "^0.1.3",
-        "barbe": "^3.0.14",
+        "barbe": "^3.0.15",
         "bluebird": "^3.5.3",
         "bluebird-retry": "^0.11.0",
         "body-parser": "^1.18.2",
@@ -71,7 +71,7 @@
         "bufferstreams": "^2.0.1",
         "chance": "^1.0.18",
         "elasticsearch": "^15.1.1",
-        "eslint": "^5.10.0",
+        "eslint": "^5.11.1",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "^2.14.0",
         "got": "^9.5.0",
@@ -79,6 +79,6 @@
         "jest-extended": "^0.11.0",
         "jest-fixtures": "^0.6.0",
         "json-schema-faker": "^0.5.0-rc16",
-        "nock": "^10.0.4"
+        "nock": "^10.0.6"
     }
 }
