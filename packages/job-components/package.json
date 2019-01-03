@@ -39,7 +39,7 @@
     },
     "dependencies": {
         "@terascope/queue": "^1.1.6",
-        "convict": "^4.4.1",
+        "convict": "^4.4.0",
         "datemath-parser": "^1.0.6",
         "debug": "^4.1.1",
         "is-plain-object": "^2.0.4",

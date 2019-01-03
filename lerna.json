@@ -19,7 +19,7 @@
         }
     },
     "sort": true,
-    "loglevel": "debug",
+    "loglevel": "warn",
     "reject-cycles": true,
     "npmClient": "yarn",
     "useWorkspaces": true,
