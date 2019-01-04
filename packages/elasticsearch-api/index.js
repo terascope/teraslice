@@ -511,8 +511,10 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         const retry = _retryFn(fn, data);
         return function _errorHandlerFn(err) {
             const isRejectedError = _.get(err, 'body.error.type') === 'es_rejected_execution_exception';
+            const isTimeoutError = _.toString(err).includes('Request Timeout');
             // const isConnectionError = _.get(err, 'message') === 'No Living connections';
-            if (isRejectedError) {
+
+            if (isRejectedError || isTimeoutError) {
                 // this iteration we will not handle with no living connections issue
                 retry();
             } else {
