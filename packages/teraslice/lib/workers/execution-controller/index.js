@@ -828,11 +828,13 @@ class ExecutionController {
                 const slicesHaveProcessedSinceError = currentProcessedCount > processedCount;
 
                 if (errorCountTheSame && slicesHaveProcessedSinceError) {
+                    watchDogSet = false;
                     clearInterval(this.watcher);
                     this.logger.info(`No slice errors have occurred within execution: ${this.exId} will be set back to 'running' state`);
                     exStore.setStatus(this.exId, 'running');
                     return;
                 }
+
                 errorCount = currentErrorCount;
                 processedCount = currentProcessedCount;
             }, probationWindow);
