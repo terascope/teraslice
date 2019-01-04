@@ -81,8 +81,9 @@ class Worker {
             } catch (err) {
                 /* istanbul ignore next */
                 this.logger.warn('Slice failed but worker is not done processing');
+            } finally {
+                running = false;
             }
-            running = false;
         };
 
         await new Promise((resolve) => {

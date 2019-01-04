@@ -42,21 +42,30 @@ class Slice {
 
         let result;
         let remaining = maxTries;
+        let completed = false;
 
         try {
             result = await retry(() => {
                 remaining -= 1;
                 return this._runOnce(remaining > 0);
             }, retryOptions);
+
+            completed = true;
             await this._markCompleted();
         } catch (err) {
-            await this._markFailed(err);
+            // avoid incorrectly marking
+            // the slice as failed when it fails
+            // to mark it as "complete"
+            if (!completed) {
+                await this._markFailed(err);
+            }
             throw err;
         } finally {
             await this._logAnalytics(result && result.analytics);
             this.events.emit('slice:finalize', slice);
             await this.executionContext.onSliceFinalizing(slice.slice_id);
         }
+
 
         return result.results;
     }
@@ -134,8 +143,7 @@ class Slice {
         }
 
         try {
-            const result = await this.executionContext.runSlice(this.slice);
-            return result;
+            return this.executionContext.runSlice(this.slice);
         } catch (err) {
             this.logger.error(`An error has occurred: ${toString(err)}, slice:`, this.slice);
 
