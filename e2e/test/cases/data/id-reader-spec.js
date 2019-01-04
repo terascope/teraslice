@@ -3,7 +3,15 @@
 const misc = require('../../misc');
 const { resetState, testJobLifeCycle, runEsJob } = require('../../helpers');
 
-describe('id reader', () => {
+/**
+ * This test is disabled due the ID slicer not working in
+ * elasticsearch 6.x
+ *
+ * See:
+ *  - https://github.com/terascope/teraslice/issues/68
+ *  - https://github.com/terascope/elasticsearch-assets/issues/12
+ */
+xdescribe('id reader', () => {
     beforeAll(() => resetState());
 
     it('should support reindexing', async () => {
