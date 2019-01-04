@@ -79,8 +79,8 @@ class Worker {
             try {
                 await this.runOnce();
             } catch (err) {
-                /* istanbul ignore next */
-                this.logger.warn('Slice failed but worker is not done processing');
+                this.logger.fatal('Worker must shutdown to Fatal Error', err);
+                this.shutdown(false);
             } finally {
                 running = false;
             }
@@ -141,6 +141,10 @@ class Worker {
                 this.logger.error(`slice run error for execution ${exId}`, err);
             }
 
+            if (err.fatalError) {
+                throw err;
+            }
+
             await this.client.sendSliceComplete({
                 slice: this.slice.slice,
                 analytics: this.slice.analyticsData,
@@ -155,9 +159,11 @@ class Worker {
     async shutdown(block = true) {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
-        if (this.isShuttingDown && block) {
-            this.logger.debug('worker shutdown was called but it was already shutting down, will block until done');
-            await waitForWorkerShutdown(this.context, 'worker:shutdown:complete');
+        if (this.isShuttingDown) {
+            if (block) {
+                this.logger.debug('worker shutdown was called but it was already shutting down, will block until done');
+                await waitForWorkerShutdown(this.context, 'worker:shutdown:complete');
+            }
             return;
         }
 

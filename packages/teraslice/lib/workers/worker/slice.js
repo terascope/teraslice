@@ -56,16 +56,17 @@ class Slice {
             // avoid incorrectly marking
             // the slice as failed when it fails
             // to mark it as "complete"
-            if (!completed) {
+            if (completed) {
                 await this._markFailed(err);
             }
             throw err;
         } finally {
-            await this._logAnalytics(result && result.analytics);
-            this.events.emit('slice:finalize', slice);
-            await this.executionContext.onSliceFinalizing(slice.slice_id);
+            if (completed) {
+                await this._logAnalytics(result && result.analytics);
+                this.events.emit('slice:finalize', slice);
+                await this.executionContext.onSliceFinalizing(slice.slice_id);
+            }
         }
-
 
         return result.results;
     }
@@ -99,7 +100,9 @@ class Slice {
         try {
             await this.stateStore.updateState(slice, 'completed');
         } catch (_err) {
-            throw new Error(prependErrorMsg('Failure to update success state', _err));
+            const err = new Error(prependErrorMsg('Failure to update success state', _err));
+            err.fatalError = true;
+            throw err;
         }
 
         this.events.emit('slice:success', slice);
@@ -119,7 +122,9 @@ class Slice {
         try {
             await stateStore.updateState(slice, 'error', errMsg);
         } catch (_err) {
-            throw new Error(prependErrorMsg('Failure to update failed state', _err));
+            const error = new Error(prependErrorMsg('Failure to update failed state', _err));
+            error.fatalError = true;
+            throw error;
         }
 
         logger.error(err, `slice state for ${this.executionContext.exId} has been marked as error`);

@@ -330,10 +330,11 @@ class ExecutionController {
     async shutdown(block = true) {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
-
-        if (this.isShuttingDown && block) {
-            this.logger.debug(`execution shutdown was called for ex ${this.exId} but it was already shutting down, will block until done`);
-            await waitForWorkerShutdown(this.context, 'worker:shutdown:complete');
+        if (this.isShuttingDown) {
+            if (block) {
+                this.logger.debug(`execution shutdown was called for ex ${this.exId} but it was already shutting down, will block until done`);
+                await waitForWorkerShutdown(this.context, 'worker:shutdown:complete');
+            }
             return;
         }
 
