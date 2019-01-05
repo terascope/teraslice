@@ -16,6 +16,12 @@ class Options {
                 nargs: 1,
                 type: 'string'
             }),
+            'base-dir': () => ({
+                describe: 'The base directory to work in, defaults to cwd',
+                default: process.cwd(),
+                type: 'string',
+                nargs: 1
+            }),
             build: () => ({
                 describe: 'Build asset from source, then upload to Teraslice.  The current'
                         + ' directory is used if no argument is passed to this option',

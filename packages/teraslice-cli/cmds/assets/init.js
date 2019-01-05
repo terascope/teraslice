@@ -1,37 +1,38 @@
 'use strict';
 
-const prompts = require('prompts');
-const _ = require('lodash');
 const path = require('path');
-const fs = require('fs-extra');
+const { promisify } = require('util');
+const exec = promisify(require('child_process').exec);
 
+const _ = require('lodash');
+const fs = require('fs-extra');
+const prompts = require('prompts');
+
+const Config = require('../../lib/config');
 const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
-const rootPackageJson = require('./lib/init_files/rootPackage');
-const assetPackageJson = require('./lib/init_files/assetPackage');
-const eslintrc = require('./lib/init_files/eslintrc');
+const rootPackageJson = require('./init_files/rootPackage');
+const assetPackageJson = require('./init_files/assetPackage');
+const eslintrc = require('./init_files/eslintrc');
+const YargsOptions = require('../../lib/yargs-options');
+
+const yargsOptions = new YargsOptions();
+
 
 exports.command = 'init <asset_name>';
 exports.desc = 'creates a new asset bundle.  This includes package.json, asset.json, README.md, an asset directory and basic dependencies';
 exports.builder = (yargs) => {
-    cli().args('assets', 'init', yargs);
+    yargs.positional('asset', yargsOptions.buildPositional('asset'));
+    yargs.option('base-dir', yargsOptions.buildOption('base-dir'));
+    yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
     yargs.example('earl asset init asset_name');
 };
 
-exports.handler = async (argv, _testFunctions) => {
-    const assetFunctions = _testFunctions || require('./lib')();
-    const cliConfig = _.clone(argv);
+exports.handler = async (argv) => {
+    const cliConfig = new Config(argv);
+    const assetOutDir = cliConfig.args.baseDir;
 
-    config(cliConfig, 'assets:init').returnConfigData(false, false);
-    // inject prompts answers for testing
-    if (_testFunctions) {
-        await prompts.inject(_testFunctions.prompts_inject);
-    }
-
-    // create asset directory
     reply.yellow('This will create a package.json, README.md, asset dir, spec dir,'
-        + `asset/asset.json, asset/package.json, and install various npm packages in ${cliConfig.baseDir}.`);
+        + `asset/asset.json, asset/package.json, and install various npm packages in ${assetOutDir}.`);
 
     const create = await prompts({
         type: 'confirm',
@@ -40,6 +41,7 @@ exports.handler = async (argv, _testFunctions) => {
     });
 
     if (!create.asset) reply.fatal('Exiting asset creation process');
+
     // get description and version
     const questions = [
         {
@@ -59,24 +61,25 @@ exports.handler = async (argv, _testFunctions) => {
         assetData.asset_version = '0.0.1';
     }
     const packageJson = {
-        name: cliConfig.asset_name,
+        name: cliConfig.asset,
         version: assetData.asset_version,
         description: assetData.asset_desc
     };
-    // create needed files and directories
 
+    // create needed files and directories
     try {
-        await fs.ensureDir(path.join(cliConfig.baseDir, 'asset'));
-        await fs.writeJSON(path.join(cliConfig.baseDir, 'package.json'), _.merge(rootPackageJson, packageJson), { spaces: 4 });
-        await fs.writeJSON(path.join(cliConfig.baseDir, 'asset', 'package.json'), _.merge(assetPackageJson, packageJson), { spaces: 4 });
-        await fs.writeJson(path.join(cliConfig.baseDir, 'asset', 'asset.json'), packageJson, { spaces: 4 });
-        await fs.ensureDir(path.join(cliConfig.baseDir, 'spec'));
-        await fs.writeJSON(path.join(cliConfig.baseDir, '.eslintrc'), eslintrc, { spaces: 4 });
-        await fs.writeFile(path.join(cliConfig.baseDir, 'README.md'), '');
-        reply.green(`Created initial directories and files in ${cliConfig.baseDir}`);
+        await fs.ensureDir(path.join(assetOutDir, 'asset'));
+        await fs.writeJSON(path.join(assetOutDir, 'package.json'), _.merge(rootPackageJson, packageJson), { spaces: 4 });
+        await fs.writeJSON(path.join(assetOutDir, 'asset', 'package.json'), _.merge(assetPackageJson, packageJson), { spaces: 4 });
+        await fs.writeJson(path.join(assetOutDir, 'asset', 'asset.json'), packageJson, { spaces: 4 });
+        await fs.ensureDir(path.join(assetOutDir, 'spec'));
+        await fs.writeJSON(path.join(assetOutDir, '.eslintrc'), eslintrc, { spaces: 4 });
+        await fs.writeFile(path.join(assetOutDir, 'README.md'), '');
+        reply.green(`Created initial directories and files in ${assetOutDir}`);
     } catch (e) {
         reply.fatal(e);
     }
+
     // add a processor
     const processor = await prompts({
         type: 'confirm',
@@ -85,16 +88,17 @@ exports.handler = async (argv, _testFunctions) => {
     });
     if (processor.processor) {
         const processorName = await prompts([{ type: 'text', name: 'processor_name', message: 'Processor name:' }]);
-        reply.green(`Directory ${processorName.processor_name} was created in ${cliConfig.baseDir}/asset`);
+        reply.green(`Directory ${processorName.processor_name} was created in ${assetOutDir}/asset`);
         try {
-            await fs.ensureFile(path.join(cliConfig.baseDir, 'asset', processorName.processor_name, 'index.js'));
-            await fs.writeFile(path.join(cliConfig.baseDir, 'spec', `${processorName.processor_name}-spec.js`), '');
+            await fs.ensureFile(path.join(assetOutDir, 'asset', processorName.processor_name, 'index.js'));
+            await fs.writeFile(path.join(assetOutDir, 'spec', `${processorName.processor_name}-spec.js`), '');
         } catch (e) {
             reply.fatal(e);
         }
     }
+
     reply.yellow('The next step will install some basic dependencies for the asset.'
-    + '  The dependencies will be installed with npm or yarn.');
+        + '  The dependencies will be installed with npm or yarn.');
     const dependencies = await prompts([{
         type: 'confirm',
         name: 'dependencies',
@@ -116,8 +120,8 @@ exports.handler = async (argv, _testFunctions) => {
     }]);
     let installCmd;
     if (installer.installer === 'cli') {
-        const yarn = await assetFunctions.isInstalled('yarn');
-        const npm = await assetFunctions.isInstalled('npm');
+        const yarn = await isInstalled('yarn');
+        const npm = await isInstalled('npm');
         if (!yarn && !npm) {
             reply.fatal('The dependencies were not installed, because a package manager was not found.'
             + 'Install yarn and then run yarn install in both root dir and rood dir asset');
@@ -126,16 +130,17 @@ exports.handler = async (argv, _testFunctions) => {
     } else {
         installCmd = `${installer.installer} install`;
     }
+
     // install dependencies in root dir and asset dir
     try {
         // install in base dir
         reply.green('installing root dependencies, this could take a few minutes');
-        const rootDependencies = await assetFunctions.command(installCmd);
+        const rootDependencies = await exec(installCmd);
         reply.yellow(rootDependencies.stderr);
         reply.green(rootDependencies.stdout);
         // install in base/asset dir
         reply.green('installing asset dependencies, this could take a few minutes');
-        const assetDependencies = await assetFunctions.command(`cd asset && ${installCmd}`);
+        const assetDependencies = await exec(`cd asset && ${installCmd}`);
         reply.yellow(assetDependencies.stderr);
         reply.green(assetDependencies.stdout);
     } catch (e) {
@@ -143,3 +148,19 @@ exports.handler = async (argv, _testFunctions) => {
     }
     reply.green('Your asset directory has been created!');
 };
+
+
+// TODO: this should be extracted to a top level module
+// Supporting Functions
+
+// check if yarn or npm is installed, prefer yarn
+async function isInstalled(name) {
+    let installed;
+    try {
+        await exec(`which ${name}`);
+        installed = true;
+    } catch (e) {
+        installed = false;
+    }
+    return installed;
+}

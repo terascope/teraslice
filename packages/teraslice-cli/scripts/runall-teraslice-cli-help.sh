@@ -10,6 +10,7 @@ declare -a cmds=(
     "${baseCmd} aliases update"
     "${baseCmd} assets"
     "${baseCmd} assets deploy"
+    "${baseCmd} assets init"
     "${baseCmd} assets list"
     "${baseCmd} assets load"
     "${baseCmd} assets replace"
