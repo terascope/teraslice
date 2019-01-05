@@ -1,4 +1,4 @@
-baseCmd="earl"
+# baseCmd="earl"
 baseCmd="node ./index.js"
 
 declare -a cmds=(
@@ -9,12 +9,11 @@ declare -a cmds=(
     "${baseCmd} aliases remove"
     "${baseCmd} aliases update"
     "${baseCmd} assets"
+    "${baseCmd} assets build"
+    "${baseCmd} assets delete"
     "${baseCmd} assets deploy"
     "${baseCmd} assets init"
     "${baseCmd} assets list"
-    "${baseCmd} assets load"
-    "${baseCmd} assets replace"
-    "${baseCmd} assets status"
     "${baseCmd} controllers"
     "${baseCmd} controllers list"
     "${baseCmd} controllers stats"
