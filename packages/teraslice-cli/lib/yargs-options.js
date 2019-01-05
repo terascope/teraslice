@@ -95,6 +95,11 @@ class Options {
                 nargs: 1,
                 type: 'string'
             }),
+            'asset-name': () => ({
+                describe: 'Simple name of the asset, e.g: file-assets.',
+                nargs: 1,
+                type: 'string'
+            }),
             'asset-id': () => ({
                 describe: 'Hexidecimal ID of asset.',
                 nargs: 1,

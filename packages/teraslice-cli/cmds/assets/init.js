@@ -18,10 +18,10 @@ const YargsOptions = require('../../lib/yargs-options');
 const yargsOptions = new YargsOptions();
 
 
-exports.command = 'init <asset_name>';
+exports.command = 'init <asset-name>';
 exports.desc = 'creates a new asset bundle.  This includes package.json, asset.json, README.md, an asset directory and basic dependencies';
 exports.builder = (yargs) => {
-    yargs.positional('asset', yargsOptions.buildPositional('asset'));
+    yargs.positional('asset-name', yargsOptions.buildPositional('asset-name'));
     yargs.option('base-dir', yargsOptions.buildOption('base-dir'));
     yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
     yargs.example('earl asset init asset_name');
@@ -61,7 +61,7 @@ exports.handler = async (argv) => {
         assetData.asset_version = '0.0.1';
     }
     const packageJson = {
-        name: cliConfig.asset,
+        name: cliConfig.args.assetName,
         version: assetData.asset_version,
         description: assetData.asset_desc
     };
