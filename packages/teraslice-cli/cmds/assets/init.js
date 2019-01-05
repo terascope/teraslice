@@ -24,7 +24,7 @@ exports.builder = (yargs) => {
     yargs.positional('asset-name', yargsOptions.buildPositional('asset-name'));
     yargs.option('base-dir', yargsOptions.buildOption('base-dir'));
     yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-    yargs.example('earl asset init asset_name');
+    yargs.example('$0 asset init asset_name');
 };
 
 // TODO: This should be refactored to decouple the CLI code (prompts) from

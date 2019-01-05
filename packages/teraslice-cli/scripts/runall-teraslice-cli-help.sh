@@ -53,10 +53,10 @@ declare -a cmds=(
 
 for cmd in "${cmds[@]}"
 do
-    echo "========================================================="
-    echo "== Running ${cmd} --help"
-    echo "========================================================="
+    echo "# Output for ${cmd} --help"
     echo
+    echo '```'
     ${cmd} --help
+    echo '```'
     echo
 done
