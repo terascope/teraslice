@@ -1,6 +1,8 @@
 'use strict';
 'use console';
 
+// TODO: Implement tests of handler using nock
+
 const fs = require('fs-extra');
 
 const AssetSrc = require('../../lib/asset-src');
@@ -139,10 +141,11 @@ exports.handler = async (argv) => {
             // Basically, this assumes the asset currently being deployed has
             // the same version of the last asset posted to the cluster.
             if (clusterAssetData.length >= 1) {
-                const response = JSON.parse(
-                    await cliConfig.terasliceClient.assets.delete(clusterAssetData[0].id)
+                const response = await cliConfig.terasliceClient.assets
+                    .delete(clusterAssetData[0].id);
+                reply.green(
+                    `Asset ${response.assetId} deleted from ${cliConfig.args.clusterAlias}`
                 );
-                reply.green(`Asset ${response.assetId} deleted from ${cliConfig.args.clusterAlias}`);
             }
         }
     } else {
@@ -155,18 +158,16 @@ exports.handler = async (argv) => {
         try {
             assetZip = await fs.readFile(assetPath);
         } catch (err) {
-            throw new Error(`Error reading file: ${assetPath}, ${err.stack}`);
+            reply.fatal(`Error reading file: ${assetPath}, ${err.stack}`);
         }
 
         try {
-            const resp = JSON.parse(
-                await cliConfig.terasliceClient.assets.post(assetZip)
-            );
+            const resp = await cliConfig.terasliceClient.assets.post(assetZip);
             if (!cliConfig.args.quiet) {
                 reply.green(`Asset posted to ${cliConfig.args.clusterAlias}: ${resp._id}`);
             }
         } catch (err) {
-            throw new Error(`Error posting asset: ${err.stack}`);
+            reply.fatal(`Error posting asset: ${err.message}`);
         }
     } else {
         reply.green('Upload skipped.');
