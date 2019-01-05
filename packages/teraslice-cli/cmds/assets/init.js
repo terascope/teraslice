@@ -27,6 +27,9 @@ exports.builder = (yargs) => {
     yargs.example('earl asset init asset_name');
 };
 
+// TODO: This should be refactored to decouple the CLI code (prompts) from
+// the actual asset creation code.  Then tests should be implemented for the
+// asset creation code.
 exports.handler = async (argv) => {
     const cliConfig = new Config(argv);
     const assetOutDir = cliConfig.args.baseDir;
