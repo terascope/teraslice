@@ -22,15 +22,16 @@ exports.handler = async (argv) => {
     const cliConfig = new Config(argv);
 
     try {
-        const resp = JSON.parse(
-            await cliConfig.terasliceClient.assets.delete(cliConfig.args.assetId)
-        );
+        const resp = await cliConfig.terasliceClient.assets.delete(cliConfig.args.assetId);
 
+        // TODO: Rethink this error handling when the following issue is addressed
+        //       https://github.com/terascope/teraslice/issues/944
         if (_.has(resp, 'error')) {
-            reply.yellow(`WARNING: Error (${_.get(resp, 'error')}): ${_.get(resp, 'message')}`);
+            reply.yellow(`WARNING: Error (${resp.error}): ${resp.message}`);
+        } else {
+            reply.green(`Asset ${cliConfig.args.assetId} deleted from ${cliConfig.args.clusterAlias}`);
         }
     } catch (err) {
         reply.fatal(`Error deleting assets on ${cliConfig.args.clusterAlias}: ${err}`);
     }
-    reply.green(`Asset ${cliConfig.args.assetId} deleted from ${cliConfig.args.clusterAlias}`);
 };
