@@ -84,6 +84,8 @@ exports.handler = async (argv) => {
             clusterInfo.arch = cliConfig.args.arch;
             clusterInfo.platform = cliConfig.args.platform;
             clusterInfo.nodeVersion = cliConfig.args.nodeVersion;
+            // TODO: We should prevent people from uploading the wrong arch
+            // if cluster.info() is available
         } else {
             try {
                 clusterInfo = await cliConfig.terasliceClient.cluster.info();
@@ -141,8 +143,10 @@ exports.handler = async (argv) => {
                 const response = await cliConfig.terasliceClient.assets
                     .delete(clusterAssetData[0].id);
                 if (!cliConfig.args.quiet) {
+                    // Support different teraslice api/client versions
+                    const assetId = response._id || response.assetId;
                     reply.green(
-                        `Asset ${response._id} deleted from ${cliConfig.args.clusterAlias}`
+                        `Asset ${assetId} deleted from ${cliConfig.args.clusterAlias}`
                     );
                 }
             }
