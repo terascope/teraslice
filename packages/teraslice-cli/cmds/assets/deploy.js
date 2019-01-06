@@ -2,6 +2,8 @@
 'use console';
 
 // TODO: Implement tests of handler using nock
+// TODO: If reply were an object that could be set to 'quiet' mode, then all of
+//       the 'if quiet' conditionals around reply.green() could be eliminated.
 
 const fs = require('fs-extra');
 
@@ -42,12 +44,14 @@ exports.builder = (yargs) => {
     yargs.option('quiet', yargsOptions.buildOption('quiet'));
     yargs.option('replace', yargsOptions.buildOption('replace'));
     yargs.option('skip-upload', yargsOptions.buildOption('skip-upload'));
+    yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
     yargs.conflicts('asset', ['build', 'file']);
     yargs.example('$0 assets deploy ts-test1 terascope/file-assets');
     yargs.example('$0 assets deploy ts-test1 terascope/file-assets --arch x64 --platform linux --node-version v8.10.1');
     yargs.example('$0 assets deploy ts-test1 -f /tmp/file-assets-v0.2.1-node-8-linux-x64.zip');
     yargs.example('$0 assets deploy ts-test1 --build');
     yargs.example('$0 assets deploy ts-test1 --build --replace');
+    yargs.example('$0 assets deploy ts-test1 --build --src-dir /path/to/assetSrc');
     yargs.implies('replace', 'build');
     // yargs.example('$0 assets deploy ts-test1 --build-dir ./file-assets'); TODO
     // yargs.example('$0 assets deploy terascope/file-assets -c http://localhost:5678/'); TODO
@@ -109,18 +113,11 @@ exports.handler = async (argv) => {
         // assetPath from a zipFile created by building from a local asset
         // source directory (--build) PWD ONLY for now
         let asset;
-        let srcDir;
-        if (cliConfig.args.build === true) {
-            srcDir = process.cwd();
-        } else {
-            srcDir = cliConfig.args.build;
-        }
+
         try {
-            asset = new AssetSrc(srcDir);
+            asset = new AssetSrc(cliConfig.args.srcDir);
             assetPath = await asset.build();
-            if (!cliConfig.args.quiet) {
-                reply.green(`Asset created:\n\t${assetPath}`);
-            }
+            if (!cliConfig.args.quiet) reply.green(`Asset created:\n\t${assetPath}`);
         } catch (err) {
             reply.fatal(`Error building asset: ${err}`);
         }
@@ -143,9 +140,11 @@ exports.handler = async (argv) => {
             if (clusterAssetData.length >= 1) {
                 const response = await cliConfig.terasliceClient.assets
                     .delete(clusterAssetData[0].id);
-                reply.green(
-                    `Asset ${response.assetId} deleted from ${cliConfig.args.clusterAlias}`
-                );
+                if (!cliConfig.args.quiet) {
+                    reply.green(
+                        `Asset ${response._id} deleted from ${cliConfig.args.clusterAlias}`
+                    );
+                }
             }
         }
     } else {
@@ -163,13 +162,16 @@ exports.handler = async (argv) => {
 
         try {
             const resp = await cliConfig.terasliceClient.assets.post(assetZip);
+
+            if (resp.error) {
+                reply.fatal(`Error posting asset: ${resp.error}`);
+            }
+
             if (!cliConfig.args.quiet) {
                 reply.green(`Asset posted to ${cliConfig.args.clusterAlias}: ${resp._id}`);
             }
         } catch (err) {
             reply.fatal(`Error posting asset: ${err.message}`);
         }
-    } else {
-        reply.green('Upload skipped.');
-    }
+    } else if (!cliConfig.args.quiet) reply.green('Upload skipped.');
 };

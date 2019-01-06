@@ -23,7 +23,7 @@ class Options {
                 nargs: 1
             }),
             build: () => ({
-                describe: 'Build asset from source, then upload to Teraslice.  The current'
+                describe: 'Build asset from source prior to upload.  The current'
                         + ' directory is used if no argument is passed to this option',
                 type: 'boolean'
             }),
