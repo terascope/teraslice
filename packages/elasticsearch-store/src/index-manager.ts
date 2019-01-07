@@ -26,12 +26,12 @@ export default class IndexManager {
      * and should only when the cluster is properly shutdown.
     */
     async migrateIndex(config: MigrateIndexConfig): Promise<void> {
-
+        return;
     }
 
     /** Verify the index exists */
-    async exists(params: es.IndicesExistsParams) {
-        return;
+    async exists(params: es.IndicesExistsParams): Promise<boolean> {
+        return true;
     }
 
     /** Create an index */
@@ -39,12 +39,7 @@ export default class IndexManager {
         return;
     }
 
-    /** Refresh an index */
-    async refresh(params: es.IndicesRefreshParams) {
-        return;
-    }
-
-    /** Index recovery */
+    /** Get the Index Recovery Stats */
     async recovery(params: es.IndicesRecoveryParams) {
         return;
     }
@@ -53,5 +48,8 @@ export default class IndexManager {
 export interface MigrateIndexConfig {
     to: IndexConfig;
     from: IndexConfig;
+    /**
+     * @default Infinity
+     */
     timeout: number;
 }

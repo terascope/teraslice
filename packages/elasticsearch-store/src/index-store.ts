@@ -46,12 +46,12 @@ export default class IndexStore<T extends Object> {
 
     /** Index a document */
     async index(doc: T, type?: es.NameList) {
-
+        return;
     }
 
     /** Index a document by id */
     async indexWithId(doc: T, id: string, type?: es.NameList) {
-
+        return;
     }
 
     /** Safely make many requests aginsts an index */
@@ -71,6 +71,11 @@ export default class IndexStore<T extends Object> {
 
     /** Deletes a document for a given id */
     async remove(id: string, type?: es.NameList) {
+        return;
+    }
+
+    /** Refresh an index */
+    async refresh(params: es.IndicesRefreshParams) {
         return;
     }
 }
