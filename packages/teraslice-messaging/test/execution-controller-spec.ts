@@ -1,7 +1,6 @@
 import 'jest-extended';
 
-import bluebird from 'bluebird';
-import findPort from './helpers/find-port';
+import { pDelay, findPort } from './helpers';
 import {
     formatURL,
     newMsgId,
@@ -159,7 +158,7 @@ describe('ExecutionController', () => {
                             },
                         });
 
-                        await bluebird.delay(100);
+                        await pDelay(100);
 
                         expect(sliceComplete).toHaveBeenCalled();
 
@@ -201,7 +200,7 @@ describe('ExecutionController', () => {
                             error: 'hello'
                         });
 
-                        await bluebird.delay(100);
+                        await pDelay(100);
 
                         expect(sliceFailure).toHaveBeenCalled();
                         if (msg == null) {
@@ -246,7 +245,7 @@ describe('ExecutionController', () => {
 
                         const slice = client.waitForSlice(() => (Date.now() - stopAt) > 0);
 
-                        await bluebird.delay(500);
+                        await pDelay(500);
 
                         expect(server.queue.exists('workerId', workerId)).toBeTrue();
 
@@ -273,7 +272,7 @@ describe('ExecutionController', () => {
                             }
                         });
 
-                        await bluebird.delay(100);
+                        await pDelay(100);
 
                         expect(server.activeWorkerCount).toBe(0);
                     });
