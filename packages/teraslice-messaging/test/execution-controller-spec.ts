@@ -276,6 +276,23 @@ describe('ExecutionController', () => {
 
                         expect(server.activeWorkerCount).toBe(0);
                     });
+
+                    describe('when no slice is sent from the server', () => {
+                        it('should handle the timeout properly', async () => {
+                            await client.sendAvailable();
+
+                            const stopAt = Date.now() + 2000;
+                            const stopFn = () => (Date.now() - stopAt) > 0;
+                            const slice = client.waitForSlice(stopFn, 500);
+
+                            await pDelay(600);
+
+                            await expect(slice).resolves.toBeUndefined();
+
+                            expect(server.activeWorkerCount).toBe(0);
+                            expect(client.available).toBeFalse();
+                        });
+                    });
                 });
 
                 describe('when the client is set as unavailable', () => {

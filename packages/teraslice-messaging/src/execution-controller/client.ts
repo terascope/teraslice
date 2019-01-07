@@ -81,18 +81,29 @@ export class Client extends core.Client {
         });
     }
 
-    async waitForSlice(fn: i.WaitUntilFn = () => false, interval = 100): Promise<i.Slice|undefined> {
+    async waitForSlice(fn: i.WaitUntilFn = () => false, timeoutMs = 60000): Promise<i.Slice|undefined> {
         this.sendAvailable();
+
+        const startTime = Date.now();
+
+        const isExpired = () => {
+            const elapsed = Date.now() - startTime;
+            if (elapsed < timeoutMs) return false;
+
+            // force the next time to send a new available message
+            this.sendUnavailable();
+            return true;
+        };
 
         const slice = await new Promise((resolve) => {
             this.once('execution:slice:new', onMessage);
 
             const intervalId = setInterval(() => {
-                if (this.serverShutdown || !this.ready || fn()) {
+                if (this.serverShutdown || !this.ready || fn() || isExpired()) {
                     this.removeListener('execution:slice:new', onMessage);
                     finish();
                 }
-            }, interval);
+            }, 100);
 
             function onMessage(msg: core.EventMessage) {
                 finish(msg.payload as i.Slice);
