@@ -82,6 +82,68 @@ describe('ExecutionController', () => {
         });
     });
 
+    describe('when the slice failure watch dog is started', () => {
+        let testContext;
+        let exStore;
+        let exController;
+        const probationWindow = 1000;
+
+        beforeEach(async () => {
+            const port = await findPort();
+
+            testContext = new TestContext({
+                assignment: 'execution_controller',
+                slicerPort: port,
+                probationWindow
+            });
+
+            await testContext.initialize(true);
+            await testContext.addClusterMaster();
+
+            exController = new ExecutionController(
+                testContext.context,
+                testContext.executionContext,
+            );
+
+            await exController.initialize();
+
+            await testContext.addExStore();
+            ({ exStore } = testContext.stores);
+
+            testContext.attachCleanup(() => exController.shutdown()
+                .catch(() => { /* ignore-error */ }));
+        });
+
+        afterEach(() => testContext.cleanup());
+
+        it('should handle the probation period correctly', async () => {
+            exController.executionAnalytics.increment('processed');
+            exController.executionAnalytics.increment('failed');
+
+            expect(exController.sliceFailureInterval).toBeNil();
+            await exController._startSliceFailureWatchDog();
+
+            expect(exController.sliceFailureInterval).not.toBeNil();
+
+            // should be able to call slice watch again without resetting the interval
+            const { sliceFailureInterval } = exController;
+
+            await exController._startSliceFailureWatchDog();
+            expect(exController.sliceFailureInterval).toBe(sliceFailureInterval);
+
+            await expect(exStore.getStatus(testContext.exId))
+                .resolves.toEqual('failing');
+
+            // should be able to setr the status back to running if more slices are processed
+            exController.executionAnalytics.increment('processed');
+
+            await Promise.delay(probationWindow);
+
+            await expect(exStore.getStatus(testContext.exId))
+                .resolves.toEqual('running');
+        });
+    });
+
     describe('when testing shutdown', () => {
         let testContext;
         let exController;

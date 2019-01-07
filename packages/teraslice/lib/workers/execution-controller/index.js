@@ -358,7 +358,7 @@ class ExecutionController {
         this.isShuttingDown = true;
         this.isPaused = false;
 
-        clearInterval(this.watcher);
+        clearInterval(this.sliceFailureInterval);
         clearTimeout(this.workerConnectTimeoutId);
         clearTimeout(this.workerDisconnectTimeoutId);
 
@@ -822,7 +822,7 @@ class ExecutionController {
             await this.setFailingStatus();
             const { exStore } = this.stores;
 
-            this.watcher = setInterval(() => {
+            this.sliceFailureInterval = setInterval(() => {
                 const currentAnalyticsData = this.executionAnalytics.getAnalytics();
                 const currentErrorCount = currentAnalyticsData.failed;
                 const currentProcessedCount = currentAnalyticsData.processed;
@@ -831,7 +831,7 @@ class ExecutionController {
 
                 if (errorCountTheSame && slicesHaveProcessedSinceError) {
                     watchDogSet = false;
-                    clearInterval(this.watcher);
+                    clearInterval(this.sliceFailureInterval);
                     this.logger.info(`No slice errors have occurred within execution: ${this.exId} will be set back to 'running' state`);
                     exStore.setStatus(this.exId, 'running');
                     return;
