@@ -331,7 +331,7 @@ class ExecutionController {
             this.logger.error('failure setting status to failed', _err);
         }
 
-        this.logger.fatal(`execution ${this.exId} is done because of slice failure`);
+        this.logger.fatal(`execution ${this.exId} is ended because of slice failure`);
         await this._endExecution();
     }
 

@@ -86,7 +86,7 @@ describe('ExecutionController', () => {
         let testContext;
         let exStore;
         let exController;
-        const probationWindow = 1000;
+        const probationWindow = 500;
 
         beforeEach(async () => {
             const port = await findPort();
@@ -134,10 +134,12 @@ describe('ExecutionController', () => {
             await expect(exStore.getStatus(testContext.exId))
                 .resolves.toEqual('failing');
 
+            await Promise.delay(probationWindow + 100);
+
             // should be able to setr the status back to running if more slices are processed
             exController.executionAnalytics.increment('processed');
 
-            await Promise.delay(probationWindow + 500);
+            await Promise.delay(probationWindow + 100);
 
             await expect(exStore.getStatus(testContext.exId))
                 .resolves.toEqual('running');
@@ -189,6 +191,70 @@ describe('ExecutionController', () => {
                 expect(setStatus).toHaveBeenCalledWith(testContext.exId, 'failing', errMeta);
                 expect(executionMetaData).toHaveBeenCalledWith(stats, `execution ${testContext.exId} has encountered a processing error`);
                 expect(logErr).toHaveBeenCalledTimes(2);
+            });
+        });
+    });
+
+    describe('when testing _terminalError', () => {
+        let testContext;
+        let exController;
+
+        beforeEach(async () => {
+            testContext = new TestContext({
+                assignment: 'execution_controller',
+            });
+
+            await testContext.initialize();
+
+            exController = new ExecutionController(
+                testContext.context,
+                testContext.executionContext,
+            );
+        });
+
+        afterEach(() => testContext.cleanup());
+
+        describe('when it fails to set the status', () => {
+            it('should log the error twice', async () => {
+                const logErr = jest.fn();
+                const logFatal = jest.fn();
+                const setStatus = jest.fn().mockRejectedValue(new Error('Uh oh'));
+                const errMeta = { error: 'metadata' };
+                const executionMetaData = jest.fn().mockReturnValue(errMeta);
+
+                exController.stores = {
+                    exStore: {
+                        setStatus,
+                        executionMetaData,
+                    }
+                };
+                exController.logger.error = logErr;
+                exController.logger.fatal = logFatal;
+
+                const stats = exController.executionAnalytics.getAnalytics();
+                await exController._terminalError('Uh oh');
+                expect(exController.slicerFailed).toBeTrue();
+
+                expect(setStatus).toHaveBeenCalledWith(testContext.exId, 'failed', errMeta);
+                const errMsg = `slicer for ex ${testContext.exId} had an error, shutting down execution, caused by Uh oh`;
+                expect(executionMetaData).toHaveBeenCalledWith(stats, errMsg);
+
+                expect(logErr).toHaveBeenCalledTimes(2);
+                expect(logFatal).toHaveBeenCalledWith(`execution ${testContext.exId} is ended because of slice failure`);
+            });
+        });
+
+        describe('when the execution is already done', () => {
+            it('should not do anything', async () => {
+                exController.isExecutionDone = true;
+
+                const logErr = jest.fn();
+                exController.logger.error = logErr;
+
+                await exController._terminalError();
+
+                expect(exController.slicerFailed).toBeFalsy();
+                expect(logErr).not.toHaveBeenCalled();
             });
         });
     });
