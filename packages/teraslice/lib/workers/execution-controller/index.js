@@ -12,6 +12,7 @@ const makeSliceAnalytics = require('./slice-analytics');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
 const { makeStateStore, makeExStore } = require('../../cluster/storage');
 const { makeLogger, generateWorkerId } = require('../helpers/terafoundation');
+const { prependErrorMsg } = require('../../utils/error_utils');
 
 const ExecutionControllerServer = Messaging.ExecutionController.Server;
 const ClusterMasterClient = Messaging.ClusterMaster.Client;
@@ -299,12 +300,16 @@ class ExecutionController {
     async setFailingStatus() {
         const { exStore } = this.stores;
 
-        const errMsg = `slicer: ${this.exId} has encountered a processing_error`;
+        const errMsg = `execution ${this.exId} has encountered a processing error`;
         this.logger.error(errMsg);
 
         const executionStats = this.executionAnalytics.getAnalytics();
-        const errorMeta = await exStore.executionMetaData(executionStats, errMsg);
-        await exStore.setStatus(this.exId, 'failing', errorMeta);
+        const errorMeta = exStore.executionMetaData(executionStats, errMsg);
+        try {
+            await exStore.setStatus(this.exId, 'failing', errorMeta);
+        } catch (err) {
+            this.logger.error('Failure to set execution status to "failing"', err);
+        }
     }
 
     async _terminalError(err) {
@@ -314,15 +319,17 @@ class ExecutionController {
 
         this.slicerFailed = true;
 
-        const msg = `slicer for ex ${this.exId} had an error, shutting down execution`;
-        this.logger.error(msg, err);
-
-        const errMsg = `${msg}, caused by ${err.stack ? err.stack : _.toString(err)}`;
+        const errMsg = prependErrorMsg(`slicer for ex ${this.exId} had an error, shutting down execution`, err, true);
+        this.logger.error(errMsg);
 
         const executionStats = this.executionAnalytics.getAnalytics();
-        const errorMeta = await exStore.executionMetaData(executionStats, errMsg);
+        const errorMeta = exStore.executionMetaData(executionStats, errMsg);
 
-        await exStore.setStatus(this.exId, 'failed', errorMeta);
+        try {
+            await exStore.setStatus(this.exId, 'failed', errorMeta);
+        } catch (_err) {
+            this.logger.error('failure setting status to failed', _err);
+        }
 
         this.logger.fatal(`execution ${this.exId} is done because of slice failure`);
         await this._endExecution();
@@ -332,8 +339,8 @@ class ExecutionController {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
         if (this.isShuttingDown) {
+            this.logger.debug(`execution shutdown was called for ex ${this.exId} but it was already shutting down${block ? ', will block until done' : ''}`);
             if (block) {
-                this.logger.debug(`execution shutdown was called for ex ${this.exId} but it was already shutting down, will block until done`);
                 await waitForWorkerShutdown(this.context, 'worker:shutdown:complete');
             }
             return;
@@ -815,12 +822,13 @@ class ExecutionController {
         return async () => {
             if (watchDogSet) return;
             watchDogSet = true;
+
             const analyticsData = this.executionAnalytics.getAnalytics();
             // keep track of how many slices have been processed and failed
             errorCount = analyticsData.failed;
             processedCount = analyticsData.processed;
+
             await this.setFailingStatus();
-            const { exStore } = this.stores;
 
             this.sliceFailureInterval = setInterval(() => {
                 const currentAnalyticsData = this.executionAnalytics.getAnalytics();
@@ -830,10 +838,13 @@ class ExecutionController {
                 const slicesHaveProcessedSinceError = currentProcessedCount > processedCount;
 
                 if (errorCountTheSame && slicesHaveProcessedSinceError) {
-                    watchDogSet = false;
                     clearInterval(this.sliceFailureInterval);
+
+                    watchDogSet = false;
+                    this.sliceFailureInterval = null;
+
                     this.logger.info(`No slice errors have occurred within execution: ${this.exId} will be set back to 'running' state`);
-                    exStore.setStatus(this.exId, 'running');
+                    this.stores.exStore.setStatus(this.exId, 'running');
                     return;
                 }
 

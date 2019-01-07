@@ -160,8 +160,8 @@ class Worker {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
         if (this.isShuttingDown) {
+            this.logger.debug(`worker shutdown was called but it was already shutting down ${block ? ', will block until done' : ''}`);
             if (block) {
-                this.logger.debug('worker shutdown was called but it was already shutting down, will block until done');
                 await waitForWorkerShutdown(this.context, 'worker:shutdown:complete');
             }
             return;

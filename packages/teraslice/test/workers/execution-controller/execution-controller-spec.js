@@ -137,10 +137,59 @@ describe('ExecutionController', () => {
             // should be able to setr the status back to running if more slices are processed
             exController.executionAnalytics.increment('processed');
 
-            await Promise.delay(probationWindow);
+            await Promise.delay(probationWindow + 500);
 
             await expect(exStore.getStatus(testContext.exId))
                 .resolves.toEqual('running');
+
+            expect(exController.sliceFailureInterval).toBeNil();
+
+            await exController._startSliceFailureWatchDog();
+            expect(exController.sliceFailureInterval).not.toBeNil();
+        });
+    });
+
+    describe('when testing setFailingStatus', () => {
+        let testContext;
+        let exController;
+
+        beforeEach(async () => {
+            testContext = new TestContext({
+                assignment: 'execution_controller',
+            });
+
+            await testContext.initialize();
+
+            exController = new ExecutionController(
+                testContext.context,
+                testContext.executionContext,
+            );
+        });
+
+        afterEach(() => testContext.cleanup());
+
+        describe('when it fails to set the status', () => {
+            it('should log the error twice', async () => {
+                const logErr = jest.fn();
+                const setStatus = jest.fn().mockRejectedValue(new Error('Uh oh'));
+                const errMeta = { error: 'metadata' };
+                const executionMetaData = jest.fn().mockReturnValue(errMeta);
+
+                exController.stores = {
+                    exStore: {
+                        setStatus,
+                        executionMetaData,
+                    }
+                };
+                exController.logger.error = logErr;
+
+                const stats = exController.executionAnalytics.getAnalytics();
+                await exController.setFailingStatus();
+
+                expect(setStatus).toHaveBeenCalledWith(testContext.exId, 'failing', errMeta);
+                expect(executionMetaData).toHaveBeenCalledWith(stats, `execution ${testContext.exId} has encountered a processing error`);
+                expect(logErr).toHaveBeenCalledTimes(2);
+            });
         });
     });
 
