@@ -25,6 +25,7 @@ const yargsOptions = new YargsOptions();
 exports.command = 'deploy <cluster-alias> [<asset>]';
 exports.desc = 'Uploads asset from zipfile, github, or source to Teraslice\n';
 exports.builder = (yargs) => {
+    // TODO: The UX on this is terrible.  I'm probably doing it wrong.
     yargs.check((argv) => {
         if (!(argv.file || argv.asset || argv.build)) {
             reply.yellow('You must specify an asset, --file /path/to/file.zip, or --build');
