@@ -42,7 +42,7 @@ class Slice {
 
         let result;
         let remaining = maxTries;
-        let completed = false;
+        let sliceSuccess = false;
 
         try {
             result = await retry(() => {
@@ -50,22 +50,20 @@ class Slice {
                 return this._runOnce(remaining > 0);
             }, retryOptions);
 
-            completed = true;
+            sliceSuccess = true;
             await this._markCompleted();
         } catch (err) {
             // avoid incorrectly marking
             // the slice as failed when it fails
             // to mark it as "complete"
-            if (completed) {
+            if (!sliceSuccess) {
                 await this._markFailed(err);
             }
             throw err;
         } finally {
-            if (completed) {
-                await this._logAnalytics(result && result.analytics);
-                this.events.emit('slice:finalize', slice);
-                await this.executionContext.onSliceFinalizing(slice.slice_id);
-            }
+            await this._logAnalytics(result && result.analytics);
+            this.events.emit('slice:finalize', slice);
+            await this.executionContext.onSliceFinalizing(slice.slice_id);
         }
 
         return result.results;
@@ -90,7 +88,7 @@ class Slice {
         try {
             await this.analyticsStore.log(executionContext, slice, analyticsData);
         } catch (_err) {
-            throw new Error('Failure to update analytics, caused by ', _err);
+            throw new Error(prependErrorMsg('Failure to update analytics', _err));
         }
     }
 
@@ -148,7 +146,7 @@ class Slice {
         }
 
         try {
-            return this.executionContext.runSlice(this.slice);
+            return await this.executionContext.runSlice(this.slice);
         } catch (err) {
             this.logger.error(`An error has occurred: ${toString(err)}, slice:`, this.slice);
 
