@@ -1,8 +1,9 @@
 'use strict';
 
-const eventsModule = require('events');
 const _ = require('lodash');
+const eventsModule = require('events');
 const Promise = require('bluebird');
+const { debugLogger } = require('@terascope/job-components');
 const nodeModule = require('../lib/cluster/node_master');
 
 process.env.assignment = 'node_master';
@@ -10,14 +11,7 @@ process.env.assignment = 'node_master';
 describe('Node master', () => {
     let eventEmitter = {};
 
-    const logger = {
-        error() {},
-        info() {},
-        warn() {},
-        trace() {},
-        debug() {},
-        flush() {}
-    };
+    const logger = debugLogger('node-master-spec');
 
     const context = {
         sysconfig: {

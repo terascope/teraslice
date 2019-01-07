@@ -1,6 +1,6 @@
 {
     "name": "@terascope/teraslice-messaging",
-    "version": "0.2.5",
+    "version": "0.2.6",
     "publishConfig": {
         "access": "public"
     },
@@ -9,6 +9,7 @@
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
     },
+    "author": "Terascope, LLC <info@terascope.io>",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/terascope/teraslice.git"
@@ -36,9 +37,9 @@
         "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@terascope/queue": "^1.1.5",
+        "@terascope/queue": "^1.1.6",
         "bluebird": "^3.5.3",
-        "debug": "^4.1.0",
+        "debug": "^4.1.1",
         "nanoid": "^2.0.0",
         "p-event": "^2.1.0",
         "porty": "^3.1.1",
@@ -46,15 +47,15 @@
         "socket.io-client": "^1.7.4"
     },
     "devDependencies": {
-        "@types/jest": "^23.3.10",
-        "@types/node": "^10.12.15",
+        "@types/jest": "^23.3.11",
+        "@types/node": "^10.12.18",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "jest": "^23.6.0",
         "jest-extended": "^0.11.0",
-        "rimraf": "^2.6.2",
+        "rimraf": "^2.6.3",
         "ts-jest": "^23.10.5",
-        "tslint": "^5.0.0",
+        "tslint": "^5.12.0",
         "tslint-config-airbnb": "^5.11.0",
         "typescript": "^3.2.2"
     },

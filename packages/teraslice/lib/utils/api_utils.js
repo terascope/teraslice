@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const { STATUS_CODES } = require('http');
 const Table = require('easy-table');
 const parseError = require('@terascope/error-parser');
 
@@ -52,24 +53,38 @@ function handleRequest(req, res, defaultErrorMsg = 'Failure to process request',
                 res.status(successCode).json(result);
             }
         } catch (err) {
-            if (_.isError(err) || err.code || err.statusCode) {
-                const code = err.statusCode || err.code || errorCode;
-                req.logger.error(err.message);
-                sendError(res, code, err.message);
-                return;
-            }
-
-            const errMsg = `${defaultErrorMsg}, error: ${parseError(err)}`;
-            req.logger.error(errMsg);
-            sendError(res, errorCode, errMsg);
+            const { code, message } = getErrorMsgAndCode(err, errorCode, defaultErrorMsg);
+            req.logger.error(message);
+            sendError(res, code, message);
         }
     };
 }
 
-function sendError(res, code, error) {
+function getErrorMsgAndCode(err, defaultCode = 500, defaultMsg) {
+    let message = defaultMsg || STATUS_CODES[defaultCode];
+    let code = defaultCode;
+
+    if (_.isError(err) || err.statusCode || err.code) {
+        code = err.statusCode || err.code || defaultCode;
+        ({ message } = err);
+    } else {
+        message = parseError(err);
+    }
+
+    if (STATUS_CODES[code] != null) {
+        return {
+            code,
+            message,
+        };
+    }
+
+    return { code: defaultCode, message };
+}
+
+function sendError(res, code, message) {
     res.status(code).json({
         error: code,
-        message: error
+        message
     });
 }
 
@@ -133,6 +148,7 @@ module.exports = {
     makeTable,
     logRequest,
     getSearchOptions,
+    getErrorMsgAndCode,
     handleRequest,
     sendError
 };

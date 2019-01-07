@@ -1,6 +1,6 @@
 {
     "name": "@terascope/error-parser",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Generic error parser",
     "main": "index.js",
     "publishConfig": {
@@ -21,10 +21,10 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "dependencies": {
-        "lodash": "^4.17.11"
+        "lodash.get": "^4.4.2"
     },
     "devDependencies": {
-        "eslint": "^5.10.0",
+        "eslint": "^5.11.1",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "^2.14.0",
         "jest": "^23.6.0",

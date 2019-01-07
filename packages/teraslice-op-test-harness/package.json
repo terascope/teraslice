@@ -1,6 +1,6 @@
 {
     "name": "@terascope/teraslice-op-test-harness",
-    "version": "1.5.1",
+    "version": "1.5.2",
     "publishConfig": {
         "access": "public"
     },
@@ -28,7 +28,7 @@
         "lodash": "^4.17.11"
     },
     "devDependencies": {
-        "eslint": "^5.10.0",
+        "eslint": "^5.11.1",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "^2.14.0",
         "jest": "^23.6.0",

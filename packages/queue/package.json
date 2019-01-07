@@ -1,6 +1,6 @@
 {
     "name": "@terascope/queue",
-    "version": "1.1.5",
+    "version": "1.1.6",
     "description": "This is a typical FIFO queue implementation with a few extra helper methods",
     "main": "index.js",
     "typings": "types/index.d.ts",
@@ -23,7 +23,7 @@
     },
     "dependencies": {},
     "devDependencies": {
-        "eslint": "^5.10.0",
+        "eslint": "^5.11.1",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "^2.14.0",
         "jest": "^23.6.0",

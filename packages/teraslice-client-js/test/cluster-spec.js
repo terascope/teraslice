@@ -9,7 +9,7 @@ describe('Teraslice Cluster', () => {
 
     beforeEach(() => {
         cluster = new Cluster({
-            baseUrl: 'http://teraslice.example.dev'
+            baseUrl: 'http://teraslice.example.dev',
         });
         scope = nock('http://teraslice.example.dev');
     });
@@ -22,7 +22,7 @@ describe('Teraslice Cluster', () => {
         describe('when called with nothing', () => {
             let result;
             beforeEach((done) => {
-                scope.get('/cluster/state')
+                scope.get('/v1/cluster/state')
                     .reply(200, { stateResponse: true });
 
                 cluster.state()
@@ -42,7 +42,7 @@ describe('Teraslice Cluster', () => {
         describe('when called with nothing', () => {
             let result;
             beforeEach((done) => {
-                scope.get('/cluster/stats')
+                scope.get('/v1/cluster/stats')
                     .reply(200, { statsResponse: true });
 
                 cluster.stats()
@@ -62,7 +62,7 @@ describe('Teraslice Cluster', () => {
         describe('when called with nothing', () => {
             let result;
             beforeEach((done) => {
-                scope.get('/cluster/slicers')
+                scope.get('/v1/cluster/slicers')
                     .reply(200, { slicerResponse: true });
 
                 cluster.slicers()

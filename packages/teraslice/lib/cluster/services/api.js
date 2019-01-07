@@ -12,6 +12,7 @@ const {
     sendError,
     handleRequest,
     getSearchOptions,
+    getErrorMsgAndCode
 } = require('../../utils/api_utils');
 const makeStateStore = require('../storage/state');
 const terasliceVersion = require('../../../package.json').version;
@@ -411,13 +412,27 @@ module.exports = async function makeAPI(context, app, options) {
     }
 
     function _redirect(req, res) {
-        req.pipe(request({
+        const reqOptions = {
             method: req.method,
-            url: `${assetsUrl}${req.url}`
-        }).on('response', (assetsResponse) => {
-            assetsResponse.pipe(res);
-        })).on('error', (assetsResponse) => {
-            res.status(500).send({ error: `Asset Service error while processing request, error: ${assetsResponse}` });
+            url: req.url,
+            baseUrl: assetsUrl,
+        };
+
+        reqOptions.headers = req.headers;
+        reqOptions.qs = req.query;
+
+        req.pipe(
+            request(reqOptions)
+                .on('response', (response) => {
+                    res.headers = response.headers;
+                    res.status(response.statusCode);
+                    response.pipe(res);
+                })
+        ).on('error', (err) => {
+            const { code, message } = getErrorMsgAndCode(err, 500, 'Asset Service error while processing request');
+            res.status(code).json({
+                error: message
+            });
         });
     }
 

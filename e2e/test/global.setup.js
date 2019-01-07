@@ -202,7 +202,8 @@ function generateTestData() {
     return Promise.all([
         generate(10),
         generate(1000),
-        generate(1000, ['d', '3'])
+        // no need for id slicing in elasticsearch 6.x, see id-reader-spec.js
+        // generate(1000, ['d', '3'])
     ])
         // we need fully active jobs so we can get proper meta data for recovery state tests
         .then(() => Promise.all([

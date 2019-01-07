@@ -19,7 +19,6 @@ import {
     TestClients,
 } from '@terascope/job-components';
 import { EventEmitter } from 'events';
-import { Client } from 'packages/teraslice-messaging/dist/execution-controller';
 
 export = opTestHarness;
 
@@ -50,8 +49,8 @@ export interface SampleData {
 export interface SampleDataElasticSearch {
     took:      number;
     timed_out: boolean;
-    _shards:   Shards;
     hits:      Hits;
+    _shards:   Shards;
 }
 
 interface Shards {

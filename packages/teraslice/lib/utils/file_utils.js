@@ -33,6 +33,7 @@ function normalizeZipFile(id, newPath, logger) {
             })
             .catch(() => {
                 const error = new Error("Failure parsing asset.json, please ensure that's it formatted correctly");
+                error.code = 422;
                 error.parseError = true;
                 logger.error(error);
                 return Promise.reject(error);
@@ -48,7 +49,9 @@ function normalizeZipFile(id, newPath, logger) {
                 .filter(filename => existsSync(path.join(newPath, filename, 'asset.json')));
 
             if (assetJSON.length === 0) {
-                return Promise.reject(new Error('asset.json was not found in root directory of asset bundle nor any immediate sub directory'));
+                const error = new Error('asset.json was not found in root directory of asset bundle nor any immediate sub directory');
+                error.code = 422;
+                return Promise.reject(error);
             }
 
             return fse.readJson(path.join(newPath, assetJSON[0], 'asset.json'))
@@ -61,6 +64,7 @@ function normalizeZipFile(id, newPath, logger) {
                 .catch(() => {
                     const error = new Error("Failure parsing asset.json, please ensure that's it formatted correctly");
                     error.parseError = true;
+                    error.code = 422;
                     return Promise.reject(error);
                 });
         });
