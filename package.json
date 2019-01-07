@@ -37,6 +37,7 @@
         "@types/uuid": "^3.4.4",
         "lerna": "^3.6.0",
         "rimraf": "^2.6.2",
+        "terafoundation_kafka_connector": "terascope/terafoundation_kafka_connector",
         "typescript": "^3.2.2"
     },
     "devDependencies": {
