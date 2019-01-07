@@ -67,7 +67,6 @@ class ExecutionController {
         this.collectAnalytics = this.executionContext.config.analytics;
         this.shutdownTimeout = shutdownTimeout;
         this.workerDisconnectTimeout = workerDisconnectTimeout;
-        this._startExecutionFailureWatchDog = this._initExecutionFailureWatchDog();
         this.stores = {};
 
         this.isPaused = false;
@@ -90,6 +89,8 @@ class ExecutionController {
             trailing: true,
             maxWait: 500,
         });
+
+        this._startSliceFailureWatchDog = this._initSliceFailureWatchDog();
     }
 
     async initialize() {
@@ -202,7 +203,7 @@ class ExecutionController {
                 } else {
                     // in persistent mode we set watchdogs to monitor
                     // when failing can be set back to running
-                    this._startExecutionFailureWatchDog();
+                    this._startSliceFailureWatchDog();
                 }
                 this.pendingSlices -= 1;
                 this._updateExecutionStats();
@@ -805,7 +806,7 @@ class ExecutionController {
         return false;
     }
 
-    _initExecutionFailureWatchDog() {
+    _initSliceFailureWatchDog() {
         const probationWindow = this.executionContext.config.probation_window;
         let watchDogSet = false;
         let errorCount;
