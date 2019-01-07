@@ -203,6 +203,7 @@ const _createClientFns = new WeakMap<TestContext, ClientFactoryFns>();
 export class TestContext implements i.Context {
     logger: i.Logger;
     sysconfig: i.SysConfig;
+    cluster: i.ContextClusterConfig;
     apis: TestContextAPIs|i.WorkerContextAPIs|i.ContextAPIs;
     foundation: i.LegacyFoundationApis;
     name: string;
@@ -219,6 +220,12 @@ export class TestContext implements i.Context {
             this.assignment = options.assignment;
         }
         this.logger = logger;
+
+        this.cluster = {
+            worker: {
+                id: newId('id')
+            }
+        };
 
         const sysconfig: i.SysConfig = {
             terafoundation: {
@@ -255,6 +262,7 @@ export class TestContext implements i.Context {
                 worker_disconnect_timeout: 3000,
                 workers: 1,
             },
+            _nodeName: `${newId(testName)}__${this.cluster.worker.id}`
         };
 
         this.sysconfig = sysconfig;
