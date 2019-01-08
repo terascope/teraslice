@@ -1,9 +1,13 @@
 import 'jest-extended';
 import es from 'elasticsearch';
+import { ELASTICSEARCH_HOST } from './helpers/config';
 import { IndexManager } from '../src';
 
 describe('IndexManager', () => {
-    const client = new es.Client({});
+    const client = new es.Client({
+        host: ELASTICSEARCH_HOST,
+        log: 'error'
+    });
 
     describe('when constructed with nothing', () => {
         it('should throw an error', () => {
