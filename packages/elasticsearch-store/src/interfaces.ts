@@ -9,21 +9,33 @@ export interface IndexConfig {
     index: string;
 
     /**
+     * Data Version, this allows multiple versions of an index to exist with the same Schema
+    */
+    version: string;
+
+    /**
      * The default index type, when using ElasticSearch v6,
      * use this index type.
     */
     indexType: es.NameList;
 
     /**
+     * ElasticSearch Index Settings
+    */
+    indexSettings: IndexSettings;
+
+    /**
      * Schema Specification for the Data and ES
     */
-    indexSchema?: SimpleIndexSchema|TemplatedIndexSchema|TimeSeriesIndexSchema;
+    indexSchema?: IndexSchemaConfig;
 
     /**
      * The data schema format
     */
     dataSchema?: DataSchema;
 }
+
+export type IndexSchemaConfig = SimpleIndexSchema|TemplatedIndexSchema|TimeSeriesIndexSchema;
 
 /** ElasticSearch Index Schema, Mapping and Version */
 export interface IndexSchema {
@@ -68,6 +80,12 @@ export interface TimeSeriesIndexSchema extends TemplatedIndexSchema {
      * Rollover Frequency for the Timeseries Index
     */
     rollover_frequency: 'daily'|'montly'|'yearly';
+}
+
+export interface IndexSettings {
+    'index.number_of_shards': number;
+    'index.number_of_replicas': number;
+    [key: string]: string|number|boolean;
 }
 
 /** Data Schema and Version */

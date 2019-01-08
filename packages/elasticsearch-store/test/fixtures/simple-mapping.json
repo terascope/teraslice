@@ -1,0 +1,26 @@
+{
+    "_all": {
+        "enabled": false
+    },
+    "dynamic": false,
+    "properties": {
+        "test_keyword": {
+            "type": "keyword"
+        },
+        "test_object": {
+            "type": "object"
+        },
+        "test_boolean": {
+            "type": "boolean"
+        },
+        "test_number": {
+            "type": "integer"
+        },
+        "_created": {
+            "type": "date"
+        },
+        "_updated": {
+            "type": "date"
+        }
+    }
+}

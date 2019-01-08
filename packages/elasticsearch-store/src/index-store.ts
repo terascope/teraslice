@@ -1,20 +1,31 @@
 import * as es from 'elasticsearch';
+import IndexManager from './index-manager';
 import { IndexConfig } from './interfaces';
 
 export default class IndexStore<T extends Object> {
     readonly client: es.Client;
     readonly config: IndexConfig;
+    readonly manager: IndexManager;
 
     constructor(client: es.Client, config: IndexConfig) {
+        if (!client) {
+            throw new Error('IndexStore requires elasticsearch-js client');
+        }
+
+        if (!config) {
+            throw new Error('IndexStore requires config');
+        }
+
         this.client = client;
         this.config = config;
+        this.manager = new IndexManager(client);
     }
 
     /**
      * Connect and validate the index configuration.
     */
     async initialize() {
-        return;
+        await this.manager.create(this.config);
     }
 
     /**

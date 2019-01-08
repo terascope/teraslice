@@ -1,4 +1,6 @@
+import get from 'lodash.get';
 import * as es from 'elasticsearch';
+import { isSimpleIndex, getMajorVersion } from './utils';
 import { IndexConfig } from './interfaces';
 
 /** Manage ElasticSearch Indicies */
@@ -9,14 +11,33 @@ export default class IndexManager {
         this.client = client;
     }
 
-    /** Create a template */
-    async createTemplate(name: string, version: string, template: any) {
-        return;
-    }
+    /**
+     * Create an index
+     * @returns a boolean that indicates whether the index was created or not
+    */
+    async create(config: IndexConfig): Promise<boolean> {
+        const indexName = this.formatIndexName(config);
+        if (await this.exists(indexName)) return false;
 
-    /** Safely update an index */
-    async updateTemplate(name: string, version: string, template: any) {
-        return;
+        if (isSimpleIndex(config.indexSchema)) {
+            const settings = config.indexSettings || {
+                'index.number_of_shards': 5,
+                'index.number_of_replicas': 1,
+            };
+
+            const mappings = {};
+            mappings[indexName] = config.indexSchema.mapping;
+
+            await this.client.indices.create({
+                index: indexName,
+                body: {
+                    settings,
+                    mappings,
+                },
+            });
+        }
+
+        return true;
     }
 
     /**
@@ -30,18 +51,26 @@ export default class IndexManager {
     }
 
     /** Verify the index exists */
-    async exists(params: es.IndicesExistsParams): Promise<boolean> {
-        return true;
+    async exists(index: string): Promise<boolean> {
+        return this.client.indices.exists({
+            index,
+        });
     }
 
-    /** Create an index */
-    async create(params: es.IndicesCreateParams) {
-        return;
-    }
+    formatIndexName(config: IndexConfig) {
+        const { index } = config;
+        const schemaVersion = getMajorVersion(get(config, 'indexSchema.version'));
+        const dataVersion = getMajorVersion(get(config, 'version'));
 
-    /** Get the Index Recovery Stats */
-    async recovery(params: es.IndicesRecoveryParams) {
-        return;
+        if (!index) {
+            throw new Error('Invalid index name, must not be empty');
+        }
+
+        if (index.includes('-')) {
+            throw new Error('Invalid index name, must not be include "-"');
+        }
+
+        return `${index}-v${dataVersion}-s${schemaVersion}`;
     }
 }
 

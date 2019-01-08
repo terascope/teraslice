@@ -27,11 +27,15 @@
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {
-        "@types/elasticsearch": "^5.0.30"
+        "@types/elasticsearch": "^5.0.30",
+        "lodash.get": "^4.4.2",
+        "semver": "^5.6.0"
     },
     "devDependencies": {
         "@types/jest": "^23.3.10",
+        "@types/lodash.get": "^4.4.4",
         "@types/node": "^10.12.18",
+        "@types/semver": "^5.5.0",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "elasticsearch": "^15.2.0",
