@@ -1,5 +1,6 @@
 import * as es from 'elasticsearch';
 import IndexManager from './index-manager';
+import { isValidClient, isValidConfig } from './utils';
 import { IndexConfig } from './interfaces';
 
 export default class IndexStore<T extends Object> {
@@ -8,12 +9,12 @@ export default class IndexStore<T extends Object> {
     readonly manager: IndexManager;
 
     constructor(client: es.Client, config: IndexConfig) {
-        if (!client) {
-            throw new Error('IndexStore requires elasticsearch-js client');
+        if (!isValidClient(client)) {
+            throw new Error('IndexStore requires elasticsearch client');
         }
 
-        if (!config) {
-            throw new Error('IndexStore requires config');
+        if (!isValidConfig(config)) {
+            throw new Error('IndexStore requires a valid config');
         }
 
         this.client = client;

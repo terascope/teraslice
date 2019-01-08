@@ -27,27 +27,29 @@ describe('IndexStore (Simple Mapping)', () => {
         }
     });
 
-    beforeAll(async () => {
-        await client.indices.delete({
-            index
-        }).catch(() => {});
+    describe('when the index does not exists', () => {
+        beforeAll(async () => {
+            await client.indices.delete({
+                index
+            }).catch(() => {});
 
-        await indexStore.initialize();
-    });
-
-    afterAll(async () => {
-        await indexStore.shutdown();
-
-        await client.indices.delete({
-            index
-        }).catch(() => {});
-    });
-
-    it('should create the versioned index', async () => {
-        const exists = await client.indices.exists({
-            index
+            await indexStore.initialize();
         });
 
-        expect(exists).toBeTrue();
+        afterAll(async () => {
+            await indexStore.shutdown();
+
+            await client.indices.delete({
+                index
+            }).catch(() => {});
+        });
+
+        it('should create the versioned index', async () => {
+            const exists = await client.indices.exists({
+                index
+            });
+
+            expect(exists).toBeTrue();
+        });
     });
 });

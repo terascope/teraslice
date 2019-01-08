@@ -11,18 +11,18 @@ export interface IndexConfig {
     /**
      * Data Version, this allows multiple versions of an index to exist with the same Schema
     */
-    version: string;
+    version?: string;
 
     /**
      * The default index type, when using ElasticSearch v6,
      * use this index type.
     */
-    indexType: es.NameList;
+    indexType?: es.NameList;
 
     /**
      * ElasticSearch Index Settings
     */
-    indexSettings: IndexSettings;
+    indexSettings?: IndexSettings;
 
     /**
      * Schema Specification for the Data and ES

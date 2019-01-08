@@ -1,13 +1,21 @@
 import get from 'lodash.get';
 import * as es from 'elasticsearch';
-import { isSimpleIndex, getMajorVersion } from './utils';
 import { IndexConfig } from './interfaces';
+import {
+    isSimpleIndex,
+    getMajorVersion,
+    isValidClient,
+    isValidConfig
+} from './utils';
 
 /** Manage ElasticSearch Indicies */
 export default class IndexManager {
     readonly client: es.Client;
 
     constructor(client: es.Client) {
+        if (!isValidClient(client)) {
+            throw new Error('IndexManager requires elasticsearch client');
+        }
         this.client = client;
     }
 
@@ -58,13 +66,13 @@ export default class IndexManager {
     }
 
     formatIndexName(config: IndexConfig) {
+        if (!isValidConfig(config)) {
+            throw new Error('Invalid config passed to formatIndexName');
+        }
+
         const { index } = config;
         const schemaVersion = getMajorVersion(get(config, 'indexSchema.version'));
         const dataVersion = getMajorVersion(get(config, 'version'));
-
-        if (!index) {
-            throw new Error('Invalid index name, must not be empty');
-        }
 
         if (index.includes('-')) {
             throw new Error('Invalid index name, must not be include "-"');
