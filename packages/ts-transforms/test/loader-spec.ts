@@ -9,7 +9,7 @@ describe('Loader', () => {
     const transformRules16Path = path.join(__dirname, './fixtures/transformRules16.txt');
 
     it('it can instantiate a matcher from file', async () => {
-        const config: WatcherConfig = { file_path: matchRules1Path, type: 'matcher' };
+        const config: WatcherConfig = { rules: [matchRules1Path], type: 'matcher' };
         let loader: Loader;
 
         expect(() => {
@@ -24,7 +24,7 @@ describe('Loader', () => {
     });
 
     it('it can instantiate a transform with operations from file', async () => {
-        const config: WatcherConfig = { file_path: transformRules2Path, type: 'transform' };
+        const config: WatcherConfig = { rules: [transformRules2Path], type: 'transform' };
         let loader: Loader;
 
         expect(() => {
@@ -37,7 +37,7 @@ describe('Loader', () => {
     });
 
     it('it will not add selector: * to config with refs and other_match_required', async () => {
-        const config: WatcherConfig = { file_path: transformRules16Path, type: 'transform' };
+        const config: WatcherConfig = { rules: [transformRules16Path], type: 'transform' };
         let loader: Loader;
 
         expect(() => {

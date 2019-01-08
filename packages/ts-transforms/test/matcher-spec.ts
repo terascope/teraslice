@@ -14,10 +14,9 @@ describe('matcher', () => {
     });
 
     it('can return matching documents', async () => {
-        // TODO: file path needs to be from asset
         const config = {
-            file_path: matchRules1Path,
-            selector_config: { _created: 'date' },
+            rules: [matchRules1Path],
+            types: { _created: 'date' },
             type: 'matcher'
         };
 
@@ -37,8 +36,8 @@ describe('matcher', () => {
 
     it('it add metadata to returning docs', async () => {
         const config = {
-            file_path: matchRules1Path,
-            selector_config: { _created: 'date' },
+            rules: [matchRules1Path],
+            types: { _created: 'date' },
             type: 'matcher'
         };
 
@@ -59,8 +58,8 @@ describe('matcher', () => {
 
     it('it can match multiple rules', async () => {
         const config = {
-            file_path: matchRules1Path,
-            selector_config: { _created: 'date' },
+            rules: [matchRules1Path],
+            types: { _created: 'date' },
             type: 'matcher'
         };
 

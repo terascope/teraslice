@@ -3,26 +3,27 @@ import path from 'path';
 import { DataEntity } from '@terascope/job-components';
 import { ExtractionPhase, Loader } from '../../src';
 import { OperationConfig } from '../../src/interfaces';
+import { OperationsManager } from '../../src/operations';
 
 describe('extraction phase', () => {
 
     async function getConfigList(fileName: string): Promise<OperationConfig[]> {
         const filePath = path.join(__dirname, `../fixtures/${fileName}`);
-        const myFileLoader = new Loader({ type: 'transform', file_path: filePath });
+        const myFileLoader = new Loader({ type: 'transform', rules: [filePath] });
         return myFileLoader.load();
     }
-    // file_path is only used in loader
-    const transformOpconfig = { file_path: 'some/path', type: 'transform' };
+    // rules is only used in loader
+    const transformOpconfig = { rules: ['some/path'], type: 'transform' };
 
     it('can instantiate', async () => {
         const configList = await getConfigList('transformRules1.txt');
 
-        expect(() => new ExtractionPhase(transformOpconfig, configList)).not.toThrow();
+        expect(() => new ExtractionPhase(transformOpconfig, configList, new OperationsManager())).not.toThrow();
     });
 
     it('has the proper properties', async () => {
         const configList = await getConfigList('transformRules1.txt');
-        const extractionPhase = new ExtractionPhase(transformOpconfig, configList);
+        const extractionPhase = new ExtractionPhase(transformOpconfig, configList, new OperationsManager());
 
         expect(extractionPhase.hasProcessing).toEqual(true);
         expect(extractionPhase.phase).toBeDefined();
@@ -39,7 +40,7 @@ describe('extraction phase', () => {
 
     it('has the proper properties with other_match_required', async () => {
         const configList = await getConfigList('transformRules16.txt');
-        const extractionPhase = new ExtractionPhase(transformOpconfig, configList);
+        const extractionPhase = new ExtractionPhase(transformOpconfig, configList, new OperationsManager());
 
         expect(extractionPhase.hasProcessing).toEqual(true);
         expect(extractionPhase.phase).toBeDefined();
@@ -53,7 +54,7 @@ describe('extraction phase', () => {
 
     it('can run and extract data', async () => {
         const configList = await getConfigList('transformRules1.txt');
-        const extractionPhase = new ExtractionPhase(transformOpconfig, configList);
+        const extractionPhase = new ExtractionPhase(transformOpconfig, configList, new OperationsManager());
 
         const data = [
             { some: 'data',  bytes: 367, myfield: 'something' },
@@ -92,7 +93,7 @@ describe('extraction phase', () => {
 
     it('can pick up extractions from other_match_required', async () => {
         const configList = await getConfigList('transformRules14.txt');
-        const extractionPhase = new ExtractionPhase(transformOpconfig, configList);
+        const extractionPhase = new ExtractionPhase(transformOpconfig, configList, new OperationsManager());
         const key = '12345680';
         const date = new Date().toISOString();
 

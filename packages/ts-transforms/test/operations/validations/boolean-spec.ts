@@ -1,12 +1,12 @@
 
-import { Boolean as BooleanOp } from '../../../src/operations';
+import { BooleanValidation } from '../../../src/operations';
 import { DataEntity } from '@terascope/job-components';
 
 describe('boolean validation', () => {
 
     it('can instantiate', () => {
         const opConfig = { source_field: 'someField' };
-        expect(() => new BooleanOp(opConfig)).not.toThrow();
+        expect(() => new BooleanValidation(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
@@ -15,16 +15,16 @@ describe('boolean validation', () => {
         const badConfig3 = { source_field: {} };
         const badConfig4 = {};
         // @ts-ignore
-        expect(() => new BooleanOp(badConfig1)).toThrow();
-        expect(() => new BooleanOp(badConfig2)).toThrow();
+        expect(() => new BooleanValidation(badConfig1)).toThrow();
+        expect(() => new BooleanValidation(badConfig2)).toThrow();
         // @ts-ignore
-        expect(() => new BooleanOp(badConfig3)).toThrow();
-        expect(() => new BooleanOp(badConfig4)).toThrow();
+        expect(() => new BooleanValidation(badConfig3)).toThrow();
+        expect(() => new BooleanValidation(badConfig4)).toThrow();
     });
 
     it('can validate boolean fields', () => {
         const opConfig = { source_field: 'isTall' };
-        const test =  new BooleanOp(opConfig);
+        const test =  new BooleanValidation(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
         const data1 = new DataEntity({ isTall: '56.234,95.234' }, metaData);
@@ -58,7 +58,7 @@ describe('boolean validation', () => {
 
     it('can validate special boolean fields', () => {
         const opConfig = { source_field: 'isTall' };
-        const test =  new BooleanOp(opConfig);
+        const test =  new BooleanValidation(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
         const data1 = new DataEntity({ isTall: true }, metaData);
@@ -95,7 +95,7 @@ describe('boolean validation', () => {
 
     it('can validate nested fields', async() => {
         const opConfig = { source_field: 'person.isTall' };
-        const test =  new BooleanOp(opConfig);
+        const test =  new BooleanValidation(opConfig);
 
         const data1 = new DataEntity({ isTall: true });
         const data2 = new DataEntity({ isTall: 'true' });

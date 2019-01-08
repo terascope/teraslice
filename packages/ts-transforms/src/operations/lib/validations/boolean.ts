@@ -4,7 +4,7 @@ import { OperationConfig } from '../../../interfaces';
 import _ from 'lodash';
 import OperationBase from '../base';
 
-export default class Boolean extends OperationBase {
+export default class BooleanValidation extends OperationBase {
     constructor(config: OperationConfig) {
         super(config);
     }

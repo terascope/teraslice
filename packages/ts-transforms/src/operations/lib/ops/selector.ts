@@ -2,21 +2,21 @@
 import { DocumentMatcher } from 'xlucene-evaluator';
 import { DataEntity } from '@terascope/job-components';
 import OperationBase from '../base';
-import { OperationConfig } from '../../../interfaces';
+import { OperationConfig, SelectorTypes } from '../../../interfaces';
 
 export default class Selector extends OperationBase {
     private documentMatcher: DocumentMatcher;
     public selector: string;
     private isMatchAll: boolean;
 
-    constructor(config: OperationConfig, typeConfigs?: object) {
+    constructor(config: OperationConfig, types?: SelectorTypes) {
         super(config);
         let luceneQuery = config.selector as string;
         if (typeof luceneQuery !== 'string') throw new Error('selector must be a string');
         this.selector = luceneQuery;
         this.isMatchAll = luceneQuery === '*';
         if (this.isMatchAll) luceneQuery = '';
-        this.documentMatcher = new DocumentMatcher(luceneQuery, typeConfigs);
+        this.documentMatcher = new DocumentMatcher(luceneQuery, types);
     }
 
     addMetaData(doc: DataEntity, selector: string) {

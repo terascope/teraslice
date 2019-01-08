@@ -1,11 +1,12 @@
+
 import { DataEntity } from '@terascope/job-components';
+import _ from 'lodash';
 import { OperationConfig, WatcherConfig } from '../interfaces';
 import PhaseBase from './base';
-import _ from 'lodash';
-import * as Operations from '../operations';
+import { OperationsManager } from '../operations';
 
 export default class ValidationPhase extends PhaseBase {
-    constructor(_opConfig: WatcherConfig, configList:OperationConfig[]) {
+    constructor(_opConfig: WatcherConfig, configList:OperationConfig[], opsManager: OperationsManager) {
         super();
 
         function isPrimaryValidation(config: OperationConfig): boolean {
@@ -29,8 +30,9 @@ export default class ValidationPhase extends PhaseBase {
                 }
             });
             if (Object.keys(requirements).length > 0) {
+                const RequiredExtractions = opsManager.getTransform('requiredExtractions');
                 if (!this.phase['__all']) this.phase['__all'] = [];
-                this.phase.__all.push(new Operations.RequiredExtractions(requirements));
+                this.phase.__all.push(new RequiredExtractions(requirements));
             }
         });
 
@@ -39,7 +41,7 @@ export default class ValidationPhase extends PhaseBase {
             { type: 'validation', filterFn: isRefsValidation },
             { type: 'validation', filterFn: isMatchRequired, injectFn: extractionRequirements }
         ];
-        sequence.forEach((loadingConfig) => this.installOps(loadingConfig, configList));
+        sequence.forEach((loadingConfig) => this.installOps(loadingConfig, configList, opsManager));
     }
 
     run(dataArray: DataEntity[]): DataEntity[] {

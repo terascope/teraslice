@@ -1,11 +1,11 @@
 
 import { DataEntity } from '@terascope/job-components';
 import _ from 'lodash';
-import { OperationConfig, NormalizedConfig, OperationsDictionary, ConfigResults, injectFn, filterFn } from '../interfaces';
-import * as Operations from '../operations';
+import { OperationConfig, NormalizedConfig, OperationsPipline, ConfigResults, injectFn, filterFn } from '../interfaces';
+import { OperationsManager } from '../operations';
 
 export default abstract class PhaseBase {
-    readonly phase: OperationsDictionary;
+    readonly phase: OperationsPipline;
     public hasProcessing: boolean;
 
     constructor() {
@@ -15,7 +15,7 @@ export default abstract class PhaseBase {
 
     abstract run(data: DataEntity[]): DataEntity[];
 
-    protected installOps({ type, filterFn, injectFn }: { type: string, filterFn: filterFn, injectFn?:injectFn} , configList:OperationConfig[]) {
+    protected installOps({ type, filterFn, injectFn }: { type: string, filterFn: filterFn, injectFn?:injectFn} , configList:OperationConfig[], opsManager: OperationsManager) {
         _.forEach(configList, (config: OperationConfig, _ind, list) => {
             if (filterFn(config)) {
                 if (injectFn) {
@@ -29,10 +29,7 @@ export default abstract class PhaseBase {
                     if (type === 'extraction') opName = 'extraction';
                     if (type === 'validation' || type === 'post_process') opName = config[type];
 
-                    // tslint:disable-next-line
-                    const Op = Operations.opNames[opName as string];
-                    if (!Op) throw new Error(`could not find ${opName} module, config: ${JSON.stringify(config)}`);
-
+                    const Op = opsManager.getTransform(opName as string);
                     if (!this.phase[configData.registrationSelector]) this.phase[configData.registrationSelector] = [];
                     this.phase[configData.registrationSelector].push(new Op(configData.configuration));
                 }

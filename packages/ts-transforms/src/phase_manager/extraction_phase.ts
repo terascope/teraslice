@@ -1,20 +1,21 @@
+
 import { DataEntity } from '@terascope/job-components';
-import { OperationConfig, WatcherConfig, } from '../interfaces';
-import PhaseBase from './base';
-import * as Ops from '../operations';
 import _ from 'lodash';
+import { OperationConfig, WatcherConfig, Operation } from '../interfaces';
+import PhaseBase from './base';
+import { OperationsManager } from '../operations';
 
 export default class ExtractionPhase extends PhaseBase {
      // @ts-ignore
     private opConfig: WatcherConfig;
 
-    constructor(opConfig: WatcherConfig, configList:OperationConfig[]) {
+    constructor(opConfig: WatcherConfig, configList:OperationConfig[], opsManager: OperationsManager) {
         super();
         this.opConfig = opConfig;
-
+        const Extraction = opsManager.getTransform('extraction');
         const matchRequireTransforms = (config: OperationConfig, _list:OperationConfig[]) => {
-            _.forOwn(this.phase, (sequence: Ops.OperationBase[], _key) => {
-                sequence.push(new Ops.Extraction(config));
+            _.forOwn(this.phase, (sequence: Operation[], _key) => {
+                sequence.push(new Extraction(config));
             });
         };
 
@@ -31,7 +32,7 @@ export default class ExtractionPhase extends PhaseBase {
             { type: 'extraction', filterFn: isMatchRequired, injectFn: matchRequireTransforms },
         ];
 
-        sequence.forEach((loadingConfig) => this.installOps(loadingConfig, configList));
+        sequence.forEach((loadingConfig) => this.installOps(loadingConfig, configList, opsManager));
     }
 
     run(dataArray: DataEntity[]): DataEntity[] {

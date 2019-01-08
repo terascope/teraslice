@@ -1,13 +1,13 @@
 
 import { DataEntity, Logger } from '@terascope/job-components';
 import _ from 'lodash';
-import { WatcherConfig } from '../interfaces';
+import { WatcherConfig, PluginList } from '../interfaces';
 import Loader from '../loader';
 import SelectionPhase from './selector_phase';
 import ExtractionPhase from './extraction_phase';
 import PostProcessPhase from './post_process_phase';
 import ValidationPhase from './validation_phase';
-
+import { OperationsManager } from '../operations';
 import PhaseBase from './base';
 
 export default class PhaseManager {
@@ -25,18 +25,19 @@ export default class PhaseManager {
         this.isMatcher = opConfig.type === 'matcher';
     }
 
-    public async init () {
+    public async init (Plugins?: PluginList) {
         try {
             const configList = await this.loader.load();
+            const opsManager = new OperationsManager(Plugins);
             const sequence: PhaseBase[] = [
-                new SelectionPhase(this.opConfig, configList),
+                new SelectionPhase(this.opConfig, configList, opsManager),
             ];
 
             if (!this.isMatcher) {
                 sequence.push(
-                    new ExtractionPhase(this.opConfig, configList),
-                    new PostProcessPhase(this.opConfig, configList),
-                    new ValidationPhase(this.opConfig, configList)
+                    new ExtractionPhase(this.opConfig, configList, opsManager),
+                    new PostProcessPhase(this.opConfig, configList, opsManager),
+                    new ValidationPhase(this.opConfig, configList, opsManager)
                 );
             }
 

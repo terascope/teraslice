@@ -1,13 +1,13 @@
 
 import OperationBase from '../base';
 import { DataEntity } from '@terascope/job-components';
-import { StringRefs } from '../../../interfaces';
+import { OperationConfig } from '../../../interfaces';
 import _ from 'lodash';
 
-export default class String extends OperationBase {
+export default class StringValidation extends OperationBase {
     private length?: number;
 
-    constructor(config: StringRefs) {
+    constructor(config: OperationConfig) {
         super(config);
         this.length = config.length;
     }

@@ -2,6 +2,7 @@
 import fs from 'fs';
 import readline from 'readline';
 import { WatcherConfig, OperationConfig } from '../interfaces';
+import _ from 'lodash';
 
 export default class Loader {
     private opConfig: WatcherConfig;
@@ -11,12 +12,9 @@ export default class Loader {
     }
 
     public async load():Promise<OperationConfig[]> {
-        return this.fileLoader();
+        const results = await Promise.all(this.opConfig.rules.map((ruleFile) => this.fileLoader(ruleFile)));
+        return _.flatten(results);
     }
-
-    // private async esLoader() {
-    //     //TODO: implement me
-    // }
 
     private parseConfig(config: string): OperationConfig {
         if (config.charAt(0) !== '{') {
@@ -28,12 +26,12 @@ export default class Loader {
         return results;
     }
 
-    private async fileLoader(): Promise<OperationConfig[]> {
+    private async fileLoader(ruleFile: string): Promise<OperationConfig[]> {
         const parseConfig = this.parseConfig.bind(this);
         const results: OperationConfig[] = [];
 
         const rl = readline.createInterface({
-            input: fs.createReadStream(this.opConfig.file_path as string),
+            input: fs.createReadStream(ruleFile),
             crlfDelay: Infinity
         });
         // TODO: error handling here

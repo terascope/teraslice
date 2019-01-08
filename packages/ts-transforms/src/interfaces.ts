@@ -1,11 +1,12 @@
 
-import PhaseBase from './operations/lib/base';
+import { DataEntity } from '@terascope/job-components';
+
 export enum NotifyType { matcher = 'matcher', transform = 'transform' }
 
 export interface OperationConfig {
     tag?: string;
     selector?: string;
-    selector_config?: object | undefined;
+    types?: object | undefined;
     source_field?: string;
     start?: string;
     end?: string;
@@ -19,18 +20,31 @@ export interface OperationConfig {
     registration_selector?:string;
     mutate?: boolean;
     other_match_required?: boolean;
-}
-// TODO: fix registrationSelector above
-export interface Refs {
-    refs: string;
-    validation?: string;
-    post_process?: string;
+    length?: number;
+    fields?: string[];
+    delimiter?: string;
 }
 
-export interface StringRefs extends Refs {
-    length?: number;
-    target_field?: string;
-    source_field: string;
+export interface SelectorTypes {
+    [field: string]: string;
+}
+
+export type PluginClassConstructor = { new (): PluginClassType };
+
+export interface PluginClassType {
+    init: () => OperationsDict;
+}
+
+export type PluginList = PluginClassConstructor[];
+
+export type BaseOperationClass = { new (config: OperationConfig, types?: SelectorTypes): Operation };
+
+export interface OperationsDict {
+    [op: string]: BaseOperationClass;
+}
+
+export interface Operation {
+    run(data: DataEntity): null | DataEntity;
 }
 
 export interface ConfigResults {
@@ -43,26 +57,15 @@ export interface NormalizedConfig {
     registrationSelector: string;
 }
 
-export interface OperationsDictionary {
-    [key: string]: PhaseBase[];
+export interface OperationsPipline {
+    [key: string]: Operation[];
 }
 
 export interface WatcherConfig {
     type: string;
-    file_path: string | undefined;
-    connection?: string | undefined;
-    index?: string | undefined;
-    selector_config?: object | undefined;
-    actions?: object[];
-}
-
-export interface JoinConfig {
-    selector?: string;
-    operation: string;
-    fields: string[];
-    target_field: string;
-    delimiter?: string;
-    remove_source?: boolean;
+    rules: string[];
+    plugins?: string[];
+    types?: SelectorTypes;
 }
 
 export type injectFn = (config: OperationConfig, list: OperationConfig[]) => void;

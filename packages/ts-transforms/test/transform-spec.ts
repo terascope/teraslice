@@ -3,6 +3,7 @@ import path from 'path';
 import _ from 'lodash';
 import TestHarness from './test-harness';
 import { WatcherConfig } from '../src/interfaces';
+import Plugins from './fixtures/plugins';
 
 describe('can transform matches', () => {
 
@@ -18,8 +19,8 @@ describe('can transform matches', () => {
 
     it('it can transform matching data', async () => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules1.txt'),
-            selector_config: { _created: 'date' },
+            rules: [getPath('transformRules1.txt')],
+            types: { _created: 'date' },
             type: 'transform'
         };
 
@@ -44,8 +45,8 @@ describe('can transform matches', () => {
 
     it('can uses typeConifg', async () => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules1.txt'),
-            selector_config: { location: 'geo' },
+            rules: [getPath('transformRules1.txt')],
+            types: { location: 'geo' },
             type: 'transform'
         };
 
@@ -65,7 +66,7 @@ describe('can transform matches', () => {
 
     it('it can transform matching data with no selector', async () => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules3.txt'),
+            rules: [getPath('transformRules3.txt')],
             type: 'transform'
         };
 
@@ -88,7 +89,7 @@ describe('can transform matches', () => {
 
     it('can work with regex transform queries', async () => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules1.txt'),
+            rules: [getPath('transformRules1.txt')],
             type: 'transform'
         };
 
@@ -109,7 +110,7 @@ describe('can transform matches', () => {
 
     it('can extract using start/end', async () => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules1.txt'),
+            rules: [getPath('transformRules1.txt')],
             type: 'transform'
         };
 
@@ -135,7 +136,7 @@ describe('can transform matches', () => {
 
     it('can extract using start/end on fields that are arrays', async () => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules10.txt'),
+            rules: [getPath('transformRules10.txt')],
             type: 'transform'
         };
         const urls = [
@@ -158,7 +159,7 @@ describe('can transform matches', () => {
 
     it('can merge extacted results', async () => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules1.txt'),
+            rules: [getPath('transformRules1.txt')],
             type: 'transform'
         };
 
@@ -177,7 +178,7 @@ describe('can transform matches', () => {
 
     it('can use post process operations', async () => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules2.txt'),
+            rules: [getPath('transformRules2.txt')],
             type: 'transform'
         };
 
@@ -194,7 +195,7 @@ describe('can transform matches', () => {
 
     it('false validations remove the fields', async () => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules2.txt'),
+            rules: [getPath('transformRules2.txt')],
             type: 'transform'
         };
 
@@ -220,7 +221,7 @@ describe('can transform matches', () => {
 
     it('refs can target the right field', async () => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules4.txt'),
+            rules: [getPath('transformRules4.txt')],
             type: 'transform'
         };
 
@@ -250,7 +251,7 @@ describe('can transform matches', () => {
 
     it('can chain selection => transform => selection', async() => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules5.txt'),
+            rules: [getPath('transformRules5.txt')],
             type: 'transform'
         };
 
@@ -273,7 +274,7 @@ describe('can transform matches', () => {
 
     it('can chain selection => transform => selection => transform', async() => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules6.txt'),
+            rules: [getPath('transformRules6.txt')],
             type: 'transform'
         };
 
@@ -296,17 +297,17 @@ describe('can transform matches', () => {
 
     it('validations work with the different ways to configure them', async() => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules7.txt'),
+            rules: [getPath('transformRules7.txt')],
             type: 'transform'
         };
 
         const config2: WatcherConfig = {
-            file_path: getPath('transformRules8.txt'),
+            rules: [getPath('transformRules8.txt')],
             type: 'transform'
         };
 
         const config3: WatcherConfig = {
-            file_path: getPath('transformRules9.txt'),
+            rules: [getPath('transformRules9.txt')],
             type: 'transform'
         };
 
@@ -360,7 +361,7 @@ describe('can transform matches', () => {
 
     it('can target multiple transforms on the same field', async () => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules10.txt'),
+            rules: [getPath('transformRules10.txt')],
             type: 'transform'
         };
 
@@ -380,12 +381,12 @@ describe('can transform matches', () => {
 
     it('can run', async () => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules11.txt'),
+            rules: [getPath('transformRules11.txt')],
             type: 'transform'
         };
 
         const config2: WatcherConfig = {
-            file_path: getPath('transformRules12.txt'),
+            rules: [getPath('transformRules12.txt')],
             type: 'transform'
         };
 
@@ -417,7 +418,7 @@ describe('can transform matches', () => {
 
     it('it can mutate data in place for transforms', async () => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules13.txt'),
+            rules: [getPath('transformRules13.txt')],
             type: 'transform'
         };
 
@@ -444,7 +445,7 @@ describe('can transform matches', () => {
 
     it('it can transform data if previous transforms had occured', async () => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules14.txt'),
+            rules: [getPath('transformRules14.txt')],
             type: 'transform'
         };
 
@@ -497,7 +498,7 @@ describe('can transform matches', () => {
 
     it('it can transform data if previous transforms had occured with other post_processing', async () => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules15.txt'),
+            rules: [getPath('transformRules15.txt')],
             type: 'transform'
         };
 
@@ -557,7 +558,7 @@ describe('can transform matches', () => {
 
     it('it works like the test before but with different config layout', async () => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules16.txt'),
+            rules: [getPath('transformRules16.txt')],
             type: 'transform'
         };
 
@@ -617,7 +618,7 @@ describe('can transform matches', () => {
 
     it('chaining configurations sample 1', async() => {
         const config: WatcherConfig = {
-            file_path: getPath('transformRules17.txt'),
+            rules: [getPath('transformRules17.txt')],
             type: 'transform'
         };
         const key = '123456789';
@@ -643,6 +644,36 @@ describe('can transform matches', () => {
         });
         expect(results1[1]).toEqual({
             field1: key,
+        });
+    });
+
+    it('can load plugins', async() => {
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules18.txt')],
+            type: 'transform'
+        };
+        const key = '123456789';
+
+        const data = DataEntity.makeArray([
+            { host: 'example.com', field1: `http://www.example.com/path?field1=${key}&value2=moreblah&value3=evenmoreblah` },
+            { host: 'example.com' },
+            { host: 'example.com', field1: 'someRandomStr' },
+            { host: 'example.com', field1: ['someRandomStr', `http://www.example.com/path?field1=${key}&value2=moreblah&value3=evenmoreblah`] },
+            { size: 2 }
+        ]);
+
+        const test1 = await opTest.init(config, [Plugins]);
+        const results1 =  await test1.run(data);
+
+        expect(results1.length).toEqual(3);
+        expect(results1[0]).toEqual({
+            field1: key
+        });
+        expect(results1[1]).toEqual({
+            field1: key,
+        });
+        expect(results1[2]).toEqual({
+            height: 4,
         });
     });
 });

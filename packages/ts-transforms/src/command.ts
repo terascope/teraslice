@@ -15,8 +15,9 @@ const command = yargs
     .alias('T', 'types-file')
     .alias('r', 'rules')
     .alias('d', 'data')
-    .alias('p', 'performance')
+    .alias('perf', 'performance')
     .alias('m', 'match')
+    .alias('p', 'plugins')
     .help('h')
     .alias('h', 'help')
     .describe('r', 'path to load the rules file')
@@ -25,7 +26,7 @@ const command = yargs
     .describe('T', 'specify type configs from file')
     .describe('p', 'output the time it took to run the data')
     .demandOption(['r'])
-    .version('0.4.0')
+    .version('0.5.0')
     .argv;
 
 const filePath = command.rules;
@@ -39,7 +40,7 @@ interface ESData {
 
 try {
     if (command.t) {
-        const segments = command.t.split(',');
+        const segments = formatList(command.t);
         segments.forEach((segment: string) => {
             const pieces = segment.split(':');
             typesConfig[pieces[0].trim()] = pieces[1].trim();
@@ -75,6 +76,10 @@ async function dataLoader(dataPath: string): Promise<object[]> {
 
         rl.on('close', () => resolve(results));
     });
+}
+
+function formatList(input: string): string[] {
+    return input.split(',').map((str) => str.trim());
 }
 
 function getPipedData() {
@@ -141,24 +146,40 @@ async function getData(dataPath: string) {
 async function initCommand() {
     try {
         const opConfig: WatcherConfig = {
-            file_path: path.resolve(dir, filePath),
-            selector_config: typesConfig,
+            rules: formatList(filePath),
+            types: typesConfig,
             type
         };
+        let plugins = [];
+        if (command.p) {
+            try {
+                const pluginList = formatList(command.p);
+                plugins = pluginList.map((pluginPath) => {
+                    const module = require(path.resolve(dir, pluginPath));
+                    const results = module.default || module;
+                    return results;
+                });
+
+            } catch (err) {
+                // @ts-ignore
+                console.error('could not load plugins');
+                process.exit(1);
+            }
+        }
         const manager = new PhaseManager(opConfig, logger);
 
-        await manager.init();
+        await manager.init(plugins);
 
         const data = await getData(dataPath);
 
-        if (command.p) {
+        if (command.perf) {
             process.stderr.write('\n');
             // tslint:disable-next-line
             console.time('execution-time');
         }
         const results = manager.run(data);
         // tslint:disable-next-line
-        if (command.p) console.timeEnd('execution-time');
+        if (command.perf) console.timeEnd('execution-time');
         process.stdout.write(`${JSON.stringify(results, null, 4)} \n`);
     } catch (err) {
         console.error(err);

@@ -3,33 +3,34 @@ import path from 'path';
 import { DataEntity } from '@terascope/job-components';
 import { PostProcessPhase, Loader } from '../../src';
 import { OperationConfig } from '../../src/interfaces';
+import { OperationsManager } from '../../src/operations';
 
 describe('post_process phase', () => {
 
     async function getConfigList(fileName: string): Promise<OperationConfig[]> {
         const filePath = path.join(__dirname, `../fixtures/${fileName}`);
-        const myFileLoader = new Loader({ type: 'transform', file_path: filePath });
+        const myFileLoader = new Loader({ type: 'transform', rules: [filePath] });
         return myFileLoader.load();
     }
-    // file_path is only used in loader
-    const transformOpconfig = { file_path: 'some/path', type: 'transform' };
+    // rules is only used in loader
+    const transformOpconfig = { rules: ['some/path'], type: 'transform' };
 
     it('can instantiate', async () => {
         const configList = await getConfigList('transformRules1.txt');
 
-        expect(() => new PostProcessPhase(transformOpconfig, configList)).not.toThrow();
+        expect(() => new PostProcessPhase(transformOpconfig, configList, new OperationsManager())).not.toThrow();
     });
 
     it('has the proper properties', async () => {
         const configList1 = await getConfigList('transformRules1.txt');
-        const postProcessPhase1 = new PostProcessPhase(transformOpconfig, configList1);
+        const postProcessPhase1 = new PostProcessPhase(transformOpconfig, configList1, new OperationsManager());
 
         expect(postProcessPhase1.hasProcessing).toEqual(false);
         expect(postProcessPhase1.phase).toBeDefined();
         expect(Object.keys(postProcessPhase1.phase).length).toEqual(0);
 
         const configList2 = await getConfigList('transformRules17.txt');
-        const postProcessPhase2 = new PostProcessPhase(transformOpconfig, configList2);
+        const postProcessPhase2 = new PostProcessPhase(transformOpconfig, configList2, new OperationsManager());
 
         expect(postProcessPhase2.hasProcessing).toEqual(true);
         expect(postProcessPhase2.phase).toBeDefined();
@@ -43,7 +44,7 @@ describe('post_process phase', () => {
 
     it('can run and process data', async () => {
         const configList = await getConfigList('transformRules17.txt');
-        const postProcessPhase = new PostProcessPhase(transformOpconfig, configList);
+        const postProcessPhase = new PostProcessPhase(transformOpconfig, configList, new OperationsManager());
 
         function encode(str: string) {
             return Buffer.from(str).toString('base64');

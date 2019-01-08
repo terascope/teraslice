@@ -1,6 +1,6 @@
 
 import { DataEntity } from '@terascope/job-components';
-import { JoinConfig } from '../../../interfaces';
+import { OperationConfig } from '../../../interfaces';
 import _ from 'lodash';
 import OperationBase from '../base';
 
@@ -8,13 +8,13 @@ export default class Join extends OperationBase {
     private delimiter: string;
     private fields: string[];
 
-    constructor(config: JoinConfig) {
+    constructor(config: OperationConfig) {
         super(config);
         this.delimiter = config.delimiter !== undefined ? config.delimiter : '';
-        this.fields = config.fields;
+        this.fields = config.fields as string[];
     }
     // source work differently here so we do not use the inherited validate
-    protected validate(config: JoinConfig) {
+    protected validate(config: OperationConfig) {
         const { target_field: tField, remove_source } = config;
         if (!tField || typeof tField !== 'string' || tField.length === 0)  {
             throw new Error(`could not find target_field for ${this.constructor.name} validation or it is improperly formatted, config: ${JSON.stringify(config)}`);

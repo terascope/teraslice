@@ -1,12 +1,12 @@
 
-import { Number as NumberOp } from '../../../src/operations';
+import { NumberValidation } from '../../../src/operations';
 import { DataEntity } from '@terascope/job-components';
 
 describe('number validation', () => {
 
     it('can instantiate', () => {
         const opConfig = { source_field: 'someField' };
-        expect(() => new NumberOp(opConfig)).not.toThrow();
+        expect(() => new NumberValidation(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
@@ -15,16 +15,16 @@ describe('number validation', () => {
         const badConfig3 = { source_field: {} };
         const badConfig4 = {};
         // @ts-ignore
-        expect(() => new NumberOp(badConfig1)).toThrow();
-        expect(() => new NumberOp(badConfig2)).toThrow();
+        expect(() => new NumberValidation(badConfig1)).toThrow();
+        expect(() => new NumberValidation(badConfig2)).toThrow();
          // @ts-ignore
-        expect(() => new NumberOp(badConfig3)).toThrow();
-        expect(() => new NumberOp(badConfig4)).toThrow();
+        expect(() => new NumberValidation(badConfig3)).toThrow();
+        expect(() => new NumberValidation(badConfig4)).toThrow();
     });
 
     it('can validate number fields', () => {
         const opConfig = { source_field: 'bytes' };
-        const test =  new NumberOp(opConfig);
+        const test =  new NumberValidation(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
         const data1 = new DataEntity({ bytes: '56.234,95.234' }, metaData);
@@ -58,7 +58,7 @@ describe('number validation', () => {
 
     it('can validate nested fields', async() => {
         const opConfig = { source_field: 'file.bytes' };
-        const test =  new NumberOp(opConfig);
+        const test =  new NumberValidation(opConfig);
 
         const data1 = new DataEntity({ file: 'something' });
         const data2 = new DataEntity({ file: {} });

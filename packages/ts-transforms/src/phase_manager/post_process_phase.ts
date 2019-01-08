@@ -1,11 +1,12 @@
 
 import { DataEntity } from '@terascope/job-components';
+import _ from 'lodash';
 import { OperationConfig, WatcherConfig } from '../interfaces';
 import PhaseBase from './base';
-import _ from 'lodash';
+import { OperationsManager } from '../operations';
 
 export default class PostProcessPhase extends PhaseBase {
-    constructor(_opConfig: WatcherConfig, configList:OperationConfig[]) {
+    constructor(_opConfig: WatcherConfig, configList:OperationConfig[], opsManager: OperationsManager) {
         super();
 
         function isPrimaryPostProcess(config: OperationConfig): boolean {
@@ -19,7 +20,7 @@ export default class PostProcessPhase extends PhaseBase {
             { type: 'post_process', filterFn: isPrimaryPostProcess },
             { type: 'post_process', filterFn: isRefsPostProcess }
         ];
-        sequence.forEach((loadingConfig) => this.installOps(loadingConfig, configList));
+        sequence.forEach((loadingConfig) => this.installOps(loadingConfig, configList, opsManager));
     }
 
     run(dataArray: DataEntity[]): DataEntity[] {

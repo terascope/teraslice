@@ -11,13 +11,13 @@ describe('phase manager', () => {
     const transformRules16Path = path.join(__dirname, '../fixtures/transformRules16.txt');
 
     it('can instantiate', async () => {
-        const opConfig = { type: 'matcher', file_path: matchRules1Path };
+        const opConfig = { type: 'matcher', rules: [matchRules1Path] };
         const manager = new PhaseManager(opConfig, logger);
         return manager.init();
     });
 
     it('match only has selection phase activated', async () => {
-        const opConfig = { type: 'matcher', file_path: matchRules1Path };
+        const opConfig = { type: 'matcher', rules: [matchRules1Path] };
         const manager = new PhaseManager(opConfig, logger);
 
         await manager.init();
@@ -30,7 +30,7 @@ describe('phase manager', () => {
     });
 
     it('if type matcher then selection will only occur when given transform rules', async () => {
-        const opConfig = { type: 'matcher', file_path: transformRules17Path };
+        const opConfig = { type: 'matcher', rules: [transformRules17Path] };
         const manager = new PhaseManager(opConfig, logger);
 
         await manager.init();
@@ -43,7 +43,7 @@ describe('phase manager', () => {
     });
 
     it('can load all phases for transform rules', async() => {
-        const opConfig = { type: 'transform', file_path: transformRules16Path };
+        const opConfig = { type: 'transform', rules: [transformRules16Path] };
         const manager = new PhaseManager(opConfig, logger);
 
         await manager.init();
@@ -67,7 +67,7 @@ describe('phase manager', () => {
     });
 
     it('can run an array of data', async() => {
-        const opConfig = { type: 'transform', file_path: transformRules16Path };
+        const opConfig = { type: 'transform', rules: [transformRules16Path] };
         const manager = new PhaseManager(opConfig, logger);
         const str = 'hello';
         const date = new Date().toISOString();

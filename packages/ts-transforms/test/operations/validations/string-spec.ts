@@ -1,12 +1,12 @@
 
-import { String as StringOp } from '../../../src/operations';
+import { StringValidation } from '../../../src/operations';
 import { DataEntity } from '@terascope/job-components';
 
 describe('string validation', () => {
 
     it('can instantiate', () => {
         const opConfig = { refs: 'someId', source_field: 'someField' };
-        expect(() => new StringOp(opConfig)).not.toThrow();
+        expect(() => new StringValidation(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
@@ -15,18 +15,18 @@ describe('string validation', () => {
         const badConfig3 = { source_field: {} };
         const badConfig4 = {};
         // @ts-ignore
-        expect(() => new StringOp(badConfig1)).toThrow();
+        expect(() => new StringValidation(badConfig1)).toThrow();
         // @ts-ignore
-        expect(() => new StringOp(badConfig2)).toThrow();
+        expect(() => new StringValidation(badConfig2)).toThrow();
         // @ts-ignore
-        expect(() => new StringOp(badConfig3)).toThrow();
+        expect(() => new StringValidation(badConfig3)).toThrow();
         // @ts-ignore
-        expect(() => new StringOp(badConfig4)).toThrow();
+        expect(() => new StringValidation(badConfig4)).toThrow();
     });
 
     it('can validate string fields', () => {
         const opConfig = { refs: 'someId', source_field: 'field' };
-        const test = new StringOp(opConfig);
+        const test = new StringValidation(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
         const data1 = new DataEntity({ field: '56.234,95.234' }, metaData);
@@ -60,7 +60,7 @@ describe('string validation', () => {
 
     it('can ensure strings are of certain lengths', () => {
         const opConfig = { refs: 'someId', source_field: 'field', length: 14 };
-        const test =  new StringOp(opConfig);
+        const test =  new StringValidation(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
         const data1 = new DataEntity({ field: '56.234,95.234' }, metaData);
@@ -78,7 +78,7 @@ describe('string validation', () => {
 
     it('can validate nested fields', async() => {
         const opConfig = { refs: 'someId', source_field: 'person.name', length: 14 };
-        const test =  new StringOp(opConfig);
+        const test =  new StringValidation(opConfig);
 
         const data1 = new DataEntity({ person: 'something' });
         const data2 = new DataEntity({ person: {} });

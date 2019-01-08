@@ -1,23 +1,26 @@
 
 import { DataEntity } from '@terascope/job-components';
-import { OperationConfig, WatcherConfig } from '../interfaces';
-import PhaseBase from './base';
-import * as Ops from '../operations';
 import _ from 'lodash';
+import { OperationConfig, WatcherConfig, Operation } from '../interfaces';
+import PhaseBase from './base';
+import { OperationsManager } from '../operations';
 
 export default class SelectionPhase extends PhaseBase {
     private opConfig: WatcherConfig;
-    readonly selectionPhase: Ops.Selector[];
+    readonly selectionPhase: Operation[];
 
-    constructor(opConfig: WatcherConfig, configList:OperationConfig[]) {
+    constructor(opConfig: WatcherConfig, configList:OperationConfig[], opsManager: OperationsManager) {
         super();
         this.opConfig = opConfig;
-        const selectionPhase: Ops.Selector[] = [];
+        const selectionPhase: Operation[] = [];
         const dict = {};
+        const Selector = opsManager.getTransform('selector');
+
         _.forEach(configList, (config: OperationConfig) => {
             if (config.selector && !config.follow && !config.other_match_required) dict[config.selector] = true;
         });
-        _.forOwn(dict, (_value, selector) => selectionPhase.push(new Ops.Selector({ selector }, this.opConfig.selector_config)));
+
+        _.forOwn(dict, (_value, selector) => selectionPhase.push(new Selector({ selector }, this.opConfig.types)));
         this.selectionPhase = selectionPhase;
     }
 
