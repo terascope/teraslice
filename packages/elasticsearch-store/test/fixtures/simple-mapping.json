@@ -4,6 +4,9 @@
     },
     "dynamic": false,
     "properties": {
+        "test_id": {
+            "type": "keyword"
+        },
         "test_keyword": {
             "type": "keyword"
         },

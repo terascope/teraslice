@@ -1,6 +1,7 @@
 import 'jest-extended';
 import es from 'elasticsearch';
 import simpleMapping from './fixtures/simple-mapping.json';
+import { SimpleRecord } from './helpers/simple-index';
 import { ELASTICSEARCH_HOST } from './helpers/config';
 import { IndexStore } from '../src';
 
@@ -33,9 +34,8 @@ describe('IndexStore', () => {
             log: 'error'
         });
 
-        const indexStore = new IndexStore(client, {
+        const indexStore = new IndexStore<SimpleRecord>(client, {
             index: 'test__store',
-            indexType: 'events',
             indexSchema: {
                 version: 'v1.0.0',
                 mapping: simpleMapping,
@@ -57,19 +57,36 @@ describe('IndexStore', () => {
         });
 
         afterAll(async () => {
-            await indexStore.shutdown();
-
             await client.indices.delete({
                 index
             }).catch(() => {});
 
-            client.close();
+            await indexStore.shutdown();
         });
 
         it('should create the versioned index', async () => {
             const exists = await client.indices.exists({ index });
 
             expect(exists).toBeTrue();
+        });
+
+        it('should be able to create a record', async () => {
+            const id = 'hello-1234';
+            const record = {
+                test_id: id,
+                test_keyword: 'hello',
+                test_object: {
+                    some_obj: true,
+                },
+                test_number: 1234,
+                test_boolean: false,
+            };
+
+            await indexStore.create(record, id);
+
+            await expect(indexStore.count(`test_id: ${id}`)).resolves.toBe(1);
+
+            await expect(indexStore.get(id)).resolves.toEqual(record);
         });
     });
 });

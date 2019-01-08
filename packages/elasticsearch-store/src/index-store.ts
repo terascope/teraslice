@@ -7,6 +7,7 @@ export default class IndexStore<T extends Object> {
     readonly client: es.Client;
     readonly config: IndexConfig;
     readonly manager: IndexManager;
+    private _indexQuery: string;
 
     constructor(client: es.Client, config: IndexConfig) {
         if (!isValidClient(client)) {
@@ -20,6 +21,7 @@ export default class IndexStore<T extends Object> {
         this.client = client;
         this.config = config;
         this.manager = new IndexManager(client);
+        this._indexQuery = this.manager.formatIndexName(config);
     }
 
     /**
@@ -33,17 +35,29 @@ export default class IndexStore<T extends Object> {
      * Shutdown, flush any pending requests and cleanup
     */
     async shutdown() {
-        return;
+        this.client.close();
     }
 
     /** Count records by a given Lucene Query or Elasticsearch Query DSL */
-    async count(query: es.CountParams): Promise<number> {
-        return 0;
+    async count(query: string, options?: Partial<es.CountParams>): Promise<number> {
+        const params: es.CountParams = Object.assign({}, options, {
+            q: query,
+            index: this._indexQuery,
+            type: this.config.index
+        });
+        const { count } = await this.client.count(params);
+        return count;
     }
 
     /** Get a single document */
-    async get(id: string, type?: es.NameList): Promise<T> {
-        return {} as T;
+    async get(id: string, options?: Partial<es.GetParams>): Promise<T> {
+        const params: es.GetParams = Object.assign({}, options, {
+            id,
+            index: this._indexQuery,
+            type: this.config.index
+        });
+        const { _source } = await this.client.get(params);
+        return _source;
     }
 
     /** Get multiple documents at the same time */
@@ -57,12 +71,12 @@ export default class IndexStore<T extends Object> {
     }
 
     /** Index a document */
-    async index(doc: T, type?: es.NameList) {
+    async index(doc: T) {
         return;
     }
 
     /** Index a document by id */
-    async indexWithId(doc: T, id: string, type?: es.NameList) {
+    async indexWithId(doc: T, id: string) {
         return;
     }
 
@@ -72,17 +86,23 @@ export default class IndexStore<T extends Object> {
     }
 
     /** Index a document but will throw if doc already exists */
-    async create(doc: T, id: string, type?: es.NameList) {
-        return;
+    async create(doc: T, id?: string) {
+        return this.client.create({
+            body: doc,
+            id,
+            refresh: true,
+            index: this._indexQuery,
+            type: this.config.index,
+        });
     }
 
     /** Update a document with a given id */
-    async update(doc: T, id: string, type?: es.NameList) {
+    async update(doc: T, id: string) {
         return;
     }
 
     /** Deletes a document for a given id */
-    async remove(id: string, type?: es.NameList) {
+    async remove(id: string) {
         return;
     }
 

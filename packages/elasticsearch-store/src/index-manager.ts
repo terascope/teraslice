@@ -28,13 +28,10 @@ export default class IndexManager {
         if (await this.exists(indexName)) return false;
 
         if (isSimpleIndex(config.indexSchema)) {
-            const settings = config.indexSettings || {
-                'index.number_of_shards': 5,
-                'index.number_of_replicas': 1,
-            };
+            const settings = Object.assign({}, config.indexSettings);
 
             const mappings = {};
-            mappings[indexName] = config.indexSchema.mapping;
+            mappings[config.index] = config.indexSchema.mapping;
 
             await this.client.indices.create({
                 index: indexName,

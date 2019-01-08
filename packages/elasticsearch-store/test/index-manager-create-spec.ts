@@ -13,7 +13,6 @@ describe('IndexManager->create()', () => {
 
         const config = {
             index: 'test__simple',
-            indexType: 'events',
             indexSchema: {
                 version: 'v1.0.0',
                 mapping: simpleMapping,
