@@ -97,13 +97,26 @@ export default class IndexStore<T extends Object> {
     }
 
     /** Update a document with a given id */
-    async update(doc: T, id: string) {
-        return;
+    async update(doc: Partial<T>, id: string) {
+        return this.client.update({
+            id,
+            body: {
+                doc,
+            },
+            index: this._indexQuery,
+            type: this.config.index,
+            refresh: true,
+            retryOnConflict: 3
+        });
     }
 
     /** Deletes a document for a given id */
     async remove(id: string) {
-        return;
+        return this.client.delete({
+            id,
+            index: this._indexQuery,
+            type: this.config.index,
+        });
     }
 
     /** Refresh an index */

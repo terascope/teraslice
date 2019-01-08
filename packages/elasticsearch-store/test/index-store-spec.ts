@@ -70,7 +70,7 @@ describe('IndexStore', () => {
             expect(exists).toBeTrue();
         });
 
-        it('should be able to create a record', async () => {
+        describe('when dealing with a record', () => {
             const id = 'hello-1234';
             const record = {
                 test_id: id,
@@ -82,11 +82,55 @@ describe('IndexStore', () => {
                 test_boolean: false,
             };
 
-            await indexStore.create(record, id);
+            it('should be able to create a record', () => {
+                return indexStore.create(record, id);
+            });
 
-            await expect(indexStore.count(`test_id: ${id}`)).resolves.toBe(1);
+            it('should be able to get the count', () => {
+                return expect(indexStore.count(`test_id: ${id}`))
+                    .resolves.toBe(1);
+            });
 
-            await expect(indexStore.get(id)).resolves.toEqual(record);
+            it('should get zero when the using the wrong id', () => {
+                return expect(indexStore.count('test_id: wrong-id'))
+                    .resolves.toBe(0);
+            });
+
+            it('should be able to update the record', async () => {
+                await indexStore.update({
+                    test_number: 4231
+                }, id);
+
+                const updated = await indexStore.get(id);
+                expect(updated).toHaveProperty('test_number', 4231);
+
+                await indexStore.update(record, id);
+            });
+
+            it('should throw when updating a record that does not exist', () => {
+                return expect(indexStore.update({
+                    test_number: 1,
+                }, 'wrong-id')).rejects.toThrowError(/document missing/);
+            });
+
+            it('should be able to get the record by id', () => {
+                return expect(indexStore.get(id))
+                    .resolves.toEqual(record);
+            });
+
+            it('should throw when getting a record that does not exist', () => {
+                return expect(indexStore.get('wrong-id'))
+                    .rejects.toThrowError('Not Found');
+            });
+
+            it('should be able to remove the record', () => {
+                return indexStore.remove(id);
+            });
+
+            it('should throw when trying to remove a record that does not exist', () => {
+                return expect(indexStore.remove('wrong-id'))
+                    .rejects.toThrowError('Not Found');
+            });
         });
     });
 });
