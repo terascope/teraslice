@@ -91,7 +91,7 @@ export default class IndexStore<T extends Object> {
         return;
     }
 
-    /** Safely make many requests aginsts an index */
+    /** Safely make many requests against an index */
     async bulk(data: es.BulkIndexDocumentsParams) {
         return;
     }
