@@ -25,6 +25,16 @@ export interface IndexConfig {
      * The data schema format
     */
     dataSchema?: DataSchema;
+
+     /**
+     * The maximum amount of time to wait for before send the bulk request
+    */
+    bulkMaxWait?: number;
+
+    /**
+     * The number of records to accumulate before sending the bulk request
+    */
+    bulkMaxSize?: number;
 }
 
 export type IndexSchemaConfig = SimpleIndexSchema|TemplatedIndexSchema|TimeSeriesIndexSchema;

@@ -1,5 +1,6 @@
 import 'jest-extended';
 import es from 'elasticsearch';
+import { times, pDelay } from '@terascope/utils';
 import simpleMapping from './fixtures/simple-mapping.json';
 import { SimpleRecord } from './helpers/simple-index';
 import { ELASTICSEARCH_HOST } from './helpers/config';
@@ -45,7 +46,9 @@ describe('IndexStore', () => {
             indexSettings: {
                 'index.number_of_shards': 1,
                 'index.number_of_replicas': 1
-            }
+            },
+            bulkMaxSize: 4,
+            bulkMaxWait: 300
         });
 
         beforeAll(async () => {
@@ -230,6 +233,36 @@ describe('IndexStore', () => {
                 });
 
                 expect(result).toEqual(records);
+            });
+        });
+
+        describe('when bulk sending records', () => {
+            const keyword = 'bulk-record';
+            const records = times(9, (n) => ({
+                test_id: `bulk-${n + 1}`,
+                test_keyword: keyword,
+                test_object: { bulk: true },
+                test_number: (n + 10) * 2,
+                test_boolean: true,
+            }));
+
+            beforeAll(async () => {
+                for (const record of records) {
+                    await indexStore.bulk(record);
+                }
+
+                await pDelay(500);
+
+                await indexStore.refresh();
+            });
+
+            it('should be able to search the records', async () => {
+                const result = await indexStore.search({
+                    q: `test_keyword: ${keyword}`,
+                    sort: 'test_id'
+                });
+
+                expect(result).toBeArrayOfSize(records.length);
             });
         });
     });

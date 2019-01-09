@@ -1,10 +1,11 @@
 import * as es from 'elasticsearch';
+import { Collector } from '@terascope/utils';
 import IndexManager from './index-manager';
 import { IndexConfig } from './interfaces';
 import {
     isValidClient,
     isValidConfig,
-    normalizeError
+    normalizeError,
 } from './utils';
 
 export default class IndexStore<T extends Object> {
@@ -12,6 +13,10 @@ export default class IndexStore<T extends Object> {
     readonly config: IndexConfig;
     readonly manager: IndexManager;
     private _indexQuery: string;
+    private _interval: NodeJS.Timer|undefined;
+    private readonly _collector: Collector<T>;
+    private readonly _bulkMaxWait: number = 10000;
+    private readonly _bulkMaxSize: number = 500;
 
     constructor(client: es.Client, config: IndexConfig) {
         if (!isValidClient(client)) {
@@ -25,7 +30,21 @@ export default class IndexStore<T extends Object> {
         this.client = client;
         this.config = config;
         this.manager = new IndexManager(client);
+
         this._indexQuery = this.manager.formatIndexName(config);
+
+        if (this.config.bulkMaxSize != null) {
+            this._bulkMaxSize = this.config.bulkMaxSize;
+        }
+
+        if (this.config.bulkMaxWait != null) {
+            this._bulkMaxWait = this.config.bulkMaxWait;
+        }
+
+        this._collector = new Collector({
+            size: this._bulkMaxSize,
+            wait: this._bulkMaxWait,
+        });
     }
 
     /**
@@ -33,18 +52,32 @@ export default class IndexStore<T extends Object> {
     */
     async initialize() {
         await this.manager.create(this.config);
+
+        const ms = Math.round(this._bulkMaxWait / 2);
+        this._interval = setInterval(() => {
+            this._flush()
+                .catch((err) => {
+                    console.error(err);
+                });
+        }, ms);
     }
 
     /**
      * Shutdown, flush any pending requests and cleanup
     */
     async shutdown() {
+        if (this._interval) {
+            clearInterval(this._interval);
+        }
+        await this._flush();
+
         this.client.close();
     }
 
     /** Count records by a given Lucene Query or Elasticsearch Query DSL */
     async count(query: string, params?: Partial<es.CountParams>): Promise<number> {
         const p = this._getParams(params, { q: query });
+
         return this._try(async () => {
             const { count } = await this.client.count(p);
             return count;
@@ -117,9 +150,16 @@ export default class IndexStore<T extends Object> {
         return this.index(doc, { id });
     }
 
-    /** Safely make many requests against an index */
-    async bulk(data: es.BulkIndexDocumentsParams) {
-        return;
+    /**
+     * Safely make many requests against an index.
+     *
+     * This method will batch messages using the configured
+     * bulk max size and wait configuration.
+     */
+    async bulk(doc: T) {
+        this._collector.add(doc);
+
+        return this._flush();
     }
 
     /** Update a document with a given id */
@@ -181,6 +221,30 @@ export default class IndexStore<T extends Object> {
 
     private _toRecord(result: { _source: T }): T {
         return result._source;
+    }
+
+    private async _flush(flushAll = false) {
+        const records = flushAll ? this._collector.flushAll() : this._collector.getBatch();
+        if (!records) return;
+
+        const bulkRequest: T|object[] = [];
+        const indexRequest = {
+            index: {
+                _index: this._indexQuery,
+                _type: this.config.index,
+            }
+        };
+
+        for (const record of records) {
+            bulkRequest.push(indexRequest);
+            bulkRequest.push(record);
+        }
+
+        return this._try(() => {
+            return this.client.bulk({
+                body: bulkRequest,
+            });
+        });
     }
 }
 
