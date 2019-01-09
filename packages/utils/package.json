@@ -2,7 +2,6 @@
     "name": "@terascope/utils",
     "description": "A collection of Teraslice Utilities",
     "version": "0.1.0",
-    "main": "index.js",
     "publishConfig": {
         "access": "public"
     },
@@ -16,6 +15,7 @@
     "files": [
         "dist/**/*"
     ],
+    "main": "dist/index.js",
     "srcMain": "src/index.ts",
     "typings": "dist/index.d.ts",
     "scripts": {
