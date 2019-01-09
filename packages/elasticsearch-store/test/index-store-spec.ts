@@ -110,7 +110,7 @@ describe('IndexStore', () => {
             it('should throw when updating a record that does not exist', () => {
                 return expect(indexStore.update({
                     test_number: 1,
-                }, 'wrong-id')).rejects.toThrowError(/document missing/);
+                }, 'wrong-id')).rejects.toThrowError('Not Found');
             });
 
             it('should be able to get the record by id', () => {

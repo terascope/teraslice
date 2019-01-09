@@ -31,3 +31,20 @@ export function isValidConfig(input: any): input is i.IndexConfig {
     if (!input.index) return false;
     return true;
 }
+
+export function normalizeError(err: any, stack?: string): i.ESError {
+    let message = 'Unknown Error';
+    let statusCode = 500;
+
+    const errMsg = typeof err === 'string' ? err : err && err.toString();
+    if (errMsg.includes('document missing') || errMsg.includes('Not Found')) {
+        message = 'Not Found';
+        statusCode = 404;
+    }
+
+    const error = new Error(message) as i.ESError;
+    if (stack) error.stack = stack;
+    error.statusCode = statusCode;
+
+    return error;
+}

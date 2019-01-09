@@ -1,7 +1,11 @@
 import * as es from 'elasticsearch';
 import IndexManager from './index-manager';
-import { isValidClient, isValidConfig } from './utils';
 import { IndexConfig } from './interfaces';
+import {
+    isValidClient,
+    isValidConfig,
+    normalizeError
+} from './utils';
 
 export default class IndexStore<T extends Object> {
     readonly client: es.Client;
@@ -39,25 +43,22 @@ export default class IndexStore<T extends Object> {
     }
 
     /** Count records by a given Lucene Query or Elasticsearch Query DSL */
-    async count(query: string, options?: Partial<es.CountParams>): Promise<number> {
-        const params: es.CountParams = Object.assign({}, options, {
-            q: query,
-            index: this._indexQuery,
-            type: this.config.index
+    async count(query: string, params?: Partial<es.CountParams>): Promise<number> {
+        const p = this._getParams(params, { q: query });
+        return this._try(async () => {
+            const { count } = await this.client.count(p);
+            return count;
         });
-        const { count } = await this.client.count(params);
-        return count;
     }
 
     /** Get a single document */
-    async get(id: string, options?: Partial<es.GetParams>): Promise<T> {
-        const params: es.GetParams = Object.assign({}, options, {
-            id,
-            index: this._indexQuery,
-            type: this.config.index
+    async get(id: string, params?: Partial<es.GetParams>): Promise<T> {
+        const p = this._getParams(params, { id });
+
+        return this._try(async () => {
+            const { _source } = await this.client.get(p);
+            return _source;
         });
-        const { _source } = await this.client.get(params);
-        return _source;
     }
 
     /** Get multiple documents at the same time */
@@ -85,42 +86,69 @@ export default class IndexStore<T extends Object> {
         return;
     }
 
-    /** Index a document but will throw if doc already exists */
-    async create(doc: T, id?: string) {
-        return this.client.create({
-            body: doc,
-            id,
-            refresh: true,
-            index: this._indexQuery,
-            type: this.config.index,
+    /**
+     * Index a document but will throw if doc already exists
+     *
+     * @returns a boolean to indicate whether the document was created
+     */
+    async create(doc: T, id?: string, params?: Partial<es.CreateDocumentParams>): Promise<boolean> {
+        const defaults = { refresh: true };
+        const p = this._getParams(defaults, params, { id, body: doc });
+
+        return this._try(async () => {
+            const { created } = await this.client.create(p);
+            return created;
         });
     }
 
     /** Update a document with a given id */
-    async update(doc: Partial<T>, id: string) {
-        return this.client.update({
-            id,
-            body: {
-                doc,
-            },
-            index: this._indexQuery,
-            type: this.config.index,
+    async update(doc: Partial<T>, id: string, params?: Partial<es.UpdateDocumentParams>) {
+        const defaults = {
             refresh: true,
             retryOnConflict: 3
+        };
+
+        const p = this._getParams(defaults, params, {
+            id,
+            body: { doc }
         });
+
+        await this._try(() => this.client.update(p));
     }
 
-    /** Deletes a document for a given id */
-    async remove(id: string) {
-        return this.client.delete({
+    /**
+     * Deletes a document for a given id
+    */
+    async remove(id: string, params?: Partial<es.DeleteDocumentParams>) {
+        const p = this._getParams(params, {
             id,
-            index: this._indexQuery,
-            type: this.config.index,
         });
+
+        await this._try(() => this.client.delete(p));
     }
 
     /** Refresh an index */
     async refresh(params: es.IndicesRefreshParams) {
         return;
     }
+
+    private _getParams(...params: any[]) {
+        return Object.assign({
+            index: this._indexQuery,
+            type: this.config.index
+        }, ...params);
+    }
+
+    private async _try<T>(fn: AsyncFn<T>): Promise<T> {
+        // capture the stack here for better errors
+        const stack = new Error().stack;
+
+        try {
+            return await fn();
+        } catch (err) {
+            throw normalizeError(err, stack);
+        }
+    }
 }
+
+type AsyncFn<T> = () => Promise<T>;

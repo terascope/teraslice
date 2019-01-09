@@ -100,3 +100,7 @@ export interface DataSchema {
     */
     strict?: boolean;
 }
+
+export interface ESError extends Error {
+    statusCode: number;
+}
