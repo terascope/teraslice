@@ -12,7 +12,7 @@
     "files": [
         "dist/**/*"
     ],
-    "main": "index.js",
+    "main": "dist/index.js",
     "srcMain": "src/index.ts",
     "typings": "dist/index.d.ts",
     "scripts": {
