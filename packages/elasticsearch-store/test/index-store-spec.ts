@@ -90,6 +90,40 @@ describe('IndexStore', () => {
                     .rejects.toThrowError('Document Already Exists');
             });
 
+            it('should be able to index the same record', () => {
+                return indexStore.indexWithId(record, record.test_id);
+            });
+
+            it('should be able to index the record without an id', async () => {
+                const lonelyRecord = {
+                    test_id: 'lonely-1234',
+                    test_keyword: 'other',
+                    test_object: {},
+                    test_number: 1234,
+                    test_boolean: false,
+                };
+
+                await indexStore.index(lonelyRecord);
+
+                const count = await indexStore.count(`test_id: ${lonelyRecord.test_id}`);
+                expect(count).toBe(1);
+            });
+
+            it('should be able to index a different record with id', async () => {
+                const otherRecord = {
+                    test_id: 'other-1234',
+                    test_keyword: 'other',
+                    test_object: {},
+                    test_number: 1234,
+                    test_boolean: false,
+                };
+
+                await indexStore.indexWithId(otherRecord, otherRecord.test_id);
+
+                const count = await indexStore.count(`test_id: ${otherRecord.test_id}`);
+                expect(count).toBe(1);
+            });
+
             it('should be able to get the count', () => {
                 return expect(indexStore.count(`test_id: ${record.test_id}`))
                     .resolves.toBe(1);

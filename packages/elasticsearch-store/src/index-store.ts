@@ -81,21 +81,6 @@ export default class IndexStore<T extends Object> {
         });
     }
 
-    /** Index a document */
-    async index(doc: T) {
-        return;
-    }
-
-    /** Index a document by id */
-    async indexWithId(doc: T, id: string) {
-        return;
-    }
-
-    /** Safely make many requests against an index */
-    async bulk(data: es.BulkIndexDocumentsParams) {
-        return;
-    }
-
     /**
      * Index a document but will throw if doc already exists
      *
@@ -109,6 +94,32 @@ export default class IndexStore<T extends Object> {
             const { created } = await this.client.create(p);
             return created;
         });
+    }
+
+    /**
+     * Index a document
+     */
+    async index(doc: T, params?: Partial<es.IndexDocumentParams<T>>) {
+        const defaults = { refresh: true };
+        const p = this._getParams(defaults, params, {
+            body: doc
+        });
+
+        return this._try(async () => {
+            return this.client.index(p);
+        });
+    }
+
+    /**
+     * A convenience method for indexing a document with an ID
+     */
+    async indexWithId(doc: T, id: string) {
+        return this.index(doc, { id });
+    }
+
+    /** Safely make many requests against an index */
+    async bulk(data: es.BulkIndexDocumentsParams) {
+        return;
     }
 
     /** Update a document with a given id */
