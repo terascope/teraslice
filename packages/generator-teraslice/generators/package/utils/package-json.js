@@ -78,7 +78,7 @@ module.exports = (options) => {
             'jest-extended': '^0.11.0',
             rimraf: '^2.6.3',
             'ts-jest': '^23.10.5',
-            tslint: '^5.0.0',
+            tslint: '^5.12.0',
             'tslint-config-airbnb': '^5.11.1',
             typescript: '^3.2.2'
         },
