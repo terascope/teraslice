@@ -27,6 +27,7 @@
         "@types/bluebird": "^3.5.25",
         "@types/convict": "^4.2.1",
         "@types/debug": "^0.0.31",
+        "@types/elasticsearch": "^5.0.30",
         "@types/fs-extra": "^5.0.4",
         "@types/lodash": "^4.14.119",
         "@types/lodash.clonedeep": "^4.5.4",

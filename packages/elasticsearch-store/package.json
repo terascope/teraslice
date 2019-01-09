@@ -27,7 +27,7 @@
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {
-        "@types/elasticsearch": "^5.0.30",
+        "@terascope/utils": "^0.1.0",
         "lodash.get": "^4.4.2",
         "semver": "^5.6.0"
     },
