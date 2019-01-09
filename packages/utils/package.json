@@ -1,29 +1,22 @@
 {
-    "name": "@terascope/teraslice-messaging",
-    "version": "0.2.6",
+    "name": "@terascope/utils",
+    "description": "A collection of Teraslice Utilities",
+    "version": "0.1.0",
     "publishConfig": {
         "access": "public"
     },
-    "description": "Teraslice Messaging",
-    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-messaging#readme",
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/terascope-utils#readme",
+    "repository": "git@github.com:terascope/teraslice.git",
+    "author": "Terascope, LLC <info@terascope.io>",
+    "license": "MIT",
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
-    },
-    "author": "Terascope, LLC <info@terascope.io>",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/terascope/teraslice.git"
-    },
-    "license": "MIT",
-    "directories": {
-        "lib": "dist",
-        "test": "test"
     },
     "files": [
         "dist/**/*"
     ],
-    "srcMain": "src/index.ts",
     "main": "dist/index.js",
+    "srcMain": "src/index.ts",
     "typings": "dist/index.d.ts",
     "scripts": {
         "lint": "tslint -p tsconfig.build.json -t verbose -e '**/*.json'",
@@ -37,14 +30,10 @@
         "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@terascope/queue": "^1.1.6",
-        "bluebird": "^3.5.3",
         "debug": "^4.1.1",
-        "nanoid": "^2.0.0",
-        "p-event": "^2.1.0",
-        "porty": "^3.1.1",
-        "socket.io": "^1.7.4",
-        "socket.io-client": "^1.7.4"
+        "is-plain-object": "^2.0.4",
+        "kind-of": "^6.0.2",
+        "lodash.clonedeep": "^4.5.0"
     },
     "devDependencies": {
         "@types/jest": "^23.3.12",
@@ -58,8 +47,5 @@
         "tslint": "^5.12.0",
         "tslint-config-airbnb": "^5.11.1",
         "typescript": "^3.2.2"
-    },
-    "engines": {
-        "node": ">=8.0.0"
     }
 }

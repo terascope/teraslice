@@ -1,5 +1,76 @@
 import Stream from 'stream';
 import { EventEmitter } from 'events';
+import { isString, uniq } from './utils';
+import debugFn from 'debug';
+
+interface DebugParamObj {
+    module: string;
+    assignment?: string;
+    [name: string]: any;
+}
+
+type debugParam = DebugParamObj | string;
+
+export function debugLogger(testName: string, param?: debugParam, otherName?: string): Logger {
+    const logger: Logger = new EventEmitter() as Logger;
+
+    const parts: string[] = [testName];
+    if (testName.indexOf('teraslice') < 0) {
+        parts.unshift('teraslice');
+    }
+
+    if (param) {
+        if (isString(param)) {
+            parts.push(param as string);
+        } else if (typeof param === 'object') {
+            parts.push(param.module);
+            if (param.assignment) {
+                parts.push(param.assignment);
+            }
+        }
+    }
+
+    if (otherName) {
+        parts.push(otherName);
+    }
+
+    const name = uniq(parts).join(':');
+
+    logger.streams = [];
+
+    logger.addStream = function (stream) {
+        // @ts-ignore
+        this.streams.push(stream);
+    };
+
+    logger.child = (opts: debugParam) => debugLogger(name, opts);
+    logger.flush = () => Promise.resolve();
+    logger.reopenFileStreams = () => {};
+    logger.level = () => 50;
+    // @ts-ignore
+    logger.levels = () => 50;
+
+    logger.src = false;
+
+    const levels = [
+        'trace',
+        'debug',
+        'info',
+        'warn',
+        'error',
+        'fatal'
+    ];
+
+    for (const level of levels) {
+        const fLevel = `[${level.toUpperCase()}]`;
+        const debug = debugFn(name);
+        logger[level] = (...args: any[]) => {
+            debug(fLevel, ...args);
+        };
+    }
+
+    return logger;
+}
 
 // This includes additional properties from terafoundation
 // Type definitions for bunyan 1.8

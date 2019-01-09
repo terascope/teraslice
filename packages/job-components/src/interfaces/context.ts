@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
+import { Logger } from '@terascope/utils';
 import { OpConfig } from './jobs';
 import { ExecutionContextAPI } from '../execution-context';
-import { Logger } from './logger';
 
 export interface ClusterStateConfig {
     connection: string|'default';
@@ -51,6 +51,7 @@ export interface TerafoundationConfig {
 export interface SysConfig {
     terafoundation: TerafoundationConfig;
     teraslice: TerasliceConfig;
+    _nodeName: string;
 }
 
 export interface ConnectionConfig {
@@ -141,6 +142,13 @@ export interface Context {
     name: string;
     platform: string;
     sysconfig: SysConfig;
+    cluster: ContextClusterConfig;
+}
+
+export interface ContextClusterConfig {
+    worker: {
+        id: string;
+    };
 }
 
 export type Assignment = 'assets_service'|'cluster_master'|'node_master'|'execution_controller'|'worker';

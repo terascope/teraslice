@@ -14,7 +14,6 @@ module.exports = (options) => {
         name: pkgName,
         description,
         version: '0.1.0',
-        main: 'index.js',
         publishConfig: {
             access: 'public'
         },
@@ -30,6 +29,7 @@ module.exports = (options) => {
 
     if (!typescript) {
         return _.defaultsDeep(common, {
+            main: 'index.js',
             files: [
                 '*.js',
                 'lib/**/*'
@@ -42,7 +42,7 @@ module.exports = (options) => {
                 'test:debug': "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
             },
             devDependencies: {
-                eslint: '^5.11.1',
+                eslint: '^5.12.0',
                 'eslint-config-airbnb-base': '^13.1.0',
                 'eslint-plugin-import': '^2.14.0',
                 jest: '^23.6.0',
@@ -70,7 +70,7 @@ module.exports = (options) => {
             'test:debug': "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
         },
         devDependencies: {
-            '@types/jest': '^23.3.11',
+            '@types/jest': '^23.3.12',
             '@types/node': '^10.12.18',
             'babel-core': '^6.0.0',
             'babel-jest': '^23.6.0',
@@ -78,8 +78,8 @@ module.exports = (options) => {
             'jest-extended': '^0.11.0',
             rimraf: '^2.6.3',
             'ts-jest': '^23.10.5',
-            tslint: '^5.0.0',
-            'tslint-config-airbnb': '^5.12.0',
+            tslint: '^5.12.0',
+            'tslint-config-airbnb': '^5.11.1',
             typescript: '^3.2.2'
         },
     });

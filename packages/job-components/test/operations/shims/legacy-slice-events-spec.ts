@@ -1,5 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { times } from '../../../src/utils';
+import { times } from '@terascope/utils';
 import {
     EachProcessor,
     legacySliceEventsShim,

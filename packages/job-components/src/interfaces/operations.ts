@@ -1,7 +1,7 @@
 import { Schema } from 'convict';
+import { Logger } from '@terascope/utils';
 import { ValidatedJobConfig, OpConfig, ExecutionConfig, LegacyExecutionContext } from './jobs';
 import { Context, SysConfig } from './context';
-import { Logger } from './logger';
 
 export type crossValidationFn = (job: ValidatedJobConfig, sysconfig: SysConfig) => void;
 export type selfValidationFn = (config: OpConfig) => void;

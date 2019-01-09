@@ -15,6 +15,7 @@ COPY packages/job-components/package.json /app/source/packages/job-components/pa
 COPY packages/elasticsearch-api/package.json /app/source/packages/elasticsearch-api/package.json
 COPY packages/error-parser/package.json /app/source/packages/error-parser/package.json
 COPY packages/queue/package.json /app/source/packages/queue/package.json
+COPY packages/utils/package.json /app/source/packages/utils/package.json
 
 RUN yarn --frozen-lockfile --link-duplicates \
     && yarn bootstrap:prod \
@@ -24,6 +25,7 @@ RUN yarn --frozen-lockfile --link-duplicates \
 COPY tsconfig.json /app/source/
 COPY types /app/source/types
 COPY packages/queue /app/source/packages/queue
+COPY packages/utils /app/source/packages/utils
 COPY packages/job-components /app/source/packages/job-components
 COPY packages/teraslice-messaging /app/source/packages/teraslice-messaging
 
