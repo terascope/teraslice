@@ -1,14 +1,14 @@
 # terascope-utils
 
-> A collection of Teraslice Utilities
+> A collection of Teraslice Utilities, including DataEntity.
 
 # Installation
 
 ```bash
 # Using yarn
-yarn add @terascope/terascope-utils
+yarn add @terascope/utils
 # Using npm
-npm install --save @terascope/terascope-utils
+npm install --save @terascope/utils
 ```
 
 ## Contributing
