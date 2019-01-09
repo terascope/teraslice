@@ -1,6 +1,6 @@
 import 'jest-extended';
 import es from 'elasticsearch';
-import { times, pDelay } from '@terascope/utils';
+import { times, pDelay, DataEntity } from '@terascope/utils';
 import simpleMapping from './fixtures/simple-mapping.json';
 import { SimpleRecord } from './helpers/simple-index';
 import { ELASTICSEARCH_HOST } from './helpers/config';
@@ -154,9 +154,16 @@ describe('IndexStore', () => {
                 }, 'wrong-id')).rejects.toThrowError('Not Found');
             });
 
-            it('should be able to get the record by id', () => {
-                return expect(indexStore.get(record.test_id))
-                    .resolves.toEqual(record);
+            it('should be able to get the record by id', async () => {
+                const r = await indexStore.get(record.test_id);
+
+                expect(DataEntity.isDataEntity(r)).toBeTrue();
+                expect(r).toEqual(record);
+                expect(r.getMetadata()).toMatchObject({
+                    _index: index,
+                    _id: record.test_id,
+                    _type: 'test__store'
+                });
             });
 
             it('should throw when getting a record that does not exist', () => {
@@ -223,6 +230,7 @@ describe('IndexStore', () => {
 
                 const result = await indexStore.mget({ docs });
 
+                expect(DataEntity.isDataEntityArray(result)).toBeTrue();
                 expect(result).toEqual(records);
             });
 
@@ -232,6 +240,7 @@ describe('IndexStore', () => {
                     sort: 'test_id'
                 });
 
+                expect(DataEntity.isDataEntityArray(result)).toBeTrue();
                 expect(result).toEqual(records);
             });
         });
@@ -252,7 +261,6 @@ describe('IndexStore', () => {
                 }
 
                 await pDelay(500);
-
                 await indexStore.refresh();
             });
 
@@ -262,6 +270,7 @@ describe('IndexStore', () => {
                     sort: 'test_id'
                 });
 
+                expect(DataEntity.isDataEntityArray(result)).toBeTrue();
                 expect(result).toBeArrayOfSize(records.length);
             });
         });

@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import { Collector } from '@terascope/utils';
+import { Collector, DataEntity } from '@terascope/utils';
 import IndexManager from './index-manager';
 import { IndexConfig } from './interfaces';
 import {
@@ -85,16 +85,17 @@ export default class IndexStore<T extends Object> {
     }
 
     /** Get a single document */
-    async get(id: string, params?: Partial<es.GetParams>): Promise<T> {
+    async get(id: string, params?: Partial<es.GetParams>): Promise<DataEntity<T>> {
         const p = this._getParams(params, { id });
 
         return this._try(async () => {
-            return this._toRecord(await this.client.get<T>(p));
+            const result = await this.client.get<T>(p);
+            return this._toRecord(result);
         });
     }
 
     /** Get multiple documents at the same time */
-    async mget(body: any, params?: Partial<es.MGetParams>): Promise<T[]> {
+    async mget(body: any, params?: Partial<es.MGetParams>): Promise<DataEntity<T>[]> {
         const p = this._getParams(params, { body });
 
         return this._try(async () => {
@@ -106,7 +107,7 @@ export default class IndexStore<T extends Object> {
     }
 
     /** Search with a given Lucene Query or Elasticsearch Query DSL */
-    async search(params: Partial<es.SearchParams>): Promise<T[]> {
+    async search(params: Partial<es.SearchParams>): Promise<DataEntity<T>[]> {
         const p = this._getParams(params);
         return this._try(async () => {
             const results = await this.client.search<T>(p);
@@ -219,8 +220,13 @@ export default class IndexStore<T extends Object> {
         }
     }
 
-    private _toRecord(result: { _source: T }): T {
-        return result._source;
+    private _toRecord(result: RecordResponse<T>): DataEntity<T> {
+        return DataEntity.make(result._source, {
+            _index: result._index,
+            _type: result._type,
+            _id: result._id,
+            _version: result._version,
+        });
     }
 
     private async _flush(flushAll = false) {
@@ -249,3 +255,11 @@ export default class IndexStore<T extends Object> {
 }
 
 type AsyncFn<T> = () => Promise<T>;
+
+interface RecordResponse<T> {
+    _index: string;
+    _type: string;
+    _id: string;
+    _version?: number;
+    _source: T;
+}
