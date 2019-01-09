@@ -71,7 +71,7 @@
         "bufferstreams": "^2.0.1",
         "chance": "^1.0.18",
         "elasticsearch": "^15.1.1",
-        "eslint": "^5.11.1",
+        "eslint": "^5.12.0",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "^2.14.0",
         "got": "^9.5.0",
