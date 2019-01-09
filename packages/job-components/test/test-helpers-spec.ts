@@ -86,6 +86,8 @@ describe('Test Helpers', () => {
         expect(TestContext).toBeTruthy();
         const context = new TestContext('test-name');
         expect(context).toHaveProperty('sysconfig');
+        expect(context.sysconfig).toHaveProperty('_nodeName');
+        expect(context).toHaveProperty('cluster');
         expect(context).toHaveProperty('apis');
         expect(context).toHaveProperty('foundation');
         expect(context.apis.foundation.getSystemEvents()).toBeInstanceOf(EventEmitter);
