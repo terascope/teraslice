@@ -1,5 +1,6 @@
 import semver from 'semver';
 import get from 'lodash.get';
+import { parseError, isString, isFunction } from '@terascope/utils';
 import * as es from 'elasticsearch';
 import * as i from './interfaces';
 
@@ -27,21 +28,21 @@ export function isValidClient(input: any): input is es.Client {
 
 export function isValidConfig(input: any): input is i.IndexConfig {
     if (input == null) return false;
-    if (typeof input.index !== 'string') return false;
+    if (!isString(input.index)) return false;
     if (!input.index) return false;
     return true;
 }
 
 export function normalizeError(err: any, stack?: string): i.ESError {
-    let message = 'Unknown Error';
+    let message: string;
     let statusCode = 500;
 
-    if (err && typeof err.toJSON === 'function') {
+    if (err && isFunction(err.toJSON)) {
         const errObj = err.toJSON();
         message = get(errObj, 'msg', err.toString());
         statusCode = get(errObj, 'statusCode', statusCode);
-    } else if (err && typeof err.toString === 'function') {
-        message = err.toString();
+    } else {
+        message = parseError(err);
     }
 
     if (message.includes('document missing') || message.includes('Not Found')) {
