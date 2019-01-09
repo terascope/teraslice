@@ -187,7 +187,8 @@ describe('IndexStore', () => {
 
             it('should be able to search the records', async () => {
                 const result = await indexStore.search({
-                    q: `test_keyword: ${keyword}`
+                    q: `test_keyword: ${keyword}`,
+                    sort: 'test_id'
                 });
 
                 expect(result).toEqual(records);
