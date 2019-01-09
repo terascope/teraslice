@@ -36,14 +36,26 @@ export function normalizeError(err: any, stack?: string): i.ESError {
     let message = 'Unknown Error';
     let statusCode = 500;
 
-    const errMsg = typeof err === 'string' ? err : err && err.toString();
-    if (errMsg.includes('document missing') || errMsg.includes('Not Found')) {
+    if (err && typeof err.toJSON === 'function') {
+        const errObj = err.toJSON();
+        message = get(errObj, 'msg', err.toString());
+        statusCode = get(errObj, 'statusCode', statusCode);
+    } else if (err && typeof err.toString === 'function') {
+        message = err.toString();
+    }
+
+    if (message.includes('document missing') || message.includes('Not Found')) {
         message = 'Not Found';
         statusCode = 404;
     }
 
+    if (message.includes('document already exists')) {
+        message = 'Document Already Exists';
+        statusCode = 409;
+    }
+
     const error = new Error(message) as i.ESError;
-    if (stack) error.stack = stack;
+    if (stack) error.stack = stack.replace('[MESSAGE]', message);
     error.statusCode = statusCode;
 
     return error;

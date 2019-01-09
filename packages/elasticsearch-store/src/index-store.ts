@@ -62,8 +62,15 @@ export default class IndexStore<T extends Object> {
     }
 
     /** Get multiple documents at the same time */
-    async mget(query: es.MGetParams): Promise<T[]> {
-        return [] as T[];
+    async mget(body: any, params?: Partial<es.MGetParams>): Promise<T[]> {
+        const p = this._getParams(params, { body });
+
+        return this._try(async () => {
+            const { docs } = await this.client.mget(p);
+            if (!docs) return [];
+
+            return docs.map(({ _source }) => _source as T);
+        });
     }
 
     /** Search with a given Lucene Query or Elasticsearch Query DSL */
@@ -141,7 +148,7 @@ export default class IndexStore<T extends Object> {
 
     private async _try<T>(fn: AsyncFn<T>): Promise<T> {
         // capture the stack here for better errors
-        const stack = new Error().stack;
+        const stack = new Error('[MESSAGE]').stack;
 
         try {
             return await fn();

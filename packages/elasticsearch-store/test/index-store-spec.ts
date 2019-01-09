@@ -71,9 +71,8 @@ describe('IndexStore', () => {
         });
 
         describe('when dealing with a record', () => {
-            const id = 'hello-1234';
             const record = {
-                test_id: id,
+                test_id: 'hello-1234',
                 test_keyword: 'hello',
                 test_object: {
                     some_obj: true,
@@ -82,12 +81,17 @@ describe('IndexStore', () => {
                 test_boolean: false,
             };
 
-            it('should be able to create a record', () => {
-                return indexStore.create(record, id);
+            beforeAll(() => {
+                return indexStore.create(record, record.test_id);
+            });
+
+            it('should not be able to create a record again', () => {
+                return expect(indexStore.create(record, record.test_id))
+                    .rejects.toThrowError('Document Already Exists');
             });
 
             it('should be able to get the count', () => {
-                return expect(indexStore.count(`test_id: ${id}`))
+                return expect(indexStore.count(`test_id: ${record.test_id}`))
                     .resolves.toBe(1);
             });
 
@@ -99,12 +103,12 @@ describe('IndexStore', () => {
             it('should be able to update the record', async () => {
                 await indexStore.update({
                     test_number: 4231
-                }, id);
+                }, record.test_id);
 
-                const updated = await indexStore.get(id);
+                const updated = await indexStore.get(record.test_id);
                 expect(updated).toHaveProperty('test_number', 4231);
 
-                await indexStore.update(record, id);
+                await indexStore.update(record, record.test_id);
             });
 
             it('should throw when updating a record that does not exist', () => {
@@ -114,7 +118,7 @@ describe('IndexStore', () => {
             });
 
             it('should be able to get the record by id', () => {
-                return expect(indexStore.get(id))
+                return expect(indexStore.get(record.test_id))
                     .resolves.toEqual(record);
             });
 
@@ -124,12 +128,60 @@ describe('IndexStore', () => {
             });
 
             it('should be able to remove the record', () => {
-                return indexStore.remove(id);
+                return indexStore.remove(record.test_id);
             });
 
             it('should throw when trying to remove a record that does not exist', () => {
                 return expect(indexStore.remove('wrong-id'))
                     .rejects.toThrowError('Not Found');
+            });
+        });
+
+        describe('when dealing with multiple a records', () => {
+            const keyword = 'example-record';
+            const records = [
+                {
+                    test_id: 'example-1',
+                    test_keyword: keyword,
+                    test_object: {
+                        example: 'obj',
+                    },
+                    test_number: 5555,
+                    test_boolean: true,
+                },
+                {
+                    test_id: 'example-2',
+                    test_keyword: keyword,
+                    test_object: {
+                        example: 'obj',
+                    },
+                    test_number: 3333,
+                    test_boolean: true,
+                },
+                {
+                    test_id: 'example-3',
+                    test_keyword: keyword,
+                    test_object: {
+                        example: 'obj',
+                    },
+                    test_number: 999,
+                    test_boolean: true,
+                }
+            ];
+
+            beforeAll(async () => {
+                await Promise.all(records.map((record) => {
+                    return indexStore.create(record, record.test_id);
+                }));
+            });
+
+            it('should be able to mget all of the records', async () => {
+                const docs = records.map((r) => ({
+                    _id: r.test_id
+                }));
+                const result = await indexStore.mget({ docs });
+
+                expect(result).toEqual(records);
             });
         });
     });
