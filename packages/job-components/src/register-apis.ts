@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { parseJSON } from '@terascope/utils';
 import {
     ConnectionConfig,
     Context,
@@ -9,7 +10,6 @@ import {
     GetClientConfig,
 } from './interfaces';
 import { ExecutionContextAPI } from './execution-context';
-import { parseJSON } from './utils';
 
 /** Get the first opConfig from an operation name */
 export function getOpConfig(job: ValidatedJobConfig, name: string): OpConfig|undefined {

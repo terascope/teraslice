@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
+import { Logger } from '@terascope/utils';
 import { OpConfig } from './jobs';
 import { ExecutionContextAPI } from '../execution-context';
-import { Logger } from './logger';
 
 export interface ClusterStateConfig {
     connection: string|'default';

@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { isFunction, cloneDeep } from '../utils';
+import { isFunction, cloneDeep } from '@terascope/utils';
 import { OperationLoader } from '../operation-loader';
 import { registerApis } from '../register-apis';
 import { ExecutionConfig, WorkerContext, OperationLifeCycle } from '../interfaces';

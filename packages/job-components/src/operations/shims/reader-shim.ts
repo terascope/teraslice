@@ -1,10 +1,9 @@
+import { DataEntity, isInteger, isFunction, toString } from '@terascope/utils';
 import { Context, LegacyExecutionContext, LegacyReader, SliceRequest, SlicerFns, ReaderFn, ValidatedJobConfig } from '../../interfaces';
-import DataEntity from '../data-entity';
 import FetcherCore from '../core/fetcher-core';
 import ParallelSlicer from '../parallel-slicer';
 import ConvictSchema from '../convict-schema';
 import { ReaderModule } from '../interfaces';
-import { isInteger, isFunction, toString } from '../../utils';
 import { convertResult } from './shim-utils';
 
 export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule {
