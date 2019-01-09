@@ -56,8 +56,7 @@ export default class IndexStore<T extends Object> {
         const p = this._getParams(params, { id });
 
         return this._try(async () => {
-            const { _source } = await this.client.get(p);
-            return _source;
+            return this._toRecord(await this.client.get<T>(p));
         });
     }
 
@@ -66,16 +65,20 @@ export default class IndexStore<T extends Object> {
         const p = this._getParams(params, { body });
 
         return this._try(async () => {
-            const { docs } = await this.client.mget(p);
+            const { docs } = await this.client.mget<T>(p);
             if (!docs) return [];
 
-            return docs.map(({ _source }) => _source as T);
+            return docs.map(this._toRecord);
         });
     }
 
     /** Search with a given Lucene Query or Elasticsearch Query DSL */
-    async search(query: es.SearchParams): Promise<T[]> {
-        return [] as T[];
+    async search(params: Partial<es.SearchParams>): Promise<T[]> {
+        const p = this._getParams(params);
+        return this._try(async () => {
+            const results = await this.client.search<T>(p);
+            return results.hits.hits.map(this._toRecord);
+        });
     }
 
     /** Index a document */
@@ -155,6 +158,10 @@ export default class IndexStore<T extends Object> {
         } catch (err) {
             throw normalizeError(err, stack);
         }
+    }
+
+    private _toRecord(result: { _source: T }): T {
+        return result._source;
     }
 }
 

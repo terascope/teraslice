@@ -179,7 +179,16 @@ describe('IndexStore', () => {
                 const docs = records.map((r) => ({
                     _id: r.test_id
                 }));
+
                 const result = await indexStore.mget({ docs });
+
+                expect(result).toEqual(records);
+            });
+
+            it('should be able to search the records', async () => {
+                const result = await indexStore.search({
+                    q: `test_keyword: ${keyword}`
+                });
 
                 expect(result).toEqual(records);
             });
