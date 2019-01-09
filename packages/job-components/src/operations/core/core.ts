@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
-import { Context, ExecutionConfig, Logger, OperationLifeCycle } from '../../interfaces';
+import { Logger } from '@terascope/utils';
+import { Context, ExecutionConfig, OperationLifeCycle } from '../../interfaces';
 
 /**
  * The core class for creating for all varients or base classes for an operation.

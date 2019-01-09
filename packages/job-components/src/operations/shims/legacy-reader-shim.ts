@@ -1,4 +1,4 @@
-import DataEntity, { DataInput } from '../data-entity';
+import { DataEntity, DataInput, Logger, times } from '@terascope/utils';
 import SlicerClass from '../slicer';
 import operationAPIShim, { APIs } from './operation-api-shim';
 import legacySliceEventsShim from './legacy-slice-events-shim';
@@ -6,14 +6,12 @@ import {
     SchemaConstructor,
 } from '../interfaces';
 import {
-    Logger,
     SliceRequest,
     ReaderFn,
     SlicerFns,
     LegacyReader,
     WorkerContext,
 } from '../../interfaces';
-import { times } from '../../utils';
 
 // This file for backwards compatibility and functionality will be limited
 // but it should allow you to write processors using the new way today

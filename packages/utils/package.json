@@ -1,29 +1,22 @@
 {
-    "name": "@terascope/job-components",
-    "version": "0.14.2",
+    "name": "@terascope/utils",
+    "description": "A collection of Teraslice Utilities",
+    "version": "0.1.0",
+    "main": "index.js",
     "publishConfig": {
         "access": "public"
     },
-    "description": "Teraslice Job Components",
-    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/job-components#readme",
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/terascope-utils#readme",
+    "repository": "git@github.com:terascope/teraslice.git",
+    "author": "Terascope, LLC <info@terascope.io>",
+    "license": "MIT",
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
-    },
-    "author": "Terascope, LLC <info@terascope.io>",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/terascope/teraslice.git"
-    },
-    "license": "MIT",
-    "directories": {
-        "lib": "dist",
-        "test": "test"
     },
     "files": [
         "dist/**/*"
     ],
     "srcMain": "src/index.ts",
-    "main": "dist/index.js",
     "typings": "dist/index.d.ts",
     "scripts": {
         "lint": "tslint -p tsconfig.build.json -t verbose -e '**/*.json'",
@@ -34,33 +27,25 @@
         "build:watch": "yarn build --watch",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
-        "benchmark": "yarn build; node bench/index.js"
+        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@terascope/queue": "^1.1.6",
-        "@terascope/utils": "^0.1.0",
-        "convict": "^4.4.1",
-        "datemath-parser": "^1.0.6",
-        "uuid": "^3.3.2"
+        "debug": "^4.1.1",
+        "is-plain-object": "^2.0.4",
+        "kind-of": "^6.0.2",
+        "lodash.clonedeep": "^4.5.0"
     },
     "devDependencies": {
         "@types/jest": "^23.3.11",
         "@types/node": "^10.12.18",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
-        "benchmark": "^2.1.4",
-        "fs-extra": "^7.0.1",
         "jest": "^23.6.0",
         "jest-extended": "^0.11.0",
-        "jest-fixtures": "^0.6.0",
         "rimraf": "^2.6.3",
         "ts-jest": "^23.10.5",
-        "tslint": "^5.12.0",
-        "tslint-config-airbnb": "^5.11.0",
+        "tslint": "^5.0.0",
+        "tslint-config-airbnb": "^5.11.1",
         "typescript": "^3.2.2"
-    },
-    "engines": {
-        "node": ">=8.0.0"
     }
 }

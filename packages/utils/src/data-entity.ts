@@ -1,5 +1,4 @@
-import { fastAssign, fastMap, isFunction, isPlainObject, parseJSON, getTypeOf } from '../utils';
-import { DataEncoding } from '../interfaces';
+import { fastAssign, fastMap, isFunction, isPlainObject, parseJSON, getTypeOf } from './utils';
 
 // WeakMaps are used as a memory efficient reference to private data
 const _metadata = new WeakMap();
@@ -11,7 +10,7 @@ const _metadata = new WeakMap();
  * IMPORTANT: Use `DataEntity.make`, `DataEntity.fromBuffer` and `DataEntity.makeArray`
  * to create DataEntities that are significantly faster (600x-1000x faster).
  */
-export default class DataEntity {
+export class DataEntity {
     /**
      * A utility for safely converting an object a `DataEntity`.
      * If the input is a DataEntity it will return it and have no side-effect.
@@ -215,3 +214,11 @@ interface DataEntityMetadata {
     // Add the ability to specify any additional properties
     [prop: string]: any;
 }
+
+/**
+ * available data encoding types
+*/
+export type DataEncoding = 'json';
+
+/** A list of supported encoding formats */
+export const dataEncodings: DataEncoding[] = ['json'];

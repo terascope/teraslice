@@ -1,6 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { DataEntity } from '../../src';
-import { parseJSON } from '../../src/utils';
+import { DataEntity, parseJSON } from '../src';
 
 describe('DataEntity', () => {
     const testCases = [
@@ -386,6 +385,5 @@ describe('DataEntity', () => {
                 });
             }).toThrowError('Unsupported encoding type, got "crazy"');
         });
-
     });
 });

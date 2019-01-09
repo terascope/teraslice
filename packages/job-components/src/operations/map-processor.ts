@@ -1,5 +1,5 @@
 import { OpConfig } from '../interfaces';
-import DataEntity from './data-entity';
+import { DataEntity } from '@terascope/utils';
 import ProcessorCore from './core/processor-core';
 
 /**

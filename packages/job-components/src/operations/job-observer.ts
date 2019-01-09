@@ -1,6 +1,6 @@
+import { times } from '@terascope/utils';
 import { ExecutionConfig, APIConfig, SliceAnalyticsData, WorkerContext } from '../interfaces';
 import Observer from './observer';
-import { times } from '../utils';
 
 /**
  * An Observer for monitoring the Slice Analyitcs

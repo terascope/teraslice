@@ -1,10 +1,9 @@
+import { DataEntity, DataInput, Logger } from '@terascope/utils';
 import operationAPIShim, { APIs } from './operation-api-shim';
 import legacySliceEventsShim from './legacy-slice-events-shim';
-import DataEntity, { DataInput } from '../data-entity';
 import { SchemaConstructor } from '../interfaces';
 import {
     LegacyProcessor,
-    Logger,
     SliceRequest,
     ProcessorFn,
     WorkerContext,
