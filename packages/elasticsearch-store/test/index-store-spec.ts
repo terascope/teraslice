@@ -205,8 +205,12 @@ describe('IndexStore', () => {
 
             beforeAll(async () => {
                 await Promise.all(records.map((record) => {
-                    return indexStore.create(record, record.test_id);
+                    return indexStore.create(record, record.test_id, {
+                        refresh: false
+                    });
                 }));
+
+                await indexStore.refresh();
             });
 
             it('should be able to mget all of the records', async () => {

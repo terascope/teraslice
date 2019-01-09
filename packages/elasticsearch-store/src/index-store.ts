@@ -148,9 +148,17 @@ export default class IndexStore<T extends Object> {
         await this._try(() => this.client.delete(p));
     }
 
-    /** Refresh an index */
-    async refresh(params: es.IndicesRefreshParams) {
-        return;
+    /**
+     * Refreshes the current index
+     */
+    async refresh(params?: es.IndicesRefreshParams) {
+        const p = Object.assign({
+            index: this._indexQuery
+        }, params);
+
+        return this._try(() => {
+            return this.client.indices.refresh(p);
+        });
     }
 
     private _getParams(...params: any[]) {
