@@ -14,7 +14,6 @@ module.exports = (options) => {
         name: pkgName,
         description,
         version: '0.1.0',
-        main: 'index.js',
         publishConfig: {
             access: 'public'
         },
@@ -30,6 +29,7 @@ module.exports = (options) => {
 
     if (!typescript) {
         return _.defaultsDeep(common, {
+            main: 'index.js',
             files: [
                 '*.js',
                 'lib/**/*'
