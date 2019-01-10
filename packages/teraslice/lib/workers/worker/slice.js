@@ -99,7 +99,8 @@ class Slice {
             await this.stateStore.updateState(slice, 'completed');
         } catch (_err) {
             const err = new Error(prependErrorMsg('Failure to update success state', _err));
-            err.fatalError = true;
+            // set fatalError = true to shutdown worker
+            // error.fatalError = true;
             throw err;
         }
 
@@ -121,7 +122,8 @@ class Slice {
             await stateStore.updateState(slice, 'error', errMsg);
         } catch (_err) {
             const error = new Error(prependErrorMsg('Failure to update failed state', _err));
-            error.fatalError = true;
+            // set fatalError = true to shutdown worker
+            // error.fatalError = true;
             throw error;
         }
 
