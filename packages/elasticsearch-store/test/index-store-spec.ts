@@ -1,6 +1,6 @@
 import 'jest-extended';
 import es from 'elasticsearch';
-import { times, pDelay, DataEntity } from '@terascope/utils';
+import { times, pDelay, DataEntity, Omit } from '@terascope/utils';
 import {
     SimpleRecord,
     SimpleRecordInput,
@@ -79,7 +79,7 @@ describe('IndexStore', () => {
         });
 
         describe('when dealing with a record', () => {
-            const record: SimpleRecord = {
+            const record: SimpleRecordInput = {
                 test_id: 'hello-1234',
                 test_keyword: 'hello',
                 test_object: {
@@ -87,6 +87,8 @@ describe('IndexStore', () => {
                 },
                 test_number: 1234,
                 test_boolean: false,
+                _created: new Date().toISOString(),
+                _updated: new Date().toISOString(),
             };
 
             beforeAll(() => {
@@ -103,7 +105,7 @@ describe('IndexStore', () => {
             });
 
             it('should be able to index the record without an id', async () => {
-                const lonelyRecord = {
+                const lonelyRecord: SimpleRecordInput = {
                     test_id: 'lonely-1234',
                     test_keyword: 'other',
                     test_object: {},
@@ -118,7 +120,7 @@ describe('IndexStore', () => {
             });
 
             it('should be able to index a different record with id', async () => {
-                const otherRecord = {
+                const otherRecord: SimpleRecordInput = {
                     test_id: 'other-1234',
                     test_keyword: 'other',
                     test_object: {},
@@ -188,7 +190,7 @@ describe('IndexStore', () => {
 
         describe('when dealing with multiple a records', () => {
             const keyword = 'example-record';
-            const records: SimpleRecord[] = [
+            const records: SimpleRecordInput[] = [
                 {
                     test_id: 'example-1',
                     test_keyword: keyword,
@@ -197,6 +199,8 @@ describe('IndexStore', () => {
                     },
                     test_number: 5555,
                     test_boolean: true,
+                    _created: new Date().toISOString(),
+                    _updated: new Date().toISOString(),
                 },
                 {
                     test_id: 'example-2',
@@ -206,6 +210,8 @@ describe('IndexStore', () => {
                     },
                     test_number: 3333,
                     test_boolean: true,
+                    _created: new Date().toISOString(),
+                    _updated: new Date().toISOString(),
                 },
                 {
                     test_id: 'example-3',
@@ -215,6 +221,8 @@ describe('IndexStore', () => {
                     },
                     test_number: 999,
                     test_boolean: true,
+                    _created: new Date().toISOString(),
+                    _updated: new Date().toISOString(),
                 }
             ];
 
@@ -252,12 +260,13 @@ describe('IndexStore', () => {
 
         describe('when bulk sending records', () => {
             const keyword = 'bulk-record';
-            const records: SimpleRecord[] = times(9, (n) => ({
+            const records: SimpleRecordInput[] = times(9, (n) => ({
                 test_id: `bulk-${n + 1}`,
                 test_keyword: keyword,
                 test_object: { bulk: true },
                 test_number: (n + 10) * 2,
                 test_boolean: true,
+                _updated: new Date().toISOString(),
             }));
 
             beforeAll(async () => {
@@ -290,7 +299,8 @@ describe('IndexStore', () => {
         const configWithDataSchema = Object.assign(config, {
             dataSchema: {
                 version: 'v1.0.0',
-                schema: simpleRecordSchema
+                schema: simpleRecordSchema,
+                allFormatters: true,
             }
         });
 
@@ -327,12 +337,14 @@ describe('IndexStore', () => {
                     test_object: {
                         example: 'obj',
                     },
+                    _created: new Date().toISOString()
                 },
                 {
                     test_id: `data-schema-${inputType}-2`,
                     test_keyword: keyword,
                     test_object: {},
                     test_number: 3333,
+                    _updated: new Date().toISOString()
                 },
                 {
                     test_id: `data-schema-${inputType}-3`,
@@ -341,10 +353,13 @@ describe('IndexStore', () => {
                         example: 'obj',
                     },
                     test_boolean: false,
+                    _created: new Date().toISOString(),
+                    _updated: new Date().toISOString()
                 }
             ];
 
-            const expected: SimpleRecord[] = input.map((record) => {
+            type ExpectedRecord = Omit<SimpleRecord, '_created'|'_updated'>;
+            const expected: ExpectedRecord[] = input.map((record) => {
                 return Object.assign({
                     test_boolean: true,
                     test_number: 676767,

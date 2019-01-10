@@ -6,11 +6,15 @@ export interface SimpleRecord {
     test_object: object;
     test_number: number;
     test_boolean: boolean;
+    _created: string;
+    _updated: string;
 }
 
 export type SimpleRecordInput = Overwrite<SimpleRecord, {
     test_number?: number;
     test_boolean?: boolean;
+    _created?: Date|string;
+    _updated?: Date|string;
 }>;
 
 export const simpleRecordSchema = {
@@ -34,6 +38,12 @@ export const simpleRecordSchema = {
         test_boolean: {
             type: 'boolean',
             default: true,
+        },
+        _created: {
+            format: 'date-time',
+        },
+        _updated: {
+            format: 'date-time',
         }
     },
     required: ['test_id', 'test_keyword']

@@ -109,6 +109,20 @@ export interface DataSchema {
      * @default false
     */
     strict?: boolean;
+
+    /**
+     * If enabled this will allow the use of some of
+     * the slower but more correct JSON Schema's formatters:
+     *
+     * - "date"
+     * - "time"
+     * - "date-time"
+     * - "uri"
+     * - "uri-reference"
+     * - "hostname"
+     * - "email"
+    */
+    allFormatters?: boolean;
 }
 
 export interface ESError extends Error {

@@ -50,7 +50,8 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
         if (config.dataSchema != null) {
             const ajv = new Ajv({
-                useDefaults: true
+                useDefaults: true,
+                format: config.dataSchema.allFormatters ? 'full' : 'fast'
             });
             this._validate = ajv.compile(config.dataSchema.schema);
         } else {
