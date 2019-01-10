@@ -159,7 +159,9 @@ class Slice {
 
                     await this.executionContext.onSliceRetry(this.slice.slice_id);
                 } catch (retryErr) {
-                    throw new retry.StopError(`Slice failed to retry: ${toString(retryErr)}, caused by: ${toString(err)}`);
+                    const error = new retry.StopError(`Slice failed to retry: ${toString(retryErr)}, caused by: ${toString(err)}`);
+                    error.fatalError = get(retryErr, 'fatalError', false);
+                    throw error;
                 }
             }
 
