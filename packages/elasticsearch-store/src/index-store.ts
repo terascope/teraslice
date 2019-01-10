@@ -48,30 +48,15 @@ export default class IndexStore<T extends Object> {
     }
 
     /**
-     * Connect and validate the index configuration.
-    */
-    async initialize() {
-        await this.manager.create(this.config);
+     * Safely make many requests against an index.
+     *
+     * This method will batch messages using the configured
+     * bulk max size and wait configuration.
+     */
+    async bulk(doc: T) {
+        this._collector.add(doc);
 
-        const ms = Math.round(this._bulkMaxWait / 2);
-        this._interval = setInterval(() => {
-            this._flush()
-                .catch((err) => {
-                    console.error(err);
-                });
-        }, ms);
-    }
-
-    /**
-     * Shutdown, flush any pending requests and cleanup
-    */
-    async shutdown() {
-        if (this._interval) {
-            clearInterval(this._interval);
-        }
-        await this._flush();
-
-        this.client.close();
+        return this._flush();
     }
 
     /** Count records by a given Lucene Query or Elasticsearch Query DSL */
@@ -81,37 +66,6 @@ export default class IndexStore<T extends Object> {
         return this._try(async () => {
             const { count } = await this.client.count(p);
             return count;
-        });
-    }
-
-    /** Get a single document */
-    async get(id: string, params?: Partial<es.GetParams>): Promise<DataEntity<T>> {
-        const p = this._getParams(params, { id });
-
-        return this._try(async () => {
-            const result = await this.client.get<T>(p);
-            return this._toRecord(result);
-        });
-    }
-
-    /** Get multiple documents at the same time */
-    async mget(body: any, params?: Partial<es.MGetParams>): Promise<DataEntity<T>[]> {
-        const p = this._getParams(params, { body });
-
-        return this._try(async () => {
-            const { docs } = await this.client.mget<T>(p);
-            if (!docs) return [];
-
-            return docs.map(this._toRecord);
-        });
-    }
-
-    /** Search with a given Lucene Query or Elasticsearch Query DSL */
-    async search(params: Partial<es.SearchParams>): Promise<DataEntity<T>[]> {
-        const p = this._getParams(params);
-        return this._try(async () => {
-            const results = await this.client.search<T>(p);
-            return results.hits.hits.map(this._toRecord);
         });
     }
 
@@ -128,6 +82,31 @@ export default class IndexStore<T extends Object> {
             const { created } = await this.client.create(p);
             return created;
         });
+    }
+
+    /** Get a single document */
+    async get(id: string, params?: Partial<es.GetParams>): Promise<DataEntity<T>> {
+        const p = this._getParams(params, { id });
+
+        return this._try(async () => {
+            const result = await this.client.get<T>(p);
+            return this._toRecord(result);
+        });
+    }
+
+    /**
+     * Connect and validate the index configuration.
+    */
+    async initialize() {
+        await this.manager.create(this.config);
+
+        const ms = Math.round(this._bulkMaxWait / 2);
+        this._interval = setInterval(() => {
+            this._flush()
+                .catch((err) => {
+                    console.error(err);
+                });
+        }, ms);
     }
 
     /**
@@ -151,16 +130,61 @@ export default class IndexStore<T extends Object> {
         return this.index(doc, { id });
     }
 
-    /**
-     * Safely make many requests against an index.
-     *
-     * This method will batch messages using the configured
-     * bulk max size and wait configuration.
-     */
-    async bulk(doc: T) {
-        this._collector.add(doc);
+    /** Get multiple documents at the same time */
+    async mget(body: any, params?: Partial<es.MGetParams>): Promise<DataEntity<T>[]> {
+        const p = this._getParams(params, { body });
 
-        return this._flush();
+        return this._try(async () => {
+            const { docs } = await this.client.mget<T>(p);
+            if (!docs) return [];
+
+            return docs.map(this._toRecord);
+        });
+    }
+
+    /**
+     * Refreshes the current index
+     */
+    async refresh(params?: es.IndicesRefreshParams) {
+        const p = Object.assign({
+            index: this._indexQuery
+        }, params);
+
+        return this._try(() => {
+            return this.client.indices.refresh(p);
+        });
+    }
+
+    /**
+     * Deletes a document for a given id
+    */
+    async remove(id: string, params?: Partial<es.DeleteDocumentParams>) {
+        const p = this._getParams(params, {
+            id,
+        });
+
+        await this._try(() => this.client.delete(p));
+    }
+
+    /**
+     * Shutdown, flush any pending requests and cleanup
+    */
+    async shutdown() {
+        if (this._interval) {
+            clearInterval(this._interval);
+        }
+        await this._flush();
+
+        this.client.close();
+    }
+
+    /** Search with a given Lucene Query or Elasticsearch Query DSL */
+    async search(params: Partial<es.SearchParams>): Promise<DataEntity<T>[]> {
+        const p = this._getParams(params);
+        return this._try(async () => {
+            const results = await this.client.search<T>(p);
+            return results.hits.hits.map(this._toRecord);
+        });
     }
 
     /** Update a document with a given id */
@@ -176,30 +200,6 @@ export default class IndexStore<T extends Object> {
         });
 
         await this._try(() => this.client.update(p));
-    }
-
-    /**
-     * Deletes a document for a given id
-    */
-    async remove(id: string, params?: Partial<es.DeleteDocumentParams>) {
-        const p = this._getParams(params, {
-            id,
-        });
-
-        await this._try(() => this.client.delete(p));
-    }
-
-    /**
-     * Refreshes the current index
-     */
-    async refresh(params?: es.IndicesRefreshParams) {
-        const p = Object.assign({
-            index: this._indexQuery
-        }, params);
-
-        return this._try(() => {
-            return this.client.indices.refresh(p);
-        });
     }
 
     private async _flush(flushAll = false) {
