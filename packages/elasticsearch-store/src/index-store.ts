@@ -1,24 +1,26 @@
+import Ajv from 'ajv';
 import * as es from 'elasticsearch';
 import { Collector, DataEntity } from '@terascope/utils';
 import IndexManager from './index-manager';
-import { IndexConfig } from './interfaces';
+import * as i from './interfaces';
 import {
     isValidClient,
     isValidConfig,
     normalizeError,
 } from './utils';
 
-export default class IndexStore<T extends Object> {
+export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     readonly client: es.Client;
-    readonly config: IndexConfig;
+    readonly config: i.IndexConfig;
     readonly manager: IndexManager;
+    private _validate: Ajv.ValidateFunction|NoopValidate<I|T>;
     private _indexQuery: string;
     private _interval: NodeJS.Timer|undefined;
-    private readonly _collector: Collector<T>;
+    private readonly _collector: Collector<I>;
     private readonly _bulkMaxWait: number = 10000;
     private readonly _bulkMaxSize: number = 500;
 
-    constructor(client: es.Client, config: IndexConfig) {
+    constructor(client: es.Client, config: i.IndexConfig) {
         if (!isValidClient(client)) {
             throw new Error('IndexStore requires elasticsearch client');
         }
@@ -45,6 +47,17 @@ export default class IndexStore<T extends Object> {
             size: this._bulkMaxSize,
             wait: this._bulkMaxWait,
         });
+
+        if (config.dataSchema != null) {
+            const ajv = new Ajv({
+                useDefaults: true
+            });
+            this._validate = ajv.compile(config.dataSchema.schema);
+        } else {
+            this._validate = () => true;
+        }
+
+        this._toRecord = this._toRecord.bind(this);
     }
 
     /**
@@ -53,7 +66,8 @@ export default class IndexStore<T extends Object> {
      * This method will batch messages using the configured
      * bulk max size and wait configuration.
      */
-    async bulk(doc: T) {
+    async bulk(doc: I) {
+        this._validate(doc);
         this._collector.add(doc);
 
         return this._flush();
@@ -74,7 +88,8 @@ export default class IndexStore<T extends Object> {
      *
      * @returns a boolean to indicate whether the document was created
      */
-    async create(doc: T, id?: string, params?: Partial<es.CreateDocumentParams>): Promise<boolean> {
+    async create(doc: I, id?: string, params?: Partial<es.CreateDocumentParams>): Promise<boolean> {
+        this._validate(doc);
         const defaults = { refresh: true };
         const p = this._getParams(defaults, params, { id, body: doc });
 
@@ -112,7 +127,8 @@ export default class IndexStore<T extends Object> {
     /**
      * Index a document
      */
-    async index(doc: T, params?: Partial<es.IndexDocumentParams<T>>) {
+    async index(doc: I, params?: Partial<es.IndexDocumentParams<T>>) {
+        this._validate(doc);
         const defaults = { refresh: true };
         const p = this._getParams(defaults, params, {
             body: doc
@@ -126,8 +142,8 @@ export default class IndexStore<T extends Object> {
     /**
      * A convenience method for indexing a document with an ID
      */
-    async indexWithId(doc: T, id: string) {
-        return this.index(doc, { id });
+    async indexWithId(doc: I, id: string, params?: Partial<es.IndexDocumentParams<T>>) {
+        return this.index(doc, Object.assign({ }, params, { id }));
     }
 
     /** Get multiple documents at the same time */
@@ -234,6 +250,7 @@ export default class IndexStore<T extends Object> {
     }
 
     private _toRecord(result: RecordResponse<T>): DataEntity<T> {
+        this._validate(result._source);
         return DataEntity.make(result._source, {
             _index: result._index,
             _type: result._type,
@@ -242,7 +259,7 @@ export default class IndexStore<T extends Object> {
         });
     }
 
-    private async _try<T>(fn: AsyncFn<T>): Promise<T> {
+    private async _try<T>(fn: i.AsyncFn<T>): Promise<T> {
         // capture the stack here for better errors
         const stack = new Error('[MESSAGE]').stack;
 
@@ -254,8 +271,6 @@ export default class IndexStore<T extends Object> {
     }
 }
 
-type AsyncFn<T> = () => Promise<T>;
-
 interface RecordResponse<T> {
     _index: string;
     _type: string;
@@ -263,3 +278,5 @@ interface RecordResponse<T> {
     _version?: number;
     _source: T;
 }
+
+type NoopValidate<T> = (input: T) => boolean;

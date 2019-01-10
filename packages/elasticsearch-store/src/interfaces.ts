@@ -114,3 +114,5 @@ export interface DataSchema {
 export interface ESError extends Error {
     statusCode: number;
 }
+
+export type AsyncFn<T> = () => Promise<T>;

@@ -1,8 +1,12 @@
 import 'jest-extended';
 import es from 'elasticsearch';
 import { times, pDelay, DataEntity } from '@terascope/utils';
-import simpleMapping from './fixtures/simple-mapping.json';
-import { SimpleRecord } from './helpers/simple-index';
+import {
+    SimpleRecord,
+    SimpleRecordInput,
+    simpleMapping,
+    simpleRecordSchema
+} from './helpers/simple-index';
 import { ELASTICSEARCH_HOST } from './helpers/config';
 import { IndexStore } from '../src';
 
@@ -35,7 +39,7 @@ describe('IndexStore', () => {
             log: 'error'
         });
 
-        const indexStore = new IndexStore<SimpleRecord>(client, {
+        const indexStore = new IndexStore<SimpleRecord, SimpleRecordInput>(client, {
             index: 'test__store',
             indexSchema: {
                 version: 'v1.0.0',
@@ -46,6 +50,10 @@ describe('IndexStore', () => {
             indexSettings: {
                 'index.number_of_shards': 1,
                 'index.number_of_replicas': 1
+            },
+            dataSchema: {
+                version: 'v1.0.0',
+                schema: simpleRecordSchema
             },
             bulkMaxSize: 4,
             bulkMaxWait: 300
@@ -74,7 +82,7 @@ describe('IndexStore', () => {
         });
 
         describe('when dealing with a record', () => {
-            const record = {
+            const record: SimpleRecord = {
                 test_id: 'hello-1234',
                 test_keyword: 'hello',
                 test_object: {
@@ -183,7 +191,7 @@ describe('IndexStore', () => {
 
         describe('when dealing with multiple a records', () => {
             const keyword = 'example-record';
-            const records = [
+            const records: SimpleRecord[] = [
                 {
                     test_id: 'example-1',
                     test_keyword: keyword,
@@ -247,7 +255,7 @@ describe('IndexStore', () => {
 
         describe('when bulk sending records', () => {
             const keyword = 'bulk-record';
-            const records = times(9, (n) => ({
+            const records: SimpleRecord[] = times(9, (n) => ({
                 test_id: `bulk-${n + 1}`,
                 test_keyword: keyword,
                 test_object: { bulk: true },
@@ -272,6 +280,106 @@ describe('IndexStore', () => {
 
                 expect(DataEntity.isDataEntityArray(result)).toBeTrue();
                 expect(result).toBeArrayOfSize(records.length);
+            });
+        });
+
+        type InputType = 'input'|'output';
+        const cases: [InputType][] = [
+            ['input'],
+            ['output'],
+        ];
+
+        describe.each(cases)('when relying on data schema to transform the %s', (inputType) => {
+            const keyword = `data-schema-${inputType}-record`;
+            const input: SimpleRecordInput[] = [
+                {
+                    test_id: `data-schema-${inputType}-1`,
+                    test_keyword: keyword,
+                    test_object: {
+                        example: 'obj',
+                    },
+                },
+                {
+                    test_id: `data-schema-${inputType}-2`,
+                    test_keyword: keyword,
+                    test_object: {},
+                    test_number: 3333,
+                },
+                {
+                    test_id: `data-schema-${inputType}-3`,
+                    test_keyword: keyword,
+                    test_object: {
+                        example: 'obj',
+                    },
+                    test_boolean: false,
+                }
+            ];
+
+            const expected: SimpleRecord[] = input.map((record) => {
+                return Object.assign({
+                    test_boolean: true,
+                    test_number: 676767,
+                }, record);
+            });
+
+            beforeAll(async () => {
+                await Promise.all(input.map((record, i) => {
+                    if (inputType === 'input') {
+                        if (i === 0) {
+                            return indexStore.create(record, record.test_id);
+                        }
+                        return indexStore.indexWithId(record, record.test_id, {
+                            refresh: false
+                        });
+                    }
+                    if (inputType === 'output') {
+                        return client.index({
+                            index,
+                            type: 'test__store',
+                            id: record.test_id,
+                            body: record,
+                            refresh: false,
+                        });
+                    }
+                    throw new Error('Invalid Input Type');
+                }));
+
+                await indexStore.refresh();
+            });
+
+            it('should have created all of the records', async () => {
+                const result = await indexStore.search({
+                    q: `test_keyword: ${keyword}`,
+                    sort: 'test_id'
+                });
+
+                expect(DataEntity.isDataEntityArray(result)).toBeTrue();
+                expect(result).toEqual(expected);
+
+                const record = await indexStore.get(expected[0].test_id);
+
+                expect(DataEntity.isDataEntity(record)).toBeTrue();
+                expect(record).toEqual(expected[0]);
+
+                const records = await indexStore.mget({
+                    docs: expected.map((r) => ({
+                        _id: r.test_id
+                    }))
+                });
+
+                expect(DataEntity.isDataEntityArray(records)).toBeTrue();
+                expect(records).toEqual(expected);
+            });
+
+            it('should be able to update a record with a proper field', async () => {
+                await indexStore.update({
+                    test_number: 77777
+                }, expected[2].test_id);
+
+                const record = await indexStore.get(expected[2].test_id);
+                expect(record).toMatchObject({
+                    test_number: 77777
+                });
             });
         });
     });

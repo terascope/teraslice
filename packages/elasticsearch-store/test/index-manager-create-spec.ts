@@ -1,6 +1,6 @@
 import 'jest-extended';
 import es from 'elasticsearch';
-import simpleMapping from './fixtures/simple-mapping.json';
+import { simpleMapping } from './helpers/simple-index';
 import { ELASTICSEARCH_HOST } from './helpers/config';
 import { IndexManager } from '../src';
 
