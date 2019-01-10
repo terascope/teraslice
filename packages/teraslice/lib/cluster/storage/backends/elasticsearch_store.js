@@ -217,7 +217,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
 
             return elasticsearch.bulkSend(bulkRequest)
                 .then((results) => {
-                    logger.info(`Flushed ${results.items.length} records to index ${indexName}`);
+                    logger.debug(`Flushed ${results.items.length} records to index ${indexName}`);
                 })
                 .catch((err) => {
                     const errMsg = parseError(err);
