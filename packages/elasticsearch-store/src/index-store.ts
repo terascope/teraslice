@@ -202,33 +202,6 @@ export default class IndexStore<T extends Object> {
         });
     }
 
-    private _getParams(...params: any[]) {
-        return Object.assign({
-            index: this._indexQuery,
-            type: this.config.index
-        }, ...params);
-    }
-
-    private async _try<T>(fn: AsyncFn<T>): Promise<T> {
-        // capture the stack here for better errors
-        const stack = new Error('[MESSAGE]').stack;
-
-        try {
-            return await fn();
-        } catch (err) {
-            throw normalizeError(err, stack);
-        }
-    }
-
-    private _toRecord(result: RecordResponse<T>): DataEntity<T> {
-        return DataEntity.make(result._source, {
-            _index: result._index,
-            _type: result._type,
-            _id: result._id,
-            _version: result._version,
-        });
-    }
-
     private async _flush(flushAll = false) {
         const records = flushAll ? this._collector.flushAll() : this._collector.getBatch();
         if (!records) return;
@@ -251,6 +224,33 @@ export default class IndexStore<T extends Object> {
                 body: bulkRequest,
             });
         });
+    }
+
+    private _getParams(...params: any[]) {
+        return Object.assign({
+            index: this._indexQuery,
+            type: this.config.index
+        }, ...params);
+    }
+
+    private _toRecord(result: RecordResponse<T>): DataEntity<T> {
+        return DataEntity.make(result._source, {
+            _index: result._index,
+            _type: result._type,
+            _id: result._id,
+            _version: result._version,
+        });
+    }
+
+    private async _try<T>(fn: AsyncFn<T>): Promise<T> {
+        // capture the stack here for better errors
+        const stack = new Error('[MESSAGE]').stack;
+
+        try {
+            return await fn();
+        } catch (err) {
+            throw normalizeError(err, stack);
+        }
     }
 }
 
