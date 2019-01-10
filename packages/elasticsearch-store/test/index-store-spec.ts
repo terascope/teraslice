@@ -8,7 +8,7 @@ import {
     simpleRecordSchema
 } from './helpers/simple-index';
 import { ELASTICSEARCH_HOST } from './helpers/config';
-import { IndexStore } from '../src';
+import { IndexStore, IndexConfig } from '../src';
 
 describe('IndexStore', () => {
     const client = new es.Client({});
@@ -31,33 +31,30 @@ describe('IndexStore', () => {
         });
     });
 
-    describe('when constructed', () => {
-        const index = 'test__store-v1-s1';
+    const index = 'test__store-v1-s1';
+    const config: IndexConfig = {
+        index: 'test__store',
+        indexSchema: {
+            version: 'v1.0.0',
+            mapping: simpleMapping,
+            strict: true,
+        },
+        version: 'v1.0.0',
+        indexSettings: {
+            'index.number_of_shards': 1,
+            'index.number_of_replicas': 1
+        },
+        bulkMaxSize: 4,
+        bulkMaxWait: 300
+    };
 
+    describe('when constructed without a data schema', () => {
         const client = new es.Client({
             host: ELASTICSEARCH_HOST,
             log: 'error'
         });
 
-        const indexStore = new IndexStore<SimpleRecord, SimpleRecordInput>(client, {
-            index: 'test__store',
-            indexSchema: {
-                version: 'v1.0.0',
-                mapping: simpleMapping,
-                strict: true,
-            },
-            version: 'v1.0.0',
-            indexSettings: {
-                'index.number_of_shards': 1,
-                'index.number_of_replicas': 1
-            },
-            dataSchema: {
-                version: 'v1.0.0',
-                schema: simpleRecordSchema
-            },
-            bulkMaxSize: 4,
-            bulkMaxWait: 300
-        });
+        const indexStore = new IndexStore<SimpleRecord, SimpleRecordInput>(client, config);
 
         beforeAll(async () => {
             await client.indices.delete({
@@ -281,6 +278,38 @@ describe('IndexStore', () => {
                 expect(DataEntity.isDataEntityArray(result)).toBeTrue();
                 expect(result).toBeArrayOfSize(records.length);
             });
+        });
+    });
+
+    describe('when constructed with data schema', () => {
+        const client = new es.Client({
+            host: ELASTICSEARCH_HOST,
+            log: 'error'
+        });
+
+        const configWithDataSchema = Object.assign(config, {
+            dataSchema: {
+                version: 'v1.0.0',
+                schema: simpleRecordSchema
+            }
+        });
+
+        const indexStore = new IndexStore<SimpleRecord, SimpleRecordInput>(client, configWithDataSchema);
+
+        beforeAll(async () => {
+            await client.indices.delete({
+                index
+            }).catch(() => {});
+
+            await indexStore.initialize();
+        });
+
+        afterAll(async () => {
+            await client.indices.delete({
+                index
+            }).catch(() => {});
+
+            await indexStore.shutdown();
         });
 
         type InputType = 'input'|'output';
