@@ -301,6 +301,7 @@ describe('IndexStore', () => {
                 version: 'v1.0.0',
                 schema: simpleRecordSchema,
                 allFormatters: true,
+                strict: true,
             }
         });
 
@@ -320,6 +321,19 @@ describe('IndexStore', () => {
             }).catch(() => {});
 
             await indexStore.shutdown();
+        });
+
+        it('should fail when given an invalid record', async () => {
+            const record = {
+                test_id: 'invalid-record-id',
+                test_boolean: Buffer.from('wrong'),
+                test_number: '123',
+                _created: 'wrong-date'
+            };
+
+                    // @ts-ignore
+            await expect(indexStore.indexWithId(record, record.test_id))
+                        .rejects.toThrowError(/(test_keyword|_created)/);
         });
 
         type InputType = 'input'|'output';
@@ -425,6 +439,7 @@ describe('IndexStore', () => {
                     test_number: 77777
                 });
             });
+
         });
     });
 });

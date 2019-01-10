@@ -7,13 +7,14 @@ import {
     isValidClient,
     isValidConfig,
     normalizeError,
+    throwValidationError,
 } from './utils';
 
 export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     readonly client: es.Client;
     readonly config: i.IndexConfig;
     readonly manager: IndexManager;
-    private _validate: Ajv.ValidateFunction|NoopValidate<I|T>;
+    private _validate: ValidateFn<I|T>;
     private _indexQuery: string;
     private _interval: NodeJS.Timer|undefined;
     private readonly _collector: Collector<I>;
@@ -49,13 +50,20 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         });
 
         if (config.dataSchema != null) {
+            const { allFormatters, schema, strict } = config.dataSchema;
             const ajv = new Ajv({
                 useDefaults: true,
-                format: config.dataSchema.allFormatters ? 'full' : 'fast'
+                format: allFormatters ? 'full' : 'fast'
             });
-            this._validate = ajv.compile(config.dataSchema.schema);
+            const validate = ajv.compile(schema);
+            this._validate = (input: T|I) => {
+                const valid = validate(input);
+                if (!valid && strict) {
+                    throwValidationError(validate.errors);
+                }
+            };
         } else {
-            this._validate = () => true;
+            this._validate = () => {};
         }
 
         this._toRecord = this._toRecord.bind(this);
@@ -280,4 +288,4 @@ interface RecordResponse<T> {
     _source: T;
 }
 
-type NoopValidate<T> = (input: T) => boolean;
+type ValidateFn<T> = (input: T) => void;

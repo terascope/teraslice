@@ -3,6 +3,7 @@ import get from 'lodash.get';
 import { parseError, isString, isFunction } from '@terascope/utils';
 import * as es from 'elasticsearch';
 import * as i from './interfaces';
+import * as Ajv from 'ajv';
 
 export function isSimpleIndex(input?: i.IndexSchemaConfig): input is i.SimpleIndexSchema {
     return get(input, 'mapping') != null;
@@ -60,4 +61,18 @@ export function normalizeError(err: any, stack?: string): i.ESError {
     error.statusCode = statusCode;
 
     return error;
+}
+
+export function throwValidationError(errors: Ajv.ErrorObject[]|null|undefined): string|null {
+    if (errors == null) return null;
+    if (!errors.length) return null;
+
+    const errorMsg = errors.map((err) => {
+        return err.message;
+    }).join(', ');
+
+    const error = new Error(errorMsg) as i.ESError;
+    Error.captureStackTrace(error, throwValidationError);
+    error.statusCode = 422;
+    throw error;
 }
