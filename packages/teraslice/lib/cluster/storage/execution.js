@@ -68,9 +68,10 @@ module.exports = function module(context) {
     // verify the current status to make sure it can be updated to the desired status
     function verifyStatusUpdate(exId, desiredStatus) {
         if (!desiredStatus || !_isValidStatus(desiredStatus)) {
-            return Promise.reject(new Error(`Invalid Job status: "${desiredStatus}"`));
+            const error = new Error(`Invalid Job status: "${desiredStatus}"`);
+            error.statusCode = 422;
+            return Promise.reject(error);
         }
-
 
         return getStatus(exId)
             .then((status) => {
