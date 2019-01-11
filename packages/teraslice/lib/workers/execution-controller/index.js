@@ -349,6 +349,9 @@ class ExecutionController {
         this.logger.debug(`execution shutdown was called for ex ${this.exId}`);
 
         const shutdownErrs = [];
+        const pushError = (err) => {
+            shutdownErrs.push(err);
+        };
 
         // allow clients to go immediately from disconnect to offline
         this.server.isShuttingDown = true;
@@ -375,47 +378,30 @@ class ExecutionController {
             (async () => {
                 if (!this.collectAnalytics) return;
 
-                try {
-                    await this.slicerAnalytics.shutdown();
-                } catch (err) {
-                    shutdownErrs.push(err);
-                }
+                await this.slicerAnalytics.shutdown()
+                    .catch(pushError);
             })(),
             (async () => {
-                try {
-                    await this.executionAnalytics.shutdown();
-                } catch (err) {
-                    shutdownErrs.push(err);
-                }
+                // the execution analytics must be shutdown
+                // before the message client
+                await this.executionAnalytics.shutdown()
+                    .catch(pushError);
+
+                await this.client.shutdown()
+                    .catch(pushError);
             })(),
             (async () => {
-                try {
-                    await this.scheduler.shutdown();
-                } catch (err) {
-                    shutdownErrs.push(err);
-                }
+                await this.scheduler.shutdown()
+                    .catch(pushError);
             })(),
             (async () => {
-                try {
-                    await this.server.shutdown();
-                } catch (err) {
-                    shutdownErrs.push(err);
-                }
-            })(),
-            (async () => {
-                try {
-                    await this.client.shutdown();
-                } catch (err) {
-                    shutdownErrs.push(err);
-                }
+                await this.server.shutdown()
+                    .catch(pushError);
             })(),
             (async () => {
                 const stores = Object.values(this.stores);
-                try {
-                    await Promise.map(stores, store => store.shutdown(true));
-                } catch (err) {
-                    shutdownErrs.push(err);
-                }
+                await Promise.map(stores, store => store.shutdown(true)
+                    .catch(pushError));
             })(),
         ]);
 
