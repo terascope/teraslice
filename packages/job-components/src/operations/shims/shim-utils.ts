@@ -1,6 +1,12 @@
 import { deprecate } from 'util';
-import DataEntity, { DataInput } from '../data-entity';
-import { isPlainObject, getFirst, castArray, isString } from '../../utils';
+import {
+    DataEntity,
+    DataInput,
+    isPlainObject,
+    getFirst,
+    castArray,
+    isString
+} from '@terascope/utils';
 
 /**
  * Convert legacy processor results into DataEntities if possible.

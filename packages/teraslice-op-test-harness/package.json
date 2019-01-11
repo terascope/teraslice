@@ -1,6 +1,6 @@
 {
     "name": "@terascope/teraslice-op-test-harness",
-    "version": "1.5.2",
+    "version": "1.5.3",
     "publishConfig": {
         "access": "public"
     },
@@ -23,12 +23,12 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.14.1",
+        "@terascope/job-components": "^0.14.3",
         "bluebird": "^3.5.3",
         "lodash": "^4.17.11"
     },
     "devDependencies": {
-        "eslint": "^5.11.1",
+        "eslint": "^5.12.0",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "^2.14.0",
         "jest": "^23.6.0",

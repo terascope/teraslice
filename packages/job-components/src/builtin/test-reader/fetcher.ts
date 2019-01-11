@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import { parseJSON } from '@terascope/utils';
 import { TestReaderConfig } from './interfaces';
 import { Fetcher } from '../../operations';
-import { parseJSON } from '../../utils';
 import { dataClone } from './utils';
 import defaultData from './data/fetcher-data.json';
 

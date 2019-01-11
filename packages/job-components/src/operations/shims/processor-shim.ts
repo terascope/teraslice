@@ -1,10 +1,9 @@
+import { toString, DataEntity } from '@terascope/utils';
 import { Context, LegacyProcessor, SliceRequest, ProcessorFn, ValidatedJobConfig } from '../../interfaces';
-import DataEntity from '../data-entity';
 import ProcessorCore from '../core/processor-core';
 import ConvictSchema from '../convict-schema';
 import { ProcessorModule } from '../interfaces';
 import { convertResult } from './shim-utils';
-import { toString } from '../../utils';
 
 export default function processorShim<S = any>(legacy: LegacyProcessor): ProcessorModule {
     return {

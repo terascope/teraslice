@@ -20,18 +20,17 @@ const contextName = 'teraslice-worker';
 function makeContext(cluster, config, sysconfig) {
     const context = {};
     context.sysconfig = validateConfigs(cluster, config, sysconfig);
+    context.assignment = assignment;
+    context.name = contextName;
+    context.cluster = cluster;
+    context.arch = process.arch;
+    context.platform = process.platform;
 
     if (process.env.POD_IP) {
         context.sysconfig._nodeName = process.env.POD_IP;
     } else {
         context.sysconfig._nodeName = generateWorkerId(context);
     }
-
-    context.assignment = assignment;
-    context.name = contextName;
-    context.cluster = cluster;
-    context.arch = process.arch;
-    context.platform = process.platform;
 
     if (typeof config.cluster_name === 'function') {
         context.cluster_name = config.cluster_name(context.sysconfig);

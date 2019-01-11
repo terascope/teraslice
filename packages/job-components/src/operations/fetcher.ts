@@ -1,5 +1,5 @@
 import { OpConfig } from '../interfaces';
-import DataEntity, { DataArrayInput } from './data-entity';
+import { DataEntity, DataArrayInput } from '@terascope/utils';
 import FetcherCore from './core/fetcher-core';
 
 /**

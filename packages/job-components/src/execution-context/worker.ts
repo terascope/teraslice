@@ -1,6 +1,13 @@
-import { waterfall, isString, isInteger, cloneDeep, isFunction } from '../utils';
+import {
+    waterfall,
+    isString,
+    isInteger,
+    cloneDeep,
+    isFunction,
+    DataEntity
+} from '@terascope/utils';
 import { FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
-import { DataEntity, OperationAPI, OperationAPIConstructor } from '../operations';
+import { OperationAPI, OperationAPIConstructor } from '../operations';
 import { WorkerOperationLifeCycle, Slice, OpAPI } from '../interfaces';
 import {
     ExecutionContextConfig,

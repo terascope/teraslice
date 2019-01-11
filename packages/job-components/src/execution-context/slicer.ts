@@ -1,4 +1,4 @@
-import { cloneDeep } from '../utils';
+import { cloneDeep } from '@terascope/utils';
 import {
     SlicerOperationLifeCycle,
     ExecutionStats,
@@ -6,9 +6,7 @@ import {
     SliceResult,
 } from '../interfaces';
 import SlicerCore from '../operations/core/slicer-core';
-import {
-    ExecutionContextConfig,
-} from './interfaces';
+import { ExecutionContextConfig } from './interfaces';
 import BaseExecutionContext from './base';
 
 /**
