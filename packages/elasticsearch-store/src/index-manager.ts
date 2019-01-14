@@ -3,6 +3,7 @@ import * as es from 'elasticsearch';
 import { IndexConfig } from './interfaces';
 import {
     isSimpleIndex,
+    isTemplatedIndex,
     getMajorVersion,
     isValidClient,
     isValidConfig
@@ -27,18 +28,40 @@ export default class IndexManager {
         const indexName = this.formatIndexName(config);
         if (await this.exists(indexName)) return false;
 
-        if (isSimpleIndex(config.indexSchema)) {
-            const settings = Object.assign({}, config.indexSettings);
+        const settings = Object.assign({}, config.indexSettings);
 
-            const mappings = {};
-            mappings[config.index] = config.indexSchema.mapping;
+        if (isSimpleIndex(config.indexSchema)) {
+            const body = {
+                settings,
+                mappings: {}
+            };
+
+            body.mappings[config.index] = config.indexSchema.mapping;
 
             await this.client.indices.create({
                 index: indexName,
-                body: {
-                    settings,
-                    mappings,
-                },
+                body,
+            });
+        }
+
+        if (isTemplatedIndex(config.indexSchema)) {
+            const templateName = this.formatTemplateName(config);
+            const { schemaVersion } = this.getVersions(config);
+
+            const body = {
+                template: templateName,
+                version: schemaVersion,
+                settings,
+                mappings: {}
+            };
+
+            body.mappings[config.index] = config.indexSchema.template;
+
+            await this.upsertTemplate(body, templateName);
+
+            await this.client.indices.create({
+                index: indexName,
+                body,
             });
         }
 
@@ -68,14 +91,44 @@ export default class IndexManager {
         }
 
         const { index } = config;
-        const schemaVersion = getMajorVersion(get(config, 'indexSchema.version'));
-        const dataVersion = getMajorVersion(get(config, 'version'));
+        const { dataVersion, schemaVersion } = this.getVersions(config);
 
         if (index.includes('-')) {
             throw new Error('Invalid index name, must not be include "-"');
         }
 
         return `${index}-v${dataVersion}-s${schemaVersion}`;
+    }
+
+    formatTemplateName(config: IndexConfig) {
+        if (!isValidConfig(config)) {
+            throw new Error('Invalid config passed to formatTemplateName');
+        }
+
+        const { index } = config;
+        const { dataVersion } = this.getVersions(config);
+
+        if (index.includes('-')) {
+            throw new Error('Invalid index name, must not be include "-"');
+        }
+
+        return `${index}-v${dataVersion}-template`;
+    }
+
+    getVersions(config: IndexConfig): { dataVersion: number, schemaVersion: number; } {
+        const schemaVersion = getMajorVersion(get(config, 'indexSchema.version'));
+        const dataVersion = getMajorVersion(get(config, 'version'));
+        return { schemaVersion, dataVersion };
+    }
+
+    async upsertTemplate(template: any, name: string) {
+        const exists = await this.client.indices.existsTemplate({ name });
+        if (exists) return;
+
+        await this.client.indices.putTemplate({
+            body: template,
+            name,
+        });
     }
 }
 

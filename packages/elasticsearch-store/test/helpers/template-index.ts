@@ -4,13 +4,17 @@ export interface TemplateRecord {
     some_id: string;
     search_keyword: string;
     random_number: number;
+    _created: string;
+    _updated: string;
 }
 
 export type TemplateRecordInput = Overwrite<TemplateRecord, {
     random_number?: number;
+    _created?: Date|string;
+    _updated?: Date|string;
 }>;
 
-export const templateRecordSchema = {
+export const schema = {
     additionalProperties: false,
     properties: {
         some_id: {
@@ -22,12 +26,18 @@ export const templateRecordSchema = {
         random_number: {
             type: 'number',
             default: Math.round(Math.random() * 10000),
+        },
+        _created: {
+            format: 'date-time',
+        },
+        _updated: {
+            format: 'date-time',
         }
     },
     required: ['some_id', 'search_keyword']
 };
 
-export const simpleMapping = {
+export const mapping = {
     _all: {
         enabled: false
     },

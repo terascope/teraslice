@@ -4,8 +4,8 @@ import { times, pDelay, DataEntity, Omit } from '@terascope/utils';
 import {
     SimpleRecord,
     SimpleRecordInput,
-    simpleMapping,
-    simpleRecordSchema
+    mapping,
+    schema
 } from './helpers/simple-index';
 import { ELASTICSEARCH_HOST } from './helpers/config';
 import { IndexStore, IndexConfig } from '../src';
@@ -36,7 +36,7 @@ describe('IndexStore', () => {
         index: 'test__store',
         indexSchema: {
             version: 'v1.0.0',
-            mapping: simpleMapping,
+            mapping,
             strict: true,
         },
         version: 'v1.0.0',
@@ -299,7 +299,7 @@ describe('IndexStore', () => {
         const configWithDataSchema = Object.assign(config, {
             dataSchema: {
                 version: 'v1.0.0',
-                schema: simpleRecordSchema,
+                schema,
                 allFormatters: true,
                 strict: true,
             }

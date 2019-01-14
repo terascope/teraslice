@@ -9,6 +9,14 @@ export function isSimpleIndex(input?: i.IndexSchemaConfig): input is i.SimpleInd
     return get(input, 'mapping') != null;
 }
 
+export function isTemplatedIndex(input?: i.IndexSchemaConfig): input is i.TemplatedIndexSchema {
+    return get(input, 'template') != null && !get(input, 'timeseries', false);
+}
+
+export function isTimeSeriesIndex(input?: i.IndexSchemaConfig): input is i.TimeSeriesIndexSchema {
+    return get(input, 'template') != null && get(input, 'timeseries', false);
+}
+
 export function getMajorVersion(input: any): number {
     const v = semver.coerce(input);
     return v != null ? v.major : 1;

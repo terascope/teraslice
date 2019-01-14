@@ -17,7 +17,7 @@ export type SimpleRecordInput = Overwrite<SimpleRecord, {
     _updated?: Date|string;
 }>;
 
-export const simpleRecordSchema = {
+export const schema = {
     additionalProperties: false,
     properties: {
         test_id: {
@@ -49,7 +49,7 @@ export const simpleRecordSchema = {
     required: ['test_id', 'test_keyword']
 };
 
-export const simpleMapping = {
+export const mapping = {
     _all: {
         enabled: false
     },
