@@ -8,15 +8,6 @@ const { safeEncode, safeDecode } = require('./lib/utils/encoding_utils');
 
 const assignment = process.env.assignment || process.env.NODE_TYPE;
 
-// See https://github.com/trentm/node-bunyan/issues/246
-process.stdout.on('error', (err) => {
-    if (err.code === 'EPIPE' || err.code === 'ERR_STREAM_DESTROYED') {
-        // ignore
-    } else {
-        throw err;
-    }
-});
-
 if (['execution_controller', 'worker'].includes(assignment)) {
     process.env.assignment = assignment;
     process.env.NODE_TYPE = assignment;
