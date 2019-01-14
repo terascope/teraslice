@@ -6,7 +6,9 @@ import {
     isTemplatedIndex,
     getMajorVersion,
     isValidClient,
-    isValidConfig
+    isValidConfig,
+    isTimeSeriesIndex,
+    timeseriesIndex
 } from './utils';
 
 /** Manage ElasticSearch Indicies */
@@ -97,7 +99,13 @@ export default class IndexManager {
             throw new Error('Invalid index name, must not be include "-"');
         }
 
-        return `${index}-v${dataVersion}-s${schemaVersion}`;
+        const indexName = `${index}-v${dataVersion}-s${schemaVersion}`;
+        if (isTimeSeriesIndex(config.indexSchema)) {
+            const timeSeriesFormat = get(config, 'indexSchema.rollover_frequency');
+            return timeseriesIndex(indexName, timeSeriesFormat);
+        }
+
+        return indexName;
     }
 
     formatTemplateName(config: IndexConfig) {
@@ -112,7 +120,7 @@ export default class IndexManager {
             throw new Error('Invalid index name, must not be include "-"');
         }
 
-        return `${index}-v${dataVersion}-template`;
+        return `${index}-v${dataVersion}_template`;
     }
 
     getVersions(config: IndexConfig): { dataVersion: number, schemaVersion: number; } {

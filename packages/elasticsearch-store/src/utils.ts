@@ -10,7 +10,7 @@ export function isSimpleIndex(input?: i.IndexSchemaConfig): input is i.SimpleInd
 }
 
 export function isTemplatedIndex(input?: i.IndexSchemaConfig): input is i.TemplatedIndexSchema {
-    return get(input, 'template') != null && !get(input, 'timeseries', false);
+    return get(input, 'template') != null;
 }
 
 export function isTimeSeriesIndex(input?: i.IndexSchemaConfig): input is i.TimeSeriesIndexSchema {
@@ -83,4 +83,20 @@ export function throwValidationError(errors: Ajv.ErrorObject[]|null|undefined): 
     Error.captureStackTrace(error, throwValidationError);
     error.statusCode = 422;
     throw error;
+}
+
+export function timeseriesIndex(index: string, timeSeriesFormat: i.TimeSeriesFormat = 'monthly'): string {
+    const formatter = {
+        daily: 10,
+        monthly: 7,
+        yearly: 4
+    };
+
+    const format = formatter[timeSeriesFormat];
+    if (!format) throw new Error(`Unsupported format "${timeSeriesFormat}"`);
+
+    const dateStr = new Date().toISOString();
+    // remove -* or * at the end of the index name
+    const indexName = index.replace(/\-{0,1}\*$/, '');
+    return `${indexName}-${dateStr.slice(0, format).replace(/-/g, '.')}`;
 }

@@ -81,8 +81,9 @@ export interface TimeSeriesIndexSchema extends TemplatedIndexSchema {
     /**
      * Rollover Frequency for the Timeseries Index
     */
-    rollover_frequency: 'daily'|'montly'|'yearly';
+    rollover_frequency: TimeSeriesFormat;
 }
+export type TimeSeriesFormat = 'daily'|'monthly'|'yearly';
 
 export interface IndexSettings {
     'index.number_of_shards': number;

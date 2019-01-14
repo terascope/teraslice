@@ -32,6 +32,22 @@ describe('IndexManager', () => {
                 });
             });
 
+            describe('when passed a timeseries config', () => {
+                it('should return a correctly formatted index name', () => {
+                    const indexName = indexManager.formatIndexName({
+                        index: 'hello',
+                        indexSchema: {
+                            version: 'v1',
+                            template: {},
+                            timeseries: true
+                        },
+                    });
+
+                    const dateStr = new Date().toISOString().slice(0, 7).replace(/-/g, '.');
+                    expect(indexName).toEqual(`hello-v1-s1-${dateStr}`);
+                });
+            });
+
             describe('when passed valid versions', () => {
                 it('should return a correctly formatted index name', () => {
                     const indexName = indexManager.formatIndexName({
@@ -110,6 +126,38 @@ describe('IndexManager', () => {
                         // @ts-ignore
                         indexManager.formatIndexName({ index: 'hello-hi-' });
                     }).toThrowError('Invalid index name, must not be include "-"');
+                });
+            });
+        });
+
+        describe('->formatTemplateName', () => {
+            describe('when passed no versions', () => {
+                it('should return a correctly formatted template name', () => {
+                    const templateName = indexManager.formatTemplateName({
+                        index: 'hello',
+                    });
+
+                    expect(templateName).toEqual('hello-v1_template');
+                });
+            });
+
+            describe('when passed versions', () => {
+                it('should return a correctly formatted template name', () => {
+                    const templateName = indexManager.formatTemplateName({
+                        index: 'hello',
+                        version: 'v2',
+                    });
+
+                    expect(templateName).toEqual('hello-v2_template');
+                });
+            });
+
+            describe('when passed an invalid config object', () => {
+                it('should throw an error', () => {
+                    expect(() => {
+                        // @ts-ignore
+                        indexManager.formatTemplateName();
+                    }).toThrowError('Invalid config passed to formatTemplateName');
                 });
             });
         });
