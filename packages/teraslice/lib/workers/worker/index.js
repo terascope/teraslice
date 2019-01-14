@@ -115,6 +115,7 @@ class Worker {
         const msg = await this.client.waitForSlice(() => this.isShuttingDown);
 
         if (!msg) {
+            this.logger.debug(`${this.workerId} worker is idle`);
             return;
         }
 
