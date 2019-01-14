@@ -512,6 +512,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return function _errorHandlerFn(err) {
             const isRejectedError = _.get(err, 'body.error.type') === 'es_rejected_execution_exception';
             // const isConnectionError = _.get(err, 'message') === 'No Living connections';
+
             if (isRejectedError) {
                 // this iteration we will not handle with no living connections issue
                 retry();
