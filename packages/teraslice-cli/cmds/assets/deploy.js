@@ -38,7 +38,7 @@ exports.builder = (yargs) => {
     yargs.option('arch', yargsOptions.buildOption('arch'));
     yargs.option('build', yargsOptions.buildOption('build'));
     // yargs.options('cluster-url', yargsOptions.buildOption('cluster-url')); TODO
-    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
     yargs.option('file', yargsOptions.buildOption('file'));
     yargs.option('node-version', yargsOptions.buildOption('node-version'));
     yargs.option('platform', yargsOptions.buildOption('platform'));

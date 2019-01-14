@@ -14,7 +14,7 @@ exports.desc = 'Delete asset from cluster.\n';
 exports.builder = (yargs) => {
     yargs.positional('cluster-alias', yargsOptions.buildPositional('cluster-alias'));
     yargs.positional('asset-id', yargsOptions.buildPositional('asset-id'));
-    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
     yargs.example('$0 assets delete ts-test1 ec2d5465609571590fdfe5b371ed7f98a04db5cb');
 };
 

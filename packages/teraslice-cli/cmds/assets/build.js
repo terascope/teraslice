@@ -10,7 +10,7 @@ const yargsOptions = new YargsOptions();
 exports.command = 'build';
 exports.desc = 'Builds asset bundle.\n';
 exports.builder = (yargs) => {
-    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
     yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
     yargs.option('quiet', yargsOptions.buildOption('quiet'));
     // build asset found in in cwd

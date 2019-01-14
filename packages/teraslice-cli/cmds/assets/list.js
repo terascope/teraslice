@@ -12,8 +12,8 @@ exports.command = 'list <cluster-alias>';
 exports.desc = 'List assets on a cluster.\n';
 exports.builder = (yargs) => {
     yargs.positional('cluster-alias', yargsOptions.buildPositional('cluster-alias'));
-    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
-    yargs.options('output', yargsOptions.buildOption('output'));
+    yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.option('output', yargsOptions.buildOption('output'));
     yargs.example('$0 assets list ts-test1');
 };
 
