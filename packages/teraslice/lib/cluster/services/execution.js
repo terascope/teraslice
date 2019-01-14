@@ -160,11 +160,19 @@ module.exports = function module(context, { clusterMasterServer }) {
     function stopExecution(exId, timeout, excludeNode) {
         return getExecutionContext(exId)
             .then((execution) => {
-                const isTerminal = _isTerminalStatus(execution);
+                const isTerminal = _isTerminalStatus(execution._status);
                 if (isTerminal) {
                     logger.info(`execution ${exId} is in terminal status "${execution._status}", it cannot be stopped`);
                     return true;
                 }
+
+                if (execution._status === 'stopping') {
+                    logger.info('execution is already stopping...');
+                    // we are kicking this off in the background, not part of the promise chain
+                    executionHasStopped(exId);
+                    return true;
+                }
+
                 logger.debug(`stopping execution ${exId}...`, _.pickBy({ timeout, excludeNode }));
                 return setExecutionStatus(exId, 'stopping')
                     .then(() => clusterService.stopExecution(exId, timeout, excludeNode))

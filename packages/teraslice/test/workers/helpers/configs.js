@@ -69,6 +69,7 @@ const newConfig = (options = {}) => {
         slicers = 1,
         recoveredExecution,
         recoveredSliceType,
+        probationWindow = 5000,
     } = options;
 
     return {
@@ -86,7 +87,8 @@ const newConfig = (options = {}) => {
         job_id: newId('job-id', true),
         node_id: newId('node-id', true),
         slicer_port: slicerPort,
-        slicer_hostname: 'localhost'
+        slicer_hostname: 'localhost',
+        probation_window: probationWindow,
     };
 };
 

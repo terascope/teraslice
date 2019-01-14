@@ -42,15 +42,23 @@ class Slice {
 
         let result;
         let remaining = maxTries;
+        let sliceSuccess = false;
 
         try {
             result = await retry(() => {
                 remaining -= 1;
                 return this._runOnce(remaining > 0);
             }, retryOptions);
+
+            sliceSuccess = true;
             await this._markCompleted();
         } catch (err) {
-            await this._markFailed(err);
+            // avoid incorrectly marking
+            // the slice as failed when it fails
+            // to mark it as "complete"
+            if (!sliceSuccess) {
+                await this._markFailed(err);
+            }
             throw err;
         } finally {
             await this._logAnalytics(result && result.analytics);
@@ -80,7 +88,7 @@ class Slice {
         try {
             await this.analyticsStore.log(executionContext, slice, analyticsData);
         } catch (_err) {
-            throw new Error('Failure to update analytics, caused by ', _err);
+            throw new Error(prependErrorMsg('Failure to update analytics', _err));
         }
     }
 
@@ -90,7 +98,10 @@ class Slice {
         try {
             await this.stateStore.updateState(slice, 'completed');
         } catch (_err) {
-            throw new Error(prependErrorMsg('Failure to update success state', _err));
+            const err = new Error(prependErrorMsg('Failure to update success state', _err));
+            // set fatalError = true to shutdown worker
+            // error.fatalError = true;
+            throw err;
         }
 
         this.events.emit('slice:success', slice);
@@ -110,7 +121,10 @@ class Slice {
         try {
             await stateStore.updateState(slice, 'error', errMsg);
         } catch (_err) {
-            throw new Error(prependErrorMsg('Failure to update failed state', _err));
+            const error = new Error(prependErrorMsg('Failure to update failed state', _err));
+            // set fatalError = true to shutdown worker
+            // error.fatalError = true;
+            throw error;
         }
 
         logger.error(err, `slice state for ${this.executionContext.exId} has been marked as error`);
@@ -134,8 +148,7 @@ class Slice {
         }
 
         try {
-            const result = await this.executionContext.runSlice(this.slice);
-            return result;
+            return await this.executionContext.runSlice(this.slice);
         } catch (err) {
             this.logger.error(`An error has occurred: ${toString(err)}, slice:`, this.slice);
 
@@ -146,7 +159,9 @@ class Slice {
 
                     await this.executionContext.onSliceRetry(this.slice.slice_id);
                 } catch (retryErr) {
-                    throw new retry.StopError(`Slice failed to retry: ${toString(retryErr)}, caused by: ${toString(err)}`);
+                    const error = new retry.StopError(`Slice failed to retry: ${toString(retryErr)}, caused by: ${toString(err)}`);
+                    error.fatalError = get(retryErr, 'fatalError', false);
+                    throw error;
                 }
             }
 

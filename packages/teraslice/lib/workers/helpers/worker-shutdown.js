@@ -118,6 +118,18 @@ function shutdownHandler(context, shutdownFn) {
         exit('unhandledRejection', err);
     });
 
+    // See https://github.com/trentm/node-bunyan/issues/246
+    function handleStdError(err) {
+        if (err.code === 'EPIPE' || err.code === 'ERR_STREAM_DESTROYED') {
+        // ignore
+        } else {
+            throw err;
+        }
+    }
+
+    process.stdout.on('error', handleStdError);
+    process.stderr.on('error', handleStdError);
+
     // event is fired from terafoundation when an error occurs during instantiation of a client
     events.once('client:initialization:error', (err) => {
         logger.fatal(`${assignment} received a client initialization error, ${exitingIn()}`, err);

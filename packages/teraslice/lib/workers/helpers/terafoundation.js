@@ -13,13 +13,16 @@ function makeLogger(context, executionContext, moduleName, extra = {}) {
         exId,
         jobId,
     } = executionContext;
-    const { assignment } = context;
+    const {
+        assignment,
+        cluster,
+    } = context;
 
     return context.apis.foundation.makeLogger(Object.assign({
         ex_id: exId,
         job_id: jobId,
         module: moduleName,
-        worker_id: context.cluster.id,
+        worker_id: cluster.worker.id,
         assignment,
     }, extra));
 }
