@@ -2,6 +2,8 @@ import { isString, pickBy } from 'lodash';
 import * as core from '../messenger';
 import * as i from './interfaces';
 
+const ONE_MIN = 60 * 1000;
+
 export class Client extends core.Client {
     public workerId: string;
 
@@ -81,7 +83,7 @@ export class Client extends core.Client {
         });
     }
 
-    async waitForSlice(fn: i.WaitUntilFn = () => false, timeoutMs = 60000): Promise<i.Slice|undefined> {
+    async waitForSlice(fn: i.WaitUntilFn = () => false, timeoutMs = 2 * ONE_MIN): Promise<i.Slice|undefined> {
         this.sendAvailable();
 
         const startTime = Date.now();
