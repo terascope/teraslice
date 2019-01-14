@@ -1,6 +1,6 @@
 'use strict';
 
-const GithubAsset = require('../../../../cmds/assets/lib/GithubAsset');
+const GithubAsset = require('../../lib/github-asset');
 
 describe('GithubAsset', () => {
     let config;

@@ -1,0 +1,10 @@
+{
+    "name": "testAssetPackage",
+    "version": "0.0.1",
+    "description": "test",
+    "main": "index.js",
+    "author": "",
+    "scripts": { },
+    "devDependencies": { },
+    "dependencies": {}
+}
