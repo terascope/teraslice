@@ -33,6 +33,20 @@ describe('IndexManager', () => {
             });
 
             describe('when passed a timeseries config', () => {
+                it('should return a correctly formatted index name if useWildCard is set to false', () => {
+                    const indexName = indexManager.formatIndexName({
+                        index: 'hello',
+                        indexSchema: {
+                            version: 'v1',
+                            template: {},
+                            timeseries: true
+                        },
+                    }, false);
+
+                    const dateStr = new Date().toISOString().slice(0, 7).replace(/-/g, '.');
+                    expect(indexName).toEqual(`hello-v1-s1-${dateStr}`);
+                });
+
                 it('should return a correctly formatted index name', () => {
                     const indexName = indexManager.formatIndexName({
                         index: 'hello',
@@ -43,8 +57,7 @@ describe('IndexManager', () => {
                         },
                     });
 
-                    const dateStr = new Date().toISOString().slice(0, 7).replace(/-/g, '.');
-                    expect(indexName).toEqual(`hello-v1-s1-${dateStr}`);
+                    expect(indexName).toEqual('hello-v1-s1*');
                 });
             });
 

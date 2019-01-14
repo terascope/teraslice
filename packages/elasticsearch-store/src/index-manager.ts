@@ -27,7 +27,7 @@ export default class IndexManager {
      * @returns a boolean that indicates whether the index was created or not
     */
     async create(config: IndexConfig): Promise<boolean> {
-        const indexName = this.formatIndexName(config);
+        const indexName = this.formatIndexName(config, false);
         if (await this.exists(indexName)) return false;
 
         const settings = Object.assign({}, config.indexSettings);
@@ -87,7 +87,7 @@ export default class IndexManager {
         });
     }
 
-    formatIndexName(config: IndexConfig) {
+    formatIndexName(config: IndexConfig, useWildcard = true) {
         if (!isValidConfig(config)) {
             throw new Error('Invalid config passed to formatIndexName');
         }
@@ -100,9 +100,13 @@ export default class IndexManager {
         }
 
         const indexName = `${index}-v${dataVersion}-s${schemaVersion}`;
-        if (isTimeSeriesIndex(config.indexSchema)) {
+        if (isTimeSeriesIndex(config.indexSchema) && !useWildcard) {
             const timeSeriesFormat = get(config, 'indexSchema.rollover_frequency');
             return timeseriesIndex(indexName, timeSeriesFormat);
+        }
+
+        if (isTemplatedIndex(config.indexSchema) && useWildcard) {
+            return `${indexName}*`;
         }
 
         return indexName;
