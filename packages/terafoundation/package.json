@@ -1,6 +1,6 @@
 {
   "name": "terafoundation",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "scripts": {
     "lint": "eslint *.js lib",
     "lint:fix": "eslint --fix *.js lib",
@@ -28,29 +28,29 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@terascope/elasticsearch-api": "^1.1.1",
-    "agentkeepalive": "^3.4.1",
-    "bluebird": "^3.5.2",
+    "@terascope/elasticsearch-api": "^1.1.4",
+    "agentkeepalive": "^3.5.1",
+    "bluebird": "^3.5.3",
     "bunyan": "^1.8.12",
     "bunyan-elasticsearch": "1.0.1",
-    "convict": "^4.3.2",
-    "elasticsearch": "^14.2.1",
-    "js-yaml": "^3.11.0",
+    "convict": "^4.4.1",
+    "elasticsearch": "^15.3.0",
+    "js-yaml": "^3.12.1",
     "lodash": "~4.17.11",
-    "moment": "^2.21.0",
+    "moment": "^2.23.0",
     "mongoose": "~4.13.12",
     "node-statsd": "0.1.1",
     "node-webhdfs": "^0.2.1",
     "redis": "^2.8.0",
-    "yargs": "^12.0.2"
+    "yargs": "^12.0.5"
   },
   "devDependencies": {
     "codecov": "^3.1.0",
-    "eslint": "^5.5.0",
+    "eslint": "^5.12.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
-    "jasmine": "^3.2.0",
+    "jasmine": "^3.3.1",
     "jasmine-spec-reporter": "^4.2.1",
-    "nyc": "^13.0.1"
+    "nyc": "^13.1.0"
   }
 }

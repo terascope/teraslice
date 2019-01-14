@@ -126,7 +126,7 @@ module.exports = function module(context, moduleConfig) {
             const envConfig = determineWorkerENV(worker);
             const newWorker = cluster.fork(envConfig);
             logger.info(`launching a new ${type}, id: ${newWorker.id}`);
-            logger.debug(`new worker configuration: ${JSON.stringify(envConfig)}`);
+            logger.debug('new worker configuration:', envConfig);
 
             _.assign(cluster.workers[newWorker.id], envConfig);
         }

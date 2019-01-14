@@ -86,6 +86,18 @@ module.exports = function module(config) {
     process.on('uncaughtException', errorHandler);
     process.on('unhandledRejection', errorHandler);
 
+    // See https://github.com/trentm/node-bunyan/issues/246
+    function handleStdError(err) {
+        if (err.code === 'EPIPE' || err.code === 'ERR_STREAM_DESTROYED') {
+        // ignore
+        } else {
+            throw err;
+        }
+    }
+
+    process.stdout.on('error', handleStdError);
+    process.stderr.on('error', handleStdError);
+
     primary.run(() => {
         /*
          * Service configuration context
