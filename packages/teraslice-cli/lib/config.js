@@ -59,13 +59,6 @@ class Config {
         }
     }
 
-    // TODO: maybe other subcmds will be gotten this way instead of being bolted
-    // on to the Config object like aliases, or maybe they won't even appear
-    // here
-    // getConfig(subCmd) {
-    //     return require('./subCmd')
-    // }
-
     get aliasesFile() {
         return `${this.configDir}/aliases.yaml`;
     }

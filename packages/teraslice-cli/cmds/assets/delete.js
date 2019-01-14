@@ -26,14 +26,16 @@ exports.handler = async (argv) => {
     try {
         const resp = await terasliceClient.assets.delete(cliConfig.args.assetId);
 
-        // TODO: Rethink this error handling when the following issue is addressed
-        //       https://github.com/terascope/teraslice/issues/944
         if (_.has(resp, 'error')) {
             reply.yellow(`WARNING: Error (${resp.error}): ${resp.message}`);
         } else {
             reply.green(`Asset ${cliConfig.args.assetId} deleted from ${cliConfig.args.clusterAlias}`);
         }
     } catch (err) {
-        reply.fatal(`Error deleting assets on ${cliConfig.args.clusterAlias}: ${err}`);
+        if (err.message.includes('Unable to find asset')) {
+            reply.green(`Asset ${cliConfig.args.assetId} not found on ${cliConfig.args.clusterAlias}`);
+        } else {
+            reply.fatal(`Error deleting assets on ${cliConfig.args.clusterAlias}: ${err}`);
+        }
     }
 };

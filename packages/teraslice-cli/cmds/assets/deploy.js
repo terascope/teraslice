@@ -14,13 +14,6 @@ const YargsOptions = require('../../lib/yargs-options');
 
 const yargsOptions = new YargsOptions();
 
-// TODO: I can't figure out how to resolve the ambiguity of having two optional
-// positional arguments.  It may not be possible.  If I omit the cluster-alias
-// and try to use cluster-url we end up with
-//  -> clusterAlias: 'terascope/file-assets'
-// We could go back to cluster-alias being an alias OR a URL, but the URL would
-// have to be fully specified, otherwise we couldn't distinguish between the URL
-// and the alias.
 exports.command = 'deploy <cluster-alias> [<asset>]';
 exports.desc = 'Uploads asset from zipfile, github, or source to Teraslice\n';
 exports.builder = (yargs) => {
@@ -36,7 +29,6 @@ exports.builder = (yargs) => {
     yargs.positional('asset', yargsOptions.buildPositional('asset'));
     yargs.option('arch', yargsOptions.buildOption('arch'));
     yargs.option('build', yargsOptions.buildOption('build'));
-    // yargs.options('cluster-url', yargsOptions.buildOption('cluster-url')); TODO
     yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
     yargs.option('file', yargsOptions.buildOption('file'));
     yargs.option('node-version', yargsOptions.buildOption('node-version'));
@@ -46,6 +38,7 @@ exports.builder = (yargs) => {
     yargs.option('skip-upload', yargsOptions.buildOption('skip-upload'));
     yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
     yargs.conflicts('asset', ['build', 'file']);
+    yargs.conflicts('replace', 'skip-upload');
     yargs.example('$0 assets deploy ts-test1 terascope/file-assets');
     yargs.example('$0 assets deploy ts-test1 terascope/file-assets --arch x64 --platform linux --node-version v8.10.1');
     yargs.example('$0 assets deploy ts-test1 -f /tmp/file-assets-v0.2.1-node-8-linux-x64.zip');
@@ -54,7 +47,6 @@ exports.builder = (yargs) => {
     yargs.example('$0 assets deploy ts-test1 --build --src-dir /path/to/assetSrc');
     yargs.implies('replace', 'build');
     // yargs.example('$0 assets deploy ts-test1 --build-dir ./file-assets'); TODO
-    // yargs.example('$0 assets deploy terascope/file-assets -c http://localhost:5678/'); TODO
 };
 
 
