@@ -1,8 +1,8 @@
 
-import OperationBase from '../base';
 import { DataEntity } from '@terascope/job-components';
-import { OperationConfig } from '../../../interfaces';
 import _ from 'lodash';
+import OperationBase from '../base';
+import { OperationConfig } from '../../../interfaces';
 
 export default class Geolocation extends OperationBase {
     constructor(config: OperationConfig) {

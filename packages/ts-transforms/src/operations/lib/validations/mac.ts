@@ -1,0 +1,68 @@
+
+import { DataEntity } from '@terascope/job-components';
+import _ from 'lodash';
+import validator from 'validator';
+import OperationBase from '../base';
+import { OperationConfig } from '../../../interfaces';
+
+export default class Mac extends OperationBase {
+    private length?: number;
+    private min?: number;
+    private max?: number;
+    private case: 'lowercase' | 'uppercase';
+    private preserveColons: boolean;
+
+    constructor(config: OperationConfig) {
+        super(config);
+        this.length = config.length;
+        this.min = config.min;
+        this.max = config.max;
+        this.case = config.case || 'lowercase';
+        this.preserveColons = config.preserve_colons || false;
+    }
+
+    normalizeField(value: string) {
+        let results = value;
+        if (this.case === 'lowercase') results = results.toLowerCase();
+        if (this.case === 'uppercase') results = results.toUpperCase();
+        if (!this.preserveColons) results = results.replace(/:/gi, '');
+        return results;
+    }
+
+    run(doc: DataEntity): DataEntity | null {
+        const field = _.get(doc, this.source);
+
+        if (typeof field !== 'string') {
+            _.unset(doc, this.source);
+            return doc;
+        }
+
+        const data = this.normalizeField(field);
+        const options = { no_colons: !this.preserveColons };
+        // TODO: fix the types for valdiator, it does not have the options listed
+        // @ts-ignore
+        if (!validator.isMACAddress(data, options)) {
+            _.unset(doc, this.source);
+            return doc;
+        }
+
+        if (this.length && data && data.length !== this.length) {
+            _.unset(doc, this.source);
+            return doc;
+        }
+
+        if (this.min || this.max) {
+            const min = this.min || 1;
+            const max = this.max || Infinity;
+            // wierd method name, it actually check if it fits the range
+            if (!validator.isLength(data, { min, max })) {
+                _.unset(doc, this.source);
+                return doc;
+            }
+        }
+        // we set the normalized results back in place
+        _.set(doc, this.source, data);
+
+        return doc;
+    }
+}

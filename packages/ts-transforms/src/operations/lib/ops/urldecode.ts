@@ -1,9 +1,9 @@
 
 import { DataEntity } from '@terascope/job-components';
-import { OperationConfig } from '../../../interfaces';
 import _ from 'lodash';
-import OperationBase from '../base';
 import querystring from 'querystring';
+import OperationBase from '../base';
+import { OperationConfig } from '../../../interfaces';
 
 export default class UrlDecode extends OperationBase {
     constructor(config: OperationConfig) {

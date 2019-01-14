@@ -1,8 +1,8 @@
 
-import { DataEntity } from '@terascope/job-components';
-import { OperationConfig } from '../../../interfaces';
 import _ from 'lodash';
 import * as url from 'valid-url';
+import { DataEntity } from '@terascope/job-components';
+import { OperationConfig } from '../../../interfaces';
 import OperationBase from '../base';
 
 export default class Url extends OperationBase {

@@ -23,6 +23,10 @@ export interface OperationConfig {
     length?: number;
     fields?: string[];
     delimiter?: string;
+    min?: number;
+    max?: number;
+    preserve_colons?: boolean;
+    case?: 'lowercase' | 'uppercase';
 }
 
 export interface SelectorTypes {
@@ -70,3 +74,8 @@ export interface WatcherConfig {
 
 export type injectFn = (config: OperationConfig, list: OperationConfig[]) => void;
 export type filterFn = (config: OperationConfig) => boolean;
+
+export interface BoolValidation {
+    isValid: boolean;
+    bool?: boolean;
+}

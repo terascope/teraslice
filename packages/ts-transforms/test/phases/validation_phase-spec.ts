@@ -51,8 +51,10 @@ describe('validation phase', () => {
 
         const results = postProcessPhase.run(data);
 
-        expect(results.length).toEqual(1);
+        expect(results.length).toEqual(2);
         expect(results[0]).toEqual({ full_name: 'John Doe' });
+        expect(results[1]).toEqual({ full_name: 'true' });
+
     });
 
     it('can run and validate data for other_match_required', async () => {

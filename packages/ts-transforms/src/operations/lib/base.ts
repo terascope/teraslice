@@ -1,7 +1,7 @@
 
+import _ from 'lodash';
 import { DataEntity } from '@terascope/job-components';
 import { OperationConfig } from '../../interfaces';
-import _ from 'lodash';
 
 export default abstract class OperationBase {
     protected source: string;

@@ -4,6 +4,9 @@ import OperationBase from './lib/base';
 import Join from './lib/ops/join';
 import Selector from './lib/ops/selector';
 import Extraction  from './lib/ops/extraction';
+import Base64Decode from './lib/ops/base64decode';
+import UrlDecode from './lib/ops/urldecode';
+import HexDecode from './lib/ops/hexdecode';
 import Geolocation from './lib/validations/geolocation';
 import StringValidation from './lib/validations/string';
 import NumberValidation from './lib/validations/number';
@@ -11,9 +14,10 @@ import BooleanValidation from './lib/validations/boolean';
 import Url from './lib/validations/url';
 import Email from './lib/validations/email';
 import Ip from './lib/validations/ip';
-import Base64Decode from './lib/ops/base64decode';
-import UrlDecode from './lib/ops/urldecode';
-import HexDecode from './lib/ops/hexdecode';
+import Mac from './lib/validations/mac';
+import Uuid from './lib/validations/uuid';
+import UuidLike from './lib/validations/uuid-like';
+
 import RequiredExtractions from './lib/validations/required_extractions';
 import { OperationsDict, PluginClassType, BaseOperationClass, PluginList } from '../interfaces';
 
@@ -33,7 +37,10 @@ class CorePlugins implements PluginClassType {
             base64decode: Base64Decode,
             urldecode: UrlDecode,
             hexdecode: HexDecode,
-            requiredExtractions: RequiredExtractions
+            requiredExtractions: RequiredExtractions,
+            mac: Mac,
+            uuid: Uuid,
+            'uuid-like': UuidLike
         };
     }
 }
@@ -77,5 +84,8 @@ export {
     UrlDecode,
     HexDecode,
     RequiredExtractions,
-    OperationsManager
+    OperationsManager,
+    Mac,
+    Uuid,
+    UuidLike
 };

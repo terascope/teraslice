@@ -53,7 +53,7 @@ describe('boolean validation', () => {
         expect(results5).toEqual({});
         expect(results6).toEqual(data6);
         expect(DataEntity.getMetadata(results6 as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results7).toEqual(data7);
+        expect(results7).toEqual(data6);
     });
 
     it('can validate special boolean fields', () => {
@@ -79,18 +79,21 @@ describe('boolean validation', () => {
         const results7 = test.run(data7);
         const results8 = test.run(data8);
 
+        const isTrue = { isTall: true };
+        const isFalse = { isTall: false };
+
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results1).toEqual(data1);
+        expect(results1).toEqual(isTrue);
         expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results2).toEqual(data2);
-        expect(results3).toEqual(data3);
-        expect(results4).toEqual(data4);
-        expect(results5).toEqual(data5);
-        expect(results6).toEqual(data6);
+        expect(results2).toEqual(isTrue);
+        expect(results3).toEqual(isFalse);
+        expect(results4).toEqual(isFalse);
+        expect(results5).toEqual(isTrue);
+        expect(results6).toEqual(isTrue);
         expect(DataEntity.getMetadata(results6 as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results7).toEqual(data7);
-        expect(results8).toEqual(data8);
+        expect(results7).toEqual(isFalse);
+        expect(results8).toEqual(isFalse);
     });
 
     it('can validate nested fields', async() => {
@@ -112,7 +115,7 @@ describe('boolean validation', () => {
         expect(results1).toEqual(data1);
         expect(results2).toEqual(data2);
         expect(results3).toEqual(data3);
-        expect(results4).toEqual(data4);
+        expect(results4).toEqual({ person: { isTall: true } });
         expect(results5).toEqual(data3);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);

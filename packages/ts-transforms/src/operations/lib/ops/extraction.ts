@@ -1,8 +1,8 @@
 
+import _ from 'lodash';
 import { DataEntity } from '@terascope/job-components';
 import { OperationConfig } from '../../../interfaces';
 import OperationBase from '../base';
-import _ from 'lodash';
 
 export default class Extraction extends OperationBase {
     private config: OperationConfig;

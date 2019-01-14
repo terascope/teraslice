@@ -45,15 +45,22 @@ describe('string validation', () => {
         const results6 = test.run(data6);
         const results7 = test.run(data7);
 
+        function stringify(obj: DataEntity): object {
+            if (obj.field) {
+                obj.field = JSON.stringify(obj.field);
+            }
+            return obj;
+        }
+
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
         expect(results1).toEqual(data1);
         expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results2).toEqual({});
-        expect(results3).toEqual(data3);
-        expect(results4).toEqual({});
-        expect(results5).toEqual({});
-        expect(results6).toEqual({});
+        expect(results2).toEqual({ field: '123423' });
+        expect(results3).toEqual(stringify(data3));
+        expect(results4).toEqual(stringify(data4));
+        expect(results5).toEqual(stringify(data5));
+        expect(results6).toEqual(stringify(data6));
         expect(DataEntity.getMetadata(results6 as DataEntity, 'selectors')).toEqual(metaData.selectors);
         expect(results7).toEqual({});
     });

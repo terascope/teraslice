@@ -48,7 +48,7 @@ describe('number validation', () => {
         expect(results1).toEqual({});
         expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors);
         expect(results2).toEqual(data2);
-        expect(results3).toEqual(data3);
+        expect(results3).toEqual({ bytes: 56.234 });
         expect(results4).toEqual({});
         expect(results5).toEqual({});
         expect(results6).toEqual({});
@@ -77,6 +77,24 @@ describe('number validation', () => {
         expect(results3).toEqual(data3);
         expect(results4).toEqual(data4);
         expect(results5).toEqual(data2);
+
+        expect(DataEntity.isDataEntity(results1)).toEqual(true);
+    });
+
+    it('can can convert the field', async() => {
+        const opConfig = { source_field: 'file.bytes' };
+        const test =  new NumberValidation(opConfig);
+
+        const data1 = new DataEntity({ file: { bytes: 123423 } });
+        const data2 = new DataEntity({ file: { bytes: '123423' } });
+
+        const results1 = test.run(data1);
+        const results2 = test.run(data2);
+
+        const answer = { file: { bytes: 123423 } };
+
+        expect(results1).toEqual(answer);
+        expect(results2).toEqual(answer);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
     });

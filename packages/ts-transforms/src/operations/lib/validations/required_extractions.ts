@@ -1,7 +1,7 @@
 
-import OperationBase from '../base';
 import { DataEntity } from '@terascope/job-components';
 import _ from 'lodash';
+import OperationBase from '../base';
 
 export default class RequiredExtractions extends OperationBase {
     private config: object;
