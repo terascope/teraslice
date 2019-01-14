@@ -4,6 +4,7 @@
 const _ = require('lodash');
 
 const Config = require('../../lib/config');
+const { getTerasliceClient } = require('../../lib/utils');
 const reply = require('../lib/reply')();
 const YargsOptions = require('../../lib/yargs-options');
 
@@ -20,9 +21,10 @@ exports.builder = (yargs) => {
 
 exports.handler = async (argv) => {
     const cliConfig = new Config(argv);
+    const terasliceClient = getTerasliceClient(cliConfig);
 
     try {
-        const resp = await cliConfig.terasliceClient.assets.delete(cliConfig.args.assetId);
+        const resp = await terasliceClient.assets.delete(cliConfig.args.assetId);
 
         // TODO: Rethink this error handling when the following issue is addressed
         //       https://github.com/terascope/teraslice/issues/944

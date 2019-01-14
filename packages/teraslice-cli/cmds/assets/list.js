@@ -3,6 +3,7 @@
 
 const Config = require('../../lib/config');
 const display = require('../lib/display')();
+const { getTerasliceClient } = require('../../lib/utils');
 const reply = require('../lib/reply')();
 const YargsOptions = require('../../lib/yargs-options');
 
@@ -20,10 +21,11 @@ exports.builder = (yargs) => {
 exports.handler = async (argv) => {
     let response;
     const cliConfig = new Config(argv);
+    const terasliceClient = getTerasliceClient(cliConfig);
     const header = ['name', 'version', 'id', 'description', '_created'];
 
     try {
-        response = await cliConfig.terasliceClient.assets.list();
+        response = await terasliceClient.assets.list();
     } catch (err) {
         reply.fatal(`Error listing assets on ${cliConfig.args.clusterAlias}`);
     }

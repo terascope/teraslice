@@ -48,7 +48,7 @@ class Config {
      * Also, any command needing clusterUrl should use this instead of the cli
      * equivalents.
      */
-    get _clusterUrl() {
+    get clusterUrl() {
         if (this.args.clusterUrl) {
             return this.args.clusterUrl;
         }
@@ -57,10 +57,6 @@ class Config {
         } catch (err) {
             throw new Error(`Unable to retrieve clusterAlias: ${this.args.clusterAlias} config:\n\n${err.stack}`);
         }
-    }
-
-    get terasliceClient() {
-        return require('teraslice-client-js')({ host: this._clusterUrl });
     }
 
     // TODO: maybe other subcmds will be gotten this way instead of being bolted

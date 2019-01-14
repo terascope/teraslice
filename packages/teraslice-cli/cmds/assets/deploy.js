@@ -1,15 +1,14 @@
 'use strict';
-'use console';
 
 // TODO: Implement tests of handler using nock
-// TODO: If reply were an object that could be set to 'quiet' mode, then all of
-//       the 'if quiet' conditionals around reply.green() could be eliminated.
-
+// TODO: Let's rework all of the IO that the `reply` module provides and ensure
+//       our commands are as Unix like as possible.
 const fs = require('fs-extra');
 
 const AssetSrc = require('../../lib/asset-src');
 const GithubAsset = require('../../lib/github-asset');
 const Config = require('../../lib/config');
+const { getTerasliceClient } = require('../../lib/utils');
 const reply = require('../lib/reply')();
 const YargsOptions = require('../../lib/yargs-options');
 
@@ -64,6 +63,7 @@ exports.handler = async (argv) => {
     let assetZip;
     let clusterInfo = {};
     const cliConfig = new Config(argv);
+    const terasliceClient = getTerasliceClient(cliConfig);
 
     if (cliConfig.args.file) {
         // assetPath explicitly from a user provided file (-f/--file)
@@ -89,7 +89,7 @@ exports.handler = async (argv) => {
             // if cluster.info() is available
         } else {
             try {
-                clusterInfo = await cliConfig.terasliceClient.cluster.info();
+                clusterInfo = await terasliceClient.cluster.info();
                 // Teraslice returns node_version but should be nodeVersion here
                 clusterInfo.nodeVersion = clusterInfo.node_version;
             } catch (err) {
@@ -133,7 +133,7 @@ exports.handler = async (argv) => {
             reply.yellow('*** Warning ***\n'
                 + 'This function is intended for asset development only.  \n'
                 + 'Using it for production asset management is a bad idea.');
-            const clusterAssetData = await cliConfig.terasliceClient.assets.get(asset.name);
+            const clusterAssetData = await terasliceClient.assets.get(asset.name);
 
             // NOTE: We assume the 0th element of the list is the one that needs
             // to be deleted.  This probably only works due to the order that
@@ -141,7 +141,7 @@ exports.handler = async (argv) => {
             // Basically, this assumes the asset currently being deployed has
             // the same version of the last asset posted to the cluster.
             if (clusterAssetData.length >= 1) {
-                const response = await cliConfig.terasliceClient.assets
+                const response = await terasliceClient.assets
                     .delete(clusterAssetData[0].id);
                 if (!cliConfig.args.quiet) {
                     // Support different teraslice api/client versions
@@ -166,7 +166,7 @@ exports.handler = async (argv) => {
         }
 
         try {
-            const resp = await cliConfig.terasliceClient.assets.post(assetZip);
+            const resp = await terasliceClient.assets.post(assetZip);
 
             if (resp.error) {
                 reply.fatal(`Error posting asset: ${resp.error}`);

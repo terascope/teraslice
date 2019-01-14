@@ -87,14 +87,14 @@ describe('config', () => {
         });
     });
 
-    describe('-> _clusterUrl', () => {
+    describe('-> clusterUrl', () => {
         const newTestConfig = new Config({
             'config-dir': path.join(__dirname, '../fixtures/config_dir'),
             cluster_alias: 'localhost'
         });
 
         test('should be defined', () => {
-            expect(newTestConfig._clusterUrl).toBe('http://localhost:5678');
+            expect(newTestConfig.clusterUrl).toBe('http://localhost:5678');
         });
     });
 });
