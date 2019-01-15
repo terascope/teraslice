@@ -1,6 +1,12 @@
 import 'jest-extended';
 import es from 'elasticsearch';
-import { times, pDelay, DataEntity, Omit } from '@terascope/utils';
+import {
+    times,
+    pDelay,
+    DataEntity,
+    Omit,
+    TSError
+} from '@terascope/utils';
 import {
     SimpleRecord,
     SimpleRecordInput,
@@ -18,7 +24,7 @@ describe('IndexStore', () => {
             expect(() => {
                 // @ts-ignore
                 new IndexStore();
-            }).toThrowError('IndexStore requires elasticsearch client');
+            }).toThrowWithMessage(TSError, 'IndexStore requires elasticsearch client');
         });
     });
 
@@ -27,7 +33,7 @@ describe('IndexStore', () => {
             expect(() => {
                 // @ts-ignore
                 new IndexStore(client);
-            }).toThrowError('IndexStore requires a valid config');
+            }).toThrowError();
         });
     });
 
@@ -97,7 +103,7 @@ describe('IndexStore', () => {
 
             it('should not be able to create a record again', () => {
                 return expect(indexStore.create(record, record.test_id))
-                    .rejects.toThrowError('Document Already Exists');
+                    .rejects.toThrowWithMessage(TSError, 'Document Already Exists');
             });
 
             it('should be able to index the same record', () => {
@@ -158,7 +164,7 @@ describe('IndexStore', () => {
             it('should throw when updating a record that does not exist', () => {
                 return expect(indexStore.update({
                     test_number: 1,
-                }, 'wrong-id')).rejects.toThrowError('Not Found');
+                }, 'wrong-id')).rejects.toThrowWithMessage(TSError, 'Not Found');
             });
 
             it('should be able to get the record by id', async () => {
@@ -175,7 +181,7 @@ describe('IndexStore', () => {
 
             it('should throw when getting a record that does not exist', () => {
                 return expect(indexStore.get('wrong-id'))
-                    .rejects.toThrowError('Not Found');
+                    .rejects.toThrowWithMessage(TSError, 'Not Found');
             });
 
             it('should be able to remove the record', () => {
@@ -184,7 +190,7 @@ describe('IndexStore', () => {
 
             it('should throw when trying to remove a record that does not exist', () => {
                 return expect(indexStore.remove('wrong-id'))
-                    .rejects.toThrowError('Not Found');
+                    .rejects.toThrowWithMessage(TSError, 'Not Found');
             });
         });
 
@@ -333,7 +339,7 @@ describe('IndexStore', () => {
 
                     // @ts-ignore
             await expect(indexStore.indexWithId(record, record.test_id))
-                        .rejects.toThrowError(/(test_keyword|_created)/);
+                        .rejects.toThrowWithMessage(TSError, /(test_keyword|_created)/);
         });
 
         type InputType = 'input'|'output';

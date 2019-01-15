@@ -1,5 +1,6 @@
 import 'jest-extended';
 import es from 'elasticsearch';
+import { TSError } from '@terascope/utils';
 import { ELASTICSEARCH_HOST } from './helpers/config';
 import { IndexManager } from '../src';
 
@@ -14,7 +15,7 @@ describe('IndexManager', () => {
             expect(() => {
                 // @ts-ignore
                 new IndexManager();
-            }).toThrowError('IndexManager requires elasticsearch client');
+            }).toThrowWithMessage(TSError, 'IndexManager requires elasticsearch client');
         });
     });
 
@@ -78,41 +79,6 @@ describe('IndexManager', () => {
                 });
             });
 
-            describe('when passed an invalid config object', () => {
-                it('should throw an error', () => {
-                    expect(() => {
-                        // @ts-ignore
-                        indexManager.formatIndexName();
-                    }).toThrowError('Invalid config passed to formatIndexName');
-                });
-            });
-
-            describe('when passed an empty index', () => {
-                it('should throw an error', () => {
-                    expect(() => {
-                        // @ts-ignore
-                        indexManager.formatIndexName({ index: '' });
-                    }).toThrowError('Invalid config passed to formatIndexName');
-                });
-            });
-
-            describe('when passed an index as a number', () => {
-                it('should throw an error', () => {
-                    expect(() => {
-                        // @ts-ignore
-                        indexManager.formatIndexName({ index: 123 });
-                    }).toThrowError('Invalid config passed to formatIndexName');
-                });
-            });
-
-            describe('when passed an invalid index format', () => {
-                it('should throw an error', () => {
-                    expect(() => {
-                        // @ts-ignore
-                        indexManager.formatIndexName({ index: 'hello-hi-' });
-                    }).toThrowError('Invalid index name, must not be include "-"');
-                });
-            });
         });
 
         describe('->formatTemplateName', () => {
@@ -142,36 +108,12 @@ describe('IndexManager', () => {
                     expect(() => {
                         // @ts-ignore
                         indexManager.formatTemplateName();
-                    }).toThrowError('Invalid config passed to formatTemplateName');
+                    }).toThrowWithMessage(TSError, 'Invalid config passed to formatTemplateName');
                 });
             });
         });
 
         describe('->getVersions', () => {
-            describe('when passed nothing', () => {
-                it('should return versions 1 and 1', () => {
-                    // @ts-ignore
-                    const versions = indexManager.getVersions();
-
-                    expect(versions).toEqual({
-                        dataVersion: 1,
-                        schemaVersion: 1,
-                    });
-                });
-            });
-
-            describe('when passed an empty object', () => {
-                it('should return versions 1 and 1', () => {
-                    // @ts-ignore
-                    const versions = indexManager.getVersions({ });
-
-                    expect(versions).toEqual({
-                        dataVersion: 1,
-                        schemaVersion: 1,
-                    });
-                });
-            });
-
             describe('when passed an valid config', () => {
                 it('should be able to return default values', () => {
                     const versions = indexManager.getVersions({
@@ -203,62 +145,6 @@ describe('IndexManager', () => {
                         dataVersion: 88,
                         schemaVersion: 777,
                     });
-                });
-            });
-
-            describe('when passsed a invalid config', () => {
-                it('should throw if a string is used for the Index Schema version', () => {
-                    expect(() => {
-                        indexManager.getVersions({
-                            // @ts-ignore
-                            indexSchema: {
-                                mapping: {},
-                                version: '8'
-                            },
-                            version: 8,
-                            index: 'hello'
-                        });
-                    }).toThrowError('Index Version must a Integer, got "String"');
-                });
-
-                it('should throw if a negative integer is used for the Index Schema version', () => {
-                    expect(() => {
-                        indexManager.getVersions({
-                            indexSchema: {
-                                mapping: {},
-                                version: -8
-                            },
-                            version: 8,
-                            index: 'hello'
-                        });
-                    }).toThrowError('Index Version must be greater than 0, got "-8"');
-                });
-
-                it('should throw if a string is used for the Data Schema version', () => {
-                    expect(() => {
-                        indexManager.getVersions({
-                            indexSchema: {
-                                mapping: {},
-                                version: 8
-                            },
-                            // @ts-ignore
-                            version: '8',
-                            index: 'hello'
-                        });
-                    }).toThrowError('Data Version must a Integer, got "String"');
-                });
-
-                it('should throw if a negative integer is used for the Data Schema version', () => {
-                    expect(() => {
-                        indexManager.getVersions({
-                            indexSchema: {
-                                mapping: {},
-                                version: 8
-                            },
-                            version: -8,
-                            index: 'hello'
-                        });
-                    }).toThrowError('Data Version must be greater than 0, got "-8"');
                 });
             });
         });

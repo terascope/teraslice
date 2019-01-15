@@ -3,11 +3,10 @@ import * as es from 'elasticsearch';
 import { Collector, DataEntity } from '@terascope/utils';
 import IndexManager from './index-manager';
 import * as i from './interfaces';
+import { normalizeError, throwValidationError } from './error-utils';
 import {
     isValidClient,
-    isValidConfig,
-    normalizeError,
-    throwValidationError,
+    validateIndexConfig,
 } from './utils';
 
 export default class IndexStore<T extends Object, I extends Partial<T> = T> {
@@ -26,9 +25,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             throw new Error('IndexStore requires elasticsearch client');
         }
 
-        if (!isValidConfig(config)) {
-            throw new Error('IndexStore requires a valid config');
-        }
+        validateIndexConfig(config);
 
         this.client = client;
         this.config = config;

@@ -1,8 +1,12 @@
 import get from 'lodash.get';
-import { parseError, isString, isFunction } from '@terascope/utils';
+import {
+    isString,
+    isInteger,
+    getTypeOf,
+} from '@terascope/utils';
 import * as es from 'elasticsearch';
 import * as i from './interfaces';
-import * as Ajv from 'ajv';
+import { throwValidationError } from './error-utils';
 
 export function isSimpleIndex(input?: i.IndexSchema): boolean {
     return get(input, 'mapping') != null && !get(input, 'template', false);
@@ -29,54 +33,43 @@ export function isValidClient(input: any): input is es.Client {
     return reqKeys.every((key) => input[key] != null);
 }
 
-export function isValidConfig(input: any): input is i.IndexConfig {
-    if (input == null) return false;
-    if (!isString(input.index)) return false;
-    if (!input.index) return false;
+export function validateIndexConfig(config: any): config is i.IndexConfig {
+    const errors: string[] = [];
+
+    if (config == null) {
+        errors.push('IndexConfig cannot be empty');
+    }
+
+    if (config && (!isString(config.index) || !config.index || config.index.includes('-'))) {
+        errors.push('Invalid index name, must be a non-empty string and cannot contain a "-"');
+    }
+
+    const {
+        indexSchema = { version: 1 },
+        version = 1
+    } = config || {};
+
+    if (!isInteger(indexSchema.version)) {
+        errors.push(`Index Version must a Integer, got "${getTypeOf(indexSchema.version)}"`);
+    }
+
+    if (!isInteger(version)) {
+        errors.push(`Data Version must a Integer, got "${getTypeOf(version)}"`);
+    }
+
+    if (indexSchema.version < 1) {
+        errors.push(`Index Version must be greater than 0, got "${indexSchema.version}"`);
+    }
+
+    if (version < 1) {
+        errors.push(`Data Version must be greater than 0, got "${version}"`);
+    }
+
+    if (errors.length) {
+        throwValidationError(errors.map((message) => ({ message })));
+    }
+
     return true;
-}
-
-export function normalizeError(err: any, stack?: string): i.ESError {
-    let message: string;
-    let statusCode = 500;
-
-    if (err && isFunction(err.toJSON)) {
-        const errObj = err.toJSON();
-        message = get(errObj, 'msg', err.toString());
-        statusCode = get(errObj, 'statusCode', statusCode);
-    } else {
-        message = parseError(err);
-    }
-
-    if (message.includes('document missing') || message.includes('Not Found')) {
-        message = 'Not Found';
-        statusCode = 404;
-    }
-
-    if (message.includes('document already exists')) {
-        message = 'Document Already Exists';
-        statusCode = 409;
-    }
-
-    const error = new Error(message) as i.ESError;
-    if (stack) error.stack = stack.replace('[MESSAGE]', message);
-    error.statusCode = statusCode;
-
-    return error;
-}
-
-export function throwValidationError(errors: Ajv.ErrorObject[]|null|undefined): string|null {
-    if (errors == null) return null;
-    if (!errors.length) return null;
-
-    const errorMsg = errors.map((err) => {
-        return err.message;
-    }).join(', ');
-
-    const error = new Error(errorMsg) as i.ESError;
-    Error.captureStackTrace(error, throwValidationError);
-    error.statusCode = 422;
-    throw error;
 }
 
 export function timeseriesIndex(index: string, timeSeriesFormat: i.TimeSeriesFormat = 'monthly'): string {

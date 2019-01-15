@@ -1,12 +1,12 @@
 import get from 'lodash.get';
 import * as es from 'elasticsearch';
-import { isInteger, getTypeOf, pRetry } from '@terascope/utils';
-import { IndexConfig, ESError } from './interfaces';
+import { pRetry } from '@terascope/utils';
+import { IndexConfig } from './interfaces';
 import {
     isSimpleIndex,
     isTemplatedIndex,
     isValidClient,
-    isValidConfig,
+    validateIndexConfig,
     isTimeSeriesIndex,
     timeseriesIndex
 } from './utils';
@@ -22,6 +22,7 @@ export default class IndexManager {
         if (!isValidClient(client)) {
             throw new Error('IndexManager requires elasticsearch client');
         }
+
         this.client = client;
     }
 
@@ -33,16 +34,10 @@ export default class IndexManager {
     }
 
     formatIndexName(config: IndexConfig, useWildcard = true) {
-        if (!isValidConfig(config)) {
-            throw new Error('Invalid config passed to formatIndexName');
-        }
+        validateIndexConfig(config);
 
         const { index } = config;
         const { dataVersion, schemaVersion } = this.getVersions(config);
-
-        if (index.includes('-')) {
-            throw new Error('Invalid index name, must not be include "-"');
-        }
 
         const indexName = `${index}-v${dataVersion}-s${schemaVersion}`;
         if (isTimeSeriesIndex(config.indexSchema) && !useWildcard) {
@@ -58,49 +53,21 @@ export default class IndexManager {
     }
 
     formatTemplateName(config: IndexConfig) {
-        if (!isValidConfig(config)) {
-            throw new Error('Invalid config passed to formatTemplateName');
-        }
+        validateIndexConfig(config);
 
         const { index } = config;
         const { dataVersion } = this.getVersions(config);
-
-        if (index.includes('-')) {
-            throw new Error('Invalid index name, must not be include "-"');
-        }
 
         return `${index}-v${dataVersion}_template`;
     }
 
     getVersions(config: IndexConfig): { dataVersion: number, schemaVersion: number; } {
+        validateIndexConfig(config);
+
         const {
             indexSchema = { version: 1 },
             version = 1
-        } = config || {};
-
-        if (!isInteger(indexSchema.version)) {
-            const error = new Error(`Index Version must a Integer, got "${getTypeOf(indexSchema.version)}"`) as ESError;
-            error.statusCode = 422;
-            throw error;
-        }
-
-        if (!isInteger(version)) {
-            const error = new Error(`Data Version must a Integer, got "${getTypeOf(version)}"`) as ESError;
-            error.statusCode = 422;
-            throw error;
-        }
-
-        if (indexSchema.version < 1) {
-            const error = new Error(`Index Version must be greater than 0, got "${indexSchema.version}"`) as ESError;
-            error.statusCode = 422;
-            throw error;
-        }
-
-        if (version < 1) {
-            const error = new Error(`Data Version must be greater than 0, got "${version}"`) as ESError;
-            error.statusCode = 422;
-            throw error;
-        }
+        } = config;
 
         return {
             schemaVersion: indexSchema.version,
@@ -114,6 +81,8 @@ export default class IndexManager {
      * @returns a boolean that indicates whether the index was created or not
     */
     async indexSetup(config: IndexConfig): Promise<boolean> {
+        validateIndexConfig(config);
+
         const indexName = this.formatIndexName(config, false);
 
         if (await this.exists(indexName)) return false;
