@@ -305,8 +305,14 @@ describe('IndexStore', () => {
             }));
 
             beforeAll(async () => {
+                let useIndex = false;
                 for (const record of records) {
-                    await indexStore.bulk(record);
+                    if (useIndex) {
+                        await indexStore.bulk('index', record, record.test_id);
+                    } else {
+                        await indexStore.bulk('create', record, record.test_id);
+                    }
+                    useIndex = !useIndex;
                 }
 
                 await pDelay(500);
@@ -321,6 +327,45 @@ describe('IndexStore', () => {
 
                 expect(DataEntity.isDataEntityArray(result)).toBeTrue();
                 expect(result).toBeArrayOfSize(records.length);
+            });
+
+            it('should be able to bulk update the records', async () => {
+                for (const record of records) {
+                    await indexStore.bulk('index', Object.assign(record, {
+                        test_object: {
+                            updated: true
+                        }
+                    }), record.test_id);
+                }
+
+                await indexStore.flush(true);
+                await indexStore.refresh();
+
+                const result = await indexStore.search({
+                    q: `test_keyword: ${keyword}`,
+                    sort: 'test_id'
+                });
+
+                expect(result[0]).toHaveProperty('test_object', {
+                    updated: true
+                });
+            });
+
+            it('should be able to bulk delete the records', async () => {
+                for (const record of records) {
+                    await indexStore.bulk('delete', record.test_id);
+                }
+
+                await indexStore.flush(true);
+
+                await indexStore.refresh();
+
+                const result = await indexStore.search({
+                    q: `test_keyword: ${keyword}`,
+                    sort: 'test_id'
+                });
+
+                expect(result).toBeArrayOfSize(0);
             });
         });
     });

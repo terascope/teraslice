@@ -120,3 +120,12 @@ export interface DataSchema {
 }
 
 export type AsyncFn<T> = () => Promise<T>;
+
+// export enum BulkAction {
+//     Index = 'index',
+//     Create = 'create',
+//     Delete = 'delete',
+//     Update = 'update',
+// }
+
+export type BulkAction = 'index'|'create'|'delete'|'update';

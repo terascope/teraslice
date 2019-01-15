@@ -16,7 +16,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     private _validate: ValidateFn<I|T>;
     private _indexQuery: string;
     private _interval: NodeJS.Timer|undefined;
-    private readonly _collector: Collector<I>;
+    private readonly _collector: Collector<BulkRequest<I>>;
     private readonly _bulkMaxWait: number = 10000;
     private readonly _bulkMaxSize: number = 500;
 
@@ -69,16 +69,44 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /**
-     * Safely make many requests against an index.
+     * Safely add a create, index, or update requests to the bulk queue
      *
      * This method will batch messages using the configured
      * bulk max size and wait configuration.
      */
-    async bulk(doc: I) {
-        this._validate(doc);
-        this._collector.add(doc);
+    async bulk(action: 'delete', id?: string): Promise<void>;
+    async bulk(action: 'index'|'create'|'update', doc?: I, id?: string): Promise<void>;
+    async bulk(action: i.BulkAction, ...args: any[]) {
+        const metadata: BulkRequestMetadata = {};
+        metadata[action] = {
+            _index: this._indexQuery,
+            _type: this.config.name,
+        };
 
-        return this._flush();
+        let data: BulkRequestData<I> = null;
+        let id: string;
+
+        if (action !== 'delete') {
+            this._validate(args[0]);
+            if (action === 'update') {
+                data = { doc: args[0] };
+            } else {
+                data = args[0];
+            }
+            id = args[1];
+        } else {
+            id = args[0];
+        }
+
+        // @ts-ignore because metadata[action] will never be undefined
+        if (id) metadata[action]._id = id;
+
+        this._collector.add({
+            data,
+            metadata,
+        });
+
+        return this.flush();
     }
 
     /** Count records by a given Lucene Query or Elasticsearch Query DSL */
@@ -107,6 +135,24 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         });
     }
 
+    async flush(flushAll = false) {
+        const records = flushAll ? this._collector.flushAll() : this._collector.getBatch();
+        if (!records) return;
+
+        const bulkRequest: any[] = [];
+
+        for (const { data, metadata } of records) {
+            bulkRequest.push(metadata);
+            if (data != null) bulkRequest.push(data);
+        }
+
+        return this._try(() => {
+            return this.client.bulk({
+                body: bulkRequest,
+            });
+        });
+    }
+
     /** Get a single document */
     async get(id: string, params?: Partial<es.GetParams>): Promise<DataEntity<T>> {
         const p = this._getParams(params, { id });
@@ -125,7 +171,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
         const ms = Math.round(this._bulkMaxWait / 2);
         this._interval = setInterval(() => {
-            this._flush()
+            this.flush()
                 .catch((err) => {
                     console.error(err);
                 });
@@ -197,7 +243,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         if (this._interval) {
             clearInterval(this._interval);
         }
-        await this._flush();
+        await this.flush(true);
 
         this.client.close();
     }
@@ -224,30 +270,6 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         });
 
         await this._try(() => this.client.update(p));
-    }
-
-    private async _flush(flushAll = false) {
-        const records = flushAll ? this._collector.flushAll() : this._collector.getBatch();
-        if (!records) return;
-
-        const bulkRequest: T|object[] = [];
-        const indexRequest = {
-            index: {
-                _index: this._indexQuery,
-                _type: this.config.name,
-            }
-        };
-
-        for (const record of records) {
-            bulkRequest.push(indexRequest);
-            bulkRequest.push(record);
-        }
-
-        return this._try(() => {
-            return this.client.bulk({
-                body: bulkRequest,
-            });
-        });
     }
 
     private _getParams(...params: any[]) {
@@ -278,6 +300,21 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         }
     }
 }
+
+interface BulkRequest<T> {
+    data: BulkRequestData<T>;
+    metadata: BulkRequestMetadata;
+}
+
+type BulkRequestData<T> = T|{doc: Partial<T>}|null;
+
+type BulkRequestMetadata = {
+    [key in i.BulkAction]?: {
+        _index: string;
+        _type: string;
+        _id?: string;
+    };
+};
 
 interface RecordResponse<T> {
     _index: string;

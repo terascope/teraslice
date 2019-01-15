@@ -27,6 +27,10 @@ export function normalizeError(err: any, stack?: string): TSError {
         statusCode = 409;
     }
 
+    if (message.includes('action_request_validation_exception')) {
+        statusCode = 422;
+    }
+
     const error = new TSError(message, { statusCode });
     if (stack) error.stack = stack.replace('[MESSAGE]', message);
 
