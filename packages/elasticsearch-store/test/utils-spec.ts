@@ -10,7 +10,7 @@ describe('ElasticSearch Store Utils', () => {
         it('should return true when given a simple index', () => {
             expect(isSimpleIndex({
                 mapping: {},
-                version: 'v1'
+                version: 1
             })).toBeTrue();
         });
 
@@ -26,7 +26,7 @@ describe('ElasticSearch Store Utils', () => {
             expect(isSimpleIndex({
                 mapping: {},
                 template: true,
-                version: 'v1'
+                version: 1
             })).toBeFalse();
         });
     });
@@ -36,7 +36,7 @@ describe('ElasticSearch Store Utils', () => {
             expect(isTemplatedIndex({
                 mapping: {},
                 template: false,
-                version: 'v1'
+                version: 1
             })).toBeFalse();
         });
 
@@ -62,7 +62,7 @@ describe('ElasticSearch Store Utils', () => {
                 mapping: {},
                 template: true,
                 timeseries: true,
-                version: 'v1'
+                version: 1
             })).toBeTrue();
         });
     });
@@ -72,14 +72,14 @@ describe('ElasticSearch Store Utils', () => {
             expect(isTimeSeriesIndex({
                 mapping: {},
                 template: false,
-                version: 'v1'
+                version: 1
             })).toBeFalse();
         });
 
         it('should return false when given missing map', () => {
             // @ts-ignore
             expect(isTimeSeriesIndex({
-                version: 'v1'
+                version: 1
             })).toBeFalse();
         });
 
@@ -88,7 +88,7 @@ describe('ElasticSearch Store Utils', () => {
             expect(isTimeSeriesIndex({
                 mapping: {},
                 template: true,
-                version: 'v1'
+                version: 1
             })).toBeFalse();
         });
 
@@ -98,7 +98,7 @@ describe('ElasticSearch Store Utils', () => {
                 mapping: {},
                 template: true,
                 timeseries: true,
-                version: 'v1'
+                version: 1
             })).toBeTrue();
         });
     });

@@ -35,11 +35,11 @@ describe('IndexStore', () => {
     const config: IndexConfig = {
         index: 'test__store',
         indexSchema: {
-            version: 'v1.0.0',
+            version: 1,
             mapping,
             strict: true,
         },
-        version: 'v1.0.0',
+        version: 1,
         indexSettings: {
             'index.number_of_shards': 1,
             'index.number_of_replicas': 1
@@ -298,7 +298,7 @@ describe('IndexStore', () => {
 
         const configWithDataSchema = Object.assign(config, {
             dataSchema: {
-                version: 'v1.0.0',
+                version: 1,
                 schema,
                 allFormatters: true,
                 strict: true,

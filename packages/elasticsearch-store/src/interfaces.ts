@@ -9,7 +9,7 @@ export interface IndexConfig {
     /**
      * Data Version, this allows multiple versions of an index to exist with the same Schema
     */
-    version?: string;
+    version?: number;
 
     /**
      * ElasticSearch Index Settings
@@ -42,7 +42,7 @@ export interface IndexSchema {
     /**
      * The version of this particular Schema definition
      */
-    version: string;
+    version: number;
 
     /**
      * The ElasticSearch index mapping
@@ -89,7 +89,7 @@ export interface DataSchema {
     /**
      * The version of this particular Schema definition
      */
-    version: string;
+    version: number;
 
     /**
      * The Data Schema in JSON Schema format

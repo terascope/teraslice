@@ -1,4 +1,3 @@
-import semver from 'semver';
 import get from 'lodash.get';
 import { parseError, isString, isFunction } from '@terascope/utils';
 import * as es from 'elasticsearch';
@@ -15,11 +14,6 @@ export function isTemplatedIndex(input?: i.IndexSchema): boolean {
 
 export function isTimeSeriesIndex(input?: i.IndexSchema): boolean {
     return isTemplatedIndex(input) && !!get(input, 'timeseries', false);
-}
-
-export function getMajorVersion(input: any): number {
-    const v = semver.coerce(input);
-    return v != null ? v.major : 1;
 }
 
 export function isValidClient(input: any): input is es.Client {

@@ -15,11 +15,11 @@ describe('IndexManager->create()', () => {
         const config: IndexConfig = {
             index: 'test__simple',
             indexSchema: {
-                version: 'v1.0.0',
+                version: 1,
                 mapping: simple.mapping,
                 strict: true,
             },
-            version: 'v1.0.0',
+            version: 1,
             indexSettings: {
                 'index.number_of_shards': 1,
                 'index.number_of_replicas': 1
@@ -35,7 +35,7 @@ describe('IndexManager->create()', () => {
             await client.indices.delete({ index })
                     .catch(() => {});
 
-            result = await indexManager.create(config);
+            result = await indexManager.indexSetup(config);
         });
 
         afterAll(async () => {
@@ -64,7 +64,7 @@ describe('IndexManager->create()', () => {
         });
 
         it('should be able to call create again', async () => {
-            const created = await indexManager.create(config);
+            const created = await indexManager.indexSetup(config);
             expect(created).toBeFalse();
         });
     });
@@ -78,12 +78,12 @@ describe('IndexManager->create()', () => {
         const config: IndexConfig = {
             index: 'test__template',
             indexSchema: {
-                version: 'v1.0.0',
+                version: 1,
                 mapping: template.mapping,
                 template: true,
                 strict: true,
             },
-            version: 'v1.0.0',
+            version: 1,
             indexSettings: {
                 'index.number_of_shards': 1,
                 'index.number_of_replicas': 1
@@ -106,7 +106,7 @@ describe('IndexManager->create()', () => {
         beforeAll(async () => {
             await cleanup();
 
-            result = await indexManager.create(config);
+            result = await indexManager.indexSetup(config);
         });
 
         afterAll(async () => {
@@ -144,7 +144,7 @@ describe('IndexManager->create()', () => {
         });
 
         it('should be able to call create again', async () => {
-            const created = await indexManager.create(config);
+            const created = await indexManager.indexSetup(config);
             expect(created).toBeFalse();
         });
     });
@@ -158,14 +158,14 @@ describe('IndexManager->create()', () => {
         const config: IndexConfig = {
             index: 'test__timeseries',
             indexSchema: {
-                version: 'v1.0.0',
+                version: 1,
                 mapping: template.mapping,
                 template: true,
                 timeseries: true,
                 rollover_frequency: 'daily',
                 strict: true,
             },
-            version: 'v1.0.0',
+            version: 1,
             indexSettings: {
                 'index.number_of_shards': 1,
                 'index.number_of_replicas': 1
@@ -189,7 +189,7 @@ describe('IndexManager->create()', () => {
         beforeAll(async () => {
             await cleanup();
 
-            result = await indexManager.create(config);
+            result = await indexManager.indexSetup(config);
         });
 
         afterAll(async () => {
@@ -226,7 +226,7 @@ describe('IndexManager->create()', () => {
         });
 
         it('should be able to call create again', async () => {
-            const created = await indexManager.create(config);
+            const created = await indexManager.indexSetup(config);
             expect(created).toBeFalse();
         });
     });

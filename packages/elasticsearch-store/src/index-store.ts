@@ -122,7 +122,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      * Connect and validate the index configuration.
     */
     async initialize() {
-        await this.manager.create(this.config);
+        await this.manager.indexSetup(this.config);
 
         const ms = Math.round(this._bulkMaxWait / 2);
         this._interval = setInterval(() => {

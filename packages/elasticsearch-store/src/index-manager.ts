@@ -1,10 +1,10 @@
 import get from 'lodash.get';
+import { isInteger, getTypeOf } from '@terascope/utils';
 import * as es from 'elasticsearch';
-import { IndexConfig } from './interfaces';
+import { IndexConfig, ESError } from './interfaces';
 import {
     isSimpleIndex,
     isTemplatedIndex,
-    getMajorVersion,
     isValidClient,
     isValidConfig,
     isTimeSeriesIndex,
@@ -23,10 +23,11 @@ export default class IndexManager {
     }
 
     /**
-     * Create an index
+     * Safely setup a versioned Index, its template and any other required resouces
+     *
      * @returns a boolean that indicates whether the index was created or not
     */
-    async create(config: IndexConfig): Promise<boolean> {
+    async indexSetup(config: IndexConfig): Promise<boolean> {
         const indexName = this.formatIndexName(config, false);
 
         if (await this.exists(indexName)) return false;
@@ -124,11 +125,44 @@ export default class IndexManager {
     }
 
     getVersions(config: IndexConfig): { dataVersion: number, schemaVersion: number; } {
-        const schemaVersion = getMajorVersion(get(config, 'indexSchema.version'));
-        const dataVersion = getMajorVersion(get(config, 'version'));
-        return { schemaVersion, dataVersion };
+        const {
+            indexSchema = { version: 1 },
+            version = 1
+        } = config || {};
+
+        if (!isInteger(indexSchema.version)) {
+            const error = new Error(`Index Version must a Integer, got "${getTypeOf(indexSchema.version)}"`) as ESError;
+            error.statusCode = 422;
+            throw error;
+        }
+
+        if (!isInteger(version)) {
+            const error = new Error(`Data Version must a Integer, got "${getTypeOf(version)}"`) as ESError;
+            error.statusCode = 422;
+            throw error;
+        }
+
+        if (indexSchema.version < 1) {
+            const error = new Error(`Index Version must be greater than 0, got "${indexSchema.version}"`) as ESError;
+            error.statusCode = 422;
+            throw error;
+        }
+
+        if (version < 1) {
+            const error = new Error(`Data Version must be greater than 0, got "${version}"`) as ESError;
+            error.statusCode = 422;
+            throw error;
+        }
+
+        return {
+            schemaVersion: indexSchema.version,
+            dataVersion: version
+        };
     }
 
+    /**
+     * Safely create or update a template
+    */
     async upsertTemplate(template: any, name: string) {
         const exists = await this.client.indices.existsTemplate({ name });
         if (exists) return;

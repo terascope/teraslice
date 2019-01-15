@@ -37,7 +37,7 @@ describe('IndexManager', () => {
                     const indexName = indexManager.formatIndexName({
                         index: 'hello',
                         indexSchema: {
-                            version: 'v1',
+                            version: 1,
                             mapping: {},
                             template: true,
                             timeseries: true
@@ -52,7 +52,7 @@ describe('IndexManager', () => {
                     const indexName = indexManager.formatIndexName({
                         index: 'hello',
                         indexSchema: {
-                            version: 'v1',
+                            version: 1,
                             mapping: {},
                             template: true,
                             timeseries: true
@@ -63,48 +63,18 @@ describe('IndexManager', () => {
                 });
             });
 
-            describe('when passed valid versions', () => {
+            describe('when passed different versions', () => {
                 it('should return a correctly formatted index name', () => {
                     const indexName = indexManager.formatIndexName({
                         index: 'hello',
-                        version: 'v3.0.0',
+                        version: 3,
                         indexSchema: {
-                            version: 'v2.0.0',
+                            version: 2,
                             mapping: {}
                         }
                     });
 
                     expect(indexName).toEqual('hello-v3-s2');
-                });
-            });
-
-            describe('when passed versions without a v prefix', () => {
-                it('should return a correctly formatted index name', () => {
-                    const indexName = indexManager.formatIndexName({
-                        index: 'hello',
-                        version: '7.0.0',
-                        indexSchema: {
-                            version: '99.0.0',
-                            mapping: {}
-                        }
-                    });
-
-                    expect(indexName).toEqual('hello-v7-s99');
-                });
-            });
-
-            describe('when passed versions with just a major number', () => {
-                it('should return a correctly formatted index name', () => {
-                    const indexName = indexManager.formatIndexName({
-                        index: 'hello',
-                        version: '6',
-                        indexSchema: {
-                            version: '4',
-                            mapping: {}
-                        }
-                    });
-
-                    expect(indexName).toEqual('hello-v6-s4');
                 });
             });
 
@@ -160,7 +130,7 @@ describe('IndexManager', () => {
                 it('should return a correctly formatted template name', () => {
                     const templateName = indexManager.formatTemplateName({
                         index: 'hello',
-                        version: 'v2',
+                        version: 2,
                     });
 
                     expect(templateName).toEqual('hello-v2_template');
@@ -173,6 +143,122 @@ describe('IndexManager', () => {
                         // @ts-ignore
                         indexManager.formatTemplateName();
                     }).toThrowError('Invalid config passed to formatTemplateName');
+                });
+            });
+        });
+
+        describe('->getVersions', () => {
+            describe('when passed nothing', () => {
+                it('should return versions 1 and 1', () => {
+                    // @ts-ignore
+                    const versions = indexManager.getVersions();
+
+                    expect(versions).toEqual({
+                        dataVersion: 1,
+                        schemaVersion: 1,
+                    });
+                });
+            });
+
+            describe('when passed an empty object', () => {
+                it('should return versions 1 and 1', () => {
+                    // @ts-ignore
+                    const versions = indexManager.getVersions({ });
+
+                    expect(versions).toEqual({
+                        dataVersion: 1,
+                        schemaVersion: 1,
+                    });
+                });
+            });
+
+            describe('when passed an valid config', () => {
+                it('should be able to return default values', () => {
+                    const versions = indexManager.getVersions({
+                        indexSchema: {
+                            mapping: {},
+                            version: 1
+                        },
+                        version: 1,
+                        index: 'hello'
+                    });
+
+                    expect(versions).toEqual({
+                        dataVersion: 1,
+                        schemaVersion: 1,
+                    });
+                });
+
+                it('should be able to return non-default values', () => {
+                    const versions = indexManager.getVersions({
+                        indexSchema: {
+                            mapping: {},
+                            version: 777
+                        },
+                        version: 88,
+                        index: 'hello'
+                    });
+
+                    expect(versions).toEqual({
+                        dataVersion: 88,
+                        schemaVersion: 777,
+                    });
+                });
+            });
+
+            describe('when passsed a invalid config', () => {
+                it('should throw if a string is used for the Index Schema version', () => {
+                    expect(() => {
+                        indexManager.getVersions({
+                            // @ts-ignore
+                            indexSchema: {
+                                mapping: {},
+                                version: '8'
+                            },
+                            version: 8,
+                            index: 'hello'
+                        });
+                    }).toThrowError('Index Version must a Integer, got "String"');
+                });
+
+                it('should throw if a negative integer is used for the Index Schema version', () => {
+                    expect(() => {
+                        indexManager.getVersions({
+                            indexSchema: {
+                                mapping: {},
+                                version: -8
+                            },
+                            version: 8,
+                            index: 'hello'
+                        });
+                    }).toThrowError('Index Version must be greater than 0, got "-8"');
+                });
+
+                it('should throw if a string is used for the Data Schema version', () => {
+                    expect(() => {
+                        indexManager.getVersions({
+                            indexSchema: {
+                                mapping: {},
+                                version: 8
+                            },
+                            // @ts-ignore
+                            version: '8',
+                            index: 'hello'
+                        });
+                    }).toThrowError('Data Version must a Integer, got "String"');
+                });
+
+                it('should throw if a negative integer is used for the Data Schema version', () => {
+                    expect(() => {
+                        indexManager.getVersions({
+                            indexSchema: {
+                                mapping: {},
+                                version: 8
+                            },
+                            version: -8,
+                            index: 'hello'
+                        });
+                    }).toThrowError('Data Version must be greater than 0, got "-8"');
                 });
             });
         });
