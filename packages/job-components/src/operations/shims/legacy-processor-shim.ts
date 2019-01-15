@@ -1,4 +1,4 @@
-import { DataEntity, DataInput, Logger } from '@terascope/utils';
+import { DataEntity, DataInput, Logger, isFunction } from '@terascope/utils';
 import operationAPIShim, { APIs } from './operation-api-shim';
 import legacySliceEventsShim from './legacy-slice-events-shim';
 import { SchemaConstructor } from '../interfaces';
@@ -8,7 +8,6 @@ import {
     ProcessorFn,
     WorkerContext,
 } from '../../interfaces';
-import { isFunction } from '../../utils';
 import ConvictSchema from '../convict-schema';
 
 // This file for backwards compatibility and functionality will be limited
