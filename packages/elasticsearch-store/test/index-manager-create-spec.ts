@@ -143,6 +143,31 @@ describe('IndexManager->create()', () => {
             expect(template[templateName]).toHaveProperty('version', 1);
         });
 
+        it('should be able to upsert a newer template safely', async () => {
+            // @ts-ignore
+            const mapping = config.indexSchema.mapping;
+            // @ts-ignore
+            const version = config.indexSchema.version;
+
+            const mappings = {};
+            mappings[config.name] = mapping;
+
+            const newVersion = version + 1;
+            await indexManager.upsertTemplate({
+                template: templateName,
+                settings: config.indexSettings,
+                mappings,
+                version: newVersion,
+            });
+
+            const template = await client.indices.getTemplate({
+                name: templateName
+            });
+
+            expect(template).toHaveProperty(templateName);
+            expect(template[templateName]).toHaveProperty('version', newVersion);
+        });
+
         it('should be able to call create again', async () => {
             const created = await indexManager.indexSetup(config);
             expect(created).toBeFalse();

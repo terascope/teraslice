@@ -113,7 +113,7 @@ export default class IndexManager {
             body.template = templateName;
             body.version = schemaVersion;
 
-            await this.upsertTemplate(body, templateName);
+            await this.upsertTemplate(body);
 
             await this.client.indices.create({
                 index: indexName,
@@ -159,9 +159,20 @@ export default class IndexManager {
     /**
      * Safely create or update a template
     */
-    async upsertTemplate(template: any, name: string) {
-        const exists = await this.client.indices.existsTemplate({ name });
-        if (exists) return;
+    async upsertTemplate(template: any) {
+        const { template: name, version } = template;
+        try {
+            const templates = await this.client.indices.getTemplate({
+                name,
+                flatSettings: true,
+            });
+            const latestVersion = templates[name].version;
+            if (version === latestVersion) return;
+        } catch (err) {
+            if (err.statusCode !== 404) {
+                throw err;
+            }
+        }
 
         await this.client.indices.putTemplate({
             body: template,
