@@ -1,7 +1,5 @@
 'use strict';
 
-const events = require('events');
-
 function create(customConfig, logger) {
     const mongoose = require('mongoose');
     // TODO: rework configuration to allow incoming config to be a full mongo config
@@ -36,16 +34,12 @@ function create(customConfig, logger) {
     };
 }
 
-function config_schema() {
-    return {
+module.exports = {
+    create,
+    config_schema: {
         servers: {
             doc: '',
             default: 'mongodb://localhost:27017/test'
         }
-    };
-}
-
-module.exports = {
-    create,
-    config_schema
+    }
 };

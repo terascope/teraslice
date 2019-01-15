@@ -1,9 +1,9 @@
 'use strict';
 
 const _ = require('lodash');
+const os = require('os');
 const convict = require('convict');
 const { getModule } = require('./file_utils');
-const os = require('os');
 const sysSchema = require('../system_schema');
 
 function getConnectorSchema(name, context) {
@@ -72,7 +72,8 @@ module.exports = function module(cluster, context, configFile) {
 
                 // iterate over endpoints in connectors
                 _.forOwn(configFile[key].connectors[connector], (name, endpoint) => {
-                    config[key].connectors[connector][endpoint] = validateConfig(cluster, innerSchema, name);
+                    const validated = validateConfig(cluster, innerSchema, name);
+                    config[key].connectors[connector][endpoint] = validated;
                 });
             });
         } else {

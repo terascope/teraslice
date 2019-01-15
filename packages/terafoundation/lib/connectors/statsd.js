@@ -1,9 +1,7 @@
 'use strict';
 
-const events = require('events');
-
 function create(customConfig, logger) {
-    const StatsD = require('node-statsd').StatsD;
+    const { StatsD } = require('node-statsd');
     logger.info(`Using statsd host: ${customConfig.host}`);
 
     const client = new StatsD(customConfig);
@@ -13,8 +11,9 @@ function create(customConfig, logger) {
     };
 }
 
-function config_schema() {
-    return {
+module.exports = {
+    create,
+    config_schema: {
         host: {
             doc: '',
             default: '127.0.0.1'
@@ -23,11 +22,5 @@ function config_schema() {
             doc: '',
             default: false
         }
-    };
-}
-
-module.exports = {
-    create,
-    config_schema
-
+    }
 };

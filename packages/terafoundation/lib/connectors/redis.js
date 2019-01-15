@@ -1,8 +1,6 @@
 'use strict';
 
-const _ = require('lodash');
 const redis = require('redis');
-const events = require('events');
 
 function create(customConfig, logger) {
     logger.info(`Using redis host: ${customConfig.host}`);
@@ -14,8 +12,9 @@ function create(customConfig, logger) {
     };
 }
 
-function config_schema() {
-    return {
+module.exports = {
+    create,
+    config_schema: {
         host: {
             doc: '',
             default: '127.0.0.1'
@@ -24,10 +23,5 @@ function config_schema() {
             doc: '',
             default: 6379
         }
-    };
-}
-
-module.exports = {
-    create,
-    config_schema
+    }
 };

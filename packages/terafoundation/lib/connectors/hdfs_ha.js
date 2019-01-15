@@ -1,25 +1,23 @@
 'use strict';
 
-const events = require('events');
 const Promise = require('bluebird');
-const _ = require('lodash');
 
 function create(customConfig, logger) {
-    const hdfsClient = require('node-webhdfs').WebHDFSClient;
+    const HdfsClient = require('node-webhdfs').WebHDFSClient;
 
     let highAvailibility = false;
     let currentNameNode;
 
     if (Array.isArray(customConfig.namenode_host)) {
-        currentNameNode = customConfig.namenode_host[0];
+        ([currentNameNode] = customConfig.namenode_host);
         customConfig.namenode_list = customConfig.namenode_host;
         highAvailibility = true;
     } else {
         currentNameNode = customConfig.namenode_host;
     }
 
-    const config = _.assign({}, customConfig, { namenode_host: currentNameNode });
-    const client = new hdfsClient(config);
+    const config = Object.assign({}, customConfig, { namenode_host: currentNameNode });
+    const client = new HdfsClient(config);
 
     logger.info(`Using hdfs hosts: ${currentNameNode}, high-availability: ${highAvailibility}`);
 
@@ -28,8 +26,9 @@ function create(customConfig, logger) {
     };
 }
 
-function config_schema() {
-    return {
+module.exports = {
+    create,
+    config_schema: {
         user: {
             doc: 'user type for hdfs requests',
             default: 'hdfs',
@@ -59,10 +58,5 @@ function config_schema() {
             doc: 'endpoint for hdfs web interface',
             default: '/webhdfs/v1'
         }
-    };
-}
-
-module.exports = {
-    create,
-    config_schema
+    }
 };

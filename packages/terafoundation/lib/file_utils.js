@@ -2,19 +2,9 @@
 
 const fs = require('fs');
 
-// fs.exists is depreciated, this is future tolerant
-function existsSync(filename) {
+function guardedRequire(fileName) {
     try {
-        fs.accessSync(filename);
-        return true;
-    } catch (ex) {
-        return false;
-    }
-}
-
-function guardedRequire(module) {
-    try {
-        return require(module);
+        return require(fileName);
     } catch (e) {
         if (e.code === 'MODULE_NOT_FOUND') {
             return false;
@@ -25,32 +15,32 @@ function guardedRequire(module) {
 }
 
 function getModule(name, obj, err) {
-    let module;
+    let mod;
+
     for (const path in obj) {
-        if (existsSync(path)) {
-            module = guardedRequire(path);
-            if (!module) continue;
+        if (fs.existsSync(path)) {
+            mod = guardedRequire(path);
+            if (!mod) continue;
         }
     }
 
     // check if its a node module
-    if (!module) {
-        module = guardedRequire(name);
+    if (!mod) {
+        mod = guardedRequire(name);
     }
 
     // Still not found check for a connector.
-    if (!module) {
-        module = guardedRequire(`terafoundation_${name}_connector`);
+    if (!mod) {
+        mod = guardedRequire(`terafoundation_${name}_connector`);
     }
 
-    if (!module) {
+    if (!mod) {
         throw new Error(err);
     }
 
-    return module;
+    return mod;
 }
 
 module.exports = {
-    existsSync,
     getModule
 };

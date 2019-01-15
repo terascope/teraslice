@@ -3,12 +3,12 @@
 const Promise = require('bluebird');
 
 function logWrapper(logger) {
-    return function () {
+    return function _wrap() {
         this.error = logger.error.bind(logger);
         this.warning = logger.warn.bind(logger);
         this.info = logger.info.bind(logger);
         this.debug = logger.debug.bind(logger);
-        this.trace = function (method, requestUrl, body, responseBody, responseStatus) {
+        this.trace = function _trace(method, requestUrl, body, responseBody, responseStatus) {
             logger.trace({
                 method,
                 requestUrl,
@@ -17,7 +17,7 @@ function logWrapper(logger) {
                 responseStatus
             });
         };
-        this.close = function () {
+        this.close = function _close() {
         };
     };
 }
@@ -27,9 +27,10 @@ function create(customConfig, logger) {
 
     logger.info(`Using elasticsearch hosts: ${customConfig.host}`);
 
-    customConfig.defer = function () {
+    customConfig.defer = function _defer() {
         return Promise.defer();
     };
+
     const client = new elasticsearch.Client(customConfig);
 
     return {
@@ -38,8 +39,9 @@ function create(customConfig, logger) {
     };
 }
 
-function config_schema() {
-    return {
+module.exports = {
+    create,
+    config_schema: {
         host: {
             doc: '',
             default: ['127.0.0.1:9200']
@@ -64,10 +66,5 @@ function config_schema() {
             doc: '',
             default: 3
         }
-    };
-}
-
-module.exports = {
-    create,
-    config_schema
+    }
 };
