@@ -1,4 +1,3 @@
-import { promisify } from 'util';
 import isPlainObject from 'is-plain-object';
 import cloneDeep from 'lodash.clonedeep';
 import kindOf from 'kind-of';
@@ -185,24 +184,7 @@ export function enumerable(enabled = true) {
     };
 }
 
-interface PromiseFn {
-    (input: any): Promise<any>;
-}
-
-/** Async waterfall function */
-export function waterfall(input: any, fns: PromiseFn[]): Promise<any> {
-    return fns.reduce(async (last, fn) => {
-        return fn(await last);
-    }, input);
-}
-
 /** Change first character in string to upper case */
 export function firstToUpper(str: string): string {
     return `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
 }
-
-/** promisified setTimeout */
-export const pDelay = promisify(setTimeout);
-
-/** promisified setImmediate */
-export const pImmediate = promisify(setImmediate);

@@ -1,6 +1,6 @@
 import get from 'lodash.get';
-import { isInteger, getTypeOf } from '@terascope/utils';
 import * as es from 'elasticsearch';
+import { isInteger, getTypeOf, pRetry } from '@terascope/utils';
 import { IndexConfig, ESError } from './interfaces';
 import {
     isSimpleIndex,
@@ -10,6 +10,9 @@ import {
     isTimeSeriesIndex,
     timeseriesIndex
 } from './utils';
+
+const isTest = process.env.NODE_ENV === 'test';
+const AVAILABILITY_RETRIES = isTest ? 3 : 100;
 
 /** Manage ElasticSearch Indicies */
 export default class IndexManager {
@@ -147,7 +150,29 @@ export default class IndexManager {
             });
         }
 
+        await this.waitForIndexAvailability(indexName);
+        const isActive = await this.isIndexActive(indexName);
+
+        if (!isActive) {
+            throw new Error(`Index "${indexName}" is not active`);
+        }
+
         return true;
+    }
+
+    async isIndexActive(index: string): Promise<boolean> {
+        const stats = await this.client.indices.recovery({ index });
+        if (stats == null || !Object.keys(stats).length) return false;
+
+        type Shard = { primary: boolean, stage: string };
+        const shards: Shard[] = get(stats, [index, 'shards'], []);
+
+        return shards
+            .filter((shard) => {
+                return shard.primary === true;
+            }).every((shard) => {
+                return shard.stage === 'DONE';
+            });
     }
 
     /**
@@ -171,6 +196,11 @@ export default class IndexManager {
             body: template,
             name,
         });
+    }
+
+    protected async waitForIndexAvailability(index: string) {
+        const query = { index, q: '*', size: 1 };
+        await pRetry(() => this.client.search(query), AVAILABILITY_RETRIES);
     }
 }
 

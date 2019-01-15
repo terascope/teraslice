@@ -1,12 +1,10 @@
 import 'jest-extended';
-import { promisify } from 'util';
 import {
     Collector,
     DataEntity,
-    times
+    times,
+    pDelay
 } from '../src';
-
-const delay = promisify(setTimeout);
 
 describe('Collector', () => {
     let collector: Collector<DataEntity>;
@@ -91,7 +89,7 @@ describe('Collector', () => {
             expect(result1).toBeNull();
             expect(getQueue()).toBeArrayOfSize(50);
 
-            await delay(150);
+            await pDelay(150);
 
             collector.add([]);
 
