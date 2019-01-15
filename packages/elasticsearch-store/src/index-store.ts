@@ -1,6 +1,6 @@
 import Ajv from 'ajv';
 import * as es from 'elasticsearch';
-import { Collector, DataEntity } from '@terascope/utils';
+import { Collector, DataEntity, TSError } from '@terascope/utils';
 import IndexManager from './index-manager';
 import * as i from './interfaces';
 import { normalizeError, throwValidationError } from './error-utils';
@@ -22,7 +22,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
     constructor(client: es.Client, config: i.IndexConfig) {
         if (!isValidClient(client)) {
-            throw new Error('IndexStore requires elasticsearch client');
+            throw new TSError('IndexStore requires elasticsearch client', {
+                fatalError: true
+            });
         }
 
         validateIndexConfig(config);
@@ -232,7 +234,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         const indexRequest = {
             index: {
                 _index: this._indexQuery,
-                _type: this.config.index,
+                _type: this.config.name,
             }
         };
 
@@ -251,7 +253,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     private _getParams(...params: any[]) {
         return Object.assign({
             index: this._indexQuery,
-            type: this.config.index
+            type: this.config.name
         }, ...params);
     }
 

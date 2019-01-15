@@ -40,8 +40,8 @@ export function validateIndexConfig(config: any): config is i.IndexConfig {
         errors.push('IndexConfig cannot be empty');
     }
 
-    if (config && (!isString(config.index) || !config.index || config.index.includes('-'))) {
-        errors.push('Invalid index name, must be a non-empty string and cannot contain a "-"');
+    if (config && (!isString(config.name) || !config.name || config.name.includes('-'))) {
+        errors.push('Invalid name, must be a non-empty string and cannot contain a "-"');
     }
 
     const {

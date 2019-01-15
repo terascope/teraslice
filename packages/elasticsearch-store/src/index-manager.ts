@@ -1,6 +1,6 @@
 import get from 'lodash.get';
 import * as es from 'elasticsearch';
-import { pRetry } from '@terascope/utils';
+import { pRetry, TSError } from '@terascope/utils';
 import { IndexConfig } from './interfaces';
 import {
     isSimpleIndex,
@@ -20,7 +20,9 @@ export default class IndexManager {
 
     constructor(client: es.Client) {
         if (!isValidClient(client)) {
-            throw new Error('IndexManager requires elasticsearch client');
+            throw new TSError('IndexManager requires elasticsearch client', {
+                fatalError: true
+            });
         }
 
         this.client = client;
@@ -36,10 +38,10 @@ export default class IndexManager {
     formatIndexName(config: IndexConfig, useWildcard = true) {
         validateIndexConfig(config);
 
-        const { index } = config;
+        const { name } = config;
         const { dataVersion, schemaVersion } = this.getVersions(config);
 
-        const indexName = `${index}-v${dataVersion}-s${schemaVersion}`;
+        const indexName = `${name}-v${dataVersion}-s${schemaVersion}`;
         if (isTimeSeriesIndex(config.indexSchema) && !useWildcard) {
             const timeSeriesFormat = get(config, 'indexSchema.rollover_frequency');
             return timeseriesIndex(indexName, timeSeriesFormat);
@@ -55,10 +57,10 @@ export default class IndexManager {
     formatTemplateName(config: IndexConfig) {
         validateIndexConfig(config);
 
-        const { index } = config;
+        const { name } = config;
         const { dataVersion } = this.getVersions(config);
 
-        return `${index}-v${dataVersion}_template`;
+        return `${name}-v${dataVersion}`;
     }
 
     getVersions(config: IndexConfig): { dataVersion: number, schemaVersion: number; } {
@@ -95,7 +97,7 @@ export default class IndexManager {
             mappings: {}
         };
 
-        body.mappings[config.index] = config.indexSchema.mapping;
+        body.mappings[config.name] = config.indexSchema.mapping;
 
         if (isSimpleIndex(config.indexSchema)) {
             await this.client.indices.create({

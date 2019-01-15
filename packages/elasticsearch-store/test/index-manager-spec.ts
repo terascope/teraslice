@@ -26,7 +26,7 @@ describe('IndexManager', () => {
             describe('when passed no versions', () => {
                 it('should return a correctly formatted index name', () => {
                     const indexName = indexManager.formatIndexName({
-                        index: 'hello',
+                        name: 'hello',
                     });
 
                     expect(indexName).toEqual('hello-v1-s1');
@@ -36,7 +36,7 @@ describe('IndexManager', () => {
             describe('when passed a timeseries config', () => {
                 it('should return a correctly formatted index name if useWildCard is set to false', () => {
                     const indexName = indexManager.formatIndexName({
-                        index: 'hello',
+                        name: 'hello',
                         indexSchema: {
                             version: 1,
                             mapping: {},
@@ -51,7 +51,7 @@ describe('IndexManager', () => {
 
                 it('should return a correctly formatted index name', () => {
                     const indexName = indexManager.formatIndexName({
-                        index: 'hello',
+                        name: 'hello',
                         indexSchema: {
                             version: 1,
                             mapping: {},
@@ -67,7 +67,7 @@ describe('IndexManager', () => {
             describe('when passed different versions', () => {
                 it('should return a correctly formatted index name', () => {
                     const indexName = indexManager.formatIndexName({
-                        index: 'hello',
+                        name: 'hello',
                         version: 3,
                         indexSchema: {
                             version: 2,
@@ -85,21 +85,21 @@ describe('IndexManager', () => {
             describe('when passed no versions', () => {
                 it('should return a correctly formatted template name', () => {
                     const templateName = indexManager.formatTemplateName({
-                        index: 'hello',
+                        name: 'hello',
                     });
 
-                    expect(templateName).toEqual('hello-v1_template');
+                    expect(templateName).toEqual('hello-v1');
                 });
             });
 
             describe('when passed versions', () => {
                 it('should return a correctly formatted template name', () => {
                     const templateName = indexManager.formatTemplateName({
-                        index: 'hello',
+                        name: 'hello',
                         version: 2,
                     });
 
-                    expect(templateName).toEqual('hello-v2_template');
+                    expect(templateName).toEqual('hello-v2');
                 });
             });
 
@@ -108,7 +108,7 @@ describe('IndexManager', () => {
                     expect(() => {
                         // @ts-ignore
                         indexManager.formatTemplateName();
-                    }).toThrowWithMessage(TSError, 'Invalid config passed to formatTemplateName');
+                    }).toThrowWithMessage(TSError, 'IndexConfig cannot be empty');
                 });
             });
         });
@@ -122,7 +122,7 @@ describe('IndexManager', () => {
                             version: 1
                         },
                         version: 1,
-                        index: 'hello'
+                        name: 'hello'
                     });
 
                     expect(versions).toEqual({
@@ -138,7 +138,7 @@ describe('IndexManager', () => {
                             version: 777
                         },
                         version: 88,
-                        index: 'hello'
+                        name: 'hello'
                     });
 
                     expect(versions).toEqual({

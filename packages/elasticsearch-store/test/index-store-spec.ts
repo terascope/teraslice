@@ -39,7 +39,7 @@ describe('IndexStore', () => {
 
     const index = 'test__store-v1-s1';
     const config: IndexConfig = {
-        index: 'test__store',
+        name: 'test__store',
         indexSchema: {
             version: 1,
             mapping,
@@ -101,9 +101,16 @@ describe('IndexStore', () => {
                 return indexStore.create(record, record.test_id);
             });
 
-            it('should not be able to create a record again', () => {
-                return expect(indexStore.create(record, record.test_id))
-                    .rejects.toThrowWithMessage(TSError, 'Document Already Exists');
+            it('should not be able to create a record again', async () => {
+                expect.hasAssertions();
+
+                try {
+                    await indexStore.create(record, record.test_id);
+                } catch (err) {
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.message).toEqual('Document Already Exists');
+                    expect(err.statusCode).toEqual(409);
+                }
             });
 
             it('should be able to index the same record', () => {
@@ -161,10 +168,18 @@ describe('IndexStore', () => {
                 await indexStore.update(record, record.test_id);
             });
 
-            it('should throw when updating a record that does not exist', () => {
-                return expect(indexStore.update({
-                    test_number: 1,
-                }, 'wrong-id')).rejects.toThrowWithMessage(TSError, 'Not Found');
+            it('should throw when updating a record that does not exist', async () => {
+                expect.hasAssertions();
+
+                try {
+                    await indexStore.update({
+                        test_number: 1,
+                    }, 'wrong-id');
+                } catch (err) {
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.message).toEqual('Not Found');
+                    expect(err.statusCode).toEqual(404);
+                }
             });
 
             it('should be able to get the record by id', async () => {
@@ -179,18 +194,32 @@ describe('IndexStore', () => {
                 });
             });
 
-            it('should throw when getting a record that does not exist', () => {
-                return expect(indexStore.get('wrong-id'))
-                    .rejects.toThrowWithMessage(TSError, 'Not Found');
+            it('should throw when getting a record that does not exist', async () => {
+                expect.hasAssertions();
+
+                try {
+                    await indexStore.get('wrong-id');
+                } catch (err) {
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.message).toEqual('Not Found');
+                    expect(err.statusCode).toEqual(404);
+                }
             });
 
             it('should be able to remove the record', () => {
                 return indexStore.remove(record.test_id);
             });
 
-            it('should throw when trying to remove a record that does not exist', () => {
-                return expect(indexStore.remove('wrong-id'))
-                    .rejects.toThrowWithMessage(TSError, 'Not Found');
+            it('should throw when trying to remove a record that does not exist', async () => {
+                expect.hasAssertions();
+
+                try {
+                    await indexStore.remove('wrong-id');
+                } catch (err) {
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.message).toEqual('Not Found');
+                    expect(err.statusCode).toEqual(404);
+                }
             });
         });
 
@@ -330,6 +359,8 @@ describe('IndexStore', () => {
         });
 
         it('should fail when given an invalid record', async () => {
+            expect.hasAssertions();
+
             const record = {
                 test_id: 'invalid-record-id',
                 test_boolean: Buffer.from('wrong'),
@@ -337,9 +368,14 @@ describe('IndexStore', () => {
                 _created: 'wrong-date'
             };
 
-                    // @ts-ignore
-            await expect(indexStore.indexWithId(record, record.test_id))
-                        .rejects.toThrowWithMessage(TSError, /(test_keyword|_created)/);
+            try {
+                // @ts-ignore
+                await indexStore.indexWithId(record, record.test_id);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toMatch(/(test_keyword|_created)/);
+                expect(err.statusCode).toEqual(422);
+            }
         });
 
         type InputType = 'input'|'output';

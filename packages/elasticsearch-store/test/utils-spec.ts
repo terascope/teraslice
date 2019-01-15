@@ -106,7 +106,7 @@ describe('ElasticSearch Store Utils', () => {
     });
 
     describe('#validateIndexConfig', () => {
-        const validateIndexMsg = /Invalid index name, must be a non-empty string and cannot contain a "-"/;
+        const validateIndexMsg = /Invalid name, must be a non-empty string and cannot contain a "-"/;
 
         describe('when passed an invalid config object', () => {
             it('should throw an error', () => {
@@ -117,7 +117,7 @@ describe('ElasticSearch Store Utils', () => {
             });
         });
 
-        describe('when passed an empty index', () => {
+        describe('when passed an empty name', () => {
             it('should throw an error', () => {
                 expect(() => {
                     // @ts-ignore
@@ -126,7 +126,7 @@ describe('ElasticSearch Store Utils', () => {
             });
         });
 
-        describe('when passed an index as a number', () => {
+        describe('when passed an name as a number', () => {
             it('should throw an error', () => {
                 expect(() => {
                     // @ts-ignore
@@ -135,11 +135,11 @@ describe('ElasticSearch Store Utils', () => {
             });
         });
 
-        describe('when passed an invalid index format', () => {
+        describe('when passed an invalid name format', () => {
             it('should throw an error', () => {
                 expect(() => {
                     // @ts-ignore
-                    validateIndexConfig({ index: 'hello-hi-' });
+                    validateIndexConfig({ name: 'hello-hi-' });
                 }).toThrowWithMessage(TSError, validateIndexMsg);
             });
         });

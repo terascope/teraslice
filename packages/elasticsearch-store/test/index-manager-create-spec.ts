@@ -13,7 +13,7 @@ describe('IndexManager->create()', () => {
         });
 
         const config: IndexConfig = {
-            index: 'test__simple',
+            name: 'test__simple',
             indexSchema: {
                 version: 1,
                 mapping: simple.mapping,
@@ -26,7 +26,7 @@ describe('IndexManager->create()', () => {
             }
         };
 
-        const index = `${config.index}-v1-s1`;
+        const index = `${config.name}-v1-s1`;
 
         const indexManager = new IndexManager(client);
         let result = false;
@@ -60,7 +60,7 @@ describe('IndexManager->create()', () => {
             });
 
             expect(mapping).toHaveProperty(index);
-            expect(mapping[index].mappings).toHaveProperty(config.index);
+            expect(mapping[index].mappings).toHaveProperty(config.name);
         });
 
         it('should be able to call create again', async () => {
@@ -76,7 +76,7 @@ describe('IndexManager->create()', () => {
         });
 
         const config: IndexConfig = {
-            index: 'test__template',
+            name: 'test__template',
             indexSchema: {
                 version: 1,
                 mapping: template.mapping,
@@ -90,8 +90,8 @@ describe('IndexManager->create()', () => {
             }
         };
 
-        const index = `${config.index}-v1-s1`;
-        const templateName = `${config.index}-v1_template`;
+        const index = `${config.name}-v1-s1`;
+        const templateName = `${config.name}-v1`;
 
         const indexManager = new IndexManager(client);
         let result = false;
@@ -130,7 +130,7 @@ describe('IndexManager->create()', () => {
             });
 
             expect(mapping).toHaveProperty(index);
-            expect(mapping[index].mappings).toHaveProperty(config.index);
+            expect(mapping[index].mappings).toHaveProperty(config.name);
         });
 
         it('should create the template', async () => {
@@ -139,7 +139,7 @@ describe('IndexManager->create()', () => {
             });
 
             expect(template).toHaveProperty(templateName);
-            expect(template[templateName].mappings).toHaveProperty(config.index);
+            expect(template[templateName].mappings).toHaveProperty(config.name);
             expect(template[templateName]).toHaveProperty('version', 1);
         });
 
@@ -156,7 +156,7 @@ describe('IndexManager->create()', () => {
         });
 
         const config: IndexConfig = {
-            index: 'test__timeseries',
+            name: 'test__timeseries',
             indexSchema: {
                 version: 1,
                 mapping: template.mapping,
@@ -172,9 +172,9 @@ describe('IndexManager->create()', () => {
             }
         };
 
-        const index = `${config.index}-v1-*`;
-        const currentIndexName = timeseriesIndex(`${config.index}-v1-s1`, 'daily');
-        const templateName = `${config.index}-v1_template`;
+        const index = `${config.name}-v1-*`;
+        const currentIndexName = timeseriesIndex(`${config.name}-v1-s1`, 'daily');
+        const templateName = `${config.name}-v1`;
 
         const indexManager = new IndexManager(client);
         let result = false;
@@ -212,7 +212,7 @@ describe('IndexManager->create()', () => {
                 index
             });
 
-            expect(mapping[currentIndexName].mappings).toHaveProperty(config.index);
+            expect(mapping[currentIndexName].mappings).toHaveProperty(config.name);
         });
 
         it('should create the template', async () => {
@@ -221,7 +221,7 @@ describe('IndexManager->create()', () => {
             });
 
             expect(template).toHaveProperty(templateName);
-            expect(template[templateName].mappings).toHaveProperty(config.index);
+            expect(template[templateName].mappings).toHaveProperty(config.name);
             expect(template[templateName]).toHaveProperty('version', 1);
         });
 

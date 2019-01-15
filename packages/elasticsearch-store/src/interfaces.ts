@@ -4,7 +4,7 @@ export interface IndexConfig {
      * The ElasticSearch index that stores your data.
      * The index name cannot include any dashes.
     */
-    index: string;
+    name: string;
 
     /**
      * Data Version, this allows multiple versions of an index to exist with the same Schema
