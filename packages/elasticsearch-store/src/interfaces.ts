@@ -19,7 +19,7 @@ export interface IndexConfig {
     /**
      * Schema Specification for the Data and ES
     */
-    indexSchema?: IndexSchemaConfig;
+    indexSchema?: IndexSchema;
 
     /**
      * The data schema format
@@ -37,14 +37,35 @@ export interface IndexConfig {
     bulkMaxSize?: number;
 }
 
-export type IndexSchemaConfig = SimpleIndexSchema|TemplatedIndexSchema|TimeSeriesIndexSchema;
-
 /** ElasticSearch Index Schema, Mapping and Version */
 export interface IndexSchema {
     /**
      * The version of this particular Schema definition
      */
     version: string;
+
+    /**
+     * The ElasticSearch index mapping
+    */
+    mapping: any;
+
+    /**
+     * Use a Templated Index
+     */
+    template?: boolean;
+
+    /**
+     * Use a Timeseries Index
+     */
+    timeseries?: boolean;
+
+    /**
+     * Rollover Frequency for the Timeseries Index.
+     * This is only valid if timeseries is set to true
+     *
+     * @default monthly
+    */
+    rollover_frequency?: TimeSeriesFormat;
 
    /**
      * If enabled and the index does not match the version and mapping.
@@ -55,34 +76,6 @@ export interface IndexSchema {
     strict?: boolean;
 }
 
-/** A non-templated ElaticSearch Index Mapping */
-export interface SimpleIndexSchema extends IndexSchema {
-    /**
-     * The ElasticSearch index mapping
-    */
-    mapping: any;
-}
-
-/** A Templated Index Schema Configuration */
-export interface TemplatedIndexSchema extends IndexSchema {
-    /**
-     * The ElasticSearch index template
-    */
-    template: any;
-}
-
-/** TimeSeries Index Configuration */
-export interface TimeSeriesIndexSchema extends TemplatedIndexSchema {
-    /**
-     * Use a Timeseries Index
-     */
-    timeseries: true;
-
-    /**
-     * Rollover Frequency for the Timeseries Index
-    */
-    rollover_frequency: TimeSeriesFormat;
-}
 export type TimeSeriesFormat = 'daily'|'monthly'|'yearly';
 
 export interface IndexSettings {

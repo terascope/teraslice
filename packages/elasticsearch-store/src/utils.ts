@@ -5,16 +5,16 @@ import * as es from 'elasticsearch';
 import * as i from './interfaces';
 import * as Ajv from 'ajv';
 
-export function isSimpleIndex(input?: i.IndexSchemaConfig): input is i.SimpleIndexSchema {
-    return get(input, 'mapping') != null;
+export function isSimpleIndex(input?: i.IndexSchema): boolean {
+    return get(input, 'mapping') != null && !get(input, 'template', false);
 }
 
-export function isTemplatedIndex(input?: i.IndexSchemaConfig): input is i.TemplatedIndexSchema {
-    return get(input, 'template') != null;
+export function isTemplatedIndex(input?: i.IndexSchema): boolean {
+    return get(input, 'mapping') != null && !!get(input, 'template', false);
 }
 
-export function isTimeSeriesIndex(input?: i.IndexSchemaConfig): input is i.TimeSeriesIndexSchema {
-    return get(input, 'template') != null && get(input, 'timeseries', false);
+export function isTimeSeriesIndex(input?: i.IndexSchema): boolean {
+    return isTemplatedIndex(input) && !!get(input, 'timeseries', false);
 }
 
 export function getMajorVersion(input: any): number {

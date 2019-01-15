@@ -28,18 +28,20 @@ export default class IndexManager {
     */
     async create(config: IndexConfig): Promise<boolean> {
         const indexName = this.formatIndexName(config, false);
+
         if (await this.exists(indexName)) return false;
+        if (config.indexSchema == null) return false;
 
         const settings = Object.assign({}, config.indexSettings);
 
+        const body: any = {
+            settings,
+            mappings: {}
+        };
+
+        body.mappings[config.index] = config.indexSchema.mapping;
+
         if (isSimpleIndex(config.indexSchema)) {
-            const body = {
-                settings,
-                mappings: {}
-            };
-
-            body.mappings[config.index] = config.indexSchema.mapping;
-
             await this.client.indices.create({
                 index: indexName,
                 body,
@@ -50,14 +52,8 @@ export default class IndexManager {
             const templateName = this.formatTemplateName(config);
             const { schemaVersion } = this.getVersions(config);
 
-            const body = {
-                template: templateName,
-                version: schemaVersion,
-                settings,
-                mappings: {}
-            };
-
-            body.mappings[config.index] = config.indexSchema.template;
+            body.template = templateName;
+            body.version = schemaVersion;
 
             await this.upsertTemplate(body, templateName);
 

@@ -38,7 +38,8 @@ describe('IndexManager', () => {
                         index: 'hello',
                         indexSchema: {
                             version: 'v1',
-                            template: {},
+                            mapping: {},
+                            template: true,
                             timeseries: true
                         },
                     }, false);
@@ -52,7 +53,8 @@ describe('IndexManager', () => {
                         index: 'hello',
                         indexSchema: {
                             version: 'v1',
-                            template: {},
+                            mapping: {},
+                            template: true,
                             timeseries: true
                         },
                     });

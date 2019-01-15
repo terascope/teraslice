@@ -3,7 +3,7 @@ import es from 'elasticsearch';
 import * as simple from './helpers/simple-index';
 import * as template from './helpers/template-index';
 import { ELASTICSEARCH_HOST } from './helpers/config';
-import { IndexManager, timeseriesIndex } from '../src';
+import { IndexManager, timeseriesIndex, IndexConfig } from '../src';
 
 describe('IndexManager->create()', () => {
     describe('using a mapped index', () => {
@@ -12,7 +12,7 @@ describe('IndexManager->create()', () => {
             log: 'error'
         });
 
-        const config = {
+        const config: IndexConfig = {
             index: 'test__simple',
             indexSchema: {
                 version: 'v1.0.0',
@@ -75,11 +75,12 @@ describe('IndexManager->create()', () => {
             log: 'error'
         });
 
-        const config = {
+        const config: IndexConfig = {
             index: 'test__template',
             indexSchema: {
                 version: 'v1.0.0',
-                template: template.mapping,
+                mapping: template.mapping,
+                template: true,
                 strict: true,
             },
             version: 'v1.0.0',
@@ -154,11 +155,12 @@ describe('IndexManager->create()', () => {
             log: 'error'
         });
 
-        const config = {
+        const config: IndexConfig = {
             index: 'test__timeseries',
             indexSchema: {
                 version: 'v1.0.0',
-                template: template.mapping,
+                mapping: template.mapping,
+                template: true,
                 timeseries: true,
                 rollover_frequency: 'daily',
                 strict: true,
