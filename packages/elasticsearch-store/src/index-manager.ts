@@ -140,7 +140,7 @@ export default class IndexManager {
 
         return shards
             .filter((shard) => {
-                return shard.primary === true;
+                return shard.primary;
             }).every((shard) => {
                 return shard.stage === 'DONE';
             });
