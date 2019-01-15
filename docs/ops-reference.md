@@ -26,7 +26,7 @@ Example Job
     "name": "Reindex Events",
     "lifecycle": "once",
     "analytics": false,
-    "assets": ["ec2d5465609571590fdfe5b371ed7f98a04db5cb"],
+    "assets": ["elasticsearch"],
     "recycle_worker" : 10000,
     "operations": [
         {
@@ -53,8 +53,6 @@ Example Job
 }
 ```
 Note that the job configuration is divided into top level job configuration, and configuration per each individual operation withing the operations array.
-
-### Job level configuration options ###
 
 | Configuration | Description | Type |  Notes |
 | --------- | -------- | ------ | ------ |
@@ -110,6 +108,7 @@ Example Job: `examples/jobs/script/test_script_job.json`
     "name": "ES DataGen test script",
     "lifecycle": "persistent",
     "workers": 1,
+    "assets": ["elasticsearch"],
     "operations": [
         {
             "_op": "elasticsearch_data_generator",
@@ -169,8 +168,7 @@ Example configuration
 
 ### noop
 
-This processor simply passes the data through, unmodified.  It is primarily used
-for develop purposes.
+This processor simply passes the data through, unmodified. It is primarily used for develop purposes.
 
 Example configuration
 ```js

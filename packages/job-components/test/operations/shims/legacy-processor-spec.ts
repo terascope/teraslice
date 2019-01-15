@@ -8,6 +8,7 @@ import {
     TestContext,
     newTestExecutionConfig,
     OpConfig,
+    JobConfig,
 } from '../../../src';
 
 describe('Legacy Processor Shim', () => {
@@ -41,6 +42,12 @@ describe('Legacy Processor Shim', () => {
                 }
             };
         }
+
+        validateJob(job: JobConfig) {
+            if (!job.name) {
+                throw new Error('Missing job name');
+            }
+        }
     }
 
     class InvalidSchema extends ConvictSchema<OpConfig> {
@@ -50,6 +57,12 @@ describe('Legacy Processor Shim', () => {
 
         build() {
             return {};
+        }
+
+        validateJob(job: JobConfig) {
+            if (!job.name) {
+                throw new Error('Missing job name');
+            }
         }
     }
 
@@ -96,6 +109,11 @@ describe('Legacy Processor Shim', () => {
                     format: 'String',
                 }
             });
+
+            expect(() => {
+                // @ts-ignore
+                shim.crossValidation(exConfig, context.sysconfig);
+            }).not.toThrow();
         });
     });
 
@@ -140,6 +158,11 @@ describe('Legacy Processor Shim', () => {
                     format: 'String',
                 }
             });
+
+            expect(() => {
+                // @ts-ignore
+                shim.crossValidation(exConfig, context.sysconfig);
+            }).not.toThrow();
         });
     });
 
@@ -149,6 +172,11 @@ describe('Legacy Processor Shim', () => {
         it('should throw error if invalid schema type', () => {
             expect(() => {
                 shim.schema(context);
+            }).toThrowError('Backwards compatibility only works for "convict" schemas');
+
+            expect(() => {
+                // @ts-ignore
+                shim.crossValidation(exConfig, context.sysconfig);
             }).toThrowError('Backwards compatibility only works for "convict" schemas');
         });
     });

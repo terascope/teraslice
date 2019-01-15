@@ -28,6 +28,7 @@ Jobs are specified as simple JSON documents. Here's a simple reindexing example.
     "name": "Reindex",
     "lifecycle": "once",
     "workers": 1,
+    "assets": ["elasticsearch"],
     "operations": [
         {
           "_op": "elasticsearch_reader",
