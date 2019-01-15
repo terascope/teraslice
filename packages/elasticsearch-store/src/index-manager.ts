@@ -22,61 +22,6 @@ export default class IndexManager {
         this.client = client;
     }
 
-    /**
-     * Safely setup a versioned Index, its template and any other required resouces
-     *
-     * @returns a boolean that indicates whether the index was created or not
-    */
-    async indexSetup(config: IndexConfig): Promise<boolean> {
-        const indexName = this.formatIndexName(config, false);
-
-        if (await this.exists(indexName)) return false;
-        if (config.indexSchema == null) return false;
-
-        const settings = Object.assign({}, config.indexSettings);
-
-        const body: any = {
-            settings,
-            mappings: {}
-        };
-
-        body.mappings[config.index] = config.indexSchema.mapping;
-
-        if (isSimpleIndex(config.indexSchema)) {
-            await this.client.indices.create({
-                index: indexName,
-                body,
-            });
-        }
-
-        if (isTemplatedIndex(config.indexSchema)) {
-            const templateName = this.formatTemplateName(config);
-            const { schemaVersion } = this.getVersions(config);
-
-            body.template = templateName;
-            body.version = schemaVersion;
-
-            await this.upsertTemplate(body, templateName);
-
-            await this.client.indices.create({
-                index: indexName,
-                body,
-            });
-        }
-
-        return true;
-    }
-
-    /**
-     * Perform an Index Migration
-     *
-     * **IMPORTANT** This is a potentionally dangerous operation
-     * and should only when the cluster is properly shutdown.
-    */
-    async migrateIndex(config: MigrateIndexConfig): Promise<void> {
-        return;
-    }
-
     /** Verify the index exists */
     async exists(index: string): Promise<boolean> {
         return this.client.indices.exists({
@@ -158,6 +103,61 @@ export default class IndexManager {
             schemaVersion: indexSchema.version,
             dataVersion: version
         };
+    }
+
+    /**
+     * Safely setup a versioned Index, its template and any other required resouces
+     *
+     * @returns a boolean that indicates whether the index was created or not
+    */
+    async indexSetup(config: IndexConfig): Promise<boolean> {
+        const indexName = this.formatIndexName(config, false);
+
+        if (await this.exists(indexName)) return false;
+        if (config.indexSchema == null) return false;
+
+        const settings = Object.assign({}, config.indexSettings);
+
+        const body: any = {
+            settings,
+            mappings: {}
+        };
+
+        body.mappings[config.index] = config.indexSchema.mapping;
+
+        if (isSimpleIndex(config.indexSchema)) {
+            await this.client.indices.create({
+                index: indexName,
+                body,
+            });
+        }
+
+        if (isTemplatedIndex(config.indexSchema)) {
+            const templateName = this.formatTemplateName(config);
+            const { schemaVersion } = this.getVersions(config);
+
+            body.template = templateName;
+            body.version = schemaVersion;
+
+            await this.upsertTemplate(body, templateName);
+
+            await this.client.indices.create({
+                index: indexName,
+                body,
+            });
+        }
+
+        return true;
+    }
+
+    /**
+     * Perform an Index Migration
+     *
+     * **IMPORTANT** This is a potentionally dangerous operation
+     * and should only when the cluster is properly shutdown.
+    */
+    async migrateIndex(config: MigrateIndexConfig): Promise<void> {
+        return;
     }
 
     /**
