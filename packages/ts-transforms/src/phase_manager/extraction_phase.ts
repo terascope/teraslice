@@ -46,7 +46,11 @@ export default class ExtractionPhase extends PhaseBase {
 
             _.forOwn(selectors, (_value, key) => {
                 if (this.phase[key]) {
-                    this.phase[key].forEach(fn => _.merge(results, fn.run(record)));
+                    this.phase[key].forEach((fn) => {
+                        const newRecord = fn.run(record);
+                        if (newRecord) _.merge(metaData, newRecord.getMetadata());
+                        return _.merge(results, newRecord);
+                    });
                 }
             });
 

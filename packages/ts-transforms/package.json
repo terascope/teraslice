@@ -1,6 +1,6 @@
 {
   "name": "ts-transforms",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "An ETL framework built upon xlucene-evaluator",
   "srcMain": "src/index.ts",
   "main": "dist/index.js",

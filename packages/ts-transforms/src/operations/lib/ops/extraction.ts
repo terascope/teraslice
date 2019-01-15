@@ -7,11 +7,19 @@ import OperationBase from '../base';
 export default class Extraction extends OperationBase {
     private config: OperationConfig;
     private isMutation: Boolean;
+    private mutltiFieldParams: object;
 
     constructor(config: OperationConfig) {
         super(config);
         this.isMutation = config.mutate === true;
         this.config = config;
+        const mutltiFieldParams = {};
+        if (config.multivalue) {
+            const targetSource = {};
+            targetSource[config.target_field as string] = true;
+            mutltiFieldParams[config._multi_target_field as string] = targetSource;
+        }
+        this.mutltiFieldParams = mutltiFieldParams;
     }
 
     sliceString(data: string, start:string, end: string): string | null {
@@ -73,9 +81,12 @@ export default class Extraction extends OperationBase {
 
             if (extractedResult !== undefined)  {
                 if (this.isMutation) {
+                    if (this.config.multivalue) doc.setMetadata('_multi_target_fields', this.mutltiFieldParams);
                     return _.set(doc, this.target, extractedResult);
                 }
-                return new DataEntity(_.set({}, this.target, extractedResult), doc.getMetadata());
+                const metaData = doc.getMetadata();
+                if (this.config.multivalue) _.merge(metaData, { _multi_target_fields: this.mutltiFieldParams });
+                return new DataEntity(_.set({}, this.target, extractedResult), metaData);
             }
         }
         if (this.isMutation) return doc;

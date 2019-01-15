@@ -1,12 +1,12 @@
 
-import { Uuid } from '../../../src/operations';
 import { DataEntity } from '@terascope/job-components';
+import { MacAddress } from '../../../src/operations';
 
-describe('Uuid-like validation', () => {
+describe('MacAddress validation', () => {
 
     it('can instantiate', () => {
-        const opConfig = { refs: 'someId', source_field: 'someField' };
-        expect(() => new Uuid(opConfig)).not.toThrow();
+        const opConfig = { follow: 'someId', source_field: 'someField' };
+        expect(() => new MacAddress(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
@@ -15,18 +15,21 @@ describe('Uuid-like validation', () => {
         const badConfig3 = { source_field: {} };
         const badConfig4 = {};
         // @ts-ignore
-        expect(() => new Uuid(badConfig1)).toThrow();
+        expect(() => new MacAddress(badConfig1)).toThrow();
         // @ts-ignore
-        expect(() => new Uuid(badConfig2)).toThrow();
+        expect(() => new MacAddress(badConfig2)).toThrow();
         // @ts-ignore
-        expect(() => new Uuid(badConfig3)).toThrow();
+        expect(() => new MacAddress(badConfig3)).toThrow();
         // @ts-ignore
-        expect(() => new Uuid(badConfig4)).toThrow();
+        expect(() => new MacAddress(badConfig4)).toThrow();
     });
 
-    it('can validate Uuid-like fields', () => {
-        const opConfig = { refs: 'someId', source_field: 'field' };
-        const test = new Uuid(opConfig);
+    it('can validate MacAddress fields', () => {
+        const opConfig = { follow: 'someId', source_field: 'field' };
+        const test = new MacAddress(opConfig);
+
+        const opConfig2 = { follow: 'someId', source_field: 'field', preserve_colons: true };
+        const test2 = new MacAddress(opConfig2);
 
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -37,9 +40,8 @@ describe('Uuid-like validation', () => {
         const data5 = new DataEntity({ field: { some: 'data' } });
         const data6 = new DataEntity({ field: true }, metaData);
         const data7 = new DataEntity({});
-        const data8 = new DataEntity({ field: '1c7ce488-f4ad-4aae-a6f4-76f9cd5c8635' });
-        const data9 = new DataEntity({ field: 'a77da370-15df-11e9-b726-396c5e1cc8ce' });
-        const data10 = new DataEntity({ field: '@dks*ef9-15df-11e9-b726-PO8f_4-@o$%f' });
+        const data8 = new DataEntity({ field: '17:63:80:d9:4c:vb' });
+        const data9 = new DataEntity({ field: '176380d94cvb' });
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -48,9 +50,8 @@ describe('Uuid-like validation', () => {
         const results5 = test.run(data5);
         const results6 = test.run(data6);
         const results7 = test.run(data7);
-        const results8 = test.run(data8);
+        const results8 = test2.run(data8);
         const results9 = test.run(data9);
-        const results10 = test.run(data10);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
@@ -65,6 +66,5 @@ describe('Uuid-like validation', () => {
         expect(results7).toEqual({});
         expect(results8).toEqual(data8);
         expect(results9).toEqual(data9);
-        expect(results10).toEqual(data10);
     });
 });

@@ -6,8 +6,18 @@ import OperationBase from '../base';
 import { OperationConfig } from '../../../interfaces';
 
 export default class Uuid extends OperationBase {
+    private case: 'lowercase' | 'uppercase';
+
     constructor(config: OperationConfig) {
         super(config);
+        this.case = config.case || 'lowercase';
+    }
+
+    normalizeField(value: string): string {
+        let results = value;
+        if (this.case === 'lowercase') results = results.toLowerCase();
+        if (this.case === 'uppercase') results = results.toUpperCase();
+        return results;
     }
 
     run(doc: DataEntity): DataEntity | null {
@@ -16,7 +26,14 @@ export default class Uuid extends OperationBase {
             _.unset(doc, this.source);
             return doc;
         }
-        if (!validator.isUUID(field)) _.unset(doc, this.source);
+        const data = this.normalizeField(field);
+
+        if (!validator.isUUID(data)) {
+            _.unset(doc, this.source);
+        } else {
+            _.set(doc, this.source, data);
+        }
+
         return doc;
     }
 }

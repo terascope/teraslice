@@ -27,6 +27,8 @@ export interface OperationConfig {
     max?: number;
     preserve_colons?: boolean;
     case?: 'lowercase' | 'uppercase';
+    multivalue?: boolean;
+    _multi_target_field?: string;
 }
 
 export interface SelectorTypes {

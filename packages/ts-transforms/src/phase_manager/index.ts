@@ -7,6 +7,7 @@ import SelectionPhase from './selector_phase';
 import ExtractionPhase from './extraction_phase';
 import PostProcessPhase from './post_process_phase';
 import ValidationPhase from './validation_phase';
+import OutputPhase from './output_phase';
 import { OperationsManager } from '../operations';
 import PhaseBase from './base';
 
@@ -40,6 +41,8 @@ export default class PhaseManager {
                     new ValidationPhase(this.opConfig, configList, opsManager)
                 );
             }
+
+            sequence.push(new OutputPhase(this.opConfig, configList, opsManager));
 
             this.sequence = sequence;
         } catch (err) {

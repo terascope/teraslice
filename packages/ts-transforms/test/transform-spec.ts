@@ -10,7 +10,7 @@ describe('can transform matches', () => {
     let opTest: TestHarness;
 
     beforeEach(() => {
-        opTest = new TestHarness;
+        opTest = new TestHarness();
     });
 
     function getPath(fileName:string) {
@@ -644,6 +644,49 @@ describe('can transform matches', () => {
         });
         expect(results1[1]).toEqual({
             field1: key,
+        });
+    });
+
+    it('build an array with target_field multivalue', async() => {
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules19.txt')],
+            type: 'transform'
+        };
+        const key = '123456789';
+
+        const data = DataEntity.makeArray([
+            { selectfield: 'value' },
+            { selectfield: 'value', url: `http://www.example.com/path?field1=${key}&field2=moreblah&field3=evenmoreblah` },
+        ]);
+
+        const test1 = await opTest.init(config);
+        const results1 =  await test1.run(data);
+
+        expect(results1.length).toEqual(1);
+        expect(results1[0]).toEqual({
+            myfield: [key, 'moreblah']
+        });
+    });
+
+    it('build an array with target_field multivalue with validations', async() => {
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules20.txt')],
+            type: 'transform'
+        };
+        const key = '123456789';
+
+        const data = DataEntity.makeArray([
+            { selectfield: 'value' },
+            { selectfield: 'value', url: `http://www.example.com/path?field1=${key}&field2=moreblah&field3=evenmoreblah&field4=finalCountdown` },
+        ]);
+
+        const test1 = await opTest.init(config);
+        const results1 =  await test1.run(data);
+
+        expect(results1.length).toEqual(1);
+        expect(results1[0]).toEqual({
+            firstSet: [Number(key), 'moreblah'],
+            secondSet: ['evenmoreblah', 'finalCountdown']
         });
     });
 

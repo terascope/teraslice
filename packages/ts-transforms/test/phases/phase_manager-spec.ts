@@ -23,7 +23,7 @@ describe('phase manager', () => {
         await manager.init();
 
         expect(manager.isMatcher).toEqual(true);
-        expect(manager.sequence.length).toEqual(1);
+        expect(manager.sequence.length).toEqual(2);
         expect(manager.sequence[0].constructor.name).toEqual('SelectionPhase');
         // @ts-ignore
         expect(manager.sequence[0].selectionPhase.length).toEqual(2);
@@ -36,7 +36,7 @@ describe('phase manager', () => {
         await manager.init();
 
         expect(manager.isMatcher).toEqual(true);
-        expect(manager.sequence.length).toEqual(1);
+        expect(manager.sequence.length).toEqual(2);
         expect(manager.sequence[0].constructor.name).toEqual('SelectionPhase');
         // @ts-ignore
         expect(manager.sequence[0].selectionPhase.length).toEqual(1);
@@ -49,7 +49,7 @@ describe('phase manager', () => {
         await manager.init();
 
         expect(manager.isMatcher).toEqual(false);
-        expect(manager.sequence.length).toEqual(4);
+        expect(manager.sequence.length).toEqual(5);
 
         expect(manager.sequence[0].constructor.name).toEqual('SelectionPhase');
         // @ts-ignore
@@ -64,6 +64,8 @@ describe('phase manager', () => {
         expect(manager.sequence[3].constructor.name).toEqual('ValidationPhase');
         expect(Object.keys(manager.sequence[3].phase).length).toEqual(1);
         expect(manager.sequence[3].phase['__all']).toBeDefined();
+
+        expect(manager.sequence[4].constructor.name).toEqual('OutputPhase');
     });
 
     it('can run an array of data', async() => {

@@ -14,9 +14,8 @@ import BooleanValidation from './lib/validations/boolean';
 import Url from './lib/validations/url';
 import Email from './lib/validations/email';
 import Ip from './lib/validations/ip';
-import Mac from './lib/validations/mac';
+import MacAddress from './lib/validations/mac_address';
 import Uuid from './lib/validations/uuid';
-import UuidLike from './lib/validations/uuid-like';
 
 import RequiredExtractions from './lib/validations/required_extractions';
 import { OperationsDict, PluginClassType, BaseOperationClass, PluginList } from '../interfaces';
@@ -38,9 +37,8 @@ class CorePlugins implements PluginClassType {
             urldecode: UrlDecode,
             hexdecode: HexDecode,
             requiredExtractions: RequiredExtractions,
-            mac: Mac,
+            mac_address: MacAddress,
             uuid: Uuid,
-            'uuid-like': UuidLike
         };
     }
 }
@@ -85,7 +83,6 @@ export {
     HexDecode,
     RequiredExtractions,
     OperationsManager,
-    Mac,
+    MacAddress,
     Uuid,
-    UuidLike
 };

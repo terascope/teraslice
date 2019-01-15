@@ -6,9 +6,11 @@ import _ from 'lodash';
 
 export default class Loader {
     private opConfig: WatcherConfig;
+    private multiValueCounter: number;
 
     constructor(opConfig: WatcherConfig) {
         this.opConfig = opConfig;
+        this.multiValueCounter = 0;
     }
 
     public async load():Promise<OperationConfig[]> {
@@ -23,6 +25,11 @@ export default class Loader {
         const results =  JSON.parse(config);
         // if its not set and its not a post process then set the selecter to *
         if (!results.selector && !results.follow && !results.other_match_required) results.selector = '*';
+        // We namespace the target_field value, so we can add them back later at the end
+        if (results.multivalue != null) {
+            results._multi_target_field = results.target_field;
+            results.target_field = `${results.target_field}${this.multiValueCounter++}`;
+        }
         return results;
     }
 
