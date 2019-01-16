@@ -188,7 +188,9 @@ export default class IndexManager {
 
     protected async waitForIndexAvailability(index: string) {
         const query = { index, q: '*', size: 1 };
-        await pRetry(() => this.client.search(query), AVAILABILITY_RETRIES);
+        await pRetry(() => this.client.search(query), {
+            retries: AVAILABILITY_RETRIES,
+        });
     }
 
     private _logger(config: IndexConfig): Logger {

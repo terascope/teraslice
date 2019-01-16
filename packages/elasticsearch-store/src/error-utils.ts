@@ -5,7 +5,7 @@ import {
     TSError,
 } from '@terascope/utils';
 
-export function normalizeError(err: any, stack?: string): TSError {
+export function normalizeError(err: any): TSError {
     let message: string;
     let statusCode = 500;
 
@@ -41,7 +41,6 @@ export function normalizeError(err: any, stack?: string): TSError {
     }
 
     const error = new TSError(message, { statusCode });
-    if (stack) error.stack = stack.replace('[MESSAGE]', message);
 
     return error;
 }
@@ -60,4 +59,8 @@ export function throwValidationError(errors: { message?: string }[]|null|undefin
 
     Error.captureStackTrace(error, throwValidationError);
     throw error;
+}
+
+export function isRetryableError(err: any): boolean {
+    return get(err, 'body.error.type') === 'es_rejected_execution_exception';
 }

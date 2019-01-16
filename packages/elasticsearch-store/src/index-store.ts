@@ -1,20 +1,10 @@
 import Ajv from 'ajv';
 import * as es from 'elasticsearch';
-import {
-    Collector,
-    DataEntity,
-    TSError,
-    Logger,
-    debugLogger
-} from '@terascope/utils';
+import * as ts from '@terascope/utils';
 import IndexManager from './index-manager';
 import * as i from './interfaces';
-import { normalizeError, throwValidationError } from './error-utils';
-import {
-    isValidClient,
-    validateIndexConfig,
-    filterBulkRetries
-} from './utils';
+import * as errs from './error-utils';
+import * as utils from './utils';
 
 export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     readonly client: es.Client;
@@ -25,19 +15,19 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     private _indexQuery: string;
     private _interval: NodeJS.Timer|undefined;
 
-    private readonly _logger: Logger;
-    private readonly _collector: Collector<BulkRequest<I>>;
+    private readonly _logger: ts.Logger;
+    private readonly _collector: ts.Collector<BulkRequest<I>>;
     private readonly _bulkMaxWait: number = 10000;
     private readonly _bulkMaxSize: number = 500;
 
     constructor(client: es.Client, config: i.IndexConfig) {
-        if (!isValidClient(client)) {
-            throw new TSError('IndexStore requires elasticsearch client', {
+        if (!utils.isValidClient(client)) {
+            throw new ts.TSError('IndexStore requires elasticsearch client', {
                 fatalError: true
             });
         }
 
-        validateIndexConfig(config);
+        utils.validateIndexConfig(config);
 
         this.client = client;
         this.config = config;
@@ -54,9 +44,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         }
 
         const debugLoggerName = `elasticseach-store:index-store:${config.name}`;
-        this._logger = config.logger || debugLogger(debugLoggerName);
+        this._logger = config.logger || ts.debugLogger(debugLoggerName);
 
-        this._collector = new Collector({
+        this._collector = new ts.Collector({
             size: this._bulkMaxSize,
             wait: this._bulkMaxWait,
         });
@@ -73,7 +63,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
                 if (validate(input)) return;
 
                 if (strict) {
-                    throwValidationError(validate.errors);
+                    errs.throwValidationError(validate.errors);
                 } else {
                     this._logger.warn('Invalid record', input, validate.errors);
                 }
@@ -170,7 +160,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Get a single document */
-    async get(id: string, params?: Partial<es.GetParams>): Promise<DataEntity<T>> {
+    async get(id: string, params?: Partial<es.GetParams>): Promise<ts.DataEntity<T>> {
         const p = this._getParams(params, { id });
 
         return this._try(async () => {
@@ -219,7 +209,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Get multiple documents at the same time */
-    async mget(body: any, params?: Partial<es.MGetParams>): Promise<DataEntity<T>[]> {
+    async mget(body: any, params?: Partial<es.MGetParams>): Promise<ts.DataEntity<T>[]> {
         const p = this._getParams(params, { body });
 
         return this._try(async () => {
@@ -272,7 +262,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Search with a given Lucene Query or Elasticsearch Query DSL */
-    async search(params: Partial<es.SearchParams>): Promise<DataEntity<T>[]> {
+    async search(params: Partial<es.SearchParams>): Promise<ts.DataEntity<T>[]> {
         const p = this._getParams(params);
         return this._try(async () => {
             const results = await this.client.search<T>(p);
@@ -298,7 +288,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     private async _bulk(records: BulkRequest<I>[], body: any) {
         const result: i.BulkResponse = await this.client.bulk({ body });
 
-        const retry = filterBulkRetries(records, result);
+        const retry = utils.filterBulkRetries(records, result);
 
         if (retry.length) {
             this._logger.warn(`Bulk request to ${this._indexQuery} resulted in ${retry.length} errors`);
@@ -315,10 +305,11 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         }, ...params);
     }
 
-    private _toRecord(result: RecordResponse<T>): DataEntity<T> {
+    private _toRecord(result: RecordResponse<T>): ts.DataEntity<T> {
         this._validate(result._source);
 
-        return DataEntity.make(result._source, {
+        // TODO make this use conventions
+        return ts.DataEntity.make(result._source, {
             _index: result._index,
             _type: result._type,
             _id: result._id,
@@ -327,14 +318,11 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     private async _try<T>(fn: i.AsyncFn<T>): Promise<T> {
-        // capture the stack here for better errors
-        const stack = new Error('[MESSAGE]').stack;
-
-        try {
-            return await fn();
-        } catch (err) {
-            throw normalizeError(err, stack);
-        }
+        return ts.pRetry(fn, {
+            retries: 100,
+            normalizeError: errs.normalizeError,
+            isRetryable: errs.isRetryableError,
+        });
     }
 }
 
