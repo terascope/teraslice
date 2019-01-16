@@ -41,30 +41,32 @@ function create(customConfig, logger) {
 
 module.exports = {
     create,
-    config_schema: {
-        host: {
-            doc: '',
-            default: ['127.0.0.1:9200']
-        },
-        sniffOnStart: {
-            doc: '',
-            default: false
-        },
-        sniffOnConnectionFault: {
-            doc: '',
-            default: false
-        },
-        requestTimeout: {
-            doc: '',
-            default: 120000
-        },
-        deadTimeout: {
-            doc: '',
-            default: 30000
-        },
-        maxRetries: {
-            doc: '',
-            default: 3
-        }
+    config_schema() {
+        return {
+            host: {
+                doc: '',
+                default: ['127.0.0.1:9200']
+            },
+            sniffOnStart: {
+                doc: '',
+                default: false
+            },
+            sniffOnConnectionFault: {
+                doc: '',
+                default: false
+            },
+            requestTimeout: {
+                doc: '',
+                default: 120000
+            },
+            deadTimeout: {
+                doc: '',
+                default: 30000
+            },
+            maxRetries: {
+                doc: '',
+                default: 3
+            }
+        };
     }
 };

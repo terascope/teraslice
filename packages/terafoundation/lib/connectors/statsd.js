@@ -13,14 +13,16 @@ function create(customConfig, logger) {
 
 module.exports = {
     create,
-    config_schema: {
-        host: {
-            doc: '',
-            default: '127.0.0.1'
-        },
-        mock: {
-            doc: '',
-            default: false
-        }
+    config_schema() {
+        return {
+            host: {
+                doc: '',
+                default: '127.0.0.1'
+            },
+            mock: {
+                doc: '',
+                default: false
+            }
+        };
     }
 };

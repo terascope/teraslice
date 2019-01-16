@@ -14,14 +14,16 @@ function create(customConfig, logger) {
 
 module.exports = {
     create,
-    config_schema: {
-        host: {
-            doc: '',
-            default: '127.0.0.1'
-        },
-        port: {
-            doc: '',
-            default: 6379
-        }
+    config_schema() {
+        return {
+            host: {
+                doc: '',
+                default: '127.0.0.1'
+            },
+            port: {
+                doc: '',
+                default: 6379
+            }
+        };
     }
 };

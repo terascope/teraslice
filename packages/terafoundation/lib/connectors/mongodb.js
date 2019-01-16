@@ -36,10 +36,12 @@ function create(customConfig, logger) {
 
 module.exports = {
     create,
-    config_schema: {
-        servers: {
-            doc: '',
-            default: 'mongodb://localhost:27017/test'
-        }
+    config_schema() {
+        return {
+            servers: {
+                doc: '',
+                default: 'mongodb://localhost:27017/test'
+            }
+        };
     }
 };

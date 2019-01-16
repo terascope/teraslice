@@ -14,22 +14,24 @@ function create(customConfig, logger) {
 
 module.exports = {
     create,
-    config_schema: {
-        user: {
-            doc: '',
-            default: 'webuser'
-        },
-        namenode_port: {
-            doc: '',
-            default: 50070
-        },
-        namenode_host: {
-            doc: '',
-            default: 'localhost'
-        },
-        path_prefix: {
-            doc: '',
-            default: '/webhdfs/v1'
-        }
+    config_schema() {
+        return {
+            user: {
+                doc: '',
+                default: 'webuser'
+            },
+            namenode_port: {
+                doc: '',
+                default: 50070
+            },
+            namenode_host: {
+                doc: '',
+                default: 'localhost'
+            },
+            path_prefix: {
+                doc: '',
+                default: '/webhdfs/v1'
+            }
+        };
     }
 };

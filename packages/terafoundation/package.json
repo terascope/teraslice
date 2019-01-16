@@ -1,6 +1,6 @@
 {
   "name": "terafoundation",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "scripts": {
     "lint": "eslint *.js lib",
     "lint:fix": "eslint --fix *.js lib",

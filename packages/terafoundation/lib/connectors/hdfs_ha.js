@@ -28,35 +28,37 @@ function create(customConfig, logger) {
 
 module.exports = {
     create,
-    config_schema: {
-        user: {
-            doc: 'user type for hdfs requests',
-            default: 'hdfs',
-            format: String
-        },
-        namenode_port: {
-            doc: 'port of hdfs',
-            default: 50070
-        },
-        namenode_host: {
-            doc: 'a single host, or multiple hosts listed in an array',
-            default: null,
-            format(val) {
-                if (typeof val === 'string') {
-                    return;
-                }
-                if (Array.isArray(val)) {
-                    if (val.length < 2) {
-                        throw new Error('namenode_host must have at least two namenodes listed in the array');
+    config_schema() {
+        return {
+            user: {
+                doc: 'user type for hdfs requests',
+                default: 'hdfs',
+                format: String
+            },
+            namenode_port: {
+                doc: 'port of hdfs',
+                default: 50070
+            },
+            namenode_host: {
+                doc: 'a single host, or multiple hosts listed in an array',
+                default: null,
+                format(val) {
+                    if (typeof val === 'string') {
+                        return;
                     }
-                    return;
+                    if (Array.isArray(val)) {
+                        if (val.length < 2) {
+                            throw new Error('namenode_host must have at least two namenodes listed in the array');
+                        }
+                        return;
+                    }
+                    throw new Error('namenode_host configuration must be set to an array for high availability or a string');
                 }
-                throw new Error('namenode_host configuration must be set to an array for high availability or a string');
+            },
+            path_prefix: {
+                doc: 'endpoint for hdfs web interface',
+                default: '/webhdfs/v1'
             }
-        },
-        path_prefix: {
-            doc: 'endpoint for hdfs web interface',
-            default: '/webhdfs/v1'
-        }
+        };
     }
 };
