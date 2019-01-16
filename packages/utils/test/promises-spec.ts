@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { waterfall, pRetry, TSError } from '../src';
+import { waterfall, pRetry, TSError, PRetryConfig } from '../src';
 
 describe('Utils', () => {
     describe('waterfall', () => {
@@ -40,15 +40,9 @@ describe('Utils', () => {
     });
 
     describe('pRetry', () => {
-        const config = {
+        const config: Partial<PRetryConfig> = {
             retries: 3,
             delay: 10,
-            isRetryable(err: any) {
-                if (err && err.message.includes('Stop')) {
-                    return false;
-                }
-                return true;
-            }
         };
 
         it('should be able to resolve on the first try', async () => {
@@ -107,7 +101,9 @@ describe('Utils', () => {
         });
 
         it('should end early with a StopError', async () => {
-            const error = new Error('Stop Error');
+            const error = new TSError('Stop Error', {
+                retryable: false
+            });
 
             const fn = jest.fn()
                 .mockRejectedValueOnce(error)

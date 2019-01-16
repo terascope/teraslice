@@ -61,5 +61,5 @@ export function isFatalError(err: any): boolean {
 }
 
 export function isRetryableError(err: any): boolean {
-    return err && err.retryable === true;
+    return err && err.retryable === true && !err.fatalError;
 }
