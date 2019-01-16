@@ -2,15 +2,28 @@
 
 set -e
 
-main() {
-    local tag="$1"
-    if [ -z "$tag" ]; then
-        echo "build-and-push.sh requires a tag as the first arg"
-        exit 1;
-    fi
+build_and_push() {
+    local slug="$1"
+    echo "* building $slug..."
+    docker build --pull --no-cache -t "$slug" .
 
-    docker build -t "terascope/teraslice-base:$tag" .
-    docker push "terascope/teraslice-base:$tag"
+    echo "* pushing $slug..."
+    docker push "$slug"
+}
+
+main() {
+    local tag slug yn
+    tag="$(jq -r '.version' ./package.json)"
+    slug="terascope/teraslice-base:v$tag"
+
+    while true; do
+        read -p "Do you want to build and push \"$slug\"? " -r yn
+        case $yn in
+            [Yy]* ) build_and_push "$slug"; break;;
+            [Nn]* ) echo; echo "OK: Bump the package.json version in this directory"; exit;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
 }
 
 main "$@"

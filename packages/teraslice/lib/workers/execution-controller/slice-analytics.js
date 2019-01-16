@@ -110,7 +110,7 @@ average memory: ${memory.average}, min: ${memory.min}, and max: ${memory.max}
 
     events.on('slice:success', onSliceSuccess);
 
-    function shutdown() {
+    async function shutdown() {
         events.removeListener('slice:success', onSliceSuccess);
     }
 

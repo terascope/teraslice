@@ -99,6 +99,7 @@ describe('when using native clustering', () => {
     describe('when passed a job without a known operation connector', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
+            context.sysconfig.teraslice.assets_directory = __dirname;
             context.sysconfig.terafoundation = {
                 connectors: {
                     elasticsearch: {
@@ -111,9 +112,10 @@ describe('when using native clustering', () => {
 
             const schema = jobSchema(context);
             const job = {
+                assets: ['fixtures'],
                 operations: [
                     {
-                        _op: 'elasticsearch_reader',
+                        _op: 'example-reader',
                         connection: 'unknown',
                     },
                     {
@@ -124,7 +126,7 @@ describe('when using native clustering', () => {
 
             expect(() => {
                 validateJobConfig(schema, job);
-            }).toThrowError(/Operation elasticsearch_reader refers to connection "unknown" which is unavailable/);
+            }).toThrowError(/Operation example-reader refers to connection "unknown" which is unavailable/);
         });
     });
 

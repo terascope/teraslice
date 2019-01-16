@@ -72,10 +72,14 @@ function getAPIEndpoint(endpoint, apiVersion) {
 
 function handleResponse(req) {
     const getErrorFromResponse = (response) => {
-        const { body } = response;
+        let { body } = response;
 
         if (_.isString(body)) {
-            return { message: body };
+            try {
+                body = JSON.parse(body);
+            } catch (err) {
+                return { message: body };
+            }
         }
 
         if (_.isPlainObject(body)) {

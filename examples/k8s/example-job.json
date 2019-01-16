@@ -3,7 +3,8 @@
     "lifecycle": "once",
     "workers": 2,
     "assets": [
-        "example"
+        "example",
+        "elasticsearch"
     ],
     "operations": [
         {
