@@ -28,7 +28,7 @@ export interface PRetryConfig {
 /**
  * A promise retry fn
 */
-export async function pRetry<T = any>(fn: PromiseFn<T>, options: Partial<PRetryConfig>): Promise<T> {
+export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetryConfig>): Promise<T> {
     const config = Object.assign({
         retries: 3,
         delay: 500,
