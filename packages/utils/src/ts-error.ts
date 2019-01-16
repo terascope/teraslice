@@ -17,3 +17,7 @@ export class TSError extends Error {
         this.fatalError = fatalError;
     }
 }
+
+export function isFatalError(err: any): boolean {
+    return err && err.isFatalError;
+}

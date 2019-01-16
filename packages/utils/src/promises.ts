@@ -1,3 +1,4 @@
+import { isFatalError } from './ts-error';
 import { promisify } from 'util';
 
 export interface PRetryConfig {
@@ -32,7 +33,7 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options: Partial<PRetryC
         retries: 3,
         delay: 500,
         isRetryable() {
-            return false;
+            return true;
         },
         normalizeError(err: any) {
             return err;
@@ -42,10 +43,11 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options: Partial<PRetryC
     try {
         return await fn();
     } catch (err) {
-        const retryable = (err && err.fatalError) || !config.isRetryable(err);
+        const retryable = !isFatalError(err) && config.isRetryable(err);
 
         if (retryable && config.retries > 1) {
             await pDelay(config.delay);
+
             config.retries--;
             config.delay *= 2;
             return pRetry(fn, config);
