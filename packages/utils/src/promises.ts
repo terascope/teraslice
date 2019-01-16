@@ -1,22 +1,57 @@
 import { promisify } from 'util';
 
+export interface PRetryConfig {
+    /**
+     * The number of retries to attempt before failing.
+     * This does not include the initial attempt
+     *
+     * @default 3
+    */
+    retries: number;
+    /**
+     * The initial time to delay before retrying the function
+     *
+     * @default 500
+    */
+    delay: number;
+    /**
+     * Add this to add an additional check to verify a function
+    */
+    isRetryable: (err: any) => boolean;
+    /**
+     * Format the error before throwing it
+    */
+    normalizeError: (err: any) => any;
+}
+
 /**
  * A promise retry fn
 */
-export async function pRetry<T = any>(fn: PromiseFn<T>, retries: number = 3, delay: number = 500): Promise<T> {
+export async function pRetry<T = any>(fn: PromiseFn<T>, options: Partial<PRetryConfig>): Promise<T> {
+    const config = Object.assign({
+        retries: 3,
+        delay: 500,
+        isRetryable() {
+            return false;
+        },
+        normalizeError(err: any) {
+            return err;
+        }
+    }, options);
+
     try {
         return await fn();
     } catch (err) {
-        if (err && (err.fatalError || err.stop)) {
-            throw err;
+        const retryable = (err && err.fatalError) || !config.isRetryable(err);
+
+        if (retryable && config.retries > 1) {
+            await pDelay(config.delay);
+            config.retries--;
+            config.delay *= 2;
+            return pRetry(fn, config);
         }
 
-        if (retries > 1) {
-            await pDelay(delay);
-            return pRetry(fn, retries - 1, delay * 2);
-        }
-
-        throw err;
+        throw config.normalizeError(err);
     }
 }
 

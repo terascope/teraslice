@@ -40,10 +40,21 @@ describe('Utils', () => {
     });
 
     describe('pRetry', () => {
+        const config = {
+            retries: 3,
+            delay: 10,
+            isRetryable(err: any) {
+                if (err && err.message.includes('Stop')) {
+                    return false;
+                }
+                return true;
+            }
+        };
+
         it('should be able to resolve on the first try', async () => {
             const fn = jest.fn().mockResolvedValue('hello');
 
-            expect(await pRetry(fn, 3, 10)).toEqual('hello');
+            expect(await pRetry(fn, config)).toEqual('hello');
 
             expect(fn).toHaveBeenCalledTimes(1);
         });
@@ -53,7 +64,7 @@ describe('Utils', () => {
                 .mockRejectedValueOnce(new Error('Uh oh'))
                 .mockResolvedValue('hi');
 
-            expect(await pRetry(fn, 3, 10)).toEqual('hi');
+            expect(await pRetry(fn, config)).toEqual('hi');
 
             expect(fn).toHaveBeenCalledTimes(2);
         });
@@ -64,7 +75,7 @@ describe('Utils', () => {
                 .mockRejectedValueOnce(new Error('Uh oh'))
                 .mockResolvedValue('howdy');
 
-            expect(await pRetry(fn, 3, 10)).toEqual('howdy');
+            expect(await pRetry(fn, config)).toEqual('howdy');
 
             expect(fn).toHaveBeenCalledTimes(3);
         });
@@ -76,7 +87,7 @@ describe('Utils', () => {
                 .mockRejectedValueOnce(new Error('Fail!'))
                 .mockResolvedValue('howdy');
 
-            await expect(pRetry(fn, 3, 10)).rejects.toThrowError('Fail!');
+            await expect(pRetry(fn, config)).rejects.toThrowError('Fail!');
 
             expect(fn).toHaveBeenCalledTimes(3);
         });
@@ -90,21 +101,19 @@ describe('Utils', () => {
                 .mockRejectedValueOnce(error)
                 .mockResolvedValue('howdy');
 
-            await expect(pRetry(fn, 3, 10)).rejects.toThrowError(error.message);
+            await expect(pRetry(fn, config)).rejects.toThrowError(error.message);
 
             expect(fn).toHaveBeenCalledTimes(1);
         });
 
         it('should end early with a StopError', async () => {
             const error = new Error('Stop Error');
-            // @ts-ignore
-            error.stop = true;
 
             const fn = jest.fn()
                 .mockRejectedValueOnce(error)
                 .mockResolvedValue('howdy');
 
-            await expect(pRetry(fn, 3, 10)).rejects.toThrowError(error.message);
+            await expect(pRetry(fn, config)).rejects.toThrowError(error.message);
 
             expect(fn).toHaveBeenCalledTimes(1);
         });
