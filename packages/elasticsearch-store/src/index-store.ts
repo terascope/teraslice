@@ -5,6 +5,7 @@ import IndexManager from './index-manager';
 import * as i from './interfaces';
 import * as errs from './error-utils';
 import * as utils from './utils';
+import { getRetryConfig } from './config';
 
 export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     readonly client: es.Client;
@@ -120,10 +121,10 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     async count(query: string, params?: Partial<es.CountParams>): Promise<number> {
         const p = this._getParams(params, { q: query });
 
-        return this._try(async () => {
+        return ts.pRetry(async () => {
             const { count } = await this.client.count(p);
             return count;
-        });
+        }, getRetryConfig());
     }
 
     /**
@@ -137,10 +138,10 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         const defaults = { refresh: true };
         const p = this._getParams(defaults, params, { id, body: doc });
 
-        return this._try(async () => {
+        return ts.pRetry(async () => {
             const { created } = await this.client.create(p);
             return created;
-        });
+        }, getRetryConfig());
     }
 
     async flush(flushAll = false) {
@@ -156,17 +157,17 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             if (data != null) bulkRequest.push(data);
         }
 
-        await this._try(() => this._bulk(records, bulkRequest));
+        await ts.pRetry(() => this._bulk(records, bulkRequest), getRetryConfig());
     }
 
     /** Get a single document */
     async get(id: string, params?: Partial<es.GetParams>): Promise<ts.DataEntity<T>> {
         const p = this._getParams(params, { id });
 
-        return this._try(async () => {
+        return ts.pRetry(async () => {
             const result = await this.client.get<T>(p);
             return this._toRecord(result);
-        });
+        }, getRetryConfig());
     }
 
     /**
@@ -196,9 +197,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             body: doc
         });
 
-        return this._try(async () => {
+        return ts.pRetry(async () => {
             return this.client.index(p);
-        });
+        }, getRetryConfig());
     }
 
     /**
@@ -212,12 +213,12 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     async mget(body: any, params?: Partial<es.MGetParams>): Promise<ts.DataEntity<T>[]> {
         const p = this._getParams(params, { body });
 
-        return this._try(async () => {
+        return ts.pRetry(async () => {
             const { docs } = await this.client.mget<T>(p);
             if (!docs) return [];
 
             return docs.map(this._toRecord);
-        });
+        }, getRetryConfig());
     }
 
     /**
@@ -228,9 +229,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             index: this._indexQuery
         }, params);
 
-        return this._try(() => {
+        return ts.pRetry(() => {
             return this.client.indices.refresh(p);
-        });
+        }, getRetryConfig());
     }
 
     /**
@@ -241,7 +242,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             id,
         });
 
-        await this._try(() => this.client.delete(p));
+        await ts.pRetry(() => this.client.delete(p), getRetryConfig());
     }
 
     /**
@@ -264,10 +265,31 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     /** Search with a given Lucene Query or Elasticsearch Query DSL */
     async search(params: Partial<es.SearchParams>): Promise<ts.DataEntity<T>[]> {
         const p = this._getParams(params);
-        return this._try(async () => {
+
+        return ts.pRetry(async () => {
             const results = await this.client.search<T>(p);
+
+            // @ts-ignore because failures doesn't exist in definition
+            const { failures, failed } = results._shards;
+
+            if (failed) {
+                const failureTypes = failures.flatMap((shard: any) => shard.reason.type);
+                const reasons = ts.uniq(failureTypes);
+
+                if (reasons.length > 1 || reasons[0] !== 'es_rejected_execution_exception') {
+                    const errorReason = reasons.join(' | ');
+                    this._logger.error('Not all shards returned successful, shard errors: ', errorReason);
+                    throw new ts.TSError(errorReason);
+                } else {
+                    const error = new ts.TSError('Retryable Search Failure', {
+                        retryable: true,
+                    });
+                    throw error;
+                }
+            }
+
             return results.hits.hits.map(this._toRecord);
-        });
+        }, getRetryConfig());
     }
 
     /** Update a document with a given id */
@@ -282,7 +304,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             body: { doc }
         });
 
-        await this._try(() => this.client.update(p));
+        await ts.pRetry(() => this.client.update(p), getRetryConfig());
     }
 
     private async _bulk(records: BulkRequest<I>[], body: any) {
@@ -314,14 +336,6 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             _type: result._type,
             _id: result._id,
             _version: result._version,
-        });
-    }
-
-    private async _try<T>(fn: i.AsyncFn<T>): Promise<T> {
-        return ts.pRetry(fn, {
-            retries: 100,
-            normalizeError: errs.normalizeError,
-            isRetryable: errs.isRetryableError,
         });
     }
 }

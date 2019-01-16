@@ -1,20 +1,17 @@
 import get from 'lodash.get';
-import {
-    parseError,
-    isFunction,
-    TSError,
-} from '@terascope/utils';
+import * as ts from '@terascope/utils';
 
-export function normalizeError(err: any): TSError {
+export function normalizeError(err: any): ts.TSError {
     let message: string;
     let statusCode = 500;
+    let retryable = false;
 
-    if (err && isFunction(err.toJSON)) {
+    if (err && ts.isFunction(err.toJSON)) {
         const errObj = err.toJSON();
         message = get(errObj, 'msg', err.toString());
         statusCode = get(errObj, 'statusCode') || get(errObj, 'status') || statusCode;
     } else {
-        message = parseError(err);
+        message = ts.parseError(err);
     }
 
     if (message.includes('document missing') || message.includes('Not Found')) {
@@ -35,12 +32,19 @@ export function normalizeError(err: any): TSError {
         statusCode = 422;
     }
 
+    if (message.includes('es_rejected_execution_exception')) {
+        retryable = true;
+    }
+
     if (message.indexOf('unknown error') === 0) {
         message = 'Unknown ElasticSearch Error, Cluster may be Unavailable';
         statusCode = 502;
     }
 
-    const error = new TSError(message, { statusCode });
+    const error = new ts.TSError(message, {
+        statusCode,
+        retryable,
+    });
 
     return error;
 }
@@ -53,14 +57,10 @@ export function throwValidationError(errors: { message?: string }[]|null|undefin
         return err.message;
     }).join(', ');
 
-    const error = new TSError(errorMsg, {
+    const error = new ts.TSError(errorMsg, {
         statusCode: 422
     });
 
     Error.captureStackTrace(error, throwValidationError);
     throw error;
-}
-
-export function isRetryableError(err: any): boolean {
-    return get(err, 'body.error.type') === 'es_rejected_execution_exception';
 }

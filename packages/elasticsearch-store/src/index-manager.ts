@@ -1,27 +1,19 @@
 import get from 'lodash.get';
 import * as es from 'elasticsearch';
-import { pRetry, TSError, Logger, debugLogger } from '@terascope/utils';
+import * as ts from '@terascope/utils';
 import { IndexConfig } from './interfaces';
-import {
-    isTemplatedIndex,
-    isValidClient,
-    validateIndexConfig,
-    isTimeSeriesIndex,
-    timeseriesIndex
-} from './utils';
+import * as utils from './utils';
+import { getRetryConfig } from './config';
 
-const isTest = process.env.NODE_ENV === 'test';
-const AVAILABILITY_RETRIES = isTest ? 3 : 100;
-
-const _loggers = new WeakMap<IndexConfig, Logger>();
+const _loggers = new WeakMap<IndexConfig, ts.Logger>();
 
 /** Manage ElasticSearch Indicies */
 export default class IndexManager {
     readonly client: es.Client;
 
     constructor(client: es.Client) {
-        if (!isValidClient(client)) {
-            throw new TSError('IndexManager requires elasticsearch client', {
+        if (!utils.isValidClient(client)) {
+            throw new ts.TSError('IndexManager requires elasticsearch client', {
                 fatalError: true
             });
         }
@@ -37,18 +29,18 @@ export default class IndexManager {
     }
 
     formatIndexName(config: IndexConfig, useWildcard = true) {
-        validateIndexConfig(config);
+        utils.validateIndexConfig(config);
 
         const { name } = config;
         const { dataVersion, schemaVersion } = this.getVersions(config);
 
         const indexName = `${name}-v${dataVersion}-s${schemaVersion}`;
-        if (isTimeSeriesIndex(config.indexSchema) && !useWildcard) {
+        if (utils.isTimeSeriesIndex(config.indexSchema) && !useWildcard) {
             const timeSeriesFormat = get(config, 'indexSchema.rollover_frequency');
-            return timeseriesIndex(indexName, timeSeriesFormat);
+            return utils.timeseriesIndex(indexName, timeSeriesFormat);
         }
 
-        if (isTemplatedIndex(config.indexSchema) && useWildcard) {
+        if (utils.isTemplatedIndex(config.indexSchema) && useWildcard) {
             return `${indexName}*`;
         }
 
@@ -56,7 +48,7 @@ export default class IndexManager {
     }
 
     formatTemplateName(config: IndexConfig) {
-        validateIndexConfig(config);
+        utils.validateIndexConfig(config);
 
         const { name } = config;
         const { dataVersion } = this.getVersions(config);
@@ -65,7 +57,7 @@ export default class IndexManager {
     }
 
     getVersions(config: IndexConfig): { dataVersion: number, schemaVersion: number; } {
-        validateIndexConfig(config);
+        utils.validateIndexConfig(config);
 
         const {
             indexSchema = { version: 1 },
@@ -84,7 +76,7 @@ export default class IndexManager {
      * @returns a boolean that indicates whether the index was created or not
     */
     async indexSetup(config: IndexConfig): Promise<boolean> {
-        validateIndexConfig(config);
+        utils.validateIndexConfig(config);
 
         const indexName = this.formatIndexName(config, false);
         const logger = this._logger(config);
@@ -105,7 +97,7 @@ export default class IndexManager {
 
         body.mappings[config.name] = config.indexSchema.mapping;
 
-        if (isTemplatedIndex(config.indexSchema)) {
+        if (utils.isTemplatedIndex(config.indexSchema)) {
             const templateName = this.formatTemplateName(config);
             const { schemaVersion } = this.getVersions(config);
 
@@ -188,19 +180,18 @@ export default class IndexManager {
 
     protected async waitForIndexAvailability(index: string) {
         const query = { index, q: '*', size: 1 };
-        await pRetry(() => this.client.search(query), {
-            retries: AVAILABILITY_RETRIES,
-        });
+
+        await ts.pRetry(() => this.client.search(query), getRetryConfig());
     }
 
-    private _logger(config: IndexConfig): Logger {
+    private _logger(config: IndexConfig): ts.Logger {
         if (config.logger) return config.logger;
 
         const logger = _loggers.get(config);
         if (logger) return logger;
 
         const debugLoggerName = `elasticseach-store:index-manager:${config.name}`;
-        const newLogger = debugLogger(debugLoggerName);
+        const newLogger = ts.debugLogger(debugLoggerName);
 
         _loggers.set(config, newLogger);
         return newLogger;
