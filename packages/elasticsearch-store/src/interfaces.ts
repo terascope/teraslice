@@ -1,3 +1,5 @@
+import { Logger } from '@terascope/utils';
+
 /** A versioned Index Configuration */
 export interface IndexConfig {
     /**
@@ -35,6 +37,13 @@ export interface IndexConfig {
      * The number of records to accumulate before sending the bulk request
     */
     bulkMaxSize?: number;
+
+    /**
+     * Logger to use for debugging and certian internal errors
+     *
+     * @defaults to a debug logger
+    */
+    logger?: Logger;
 }
 
 /** ElasticSearch Index Schema, Mapping and Version */

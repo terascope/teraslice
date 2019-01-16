@@ -1,11 +1,14 @@
 import 'jest-extended';
 import es from 'elasticsearch';
+import { debugLogger } from '@terascope/utils';
 import * as simple from './helpers/simple-index';
 import * as template from './helpers/template-index';
 import { ELASTICSEARCH_HOST } from './helpers/config';
 import { IndexManager, timeseriesIndex, IndexConfig } from '../src';
 
-describe('IndexManager->create()', () => {
+describe('IndexManager->indexSetup()', () => {
+    const logger = debugLogger('index-manager-setup');
+
     describe('using a mapped index', () => {
         const client = new es.Client({
             host: ELASTICSEARCH_HOST,
@@ -23,7 +26,8 @@ describe('IndexManager->create()', () => {
             indexSettings: {
                 'index.number_of_shards': 1,
                 'index.number_of_replicas': 1
-            }
+            },
+            logger,
         };
 
         const index = `${config.name}-v1-s1`;
@@ -87,7 +91,8 @@ describe('IndexManager->create()', () => {
             indexSettings: {
                 'index.number_of_shards': 1,
                 'index.number_of_replicas': 1
-            }
+            },
+            logger,
         };
 
         const index = `${config.name}-v1-s1`;
@@ -194,7 +199,8 @@ describe('IndexManager->create()', () => {
             indexSettings: {
                 'index.number_of_shards': 1,
                 'index.number_of_replicas': 1
-            }
+            },
+            logger,
         };
 
         const index = `${config.name}-v1-*`;

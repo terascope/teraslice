@@ -1,9 +1,8 @@
 import get from 'lodash.get';
 import * as es from 'elasticsearch';
-import { pRetry, TSError } from '@terascope/utils';
+import { pRetry, TSError, Logger, debugLogger } from '@terascope/utils';
 import { IndexConfig } from './interfaces';
 import {
-    isSimpleIndex,
     isTemplatedIndex,
     isValidClient,
     validateIndexConfig,
@@ -13,6 +12,8 @@ import {
 
 const isTest = process.env.NODE_ENV === 'test';
 const AVAILABILITY_RETRIES = isTest ? 3 : 100;
+
+const _loggers = new WeakMap<IndexConfig, Logger>();
 
 /** Manage ElasticSearch Indicies */
 export default class IndexManager {
@@ -86,8 +87,13 @@ export default class IndexManager {
         validateIndexConfig(config);
 
         const indexName = this.formatIndexName(config, false);
+        const logger = this._logger(config);
 
-        if (await this.exists(indexName)) return false;
+        if (await this.exists(indexName)) {
+            logger.debug(`Index "${indexName}" already exists`);
+            return false;
+        }
+
         if (config.indexSchema == null) return false;
 
         const settings = Object.assign({}, config.indexSettings);
@@ -99,13 +105,6 @@ export default class IndexManager {
 
         body.mappings[config.name] = config.indexSchema.mapping;
 
-        if (isSimpleIndex(config.indexSchema)) {
-            await this.client.indices.create({
-                index: indexName,
-                body,
-            });
-        }
-
         if (isTemplatedIndex(config.indexSchema)) {
             const templateName = this.formatTemplateName(config);
             const { schemaVersion } = this.getVersions(config);
@@ -113,13 +112,18 @@ export default class IndexManager {
             body.template = templateName;
             body.version = schemaVersion;
 
+            logger.debug(`Upserting template "${templateName}"...`, body);
             await this.upsertTemplate(body);
-
-            await this.client.indices.create({
-                index: indexName,
-                body,
-            });
         }
+
+        logger.debug(`Creating "${indexName}"...`, body);
+
+        await this.client.indices.create({
+            index: indexName,
+            body,
+        });
+
+        logger.trace(`Checking index availability for "${indexName}"...`);
 
         await this.waitForIndexAvailability(indexName);
         const isActive = await this.isIndexActive(indexName);
@@ -127,6 +131,8 @@ export default class IndexManager {
         if (!isActive) {
             throw new Error(`Index "${indexName}" is not active`);
         }
+
+        logger.trace(`Index "${indexName}" is ready for use`);
 
         return true;
     }
@@ -183,6 +189,19 @@ export default class IndexManager {
     protected async waitForIndexAvailability(index: string) {
         const query = { index, q: '*', size: 1 };
         await pRetry(() => this.client.search(query), AVAILABILITY_RETRIES);
+    }
+
+    private _logger(config: IndexConfig): Logger {
+        if (config.logger) return config.logger;
+
+        const logger = _loggers.get(config);
+        if (logger) return logger;
+
+        const debugLoggerName = `elasticseach-store:index-manager:${config.name}`;
+        const newLogger = debugLogger(debugLoggerName);
+
+        _loggers.set(config, newLogger);
+        return newLogger;
     }
 }
 

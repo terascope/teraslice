@@ -5,7 +5,8 @@ import {
     pDelay,
     DataEntity,
     Omit,
-    TSError
+    TSError,
+    debugLogger
 } from '@terascope/utils';
 import {
     SimpleRecord,
@@ -18,6 +19,7 @@ import { IndexStore, IndexConfig } from '../src';
 
 describe('IndexStore', () => {
     const client = new es.Client({});
+    const logger = debugLogger('index-store-spec');
 
     describe('when constructed with nothing', () => {
         it('should throw an error', () => {
@@ -50,7 +52,8 @@ describe('IndexStore', () => {
             'index.number_of_shards': 1,
             'index.number_of_replicas': 1
         },
-        bulkMaxSize: 4,
+        logger,
+        bulkMaxSize: 50,
         bulkMaxWait: 300
     };
 
@@ -295,7 +298,8 @@ describe('IndexStore', () => {
 
         describe('when bulk sending records', () => {
             const keyword = 'bulk-record';
-            const records: SimpleRecordInput[] = times(9, (n) => ({
+
+            const records: SimpleRecordInput[] = times(100, (n) => ({
                 test_id: `bulk-${n + 1}`,
                 test_keyword: keyword,
                 test_object: { bulk: true },
@@ -322,7 +326,8 @@ describe('IndexStore', () => {
             it('should be able to search the records', async () => {
                 const result = await indexStore.search({
                     q: `test_keyword: ${keyword}`,
-                    sort: 'test_id'
+                    sort: 'test_number',
+                    size: records.length + 1
                 });
 
                 expect(DataEntity.isDataEntityArray(result)).toBeTrue();
@@ -343,7 +348,8 @@ describe('IndexStore', () => {
 
                 const result = await indexStore.search({
                     q: `test_keyword: ${keyword}`,
-                    sort: 'test_id'
+                    sort: 'test_id',
+                    size: records.length + 1
                 });
 
                 expect(result[0]).toHaveProperty('test_object', {
@@ -362,7 +368,8 @@ describe('IndexStore', () => {
 
                 const result = await indexStore.search({
                     q: `test_keyword: ${keyword}`,
-                    sort: 'test_id'
+                    sort: 'test_id',
+                    size: records.length + 1
                 });
 
                 expect(result).toBeArrayOfSize(0);

@@ -1,6 +1,12 @@
 import Ajv from 'ajv';
 import * as es from 'elasticsearch';
-import { Collector, DataEntity, TSError } from '@terascope/utils';
+import {
+    Collector,
+    DataEntity,
+    TSError,
+    Logger,
+    debugLogger
+} from '@terascope/utils';
 import IndexManager from './index-manager';
 import * as i from './interfaces';
 import { normalizeError, throwValidationError } from './error-utils';
@@ -14,9 +20,12 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     readonly client: es.Client;
     readonly config: i.IndexConfig;
     readonly manager: IndexManager;
+
     private _validate: ValidateFn<I|T>;
     private _indexQuery: string;
     private _interval: NodeJS.Timer|undefined;
+
+    private readonly _logger: Logger;
     private readonly _collector: Collector<BulkRequest<I>>;
     private readonly _bulkMaxWait: number = 10000;
     private readonly _bulkMaxSize: number = 500;
@@ -44,6 +53,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             this._bulkMaxWait = this.config.bulkMaxWait;
         }
 
+        const debugLoggerName = `elasticseach-store:index-store:${config.name}`;
+        this._logger = config.logger || debugLogger(debugLoggerName);
+
         this._collector = new Collector({
             size: this._bulkMaxSize,
             wait: this._bulkMaxWait,
@@ -55,11 +67,15 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
                 useDefaults: true,
                 format: allFormatters ? 'full' : 'fast'
             });
+
             const validate = ajv.compile(schema);
             this._validate = (input: T|I) => {
-                const valid = validate(input);
-                if (!valid && strict) {
+                if (validate(input)) return;
+
+                if (strict) {
                     throwValidationError(validate.errors);
+                } else {
+                    this._logger.warn('Invalid record', input, validate.errors);
                 }
             };
         } else {
@@ -127,6 +143,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      */
     async create(doc: I, id?: string, params?: Partial<es.CreateDocumentParams>): Promise<boolean> {
         this._validate(doc);
+
         const defaults = { refresh: true };
         const p = this._getParams(defaults, params, { id, body: doc });
 
@@ -138,7 +155,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
     async flush(flushAll = false) {
         const records = flushAll ? this._collector.flushAll() : this._collector.getBatch();
-        if (!records) return;
+        if (!records || !records.length) return;
+
+        this._logger.debug(`Flushing ${records.length} requests to ${this._indexQuery}`);
 
         const bulkRequest: any[] = [];
 
@@ -147,7 +166,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             if (data != null) bulkRequest.push(data);
         }
 
-        return this._try(() => this._bulk(records, bulkRequest));
+        await this._try(() => this._bulk(records, bulkRequest));
     }
 
     /** Get a single document */
@@ -167,10 +186,11 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         await this.manager.indexSetup(this.config);
 
         const ms = Math.round(this._bulkMaxWait / 2);
+
         this._interval = setInterval(() => {
             this.flush()
                 .catch((err) => {
-                    console.error(err);
+                    this._logger.error('Failure flushing in the background', err);
                 });
         }, ms);
     }
@@ -180,6 +200,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      */
     async index(doc: I, params?: Partial<es.IndexDocumentParams<T>>) {
         this._validate(doc);
+
         const defaults = { refresh: true };
         const p = this._getParams(defaults, params, {
             body: doc
@@ -240,7 +261,12 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         if (this._interval) {
             clearInterval(this._interval);
         }
-        await this.flush(true);
+
+        if (this._collector.length) {
+            this._logger.info(`Flushing ${this._collector.length} records on shutdown`);
+
+            await this.flush(true);
+        }
 
         this.client.close();
     }
@@ -269,18 +295,24 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         await this._try(() => this.client.update(p));
     }
 
+    private async _bulk(records: BulkRequest<I>[], body: any) {
+        const result: i.BulkResponse = await this.client.bulk({ body });
+
+        const retry = filterBulkRetries(records, result);
+
+        if (retry.length) {
+            this._logger.warn(`Bulk request to ${this._indexQuery} resulted in ${retry.length} errors`);
+
+            this._logger.trace('Retrying bulk requests', retry);
+            this._collector.add(retry);
+        }
+    }
+
     private _getParams(...params: any[]) {
         return Object.assign({
             index: this._indexQuery,
             type: this.config.name
         }, ...params);
-    }
-
-    private async _bulk(records: BulkRequest<I>[], body: any) {
-        const result: i.BulkResponse = await this.client.bulk({ body });
-
-        const retry = filterBulkRetries(records, result);
-        if (retry.length) this._collector.add(retry);
     }
 
     private _toRecord(result: RecordResponse<T>): DataEntity<T> {

@@ -12,7 +12,7 @@ export function normalizeError(err: any, stack?: string): TSError {
     if (err && isFunction(err.toJSON)) {
         const errObj = err.toJSON();
         message = get(errObj, 'msg', err.toString());
-        statusCode = get(errObj, 'statusCode', statusCode);
+        statusCode = get(errObj, 'statusCode') || get(errObj, 'status') || statusCode;
     } else {
         message = parseError(err);
     }
@@ -29,6 +29,15 @@ export function normalizeError(err: any, stack?: string): TSError {
 
     if (message.includes('action_request_validation_exception')) {
         statusCode = 422;
+    }
+
+    if (message.includes('action_request_validation_exception')) {
+        statusCode = 422;
+    }
+
+    if (message.indexOf('unknown error') === 0) {
+        message = 'Unknown ElasticSearch Error, Cluster may be Unavailable';
+        statusCode = 502;
     }
 
     const error = new TSError(message, { statusCode });
