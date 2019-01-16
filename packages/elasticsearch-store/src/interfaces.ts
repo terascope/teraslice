@@ -121,11 +121,26 @@ export interface DataSchema {
 
 export type AsyncFn<T> = () => Promise<T>;
 
-// export enum BulkAction {
-//     Index = 'index',
-//     Create = 'create',
-//     Delete = 'delete',
-//     Update = 'update',
-// }
-
 export type BulkAction = 'index'|'create'|'delete'|'update';
+
+export interface BulkResponseItem {
+    error?: {
+        type: string;
+        reason: string;
+    };
+    status?: number;
+    /**
+     * This only exists in 6.x
+    */
+    _seq_no?: number;
+}
+
+export type BulkResponseItems = {
+    [key in BulkAction]?: BulkResponseItem;
+};
+
+export interface BulkResponse {
+    errors: boolean;
+    took: number;
+    items: BulkResponseItems[];
+}

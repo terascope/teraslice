@@ -7,6 +7,7 @@ import { normalizeError, throwValidationError } from './error-utils';
 import {
     isValidClient,
     validateIndexConfig,
+    filterBulkRetries
 } from './utils';
 
 export default class IndexStore<T extends Object, I extends Partial<T> = T> {
@@ -146,11 +147,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             if (data != null) bulkRequest.push(data);
         }
 
-        return this._try(() => {
-            return this.client.bulk({
-                body: bulkRequest,
-            });
-        });
+        return this._try(() => this._bulk(records, bulkRequest));
     }
 
     /** Get a single document */
@@ -279,8 +276,16 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         }, ...params);
     }
 
+    private async _bulk(records: BulkRequest<I>[], body: any) {
+        const result: i.BulkResponse = await this.client.bulk({ body });
+
+        const retry = filterBulkRetries(records, result);
+        if (retry.length) this._collector.add(retry);
+    }
+
     private _toRecord(result: RecordResponse<T>): DataEntity<T> {
         this._validate(result._source);
+
         return DataEntity.make(result._source, {
             _index: result._index,
             _type: result._type,

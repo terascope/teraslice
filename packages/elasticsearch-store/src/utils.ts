@@ -3,6 +3,8 @@ import {
     isString,
     isInteger,
     getTypeOf,
+    getFirst,
+    TSError,
 } from '@terascope/utils';
 import * as es from 'elasticsearch';
 import * as i from './interfaces';
@@ -86,4 +88,51 @@ export function timeseriesIndex(index: string, timeSeriesFormat: i.TimeSeriesFor
     // remove -* or * at the end of the index name
     const indexName = index.replace(/\-{0,1}\*$/, '');
     return `${indexName}-${dateStr.slice(0, format).replace(/-/g, '.')}`;
+}
+
+type BulkResponseItemResult = {
+    item: i.BulkResponseItem,
+    action: i.BulkAction
+};
+
+export function getBulkResponseItem(input: any = {}): BulkResponseItemResult  {
+    const item = getFirst(Object.values(input));
+    const action = getFirst(Object.keys(input)) as i.BulkAction;
+
+    return {
+        item,
+        action,
+    };
+}
+
+export function filterBulkRetries<T>(records: T[], result: i.BulkResponse): T[] {
+    if (!result.errors) return [];
+
+    const retry = [];
+    const { items } = result;
+    const errorTypes = ['document_already_exists_exception', 'document_missing_exception'];
+
+    for (let i = 0; i < items.length; i += 1) {
+        // key could either be create or delete etc, just want the actual data at the value spot
+        const { item } = getBulkResponseItem(items[i]);
+
+        // On a create request if a document exists it's not an error.
+        // are there cases where this is incorrect?
+        if (item.error && item.status !== 409) {
+            const type = get(item, 'error.type', '');
+
+            if (type === 'es_rejected_execution_exception') {
+                // retry this record
+                if (records[i] != null) {
+                    retry.push(records[i]);
+                }
+            } else if (errorTypes.includes(type)) {
+                const error = new TSError(`${type}--${item.error.reason}`);
+                Error.captureStackTrace(error, filterBulkRetries);
+                throw error;
+            }
+        }
+    }
+
+    return retry;
 }
