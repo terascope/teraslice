@@ -1,6 +1,6 @@
 {
     "name": "teraslice",
-    "version": "0.48.0-rc2",
+    "version": "0.48.0",
     "description": "Slice and dice your Elasticsearch data",
     "bin": "service.js",
     "main": "index.js",
