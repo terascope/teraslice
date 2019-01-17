@@ -29,6 +29,7 @@ export interface OperationConfig {
     case?: 'lowercase' | 'uppercase';
     multivalue?: boolean;
     _multi_target_field?: string;
+    value?: any;
 }
 
 export interface SelectorTypes {

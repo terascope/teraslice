@@ -16,8 +16,9 @@ import Email from './lib/validations/email';
 import Ip from './lib/validations/ip';
 import MacAddress from './lib/validations/mac_address';
 import Uuid from './lib/validations/uuid';
-
+import PhoneNumber from './lib/validations/phone_number';
 import RequiredExtractions from './lib/validations/required_extractions';
+import { Validator, ValidatorPlugins } from './lib/validations/validator';
 import { OperationsDict, PluginClassType, BaseOperationClass, PluginList } from '../interfaces';
 
 class CorePlugins implements PluginClassType {
@@ -37,7 +38,8 @@ class CorePlugins implements PluginClassType {
             urldecode: UrlDecode,
             hexdecode: HexDecode,
             requiredExtractions: RequiredExtractions,
-            mac_address: MacAddress,
+            macaddress: MacAddress,
+            phonenumber: PhoneNumber,
             uuid: Uuid,
         };
     }
@@ -48,7 +50,8 @@ class OperationsManager {
 
     constructor(pluginList: PluginList = []) {
         pluginList.push(CorePlugins);
-
+        // @ts-ignore FIXME: try to remove this ignore
+        pluginList.push(ValidatorPlugins);
         const operations = pluginList.reduce((plugins, PluginClass) => {
             const plugin = new PluginClass();
             const pluginOps = plugin.init();
@@ -85,4 +88,7 @@ export {
     OperationsManager,
     MacAddress,
     Uuid,
+    PhoneNumber,
+    Validator,
+    CorePlugins
 };

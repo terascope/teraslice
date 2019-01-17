@@ -1,6 +1,6 @@
 {
   "name": "ts-transforms",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "An ETL framework built upon xlucene-evaluator",
   "srcMain": "src/index.ts",
   "main": "dist/index.js",
@@ -32,6 +32,7 @@
     "@terascope/job-components": "^0.13.1",
     "@types/validator": "^10.9.0",
     "@types/yargs": "^12.0.1",
+    "awesome-phonenumber": "^2.3.3",
     "lodash": "^4.17.11",
     "valid-url": "^1.0.9",
     "validator": "^10.10.0",
