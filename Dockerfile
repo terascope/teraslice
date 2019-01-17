@@ -10,6 +10,7 @@ RUN mkdir -p /app/source/packages/teraslice \
 # copy just the package.json's so wecan have faster build times
 COPY package.json yarn.lock lerna.json /app/source/
 COPY packages/teraslice/package.json /app/source/packages/teraslice/package.json
+COPY packages/terafoundation/package.json /app/source/packages/terafoundation/package.json
 COPY packages/teraslice-messaging/package.json /app/source/packages/teraslice-messaging/package.json
 COPY packages/job-components/package.json /app/source/packages/job-components/package.json
 COPY packages/elasticsearch-api/package.json /app/source/packages/elasticsearch-api/package.json
@@ -17,7 +18,7 @@ COPY packages/error-parser/package.json /app/source/packages/error-parser/packag
 COPY packages/queue/package.json /app/source/packages/queue/package.json
 COPY packages/utils/package.json /app/source/packages/utils/package.json
 
-RUN yarn --frozen-lockfile --link-duplicates \
+RUN yarn --link-duplicates \
     && yarn bootstrap:prod \
     && yarn cache clean
 
