@@ -1,4 +1,4 @@
-import { ast } from '../../../utils';
+import { AST } from '../../../utils';
 
 export default class BaseType {
     private fnID: number;
@@ -12,27 +12,25 @@ export default class BaseType {
         this.fnID = 0;
         this.injectorFns = {};
         if (fnBaseName) this.fnBaseName = fnBaseName;
-       
+
         this.filterFnBuilder = (cb: Function): void => {
             this.fnID += 1;
             this.injectorFns[`${this.fnBaseName}${this.fnID}`] = cb;
         };
 
         this.createParsedField = (field?: string): string => {
-            const { fnBaseName, fnID } = this;
             const args = field !== undefined ? `data.${field}` : 'data';
-            return `${fnBaseName}${fnID}(${args})`;
+            return `${this.fnBaseName}${this.fnID}(${args})`;
         };
 
         this.injectTypeFilterFns = () => {
-            const { injectorFns } = this;
-            return Object.keys(injectorFns).length > 0 ? injectorFns : null;
+            return Object.keys(this.injectorFns).length > 0 ? this.injectorFns : null;
         };
     }
     // TODO: look to see if this can be combined with other walkAst method
-    public walkAst(ast: ast, cb: Function) {
+    public walkAst(ast: AST, cb: Function) {
 
-        function walk(ast: ast, _field?: string) {
+        function walk(ast: AST, _field?: string) {
             const topField = ast.field || _field;
             const node = cb(ast, topField);
 
@@ -49,7 +47,7 @@ export default class BaseType {
         return walk(ast);
     }
 
-    public processAst(ast: ast) {
+    public processAst(ast: AST) {
         return ast;
     }
 

@@ -1,6 +1,6 @@
 
 import BaseType from './base';
-import { bindThis, ast } from '../../../utils';
+import { bindThis, AST } from '../../../utils';
 import _ from 'lodash';
 
 // TODO: handle datemath
@@ -14,10 +14,11 @@ export default class DateType extends BaseType {
         bindThis(this, DateType);
     }
 
-    processAst(ast: ast): ast {
+    processAst(ast: AST): AST {
+        // tslint:disable-next-line no-this-assignment
         const { fields } = this;
 
-        function parseDates(node: ast, _field?: string) {
+        function parseDates(node: AST, _field?: string) {
             const topField = node.field || _field;
 
             function convert(value: string | number): any {
@@ -38,10 +39,9 @@ export default class DateType extends BaseType {
     }
 
     formatData(data: object): object {
-        const { fields } = this;
         const clone = _.cloneDeep(data);
 
-        for (const key in fields) {
+        for (const key in this.fields) {
             if (clone[key]) {
                 clone[key] = new Date(data[key]).getTime();
             }

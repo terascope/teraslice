@@ -5,9 +5,10 @@ import createCircle from '@turf/circle';
 import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';
 import { lineString, Units, } from '@turf/helpers';
-import BaseType from './base';
-import { bindThis, ast } from '../../../utils';
+// @ts-ignore TODO we should add types
 import geoHash from 'latlon-geohash';
+import BaseType from './base';
+import { bindThis, AST } from '../../../utils';
 
 // feet
 const MileUnits = {
@@ -67,7 +68,7 @@ const geoParameters = {
 
 const fnBaseName = 'geoFn';
 
-interface geoResults{
+interface GeoResults {
     geoField: string;
     geoBoxTopLeft?: string;
     geoBoxBottomRight?: string;
@@ -75,7 +76,7 @@ interface geoResults{
     geoDistance?: string;
 }
 
-interface geoDistance {
+interface GeoDistance {
     distance: number;
     unit: Units;
 }
@@ -84,9 +85,9 @@ type geoPointArr = [number, number];
 type geoPointStr = string;
 type geoObjShort = {lat: string | number, lon: string | number};
 type geoObjLong = {latitude: string | number, longitude: string | number};
-type geoPoint = geoPointArr | geoPointStr | geoObjShort | geoObjLong
+type geoPoint = geoPointArr | geoPointStr | geoObjShort | geoObjLong;
 
-//TODO: allow ranges to be input and compare the two regions if they intersect
+// TODO: allow ranges to be input and compare the two regions if they intersect
 
 export default class GeoType extends BaseType {
     private fields: object;
@@ -97,17 +98,18 @@ export default class GeoType extends BaseType {
         bindThis(this, GeoType);
     }
 
-    processAst(ast: ast): ast {
+    processAst(ast: AST): AST {
+        // tslint:disable-next-line no-this-assignment
         const { walkAst, filterFnBuilder, createParsedField, fields } = this;
 
         function getLonAndLat(input: any, isInit?: boolean): [number, number] {
             const lat = input.lat || input.latitude;
             const lon = input.lon || input.longitude;
             if (isInit && (!lat || !lon)) throw new Error('geopoint must contain keys lat,lon or latitude/longitude');
-        
+
             return [_.toNumber(lat), _.toNumber(lon)];
         }
-        
+
         function parsePoint(point: geoPoint | number[] | object, isInit?: boolean): number[] | null {
             let results = null;
 
@@ -117,34 +119,34 @@ export default class GeoType extends BaseType {
                 } else {
                     try {
                         results = _.values(geoHash.decode(point));
-                    } catch(err){}
+                    } catch (err) {}
                 }
             }
 
             if (Array.isArray(point)) results = point.map(_.toNumber);
 
             if (_.isPlainObject(point)) {
-                results = getLonAndLat(point, isInit)
+                results = getLonAndLat(point, isInit);
             }
 
-            if (isInit && !results) throw new Error(`incorrect point given to parse, point:${point}`)
+            if (isInit && !results) throw new Error(`incorrect point given to parse, point:${point}`);
 
             // data incoming is lat,lon and we must return lon,lat
             if (results) return results.reverse();
             return results;
         }
-        function parseDistance(str: string): geoDistance {
+        function parseDistance(str: string): GeoDistance {
             const trimed = str.trim();
             const matches = trimed.match(/(\d+)(.*)$/);
-            if (!matches) throw new Error(`Incorrect geo distance parameter provided: ${str}`)
-    
+            if (!matches) throw new Error(`Incorrect geo distance parameter provided: ${str}`);
+
             const distance = Number(matches[1]);
             const unit = UNIT_DICTONARY[matches[2]];
-            if (!unit) throw new Error(`incorrect distance unit provided: ${matches[2]}`)
+            if (!unit) throw new Error(`incorrect distance unit provided: ${matches[2]}`);
             return { distance, unit };
         }
 
-        function makeGeoQueryFn(geoResults: geoResults): Function {
+        function makeGeoQueryFn(geoResults: GeoResults): Function {
             const {
                 geoBoxTopLeft,
                 geoBoxBottomRight,
@@ -153,10 +155,16 @@ export default class GeoType extends BaseType {
             } = geoResults;
 
             let polygon: any;
-            let initSetup = true;
+            const initSetup = true;
 
-            if (geoBoxTopLeft && geoBoxBottomRight) {
-            const line = lineString([parsePoint(geoBoxTopLeft, initSetup), parsePoint(geoBoxBottomRight, initSetup)]);
+            if (geoBoxTopLeft != null && geoBoxBottomRight != null) {
+                const line = lineString([
+                    // @ts-ignore TODO this can return null we should handle that case
+                    parsePoint(geoBoxTopLeft, initSetup),
+                    // @ts-ignore TODO this can return null we should handle that case
+                    parsePoint(geoBoxBottomRight, initSetup)
+                ]);
+
                 const box = bbox(line);
                 polygon = bboxPolygon(box);
             }
@@ -164,7 +172,12 @@ export default class GeoType extends BaseType {
             if (geoPoint && geoDistance) {
                 const { distance, unit } = parseDistance(geoDistance);
                 const config = { units: unit };
-                polygon =  createCircle(parsePoint(geoPoint, initSetup), distance, config);
+                polygon =  createCircle(
+                    // @ts-ignore TODO this can return null we should handle that case
+                    parsePoint(geoPoint, initSetup),
+                    distance,
+                    config
+                );
             }
 
             // Nothing matches so return false
@@ -176,12 +189,12 @@ export default class GeoType extends BaseType {
             };
         }
 
-        function parseGeoAst(node: ast, _field:string): ast {
+        function parseGeoAst(node: AST, _field:string): AST {
             const topField = node.field || _field;
 
             if (topField && fields[topField]) {
                 const geoQueryParameters = { geoField: topField };
-                function gatherGeoQueries(node: ast) {
+                function gatherGeoQueries(node: AST) {
                     const field = node.field;
                     if (field && geoParameters[field]) {
                         geoQueryParameters[geoParameters[field]] = node.term;

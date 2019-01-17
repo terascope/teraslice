@@ -5,6 +5,7 @@
         "outDir": "dist"
     },
     "include": [
+        "./peg/engine",
         "./src/**/*",
         "./test/**/*"
     ]

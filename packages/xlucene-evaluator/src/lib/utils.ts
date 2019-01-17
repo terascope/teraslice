@@ -10,9 +10,9 @@ export function bindThis(instance:object, cls:object): void {
         });
 }
 
-export interface ast {
-    right?: ast;
-    left?: ast;
+export interface AST {
+    right?: AST;
+    left?: AST;
     field?: string;
     operator?: string;
     term?: string|number;
@@ -20,6 +20,6 @@ export interface ast {
     inclusive_max?: string|number;
     term_min?: string|number;
     term_max?: string|number;
-    parens?: Boolean,
-    regexpr?: Boolean
+    parens?: Boolean;
+    regexpr?: Boolean;
 }

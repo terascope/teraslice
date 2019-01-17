@@ -13,7 +13,7 @@
         "test": "tests"
     },
     "scripts": {
-        "build": "node_modules/pegjs/bin/pegjs -o peg/peg_engine.js peg/lucene.grammar && tsc --project tsconfig.build.json --pretty",
+        "build": "pegjs -o peg/peg_engine.js peg/lucene.grammar && tsc --project tsconfig.build.json --pretty",
         "lint": "tslint --project tsconfig.json --format verbose",
         "lint:fix": "npm run lint -- --fix",
         "prepare": "npm run build",
@@ -36,8 +36,7 @@
         "ip6addr": "^0.2.2",
         "is-cidr": "^3.0.0",
         "latlon-geohash": "^1.1.0",
-        "lodash": "^4.17.11",
-        "pegjs": "^0.10.0"
+        "lodash": "^4.17.11"
     },
     "devDependencies": {
         "@types/jest": "^23.3.12",
@@ -46,6 +45,7 @@
         "babel-jest": "^23.6.0",
         "jest": "^23.6.0",
         "jest-extended": "^0.11.0",
+        "pegjs": "^0.10.0",
         "rimraf": "^2.6.3",
         "ts-jest": "^23.10.5",
         "tslint": "^5.12.1",

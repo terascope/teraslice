@@ -1,16 +1,18 @@
 
+// @ts-ignore TODO we should probably add types for this
 import parser from '../../../peg/peg_engine';
-import { ast } from '../utils';
+import { AST } from '../utils';
 
-export interface cb {
-    (node: ast, _field: string, depth: number): void
+export interface CB {
+    (node: AST, _field: string, depth: number): void;
 }
 
 export default class LuceneQueryParser {
-    _ast: ast;
+    _ast: AST;
     constructor() {
         this._ast = {};
     }
+
     public parse(luceneStr: string): void {
         try {
             this._ast = parser.parse(luceneStr);
@@ -19,12 +21,13 @@ export default class LuceneQueryParser {
         }
     }
 
-    public walkLuceneAst(preCb: cb, postCb?: cb, _argAst?: ast): any {
+    public walkLuceneAst(preCb: CB, postCb?: CB, _argAst?: AST): any {
+        // tslint:disable-next-line no-this-assignment
         const { _ast } = this;
         const ast = _argAst || _ast;
 
-        function walk(node: ast, _field: string, depth: number): void {
-            const topField = (node.field && node.field !== "<implicit>") ? node.field : _field;
+        function walk(node: AST, _field: string, depth: number): void {
+            const topField = (node.field && node.field !== '<implicit>') ? node.field : _field;
 
             if (node.left) {
                 walk(node.left, topField, depth + 1);

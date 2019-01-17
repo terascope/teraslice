@@ -1,7 +1,7 @@
 'use strict';
 
 import BaseType from './base';
-import { bindThis, ast } from '../../../utils';
+import { bindThis, AST } from '../../../utils';
 import _ from 'lodash';
 
 const fnBaseName = 'strFn';
@@ -16,7 +16,7 @@ export default class StringType extends BaseType {
     private isWildCard(term:string):boolean {
         let bool = false;
         if (typeof term === 'string') {
-           if (term.match('[\?+\*+]')) bool = true;
+            if (term.match('[\?+\*+]')) bool = true;
         }
         return bool;
     }
@@ -27,18 +27,20 @@ export default class StringType extends BaseType {
 
     private match(field: any, wildCardQuery: string): boolean {
         const regex = new RegExp(`^${wildCardQuery}$`);
-        return typeof field === 'string' && field.match(regex) !== null
+        return typeof field === 'string' && field.match(regex) !== null;
     }
 
-    //city.*   city.deeper.*   city.*.*
+    // city.*   city.deeper.*   city.*.*
     private recurseDownObject(field:string, object:object):object[] {
-        const { match, parseWildCard } = this ;
-        const results = [];
+        // tslint:disable-next-line no-this-assignment
+        const { match, parseWildCard } = this;
+
+        const results: any[] = [];
         const fieldSequence = field.split('.').map(parseWildCard);
 
         function recurse(arr:string[], obj:object) {
             if (arr.length === 0) return;
-            const field = arr.shift();
+            const field = arr.shift() as string;
 
             _.forOwn(obj, (value, key) => {
                 if (match(key, field)) {
@@ -56,7 +58,8 @@ export default class StringType extends BaseType {
         return results;
     }
 
-    public processAst(ast: ast): ast {
+    public processAst(ast: AST): AST {
+        // tslint:disable-next-line no-this-assignment
         const {
             walkAst,
             isWildCard,
@@ -67,7 +70,7 @@ export default class StringType extends BaseType {
             match
         } = this;
 
-        function parseRegex(node: ast, _field: string): ast {
+        function parseRegex(node: AST, _field: string): AST {
             const topField = node.field || _field;
 
             if (node.regexpr) {
@@ -82,8 +85,8 @@ export default class StringType extends BaseType {
             if (isWildCard(node.field as string)) {
                 const term = parseWildCard(node.term as string);
 
-                filterFnBuilder((data: ast): boolean => {
-                    const resultsArray = recurseDownObject(node.field, data)
+                filterFnBuilder((data: AST): boolean => {
+                    const resultsArray = recurseDownObject(node.field || '', data);
                     let bool = false;
 
                     if (resultsArray.length === 0) return bool;
@@ -91,10 +94,10 @@ export default class StringType extends BaseType {
                     _.each(resultsArray, (value) => {
                         try {
                             if (match(value, term)) bool = true;
-                        } catch(err) {}
+                        } catch (err) {}
                     });
 
-                    return bool
+                    return bool;
                 });
 
                 return { field: '__parsed', term: createParsedField() };
@@ -110,7 +113,7 @@ export default class StringType extends BaseType {
 
                 return { field: '__parsed', term: createParsedField(topField) };
             }
-            
+
             return node;
         }
         return walkAst(ast, parseRegex);

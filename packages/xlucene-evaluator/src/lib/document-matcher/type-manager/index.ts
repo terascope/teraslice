@@ -6,7 +6,7 @@ import GeoType from './types/geo';
 import StringType from './types/string';
 import BaseType from './types/base';
 
-import { ast } from '../../utils';
+import { AST } from '../../utils';
 
 const typeMapping = {
     date: DateType,
@@ -26,7 +26,7 @@ export default class TypeManager {
         const results = {};
 
         // by default we allow wildcard and regex searches on all fields
-        typeList.push(new StringType())
+        typeList.push(new StringType());
 
         for (const field in typeConfig) {
             const type = typeConfig[field];
@@ -44,7 +44,7 @@ export default class TypeManager {
         return typeList;
     }
 
-    public processAst(ast: ast): ast {
+    public processAst(ast: AST): AST {
         return this.typeList.reduce((ast, type) => {
             return type.processAst(ast);
         }, ast);
