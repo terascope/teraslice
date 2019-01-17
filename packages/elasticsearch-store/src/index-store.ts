@@ -5,6 +5,7 @@ import IndexManager from './index-manager';
 import * as i from './interfaces';
 import * as errs from './error-utils';
 import * as utils from './utils';
+import * as fp from './fp-utils';
 import { getRetryConfig } from './config';
 
 export default class IndexStore<T extends Object, I extends Partial<T> = T> {
@@ -20,6 +21,8 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     private readonly _collector: ts.Collector<BulkRequest<I>>;
     private readonly _bulkMaxWait: number = 10000;
     private readonly _bulkMaxSize: number = 500;
+    private readonly _getEventTime: (input: T) => number;
+    private readonly _getIngestTime: (input: T) => number;
 
     constructor(client: es.Client, config: i.IndexConfig) {
         if (!utils.isValidClient(client)) {
@@ -74,6 +77,8 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         }
 
         this._toRecord = this._toRecord.bind(this);
+        this._getIngestTime = fp.getTimeByField(this.config.ingestTimeField);
+        this._getEventTime = fp.getTimeByField(this.config.eventTimeField);
     }
 
     /**
@@ -330,11 +335,13 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     private _toRecord(result: RecordResponse<T>): ts.DataEntity<T> {
         this._validate(result._source);
 
-        // TODO make this use conventions
         return ts.DataEntity.make(result._source, {
+            _key: result._id,
+            _processTime: Date.now(),
+            _ingestTime: this._getIngestTime(result._source),
+            _eventTime: this._getEventTime(result._source),
             _index: result._index,
             _type: result._type,
-            _id: result._id,
             _version: result._version,
         });
     }

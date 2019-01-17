@@ -29,7 +29,8 @@
     "dependencies": {
         "@terascope/utils": "^0.1.1",
         "ajv": "^6.6.2",
-        "lodash.get": "^4.4.2"
+        "lodash.get": "^4.4.2",
+        "rambda": "^2.3.0"
     },
     "devDependencies": {
         "@types/jest": "^23.3.12",

@@ -44,6 +44,16 @@ export interface IndexConfig {
      * @defaults to a debug logger
     */
     logger?: Logger;
+
+    /**
+     * Ingest Time field on the source record
+    */
+    ingestTimeField?: string;
+
+    /**
+     * Event Time field from the source record
+    */
+    eventTimeField?: string;
 }
 
 /** ElasticSearch Index Schema, Mapping and Version */

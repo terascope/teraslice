@@ -54,7 +54,9 @@ describe('IndexStore', () => {
         },
         logger,
         bulkMaxSize: 50,
-        bulkMaxWait: 300
+        bulkMaxWait: 300,
+        ingestTimeField: '_created',
+        eventTimeField: '_updated',
     };
 
     describe('when constructed without a data schema', () => {
@@ -190,11 +192,21 @@ describe('IndexStore', () => {
 
                 expect(DataEntity.isDataEntity(r)).toBeTrue();
                 expect(r).toEqual(record);
-                expect(r.getMetadata()).toMatchObject({
+
+                const metadata = r.getMetadata();
+                expect(metadata).toMatchObject({
                     _index: index,
-                    _id: record.test_id,
+                    _key: record.test_id,
                     _type: 'test__store'
                 });
+
+                expect(metadata._processTime).toBeNumber();
+
+                const ingestTime = record._created ? new Date(record._created).getTime() : null;
+                expect(metadata).toHaveProperty('_ingestTime', ingestTime);
+
+                const eventTime = record._updated ? new Date(record._updated).getTime() : null;
+                expect(metadata).toHaveProperty('_eventTime', eventTime);
             });
 
             it('should throw when getting a record that does not exist', async () => {

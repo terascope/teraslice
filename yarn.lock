@@ -7443,6 +7443,11 @@ quick-lru@^1.0.0:
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-1.1.0.tgz#4360b17c61136ad38078397ff11416e186dcfbb8"
   integrity sha1-Q2CxfGETatOAeDl/8RQW4Ybc+7g=
 
+rambda@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/rambda/-/rambda-2.3.0.tgz#0f29d45b59bacaa1d0f0ebf04f9fe4737eaf2c5d"
+  integrity sha512-AZC4wrmBLfH5Wb+CSTYqizRQwBD5geFtrJdSs4Jg1L06e5IngKQ08tQAe8w9ftGUu8vuMfih16DptMRiPolnZA==
+
 randomatic@^3.0.0:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/randomatic/-/randomatic-3.1.1.tgz#b776efc59375984e36c537b2f51a1f0aff0da1ed"
