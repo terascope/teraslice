@@ -1,11 +1,11 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
-import { validateIndexConfig } from '../src/error-utils';
 import {
     isSimpleIndex,
     isTemplatedIndex,
     isTimeSeriesIndex,
-} from '../src/fp-utils';
+    validateIndexConfig,
+} from '../src/utils';
 
 describe('ElasticSearch Store Utils', () => {
     describe('#isSimpleIndex', () => {

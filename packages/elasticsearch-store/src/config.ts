@@ -1,7 +1,5 @@
 import { PRetryConfig } from '@terascope/utils';
-import {
-    normalizeError,
-} from './error-utils';
+import { normalizeError } from './utils';
 
 const isTestMode = process.env.NODE_ENV === 'test';
 

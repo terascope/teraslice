@@ -1,8 +1,6 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import * as utils from './utils';
-import * as errs from './error-utils';
-import * as fp from './fp-utils';
 import { IndexConfig } from './interfaces';
 import { getRetryConfig } from './config';
 
@@ -13,7 +11,7 @@ export default class IndexManager {
     readonly client: es.Client;
 
     constructor(client: es.Client) {
-        if (!fp.isValidClient(client)) {
+        if (!utils.isValidClient(client)) {
             throw new ts.TSError('IndexManager requires elasticsearch client', {
                 fatalError: true
             });
@@ -30,18 +28,18 @@ export default class IndexManager {
     }
 
     formatIndexName(config: IndexConfig, useWildcard = true) {
-        errs.validateIndexConfig(config);
+        utils.validateIndexConfig(config);
 
         const { name } = config;
         const { dataVersion, schemaVersion } = this.getVersions(config);
 
         const indexName = `${name}-v${dataVersion}-s${schemaVersion}`;
-        if (fp.isTimeSeriesIndex(config.indexSchema) && !useWildcard) {
-            const timeSeriesFormat = fp.getRolloverFrequency(config);
+        if (utils.isTimeSeriesIndex(config.indexSchema) && !useWildcard) {
+            const timeSeriesFormat = utils.getRolloverFrequency(config);
             return utils.timeseriesIndex(indexName, timeSeriesFormat);
         }
 
-        if (fp.isTemplatedIndex(config.indexSchema) && useWildcard) {
+        if (utils.isTemplatedIndex(config.indexSchema) && useWildcard) {
             return `${indexName}*`;
         }
 
@@ -49,7 +47,7 @@ export default class IndexManager {
     }
 
     formatTemplateName(config: IndexConfig) {
-        errs.validateIndexConfig(config);
+        utils.validateIndexConfig(config);
 
         const { name } = config;
         const { dataVersion } = this.getVersions(config);
@@ -58,7 +56,7 @@ export default class IndexManager {
     }
 
     getVersions(config: IndexConfig): { dataVersion: number, schemaVersion: number; } {
-        errs.validateIndexConfig(config);
+        utils.validateIndexConfig(config);
 
         const {
             indexSchema = { version: 1 },
@@ -77,7 +75,7 @@ export default class IndexManager {
      * @returns a boolean that indicates whether the index was created or not
     */
     async indexSetup(config: IndexConfig): Promise<boolean> {
-        errs.validateIndexConfig(config);
+        utils.validateIndexConfig(config);
 
         const indexName = this.formatIndexName(config, false);
         const logger = this._logger(config);
@@ -98,7 +96,7 @@ export default class IndexManager {
 
         body.mappings[config.name] = config.indexSchema.mapping;
 
-        if (fp.isTemplatedIndex(config.indexSchema)) {
+        if (utils.isTemplatedIndex(config.indexSchema)) {
             const templateName = this.formatTemplateName(config);
             const { schemaVersion } = this.getVersions(config);
 
@@ -134,10 +132,10 @@ export default class IndexManager {
         const stats = await this.client.indices.recovery({ index });
         if (stats == null || !Object.keys(stats).length) return false;
 
-        const getShardsPath = fp.shardsPath(index);
+        const getShardsPath = utils.shardsPath(index);
         const shards = getShardsPath(stats);
 
-        return fp.verifyIndexShards(shards);
+        return utils.verifyIndexShards(shards);
     }
 
     /**

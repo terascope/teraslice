@@ -1,23 +1,22 @@
+import * as R from 'rambda';
 import * as ts from '@terascope/utils';
-import * as i from './interfaces';
-import * as fp from './fp-utils';
 
 export function normalizeError(err: any): ts.TSError {
-    let message = '';
-    let statusCode = 500;
+    let message: string = '';
+    let statusCode: number = 500;
     let retryable = false;
 
     if (err && ts.isFunction(err.toJSON)) {
         const errObj = err.toJSON() as object;
-        message = fp.getErrorMessage(errObj);
-        statusCode = fp.getStatusCode(errObj);
+        message = getErrorMessage(errObj);
+        statusCode = getStatusCode(errObj);
     }
 
     if (!message) {
         message = ts.parseError(err);
     }
     if (!statusCode) {
-        statusCode = fp.getStatusCode(err);
+        statusCode = getStatusCode(err);
     }
 
     if (message.includes('document missing') || message.includes('Not Found')) {
@@ -55,11 +54,11 @@ export function normalizeError(err: any): ts.TSError {
     return error;
 }
 
-export function throwValidationError(errors: i.ErrorLike[]|null|undefined): string|null {
+export function throwValidationError(errors: ErrorLike[]|null|undefined): string|null {
     if (errors == null) return null;
     if (!errors.length) return null;
 
-    const errorMsg = fp.getErrorMessages(errors);
+    const errorMsg = getErrorMessages(errors);
 
     const error = new ts.TSError(errorMsg, {
         statusCode: 422
@@ -69,41 +68,39 @@ export function throwValidationError(errors: i.ErrorLike[]|null|undefined): stri
     throw error;
 }
 
-export function validateIndexConfig(config: any): config is i.IndexConfig {
-    const errors: string[] = [];
+export const getErrorMessage: (error: ErrorLike) => string = R.pipe(
+    R.ifElse(
+        R.is(String),
+        R.identity,
+        R.ifElse(
+            R.has('message'),
+            R.path('message'),
+            R.path('msg'),
+        )
+    ),
+    R.defaultTo('Unknown Error'),
+);
 
-    if (config == null) {
-        errors.push('IndexConfig cannot be empty');
-    }
+export const getErrorMessages: (errors: ErrorLike[]) => string = R.pipe(
+    // @ts-ignore
+    R.map(getErrorMessage),
+    R.join(', '),
+);
 
-    if (config && (!ts.isString(config.name) || !config.name || config.name.includes('-'))) {
-        errors.push('Invalid name, must be a non-empty string and cannot contain a "-"');
-    }
+export const getErrorType = R.pathOr('', ['error', 'type']);
 
-    const {
-        indexSchema = { version: 1 },
-        version = 1
-    } = config || {};
+export const getStatusCode: (error: ErrorLike) => number = R.pipe(
+    R.ifElse(
+        R.has('statusCode'),
+        R.path('statusCode'),
+        R.path('status')
+    ),
+    R.defaultTo(500)
+);
 
-    if (!ts.isInteger(indexSchema.version)) {
-        errors.push(`Index Version must a Integer, got "${ts.getTypeOf(indexSchema.version)}"`);
-    }
-
-    if (!ts.isInteger(version)) {
-        errors.push(`Data Version must a Integer, got "${ts.getTypeOf(version)}"`);
-    }
-
-    if (indexSchema.version < 1) {
-        errors.push(`Index Version must be greater than 0, got "${indexSchema.version}"`);
-    }
-
-    if (version < 1) {
-        errors.push(`Data Version must be greater than 0, got "${version}"`);
-    }
-
-    if (errors.length) {
-        throwValidationError(errors.map((message) => ({ message })));
-    }
-
-    return true;
-}
+export type ErrorLike = {
+    message?: string;
+    msg?: string;
+    statusCode?: number;
+    status?: number;
+}|string;

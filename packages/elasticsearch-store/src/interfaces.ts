@@ -164,9 +164,4 @@ export interface BulkResponse {
     items: BulkResponseItems[];
 }
 
-export interface ErrorLike {
-    message?: string;
-    msg?: string;
-    statusCode?: number;
-    status?: number;
-}
+export type Shard = { primary: boolean, stage: string };

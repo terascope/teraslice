@@ -3,9 +3,7 @@ import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import IndexManager from './index-manager';
 import * as i from './interfaces';
-import * as errs from './error-utils';
 import * as utils from './utils';
-import * as fp from './fp-utils';
 import { getRetryConfig } from './config';
 
 export default class IndexStore<T extends Object, I extends Partial<T> = T> {
@@ -25,13 +23,13 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     private readonly _getIngestTime: (input: T) => number;
 
     constructor(client: es.Client, config: i.IndexConfig) {
-        if (!fp.isValidClient(client)) {
+        if (!utils.isValidClient(client)) {
             throw new ts.TSError('IndexStore requires elasticsearch client', {
                 fatalError: true
             });
         }
 
-        errs.validateIndexConfig(config);
+        utils.validateIndexConfig(config);
 
         this.client = client;
         this.config = config;
@@ -67,7 +65,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
                 if (validate(input)) return;
 
                 if (strict) {
-                    errs.throwValidationError(validate.errors);
+                    utils.throwValidationError(validate.errors);
                 } else {
                     this._logger.warn('Invalid record', input, validate.errors);
                 }
@@ -77,8 +75,8 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         }
 
         this._toRecord = this._toRecord.bind(this);
-        this._getIngestTime = fp.getTimeByField(this.config.ingestTimeField);
-        this._getEventTime = fp.getTimeByField(this.config.eventTimeField);
+        this._getIngestTime = utils.getTimeByField(this.config.ingestTimeField);
+        this._getEventTime = utils.getTimeByField(this.config.eventTimeField);
     }
 
     /**
