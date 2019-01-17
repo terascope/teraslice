@@ -25,13 +25,13 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     private readonly _getIngestTime: (input: T) => number;
 
     constructor(client: es.Client, config: i.IndexConfig) {
-        if (!utils.isValidClient(client)) {
+        if (!fp.isValidClient(client)) {
             throw new ts.TSError('IndexStore requires elasticsearch client', {
                 fatalError: true
             });
         }
 
-        utils.validateIndexConfig(config);
+        errs.validateIndexConfig(config);
 
         this.client = client;
         this.config = config;

@@ -163,3 +163,10 @@ export interface BulkResponse {
     took: number;
     items: BulkResponseItems[];
 }
+
+export interface ErrorLike {
+    message?: string;
+    msg?: string;
+    statusCode?: number;
+    status?: number;
+}

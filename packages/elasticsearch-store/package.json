@@ -29,12 +29,10 @@
     "dependencies": {
         "@terascope/utils": "^0.1.1",
         "ajv": "^6.6.2",
-        "lodash.get": "^4.4.2",
         "rambda": "^2.3.0"
     },
     "devDependencies": {
         "@types/jest": "^23.3.12",
-        "@types/lodash.get": "^4.4.4",
         "@types/node": "^10.12.18",
         "@types/semver": "^5.5.0",
         "babel-core": "^6.0.0",

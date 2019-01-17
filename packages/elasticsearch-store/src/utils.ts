@@ -1,4 +1,3 @@
-import get from 'lodash.get';
 import {
     isString,
     isInteger,
@@ -6,21 +5,10 @@ import {
     getFirst,
     TSError,
 } from '@terascope/utils';
+import * as fp from './fp-utils';
 import * as es from 'elasticsearch';
 import * as i from './interfaces';
 import { throwValidationError } from './error-utils';
-
-export function isSimpleIndex(input?: i.IndexSchema): boolean {
-    return get(input, 'mapping') != null && !get(input, 'template', false);
-}
-
-export function isTemplatedIndex(input?: i.IndexSchema): boolean {
-    return get(input, 'mapping') != null && !!get(input, 'template', false);
-}
-
-export function isTimeSeriesIndex(input?: i.IndexSchema): boolean {
-    return isTemplatedIndex(input) && !!get(input, 'timeseries', false);
-}
 
 export function isValidClient(input: any): input is es.Client {
     if (input == null) return false;
@@ -119,7 +107,7 @@ export function filterBulkRetries<T>(records: T[], result: i.BulkResponse): T[] 
         // On a create request if a document exists it's not an error.
         // are there cases where this is incorrect?
         if (item.error && item.status !== 409) {
-            const type = get(item, 'error.type', '');
+            const type = fp.getErrorType(item);
 
             if (type === 'es_rejected_execution_exception') {
                 // retry this record

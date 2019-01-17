@@ -1,17 +1,23 @@
-import get from 'lodash.get';
 import * as ts from '@terascope/utils';
+import * as i from './interfaces';
+import * as fp from './fp-utils';
 
 export function normalizeError(err: any): ts.TSError {
-    let message: string;
+    let message = '';
     let statusCode = 500;
     let retryable = false;
 
     if (err && ts.isFunction(err.toJSON)) {
-        const errObj = err.toJSON();
-        message = get(errObj, 'msg', err.toString());
-        statusCode = get(errObj, 'statusCode') || get(errObj, 'status') || statusCode;
-    } else {
+        const errObj = err.toJSON() as object;
+        message = fp.getErrorMessage(errObj);
+        statusCode = fp.getStatusCode(errObj);
+    }
+
+    if (!message) {
         message = ts.parseError(err);
+    }
+    if (!statusCode) {
+        statusCode = fp.getStatusCode(err);
     }
 
     if (message.includes('document missing') || message.includes('Not Found')) {
@@ -49,13 +55,11 @@ export function normalizeError(err: any): ts.TSError {
     return error;
 }
 
-export function throwValidationError(errors: { message?: string }[]|null|undefined): string|null {
+export function throwValidationError(errors: i.ErrorLike[]|null|undefined): string|null {
     if (errors == null) return null;
     if (!errors.length) return null;
 
-    const errorMsg = errors.map((err) => {
-        return err.message;
-    }).join(', ');
+    const errorMsg = fp.getErrorMessages(errors);
 
     const error = new ts.TSError(errorMsg, {
         statusCode: 422
@@ -63,4 +67,43 @@ export function throwValidationError(errors: { message?: string }[]|null|undefin
 
     Error.captureStackTrace(error, throwValidationError);
     throw error;
+}
+
+export function validateIndexConfig(config: any): config is i.IndexConfig {
+    const errors: string[] = [];
+
+    if (config == null) {
+        errors.push('IndexConfig cannot be empty');
+    }
+
+    if (config && (!ts.isString(config.name) || !config.name || config.name.includes('-'))) {
+        errors.push('Invalid name, must be a non-empty string and cannot contain a "-"');
+    }
+
+    const {
+        indexSchema = { version: 1 },
+        version = 1
+    } = config || {};
+
+    if (!ts.isInteger(indexSchema.version)) {
+        errors.push(`Index Version must a Integer, got "${ts.getTypeOf(indexSchema.version)}"`);
+    }
+
+    if (!ts.isInteger(version)) {
+        errors.push(`Data Version must a Integer, got "${ts.getTypeOf(version)}"`);
+    }
+
+    if (indexSchema.version < 1) {
+        errors.push(`Index Version must be greater than 0, got "${indexSchema.version}"`);
+    }
+
+    if (version < 1) {
+        errors.push(`Data Version must be greater than 0, got "${version}"`);
+    }
+
+    if (errors.length) {
+        throwValidationError(errors.map((message) => ({ message })));
+    }
+
+    return true;
 }
