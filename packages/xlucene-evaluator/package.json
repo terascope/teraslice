@@ -13,14 +13,15 @@
         "test": "tests"
     },
     "scripts": {
+        "lint": "tslint -p tsconfig.build.json -t verbose -e '**/*.json'",
+        "lint:fix": "yarn lint --fix",
+        "prepublishOnly": "yarn build",
         "build": "pegjs -o peg/peg_engine.js peg/lucene.grammar && tsc --project tsconfig.build.json --pretty",
-        "lint": "tslint --project tsconfig.json --format verbose",
-        "lint:fix": "npm run lint -- --fix",
-        "prepare": "npm run build",
-        "build:watch": "npm run build --watch",
+        "build:prod": "pegjs -o peg/peg_engine.js peg/lucene.grammar && tsc --project tsconfig.build.json",
+        "build:watch": "yarn build --watch",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand true --verbose false"
+        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
     },
     "author": "Terascope, LLC <info@terascope.io>",
     "license": "MIT",
