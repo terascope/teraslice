@@ -1,58 +1,71 @@
 {
-  "name": "ts-transforms",
-  "version": "0.9.0",
-  "description": "An ETL framework built upon xlucene-evaluator",
-  "srcMain": "src/index.ts",
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
-  "directories": {
-    "lib": "dist",
-    "test": "test"
-  },
-  "engines": {
-    "node": ">=8.0.0"
-  },
-  "bin": {
-    "ts-transform": "./bin/ts-transform.js",
-    "ts-match": "./bin/ts-transform.js"
-  },
-  "scripts": {
-    "prepare": "npm run build",
-    "lint": "tslint --project tsconfig.json --format verbose",
-    "lint:fix": "yarn lint --fix",
-    "build": "rimraf dist; tsc --project tsconfig.json --pretty",
-    "build:watch": "yarn build --watch",
-    "test": "jest",
-    "test:watch": "jest --forceExit=true --coverage=false --notify --watch --onlyChanged",
-    "test:debug": "env DEBUG='*teraslice*' jest --forceExit=true --detectOpenHandles --coverage=false --runInBand",
-    "ts-transform": "./bin/ts-transform.js",
-    "ts-match": "./bin/ts-transform.js"
-  },
-  "dependencies": {
-    "@terascope/job-components": "^0.13.1",
-    "@types/validator": "^10.9.0",
-    "@types/yargs": "^12.0.1",
-    "awesome-phonenumber": "^2.3.3",
-    "lodash": "^4.17.11",
-    "valid-url": "^1.0.9",
-    "validator": "^10.10.0",
-    "xlucene-evaluator": "^0.2.1",
-    "yargs": "^12.0.5"
-  },
-  "devDependencies": {
-    "@types/jest": "^23.3.7",
-    "@types/lodash": "^4.14.117",
-    "@types/node": "^10.12.12",
-    "@types/valid-url": "^1.0.2",
-    "jest": "^23.6.0",
-    "jest-extended": "^0.11.0",
-    "rimraf": "^2.6.2",
-    "ts-jest": "^23.10.4",
-    "tslint": "^5.11.0",
-    "tslint-config-airbnb": "^5.11.0",
-    "typescript": "^3.2.1"
-  },
-  "repository": "https://github.com/terascope/ts-transforms.git",
-  "author": "Terascope, LLC <info@terascope.io>",
-  "license": "MIT"
+    "name": "ts-transforms",
+    "version": "0.9.0",
+    "description": "An ETL framework built upon xlucene-evaluator",
+    "publishConfig": {
+        "access": "public"
+    },
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-test-harness#readme",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "author": "Terascope, LLC <info@terascope.io>",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/terascope/teraslice.git"
+    },
+    "license": "MIT",
+    "srcMain": "src/index.ts",
+    "main": "dist/index.js",
+    "typings": "dist/index.d.ts",
+    "files": [
+        "bin/**/*",
+        "dist/**/*"
+    ],
+    "directories": {
+        "lib": "dist",
+        "test": "test"
+    },
+    "bin": {
+        "ts-transform": "./bin/ts-transform.js",
+        "ts-match": "./bin/ts-transform.js"
+    },
+    "scripts": {
+        "lint": "tslint -p tsconfig.build.json -t verbose -e '**/*.json'",
+        "lint:fix": "yarn lint --fix",
+        "prepublishOnly": "yarn build",
+        "build": "rimraf ./dist; tsc --project tsconfig.build.json --pretty",
+        "build:prod": "tsc --project tsconfig.build.json",
+        "build:watch": "yarn build --watch",
+        "test": "jest",
+        "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
+        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+    },
+    "dependencies": {
+        "@terascope/job-components": "^0.13.1",
+        "@types/validator": "^10.9.0",
+        "@types/yargs": "^12.0.1",
+        "awesome-phonenumber": "^2.3.3",
+        "lodash": "^4.17.11",
+        "valid-url": "^1.0.9",
+        "validator": "^10.10.0",
+        "xlucene-evaluator": "^0.2.1",
+        "yargs": "^12.0.5"
+    },
+    "devDependencies": {
+        "@types/jest": "^23.3.7",
+        "@types/lodash": "^4.14.117",
+        "@types/node": "^10.12.12",
+        "@types/valid-url": "^1.0.2",
+        "jest": "^23.6.0",
+        "jest-extended": "^0.11.0",
+        "rimraf": "^2.6.2",
+        "ts-jest": "^23.10.4",
+        "tslint": "^5.11.0",
+        "tslint-config-airbnb": "^5.11.0",
+        "typescript": "^3.2.1"
+    },
+    "engines": {
+        "node": ">=8.0.0"
+    }
 }
