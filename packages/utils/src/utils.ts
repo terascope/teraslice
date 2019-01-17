@@ -16,6 +16,16 @@ export function toString(val: any): string {
     return JSON.stringify(val);
 }
 
+/** Check if an input is empty, similar to lodash.isEmpty */
+export function isEmpty(val?: any): boolean {
+    if (val == null) return true;
+    if (val.size != null) return !val.size;
+    if (typeof val === 'object') return !Object.keys(val).length;
+    if (val.length != null) return !val.length;
+
+    return true;
+}
+
 /** JSON encoded buffer into a json object */
 export function parseJSON<T = object>(buf: Buffer|string): T {
     if (!Buffer.isBuffer(buf) && !isString(buf)) {

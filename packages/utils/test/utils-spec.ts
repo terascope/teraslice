@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { DataEntity, isPlainObject, parseJSON, getTypeOf  } from '../src';
+import { DataEntity, isPlainObject, parseJSON, getTypeOf, isEmpty } from '../src';
 
 describe('Utils', () => {
     describe('isPlainObject', () => {
@@ -23,6 +23,39 @@ describe('Utils', () => {
             expect(isPlainObject(Object.create({ hello: true }))).toBeTrue();
             expect(isPlainObject({})).toBeTrue();
             expect(isPlainObject({ hello: true })).toBeTrue();
+        });
+    });
+
+    describe('isEmpty', () => {
+        const map = new Map();
+        map.set('hello', 'hello');
+
+        const set = new Set();
+        set.add(1);
+
+        describe.each([
+            [null, true],
+            [undefined, true],
+            [{}, true],
+            [false, true],
+            [true, true],
+            [-1, true],
+            [0, true],
+            [1, true],
+            [[], true],
+            ['', true],
+            [new Map(), true],
+            [new Set(), true],
+            [{ hi: true }, false],
+            [map, false],
+            [set, false],
+            [[1, 2], false],
+            [[null], false],
+            ['howdy', false],
+        ])('when given %p', (input, expected) => {
+            it(`should return ${expected ? 'true' : 'false'}`, () => {
+                expect(isEmpty(input)).toBe(expected);
+            });
         });
     });
 
