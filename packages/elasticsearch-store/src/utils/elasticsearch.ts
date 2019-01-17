@@ -9,11 +9,6 @@ import {
     getFirstValue
 } from './misc';
 
-export const getRolloverFrequency = R.pathOr('monthly', [
-    'indexSchema',
-    'rollover_frequency'
-]);
-
 export function getTimeByField(field: string = ''): (input: any) => number {
     return R.ifElse(
         R.has(field),
