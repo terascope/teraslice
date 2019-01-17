@@ -1,0 +1,4 @@
+{ "selector": "host:example.com", "source_field": "field1", "start": "field1=", "end": "EOP", "target_field": "field1", "tag": "field1" }
+{ "follow": "field1", "post_process": "noop" }
+{ "selector": "size:2", "source_field": "size", "target_field": "height", "tag": "height" }
+{ "follow": "height", "post_process": "double" }

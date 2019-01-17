@@ -59,9 +59,9 @@
         "shortid": "^2.2.13",
         "socket.io": "^1.7.4",
         "socket.io-client": "^1.7.4",
-        "terafoundation": "^0.6.1",
+        "terafoundation": "^0.7.0",
         "uuid": "^3.3.2",
-        "yargs": "^12.0.2"
+        "yargs": "^12.0.5"
     },
     "devDependencies": {
         "@terascope/teraslice-op-test-harness": "^1.5.3",
@@ -72,7 +72,7 @@
         "eslint": "^5.12.0",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "^2.14.0",
-        "got": "^9.5.1",
+        "got": "^9.6.0",
         "jest": "^23.6.0",
         "jest-extended": "^0.11.0",
         "jest-fixtures": "^0.6.0",

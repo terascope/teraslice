@@ -1,0 +1,5 @@
+{ "selector": "selectfield:value", "source_field": "url", "start": "field1=", "end": "EOP", "target_field": "firstSet", "multivalue": true, "tag": "makeNumber"}
+{ "follow": "makeNumber", "validation": "number" }
+{ "selector": "selectfield:value", "source_field": "url", "start": "field2=", "end": "EOP", "target_field": "firstSet", "multivalue": true  }
+{ "selector": "selectfield:value", "source_field": "url", "start": "field3=", "end": "EOP", "target_field": "secondSet", "multivalue": true }
+{ "selector": "selectfield:value", "source_field": "url", "start": "field4=", "end": "EOP", "target_field": "secondSet", "multivalue": true  }
