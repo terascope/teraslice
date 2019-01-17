@@ -10,6 +10,8 @@ import _ from 'lodash';
 
 const logger = debugLogger('ts-transform-cli');
 const dir = process.cwd();
+
+// TODO Use yargs api to validate field types and usage
 const command = yargs
     .alias('t', 'types-fields')
     .alias('T', 'types-file')
@@ -29,7 +31,7 @@ const command = yargs
     .version('0.5.0')
     .argv;
 
-const filePath = command.rules;
+const filePath = command.rules as string;
 const dataPath = command.data;
 let typesConfig = {};
 const type = command.m ? 'matcher' : 'transform';
@@ -40,14 +42,14 @@ interface ESData {
 
 try {
     if (command.t) {
-        const segments = formatList(command.t);
+        const segments = formatList(command.t as string);
         segments.forEach((segment: string) => {
             const pieces = segment.split(':');
             typesConfig[pieces[0].trim()] = pieces[1].trim();
         });
     }
     if (command.T) {
-        typesConfig = require(command.T);
+        typesConfig = require(command.T as string);
     }
 } catch (err) {
     console.error('could not load and parse types', err);
@@ -153,7 +155,7 @@ async function initCommand() {
         let plugins = [];
         if (command.p) {
             try {
-                const pluginList = formatList(command.p);
+                const pluginList = formatList(command.p as string);
                 plugins = pluginList.map((pluginPath) => {
                     const module = require(path.resolve(dir, pluginPath));
                     const results = module.default || module;
@@ -170,7 +172,7 @@ async function initCommand() {
 
         await manager.init(plugins);
 
-        const data = await getData(dataPath);
+        const data = await getData(dataPath as string);
 
         if (command.perf) {
             process.stderr.write('\n');
