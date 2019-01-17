@@ -112,41 +112,5 @@ describe('IndexManager', () => {
                 });
             });
         });
-
-        describe('->getVersions', () => {
-            describe('when passed an valid config', () => {
-                it('should be able to return default values', () => {
-                    const versions = indexManager.getVersions({
-                        indexSchema: {
-                            mapping: {},
-                            version: 1
-                        },
-                        version: 1,
-                        name: 'hello'
-                    });
-
-                    expect(versions).toEqual({
-                        dataVersion: 1,
-                        schemaVersion: 1,
-                    });
-                });
-
-                it('should be able to return non-default values', () => {
-                    const versions = indexManager.getVersions({
-                        indexSchema: {
-                            mapping: {},
-                            version: 777
-                        },
-                        version: 88,
-                        name: 'hello'
-                    });
-
-                    expect(versions).toEqual({
-                        dataVersion: 88,
-                        schemaVersion: 777,
-                    });
-                });
-            });
-        });
     });
 });

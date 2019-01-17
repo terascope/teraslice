@@ -31,7 +31,8 @@ export default class IndexManager {
         utils.validateIndexConfig(config);
 
         const { name } = config;
-        const { dataVersion, schemaVersion } = this.getVersions(config);
+        const dataVersion = utils.getDataVersion(config);
+        const schemaVersion = utils.getSchemaVersion(config);
 
         const indexName = `${name}-v${dataVersion}-s${schemaVersion}`;
         if (utils.isTimeSeriesIndex(config.indexSchema) && !useWildcard) {
@@ -50,23 +51,9 @@ export default class IndexManager {
         utils.validateIndexConfig(config);
 
         const { name } = config;
-        const { dataVersion } = this.getVersions(config);
+        const dataVersion = utils.getDataVersion(config);
 
         return `${name}-v${dataVersion}`;
-    }
-
-    getVersions(config: IndexConfig): { dataVersion: number, schemaVersion: number; } {
-        utils.validateIndexConfig(config);
-
-        const {
-            indexSchema = { version: 1 },
-            version = 1
-        } = config;
-
-        return {
-            schemaVersion: indexSchema.version,
-            dataVersion: version
-        };
     }
 
     /**
@@ -85,8 +72,6 @@ export default class IndexManager {
             return false;
         }
 
-        if (config.indexSchema == null) return false;
-
         const settings = Object.assign({}, config.indexSettings);
 
         const body: any = {
@@ -94,11 +79,11 @@ export default class IndexManager {
             mappings: {}
         };
 
-        body.mappings[config.name] = config.indexSchema.mapping;
+        body.mappings[config.name] = utils.getIndexMapping(config);
 
         if (utils.isTemplatedIndex(config.indexSchema)) {
             const templateName = this.formatTemplateName(config);
-            const { schemaVersion } = this.getVersions(config);
+            const schemaVersion = utils.getSchemaVersion(config);
 
             body.template = templateName;
             body.version = schemaVersion;
@@ -130,7 +115,7 @@ export default class IndexManager {
 
     async isIndexActive(index: string): Promise<boolean> {
         const stats = await this.client.indices.recovery({ index });
-        if (stats == null || !Object.keys(stats).length) return false;
+        if (ts.isEmpty(stats)) return false;
 
         const getShardsPath = utils.shardsPath(index);
         const shards = getShardsPath(stats);

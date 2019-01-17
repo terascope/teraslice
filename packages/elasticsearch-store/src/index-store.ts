@@ -100,6 +100,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         if (action !== 'delete') {
             this._validate(args[0]);
             if (action === 'update') {
+                /**
+                 * TODO: Support more of the update formats
+                */
                 data = { doc: args[0] };
             } else {
                 data = args[0];
