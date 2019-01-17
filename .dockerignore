@@ -17,8 +17,10 @@ docker-base
 packages/*/assets
 packages/*/autoload
 packages/docker-compose-js
-packages/teraslice-op-test-harness
 packages/teraslice-client-js
 packages/teraslice-cli
+packages/teraslice-op-test-harness
 packages/teraslice-test-harness
 packages/generator-teraslice
+packages/ts-transforms
+packages/xlucene-evaluator
