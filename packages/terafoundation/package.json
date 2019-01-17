@@ -34,7 +34,7 @@
         "convict": "^4.4.1",
         "elasticsearch": "^15.3.0",
         "js-yaml": "^3.12.1",
-        "lodash": "~4.17.11",
+        "lodash": "^4.17.11",
         "moment": "^2.23.0",
         "mongoose": "~4.13.12",
         "node-statsd": "0.1.1",
