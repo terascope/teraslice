@@ -6415,13 +6415,13 @@ node-statsd@0.1.1:
   resolved "https://registry.yarnpkg.com/node-statsd/-/node-statsd-0.1.1.tgz#27a59348763d0af7a037ac2a031fef3f051013d3"
   integrity sha1-J6WTSHY9CvegN6wqAx/vPwUQE9M=
 
-node-webhdfs@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/node-webhdfs/-/node-webhdfs-0.2.1.tgz#d6b3910116e4ab5bb1c5bdd80991728ee67f2220"
-  integrity sha512-k/HyCaKP9xoplWwqye6bQgxUkAEoe64SjGTzb4RLhiN1RTGnA+71lt1SF9Q2hn32pNua/xe2wPpzC/gPp6bfzQ==
+node-webhdfs@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/node-webhdfs/-/node-webhdfs-1.0.0.tgz#a3f1e63db32f2c834c46d3f6e0988d57a7914830"
+  integrity sha512-p02YMX25e+9fvy29vOf+02suEGyKaPQBlYnUIu4VidqUS1MpnFNycJnGqZIHd+pdSmLeRIsm45PTWmTKTUsBcg==
   dependencies:
-    lodash "^4.17.4"
-    request "^2.45.0"
+    lodash "^4.17.10"
+    request "^2.87.0"
 
 node-yaml@^3.1.1:
   version "3.1.1"
@@ -7756,7 +7756,7 @@ request-promise@^4.2.2:
     stealthy-require "^1.1.0"
     tough-cookie ">=2.3.3"
 
-request@^2.45.0, request@^2.83.0, request@^2.87.0, request@^2.88.0:
+request@^2.83.0, request@^2.87.0, request@^2.88.0:
   version "2.88.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.88.0.tgz#9c2fca4f7d35b592efe57c7f0a55e81052124fef"
   integrity sha512-NAqBSrijGLZdM0WZNsInLJpkJokL72XYjUpnB0iwsRgxh7dB6COrHnTBNwN0E+lHDAJzu7kLAkDeY08z2/A0hg==
@@ -8685,10 +8685,10 @@ temp-write@^3.4.0:
     temp-dir "^1.0.0"
     uuid "^3.0.1"
 
-terafoundation@^0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/terafoundation/-/terafoundation-0.5.1.tgz#4f0d25c653369c720836cf04d7cfe6f33965e482"
-  integrity sha512-lfzSD8Lh2h5OSGQLRFpX7Rcf0PAy8AHxjCHxGBzlo10bsI8ork49wDTJ4EoR2NAQoV7GU6PuLf4WWS4UO7LbDA==
+terafoundation@^0.6.1:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/terafoundation/-/terafoundation-0.6.1.tgz#236ade1904fbdd6198125ae6bf1cbfcac7e91ae7"
+  integrity sha512-QcPylSbCITdgykR0QpEqH4fPo01Ml7Xu3t42yz2C5nYT5+oYG7z+wbB5Nvv8JLqDxTg8NNDidwAI5GgnmYYdrw==
   dependencies:
     "@terascope/elasticsearch-api" "^1.1.4"
     agentkeepalive "^3.5.1"
@@ -8702,7 +8702,7 @@ terafoundation@^0.5.1:
     moment "^2.23.0"
     mongoose "~4.13.12"
     node-statsd "0.1.1"
-    node-webhdfs "^0.2.1"
+    node-webhdfs "^1.0.0"
     redis "^2.8.0"
     yargs "^12.0.5"
 
