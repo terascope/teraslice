@@ -19,7 +19,7 @@
         "examples/**/*"
     ],
     "scripts": {
-        "lint": "eslint *.js test/**/*.js",
+        "lint": "eslint *.js lib/**/*.js test/**/*.js",
         "lint:fix": "yarn lint --fix",
         "test": "jest",
         "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
@@ -43,6 +43,7 @@
         "yargs": "^12.0.5"
     },
     "devDependencies": {
+        "@terascope/utils": "^0.1.0",
         "eslint": "^5.12.0",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "^2.14.0",

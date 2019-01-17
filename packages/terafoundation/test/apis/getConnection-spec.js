@@ -1,6 +1,6 @@
 'use strict';
 
-const fakeLogger = require('../helpers/fakeLogger');
+const { debugLogger } = require('@terascope/utils');
 const api = require('../../lib/api');
 
 describe('getConnection foundation API', () => {
@@ -24,7 +24,7 @@ describe('getConnection foundation API', () => {
     beforeEach(() => {
         // This sets up the API endpoints in the context.
         api(context);
-        context.logger = fakeLogger;
+        context.logger = debugLogger('terafoundation-tests');
     });
 
     it('should return the default connection', () => {

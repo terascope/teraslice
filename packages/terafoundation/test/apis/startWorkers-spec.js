@@ -1,7 +1,6 @@
 'use strict';
 
-const fakeLogger = require('../helpers/fakeLogger');
-
+const { debugLogger } = require('@terascope/utils');
 const api = require('../../lib/api');
 
 describe('startWorkers foundation API', () => {
@@ -21,7 +20,7 @@ describe('startWorkers foundation API', () => {
             isMaster: true,
             fork: jasmine.createSpy('cluster-fork')
         };
-        context.logger = fakeLogger;
+        context.logger = debugLogger('terafondation-tests');
     });
 
     it('should call fork to create a worker', () => {
