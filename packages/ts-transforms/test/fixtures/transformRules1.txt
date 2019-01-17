@@ -1,0 +1,9 @@
+{"selector":"some:data AND bytes:>=1000","source_field":"myfield","start":"field1=","end":"EOP","target_field":"topfield.value1"}
+{"selector":"some:data AND bytes:<=1000","source_field":"myfield","target_field":"topfield.value1"}
+{"selector":"other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z","source_field":"myfield","start":"field1=","end":"EOP","target_field":"topfield.value1"}
+{"selector": "some:data", "source_field": "someField", "regex": "some.*?$", "target_field": "wholeRegexResponse"}
+{"selector": "some:data", "source_field": "someField", "regex": "some(.*?)$", "target_field": "partRegexResponse"}
+{"selector": "hostname:www.example.com", "source_field": "pathLat", "regex": "/path/tiles/latitude/(.*?)$", "target_field": "location.lat", "validation": "geolocation"}
+{"selector": "hostname:www.example.com", "source_field": "pathLon", "regex": "/path/tiles/longitude/(.*?)$", "target_field": "location.lon", "validation": "geolocation"}
+{"selector": "location:(_geo_box_top_left_: \"33.906320,  -112.758421\" _geo_box_bottom_right_:\"32.813646,-111.058902\")", "source_field": "location", "target_field": "point", "validation": "geolocation"}
+# some comment

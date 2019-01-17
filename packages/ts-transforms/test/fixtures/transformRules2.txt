@@ -1,0 +1,7 @@
+{"selector": "hello:world", "source_field": "first", "target_field": "first_name"}
+{"selector": "hello:world", "source_field": "last", "target_field": "last_name"}
+# some comment
+{"selector": "hello:world","post_process": "join","fields": ["first_name", "last_name"],"delimiter": " ","target_field": "full_name","remove_source": true}
+{"selector": "geo:true", "source_field": "lat", "target_field": "location.lat", "validation": "geolocation"}
+{"selector": "geo:true", "source_field": "lon", "target_field": "location.lon", "validation": "geolocation"}
+{"selector": "geo:true", "source_field": "other", "target_field": "other"}

@@ -1,0 +1,72 @@
+{
+    "name": "ts-transforms",
+    "version": "0.9.0",
+    "description": "An ETL framework built upon xlucene-evaluator",
+    "publishConfig": {
+        "access": "public"
+    },
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-test-harness#readme",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "author": "Terascope, LLC <info@terascope.io>",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/terascope/teraslice.git"
+    },
+    "license": "MIT",
+    "srcMain": "src/index.ts",
+    "main": "dist/index.js",
+    "typings": "dist/index.d.ts",
+    "files": [
+        "bin/**/*",
+        "dist/**/*"
+    ],
+    "directories": {
+        "lib": "dist",
+        "test": "test"
+    },
+    "bin": {
+        "ts-transform": "./bin/ts-transform.js",
+        "ts-match": "./bin/ts-transform.js"
+    },
+    "scripts": {
+        "lint": "tslint -p tsconfig.build.json -t verbose -e '**/*.json'",
+        "lint:fix": "yarn lint --fix",
+        "prepublishOnly": "yarn build",
+        "build": "rimraf ./dist; tsc --project tsconfig.build.json --pretty",
+        "build:prod": "tsc --project tsconfig.build.json",
+        "build:watch": "yarn build --watch",
+        "test": "jest",
+        "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
+        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+    },
+    "dependencies": {
+        "@terascope/job-components": "^0.14.3",
+        "awesome-phonenumber": "^2.3.3",
+        "lodash": "^4.17.11",
+        "valid-url": "^1.0.9",
+        "validator": "^10.10.0",
+        "xlucene-evaluator": "^0.2.1",
+        "yargs": "^12.0.5"
+    },
+    "devDependencies": {
+        "@types/jest": "^23.3.12",
+        "@types/lodash": "^4.14.119",
+        "@types/valid-url": "^1.0.2",
+        "@types/validator": "^10.9.0",
+        "@types/yargs": "^12.0.1",
+        "babel-core": "^6.0.0",
+        "babel-jest": "^23.6.0",
+        "jest": "^23.6.0",
+        "jest-extended": "^0.11.0",
+        "rimraf": "^2.6.3",
+        "ts-jest": "^23.10.5",
+        "tslint": "^5.12.1",
+        "tslint-config-airbnb": "^5.11.1",
+        "typescript": "^3.2.2"
+    },
+    "engines": {
+        "node": ">=8.0.0"
+    }
+}

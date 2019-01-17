@@ -1,0 +1,1 @@
+{ "selector": "hello:world", "source_field": "data", "target_field": "other", "mutate": true }

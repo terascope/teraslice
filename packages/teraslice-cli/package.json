@@ -45,7 +45,7 @@
         "terminal-kit": "^1.26.10",
         "tmp": "^0.0.33",
         "tty-table": "^2.6.14",
-        "yargs": "^12.0.2"
+        "yargs": "^12.0.5"
     },
     "devDependencies": {
         "eslint": "^5.12.0",
