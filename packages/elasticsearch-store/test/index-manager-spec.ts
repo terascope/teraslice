@@ -1,8 +1,8 @@
 import 'jest-extended';
 import es from 'elasticsearch';
-import { TSError } from '@terascope/utils';
+import { TSError, debugLogger } from '@terascope/utils';
 import { ELASTICSEARCH_HOST } from './helpers/config';
-import { IndexManager } from '../src';
+import { IndexManager, IndexConfig } from '../src';
 
 describe('IndexManager', () => {
     const client = new es.Client({
@@ -21,6 +21,52 @@ describe('IndexManager', () => {
 
     describe('when constructed', () => {
         const indexManager = new IndexManager(client);
+
+        describe('->_logger', () => {
+            const loggerFn = (config: Partial<IndexConfig>) => {
+                // @ts-ignore
+                return indexManager._logger(config);
+            };
+
+            describe('when a logger is configured', () => {
+                const logger = debugLogger('hello');
+                const config = {
+                    name: 'hello-new',
+                    logger,
+                };
+
+                it('should return the configured logger', () => {
+                    expect(loggerFn(config)).toBe(logger);
+                });
+            });
+
+            describe('when no logger is configured', () => {
+                const config = {
+                    name: 'hello-there'
+                };
+
+                const logger = loggerFn(config);
+
+                it('should return a debug logger', () => {
+                    expect(logger.debug).toBeFunction();
+                    expect(logger.info).toBeFunction();
+                    expect(logger.log).not.toBeFunction();
+                    expect(logger.flush).toBeFunction();
+                });
+
+                it('should return the same logger if given the same config', () => {
+                    expect(loggerFn(config)).toBe(logger);
+                });
+
+                it('should return the a different logger if given a different config', () => {
+                    const newConfig = {
+                        name: 'howdy-there'
+                    };
+
+                    expect(loggerFn(newConfig)).not.toBe(logger);
+                });
+            });
+        });
 
         describe('->formatIndexName', () => {
             describe('when passed no versions', () => {
@@ -78,7 +124,6 @@ describe('IndexManager', () => {
                     expect(indexName).toEqual('hello-v3-s2');
                 });
             });
-
         });
 
         describe('->formatTemplateName', () => {
