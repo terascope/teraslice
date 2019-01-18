@@ -1888,10 +1888,15 @@
   dependencies:
     "@types/lodash" "*"
 
-"@types/lodash@*", "@types/lodash@^4.14.119":
+"@types/lodash@*":
   version "4.14.119"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.119.tgz#be847e5f4bc3e35e46d041c394ead8b603ad8b39"
   integrity sha512-Z3TNyBL8Vd/M9D9Ms2S3LmFq2sSMzahodD6rCS9V2N44HUMINb75jNkSuwAx7eo2ufqTdfOdtGQpNbieUjPQmw==
+
+"@types/lodash@^4.14.120":
+  version "4.14.120"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.120.tgz#cf265d06f6c7a710db087ed07523ab8c1a24047b"
+  integrity sha512-jQ21kQ120mo+IrDs1nFNVm/AsdFxIx2+vZ347DbogHJPd/JzKNMOqU6HCYin1W6v8l5R9XSO2/e9cxmn7HAnVw==
 
 "@types/nanoid@^1.2.0":
   version "1.2.0"
@@ -10419,10 +10424,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@^3.2.2:
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.2.2.tgz#fe8101c46aa123f8353523ebdcf5730c2ae493e5"
-  integrity sha512-VCj5UiSyHBjwfYacmDuc/NOk4QQixbE+Wn7MFJuS0nRuPQbof132Pw4u53dm264O8LPc2MVsc7RJNml5szurkg==
+typescript@^3.2.4:
+  version "3.2.4"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.2.4.tgz#c585cb952912263d915b462726ce244ba510ef3d"
+  integrity sha512-0RNDbSdEokBeEAkgNbxJ+BLwSManFy9TeXz8uW+48j/xhEXv1ePME60olyzw2XzUqUBNAYFeJadIqAgNqIACwg==
 
 typpy@^2.3.1:
   version "2.3.10"
@@ -10837,19 +10842,6 @@ wtf-8@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/wtf-8/-/wtf-8-1.0.0.tgz#392d8ba2d0f1c34d1ee2d630f15d0efb68e1048a"
   integrity sha1-OS2LotDxw00e4tYw8V0O+2jhBIo=
-
-xlucene-evaluator@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/xlucene-evaluator/-/xlucene-evaluator-0.2.1.tgz#4a837d797ef936a467dcdcace2d0e62fd1ebb8b9"
-  integrity sha512-KBRjN83n2zeTKcX3hJua/XuZ6JoJwVHGzGS5SB6pcZdjEGuUCozSMt7v87a9dVTlRjEY9B4u2+OFN9sHj17wTg==
-  dependencies:
-    "@turf/turf" "^5.1.6"
-    ip-num "^1.1.1"
-    ip6addr "^0.2.2"
-    is-cidr "^3.0.0"
-    latlon-geohash "^1.1.0"
-    lodash "^4.17.11"
-    pegjs "^0.10.0"
 
 xml-name-validator@^3.0.0:
   version "3.0.0"
