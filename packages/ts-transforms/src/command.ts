@@ -5,6 +5,7 @@ import readline from 'readline';
 import fs from 'fs';
 import { debugLogger, DataEntity } from '@terascope/job-components';
 import _ from 'lodash';
+import got from 'got';
 import { PhaseManager } from './index';
 import { WatcherConfig } from './interfaces';
 
@@ -28,7 +29,7 @@ const command = yargs
     .describe('T', 'specify type configs from file')
     .describe('p', 'output the time it took to run the data')
     .demandOption(['r'])
-    .version('0.10.0')
+    .version('0.11.0')
     .argv;
 
 const filePath = command.rules as string;
@@ -61,7 +62,7 @@ if (!filePath) {
     process.exit(1);
 }
 
-async function dataLoader(dataPath: string): Promise<object[]> {
+async function dataFileLoader(dataPath: string): Promise<object[]> {
     const results: object[] = [];
 
     const rl = readline.createInterface({
@@ -69,19 +70,40 @@ async function dataLoader(dataPath: string): Promise<object[]> {
         crlfDelay: Infinity
     });
 
-    return new Promise<object[]>((resolve) => {
+    return new Promise<object[]>((resolve, reject) => {
+        const timeout = setTimeout(() => reject('timedout reading data from file'), 10000);
         rl.on('line', (str) => {
             if (str) {
                 results.push(JSON.parse(str));
             }
         });
 
-        rl.on('close', () => resolve(results));
+        rl.on('close', () => {
+            clearTimeout(timeout);
+            resolve(results);
+        });
     });
 }
 
 function formatList(input: string): string[] {
     return input.split(',').map((str) => str.trim());
+}
+
+function parseStreamResponse(data: string) {
+    const json = JSON.parse(data);
+    if (Array.isArray(json)) return json;
+    // input from elasticsearch
+    const elasticSearchResults = _.get(json, 'hits.hits', null);
+    if (elasticSearchResults) {
+        return elasticSearchResults.map((doc:ESData) => doc._source);
+    }
+    // input from teraserver
+    const teraserverResults = _.get(json, 'results', null);
+    if (teraserverResults) {
+        return teraserverResults;
+    }
+
+    throw new Error('could not get parse data');
 }
 
 function getPipedData() {
@@ -99,22 +121,8 @@ function getPipedData() {
 
         process.stdin.on('end', () => {
             try {
-                const json = JSON.parse(strResults);
-                if (Array.isArray(json)) resolve(json);
-                // input from elasticsearch
-                const elasticSearchResults = _.get(json, 'hits.hits', null);
-                if (elasticSearchResults) {
-                    resolve(elasticSearchResults.map((doc:ESData) => doc._source));
-                    return;
-                }
-                // input from teraserver
-                const teraserverResults = _.get(json, 'results', null);
-                if (teraserverResults) {
-                    resolve(teraserverResults);
-                    return;
-                }
-
-                throw new Error('could not get parse data');
+                const results = parseStreamResponse(strResults);
+                resolve(results);
             } catch (err) {
                 // try to see if its line delimited JSON;
                 try {
@@ -133,9 +141,17 @@ async function getData(dataPath: string) {
     let parsedData;
     if (dataPath) {
         try {
-            parsedData = require(path.resolve(dir, dataPath));
-        } catch (err) {
-            parsedData = await dataLoader(dataPath);
+            const response = await got(dataPath);
+            parsedData = parseStreamResponse(response.body);
+        } catch (err) {}
+        if (!parsedData) {
+            try {
+                parsedData = require(path.resolve(dir, dataPath));
+            } catch (err) {
+                try {
+                    parsedData = await dataFileLoader(dataPath);
+                } catch (error) {}
+            }
         }
     } else {
         parsedData = await getPipedData();
