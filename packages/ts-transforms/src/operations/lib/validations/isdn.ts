@@ -1,3 +1,4 @@
+
 import { DataEntity } from '@terascope/job-components';
 import _ from 'lodash';
 import PhoneValidator from 'awesome-phonenumber';
