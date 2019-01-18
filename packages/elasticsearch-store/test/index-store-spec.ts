@@ -80,6 +80,8 @@ describe('IndexStore', () => {
                 index
             }).catch(() => {});
 
+            // it should be able to call shutdown twice
+            await indexStore.shutdown();
             await indexStore.shutdown();
         });
 
@@ -333,6 +335,16 @@ describe('IndexStore', () => {
 
                 await pDelay(500);
                 await indexStore.refresh();
+            });
+
+            afterAll(async () => {
+                for (const record of records.slice(0, 10)) {
+                    await indexStore.bulk('update', {
+                        test_object: {
+                            updateAfterShutdown: true,
+                        },
+                    }, record.test_id);
+                }
             });
 
             it('should be able to search the records', async () => {

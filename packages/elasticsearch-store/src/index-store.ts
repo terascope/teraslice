@@ -86,7 +86,8 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      * bulk max size and wait configuration.
      */
     async bulk(action: 'delete', id?: string): Promise<void>;
-    async bulk(action: 'index'|'create'|'update', doc?: I, id?: string): Promise<void>;
+    async bulk(action: 'index'|'create', doc?: I, id?: string): Promise<void>;
+    async bulk(action: 'update', doc?: Partial<T>, id?: string): Promise<void>;
     async bulk(action: i.BulkAction, ...args: any[]) {
         const metadata: BulkRequestMetadata = {};
         metadata[action] = {
@@ -255,7 +256,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      * Shutdown, flush any pending requests and cleanup
     */
     async shutdown() {
-        if (this._interval) {
+        if (this._interval != null) {
             clearInterval(this._interval);
         }
 

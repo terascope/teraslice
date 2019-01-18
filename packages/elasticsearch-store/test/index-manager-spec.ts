@@ -68,6 +68,13 @@ describe('IndexManager', () => {
             });
         });
 
+        describe('->migrateIndex', () => {
+            it('should return a promise', () => {
+                // @ts-ignore
+                return indexManager.migrateIndex();
+            });
+        });
+
         describe('->formatIndexName', () => {
             describe('when passed no versions', () => {
                 it('should return a correctly formatted index name', () => {
