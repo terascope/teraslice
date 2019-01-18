@@ -64,7 +64,10 @@ jobs:
     name: End-to-End Tests
     if: branch = master AND type = pull_request
     services: []
-    before_script: cd e2e
+    before_script:
+        # When building a PR and the originating repo is not teraslice, we should unset the GITHUB_TOKEN
+        - '[[ "$TRAVIS_PULL_REQUEST_SLUG" != "terascope/teraslice" ]] && export GITHUB_TOKEN="";'
+        - cd e2e
     script: yarn test:ci
 
   # if not tag is preset and is on master release any changed versions to NPM
