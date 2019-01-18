@@ -1,10 +1,11 @@
+
 import { DataEntity } from '@terascope/job-components';
 import _ from 'lodash';
 import PhoneValidator from 'awesome-phonenumber';
 import OperationBase from '../base';
 import { OperationConfig } from '../../../interfaces';
 
-export default class PhoneNumber extends OperationBase {
+export default class ISDN extends OperationBase {
     constructor(config: OperationConfig) {
         super(config);
     }

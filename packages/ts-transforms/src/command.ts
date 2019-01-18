@@ -1,12 +1,12 @@
 
 import yargs from 'yargs';
-import { PhaseManager } from './index';
-import { WatcherConfig } from './interfaces';
 import path from 'path';
 import readline from 'readline';
 import fs from 'fs';
 import { debugLogger, DataEntity } from '@terascope/job-components';
 import _ from 'lodash';
+import { PhaseManager } from './index';
+import { WatcherConfig } from './interfaces';
 
 const logger = debugLogger('ts-transform-cli');
 const dir = process.cwd();
@@ -28,7 +28,7 @@ const command = yargs
     .describe('T', 'specify type configs from file')
     .describe('p', 'output the time it took to run the data')
     .demandOption(['r'])
-    .version('0.5.0')
+    .version('0.10.0')
     .argv;
 
 const filePath = command.rules as string;
