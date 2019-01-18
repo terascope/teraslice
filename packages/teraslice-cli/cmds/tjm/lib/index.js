@@ -15,7 +15,7 @@ module.exports = (cliConfig) => {
         host: cliConfig.cluster_url
     });
     const checks = require('../../lib/checks')(cliConfig);
-    const asset = require('../../lib/asset')(cliConfig);
+    // const asset = require('../../lib/asset')(cliConfig);
     cliConfig.type = 'tjm';
 
     async function stop() {
@@ -64,7 +64,7 @@ module.exports = (cliConfig) => {
 
     async function register() {
         if (!await checks.alreadyRegistered(false)) {
-            await asset.load();
+            // await asset.load();
             const registeredResponse = await terasliceClient.jobs.submit(
                 cliConfig.job_file_content, !cliConfig.run
             );

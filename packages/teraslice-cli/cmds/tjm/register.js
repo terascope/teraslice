@@ -1,42 +1,50 @@
 'use strict';
-'use console';
 
 const _ = require('lodash');
 const reply = require('../lib/reply')();
-const configChecks = require('../lib/config');
-const cli = require('./lib/cli');
+const Config = require('../../lib/config');
+const JobSrc = require('../../lib/job-src');
+const { getTerasliceClient } = require('../../lib/utils');
+const YargsOptions = require('../../lib/yargs-options');
 
-exports.command = 'register <job_file>';
-exports.desc = 'Register a job file on a cluster';
+const yargsOptions = new YargsOptions();
+
+exports.command = 'register <cluster-alias> <file>';
+exports.desc = 'Register a job to a cluster from a job file';
 exports.builder = (yargs) => {
-    cli().args('tjm', 'register', yargs);
-    yargs
-        .option('cluster', {
-            alias: ['c', 'cluster_sh'],
-            default: 'http://localhost:5678'
-        })
-        .option('run', {
-            alias: 'r',
-            describe: 'option to run the job immediately after being registered',
-            default: false,
-            type: 'boolean'
-        })
-        .option('asset', {
-            alias: 'a',
-            describe: 'builds the assets and deploys to cluster, optional',
-            default: false,
-            type: 'boolean'
-        })
-        .example('teraslice-cli tjm register jobfile.json')
-        .example('teraslice-cli tjm register jobfile')
-        .example('teraslice-cli tjm register jobfile.json --run -c mycluster');
+    yargs.positional('cluster-alias', yargsOptions.buildPositional('cluster-alias'));
+    yargs.positional('file-name', yargsOptions.buildPositional('file-name'));
+    yargs.option('start', yargsOptions.buildOption('start'));
+    yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
+    yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.example('$0 tjm register localhost new-job.json');
+    yargs.example('$0 tjm register localhost new-job.json --start');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    configChecks(cliConfig, 'tjm:register').returnConfigData();
-    const tjm = _testFunctions || require('./lib')(cliConfig);
+exports.handler = async (argv) => {
+    const cliConfig = new Config(argv);
+    const job = new JobSrc(cliConfig.args.srcDir, cliConfig.args.file);
+    const terasliceClient = getTerasliceClient(cliConfig);
 
-    return tjm.register()
-        .catch(err => reply.fatal(err.message));
+    // check if job has already been registered
+    if (job.metaDataCheck()) {
+        const regCluster = _.get(job.content, '__metadata.cli.cluster');
+        reply.fatal(`job has already been registered on ${regCluster}`);
+    }
+
+    // register job on the teraslice cluster and start if needed
+    const registeredResponse = await terasliceClient.jobs
+        .submit(job.content, !cliConfig.args.start);
+
+    const jobId = registeredResponse.id();
+
+    if (registeredResponse) {
+        reply.green(`Successfully registered job: ${jobId} on ${cliConfig.clusterUrl}`);
+        if (cliConfig.args.start) reply.green(`Job: ${jobId} is queued to start`);
+    } else {
+        reply.fatal('Job failed to register');
+    }
+
+    job.addMetaData(jobId, cliConfig.clusterUrl);
+    job.overwrite();
 };

@@ -72,6 +72,11 @@ class Options {
                 describe: 'Deletes asset prior to upload',
                 type: 'boolean'
             }),
+            start: () => ({
+                describe: 'Option to start command after command is given',
+                type: 'boolean',
+                default: false
+            }),
             'skip-upload': () => ({
                 describe: 'Skips upload to Teraslice, useful to just download the asset.',
                 type: 'boolean',
@@ -92,6 +97,11 @@ class Options {
         this.positionals = {
             asset: () => ({
                 describe: 'Github user/repo of asset to load, e.g.: terascope/file-assets',
+                nargs: 1,
+                type: 'string'
+            }),
+            'file-name': () => ({
+                describe: 'file for cli to ingest, e.g: jobFile.json',
                 nargs: 1,
                 type: 'string'
             }),
