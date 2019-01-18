@@ -1,12 +1,12 @@
 
-import { PhoneNumber } from '../../../src/operations';
+import { ISDN } from '../../../src/operations';
 import { DataEntity } from '@terascope/job-components';
 
 describe('phone number validation', () => {
 
     it('can instantiate', () => {
         const opConfig = { refs: 'someId', source_field: 'someField' };
-        expect(() => new PhoneNumber(opConfig)).not.toThrow();
+        expect(() => new ISDN(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
@@ -15,18 +15,18 @@ describe('phone number validation', () => {
         const badConfig3 = { source_field: {} };
         const badConfig4 = {};
         // @ts-ignore
-        expect(() => new PhoneNumber(badConfig1)).toThrow();
+        expect(() => new ISDN(badConfig1)).toThrow();
         // @ts-ignore
-        expect(() => new PhoneNumber(badConfig2)).toThrow();
+        expect(() => new ISDN(badConfig2)).toThrow();
         // @ts-ignore
-        expect(() => new PhoneNumber(badConfig3)).toThrow();
+        expect(() => new ISDN(badConfig3)).toThrow();
         // @ts-ignore
-        expect(() => new PhoneNumber(badConfig4)).toThrow();
+        expect(() => new ISDN(badConfig4)).toThrow();
     });
 
     it('can validate phone number fields', () => {
         const opConfig = { refs: 'someId', source_field: 'field' };
-        const test = new PhoneNumber(opConfig);
+        const test = new ISDN(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
         const validPhone1 = '14803847362';
         const validPhone2 = '1(480)384-7362';
