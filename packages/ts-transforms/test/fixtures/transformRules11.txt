@@ -1,0 +1,1 @@
+{ "selector": "domain:example.com", "source_field": "url", "start": "field3=", "end": "EOP", "target_field": "field3", "post_process": "base64decode" }

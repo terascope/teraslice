@@ -1,4 +1,3 @@
-import { promisify } from 'util';
 import isPlainObject from 'is-plain-object';
 import cloneDeep from 'lodash.clonedeep';
 import kindOf from 'kind-of';
@@ -15,6 +14,16 @@ export function toString(val: any): string {
     }
 
     return JSON.stringify(val);
+}
+
+/** Check if an input is empty, similar to lodash.isEmpty */
+export function isEmpty(val?: any): boolean {
+    if (val == null) return true;
+    if (val.size != null) return !val.size;
+    if (typeof val === 'object') return !Object.keys(val).length;
+    if (val.length != null) return !val.length;
+
+    return true;
 }
 
 /** JSON encoded buffer into a json object */
@@ -185,24 +194,7 @@ export function enumerable(enabled = true) {
     };
 }
 
-interface PromiseFn {
-    (input: any): Promise<any>;
-}
-
-/** Async waterfall function */
-export function waterfall(input: any, fns: PromiseFn[]): Promise<any> {
-    return fns.reduce(async (last, fn) => {
-        return fn(await last);
-    }, input);
-}
-
 /** Change first character in string to upper case */
 export function firstToUpper(str: string): string {
     return `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
 }
-
-/** promisified setTimeout */
-export const pDelay = promisify(setTimeout);
-
-/** promisified setImmediate */
-export const pImmediate = promisify(setImmediate);

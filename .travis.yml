@@ -62,7 +62,7 @@ jobs:
   # test end-to-end tests, only on pull-requests
   - script:
     name: End-to-End Tests
-    if: branch = master AND type = pull_request
+    if: branch = master AND type = pull_request AND fork = false
     services: []
     before_script: cd e2e
     script: yarn test:ci

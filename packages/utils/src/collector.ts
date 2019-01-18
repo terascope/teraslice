@@ -23,6 +23,20 @@ export class Collector<T> {
     }
 
     /**
+     * Get the current Queue Length
+    */
+    get length() {
+        return this._queue.length;
+    }
+
+    /**
+     * Get the current queue
+    */
+    get queue() {
+        return this._queue;
+    }
+
+    /**
      * Add a record, or records, to the in-memory queue.
     */
     add(record: T): void;
