@@ -10,7 +10,7 @@ const _metadata = new WeakMap();
  * IMPORTANT: Use `DataEntity.make`, `DataEntity.fromBuffer` and `DataEntity.makeArray`
  * to create DataEntities that are significantly faster (600x-1000x faster).
  */
-export class DataEntity {
+export class DataEntity<T extends object = object> {
     /**
      * A utility for safely converting an object a `DataEntity`.
      * If the input is a DataEntity it will return it and have no side-effect.
@@ -23,7 +23,7 @@ export class DataEntity {
      * onto the `DataEntity` instance, this is significatly faster and so it
      * is recommended to use this in production.
     */
-    static make(input: DataInput, metadata?: object): DataEntity {
+    static make<T extends object = object>(input: DataInput, metadata?: object): DataEntity<T> {
         if (input == null) return new DataEntity({});
         if (DataEntity.isDataEntity(input)) return input;
         if (!isPlainObject(input)) {
@@ -59,9 +59,9 @@ export class DataEntity {
             }
         });
 
-        const entity = input as DataEntity;
+        const entity = input as DataEntity<T>;
         _metadata.set(entity, Object.assign({ createdAt: Date.now() }, metadata));
-        return entity as DataEntity;
+        return entity as DataEntity<T>;
     }
 
     /**
@@ -70,7 +70,7 @@ export class DataEntity {
      * @param opConfig The operation config used to get the encoding type of the Buffer, defaults to "json"
      * @param metadata Optionally add any metadata
     */
-    static fromBuffer(input: Buffer, opConfig: EncodingConfig = {}, metadata?: object): DataEntity {
+    static fromBuffer<T extends object = object>(input: Buffer, opConfig: EncodingConfig = {}, metadata?: object): DataEntity<T> {
         const { _encoding = 'json' } = opConfig || {};
         if (_encoding === 'json') {
             return DataEntity.make(parseJSON(input), metadata);
@@ -84,7 +84,7 @@ export class DataEntity {
      * or an array of objects, to an array of DataEntities.
      * This will detect if passed an already converted input and return it.
     */
-    static makeArray(input: DataInput|DataInput[]): DataEntity[] {
+    static makeArray<T extends object = object>(input: DataInput|DataInput[]): DataEntity<T>[] {
         if (!Array.isArray(input)) {
             return [DataEntity.make(input)];
         }
@@ -99,7 +99,7 @@ export class DataEntity {
     /**
      * Verify that an input is the `DataEntity`
     */
-    static isDataEntity(input: any): input is DataEntity {
+    static isDataEntity(input: any): input is DataEntity<object> {
         if (input == null) return false;
         if (input instanceof DataEntity) return true;
         if (input.__isDataEntity) return true;
@@ -111,7 +111,7 @@ export class DataEntity {
     /**
      * Verify that an input is an Array of DataEntities,
     */
-    static isDataEntityArray(input: any): input is DataEntity[] {
+    static isDataEntityArray(input: any): input is DataEntity<object>[] {
         if (input == null) return false;
         if (!Array.isArray(input)) return false;
         return DataEntity.isDataEntity(input[0]);
@@ -134,7 +134,7 @@ export class DataEntity {
     // Add the ability to specify any additional properties
     [prop: string]: any;
 
-    constructor(data: object, metadata?: object) {
+    constructor(data: T, metadata?: object) {
         _metadata.set(this, fastAssign({ createdAt: Date.now() }, metadata));
 
         Object.defineProperty(this, '__isDataEntity', {

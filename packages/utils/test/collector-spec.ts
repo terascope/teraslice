@@ -1,12 +1,10 @@
 import 'jest-extended';
-import { promisify } from 'util';
 import {
     Collector,
     DataEntity,
-    times
+    times,
+    pDelay
 } from '../src';
-
-const delay = promisify(setTimeout);
 
 describe('Collector', () => {
     let collector: Collector<DataEntity>;
@@ -14,11 +12,6 @@ describe('Collector', () => {
         size: 100,
         wait: 100,
     };
-
-    function getQueue(): DataEntity[] {
-        // @ts-ignore
-        return collector._queue;
-    }
 
     beforeEach(() => {
         collector = new Collector(config);
@@ -29,10 +22,13 @@ describe('Collector', () => {
             const data = times(config.size, (n) => ({ n }));
             const input = DataEntity.makeArray(data);
             collector.add(input);
+
             const result = collector.getBatch();
 
             expect(result).toEqual(input);
-            expect(getQueue()).toBeArrayOfSize(0);
+
+            expect(collector.length).toBe(0);
+            expect(collector.queue).toBeArrayOfSize(0);
         });
     });
 
@@ -45,7 +41,9 @@ describe('Collector', () => {
             const result1 = collector.getBatch();
 
             expect(result1).toBeNull();
-            expect(getQueue()).toBeArrayOfSize(50);
+
+            expect(collector.length).toBe(50);
+            expect(collector.queue).toBeArrayOfSize(50);
 
             const data2 = times(config.size / 2, (n) => ({ n }));
             const input2 = DataEntity.makeArray(data2);
@@ -54,7 +52,9 @@ describe('Collector', () => {
             const result2 = collector.getBatch();
 
             expect(result2).toBeArrayOfSize(config.size);
-            expect(getQueue()).toBeArrayOfSize(0);
+
+            expect(collector.length).toBe(0);
+            expect(collector.queue).toBeArrayOfSize(0);
         });
     });
 
@@ -67,7 +67,7 @@ describe('Collector', () => {
             const result1 = collector.getBatch();
 
             expect(result1).toBeArrayOfSize(config.size);
-            expect(getQueue()).toBeArrayOfSize(50);
+            expect(collector.queue).toBeArrayOfSize(50);
 
             const data2 = times(config.size / 2, (n) => ({ n }));
             const input2 = DataEntity.makeArray(data2);
@@ -76,7 +76,9 @@ describe('Collector', () => {
             const result2 = collector.getBatch();
 
             expect(result2).toBeArrayOfSize(config.size);
-            expect(getQueue()).toBeArrayOfSize(0);
+
+            expect(collector.length).toBe(0);
+            expect(collector.queue).toBeArrayOfSize(0);
         });
     });
 
@@ -89,16 +91,18 @@ describe('Collector', () => {
             const result1 = collector.getBatch();
 
             expect(result1).toBeNull();
-            expect(getQueue()).toBeArrayOfSize(50);
+            expect(collector.queue).toBeArrayOfSize(50);
 
-            await delay(150);
+            await pDelay(150);
 
             collector.add([]);
 
             const result2 = collector.getBatch();
 
             expect(result2).toBeArrayOfSize(input1.length);
-            expect(getQueue()).toBeArrayOfSize(0);
+
+            expect(collector.length).toBe(0);
+            expect(collector.queue).toBeArrayOfSize(0);
         });
     });
 
@@ -110,7 +114,8 @@ describe('Collector', () => {
             const result = collector.flushAll();
             expect(result).toBeArrayOfSize(input.length);
 
-            expect(getQueue()).toBeArrayOfSize(0);
+            expect(collector.length).toBe(0);
+            expect(collector.queue).toBeArrayOfSize(0);
         });
     });
 });

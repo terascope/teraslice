@@ -55,6 +55,10 @@ const pkgJSON = fse.readJsonSync(pkgPath);
 const realPkgName = pkgJSON.name;
 
 const newVersion = semver.inc(pkgJSON.version, release);
+if (!newVersion) {
+    throw new Error(`Failure to increment version "${pkgJSON.version}" using "${release}"`);
+}
+
 console.log(`* Updating ${realPkgName} to version ${pkgJSON.version} to ${newVersion}`);
 
 pkgJSON.version = newVersion;
