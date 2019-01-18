@@ -4,23 +4,25 @@ const _ = require('lodash');
 
 module.exports = (options) => {
     const {
-        name,
         pkgName,
+        pkgDirName,
+        pkgVersion,
         typescript,
         description,
+        license
     } = options;
 
     const common = {
         name: pkgName,
         description,
-        version: '0.1.0',
+        version: pkgVersion,
         publishConfig: {
             access: 'public'
         },
-        homepage: `https://github.com/terascope/teraslice/tree/master/packages/${name}#readme`,
+        homepage: `https://github.com/terascope/teraslice/tree/master/packages/${pkgDirName}#readme`,
         repository: 'git@github.com:terascope/teraslice.git',
         author: 'Terascope, LLC <info@terascope.io>',
-        license: 'MIT',
+        license,
         bugs: {
             url: 'https://github.com/terascope/teraslice/issues'
         },
@@ -78,9 +80,9 @@ module.exports = (options) => {
             'jest-extended': '^0.11.0',
             rimraf: '^2.6.3',
             'ts-jest': '^23.10.5',
-            tslint: '^5.12.0',
+            tslint: '^5.12.1',
             'tslint-config-airbnb': '^5.11.1',
-            typescript: '^3.2.2'
+            typescript: '^3.2.4'
         },
     });
 };
