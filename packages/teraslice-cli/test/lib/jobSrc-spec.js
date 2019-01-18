@@ -17,11 +17,6 @@ describe('JobSrc', () => {
         fs.writeJsonSync(path.join(jobPath, jobName), jobFile, { spaces: 4 });
     }
 
-    function deleteJob(jobName = 'jobFile.json') {
-        fs.removeSync(path.join(jobPath, jobName));
-    }
-
-
     it('should throw an error on a bad job path', () => {
         try {
             const job = new JobSrc('badDir', 'someJob.json'); // eslint-disable-line no-unused-vars
@@ -45,7 +40,6 @@ describe('JobSrc', () => {
         } catch (e) {
             expect(e).toBe('Job must have a name, workers, and at least 2 operations');
         }
-        deleteJob();
     });
 
     it('should return correct version', () => {
@@ -68,7 +62,6 @@ describe('JobSrc', () => {
         } catch (e) {
             fail(e);
         }
-        deleteJob(jobName);
     });
 
     it('should add metaData to job contents', () => {
@@ -96,7 +89,6 @@ describe('JobSrc', () => {
         } catch (e) {
             fail(e);
         }
-        deleteJob(jobName);
     });
 
     it('should check presence of metadataCheck false', () => {
@@ -118,7 +110,6 @@ describe('JobSrc', () => {
         } catch (e) {
             fail(e);
         }
-        deleteJob(jobName);
     });
 
     it('should check presence of metadataCheck true', () => {
@@ -141,7 +132,6 @@ describe('JobSrc', () => {
         } catch (e) {
             fail(e);
         }
-        deleteJob(jobName);
     });
 
     it('should overwrite old job file', () => {
@@ -163,6 +153,5 @@ describe('JobSrc', () => {
         const overwrittenPath = path.join(jobPath, jobName);
         const overwritten = fs.readJsonSync(overwrittenPath);
         expect(overwritten.__metadata).toBeDefined();
-        deleteJob(jobName);
     });
 });
