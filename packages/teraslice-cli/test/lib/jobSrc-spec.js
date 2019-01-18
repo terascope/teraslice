@@ -1,13 +1,13 @@
 'use strict';
 
 const path = require('path');
-const process = require('process');
 const fs = require('fs-extra');
+const { createTempDirSync } = require('jest-fixtures');
 const JobSrc = require('../../lib/job-src');
 
 describe('JobSrc', () => {
     let jobFile;
-    const jobPath = path.join(process.cwd(), 'test', 'fixtures');
+    const jobPath = createTempDirSync();
 
     beforeEach(() => {
         jobFile = {};
