@@ -1,45 +1,7 @@
 import 'jest-extended';
-import { DataEntity } from '../src';
-import { waterfall, isPlainObject, parseJSON, getTypeOf } from '../src/utils';
+import { DataEntity, isPlainObject, parseJSON, getTypeOf, isEmpty } from '../src';
 
 describe('Utils', () => {
-    describe('waterfall', () => {
-        it('should call all methods and return the correct value', async () => {
-            const queue = [
-                jest.fn().mockResolvedValue('hello'),
-                jest.fn().mockResolvedValue('hi'),
-                jest.fn().mockResolvedValue('howdy'),
-            ];
-
-            const result = await waterfall('greetings', queue);
-            expect(result).toEqual('howdy');
-
-            expect(queue[0]).toHaveBeenCalledWith('greetings');
-            expect(queue[1]).toHaveBeenCalledWith('hello');
-            expect(queue[2]).toHaveBeenCalledWith('hi');
-        });
-
-        it('should handle errors correctly', async () => {
-            const queue = [
-                jest.fn().mockResolvedValue('hello'),
-                jest.fn().mockRejectedValue(new Error('Uh oh!')),
-                jest.fn().mockResolvedValue('howdy'),
-            ];
-
-            try {
-                const results = await waterfall('greetings', queue);
-                expect(results).fail('Should not get here');
-            } catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect(err.message).toEqual('Uh oh!');
-            }
-
-            expect(queue[0]).toHaveBeenCalledWith('greetings');
-            expect(queue[1]).toHaveBeenCalledWith('hello');
-            expect(queue[2]).not.toHaveBeenCalled();
-        });
-    });
-
     describe('isPlainObject', () => {
         class TestObj {
 
@@ -61,6 +23,39 @@ describe('Utils', () => {
             expect(isPlainObject(Object.create({ hello: true }))).toBeTrue();
             expect(isPlainObject({})).toBeTrue();
             expect(isPlainObject({ hello: true })).toBeTrue();
+        });
+    });
+
+    describe('isEmpty', () => {
+        const map = new Map();
+        map.set('hello', 'hello');
+
+        const set = new Set();
+        set.add(1);
+
+        describe.each([
+            [null, true],
+            [undefined, true],
+            [{}, true],
+            [false, true],
+            [true, true],
+            [-1, true],
+            [0, true],
+            [1, true],
+            [[], true],
+            ['', true],
+            [new Map(), true],
+            [new Set(), true],
+            [{ hi: true }, false],
+            [map, false],
+            [set, false],
+            [[1, 2], false],
+            [[null], false],
+            ['howdy', false],
+        ])('when given %p', (input, expected) => {
+            it(`should return ${expected ? 'true' : 'false'}`, () => {
+                expect(isEmpty(input)).toBe(expected);
+            });
         });
     });
 

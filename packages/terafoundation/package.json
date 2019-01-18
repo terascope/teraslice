@@ -1,0 +1,53 @@
+{
+    "name": "terafoundation",
+    "version": "0.7.0",
+    "publishConfig": {
+        "access": "public"
+    },
+    "description": "A Clustering and Foundation tool for Terascope Tools",
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/terafoundation#readme",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "repository": "git@github.com:terascope/teraslice.git",
+    "license": "Apache-2.0",
+    "author": "Terascope, LLC <info@terascope.io>",
+    "main": "./index.js",
+    "files": [
+        "*.js",
+        "lib/**/*",
+        "examples/**/*"
+    ],
+    "scripts": {
+        "lint": "eslint *.js lib/**/*.js test/**/*.js",
+        "lint:fix": "yarn lint --fix",
+        "test": "jest",
+        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
+        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
+    },
+    "dependencies": {
+        "@terascope/elasticsearch-api": "^1.1.4",
+        "agentkeepalive": "^3.5.1",
+        "bluebird": "^3.5.3",
+        "bunyan": "^1.8.12",
+        "bunyan-elasticsearch": "1.0.1",
+        "convict": "^4.4.1",
+        "elasticsearch": "^15.3.0",
+        "js-yaml": "^3.12.1",
+        "lodash": "^4.17.11",
+        "moment": "^2.23.0",
+        "mongoose": "~4.13.12",
+        "node-statsd": "0.1.1",
+        "node-webhdfs": "^1.0.0",
+        "redis": "^2.8.0",
+        "yargs": "^12.0.5"
+    },
+    "devDependencies": {
+        "@terascope/utils": "^0.2.0",
+        "eslint": "^5.12.0",
+        "eslint-config-airbnb-base": "^13.1.0",
+        "eslint-plugin-import": "^2.14.0",
+        "jest": "^23.6.0",
+        "jest-extended": "^0.11.0"
+    }
+}
