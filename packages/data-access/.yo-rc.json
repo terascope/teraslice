@@ -3,9 +3,7 @@
     "promptValues": {
       "internal": true,
       "typescript": true,
-      "exampleCode": true,
-      "license": "MIT"
-    },
-    "exampleCode": false
+      "exampleCode": true
+    }
   }
 }
