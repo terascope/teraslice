@@ -19,4 +19,4 @@ Please make sure to update tests as appropriate.
 
 ## License
 
-[<% license %>](./LICENSE) licensed.
+[<%= license %>](./LICENSE) licensed.

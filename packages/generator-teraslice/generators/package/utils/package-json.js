@@ -1,8 +1,34 @@
 'use strict';
 
 const _ = require('lodash');
+const path = require('path');
+const fs = require('fs');
 
 module.exports = (options) => {
+    const rootPkgJSON = readRootPkgJSON();
+
+    function readRootPkgJSON() {
+        const upDirs = _.times(5, () => '..');
+        const pkgPath = path.join(__dirname, ...upDirs, 'package.json');
+        try {
+            return JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+        } catch (err) {
+            return {};
+        }
+    }
+
+    function getPkgValues(packages) {
+        return _.mapValues(packages, (val, name) => {
+            if (_.has(rootPkgJSON, ['dependencies', name])) {
+                return _.get(rootPkgJSON, ['dependencies', name], val);
+            }
+            if (_.has(rootPkgJSON, ['devDependencies', name])) {
+                return _.get(rootPkgJSON, ['devDependencies', name], val);
+            }
+            return val;
+        });
+    }
+
     const {
         pkgName,
         pkgDirName,
@@ -43,13 +69,13 @@ module.exports = (options) => {
                 'test:watch': 'jest --coverage=false --notify --watch --onlyChanged',
                 'test:debug': "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
             },
-            devDependencies: {
-                eslint: '^5.12.0',
+            devDependencies: getPkgValues({
+                eslint: '^5.12.1',
                 'eslint-config-airbnb-base': '^13.1.0',
-                'eslint-plugin-import': '^2.14.0',
+                'eslint-plugin-import': '^2.15.0',
                 jest: '^23.6.0',
                 'jest-extended': '^0.11.0'
-            }
+            })
         });
     }
 
@@ -71,8 +97,8 @@ module.exports = (options) => {
             'test:watch': 'jest --coverage=false --notify --watch --onlyChanged',
             'test:debug': "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
         },
-        devDependencies: {
-            '@types/jest': '^23.3.12',
+        devDependencies: getPkgValues({
+            '@types/jest': '^23.3.13',
             '@types/node': '^10.12.18',
             'babel-core': '^6.0.0',
             'babel-jest': '^23.6.0',
@@ -83,6 +109,6 @@ module.exports = (options) => {
             tslint: '^5.12.1',
             'tslint-config-airbnb': '^5.11.1',
             typescript: '^3.2.4'
-        },
+        }),
     });
 };

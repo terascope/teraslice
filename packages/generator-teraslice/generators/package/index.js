@@ -1,10 +1,11 @@
 'use strict';
 
+const fs = require('fs');
 const _ = require('lodash');
 const path = require('path');
-const Generator = require('yeoman-generator');
 const chalk = require('chalk');
 const yosay = require('yosay');
+const Generator = require('yeoman-generator');
 const genPackageJSON = require('./utils/package-json');
 
 module.exports = class extends Generator {
@@ -76,7 +77,6 @@ module.exports = class extends Generator {
                 name: 'exampleCode',
                 message: 'Do you want example code generated?',
                 default: config.exampleCode != null ? config.exampleCode : false,
-                store: true,
             },
             {
                 type: 'list',
@@ -84,7 +84,6 @@ module.exports = class extends Generator {
                 message: 'What is the license for this package?',
                 default: _.trim(license),
                 choices: ['MIT', 'Apache-2.0'],
-                store: true,
             }
         ];
 
@@ -102,6 +101,13 @@ module.exports = class extends Generator {
     }
 
     writing() {
+        const pathExists = (...joins) => {
+            const filepath = path.join(...joins);
+            if (this.fs.exists(this.destinationPath(filepath))) return true;
+            if (fs.existsSync(path.join(process.cwd(), filepath))) return true;
+            return false;
+        };
+
         const packageJSON = genPackageJSON(this.props);
 
         this.fs.extendJSON(
@@ -144,7 +150,7 @@ module.exports = class extends Generator {
         const folderName = this.props.typescript ? 'src' : 'lib';
         const ext = this.props.typescript ? '.ts' : '.js';
 
-        if (!this.fs.exists(this.destinationPath(folderName))) {
+        if (!pathExists(folderName)) {
             if (this.props.exampleCode) {
                 this.fs.copy(
                     this.templatePath(folderName),
@@ -158,7 +164,7 @@ module.exports = class extends Generator {
             }
         }
 
-        if (!this.fs.exists(this.destinationPath('test'))) {
+        if (!pathExists('test')) {
             this.fs.copy(
                 this.templatePath(`test/index-spec${ext}`),
                 this.destinationPath(`test/index-spec${ext}`)
@@ -171,8 +177,6 @@ module.exports = class extends Generator {
                 );
             }
         }
-
-        this.config.set('exampleCode', false);
     }
 
     install() {
