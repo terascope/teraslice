@@ -21,16 +21,20 @@ export class ModelFactory<T extends BaseModel> {
         return;
     }
 
-    async delete(id: string): Promise<void> {
+    async deleteById(id: string): Promise<void> {
         return;
     }
 
-    async get(id: string): Promise<T> {
+    async findById(id: string): Promise<T> {
         // @ts-ignore FIXME
         return {};
     }
 
-    async search(query: string, limit: number = 10, sort?: string): Promise<T[]> {
+    async findAll(ids: string[], space: string): Promise<T[]> {
+        return [];
+    }
+
+    async search(query: string, limit: number = 10, fields?: (keyof T)[], sort?: string): Promise<T[]> {
         return [];
     }
 

@@ -1,16 +1,40 @@
-import { ModelFactory, BaseModel } from './base';
+import { ModelFactory, BaseModel, UpdateInput } from './base';
 
 /**
  * Manager for Users
 */
 export class Users extends ModelFactory<UserModel> {
-    async findByUsername(username: string): Promise<UserModel> {
+    /**
+     * Authenticate the user
+     *
+     * @returns true if authenticated and false if it fails to authenticate the user
+    */
+    async authenticate(username: string, password: string): Promise<boolean> {
         // @ts-ignore FIXME
         return {};
     }
 
-    async search(query: string, limit: number = 10, sort?: string): Promise<UserModel[]> {
-        return [];
+    /**
+     * Update the API Token for a user
+    */
+    async updateToken(user: UpdateInput<UserModel>): Promise<string> {
+        return '';
+    }
+
+    /**
+     * Find a user by the API Token
+    */
+    async findByToken(apiToken: string): Promise<UserModel> {
+        // @ts-ignore FIXME
+        return {};
+    }
+
+    /**
+     * Find a User by username
+    */
+    async findByUsername(username: string): Promise<UserModel> {
+        // @ts-ignore FIXME
+        return {};
     }
 }
 

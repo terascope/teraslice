@@ -36,7 +36,17 @@ export class ACLManager {
         ]);
     }
 
-    async getConfig(): Promise<DataAccessConfig> {
+    /**
+     * Get the User's view of a "Space"
+     */
+    async getViewForUser(username: string, space: string): Promise<DataAccessConfig> {
+        const user = await this.users.findByUsername(username);
+        const roles = await this.roles.findAllForUser(user, space);
+
+        // QUESTION?: What do we do if there are multiple views
+        // @ts-ignore
+        const views = await this.views.findAllForRoles(roles, space);
+
         // @ts-ignore FIXME
         return {};
     }
@@ -55,14 +65,17 @@ export interface DataAccessConfig {
      * The User Model
     */
     user: models.UserModel;
+
     /**
      * The View Model
     */
     view: models.ViewModel;
+
     /**
-     * The Space Model
+     * The name of the space
     */
     space: models.SpaceModel;
+
     /**
      * The name of the Role
     */
