@@ -1,18 +1,16 @@
 
 import _ from 'lodash';
 import * as url from 'valid-url';
-import { DataEntity } from '@terascope/job-components';
 import { OperationConfig } from '../../../interfaces';
-import OperationBase from '../base';
+import ValidationBase from './base';
 
-export default class Url extends OperationBase {
+export default class Url extends ValidationBase<any> {
     constructor(config: OperationConfig) {
         super(config);
     }
 
-    run(doc: DataEntity): DataEntity | null {
-        const field = _.get(doc, this.source);
-        if (typeof field !== 'string' || !url.isUri(field)) _.unset(doc, this.source);
-        return doc;
+    validate(doc: any) {
+        if (typeof doc !== 'string' || !url.isUri(doc)) return false;
+        return true;
     }
 }

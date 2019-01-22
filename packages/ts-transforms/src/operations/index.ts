@@ -1,14 +1,17 @@
 
 import _ from 'lodash';
-import OperationBase from './lib/base';
 
-import Join from './lib/ops/join';
-import Selector from './lib/ops/selector';
-import Extraction  from './lib/ops/extraction';
-import Base64Decode from './lib/ops/base64decode';
-import UrlDecode from './lib/ops/urldecode';
-import HexDecode from './lib/ops/hexdecode';
-import JsonParse from './lib/ops/jsonparse';
+import OperationBase from './lib/base';
+import TransformBase from './lib/transforms/base';
+import ValidationBase from './lib/validations/base';
+
+import Join from './lib/transforms/join';
+import Selector from './lib/transforms/selector';
+import Extraction  from './lib/transforms/extraction';
+import Base64Decode from './lib/transforms/base64decode';
+import UrlDecode from './lib/transforms/urldecode';
+import HexDecode from './lib/transforms/hexdecode';
+import JsonParse from './lib/transforms/jsonparse';
 
 import Geolocation from './lib/validations/geolocation';
 import StringValidation from './lib/validations/string';
@@ -76,6 +79,8 @@ class OperationsManager {
 
 export {
     OperationBase,
+    TransformBase,
+    ValidationBase,
     Join,
     Selector,
     Extraction,

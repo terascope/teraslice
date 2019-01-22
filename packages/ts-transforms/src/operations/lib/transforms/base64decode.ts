@@ -1,16 +1,16 @@
 
 import _ from 'lodash';
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 import { OperationConfig } from '../../../interfaces';
-import OperationBase from '../base';
+import TransformBase from './base';
 
-export default class HexDecode extends OperationBase {
+export default class Base64Decode extends TransformBase {
     constructor(config: OperationConfig) {
         super(config);
     }
 
     decoderFn(data:string) {
-        return Buffer.from(data, 'hex').toString('utf8');
+        return Buffer.from(data, 'base64').toString('utf8');
     }
 
     run(record: DataEntity): DataEntity | null {

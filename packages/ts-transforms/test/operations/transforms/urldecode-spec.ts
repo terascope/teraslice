@@ -1,16 +1,12 @@
 
-import { Base64Decode } from '../../../src/operations';
-import { DataEntity } from '@terascope/job-components';
+import { UrlDecode } from '../../../src/operations';
+import { DataEntity } from '@terascope/utils';
 
-describe('base64 operator', () => {
-
-    function encode(str: string) {
-        return Buffer.from(str).toString('base64');
-    }
+describe('urldecode operator', () => {
 
     it('can instantiate', () => {
         const opConfig = { target_field: 'final', source_field: 'source' };
-        expect(() => new Base64Decode(opConfig)).not.toThrow();
+        expect(() => new UrlDecode(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
@@ -23,24 +19,24 @@ describe('base64 operator', () => {
         const badConfig7 = { source_field: null };
         const badConfig8 = { source_field: '', target_field: '' };
         // @ts-ignore
-        expect(() => new Base64Decode(badConfig1)).toThrow();
-        expect(() => new Base64Decode(badConfig2)).toThrow();
+        expect(() => new UrlDecode(badConfig1)).toThrow();
+        expect(() => new UrlDecode(badConfig2)).toThrow();
         // @ts-ignore
-        expect(() => new Base64Decode(badConfig3)).toThrow();
+        expect(() => new UrlDecode(badConfig3)).toThrow();
         // @ts-ignore
-        expect(() => new Base64Decode(badConfig4)).toThrow();
+        expect(() => new UrlDecode(badConfig4)).toThrow();
         // @ts-ignore
-        expect(() => new Base64Decode(badConfig5)).toThrow();
+        expect(() => new UrlDecode(badConfig5)).toThrow();
         // @ts-ignore
-        expect(() => new Base64Decode(badConfig6)).toThrow();
+        expect(() => new UrlDecode(badConfig6)).toThrow();
         // @ts-ignore
-        expect(() => new Base64Decode(badConfig7)).toThrow();
-        expect(() => new Base64Decode(badConfig8)).toThrow();
+        expect(() => new UrlDecode(badConfig7)).toThrow();
+        expect(() => new UrlDecode(badConfig8)).toThrow();
     });
 
-    it('can base64 decode fields', () => {
+    it('can urldecode decode fields', () => {
         const opConfig = { target_field: 'final', source_field: 'source' };
-        const test =  new Base64Decode(opConfig);
+        const test =  new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
         const data1 = new DataEntity({ source: 123423 }, metaData);
@@ -49,11 +45,11 @@ describe('base64 operator', () => {
         const data4 = new DataEntity({ source: { some: 'data' } });
         const data5 = new DataEntity({ source: true }, metaData);
         const data6 = new DataEntity({});
-        const data7 = new DataEntity({ source: encode('http:// google.com') });
-        const data8 = new DataEntity({ source: encode('ha3ke5@pawnage.com') }, metaData);
-        const data9 = new DataEntity({ source: encode('::') });
-        const data10 = new DataEntity({ source: encode('193.0.0.23') }, metaData);
-        const data11 = new DataEntity({ source: encode('hello world') }, metaData);
+        const data7 = new DataEntity({ source: 'http:// google.com?q=HELLO%20AND%20GOODBYE' });
+        const data8 = new DataEntity({ source: 'ha3ke5@pawnage.com' }, metaData);
+        const data9 = new DataEntity({ source: '::' });
+        const data10 = new DataEntity({ source: '193.0.0.23' }, metaData);
+        const data11 = new DataEntity({ source: 'hello world' }, metaData);
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -76,37 +72,39 @@ describe('base64 operator', () => {
         expect(results4).toEqual({});
         expect(results5).toEqual({});
         expect(results6).toEqual({});
-        expect(results7).toEqual({ final: 'http:// google.com', source: encode('http:// google.com') });
-        expect(results8).toEqual({ final: 'ha3ke5@pawnage.com', source: encode('ha3ke5@pawnage.com') });
-        expect(results9).toEqual({ final: '::' , source: encode('::') });
-        expect(results10).toEqual({ final: '193.0.0.23', source: encode('193.0.0.23') });
+        expect(results7).toEqual({ final: 'http:// google.com?q=HELLO AND GOODBYE', source: 'http:// google.com?q=HELLO%20AND%20GOODBYE' });
+        expect(results8).toEqual({ source: 'ha3ke5@pawnage.com', final: 'ha3ke5@pawnage.com' });
+        expect(results9).toEqual({ source: '::', final: '::' });
+        expect(results10).toEqual({ source: '193.0.0.23', final: '193.0.0.23' });
         expect(DataEntity.getMetadata(results11 as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results11).toEqual({ final: 'hello world', source: encode('hello world') });
+        expect(results11).toEqual({ source: 'hello world', final: 'hello world' });
     });
 
-    it('can base64 decode fields and remove source', () => {
+    it('can urldecode decode fields and remove source', () => {
         const opConfig = { target_field: 'final', source_field: 'source', remove_source: true };
-        const test =  new Base64Decode(opConfig);
+        const test =  new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
-
-        const data = new DataEntity({ source: encode('hello world') }, metaData);
+        const url = 'http:// localhost:9200/logstash-2018.7/_search?q=bytes:>500 AND ip:*&pretty&size=10000';
+        const encodedUrl = 'http:// localhost:9200/logstash-2018.7/_search?q=bytes:%3E500%20AND%20ip:*&pretty&size=10000';
+        const data = new DataEntity({ source: encodedUrl }, metaData);
 
         const results = test.run(data);
 
         expect(DataEntity.getMetadata(results as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results).toEqual({ final: 'hello world' });
+        expect(results).toEqual({ final: url });
     });
 
-    it('can base64 decode nested fields and remove source', () => {
+    it('can urldecode decode nested fields and remove source', () => {
         const opConfig = { target_field: 'final.data', source_field: 'source.field', remove_source: true };
-        const test =  new Base64Decode(opConfig);
+        const test =  new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
-
-        const data = new DataEntity({ source: { field: encode('hello world') } }, metaData);
+        const url = 'http:// localhost:9200/logstash-2018.7/_search?q=bytes:>500 AND ip:*&pretty&size=10000';
+        const encodedUrl = 'http:// localhost:9200/logstash-2018.7/_search?q=bytes:%3E500%20AND%20ip:*&pretty&size=10000';
+        const data = new DataEntity({ source: { field: encodedUrl } }, metaData);
 
         const results = test.run(data);
 
         expect(DataEntity.getMetadata(results as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results).toEqual({ final: { data: 'hello world' }, source: {}  });
+        expect(results).toEqual({ final: { data: url }, source: {}  });
     });
 });

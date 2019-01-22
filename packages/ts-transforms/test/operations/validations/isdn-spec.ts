@@ -1,6 +1,6 @@
 
 import { ISDN } from '../../../src/operations';
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 
 describe('phone number validation', () => {
 

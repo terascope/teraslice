@@ -1,5 +1,5 @@
 
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 
 export enum NotifyType { matcher = 'matcher', transform = 'transform' }
 
@@ -30,6 +30,7 @@ export interface OperationConfig {
     multivalue?: boolean;
     _multi_target_field?: string;
     value?: any;
+    output?: boolean;
 }
 
 export interface SelectorTypes {
@@ -78,7 +79,7 @@ export interface WatcherConfig {
 export type injectFn = (config: OperationConfig, list: OperationConfig[]) => void;
 export type filterFn = (config: OperationConfig) => boolean;
 
-export interface BoolValidation {
+export interface BoolValidationResult {
     isValid: boolean;
     bool?: boolean;
 }

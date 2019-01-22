@@ -1,11 +1,11 @@
 
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
 import validator from 'validator';
-import OperationBase from '../base';
+import ValidationBase from './base';
 import { OperationConfig } from '../../../interfaces';
 
-export default class MacAddress extends OperationBase {
+export default class MacAddress extends ValidationBase<any> {
     private case: 'lowercase' | 'uppercase';
     private preserveColons: boolean;
 
@@ -15,34 +15,20 @@ export default class MacAddress extends OperationBase {
         this.preserveColons = config.preserve_colons || false;
     }
 
-    normalizeField(value: string): string {
-        let results = value;
+    normalize(data: any, _doc: DataEntity) {
+        let results = data;
+        if (typeof data !== 'string') throw new Error('data must be a string');
         if (this.case === 'lowercase') results = results.toLowerCase();
         if (this.case === 'uppercase') results = results.toUpperCase();
         if (!this.preserveColons) results = results.replace(/:/gi, '');
         return results;
     }
 
-    run(doc: DataEntity): DataEntity | null {
-        const field = _.get(doc, this.source);
-
-        if (typeof field !== 'string') {
-            _.unset(doc, this.source);
-            return doc;
-        }
-
-        const data = this.normalizeField(field);
+    validate(data: string) {
         const options = { no_colons: !this.preserveColons };
         // TODO: fix the types for valdiator, it does not have the options listed
         // @ts-ignore
-        if (!validator.isMACAddress(data, options)) {
-            _.unset(doc, this.source);
-            return doc;
-        }
-
-        // we set the normalized results back in place
-        _.set(doc, this.source, data);
-
-        return doc;
+        if (!validator.isMACAddress(data, options)) return false;
+        return true;
     }
 }

@@ -1,12 +1,14 @@
 
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
-import OperationBase from '../base';
+import TransformBase from './base';
 import { OperationConfig } from '../../../interfaces';
 
-export default class JsonParse extends OperationBase {
+export default class JsonParse extends TransformBase {
     constructor(config: OperationConfig) {
         super(config);
+        // @ts-ignore
+        this.config = config;
     }
 
     run(doc: DataEntity): DataEntity | null {

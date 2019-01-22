@@ -1,21 +1,25 @@
 
 import _ from 'lodash';
-import { DataEntity } from '@terascope/job-components';
 import { OperationConfig } from '../../interfaces';
 
-export default abstract class OperationBase {
+export default class OperationBase {
     protected source: string;
     protected target: string;
     protected removeSource: boolean;
+    protected config: OperationConfig;
 
     constructor(config: OperationConfig) {
         this.source = '';
         this.target = '';
         this.removeSource =  false;
-        this.validate(config);
+        this.validateConfig(config);
+        this.config = config;
+
     }
 
-    protected validate(config: OperationConfig) {
+    // TODO: verify if we should do validateConfig source and target manipulations in normalizeConfig in phasebase
+
+    protected validateConfig(config: OperationConfig) {
         // we don't need to check target or source for selector ops
         if (this.constructor.name === 'Selector' || this.constructor.name === 'RequiredExtractions') return;
         const { target_field: targetField, source_field: sField, remove_source } = config;
@@ -32,25 +36,7 @@ export default abstract class OperationBase {
         this.target = tField;
     }
 
-    protected fieldPath(str: string): string {
+    protected parentFieldPath(str: string): string {
         return str.lastIndexOf('.') === -1 ? str : str.slice(0, str.lastIndexOf('.'));
     }
-
-    protected decode(doc: DataEntity, decodeFn: Function) {
-        try {
-            const data = _.get(doc, this.source);
-            if (typeof data !== 'string') {
-                _.unset(doc, this.source);
-            } else {
-                _.set(doc, this.target, decodeFn(data));
-            }
-        } catch (err) {
-            _.unset(doc, this.source);
-        }
-
-        if (this.removeSource) _.unset(doc, this.source);
-        return doc;
-    }
-
-    abstract run(data: DataEntity): null | DataEntity;
 }

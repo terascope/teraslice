@@ -31,18 +31,18 @@ export default class PhaseManager {
             const configList = await this.loader.load();
             const opsManager = new OperationsManager(Plugins);
             const sequence: PhaseBase[] = [
-                new SelectionPhase(this.opConfig, configList, opsManager),
+                new SelectionPhase(this.opConfig, _.cloneDeep(configList), opsManager),
             ];
 
             if (!this.isMatcher) {
                 sequence.push(
-                    new ExtractionPhase(this.opConfig, configList, opsManager),
-                    new PostProcessPhase(this.opConfig, configList, opsManager),
-                    new ValidationPhase(this.opConfig, configList, opsManager)
+                    new ExtractionPhase(this.opConfig, _.cloneDeep(configList), opsManager),
+                    new PostProcessPhase(this.opConfig, _.cloneDeep(configList), opsManager),
+                    new ValidationPhase(this.opConfig, _.cloneDeep(configList), opsManager)
                 );
             }
 
-            sequence.push(new OutputPhase(this.opConfig, configList, opsManager));
+            sequence.push(new OutputPhase(this.opConfig, _.cloneDeep(configList), opsManager));
 
             this.sequence = sequence;
         } catch (err) {

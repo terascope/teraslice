@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 import path from 'path';
 import _ from 'lodash';
 import TestHarness from './test-harness';
@@ -718,5 +718,46 @@ describe('can transform matches', () => {
         expect(results1[2]).toEqual({
             height: 4,
         });
+    });
+
+    it('can extract json and omit intermediate fields', async () => {
+
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules21.txt')],
+            type: 'transform'
+        };
+
+        const data = [
+            new DataEntity({ some: 'value', field: JSON.stringify('something') }),
+            new DataEntity({ some: 'value', field: JSON.stringify({ field: 'value' }) })
+        ];
+
+        const test = await opTest.init(config);
+        const results =  await test.run(data);
+
+        expect(results.length).toEqual(1);
+        expect(results[0]).toEqual({ myfield: 'value' });
+    });
+
+    xit('can run and omit fields', async () => {
+
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules22.txt')],
+            type: 'transform'
+        };
+
+        const data = [
+            new DataEntity({ some: 'value', field: 'something' }),
+            new DataEntity({ some: 'value', field: 'null' }),
+            new DataEntity({ some: 'value', field: 'otherthing' })
+        ];
+
+        const test = await opTest.init(config);
+        const results =  await test.run(data);
+        console.log('what are the results', results)
+
+        expect(results.length).toEqual(2);
+        expect(results[0]).toEqual({ newField: 'something' });
+        expect(results[1]).toEqual({ newField: 'otherthing' });
     });
 });

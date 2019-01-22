@@ -1,5 +1,5 @@
 
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
 import { OperationConfig, WatcherConfig } from '../interfaces';
 import PhaseBase from './base';

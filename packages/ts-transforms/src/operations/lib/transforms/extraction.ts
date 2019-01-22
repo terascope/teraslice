@@ -1,18 +1,16 @@
 
 import _ from 'lodash';
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 import { OperationConfig } from '../../../interfaces';
-import OperationBase from '../base';
+import TransformBase from './base';
 
-export default class Extraction extends OperationBase {
-    private config: OperationConfig;
+export default class Extraction extends TransformBase {
     private isMutation: Boolean;
     private mutltiFieldParams: object;
 
     constructor(config: OperationConfig) {
         super(config);
         this.isMutation = config.mutate === true;
-        this.config = config;
         const mutltiFieldParams = {};
         if (config.multivalue) {
             const targetSource = {};

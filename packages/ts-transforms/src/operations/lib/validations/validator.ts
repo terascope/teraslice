@@ -1,32 +1,23 @@
-import { DataEntity } from '@terascope/job-components';
+
 import _ from 'lodash';
 import validator from 'validator';
-import OperationBase from '../base';
+import ValidationBase from './base';
 import { OperationConfig, PluginClassType, /*OperationsDict*/ } from '../../../interfaces';
 
-export class Validator extends OperationBase {
+export class Validator extends ValidationBase<any> {
     private method: string;
     private value: any;
-    private config: OperationConfig;
 
     constructor(config: OperationConfig, method: string) {
         super(config);
         this.method = method;
         this.value = config.value;
-        this.config = config;
     }
 
-    run(doc: DataEntity): DataEntity | null {
-        const data = _.get(doc, this.source);
+    validate(value: any) {
         const args = this.value || this.config;
-
-        if (data === undefined) return doc;
-        try {
-            if (!validator[this.method](data, args)) _.unset(doc, this.source);
-        } catch (err) {
-            _.unset(doc, this.source);
-        }
-        return doc;
+        if (!validator[this.method](value, args)) return false;
+        return true;
     }
 }
 

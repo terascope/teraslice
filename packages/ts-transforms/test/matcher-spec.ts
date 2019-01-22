@@ -1,5 +1,5 @@
 
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 import path from 'path';
 import _ from 'lodash';
 import TestHarness from './test-harness';

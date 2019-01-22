@@ -1,10 +1,10 @@
 
 import _ from 'lodash';
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 import { OperationConfig } from '../../../interfaces';
-import OperationBase from '../base';
+import TransformBase from './base';
 
-export default class Join extends OperationBase {
+export default class Join extends TransformBase {
     private delimiter: string;
     private fields: string[];
 
@@ -14,7 +14,7 @@ export default class Join extends OperationBase {
         this.fields = config.fields as string[];
     }
     // source work differently here so we do not use the inherited validate
-    protected validate(config: OperationConfig) {
+    protected validateConfig(config: OperationConfig) {
         const { target_field: tField, remove_source } = config;
         if (!tField || typeof tField !== 'string' || tField.length === 0)  {
             throw new Error(`could not find target_field for ${this.constructor.name} validation or it is improperly formatted, config: ${JSON.stringify(config)}`);

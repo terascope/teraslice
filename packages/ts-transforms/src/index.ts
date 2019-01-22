@@ -7,6 +7,8 @@ import ValidationPhase from './phase_manager/validation_phase';
 import OutputPhase from './phase_manager/output_phase';
 import Loader from './loader';
 import { OperationsManager } from './operations';
+import ValidationBase from './operations/lib/validations/base';
+import TransformBase from './operations/lib/transforms/base';
 
 export {
     PhaseManager,
@@ -16,5 +18,7 @@ export {
     ValidationPhase,
     OutputPhase,
     Loader,
-    OperationsManager
+    OperationsManager,
+    ValidationBase,
+    TransformBase
 };

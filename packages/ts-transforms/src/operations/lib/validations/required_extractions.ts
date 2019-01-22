@@ -1,15 +1,17 @@
 
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
 import OperationBase from '../base';
 
 export default class RequiredExtractions extends OperationBase {
-    private config: object;
-
     constructor(config: object) {
         super(config);
         this.config = config;
     }
+    // TODO: this should be an output functionality
+    // validate() {
+
+    // }
 
     run(data: DataEntity): DataEntity | null {
         let otherExtractionsFound = false;

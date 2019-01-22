@@ -1,5 +1,5 @@
 
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 import { OperationConfig } from '../../../src/interfaces';
 
 export default class NoOp {

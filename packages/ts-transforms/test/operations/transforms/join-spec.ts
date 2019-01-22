@@ -1,6 +1,6 @@
 
 import { Join } from '../../../src/operations';
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 
 describe('join operator', () => {
 

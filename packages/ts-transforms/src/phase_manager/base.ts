@@ -1,5 +1,5 @@
 
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
 import { OperationConfig, NormalizedConfig, OperationsPipline, ConfigResults, injectFn, filterFn } from '../interfaces';
 import { OperationsManager } from '../operations';
@@ -45,7 +45,7 @@ export default abstract class PhaseBase {
             if (myConfig.follow) {
                 const id = myConfig.follow;
                 const referenceConfig = configList.find(obj => obj.tag === id);
-                if (!referenceConfig) throw new Error(`could not find configuration id for follow ${id}`);
+                if (!referenceConfig) throw new Error(`could not find configuration tag identifier for follow ${id}`);
                 if (!container.targetConfig) container.targetConfig = referenceConfig;
                 // recurse
                 if (referenceConfig.follow) {
@@ -62,7 +62,10 @@ export default abstract class PhaseBase {
         if (!config.other_match_required && !registrationSelector || !targetConfig) throw new Error('could not find orignal selector and target configuration');
         // a validation/post-op source is the target_field of the previous op
         const formattedTargetConfig = {};
-        if (targetConfig.target_field && (type === 'validation' || type === 'post_process')) formattedTargetConfig['source_field'] = targetConfig.target_field;
+        // TODO: look at this deeper
+        if (!(config.follow && config.source_field) && targetConfig.target_field && (type === 'validation' || type === 'post_process')) {
+            formattedTargetConfig['source_field'] = targetConfig.target_field;
+        }
         const finalConfig = _.assign({}, config, formattedTargetConfig);
 
         return { configuration: finalConfig, registrationSelector: registrationSelector as string };

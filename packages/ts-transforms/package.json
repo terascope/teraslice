@@ -42,7 +42,7 @@
         "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.14.3",
+        "@terascope/utils": "^0.2.0",
         "@types/got": "^9.4.0",
         "awesome-phonenumber": "^2.3.3",
         "got": "^9.6.0",
