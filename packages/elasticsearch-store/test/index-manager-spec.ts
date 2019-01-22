@@ -76,13 +76,24 @@ describe('IndexManager', () => {
         });
 
         describe('->formatIndexName', () => {
-            describe('when passed no versions', () => {
+            describe('when passed just a name', () => {
                 it('should return a correctly formatted index name', () => {
                     const indexName = indexManager.formatIndexName({
                         name: 'hello',
                     });
 
                     expect(indexName).toEqual('hello-v1-s1');
+                });
+            });
+
+            describe('when passed a name and a namespace', () => {
+                it('should return a correctly formatted index name', () => {
+                    const indexName = indexManager.formatIndexName({
+                        name: 'hello',
+                        namespace: 'test'
+                    });
+
+                    expect(indexName).toEqual('test-hello-v1-s1');
                 });
             });
 
@@ -134,13 +145,24 @@ describe('IndexManager', () => {
         });
 
         describe('->formatTemplateName', () => {
-            describe('when passed no versions', () => {
+            describe('when passed just a name', () => {
                 it('should return a correctly formatted template name', () => {
                     const templateName = indexManager.formatTemplateName({
                         name: 'hello',
                     });
 
                     expect(templateName).toEqual('hello-v1');
+                });
+            });
+
+            describe('when passed a name and a namespace', () => {
+                it('should return a correctly formatted template name', () => {
+                    const templateName = indexManager.formatTemplateName({
+                        name: 'hello',
+                        namespace: 'test'
+                    });
+
+                    expect(templateName).toEqual('test-hello-v1');
                 });
             });
 

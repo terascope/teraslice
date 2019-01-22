@@ -30,11 +30,17 @@ export default class IndexManager {
     formatIndexName(config: IndexConfig, useWildcard = true) {
         utils.validateIndexConfig(config);
 
-        const { name } = config;
-        const dataVersion = utils.getDataVersion(config);
-        const schemaVersion = utils.getSchemaVersion(config);
+        const { name, namespace } = config;
+        const dataVersion = utils.getDataVersionStr(config);
+        const schemaVersion = utils.getSchemaVersionStr(config);
 
-        const indexName = `${name}-v${dataVersion}-s${schemaVersion}`;
+        const indexName = utils.formatIndexName([
+            namespace,
+            name,
+            dataVersion,
+            schemaVersion,
+        ]);
+
         if (utils.isTimeSeriesIndex(config.indexSchema) && !useWildcard) {
             const timeSeriesFormat = utils.getRolloverFrequency(config);
             return utils.timeseriesIndex(indexName, timeSeriesFormat);
@@ -50,10 +56,13 @@ export default class IndexManager {
     formatTemplateName(config: IndexConfig) {
         utils.validateIndexConfig(config);
 
-        const { name } = config;
-        const dataVersion = utils.getDataVersion(config);
+        const { name, namespace } = config;
 
-        return `${name}-v${dataVersion}`;
+        return utils.formatIndexName([
+            namespace,
+            name,
+            utils.getDataVersionStr(config)
+        ]);
     }
 
     /**
