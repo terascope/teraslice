@@ -1,12 +1,15 @@
 
 import _ from 'lodash';
 import OperationBase from './lib/base';
+
 import Join from './lib/ops/join';
 import Selector from './lib/ops/selector';
 import Extraction  from './lib/ops/extraction';
 import Base64Decode from './lib/ops/base64decode';
 import UrlDecode from './lib/ops/urldecode';
 import HexDecode from './lib/ops/hexdecode';
+import JsonParse from './lib/ops/jsonparse';
+
 import Geolocation from './lib/validations/geolocation';
 import StringValidation from './lib/validations/string';
 import NumberValidation from './lib/validations/number';
@@ -19,6 +22,7 @@ import Uuid from './lib/validations/uuid';
 import ISDN from './lib/validations/isdn';
 import RequiredExtractions from './lib/validations/required_extractions';
 import { Validator, ValidatorPlugins } from './lib/validations/validator';
+
 import { OperationsDict, PluginClassType, BaseOperationClass, PluginList } from '../interfaces';
 
 class CorePlugins implements PluginClassType {
@@ -41,6 +45,7 @@ class CorePlugins implements PluginClassType {
             macaddress: MacAddress,
             isdn: ISDN,
             uuid: Uuid,
+            jsonparse: JsonParse
         };
     }
 }
@@ -90,5 +95,6 @@ export {
     Uuid,
     ISDN,
     Validator,
-    CorePlugins
+    CorePlugins,
+    JsonParse
 };

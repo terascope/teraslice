@@ -16,5 +16,3 @@ export default class Url extends OperationBase {
         return doc;
     }
 }
-// $ curl 'localhost:9200/test_index/_search?q=bytes:>=5642000&size=1000'  | ./bin/ts-transform.js -r ../../../transforms/someRules.txt
-// ./bin/ts-transform.js -r ../../../transforms/someRules.txt -d 'localhost:9200/test_index/_search?q=bytes:>=5642000&size=1000'
