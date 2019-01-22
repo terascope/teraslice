@@ -1,14 +1,12 @@
 'use strict';
 
-const _ = require('lodash');
-const JobSrc = require('../../lib/job-src');
+const TjmCommands = require('../../lib/tjm-commands');
 const YargsOptions = require('../../lib/yargs-options');
-const reply = require('../lib/reply')();
 
 const yargsOptions = new YargsOptions();
 
-exports.command = 'reset <job-name>';
-exports.desc = 'Reset a job file by removing the cli metadata';
+exports.command = 'status <job-name>';
+exports.desc = 'View the current job status';
 exports.builder = (yargs) => {
     yargs.positional('job-name', yargsOptions.buildPositional('job-name'));
     yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
@@ -18,8 +16,6 @@ exports.builder = (yargs) => {
 };
 
 exports.handler = async (argv) => {
-    const job = new JobSrc(argv.srcDir, argv.jobName);
-    _.unset(job.content, '__metadata');
-    job.overwrite();
-    reply.green(`Removed metadata from ${argv.jobName}`);
+    const tjmCommands = new TjmCommands(argv);
+    tjmCommands.status();
 };

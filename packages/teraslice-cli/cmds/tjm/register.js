@@ -25,24 +25,25 @@ exports.builder = (yargs) => {
 
 exports.handler = async (argv) => {
     const cliConfig = new Config(argv);
-    const job = new JobSrc(cliConfig.args.srcDir, cliConfig.args.file);
+    const job = new JobSrc(argv);
     const terasliceClient = getTerasliceClient(cliConfig);
 
     if (job.hasMetaData) {
         const regCluster = _.get(job.content, '__metadata.cli.cluster');
         reply.fatal(`job has already been registered on ${regCluster}`);
     }
-
+    job.readFile();
+    job.validateJob();
     const registeredResponse = await terasliceClient.jobs
         .submit(job.content, !cliConfig.args.start);
 
     const jobId = registeredResponse.id();
 
     if (registeredResponse) {
-        reply.green(`Successfully registered job: ${jobId} on ${cliConfig.clusterUrl}`);
-        if (cliConfig.args.start) reply.green(`Job: ${jobId} is queued to start`);
+        reply.green(`Successfully registered ${job.content.name} on ${cliConfig.clusterUrl} with job id ${jobId}`);
+        if (cliConfig.args.start) reply.green(`${job.content.name} is queued to start`);
     } else {
-        reply.fatal('Job failed to register');
+        reply.fatal(`Failed to register ${job.content.name} on ${cliConfig.clusterUrl}`);
     }
 
     job.addMetaData(jobId, cliConfig.clusterUrl);

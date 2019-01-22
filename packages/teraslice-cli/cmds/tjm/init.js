@@ -1,24 +1,44 @@
 'use strict';
-'use console';
 
-const _ = require('lodash');
+const JobSrc = require('../../lib/job-src');
+const YargsOptions = require('../../lib/yargs-options');
 const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
 
-exports.command = 'init <job_file>';
+const yargsOptions = new YargsOptions();
+
+exports.command = 'init <job-name>';
 exports.desc = 'Initialize a new job file with an example job definition';
 exports.builder = (yargs) => {
-    cli().args('tjm', 'init', yargs);
-    yargs
-        .example('teraslice-cli tjm init example.json');
+    yargs.positional('job-name', yargsOptions.buildPositional('job-name'));
+    yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
+    yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.example('$0 tjm start new-job.json');
+    yargs.example('$0 tjm run new-job.json');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    config(cliConfig, 'tjm:init').returnConfigData();
-    const tjm = _testFunctions || require('./lib')(cliConfig);
-
-    return tjm.init()
-        .catch(err => reply.fatal(err.message));
+exports.handler = (argv) => {
+    const job = new JobSrc(argv);
+    job.content = {
+        name: 'data-generator',
+        lifecycle: 'persistent',
+        workers: 3,
+        operations: [
+            {
+                _op: 'elasticsearch_data_generator',
+                size: 5000
+            },
+            {
+                _op: 'elasticsearch_index_selector',
+                index: 'example-logs',
+                type: 'events'
+            },
+            {
+                _op: 'elasticsearch_bulk',
+                size: 5000,
+                connection: 'default'
+            }]
+    };
+    job.validateJob();
+    job.overwrite();
+    reply.green(`Created ${argv.jobName} file at ${job.jobPath}`);
 };

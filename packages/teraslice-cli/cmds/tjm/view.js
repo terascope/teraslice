@@ -1,25 +1,20 @@
 'use strict';
-'use console';
 
-const _ = require('lodash');
-const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
+const TjmCommands = require('../../lib/tjm-commands');
+const YargsOptions = require('../../lib/yargs-options');
 
-exports.command = 'view <job_file>';
-exports.desc = 'View the job file definition on cluster';
+const yargsOptions = new YargsOptions();
+
+exports.command = 'view <job-name>';
+exports.desc = 'View a job as it is saved on the cluster by referencing the job file';
 exports.builder = (yargs) => {
-    cli().args('tjm', 'view', yargs);
-    yargs
-        .example('teraslice-cli view test.json')
-        .example('teraslice-cli view test.json -l');
+    yargs.positional('job-name', yargsOptions.buildPositional('job-name'));
+    yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
+    yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.example('$0 tjm view jobName.json');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    config(cliConfig, 'tjm:view').returnConfigData();
-    const tjm = _testFunctions || require('./lib')(cliConfig);
-
-    return tjm.view()
-        .catch(err => reply.fatal(err.message));
+exports.handler = async (argv) => {
+    const tjmCommands = new TjmCommands(argv);
+    tjmCommands.view();
 };

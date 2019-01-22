@@ -10,12 +10,13 @@ class JobFile {
      * @param {string} jobPath the path to the job file
      * @param {string} name name of job file.
      */
-    constructor(srcPath, name) {
-        this.jobPath = path.join(srcPath, name);
-        if (!fs.pathExistsSync(this.jobPath)) {
-            reply.fatal(`Cannot find ${this.jobPath}, check your path and file name and try again`);
-        }
-        this.content = fs.readJsonSync(this.jobPath);
+    constructor(argv) {
+        this.jobPath = path.join(argv.srcDir, argv.jobName);
+        this.content = '';
+        this.version = require('../package.json').version;
+    }
+
+    validateJob() {
         // TODO: use @teraslice/job-components job-validator to validate job file
         // this minimum requirement will work for now to get everything up and running
         // Job file must contain name, number of workers and at least 2 operations
@@ -27,12 +28,16 @@ class JobFile {
         )) {
             reply.fatal('Job must have a name, workers, and at least 2 operations');
         }
-        this.version = require('../package.json').version;
+    }
+
+    readFile() {
+        if (!fs.pathExistsSync(this.jobPath)) {
+            reply.fatal(`Cannot find ${this.jobPath}, check your path and file name and try again`);
+        }
+        this.content = fs.readJsonSync(this.jobPath);
     }
 
     addMetaData(id, clusterUrl) {
-        // currently a job is only associated with one cluster at a time
-        // but could change in the future
         _.set(this.content, '__metadata.cli.cluster', clusterUrl);
         _.set(this.content, '__metadata.cli.version', this.version);
         _.set(this.content, '__metadata.cli.job_id', id);

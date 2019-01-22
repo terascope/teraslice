@@ -73,7 +73,7 @@ class Options {
                 type: 'boolean'
             }),
             start: () => ({
-                describe: 'Option start job immediately after registering it on the cluster',
+                describe: 'Option to start job immediately after registering it on the cluster',
                 alias: 'run',
                 type: 'boolean',
                 default: false
@@ -102,7 +102,7 @@ class Options {
                 type: 'string'
             }),
             'job-name': () => ({
-                describe: 'file for cli to ingest, e.g: jobFile.json',
+                describe: 'Job file that tjm will read to execute command on job, e.g: jobFile.json',
                 nargs: 1,
                 type: 'string'
             }),
@@ -129,6 +129,17 @@ class Options {
                 describe: 'new cluster url to add to the config file',
                 type: 'string'
             }),
+            number: () => ({
+                describe: 'Number of workers to add, remove, or set to via the tjm command',
+                type: 'number',
+                nargs: 1
+            }),
+            'worker-action': () => ({
+                choices: ['add', 'remove', 'total'],
+                describe: 'Indicates the action to use when adding workers via the tjm commands',
+                nargs: 1,
+                type: 'string'
+            })
         };
 
         this.coerce = {
