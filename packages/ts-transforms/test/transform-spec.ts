@@ -739,7 +739,7 @@ describe('can transform matches', () => {
         expect(results[0]).toEqual({ myfield: 'value' });
     });
 
-    xit('can run and omit fields', async () => {
+    it('can run and omit fields', async () => {
 
         const config: WatcherConfig = {
             rules: [getPath('transformRules22.txt')],
@@ -754,7 +754,6 @@ describe('can transform matches', () => {
 
         const test = await opTest.init(config);
         const results =  await test.run(data);
-        console.log('what are the results', results)
 
         expect(results.length).toEqual(2);
         expect(results[0]).toEqual({ newField: 'something' });
