@@ -1,13 +1,7 @@
 FROM terascope/teraslice-base:v0.2.0
 
-RUN mkdir -p /app/source/packages/teraslice \
-    && mkdir -p /app/source/packages/teraslice-messaging \
-    && mkdir -p /app/source/packages/job-components \
-    && mkdir -p /app/source/packages/elasticsearch-api \
-    && mkdir -p /app/source/packages/error-parser \
-    && mkdir -p /app/source/packages/queue
-
-# copy just the package.json's so wecan have faster build times
+# copy just the package.json's so we can have faster build times
+RUN mkdir -p /app/source/packages/
 COPY package.json yarn.lock lerna.json /app/source/
 COPY packages/teraslice/package.json /app/source/packages/teraslice/package.json
 COPY packages/terafoundation/package.json /app/source/packages/terafoundation/package.json
@@ -25,14 +19,19 @@ RUN yarn --link-duplicates \
 # Build just the typescript
 COPY tsconfig.json /app/source/
 COPY types /app/source/types
-COPY packages/queue /app/source/packages/queue
 COPY packages/utils /app/source/packages/utils
+COPY packages/queue /app/source/packages/queue
 COPY packages/job-components /app/source/packages/job-components
 COPY packages/teraslice-messaging /app/source/packages/teraslice-messaging
 
 RUN yarn build:prod \
     && rm -rf node_modules/typescript \
-    && rm -rf node_modules/@types
+        node_modules/@types \
+        node_modules/@lerna \
+        node_modules/lerna \
+        node_modules/rxjs \
+        node_modules/eslint \
+        node_modules/inquirer
 
 # copy everything else
 COPY service.js /app/source/

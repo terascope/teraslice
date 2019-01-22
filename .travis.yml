@@ -26,9 +26,8 @@ before_install:
   - export PATH="$HOME/.yarn/bin:$PATH"
   # make it colorful
   - export FORCE_COLOR=1
-install:
-  - yarn install --no-progress
-  - yarn setup
+before_install: yarn global add lerna
+install: yarn setup
 before_deploy:
 jobs:
   # stop if given a reason
