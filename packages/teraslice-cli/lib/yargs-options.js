@@ -73,7 +73,8 @@ class Options {
                 type: 'boolean'
             }),
             start: () => ({
-                describe: 'Option to start command after command is given',
+                describe: 'Option start job immediately after registering it on the cluster',
+                alias: 'run',
                 type: 'boolean',
                 default: false
             }),
@@ -100,7 +101,7 @@ class Options {
                 nargs: 1,
                 type: 'string'
             }),
-            'file-name': () => ({
+            'job-name': () => ({
                 describe: 'file for cli to ingest, e.g: jobFile.json',
                 nargs: 1,
                 type: 'string'

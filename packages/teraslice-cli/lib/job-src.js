@@ -15,7 +15,9 @@ class JobFile {
         if (!fs.pathExistsSync(this.jobPath)) {
             reply.fatal(`Cannot find ${this.jobPath}, check your path and file name and try again`);
         }
-        this.content = require(this.jobPath);
+        this.content = fs.readJsonSync(this.jobPath);
+        // TODO: use @teraslice/job-components job-validator to validate job file
+        // this minimum requirement will work for now to get everything up and running
         // Job file must contain name, number of workers and at least 2 operations
         if (!(
             _.has(this.content, 'name')
@@ -37,7 +39,7 @@ class JobFile {
         _.set(this.content, '__metadata.cli.updated', new Date().toISOString());
     }
 
-    metaDataCheck() {
+    get hasMetaData() {
         return _.has(this.content, '__metadata');
     }
 

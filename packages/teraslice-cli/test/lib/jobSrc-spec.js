@@ -13,6 +13,10 @@ describe('JobSrc', () => {
         jobFile = {};
     });
 
+    afterAll(() => {
+        fs.removeSync(jobPath);
+    });
+
     function writeJob(jobName = 'jobFile.json') {
         fs.writeJsonSync(path.join(jobPath, jobName), jobFile, { spaces: 4 });
     }
@@ -106,7 +110,7 @@ describe('JobSrc', () => {
         writeJob(jobName);
         try {
             const job = new JobSrc(jobPath, jobName);
-            expect(job.metaDataCheck()).toBe(false);
+            expect(job.hasMetaData).toBe(false);
         } catch (e) {
             fail(e);
         }
@@ -128,7 +132,7 @@ describe('JobSrc', () => {
         try {
             const job = new JobSrc(jobPath, 'metaCheck.json');
             job.addMetaData('1234', 'localhost');
-            expect(job.metaDataCheck()).toBe(true);
+            expect(job.hasMetaData).toBe(true);
         } catch (e) {
             fail(e);
         }

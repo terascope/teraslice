@@ -15,6 +15,8 @@ module.exports = (cliConfig) => {
         host: cliConfig.cluster_url
     });
     const checks = require('../../lib/checks')(cliConfig);
+    // TODO:  refactor tjm commands so that this lib dir is not needed
+    // ../../lib/asset does not exist uncommenting the next line breaks the tjm commands
     // const asset = require('../../lib/asset')(cliConfig);
     cliConfig.type = 'tjm';
 

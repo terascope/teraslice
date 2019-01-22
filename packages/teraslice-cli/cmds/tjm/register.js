@@ -9,16 +9,18 @@ const YargsOptions = require('../../lib/yargs-options');
 
 const yargsOptions = new YargsOptions();
 
-exports.command = 'register <cluster-alias> <file>';
+exports.command = 'register <cluster-alias> <job-name>';
 exports.desc = 'Register a job to a cluster from a job file';
+exports.aliases = ['reg'];
 exports.builder = (yargs) => {
     yargs.positional('cluster-alias', yargsOptions.buildPositional('cluster-alias'));
-    yargs.positional('file-name', yargsOptions.buildPositional('file-name'));
+    yargs.positional('job-name', yargsOptions.buildPositional('job-name'));
     yargs.option('start', yargsOptions.buildOption('start'));
     yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
     yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
     yargs.example('$0 tjm register localhost new-job.json');
     yargs.example('$0 tjm register localhost new-job.json --start');
+    yargs.example('$0 tjm reg localhost new-job.json --start');
 };
 
 exports.handler = async (argv) => {
@@ -26,13 +28,11 @@ exports.handler = async (argv) => {
     const job = new JobSrc(cliConfig.args.srcDir, cliConfig.args.file);
     const terasliceClient = getTerasliceClient(cliConfig);
 
-    // check if job has already been registered
-    if (job.metaDataCheck()) {
+    if (job.hasMetaData) {
         const regCluster = _.get(job.content, '__metadata.cli.cluster');
         reply.fatal(`job has already been registered on ${regCluster}`);
     }
 
-    // register job on the teraslice cluster and start if needed
     const registeredResponse = await terasliceClient.jobs
         .submit(job.content, !cliConfig.args.start);
 
