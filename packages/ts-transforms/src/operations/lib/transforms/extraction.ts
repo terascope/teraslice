@@ -7,6 +7,7 @@ import TransformBase from './base';
 export default class Extraction extends TransformBase {
     private isMutation: Boolean;
     private mutltiFieldParams: object;
+    private regex?: RegExp;
 
     constructor(config: OperationConfig) {
         super(config);
@@ -17,7 +18,18 @@ export default class Extraction extends TransformBase {
             targetSource[config.target_field as string] = true;
             mutltiFieldParams[config._multi_target_field as string] = targetSource;
         }
+        if (config.regex) {
+            this.regex = this.formatRegex(config.regex);
+        }
         this.mutltiFieldParams = mutltiFieldParams;
+    }
+
+    formatRegex(str: string): RegExp {
+        const fullExp = /\/(.*)\/(.*)/.exec(str);
+        if (fullExp) {
+            return new RegExp(fullExp[1], fullExp[2]);
+        }
+        return new RegExp(str);
     }
 
     sliceString(data: string, start:string, end: string): string | null {
@@ -37,15 +49,14 @@ export default class Extraction extends TransformBase {
         if (data !== undefined) {
             let extractedResult;
 
-            if (this.config.regex) {
-                const { regex } = this.config;
+            if (this.regex) {
                 let extractedField;
-                if (typeof data === 'string') extractedField = data.match(regex as string);
+                if (typeof data === 'string') extractedField = data.match(this.regex as RegExp);
 
                 if (!extractedField && Array.isArray(data)) {
                     data.forEach((subData:any) => {
                         if (typeof subData === 'string') {
-                            const subResults = subData.match(regex as string);
+                            const subResults = subData.match(this.regex as RegExp);
                             if (subResults) extractedField = subResults;
                         }
                     });

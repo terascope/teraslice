@@ -135,6 +135,20 @@ describe('transform operator', () => {
         expect(results8).toEqual({ otherField: 'data' });
     });
 
+    it('can transform data with regex that are set with //', () => {
+        const opConfig = { regex: '/d.*ta/', source_field: 'someField', target_field: 'otherField' };
+        const test = new Extraction(opConfig);
+
+        const data1 = new DataEntity({ someField: 'data' });
+        const data2 = new DataEntity({ someField: ['other', 'data'] });
+
+        const results1 = test.run(data1);
+        const results2 = test.run(data2);
+
+        expect(results1).toEqual({ otherField: 'data' });
+        expect(results2).toEqual({ otherField: 'data' });
+    });
+
     it('can mutate existing doc instead of returning a new one', () => {
         const opConfig = { source_field: 'someField', target_field: 'otherField', mutate: true };
         const test = new Extraction(opConfig);
