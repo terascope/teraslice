@@ -1,8 +1,9 @@
+import { ModelFactory, BaseModel } from './base';
+
 /**
  * Manager for Views
 */
-export class Views {
-
+export class Views extends ModelFactory<ViewModel> {
 }
 
 /**
@@ -11,12 +12,7 @@ export class Views {
  * QUESTION: Should the view have a direct association with a Space?
  * If so would it be one-to-many or one-to-one?
 */
-export interface ViewModel {
-    /**
-     * ID of the view - UUIDv4
-    */
-    id: string;
-
+export interface ViewModel extends BaseModel {
     /**
      * Name of the view
     */
@@ -48,12 +44,6 @@ export interface ViewModel {
      * Constraint for queries and filtering
     */
     constraint: string;
-
-    /** Updated date */
-    updated: Date;
-
-    /** Creation date */
-    created: Date;
 }
 
 export type RestrictionType = 'whitelist'|'blacklist';

@@ -1,48 +1,23 @@
-import * as es from 'elasticsearch';
+import { ModelFactory, BaseModel } from './base';
 
 /**
  * Manager for Users
 */
-export class Users {
-    constructor(client: es.Client) {
-
+export class Users extends ModelFactory<UserModel> {
+    async findByUsername(username: string): Promise<UserModel> {
+        // @ts-ignore FIXME
+        return {};
     }
 
-    async create() {
-
-    }
-
-    async delete() {
-
-    }
-
-    async get() {
-
-    }
-
-    async update() {
-
+    async search(query: string, limit: number = 10, sort?: string): Promise<UserModel[]> {
+        return [];
     }
 }
 
 /**
  * The definition of a User model
 */
-export interface UserModel {
-    /**
-     * A 10 digit ID for the User
-     *
-     * Something similar to:
-     *
-     * ```js
-     * return crypto.createHash('sha1')
-     *   .update(`${Math.random()}${Date.now()}${user.username}${user.hash}`)
-     *   .digest('hex')
-     *   .slice(0, 10);
-     * ```
-    */
-    id: string;
-
+export interface UserModel extends BaseModel {
     /**
      * First Name of the User
     */
@@ -67,18 +42,12 @@ export interface UserModel {
      * A list of all of its associated Roles
     */
     roles: string[];
-
-    /** Updated date */
-    updated: Date;
-
-    /** Creation date */
-    created: Date;
 }
 
 /**
  * The private fields of the User Model
 */
-export interface PrivateUserModel {
+export interface PrivateUserModel extends UserModel {
 
     /**
      * The User's API Token
