@@ -7,6 +7,9 @@ export class Views {
 
 /**
  * The definition of a View model
+ *
+ * QUESTION: Should the view have a direct association with a Space?
+ * If so would it be one-to-many or one-to-one?
 */
 export interface ViewModel {
     /**

@@ -1,8 +1,28 @@
+import * as es from 'elasticsearch';
+
 /**
  * Manager for Roles
 */
 export class Roles {
+    constructor(client: es.Client) {
 
+    }
+
+    async create() {
+
+    }
+
+    async delete() {
+
+    }
+
+    async get() {
+
+    }
+
+    async update() {
+
+    }
 }
 
 /**

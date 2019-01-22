@@ -1,8 +1,28 @@
+import * as es from 'elasticsearch';
+
 /**
  * Manager for Users
 */
 export class Users {
+    constructor(client: es.Client) {
 
+    }
+
+    async create() {
+
+    }
+
+    async delete() {
+
+    }
+
+    async get() {
+
+    }
+
+    async update() {
+
+    }
 }
 
 /**
@@ -44,6 +64,23 @@ export interface UserModel {
     email: string;
 
     /**
+     * A list of all of its associated Roles
+    */
+    roles: string[];
+
+    /** Updated date */
+    updated: Date;
+
+    /** Creation date */
+    created: Date;
+}
+
+/**
+ * The private fields of the User Model
+*/
+export interface PrivateUserModel {
+
+    /**
      * The User's API Token
     */
     api_token: string;
@@ -64,15 +101,4 @@ export interface UserModel {
      * `crypto.randomBytesAsync(32)`
     */
     salt: string;
-
-    /**
-     * A list of all of its associated Roles
-    */
-    roles: string[];
-
-    /** Updated date */
-    updated: Date;
-
-    /** Creation date */
-    created: Date;
 }
