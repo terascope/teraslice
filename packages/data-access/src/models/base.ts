@@ -37,7 +37,7 @@ export class Base<T extends BaseModel> {
             updated: makeISODate(),
         }) as T;
 
-        await this.store.create(doc);
+        await this.store.createWithId(doc, doc.id);
         return doc;
     }
 
@@ -45,9 +45,8 @@ export class Base<T extends BaseModel> {
         return;
     }
 
-    async findById(id: string): Promise<T> {
-        // @ts-ignore FIXME
-        return {};
+    async findById(id: string) {
+        return this.store.get(id);
     }
 
     async findAll(ids: string[], space: string): Promise<T[]> {
