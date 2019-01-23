@@ -1,14 +1,10 @@
 import 'jest-extended';
-import es from 'elasticsearch';
 import { TSError, debugLogger } from '@terascope/utils';
-import { ELASTICSEARCH_HOST } from './helpers/config';
 import { IndexManager, IndexConfig } from '../src';
+import { makeClient } from './helpers/elasticsearch';
 
 describe('IndexManager', () => {
-    const client = new es.Client({
-        host: ELASTICSEARCH_HOST,
-        log: 'error'
-    });
+    const client = makeClient();
 
     describe('when constructed with nothing', () => {
         it('should throw an error', () => {

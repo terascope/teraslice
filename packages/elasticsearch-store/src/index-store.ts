@@ -124,7 +124,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Count records by a given Lucene Query or Elasticsearch Query DSL */
-    async count(query: string, params?: Partial<es.CountParams>): Promise<number> {
+    async count(query: string, params?: PartialParam<es.CountParams, 'q'>): Promise<number> {
         const p = this._getParams(params, { q: query });
 
         return ts.pRetry(async () => {
@@ -134,15 +134,24 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /**
-     * Index a document but will throw if doc already exists
+     * Create a document with an id
      *
      * @returns a boolean to indicate whether the document was created
      */
-    async create(doc: I, id?: string, params?: Partial<es.CreateDocumentParams>): Promise<boolean> {
+    async createWithId(doc: I, id: string, params?: PartialParam<es.CreateDocumentParams, 'id'|'body'>): Promise<boolean> {
+        return this.create(doc, Object.assign({}, params, { id }));
+    }
+
+     /**
+     * Create a document but will throw if doc already exists
+     *
+     * @returns a boolean to indicate whether the document was created
+     */
+    async create(doc: I, params?: PartialParam<es.CreateDocumentParams, 'body'>): Promise<boolean> {
         this._validate(doc);
 
         const defaults = { refresh: true };
-        const p = this._getParams(defaults, params, { id, body: doc });
+        const p = this._getParams(defaults, params, { body: doc });
 
         return ts.pRetry(async () => {
             const { created } = await this.client.create(p);
@@ -169,7 +178,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Get a single document */
-    async get(id: string, params?: Partial<es.GetParams>): Promise<ts.DataEntity<T>> {
+    async get(id: string, params?: PartialParam<es.GetParams>): Promise<ts.DataEntity<T>> {
         const p = this._getParams(params, { id });
 
         return ts.pRetry(async () => {
@@ -197,7 +206,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     /**
      * Index a document
      */
-    async index(doc: I, params?: Partial<es.IndexDocumentParams<T>>) {
+    async index(doc: I, params?: PartialParam<es.IndexDocumentParams<T>, 'body'>) {
         this._validate(doc);
 
         const defaults = { refresh: true };
@@ -213,12 +222,12 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     /**
      * A convenience method for indexing a document with an ID
      */
-    async indexWithId(doc: I, id: string, params?: Partial<es.IndexDocumentParams<T>>) {
+    async indexWithId(doc: I, id: string, params?: PartialParam<es.IndexDocumentParams<T>, 'index'|'type'|'id'>) {
         return this.index(doc, Object.assign({ }, params, { id }));
     }
 
     /** Get multiple documents at the same time */
-    async mget(body: any, params?: Partial<es.MGetParams>): Promise<ts.DataEntity<T>[]> {
+    async mget(body: any, params?: PartialParam<es.MGetParams>): Promise<ts.DataEntity<T>[]> {
         const p = this._getParams(params, { body });
 
         return ts.pRetry(async () => {
@@ -232,7 +241,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     /**
      * Refreshes the current index
      */
-    async refresh(params?: es.IndicesRefreshParams) {
+    async refresh(params?: PartialParam<es.IndicesRefreshParams>) {
         const p = Object.assign({
             index: this._indexQuery
         }, params);
@@ -245,7 +254,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     /**
      * Deletes a document for a given id
     */
-    async remove(id: string, params?: Partial<es.DeleteDocumentParams>) {
+    async remove(id: string, params?: PartialParam<es.DeleteDocumentParams>) {
         const p = this._getParams(params, {
             id,
         });
@@ -273,7 +282,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Search with a given Lucene Query or Elasticsearch Query DSL */
-    async search(params: Partial<es.SearchParams>): Promise<ts.DataEntity<T>[]> {
+    async search(params: PartialParam<es.SearchParams>): Promise<ts.DataEntity<T>[]> {
         const p = this._getParams(params);
 
         return ts.pRetry(async () => {
@@ -304,7 +313,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Update a document with a given id */
-    async update(doc: Partial<T>, id: string, params?: Partial<es.UpdateDocumentParams>) {
+    async update(doc: Partial<T>, id: string, params?: PartialParam<es.UpdateDocumentParams, 'body'|'id'>) {
         const defaults = {
             refresh: true,
             retryOnConflict: 3
@@ -377,5 +386,10 @@ interface RecordResponse<T> {
     _version?: number;
     _source: T;
 }
+
+type ReservedParams = 'index'|'type';
+type PartialParam<T, E = any> = {
+    [K in Exclude<keyof T, E extends keyof T ? ReservedParams & E : ReservedParams>]?: T[K];
+};
 
 type ValidateFn<T> = (input: T) => void;

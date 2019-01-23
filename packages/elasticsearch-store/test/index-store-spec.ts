@@ -1,5 +1,4 @@
 import 'jest-extended';
-import es from 'elasticsearch';
 import {
     times,
     pDelay,
@@ -14,11 +13,11 @@ import {
     mapping,
     schema
 } from './helpers/simple-index';
-import { ELASTICSEARCH_HOST } from './helpers/config';
 import { IndexStore, IndexConfig } from '../src';
+import { makeClient } from './helpers/elasticsearch';
 
 describe('IndexStore', () => {
-    const client = new es.Client({});
+    const client = makeClient();
     const logger = debugLogger('index-store-spec');
 
     describe('when constructed with nothing', () => {
@@ -60,10 +59,7 @@ describe('IndexStore', () => {
     };
 
     describe('when constructed without a data schema', () => {
-        const client = new es.Client({
-            host: ELASTICSEARCH_HOST,
-            log: 'error'
-        });
+        const client = makeClient();
 
         const indexStore = new IndexStore<SimpleRecord, SimpleRecordInput>(client, config);
 
@@ -105,14 +101,14 @@ describe('IndexStore', () => {
             };
 
             beforeAll(() => {
-                return indexStore.create(record, record.test_id);
+                return indexStore.createWithId(record, record.test_id);
             });
 
             it('should not be able to create a record again', async () => {
                 expect.hasAssertions();
 
                 try {
-                    await indexStore.create(record, record.test_id);
+                    await indexStore.createWithId(record, record.test_id);
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
                     expect(err.message).toInclude('Document Already Exists');
@@ -280,7 +276,7 @@ describe('IndexStore', () => {
 
             beforeAll(async () => {
                 await Promise.all(records.map((record) => {
-                    return indexStore.create(record, record.test_id, {
+                    return indexStore.createWithId(record, record.test_id, {
                         refresh: false
                     });
                 }));
@@ -402,10 +398,7 @@ describe('IndexStore', () => {
     });
 
     describe('when constructed with data schema', () => {
-        const client = new es.Client({
-            host: ELASTICSEARCH_HOST,
-            log: 'error'
-        });
+        const client = makeClient();
 
         const configWithDataSchema = Object.assign(config, {
             dataSchema: {
@@ -502,7 +495,7 @@ describe('IndexStore', () => {
                 await Promise.all(input.map((record, i) => {
                     if (inputType === 'input') {
                         if (i === 0) {
-                            return indexStore.create(record, record.test_id);
+                            return indexStore.createWithId(record, record.test_id);
                         }
                         return indexStore.indexWithId(record, record.test_id, {
                             refresh: false
@@ -557,7 +550,6 @@ describe('IndexStore', () => {
                     test_number: 77777
                 });
             });
-
         });
     });
 });

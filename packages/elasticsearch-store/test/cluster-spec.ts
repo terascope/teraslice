@@ -1,9 +1,9 @@
 import 'jest-extended';
-import es from 'elasticsearch';
 import { Cluster } from '../src';
+import { makeClient } from './helpers/elasticsearch';
 
 describe('Cluster', () => {
-    const client = new es.Client({});
+    const client = makeClient();
     const cluster = new Cluster(client);
 
     afterAll(() => {

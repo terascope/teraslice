@@ -1,19 +1,15 @@
 import 'jest-extended';
-import es from 'elasticsearch';
 import { debugLogger } from '@terascope/utils';
 import * as simple from './helpers/simple-index';
 import * as template from './helpers/template-index';
-import { ELASTICSEARCH_HOST } from './helpers/config';
 import { IndexManager, timeseriesIndex, IndexConfig } from '../src';
+import { makeClient } from './helpers/elasticsearch';
 
 describe('IndexManager->indexSetup()', () => {
     const logger = debugLogger('index-manager-setup');
 
     describe('using a mapped index', () => {
-        const client = new es.Client({
-            host: ELASTICSEARCH_HOST,
-            log: 'error'
-        });
+        const client = makeClient();
 
         const config: IndexConfig = {
             name: 'test__simple',
@@ -74,10 +70,7 @@ describe('IndexManager->indexSetup()', () => {
     });
 
     describe('using a templated index', () => {
-        const client = new es.Client({
-            host: ELASTICSEARCH_HOST,
-            log: 'error'
-        });
+        const client = makeClient();
 
         const config: IndexConfig = {
             name: 'test__template',
@@ -204,10 +197,7 @@ describe('IndexManager->indexSetup()', () => {
     });
 
     describe('using a timeseries index', () => {
-        const client = new es.Client({
-            host: ELASTICSEARCH_HOST,
-            log: 'error'
-        });
+        const client = makeClient();
 
         const config: IndexConfig = {
             name: 'test__timeseries',
