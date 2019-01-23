@@ -57,8 +57,8 @@ export class Base<T extends BaseModel> {
         return this.store.get(id);
     }
 
-    async findAll(ids: string[], space: string): Promise<T[]> {
-        return [];
+    async findAll(ids: string[]) {
+        return this.store.mget({ ids });
     }
 
     async find(q: string, size: number = 10, fields?: (keyof T)[], sort?: string) {
@@ -70,8 +70,12 @@ export class Base<T extends BaseModel> {
         });
     }
 
-    async update(user: UpdateInput<T>): Promise<void> {
-        return;
+    async update(user: UpdateInput<T>) {
+        const doc = Object.assign({}, user, {
+            updated: makeISODate(),
+        }) as T;
+
+        return this.store.update(doc, doc.id);
     }
 }
 

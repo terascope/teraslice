@@ -82,6 +82,15 @@ describe('Base', () => {
             expect(fetched).toHaveProperty('created');
         });
 
+        it('should be able to update the record', async () => {
+            await base.update(Object.assign({}, fetched, { name: 'Hello' }));
+
+            const result = await base.findById(fetched.id);
+            expect(result).toHaveProperty('name', 'Hello');
+
+            expect(new Date(result.updated)).toBeAfter(new Date(fetched.updated));
+        });
+
         it('should be able to delete the record', async () => {
             await base.deleteById(fetched.id);
 
