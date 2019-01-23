@@ -84,6 +84,30 @@ type BulkResponseItemResult = {
     action: i.BulkAction
 };
 
+/**
+ * Get the first key and value from the bulk response:
+ *
+ * Here is an example input:
+ *
+ * ```json
+  {
+     "index": {
+        "_index": "test",
+        "_type": "type1",
+        "_id": "1",
+        "_version": 1,
+        "result": "created",
+        "_shards": {
+            "total": 2,
+            "successful": 1,
+            "failed": 0
+        },
+        "created": true,
+        "status": 201
+     }
+  }
+ * ```
+ */
 export function getBulkResponseItem(input: any = {}): BulkResponseItemResult  {
     return {
         item: getFirstValue(input),

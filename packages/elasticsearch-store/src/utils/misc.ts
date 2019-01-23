@@ -2,13 +2,15 @@ import * as R from 'rambda';
 
 export const isNotNil = (input: any) => input != null;
 
-export const getFirstValue: <T>(input: object[]) => T = R.pipe(
+type getFirstFn = <T>(input: object) => T;
+
+export const getFirstValue: getFirstFn = R.pipe(
     // @ts-ignore
     R.values,
     R.head,
 );
 
-export const getFirstKey: <T>(input: object[]) => T = R.pipe(
+export const getFirstKey: getFirstFn = R.pipe(
     // @ts-ignore
     R.keys,
     R.head,

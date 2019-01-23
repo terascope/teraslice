@@ -5,6 +5,8 @@ import {
     isTemplatedIndex,
     isTimeSeriesIndex,
     validateIndexConfig,
+    getFirstValue,
+    getFirstKey,
 } from '../src/utils';
 
 describe('Elasticsearch Store Utils', () => {
@@ -197,6 +199,36 @@ describe('Elasticsearch Store Utils', () => {
                         index: 'hello'
                     });
                 }).toThrowWithMessage(TSError, /Data Version must be greater than 0, got "-8"/);
+            });
+        });
+    });
+
+    describe('#getFirstValue', () => {
+        describe('when given an object', () => {
+            it('should return the first value', () => {
+                const obj = { key1: 1, key2: 2 };
+                expect(getFirstValue(obj)).toEqual(1);
+            });
+        });
+
+        describe('when given an empty object', () => {
+            it('should return nil', () => {
+                expect(getFirstValue({ })).toBeNil();
+            });
+        });
+    });
+
+    describe('#getFirstKey', () => {
+        describe('when given an object', () => {
+            it('should return the first value', () => {
+                const obj = { key1: 1, key2: 2 };
+                expect(getFirstKey(obj)).toEqual('key1');
+            });
+        });
+
+        describe('when given an empty object', () => {
+            it('should return nil', () => {
+                expect(getFirstKey({ })).toBeNil();
             });
         });
     });
