@@ -1,4 +1,4 @@
-import { DataAccessConfig } from './manager';
+import { DataAccessConfig } from './acl-manager';
 
 /**
  * Using a DataAccess ACL, filter access to specific

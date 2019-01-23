@@ -64,8 +64,10 @@ export interface UserModel extends BaseModel {
 
     /**
      * A list of all of its associated Roles
+     *
+     * Currently Roles will be restricted to an array of one
     */
-    roles: string[];
+    roles: [string];
 }
 
 /**

@@ -1,18 +1,13 @@
+import { getFirst } from '@terascope/utils';
 import { ModelFactory, BaseModel } from './base';
-import { RoleModel } from './roles';
 
 /**
  * Manager for Views
 */
 export class Views extends ModelFactory<ViewModel> {
-    async findAllForRoles(roles: RoleModel[], space: string): Promise<ViewModel[]> {
-        const viewIds: string[] = [];
-        for (const role of roles) {
-            viewIds.push(...role.views);
-        }
-
-        const query = `id:(${viewIds.join(' ')}) AND space:${space}`;
-        return this.search(query, 1000);
+    async getViewForRole(roleId: string, space: string): Promise<ViewModel> {
+        const query = `roles:"${roleId}" AND space:"${space}"`;
+        return getFirst(await this.search(query, 1));
     }
 }
 
@@ -33,28 +28,26 @@ export interface ViewModel extends BaseModel {
 
     /**
      * The associated space
-     *
-     * QUESTION? Should the view have a direct association with a Space?
-     * If so would it be one-to-many or one-to-one?
     */
     space: string;
 
     /**
-     * Restriction Type:
-     *  - "whitelist" - will restrict the fields to only one specified
-     *  - "blacklist" - will exclude any field specified
+     * The associated roles
     */
-    type: RestrictionType;
+    roles: string[];
 
     /**
-     * Fields to pick or omit
+     * Fields to exclude
     */
-    fields: string[];
+    excludes?: string[];
+
+    /**
+     * Fields to include
+    */
+    includes?: string[];
 
     /**
      * Constraint for queries and filtering
     */
-    constraint: string;
+    constraint?: string;
 }
-
-export type RestrictionType = 'whitelist'|'blacklist';

@@ -1,3 +1,4 @@
+import { TSError, getFirst } from '@terascope/utils';
 import * as es from 'elasticsearch';
 import * as models from './models';
 
@@ -41,14 +42,27 @@ export class ACLManager {
      */
     async getViewForUser(username: string, space: string): Promise<DataAccessConfig> {
         const user = await this.users.findByUsername(username);
-        const roles = await this.roles.findAllForUser(user, space);
 
-        // QUESTION?: What do we do if there are multiple views
-        // @ts-ignore
-        const views = await this.views.findAllForRoles(roles, space);
+        const roleId = getFirst(user.roles);
+        if (!roleId) {
+            const msg = `User "${username}" is not assigned to any roles`;
+            throw new TSError(msg, { statusCode: 403 });
+        }
 
-        // @ts-ignore FIXME
-        return {};
+        const hasAccess = await this.roles.hasAccessToSpace(roleId, space);
+        if (!hasAccess) {
+            const msg = `User "${username}" does not have access to space "${space}"`;
+            throw new TSError(msg, { statusCode: 403 });
+        }
+
+        const view = await this.views.getViewForRole(roleId, space);
+
+        return {
+            user,
+            view,
+            space,
+            role: roleId,
+        };
     }
 
     // FIXME add more higher level apis...
@@ -74,7 +88,7 @@ export interface DataAccessConfig {
     /**
      * The name of the space
     */
-    space: models.SpaceModel;
+    space: string;
 
     /**
      * The name of the Role

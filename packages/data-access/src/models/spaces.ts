@@ -20,4 +20,9 @@ export interface SpaceModel extends BaseModel {
      * Description of the Role
     */
     description?: string;
+
+    /**
+     * A list of associated views
+    */
+    views: [];
 }
