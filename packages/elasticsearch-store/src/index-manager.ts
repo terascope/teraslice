@@ -2,7 +2,6 @@ import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import * as utils from './utils';
 import { IndexConfig } from './interfaces';
-import { getRetryConfig } from './config';
 
 const _loggers = new WeakMap<IndexConfig, ts.Logger>();
 
@@ -171,7 +170,7 @@ export default class IndexManager {
     protected async waitForIndexAvailability(index: string) {
         const query = { index, q: '*', size: 1 };
 
-        await ts.pRetry(() => this.client.search(query), getRetryConfig());
+        await ts.pRetry(() => this.client.search(query), utils.getRetryConfig());
     }
 
     private _logger(config: IndexConfig): ts.Logger {

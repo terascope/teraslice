@@ -4,7 +4,6 @@ import * as ts from '@terascope/utils';
 import IndexManager from './index-manager';
 import * as i from './interfaces';
 import * as utils from './utils';
-import { getRetryConfig } from './config';
 
 export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     readonly client: es.Client;
@@ -131,7 +130,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         return ts.pRetry(async () => {
             const { count } = await this.client.count(p);
             return count;
-        }, getRetryConfig());
+        }, utils.getRetryConfig());
     }
 
     /**
@@ -148,7 +147,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         return ts.pRetry(async () => {
             const { created } = await this.client.create(p);
             return created;
-        }, getRetryConfig());
+        }, utils.getRetryConfig());
     }
 
     async flush(flushAll = false) {
@@ -164,7 +163,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             if (data != null) bulkRequest.push(data);
         }
 
-        await ts.pRetry(() => this._bulk(records, bulkRequest), getRetryConfig());
+        await ts.pRetry(() => {
+            return this._bulk(records, bulkRequest);
+        }, utils.getRetryConfig());
     }
 
     /** Get a single document */
@@ -174,7 +175,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         return ts.pRetry(async () => {
             const result = await this.client.get<T>(p);
             return this._toRecord(result);
-        }, getRetryConfig());
+        }, utils.getRetryConfig());
     }
 
     /**
@@ -206,7 +207,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
         return ts.pRetry(async () => {
             return this.client.index(p);
-        }, getRetryConfig());
+        }, utils.getRetryConfig());
     }
 
     /**
@@ -225,7 +226,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             if (!docs) return [];
 
             return docs.map(this._toRecord);
-        }, getRetryConfig());
+        }, utils.getRetryConfig());
     }
 
     /**
@@ -238,7 +239,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
         return ts.pRetry(() => {
             return this.client.indices.refresh(p);
-        }, getRetryConfig());
+        }, utils.getRetryConfig());
     }
 
     /**
@@ -249,7 +250,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             id,
         });
 
-        await ts.pRetry(() => this.client.delete(p), getRetryConfig());
+        await ts.pRetry(() => {
+            return this.client.delete(p);
+        }, utils.getRetryConfig());
     }
 
     /**
@@ -297,7 +300,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             }
 
             return results.hits.hits.map(this._toRecord);
-        }, getRetryConfig());
+        }, utils.getRetryConfig());
     }
 
     /** Update a document with a given id */
@@ -312,7 +315,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             body: { doc }
         });
 
-        await ts.pRetry(() => this.client.update(p), getRetryConfig());
+        await ts.pRetry(() => {
+            return this.client.update(p);
+        }, utils.getRetryConfig());
     }
 
     private async _bulk(records: BulkRequest<I>[], body: any) {
