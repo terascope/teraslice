@@ -25,8 +25,9 @@ export default class Extraction extends TransformBase {
     }
 
     formatRegex(str: string): RegExp {
-        const fullExp = /\/(.*)\/(.*)/.exec(str);
-        if (fullExp) {
+        if (str[0] === '/' && str[str.length - 1] === '/') {
+            const fullExp = /\/(.*)\/(.*)/.exec(str);
+            if (!fullExp) throw new Error(`cannot parse regex input: ${str}`);
             return new RegExp(fullExp[1], fullExp[2]);
         }
         return new RegExp(str);
