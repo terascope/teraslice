@@ -7,10 +7,10 @@ const reply = require('../lib/reply')();
 
 const yargsOptions = new YargsOptions();
 
-exports.command = 'reset <job-name>';
+exports.command = 'reset <job-file>';
 exports.desc = 'Reset a job file by removing the cli metadata';
 exports.builder = (yargs) => {
-    yargs.positional('job-name', yargsOptions.buildPositional('job-name'));
+    yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
     yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
     yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
     yargs.example('$0 tjm start new-job.json');
@@ -21,5 +21,5 @@ exports.handler = async (argv) => {
     const job = new JobSrc(argv.srcDir, argv.jobName);
     _.unset(job.content, '__metadata');
     job.overwrite();
-    reply.green(`Removed metadata from ${argv.jobName}`);
+    reply.green(`Removed metadata from ${argv.jobFile}`);
 };

@@ -6,10 +6,10 @@ const reply = require('../lib/reply')();
 
 const yargsOptions = new YargsOptions();
 
-exports.command = 'init <job-name>';
-exports.desc = 'Initialize a new job file with an example job definition';
+exports.command = 'create <job-file>';
+exports.desc = 'Create a new job file with example job definitions';
 exports.builder = (yargs) => {
-    yargs.positional('job-name', yargsOptions.buildPositional('job-name'));
+    yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
     yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
     yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
     yargs.example('$0 tjm start new-job.json');
@@ -40,5 +40,5 @@ exports.handler = (argv) => {
     };
     job.validateJob();
     job.overwrite();
-    reply.green(`Created ${argv.jobName} file at ${job.jobPath}`);
+    reply.green(`Created ${argv.jobFile} file at ${job.jobPath}`);
 };

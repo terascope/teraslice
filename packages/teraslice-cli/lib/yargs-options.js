@@ -101,7 +101,7 @@ class Options {
                 nargs: 1,
                 type: 'string'
             }),
-            'job-name': () => ({
+            'job-file': () => ({
                 describe: 'Job file that tjm will read to execute command on job, e.g: jobFile.json',
                 nargs: 1,
                 type: 'string'

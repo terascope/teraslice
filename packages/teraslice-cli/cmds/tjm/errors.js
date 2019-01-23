@@ -1,20 +1,36 @@
 'use strict';
 
-const TjmCommands = require('../../lib/tjm-commands');
+const JobSrc = require('../../lib/job-src');
 const YargsOptions = require('../../lib/yargs-options');
+const Client = require('../../lib/utils').getTerasliceClientByCluster;
+const reply = require('../lib/reply')();
 
 const yargsOptions = new YargsOptions();
 
-exports.command = 'errors <job-name>';
-exports.desc = 'View errors for a job by referencing job file';
+exports.command = 'errors <job-file>';
+exports.desc = 'View errors of a job by referencing the job file';
 exports.builder = (yargs) => {
-    yargs.positional('job-name', yargsOptions.buildPositional('job-name'));
+    yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
     yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
     yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-    yargs.example('$0 tjm errors jobFile.json');
+    yargs.example('$0 tjm errors job-file.json');
 };
 
 exports.handler = async (argv) => {
-    const tjmCommands = new TjmCommands(argv);
-    tjmCommands.errors();
+    const job = new JobSrc(argv);
+    job.init();
+    const client = Client(job.cluster);
+
+    try {
+        const response = await client.jobs.wrap(job.jobId).errors();
+
+        if (response.length === 0) {
+            reply.green(`No errors for ${job.name} on ${job.cluster}`);
+        } else {
+            reply.yellow(`Errors for ${job.name} on ${job.cluster}:\n`);
+            response.forEach(error => reply.yellow(JSON.stringify(error, null, 4)));
+        }
+    } catch (e) {
+        reply.fatal(e.message);
+    }
 };

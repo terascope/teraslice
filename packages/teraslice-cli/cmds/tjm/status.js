@@ -1,21 +1,35 @@
 'use strict';
 
-const TjmCommands = require('../../lib/tjm-commands');
+const JobSrc = require('../../lib/job-src');
 const YargsOptions = require('../../lib/yargs-options');
+const Client = require('../../lib/utils').getTerasliceClientByCluster;
+const reply = require('../lib/reply')();
 
 const yargsOptions = new YargsOptions();
 
-exports.command = 'status <job-name>';
-exports.desc = 'View the current job status';
+exports.command = 'status <job-file>';
+exports.desc = 'View status of a job by referencing the job file';
 exports.builder = (yargs) => {
-    yargs.positional('job-name', yargsOptions.buildPositional('job-name'));
+    yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
     yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
     yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-    yargs.example('$0 tjm start new-job.json');
-    yargs.example('$0 tjm run new-job.json');
+    yargs.example('$0 tjm errors job-file.json');
 };
 
 exports.handler = async (argv) => {
-    const tjmCommands = new TjmCommands(argv);
-    tjmCommands.status();
+    const job = new JobSrc(argv);
+    job.init();
+    const client = Client(job.cluster);
+
+    try {
+        const response = await client.jobs.wrap(job.jobId).status();
+
+        if (!response) {
+            reply.fatal(`Could not get status for job ${job.name} on ${job.cluster}`);
+        }
+
+        reply.green(`${job.name} is ${response} on ${job.cluster}`);
+    } catch (e) {
+        reply.fatal(e.message);
+    }
 };

@@ -9,12 +9,12 @@ const YargsOptions = require('../../lib/yargs-options');
 
 const yargsOptions = new YargsOptions();
 
-exports.command = 'register <cluster-alias> <job-name>';
+exports.command = 'register <cluster-alias> <job-file>';
 exports.desc = 'Register a job to a cluster from a job file';
 exports.aliases = ['reg'];
 exports.builder = (yargs) => {
     yargs.positional('cluster-alias', yargsOptions.buildPositional('cluster-alias'));
-    yargs.positional('job-name', yargsOptions.buildPositional('job-name'));
+    yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
     yargs.option('start', yargsOptions.buildOption('start'));
     yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
     yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
@@ -34,18 +34,22 @@ exports.handler = async (argv) => {
     }
     job.readFile();
     job.validateJob();
-    const registeredResponse = await terasliceClient.jobs
-        .submit(job.content, !cliConfig.args.start);
+    try {
+        const registeredResponse = await terasliceClient.jobs
+            .submit(job.content, !cliConfig.args.start);
 
-    const jobId = registeredResponse.id();
+        const jobId = registeredResponse.id();
 
-    if (registeredResponse) {
-        reply.green(`Successfully registered ${job.content.name} on ${cliConfig.clusterUrl} with job id ${jobId}`);
-        if (cliConfig.args.start) reply.green(`${job.content.name} is queued to start`);
-    } else {
-        reply.fatal(`Failed to register ${job.content.name} on ${cliConfig.clusterUrl}`);
+        if (registeredResponse) {
+            reply.green(`Successfully registered ${job.content.name} on ${cliConfig.clusterUrl} with job id ${jobId}`);
+            if (cliConfig.args.start) reply.green(`${job.content.name} is queued to start`);
+        } else {
+            reply.fatal(`Failed to register ${job.content.name} on ${cliConfig.clusterUrl}`);
+        }
+
+        job.addMetaData(jobId, cliConfig.clusterUrl);
+        job.overwrite();
+    } catch (e) {
+        reply.fatal(e.message);
     }
-
-    job.addMetaData(jobId, cliConfig.clusterUrl);
-    job.overwrite();
 };

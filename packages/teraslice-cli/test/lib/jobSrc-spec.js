@@ -7,10 +7,16 @@ const JobSrc = require('../../lib/job-src');
 
 describe('JobSrc', () => {
     let jobFile;
+    let args;
     const jobPath = createTempDirSync();
+    const { version } = require('../../package.json');
 
     beforeEach(() => {
         jobFile = {};
+        args = {
+            srcDir: jobPath,
+            jobFile: 'jobFile.json'
+        };
     });
 
     afterAll(() => {
@@ -22,14 +28,26 @@ describe('JobSrc', () => {
     }
 
     it('should throw an error on a bad job path', () => {
+        delete args.srcDir;
+
         try {
-            const job = new JobSrc('badDir', 'someJob.json'); // eslint-disable-line no-unused-vars
+            const job = new JobSrc(args); // eslint-disable-line no-unused-vars
         } catch (e) {
-            expect(e).toBe('Cannot find badDir/someJob.json, check your path and file name and try again');
+            expect(e).toBe('The job file or source directory are missing');
         }
     });
 
-    it('job should throw an error if bad content', () => {
+    it('should throw an error on a bad job name', () => {
+        args.jobFile = 'badjobname';
+        try {
+            const job = new JobSrc(args);
+            job.readFile();
+        } catch (e) {
+            expect(e).toBe(`Cannot find ${path.join(jobPath, 'badjobname')}, check your path and file name and try again`);
+        }
+    });
+
+    it('job should throw an error if invalid job content', () => {
         jobFile.name = 'jobName';
         jobFile.workers = 5;
         jobFile.operations = [
@@ -40,28 +58,16 @@ describe('JobSrc', () => {
 
         writeJob();
         try {
-            const job = new JobSrc(jobPath, 'jobFile.json'); // eslint-disable-line no-unused-vars
+            const job = new JobSrc(args); // eslint-disable-line no-unused-vars
+            job.validateJob();
         } catch (e) {
             expect(e).toBe('Job must have a name, workers, and at least 2 operations');
         }
     });
 
     it('should return correct version', () => {
-        const jobName = 'legitJob.json';
-        jobFile.name = 'goodJob';
-        jobFile.workers = 5;
-        jobFile.operations = [
-            {
-                _op: 'one'
-            },
-            {
-                _op: 'two'
-            }
-        ];
-        writeJob(jobName);
-        const { version } = require('../../package.json');
         try {
-            const job = new JobSrc(jobPath, jobName);
+            const job = new JobSrc(args);
             expect(job.version).toBe(version);
         } catch (e) {
             fail(e);
@@ -69,7 +75,6 @@ describe('JobSrc', () => {
     });
 
     it('should add metaData to job contents', () => {
-        const jobName = 'addMetaData.json';
         jobFile.name = 'goodJob';
         jobFile.workers = 5;
         jobFile.operations = [
@@ -80,10 +85,10 @@ describe('JobSrc', () => {
                 _op: 'two'
             }
         ];
-        writeJob(jobName);
-        const { version } = require('../../package.json');
+        writeJob();
         try {
-            const job = new JobSrc(jobPath, jobName);
+            const job = new JobSrc(args);
+            job.readFile();
             job.addMetaData('1234', 'localhost');
             const { content } = job;
             expect(content.__metadata.cli.version).toBe(version);
@@ -96,7 +101,6 @@ describe('JobSrc', () => {
     });
 
     it('should check presence of metadataCheck false', () => {
-        const jobName = 'metaCheck.json';
         jobFile.name = 'goodJob';
         jobFile.workers = 5;
         jobFile.operations = [
@@ -107,9 +111,10 @@ describe('JobSrc', () => {
                 _op: 'two'
             }
         ];
-        writeJob(jobName);
+        writeJob();
         try {
-            const job = new JobSrc(jobPath, jobName);
+            const job = new JobSrc(args);
+            job.readFile();
             expect(job.hasMetaData).toBe(false);
         } catch (e) {
             fail(e);
@@ -117,7 +122,6 @@ describe('JobSrc', () => {
     });
 
     it('should check presence of metadataCheck true', () => {
-        const jobName = 'metaCheck.json';
         jobFile.name = 'goodJob';
         jobFile.workers = 5;
         jobFile.operations = [
@@ -128,9 +132,10 @@ describe('JobSrc', () => {
                 _op: 'two'
             }
         ];
-        writeJob(jobName);
+        writeJob();
         try {
-            const job = new JobSrc(jobPath, 'metaCheck.json');
+            const job = new JobSrc(args);
+            job.readFile();
             job.addMetaData('1234', 'localhost');
             expect(job.hasMetaData).toBe(true);
         } catch (e) {
@@ -139,7 +144,6 @@ describe('JobSrc', () => {
     });
 
     it('should overwrite old job file', () => {
-        const jobName = 'overwrite.json';
         jobFile.name = 'goodJob';
         jobFile.workers = 5;
         jobFile.operations = [
@@ -150,12 +154,69 @@ describe('JobSrc', () => {
                 _op: 'two'
             }
         ];
-        writeJob(jobName);
-        const job = new JobSrc(jobPath, jobName);
+        writeJob();
+        const job = new JobSrc(args);
+        job.readFile();
         job.addMetaData('1234', 'localhost');
         job.overwrite();
-        const overwrittenPath = path.join(jobPath, jobName);
+        const overwrittenPath = path.join(jobPath, 'jobFile.json');
         const overwritten = fs.readJsonSync(overwrittenPath);
+
         expect(overwritten.__metadata).toBeDefined();
+        expect(overwritten.__metadata.cli.cluster).toBe('localhost');
+        expect(overwritten.__metadata.cli.job_id).toBe('1234');
+        expect(overwritten.__metadata.cli.version).toEqual(version);
+    });
+
+    it('init should validate job', () => {
+        jobFile.name = 'goodJob';
+        jobFile.workers = 5;
+        jobFile.operations = [
+            {
+                _op: 'one'
+            },
+            {
+                _op: 'two'
+            }
+        ];
+        writeJob();
+        const job = new JobSrc(args);
+        try {
+            job.init();
+        } catch (e) {
+            expect(e).toBe('Job file does not contain cli data, register the job first');
+        }
+    });
+
+    it('init add data to job object', () => {
+        jobFile.name = 'goodJob';
+        jobFile.workers = 5;
+        jobFile.operations = [
+            {
+                _op: 'one'
+            },
+            {
+                _op: 'two'
+            },
+        ];
+        jobFile.__metadata = {
+            cli: {
+                version: '1.1.1',
+                cluster: 'localhost:5678',
+                job_id: 'some-job-id',
+                updated: '2019-01-23T21:07:07.812Z'
+            }
+        };
+
+        writeJob();
+        const job = new JobSrc(args);
+        try {
+            job.init();
+            expect(job.cluster).toBe('localhost:5678');
+            expect(job.jobId).toBe('some-job-id');
+            expect(job.name).toBe('goodJob');
+        } catch (e) {
+            fail(e);
+        }
     });
 });
