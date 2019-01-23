@@ -51,7 +51,7 @@
         "yargs": "^12.0.5"
     },
     "devDependencies": {
-        "@types/jest": "^23.3.12",
+        "@types/jest": "^23.3.13",
         "@types/lodash": "^4.14.120",
         "@types/valid-url": "^1.0.2",
         "@types/validator": "^10.9.0",
