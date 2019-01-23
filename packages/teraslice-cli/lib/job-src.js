@@ -28,7 +28,7 @@ class JobFile {
             reply.fatal('Job file does not contain cli data, register the job first');
         }
         this.jobId = this.content.__metadata.cli.job_id;
-        this.cluster = this.content.__metadata.cli.cluster;
+        this.clusterUrl = this.content.__metadata.cli.cluster;
         this.name = this.content.name;
     }
 

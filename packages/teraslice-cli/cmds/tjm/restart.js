@@ -2,7 +2,7 @@
 
 const JobSrc = require('../../lib/job-src');
 const YargsOptions = require('../../lib/yargs-options');
-const Client = require('../../lib/utils').getTerasliceClientByCluster;
+const Client = require('../../lib/utils').getTerasliceClient;
 const reply = require('../lib/reply')();
 
 const yargsOptions = new YargsOptions();
@@ -20,17 +20,17 @@ exports.builder = (yargs) => {
 exports.handler = async (argv) => {
     const job = new JobSrc(argv);
     job.init();
-    const client = Client(job.cluster);
+    const client = Client(job);
 
     try {
         const stop = await client.jobs.wrap(job.jobId).stop();
         if (!stop.status.status === 'stopped') {
-            reply.fatal(`Could not be stop ${job.name} on ${job.cluster}`);
+            reply.fatal(`Could not be stop ${job.name} on ${job.clusterUrl}`);
         }
-        reply.green(`Stopped job ${job.name} on ${job.cluster}`);
+        reply.green(`Stopped job ${job.name} on ${job.clusterUrl}`);
     } catch (e) {
         if (e.message.includes('no execution context was found')) {
-            reply.yellow(`Job ${job.name} is not currently running on ${job.cluster}, will now attempt to start the job`);
+            reply.yellow(`Job ${job.name} is not currently running on ${job.clusterUrl}, will now attempt to start the job`);
         }
         reply.fatal(e.message);
     }
@@ -38,9 +38,9 @@ exports.handler = async (argv) => {
     try {
         const start = await client.jobs.wrap(job.jobId).start();
         if (!start.job_id === job.jobId) {
-            reply.fatal(`Could not start ${job.name} on ${job.cluster}`);
+            reply.fatal(`Could not start ${job.name} on ${job.clusterUrl}`);
         }
-        reply.green(`Started ${job.name} on ${job.cluster}`);
+        reply.green(`Started ${job.name} on ${job.clusterUrl}`);
     } catch (e) {
         reply.fatal(e.message);
     }
