@@ -8,10 +8,10 @@ import * as utils from './utils';
 export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     readonly client: es.Client;
     readonly config: i.IndexConfig;
+    readonly indexQuery: string;
     readonly manager: IndexManager;
 
     private _validate: ValidateFn<I|T>;
-    private _indexQuery: string;
     private _interval: NodeJS.Timer|undefined;
 
     private readonly _logger: ts.Logger;
@@ -34,7 +34,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         this.config = config;
         this.manager = new IndexManager(client);
 
-        this._indexQuery = this.manager.formatIndexName(config);
+        this.indexQuery = this.manager.formatIndexName(config);
 
         if (this.config.bulkMaxSize != null) {
             this._bulkMaxSize = this.config.bulkMaxSize;
@@ -92,7 +92,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     async bulk(action: i.BulkAction, ...args: any[]) {
         const metadata: BulkRequestMetadata = {};
         metadata[action] = {
-            _index: this._indexQuery,
+            _index: this.indexQuery,
             _type: this.config.name,
         };
 
@@ -165,7 +165,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         const records = flushAll ? this._collector.flushAll() : this._collector.getBatch();
         if (!records || !records.length) return;
 
-        this._logger.debug(`Flushing ${records.length} requests to ${this._indexQuery}`);
+        this._logger.debug(`Flushing ${records.length} requests to ${this.indexQuery}`);
 
         const bulkRequest: any[] = [];
 
@@ -245,7 +245,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      */
     async refresh(params?: PartialParam<es.IndicesRefreshParams>) {
         const p = Object.assign({
-            index: this._indexQuery
+            index: this.indexQuery
         }, params);
 
         return ts.pRetry(() => {
@@ -337,7 +337,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         const retry = utils.filterBulkRetries(records, result);
 
         if (retry.length) {
-            this._logger.warn(`Bulk request to ${this._indexQuery} resulted in ${retry.length} errors`);
+            this._logger.warn(`Bulk request to ${this.indexQuery} resulted in ${retry.length} errors`);
 
             this._logger.trace('Retrying bulk requests', retry);
             this._collector.add(retry);
@@ -346,7 +346,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
     private _getParams(...params: any[]) {
         return Object.assign({
-            index: this._indexQuery,
+            index: this.indexQuery,
             type: this.config.name
         }, ...params);
     }
