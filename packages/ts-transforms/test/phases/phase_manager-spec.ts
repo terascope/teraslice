@@ -62,10 +62,14 @@ describe('phase manager', () => {
         expect(Object.keys(manager.sequence[2].phase).length).toEqual(1);
 
         expect(manager.sequence[3].constructor.name).toEqual('ValidationPhase');
-        expect(Object.keys(manager.sequence[3].phase).length).toEqual(1);
-        expect(manager.sequence[3].phase['__all']).toBeDefined();
-
+        expect(Object.keys(manager.sequence[3].phase).length).toEqual(0);
         expect(manager.sequence[4].constructor.name).toEqual('OutputPhase');
+        // @ts-ignore
+        expect(manager.sequence[4].hasMultiValue).toEqual(false);
+        // @ts-ignore
+        expect(manager.sequence[4].hasRequirements).toEqual(true);
+         // @ts-ignore
+        expect(manager.sequence[4].hasRestrictedOutput).toEqual(false);
     });
 
     it('can run an array of data', async() => {

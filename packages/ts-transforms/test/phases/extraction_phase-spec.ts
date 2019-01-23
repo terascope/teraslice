@@ -80,7 +80,7 @@ describe('extraction phase', () => {
             { point: '33.242, -111.453' }
         ];
 
-        const dataArray  = data.map((obj, ind) => new DataEntity(obj, metaArray[ind]));
+        const dataArray = data.map((obj, ind) => new DataEntity(obj, metaArray[ind]));
 
         const results = extractionPhase.run(dataArray);
 
