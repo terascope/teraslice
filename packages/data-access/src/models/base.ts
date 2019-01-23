@@ -1,24 +1,44 @@
 import * as es from 'elasticsearch';
+import { IndexStore, IndexConfig } from 'elasticsearch-store';
 import { Omit } from '@terascope/utils';
+import { makeId, makeISODate } from '../utils';
 
 /**
  * A base class for handling the different ACL models
 */
-export class ModelFactory<T extends BaseModel> {
-    constructor(client: es.Client) {
+export class Base<T extends BaseModel> {
+    readonly store: IndexStore<T>;
 
+    constructor(client: es.Client, config: IndexConfig) {
+        const indexConfig: IndexConfig = Object.assign({
+            indexSettings: {
+                'index.number_of_shards': 4,
+                'index.number_of_replicas': 1
+            },
+            ingestTimeField: 'created',
+            eventTimeField: 'updated',
+        }, config);
+
+        this.store = new IndexStore(client, indexConfig);
     }
 
-    async initialize(): Promise<void> {
-        return;
+    async initialize() {
+        return this.store.initialize();
     }
 
-    async shutdown(): Promise<void> {
-        return;
+    async shutdown() {
+        return this.store.shutdown();
     }
 
-    async create(user: CreateInput<T>): Promise<void> {
-        return;
+    async create(record: CreateInput<T>): Promise<T> {
+        const doc = Object.assign({}, record, {
+            id: await makeId(),
+            created: makeISODate(),
+            updated: makeISODate(),
+        }) as T;
+
+        await this.store.create(doc);
+        return doc;
     }
 
     async deleteById(id: string): Promise<void> {
@@ -45,15 +65,15 @@ export class ModelFactory<T extends BaseModel> {
 
 export interface BaseModel {
     /**
-     * ID of the view - nanoid 10 digit
+     * ID of the view - nanoid 12 digit
     */
     id: string;
 
     /** Updated date */
-    updated: Date;
+    updated: string;
 
     /** Creation date */
-    created: Date;
+    created: string;
 }
 
 export type CreateInput<T extends BaseModel> = Omit<T, 'id'|'created'|'updated'>;

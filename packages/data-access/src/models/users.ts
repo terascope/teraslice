@@ -1,9 +1,9 @@
-import { ModelFactory, BaseModel, UpdateInput } from './base';
+import { Base, BaseModel, UpdateInput } from './base';
 
 /**
  * Manager for Users
 */
-export class Users extends ModelFactory<UserModel> {
+export class Users extends Base<UserModel> {
     /**
      * Authenticate the user
      *

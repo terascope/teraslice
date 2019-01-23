@@ -31,7 +31,8 @@
     },
     "dependencies": {
         "@terascope/utils": "^0.2.0",
-        "elasticsearch-store": "^0.1.0"
+        "elasticsearch-store": "^0.1.0",
+        "nanoid": "^2.0.1"
     },
     "devDependencies": {
         "@types/jest": "^23.3.13",

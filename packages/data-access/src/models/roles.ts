@@ -1,9 +1,9 @@
-import { ModelFactory, BaseModel } from './base';
+import { Base, BaseModel } from './base';
 
 /**
  * Manager for Roles
 */
-export class Roles extends ModelFactory<RoleModel> {
+export class Roles extends Base<RoleModel> {
     async hasAccessToSpace(roleId: string, space: string): Promise<boolean> {
         const role = await this.findById(roleId);
         return role.spaces.includes(space);

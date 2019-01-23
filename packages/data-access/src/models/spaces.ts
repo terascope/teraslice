@@ -1,9 +1,9 @@
-import { ModelFactory, BaseModel } from './base';
+import { Base, BaseModel } from './base';
 
 /**
  * Manager for Spaces
 */
-export class Spaces extends ModelFactory<SpaceModel> {
+export class Spaces extends Base<SpaceModel> {
 
 }
 

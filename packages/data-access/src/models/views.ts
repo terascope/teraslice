@@ -1,10 +1,10 @@
 import { getFirst } from '@terascope/utils';
-import { ModelFactory, BaseModel } from './base';
+import { Base, BaseModel } from './base';
 
 /**
  * Manager for Views
 */
-export class Views extends ModelFactory<ViewModel> {
+export class Views extends Base<ViewModel> {
     async getViewForRole(roleId: string, space: string): Promise<ViewModel> {
         const query = `roles:"${roleId}" AND space:"${space}"`;
         return getFirst(await this.search(query, 1));
