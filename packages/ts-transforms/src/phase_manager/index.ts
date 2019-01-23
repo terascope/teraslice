@@ -1,5 +1,5 @@
 
-import { DataEntity, Logger } from '@terascope/job-components';
+import { DataEntity, Logger } from '@terascope/utils';
 import _ from 'lodash';
 import { WatcherConfig, PluginList } from '../interfaces';
 import Loader from '../loader';
