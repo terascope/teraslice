@@ -15,8 +15,7 @@ exports.builder = (yargs) => {
     yargs.option('start', yargsOptions.buildOption('start'));
     yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
     yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-    yargs.example('$0 tjm start job-file.json');
-    yargs.example('$0 tjm run job-file.json');
+    yargs.example('$0 tjm update jobFile.json');
 };
 
 exports.handler = async (argv) => {
@@ -25,7 +24,7 @@ exports.handler = async (argv) => {
     const client = Client(job);
 
     try {
-        const update = await client.cluster.put(`/jobs/${job.jobId}`, job.job.content);
+        const update = await client.cluster.put(`/jobs/${job.jobId}`, job.content);
         if (!_.get(update, 'job_id') === job.job_id) {
             reply.fatal(`Could not be updated job ${job.jobId} on ${job.clusterUrl}`);
         }

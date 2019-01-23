@@ -15,9 +15,9 @@ exports.builder = (yargs) => {
     yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
     yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
     yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-    yargs.example('$0 tjm workers add 10 jobName.json');
-    yargs.example('$0 tjm workers remove 10 jobName.json');
-    yargs.example('$0 tjm workers set 40 jobName.json');
+    yargs.example('$0 tjm workers add 10 jobFile.json');
+    yargs.example('$0 tjm workers remove 10 jobFile.json');
+    yargs.example('$0 tjm workers total 40 jobFile.json');
 };
 
 exports.handler = async (argv) => {
@@ -28,15 +28,15 @@ exports.handler = async (argv) => {
     try {
         const currentStatus = await client.jobs.wrap(job.jobId).status();
         if (currentStatus !== 'running') {
-            reply.fatal(`${this.name} is currently ${currentStatus} and workers cannot be added`);
+            reply.fatal(`${job.name} is currently ${currentStatus} and workers cannot be added`);
         }
 
         const workers = await client.jobs.wrap(job.jobId)
             .changeWorkers(argv.workerAction, argv.number);
         if (!workers) {
-            reply.fatal(`Workers could not be added to ${this.name} on ${this.clusterUrl}`);
+            reply.fatal(`Workers could not be added to ${job.name} on ${job.clusterUrl}`);
         }
-        reply.green(workers);
+        reply.green(`${workers} for ${job.name} on ${job.cluster}`);
     } catch (e) {
         reply.fatal(e.message);
     }

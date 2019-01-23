@@ -212,7 +212,7 @@ describe('JobSrc', () => {
         const job = new JobSrc(args);
         try {
             job.init();
-            expect(job.cluster).toBe('localhost:5678');
+            expect(job.clusterUrl).toBe('localhost:5678');
             expect(job.jobId).toBe('some-job-id');
             expect(job.name).toBe('goodJob');
         } catch (e) {

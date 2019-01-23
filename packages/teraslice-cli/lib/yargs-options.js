@@ -73,7 +73,7 @@ class Options {
                 type: 'boolean'
             }),
             start: () => ({
-                describe: 'Option to start job immediately after registering it on the cluster',
+                describe: 'Option to start job immediately after registering or updating a job',
                 alias: 'run',
                 type: 'boolean',
                 default: false

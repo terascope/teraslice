@@ -12,8 +12,7 @@ exports.builder = (yargs) => {
     yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
     yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
     yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-    yargs.example('$0 tjm start new-job.json');
-    yargs.example('$0 tjm run new-job.json');
+    yargs.example('$0 tjm create newJob.json');
 };
 
 exports.handler = (argv) => {
