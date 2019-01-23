@@ -1,13 +1,28 @@
+import * as es from 'elasticsearch';
 import { getFirst } from '@terascope/utils';
 import { Base, BaseModel } from './base';
+import mapping from './mapping/views';
+import { ManagerConfig } from '../interfaces';
 
 /**
  * Manager for Views
 */
 export class Views extends Base<ViewModel> {
-    async getViewForRole(roleId: string, space: string): Promise<ViewModel> {
+    constructor(client: es.Client, config: ManagerConfig) {
+        super(client, {
+            version: 1,
+            name: 'views',
+            namespace: config.namespace,
+            indexSchema: {
+                version: 1,
+                mapping,
+            }
+        });
+    }
+
+    async getViewForRole(roleId: string, space: string) {
         const query = `roles:"${roleId}" AND space:"${space}"`;
-        return getFirst(await this.search(query, 1));
+        return getFirst(await this.find(query, 1));
     }
 }
 

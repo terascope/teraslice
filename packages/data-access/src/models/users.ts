@@ -1,9 +1,25 @@
+import { getFirst } from '@terascope/utils';
+import * as es from 'elasticsearch';
+import mapping from './mapping/users';
 import { Base, BaseModel, UpdateInput } from './base';
+import { ManagerConfig } from '../interfaces';
 
 /**
  * Manager for Users
 */
 export class Users extends Base<UserModel> {
+    constructor(client: es.Client, config: ManagerConfig) {
+        super(client, {
+            version: 1,
+            name: 'users',
+            namespace: config.namespace,
+            indexSchema: {
+                version: 1,
+                mapping,
+            },
+        });
+    }
+
     /**
      * Authenticate the user
      *
@@ -24,17 +40,17 @@ export class Users extends Base<UserModel> {
     /**
      * Find a user by the API Token
     */
-    async findByToken(apiToken: string): Promise<UserModel> {
-        // @ts-ignore FIXME
-        return {};
+    async findByToken(apiToken: string) {
+        const result = await this.find(`api_token:"${apiToken}"`, 1);
+        return getFirst(result);
     }
 
     /**
      * Find a User by username
     */
-    async findByUsername(username: string): Promise<UserModel> {
-        // @ts-ignore FIXME
-        return {};
+    async findByUsername(username: string) {
+        const result = await this.find(`username:"${username}"`, 1);
+        return getFirst(result);
     }
 }
 
@@ -42,6 +58,10 @@ export class Users extends Base<UserModel> {
  * The definition of a User model
 */
 export interface UserModel extends BaseModel {
+    /**
+     * The ID for the client
+    */
+    client_id: number;
     /**
      * First Name of the User
     */

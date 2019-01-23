@@ -12,8 +12,16 @@ export class Base<T extends BaseModel> {
     constructor(client: es.Client, config: IndexConfig) {
         const indexConfig: IndexConfig = Object.assign({
             indexSettings: {
-                'index.number_of_shards': 4,
-                'index.number_of_replicas': 1
+                'index.number_of_shards': 5,
+                'index.number_of_replicas': 1,
+                analysis: {
+                    analyzer: {
+                        lowercase_keyword_analyzer: {
+                            tokenizer: 'keyword',
+                            filter: 'lowercase'
+                        }
+                    }
+                }
             },
             ingestTimeField: 'created',
             eventTimeField: 'updated',
@@ -37,12 +45,12 @@ export class Base<T extends BaseModel> {
             updated: makeISODate(),
         }) as T;
 
-        await this.store.createWithId(doc, doc.id);
+        await this.store.indexWithId(doc, doc.id);
         return doc;
     }
 
     async deleteById(id: string): Promise<void> {
-        return;
+        await this.store.remove(id);
     }
 
     async findById(id: string) {
@@ -53,8 +61,13 @@ export class Base<T extends BaseModel> {
         return [];
     }
 
-    async search(query: string, limit: number = 10, fields?: (keyof T)[], sort?: string): Promise<T[]> {
-        return [];
+    async find(q: string, size: number = 10, fields?: (keyof T)[], sort?: string) {
+        return this.store.search({
+            q,
+            size,
+            sort,
+            _source: fields,
+        });
     }
 
     async update(user: UpdateInput<T>): Promise<void> {

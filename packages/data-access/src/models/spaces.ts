@@ -1,9 +1,23 @@
+import * as es from 'elasticsearch';
+import mapping from './mapping/spaces';
+import { ManagerConfig } from '../interfaces';
 import { Base, BaseModel } from './base';
 
 /**
  * Manager for Spaces
 */
 export class Spaces extends Base<SpaceModel> {
+    constructor(client: es.Client, config: ManagerConfig) {
+        super(client, {
+            version: 1,
+            name: 'spaces',
+            namespace: config.namespace,
+            indexSchema: {
+                version: 1,
+                mapping,
+            },
+        });
+    }
 
 }
 

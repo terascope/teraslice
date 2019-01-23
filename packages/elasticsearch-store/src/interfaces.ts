@@ -64,14 +64,14 @@ export interface IndexConfig {
 /** Elasticsearch Index Schema, Mapping and Version */
 export interface IndexSchema {
     /**
-     * The version of this particular Schema definition
-     */
-    version: number;
-
-    /**
-     * The Elasticsearch index mapping
+     * The ElasticSearch index mapping
     */
     mapping: any;
+
+    /**
+     * The version of this particular Schema definition
+     */
+    version?: number;
 
     /**
      * Use a Templated Index

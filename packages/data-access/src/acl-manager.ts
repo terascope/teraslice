@@ -1,6 +1,7 @@
-import { TSError, getFirst } from '@terascope/utils';
+import { TSError, getFirst, DataEntity } from '@terascope/utils';
 import * as es from 'elasticsearch';
 import * as models from './models';
+import { ManagerConfig } from './interfaces';
 
 /**
  * ACL Manager for Data Access Roles, essentially a
@@ -12,11 +13,11 @@ export class ACLManager {
     readonly users: models.Users;
     readonly views: models.Views;
 
-    constructor(client: es.Client) {
-        this.roles = new models.Roles(client);
-        this.spaces = new models.Spaces(client);
-        this.users = new models.Users(client);
-        this.views = new models.Views(client);
+    constructor(client: es.Client, config: ManagerConfig) {
+        this.roles = new models.Roles(client, config);
+        this.spaces = new models.Spaces(client, config);
+        this.users = new models.Users(client, config);
+        this.views = new models.Views(client, config);
     }
 
     async initialize() {
@@ -78,12 +79,12 @@ export interface DataAccessConfig {
     /**
      * The User Model
     */
-    user: models.UserModel;
+    user: DataEntity<models.UserModel>;
 
     /**
      * The View Model
     */
-    view: models.ViewModel;
+    view: DataEntity<models.ViewModel>;
 
     /**
      * The name of the space
