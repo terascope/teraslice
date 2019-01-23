@@ -5,6 +5,15 @@ import { isNotNil } from './misc';
 import { IndexConfig, IndexSchema } from '../interfaces';
 import { throwValidationError } from './errors';
 
+export function isValidName(name: string) {
+    return ts.isString(name) && name && !name.includes('-');
+}
+
+export function isValidNamespace(namespace: string) {
+    if (namespace == null) return true;
+    return ts.isString(namespace) && namespace && !namespace.includes('-');
+}
+
 export function validateIndexConfig(config: any): config is IndexConfig {
     const errors: string[] = [];
 
@@ -12,8 +21,12 @@ export function validateIndexConfig(config: any): config is IndexConfig {
         errors.push('IndexConfig cannot be empty');
     }
 
-    if (config && (!ts.isString(config.name) || !config.name || config.name.includes('-'))) {
+    if (config && !isValidName(config.name)) {
         errors.push('Invalid name, must be a non-empty string and cannot contain a "-"');
+    }
+
+    if (config && !isValidNamespace(config.namespace)) {
+        errors.push('Invalid namespace, must be a non-empty string and cannot contain a "-"');
     }
 
     const {
