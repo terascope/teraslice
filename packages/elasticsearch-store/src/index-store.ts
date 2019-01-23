@@ -83,6 +83,8 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      *
      * This method will batch messages using the configured
      * bulk max size and wait configuration.
+     *
+     * @todo we need to add concurrency support for sending multiple bulk requests in flight
      */
     async bulk(action: 'delete', id?: string): Promise<void>;
     async bulk(action: 'index'|'create', doc?: I, id?: string): Promise<void>;
