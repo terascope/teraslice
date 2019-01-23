@@ -10,65 +10,107 @@ export default class OutputPhase extends PhaseBase {
     private opConfig: WatcherConfig;
     private hasMultiValue: boolean;
     private restrictOutput: object;
+    private requirements: object;
     private hasRestrictedOutput: boolean;
+    private hasRequirements: boolean;
 
     constructor(_opConfig: WatcherConfig, configList:OperationConfig[], _opsManager: OperationsManager) {
         super();
         this.hasMultiValue = _.some(configList, 'multivalue');
-        this.restrictOutput = this.getOutRestrictionList(configList);
+        this.restrictOutput = this.getOutputRestrictionList(configList);
+        this.requirements = this.extractionRequirements(configList);
+        this.hasRequirements = _.keys(this.requirements).length > 0;
         this.hasRestrictedOutput = _.keys(this.restrictOutput).length > 0;
     }
 
-    getOutRestrictionList(configList:OperationConfig[]): object {
+    extractionRequirements(configList:OperationConfig[]) {
+        const requirements = {};
+        _.each(configList, (config: OperationConfig) => {
+            if (config.other_match_required) {
+                const key = config.target_field || config.source_field;
+                requirements[key as string] = true;
+            }
+        });
+        return requirements;
+    }
+
+    getOutputRestrictionList(configList:OperationConfig[]): object {
         const list = {};
-        configList.forEach((config) => {
-            if (config.output !== undefined) {
+        _.each(configList, (config: OperationConfig) => {
+            if (config.output !== undefined && config.validation == null) {
                 const { configuration } = this.normalizeConfig(config, 'output', configList);
-                // TODO: potential issue here
                 list[configuration.target_field as string] = true;
             }
         });
         return list;
     }
 
-    normalizeFields(doc: DataEntity) {
-        const multiValueList = doc.getMetadata('_multi_target_fields');
-        if (multiValueList != null) {
-            // this iterates over a given target_field
-            _.forOwn(multiValueList, (sourceKeyObj, targetFieldName) => {
-                const multiValueField: any[] = [];
-                // this iterates over the list of keys being put into target_field
-                _.forOwn(sourceKeyObj, (_bool, sourceKey) => {
-                    const data = _.get(doc, sourceKey);
-                    if (data != null) multiValueField.push(data);
-                    _.unset(doc, sourceKey);
+    normalizeFields(data: DataEntity[]) {
+        return data.map((doc) => {
+            const multiValueList = doc.getMetadata('_multi_target_fields');
+            if (multiValueList != null) {
+                // this iterates over a given target_field
+                _.forOwn(multiValueList, (sourceKeyObj, targetFieldName) => {
+                    const multiValueField: any[] = [];
+                    // this iterates over the list of keys being put into target_field
+                    _.forOwn(sourceKeyObj, (_bool, sourceKey) => {
+                        const data = _.get(doc, sourceKey);
+                        if (data != null) multiValueField.push(data);
+                        _.unset(doc, sourceKey);
+                    });
+                    doc[targetFieldName] = multiValueField;
                 });
-                doc[targetFieldName] = multiValueField;
+            }
+            return doc;
+        });
+    }
+
+    restrictFields(data: DataEntity[]) {
+        const restrictedData: DataEntity[] = [];
+        _.each(data, (doc: DataEntity) => {
+            _.forOwn(this.restrictOutput, (_value, key) => {
+                _.unset(doc, key);
             });
-        }
+            if (_.keys(doc).length > 0) restrictedData.push(doc);
+        });
+        return restrictedData;
+    }
+
+    requiredExtractions(data: DataEntity[]) {
+        const finalResults: DataEntity[] = [];
+
+        _.each(data, (doc: DataEntity) => {
+            let otherExtractionsFound = false;
+            let requireExtractionsFound = false;
+
+            _.forOwn(doc, (_value, key) => {
+                if (_.has(this.requirements, key)) requireExtractionsFound = true;
+                if (!_.has(this.requirements, key)) otherExtractionsFound = true;
+            });
+
+            if (!requireExtractionsFound || (requireExtractionsFound && otherExtractionsFound)) {
+                finalResults.push(doc);
+            }
+        });
+
+        return finalResults;
     }
 
     public run(data: DataEntity[]): DataEntity[] {
         let results = data;
-        // console.log('data at output', results)
+
         if (this.hasMultiValue) {
-            results.forEach(this.normalizeFields);
+            results = this.normalizeFields(results);
         }
 
         if (this.hasRestrictedOutput) {
-           // console.log('im in the restricted', this.restrictOutput)
-            const restrictedData: DataEntity[] = [];
-            results.forEach((doc: DataEntity) => {
-              //  console.log('the doc', doc, this.restrictOutput)
-                _.forOwn(this.restrictOutput, (_value, key) => {
-                    _.unset(doc, key);
-                });
-                if (_.keys(doc).length > 0) restrictedData.push(doc);
-              //  console.log('restrictedData', restrictedData)
-            });
-            results = restrictedData;
+            results = this.restrictFields(results);
         }
+
+        if (this.hasRequirements) {
+            results = this.requiredExtractions(results);
+        }
+
         return results;
     }
-
 }
