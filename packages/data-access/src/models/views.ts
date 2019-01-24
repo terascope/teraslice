@@ -1,7 +1,7 @@
 import * as es from 'elasticsearch';
 import { getFirst } from '@terascope/utils';
 import { Base, BaseModel } from './base';
-import mapping from './mapping/views';
+import * as viewsConfig from './mapping/views';
 import { ManagerConfig } from '../interfaces';
 
 /**
@@ -9,15 +9,7 @@ import { ManagerConfig } from '../interfaces';
 */
 export class Views extends Base<ViewModel> {
     constructor(client: es.Client, config: ManagerConfig) {
-        super(client, {
-            version: 1,
-            name: 'views',
-            namespace: config.namespace,
-            indexSchema: {
-                version: 1,
-                mapping,
-            }
-        });
+        super(client, config, viewsConfig);
     }
 
     async getViewForRole(roleId: string, space: string) {

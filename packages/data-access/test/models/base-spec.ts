@@ -9,40 +9,32 @@ describe('Base', () => {
     }
 
     const client = makeClient();
-
-    const mapping = {
-        _all: {
-            enabled: false
-        },
-        dynamic: false,
-        properties: {
-            id: {
-                type: 'keyword'
-            },
-            name: {
-                type: 'keyword'
-            },
-            created: {
-                type: 'date'
-            },
-            updated: {
-                type: 'date'
+    const baseConfig = {
+        name: 'base',
+        mapping: {
+            properties: {
+                name: {
+                    type: 'keyword'
+                },
             }
-        }
+        },
+        schema: {
+            properties: {
+                name: {
+                    type: 'string'
+                }
+            }
+        },
+        version: 1,
     };
 
     const base = new Base<ExampleModel>(client, {
-        name: 'base',
         namespace: 'test',
-        indexSchema: {
-            mapping,
-            version: 1,
-            strict: true,
-        },
-        version: 1,
-        bulkMaxSize: 50,
-        bulkMaxWait: 300,
-    });
+        storeOptions: {
+            bulkMaxSize: 50,
+            bulkMaxWait: 300,
+        }
+    }, baseConfig);
 
     beforeAll(async () => {
         await cleanupIndex(base);

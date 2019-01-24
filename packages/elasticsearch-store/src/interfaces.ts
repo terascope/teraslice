@@ -105,7 +105,7 @@ export type TimeSeriesFormat = 'daily'|'monthly'|'yearly';
 export interface IndexSettings {
     'index.number_of_shards': number;
     'index.number_of_replicas': number;
-    [key: string]: string|number|boolean;
+    [key: string]: any;
 }
 
 /** Data Schema and Version */

@@ -1,22 +1,64 @@
-const mapping = {
-    _all: {
-        enabled: false
-    },
-    dynamic: false,
+
+/** Schema Version */
+export const version = 1;
+
+/** Name of Data Type */
+export const name = 'views';
+
+/** ElasticSearch Mapping */
+export const mapping = {
     properties: {
-        id: {
-            type: 'keyword'
-        },
         name: {
             type: 'keyword'
         },
-        created: {
-            type: 'date'
+        space: {
+            type: 'keyword'
         },
-        updated: {
-            type: 'date'
-        }
+        constraint: {
+            type: 'keyword'
+        },
     }
 };
 
-export default mapping;
+/** JSON Schema */
+export const schema = {
+    properties: {
+        name: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        space: {
+            type: 'string'
+        },
+        roles: {
+            type: 'array',
+            items: {
+                type: 'string'
+            },
+            uniqueItems: true,
+            default: []
+        },
+        excludes: {
+            type: 'array',
+            items: {
+                type: 'string'
+            },
+            uniqueItems: true,
+            default: []
+        },
+        includes: {
+            type: 'array',
+            items: {
+                type: 'string'
+            },
+            uniqueItems: true,
+            default: []
+        },
+        constraint: {
+            type: 'string'
+        }
+    },
+    required: ['name', 'space']
+};

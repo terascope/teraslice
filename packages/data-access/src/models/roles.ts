@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import { mapping, schema } from './mapping/roles';
+import * as rolesConfig from './mapping/roles';
 import { ManagerConfig } from '../interfaces';
 import { Base, BaseModel } from './base';
 
@@ -8,20 +8,7 @@ import { Base, BaseModel } from './base';
 */
 export class Roles extends Base<RoleModel> {
     constructor(client: es.Client, config: ManagerConfig) {
-        super(client, {
-            version: 1,
-            name: 'roles',
-            namespace: config.namespace,
-            indexSchema: {
-                version: 1,
-                mapping,
-            },
-            dataSchema: {
-                schema,
-                strict: true,
-                allFormatters: true,
-            }
-        });
+        super(client, config, rolesConfig);
     }
 
     async hasAccessToSpace(roleId: string, space: string): Promise<boolean> {

@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import { mapping, schema } from './mapping/spaces';
+import * as spacesConfig from './mapping/spaces';
 import { ManagerConfig } from '../interfaces';
 import { Base, BaseModel } from './base';
 
@@ -8,22 +8,8 @@ import { Base, BaseModel } from './base';
 */
 export class Spaces extends Base<SpaceModel> {
     constructor(client: es.Client, config: ManagerConfig) {
-        super(client, {
-            version: 1,
-            name: 'spaces',
-            namespace: config.namespace,
-            indexSchema: {
-                version: 1,
-                mapping,
-            },
-            dataSchema: {
-                schema,
-                strict: true,
-                allFormatters: true,
-            },
-        });
+        super(client, config, spacesConfig);
     }
-
 }
 
 /**

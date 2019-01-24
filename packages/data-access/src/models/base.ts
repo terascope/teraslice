@@ -1,7 +1,9 @@
 import * as es from 'elasticsearch';
-import { IndexStore, IndexConfig } from 'elasticsearch-store';
 import { Omit } from '@terascope/utils';
+import { IndexStore, IndexConfig } from 'elasticsearch-store';
+import { addDefaultMapping, addDefaultSchema } from './mapping/base';
 import { makeId, makeISODate } from '../utils';
+import { ManagerConfig } from '../interfaces';
 
 /**
  * A base class for handling the different ACL models
@@ -9,8 +11,20 @@ import { makeId, makeISODate } from '../utils';
 export class Base<T extends BaseModel> {
     readonly store: IndexStore<T>;
 
-    constructor(client: es.Client, config: IndexConfig) {
+    constructor(client: es.Client, config: ManagerConfig, modelConfig: ModelConfig) {
         const indexConfig: IndexConfig = Object.assign({
+            version: 1,
+            name: modelConfig.name,
+            namespace: config.namespace,
+            indexSchema: {
+                version: modelConfig.version,
+                mapping: addDefaultMapping(modelConfig.mapping),
+            },
+            dataSchema: {
+                schema: addDefaultSchema(modelConfig.schema),
+                strict: true,
+                allFormatters: true,
+            },
             indexSettings: {
                 'index.number_of_shards': 5,
                 'index.number_of_replicas': 1,
@@ -25,7 +39,7 @@ export class Base<T extends BaseModel> {
             },
             ingestTimeField: 'created',
             eventTimeField: 'updated',
-        }, config);
+        }, config.storeOptions, modelConfig);
 
         this.store = new IndexStore(client, indexConfig);
     }
@@ -79,6 +93,19 @@ export class Base<T extends BaseModel> {
     }
 }
 
+export interface ModelConfig {
+    name: string;
+    mapping: any;
+    schema: any;
+    version: number;
+    storeOptions?: Partial<IndexConfig>;
+}
+
+export type BaseConfig = ModelConfig & ManagerConfig;
+
+export type CreateInput<T extends BaseModel> = Omit<T, 'id'|'created'|'updated'>;
+export type UpdateInput<T extends BaseModel> = Partial<Omit<T, 'created'|'updated'>>;
+
 export interface BaseModel {
     /**
      * ID of the view - nanoid 12 digit
@@ -91,6 +118,3 @@ export interface BaseModel {
     /** Creation date */
     created: string;
 }
-
-export type CreateInput<T extends BaseModel> = Omit<T, 'id'|'created'|'updated'>;
-export type UpdateInput<T extends BaseModel> = Partial<Omit<T, 'created'|'updated'>>;

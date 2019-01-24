@@ -1,7 +1,7 @@
 import { getFirst } from '@terascope/utils';
 import * as es from 'elasticsearch';
-import mapping from './mapping/users';
-import { Base, BaseModel, UpdateInput } from './base';
+import * as usersConfig from './mapping/users';
+import { Base, UpdateInput, BaseModel } from './base';
 import { ManagerConfig } from '../interfaces';
 
 /**
@@ -9,15 +9,7 @@ import { ManagerConfig } from '../interfaces';
 */
 export class Users extends Base<UserModel> {
     constructor(client: es.Client, config: ManagerConfig) {
-        super(client, {
-            version: 1,
-            name: 'users',
-            namespace: config.namespace,
-            indexSchema: {
-                version: 1,
-                mapping,
-            },
-        });
+        super(client, config, usersConfig);
     }
 
     /**
@@ -62,6 +54,12 @@ export interface UserModel extends BaseModel {
      * The ID for the client
     */
     client_id: number;
+
+    /**
+     * The User's username
+    */
+    username: string;
+
     /**
      * First Name of the User
     */
@@ -71,11 +69,6 @@ export interface UserModel extends BaseModel {
      * Last Name of the User
     */
     lastname: string;
-
-    /**
-     * The User's username
-    */
-    username: string;
 
     /**
      * The User's email address
@@ -113,7 +106,7 @@ export interface PrivateUserModel extends UserModel {
     /**
      * A unique salt for the password
      *
-     * `crypto.randomBytesAsync(32)`
+     * `crypto.randomBytesAsync(32).toString('hex')`
     */
     salt: string;
 }

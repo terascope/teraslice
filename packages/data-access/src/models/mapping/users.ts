@@ -1,8 +1,11 @@
- const mapping = {
-    _all: {
-        enabled: false
-    },
-    dynamic: false,
+/** Schema Version */
+export const version = 1;
+
+/** Name of Data Type */
+export const name = 'users';
+
+/** ElasticSearch Mapping */
+export const mapping = {
     properties: {
         client_id: {
             type: 'integer'
@@ -43,9 +46,6 @@
                 }
             }
         },
-        role: {
-            type: 'keyword'
-        },
         api_token: {
             type: 'keyword'
         },
@@ -55,16 +55,45 @@
         salt: {
             type: 'keyword'
         },
-        created: {
-            type: 'date'
-        },
-        updated: {
-            type: 'date'
-        },
-        id: {
-            type: 'keyword'
-        }
     }
 };
 
-export default mapping;
+/** JSON Schema */
+export const schema = {
+    properties: {
+        client_id: {
+            type: 'number'
+        },
+        username: {
+            type: 'string'
+        },
+        firstname: {
+            type: 'string'
+        },
+        lastname: {
+            type: 'string'
+        },
+        email: {
+            type: 'email'
+        },
+        roles: {
+            type: 'array',
+            items: {
+                type: 'string'
+            },
+            uniqueItems: true,
+            maxItems: 1,
+            default: []
+        },
+        api_token: {
+            type: 'string'
+        },
+        hash: {
+            type: 'string'
+        },
+        salt: {
+            type: 'string'
+        }
+    },
+    required: ['firstname', 'lastname']
+};

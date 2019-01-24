@@ -1,14 +1,20 @@
-import { addDefaultMapping, addDefaultSchema } from './base';
+/** Schema Version */
+export const version = 1;
 
-export const mapping = addDefaultMapping({
+/** Name of Data Type */
+export const name = 'roles';
+
+/** ElasticSearch Mapping */
+export const mapping = {
     properties: {
         name: {
             type: 'keyword'
         }
     }
-});
+};
 
-export const schema = addDefaultSchema({
+/** JSON Schema */
+export const schema = {
     properties: {
         name: {
             type: 'string'
@@ -18,11 +24,12 @@ export const schema = addDefaultSchema({
         },
         spaces: {
             type: 'array',
-            items: [
-                { type: 'string' }
-            ],
+            items: {
+                type: 'string'
+            },
+            uniqueItems: true,
             default: []
         },
     },
     required: ['name']
-});
+};
