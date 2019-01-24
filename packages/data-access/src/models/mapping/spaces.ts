@@ -1,22 +1,28 @@
-const mapping = {
-    _all: {
-        enabled: false
-    },
-    dynamic: false,
+import { addDefaultMapping, addDefaultSchema } from './base';
+
+export const mapping = addDefaultMapping({
     properties: {
-        id: {
-            type: 'keyword'
-        },
         name: {
             type: 'keyword'
-        },
-        created: {
-            type: 'date'
-        },
-        updated: {
-            type: 'date'
         }
     }
-};
+});
 
-export default mapping;
+export const schema = addDefaultSchema({
+    properties: {
+        name: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        views: {
+            type: 'array',
+            items: [
+                { type: 'string' }
+            ],
+            default: []
+        },
+    },
+    required: ['name']
+});

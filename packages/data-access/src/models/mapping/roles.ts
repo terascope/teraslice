@@ -1,30 +1,15 @@
-export const mapping = {
-    _all: {
-        enabled: false
-    },
-    dynamic: false,
+import { addDefaultMapping, addDefaultSchema } from './base';
+
+export const mapping = addDefaultMapping({
     properties: {
-        id: {
-            type: 'keyword'
-        },
         name: {
             type: 'keyword'
-        },
-        created: {
-            type: 'date'
-        },
-        updated: {
-            type: 'date'
         }
     }
-};
+});
 
-export const schema = {
-    additionalProperties: false,
+export const schema = addDefaultSchema({
     properties: {
-        id: {
-            type: 'string'
-        },
         name: {
             type: 'string'
         },
@@ -38,12 +23,6 @@ export const schema = {
             ],
             default: []
         },
-        created: {
-            format: 'date-time',
-        },
-        updated: {
-            format: 'date-time',
-        }
     },
-    required: ['id', 'name']
-};
+    required: ['name']
+});

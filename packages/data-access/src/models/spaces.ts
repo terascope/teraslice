@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import mapping from './mapping/spaces';
+import { mapping, schema } from './mapping/spaces';
 import { ManagerConfig } from '../interfaces';
 import { Base, BaseModel } from './base';
 
@@ -15,6 +15,11 @@ export class Spaces extends Base<SpaceModel> {
             indexSchema: {
                 version: 1,
                 mapping,
+            },
+            dataSchema: {
+                schema,
+                strict: true,
+                allFormatters: true,
             },
         });
     }
@@ -38,5 +43,5 @@ export interface SpaceModel extends BaseModel {
     /**
      * A list of associated views
     */
-    views: [];
+    views: string[];
 }

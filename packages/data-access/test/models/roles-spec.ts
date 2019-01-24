@@ -4,7 +4,9 @@ import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
 describe('Roles', () => {
     const client = makeClient();
-    const roles = new Roles(client, { namespace: 'test' });
+    const roles = new Roles(client, {
+        namespace: 'test'
+    });
 
     beforeAll(async () => {
         await cleanupIndex(roles);
