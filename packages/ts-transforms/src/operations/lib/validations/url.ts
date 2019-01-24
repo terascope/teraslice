@@ -2,9 +2,9 @@
 import _ from 'lodash';
 import * as url from 'valid-url';
 import { OperationConfig } from '../../../interfaces';
-import ValidationBase from './base';
+import ValidationOpBase from './base';
 
-export default class Url extends ValidationBase<any> {
+export default class Url extends ValidationOpBase<any> {
     constructor(config: OperationConfig) {
         super(config);
     }

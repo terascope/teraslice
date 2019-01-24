@@ -2,9 +2,9 @@
 import _ from 'lodash';
 import { DataEntity } from '@terascope/utils';
 import { OperationConfig } from '../../../interfaces';
-import ValidationBase from './base';
+import ValidationOpBase from './base';
 
-export default class NumberValidation extends ValidationBase<any> {
+export default class NumberValidation extends ValidationOpBase<any> {
     constructor(config: OperationConfig) {
         super(config);
     }

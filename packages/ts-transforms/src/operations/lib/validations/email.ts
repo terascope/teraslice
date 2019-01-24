@@ -1,9 +1,9 @@
 
 import _ from 'lodash';
 import { OperationConfig } from '../../../interfaces';
-import ValidationBase from './base';
+import ValidationOpBase from './base';
 
-export default class Email extends ValidationBase<any> {
+export default class Email extends ValidationOpBase<any> {
     private regex: RegExp;
 
     constructor(config: OperationConfig) {

@@ -2,9 +2,9 @@
 import _ from 'lodash';
 import { DataEntity } from '@terascope/utils';
 import { OperationConfig } from '../../../interfaces';
-import TransformBase from './base';
+import TransformOpBase from './base';
 
-export default class Extraction extends TransformBase {
+export default class Extraction extends TransformOpBase {
     private isMutation: Boolean;
     private mutltiFieldParams: object;
     private regex?: RegExp;

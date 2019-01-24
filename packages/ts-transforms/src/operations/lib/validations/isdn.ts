@@ -1,10 +1,10 @@
 
 import _ from 'lodash';
 import PhoneValidator from 'awesome-phonenumber';
-import ValidationBase from './base';
+import ValidationOpBase from './base';
 import { OperationConfig } from '../../../interfaces';
 
-export default class ISDN extends ValidationBase<any> {
+export default class ISDN extends ValidationOpBase<any> {
     constructor(config: OperationConfig) {
         super(config);
     }

@@ -1,9 +1,9 @@
 
 import _ from 'lodash';
-import ValidationBase from './base';
+import ValidationOpBase from './base';
 import { OperationConfig } from '../../../interfaces';
 
-export default class StringValidation extends ValidationBase<any> {
+export default class StringValidation extends ValidationOpBase<any> {
     private length?: number;
     private min?: number;
     private max?: number;

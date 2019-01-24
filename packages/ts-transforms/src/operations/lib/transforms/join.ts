@@ -2,9 +2,9 @@
 import _ from 'lodash';
 import { DataEntity } from '@terascope/utils';
 import { OperationConfig } from '../../../interfaces';
-import TransformBase from './base';
+import TransformOpBase from './base';
 
-export default class Join extends TransformBase {
+export default class Join extends TransformOpBase {
     private delimiter: string;
     private fields: string[];
 

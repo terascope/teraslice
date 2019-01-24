@@ -2,8 +2,8 @@
 import _ from 'lodash';
 
 import OperationBase from './lib/base';
-import TransformBase from './lib/transforms/base';
-import ValidationBase from './lib/validations/base';
+import TransformOpBase from './lib/transforms/base';
+import ValidationOpBase from './lib/validations/base';
 
 import Join from './lib/transforms/join';
 import Selector from './lib/transforms/selector';
@@ -81,8 +81,8 @@ class OperationsManager {
 
 export {
     OperationBase,
-    TransformBase,
-    ValidationBase,
+    TransformOpBase,
+    ValidationOpBase,
     Join,
     Selector,
     Extraction,

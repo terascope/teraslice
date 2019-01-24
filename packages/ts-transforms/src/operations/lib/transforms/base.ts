@@ -4,7 +4,7 @@ import { DataEntity } from '@terascope/utils';
 import OperationBase from '../base';
 import { OperationConfig } from '../../../interfaces';
 
-export default abstract class TransformBase extends OperationBase {
+export default abstract class TransformOpBase extends OperationBase {
 
     constructor(config: OperationConfig) {
         super(config);

@@ -2,9 +2,9 @@
 import _ from 'lodash';
 import { DataEntity } from '@terascope/utils';
 import { OperationConfig } from '../../../interfaces';
-import TransformBase from './base';
+import TransformOpBase from './base';
 
-export default class Base64Decode extends TransformBase {
+export default class Base64Decode extends TransformOpBase {
     constructor(config: OperationConfig) {
         super(config);
     }

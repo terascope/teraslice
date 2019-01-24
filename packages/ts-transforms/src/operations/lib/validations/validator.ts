@@ -1,10 +1,10 @@
 
 import _ from 'lodash';
 import validator from 'validator';
-import ValidationBase from './base';
+import ValidationOpBase from './base';
 import { OperationConfig, PluginClassType, /*OperationsDict*/ } from '../../../interfaces';
 
-export class Validator extends ValidationBase<any> {
+export class Validator extends ValidationOpBase<any> {
     private method: string;
     private value: any;
 

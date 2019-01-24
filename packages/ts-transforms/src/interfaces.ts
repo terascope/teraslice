@@ -6,7 +6,6 @@ export enum NotifyType { matcher = 'matcher', transform = 'transform' }
 export interface OperationConfig {
     tag?: string;
     selector?: string;
-    types?: object | undefined;
     source_field?: string;
     start?: string;
     end?: string;
@@ -70,10 +69,12 @@ export interface OperationsPipline {
 }
 
 export interface WatcherConfig {
-    type: string;
     rules: string[];
-    plugins?: string[];
     types?: SelectorTypes;
+}
+
+export interface PhaseConfig extends WatcherConfig {
+    type: string;
 }
 
 export type injectFn = (config: OperationConfig, list: OperationConfig[]) => void;

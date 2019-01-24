@@ -1,17 +1,15 @@
 
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
-import TransformBase from './base';
+import TransformOpBase from './base';
 import { OperationConfig } from '../../../interfaces';
 
-export default class JsonParse extends TransformBase {
+export default class JsonParse extends TransformOpBase {
     constructor(config: OperationConfig) {
         super(config);
-        // @ts-ignore
-        this.config = config;
     }
 
-    run(doc: DataEntity): DataEntity | null {
+    run(doc: DataEntity): DataEntity {
         const field = _.get(doc, this.source);
         try {
             const json = JSON.parse(field);

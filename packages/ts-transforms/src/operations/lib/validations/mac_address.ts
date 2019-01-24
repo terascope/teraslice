@@ -2,10 +2,10 @@
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
 import validator from 'validator';
-import ValidationBase from './base';
+import ValidationOpBase from './base';
 import { OperationConfig } from '../../../interfaces';
 
-export default class MacAddress extends ValidationBase<any> {
+export default class MacAddress extends ValidationOpBase<any> {
     private case: 'lowercase' | 'uppercase';
     private preserveColons: boolean;
 

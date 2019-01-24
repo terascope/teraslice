@@ -1,10 +1,10 @@
 
 import validator from 'validator';
 import _ from 'lodash';
-import ValidationBase from './base';
+import ValidationOpBase from './base';
 import { OperationConfig } from '../../../interfaces';
 
-export default class Uuid extends ValidationBase<any> {
+export default class Uuid extends ValidationOpBase<any> {
     private case: 'lowercase' | 'uppercase';
 
     constructor(config: OperationConfig) {

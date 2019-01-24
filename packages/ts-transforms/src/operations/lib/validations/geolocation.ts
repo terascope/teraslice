@@ -1,9 +1,9 @@
 
 import _ from 'lodash';
-import ValidationBase from './base';
+import ValidationOpBase from './base';
 import { OperationConfig } from '../../../interfaces';
 
-export default class Geolocation extends ValidationBase<any> {
+export default class Geolocation extends ValidationOpBase<any> {
     constructor(config: OperationConfig) {
         super(config);
         // need to change source location to target parent field
