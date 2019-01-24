@@ -1,5 +1,5 @@
 # teraslice-cli
-Command line teraslice job, asset, and cluster manager.
+Command line manager for teraslice jobs, assets, and cluster references.
 
 ## Installation
 
@@ -11,114 +11,183 @@ npm install -g teraslice-cli
 yarn global add teraslice-cli
 ```
 
-### ALIAS - commands to manage cluster aliases
-Defaults:
-- host `http://localhost:5678`
-- cluster_manager_type `native`
+### ALIASES - commands to view and refer to cluster urls
+Useful for referencing a cluster without having to write out the entire name.  Once a cluster url is added as an alias use the alias name to reference the cluster for all teraslice-cli commands.
+
+**LIST** - List cluster aliases.  By default localhost - http://localhost:5678 is already set up
+
+command:
+```
+teraslice-cli aliases list
+```
+
+output:
+```
+cluster      host                                    
+-----------  --------------------------------------  
+localhost        http://localhost:5678                     
+```
 
 **ADD** - adds a cluster alias to the config file
 
 command:
-`teraslice-cli alias add cluster1 -c http://cluster1.net:80`
-
-config entry:
 ```
-cluster      host                                    cluster_manager_type
------------  --------------------------------------  --------------------
-cluster1     http://cluster1.net:80                  kubernetes
+teraslice-cli aliases add cluster1 http://cluster1.net:80
 ```
 
-command: `teraslice-cli alias add local`
+output:
 ```
-cluster      host                                    cluster_manager_type
------------  --------------------------------------  --------------------
-local        http://localhost:5678                   native
+> Added alias cluster1 host: http://cluster1.net:80     
+```
+After adding a cluster the command teraslice-cli aliases list output:
+```
+cluster      host                                    
+-----------  --------------------------------------  
+localhost        http://localhost:5678  
+cluster1     http://cluster1.net:80                   
 ```
 
 **REMOVE** - Removes a cluster alias to the config file
 
 command:
-`teraslice-cli alias remove local`
-
-output:
-`> Removed cluster alias local`
-
-**LIST** - List cluster aliases defined in the config file
-
-command: `teraslice-cli alias list`
-
+```
+teraslice-cli aliases remove cluster1
+```
 output:
 ```
-cluster      host                                    cluster_manager_type
------------  --------------------------------------  --------------------
-local        http://localhost:5678                   native
-cluster1     http://cluster1.net:80                  kubernetes
+> Removed cluster alias cluster1
+```
+Now aliases cluster list will output:
+```
+cluster      host                                    
+-----------  --------------------------------------  
+localhost        http://localhost:5678  
+```
+**UPDATE** - update an alias
+command:
+```
+teraslice-cli aliases update local localhost:3000
+```
+output:
+```
+> Updated alias local host: localhost:3000
+```
+New aliases list will output:
+```
+cluster      host                                    
+-----------  --------------------------------------  
+localhost        http://localhost:3000  
 ```
 
-### ASSETS - commands to manage assets.  Requires cluster aliases set up.
-(see teraslice-cli assets --help for more details)
-- `teraslice-cli assets build` *Builds an asset bundle*
-- `teraslice-cli assets delete cluster-alias asset-id ` *Deploys assets to a cluster*
-- `teraslice-cli assets deploy cluster-alias asset` *Uploads asset to a cluster*
-- `teraslice-cli assets init asset-name` *creates a new asset bundle*
-- `teraslice-cli assets list cluster-alias` *Shows the latest asset version in the cluster(s) in asset.json*
+### ASSETS - commands to manage assets.  Before using the assets command add clusters via the aliases command
 
-### TJM (teraslice job manager) - commands to manage jobs by referencing the jobFile.json.  Requires cluster aliases to register a job.
+**BUILD** - Creates a build directory and saves the zipped asset in the build directory.
+command:
+```
+teraslice-cli assets build
+teraslice-cli assets build --src-dir /path/to/asset
+```
+output:
+```
+Asset created:
+        /dir/path/new_asset-v0.0.01-node-version-platform-architecture.zip
+```
+**DEPLOY** - Deploys an asset to a cluster.  The asset can be a zipfile or a github repo.
+
+To deploy an asset from a github repo:
+```
+teraslice-cli assets deploy <cluster-alias> <user/repo-name>
+```
+working example:
+```
+teraslice-cli assets deploy localhost terascope/elasticsearch-assets
+```
+output:
+```
+terascope/kafka-assets has either been downloaded or was already present on disk.
+Asset posted to localhost: <asset-hash>
+```
+To deploy an asset from a zipfile:
+```
+teraslice-cli assets deploy localhost --file /path/to/zipFile/asset.zip
+```
+Use --build to build and deploy in one step
+```
+teraslice-cli assets deploy --build
+```
+See teraslice-cli assets --help for all examples and options
+
+**LIST** - Shows all the assets on a cluster
+command:
+```
+teraslice-cli assets list <cluster-alias>
+```
+**DELETE** - Removes an asset from a cluster
+```
+teraslice-cli assets remove <cluster-alias> <asset-id>
+```
+output:
+```
+Asset <asset-id> deleted from <cluster-alias>
+```
+**INIT** - Creates a new asset directory structure including a README, config files, and basic dependencies.
+command:
+```
+teraslice-cli assets init <new-asset-name>
+```
+The cli will then ask a series of questions about the asset and then create the asset file structure.
+
+### TJM (teraslice job manager) - commands to manage jobs by referencing the jobFile.json.
 **REGISTER** - Registers a job to a cluster and adds the metadata to the jobFile.json. Before a job can be registered set up cluster aliases as instructed above.  Use --start to immediately start the job after registering, also accepts the abbreviation reg.
 ```
-teraslice-cli tjm register alias jobFile.json
-teraslice-cli tjm reg alias jobFile.json --start
+teraslice-cli tjm register <cluster-alias> jobFile.json
+teraslice-cli tjm reg <cluster-alias> jobFile.json --start
 ```
-**For all the commands below the job must be registered on the cluster and have metadata in the jobsFile.json**
+**For all the commands below the job must be registered on the cluster and have metadata in the jobsFile.json to work**
 
 **CONVERT** - For anyone who was using the previous version of tjm this command converts the old metadata style to the current version so that jobs don't have to be re-registered with the cluster.  Just use convert and any of the below commands will work, this does break the use of any older versions of tjm.
 ```
 teraslice-cli tjm convert jobFile.json
 ```
-
 **ERRORS** - Displays errors for a job.  
 ```
 teraslice-cli tjm errors jobFile.json
 ```
-
+**INIT** - Creates an example teraslice-job in the current working directory
+```
+terasclie-cli tjm init jobFile.json
+```
 **RESET** - Removes metadata from job file, useful if the job needs to be moved to a different cluster.
 ```
 teraslice-cli tjm reset jobFile.json
 ```
-
-**Restart** - Stops and restarts a job.
+**RESTART** - Stops and restarts a job.
 ```
 teraslice-cli tjm restart jobFile.json
 ```
-
 **START (RUN)** - Starts a job.
 ```
 teraslice-cli jobs start jobFile.json
 teraslice-cli jobs run jobFile.json
 ```
-
 **STATUS** - Reports the status of a job.
 ```
 teraslice-cli tjm status jobFile.json
 ```
-
 **STOP** - Stops a job.
 ```
 teraslice-cli tjm stop jobFile.json
 ```
-
 **UPDATE** - Updates the job file on the cluster, can also set --start to restart the job after the update is complete.
 ```
 teraslice-cli tjm update jobFile.json
 teraslice-cli tjm update jobFile.json --start
 ```
-
 **VIEW** - Displays job file as it is saved on the cluster.
 ```
 teraslice-cli tjm view jobFile.json
 ```
-
-**WORKERS** - Adjusts the number of workers for a job.  Only accepts add, remove and total.  Total will add or remove workers accordingly to get the the number specified.
+**WORKERS** - Adjusts the number of workers for a job.  Only accepts add, remove and total.  Total will add or remove workers accordingly to get to the number specified.
 ```
 teraslice-cli tjm workers add 10 jobFile.json
 teraslice-cli tjm workers remove 5 jobFile.json
