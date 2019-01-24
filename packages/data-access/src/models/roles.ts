@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import mapping from './mapping/roles';
+import { mapping, schema } from './mapping/roles';
 import { ManagerConfig } from '../interfaces';
 import { Base, BaseModel } from './base';
 
@@ -16,6 +16,11 @@ export class Roles extends Base<RoleModel> {
                 version: 1,
                 mapping,
             },
+            dataSchema: {
+                schema,
+                strict: true,
+                allFormatters: true,
+            }
         });
     }
 

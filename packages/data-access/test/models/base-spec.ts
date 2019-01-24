@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { DataEntity, times } from '@terascope/utils';
 import { Base, BaseModel } from '../../src/models/base';
-import { makeClient } from '../helpers/elasticsearch';
+import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
 describe('Base', () => {
     interface ExampleModel extends BaseModel {
@@ -45,18 +45,12 @@ describe('Base', () => {
     });
 
     beforeAll(async () => {
-        await client.indices.delete({
-            index: base.store.indexQuery,
-        }).catch(() => {});
-
+        await cleanupIndex(base);
         return base.initialize();
     });
 
     afterAll(async () => {
-        await client.indices.delete({
-            index: base.store.indexQuery,
-        }).catch(() => {});
-
+        await cleanupIndex(base);
         return base.shutdown();
     });
 

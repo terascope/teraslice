@@ -7,3 +7,11 @@ export function makeClient(): es.Client {
         log: 'error'
     });
 }
+
+export function cleanupIndex(model: { store: any }) {
+    const { client, indexQuery } = model.store;
+
+    return client.indices.delete({
+        index: indexQuery,
+    }).catch(() => {});
+}
