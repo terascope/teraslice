@@ -3,7 +3,7 @@ import yargs from 'yargs';
 import path from 'path';
 import readline from 'readline';
 import fs from 'fs';
-import { debugLogger, DataEntity } from '@terascope/job-components';
+import { DataEntity, debugLogger } from '@terascope/utils';
 import _ from 'lodash';
 import got from 'got';
 import { PhaseManager } from './index';
