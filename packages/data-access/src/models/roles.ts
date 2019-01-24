@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import * as rolesConfig from './mapping/roles';
+import * as rolesConfig from './config/roles';
 import { ManagerConfig } from '../interfaces';
 import { Base, BaseModel } from './base';
 

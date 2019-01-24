@@ -1,7 +1,7 @@
 import * as es from 'elasticsearch';
 import { Omit } from '@terascope/utils';
 import { IndexStore, IndexConfig } from 'elasticsearch-store';
-import { addDefaultMapping, addDefaultSchema } from './mapping/base';
+import { addDefaultMapping, addDefaultSchema } from './config/base';
 import { makeId, makeISODate } from '../utils';
 import { ManagerConfig } from '../interfaces';
 

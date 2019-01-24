@@ -1,6 +1,6 @@
 import { getFirst } from '@terascope/utils';
 import * as es from 'elasticsearch';
-import * as usersConfig from './mapping/users';
+import * as usersConfig from './config/users';
 import { Base, UpdateInput, BaseModel } from './base';
 import { ManagerConfig } from '../interfaces';
 

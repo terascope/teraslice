@@ -1,7 +1,7 @@
 import * as es from 'elasticsearch';
 import { getFirst } from '@terascope/utils';
 import { Base, BaseModel } from './base';
-import * as viewsConfig from './mapping/views';
+import * as viewsConfig from './config/views';
 import { ManagerConfig } from '../interfaces';
 
 /**

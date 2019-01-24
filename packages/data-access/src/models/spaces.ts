@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import * as spacesConfig from './mapping/spaces';
+import * as spacesConfig from './config/spaces';
 import { ManagerConfig } from '../interfaces';
 import { Base, BaseModel } from './base';
 
