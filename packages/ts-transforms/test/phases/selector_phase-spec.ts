@@ -1,9 +1,7 @@
 
 import path from 'path';
 import { DataEntity } from '@terascope/utils';
-import { SelectionPhase, Loader } from '../../src';
-import { OperationConfig } from '../../src/interfaces';
-import { OperationsManager } from '../../src/operations';
+import { SelectionPhase, Loader, OperationsManager, OperationConfig } from '../../src';
 
 describe('selector phase', () => {
 

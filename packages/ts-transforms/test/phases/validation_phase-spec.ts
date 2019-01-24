@@ -1,9 +1,7 @@
 
 import path from 'path';
 import { DataEntity } from '@terascope/utils';
-import { ValidationPhase, Loader } from '../../src';
-import { OperationConfig } from '../../src/interfaces';
-import { OperationsManager } from '../../src/operations';
+import { ValidationPhase, Loader, OperationConfig, OperationsManager } from '../../src';
 
 describe('validation phase', () => {
 

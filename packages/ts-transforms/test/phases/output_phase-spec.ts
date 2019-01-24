@@ -1,9 +1,7 @@
 
 import path from 'path';
 import { DataEntity } from '@terascope/utils';
-import { OutputPhase, Loader } from '../../src';
-import { OperationConfig } from '../../src/interfaces';
-import { OperationsManager } from '../../src/operations';
+import { OutputPhase, Loader, OperationsManager, OperationConfig } from '../../src';
 
 describe('post_process phase', () => {
 

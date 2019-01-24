@@ -2,7 +2,7 @@ import { DataEntity } from '@terascope/utils';
 import path from 'path';
 import _ from 'lodash';
 import TestHarness from './test-harness';
-import { WatcherConfig } from '../src/interfaces';
+import { WatcherConfig } from '../src';
 import Plugins from './fixtures/plugins';
 
 describe('can transform matches', () => {
@@ -10,7 +10,7 @@ describe('can transform matches', () => {
     let opTest: TestHarness;
 
     beforeEach(() => {
-        opTest = new TestHarness();
+        opTest = new TestHarness('transform');
     });
 
     function getPath(fileName:string) {
@@ -20,8 +20,7 @@ describe('can transform matches', () => {
     it('it can transform matching data', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules1.txt')],
-            types: { _created: 'date' },
-            type: 'transform'
+            types: { _created: 'date' }
         };
 
         const data = DataEntity.makeArray([
@@ -46,8 +45,7 @@ describe('can transform matches', () => {
     it('can uses typeConifg', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules1.txt')],
-            types: { location: 'geo' },
-            type: 'transform'
+            types: { location: 'geo' }
         };
 
         const data = DataEntity.makeArray([
@@ -66,8 +64,7 @@ describe('can transform matches', () => {
 
     it('it can transform matching data with no selector', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules3.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules3.txt')]
         };
 
         const data = DataEntity.makeArray([
@@ -89,8 +86,7 @@ describe('can transform matches', () => {
 
     it('can work with regex transform queries', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules1.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules1.txt')]
         };
 
         const data = DataEntity.makeArray([
@@ -110,8 +106,7 @@ describe('can transform matches', () => {
 
     it('can extract using start/end', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules1.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules1.txt')]
         };
 
         const data1 = DataEntity.makeArray([
@@ -136,8 +131,7 @@ describe('can transform matches', () => {
 
     it('can extract using start/end on fields that are arrays', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules10.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules10.txt')]
         };
         const urls = [
             'http:// www.example.com/path?field1=blah',
@@ -159,8 +153,7 @@ describe('can transform matches', () => {
 
     it('can merge extacted results', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules1.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules1.txt')]
         };
 
         const data = DataEntity.makeArray([
@@ -178,8 +171,7 @@ describe('can transform matches', () => {
 
     it('can use post process operations', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules2.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules2.txt')]
         };
 
         const data = DataEntity.makeArray([
@@ -195,8 +187,7 @@ describe('can transform matches', () => {
 
     it('false validations remove the fields', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules2.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules2.txt')]
         };
 
         const data = DataEntity.makeArray([
@@ -221,8 +212,7 @@ describe('can transform matches', () => {
 
     it('refs can target the right field', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules4.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules4.txt')]
         };
 
         const data = DataEntity.makeArray([
@@ -251,8 +241,7 @@ describe('can transform matches', () => {
 
     it('can chain selection => transform => selection', async() => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules5.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules5.txt')]
         };
 
         const data = DataEntity.makeArray([
@@ -274,8 +263,7 @@ describe('can transform matches', () => {
 
     it('can chain selection => transform => selection => transform', async() => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules6.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules6.txt')]
         };
 
         const data = DataEntity.makeArray([
@@ -297,18 +285,15 @@ describe('can transform matches', () => {
 
     it('validations work with the different ways to configure them', async() => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules7.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules7.txt')]
         };
 
         const config2: WatcherConfig = {
-            rules: [getPath('transformRules8.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules8.txt')]
         };
 
         const config3: WatcherConfig = {
-            rules: [getPath('transformRules9.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules9.txt')]
         };
 
         const data = [
@@ -361,8 +346,7 @@ describe('can transform matches', () => {
 
     it('can target multiple transforms on the same field', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules10.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules10.txt')]
         };
 
         const data = DataEntity.makeArray([
@@ -381,13 +365,11 @@ describe('can transform matches', () => {
 
     it('can run', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules11.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules11.txt')]
         };
 
         const config2: WatcherConfig = {
-            rules: [getPath('transformRules12.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules12.txt')]
         };
 
         const formatedWord = Buffer.from('evenmoreblah').toString('base64');
@@ -418,8 +400,7 @@ describe('can transform matches', () => {
 
     it('it can mutate data in place for transforms', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules13.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules13.txt')]
         };
 
         const data = DataEntity.makeArray([
@@ -445,8 +426,7 @@ describe('can transform matches', () => {
 
     it('it can transform data if previous transforms had occured', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules14.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules14.txt')]
         };
 
         const date = new Date().toISOString();
@@ -498,8 +478,7 @@ describe('can transform matches', () => {
 
     it('it can transform data if previous transforms had occured with other post_processing', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules15.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules15.txt')]
         };
 
         const date = new Date().toISOString();
@@ -558,8 +537,7 @@ describe('can transform matches', () => {
 
     it('it works like the test before but with different config layout', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules16.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules16.txt')]
         };
 
         const date = new Date().toISOString();
@@ -618,8 +596,7 @@ describe('can transform matches', () => {
 
     it('chaining configurations sample 1', async() => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules17.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules17.txt')]
         };
         const key = '123456789';
 
@@ -649,8 +626,7 @@ describe('can transform matches', () => {
 
     it('build an array with target_field multivalue', async() => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules19.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules19.txt')]
         };
         const key = '123456789';
 
@@ -670,8 +646,7 @@ describe('can transform matches', () => {
 
     it('build an array with target_field multivalue with validations', async() => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules20.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules20.txt')]
         };
         const key = '123456789';
 
@@ -692,8 +667,7 @@ describe('can transform matches', () => {
 
     it('can load plugins', async() => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules18.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules18.txt')]
         };
         const key = '123456789';
 
@@ -723,8 +697,7 @@ describe('can transform matches', () => {
     it('can extract json and omit intermediate fields', async () => {
 
         const config: WatcherConfig = {
-            rules: [getPath('transformRules21.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules21.txt')]
         };
 
         const data = [
@@ -742,8 +715,7 @@ describe('can transform matches', () => {
     it('can run and omit fields', async () => {
 
         const config: WatcherConfig = {
-            rules: [getPath('transformRules22.txt')],
-            type: 'transform'
+            rules: [getPath('transformRules22.txt')]
         };
 
         const data = [

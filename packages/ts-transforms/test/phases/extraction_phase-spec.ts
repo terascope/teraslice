@@ -1,9 +1,7 @@
 
 import path from 'path';
 import { DataEntity } from '@terascope/utils';
-import { ExtractionPhase, Loader } from '../../src';
-import { OperationConfig } from '../../src/interfaces';
-import { OperationsManager } from '../../src/operations';
+import { ExtractionPhase, Loader, OperationConfig, OperationsManager } from '../../src';
 
 describe('extraction phase', () => {
 

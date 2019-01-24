@@ -1,7 +1,7 @@
 
 import path from 'path';
 import { debugLogger, DataEntity } from '@terascope/job-components';
-import { PhaseManager } from '../../src/index';
+import { PhaseManager } from '../../src';
 
 describe('phase manager', () => {
     const logger = debugLogger('phase_manager');

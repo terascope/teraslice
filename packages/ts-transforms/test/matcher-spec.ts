@@ -10,14 +10,13 @@ describe('matcher', () => {
     let opTest: TestHarness;
 
     beforeEach(() => {
-        opTest = new TestHarness;
+        opTest = new TestHarness('matcher');
     });
 
     it('can return matching documents', async () => {
         const config = {
             rules: [matchRules1Path],
-            types: { _created: 'date' },
-            type: 'matcher'
+            types: { _created: 'date' }
         };
 
         const data = DataEntity.makeArray([
@@ -37,8 +36,7 @@ describe('matcher', () => {
     it('it add metadata to returning docs', async () => {
         const config = {
             rules: [matchRules1Path],
-            types: { _created: 'date' },
-            type: 'matcher'
+            types: { _created: 'date' }
         };
 
         const data = DataEntity.makeArray([
@@ -59,8 +57,7 @@ describe('matcher', () => {
     it('it can match multiple rules', async () => {
         const config = {
             rules: [matchRules1Path],
-            types: { _created: 'date' },
-            type: 'matcher'
+            types: { _created: 'date' }
         };
 
         const data = DataEntity.makeArray([
