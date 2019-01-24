@@ -18,6 +18,19 @@ describe('Roles', () => {
         return roles.shutdown();
     });
 
+    describe('when testing role creation', () => {
+        it('should be able to create a role', async () => {
+            const created = await roles.create({
+                name: 'hello',
+                spaces: ['space-id'],
+            });
+
+            const fetched = await roles.findById(created.id);
+
+            expect(created).toEqual(fetched);
+        });
+    });
+
     describe('when testing role-to-space access', () => {
         let admin: RoleModel;
         let dev: RoleModel;

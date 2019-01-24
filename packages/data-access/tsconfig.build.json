@@ -4,13 +4,11 @@
         "rootDir": "src",
         "paths": {
             "@terascope/*": [
-                "../src/*",
                 "../*",
                 "../*/types"
             ],
             "*": [
                 "types/*",
-                "../src/*",
                 "../*",
                 "../../types/*",
                 "node_modules/*",

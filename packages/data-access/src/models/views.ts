@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import { getFirst } from '@terascope/utils';
+import { getFirst, TSError } from '@terascope/utils';
 import { Base, BaseModel } from './base';
 import * as viewsConfig from './config/views';
 import { ManagerConfig } from '../interfaces';
@@ -12,9 +12,14 @@ export class Views extends Base<ViewModel> {
         super(client, config, viewsConfig);
     }
 
-    async getViewForRole(roleId: string, space: string) {
-        const query = `roles:"${roleId}" AND space:"${space}"`;
-        return getFirst(await this.find(query, 1));
+    async getViewForRole(roleId: string, spaceId: string) {
+        const query = `roles:"${roleId}" AND space:"${spaceId}"`;
+        const result = getFirst(await this.find(query, 1));
+        if (result == null) {
+            const errMsg = `No View for found role "${roleId}" and space "${spaceId}"`;
+            throw new TSError(errMsg, { statusCode: 404 });
+        }
+        return result;
     }
 }
 
