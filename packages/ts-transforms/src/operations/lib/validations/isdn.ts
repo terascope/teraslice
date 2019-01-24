@@ -9,6 +9,13 @@ export default class ISDN extends ValidationOpBase<any> {
         super(config);
     }
 
+    normalize(data: any) {
+        const phoneNumber = new PhoneValidator(`+${data}`);
+        const fullNumber = phoneNumber.getNumber();
+        if (fullNumber) return String(fullNumber).slice(1);
+        throw Error('could not normalize');
+    }
+
     validate(value: string) {
         if (!new PhoneValidator(`+${value}`).isValid()) return false;
         return true;

@@ -73,7 +73,7 @@ describe('phone number validation', () => {
         expect(DataEntity.getMetadata(results6 as DataEntity, 'selectors')).toEqual(metaData.selectors);
         expect(results7).toEqual({});
         expect(results8).toEqual({ field: validPhone1 });
-        expect(results9).toEqual({ field: validPhone2 });
+        expect(results9).toEqual({ field: validPhone1 });
         expect(results10).toEqual({});
         expect(results11).toEqual({});
         expect(results12).toEqual({});
