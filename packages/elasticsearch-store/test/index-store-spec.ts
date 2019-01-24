@@ -402,7 +402,6 @@ describe('IndexStore', () => {
 
         const configWithDataSchema = Object.assign(config, {
             dataSchema: {
-                version: 1,
                 schema,
                 allFormatters: true,
                 strict: true,

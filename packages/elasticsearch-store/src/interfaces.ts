@@ -111,11 +111,6 @@ export interface IndexSettings {
 /** Data Schema and Version */
 export interface DataSchema {
     /**
-     * The version of this particular Schema definition
-     */
-    version: number;
-
-    /**
      * The Data Schema in JSON Schema format
     */
     schema: any;
