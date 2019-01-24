@@ -8,6 +8,7 @@ import _ from 'lodash';
 import got from 'got';
 import { PhaseManager } from './index';
 import { WatcherConfig } from './interfaces';
+import { version } from '../package.json';
 
 const logger = debugLogger('ts-transform-cli');
 const dir = process.cwd();
@@ -29,7 +30,7 @@ const command = yargs
     .describe('T', 'specify type configs from file')
     .describe('p', 'output the time it took to run the data')
     .demandOption(['r'])
-    .version('0.11.0')
+    .version(version)
     .argv;
 
 const filePath = command.rules as string;
