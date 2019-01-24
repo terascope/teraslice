@@ -7,7 +7,7 @@ import { DataEntity, debugLogger } from '@terascope/utils';
 import _ from 'lodash';
 import got from 'got';
 import { PhaseManager } from './index';
-import { WatcherConfig } from './interfaces';
+import { PhaseConfig } from './interfaces';
 import { version } from '../package.json';
 
 const logger = debugLogger('ts-transform-cli');
@@ -164,7 +164,7 @@ async function getData(dataPath: string) {
 
 async function initCommand() {
     try {
-        const opConfig: WatcherConfig = {
+        const opConfig: PhaseConfig = {
             rules: formatList(filePath),
             types: typesConfig,
             type
