@@ -74,7 +74,7 @@ export const schema = {
             type: 'string'
         },
         email: {
-            type: 'email'
+            format: 'email'
         },
         roles: {
             type: 'array',

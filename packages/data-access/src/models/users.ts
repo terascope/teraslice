@@ -1,8 +1,9 @@
-import { getFirst } from '@terascope/utils';
 import * as es from 'elasticsearch';
+import { getFirst } from '@terascope/utils';
 import * as usersConfig from './config/users';
-import { Base, UpdateInput, BaseModel } from './base';
+import { Base, UpdateInput, BaseModel, CreateInput } from './base';
 import { ManagerConfig } from '../interfaces';
+import * as utils from './utils';
 
 /**
  * Manager for Users
@@ -10,6 +11,19 @@ import { ManagerConfig } from '../interfaces';
 export class Users extends Base<UserModel> {
     constructor(client: es.Client, config: ManagerConfig) {
         super(client, config, usersConfig);
+    }
+
+    // @ts-ignore FIXME
+    async create(record: CreateInput<UserModel>, password: string): Promise<UserModel> {
+        const salt = await utils.generateSalt();
+        const hash = await utils.generatePasswordHash(password, salt);
+        const apiToken = await utils.generateAPIToken(hash, record.username);
+
+        return super.create(Object.assign({}, record, {
+            api_token: apiToken,
+            hash,
+            salt,
+        }));
     }
 
     /**
