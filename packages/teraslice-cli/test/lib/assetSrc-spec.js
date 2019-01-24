@@ -43,10 +43,7 @@ describe('AssetSrc', () => {
 
     test('->zip', async () => {
         const outFile = 'out.zip';
-        const outFilePath = path.join(process.cwd(), 'test/fixtures/testAsset/asset');
-        // const zipOutput = await AssetSrc.zip('../fixtures/testAsset/asset', outFile);
-        const zipOutput = await AssetSrc.zip(outFilePath, outFile);
-        // console.log(`zipOutput ${JSON.stringify(zipOutput, null, 2)}`);
+        const zipOutput = await AssetSrc.zip(path.join(__dirname, 'fixtures', 'testAsset', 'asset'), outFile);
         expect(zipOutput.success).toEqual('out.zip');
         fs.removeSync(outFile);
     });
