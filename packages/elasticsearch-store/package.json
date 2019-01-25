@@ -29,16 +29,16 @@
     "dependencies": {
         "@terascope/utils": "^0.2.0",
         "ajv": "^6.6.2",
-        "rambda": "^2.3.0"
+        "rambda": "^2.3.1"
     },
     "devDependencies": {
         "@types/jest": "^23.3.13",
         "@types/node": "^10.12.18",
         "@types/semver": "^5.5.0",
         "babel-core": "^6.0.0",
-        "babel-jest": "^23.6.0",
-        "elasticsearch": "^15.3.0",
-        "jest": "^23.6.0",
+        "babel-jest": "^24.0.0",
+        "elasticsearch": "^15.3.1",
+        "jest": "^24.0.0",
         "jest-extended": "^0.11.0",
         "rimraf": "^2.6.3",
         "ts-jest": "^23.10.5",
