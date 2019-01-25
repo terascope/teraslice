@@ -163,16 +163,20 @@ describe('transform operator', () => {
             { otherField: 'data' }
         ]);
 
-        const finalArray = dataArray.map((doc) => {
-            const results = Object.assign({}, doc);
-            if (results.someField !== undefined) results.otherField = results.someField;
-            return results;
-        });
-
+        const finalArray = dataArray.reduce<any[]>((list, doc) => {
+            const obj: object = {};
+            if (doc.someField !== undefined) {
+                obj['otherField'] = doc.someField;
+                list.push(obj);
+                if (list.length === 1) list.push(null);
+            }
+            if (doc.otherField) list.push(doc);
+            return list;
+        }, []);
         const resultsArray = dataArray.map(data => test.run(data));
 
         resultsArray.forEach((result, ind) => {
-            expect(DataEntity.isDataEntity(result)).toEqual(true);
+            if (result) expect(DataEntity.isDataEntity(result)).toEqual(true);
             expect(result).toEqual(finalArray[ind]);
         });
     });

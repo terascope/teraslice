@@ -35,7 +35,7 @@ describe('urldecode operator', () => {
     });
 
     it('can urldecode decode fields', () => {
-        const opConfig = { target_field: 'final', source_field: 'source' };
+        const opConfig = { target_field: 'final' };
         const test =  new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -72,16 +72,16 @@ describe('urldecode operator', () => {
         expect(results4).toEqual({});
         expect(results5).toEqual({});
         expect(results6).toEqual({});
-        expect(results7).toEqual({ final: 'http:// google.com?q=HELLO AND GOODBYE', source: 'http:// google.com?q=HELLO%20AND%20GOODBYE' });
-        expect(results8).toEqual({ source: 'ha3ke5@pawnage.com', final: 'ha3ke5@pawnage.com' });
-        expect(results9).toEqual({ source: '::', final: '::' });
-        expect(results10).toEqual({ source: '193.0.0.23', final: '193.0.0.23' });
+        expect(results7).toEqual({ final: 'http:// google.com?q=HELLO AND GOODBYE' });
+        expect(results8).toEqual({ final: 'ha3ke5@pawnage.com' });
+        expect(results9).toEqual({ final: '::' });
+        expect(results10).toEqual({ final: '193.0.0.23' });
         expect(DataEntity.getMetadata(results11 as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results11).toEqual({ source: 'hello world', final: 'hello world' });
+        expect(results11).toEqual({ final: 'hello world' });
     });
 
-    it('can urldecode decode fields and remove source', () => {
-        const opConfig = { target_field: 'final', source_field: 'source', remove_source: true };
+    fit('can urldecode decode fields and remove source', () => {
+        const opConfig = { target_field: 'final', source_field: 'source' };
         const test =  new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
         const url = 'http:// localhost:9200/logstash-2018.7/_search?q=bytes:>500 AND ip:*&pretty&size=10000';
@@ -95,7 +95,7 @@ describe('urldecode operator', () => {
     });
 
     it('can urldecode decode nested fields and remove source', () => {
-        const opConfig = { target_field: 'final.data', source_field: 'source.field', remove_source: true };
+        const opConfig = { target_field: 'final.data', source_field: 'source.field' };
         const test =  new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
         const url = 'http:// localhost:9200/logstash-2018.7/_search?q=bytes:>500 AND ip:*&pretty&size=10000';

@@ -13,10 +13,9 @@ export default class JsonParse extends TransformOpBase {
         const field = _.get(doc, this.source);
         try {
             const json = JSON.parse(field);
-            _.set(doc, this.target, json);
-            _.unset(doc, this.source);
+            this.set(doc, json);
         } catch (err) {
-            _.unset(doc, this.source);
+            this.removeSource(doc);
         }
         return doc;
     }

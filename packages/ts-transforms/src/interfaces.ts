@@ -15,7 +15,6 @@ export interface OperationConfig {
     decoder?: string;
     follow?: string;
     post_process?: string;
-    remove_source?: boolean;
     registration_selector?:string;
     mutate?: boolean;
     other_match_required?: boolean;

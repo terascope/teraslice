@@ -20,7 +20,7 @@ export default abstract class ValidationOpBase<T> extends OperationBase {
         let isValid = false;
 
         if (data === undefined) {
-            _.unset(doc, this.source);
+            this.removeSource(doc);
             return doc;
         }
 
@@ -31,12 +31,12 @@ export default abstract class ValidationOpBase<T> extends OperationBase {
             // if output is false we invert the validation
             if (this.config.output === false) isValid = !isValid;
             if (isValid) {
-                _.set(doc, this.source, data);
+                this.set(doc, data);
             } else {
-                _.unset(doc, this.source);
+                this.removeSource(doc);
             }
         } catch (err) {
-            _.unset(doc, this.source);
+            this.removeSource(doc);
         }
 
         return doc;

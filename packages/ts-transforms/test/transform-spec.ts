@@ -410,8 +410,8 @@ describe('can transform matches', () => {
         ]);
 
         const resultSet =  [
-            { hello: 'world', data: 'someData', other: 'someData' },
-            { hello: 'world', data: 'otherData', other: 'otherData' }
+            { hello: 'world', other: 'someData' },
+            { hello: 'world', other: 'otherData' }
         ];
 
         const test = await opTest.init(config);

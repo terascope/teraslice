@@ -8,6 +8,11 @@ export default class Geolocation extends ValidationOpBase<any> {
         super(config);
         // need to change source location to target parent field
         this.source = this.parentFieldPath(this.source);
+        // TODO: fix this overwriting, this checks if its a compact config
+        if (config.target_field && config.source_field) {
+            this.hasTarget = false;
+            this.destination = this.source;
+        }
     }
 
     validate(geoData: any) {

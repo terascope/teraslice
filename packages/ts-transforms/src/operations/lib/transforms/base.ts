@@ -14,15 +14,13 @@ export default abstract class TransformOpBase extends OperationBase {
         try {
             const data = _.get(doc, this.source);
             if (typeof data !== 'string') {
-                _.unset(doc, this.source);
+                this.removeSource(doc);
             } else {
-                _.set(doc, this.target, decodeFn(data));
+                this.set(doc, decodeFn(data));
             }
         } catch (err) {
-            _.unset(doc, this.source);
+            this.removeSource(doc);
         }
-
-        if (this.removeSource) _.unset(doc, this.source);
         return doc;
     }
 

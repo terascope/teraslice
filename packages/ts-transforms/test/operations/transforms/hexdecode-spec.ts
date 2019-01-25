@@ -76,16 +76,16 @@ describe('base64 operator', () => {
         expect(results4).toEqual({});
         expect(results5).toEqual({});
         expect(results6).toEqual({});
-        expect(results7).toEqual({ final: 'http:// google.com', source: encode('http:// google.com') });
-        expect(results8).toEqual({ final: 'ha3ke5@pawnage.com', source: encode('ha3ke5@pawnage.com') });
-        expect(results9).toEqual({ final: '::' , source: encode('::') });
-        expect(results10).toEqual({ final: '193.0.0.23', source: encode('193.0.0.23') });
+        expect(results7).toEqual({ final: 'http:// google.com' });
+        expect(results8).toEqual({ final: 'ha3ke5@pawnage.com' });
+        expect(results9).toEqual({ final: '::' });
+        expect(results10).toEqual({ final: '193.0.0.23' });
         expect(DataEntity.getMetadata(results11 as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results11).toEqual({ final: 'hello world', source: encode('hello world') });
+        expect(results11).toEqual({ final: 'hello world' });
     });
 
     it('can hex decode fields and remove source', () => {
-        const opConfig = { target_field: 'final', source_field: 'source', remove_source: true };
+        const opConfig = { target_field: 'final', source_field: 'source' };
         const test =  new HexDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -98,7 +98,7 @@ describe('base64 operator', () => {
     });
 
     it('can hex decode nested fields and remove source', () => {
-        const opConfig = { target_field: 'final.data', source_field: 'source.field', remove_source: true };
+        const opConfig = { target_field: 'final.data', source_field: 'source.field' };
         const test =  new HexDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 

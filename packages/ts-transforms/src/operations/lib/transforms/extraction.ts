@@ -92,14 +92,15 @@ export default class Extraction extends TransformOpBase {
             if (extractedResult !== undefined)  {
                 if (this.isMutation) {
                     if (this.config.multivalue) doc.setMetadata('_multi_target_fields', this.mutltiFieldParams);
-                    return _.set(doc, this.target, extractedResult);
+                    this.set(doc, extractedResult);
+                    return doc;
                 }
                 const metaData = doc.getMetadata();
                 if (this.config.multivalue) _.merge(metaData, { _multi_target_fields: this.mutltiFieldParams });
                 return new DataEntity(_.set({}, this.target, extractedResult), metaData);
             }
         }
-        if (this.isMutation) return doc;
+        if (this.isMutation && (_.keys(doc).length > 0)) return doc;
         return null;
     }
 }
