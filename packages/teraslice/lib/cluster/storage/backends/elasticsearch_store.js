@@ -6,6 +6,7 @@ const parseError = require('@terascope/error-parser');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
 const { timeseriesIndex } = require('../../../utils/date_utils');
+const { prependErrorMsg } = require('../../../utils/error_utils');
 
 module.exports = function module(context, indexName, recordType, idField, _bulkSize, fullResponse) {
     const logger = context.apis.foundation.makeLogger({ module: 'elasticsearch_backend' });
@@ -201,9 +202,6 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
                 .then(() => {
                     clearTimeout(timeout);
                     _destroy();
-                })
-                .catch((err) => {
-                    logger.error(err);
                 });
         });
     }
@@ -220,9 +218,8 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
                     logger.debug(`Flushed ${results.items.length} records to index ${indexName}`);
                 })
                 .catch((err) => {
-                    const errMsg = parseError(err);
-                    logger.error(errMsg);
-                    return Promise.reject(new Error(errMsg));
+                    const error = prependErrorMsg(`Failure to flush "${recordType}"`, err, true);
+                    logger.error(error);
                 })
                 .finally(() => {
                     savingBulk = false;
