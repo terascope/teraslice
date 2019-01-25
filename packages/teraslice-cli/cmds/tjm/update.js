@@ -22,9 +22,10 @@ exports.handler = async (argv) => {
     const job = new JobSrc(argv);
     job.init();
     const client = Client(job);
-
+    const jobJson = job.content;
+    _.unset(jobJson, '__metadata');
     try {
-        const update = await client.cluster.put(`/jobs/${job.jobId}`, job.content);
+        const update = await client.cluster.put(`/jobs/${job.jobId}`, jobJson);
         if (!_.get(update, 'job_id') === job.job_id) {
             reply.fatal(`Could not be updated job ${job.jobId} on ${job.clusterUrl}`);
         }
