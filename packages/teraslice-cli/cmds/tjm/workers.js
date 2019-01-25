@@ -36,7 +36,7 @@ exports.handler = async (argv) => {
         if (!workers) {
             reply.fatal(`Workers could not be added to ${job.name} on ${job.clusterUrl}`);
         }
-        reply.green(`${workers} for ${job.name} on ${job.cluster}`);
+        reply.green(`${workers} for ${job.name} on ${job.clusterUrl}`);
     } catch (e) {
         reply.fatal(e.message);
     }
