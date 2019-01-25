@@ -62,8 +62,7 @@ class Slice {
             throw err;
         } finally {
             await this._logAnalytics(result && result.analytics);
-            this.events.emit('slice:finalize', slice);
-            await this.executionContext.onSliceFinalizing(slice.slice_id);
+            await this._onSliceFinalize(slice);
         }
 
         return result.results;
@@ -73,40 +72,51 @@ class Slice {
         this._isShutdown = true;
     }
 
+    async _onSliceFinalize(slice) {
+        try {
+            this.events.emit('slice:finalize', slice);
+            await this.executionContext.onSliceFinalizing(slice.slice_id);
+        } catch (err) {
+            const errMsg = `Slice: ${slice.slice_id} failure on lifecycle event onSliceFinalizing`;
+            this.logger.error(new Error(prependErrorMsg(errMsg, err, true)));
+        }
+    }
+
+    async _onSliceFailure(slice) {
+        try {
+            this.events.emit('slice:failure', slice);
+            await this.executionContext.onSliceFailed(slice.slice_id);
+        } catch (err) {
+            const errMsg = `Slice: ${slice.slice_id} failure on lifecycle event onSliceFailed`;
+            this.logger.error(new Error(prependErrorMsg(errMsg, err, true)));
+        }
+    }
+
     async _logAnalytics(analyticsData) {
         if (analyticsData == null) return;
         this.analyticsData = analyticsData;
 
-        const {
-            logger,
-            slice,
-            executionContext
-        } = this;
-
-        logOpStats(logger, slice, analyticsData);
+        logOpStats(this.logger, this.slice, this.analyticsData);
 
         try {
-            await this.analyticsStore.log(executionContext, slice, analyticsData);
+            await this.analyticsStore.log(
+                this.executionContext,
+                this.slice,
+                this.analyticsData
+            );
         } catch (_err) {
-            throw new Error(prependErrorMsg('Failure to update analytics', _err));
+            const error = new Error(prependErrorMsg('Failure to update analytics', _err));
+            this.logger.error(error);
         }
     }
 
     async _markCompleted() {
         const { slice } = this;
 
-        try {
-            await this.stateStore.updateState(slice, 'completed');
-        } catch (_err) {
-            const err = new Error(prependErrorMsg('Failure to update success state', _err));
-            // set fatalError = true to shutdown worker
-            // error.fatalError = true;
-            throw err;
-        }
-
-        this.events.emit('slice:success', slice);
+        await this.stateStore.updateState(slice, 'completed');
 
         this.logger.trace(`completed slice for execution: ${this.executionContext.exId}`, slice);
+        this.events.emit('slice:success', slice);
     }
 
     async _markFailed(err) {
@@ -118,19 +128,11 @@ class Slice {
 
         const errMsg = err ? parseError(err) : new Error('Unknown error occurred');
 
-        try {
-            await stateStore.updateState(slice, 'error', errMsg);
-        } catch (_err) {
-            const error = new Error(prependErrorMsg('Failure to update failed state', _err));
-            // set fatalError = true to shutdown worker
-            // error.fatalError = true;
-            throw error;
-        }
+        await stateStore.updateState(slice, 'error', errMsg);
 
         logger.error(err, `slice state for ${this.executionContext.exId} has been marked as error`);
 
-        this.events.emit('slice:failure', slice);
-        await this.executionContext.onSliceFailed(slice.slice_id);
+        this._onSliceFailure(slice);
 
         if (err instanceof retry.StopError) {
             const stopError = new Error(err.message);
