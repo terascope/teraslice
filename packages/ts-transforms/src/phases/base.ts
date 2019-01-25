@@ -46,7 +46,7 @@ export default abstract class PhaseBase {
                 const id = myConfig.follow;
                 const referenceConfig = configList.find(obj => obj.tag === id);
                 if (!referenceConfig) throw new Error(`could not find configuration tag identifier for follow ${id}`);
-                if (!container.targetConfig) container.targetConfig = referenceConfig;
+                if (!container.targetConfig && referenceConfig.target_field) container.targetConfig = referenceConfig;
                 // recurse
                 if (referenceConfig.follow) {
                     return findConfiguration(referenceConfig, container);
@@ -54,9 +54,11 @@ export default abstract class PhaseBase {
                 if (referenceConfig.selector) container.registrationSelector = referenceConfig.selector;
             } else {
                 if (!container.targetConfig) container.targetConfig = myConfig;
+                if (!container.registrationSelector && myConfig.selector) container.registrationSelector = myConfig.selector;
             }
             return container;
         }
+
 
         const { registrationSelector, targetConfig } = findConfiguration(config, data);
         if (!config.other_match_required && !registrationSelector || !targetConfig) throw new Error('could not find orignal selector and target configuration');

@@ -35,7 +35,7 @@ describe('urldecode operator', () => {
     });
 
     it('can urldecode decode fields', () => {
-        const opConfig = { target_field: 'final' };
+        const opConfig = { target_field: 'final', source_field: 'source' };
         const test =  new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -80,7 +80,7 @@ describe('urldecode operator', () => {
         expect(results11).toEqual({ final: 'hello world' });
     });
 
-    fit('can urldecode decode fields and remove source', () => {
+    it('can urldecode decode fields and remove source', () => {
         const opConfig = { target_field: 'final', source_field: 'source' };
         const test =  new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };

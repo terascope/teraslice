@@ -17,6 +17,11 @@ describe('can transform matches', () => {
         return path.join(__dirname, `./fixtures/${fileName}`);
     }
 
+    function encode(str: string, type: string) {
+        const buff = Buffer.from(str);
+        return buff.toString(type);
+    }
+
     it('it can transform matching data', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules1.txt')],
@@ -484,16 +489,11 @@ describe('can transform matches', () => {
         const date = new Date().toISOString();
         const key = '123456789';
 
-        function encode(str: string) {
-            const buff = Buffer.from(str);
-            return buff.toString('base64');
-        }
-
         const data = DataEntity.makeArray([
-            { host: 'fc2.com', field1: `http://www.example.com/path?field1=${encode(key)}&value2=moreblah&value3=evenmoreblah` , date, key },
+            { host: 'fc2.com', field1: `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah` , date, key },
             { host: 'fc2.com', key, date },
             { host: 'fc2.com', field1: 'someRandomStr', key, date },
-            { host: 'fc2.com', field1: ['someRandomStr', `http://www.example.com/path?field1=${encode(key)}&value2=moreblah&value3=evenmoreblah`], key, date }
+            { host: 'fc2.com', field1: ['someRandomStr', `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah`], key, date }
         ]);
 
         // should not expect anything back
@@ -543,16 +543,11 @@ describe('can transform matches', () => {
         const date = new Date().toISOString();
         const key = '123456789';
 
-        function encode(str: string) {
-            const buff = Buffer.from(str);
-            return buff.toString('base64');
-        }
-
         const data = DataEntity.makeArray([
-            { host: 'fc2.com', field1: `http://www.example.com/path?field1=${encode(key)}&value2=moreblah&value3=evenmoreblah`, date, key },
+            { host: 'fc2.com', field1: `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah`, date, key },
             { host: 'fc2.com', key, date },
             { host: 'fc2.com', field1: 'someRandomStr', key, date },
-            { host: 'fc2.com', field1: ['someRandomStr', `http://www.example.com/path?field1=${encode(key)}&value2=moreblah&value3=evenmoreblah`], key, date }
+            { host: 'fc2.com', field1: ['someRandomStr', `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah`], key, date }
         ]);
 
         // should not expect anything back
@@ -600,16 +595,11 @@ describe('can transform matches', () => {
         };
         const key = '123456789';
 
-        function encode(str: string) {
-            const buff = Buffer.from(str);
-            return buff.toString('base64');
-        }
-
         const data = DataEntity.makeArray([
-            { host: 'example.com', field1: `http://www.example.com/path?field1=${encode(key)}&value2=moreblah&value3=evenmoreblah` },
+            { host: 'example.com', field1: `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah` },
             { host: 'example.com' },
             { host: 'example.com', field1: 'someRandomStr' },
-            { host: 'example.com', field1: ['someRandomStr', `http://www.example.com/path?field1=${encode(key)}&value2=moreblah&value3=evenmoreblah`] }
+            { host: 'example.com', field1: ['someRandomStr', `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah`] }
         ]);
 
         const test1 = await opTest.init(config);
@@ -730,5 +720,23 @@ describe('can transform matches', () => {
         expect(results.length).toEqual(2);
         expect(results[0]).toEqual({ newField: 'something' });
         expect(results[1]).toEqual({ newField: 'otherthing' });
+    });
+
+    it('can run a regression test1', async () => {
+
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules23.txt')]
+        };
+
+        const data = [
+            new DataEntity({ somefield: `something&value=${encode('{%20"some":%20"data"}', 'base64')}` }),
+            new DataEntity({ field: 'null' }),
+        ];
+
+        const test = await opTest.init(config);
+        const results =  await test.run(data);
+
+        expect(results.length).toEqual(1);
+        expect(results[0]).toEqual({ hashoutput: { some: 'data' } });
     });
 });

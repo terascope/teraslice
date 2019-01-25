@@ -17,8 +17,6 @@ export default class OperationBase {
         this.destination = this.hasTarget ? this.target : this.source;
     }
 
-    // TODO: verify if we should do validateConfig source and target manipulations in normalizeConfig in phasebase
-
     protected validateConfig(config: OperationConfig) {
         // we don't need to check target or source for selector ops
         if (this.constructor.name === 'Selector' || this.constructor.name === 'RequiredExtractions') return;
