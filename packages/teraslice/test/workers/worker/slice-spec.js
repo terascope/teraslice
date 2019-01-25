@@ -320,9 +320,9 @@ describe('Slice', () => {
                 await testContext.cleanup();
             });
 
-            it('should throw an error if given invalid state', async () => {
+            it('should throw an error if given invalid state', () => {
                 const data = { should: 'break' };
-                return expect(slice._logAnalytics(data)).rejects.toThrowError(/Failure to update analytics/);
+                return slice._logAnalytics(data);
             });
         });
 
@@ -363,12 +363,12 @@ describe('Slice', () => {
         });
 
         it('should throw an error when marking it as failed', async () => {
-            await expect(slice._markFailed(new Error('some error'))).rejects.toThrowError(/Failure to update failed state/);
-            await expect(slice._markFailed()).rejects.toThrowError(/Failure to update failed state/);
+            await expect(slice._markFailed(new Error('some error'))).rejects.toThrowError(/Failure to update error state/);
+            await expect(slice._markFailed()).rejects.toThrowError(/Failure to update error state/);
         });
 
         it('should throw an error when marking it as complete', async () => {
-            await expect(slice._markCompleted()).rejects.toThrowError(/Failure to update success state/);
+            await expect(slice._markCompleted()).rejects.toThrowError(/Failure to update completed state/);
         });
     });
 });
