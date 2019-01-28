@@ -84,8 +84,8 @@ export class Base<T extends BaseModel> {
         });
     }
 
-    async update(user: UpdateInput<T>|DataEntity<UpdateInput<T>>) {
-        const doc = Object.assign({}, user, {
+    async update(record: UpdateInput<T>|DataEntity<UpdateInput<T>>) {
+        const doc = Object.assign({}, record, {
             updated: makeISODate(),
         }) as T;
 

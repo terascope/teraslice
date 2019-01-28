@@ -8,7 +8,13 @@ export const name = 'spaces';
 export const mapping = {
     properties: {
         name: {
-            type: 'keyword'
+            type: 'keyword',
+            fields: {
+                text: {
+                    type: 'text',
+                    analyzer: 'lowercase_keyword_analyzer'
+                }
+            },
         }
     }
 };

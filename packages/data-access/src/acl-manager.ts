@@ -39,9 +39,9 @@ export class ACLManager {
     }
 
     /**
-     * Get the User's view of a "Space"
+     * Get the User's data access configuration for a "Space"
      */
-    async getViewForUser(username: string, space: string): Promise<DataAccessConfig> {
+    async getDataAccessConfig(username: string, spaceId: string): Promise<DataAccessConfig> {
         const user = await this.users.findByUsername(username);
         if (!user) {
             throw new TSError(`Unable to find user "${username}"`, {
@@ -49,25 +49,29 @@ export class ACLManager {
             });
         }
 
+        const space = await this.spaces.findByIdOrName(spaceId);
+
         const roleId = getFirst(user.roles);
         if (!roleId) {
             const msg = `User "${username}" is not assigned to any roles`;
             throw new TSError(msg, { statusCode: 403 });
         }
 
-        const hasAccess = await this.roles.hasAccessToSpace(roleId, space);
+        const role = await this.roles.findById(roleId);
+
+        const hasAccess = await this.roles.hasAccessToSpace(roleId, space.id);
         if (!hasAccess) {
             const msg = `User "${username}" does not have access to space "${space}"`;
             throw new TSError(msg, { statusCode: 403 });
         }
 
-        const view = await this.views.getViewForRole(roleId, space);
+        const view = await this.views.getViewForRole(roleId, space.id);
 
         return {
             user: this.users.omitPrivateFields(user),
             view,
-            space,
-            role: roleId,
+            space: space.name,
+            role: role.name,
         };
     }
 

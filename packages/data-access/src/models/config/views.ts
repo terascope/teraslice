@@ -9,7 +9,13 @@ export const name = 'views';
 export const mapping = {
     properties: {
         name: {
-            type: 'keyword'
+            type: 'keyword',
+            fields: {
+                text: {
+                    type: 'text',
+                    analyzer: 'lowercase_keyword_analyzer'
+                }
+            }
         },
         space: {
             type: 'keyword'
@@ -24,7 +30,13 @@ export const mapping = {
 export const schema = {
     properties: {
         name: {
-            type: 'string'
+            type: 'string',
+            fields: {
+                text: {
+                    type: 'text',
+                    analyzer: 'lowercase_keyword_analyzer'
+                }
+            },
         },
         description: {
             type: 'string'
