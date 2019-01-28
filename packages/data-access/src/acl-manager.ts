@@ -43,6 +43,11 @@ export class ACLManager {
      */
     async getViewForUser(username: string, space: string): Promise<DataAccessConfig> {
         const user = await this.users.findByUsername(username);
+        if (!user) {
+            throw new TSError(`Unable to find user "${username}"`, {
+                statusCode: 404
+            });
+        }
 
         const roleId = getFirst(user.roles);
         if (!roleId) {
@@ -59,7 +64,7 @@ export class ACLManager {
         const view = await this.views.getViewForRole(roleId, space);
 
         return {
-            user,
+            user: this.users.omitPrivateFields(user),
             view,
             space,
             role: roleId,
@@ -79,7 +84,7 @@ export interface DataAccessConfig {
     /**
      * The User Model
     */
-    user: DataEntity<models.UserModel>;
+    user: DataEntity<models.PublicUserModel>;
 
     /**
      * The View Model

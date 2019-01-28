@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { Users } from '../../src/models/users';
+import { Users, UserModel } from '../../src/models/users';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
 describe('Users', () => {
@@ -18,10 +18,15 @@ describe('Users', () => {
         return users.shutdown();
     });
 
-    describe('when testing user creation', () => {
-        it('should be able to create a user', async () => {
-            const created = await users.create({
-                username: 'billyjoe',
+    describe('when testing user access', () => {
+        const username = 'billyjoe';
+        const password = 'secret-password';
+
+        let created: UserModel;
+
+        beforeAll(async () => {
+            created = await users.create({
+                username,
                 firstname: 'Billy',
                 lastname: 'Joe',
                 email: 'billy.joe@example.com',
@@ -29,14 +34,30 @@ describe('Users', () => {
                 roles: [
                     'example-role-id'
                 ]
-            }, 'secret-password');
+            }, password);
+        });
 
+        it('should be able fetch the user', async () => {
             const fetched = await users.findById(created.id);
 
             expect(created).toMatchObject(fetched);
             expect(created).toHaveProperty('api_token');
             expect(created).toHaveProperty('hash');
             expect(created).toHaveProperty('salt');
+        });
+
+        describe('when give the correct password', () => {
+            it('should be able to authenticate the user', async () => {
+                const result = await users.authenticate(username, password);
+                expect(result).toBeTrue();
+            });
+        });
+
+        describe('when give the incorrect password', () => {
+            it('should NOT be able to authenticate the user', async () => {
+                const result = await users.authenticate(username, 'wrong-password');
+                expect(result).toBeFalse();
+            });
         });
     });
 });

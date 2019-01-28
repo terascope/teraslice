@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import { getFirst } from '@terascope/utils';
+import { getFirst, Omit, DataEntity } from '@terascope/utils';
 import * as usersConfig from './config/users';
 import { Base, UpdateInput, BaseModel, CreateInput } from './base';
 import { ManagerConfig } from '../interfaces';
@@ -13,8 +13,8 @@ export class Users extends Base<UserModel> {
         super(client, config, usersConfig);
     }
 
-    // @ts-ignore FIXME
-    async create(record: CreateInput<UserModel>, password: string): Promise<UserModel> {
+    // @ts-ignore
+    async create(record: CreateInput<PublicUserModel>, password: string): Promise<UserModel> {
         const salt = await utils.generateSalt();
         const hash = await utils.generatePasswordHash(password, salt);
         const apiToken = await utils.generateAPIToken(hash, record.username);
@@ -32,8 +32,11 @@ export class Users extends Base<UserModel> {
      * @returns true if authenticated and false if it fails to authenticate the user
     */
     async authenticate(username: string, password: string): Promise<boolean> {
-        // @ts-ignore FIXME
-        return {};
+        const user = await this.findByUsername(username);
+        if (!user) return false;
+
+        const hash = await utils.generatePasswordHash(password, user.salt);
+        return user.hash === hash;
     }
 
     /**
@@ -54,9 +57,25 @@ export class Users extends Base<UserModel> {
     /**
      * Find a User by username
     */
-    async findByUsername(username: string) {
+    async findByUsername(username: string): Promise<DataEntity<UserModel>|null> {
         const result = await this.find(`username:"${username}"`, 1);
-        return getFirst(result);
+        return getFirst(result) || null;
+    }
+
+    omitPrivateFields(user: DataEntity<UserModel>): DataEntity<PublicUserModel>;
+    omitPrivateFields(user: UserModel): PublicUserModel;
+    omitPrivateFields(user: DataEntity<UserModel>|UserModel): DataEntity<PublicUserModel>|PublicUserModel {
+        const publicUser = {};
+        const privateFields = ['api_token', 'hash', 'salt'];
+
+        for (const [key, val] of Object.entries(user)) {
+            if (!privateFields.includes(key)) {
+                publicUser[key] = val;
+            }
+        }
+
+        // @ts-ignore
+        return publicUser;
     }
 }
 
@@ -95,12 +114,6 @@ export interface UserModel extends BaseModel {
      * Currently Roles will be restricted to an array of one
     */
     roles: [string];
-}
-
-/**
- * The private fields of the User Model
-*/
-export interface PrivateUserModel extends UserModel {
 
     /**
      * The User's API Token
@@ -124,3 +137,5 @@ export interface PrivateUserModel extends UserModel {
     */
     salt: string;
 }
+
+export type PublicUserModel = Omit<UserModel, 'api_token'|'hash'|'salt'>;
