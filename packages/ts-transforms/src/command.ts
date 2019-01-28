@@ -1,17 +1,18 @@
 
 import yargs from 'yargs';
 import path from 'path';
-import readline from 'readline';
 import fs from 'fs';
 import { DataEntity, debugLogger } from '@terascope/utils';
 import _ from 'lodash';
 import got from 'got';
 import { PhaseManager } from './index';
 import { PhaseConfig } from './interfaces';
-import { version } from '../package.json';
+import validator from 'validator';
 
 const logger = debugLogger('ts-transform-cli');
 const dir = process.cwd();
+
+const { version } = JSON.parse(fs.readFileSync(path.join(dir, './package.json'), 'utf8'));
 
 // TODO Use yargs api to validate field types and usage
 const command = yargs
@@ -35,6 +36,7 @@ const command = yargs
 
 const filePath = command.rules as string;
 const dataPath = command.data;
+
 let typesConfig = {};
 const type = command.m ? 'matcher' : 'transform';
 
@@ -64,24 +66,12 @@ if (!filePath) {
 }
 
 async function dataFileLoader(dataPath: string): Promise<object[]> {
-    const results: object[] = [];
-
-    const rl = readline.createInterface({
-        input: fs.createReadStream(dataPath),
-        crlfDelay: Infinity
-    });
-
-    return new Promise<object[]>((resolve, reject) => {
-        const timeout = setTimeout(() => reject('timedout reading data from file'), 10000);
-        rl.on('line', (str) => {
-            if (str) {
-                results.push(JSON.parse(str));
-            }
-        });
-
-        rl.on('close', () => {
-            clearTimeout(timeout);
-            resolve(results);
+    return new Promise((resolve, reject) => {
+        fs.readFile(dataPath, { encoding: 'utf8' }, (err, data) => {
+            if (err) return reject(err);
+            const parsedData = formatData(data);
+            if (!parsedData) return reject('could not parse data');
+            resolve(parsedData);
         });
     });
 }
@@ -90,8 +80,8 @@ function formatList(input: string): string[] {
     return input.split(',').map((str) => str.trim());
 }
 
-function parseStreamResponse(data: string) {
-    const json = JSON.parse(data);
+function parseStreamResponse(data: string | object[]): object[] {
+    const json = typeof data === 'string' ? JSON.parse(data) : data;
     if (Array.isArray(json)) return json;
     // input from elasticsearch
     const elasticSearchResults = _.get(json, 'hits.hits', null);
@@ -121,36 +111,49 @@ function getPipedData() {
         });
 
         process.stdin.on('end', () => {
-            try {
-                const results = parseStreamResponse(strResults);
-                resolve(results);
-            } catch (err) {
-                // try to see if its line delimited JSON;
-                try {
-                    const data = strResults.split('\n');
-                    const dataArray = data.map(jsonStr => JSON.parse(jsonStr));
-                    resolve(dataArray);
-                } catch (_secondError) {
-                    reject(err);
-                }
-            }
+            const finalData = formatData(strResults);
+            if (finalData) return resolve(finalData);
+            reject('could not parse data');
         });
     });
 }
 
+function formatData(strResults: string): object[] | null {
+    try {
+        return parseStreamResponse(strResults);
+    } catch (err) {
+        // try to see if its line delimited JSON;
+        try {
+            const data = strResults.split('\n');
+            return data.map(jsonStr => JSON.parse(jsonStr));
+        } catch (_secondError) {
+            return null;
+        }
+    }
+}
+
+function fetchUri(uri: string) {
+    if (validator.isURL(uri,  { require_tld: false })) {
+        return got(uri);
+    }
+    throw new Error('is not a uri');
+}
+
 async function getData(dataPath: string) {
     let parsedData;
+
     if (dataPath) {
         try {
-            const response = await got(dataPath);
+            const response = await fetchUri(dataPath);
             parsedData = parseStreamResponse(response.body);
         } catch (err) {}
         if (!parsedData) {
             try {
-                parsedData = require(path.resolve(dir, dataPath));
+                parsedData = parseStreamResponse(require(path.resolve(dir, dataPath)));
             } catch (err) {
                 try {
-                    parsedData = await dataFileLoader(dataPath);
+                    const fileData = await dataFileLoader(dataPath);
+                    parsedData = parseStreamResponse(fileData);
                 } catch (error) {}
             }
         }
