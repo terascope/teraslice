@@ -46,6 +46,16 @@ describe('Users', () => {
             expect(created).toHaveProperty('salt');
         });
 
+        it('should be able to omit private fields', () => {
+            const omitted = users.omitPrivateFields(created);
+
+            expect(omitted).not.toBe(created);
+
+            expect(omitted).not.toHaveProperty('api_token');
+            expect(omitted).not.toHaveProperty('hash');
+            expect(omitted).not.toHaveProperty('salt');
+        });
+
         it('should be able to update the api_token', async () => {
             await expect(users.findByToken(created.api_token))
                 .resolves.toEqual(created);

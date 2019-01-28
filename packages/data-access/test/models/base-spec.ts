@@ -69,7 +69,10 @@ describe('Base', () => {
         });
 
         it('should be able to update the record', async () => {
-            await base.update(Object.assign({}, fetched, { name: 'Hello' }));
+            const updateInput = Object.assign({}, fetched, { name: 'Hello' });
+
+            const updateResult = await base.update(updateInput);
+            expect(updateResult).not.toBe(updateInput);
 
             const result = await base.findById(fetched.id);
             expect(result).toHaveProperty('name', 'Hello');
