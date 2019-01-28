@@ -30,7 +30,7 @@
         "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@terascope/utils": "^0.2.0",
+        "@terascope/utils": "^0.3.0",
         "elasticsearch-store": "^0.1.0",
         "nanoid": "^2.0.1"
     },
