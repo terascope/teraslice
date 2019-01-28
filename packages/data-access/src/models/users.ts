@@ -53,7 +53,6 @@ export class Users extends Base<UserModel> {
         user.api_token = await utils.generateAPIToken(user.hash, username);
 
         await this.update(user);
-
         return user.api_token;
     }
 
