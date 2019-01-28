@@ -95,5 +95,11 @@ export const schema = {
             type: 'string'
         }
     },
-    required: ['firstname', 'lastname']
+    required: [
+        'username',
+        'firstname',
+        'lastname',
+    ]
 };
+
+export const uniqueFields = ['username'];

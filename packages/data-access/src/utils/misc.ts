@@ -1,4 +1,4 @@
-import { cloneDeep, isPlainObject, uniq } from '@terascope/utils';
+import { cloneDeep, isPlainObject, concat } from '@terascope/utils';
 import nanoid from 'nanoid/async';
 
 /**
@@ -27,7 +27,7 @@ export function addDefaults(source: object, from: object = {}) {
             if (isPlainObject(val)) {
                 output[key] = Object.assign(output[key], val);
             } else if (Array.isArray(val)) {
-                output[key] = uniq(output[key].concat(val));
+                output[key] = concat(output[key], val);
             } else {
                 output[key] = val;
             }

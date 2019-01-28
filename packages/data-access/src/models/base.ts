@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import { Omit, DataEntity } from '@terascope/utils';
+import { Omit, DataEntity, concat, getFirst, TSError } from '@terascope/utils';
 import { IndexStore, IndexConfig } from 'elasticsearch-store';
 import { addDefaultMapping, addDefaultSchema } from './config/base';
 import { makeId, makeISODate } from '../utils';
@@ -10,6 +10,8 @@ import { ManagerConfig } from '../interfaces';
 */
 export class Base<T extends BaseModel> {
     readonly store: IndexStore<T>;
+    readonly name: string;
+    private _uniqueFields: string[];
 
     constructor(client: es.Client, config: ManagerConfig, modelConfig: ModelConfig) {
         const indexConfig: IndexConfig = Object.assign({
@@ -39,9 +41,12 @@ export class Base<T extends BaseModel> {
             },
             ingestTimeField: 'created',
             eventTimeField: 'updated',
-        }, config.storeOptions, modelConfig);
+        }, config.storeOptions, modelConfig.storeOptions);
 
+        this.name = modelConfig.name;
         this.store = new IndexStore(client, indexConfig);
+
+        this._uniqueFields = concat(['id'], modelConfig.uniqueFields);
     }
 
     async initialize() {
@@ -53,12 +58,14 @@ export class Base<T extends BaseModel> {
     }
 
     async create(record: CreateInput<T>|DataEntity<CreateInput<T>>): Promise<T> {
+
         const doc = Object.assign({}, record, {
             id: await makeId(),
             created: makeISODate(),
             updated: makeISODate(),
         }) as T;
 
+        await this._ensureUnique(doc);
         await this.store.indexWithId(doc, doc.id);
         return doc;
     }
@@ -69,6 +76,23 @@ export class Base<T extends BaseModel> {
 
     async findById(id: string) {
         return this.store.get(id);
+    }
+
+    async findByAnyId(anyId: string) {
+        const query = this._uniqueFields
+            .map((field) => `${field}:"${anyId}"`)
+            .join(' OR ');
+
+        const result = await this.find(query, 1);
+
+        const record = getFirst(result);
+        if (record == null) {
+            throw new TSError(`Unable to find "${this.name}" by "${anyId}"`, {
+                statusCode: 404,
+            });
+        }
+
+        return record;
     }
 
     async findAll(ids: string[]) {
@@ -89,7 +113,48 @@ export class Base<T extends BaseModel> {
             updated: makeISODate(),
         }) as T;
 
+        const existing = await this.store.get(doc.id);
+
+        for (const field of this._uniqueFields) {
+            if (field === 'id') continue;
+            if (doc[field] == null) continue;
+
+            if (existing[field] !== doc[field]) {
+                const count = await this._countBy(field, doc[field]);
+
+                if (count > 0) {
+                    throw new TSError(`Update requires ${field} to be unique`, {
+                        statusCode: 409
+                    });
+                }
+            }
+        }
+
         return this.store.update(doc, doc.id);
+    }
+
+    private async _countBy(field: string, val: string): Promise<number> {
+        return this.store.count(`${field}:"${val}"`);
+    }
+
+    private async _ensureUnique(record: T) {
+        for (const field of this._uniqueFields) {
+            if (field === 'id') continue;
+            if (record[field] == null) {
+                throw new TSError(`Create requires field ${field}`, {
+                    statusCode: 422
+                });
+            }
+
+            const count = await this._countBy(field, record[field]);
+            if (count > 0) {
+                throw new TSError(`Create requires ${field} to be unique`, {
+                    statusCode: 409
+                });
+            }
+        }
+
+        return;
     }
 }
 
@@ -99,6 +164,7 @@ export interface ModelConfig {
     schema: any;
     version: number;
     storeOptions?: Partial<IndexConfig>;
+    uniqueFields?: string[];
 }
 
 export type BaseConfig = ModelConfig & ManagerConfig;

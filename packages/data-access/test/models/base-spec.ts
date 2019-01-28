@@ -1,6 +1,6 @@
 import 'jest-extended';
-import { DataEntity, times } from '@terascope/utils';
-import { Base, BaseModel } from '../../src/models/base';
+import { DataEntity, times, TSError } from '@terascope/utils';
+import { Base, BaseModel, ModelConfig } from '../../src/models/base';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
 describe('Base', () => {
@@ -9,12 +9,18 @@ describe('Base', () => {
     }
 
     const client = makeClient();
-    const baseConfig = {
+    const baseConfig: ModelConfig = {
         name: 'base',
         mapping: {
             properties: {
                 name: {
-                    type: 'keyword'
+                    type: 'keyword',
+                    fields: {
+                        text: {
+                            type: 'text',
+                            analyzer: 'lowercase_keyword_analyzer'
+                        }
+                    }
                 },
             }
         },
@@ -25,6 +31,7 @@ describe('Base', () => {
                 }
             }
         },
+        uniqueFields: ['name'],
         version: 1,
     };
 
@@ -62,6 +69,50 @@ describe('Base', () => {
             expect(created).toEqual(fetched);
         });
 
+        it('should not be able to create the record again due to conflicts', async () => {
+            expect.hasAssertions();
+
+            try {
+                await base.create(created);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.statusCode).toEqual(409);
+                expect(err.message).toEqual('Create requires name to be unique');
+            }
+        });
+
+        it('should not be able to create the record without a name', async () => {
+            expect.hasAssertions();
+
+            try {
+                // @ts-ignore
+                await base.create({});
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.statusCode).toEqual(422);
+                expect(err.message).toEqual('Create requires field name');
+            }
+        });
+
+        it('should not be able to update with a different name', async () => {
+            expect.hasAssertions();
+
+            const name = 'fooooobarrr';
+            await base.create({
+                name
+            });
+
+            try {
+                await base.update(Object.assign(created, {
+                    name
+                }));
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.statusCode).toEqual(409);
+                expect(err.message).toEqual('Update requires name to be unique');
+            }
+        });
+
         it('should have the required properties', () => {
             expect(fetched).toHaveProperty('id');
             expect(fetched).toHaveProperty('updated');
@@ -90,33 +141,33 @@ describe('Base', () => {
 
     describe('when finding mulitple records', () => {
         beforeAll(async () => {
-            await Promise.all(times(5, () => {
+            await Promise.all(times(5, (n) => {
                 return base.create({
-                    name: 'Joe'
+                    name: `Joe ${n}`
                 });
             }));
 
-            await Promise.all(times(5, () => {
+            await Promise.all(times(5, (n) => {
                 return base.create({
-                    name: 'Bob'
+                    name: `Bob ${n}`
                 });
             }));
         });
 
         it('should be able to find all of the Bobs', async () => {
-            const result = await base.find('name:"Bob"');
+            const result = await base.find('name:Bob*', 6);
 
             expect(result).toBeArrayOfSize(5);
             for (const record of result) {
                 expect(record).toHaveProperty('id');
                 expect(record).toHaveProperty('created');
                 expect(record).toHaveProperty('updated');
-                expect(record).toHaveProperty('name', 'Bob');
+                expect(record.name).toStartWith('Bob');
             }
         });
 
         it('should be able to find all of the Joes', async () => {
-            const result = await base.find('name:"Joe"');
+            const result = await base.find('name:Joe*', 6);
 
             expect(result).toBeArrayOfSize(5);
 
@@ -124,36 +175,36 @@ describe('Base', () => {
                 expect(record).toHaveProperty('id');
                 expect(record).toHaveProperty('created');
                 expect(record).toHaveProperty('updated');
-                expect(record).toHaveProperty('name', 'Joe');
+                expect(record.name).toStartWith('Joe');
             }
         });
 
         it('should be able to find 2 of the Joes', async () => {
-            const result = await base.find('name:"Joe"', 2);
+            const result = await base.find('name:Joe*', 2);
 
             expect(result).toBeArrayOfSize(2);
 
             for (const record of result) {
-                expect(record).toHaveProperty('name', 'Joe');
+                expect(record.name).toStartWith('Joe');
             }
         });
 
         it('should be able to sort by name', async () => {
-            const result = await base.find('name:("Bob" OR "Joe")', 10, [], 'name:asc');
+            const result = await base.find('name:(Bob* OR Joe*)', 11, [], 'name:asc');
 
             expect(result).toBeArrayOfSize(10);
 
             result.forEach((record, index) => {
                 if (index < 5) {
-                    expect(record).toHaveProperty('name', 'Bob');
+                    expect(record.name).toEqual(`Bob ${index}`);
                 } else {
-                    expect(record).toHaveProperty('name', 'Joe');
+                    expect(record.name).toEqual(`Joe ${index - 5}`);
                 }
             });
         });
 
         it('should be able to limit the fields returned', async () => {
-            const result = await base.find('name:"Joe"', 1, ['name']);
+            const result = await base.find('name:Joe*', 1, ['name']);
 
             expect(result).toBeArrayOfSize(1);
 
@@ -161,7 +212,7 @@ describe('Base', () => {
                 expect(record).not.toHaveProperty('id');
                 expect(record).not.toHaveProperty('created');
                 expect(record).not.toHaveProperty('updated');
-                expect(record).toHaveProperty('name', 'Joe');
+                expect(record.name).toStartWith('Joe');
             }
         });
 

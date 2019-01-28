@@ -78,9 +78,9 @@ export function isInteger(val: any): val is number {
 export { isPlainObject, cloneDeep };
 
 /** A simplified implemation of lodash castArray */
-export function castArray<T>(input: any): T[] {
-    if (Array.isArray(input)) return input as T[];
-    return [input] as T[];
+export function castArray<T>(input: T|T[]): T[] {
+    if (Array.isArray(input)) return input;
+    return [input];
 }
 
 /** Verify an input is a function */
@@ -175,6 +175,17 @@ export function flatten<T>(val: Many<T[]>): T[] {
 
 /** A simple definitions of array */
 interface Many<T> extends Array<T> {
+}
+
+/**
+ * Concat and unique the items in the array
+ * Any non-array value will be converted to an array
+*/
+export function concat<T>(arr: T|T[], arr1?: T|T[]): T[] {
+    return uniq(
+        castArray(arr)
+            .concat(arr1 ? castArray(arr1) : []),
+    );
 }
 
 /** A decorator for locking down a method */

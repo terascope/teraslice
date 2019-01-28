@@ -49,7 +49,7 @@ export class ACLManager {
             });
         }
 
-        const space = await this.spaces.findByIdOrName(spaceId);
+        const space = await this.spaces.findByAnyId(spaceId);
 
         const roleId = getFirst(user.roles);
         if (!roleId) {

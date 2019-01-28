@@ -7,8 +7,6 @@ import * as utils from '../utils';
 
 /**
  * Manager for Users
- *
- * @todo ensure that the user is unique
 */
 export class Users extends Base<UserModel> {
     constructor(client: es.Client, config: ManagerConfig) {

@@ -39,3 +39,5 @@ export const schema = {
     },
     required: ['name']
 };
+
+export const uniqueFields = ['name'];
