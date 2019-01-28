@@ -1,4 +1,4 @@
-import { addDefaults } from '../utils';
+import { addDefaults } from '../../utils';
 
 /** ElasticSearch Mapping */
 export const mapping = {

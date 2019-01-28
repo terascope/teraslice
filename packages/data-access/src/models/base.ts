@@ -110,7 +110,7 @@ export interface BaseModel {
     /**
      * ID of the view - nanoid 12 digit
     */
-    id: string;
+    readonly id: string;
 
     /** Updated date */
     updated: string;

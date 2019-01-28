@@ -3,7 +3,7 @@ import { getFirst, Omit, DataEntity, TSError } from '@terascope/utils';
 import * as usersConfig from './config/users';
 import { Base, BaseModel, CreateInput } from './base';
 import { ManagerConfig } from '../interfaces';
-import * as utils from './utils';
+import * as utils from '../utils';
 
 /**
  * Manager for Users
