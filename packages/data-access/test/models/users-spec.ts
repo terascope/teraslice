@@ -46,6 +46,15 @@ describe('Users', () => {
             expect(created).toHaveProperty('salt');
         });
 
+        it('should be to update the api_token', async () => {
+            const newToken = await users.updateToken(username);
+
+            const fetched = await users.findById(created.id);
+
+            expect(created.api_token).not.toEqual(newToken);
+            expect(fetched.api_token).toEqual(newToken);
+        });
+
         describe('when give the correct password', () => {
             it('should be able to authenticate the user', async () => {
                 const result = await users.authenticate(username, password);

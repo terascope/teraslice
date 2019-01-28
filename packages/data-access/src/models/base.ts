@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import { Omit } from '@terascope/utils';
+import { Omit, DataEntity } from '@terascope/utils';
 import { IndexStore, IndexConfig } from 'elasticsearch-store';
 import { addDefaultMapping, addDefaultSchema } from './config/base';
 import { makeId, makeISODate } from '../utils';
@@ -52,7 +52,7 @@ export class Base<T extends BaseModel> {
         return this.store.shutdown();
     }
 
-    async create(record: CreateInput<T>): Promise<T> {
+    async create(record: CreateInput<T>|DataEntity<CreateInput<T>>): Promise<T> {
         const doc = Object.assign({}, record, {
             id: await makeId(),
             created: makeISODate(),
@@ -84,7 +84,7 @@ export class Base<T extends BaseModel> {
         });
     }
 
-    async update(user: UpdateInput<T>) {
+    async update(user: UpdateInput<T>|DataEntity<UpdateInput<T>>) {
         const doc = Object.assign({}, user, {
             updated: makeISODate(),
         }) as T;

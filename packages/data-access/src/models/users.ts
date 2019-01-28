@@ -1,7 +1,7 @@
 import * as es from 'elasticsearch';
-import { getFirst, Omit, DataEntity } from '@terascope/utils';
+import { getFirst, Omit, DataEntity, TSError } from '@terascope/utils';
 import * as usersConfig from './config/users';
-import { Base, UpdateInput, BaseModel, CreateInput } from './base';
+import { Base, BaseModel, CreateInput } from './base';
 import { ManagerConfig } from '../interfaces';
 import * as utils from './utils';
 
@@ -42,8 +42,19 @@ export class Users extends Base<UserModel> {
     /**
      * Update the API Token for a user
     */
-    async updateToken(user: UpdateInput<UserModel>): Promise<string> {
-        return '';
+    async updateToken(username: string): Promise<string> {
+        const user = await this.findByUsername(username);
+        if (!user) {
+            throw new TSError(`Unable to find user "${username}"`, {
+                statusCode: 404,
+            });
+        }
+
+        user.api_token = await utils.generateAPIToken(user.hash, username);
+
+        await this.update(user);
+
+        return user.api_token;
     }
 
     /**
