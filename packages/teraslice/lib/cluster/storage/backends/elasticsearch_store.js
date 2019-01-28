@@ -8,7 +8,8 @@ const { getClient } = require('@terascope/job-components');
 const { timeseriesIndex } = require('../../../utils/date_utils');
 const { prependErrorMsg } = require('../../../utils/error_utils');
 
-module.exports = function module(context, indexName, recordType, idField, _bulkSize, fullResponse) {
+// eslint-disable-next-line max-len
+module.exports = function module(context, indexName, recordType, idField, _bulkSize, fullResponse, logRecord = true) {
     const logger = context.apis.foundation.makeLogger({ module: 'elasticsearch_backend' });
     const config = context.sysconfig.teraslice;
     let elasticsearch;
@@ -63,7 +64,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
      * ID creation
      */
     function index(record, indexArg) {
-        logger.trace('indexing record', record);
+        logger.trace('indexing record', logRecord ? record : null);
         const query = {
             index: indexArg || indexName,
             type: recordType,
@@ -79,7 +80,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
      * If the document is already there it will be replaced.
      */
     function indexWithId(recordId, record, indexArg) {
-        logger.trace(`indexWithId call with id: ${recordId}, record`, record);
+        logger.trace(`indexWithId call with id: ${recordId}, record`, logRecord ? record : null);
         const query = {
             index: indexArg || indexName,
             type: recordType,
@@ -96,7 +97,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
      * If the record already exists it will not be inserted.
      */
     function create(record, indexArg) {
-        logger.trace('creating record', record);
+        logger.trace('creating record', logRecord ? record : null);
 
         const query = {
             index: indexArg || indexName,
@@ -126,7 +127,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
     }
 
     function update(recordId, updateSpec, indexArg) {
-        logger.trace(`updating record ${recordId}, `, updateSpec);
+        logger.trace(`updating record ${recordId}, `, logRecord ? updateSpec : null);
 
         const query = {
             index: indexArg || indexName,

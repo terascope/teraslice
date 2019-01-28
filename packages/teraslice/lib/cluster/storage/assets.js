@@ -241,7 +241,7 @@ module.exports = function module(context) {
     };
 
     return ensureAssetDir()
-        .then(() => elasticsearchBackend(context, indexName, 'asset', '_id', null, true))
+        .then(() => elasticsearchBackend(context, indexName, 'asset', '_id', null, true, false))
         .then((elasticsearch) => {
             backend = elasticsearch;
             return api;
