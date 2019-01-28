@@ -39,7 +39,7 @@ describe('base64 operator', () => {
     });
 
     it('can base64 decode fields', () => {
-        const opConfig = { target_field: 'final', source_field: 'source' };
+        const opConfig = { source_field: 'source' };
         const test =  new Base64Decode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -76,29 +76,16 @@ describe('base64 operator', () => {
         expect(results4).toEqual({});
         expect(results5).toEqual({});
         expect(results6).toEqual({});
-        expect(results7).toEqual({ final: 'http:// google.com' });
-        expect(results8).toEqual({ final: 'ha3ke5@pawnage.com' });
-        expect(results9).toEqual({ final: '::' });
-        expect(results10).toEqual({ final: '193.0.0.23' });
+        expect(results7).toEqual({ source: 'http:// google.com' });
+        expect(results8).toEqual({ source: 'ha3ke5@pawnage.com' });
+        expect(results9).toEqual({ source: '::' });
+        expect(results10).toEqual({ source: '193.0.0.23' });
         expect(DataEntity.getMetadata(results11 as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results11).toEqual({ final: 'hello world' });
+        expect(results11).toEqual({ source: 'hello world' });
     });
 
-    it('can base64 decode fields and remove source', () => {
-        const opConfig = { target_field: 'final', source_field: 'source' };
-        const test =  new Base64Decode(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
-
-        const data = new DataEntity({ source: encode('hello world') }, metaData);
-
-        const results = test.run(data);
-
-        expect(DataEntity.getMetadata(results as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results).toEqual({ final: 'hello world' });
-    });
-
-    it('can base64 decode nested fields and remove source', () => {
-        const opConfig = { target_field: 'final.data', source_field: 'source.field' };
+    it('can base64 decode nested fields', () => {
+        const opConfig = { source_field: 'source.field' };
         const test =  new Base64Decode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -107,6 +94,6 @@ describe('base64 operator', () => {
         const results = test.run(data);
 
         expect(DataEntity.getMetadata(results as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results).toEqual({ final: { data: 'hello world' }, source: {}  });
+        expect(results).toEqual({ source: { field: 'hello world' } });
     });
 });

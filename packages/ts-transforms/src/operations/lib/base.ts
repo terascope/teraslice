@@ -38,12 +38,10 @@ export default class OperationBase {
 
     set(doc: DataEntity, data: any) {
         _.set(doc, this.destination, data);
-        if (this.hasTarget) _.unset(doc, this.source);
     }
 
     setField(doc: DataEntity, field: string, data: any) {
         _.set(doc, field, data);
-        if (this.hasTarget) _.unset(doc, this.source);
     }
 
     removeSource(doc: DataEntity) {

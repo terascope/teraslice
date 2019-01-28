@@ -92,6 +92,7 @@ export default class Extraction extends TransformOpBase {
             if (extractedResult !== undefined)  {
                 if (this.isMutation) {
                     if (this.config.multivalue) doc.setMetadata('_multi_target_fields', this.mutltiFieldParams);
+                    // TODO: this might have problems of multiple extractions on the same field
                     this.set(doc, extractedResult);
                     return doc;
                 }

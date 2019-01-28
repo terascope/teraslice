@@ -317,7 +317,6 @@ describe('can transform matches', () => {
         });
 
         const resultsData1 = data.map(doc => ({ hex: doc.txt }));
-        const finalResults = data.map(doc => ({ final: doc.txt }));
 
         const finalData = DataEntity.makeArray(transformedData);
 
@@ -344,7 +343,7 @@ describe('can transform matches', () => {
 
         expect(results3.length).toEqual(3);
         _.each(results3, (result, ind) => {
-            expect(result).toEqual(finalResults[ind]);
+            expect(result).toEqual(resultsData1[ind]);
             expect(DataEntity.isDataEntity(result)).toEqual(true);
         });
     });
@@ -415,8 +414,8 @@ describe('can transform matches', () => {
         ]);
 
         const resultSet =  [
-            { hello: 'world', other: 'someData' },
-            { hello: 'world', other: 'otherData' }
+            { hello: 'world', data: 'someData', other: 'someData' },
+            { hello: 'world', data: 'otherData', other: 'otherData' }
         ];
 
         const test = await opTest.init(config);

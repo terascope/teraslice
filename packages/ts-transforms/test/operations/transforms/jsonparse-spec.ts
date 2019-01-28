@@ -25,7 +25,7 @@ describe('transform operator', () => {
     });
 
     it('can parse json data', () => {
-        const opConfig = { source_field: 'someField', target_field: 'otherField' };
+        const opConfig = { source_field: 'someField' };
         const test = new JsonParse(opConfig);
 
         const data1 = new DataEntity({ someField: JSON.stringify('56.234,95.234') });
@@ -45,12 +45,12 @@ describe('transform operator', () => {
         const results7 = test.run(data7);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1).toEqual({ otherField: '56.234,95.234' });
+        expect(results1).toEqual({ someField: '56.234,95.234' });
         expect(results2).toEqual({});
-        expect(results3).toEqual({ otherField: 'data' });
-        expect(results4).toEqual({ otherField: { some: 'data' } });
-        expect(results5).toEqual({ otherField: false });
-        expect(results6).toEqual({ otherField: 'other' });
+        expect(results3).toEqual({ someField: 'data' });
+        expect(results4).toEqual({ someField: { some: 'data' } });
+        expect(results5).toEqual({ someField: false });
+        expect(results6).toEqual({ someField: 'other' });
         expect(results7).toEqual({ sideField: 'data' });
     });
 

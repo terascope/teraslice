@@ -163,16 +163,13 @@ describe('transform operator', () => {
             { otherField: 'data' }
         ]);
 
-        const finalArray = dataArray.reduce<any[]>((list, doc) => {
-            const obj: object = {};
+        const finalArray = dataArray.map((doc) => {
             if (doc.someField !== undefined) {
-                obj['otherField'] = doc.someField;
-                list.push(obj);
-                if (list.length === 1) list.push(null);
+                doc['otherField'] = doc.someField;
             }
-            if (doc.otherField) list.push(doc);
-            return list;
-        }, []);
+            if (Object.keys(doc).length === 0) return null;
+            return doc;
+        });
         const resultsArray = dataArray.map(data => test.run(data));
 
         resultsArray.forEach((result, ind) => {

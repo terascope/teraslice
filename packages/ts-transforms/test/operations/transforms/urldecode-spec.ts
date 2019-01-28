@@ -5,7 +5,7 @@ import { DataEntity } from '@terascope/utils';
 describe('urldecode operator', () => {
 
     it('can instantiate', () => {
-        const opConfig = { target_field: 'final', source_field: 'source' };
+        const opConfig = { target_field: 'source', source_field: 'source' };
         expect(() => new UrlDecode(opConfig)).not.toThrow();
     });
 
@@ -35,7 +35,7 @@ describe('urldecode operator', () => {
     });
 
     it('can urldecode decode fields', () => {
-        const opConfig = { target_field: 'final', source_field: 'source' };
+        const opConfig = { source_field: 'source' };
         const test =  new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -72,30 +72,16 @@ describe('urldecode operator', () => {
         expect(results4).toEqual({});
         expect(results5).toEqual({});
         expect(results6).toEqual({});
-        expect(results7).toEqual({ final: 'http:// google.com?q=HELLO AND GOODBYE' });
-        expect(results8).toEqual({ final: 'ha3ke5@pawnage.com' });
-        expect(results9).toEqual({ final: '::' });
-        expect(results10).toEqual({ final: '193.0.0.23' });
+        expect(results7).toEqual({ source: 'http:// google.com?q=HELLO AND GOODBYE' });
+        expect(results8).toEqual({ source: 'ha3ke5@pawnage.com' });
+        expect(results9).toEqual({ source: '::' });
+        expect(results10).toEqual({ source: '193.0.0.23' });
         expect(DataEntity.getMetadata(results11 as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results11).toEqual({ final: 'hello world' });
+        expect(results11).toEqual({ source: 'hello world' });
     });
 
-    it('can urldecode decode fields and remove source', () => {
-        const opConfig = { target_field: 'final', source_field: 'source' };
-        const test =  new UrlDecode(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
-        const url = 'http:// localhost:9200/logstash-2018.7/_search?q=bytes:>500 AND ip:*&pretty&size=10000';
-        const encodedUrl = 'http:// localhost:9200/logstash-2018.7/_search?q=bytes:%3E500%20AND%20ip:*&pretty&size=10000';
-        const data = new DataEntity({ source: encodedUrl }, metaData);
-
-        const results = test.run(data);
-
-        expect(DataEntity.getMetadata(results as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results).toEqual({ final: url });
-    });
-
-    it('can urldecode decode nested fields and remove source', () => {
-        const opConfig = { target_field: 'final.data', source_field: 'source.field' };
+    it('can urldecode decode nested fields', () => {
+        const opConfig = { source_field: 'source.field' };
         const test =  new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
         const url = 'http:// localhost:9200/logstash-2018.7/_search?q=bytes:>500 AND ip:*&pretty&size=10000';
@@ -105,6 +91,6 @@ describe('urldecode operator', () => {
         const results = test.run(data);
 
         expect(DataEntity.getMetadata(results as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results).toEqual({ final: { data: url }, source: {}  });
+        expect(results).toEqual({ source: { field: url } });
     });
 });
