@@ -42,6 +42,7 @@ export class Base<T extends BaseModel> {
             },
             ingestTimeField: 'created',
             eventTimeField: 'updated',
+            logger: config.logger,
         }, config.storeOptions, modelConfig.storeOptions);
 
         this.name = utils.toInstanceName(modelConfig.name);
