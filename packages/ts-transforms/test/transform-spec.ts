@@ -288,7 +288,7 @@ describe('can transform matches', () => {
         expect(metaData.selectors).toEqual({ 'hello:world': true, 'full_name:"Jane Doe"': true });
     });
 
-    it('validations work with the different ways to configure them', async() => {
+    fit('validations work with the different ways to configure them', async() => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules7.txt')]
         };

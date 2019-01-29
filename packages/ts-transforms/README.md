@@ -104,10 +104,8 @@ export DEBUG='*ts-transform*'
 ## Rules
 To understand how rules apply you will need to understand all the different processing phases
 
-#### Selector Phase
-This is the first phase.  
-
-- **selector** = the criteria to see if a document matches, please refer to [xlucene-evaluator](https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator) on all the ways you can write the selector rule
+### Selector Phase
+This is the first phase. This goes through and collects all selectors. Only data that pass the selectors can have further processing. please refer to [xlucene-evaluator](https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator) on all the ways you can write the selector rule. Metadata is attached to the records of which selector is applicable for that record. This is used to funnel it down the processing pipeline for the subsequent phases
 
 ```txt
 # will match any document that has a key of "some" and a value of "thing"
@@ -163,12 +161,115 @@ const results = transform.run(data);
 console.log(results);   //   [{ final: 'someData' }, { final: 'otherData' }]   
 
 ```
-- **source_field** = the field on the record on which you will extract data from
-- **target_field** = the key name that will be used to set the extracted data
+### Extraction Phase
+This phase will go through all the configurations and apply all the extractions for a given selector. All the transformations for a given selector are merged together to return a single record back
+
+```ts
+// rules
+
+{"selector": "hello:world", "source_field": "first", "target_field": "first_name"}
+{"selector": "hello:world", "source_field": "last", "target_field": "last_name"}
+
+{"selector": "some:data", "source_field": "first", "target_field": "other_first"}
+{"selector": "some:data", "source_field": "last", "target_field": "other_last"}
+
+// Incoming Data to transform
+[
+    { hello: 'world', first: 'John', last: 'Wayne' },
+    { some: 'data', first: 'Abe', last: 'Lincoln' }
+]
+
+// Results
+/* 
+  There are extraction rules for 'first' and 'last' key fields, but they have different actions based off the the selectors
+*/
+
+[
+    { first_name: 'John', last_name: 'Wayne'},
+    { other_first: 'Abe', other_last: 'Lincoln'}
+]
+
+```
+
+### Post Process Phase
+This phase is for any additional processing that needs to occur after extraction. Each post_process configuration is affecting the `target_field` of the chained configuration if you use the `tag` and `follow` tags. You can chain multiple times if needed.
+
+```ts
+// rules
+# we extract first => first_name
+{"selector": "hello:world", "source_field": "first", "target_field": "first_name"}
+
+# we extract last => last_name
+{"selector": "hello:world", "source_field": "last", "target_field": "last_name"}
+
+# we join the two fields => full_name
+{"selector": "hello:world", "post_process": "join", "fields": ["first_name", "last_name"], "delimiter": " ", "target_field": "full_name", "tag": "myId"}
+
+# we filter out and only allow full_name: 'Jane Doe'
+{"follow": "myId", "post_process": "selector", "selector": "full_name:\"Jane Doe\"", "tag": "second_id" }
+
+# we extract full_name => name, extraction returns a new record
+{"follow": "second_id", "post_process": "extraction", "source_field":"full_name", "target_field": "name"}
+
+// Incoming Data to transform
+[
+    { hello: 'world', first: 'John', last: 'Wayne' },
+    { hello: 'world', first: 'Jane', last: 'Doe' }
+]
+
+// Results
+
+[
+    { name: 'Jane Doe' },
+]
+
+```
+
 - **tag** = marks the config and the target_field with an ID so other configurations can chain off of it
 - **follows** = marks the config that it is chaining off the tag id
-- **validation** = marks the config to have a validation check on the target_field
-- **post_process** = marks the config to do additional actions after the first extractions
+
+**Note** 
+It is possible to collapse some simple post_process configs together with the original extraction config, however its not advisable if you need to specify additional parameters so that they dont conflict with each other.
+
+```js
+
+{ "selector": "domain:example.com", "source_field": "url", "start": "field3=", "end": "EOP", "target_field": "field3", "post_process": "base64decode" }
+
+// is the same as
+
+{ "selector": "domain:example.com", "source_field": "url", "start": "field3=", "end": "EOP", "target_field": "field3", "tag": "someTag"}
+{ "follow": "someTag", "post_process": "base64decode" }
+
+// however the later is preferable when you need to do more complex chaining or any post_process or validation that requires more parameters
+```
+
+### Validation Phase 
+acts pretty similar to the post process phase except this is when you validate a field. If it does not pass then that field is removed from the final record. 
+
+```ts
+// rules
+# we extract field => other_field
+{"selector": "hello:world", "source_field": "field", "target_field": "other_field","tag": "myId"}
+
+# we validate the other_field is a alphanumeric string
+{"follow": "myId", "validation": "alphanumeric"}
+
+// Incoming Data to transform
+[
+    { hello: 'world', field: 'some847sting' },
+    { hello: 'world', field: 'othe#78*@77string' }
+]
+
+// Results
+
+[
+    { other_field: 'some847sting' },
+]
+
+```
+
+### Output Phase
+This is the last phase. This performs final removal of fields marked by `output:false` for transform configurations. This also makes sure that `other_match_required` operates and pull together any `multivalue` settings.
 
 
 #### File structure
