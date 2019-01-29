@@ -1,7 +1,7 @@
 'use strict';
 
-const { DocumentMatcher } = require('../src');
 const _ = require('lodash');
+const { DocumentMatcher } = require('../src');
 
 describe('document matcher', () => {
     let documentMatcher;
@@ -806,7 +806,7 @@ describe('document matcher', () => {
             const data4 = { location: '9tbqnqu6tkj8' };
 
             documentMatcher.parse('location:(_geo_box_top_left_:" 33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")', { location: 'geo' });
-           
+
             expect(documentMatcher.match(data1)).toEqual(true);
             expect(documentMatcher.match(data2)).toEqual(true);
             expect(documentMatcher.match(data3)).toEqual(true);
@@ -917,7 +917,7 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data2)).toEqual(false);
             expect(documentMatcher.match(data3)).toEqual(true);
 
-            // FIXME: THIS tentativley could be any value ip,date,num etc etc 
+            // FIXME: THIS tentativley could be any value ip,date,num etc etc
             // documentMatcher.parse('city.*.*:(someth* OR thin?)');
 
             // expect(documentMatcher.match(data1)).toEqual(false);
@@ -948,7 +948,7 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data3)).toEqual(false);
             expect(documentMatcher.match(data4)).toEqual(false);
         });
-       
+
         it('can do more complex regex matches', () => {
             const data1 = { key : 'abbccc' };
             const data2 = { key: 'field' };
@@ -1065,7 +1065,7 @@ describe('document matcher', () => {
             const data1 = { date: '2018-10-10T17:36:13Z', value: 252, type: 'example' };
             const data2 = { date: '2018-10-10T18:36:13Z', value: 253, type: 'other' };
 
-            const luceneQuery = 'date:[2018-10-10T17:36:13Z TO 2018-10-10T20:36:13Z]'; 
+            const luceneQuery = 'date:[2018-10-10T17:36:13Z TO 2018-10-10T20:36:13Z]';
 
             documentMatcher.parse(luceneQuery);
 
@@ -1132,7 +1132,7 @@ describe('document matcher', () => {
             const data11 = { date1: '2018-09-09T04:30:00Z', ip_field: '192.168.196.145', date2: '2018-10-10T23:39:01Z', field1: 1 };
 
             const query2 = 'date1:[2018-09-10T00:00:00Z TO 2018-10-10T23:39:01Z] AND ip_field:[192.168.196.145 TO 192.168.196.195] AND date2:[2018-09-10T00:00:00Z TO 2018-10-10T23:39:01Z] AND field1:1';
-            
+
             expect(() => documentMatcher.parse(query2)).not.toThrow();
             documentMatcher.parse(query2, { date1: 'date', ip_field: 'ip', date2: 'date' });
 
