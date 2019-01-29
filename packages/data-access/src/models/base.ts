@@ -2,7 +2,7 @@ import * as es from 'elasticsearch';
 import { Omit, DataEntity, concat, getFirst, TSError } from '@terascope/utils';
 import { IndexStore, IndexConfig } from 'elasticsearch-store';
 import { addDefaultMapping, addDefaultSchema } from './config/base';
-import { makeId, makeISODate } from '../utils';
+import { makeId, makeISODate, trim, trimAndLower } from '../utils';
 import { ManagerConfig } from '../interfaces';
 
 /**
@@ -12,6 +12,7 @@ export class Base<T extends BaseModel> {
     readonly store: IndexStore<T>;
     readonly name: string;
     private _uniqueFields: string[];
+    private _sanitizeFields: SanitizeFields;
 
     constructor(client: es.Client, config: ManagerConfig, modelConfig: ModelConfig) {
         const indexConfig: IndexConfig = Object.assign({
@@ -47,6 +48,7 @@ export class Base<T extends BaseModel> {
         this.store = new IndexStore(client, indexConfig);
 
         this._uniqueFields = concat(['id'], modelConfig.uniqueFields);
+        this._sanitizeFields = modelConfig.sanitizeFields || {};
     }
 
     async initialize() {
@@ -59,12 +61,12 @@ export class Base<T extends BaseModel> {
 
     async create(record: CreateInput<T>|DataEntity<CreateInput<T>>): Promise<T> {
 
-        const doc = {
+        const doc = this._sanitizeRecord({
             ...record,
             id: await makeId(),
             created: makeISODate(),
             updated: makeISODate(),
-        } as T;
+        } as T);
 
         await this._ensureUnique(doc);
         await this.store.indexWithId(doc, doc.id);
@@ -110,10 +112,10 @@ export class Base<T extends BaseModel> {
     }
 
     async update(record: UpdateInput<T>|DataEntity<UpdateInput<T>>) {
-        const doc = {
+        const doc = this._sanitizeRecord({
             ...record,
             updated: makeISODate(),
-        } as T;
+        } as T);
 
         const existing = await this.store.get(doc.id);
 
@@ -158,6 +160,25 @@ export class Base<T extends BaseModel> {
 
         return;
     }
+
+    private _sanitizeRecord(record: T): T {
+        const entries = Object.entries(this._sanitizeFields);
+
+        for (const [field, method] of entries) {
+            switch (method) {
+                case 'trim':
+                    record[field] = trim(record[field]);
+                    break;
+                case 'trimAndLower':
+                    record[field] = trimAndLower(record[field]);
+                    break;
+                default:
+                    continue;
+            }
+        }
+
+        return record;
+    }
 }
 
 export interface ModelConfig {
@@ -167,7 +188,12 @@ export interface ModelConfig {
     version: number;
     storeOptions?: Partial<IndexConfig>;
     uniqueFields?: string[];
+    sanitizeFields?: SanitizeFields;
 }
+
+export type SanitizeFields = {
+    [field: string]: 'trimAndLower'|'trim';
+};
 
 export type BaseConfig = ModelConfig & ManagerConfig;
 

@@ -1,3 +1,5 @@
+import { SanitizeFields } from '../base';
+
 /** Schema Version */
 export const version = 1;
 
@@ -103,3 +105,8 @@ export const schema = {
 };
 
 export const uniqueFields = ['username'];
+
+export const sanitizeFields: SanitizeFields = {
+    email: 'trimAndLower',
+    username: 'trim',
+};

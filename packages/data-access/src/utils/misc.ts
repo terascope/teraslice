@@ -1,4 +1,4 @@
-import { cloneDeep, isPlainObject, concat } from '@terascope/utils';
+import { cloneDeep, isPlainObject, concat, isString } from '@terascope/utils';
 import nanoid from 'nanoid/async';
 
 /**
@@ -35,4 +35,13 @@ export function addDefaults(source: object, from: object = {}) {
     }
 
     return output;
+}
+
+export function trimAndLower(input: string): string {
+    return trim(input).toLowerCase();
+}
+
+export function trim(input: string): string {
+    if (!input || !isString(input)) return '';
+    return input.trim();
 }

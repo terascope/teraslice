@@ -135,5 +135,22 @@ describe('Users', () => {
                 }
             });
         });
+
+        describe('when adding a messy email address', () => {
+            it('should trim and to lower the email address', async () => {
+                const result = await users.create({
+                    username: 'coolbeans',
+                    firstname: 'Cool',
+                    lastname: 'Beans',
+                    email: ' cool.BEANS@example.com ',
+                    client_id: 123,
+                    roles: [
+                        'example-role-id',
+                    ]
+                }, 'supersecret');
+
+                expect(result.email).toEqual('cool.beans@example.com');
+            });
+        });
     });
 });
