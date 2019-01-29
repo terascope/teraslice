@@ -1,4 +1,5 @@
 import 'jest-extended';
+import { TSError } from '@terascope/utils';
 import { Users, UserModel } from '../../src/models/users';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
@@ -82,6 +83,56 @@ describe('Users', () => {
             it('should NOT be able to authenticate the user', async () => {
                 const result = await users.authenticate(username, 'wrong-password');
                 expect(result).toBeFalse();
+            });
+        });
+    });
+
+    describe('when testing user validation', () => {
+        describe('when adding multiple roles', () => {
+            it('should throw a validation error', async () => {
+                expect.hasAssertions();
+
+                try {
+                    await users.create({
+                        username: 'coolbeans',
+                        firstname: 'Cool',
+                        lastname: 'Beans',
+                        email: 'cool.beans@example.com',
+                        client_id: 123,
+                        // @ts-ignore
+                        roles: [
+                            'example-role-id-2',
+                            'example-role-id',
+                        ]
+                    }, 'supersecret');
+                } catch (err) {
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.message).toEqual('.roles should NOT have more than 1 items');
+                    expect(err.statusCode).toEqual(422);
+                }
+            });
+        });
+
+        describe('when adding an invalid email address', () => {
+            it('should throw a validation error', async () => {
+                expect.hasAssertions();
+
+                try {
+                    await users.create({
+                        username: 'coolbeans',
+                        firstname: 'Cool',
+                        lastname: 'Beans',
+                        email: 'cool.beans',
+                        client_id: 123,
+                        roles: [
+                            'example-role-id',
+                        ]
+                    }, 'supersecret');
+                } catch (err) {
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.message).toEqual('.email should match format \"email\"');
+                    expect(err.statusCode).toEqual(422);
+                }
             });
         });
     });
