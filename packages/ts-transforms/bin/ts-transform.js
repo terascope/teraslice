@@ -6,6 +6,6 @@ try {
     require('../dist/command.js');
 } catch (err) {
     // eslint-disable-next-line
-    console.log('error while attempting to invoke cli command', err.toString());
+    console.error('error while attempting to invoke cli command', err.toString());
     process.exit(1);
 }

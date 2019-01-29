@@ -10,9 +10,8 @@ import { PhaseConfig } from './interfaces';
 import validator from 'validator';
 
 const logger = debugLogger('ts-transform-cli');
-const dir = process.cwd();
 
-const { version } = JSON.parse(fs.readFileSync(path.join(dir, './package.json'), 'utf8'));
+const { version } = JSON.parse(fs.readFileSync(path.join(__dirname, './package.json'), 'utf8'));
 
 // TODO Use yargs api to validate field types and usage
 const command = yargs
@@ -149,7 +148,7 @@ async function getData(dataPath: string) {
         } catch (err) {}
         if (!parsedData) {
             try {
-                parsedData = parseStreamResponse(require(path.resolve(dir, dataPath)));
+                parsedData = parseStreamResponse(require(path.resolve(__dirname, dataPath)));
             } catch (err) {
                 try {
                     const fileData = await dataFileLoader(dataPath);
@@ -177,7 +176,7 @@ async function initCommand() {
             try {
                 const pluginList = formatList(command.p as string);
                 plugins = pluginList.map((pluginPath) => {
-                    const module = require(path.resolve(dir, pluginPath));
+                    const module = require(path.resolve(__dirname, pluginPath));
                     const results = module.default || module;
                     return results;
                 });
