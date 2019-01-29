@@ -103,9 +103,10 @@ describe('Base', () => {
             });
 
             try {
-                await base.update(Object.assign(created, {
+                await base.update({
+                    ...created,
                     name
-                }));
+                });
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(409);
@@ -120,7 +121,7 @@ describe('Base', () => {
         });
 
         it('should be able to update the record', async () => {
-            const updateInput = Object.assign({}, fetched, { name: 'Hello' });
+            const updateInput = { ...fetched, name: 'Hello' };
 
             const updateResult = await base.update(updateInput);
             expect(updateResult).not.toBe(updateInput);

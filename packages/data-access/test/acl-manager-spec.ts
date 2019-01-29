@@ -25,29 +25,28 @@ describe('ACLManager', () => {
             let config: DataAccessConfig;
 
             beforeAll(async () => {
-                const space = await manager.spaces.create({
-                    name: 'Example Space',
-                    views: []
-                });
-
-                spaceId = space.id;
-
                 const { id: roleId } = await manager.roles.create({
                     name: 'Example Role',
-                    spaces: [spaceId],
+                    spaces: [],
                 });
 
-                const { id: viewId } = await manager.views.create({
-                    name: 'Example View',
-                    space: spaceId,
-                    roles: [roleId],
-                    includes: ['foo'],
-                    excludes: ['bar']
-                });
+                const spaceResult = await manager.addSpace({
+                    name: 'Example Space',
+                }, [
+                    {
+                        name: 'Example View',
+                        roles: [roleId],
+                        includes: ['foo'],
+                        excludes: ['bar']
+                    }
+                ]);
 
-                await manager.spaces.update(Object.assign(space, {
-                    views: [viewId]
-                }));
+                spaceId = spaceResult.space.id;
+
+                await manager.roles.update({
+                    id: roleId,
+                    spaces: [spaceId]
+                });
 
                 await manager.users.create({
                     username,

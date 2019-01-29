@@ -19,11 +19,12 @@ export class Users extends Base<UserModel> {
         const hash = await utils.generatePasswordHash(password, salt);
         const apiToken = await utils.generateAPIToken(hash, record.username);
 
-        return super.create(Object.assign({}, record, {
+        return super.create({
+            ...record,
             api_token: apiToken,
             hash,
             salt,
-        }));
+        });
     }
 
     /**

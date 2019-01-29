@@ -59,11 +59,12 @@ export class Base<T extends BaseModel> {
 
     async create(record: CreateInput<T>|DataEntity<CreateInput<T>>): Promise<T> {
 
-        const doc = Object.assign({}, record, {
+        const doc = {
+            ...record,
             id: await makeId(),
             created: makeISODate(),
             updated: makeISODate(),
-        }) as T;
+        } as T;
 
         await this._ensureUnique(doc);
         await this.store.indexWithId(doc, doc.id);
@@ -109,9 +110,10 @@ export class Base<T extends BaseModel> {
     }
 
     async update(record: UpdateInput<T>|DataEntity<UpdateInput<T>>) {
-        const doc = Object.assign({}, record, {
+        const doc = {
+            ...record,
             updated: makeISODate(),
-        }) as T;
+        } as T;
 
         const existing = await this.store.get(doc.id);
 

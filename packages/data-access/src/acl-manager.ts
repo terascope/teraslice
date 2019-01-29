@@ -1,4 +1,4 @@
-import { TSError, getFirst, DataEntity } from '@terascope/utils';
+import { TSError, getFirst, DataEntity, Omit } from '@terascope/utils';
 import * as es from 'elasticsearch';
 import * as models from './models';
 import { ManagerConfig } from './interfaces';
@@ -36,6 +36,25 @@ export class ACLManager {
             this.users.shutdown(),
             this.views.shutdown(),
         ]);
+    }
+
+    /**
+     * Create space with views
+    */
+    async addSpace(space: CreateSpaceInput, views: CreateSpaceView[] = []) {
+        const spaceDoc = await this.spaces.create({ ...space, views: [] });
+
+        const viewDocs = await Promise.all(views.map((view) => {
+            return this.views.create({ ...view, space: spaceDoc.id });
+        }));
+
+        spaceDoc.views = viewDocs.map((viewDoc) => viewDoc.id);
+        await this.spaces.update(spaceDoc);
+
+        return {
+            space: spaceDoc,
+            views: viewDocs,
+        };
     }
 
     /**
@@ -77,6 +96,9 @@ export class ACLManager {
 
     // FIXME add more higher level apis...
 }
+
+type CreateSpaceInput = Omit<models.SpaceModel, 'views'|'id'|'created'|'updated'>;
+type CreateSpaceView = Omit<models.ViewModel, 'space'|'id'|'created'|'updated'>;
 
 /**
  * The definition of an ACL for limiting access to data.
