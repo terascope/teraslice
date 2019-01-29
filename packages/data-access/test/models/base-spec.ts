@@ -120,6 +120,23 @@ describe('Base', () => {
             expect(fetched).toHaveProperty('created');
         });
 
+        it('should be able to find by name since it is treated a name', async () => {
+            const result = await base.findByAnyId('Billy');
+            expect(result).toEqual(fetched);
+        });
+
+        it('should not be able to find by name an incorrect name', async () => {
+            expect.hasAssertions();
+
+            try {
+                await base.findByAnyId('WrongBilly');
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toEqual('Unable to find "base" by "WrongBilly"');
+                expect(err.statusCode).toEqual(404);
+            }
+        });
+
         it('should be able to update the record', async () => {
             const updateInput = { ...fetched, name: 'Hello' };
 
