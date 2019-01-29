@@ -26,11 +26,10 @@
     "main": "dist/index.js",
     "typings": "dist/index.d.ts",
     "scripts": {
-        "lint": "tslint -p tsconfig.build.json -t verbose -e '**/*.json'",
+        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
-        "build": "rimraf ./dist; tsc --project tsconfig.build.json --pretty",
-        "build:prod": "tsc --project tsconfig.build.json",
+        "build": "tsc --build --clean",
         "build:watch": "yarn build --watch",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",

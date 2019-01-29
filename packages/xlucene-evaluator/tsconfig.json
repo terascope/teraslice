@@ -1,11 +1,10 @@
 {
     "extends": "../../tsconfig",
     "compilerOptions": {
-        "baseUrl": ".",
-        "outDir": "dist"
+        "outDir": "dist",
+        "rootDir": "."
     },
     "include": [
-        "./peg/engine",
         "./src/**/*",
         "./test/**/*"
     ]

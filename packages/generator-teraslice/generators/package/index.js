@@ -140,11 +140,6 @@ module.exports = class extends Generator {
                 this.templatePath('tsconfig.src.json'),
                 this.destinationPath('tsconfig.json')
             );
-
-            this.fs.copy(
-                this.templatePath('tsconfig.build.json'),
-                this.destinationPath('tsconfig.build.json')
-            );
         }
 
         const folderName = this.props.typescript ? 'src' : 'lib';

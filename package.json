@@ -7,7 +7,6 @@
         "bootstrap:prod": "lerna bootstrap -- --production=true --link-duplicates --ignore-optional",
         "bootstrap": "lerna bootstrap --force-local",
         "build": "lerna run build",
-        "build:prod": "lerna run build:prod",
         "build:watch": "lerna run build:watch --stream --prefix",
         "bump": "./scripts/bump.js",
         "benchmark": "lerna run benchmark",
@@ -38,7 +37,6 @@
         "@types/socket.io-client": "^1.4.32",
         "@types/uuid": "^3.4.4",
         "lerna": "^3.10.7",
-        "rimraf": "^2.6.3",
         "typescript": "^3.3.1"
     },
     "devDependencies": {

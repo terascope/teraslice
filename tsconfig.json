@@ -1,14 +1,11 @@
 {
     "compilerOptions": {
-        "baseUrl": ".",
         "module": "commonjs",
         "moduleResolution": "node",
         "target": "es2017",
         "skipLibCheck": true,
+        "pretty": true,
         "experimentalDecorators": true,
-        "declaration": true,
-        "sourceMap": false,
-        "inlineSourceMap": true,
         "strict": true,
         "noUnusedLocals": true,
         "noUnusedParameters": false,
@@ -18,19 +15,41 @@
         "resolveJsonModule": true,
         "forceConsistentCasingInFileNames": true,
         "suppressImplicitAnyIndexErrors": true,
-        "paths": {
-            "@terascope/*": [
-                "../*/src",
-                "../*",
-                "../*/types"
-            ],
-            "*": [
-                "types/*",
-                "../*",
-                "../../types/*",
-                "node_modules/*",
-                "../../node_modules/*/types"
-            ]
+        // Require project settings
+        "composite": true,
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+        "typeRoots": [
+            "./types",
+            "./node_modules/@types"
+        ]
+    },
+    "include": [],
+    "references": [
+        {
+            "path": "packages/elasticsearch-store"
+        },
+        {
+            "path": "packages/job-components"
+        },
+        {
+            "path": "packages/teraslice-messaging"
+        },
+        {
+            "path": "packages/teraslice-test-harness"
+        },
+        {
+            "path": "packages/ts-transforms"
+        },
+        {
+            "path": "packages/utils"
+        },
+        {
+            "path": "packages/xlucene-evaluator"
+        },
+        {
+            "path": "types"
         }
-    }
+    ]
 }
