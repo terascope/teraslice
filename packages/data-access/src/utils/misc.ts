@@ -1,4 +1,4 @@
-import { cloneDeep, isPlainObject, concat, isString } from '@terascope/utils';
+import * as ts from '@terascope/utils';
 import nanoid from 'nanoid/async';
 
 /**
@@ -19,15 +19,15 @@ export function makeId(len = 12): Promise<string> {
  * Deep copy two levels deep (useful for mapping and schema)
 */
 export function addDefaults(source: object, from: object = {}) {
-    const output = cloneDeep(source);
-    const _mapping = cloneDeep(from);
+    const output = ts.cloneDeep(source);
+    const _mapping = ts.cloneDeep(from);
 
     for (const [key, val] of Object.entries(_mapping)) {
         if (output[key] != null) {
-            if (isPlainObject(val)) {
+            if (ts.isPlainObject(val)) {
                 output[key] = Object.assign(output[key], val);
             } else if (Array.isArray(val)) {
-                output[key] = concat(output[key], val);
+                output[key] = ts.concat(output[key], val);
             } else {
                 output[key] = val;
             }
@@ -42,6 +42,10 @@ export function trimAndLower(input: string): string {
 }
 
 export function trim(input: string): string {
-    if (!input || !isString(input)) return '';
+    if (!input || !ts.isString(input)) return '';
     return input.trim();
+}
+
+export function toInstanceName(name: string): string {
+    return ts.firstToUpper(trim(name).replace(/s$/, ''));
 }

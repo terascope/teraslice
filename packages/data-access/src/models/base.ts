@@ -1,8 +1,8 @@
 import * as es from 'elasticsearch';
-import { Omit, DataEntity, concat, getFirst, TSError } from '@terascope/utils';
 import { IndexStore, IndexConfig } from 'elasticsearch-store';
+import * as ts from '@terascope/utils';
+import * as utils from '../utils';
 import { addDefaultMapping, addDefaultSchema } from './config/base';
-import { makeId, makeISODate, trim, trimAndLower } from '../utils';
 import { ManagerConfig } from '../interfaces';
 
 /**
@@ -44,10 +44,10 @@ export class Base<T extends BaseModel> {
             eventTimeField: 'updated',
         }, config.storeOptions, modelConfig.storeOptions);
 
-        this.name = modelConfig.name;
+        this.name = utils.toInstanceName(modelConfig.name);
         this.store = new IndexStore(client, indexConfig);
 
-        this._uniqueFields = concat(['id'], modelConfig.uniqueFields);
+        this._uniqueFields = ts.concat('id', modelConfig.uniqueFields);
         this._sanitizeFields = modelConfig.sanitizeFields || {};
     }
 
@@ -59,13 +59,13 @@ export class Base<T extends BaseModel> {
         return this.store.shutdown();
     }
 
-    async create(record: CreateInput<T>|DataEntity<CreateInput<T>>): Promise<T> {
+    async create(record: CreateInput<T>|ts.DataEntity<CreateInput<T>>): Promise<T> {
 
         const doc = this._sanitizeRecord({
             ...record,
-            id: await makeId(),
-            created: makeISODate(),
-            updated: makeISODate(),
+            id: await utils.makeId(),
+            created: utils.makeISODate(),
+            updated: utils.makeISODate(),
         } as T);
 
         await this._ensureUnique(doc);
@@ -77,25 +77,33 @@ export class Base<T extends BaseModel> {
         await this.store.remove(id);
     }
 
-    async findById(id: string) {
-        return this.store.get(id);
-    }
+    async findBy(fields: FieldMap<T>, joinBy = 'AND') {
+        const query = Object.entries(fields)
+            .map(([field, val]) => `${field}:"${val}"`)
+            .join(` ${joinBy} `);
 
-    async findByAnyId(anyId: string) {
-        const query = this._uniqueFields
-            .map((field) => `${field}:"${anyId}"`)
-            .join(' OR ');
-
-        const result = await this.find(query, 1);
-
-        const record = getFirst(result);
+        const record = ts.getFirst(await this.find(query, 1));
         if (record == null) {
-            throw new TSError(`Unable to find "${this.name}" by "${anyId}"`, {
+            throw new ts.TSError(`Unable to find ${this.name} by '${query}'`, {
                 statusCode: 404,
             });
         }
 
         return record;
+    }
+
+    async findById(id: string) {
+        return this.store.get(id);
+    }
+
+    async findByAnyId(anyId: string) {
+        const fields: FieldMap<T> = {};
+
+        for (const field of this._uniqueFields) {
+            fields[field] = anyId;
+        }
+
+        return this.findBy(fields, 'OR');
     }
 
     async findAll(ids: string[]) {
@@ -111,10 +119,10 @@ export class Base<T extends BaseModel> {
         });
     }
 
-    async update(record: UpdateInput<T>|DataEntity<UpdateInput<T>>) {
+    async update(record: UpdateInput<T>|ts.DataEntity<UpdateInput<T>>) {
         const doc = this._sanitizeRecord({
             ...record,
-            updated: makeISODate(),
+            updated: utils.makeISODate(),
         } as T);
 
         const existing = await this.store.get(doc.id);
@@ -127,7 +135,7 @@ export class Base<T extends BaseModel> {
                 const count = await this._countBy(field, doc[field]);
 
                 if (count > 0) {
-                    throw new TSError(`Update requires ${field} to be unique`, {
+                    throw new ts.TSError(`Update requires ${field} to be unique`, {
                         statusCode: 409
                     });
                 }
@@ -145,14 +153,14 @@ export class Base<T extends BaseModel> {
         for (const field of this._uniqueFields) {
             if (field === 'id') continue;
             if (record[field] == null) {
-                throw new TSError(`Create requires field ${field}`, {
+                throw new ts.TSError(`Create requires field ${field}`, {
                     statusCode: 422
                 });
             }
 
             const count = await this._countBy(field, record[field]);
             if (count > 0) {
-                throw new TSError(`Create requires ${field} to be unique`, {
+                throw new ts.TSError(`Create requires ${field} to be unique`, {
                     statusCode: 409
                 });
             }
@@ -167,10 +175,10 @@ export class Base<T extends BaseModel> {
         for (const [field, method] of entries) {
             switch (method) {
                 case 'trim':
-                    record[field] = trim(record[field]);
+                    record[field] = utils.trim(record[field]);
                     break;
                 case 'trimAndLower':
-                    record[field] = trimAndLower(record[field]);
+                    record[field] = utils.trimAndLower(record[field]);
                     break;
                 default:
                     continue;
@@ -191,14 +199,18 @@ export interface ModelConfig {
     sanitizeFields?: SanitizeFields;
 }
 
+export type FieldMap<T> = {
+    [field in keyof T]?: string;
+};
+
 export type SanitizeFields = {
     [field: string]: 'trimAndLower'|'trim';
 };
 
 export type BaseConfig = ModelConfig & ManagerConfig;
 
-export type CreateInput<T extends BaseModel> = Omit<T, 'id'|'created'|'updated'>;
-export type UpdateInput<T extends BaseModel> = Partial<Omit<T, 'created'|'updated'>>;
+export type CreateInput<T extends BaseModel> = ts.Omit<T, 'id'|'created'|'updated'>;
+export type UpdateInput<T extends BaseModel> = Partial<ts.Omit<T, 'created'|'updated'>>;
 
 export interface BaseModel {
     /**

@@ -132,7 +132,7 @@ describe('Base', () => {
                 await base.findByAnyId('WrongBilly');
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toEqual('Unable to find "base" by "WrongBilly"');
+                expect(err.message).toEqual('Unable to find Base by \'id:"WrongBilly" OR name:"WrongBilly"\'');
                 expect(err.statusCode).toEqual(404);
             }
         });

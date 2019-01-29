@@ -104,7 +104,7 @@ export const schema = {
     ]
 };
 
-export const uniqueFields = ['username'];
+export const uniqueFields = ['username', 'api_token'];
 
 export const sanitizeFields: SanitizeFields = {
     email: 'trimAndLower',

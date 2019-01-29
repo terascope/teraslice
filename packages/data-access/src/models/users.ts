@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import { getFirst, Omit, DataEntity, TSError } from '@terascope/utils';
+import { getFirst, Omit, DataEntity } from '@terascope/utils';
 import * as usersConfig from './config/users';
 import { Base, BaseModel, CreateInput } from './base';
 import { ManagerConfig } from '../interfaces';
@@ -33,7 +33,7 @@ export class Users extends Base<UserModel> {
      * @returns true if authenticated and false if it fails to authenticate the user
     */
     async authenticate(username: string, password: string): Promise<boolean> {
-        const user = await this.findByUsername(username);
+        const user = getFirst(await this.find(`username:"${username}"`, 1));
         if (!user) return false;
 
         const hash = await utils.generatePasswordHash(password, user.salt);
@@ -44,13 +44,7 @@ export class Users extends Base<UserModel> {
      * Update the API Token for a user
     */
     async updateToken(username: string): Promise<string> {
-        const user = await this.findByUsername(username);
-        if (!user) {
-            throw new TSError(`Unable to find user "${username}"`, {
-                statusCode: 404,
-            });
-        }
-
+        const user = await this.findByAnyId(username);
         user.api_token = await utils.generateAPIToken(user.hash, username);
 
         await this.update(user);
@@ -61,16 +55,14 @@ export class Users extends Base<UserModel> {
      * Find a user by the API Token
     */
     async findByToken(apiToken: string) {
-        const result = await this.find(`api_token:"${apiToken}"`, 1);
-        return getFirst(result);
+        return this.findBy({ api_token: apiToken });
     }
 
     /**
      * Find a User by username
     */
-    async findByUsername(username: string): Promise<DataEntity<UserModel>|null> {
-        const result = await this.find(`username:"${username}"`, 1);
-        return getFirst(result) || null;
+    async findByUsername(username: string): Promise<DataEntity<UserModel>> {
+        return this.findBy({ username });
     }
 
     omitPrivateFields(user: DataEntity<UserModel>): DataEntity<PublicUserModel>;
