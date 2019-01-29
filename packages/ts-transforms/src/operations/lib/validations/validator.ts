@@ -53,7 +53,7 @@ export class ValidatorPlugins implements PluginClassType {
             hexcolor: setup('isHexColor'),
             hexadecimal: setup('isHexadecimal'),
             identitycard: setup('isIdentityCard'),
-            iprange: setup('isIPRange'), // TODO: is this needed? its only ipv4
+            iprange: setup('isIPRange'), // this only checks if its ipv4
             isbn: setup('isISBN'),
             issn: setup('isISSN'),
             isin: setup('isISIN'),
@@ -67,13 +67,11 @@ export class ValidatorPlugins implements PluginClassType {
             jwt: setup('isJWT'),
             latlong: setup('isLatLong'), // - This is different that our internal geolocation validation.
             length: setup('isLength'),
-            // NORMALIZATION: isLowercase(str) TODO: do this
             md5: setup('isMD5'),
             mimetype: setup('isMimeType'),
-            numeric: setup('isNumeric'), // TODO:???
+            numeric: setup('isNumeric'),
             port: setup('isPort'),
             postalcode: setup('isPostalCode'),
-            // NORMALIZATION : isUppercase(str) TODO: do it
             matches: setup('matches')
         };
     }
