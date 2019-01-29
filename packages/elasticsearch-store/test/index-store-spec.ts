@@ -540,9 +540,11 @@ describe('IndexStore', () => {
             });
 
             it('should be able to update a record with a proper field', async () => {
-                await indexStore.update({
+                const result = await indexStore.update({
                     test_number: 77777
                 }, expected[2].test_id);
+
+                expect(result).toBeNil();
 
                 const record = await indexStore.get(expected[2].test_id);
                 expect(record).toMatchObject({

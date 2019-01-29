@@ -34,7 +34,7 @@ export const getErrorMessages: (errors: ErrorLike[]) => string = R.pipe(
     R.join(', '),
 );
 
-export const getErrorType = R.pathOr('', ['error', 'type']);
+export const getErrorType = R.pathOr('', 'error.type');
 
 export const getStatusCode: (error: ErrorLike) => number = R.pipe(
     R.ifElse(

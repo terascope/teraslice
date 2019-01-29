@@ -18,12 +18,9 @@ export const getFirstKey: getFirstFn = R.pipe(
 
 export const getIndexMapping = R.path('indexSchema.mapping');
 
-export const getRolloverFrequency = R.pathOr('monthly', [
-    'indexSchema',
-    'rollover_frequency'
-]);
+export const getRolloverFrequency = R.pathOr('monthly', 'indexSchema.rollover_frequency');
 
-export const getSchemaVersion = R.pathOr(1, ['indexSchema', 'version']);
+export const getSchemaVersion = R.pathOr(1, 'indexSchema.version');
 export const getSchemaVersionStr = R.pipe(
     getSchemaVersion,
     // @ts-ignore
@@ -31,7 +28,7 @@ export const getSchemaVersionStr = R.pipe(
     R.prepend('s')
 );
 
-export const getDataVersion = R.pathOr(1, ['version']);
+export const getDataVersion = R.pathOr(1, 'version');
 export const getDataVersionStr = R.pipe(
     getDataVersion,
     // @ts-ignore

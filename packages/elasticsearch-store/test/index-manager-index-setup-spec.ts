@@ -1,4 +1,5 @@
 import 'jest-extended';
+import * as R from 'rambda';
 import { debugLogger } from '@terascope/utils';
 import * as simple from './helpers/simple-index';
 import * as template from './helpers/template-index';
@@ -166,10 +167,8 @@ describe('IndexManager->indexSetup()', () => {
         });
 
         it('should be able to upsert a newer template safely', async () => {
-            // @ts-ignore
-            const mapping = config.indexSchema.mapping;
-            // @ts-ignore
-            const version = config.indexSchema.version;
+            const mapping = R.pathOr({}, 'indexSchema.mapping', config);
+            const version = R.pathOr(1, 'indexSchema.version', config);
 
             const mappings = {};
             mappings[config.name] = mapping;
