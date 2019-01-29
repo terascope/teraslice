@@ -1,11 +1,10 @@
 {
     "name": "xlucene-evaluator",
     "version": "0.3.0",
-    "srcMain": "src/index.ts",
-    "main": "dist/index.js",
-    "typings": "dist/index.d.ts",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
     "files": [
-        "dist/**/*",
+        "dist/src/**/*",
         "peg/peg_engine.js"
     ],
     "directories": {
@@ -16,7 +15,7 @@
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
-        "build": "pegjs -o peg/peg_engine.js peg/lucene.grammar && tsc --build --clean",
+        "build": "pegjs -o peg/peg_engine.js peg/lucene.grammar && tsc -b",
         "build:watch": "yarn build --watch",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",

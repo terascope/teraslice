@@ -20,16 +20,16 @@
         "test": "test"
     },
     "files": [
-        "dist/**/*"
+        "dist/src/**/*"
     ],
     "srcMain": "src/index.ts",
-    "main": "dist/index.js",
-    "typings": "dist/index.d.ts",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
     "scripts": {
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
-        "build": "tsc --build --clean",
+        "build": "tsc -b",
         "build:watch": "yarn build --watch",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",

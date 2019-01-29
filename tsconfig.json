@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "baseUrl": ".",
         "module": "commonjs",
         "moduleResolution": "node",
         "target": "es2017",
@@ -23,7 +24,13 @@
         "typeRoots": [
             "./types",
             "./node_modules/@types"
-        ]
+        ],
+        "paths": {
+            "*": [
+                "*",
+                "./types/*"
+            ]
+        }
     },
     "include": [],
     "references": [
@@ -47,9 +54,6 @@
         },
         {
             "path": "packages/xlucene-evaluator"
-        },
-        {
-            "path": "types"
         }
     ]
 }

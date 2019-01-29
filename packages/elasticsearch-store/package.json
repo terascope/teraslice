@@ -10,13 +10,13 @@
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
     "files": [
-        "dist/**/*"
+        "dist/src/**/*"
     ],
-    "main": "dist/index.js",
+    "main": "dist/src/index.js",
     "srcMain": "src/index.ts",
-    "typings": "dist/index.d.ts",
+    "typings": "dist/src/index.d.ts",
     "scripts": {
-        "build": "tsc --build --clean",
+        "build": "tsc -b",
         "build:watch": "yarn build --watch",
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",

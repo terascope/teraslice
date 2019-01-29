@@ -5,8 +5,8 @@
         "rootDir": "."
     },
     "include": [
-        "./peg/engine",
         "./src/**/*",
+        "./src/**/*.json",
         "./test/**/*"
     ]
 }
