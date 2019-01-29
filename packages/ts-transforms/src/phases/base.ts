@@ -59,7 +59,6 @@ export default abstract class PhaseBase {
             return container;
         }
 
-
         const { registrationSelector, targetConfig } = findConfiguration(config, data);
         if (!config.other_match_required && !registrationSelector || !targetConfig) throw new Error('could not find orignal selector and target configuration');
         // a validation/post-op source is the target_field of the previous op
