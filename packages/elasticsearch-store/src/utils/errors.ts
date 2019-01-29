@@ -1,5 +1,6 @@
 import * as R from 'rambda';
 import * as ts from '@terascope/utils';
+import ajv = require('ajv');
 
 export function throwValidationError(errors: ErrorLike[]|null|undefined): string|null {
     if (errors == null) return null;
@@ -15,18 +16,17 @@ export function throwValidationError(errors: ErrorLike[]|null|undefined): string
     throw error;
 }
 
-export const getErrorMessage: (error: ErrorLike) => string = R.pipe(
-    R.ifElse(
-        R.is(String),
-        R.identity,
-        R.ifElse(
-            R.has('message'),
-            R.path('message'),
-            R.path('msg'),
-        )
-    ),
-    R.defaultTo('Unknown Error'),
-);
+export function getErrorMessage(err: ErrorLike): string {
+    const defaultErrorMsg = 'Unknown Error';
+    if (err && ts.isString(err))  {
+        return err;
+    }
+
+    const message: string = R.path('message', err) || R.pathOr(defaultErrorMsg, 'msg', err);
+    const prefix = R.path('dataPath', err);
+
+    return `${prefix ? `${prefix} ` : ''}${message}`;
+}
 
 export const getErrorMessages: (errors: ErrorLike[]) => string = R.pipe(
     // @ts-ignore
@@ -50,4 +50,4 @@ export type ErrorLike = {
     msg?: string;
     statusCode?: number;
     status?: number;
-}|string;
+}|ajv.ErrorObject|string;

@@ -56,7 +56,14 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             const { allFormatters, schema, strict } = config.dataSchema;
             const ajv = new Ajv({
                 useDefaults: true,
-                format: allFormatters ? 'full' : 'fast'
+                format: allFormatters ? 'full' : 'fast',
+                allErrors: true,
+                coerceTypes: true,
+                logger: {
+                    log: this._logger.trace,
+                    warn: this._logger.debug,
+                    error: this._logger.warn,
+                }
             });
 
             const validate = ajv.compile(schema);
