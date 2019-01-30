@@ -47,7 +47,7 @@ export interface PRetryConfig {
     /**
      * Set a error message prefix
      */
-    prefix?: string;
+    reason?: string;
 
     /**
      * Log function for logging any errors that occurred
@@ -89,7 +89,7 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetry
         }
 
         const err = new TSError(_err, {
-            prefix: config.prefix,
+            reason: config.reason,
         });
 
         if (err.retryable == null) {

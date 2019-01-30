@@ -60,7 +60,7 @@ module.exports = function module(context) {
                 'Request Timeout',
             ],
             endWithFatal: true,
-            prefix: `Failure to update ${state} state`
+            reason: `Failure to update ${state} state`
         });
     }
 

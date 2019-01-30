@@ -29,7 +29,7 @@ export class TSError extends Error {
         // If a Error is passed in we want to only change
         // the properties based on the configuration
         if (isError(input) && !isElasticSeachError(input)) {
-            super(prefixErrorMsg(input.message, config.prefix));
+            super(prefixErrorMsg(input.message, config.reason));
 
             this.fatalError = false;
             this.statusCode = 500;
@@ -42,14 +42,10 @@ export class TSError extends Error {
                 this.retryable = input.retryable;
             }
 
-            const statusCode = coerceStatusCode(config.statusCode);
-            if (statusCode) {
-                this.statusCode = statusCode;
-            }
+            const code = coerceStatusCode(config.statusCode);
+            if (code) this.statusCode = code;
 
-            if (config.fatalError != null) {
-                this.fatalError = config.fatalError;
-            }
+            if (config.fatalError != null) this.fatalError = config.fatalError;
 
             if (!this.fatalError && config.retryable != null) {
                 this.retryable = config.retryable;
@@ -63,7 +59,7 @@ export class TSError extends Error {
         const { fatalError = false } = config;
 
         const errMsg = parseError(input, config.withStack);
-        const message = prefixErrorMsg(errMsg, config.prefix);
+        const message = prefixErrorMsg(errMsg, config.reason);
         super(message);
 
         this.name = this.constructor.name;
@@ -101,9 +97,9 @@ export interface TSErrorConfig {
     retryable?: boolean;
 
     /**
-     * Prefix an error message to the error
+     * Prefix the error message with a reason
     */
-    prefix?: string;
+    reason?: string;
 
     /**
      * If an error is passed in the stack will be preserved
@@ -137,9 +133,7 @@ export function parseError(input: any, withStack = false): string {
 }
 
 function parseESErrorMsg(input: ElasticSearchError): string {
-    const errObj = input.toJSON();
-
-    const bodyError = errObj && errObj.body && errObj.body.error;
+    const bodyError = input && input.body && input.body.error;
 
     const rootCause = bodyError
         && bodyError.root_cause
@@ -149,7 +143,7 @@ function parseESErrorMsg(input: ElasticSearchError): string {
     let reason: string|undefined;
     let index: string|undefined;
 
-    [errObj, bodyError, rootCause]
+    [input, bodyError, rootCause]
         .forEach((obj) => {
             if (obj == null) return;
             if (!utils.isPlainObject(obj)) return;
@@ -158,14 +152,15 @@ function parseESErrorMsg(input: ElasticSearchError): string {
             if (obj.index) index = obj.index;
         });
 
-    if (errObj.response) {
-        const response = utils.tryParseJSON(errObj.response);
+    const metadata = input.toJSON();
+    if (metadata.response) {
+        const response = utils.tryParseJSON(metadata.response);
         if (!index && response && response._index) {
             index = response._index;
         }
     }
 
-    let message = `ElasticSearch Error: ${normalizeESError(errObj.msg)}`;
+    let message = `ElasticSearch Error: ${normalizeESError(metadata.msg)}`;
 
     if (type) message += ` type: ${type}`;
     if (reason) message += ` reason: ${reason}`;
@@ -213,27 +208,27 @@ export function isElasticSeachError(err: any): err is ElasticSearchError {
 }
 
 export interface ElasticSearchError extends Error {
-    status: number;
-
-    toJSON(): {
-        body?: {
-            error?: {
+    body?: {
+        error?: {
+            type?: string,
+            reason?: string,
+            index?: string
+            root_cause?: [{
                 type?: string,
                 reason?: string,
                 index?: string
-                root_cause?: [{
-                    type?: string,
-                    reason?: string,
-                    index?: string
-                }]
-            }
-        },
+            }]
+        }
+    };
+
+    status?: number;
+    type?: string;
+    reason?: string;
+    index?: string;
+
+    toJSON(): {
         msg?: string;
         statusCode?: number;
-        status?: number;
-        type?: string,
-        reason?: string,
-        index?: string,
         response?: string;
     };
 }
