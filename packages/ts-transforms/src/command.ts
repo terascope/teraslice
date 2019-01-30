@@ -10,8 +10,8 @@ import { PhaseConfig } from './interfaces';
 import validator from 'validator';
 
 const logger = debugLogger('ts-transform-cli');
-
-const { version } = JSON.parse(fs.readFileSync(path.join(__dirname, './package.json'), 'utf8'));
+const packagePath = path.join(__dirname, '../package.json');
+const { version } = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 
 // TODO Use yargs api to validate field types and usage
 const command = yargs
