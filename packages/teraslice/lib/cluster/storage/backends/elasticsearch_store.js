@@ -188,21 +188,27 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
             return _flush();
         }
 
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             logger.trace(`attempting to shutdown, will destroy in ${config.shutdown_timeout}`);
+            const timeout = setTimeout(_destroy, config.shutdown_timeout).unref();
 
-            const _destroy = () => {
+            function _destroy(err) {
                 logger.trace(`shutdown store, took ${Date.now() - startTime}ms`);
+
                 bulkQueue.length = [];
                 isShutdown = true;
+                clearTimeout(timeout);
 
-                resolve();
-            };
-            const timeout = setTimeout(_destroy, config.shutdown_timeout).unref();
+                if (err) reject(err);
+                else resolve();
+            }
+
             _flush()
                 .then(() => {
-                    clearTimeout(timeout);
                     _destroy();
+                })
+                .catch((err) => {
+                    _destroy(err);
                 });
         });
     }
@@ -219,8 +225,8 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
                     logger.debug(`Flushed ${results.items.length} records to index ${indexName}`);
                 })
                 .catch((err) => {
-                    const error = prependErrorMsg(`Failure to flush "${recordType}"`, err, true);
-                    logger.error(error);
+                    const errMsg = prependErrorMsg(`Failure to flush "${recordType}"`, err);
+                    return Promise.reject(new Error(errMsg));
                 })
                 .finally(() => {
                     savingBulk = false;
@@ -326,7 +332,10 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
 
     // Periodically flush the bulkQueue so we don't end up with cached data lingering.
     flushInterval = setInterval(() => {
-        _flush();
+        _flush().catch((err) => {
+            logger.error('background flush failure', err);
+            return null;
+        });
     }, 10000);
 
     // javascript is having a fit if you use the shorthand get, so we renamed function to getRecord
