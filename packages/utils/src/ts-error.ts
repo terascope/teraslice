@@ -1,4 +1,4 @@
-import { isString, toString, truncate, isFunction, getFirst, isPlainObject } from './utils';
+import * as utils from './utils';
 import { STATUS_CODES } from 'http';
 
 /**
@@ -124,16 +124,16 @@ export function parseError(input: any, withStack = false): string {
     if (!input) return 'Unknown Error Occurred';
 
     const maxLen = 1000;
-    if (isString(input)) return truncate(input, maxLen);
-    if (withStack && input.stack) return truncate(input.stack, maxLen);
+    if (utils.isString(input)) return utils.truncate(input, maxLen);
+    if (withStack && input.stack) return utils.truncate(input.stack, maxLen);
 
     if (isElasticSeachError(input)) {
         const esError = parseESErrorMsg(input);
         if (esError) return esError;
     }
 
-    const errMsg = toString(input).replace(/^Error:/, '');
-    return truncate(errMsg, maxLen);
+    const errMsg = utils.toString(input).replace(/^Error:/, '');
+    return utils.truncate(errMsg, maxLen);
 }
 
 function parseESErrorMsg(input: ElasticSearchError): string {
@@ -143,9 +143,7 @@ function parseESErrorMsg(input: ElasticSearchError): string {
 
     const rootCause = bodyError
         && bodyError.root_cause
-        && getFirst(bodyError.root_cause);
-
-    let message = 'ElasticSearch Error:';
+        && utils.getFirst(bodyError.root_cause);
 
     let type: string|undefined;
     let reason: string|undefined;
@@ -154,18 +152,42 @@ function parseESErrorMsg(input: ElasticSearchError): string {
     [errObj, bodyError, rootCause]
         .forEach((obj) => {
             if (obj == null) return;
-            if (!isPlainObject(obj)) return;
+            if (!utils.isPlainObject(obj)) return;
             if (obj.type) type = obj.type;
             if (obj.reason) reason = obj.reason;
             if (obj.index) index = obj.index;
         });
 
-    if (!type && !reason && !index) return '';
+    if (errObj.response) {
+        const response = utils.tryParseJSON(errObj.response);
+        if (!index && response && response._index) {
+            index = response._index;
+        }
+    }
 
-    if (errObj.msg) message += `${errObj.msg}`;
+    let message = `ElasticSearch Error: ${normalizeESError(errObj.msg)}`;
+
     if (type) message += ` type: ${type}`;
     if (reason) message += ` reason: ${reason}`;
     if (index) message += ` on index: ${index}`;
+
+    return message;
+}
+
+function normalizeESError(message?: string) {
+    if (!message) return '';
+
+    if (message.includes('document missing')) {
+        return 'Not Found';
+    }
+
+    if (message.includes('document already exists')) {
+        return 'Document Already Exists';
+    }
+
+    if (message.indexOf('unknown error') === 0) {
+        return 'Unknown ElasticSearch Error, Cluster may be Unavailable';
+    }
 
     return message;
 }
@@ -187,7 +209,7 @@ export function isTSError(err: any): err is TSError {
 
 /** Check is a elasticsearch error */
 export function isElasticSeachError(err: any): err is ElasticSearchError {
-    return err && isFunction(err.toJSON);
+    return err && utils.isFunction(err.toJSON);
 }
 
 export interface ElasticSearchError extends Error {
@@ -207,10 +229,12 @@ export interface ElasticSearchError extends Error {
             }
         },
         msg?: string;
+        statusCode?: number;
         status?: number;
         type?: string,
         reason?: string,
         index?: string,
+        response?: string;
     };
 }
 
@@ -221,17 +245,11 @@ function coerceStatusCode(input: any): number|null {
 export function getErrorStatusCode(err: any): number {
     if (!isError(err)) return 500;
 
+    const metadata = isElasticSeachError(err) ? err.toJSON() : {};
+
     const keys = ['statusCode', 'status', 'code'];
     for (const key of keys) {
-        const statusCode = coerceStatusCode(err[key]);
-        if (statusCode) {
-            return statusCode;
-        }
-    }
-
-    if (isElasticSeachError(err)) {
-        const obj = err.toJSON();
-        const statusCode = coerceStatusCode(obj && obj.status);
+        const statusCode = coerceStatusCode(metadata[key] || err[key]);
         if (statusCode) {
             return statusCode;
         }

@@ -42,7 +42,7 @@ export interface PRetryConfig {
     /**
      * If set to true, this will set fail with fatalError to true
      */
-    failWithFatal: boolean;
+    endWithFatal: boolean;
 
     /**
      * Set a error message prefix
@@ -59,7 +59,7 @@ export interface PRetryConfig {
      * If any of the items in the array match the error message,
      * it will be considered retryable
      */
-    matches?: string|RegExp[];
+    matches?: (string|RegExp)[];
 }
 
 /**
@@ -111,7 +111,7 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetry
         }
 
         err.retryable = false;
-        if (config.failWithFatal) {
+        if (config.endWithFatal) {
             err.fatalError = true;
         }
 

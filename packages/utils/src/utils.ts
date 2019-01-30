@@ -26,6 +26,14 @@ export function isEmpty(val?: any): boolean {
     return true;
 }
 
+export function tryParseJSON(input: any) {
+    try {
+        return JSON.parse(input);
+    } catch (err) {
+        return input;
+    }
+}
+
 /** JSON encoded buffer into a json object */
 export function parseJSON<T = object>(buf: Buffer|string): T {
     if (!Buffer.isBuffer(buf) && !isString(buf)) {
