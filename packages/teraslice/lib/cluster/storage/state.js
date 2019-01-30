@@ -2,14 +2,8 @@
 
 const Promise = require('bluebird');
 const parseError = require('@terascope/error-parser');
-const {
-    pRetry,
-    TSError,
-    toString,
-    isString
-} = require('@terascope/job-components');
+const { pRetry, toString } = require('@terascope/job-components');
 const { timeseriesIndex } = require('../../utils/date_utils');
-const { prependErrorMsg } = require('../../utils/error_utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
 // Module to manager job states in Elasticsearch.
@@ -59,34 +53,14 @@ module.exports = function module(context) {
         const update = () => backend.update(slice.slice_id, record, indexData.index);
 
         return pRetry(update, {
-            retries: 10,
-            // The starting delay should be 500ms
-            // but will exponentially back-off
-            delay: 500,
-            normalizeError(err) {
-                const errorMsg = prependErrorMsg(`Failure to update ${state} state`, err);
-
-                if (toString(err).includes('Request Timeout')) {
-                    return new TSError(errorMsg, {
-                        retryable: true,
-                        statusCode: 408
-                    });
-                }
-
-                return new TSError(errorMsg);
-            },
-
-        }).catch((err) => {
-            // If we get to this point it is a fatal error
-
-            if (isString(err)) {
-                return Promise.reject(new TSError(err, {
-                    fatalError: true,
-                }));
-            }
-
-            err.fatalError = true;
-            return Promise.reject(err);
+            retries: 10000,
+            delay: 1000,
+            backoff: 5,
+            matches: [
+                'Request Timeout',
+            ],
+            endWithFatal: true,
+            prefix: `Failure to update ${state} state`
         });
     }
 
