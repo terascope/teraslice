@@ -50,7 +50,8 @@ describe('ExecutionController', () => {
                 try {
                     await exController.initialize();
                 } catch (err) {
-                    expect(err.message).toStartWith(`Cannot get execution status ${testContext.exId}, caused by invoking elasticsearch-api _runRequest resulted in a runtime error: Not Found`);
+                    expect(err.message).toStartWith(`Cannot get execution status ${testContext.exId}`);
+                    expect(err.message).toInclude('Not Found');
                 }
             });
         });

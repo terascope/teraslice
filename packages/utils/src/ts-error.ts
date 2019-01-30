@@ -54,8 +54,9 @@ export class TSError extends Error {
             this.name = this.constructor.name;
 
             // We want to keep the stack unless specified
-            if (config.withStack) {
-                this.stack = input.stack;
+            if (config.withStack && input.stack) {
+                this.stack = input.stack
+                    .replace(input.message, this.message);
             } else {
                 Error.captureStackTrace(this, this.constructor);
             }
@@ -127,12 +128,12 @@ export function parseError(input: any, withStack = false): string {
 
     const maxLen = 1000;
     if (utils.isString(input)) return utils.truncate(input, maxLen);
-    if (withStack && input.stack) return utils.truncate(input.stack, maxLen);
-
     if (isElasticSeachError(input)) {
         const esError = parseESErrorMsg(input);
         if (esError) return esError;
     }
+
+    if (withStack && input.stack) return utils.truncate(input.stack, maxLen);
 
     const errMsg = utils.toString(input).replace(/^Error:/, '');
     return utils.truncate(errMsg, maxLen);
@@ -183,7 +184,7 @@ function normalizeESError(message?: string) {
     }
 
     if (message.includes('document already exists')) {
-        return 'Document Already Exists';
+        return 'Document Already Exists (version conflict)';
     }
 
     if (message.indexOf('unknown error') === 0) {
@@ -205,7 +206,11 @@ export function isError(err: any): err is Error {
 
 /** Check is a TSError */
 export function isTSError(err: any): err is TSError {
-    return err && err.name === 'TSError';
+    if (err instanceof TSError) return true;
+    if (!isError(err)) return false;
+
+    // @ts-ignore
+    return err.statusCode != null;
 }
 
 /** Check is a elasticsearch error */
