@@ -40,11 +40,6 @@ export function parseJSON<T = object>(buf: Buffer|string): T {
     }
 }
 
-/** Check if an input has an error compatible api */
-export function isError(err: any): err is Error {
-    return err && err.stack && err.message;
-}
-
 /**
  * Determine the type of an input
  * @return a human friendly string that describes the input
@@ -90,14 +85,6 @@ export function isFunction(input: any): input is Function {
  */
 export function getFirst<T>(input: T|T[]): T {
     return Array.isArray(input) ? input[0] : input;
-}
-
-/** parse input to get error message or stack */
-export function parseError(input: any, withStack = false): string {
-    if (!input) return 'Unknown Error Occurred';
-    if (isString(input)) return input;
-    if (withStack && input.stack) return input.stack;
-    return toString(input).replace(/^Error:/, '');
 }
 
 /** Perform a shallow clone of an object to another, in the fastest way possible */
@@ -151,6 +138,10 @@ export function times(n: number, fn: (index: number) => any) {
 export function startsWith(str: string, val: string) {
     if (typeof str !== 'string') return false;
     return str.startsWith(val);
+}
+
+export function truncate(str: string, len: number): string {
+    return str.length >= 5000 ? `${str.slice(0, 5000)} ...` : str;
 }
 
 /** A simplified implemation of moment(new Date(val)).isValid() */
