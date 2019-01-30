@@ -1,5 +1,5 @@
 
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
 import crypto from 'crypto';
 import { Validator, ValidatorPlugins } from '../../../src/operations/lib/validations/validator';

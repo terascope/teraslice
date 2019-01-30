@@ -1,18 +1,23 @@
 
-import { DataEntity } from '@terascope/job-components';
 import _ from 'lodash';
 import PhoneValidator from 'awesome-phonenumber';
-import OperationBase from '../base';
+import ValidationOpBase from './base';
 import { OperationConfig } from '../../../interfaces';
 
-export default class ISDN extends OperationBase {
+export default class ISDN extends ValidationOpBase<any> {
     constructor(config: OperationConfig) {
         super(config);
     }
 
-    run(doc: DataEntity): DataEntity | null {
-        const value = _.get(doc, this.source);
-        if (!new PhoneValidator(`+${value}`).isValid()) _.unset(doc, this.source);
-        return doc;
+    normalize(data: any) {
+        const phoneNumber = new PhoneValidator(`+${data}`);
+        const fullNumber = phoneNumber.getNumber();
+        if (fullNumber) return String(fullNumber).slice(1);
+        throw Error('could not normalize');
+    }
+
+    validate(value: string) {
+        if (!new PhoneValidator(`+${value}`).isValid()) return false;
+        return true;
     }
 }

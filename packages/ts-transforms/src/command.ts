@@ -1,15 +1,17 @@
 
 import yargs from 'yargs';
 import path from 'path';
-import readline from 'readline';
 import fs from 'fs';
-import { debugLogger, DataEntity } from '@terascope/job-components';
+import { DataEntity, debugLogger } from '@terascope/utils';
 import _ from 'lodash';
+import got from 'got';
 import { PhaseManager } from './index';
-import { WatcherConfig } from './interfaces';
+import { PhaseConfig } from './interfaces';
+import validator from 'validator';
 
 const logger = debugLogger('ts-transform-cli');
-const dir = process.cwd();
+const packagePath = path.join(__dirname, '../package.json');
+const { version } = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 
 // TODO Use yargs api to validate field types and usage
 const command = yargs
@@ -28,11 +30,12 @@ const command = yargs
     .describe('T', 'specify type configs from file')
     .describe('p', 'output the time it took to run the data')
     .demandOption(['r'])
-    .version('0.10.0')
+    .version(version)
     .argv;
 
 const filePath = command.rules as string;
 const dataPath = command.data;
+
 let typesConfig = {};
 const type = command.m ? 'matcher' : 'transform';
 
@@ -61,27 +64,36 @@ if (!filePath) {
     process.exit(1);
 }
 
-async function dataLoader(dataPath: string): Promise<object[]> {
-    const results: object[] = [];
-
-    const rl = readline.createInterface({
-        input: fs.createReadStream(dataPath),
-        crlfDelay: Infinity
-    });
-
-    return new Promise<object[]>((resolve) => {
-        rl.on('line', (str) => {
-            if (str) {
-                results.push(JSON.parse(str));
-            }
+async function dataFileLoader(dataPath: string): Promise<object[]> {
+    return new Promise((resolve, reject) => {
+        fs.readFile(dataPath, { encoding: 'utf8' }, (err, data) => {
+            if (err) return reject(err);
+            const parsedData = formatData(data);
+            if (!parsedData) return reject('could not parse data');
+            resolve(parsedData);
         });
-
-        rl.on('close', () => resolve(results));
     });
 }
 
 function formatList(input: string): string[] {
     return input.split(',').map((str) => str.trim());
+}
+
+function parseStreamResponse(data: string | object[]): object[] {
+    const json = typeof data === 'string' ? JSON.parse(data) : data;
+    if (Array.isArray(json)) return json;
+    // input from elasticsearch
+    const elasticSearchResults = _.get(json, 'hits.hits', null);
+    if (elasticSearchResults) {
+        return elasticSearchResults.map((doc:ESData) => doc._source);
+    }
+    // input from teraserver
+    const teraserverResults = _.get(json, 'results', null);
+    if (teraserverResults) {
+        return teraserverResults;
+    }
+
+    throw new Error('could not get parse data');
 }
 
 function getPipedData() {
@@ -98,44 +110,57 @@ function getPipedData() {
         });
 
         process.stdin.on('end', () => {
-            try {
-                const json = JSON.parse(strResults);
-                if (Array.isArray(json)) resolve(json);
-                // input from elasticsearch
-                const elasticSearchResults = _.get(json, 'hits.hits', null);
-                if (elasticSearchResults) {
-                    resolve(elasticSearchResults.map((doc:ESData) => doc._source));
-                    return;
-                }
-                // input from teraserver
-                const teraserverResults = _.get(json, 'results', null);
-                if (teraserverResults) {
-                    resolve(teraserverResults);
-                    return;
-                }
-
-                throw new Error('could not get parse data');
-            } catch (err) {
-                // try to see if its line delimited JSON;
-                try {
-                    const data = strResults.split('\n');
-                    const dataArray = data.map(jsonStr => JSON.parse(jsonStr));
-                    resolve(dataArray);
-                } catch (_secondError) {
-                    reject(err);
-                }
-            }
+            const finalData = formatData(strResults);
+            if (finalData) return resolve(finalData);
+            reject('could not parse data');
         });
     });
 }
 
+function formatData(strResults: string): object[] | null {
+    try {
+        return parseStreamResponse(strResults);
+    } catch (err) {
+        // try to see if its line delimited JSON;
+        try {
+            const results: object[] = [];
+            const data = strResults.split('\n');
+            data.forEach(jsonStr => {
+                // if its not an empty space or a comment then parse it
+                if (jsonStr.length > 0 && jsonStr.trim()[0] !== '#') {
+                    results.push(JSON.parse(jsonStr));
+                }
+            });
+            return results;
+        } catch (_secondError) {
+            return null;
+        }
+    }
+}
+
+function fetchUri(uri: string) {
+    if (validator.isURL(uri,  { require_tld: false })) {
+        return got(uri);
+    }
+    throw new Error('is not a uri');
+}
+
 async function getData(dataPath: string) {
     let parsedData;
+
     if (dataPath) {
         try {
-            parsedData = require(path.resolve(dir, dataPath));
+            parsedData = parseStreamResponse(require(path.resolve(__dirname, dataPath)));
         } catch (err) {
-            parsedData = await dataLoader(dataPath);
+            try {
+                const fileData = await dataFileLoader(dataPath);
+                parsedData = parseStreamResponse(fileData);
+            } catch (error) {
+                try {
+                    const response = await fetchUri(dataPath);
+                    parsedData = parseStreamResponse(response.body);
+                } catch (err) {}
+            }
         }
     } else {
         parsedData = await getPipedData();
@@ -147,7 +172,7 @@ async function getData(dataPath: string) {
 
 async function initCommand() {
     try {
-        const opConfig: WatcherConfig = {
+        const opConfig: PhaseConfig = {
             rules: formatList(filePath),
             types: typesConfig,
             type
@@ -157,7 +182,7 @@ async function initCommand() {
             try {
                 const pluginList = formatList(command.p as string);
                 plugins = pluginList.map((pluginPath) => {
-                    const module = require(path.resolve(dir, pluginPath));
+                    const module = require(path.resolve(__dirname, pluginPath));
                     const results = module.default || module;
                     return results;
                 });

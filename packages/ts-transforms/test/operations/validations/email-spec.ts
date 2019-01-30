@@ -1,6 +1,6 @@
 
 import { Email } from '../../../src/operations';
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 
 describe('email validation', () => {
 

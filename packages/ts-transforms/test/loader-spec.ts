@@ -1,7 +1,6 @@
 
 import path from 'path';
-import { Loader } from '../src';
-import { WatcherConfig } from '../src/interfaces';
+import { Loader, WatcherConfig } from '../src';
 
 describe('Loader', () => {
     const matchRules1Path = path.join(__dirname, './fixtures/matchRules1.txt');
