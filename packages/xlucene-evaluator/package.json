@@ -10,7 +10,7 @@
     ],
     "directories": {
         "lib": "dist",
-        "test": "tests"
+        "test": "test"
     },
     "scripts": {
         "lint": "tslint -p tsconfig.build.json -t verbose -e '**/*.json'",

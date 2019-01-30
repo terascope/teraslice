@@ -158,7 +158,6 @@ class Slice {
                 try {
                     // for backwards compatibility
                     this.events.emit('slice:retry', this.slice);
-
                     await this.executionContext.onSliceRetry(this.slice.slice_id);
                 } catch (retryErr) {
                     const error = new retry.StopError(`Slice failed to retry: ${toString(retryErr)}, caused by: ${toString(err)}`);
