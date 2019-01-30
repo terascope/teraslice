@@ -9,10 +9,15 @@ const DOCUMENT_EXISTS = 409;
 // Module to manage persistence in Elasticsearch.
 // All functions in this module return promises that must be resolved to get the final result.
 module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
-    const warning = _warn(logger, 'The elasticsearch cluster queues are overloaded, resubmitting failed queries from bulk');
     const config = _opConfig || {};
+
+    const warning = _warn(logger, 'The elasticsearch cluster queues are overloaded, resubmitting failed queries from bulk');
+
     const retryStart = _.get(client, '__testing.start', 5000);
     const retryLimit = _.get(client, '__testing.limit', 10000);
+
+    const { connection } = config;
+    const forConnection = connection ? `, connection: ${connection}` : '';
 
     function count(query) {
         query.size = 0;
@@ -247,7 +252,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                     })
                     .catch((err) => {
                         const error = new TSError(err, {
-                            reason: 'bulk sender error',
+                            reason: `bulk sender error${forConnection}`,
                         });
 
                         return Promise.reject(error);
@@ -473,7 +478,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                         if (reasons.length > 1 || reasons[0] !== 'es_rejected_execution_exception') {
                             const errorReason = reasons.join(' | ');
                             const error = new TSError(errorReason, {
-                                reason: 'Not all shards returned successful'
+                                reason: `Not all shards returned successful${forConnection}`
                             });
                             reject(error);
                         } else {
@@ -519,7 +524,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                 retry();
             } else {
                 reject(new TSError(err, {
-                    reason: `invoking elasticsearch-api client${fnName}`
+                    reason: `invoking elasticsearch-api client${fnName}${forConnection}`
                 }));
             }
         };
@@ -579,7 +584,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                 return _clientRequest('reindex', reindexQuery);
             })
             .catch(err => Promise.reject(new TSError(err, {
-                reason: `could not reindex for query ${JSON.stringify(reindexQuery)}`
+                reason: `could not reindex for query ${JSON.stringify(reindexQuery)}${forConnection}`
             })))
             .then(() => count({ index: migrantIndexName }))
             .then((_count) => {
@@ -707,7 +712,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                         if (isFatalError(err)) return Promise.reject(err);
 
                         const error = new TSError(err, {
-                            reason: 'Failure to create index'
+                            reason: `Failure to create index${forConnection}`
                         });
                         logger.error(error);
 
@@ -737,7 +742,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                             return Promise.resolve();
                         }).catch((_checkingError) => {
                             const checkingError = new TSError(_checkingError);
-                            logger.info(`Attempting to connect to elasticsearch: ${clientName}, error`, checkingError);
+                            logger.info(`Attempting to connect to elasticsearch: ${clientName}`, checkingError);
 
                             if (Date.now() > giveupAfter) {
                                 const timeoutError = new TSError(`Unable to create index ${newIndex}`);

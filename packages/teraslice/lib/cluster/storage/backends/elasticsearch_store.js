@@ -367,11 +367,16 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
     return new Promise(((resolve) => {
         const clientName = JSON.stringify(config.state);
         client = getClient(context, config.state, 'elasticsearch');
-        let options = null;
 
-        if (fullResponse) {
-            options = { full_response: true };
+        let { connection } = config.state;
+        if (config.state.endpoint) {
+            connection += `:${config.state.endpoint}`;
         }
+
+        const options = {
+            full_response: !!fullResponse,
+            connection,
+        };
 
         elasticsearch = elasticsearchApi(client, logger, options);
         return _createIndex(newIndex)
