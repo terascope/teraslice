@@ -30,9 +30,10 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             });
     }
 
-    function _makeRequest(clientBase, endpoint, query) {
+    function _makeRequest(clientBase, endpoint, query, fnNamePrefix) {
         return new Promise(((resolve, reject) => {
-            const errHandler = _errorHandler(_runRequest, query, reject, logger);
+            const fnName = `${fnNamePrefix || ''}->${endpoint}()`;
+            const errHandler = _errorHandler(_runRequest, query, reject, fnName);
 
             function _runRequest() {
                 clientBase[endpoint](query)
@@ -49,7 +50,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function _clientIndicesRequest(endpoint, query) {
-        return _makeRequest(client.indices, endpoint, query);
+        return _makeRequest(client.indices, endpoint, query, 'indices');
     }
 
     function mget(query) {
@@ -455,7 +456,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
     function _searchES(query) {
         return new Promise((resolve, reject) => {
-            const errHandler = _errorHandler(_performSearch, query, reject, logger);
+            const errHandler = _errorHandler(_performSearch, query, reject, '->search()');
             const retry = _retryFn(_performSearch, query);
 
             function _performSearch(queryParam) {
@@ -507,7 +508,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
 
-    function _errorHandler(fn, data, reject) {
+    function _errorHandler(fn, data, reject, fnName = '->unknown()') {
         const retry = _retryFn(fn, data);
         return function _errorHandlerFn(err) {
             const isRejectedError = _.get(err, 'body.error.type') === 'es_rejected_execution_exception';
@@ -518,7 +519,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                 retry();
             } else {
                 reject(new TSError(err, {
-                    reason: `invoking elasticsearch-api ${fn.name}`
+                    reason: `invoking elasticsearch-api client${fnName}`
                 }));
             }
         };
