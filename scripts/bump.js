@@ -8,56 +8,92 @@ const semver = require('semver');
 const path = require('path');
 const fs = require('fs');
 const fse = require('fs-extra');
-
-const pkgName = process.argv[2];
-const release = process.argv[3];
-
-function usage() {
-    console.error('USAGE: bump <package-name> <[major|minor|patch]>');
-    console.error('');
-    console.error('Description: Update a package to specific version and its dependencies.');
-    console.error('             This should be run in the root of the workspace.');
-    console.error('');
-    console.error('Arguments:');
-    console.error('  -h, --help         print this help text');
-    console.error('');
-}
-
-const isHelp = process.argv.find(arg => arg === '--help' || arg === '-h');
-
-if (isHelp || process.argv.length === 2) {
-    usage();
-    process.exit(0);
-}
-
-if (!pkgName) {
-    usage();
-    console.error('Missing package name as first arg');
-    process.exit(1);
-}
-
-if (!release) {
-    usage();
-    console.error('Missing release as second arg');
-    process.exit(1);
-}
+const yargs = require('yargs');
 
 const packagesPath = path.join(process.cwd(), 'packages');
+const packages = fs.readdirSync(packagesPath).filter((pkgName) => {
+    const pkgDir = path.join(packagesPath, pkgName);
+
+    if (!fs.statSync(pkgDir).isDirectory()) return false;
+    return fs.existsSync(path.join(pkgDir, 'package.json'));
+});
+
+const desc = `Update a package to specific version and its dependencies.
+This should be run in the root of the workspace.`;
+
+const { argv } = yargs.usage('$0 [options] <package-name> <release>', desc, (y) => {
+    y.option('rc', {
+        type: 'boolean',
+        description: 'Change this to indicate a RC release'
+    }).option('inc', {
+        type: 'boolean',
+        implies: 'rc',
+        description: 'Increment the RC version as well as version'
+    }).positional('package-name', {
+        choices: packages,
+        description: 'The name of the package to bump'
+    }).positional('release', {
+        choices: [
+            'major',
+            'minor',
+            'patch',
+        ]
+    })
+        .requiresArg(['package-name', 'release']);
+}).scriptName('bump')
+    .version()
+    .alias('v', 'version')
+    .help()
+    .alias('h', 'help')
+    .detectLocale(false)
+    .wrap(yargs.terminalWidth());
+
+const { release } = argv;
+const pkgName = argv['package-name'];
 
 const pkgPath = path.join(packagesPath, pkgName, 'package.json');
-
-if (!fse.pathExistsSync(pkgPath)) {
-    console.error(`Unable to find package.json at path ${pkgPath}`);
-    process.exit(1);
-}
 
 const pkgJSON = fse.readJsonSync(pkgPath);
 const realPkgName = pkgJSON.name;
 
-const newVersion = semver.inc(pkgJSON.version, release);
-if (!newVersion) {
-    throw new Error(`Failure to increment version "${pkgJSON.version}" using "${release}"`);
+let newVersion;
+
+function incPrerelease(_version) {
+    let version = _version;
+
+    let result = semver.prerelease(newVersion);
+    if (result) {
+        version = version.replace(
+            result.join(''),
+            result.join('.')
+        );
+    }
+
+    const prerelease = argv.inc ? `pre${release}` : 'prerelease';
+    newVersion = semver.inc(version, prerelease, 'rc');
+    if (!newVersion) {
+        throw new Error(`Failure to increment version "${pkgJSON.version}" using "${prerelease}"`);
+    }
+
+    result = semver.prerelease(newVersion);
+
+    if (result) {
+        newVersion = newVersion.replace(
+            result.join('.'),
+            [result[0], ++result[1]].join('')
+        );
+    }
 }
+
+if (argv.rc) {
+    incPrerelease(pkgJSON.version);
+} else {
+    newVersion = semver.inc(pkgJSON.version, release);
+    if (!newVersion) {
+        throw new Error(`Failure to increment version "${pkgJSON.version}" using "${release}"`);
+    }
+}
+
 
 console.log(`* Updating ${realPkgName} to version ${pkgJSON.version} to ${newVersion}`);
 
