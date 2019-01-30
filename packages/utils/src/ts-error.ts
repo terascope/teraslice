@@ -51,8 +51,14 @@ export class TSError extends Error {
                 this.retryable = config.retryable;
             }
 
-            this.stack = input.stack;
             this.name = this.constructor.name;
+
+            // We want to keep the stack unless specified
+            if (config.withStack) {
+                this.stack = input.stack;
+            } else {
+                Error.captureStackTrace(this, this.constructor);
+            }
             return;
         }
 
