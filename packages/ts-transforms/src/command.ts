@@ -143,17 +143,16 @@ async function getData(dataPath: string) {
 
     if (dataPath) {
         try {
-            const response = await fetchUri(dataPath);
-            parsedData = parseStreamResponse(response.body);
-        } catch (err) {}
-        if (!parsedData) {
+            parsedData = parseStreamResponse(require(path.resolve(__dirname, dataPath)));
+        } catch (err) {
             try {
-                parsedData = parseStreamResponse(require(path.resolve(__dirname, dataPath)));
-            } catch (err) {
+                const fileData = await dataFileLoader(dataPath);
+                parsedData = parseStreamResponse(fileData);
+            } catch (error) {
                 try {
-                    const fileData = await dataFileLoader(dataPath);
-                    parsedData = parseStreamResponse(fileData);
-                } catch (error) {}
+                    const response = await fetchUri(dataPath);
+                    parsedData = parseStreamResponse(response.body);
+                } catch (err) {}
             }
         }
     } else {
