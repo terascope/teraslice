@@ -55,10 +55,10 @@ export default class OutputPhase extends PhaseBase {
                     // this iterates over the list of keys being put into target_field
                     _.forOwn(sourceKeyObj, (_bool, sourceKey) => {
                         const data = _.get(doc, sourceKey);
-                        if (data != null) multiValueField.push(data);
+                        if (data !== undefined) multiValueField.push(data);
                         _.unset(doc, sourceKey);
                     });
-                    doc[targetFieldName] = multiValueField;
+                    if (multiValueField.length > 0) doc[targetFieldName] = multiValueField;
                 });
             }
             return doc;
