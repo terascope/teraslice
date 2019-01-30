@@ -123,8 +123,15 @@ function formatData(strResults: string): object[] | null {
     } catch (err) {
         // try to see if its line delimited JSON;
         try {
+            const results: object[] = [];
             const data = strResults.split('\n');
-            return data.map(jsonStr => JSON.parse(jsonStr));
+            data.forEach(jsonStr => {
+                // if its not an empty space or a comment then parse it
+                if (jsonStr.length > 0 && jsonStr.trim()[0] !== '#') {
+                    results.push(JSON.parse(jsonStr));
+                }
+            });
+            return results;
         } catch (_secondError) {
             return null;
         }
