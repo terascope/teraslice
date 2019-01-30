@@ -1,10 +1,9 @@
 
 import _ from 'lodash';
-import { DataEntity } from '@terascope/job-components';
 import { OperationConfig } from '../../../interfaces';
-import OperationBase from '../base';
+import ValidationOpBase from './base';
 
-export default class Email extends OperationBase {
+export default class Email extends ValidationOpBase<any> {
     private regex: RegExp;
 
     constructor(config: OperationConfig) {
@@ -13,9 +12,8 @@ export default class Email extends OperationBase {
         this.regex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g;
     }
 
-    run(doc: DataEntity): DataEntity | null {
-        const field = _.get(doc, this.source);
-        if (typeof field !== 'string' || !field.match(this.regex)) _.unset(doc, this.source);
-        return doc;
+    validate(data: string) {
+        if (typeof data !== 'string' || !data.match(this.regex)) return false;
+        return true;
     }
 }

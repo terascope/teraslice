@@ -1,0 +1,3 @@
+{ "selector": "some:value", "source_field": "field", "target_field": "newField", "tag": "some_id", "output": false  }
+{ "follow": "some_id", "post_process": "jsonparse", "target_field": "myjson", "tag": "myjson_id", "output": false }
+{ "follow": "myjson_id", "post_process": "extraction", "source_field": "myjson.field", "target_field": "myfield", "mutate": true }

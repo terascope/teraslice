@@ -1,19 +1,17 @@
 
 import path from 'path';
-import { DataEntity } from '@terascope/job-components';
-import { ValidationPhase, Loader } from '../../src';
-import { OperationConfig } from '../../src/interfaces';
-import { OperationsManager } from '../../src/operations';
+import { DataEntity } from '@terascope/utils';
+import { ValidationPhase, Loader, OperationConfig, OperationsManager } from '../../src';
 
 describe('validation phase', () => {
 
     async function getConfigList(fileName: string): Promise<OperationConfig[]> {
         const filePath = path.join(__dirname, `../fixtures/${fileName}`);
-        const myFileLoader = new Loader({ type: 'transform', rules: [filePath] });
+        const myFileLoader = new Loader({ rules: [filePath] });
         return myFileLoader.load();
     }
     // file_path is only used in loader
-    const transformOpconfig = { rules: ['some/path'], type: 'transform' };
+    const transformOpconfig = { rules: ['some/path'] };
 
     it('can instantiate', async () => {
         const configList = await getConfigList('transformRules1.txt');
@@ -28,16 +26,6 @@ describe('validation phase', () => {
         expect(postProcessPhase1.hasProcessing).toEqual(false);
         expect(postProcessPhase1.phase).toBeDefined();
         expect(Object.keys(postProcessPhase1.phase).length).toEqual(0);
-
-        const configList2 = await getConfigList('transformRules16.txt');
-        const postProcessPhase2 = new ValidationPhase(transformOpconfig, configList2, new OperationsManager());
-
-        expect(postProcessPhase2.hasProcessing).toEqual(true);
-        expect(postProcessPhase2.phase).toBeDefined();
-        expect(postProcessPhase2.phase['__all']).toBeDefined();
-        expect(postProcessPhase2.phase['__all'].length).toEqual(1);
-
-        expect(Object.keys(postProcessPhase2.phase).length).toEqual(1);
     });
 
     it('can run and validate data', async () => {
@@ -55,20 +43,5 @@ describe('validation phase', () => {
         expect(results[0]).toEqual({ full_name: 'John Doe' });
         expect(results[1]).toEqual({ full_name: 'true' });
 
-    });
-
-    it('can run and validate data for other_match_required', async () => {
-        const configList = await getConfigList('transformRules16.txt');
-        const postProcessPhase = new ValidationPhase(transformOpconfig, configList, new OperationsManager());
-        const date = new Date().toISOString();
-        const data = [
-            new DataEntity({ some: 'data', date }, { selectors: { 'fc2.com': true } }),
-            new DataEntity({ date }, { selectors: { 'fc2.com': true } }),
-        ];
-
-        const results = postProcessPhase.run(data);
-
-        expect(results.length).toEqual(1);
-        expect(results[0]).toEqual({ some: 'data', date });
     });
 });

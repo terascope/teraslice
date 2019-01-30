@@ -1,37 +1,34 @@
 
-import { DataEntity } from '@terascope/job-components';
 import _ from 'lodash';
-import OperationBase from '../base';
+import ValidationOpBase from './base';
 import { OperationConfig } from '../../../interfaces';
 
-export default class Geolocation extends OperationBase {
+export default class Geolocation extends ValidationOpBase<any> {
     constructor(config: OperationConfig) {
         super(config);
+        // need to change source location to target parent field
+        this.source = this.parentFieldPath(this.source);
+        // TODO: fix this overwriting, this checks if its a compact config
+        if (config.target_field && config.source_field) {
+            this.hasTarget = false;
+            this.destination = this.source;
+        }
     }
 
-    run(doc: DataEntity): DataEntity | null {
-        const geoFieldData = this.fieldPath(this.source);
-        const geoData = _.get(doc, geoFieldData);
-        let hasError = true;
-        if (!geoData) return doc;
+    validate(geoData: any) {
+        let isValid = false;
 
         if (typeof geoData === 'string') {
-            hasError = false;
             const pieces = geoData.split(',').map(str => Number(str));
-            if (pieces.length !== 2) hasError = true;
-            if (pieces[0] > 90 || pieces[0] < -90) hasError = true;
-            if (pieces[1] > 180 || pieces[1] < -180) hasError = true;
+            if (pieces.length !== 2) return isValid;
+            if ((pieces[0] <= 90 || pieces[0] >= -90) && (pieces[1] <= 180 || pieces[1] >= -180)) isValid = true;
         }
 
         if (typeof geoData === 'object') {
-            hasError = false;
             const lat = geoData.lat | geoData.latitude;
             const lon = geoData.lon | geoData.longitude;
-            if (!lat || (lat > 90 || lat < -90)) hasError = true;
-            if (!lon || (lon > 180 || lon < -180)) hasError = true;
+            if (lat && lon && (lat <= 90 && lat >= -90) && (lon <= 180 && lon >= -180)) isValid = true;
         }
-
-        if (hasError) _.unset(doc, geoFieldData);
-        return doc;
+        return isValid;
     }
 }
