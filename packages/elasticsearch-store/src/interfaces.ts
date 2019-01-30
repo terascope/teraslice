@@ -3,7 +3,7 @@ import { Logger } from '@terascope/utils';
 /** A versioned Index Configuration */
 export interface IndexConfig {
     /**
-     * The ElasticSearch index that stores your data.
+     * The Elasticsearch index that stores your data.
      * The index name cannot include any dashes.
     */
     name: string;
@@ -14,7 +14,7 @@ export interface IndexConfig {
     version?: number;
 
     /**
-     * ElasticSearch Index Settings
+     * Elasticsearch Index Settings
     */
     indexSettings?: IndexSettings;
 
@@ -56,7 +56,7 @@ export interface IndexConfig {
     eventTimeField?: string;
 }
 
-/** ElasticSearch Index Schema, Mapping and Version */
+/** Elasticsearch Index Schema, Mapping and Version */
 export interface IndexSchema {
     /**
      * The version of this particular Schema definition
@@ -64,7 +64,7 @@ export interface IndexSchema {
     version: number;
 
     /**
-     * The ElasticSearch index mapping
+     * The Elasticsearch index mapping
     */
     mapping: any;
 

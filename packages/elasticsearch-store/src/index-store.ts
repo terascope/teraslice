@@ -45,7 +45,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             this._bulkMaxWait = this.config.bulkMaxWait;
         }
 
-        const debugLoggerName = `elasticseach-store:index-store:${config.name}`;
+        const debugLoggerName = `elasticsearch-store:index-store:${config.name}`;
         this._logger = config.logger || ts.debugLogger(debugLoggerName);
 
         this._collector = new ts.Collector({

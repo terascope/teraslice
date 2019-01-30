@@ -7,7 +7,7 @@ import {
     validateIndexConfig,
 } from '../src/utils';
 
-describe('ElasticSearch Store Utils', () => {
+describe('Elasticsearch Store Utils', () => {
     describe('#isSimpleIndex', () => {
         it('should return true when given a simple index', () => {
             expect(isSimpleIndex({

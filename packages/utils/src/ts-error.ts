@@ -28,7 +28,7 @@ export class TSError extends Error {
     constructor (input: any, config: TSErrorConfig = {}) {
         // If a Error is passed in we want to only change
         // the properties based on the configuration
-        if (isError(input) && !isElasticSeachError(input)) {
+        if (isError(input) && !isElasticsearchError(input)) {
             super(prefixErrorMsg(input.message, config.reason));
 
             this.fatalError = false;
@@ -128,7 +128,7 @@ export function parseError(input: any, withStack = false): string {
 
     const maxLen = 1000;
     if (utils.isString(input)) return utils.truncate(input, maxLen);
-    if (isElasticSeachError(input)) {
+    if (isElasticsearchError(input)) {
         const esError = parseESErrorMsg(input);
         if (esError) return esError;
     }
@@ -139,7 +139,7 @@ export function parseError(input: any, withStack = false): string {
     return utils.truncate(errMsg, maxLen);
 }
 
-function parseESErrorMsg(input: ElasticSearchError): string {
+function parseESErrorMsg(input: ElasticsearchError): string {
     const bodyError = input && input.body && input.body.error;
 
     const rootCause = bodyError
@@ -167,7 +167,7 @@ function parseESErrorMsg(input: ElasticSearchError): string {
         }
     }
 
-    let message = `ElasticSearch Error: ${normalizeESError(metadata.msg)}`;
+    let message = `Elasticsearch Error: ${normalizeESError(metadata.msg)}`;
 
     if (type) message += ` type: ${type}`;
     if (reason) message += ` reason: ${reason}`;
@@ -188,7 +188,7 @@ function normalizeESError(message?: string) {
     }
 
     if (message.indexOf('unknown error') === 0) {
-        return 'Unknown ElasticSearch Error, Cluster may be Unavailable';
+        return 'Unknown Elasticsearch Error, Cluster may be Unavailable';
     }
 
     return message;
@@ -214,11 +214,11 @@ export function isTSError(err: any): err is TSError {
 }
 
 /** Check is a elasticsearch error */
-export function isElasticSeachError(err: any): err is ElasticSearchError {
+export function isElasticsearchError(err: any): err is ElasticsearchError {
     return err && utils.isFunction(err.toJSON);
 }
 
-export interface ElasticSearchError extends Error {
+export interface ElasticsearchError extends Error {
     body?: {
         error?: {
             type?: string,
@@ -251,7 +251,7 @@ function coerceStatusCode(input: any): number|null {
 export function getErrorStatusCode(err: any): number {
     if (!isError(err)) return 500;
 
-    const metadata = isElasticSeachError(err) ? err.toJSON() : {};
+    const metadata = isElasticsearchError(err) ? err.toJSON() : {};
 
     const keys = ['statusCode', 'status', 'code'];
     for (const key of keys) {
