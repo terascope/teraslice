@@ -17,7 +17,6 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     const retryLimit = _.get(client, '__testing.limit', 10000);
 
     const { connection } = config;
-    const forConnection = connection ? `, connection: ${connection}` : '';
 
     function count(query) {
         query.size = 0;
@@ -252,7 +251,10 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                     })
                     .catch((err) => {
                         const error = new TSError(err, {
-                            reason: `bulk sender error${forConnection}`,
+                            reason: 'bulk sender error',
+                            context: {
+                                connection,
+                            }
                         });
 
                         return Promise.reject(error);
@@ -478,7 +480,10 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                         if (reasons.length > 1 || reasons[0] !== 'es_rejected_execution_exception') {
                             const errorReason = reasons.join(' | ');
                             const error = new TSError(errorReason, {
-                                reason: `Not all shards returned successful${forConnection}`
+                                reason: 'Not all shards returned successful',
+                                context: {
+                                    connection
+                                }
                             });
                             reject(error);
                         } else {
@@ -524,7 +529,11 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                 retry();
             } else {
                 reject(new TSError(err, {
-                    reason: `invoking elasticsearch-api client${fnName}${forConnection}`
+                    reason: `invoking elasticsearch-api client${fnName}`,
+                    context: {
+                        fnName,
+                        connection,
+                    }
                 }));
             }
         };
@@ -584,7 +593,10 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                 return _clientRequest('reindex', reindexQuery);
             })
             .catch(err => Promise.reject(new TSError(err, {
-                reason: `could not reindex for query ${JSON.stringify(reindexQuery)}${forConnection}`
+                reason: `could not reindex for query ${JSON.stringify(reindexQuery)}`,
+                context: {
+                    connection
+                }
             })))
             .then(() => count({ index: migrantIndexName }))
             .then((_count) => {
@@ -712,7 +724,13 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                         if (isFatalError(err)) return Promise.reject(err);
 
                         const error = new TSError(err, {
-                            reason: `Failure to create index${forConnection}`
+                            reason: 'Failure to create index',
+                            context: {
+                                newIndex,
+                                migrantIndexName,
+                                clusterName,
+                                connection
+                            }
                         });
                         logger.error(error);
 

@@ -9,13 +9,11 @@ export class TSError extends Error {
     /**
      * A HTTP status code for easy use
     */
-    // @ts-ignore
     statusCode: number;
 
     /**
      * Used to indicate the an error is fatal
     */
-    // @ts-ignore
     fatalError: boolean;
 
     /**
@@ -128,7 +126,7 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
         if (esErrorInfo) {
             return {
                 message: prefixErrorMsg(esErrorInfo.message, config.reason),
-                context: Object.assign(esErrorInfo.context, context),
+                context: Object.assign({}, esErrorInfo.context, context),
                 statusCode,
             };
         }
