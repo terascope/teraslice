@@ -4,7 +4,8 @@ import { isEmpty } from './utils';
 import {
     isRetryableError,
     TSError,
-    parseError
+    parseError,
+    isFatalError
 } from './errors';
 
 const logger = debugLogger('utils:promises');
@@ -90,10 +91,9 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetry
 
         const err = new TSError(_err, {
             reason: config.reason,
-            withStack: true,
         });
 
-        if (err.retryable == null) {
+        if (!isFatalError(err) && err.retryable == null) {
             err.retryable = matches;
         }
 

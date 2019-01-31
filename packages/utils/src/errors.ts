@@ -40,25 +40,29 @@ export class TSError extends Error {
 
         super(message);
 
+        this.fatalError = fatalError;
+        this.statusCode = statusCode;
+        this.context = context;
+
         if (isTSError(input)) {
             this.fatalError = !!input.fatalError;
             this.retryable = input.retryable;
         }
-
-        this.fatalError = fatalError;
-        this.statusCode = statusCode;
-        this.context = context;
 
         if (!this.fatalError && config.retryable != null) {
             this.retryable = config.retryable;
         }
 
         this.name = this.constructor.name;
+        Error.captureStackTrace(this, this.constructor);
+
         if (stack) {
-            this.stack = this.stack;
-        } else {
-            Error.captureStackTrace(this, this.constructor);
+            this.stack += `\n\tcaused by, ${stack}`;
         }
+    }
+
+    cause(): any {
+        return this.context._cause;
     }
 }
 
@@ -88,10 +92,8 @@ export interface TSErrorConfig {
     */
     context?: object;
 
-    /**
-     * If an error is passed in the stack will be preserved
-    */
-    withStack?: boolean;
+    defaultStatusCode?: number;
+    defaultErrorMsg?: string;
 }
 
 export interface TSErrorContext extends Object {
@@ -100,18 +102,11 @@ export interface TSErrorContext extends Object {
     _cause: any;
 }
 
-export function isFatalError(err: any): boolean {
-    return !!(err && err.fatalError);
-}
-
-export function isRetryableError(err: any): boolean {
-    return !!(err && err.retryable === true && !err.fatalError);
-}
-
 type ErrorInfo = { message: string, stack?: string, context: TSErrorContext, statusCode: number };
 
 /** parse error for info */
 export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInfo {
+    const { defaultErrorMsg, defaultStatusCode = 500 } = config;
     const inputContext = (input && input.context) || {};
 
     const context = Object.assign({}, inputContext, config.context, {
@@ -119,13 +114,13 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
         _cause: input,
     });
 
-    const statusCode = getErrorStatusCode(input, config);
+    const statusCode = getErrorStatusCode(input, config, defaultStatusCode);
 
     if (isElasticsearchError(input)) {
         const esErrorInfo = _parseESErrorInfo(input);
         if (esErrorInfo) {
             return {
-                message: prefixErrorMsg(esErrorInfo.message, config.reason),
+                message: prefixErrorMsg(esErrorInfo.message, config.reason, defaultErrorMsg),
                 context: Object.assign({}, esErrorInfo.context, context),
                 statusCode,
             };
@@ -133,12 +128,10 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
     }
 
     let stack: string|undefined;
-    const message = prefixErrorMsg(input, config.reason);
+    const message = prefixErrorMsg(input, config.reason, defaultErrorMsg);
 
-    if (config.withStack && input.stack) {
-        const oldTitle = utils.toString(input);
-        const newTitle = `Error: ${message}`;
-        stack = input.stack.replace(oldTitle, newTitle);
+    if (input && input.stack) {
+        stack = input.stack;
     }
 
     return {
@@ -151,8 +144,8 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
 
 /** parse input to get error message or stack */
 export function parseError(input: any, withStack = false): string {
-    const result = parseErrorInfo(input, { withStack });
-    if (result.stack) return result.stack;
+    const result = parseErrorInfo(input);
+    if (withStack && result.stack) return result.stack;
     return result.message;
 }
 
@@ -224,8 +217,7 @@ function _normalizeESError(message?: string) {
     return message;
 }
 
-export function prefixErrorMsg(input: any, prefix?: string) {
-    const defaultMsg = 'Unknown Error';
+export function prefixErrorMsg(input: any, prefix?: string, defaultMsg = 'Unknown Error') {
     if (!prefix) {
         if (isError(input)) {
             return _cleanErrorMsg(input.message || defaultMsg);
@@ -233,6 +225,14 @@ export function prefixErrorMsg(input: any, prefix?: string) {
         return _cleanErrorMsg(utils.toString(input) || defaultMsg);
     }
     return _cleanErrorMsg(`${prefix}, caused by ${utils.toString(input || defaultMsg)}`);
+}
+
+export function isFatalError(err: any): boolean {
+    return !!(err && err.fatalError);
+}
+
+export function isRetryableError(err: any): boolean {
+    return !!(err && err.retryable === true && !err.fatalError);
 }
 
 /** Check if an input has an error compatible api */
@@ -284,7 +284,7 @@ function coerceStatusCode(input: any): number|null {
     return STATUS_CODES[input] != null ? input : null;
 }
 
-export function getErrorStatusCode(err: any, config: TSErrorConfig = {}): number {
+export function getErrorStatusCode(err: any, config: TSErrorConfig = {}, defaultCode = 500): number {
     const metadata = isElasticsearchError(err) ? err.toJSON() : {};
 
     for (const key of ['statusCode', 'status', 'code']) {
@@ -298,5 +298,5 @@ export function getErrorStatusCode(err: any, config: TSErrorConfig = {}): number
         }
     }
 
-    return 500;
+    return defaultCode;
 }

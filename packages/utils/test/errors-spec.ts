@@ -1,5 +1,12 @@
 import 'jest-extended';
-import { TSError, ElasticsearchError, isFatalError, isRetryableError, parseError, times } from '../src';
+import {
+    TSError,
+    ElasticsearchError,
+    isFatalError,
+    isRetryableError,
+    parseError,
+    times
+} from '../src';
 
 describe('Error Utils', () => {
     describe('TSError', () => {
@@ -45,6 +52,14 @@ describe('Error Utils', () => {
                 {
                     message: 'Bad news, caused by Error: Oops',
                     stack: 'TSError: Bad news, caused by Error: Oops'
+                },
+            ],
+            [
+                new TSError('Fatal Error', { fatalError: true }),
+                { },
+                {
+                    fatalError: true,
+                    message: 'Fatal Error'
                 },
             ],
             [
@@ -212,11 +227,7 @@ describe('Error Utils', () => {
         ];
 
         describe.each(testCases)('new TSError(%j, %o)', (input, config, expected) => {
-            let tsError: TSError;
-
-            beforeAll(() => {
-                tsError = new TSError(input, config);
-            });
+            const tsError: TSError = new TSError(input, config);
 
             for (const [key, val] of Object.entries(expected)) {
                 if (key === 'stack') {
@@ -237,6 +248,10 @@ describe('Error Utils', () => {
             it('should have the default context proprerties', () => {
                 expect(tsError.context).toHaveProperty('_cause');
                 expect(tsError.context).toHaveProperty('_createdAt');
+            });
+
+            it('should be able to return the cause', () => {
+                expect(tsError.cause()).toEqual(tsError.context._cause);
             });
 
             if (expected.fatalError) {
