@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const _ = require('lodash');
 const Promise = require('bluebird');
-const parseError = require('@terascope/error-parser');
+const { parseError } = require('@terascope/utils');
 const { saveAsset } = require('../../utils/file_utils');
 const makeTerafoundationContext = require('../context/terafoundation-context');
 const { safeDecode } = require('../../utils/encoding_utils');
@@ -104,7 +104,7 @@ if (require.main === module) {
         })
         .catch((err) => {
             process.send({
-                error: parseError(err),
+                error: parseError(err, true),
                 success: false,
             });
             process.exitCode = 1;

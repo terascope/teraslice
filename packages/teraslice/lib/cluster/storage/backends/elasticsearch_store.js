@@ -2,8 +2,7 @@
 
 const fs = require('fs');
 const _ = require('lodash');
-const { TSError } = require('@terascope/utils');
-const parseError = require('@terascope/error-parser');
+const { TSError, parseError } = require('@terascope/utils');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
 const { timeseriesIndex } = require('../../../utils/date_utils');
