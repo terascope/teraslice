@@ -3,5 +3,5 @@ export * from './data-entity';
 export * from './interfaces';
 export * from './logger';
 export * from './promises';
-export * from './ts-error';
+export * from './errors';
 export * from './utils';

@@ -5,7 +5,7 @@ import {
     isRetryableError,
     TSError,
     parseError
-} from './ts-error';
+} from './errors';
 
 const logger = debugLogger('utils:promises');
 
