@@ -9,7 +9,8 @@ export function isString(val: any): val is string {
 
 /** Safely convert any input to a string */
 export function toString(val: any): string {
-    if (val && isFunction(val.toString)) {
+    if (isString(val)) return val;
+    if (typeof val === 'object' && val.message && val.stack) {
         return val.toString();
     }
 
@@ -149,7 +150,8 @@ export function startsWith(str: string, val: string) {
 }
 
 export function truncate(str: string, len: number): string {
-    return str.length >= 5000 ? `${str.slice(0, 5000)} ...` : str;
+    const sliceLen = (len - 4) > 0 ? len - 4 : len;
+    return str.length >= len ? `${str.slice(0, sliceLen)} ...` : str;
 }
 
 /** A simplified implemation of moment(new Date(val)).isValid() */
