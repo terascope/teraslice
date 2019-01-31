@@ -69,7 +69,7 @@ async function runEsJob(jobSpec, index) {
 async function testJobLifeCycle(jobSpec, delay = 3000) {
     const job = await submitAndStart(jobSpec, delay);
 
-    const waitForStatus = status => wait.waitForJobStatus(job, status, 0, 0);
+    const waitForStatus = status => wait.waitForJobStatus(job, status, 50, 0);
 
     let p = waitForStatus('paused');
     job.pause();
