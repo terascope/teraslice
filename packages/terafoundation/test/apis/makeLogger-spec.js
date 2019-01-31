@@ -3,7 +3,7 @@
 const api = require('../../lib/api');
 
 describe('makeLogger foundation API', () => {
-    it('should create a logger', () => {
+    it('should create a logger', async () => {
         const context = {
             sysconfig: {
                 terafoundation: {
@@ -23,9 +23,11 @@ describe('makeLogger foundation API', () => {
         expect(logger.fields.name).toBe('terafoundation');
         // We expect a console and file logger.
         expect(logger.streams.length).toBe(2);
+
+        await logger.flush();
     });
 
-    it('should create an elasticsearch logger', () => {
+    it('should create an elasticsearch logger', async () => {
         const context = {
             sysconfig: {
                 terafoundation: {
@@ -52,6 +54,8 @@ describe('makeLogger foundation API', () => {
         // We expect a console and file logger.
         expect(logger.streams.length).toBe(2);
         expect(logger.streams[1].type).toBe('raw');
+
+        await logger.flush();
     });
 
     it('setting production with no log_path should fail', () => {

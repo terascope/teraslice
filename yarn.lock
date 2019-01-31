@@ -1913,10 +1913,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.18.tgz#1d3ca764718915584fcd9f6344621b7672665c67"
   integrity sha512-fh+pAqt4xRzPfqA6eh3Z2y6fyZavRIumvjhaCL753+TVkGKGhpPeyrJG2JftD0T9q4GF00KjefsQ+PQNDdWQaQ==
 
-"@types/node@^10.12.19":
-  version "10.12.19"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.19.tgz#ca1018c26be01f07e66ac7fefbeb6407e4490c61"
-  integrity sha512-2NVovndCjJQj6fUUn9jCgpP4WSqr+u1SoUZMZyJkhGeBFsm6dE46l31S7lPUYt9uQ28XI+ibrJA1f5XyH5HNtA==
+"@types/node@^10.12.20":
+  version "10.12.20"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.20.tgz#f79f959acd3422d0889bd1ead1664bd2d17cd367"
+  integrity sha512-9spv6SklidqxevvZyOUGjZVz4QRXGu2dNaLyXIFzFYZW0AGDykzPRIUFJXTlQXyfzAucddwTcGtJNim8zqSOPA==
 
 "@types/p-event@^1.3.0":
   version "1.3.0"
@@ -10039,10 +10039,10 @@ temp-write@^3.4.0:
     temp-dir "^1.0.0"
     uuid "^3.0.1"
 
-terminal-kit@^1.26.10:
-  version "1.26.10"
-  resolved "https://registry.yarnpkg.com/terminal-kit/-/terminal-kit-1.26.10.tgz#a76309fe675bb6a3446acdb49c7122daa17d5d0b"
-  integrity sha512-vYpffEKhvYAGxhhUrLbwJvgv5OUWBZ809MAm8TFalsGh6vC7/cSu6kCCRxbdic1dtbzr/PzeB4T/i5/RLlI1jw==
+terminal-kit@^1.26.11:
+  version "1.26.11"
+  resolved "https://registry.yarnpkg.com/terminal-kit/-/terminal-kit-1.26.11.tgz#44fac4226aa89d43e8f9c23ec17c0e8bc15f7c6a"
+  integrity sha512-JZNJ+1Ht67QBMbr10nHKWskQBFLdu9csOxVpDE33vpJWkG2gsNCuoEX4eihin6l2un7eUP7dMh/6O02DNzG1Ag==
   dependencies:
     "@cronvel/get-pixels" "^3.3.1"
     lazyness "^1.1.1"
