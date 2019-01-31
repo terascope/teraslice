@@ -1,9 +1,9 @@
 {
     "name": "teraslice-cli",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "description": "Teraslice command line interface",
     "bin": {
-        "teraslice-cli": "./indexrm.js",
+        "teraslice-cli": "./index.js",
         "earl": "./index.js"
     },
     "main": "index.js",
