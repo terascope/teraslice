@@ -100,7 +100,7 @@ export default class OperationCore<T = OpConfig> extends Core<WorkerContext> imp
             throw err;
         }
         if (this.deadLetterAction === 'log') {
-            this.logger.error('Bad record', input, err);
+            this.logger.error(err, 'Bad record', input);
             return null;
         }
 
