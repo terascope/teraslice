@@ -3,10 +3,9 @@
 import _ from 'lodash';
 import LuceneQueryParser from '../lucene-query-parser';
 import TypeManger from './type-manager';
-import { bindThis, AST } from '../utils';
+import { bindThis } from '../utils';
+import { AST } from '../interfaces';
 
-// @ts-ignore
-// global._ = _
 export default class DocumentMatcher extends LuceneQueryParser {
     private filterFn: Function|undefined;
     private types: TypeManger;
@@ -187,8 +186,6 @@ export default class DocumentMatcher extends LuceneQueryParser {
 
     public match(doc:object):boolean {
         if (!this.filterFn) throw new Error('DocumentMatcher must be initialized with a lucene query');
-
-        const data = this.types.formatData(doc);
-        return this.filterFn(data);
+        return this.filterFn(doc);
     }
 }

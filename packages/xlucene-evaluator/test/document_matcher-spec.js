@@ -29,7 +29,7 @@ describe('document matcher', () => {
             const data1 = { bool: false };
             const data2 = { bool: true };
             const data3 = { bool: 'false' };
-            const data4= { bool: 'true' };
+            const data4 = { bool: 'true' };
             const data5 = { something: 'else' };
             const data6 = {};
 
@@ -133,7 +133,7 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data3)).toEqual(false);
             expect(documentMatcher.match(data4)).toEqual(false);
 
-             documentMatcher.parse('some:data AND NOT other:stuff AND NOT bytes:1234');
+            documentMatcher.parse('some:data AND NOT other:stuff AND NOT bytes:1234');
 
             expect(documentMatcher.match(data1)).toEqual(true);
             expect(documentMatcher.match(data2)).toEqual(true);
@@ -311,7 +311,7 @@ describe('document matcher', () => {
         });
 
         it('can handle bad values', () => {
-            const data1 = {  };
+            const data1 = {};
             const data2 = { person: 'asdfasdf' };
             const data3 = [123, 4234];
             const data4 = { person: null };
@@ -662,7 +662,7 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data2)).toEqual(false);
             expect(documentMatcher.match(data3)).toEqual(true);
 
-            documentMatcher.parse('_created:"Thu, 18 Oct 2018 18:13:20 GMT"',  { _created: 'date' });
+            documentMatcher.parse('_created:"Thu, 18 Oct 2018 18:13:20 GMT"', { _created: 'date' });
 
             expect(documentMatcher.match(data1)).toEqual(true);
             expect(documentMatcher.match(data2)).toEqual(false);
@@ -670,7 +670,7 @@ describe('document matcher', () => {
         });
 
         it('date fields do not throw with wrong data', () => {
-            const data1 = { _created: {some: 'thing'} };
+            const data1 = { _created: { some: 'thing' } };
             const data2 = { _created: [3, 53, 2342] };
             const data3 = { _created: false };
             const data4 = { _created: null };
@@ -707,7 +707,7 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data4)).toEqual(false);
             expect(documentMatcher.match(data5)).toEqual(true);
 
-            documentMatcher.parse('_created:<="2018-10-18T18:13:20.683Z"',  { _created: 'date' });
+            documentMatcher.parse('_created:<="2018-10-18T18:13:20.683Z"', { _created: 'date' });
 
             expect(documentMatcher.match(data1)).toEqual(false);
             expect(documentMatcher.match(data2)).toEqual(true);
@@ -739,7 +739,7 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data4)).toEqual(false);
             expect(documentMatcher.match(data5)).toEqual(true);
 
-            documentMatcher.parse('_created:[2018-10-18T18:13:20.000Z TO 2018-10-18T18:13:20.783Z]',  { _created: 'date' });
+            documentMatcher.parse('_created:[2018-10-18T18:13:20.000Z TO 2018-10-18T18:13:20.783Z]', { _created: 'date' });
 
             expect(documentMatcher.match(data1)).toEqual(false);
             expect(documentMatcher.match(data2)).toEqual(true);
@@ -782,11 +782,11 @@ describe('document matcher', () => {
 
         it('geo fields do not throw with wrong data', () => {
             const data1 = { location: null };
-            const data2 = { location: { some: 'data'} };
+            const data2 = { location: { some: 'data' } };
             const data3 = { location: [1234, 4234234, 223] };
             const data4 = { location: 'asdop234' };
             const data5 = { location: 1233.435967 };
-            const data6  = {};
+            const data6 = {};
 
             documentMatcher.parse('location:(_geo_box_top_left_:" 33.906320,  -112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")', { location: 'geo' });
 
@@ -828,13 +828,13 @@ describe('document matcher', () => {
 
     describe('wildcard queries', () => {
         it('can do basic wildcard matches', () => {
-            const data1 = { key : 'abcde' };
+            const data1 = { key: 'abcde' };
             const data2 = { key: 'field' };
-            const data3 = { key : 'abcdef' };
-            const data4 = { key : 'zabcde' };
-            const data5 = { key : 'hello abcde' };
-            const data6 = { key : 'abcde hello' };
-            const data7 = { key : 'abcccde' };
+            const data3 = { key: 'abcdef' };
+            const data4 = { key: 'zabcde' };
+            const data5 = { key: 'hello abcde' };
+            const data6 = { key: 'abcde hello' };
+            const data7 = { key: 'abcccde' };
 
             documentMatcher.parse('key:abc*');
 
@@ -888,10 +888,10 @@ describe('document matcher', () => {
         });
 
         it('can do more complex wildcard queries', () => {
-            const data1 = { some: 'value', city: { key : 'abcde', field: 'other' } };
-            const data2 = { some: 'value', city: { key : 'abcde', field: 'other', nowIsTrue: 'something' } };
-            const data3 = { some: 'value', city: { key : 'abcde', deeper: { nowIsTrue: 'something' } } };
-            const data4 = { some: 'value', city: { key : 'abcde', deeper: { other: 'thing' } } };
+            const data1 = { some: 'value', city: { key: 'abcde', field: 'other' } };
+            const data2 = { some: 'value', city: { key: 'abcde', field: 'other', nowIsTrue: 'something' } };
+            const data3 = { some: 'value', city: { key: 'abcde', deeper: { nowIsTrue: 'something' } } };
+            // const data4 = { some: 'value', city: { key: 'abcde', deeper: { other: 'thing' } } };
 
             documentMatcher.parse('city.*:something');
 
@@ -929,10 +929,10 @@ describe('document matcher', () => {
 
     describe('regex queries', () => {
         it('can do basic regex matches', () => {
-            const data1 = { key : 'abcde' };
+            const data1 = { key: 'abcde' };
             const data2 = { key: 'field' };
-            const data3 = { key : 'abcdef' };
-            const data4 = { key : 'zabcde' };
+            const data3 = { key: 'abcdef' };
+            const data4 = { key: 'zabcde' };
 
             documentMatcher.parse('key:/ab.*/');
 
@@ -950,10 +950,10 @@ describe('document matcher', () => {
         });
 
         it('can do more complex regex matches', () => {
-            const data1 = { key : 'abbccc' };
+            const data1 = { key: 'abbccc' };
             const data2 = { key: 'field' };
-            const data3 = { key : 'abc' };
-            const data4 = { key : 'zabcde' };
+            const data3 = { key: 'abc' };
+            const data4 = { key: 'zabcde' };
 
             documentMatcher.parse('key:/ab{2}c{3}/');
 
@@ -978,10 +978,10 @@ describe('document matcher', () => {
         });
 
         it('can do complex queries', () => {
-            const data1 = { key : 'abcde', other: 'data2343' };
+            const data1 = { key: 'abcde', other: 'data2343' };
             const data2 = { key: 'field' };
-            const data3 = { key : 'abcdef' , bytes: 43 };
-            const data4 = { key : 'zabcde' , other: 'something' };
+            const data3 = { key: 'abcdef', bytes: 43 };
+            const data4 = { key: 'zabcde', other: 'something' };
 
             documentMatcher.parse('key:/ab.*/ AND other:/data.*/');
 
@@ -1002,14 +1002,14 @@ describe('document matcher', () => {
     describe('works properly with chaotic/crazy data/queries', () => {
         it('does not mutate orignal data', () => {
             const data1 = {
-                key : 'abbccc',
+                key: 'abbccc',
                 ipfield: '192.198.0.0/30',
                 location: '33.435967,-111.867710',
                 _created: '2018-11-18T18:13:20.683Z'
             };
             const clone = _.cloneDeep(data1);
 
-            const typeConfig = { ipfield: 'ip', _created: 'date', location: 'geo' }
+            const typeConfig = { ipfield: 'ip', _created: 'date', location: 'geo' };
             const query = 'ipfield:[192.198.0.0 TO 192.198.0.255] AND _created:[2018-10-18T18:13:20.683Z TO *] AND key:/ab{2}c{3}/ AND location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")';
 
             documentMatcher.parse(query);
@@ -1033,7 +1033,7 @@ describe('document matcher', () => {
 
         it('does not throw when types are not present', () => {
             const data1 = {};
-            const data2 = { ipfield: '192.198.3.0', date: '2018-10-18T18:15:34.123Z', str:'someStr', location: '53.2333,-112.3343' };
+            const data2 = { ipfield: '192.198.3.0', date: '2018-10-18T18:15:34.123Z', str: 'someStr', location: '53.2333,-112.3343' };
 
             documentMatcher.parse('(ipfield:{"192.198.0.0" TO "192.198.0.255"] AND date:"2018-10-18T18:15:34.123Z") OR (str:foo* AND location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902"))');
 
@@ -1044,7 +1044,7 @@ describe('document matcher', () => {
         it('should not throw with AND NOT chaining', () => {
             const data1 = { date: '2018-10-10T17:36:13Z', value: 252, type: 'example' };
             const data2 = { date: '2018-10-10T17:36:13Z', value: 253, type: 'other' };
-            const data3 = { date: '["2018-10-10T17:36:13Z" TO "2018-10-10T17:36:13Z"]', value: 253, type: 'other' }
+            const data3 = { date: '["2018-10-10T17:36:13Z" TO "2018-10-10T17:36:13Z"]', value: 253, type: 'other' };
             const luceneQuery = 'date:["2018-10-10T17:36:13Z" TO "2018-10-10T17:36:13Z"] AND NOT value:(251 OR 252) AND NOT type:example';
             const luceneQuery2 = 'date:["2018-10-10T17:36:13Z" TO "2018-10-10T17:36:13Z"] AND ! value:(251 OR 252) AND ! type:example';
 
@@ -1079,7 +1079,7 @@ describe('document matcher', () => {
             const data2 = { _created: '2018-10-18T18:13:20.683Z', other: 'key', bytes: 1232322, _updated: '2018-10-18T20:13:20.683Z' };
             const data3 = { _created: '2018-10-18T18:15:34.123Z', some: 'key', bytes: 122 };
             const data4 = { _created: '2018-04-02T12:15:34.123Z', bytes: 12233 };
-            const data5 = { _updated: '2018-10-18T18:15:34.123Z', some: 'key',  bytes: 1232322 };
+            const data5 = { _updated: '2018-10-18T18:15:34.123Z', some: 'key', bytes: 1232322 };
 
             documentMatcher.parse('some:key AND (_created:>="2018-10-18T18:13:20.683Z" && bytes:(>=150000 AND <=1232322))', { _created: 'date' });
 
@@ -1148,7 +1148,7 @@ describe('document matcher', () => {
             const data15 = { field1: 'm1-234567.blahblah', ip_field: '192.168.196.144', date: '2048-09-30T23:20:01Z' };
             const data16 = { field1: 'something else', ip_field: '192.168.196.145', date: '2048-09-30T23:20:01Z' };
 
-            const query3 = 'field1:m?-?????*.blahblah AND ip_field:[192.168.196.145 TO 192.168.196.195] AND date:[2018-09-30T23:20:01Z TO *]'
+            const query3 = 'field1:m?-?????*.blahblah AND ip_field:[192.168.196.145 TO 192.168.196.195] AND date:[2018-09-30T23:20:01Z TO *]';
 
             expect(() => documentMatcher.parse(query3)).not.toThrow();
             documentMatcher.parse(query3, { ip_field: 'ip', date: 'date' });

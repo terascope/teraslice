@@ -1,52 +1,73 @@
 
-import BaseType from './base';
-import { bindThis, AST } from '../../../utils';
 import _ from 'lodash';
+import dateFns from 'date-fns';
+import BaseType from './base';
+import { bindThis } from '../../../utils';
+import { AST, DateInput } from '../../../interfaces';
 
 // TODO: handle datemath
+
+const fnBaseName = 'dateFn';
 
 export default class DateType extends BaseType {
     private fields: object;
 
     constructor(dateFieldDict: object) {
-        super();
+        super(fnBaseName);
         this.fields = dateFieldDict;
         bindThis(this, DateType);
     }
 
     processAst(ast: AST): AST {
         // tslint:disable-next-line no-this-assignment
-        const { fields } = this;
+        const { fields, createParsedField, filterFnBuilder } = this;
 
         function parseDates(node: AST, _field?: string) {
             const topField = node.field || _field;
-
-            function convert(value: string | number): any {
+            // TODO: verify return type of string here
+            function convert(value: DateInput): number | null {
                 const results = new Date(value).getTime();
                 if (results) return results;
-                return value;
+                return null;
             }
 
             if (topField && fields[topField]) {
-                if (node.term) node.term = convert(node.term);
-                if (node.term_max) node.term_max = convert(node.term_max);
-                if (node.term_min) node.term_min = convert(node.term_min);
+
+                const { inclusive_min: incMin, inclusive_max: incMax } = node;
+                let { term_min: minValue, term_max: maxValue } = node;
+                // javascript min/max date allowable http://www.ecma-international.org/ecma-262/5.1/#sec-15.9.1.1
+                if (minValue === '*' || minValue === -Infinity) minValue = -8640000000000000;
+                if (maxValue === '*' || maxValue === Infinity) maxValue = 8640000000000000;
+
+                if (node.term !== undefined) {
+                    const nodeTermTime = convert(node.term);
+                    if (!nodeTermTime) throw new Error(`was not able to convert ${node.term} to a date value`);
+                    filterFnBuilder((date: string) => {
+                        return convert(date) === nodeTermTime;
+                    });
+                } else {
+                    if (!incMin) {
+                        const convertedValue = typeof minValue === 'number' ? minValue : convert(minValue as DateInput);
+                        if (!convertedValue) throw new Error(`was not able to convert ${minValue} to a date value`);
+                        minValue = convertedValue + 1;
+                    }
+                    if (!incMax) {
+                        const convertedValue = typeof maxValue === 'number' ? maxValue : convert(maxValue as DateInput);
+                        if (!convertedValue) throw new Error(`was not able to convert ${maxValue} to a date value`);
+                        maxValue = convertedValue - 1;
+                    }
+
+                    filterFnBuilder((date: string) => {
+                        return dateFns.isWithinRange(date, minValue as DateInput, maxValue as DateInput);
+                    });
+                }
+
+                return { field: '__parsed', term: createParsedField(topField) };
+
             }
             return node;
         }
 
         return this.walkAst(ast, parseDates);
     }
-
-    formatData(data: object): object {
-        const clone = _.cloneDeep(data);
-
-        for (const key in this.fields) {
-            if (clone[key]) {
-                clone[key] = new Date(data[key]).getTime();
-            }
-        }
-        return clone;
-    }
-
 }

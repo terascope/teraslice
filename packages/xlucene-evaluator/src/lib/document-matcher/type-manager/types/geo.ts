@@ -4,11 +4,12 @@ import pointInPolygon from '@turf/boolean-point-in-polygon';
 import createCircle from '@turf/circle';
 import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';
-import { lineString, Units, } from '@turf/helpers';
-// @ts-ignore TODO we should add types
+import { lineString } from '@turf/helpers';
+// @ts-ignore TODO: we should add types
 import geoHash from 'latlon-geohash';
 import BaseType from './base';
-import { bindThis, AST } from '../../../utils';
+import { bindThis } from '../../../utils';
+import { AST, GeoResults, GeoDistance, GeoPoint } from '../../../interfaces';
 
 // feet
 const MileUnits = {
@@ -68,25 +69,6 @@ const geoParameters = {
 
 const fnBaseName = 'geoFn';
 
-interface GeoResults {
-    geoField: string;
-    geoBoxTopLeft?: string;
-    geoBoxBottomRight?: string;
-    geoPoint?: string;
-    geoDistance?: string;
-}
-
-interface GeoDistance {
-    distance: number;
-    unit: Units;
-}
-
-type geoPointArr = [number, number];
-type geoPointStr = string;
-type geoObjShort = {lat: string | number, lon: string | number};
-type geoObjLong = {latitude: string | number, longitude: string | number};
-type geoPoint = geoPointArr | geoPointStr | geoObjShort | geoObjLong;
-
 // TODO: allow ranges to be input and compare the two regions if they intersect
 
 export default class GeoType extends BaseType {
@@ -110,7 +92,7 @@ export default class GeoType extends BaseType {
             return [_.toNumber(lat), _.toNumber(lon)];
         }
 
-        function parsePoint(point: geoPoint | number[] | object, isInit?: boolean): number[] | null {
+        function parsePoint(point: GeoPoint | number[] | object, isInit?: boolean): number[] | null {
             let results = null;
 
             if (typeof point === 'string') {
@@ -135,6 +117,7 @@ export default class GeoType extends BaseType {
             if (results) return results.reverse();
             return results;
         }
+
         function parseDistance(str: string): GeoDistance {
             const trimed = str.trim();
             const matches = trimed.match(/(\d+)(.*)$/);

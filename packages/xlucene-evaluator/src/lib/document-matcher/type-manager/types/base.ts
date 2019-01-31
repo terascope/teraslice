@@ -1,4 +1,4 @@
-import { AST } from '../../../utils';
+import { AST } from '../../../interfaces';
 
 export default class BaseType {
     private fnID: number;
@@ -49,9 +49,5 @@ export default class BaseType {
 
     public processAst(ast: AST) {
         return ast;
-    }
-
-    public formatData(data: object) {
-        return data;
     }
 }
