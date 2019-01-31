@@ -25,51 +25,41 @@ export class TSError extends Error {
     */
     retryable?: boolean;
 
+    /**
+     * Additional context metadata
+    */
+    context: TSErrorContext;
+
     constructor (input: any, config: TSErrorConfig = {}) {
         const { fatalError = false } = config;
 
-        // If a Error is passed in we want to only change
-        // the properties based on the configuration
-        if (isError(input) && !isElasticsearchError(input)) {
-            super(prefixErrorMsg(input, config.reason));
+        const {
+            message,
+            statusCode,
+            context,
+            stack
+        } = parseErrorInfo(input, config);
 
-            this.fatalError = fatalError;
-            this.statusCode = getErrorStatusCode(input, config);
-
-            if (isTSError(input)) {
-                this.fatalError = !!input.fatalError;
-                this.retryable = input.retryable;
-            }
-
-            if (!this.fatalError && config.retryable != null) {
-                this.retryable = config.retryable;
-            }
-
-            this.name = this.constructor.name;
-
-            // We want to keep the stack unless specified
-            if (config.withStack && input.stack) {
-                this.stack = input.stack
-                    .replace(utils.toString(input), this.toString());
-            } else {
-                Error.captureStackTrace(this, this.constructor);
-            }
-            return;
-        }
-
-        const errMsg = parseError(input, config.withStack);
-        const message = prefixErrorMsg(errMsg, config.reason);
         super(message);
 
-        this.name = this.constructor.name;
-        Error.captureStackTrace(this, this.constructor);
-
-        this.statusCode = getErrorStatusCode(input, config);
+        if (isTSError(input)) {
+            this.fatalError = !!input.fatalError;
+            this.retryable = input.retryable;
+        }
 
         this.fatalError = fatalError;
+        this.statusCode = statusCode;
+        this.context = context;
 
-        if (config.retryable != null) {
+        if (!this.fatalError && config.retryable != null) {
             this.retryable = config.retryable;
+        }
+
+        this.name = this.constructor.name;
+        if (stack) {
+            this.stack = this.stack;
+        } else {
+            Error.captureStackTrace(this, this.constructor);
         }
     }
 }
@@ -96,9 +86,20 @@ export interface TSErrorConfig {
     reason?: string;
 
     /**
+     * Attach any context metadata to the error
+    */
+    context?: object;
+
+    /**
      * If an error is passed in the stack will be preserved
     */
     withStack?: boolean;
+}
+
+export interface TSErrorContext extends Object {
+    /** ISO Date string */
+    _createdAt: string;
+    _cause: any;
 }
 
 export function isFatalError(err: any): boolean {
@@ -109,27 +110,59 @@ export function isRetryableError(err: any): boolean {
     return !!(err && err.retryable === true && !err.fatalError);
 }
 
-/** parse input to get error message or stack */
-export function parseError(input: any, withStack = false): string {
-    if (!input) return 'Unknown Error';
+type ErrorInfo = { message: string, stack?: string, context: TSErrorContext, statusCode: number };
 
-    if (utils.isString(input)) return cleanErrorMsg(input);
+/** parse error for info */
+export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInfo {
+    const inputContext = (input && input.context) || {};
+
+    const context = Object.assign({}, inputContext, config.context, {
+        _createdAt: new Date().toISOString(),
+        _cause: input,
+    });
+
+    const statusCode = getErrorStatusCode(input, config);
+
     if (isElasticsearchError(input)) {
-        const esError = parseESErrorMsg(input);
-        if (esError) return esError;
+        const esErrorInfo = _parseESErrorInfo(input);
+        if (esErrorInfo) {
+            return {
+                message: prefixErrorMsg(esErrorInfo.message, config.reason),
+                context: Object.assign(esErrorInfo.context, context),
+                statusCode,
+            };
+        }
     }
 
-    if (withStack && input.stack) return cleanErrorMsg(input.stack);
-    if (input.message) return cleanErrorMsg(input.message);
+    let stack: string|undefined;
+    const message = prefixErrorMsg(input, config.reason);
 
-    return cleanErrorMsg(utils.toString(input));
+    if (config.withStack && input.stack) {
+        const oldTitle = utils.toString(input);
+        const newTitle = `Error: ${message}`;
+        stack = input.stack.replace(oldTitle, newTitle);
+    }
+
+    return {
+        stack,
+        message,
+        context,
+        statusCode,
+    };
 }
 
-function cleanErrorMsg(input: string): string {
+/** parse input to get error message or stack */
+export function parseError(input: any, withStack = false): string {
+    const result = parseErrorInfo(input, { withStack });
+    if (result.stack) return result.stack;
+    return result.message;
+}
+
+function _cleanErrorMsg(input: string): string {
     return utils.truncate(input.trim(), 3000);
 }
 
-function parseESErrorMsg(input: ElasticsearchError): string {
+function _parseESErrorInfo(input: ElasticsearchError): { message: string, context: object }|null {
     const bodyError = input && input.body && input.body.error;
 
     const rootCause = bodyError
@@ -152,21 +185,30 @@ function parseESErrorMsg(input: ElasticsearchError): string {
     const metadata = input.toJSON();
     if (metadata.response) {
         const response = utils.tryParseJSON(metadata.response);
+        metadata.response = response;
         if (!index && response && response._index) {
             index = response._index;
         }
     }
 
-    let message = `Elasticsearch Error: ${normalizeESError(metadata.msg)}`;
+    let message = `Elasticsearch Error: ${_normalizeESError(metadata.msg)}`;
 
     if (type) message += ` type: ${type}`;
     if (reason) message += ` reason: ${reason}`;
     if (index) message += ` on index: ${index}`;
 
-    return message;
+    return {
+        message,
+        context: {
+            metadata,
+            type,
+            reason,
+            index,
+        },
+    };
 }
 
-function normalizeESError(message?: string) {
+function _normalizeESError(message?: string) {
     if (!message) return '';
 
     if (message.includes('document missing')) {
@@ -185,13 +227,14 @@ function normalizeESError(message?: string) {
 }
 
 export function prefixErrorMsg(input: any, prefix?: string) {
+    const defaultMsg = 'Unknown Error';
     if (!prefix) {
         if (isError(input)) {
-            return input.message;
+            return _cleanErrorMsg(input.message || defaultMsg);
         }
-        return utils.toString(input);
+        return _cleanErrorMsg(utils.toString(input) || defaultMsg);
     }
-    return `${prefix}, caused by ${utils.toString(input)}`;
+    return _cleanErrorMsg(`${prefix}, caused by ${utils.toString(input || defaultMsg)}`);
 }
 
 /** Check if an input has an error compatible api */

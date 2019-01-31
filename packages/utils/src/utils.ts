@@ -10,7 +10,7 @@ export function isString(val: any): val is string {
 /** Safely convert any input to a string */
 export function toString(val: any): string {
     if (isString(val)) return val;
-    if (typeof val === 'object' && val.message && val.stack) {
+    if (val && typeof val === 'object' && val.message && val.stack) {
         return val.toString();
     }
 

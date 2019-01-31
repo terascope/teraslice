@@ -107,7 +107,7 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetry
                 config.delay = config.maxDelay;
             }
 
-            config.logError('promise retry error, retrying...', err, config);
+            config.logError('retry error, retrying...', err, config);
             return pRetry(fn, config);
         }
 

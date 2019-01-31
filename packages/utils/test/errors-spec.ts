@@ -22,7 +22,12 @@ describe('Error Utils', () => {
             [
                 'hello',
                 { fatalError: true, statusCode: 502, retryable: true },
-                { fatalError: true, statusCode: 502, retryable: true }
+                { fatalError: true, statusCode: 502, retryable: undefined }
+            ],
+            [
+                'hello',
+                { fatalError: false, statusCode: 504, retryable: true },
+                { fatalError: false, statusCode: 504, retryable: true }
             ],
             [
                 'hello',
@@ -40,7 +45,7 @@ describe('Error Utils', () => {
                 {
                     message: 'Bad news, caused by Error: Oops',
                     stack: 'TSError: Bad news, caused by Error: Oops'
-                }
+                },
             ],
             [
                 new TSError('Bad Input', {
@@ -85,6 +90,22 @@ describe('Error Utils', () => {
                 }
             ],
             [
+                new TSError('I\'m a teapot', {
+                    context: {
+                        iamteapot: true,
+                    },
+                    statusCode: 418,
+                }),
+                { reason: 'IDK' },
+                {
+                    message: 'IDK, caused by TSError: I\'m a teapot',
+                    statusCode: 418,
+                    context: {
+                        iamteapot: true,
+                    }
+                }
+            ],
+            [
                 null,
                 { reason: 'Failure' },
                 { message: 'Failure, caused by Unknown Error' }
@@ -106,7 +127,7 @@ describe('Error Utils', () => {
                 {
                     message: 'Elasticsearch Error: Some ES Error type: some_es_type reason: some_es_reason on index: some_index',
                     statusCode: 502
-                }
+                },
             ],
             [
                 newESError({
@@ -202,12 +223,21 @@ describe('Error Utils', () => {
                     it(`should have ${key} start with "${val}"`, () => {
                         expect(tsError[key]).toStartWith(val as string);
                     });
+                } else if (key === 'context') {
+                    it(`should have ${key} contain these properties ${JSON.stringify(val)}`, () => {
+                        expect(tsError[key]).toMatchObject(val);
+                    });
                 } else {
                     it(`should have ${key} set to ${JSON.stringify(val)}`, () => {
                         expect(tsError[key]).toEqual(val);
                     });
                 }
             }
+
+            it('should have the default context proprerties', () => {
+                expect(tsError.context).toHaveProperty('_cause');
+                expect(tsError.context).toHaveProperty('_createdAt');
+            });
 
             if (expected.fatalError) {
                 it('should be a fatalError', () => {
