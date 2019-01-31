@@ -72,6 +72,12 @@ class Options {
                 describe: 'Deletes asset prior to upload',
                 type: 'boolean'
             }),
+            start: () => ({
+                describe: 'Option to start job immediately after registering or updating a job',
+                alias: 'run',
+                type: 'boolean',
+                default: false
+            }),
             'skip-upload': () => ({
                 describe: 'Skips upload to Teraslice, useful to just download the asset.',
                 type: 'boolean',
@@ -92,6 +98,11 @@ class Options {
         this.positionals = {
             asset: () => ({
                 describe: 'Github user/repo of asset to load, e.g.: terascope/file-assets',
+                nargs: 1,
+                type: 'string'
+            }),
+            'job-file': () => ({
+                describe: 'Job file that tjm will read to execute command on job, e.g: jobFile.json',
                 nargs: 1,
                 type: 'string'
             }),
@@ -118,6 +129,17 @@ class Options {
                 describe: 'new cluster url to add to the config file',
                 type: 'string'
             }),
+            number: () => ({
+                describe: 'Number of workers to add, remove, or set to via the tjm command',
+                type: 'number',
+                nargs: 1
+            }),
+            'worker-action': () => ({
+                choices: ['add', 'remove', 'total'],
+                describe: 'Indicates the action to use when adding workers via the tjm commands',
+                nargs: 1,
+                type: 'string'
+            })
         };
 
         this.coerce = {

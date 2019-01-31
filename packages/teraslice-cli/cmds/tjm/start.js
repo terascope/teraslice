@@ -1,24 +1,37 @@
 'use strict';
-'use console';
 
-const _ = require('lodash');
+const JobSrc = require('../../lib/job-src');
+const YargsOptions = require('../../lib/yargs-options');
+const Client = require('../../lib/utils').getTerasliceClient;
 const reply = require('../lib/reply')();
-const configChecks = require('../lib/config');
-const cli = require('./lib/cli');
 
-exports.command = 'start <job_file>';
-exports.desc = 'Start job specified in job file on cluster';
+const yargsOptions = new YargsOptions();
+
+exports.command = 'start <job-file>';
+exports.desc = 'Start a job by referencing the job file';
+exports.aliases = ['run'];
 exports.builder = (yargs) => {
-    cli().args('tjm', 'start', yargs);
-    yargs
-        .example('teraslice-cli tjm start test.json');
+    yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
+    yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
+    yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.example('$0 tjm start jobFile.json');
+    yargs.example('$0 tjm run jobFile.json');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    configChecks(cliConfig, 'tjm:start').returnConfigData();
-    const tjm = _testFunctions || require('./lib')(cliConfig);
+exports.handler = async (argv) => {
+    const job = new JobSrc(argv);
+    job.init();
+    const client = Client(job);
 
-    return tjm.start()
-        .catch(err => reply.fatal(err.message));
+    try {
+        const response = await client.jobs.wrap(job.jobId).start();
+
+        if (!response.job_id === job.jobId) {
+            reply.fatal(`Could not start ${job.name} on ${job.clusterUrl}`);
+        }
+
+        reply.green(`Started ${job.name} on ${job.clusterUrl}`);
+    } catch (e) {
+        reply.fatal(e.message);
+    }
 };
