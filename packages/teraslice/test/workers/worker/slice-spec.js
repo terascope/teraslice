@@ -320,7 +320,7 @@ describe('Slice', () => {
                 await testContext.cleanup();
             });
 
-            it('should throw an error if given invalid state', () => {
+            it('should not throw an error if given invalid state', () => {
                 const data = { should: 'break' };
                 return slice._logAnalytics(data);
             });
