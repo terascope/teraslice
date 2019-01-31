@@ -111,9 +111,11 @@ module.exports = function module(context) {
             })
             .then(() => exId)
             .catch((err) => {
-                const error = _.isString(err) ? new Error(err) : err;
-                logger.error(`Unable to set execution ${exId} status code to ${status}`, error);
-                return error;
+                const error = new TSError(err, {
+                    statusCode: 422,
+                    reason: `Unable to set execution ${exId} status code to ${status}`
+                });
+                return Promise.reject(error);
             });
     }
 

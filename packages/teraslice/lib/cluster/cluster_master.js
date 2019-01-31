@@ -28,7 +28,7 @@ module.exports = function _clusterMaster(context) {
         // we do this to override express final response handler
         requestListener(req, res) {
             app(req, res, (err) => {
-                if (err) logger.warn('unexpected server error', err);
+                if (err) logger.warn(err, 'unexpected server error');
                 res.setHeader('Content-Type', 'application/json');
                 res.statusCode = 500;
                 res.end(JSON.stringify({ error: 'api is not available' }));
@@ -95,7 +95,7 @@ module.exports = function _clusterMaster(context) {
                     running = true;
                 })
                 .catch((err) => {
-                    logger.error('error during service initialization', err);
+                    logger.error(err, 'error during service initialization');
                     running = false;
                     return Promise.reject(err);
                 });

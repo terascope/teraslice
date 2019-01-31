@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const parseError = require('@terascope/error-parser');
+const { TSError } = require('@terascope/utils');
 const Promise = require('bluebird');
 const K8s = require('./k8s');
 const k8sState = require('./k8sState');
@@ -80,7 +80,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
                 // log though.  This only gets used to show slicer info through
                 // the API.  We wouldn't want to disrupt the cluster master
                 // for rare failures to reach the k8s API.
-                logger.error(`Error listing teraslice pods in k8s: ${err}`);
+                logger.error(err, 'Error listing teraslice pods in k8s');
             });
     }
 
@@ -153,15 +153,17 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         return k8s.post(exService, 'service')
             .then(result => logger.debug(`k8s slicer service submitted: ${JSON.stringify(result)}`))
             .catch((err) => {
-                const error = parseError(err);
-                logger.error(`Error submitting k8s slicer service: ${error}`);
+                const error = new TSError(err, {
+                    reason: 'Error submitting k8s slicer service'
+                });
                 return Promise.reject(error);
             })
             .then(() => k8s.post(exJob, 'job'))
             .then(result => logger.debug(`k8s slicer job submitted: ${JSON.stringify(result)}`))
             .catch((err) => {
-                const error = parseError(err);
-                logger.error(`Error submitting k8s slicer job: ${error}`);
+                const error = new TSError(err, {
+                    reason: 'Error submitting k8s slicer job'
+                });
                 return Promise.reject(error);
             });
     }
@@ -204,8 +206,9 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         return k8s.post(workerDeployment, 'deployment')
             .then(result => logger.debug(`k8s worker deployment submitted: ${JSON.stringify(result)}`))
             .catch((err) => {
-                const error = parseError(err);
-                logger.error(`Error submitting k8s worker deployment: ${error}`);
+                const error = new TSError(err, {
+                    reason: 'Error submitting k8s worker deployment'
+                });
                 return Promise.reject(error);
             });
     }

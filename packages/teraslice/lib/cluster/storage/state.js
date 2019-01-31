@@ -1,7 +1,7 @@
 'use strict';
 
 const Promise = require('bluebird');
-const parseError = require('@terascope/error-parser');
+const { TSError } = require('@terascope/utils');
 const { pRetry, toString } = require('@terascope/job-components');
 const { timeseriesIndex } = require('../../utils/date_utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
@@ -78,9 +78,10 @@ module.exports = function module(context) {
                 return recoveryData;
             })
             .catch((err) => {
-                const errMsg = parseError(err);
-                logger.error(`StateStorage: An error occurred getting the newest record, error: ${errMsg}`);
-                return Promise.reject(errMsg);
+                const error = new TSError(err, {
+                    reason: 'Failure getting the newest record'
+                });
+                return Promise.reject(error);
             });
     }
 
@@ -103,9 +104,10 @@ module.exports = function module(context) {
                 _created: doc._created
             })))
             .catch((err) => {
-                const errMsg = parseError(err);
-                logger.error(`StateStorage: An error has occurred accessing the state log for retry, error: ${errMsg}`);
-                return Promise.reject(errMsg);
+                const error = new TSError(err, {
+                    reason: 'An error has occurred accessing the state log for retry'
+                });
+                return Promise.reject(error);
             });
     }
 

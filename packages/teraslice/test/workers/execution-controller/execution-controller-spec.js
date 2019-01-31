@@ -237,8 +237,9 @@ describe('ExecutionController', () => {
                 expect(exController.slicerFailed).toBeTrue();
 
                 expect(setStatus).toHaveBeenCalledWith(testContext.exId, 'failed', errMeta);
-                const errMsg = `slicer for ex ${testContext.exId} had an error, shutting down execution, caused by Uh oh`;
-                expect(executionMetaData).toHaveBeenCalledWith(stats, errMsg);
+                const errMsg = `TSError: slicer for ex ${testContext.exId} had an error, shutting down execution, caused by Uh oh`;
+                expect(executionMetaData.mock.calls[0][0]).toEqual(stats);
+                expect(executionMetaData.mock.calls[0][1]).toStartWith(errMsg);
 
                 expect(logErr).toHaveBeenCalledTimes(2);
                 expect(logFatal).toHaveBeenCalledWith(`execution ${testContext.exId} is ended because of slice failure`);

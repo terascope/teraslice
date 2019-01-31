@@ -81,7 +81,7 @@ class Worker {
             try {
                 await this.runOnce();
             } catch (err) {
-                this.logger.fatal('Worker must shutdown to Fatal Error', err);
+                this.logger.fatal(err, 'Worker must shutdown to Fatal Error');
                 this.shutdown(false);
             } finally {
                 running = false;
@@ -140,9 +140,7 @@ class Worker {
 
             await this.executionContext.onSliceFinished(sliceId);
         } catch (err) {
-            if (!err.alreadyLogged) {
-                this.logger.error(`slice run error for execution ${exId}`, err);
-            }
+            this.logger.error(err, `slice run error for execution ${exId}`);
 
             if (isFatalError(err)) {
                 throw err;

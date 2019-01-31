@@ -102,7 +102,7 @@ module.exports = async function nodeMaster(context) {
 
     messaging.register({
         event: 'network:error',
-        callback: err => logger.warn(`Attempting to connect to cluster_master: ${host}`, err)
+        callback: err => logger.warn(err, `Attempting to connect to cluster_master: ${host}`)
     });
 
     messaging.register({

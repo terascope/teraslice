@@ -60,7 +60,7 @@ class AssetLoader {
         try {
             await this.shutdown();
         } catch (err) {
-            logger.error('assets loading shutdown error', err);
+            logger.error(err, 'assets loading shutdown error');
         }
 
         return idArray;

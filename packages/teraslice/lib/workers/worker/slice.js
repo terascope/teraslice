@@ -1,12 +1,10 @@
 'use strict';
 
-const retry = require('bluebird-retry');
 const get = require('lodash/get');
 const toString = require('lodash/toString');
-const parseError = require('@terascope/error-parser');
+const { TSError, parseError, pRetry } = require('@terascope/utils');
 const { makeLogger } = require('../helpers/terafoundation');
 const { logOpStats } = require('../helpers/op-analytics');
-const { prependErrorMsg } = require('../../utils/error_utils');
 
 class Slice {
     constructor(context, executionContext) {
@@ -34,10 +32,8 @@ class Slice {
         const maxRetries = get(this.executionContext, 'config.max_retries', 3);
         const maxTries = maxRetries > 0 ? maxRetries + 1 : 0;
         const retryOptions = {
-            max_tries: maxTries,
-            throw_original: true,
-            interval: 100,
-            backoff: 2
+            retries: maxTries,
+            delay: 100,
         };
 
         let result;
@@ -45,7 +41,7 @@ class Slice {
         let sliceSuccess = false;
 
         try {
-            result = await retry(() => {
+            result = await pRetry(() => {
                 remaining -= 1;
                 return this._runOnce(remaining > 0);
             }, retryOptions);
@@ -77,8 +73,10 @@ class Slice {
             this.events.emit('slice:finalize', slice);
             await this.executionContext.onSliceFinalizing(slice.slice_id);
         } catch (err) {
-            const errMsg = `Slice: ${slice.slice_id} failure on lifecycle event onSliceFinalizing`;
-            this.logger.error(new Error(prependErrorMsg(errMsg, err, true)));
+            const error = new TSError(err, {
+                reason: `Slice: ${slice.slice_id} failure on lifecycle event onSliceFinalizing`,
+            });
+            this.logger.error(error);
         }
     }
 
@@ -87,8 +85,9 @@ class Slice {
             this.events.emit('slice:failure', slice);
             await this.executionContext.onSliceFailed(slice.slice_id);
         } catch (err) {
-            const errMsg = `Slice: ${slice.slice_id} failure on lifecycle event onSliceFailed`;
-            this.logger.error(new Error(prependErrorMsg(errMsg, err, true)));
+            this.logger.error(new TSError(err, {
+                reason: `Slice: ${slice.slice_id} failure on lifecycle event onSliceFailed`,
+            }));
         }
     }
 
@@ -105,8 +104,9 @@ class Slice {
                 this.analyticsData
             );
         } catch (_err) {
-            const error = new Error(prependErrorMsg('Failure to update analytics', _err));
-            this.logger.error(error);
+            this.logger.error(new TSError(_err, {
+                reason: 'Failure to update analytics'
+            }));
         }
     }
 
@@ -126,7 +126,7 @@ class Slice {
             logger
         } = this;
 
-        const errMsg = err ? parseError(err) : new Error('Unknown error occurred');
+        const errMsg = err ? parseError(err, true) : new Error('Unknown error occurred');
 
         await stateStore.updateState(slice, 'error', errMsg);
 
@@ -134,19 +134,16 @@ class Slice {
 
         this._onSliceFailure(slice);
 
-        if (err instanceof retry.StopError) {
-            const stopError = new Error(err.message);
-            throw stopError;
-        }
-
-        const sliceError = new Error(prependErrorMsg('Slice failed processing', err, true));
-        sliceError.alreadyLogged = true;
-        throw sliceError;
+        throw new TSError(err, {
+            reason: 'Slice failed processing',
+        });
     }
 
     async _runOnce(shouldRetry) {
         if (this._isShutdown) {
-            throw new retry.StopError('Slice shutdown during slice execution');
+            throw new TSError('Slice shutdown during slice execution', {
+                retryable: false
+            });
         }
 
         try {
@@ -160,9 +157,10 @@ class Slice {
                     this.events.emit('slice:retry', this.slice);
                     await this.executionContext.onSliceRetry(this.slice.slice_id);
                 } catch (retryErr) {
-                    const error = new retry.StopError(`Slice failed to retry: ${toString(retryErr)}, caused by: ${toString(err)}`);
-                    error.fatalError = get(retryErr, 'fatalError', false);
-                    throw error;
+                    throw new TSError(err, {
+                        reason: `Slice failed to retry: ${toString(retryErr)}`,
+                        retryable: false,
+                    });
                 }
             }
 

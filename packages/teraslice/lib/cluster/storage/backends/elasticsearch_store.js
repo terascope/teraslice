@@ -2,11 +2,11 @@
 
 const fs = require('fs');
 const _ = require('lodash');
+const { TSError } = require('@terascope/utils');
 const parseError = require('@terascope/error-parser');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
 const { timeseriesIndex } = require('../../../utils/date_utils');
-const { prependErrorMsg } = require('../../../utils/error_utils');
 
 // eslint-disable-next-line max-len
 module.exports = function module(context, indexName, recordType, idField, _bulkSize, fullResponse, logRecord = true) {
@@ -225,8 +225,10 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
                     logger.debug(`Flushed ${results.items.length} records to index ${indexName}`);
                 })
                 .catch((err) => {
-                    const errMsg = prependErrorMsg(`Failure to flush "${recordType}"`, err);
-                    return Promise.reject(new Error(errMsg));
+                    const error = new TSError(err, {
+                        reason: `Failure to flush "${recordType}"`
+                    });
+                    return Promise.reject(error);
                 })
                 .finally(() => {
                     savingBulk = false;
@@ -307,12 +309,14 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
                         .then(results => results)
                         .catch((err) => {
                             // It's not really an error if it's just that the index is already there
-                            if (err.match(/index_already_exists_exception/) === null) {
-                                const errMsg = parseError(err);
-                                logger.error(`Could not create index: ${indexName}, error: ${errMsg}`);
-                                return Promise.reject(new Error(`Could not create job index, error: ${errMsg}`));
+                            if (parseError(err).match(/index_already_exists_exception/)) {
+                                return true;
                             }
-                            return true;
+
+                            const error = new TSError(err, {
+                                reason: `Could not create index: ${indexName}`
+                            });
+                            return Promise.reject(error);
                         });
                 }
 
@@ -333,7 +337,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
     // Periodically flush the bulkQueue so we don't end up with cached data lingering.
     flushInterval = setInterval(() => {
         _flush().catch((err) => {
-            logger.error('background flush failure', err);
+            logger.error(err, 'background flush failure');
             return null;
         });
     }, 10000);
@@ -383,9 +387,8 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
             .then(() => isAvailable(newIndex))
             .then(() => resolve(api))
             .catch((err) => {
-                const errMsg = parseError(err);
-                logger.error(errMsg);
-                logger.error(`Error created job index: ${errMsg}`);
+                const error = new TSError(err, { reason: `Error created job index: ${indexName}` });
+                logger.error(error);
                 logger.info(`Attempting to connect to elasticsearch: ${clientName}`);
                 const checking = setInterval(() => {
                     if (isShutdown) {
@@ -419,9 +422,9 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
                             }
                             return true;
                         })
-                        .catch((checkingError) => {
-                            const checkingErrMsg = parseError(checkingError);
-                            logger.info(`Attempting to connect to elasticsearch: ${clientName}, error: ${checkingErrMsg}`);
+                        .catch((checkingErr) => {
+                            const checkingError = new TSError(checkingErr);
+                            logger.info(checkingError, `Attempting to connect to elasticsearch: ${clientName}`);
                         });
                 }, 3000);
             });

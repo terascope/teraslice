@@ -103,7 +103,7 @@ function shutdownHandler(context, shutdownFn) {
     });
 
     process.on('uncaughtException', (err) => {
-        logger.fatal(`${assignment} received an uncaughtException, ${exitingIn()}`, err);
+        logger.fatal(err, `${assignment} received an uncaughtException, ${exitingIn()}`);
         if (!api.exiting) {
             process.exitCode = restartOnFailure ? 1 : 0;
         }
@@ -111,7 +111,7 @@ function shutdownHandler(context, shutdownFn) {
     });
 
     process.once('unhandledRejection', (err) => {
-        logger.fatal(`${assignment} received an unhandledRejection, ${exitingIn()}`, err);
+        logger.fatal(err, `${assignment} received an unhandledRejection, ${exitingIn()}`);
         if (!api.exiting) {
             process.exitCode = restartOnFailure ? 1 : 0;
         }
@@ -144,7 +144,7 @@ function shutdownHandler(context, shutdownFn) {
             process.exitCode = 0;
         }
         if (err) {
-            logger.fatal(`${assignment} shutdown error, ${exitingIn()}`, err);
+            logger.fatal(err, `${assignment} shutdown error, ${exitingIn()}`);
         } else {
             logger.info(`${assignment} shutdown, ${exitingIn()}`);
         }

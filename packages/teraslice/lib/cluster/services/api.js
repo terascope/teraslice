@@ -5,6 +5,7 @@ const { Router } = require('express');
 const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const request = require('request');
+const { parseErrorInfo } = require('@terascope/utils');
 const {
     makePrometheus,
     isPrometheusRequest,
@@ -12,7 +13,6 @@ const {
     sendError,
     handleRequest,
     getSearchOptions,
-    getErrorMsgAndCode
 } = require('../../utils/api_utils');
 const makeStateStore = require('../storage/state');
 const terasliceVersion = require('../../../package.json').version;
@@ -429,8 +429,10 @@ module.exports = async function makeAPI(context, app, options) {
                     response.pipe(res);
                 })
         ).on('error', (err) => {
-            const { code, message } = getErrorMsgAndCode(err, 500, 'Asset Service error while processing request');
-            res.status(code).json({
+            const { statusCode, message } = parseErrorInfo(err, {
+                defaultErrorMsg: 'Asset Service error while processing request'
+            });
+            res.status(statusCode).json({
                 error: message
             });
         });
