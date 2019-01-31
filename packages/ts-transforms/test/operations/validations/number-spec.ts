@@ -1,6 +1,6 @@
 
 import { NumberValidation } from '../../../src/operations';
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 
 describe('number validation', () => {
 

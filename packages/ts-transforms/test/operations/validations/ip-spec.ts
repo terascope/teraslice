@@ -1,6 +1,6 @@
 
 import { Ip } from '../../../src/operations';
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 
 describe('ip validation', () => {
 

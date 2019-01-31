@@ -1,26 +1,26 @@
 
 import _ from 'lodash';
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 import { OperationConfig } from '../../../interfaces';
-import OperationBase from '../base';
+import ValidationOpBase from './base';
 
-export default class NumberValidation extends OperationBase {
+export default class NumberValidation extends ValidationOpBase<any> {
     constructor(config: OperationConfig) {
         super(config);
     }
 
-    run(doc: DataEntity): DataEntity | null {
-        const field = _.get(doc, this.source);
-        if (typeof field === 'number') return doc;
-        if (typeof field === 'string') {
-            const results = _.toNumber(field);
-            if (!_.isNaN(results)) {
-                _.set(doc, this.source, results);
-                return doc;
-            }
+    normalize(data: any, _doc: DataEntity) {
+        if (typeof data === 'number') return data;
+        if (typeof data === 'string') {
+            const results = _.toNumber(data);
+            if (_.isNaN(results)) throw new Error('could not convert to a number');
+            return results;
         }
-        // if we are here it must be another type so we unset it
-        _.unset(doc, this.source);
-        return doc;
+        throw new Error('could not convert to a number');
+    }
+
+    validate(data:number) {
+        if (typeof data === 'number') return true;
+        return false;
     }
 }

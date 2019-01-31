@@ -1,6 +1,6 @@
 
 import { Extraction } from '../../../src/operations';
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 
 describe('transform operator', () => {
 
@@ -135,6 +135,20 @@ describe('transform operator', () => {
         expect(results8).toEqual({ otherField: 'data' });
     });
 
+    it('can transform data with regex that are set with //', () => {
+        const opConfig = { regex: '/d.*ta/', source_field: 'someField', target_field: 'otherField' };
+        const test = new Extraction(opConfig);
+
+        const data1 = new DataEntity({ someField: 'data' });
+        const data2 = new DataEntity({ someField: ['other', 'data'] });
+
+        const results1 = test.run(data1);
+        const results2 = test.run(data2);
+
+        expect(results1).toEqual({ otherField: 'data' });
+        expect(results2).toEqual({ otherField: 'data' });
+    });
+
     it('can mutate existing doc instead of returning a new one', () => {
         const opConfig = { source_field: 'someField', target_field: 'otherField', mutate: true };
         const test = new Extraction(opConfig);
@@ -150,15 +164,16 @@ describe('transform operator', () => {
         ]);
 
         const finalArray = dataArray.map((doc) => {
-            const results = Object.assign({}, doc);
-            if (results.someField !== undefined) results.otherField = results.someField;
-            return results;
+            if (doc.someField !== undefined) {
+                doc['otherField'] = doc.someField;
+            }
+            if (Object.keys(doc).length === 0) return null;
+            return doc;
         });
-
         const resultsArray = dataArray.map(data => test.run(data));
 
         resultsArray.forEach((result, ind) => {
-            expect(DataEntity.isDataEntity(result)).toEqual(true);
+            if (result) expect(DataEntity.isDataEntity(result)).toEqual(true);
             expect(result).toEqual(finalArray[ind]);
         });
     });

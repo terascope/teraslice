@@ -1,10 +1,10 @@
 
 import { DocumentMatcher } from 'xlucene-evaluator';
-import { DataEntity } from '@terascope/job-components';
-import OperationBase from '../base';
+import { DataEntity } from '@terascope/utils';
+import TransformOpBase from './base';
 import { OperationConfig, SelectorTypes } from '../../../interfaces';
 
-export default class Selector extends OperationBase {
+export default class Selector extends TransformOpBase {
     private documentMatcher: DocumentMatcher;
     public selector: string;
     private isMatchAll: boolean;
