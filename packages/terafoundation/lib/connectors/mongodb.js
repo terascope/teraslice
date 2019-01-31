@@ -25,7 +25,7 @@ function create(customConfig, logger) {
 
     mongoose.connect(customConfig.servers, serverConfig, (error) => {
         if (error) {
-            logger.error(`Could not connect to Mongo DB: ${error}`);
+            logger.error(error, 'Could not connect to Mongo DB:');
         }
     });
 
