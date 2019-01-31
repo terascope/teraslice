@@ -1,0 +1,2 @@
+{ "selector": "some:value", "source_field": "field", "target_field": "newField", "tag": "tag_field" }
+{ "follow": "tag_field", "validation": "contains", "value": "null", "output": false }

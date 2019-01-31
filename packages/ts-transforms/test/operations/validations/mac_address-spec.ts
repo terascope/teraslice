@@ -1,5 +1,5 @@
 
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 import { MacAddress } from '../../../src/operations';
 
 describe('MacAddress validation', () => {
