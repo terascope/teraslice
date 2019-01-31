@@ -16,7 +16,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     const retryStart = _.get(client, '__testing.start', 5000);
     const retryLimit = _.get(client, '__testing.limit', 10000);
 
-    const { connection } = config;
+    const { connection = 'unknown' } = config;
 
     function count(query) {
         query.size = 0;
@@ -759,13 +759,13 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                             }
                             return Promise.resolve();
                         }).catch((_checkingError) => {
-                            const checkingError = new TSError(_checkingError);
-                            logger.info(`Attempting to connect to elasticsearch: ${clientName}`, checkingError);
-
                             if (Date.now() > giveupAfter) {
                                 const timeoutError = new TSError(`Unable to create index ${newIndex}`);
                                 return Promise.reject(timeoutError);
                             }
+
+                            const checkingError = new TSError(_checkingError);
+                            logger.info(checkingError, `Attempting to connect to elasticsearch: ${clientName}`);
 
                             return Promise.resolve();
                         })
