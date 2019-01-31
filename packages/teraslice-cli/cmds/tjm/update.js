@@ -1,24 +1,68 @@
 'use strict';
-'use console';
 
 const _ = require('lodash');
+const JobSrc = require('../../lib/job-src');
+const YargsOptions = require('../../lib/yargs-options');
+const Client = require('../../lib/utils').getTerasliceClient;
 const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
 
-exports.command = 'update <job_file>';
-exports.desc = 'Update cluster with local job file';
+const yargsOptions = new YargsOptions();
+
+exports.command = 'update <job-file>';
+exports.desc = 'Update a job by referencing the job file';
 exports.builder = (yargs) => {
-    cli().args('tjm', 'update', yargs);
-    yargs
-        .example('teraslice-cli tjm update test.json');
+    yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
+    yargs.option('start', yargsOptions.buildOption('start'));
+    yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
+    yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.example('$0 tjm update jobFile.json');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    config(cliConfig, 'tjm:update').returnConfigData();
-    const tjm = _testFunctions || require('./lib')(cliConfig);
+exports.handler = async (argv) => {
+    const job = new JobSrc(argv);
+    job.init();
+    const client = Client(job);
+    const jobJson = job.content;
+    _.unset(jobJson, '__metadata');
+    try {
+        const update = await client.cluster.put(`/jobs/${job.jobId}`, jobJson);
+        if (!_.get(update, 'job_id') === job.job_id) {
+            reply.fatal(`Could not be updated job ${job.jobId} on ${job.clusterUrl}`);
+        }
+    } catch (e) {
+        reply.fatal(e.message);
+    }
 
-    return tjm.update()
-        .catch(err => reply.fatal(err.message));
+    job.addMetaData(job.jobId, job.clusterUrl);
+    job.overwrite();
+    reply.green(`Updated job ${job.jobId} config on ${job.clusterUrl}`);
+
+    try {
+        const view = await client.jobs.wrap(job.jobId).config();
+        reply.yellow(`${job.name} on ${job.clusterUrl}:`);
+        reply.green(JSON.stringify(view, null, 4));
+    } catch (e) {
+        reply.fatal(e.message);
+    }
+
+    if (argv.start) {
+        try {
+            const stop = await client.jobs.wrap(job.jobId).stop();
+            if (!stop.status.status === 'stopped') {
+                reply.fatal(`Could not be stop ${job.name} on ${job.clusterUrl}`);
+            }
+            reply.green(`Stopped job ${job.name} on ${job.clusterUrl}`);
+
+            const start = await client.jobs.wrap(job.jobId).start();
+            if (!start.job_id === job.jobId) {
+                reply.fatal(`Could not start ${job.name} on ${job.clusterUrl}`);
+            }
+            reply.green(`Started ${job.name} on ${job.clusterUrl}`);
+        } catch (e) {
+            if (e.message.includes('no execution context was found')) {
+                reply.fatal(`Job ${job.name} is not currently running on ${job.clusterUrl}`);
+            }
+            reply.fatal(e.message);
+        }
+    }
 };

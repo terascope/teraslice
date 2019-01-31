@@ -682,16 +682,6 @@
     multi-progress "^2.0.0"
     superagent "^3.8.3"
 
-"@terascope/utils@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.2.0.tgz#5aec4e29e9567912e9759d778c6011aab276fcdf"
-  integrity sha512-5GR1WPX90p+9vCJs2D+p6M49Lcj8HOa/YH7CmnpZ43fnDxazP8IOAxWajKceXoG1ubn35OZfHZuDBQqNzzkK2g==
-  dependencies:
-    debug "^4.1.1"
-    is-plain-object "^2.0.4"
-    kind-of "^6.0.2"
-    lodash.clonedeep "^4.5.0"
-
 "@turf/along@5.1.x":
   version "5.1.5"
   resolved "https://registry.yarnpkg.com/@turf/along/-/along-5.1.5.tgz#61d6e6a6584acddab56ac5584e07bf8cbe5f8beb"
