@@ -1,6 +1,6 @@
 
 import { Url as UrlOp } from '../../../src/operations';
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 
 describe('url validation', () => {
 

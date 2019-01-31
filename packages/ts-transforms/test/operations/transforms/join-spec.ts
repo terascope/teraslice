@@ -1,6 +1,6 @@
 
 import { Join } from '../../../src/operations';
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 
 describe('join operator', () => {
 
@@ -71,20 +71,8 @@ describe('join operator', () => {
         expect(results2).toEqual({ first: 'John', last: 'Doe', full: 'John & Doe' });
     });
 
-    it('can just return only the target_field', () => {
-        const opConfig = { operation: 'join', fields: ['first', 'last'], target_field: 'full', remove_source: true };
-        const test =  new Join(opConfig);
-        const metaData = { selectors: { 'some:data': true } };
-        const data = new DataEntity({ first: 'John', last: 'Doe' }, metaData);
-        const results = test.run(data);
-
-        expect(DataEntity.isDataEntity(results)).toEqual(true);
-        expect(DataEntity.getMetadata(results as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results).toEqual({ full: 'JohnDoe' });
-    });
-
     it('can join nested target_field', () => {
-        const opConfig = { operation: 'join', fields: ['person.first', 'person.last'], target_field: 'author.full_name', remove_source: true };
+        const opConfig = { operation: 'join', fields: ['person.first', 'person.last'], target_field: 'author.full_name' };
         const test =  new Join(opConfig);
         const metaData = { selectors: { 'some:data': true } };
         const data = new DataEntity({ person: { first: 'John', last: 'Doe' } }, metaData);
@@ -92,6 +80,6 @@ describe('join operator', () => {
 
         expect(DataEntity.isDataEntity(results)).toEqual(true);
         expect(DataEntity.getMetadata(results as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results).toEqual({ author: { full_name: 'JohnDoe' }, person: {} });
+        expect(results).toEqual({ author: { full_name: 'JohnDoe' }, person: { first: 'John', last: 'Doe' } });
     });
 });

@@ -1,5 +1,5 @@
 
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
 import { OperationConfig, WatcherConfig } from '../interfaces';
 import PhaseBase from './base';
@@ -17,29 +17,9 @@ export default class ValidationPhase extends PhaseBase {
             return _.has(config, 'follow') && _.has(config, 'validation') ;
         }
 
-        function isMatchRequired(config: OperationConfig): boolean {
-            return _.has(config, 'other_match_required');
-        }
-
-        const extractionRequirements = _.once((_config, configList:OperationConfig[]) => {
-            const requirements = {};
-            _.each(configList, (config: OperationConfig) => {
-                if (config.other_match_required) {
-                    const key = config.target_field || config.source_field;
-                    requirements[key as string] = true;
-                }
-            });
-            if (Object.keys(requirements).length > 0) {
-                const RequiredExtractions = opsManager.getTransform('requiredExtractions');
-                if (!this.phase['__all']) this.phase['__all'] = [];
-                this.phase.__all.push(new RequiredExtractions(requirements));
-            }
-        });
-
         const sequence = [
             { type: 'validation', filterFn: isPrimaryValidation },
             { type: 'validation', filterFn: isRefsValidation },
-            { type: 'validation', filterFn: isMatchRequired, injectFn: extractionRequirements }
         ];
         sequence.forEach((loadingConfig) => this.installOps(loadingConfig, configList, opsManager));
     }
@@ -60,13 +40,6 @@ export default class ValidationPhase extends PhaseBase {
                     }, record);
                 }
             });
-
-            if (this.phase.__all) {
-                record = this.phase.__all.reduce<DataEntity | null>((record, fn) => {
-                    if (!record) return record;
-                    return fn.run(record);
-                }, record);
-            }
 
             if (record && Object.keys(record).length > 0) {
                 resultsList.push(record);

@@ -1,9 +1,8 @@
 
-import { DataEntity } from '@terascope/job-components';
-import { OperationConfig } from '../../../src/interfaces';
-import OperationBase from '../../../src/operations/lib/base';
+import { DataEntity } from '@terascope/utils';
+import { OperationConfig, TransformOpBase } from '../../../src';
 
-export default class Double extends OperationBase {
+export default class Double extends TransformOpBase {
     constructor(config: OperationConfig) {
         super(config);
     }

@@ -1,32 +1,23 @@
-import { DataEntity } from '@terascope/job-components';
+
 import _ from 'lodash';
 import validator from 'validator';
-import OperationBase from '../base';
+import ValidationOpBase from './base';
 import { OperationConfig, PluginClassType, /*OperationsDict*/ } from '../../../interfaces';
 
-export class Validator extends OperationBase {
+export class Validator extends ValidationOpBase<any> {
     private method: string;
     private value: any;
-    private config: OperationConfig;
 
     constructor(config: OperationConfig, method: string) {
         super(config);
         this.method = method;
         this.value = config.value;
-        this.config = config;
     }
 
-    run(doc: DataEntity): DataEntity | null {
-        const data = _.get(doc, this.source);
+    validate(value: any) {
         const args = this.value || this.config;
-
-        if (data === undefined) return doc;
-        try {
-            if (!validator[this.method](data, args)) _.unset(doc, this.source);
-        } catch (err) {
-            _.unset(doc, this.source);
-        }
-        return doc;
+        if (!validator[this.method](value, args)) return false;
+        return true;
     }
 }
 
@@ -62,7 +53,7 @@ export class ValidatorPlugins implements PluginClassType {
             hexcolor: setup('isHexColor'),
             hexadecimal: setup('isHexadecimal'),
             identitycard: setup('isIdentityCard'),
-            iprange: setup('isIPRange'), // TODO: is this needed? its only ipv4
+            iprange: setup('isIPRange'), // this only checks if its ipv4
             isbn: setup('isISBN'),
             issn: setup('isISSN'),
             isin: setup('isISIN'),
@@ -76,13 +67,11 @@ export class ValidatorPlugins implements PluginClassType {
             jwt: setup('isJWT'),
             latlong: setup('isLatLong'), // - This is different that our internal geolocation validation.
             length: setup('isLength'),
-            // NORMALIZATION: isLowercase(str) TODO: do this
             md5: setup('isMD5'),
             mimetype: setup('isMimeType'),
-            numeric: setup('isNumeric'), // TODO:???
+            numeric: setup('isNumeric'),
             port: setup('isPort'),
             postalcode: setup('isPostalCode'),
-            // NORMALIZATION : isUppercase(str) TODO: do it
             matches: setup('matches')
         };
     }

@@ -1,5 +1,5 @@
 
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 import { Uuid } from '../../../src/operations';
 import { OperationConfig } from '../../../src/interfaces';
 
