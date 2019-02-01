@@ -81,7 +81,7 @@ module.exports = (options) => {
 
     return _.defaultsDeep(common, {
         files: [
-            'dist/**/*'
+            'dist/src/**/*'
         ],
         srcMain: 'src/index.ts',
         main: 'dist/src/index.js',
