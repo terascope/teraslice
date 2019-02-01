@@ -1,23 +1,28 @@
-'use strict';
+import { OperationAPI } from '../../../src';
 
-const { OperationAPI } = require('../../..');
+export default class ExampleAPI extends OperationAPI {
+    _initialized = false;
+    _shutdown = false;
 
-class ExampleAPI extends OperationAPI {
     async initialize() {
-        this.initialized = true;
+        this._initialized = true;
         return super.initialize();
     }
 
     async shutdown() {
-        this.shutdown = true;
+        this._shutdown = true;
         return super.shutdown();
+    }
+
+    async createAPI() {
+        return {};
     }
 
     name() {
         return 'ExampleAPI';
     }
 
-    async handle(config) {
+    async handle(config: any) {
         return {
             config,
             say() {
@@ -26,5 +31,3 @@ class ExampleAPI extends OperationAPI {
         };
     }
 }
-
-module.exports = ExampleAPI;

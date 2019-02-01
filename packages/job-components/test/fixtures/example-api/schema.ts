@@ -1,8 +1,6 @@
-'use strict';
+import { ConvictSchema } from '../../../src';
 
-const { ConvictSchema } = require('../../..');
-
-class Schema extends ConvictSchema {
+export default class Schema extends ConvictSchema<any, any> {
     build() {
         return {
             example: {
@@ -13,5 +11,3 @@ class Schema extends ConvictSchema {
         };
     }
 }
-
-module.exports = Schema;

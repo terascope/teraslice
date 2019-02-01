@@ -1,9 +1,7 @@
-'use strict';
+import { ConvictSchema, ValidatedJobConfig } from '../../../src';
 
-const { ConvictSchema } = require('../../..');
-
-class Schema extends ConvictSchema {
-    validateJob(job) {
+export default class Schema extends ConvictSchema<any, any> {
+    validateJob(job: ValidatedJobConfig) {
         const shouldFail = job.operations.find(op => op.failCrossValidation);
         if (shouldFail) {
             throw new Error('Failing job validation');
@@ -20,5 +18,3 @@ class Schema extends ConvictSchema {
         };
     }
 }
-
-module.exports = Schema;

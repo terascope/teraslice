@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const _ = require('lodash');
 const Promise = require('bluebird');
-const { parseError } = require('@terascope/utils');
+const { parseError, TSError } = require('@terascope/utils');
 const { saveAsset } = require('../../utils/file_utils');
 const makeTerafoundationContext = require('../context/terafoundation-context');
 const { safeDecode } = require('../../utils/encoding_utils');
@@ -39,11 +39,7 @@ class AssetLoader {
         try {
             idArray = await this.assetStore.parseAssetsArray(assets);
         } catch (err) {
-            if (_.isString(err)) {
-                throw new Error(err);
-            } else {
-                throw err;
-            }
+            throw new TSError(err);
         }
 
         await Promise.map(idArray, async (assetIdentifier) => {
@@ -96,7 +92,7 @@ if (require.main === module) {
     const assets = safeDecode(process.env.ASSETS);
 
     Promise.resolve(loadAssets(context, assets))
-        .then((assetIds) => {
+        .then((assetIds = []) => {
             process.send({
                 assetIds,
                 success: true,

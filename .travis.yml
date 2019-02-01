@@ -26,7 +26,9 @@ before_install:
   - export PATH="$HOME/.yarn/bin:$PATH"
   # make it colorful
   - export FORCE_COLOR=1
-install: yarn && yarn setup
+install:
+    - yarn
+    - yarn setup
 jobs:
   # stop if given a reason
   fast-finish: true
