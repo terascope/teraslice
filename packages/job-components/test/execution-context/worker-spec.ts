@@ -123,7 +123,7 @@ describe('WorkerExecutionContext', () => {
             const ops = executionContext.getOperations();
             for (const op of ops) {
                 if (op.onOperationComplete == null) {
-                    expect(op).toHaveProperty('initialized', true);
+                    expect(op).toHaveProperty('_initialized', true);
                 }
             }
         });

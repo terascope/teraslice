@@ -1,15 +1,16 @@
-'use strict';
+import { Fetcher } from '../../..';
 
-const { Fetcher } = require('../../..');
+export default class ExampleFetcher extends Fetcher {
+    _initialized = false;
+    _shutdown = false;
 
-class ExampleFetcher extends Fetcher {
     async initialize() {
-        this.initialized = true;
+        this._initialized = true;
         return super.initialize();
     }
 
     async shutdown() {
-        this.shutdown = true;
+        this._shutdown = true;
         return super.shutdown();
     }
 
@@ -28,5 +29,3 @@ class ExampleFetcher extends Fetcher {
         return result;
     }
 }
-
-module.exports = ExampleFetcher;
