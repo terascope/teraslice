@@ -5,7 +5,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-test-harness#readme",
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/ts-transforms#readme",
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
     },
