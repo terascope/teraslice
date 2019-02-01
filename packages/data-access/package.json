@@ -13,16 +13,16 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "files": [
-        "dist/**/*"
+        "dist/src/**/*"
     ],
     "srcMain": "src/index.ts",
-    "main": "dist/index.js",
-    "typings": "dist/index.d.ts",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
     "scripts": {
-        "lint": "tslint -p tsconfig.build.json -t verbose -e '**/*.json'",
+        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
-        "build": "rimraf ./dist; tsc --project tsconfig.build.json --pretty",
+        "build": "tsc --build --pretty",
         "build:prod": "tsc --project tsconfig.build.json",
         "build:watch": "yarn build --watch",
         "test": "jest",
