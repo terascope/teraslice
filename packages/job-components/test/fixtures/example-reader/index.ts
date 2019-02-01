@@ -1,4 +1,4 @@
-import { legacyReaderShim } from '../../..';
+import { legacyReaderShim } from '../../../src';
 import Fetcher from './fetcher';
 import Slicer from './slicer';
 import Schema from './schema';

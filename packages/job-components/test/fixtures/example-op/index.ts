@@ -1,4 +1,4 @@
-import { legacyProcessorShim } from '../../..';
+import { legacyProcessorShim } from '../../../src';
 import Processor from './processor';
 import Schema from './schema';
 

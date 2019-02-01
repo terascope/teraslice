@@ -1,5 +1,5 @@
 import uuidv4 from 'uuid/v4';
-import { Slicer } from '../../..';
+import { Slicer } from '../../../src';
 
 export default class ExampleSlicer extends Slicer {
     _initialized = false;

@@ -1,4 +1,4 @@
-import { Fetcher, DataEntity } from '../../..';
+import { Fetcher, DataEntity } from '../../../src';
 
 export default class FailingFetcher extends Fetcher {
     async fetch() {

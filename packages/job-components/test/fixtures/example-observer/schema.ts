@@ -1,4 +1,4 @@
-import { ConvictSchema } from '../../..';
+import { ConvictSchema } from '../../../src';
 
 class Schema extends ConvictSchema<any, any> {
     build() {

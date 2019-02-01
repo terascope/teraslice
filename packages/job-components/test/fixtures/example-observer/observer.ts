@@ -1,4 +1,4 @@
-import { Observer } from '../../..';
+import { Observer } from '../../../src';
 
 export default class ExampleObserver extends Observer {
     _initialized = false;

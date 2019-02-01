@@ -1,4 +1,4 @@
-import { OperationAPI } from '../../../';
+import { OperationAPI } from '../../../src';
 
 // @ts-ignore
 export default class ExampleAPI extends OperationAPI {

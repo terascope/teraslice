@@ -1,4 +1,4 @@
-import { Fetcher } from '../../..';
+import { Fetcher } from '../../../src';
 
 export default class ExampleFetcher extends Fetcher {
     _initialized = false;

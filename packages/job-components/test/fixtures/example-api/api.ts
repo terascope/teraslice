@@ -1,4 +1,4 @@
-import { OperationAPI } from '../../../';
+import { OperationAPI } from '../../../src';
 
 export default class ExampleAPI extends OperationAPI {
     _initialized = false;

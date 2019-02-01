@@ -1,4 +1,4 @@
-import { MapProcessor, DataEntity } from '../../..';
+import { MapProcessor, DataEntity } from '../../../src';
 
 export default class ExampleMap extends MapProcessor {
     _initialized = false;

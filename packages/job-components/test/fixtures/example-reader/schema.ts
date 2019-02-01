@@ -1,4 +1,4 @@
-import { ConvictSchema, ValidatedJobConfig } from '../../..';
+import { ConvictSchema, ValidatedJobConfig } from '../../../src';
 
 export default class Schema extends ConvictSchema<any, any> {
     validateJob(job: ValidatedJobConfig) {
