@@ -346,7 +346,7 @@ export class OperationLoader {
         if (this.availableExtensions.includes('.ts')) {
             return path.join(__dirname, 'builtin');
         }
-        return path.join(__dirname, '..', 'dist', 'src', 'builtin');
+        return path.join(__dirname, '..', '..', 'dist', 'src', 'builtin');
     }
 }
 
