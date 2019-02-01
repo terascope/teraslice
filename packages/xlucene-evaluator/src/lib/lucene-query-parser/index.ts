@@ -1,6 +1,6 @@
 
 // @ts-ignore TODO we should probably add types for this
-import parser from '../../../../../peg/peg_engine';
+import parser from '../../../peg/peg_engine';
 import { AST } from '../utils';
 
 export interface CB {
