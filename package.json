@@ -8,7 +8,7 @@
         "bootstrap": "lerna bootstrap --force-local",
         "clean": "tsc --build --clean",
         "build": "lerna run build:prepare && tsc --build --pretty",
-        "build:watch": "lerna run build:watch --stream --prefix",
+        "build:watch": "yarn run build --watch",
         "bump": "./scripts/bump.js",
         "benchmark": "lerna run benchmark",
         "test": "jest --ci --cache --silent --maxWorkers=4 --detectOpenHandles --forceExit",

@@ -34,26 +34,27 @@
     },
     "include": [],
     "references": [
+        // Make sure to list this in order of depedencies
         {
-            "path": "packages/elasticsearch-store"
+            "path": "packages/utils"
         },
         {
             "path": "packages/job-components"
         },
         {
+            "path": "packages/elasticsearch-store"
+        },
+        {
             "path": "packages/teraslice-messaging"
         },
         {
-            "path": "packages/teraslice-test-harness"
+            "path": "packages/xlucene-evaluator"
         },
         {
             "path": "packages/ts-transforms"
         },
         {
-            "path": "packages/utils"
-        },
-        {
-            "path": "packages/xlucene-evaluator"
+            "path": "packages/teraslice-test-harness"
         }
     ]
 }
