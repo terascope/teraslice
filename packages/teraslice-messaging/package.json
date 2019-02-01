@@ -38,7 +38,7 @@
     "dependencies": {
         "@terascope/queue": "^1.1.6",
         "debug": "^4.1.1",
-        "nanoid": "^2.0.0",
+        "nanoid": "^2.0.1",
         "p-event": "^2.2.0",
         "porty": "^3.1.1",
         "socket.io": "^1.7.4",
@@ -46,12 +46,11 @@
     },
     "devDependencies": {
         "@types/jest": "^23.3.13",
-        "@types/node": "^10.12.20",
+        "@types/node": "^10.12.21",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "jest": "^23.6.0",
         "jest-extended": "^0.11.1",
-        "rimraf": "^2.6.3",
         "ts-jest": "^23.10.5",
         "tslint": "^5.12.1",
         "tslint-config-airbnb": "^5.11.1",
