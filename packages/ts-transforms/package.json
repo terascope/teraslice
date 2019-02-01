@@ -23,7 +23,7 @@
         "dist/src/**/*"
     ],
     "directories": {
-        "lib": "dist",
+        "lib": "dist/src",
         "test": "test"
     },
     "bin": {

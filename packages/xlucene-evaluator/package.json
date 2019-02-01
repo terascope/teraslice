@@ -9,7 +9,7 @@
         "peg/peg_engine.js"
     ],
     "directories": {
-        "lib": "dist",
+        "lib": "dist/src",
         "test": "test"
     },
     "scripts": {

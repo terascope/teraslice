@@ -16,7 +16,7 @@
     },
     "license": "MIT",
     "directories": {
-        "lib": "dist",
+        "lib": "dist/src",
         "test": "test"
     },
     "files": [
