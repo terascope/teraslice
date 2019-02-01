@@ -2,7 +2,6 @@ import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import * as utils from './utils';
 import { IndexConfig } from './interfaces';
-import { getRetryConfig } from './config';
 
 const _loggers = new WeakMap<IndexConfig, ts.Logger>();
 
@@ -30,11 +29,17 @@ export default class IndexManager {
     formatIndexName(config: IndexConfig, useWildcard = true) {
         utils.validateIndexConfig(config);
 
-        const { name } = config;
-        const dataVersion = utils.getDataVersion(config);
-        const schemaVersion = utils.getSchemaVersion(config);
+        const { name, namespace } = config;
+        const dataVersion = utils.getDataVersionStr(config);
+        const schemaVersion = utils.getSchemaVersionStr(config);
 
-        const indexName = `${name}-v${dataVersion}-s${schemaVersion}`;
+        const indexName = utils.formatIndexName([
+            namespace,
+            name,
+            dataVersion,
+            schemaVersion,
+        ]);
+
         if (utils.isTimeSeriesIndex(config.indexSchema) && !useWildcard) {
             const timeSeriesFormat = utils.getRolloverFrequency(config);
             return utils.timeseriesIndex(indexName, timeSeriesFormat);
@@ -50,14 +55,19 @@ export default class IndexManager {
     formatTemplateName(config: IndexConfig) {
         utils.validateIndexConfig(config);
 
-        const { name } = config;
-        const dataVersion = utils.getDataVersion(config);
+        const { name, namespace } = config;
 
-        return `${name}-v${dataVersion}`;
+        return utils.formatIndexName([
+            namespace,
+            name,
+            utils.getDataVersionStr(config)
+        ]);
     }
 
     /**
      * Safely setup a versioned Index, its template and any other required resouces
+     *
+     * @todo This should handle better index change detection
      *
      * @returns a boolean that indicates whether the index was created or not
     */
@@ -160,7 +170,7 @@ export default class IndexManager {
     protected async waitForIndexAvailability(index: string) {
         const query = { index, q: '*', size: 1 };
 
-        await ts.pRetry(() => this.client.search(query), getRetryConfig());
+        await ts.pRetry(() => this.client.search(query), utils.getRetryConfig());
     }
 
     private _logger(config: IndexConfig): ts.Logger {

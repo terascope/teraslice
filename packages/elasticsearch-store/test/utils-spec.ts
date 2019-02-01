@@ -5,6 +5,8 @@ import {
     isTemplatedIndex,
     isTimeSeriesIndex,
     validateIndexConfig,
+    getFirstValue,
+    getFirstKey,
 } from '../src/utils';
 
 describe('Elasticsearch Store Utils', () => {
@@ -107,6 +109,7 @@ describe('Elasticsearch Store Utils', () => {
 
     describe('#validateIndexConfig', () => {
         const validateIndexMsg = /Invalid name, must be a non-empty string and cannot contain a "-"/;
+        const validateNamespaceMsg = /Invalid namespace, must be a non-empty string and cannot contain a "-"/;
 
         describe('when passed an invalid config object', () => {
             it('should throw an error', () => {
@@ -120,8 +123,15 @@ describe('Elasticsearch Store Utils', () => {
         describe('when passed an empty name', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
-                    validateIndexConfig({ index: '' });
+                    validateIndexConfig({ });
+                }).toThrowWithMessage(TSError, validateIndexMsg);
+            });
+        });
+
+        describe('when passed an empty name', () => {
+            it('should throw an error', () => {
+                expect(() => {
+                    validateIndexConfig({ name: '' });
                 }).toThrowWithMessage(TSError, validateIndexMsg);
             });
         });
@@ -129,8 +139,7 @@ describe('Elasticsearch Store Utils', () => {
         describe('when passed an name as a number', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
-                    validateIndexConfig({ index: 123 });
+                    validateIndexConfig({ name: 123 });
                 }).toThrowWithMessage(TSError, validateIndexMsg);
             });
         });
@@ -138,9 +147,40 @@ describe('Elasticsearch Store Utils', () => {
         describe('when passed an invalid name format', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
                     validateIndexConfig({ name: 'hello-hi-' });
                 }).toThrowWithMessage(TSError, validateIndexMsg);
+            });
+        });
+
+        describe('when passed without a namespace', () => {
+            it('should throw an error', () => {
+                expect(() => {
+                    validateIndexConfig({ name: 'hi' });
+                }).not.toThrowWithMessage(TSError, validateNamespaceMsg);
+            });
+        });
+
+        describe('when passed an empty namespace', () => {
+            it('should throw an error', () => {
+                expect(() => {
+                    validateIndexConfig({ name: 'hi', namespace: '' });
+                }).toThrowWithMessage(TSError, validateNamespaceMsg);
+            });
+        });
+
+        describe('when passed an namespace as a number', () => {
+            it('should throw an error', () => {
+                expect(() => {
+                    validateIndexConfig({ name: 'hi', namespace: 321 });
+                }).toThrowWithMessage(TSError, validateNamespaceMsg);
+            });
+        });
+
+        describe('when passed an invalid namespace format', () => {
+            it('should throw an error', () => {
+                expect(() => {
+                    validateIndexConfig({ name: 'hello', namespace: 'hello-hi-' });
+                }).toThrowWithMessage(TSError, validateNamespaceMsg);
             });
         });
 
@@ -197,6 +237,36 @@ describe('Elasticsearch Store Utils', () => {
                         index: 'hello'
                     });
                 }).toThrowWithMessage(TSError, /Data Version must be greater than 0, got "-8"/);
+            });
+        });
+    });
+
+    describe('#getFirstValue', () => {
+        describe('when given an object', () => {
+            it('should return the first value', () => {
+                const obj = { key1: 1, key2: 2 };
+                expect(getFirstValue(obj)).toEqual(1);
+            });
+        });
+
+        describe('when given an empty object', () => {
+            it('should return nil', () => {
+                expect(getFirstValue({ })).toBeNil();
+            });
+        });
+    });
+
+    describe('#getFirstKey', () => {
+        describe('when given an object', () => {
+            it('should return the first value', () => {
+                const obj = { key1: 1, key2: 2 };
+                expect(getFirstKey(obj)).toEqual('key1');
+            });
+        });
+
+        describe('when given an empty object', () => {
+            it('should return nil', () => {
+                expect(getFirstKey({ })).toBeNil();
             });
         });
     });

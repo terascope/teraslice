@@ -21,7 +21,7 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "dependencies": {
-        "@terascope/utils": "^0.3.0",
+        "@terascope/utils": "^0.4.0",
         "bluebird": "^3.5.3",
         "lodash": "^4.17.11",
         "uuid": "^3.3.2"

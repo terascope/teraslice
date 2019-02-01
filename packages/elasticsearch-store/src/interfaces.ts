@@ -3,10 +3,15 @@ import { Logger } from '@terascope/utils';
 /** A versioned Index Configuration */
 export interface IndexConfig {
     /**
-     * The Elasticsearch index that stores your data.
-     * The index name cannot include any dashes.
+     * This is the data type and base name of the index
     */
     name: string;
+
+    /**
+     * The namespace that will be prefixed to the name value when generating
+     * the index name or anything else that needs to be namespaced.
+    */
+    namespace?: string;
 
     /**
      * Data Version, this allows multiple versions of an index to exist with the same Schema
@@ -59,14 +64,14 @@ export interface IndexConfig {
 /** Elasticsearch Index Schema, Mapping and Version */
 export interface IndexSchema {
     /**
-     * The version of this particular Schema definition
-     */
-    version: number;
-
-    /**
-     * The Elasticsearch index mapping
+     * The ElasticSearch index mapping
     */
     mapping: any;
+
+    /**
+     * The version of this particular Schema definition
+     */
+    version?: number;
 
     /**
      * Use a Templated Index
@@ -100,16 +105,11 @@ export type TimeSeriesFormat = 'daily'|'monthly'|'yearly';
 export interface IndexSettings {
     'index.number_of_shards': number;
     'index.number_of_replicas': number;
-    [key: string]: string|number|boolean;
+    [key: string]: any;
 }
 
 /** Data Schema and Version */
 export interface DataSchema {
-    /**
-     * The version of this particular Schema definition
-     */
-    version: number;
-
     /**
      * The Data Schema in JSON Schema format
     */

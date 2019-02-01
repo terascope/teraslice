@@ -1,19 +1,16 @@
 import 'jest-extended';
-import es from 'elasticsearch';
+import * as R from 'rambda';
 import { debugLogger } from '@terascope/utils';
 import * as simple from './helpers/simple-index';
 import * as template from './helpers/template-index';
-import { ELASTICSEARCH_HOST } from './helpers/config';
 import { IndexManager, timeseriesIndex, IndexConfig } from '../src';
+import { makeClient } from './helpers/elasticsearch';
 
 describe('IndexManager->indexSetup()', () => {
     const logger = debugLogger('index-manager-setup');
 
     describe('using a mapped index', () => {
-        const client = new es.Client({
-            host: ELASTICSEARCH_HOST,
-            log: 'error'
-        });
+        const client = makeClient();
 
         const config: IndexConfig = {
             name: 'test__simple',
@@ -74,10 +71,7 @@ describe('IndexManager->indexSetup()', () => {
     });
 
     describe('using a templated index', () => {
-        const client = new es.Client({
-            host: ELASTICSEARCH_HOST,
-            log: 'error'
-        });
+        const client = makeClient();
 
         const config: IndexConfig = {
             name: 'test__template',
@@ -173,10 +167,8 @@ describe('IndexManager->indexSetup()', () => {
         });
 
         it('should be able to upsert a newer template safely', async () => {
-            // @ts-ignore
-            const mapping = config.indexSchema.mapping;
-            // @ts-ignore
-            const version = config.indexSchema.version;
+            const mapping = R.pathOr({}, 'indexSchema.mapping', config);
+            const version = R.pathOr(1, 'indexSchema.version', config);
 
             const mappings = {};
             mappings[config.name] = mapping;
@@ -204,10 +196,7 @@ describe('IndexManager->indexSetup()', () => {
     });
 
     describe('using a timeseries index', () => {
-        const client = new es.Client({
-            host: ELASTICSEARCH_HOST,
-            log: 'error'
-        });
+        const client = makeClient();
 
         const config: IndexConfig = {
             name: 'test__timeseries',

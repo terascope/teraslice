@@ -1,14 +1,10 @@
 import 'jest-extended';
-import es from 'elasticsearch';
 import { TSError, debugLogger } from '@terascope/utils';
-import { ELASTICSEARCH_HOST } from './helpers/config';
 import { IndexManager, IndexConfig } from '../src';
+import { makeClient } from './helpers/elasticsearch';
 
 describe('IndexManager', () => {
-    const client = new es.Client({
-        host: ELASTICSEARCH_HOST,
-        log: 'error'
-    });
+    const client = makeClient();
 
     describe('when constructed with nothing', () => {
         it('should throw an error', () => {
@@ -76,13 +72,24 @@ describe('IndexManager', () => {
         });
 
         describe('->formatIndexName', () => {
-            describe('when passed no versions', () => {
+            describe('when passed just a name', () => {
                 it('should return a correctly formatted index name', () => {
                     const indexName = indexManager.formatIndexName({
                         name: 'hello',
                     });
 
                     expect(indexName).toEqual('hello-v1-s1');
+                });
+            });
+
+            describe('when passed a name and a namespace', () => {
+                it('should return a correctly formatted index name', () => {
+                    const indexName = indexManager.formatIndexName({
+                        name: 'hello',
+                        namespace: 'test'
+                    });
+
+                    expect(indexName).toEqual('test-hello-v1-s1');
                 });
             });
 
@@ -134,13 +141,24 @@ describe('IndexManager', () => {
         });
 
         describe('->formatTemplateName', () => {
-            describe('when passed no versions', () => {
+            describe('when passed just a name', () => {
                 it('should return a correctly formatted template name', () => {
                     const templateName = indexManager.formatTemplateName({
                         name: 'hello',
                     });
 
                     expect(templateName).toEqual('hello-v1');
+                });
+            });
+
+            describe('when passed a name and a namespace', () => {
+                it('should return a correctly formatted template name', () => {
+                    const templateName = indexManager.formatTemplateName({
+                        name: 'hello',
+                        namespace: 'test'
+                    });
+
+                    expect(templateName).toEqual('test-hello-v1');
                 });
             });
 

@@ -46,10 +46,8 @@ export class Collector<T> {
             this._startTime = Date.now();
         }
 
-        const r: T[] = [];
-
         const records = castArray<T>(_records);
-        this._queue = r.concat(this._queue, records);
+        this._queue = this._queue.concat(records);
     }
 
     /**
@@ -77,9 +75,7 @@ export class Collector<T> {
      * specified than the max size.
     */
     flushAll() {
-        const records = this._queue.slice();
-        this._queue.length = 0;
-        return records;
+        return this._queue.splice(0, this._queue.length);
     }
 
     private _checkTime(): boolean {
