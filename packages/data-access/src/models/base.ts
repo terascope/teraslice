@@ -61,7 +61,6 @@ export class Base<T extends BaseModel> {
     }
 
     async create(record: CreateInput<T>|ts.DataEntity<CreateInput<T>>): Promise<T> {
-
         const doc = this._sanitizeRecord({
             ...record,
             id: await utils.makeId(),

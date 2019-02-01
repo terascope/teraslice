@@ -7,6 +7,8 @@ import * as utils from '../utils';
 
 /**
  * Manager for Users
+ *
+ * @todo handle backwards compatiblity with "role"
 */
 export class Users extends Base<UserModel> {
     constructor(client: es.Client, config: ManagerConfig) {

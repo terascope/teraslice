@@ -61,7 +61,7 @@ export class ACLManager {
      * Get the User's data access configuration for a "Space"
      */
     async getDataAccessConfig(username: string, spaceId: string): Promise<DataAccessConfig> {
-        const user = await this.users.findByUsername(username);
+        const user = await this.users.findByAnyId(username);
         if (!user) {
             throw new TSError(`Unable to find user "${username}"`, {
                 statusCode: 404
