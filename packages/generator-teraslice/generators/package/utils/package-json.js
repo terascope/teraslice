@@ -90,7 +90,7 @@ module.exports = (options) => {
             lint: "tslint -p tsconfig.json -t verbose -e '**/*.json'",
             'lint:fix': 'yarn lint --fix',
             prepublishOnly: 'yarn build',
-            build: 'tsc -b',
+            build: 'tsc --build --pretty',
             'build:watch': 'yarn build --watch',
             test: 'jest',
             'test:watch': 'jest --coverage=false --notify --watch --onlyChanged',

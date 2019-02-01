@@ -16,7 +16,7 @@
     "srcMain": "src/index.ts",
     "typings": "dist/src/index.d.ts",
     "scripts": {
-        "build": "tsc -b",
+        "build": "tsc --build --pretty",
         "build:watch": "yarn build --watch",
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
