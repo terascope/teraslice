@@ -6,8 +6,6 @@
     },
     "include": [
         "./src/**/*",
-        "./src/**/*.json",
-        "./test/**/*",
-        "./test/**/*.json"
+        "./test/**/*"
     ]
 }

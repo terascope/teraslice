@@ -3,8 +3,8 @@ import { TestContext, newTestExecutionConfig, WorkerContext } from '../../src';
 import Fetcher from '../../src/builtin/test-reader/fetcher';
 import Slicer from '../../src/builtin/test-reader/slicer';
 import Schema from '../../src/builtin/test-reader/schema';
-import slicerData from '../../src/builtin/test-reader/data/slicer-data.json';
-import fetcherData from '../../src/builtin/test-reader/data/fetcher-data.json';
+import slicerData from '../../src/builtin/test-reader/data/slicer-data';
+import fetcherData from '../../src/builtin/test-reader/data/fetcher-data';
 
 describe('Test Reader', () => {
     it('should have a Schema, Fetcher and Slicer class', () => {
