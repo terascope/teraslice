@@ -204,7 +204,7 @@ module.exports = function module(context) {
     function _ensureAssets(jobConfig) {
         const jobAssets = jobConfig.assets;
         return new Promise((resolve, reject) => {
-            if (!jobAssets) {
+            if (_.isEmpty(jobAssets)) {
                 resolve(jobConfig);
             } else {
                 // convert asset references to their id's

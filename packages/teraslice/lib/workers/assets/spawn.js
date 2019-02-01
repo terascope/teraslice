@@ -12,7 +12,7 @@ const loaderPath = path.join(__dirname, 'loader.js');
 function spawnAssetLoader(assets, context) {
     // if assets is empty return early
     if (_.isEmpty(assets)) {
-        return Promise.resolve();
+        return Promise.resolve([]);
     }
 
     // if the assets are ids and are already loaded, return early
