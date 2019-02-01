@@ -115,7 +115,7 @@ describe('IndexStore', () => {
                     await indexStore.create(record, record.test_id);
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
-                    expect(err.message).toEqual('Document Already Exists');
+                    expect(err.message).toInclude('Document Already Exists');
                     expect(err.statusCode).toEqual(409);
                 }
             });
@@ -184,7 +184,7 @@ describe('IndexStore', () => {
                     }, 'wrong-id');
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
-                    expect(err.message).toEqual('Not Found');
+                    expect(err.message).toInclude('Not Found');
                     expect(err.statusCode).toEqual(404);
                 }
             });
@@ -218,7 +218,7 @@ describe('IndexStore', () => {
                     await indexStore.get('wrong-id');
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
-                    expect(err.message).toEqual('Not Found');
+                    expect(err.message).toInclude('Not Found');
                     expect(err.statusCode).toEqual(404);
                 }
             });
@@ -234,7 +234,7 @@ describe('IndexStore', () => {
                     await indexStore.remove('wrong-id');
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
-                    expect(err.message).toEqual('Not Found');
+                    expect(err.message).toInclude('Not Found');
                     expect(err.statusCode).toEqual(404);
                 }
             });

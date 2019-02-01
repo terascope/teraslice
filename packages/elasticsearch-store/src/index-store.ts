@@ -45,7 +45,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             this._bulkMaxWait = this.config.bulkMaxWait;
         }
 
-        const debugLoggerName = `elasticseach-store:index-store:${config.name}`;
+        const debugLoggerName = `elasticsearch-store:index-store:${config.name}`;
         this._logger = config.logger || ts.debugLogger(debugLoggerName);
 
         this._collector = new ts.Collector({
@@ -188,7 +188,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         this._interval = setInterval(() => {
             this.flush()
                 .catch((err) => {
-                    this._logger.error('Failure flushing in the background', err);
+                    this._logger.error(err, 'Failure flushing in the background');
                 });
         }, ms);
     }
@@ -285,8 +285,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
                 if (reasons.length > 1 || reasons[0] !== 'es_rejected_execution_exception') {
                     const errorReason = reasons.join(' | ');
-                    this._logger.error('Not all shards returned successful, shard errors: ', errorReason);
-                    throw new ts.TSError(errorReason);
+                    throw new ts.TSError(errorReason, {
+                        reason: 'Not all shards returned successful, shard errors: '
+                    });
                 } else {
                     const error = new ts.TSError('Retryable Search Failure', {
                         retryable: true,

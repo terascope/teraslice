@@ -1,59 +1,6 @@
 import * as R from 'rambda';
 import * as ts from '@terascope/utils';
 
-export function normalizeError(err: any): ts.TSError {
-    let message: string = '';
-    let statusCode: number = 500;
-    let retryable = false;
-
-    if (err && ts.isFunction(err.toJSON)) {
-        const errObj = err.toJSON() as object;
-        message = getErrorMessage(errObj);
-        statusCode = getStatusCode(errObj);
-    }
-
-    if (!message) {
-        message = ts.parseError(err);
-    }
-    if (!statusCode) {
-        statusCode = getStatusCode(err);
-    }
-
-    if (message.includes('document missing') || message.includes('Not Found')) {
-        message = 'Not Found';
-        statusCode = 404;
-    }
-
-    if (message.includes('document already exists')) {
-        message = 'Document Already Exists';
-        statusCode = 409;
-    }
-
-    if (message.includes('action_request_validation_exception')) {
-        statusCode = 422;
-    }
-
-    if (message.includes('action_request_validation_exception')) {
-        statusCode = 422;
-    }
-
-    if (message.includes('es_rejected_execution_exception')) {
-        retryable = true;
-    }
-
-    if (message.indexOf('unknown error') === 0) {
-        message = 'Unknown ElasticSearch Error, Cluster may be Unavailable';
-        statusCode = 502;
-    }
-
-    const error = new ts.TSError(message, {
-        statusCode,
-        retryable,
-    });
-
-    return error;
-}
-
 export function throwValidationError(errors: ErrorLike[]|null|undefined): string|null {
     if (errors == null) return null;
     if (!errors.length) return null;

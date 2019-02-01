@@ -10,13 +10,14 @@
     ],
     "directories": {
         "lib": "dist",
-        "test": "tests"
+        "test": "test"
     },
     "scripts": {
         "lint": "tslint -p tsconfig.build.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
-        "build": "pegjs -o peg/peg_engine.js peg/lucene.grammar && tsc --project tsconfig.build.json --pretty",
+        "build": "yarn build:peg && rimraf ./dist; tsc --project tsconfig.build.json --pretty",
+        "build:peg": "rm peg/peg_engine.js; pegjs -o peg/peg_engine.js peg/lucene.grammar",
         "build:prod": "pegjs -o peg/peg_engine.js peg/lucene.grammar && tsc --project tsconfig.build.json",
         "build:watch": "yarn build --watch",
         "test": "jest",
@@ -41,17 +42,17 @@
     },
     "devDependencies": {
         "@types/jest": "^23.3.13",
-        "@types/node": "^10.12.18",
+        "@types/node": "^10.12.20",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "jest": "^23.6.0",
-        "jest-extended": "^0.11.0",
+        "jest-extended": "^0.11.1",
         "pegjs": "^0.10.0",
         "rimraf": "^2.6.3",
         "ts-jest": "^23.10.5",
         "tslint": "^5.12.1",
         "tslint-config-airbnb": "^5.11.1",
-        "typescript": "^3.2.4"
+        "typescript": "^3.3.1"
     },
     "engines": {
         "node": ">=8.0.0"

@@ -6,7 +6,7 @@ import { getRetryConfig } from './config';
 
 const _loggers = new WeakMap<IndexConfig, ts.Logger>();
 
-/** Manage ElasticSearch Indicies */
+/** Manage Elasticsearch Indicies */
 export default class IndexManager {
     readonly client: es.Client;
 
@@ -169,7 +169,7 @@ export default class IndexManager {
         const logger = _loggers.get(config);
         if (logger) return logger;
 
-        const debugLoggerName = `elasticseach-store:index-manager:${config.name}`;
+        const debugLoggerName = `elasticsearch-store:index-manager:${config.name}`;
         const newLogger = ts.debugLogger(debugLoggerName);
 
         _loggers.set(config, newLogger);

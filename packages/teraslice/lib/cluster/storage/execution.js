@@ -1,9 +1,10 @@
 'use strict';
 
 
+const _ = require('lodash');
+const { TSError } = require('@terascope/utils');
 const uuid = require('uuid');
 const Promise = require('bluebird');
-const _ = require('lodash');
 
 const INIT_STATUS = ['pending', 'scheduling', 'initializing'];
 const RUNNING_STATUS = ['running', 'failing', 'paused', 'stopping'];
@@ -60,7 +61,9 @@ module.exports = function module(context) {
         return getExecution(exId)
             .then(result => result._status)
             .catch((err) => {
-                const error = new Error(`Cannot get execution status ${exId}, caused by ${err.toString()}`);
+                const error = new TSError(err, {
+                    reason: `Cannot get execution status ${exId}`
+                });
                 return Promise.reject(error);
             });
     }
@@ -108,9 +111,11 @@ module.exports = function module(context) {
             })
             .then(() => exId)
             .catch((err) => {
-                const error = _.isString(err) ? new Error(err) : err;
-                logger.error(`Unable to set execution ${exId} status code to ${status}`, error);
-                return error;
+                const error = new TSError(err, {
+                    statusCode: 422,
+                    reason: `Unable to set execution ${exId} status code to ${status}`
+                });
+                return Promise.reject(error);
             });
     }
 

@@ -1,12 +1,12 @@
 'use strict';
 
+const _ = require('lodash');
+const path = require('path');
+const fse = require('fs-extra');
+const crypto = require('crypto');
 const Promise = require('bluebird');
 const fs = Promise.promisifyAll(require('fs'));
-const crypto = require('crypto');
-const path = require('path');
-const _ = require('lodash');
-const parseError = require('@terascope/error-parser');
-const fse = require('fs-extra');
+const { TSError } = require('@terascope/utils');
 const { saveAsset } = require('../../utils/file_utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
@@ -37,7 +37,9 @@ module.exports = function module(context) {
                         created: false,
                     }))
                     .catch((err) => {
-                        const error = new Error(`Failure checking asset index, could not get asset with id: ${id}, error: ${parseError(err)}`);
+                        const error = new TSError(err, {
+                            reason: `Failure checking asset index, could not get asset with id: ${id}`
+                        });
                         return Promise.reject(error);
                     });
             })
@@ -241,7 +243,7 @@ module.exports = function module(context) {
     };
 
     return ensureAssetDir()
-        .then(() => elasticsearchBackend(context, indexName, 'asset', '_id', null, true))
+        .then(() => elasticsearchBackend(context, indexName, 'asset', '_id', null, true, false))
         .then((elasticsearch) => {
             backend = elasticsearch;
             return api;

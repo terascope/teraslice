@@ -1,7 +1,8 @@
 'use strict';
 
-const Promise = require('bluebird');
 const _ = require('lodash');
+const Promise = require('bluebird');
+const { isFatalError } = require('@terascope/job-components');
 const { ExecutionController, formatURL } = require('@terascope/teraslice-messaging');
 const {
     makeStateStore,
@@ -68,6 +69,7 @@ class Worker {
             this.logger.warn('Execution Controller shutdown, exiting...');
             this.shouldShutdown = true;
         });
+
         await this.client.start();
     }
 
@@ -79,7 +81,7 @@ class Worker {
             try {
                 await this.runOnce();
             } catch (err) {
-                this.logger.fatal('Worker must shutdown to Fatal Error', err);
+                this.logger.fatal(err, 'Worker must shutdown to Fatal Error');
                 this.shutdown(false);
             } finally {
                 running = false;
@@ -138,11 +140,9 @@ class Worker {
 
             await this.executionContext.onSliceFinished(sliceId);
         } catch (err) {
-            if (!err.alreadyLogged) {
-                this.logger.error(`slice run error for execution ${exId}`, err);
-            }
+            this.logger.error(err, `slice run error for execution ${exId}`);
 
-            if (err.fatalError) {
+            if (isFatalError(err)) {
                 throw err;
             }
 

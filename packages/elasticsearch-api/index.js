@@ -1,18 +1,22 @@
 'use strict';
 
-const Promise = require('bluebird');
 const _ = require('lodash');
-const parseError = require('@terascope/error-parser');
+const Promise = require('bluebird');
+const { TSError, isFatalError } = require('@terascope/utils');
 
 const DOCUMENT_EXISTS = 409;
 
 // Module to manage persistence in Elasticsearch.
 // All functions in this module return promises that must be resolved to get the final result.
 module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
-    const warning = _warn(logger, 'The elasticsearch cluster queues are overloaded, resubmitting failed queries from bulk');
     const config = _opConfig || {};
+
+    const warning = _warn(logger, 'The elasticsearch cluster queues are overloaded, resubmitting failed queries from bulk');
+
     const retryStart = _.get(client, '__testing.start', 5000);
     const retryLimit = _.get(client, '__testing.limit', 10000);
+
+    const { connection = 'unknown' } = config;
 
     function count(query) {
         query.size = 0;
@@ -30,9 +34,10 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             });
     }
 
-    function _makeRequest(clientBase, endpoint, query) {
+    function _makeRequest(clientBase, endpoint, query, fnNamePrefix) {
         return new Promise(((resolve, reject) => {
-            const errHandler = _errorHandler(_runRequest, query, reject, logger);
+            const fnName = `${fnNamePrefix || ''}->${endpoint}()`;
+            const errHandler = _errorHandler(_runRequest, query, reject, fnName);
 
             function _runRequest() {
                 clientBase[endpoint](query)
@@ -49,7 +54,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function _clientIndicesRequest(endpoint, query) {
-        return _makeRequest(client.indices, endpoint, query);
+        return _makeRequest(client.indices, endpoint, query, 'indices');
     }
 
     function mget(query) {
@@ -168,25 +173,21 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                                 logger.warn(`max_result_window for index: ${ind.name} is set at ${ind.windowSize} . On very large indices it is possible that a slice can not be divided to stay below this limit. If that occurs an error will be thrown by Elasticsearch and the slice can not be processed. Increasing max_result_window in the Elasticsearch index settings will resolve the problem.`);
                             });
                         } else {
-                            return Promise.reject('index specified in reader does not exist');
+                            const error = new TSError('index specified in reader does not exist', {
+                                statusCode: 404,
+                            });
+                            return Promise.reject(error);
                         }
+
                         return Promise.resolve();
-                    }).catch((err) => {
-                        const errMsg = parseError(err);
-                        logger.error(errMsg);
-                        return Promise.reject(errMsg);
-                    });
+                    }).catch(err => Promise.reject(new TSError(err)));
             });
     }
 
 
     function putTemplate(template, name) {
         return _clientIndicesRequest('putTemplate', { body: template, name })
-            .then(results => results)
-            .catch((err) => {
-                const errMsg = parseError(err);
-                return Promise.reject(errMsg);
-            });
+            .then(results => results);
     }
 
     function _filterResponse(data, results) {
@@ -236,7 +237,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                             const response = _filterResponse(formattedData, results);
 
                             if (response.error) {
-                                reject(response.reason);
+                                reject(new TSError(response.reason));
                             } else if (response.data.length === 0) {
                                 // may get doc already created error, if so just return
                                 resolve(results);
@@ -249,9 +250,14 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                         }
                     })
                     .catch((err) => {
-                        const errMsg = parseError(err);
-                        logger.error(`bulk sender error: ${errMsg}`);
-                        reject(`bulk sender error: ${errMsg}`);
+                        const error = new TSError(err, {
+                            reason: 'bulk sender error',
+                            context: {
+                                connection,
+                            }
+                        });
+
+                        return Promise.reject(error);
                     });
             }
 
@@ -457,7 +463,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
     function _searchES(query) {
         return new Promise((resolve, reject) => {
-            const errHandler = _errorHandler(_performSearch, query, reject, logger);
+            const errHandler = _errorHandler(_performSearch, query, reject, '->search()');
             const retry = _retryFn(_performSearch, query);
 
             function _performSearch(queryParam) {
@@ -473,8 +479,13 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
                         if (reasons.length > 1 || reasons[0] !== 'es_rejected_execution_exception') {
                             const errorReason = reasons.join(' | ');
-                            logger.error('Not all shards returned successful, shard errors: ', errorReason);
-                            reject(errorReason);
+                            const error = new TSError(errorReason, {
+                                reason: 'Not all shards returned successful',
+                                context: {
+                                    connection
+                                }
+                            });
+                            reject(error);
                         } else {
                             retry();
                         }
@@ -507,7 +518,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
 
-    function _errorHandler(fn, data, reject, errorLogger) {
+    function _errorHandler(fn, data, reject, fnName = '->unknown()') {
         const retry = _retryFn(fn, data);
         return function _errorHandlerFn(err) {
             const isRejectedError = _.get(err, 'body.error.type') === 'es_rejected_execution_exception';
@@ -517,9 +528,13 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                 // this iteration we will not handle with no living connections issue
                 retry();
             } else {
-                const errMsg = `invoking elasticsearch-api ${fn.name} resulted in a runtime error: ${parseError(err)}`;
-                errorLogger.error(errMsg);
-                reject(errMsg);
+                reject(new TSError(err, {
+                    reason: `invoking elasticsearch-api client${fnName}`,
+                    context: {
+                        fnName,
+                        connection,
+                    }
+                }));
             }
         };
     }
@@ -577,29 +592,28 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                 docCount = _count;
                 return _clientRequest('reindex', reindexQuery);
             })
-            .catch((err) => {
-                const errMsg = `could not reindex for query ${JSON.stringify(reindexQuery)}, error: ${_parseTheError(err)}`;
-                return Promise.reject(errMsg);
-            })
+            .catch(err => Promise.reject(new TSError(err, {
+                reason: `could not reindex for query ${JSON.stringify(reindexQuery)}`,
+                context: {
+                    connection
+                }
+            })))
             .then(() => count({ index: migrantIndexName }))
             .then((_count) => {
                 if (docCount !== _count) {
-                    return Promise.reject(`reindex error, index: ${migrantIndexName} only has ${_count} docs, expected ${docCount} from index: ${index}`);
+                    const errMsg = `reindex error, index: ${migrantIndexName} only has ${_count} docs, expected ${docCount} from index: ${index}`;
+                    return Promise.reject(new TSError(errMsg));
                 }
                 return true;
             })
             .then(() => _clientIndicesRequest('delete', { index }))
             .then(() => _clientIndicesRequest('putAlias', { index: migrantIndexName, name: index })
                 .catch((err) => {
-                    const errMsg = `could not put alias for index: ${migrantIndexName}, name: ${index}, error: ${parseError(err)}`;
-                    return Promise.reject(errMsg);
+                    const error = new TSError(err, {
+                        reason: `could not put alias for index: ${migrantIndexName}, name: ${index}`
+                    });
+                    return Promise.reject(error);
                 }));
-    }
-
-    function _parseTheError(err) {
-        if (typeof err === 'string') return err;
-        if (err.errMessage) return err.errMessage;
-        return parseError(err);
     }
 
     function _createIndex(index, migrantIndexName, mapping, recordType, clusterName) {
@@ -620,9 +634,10 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                         .catch((err) => {
                             // It's not really an error if it's just that the index is already there
                             if (err.match(/index_already_exists_exception/) === null) {
-                                const errMsg = parseError(err);
-                                logger.error(`Could not create index: ${index}, error: ${errMsg}`);
-                                return Promise.reject(`Could not create job index, error: ${errMsg}`);
+                                const error = new TSError(err, {
+                                    reason: `Could not create index: ${index}`
+                                });
+                                return Promise.reject(error);
                             }
                             return true;
                         });
@@ -634,9 +649,11 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                     mapping,
                     recordType
                 ).catch((err) => {
-                    const errMsg = `error while migrating index: ${existQuery.index}, error: ${_parseTheError(err)}`;
-                    logger.error(errMsg);
-                    return Promise.reject({ fatal: true, errMessage: errMsg });
+                    const error = new TSError(err, {
+                        reason: `error while migrating index: ${existQuery.index}`,
+                        fatalError: true,
+                    });
+                    return Promise.reject(error);
                 });
             });
     }
@@ -645,8 +662,10 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return _clientIndicesRequest('getMapping', query)
             .then(mapping => _areSameMappings(configMapping, mapping, recordType))
             .catch((err) => {
-                const errMsg = `could not get mapping for query ${JSON.stringify(query)}, error: ${parseError(err)}`;
-                return Promise.reject(errMsg);
+                const error = new TSError(err, {
+                    reason: `could not get mapping for query ${JSON.stringify(query)}`
+                });
+                return Promise.reject(error);
             });
     }
 
@@ -663,7 +682,11 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function _checkAndUpdateMapping(clusterName, index, migrantIndexName, mapping, recordType) {
-        if (index === migrantIndexName || migrantIndexName === null) return Promise.reject(`index and migrant index names are the same: ${index}, please update the appropriate pacakge.json version`);
+        if (index === migrantIndexName || migrantIndexName === null) {
+            const error = new TSError(`index and migrant index names are the same: ${index}, please update the appropriate package.json version`);
+            return Promise.reject(error);
+        }
+
         const query = { index };
         return _verifyMapping(query, mapping, recordType)
             .then((results) => {
@@ -698,9 +721,18 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                 _createIndex(newIndex, migrantIndexName, mapping, recordType, clusterName)
                     .then(() => _isAvailable(newIndex))
                     .catch((err) => {
-                        if (err.fatal) return Promise.reject(err);
-                        const errMsg = parseError(err);
-                        logger.error(`Error created index: ${errMsg}`);
+                        if (isFatalError(err)) return Promise.reject(err);
+
+                        const error = new TSError(err, {
+                            reason: 'Failure to create index',
+                            context: {
+                                newIndex,
+                                migrantIndexName,
+                                clusterName,
+                                connection
+                            }
+                        });
+                        logger.error(error);
 
                         logger.info(`Attempting to connect to elasticsearch: ${clientName}`);
                         return _createIndex(
@@ -726,19 +758,22 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                                 return _isAvailable(newIndex);
                             }
                             return Promise.resolve();
-                        }).catch((checkingError) => {
-                            const checkingErrMsg = parseError(checkingError);
-                            logger.info(`Attempting to connect to elasticsearch: ${clientName}, error: ${checkingErrMsg}`);
+                        }).catch((_checkingError) => {
                             if (Date.now() > giveupAfter) {
-                                return Promise.reject(new Error(`Unable to create index ${newIndex}`));
+                                const timeoutError = new TSError(`Unable to create index ${newIndex}`);
+                                return Promise.reject(timeoutError);
                             }
+
+                            const checkingError = new TSError(_checkingError);
+                            logger.info(checkingError, `Attempting to connect to elasticsearch: ${clientName}`);
+
                             return Promise.resolve();
                         })
                             .then(() => attemptToCreateIndex());
                     })
                     .then(() => resolve(true))
                     .catch((err) => {
-                        reject(err.message);
+                        reject(err);
                     });
             };
             attemptToCreateIndex();

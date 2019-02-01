@@ -71,15 +71,13 @@ module.exports = (projectDir) => {
         } else {
             config.globals['ts-jest'] = {
                 tsConfig: `./${workspaceName}/${name}/tsconfig.json`,
-                diagnostics: {
-                    warnOnly: true
-                },
+                diagnostics: true,
                 pretty: true
             };
         }
     } else {
         config.globals['ts-jest'] = {
-            diagnostics: false,
+            diagnostics: true,
             pretty: true
         };
     }

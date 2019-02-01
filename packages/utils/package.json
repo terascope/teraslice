@@ -1,7 +1,7 @@
 {
     "name": "@terascope/utils",
     "description": "A collection of Teraslice Utilities",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "publishConfig": {
         "access": "public"
     },
@@ -37,15 +37,15 @@
     },
     "devDependencies": {
         "@types/jest": "^23.3.13",
-        "@types/node": "^10.12.18",
+        "@types/node": "^10.12.20",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "jest": "^23.6.0",
-        "jest-extended": "^0.11.0",
+        "jest-extended": "^0.11.1",
         "rimraf": "^2.6.3",
         "ts-jest": "^23.10.5",
         "tslint": "^5.12.1",
         "tslint-config-airbnb": "^5.11.1",
-        "typescript": "^3.2.4"
+        "typescript": "^3.3.1"
     }
 }

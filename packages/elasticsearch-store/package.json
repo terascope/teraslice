@@ -27,24 +27,24 @@
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {
-        "@terascope/utils": "^0.2.0",
+        "@terascope/utils": "^0.3.0",
         "ajv": "^6.6.2",
-        "rambda": "^2.3.0"
+        "rambda": "^2.3.1"
     },
     "devDependencies": {
         "@types/jest": "^23.3.13",
-        "@types/node": "^10.12.18",
+        "@types/node": "^10.12.20",
         "@types/semver": "^5.5.0",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
-        "elasticsearch": "^15.3.0",
+        "elasticsearch": "^15.3.1",
         "jest": "^23.6.0",
-        "jest-extended": "^0.11.0",
+        "jest-extended": "^0.11.1",
         "rimraf": "^2.6.3",
         "ts-jest": "^23.10.5",
         "tslint": "^5.12.1",
         "tslint-config-airbnb": "^5.11.1",
-        "typescript": "^3.2.4"
+        "typescript": "^3.3.1"
     },
     "publishConfig": {
         "access": "public"

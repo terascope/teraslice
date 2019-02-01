@@ -9,7 +9,8 @@ export function isString(val: any): val is string {
 
 /** Safely convert any input to a string */
 export function toString(val: any): string {
-    if (val && isFunction(val.toString)) {
+    if (isString(val)) return val;
+    if (val && typeof val === 'object' && val.message && val.stack) {
         return val.toString();
     }
 
@@ -26,6 +27,14 @@ export function isEmpty(val?: any): boolean {
     return true;
 }
 
+export function tryParseJSON(input: any) {
+    try {
+        return JSON.parse(input);
+    } catch (err) {
+        return input;
+    }
+}
+
 /** JSON encoded buffer into a json object */
 export function parseJSON<T = object>(buf: Buffer|string): T {
     if (!Buffer.isBuffer(buf) && !isString(buf)) {
@@ -38,11 +47,6 @@ export function parseJSON<T = object>(buf: Buffer|string): T {
     } catch (err) {
         throw new Error(`Failure to parse buffer, ${toString(err)}`);
     }
-}
-
-/** Check if an input has an error compatible api */
-export function isError(err: any): err is Error {
-    return err && err.stack && err.message;
 }
 
 /**
@@ -90,14 +94,6 @@ export function isFunction(input: any): input is Function {
  */
 export function getFirst<T>(input: T|T[]): T {
     return Array.isArray(input) ? input[0] : input;
-}
-
-/** parse input to get error message or stack */
-export function parseError(input: any, withStack = false): string {
-    if (!input) return 'Unknown Error Occurred';
-    if (isString(input)) return input;
-    if (withStack && input.stack) return input.stack;
-    return toString(input).replace(/^Error:/, '');
 }
 
 /** Perform a shallow clone of an object to another, in the fastest way possible */
@@ -151,6 +147,11 @@ export function times(n: number, fn: (index: number) => any) {
 export function startsWith(str: string, val: string) {
     if (typeof str !== 'string') return false;
     return str.startsWith(val);
+}
+
+export function truncate(str: string, len: number): string {
+    const sliceLen = (len - 4) > 0 ? len - 4 : len;
+    return str.length >= len ? `${str.slice(0, sliceLen)} ...` : str;
 }
 
 /** A simplified implemation of moment(new Date(val)).isValid() */

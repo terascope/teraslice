@@ -193,7 +193,9 @@ describe('Slice', () => {
             it('should handle the slice correctly', () => {
                 // should have reject with the error
                 expect(err).toBeDefined();
-                expect(err.toString()).toStartWith('Error: Slice failed to retry: Error: I will not allow it, caused by');
+                const errMsg = err.toString();
+                expect(errMsg).toInclude('Slice failed to retry');
+                expect(errMsg).toInclude('I will not allow it');
 
                 // should emit the events
                 expect(eventMocks['slice:retry']).toHaveBeenCalledTimes(1);
@@ -240,7 +242,7 @@ describe('Slice', () => {
             it('should handle the slice correctly', () => {
                 // should have reject with the error
                 expect(err).toBeDefined();
-                expect(err.toString()).toStartWith('Error: Slice failed processing, caused by Error: Bad news bears');
+                expect(err.toString()).toStartWith('TSError: Slice failed processing, caused by TSError: Bad news bears');
 
                 // should emit the events
                 expect(eventMocks['slice:retry']).toHaveBeenCalledTimes(5);
@@ -287,7 +289,7 @@ describe('Slice', () => {
             it('should handle the slice correctly', () => {
                 // should have reject with the error
                 expect(err).toBeDefined();
-                expect(err.toString()).toStartWith('Error: Slice failed processing, caused by Error: Bad news bears');
+                expect(err.toString()).toStartWith('TSError: Slice failed processing, caused by TSError: Bad news bears');
 
                 // should emit the events
                 expect(eventMocks['slice:retry']).not.toHaveBeenCalled();
@@ -320,9 +322,9 @@ describe('Slice', () => {
                 await testContext.cleanup();
             });
 
-            it('should throw an error if given invalid state', async () => {
+            it('should not throw an error if given invalid state', () => {
                 const data = { should: 'break' };
-                return expect(slice._logAnalytics(data)).rejects.toThrowError(/Failure to update analytics/);
+                return slice._logAnalytics(data);
             });
         });
 
@@ -363,12 +365,12 @@ describe('Slice', () => {
         });
 
         it('should throw an error when marking it as failed', async () => {
-            await expect(slice._markFailed(new Error('some error'))).rejects.toThrowError(/Failure to update failed state/);
-            await expect(slice._markFailed()).rejects.toThrowError(/Failure to update failed state/);
+            await expect(slice._markFailed(new Error('some error'))).rejects.toThrowError(/Failure to update error state/);
+            await expect(slice._markFailed()).rejects.toThrowError(/Failure to update error state/);
         });
 
         it('should throw an error when marking it as complete', async () => {
-            await expect(slice._markCompleted()).rejects.toThrowError(/Failure to update success state/);
+            await expect(slice._markCompleted()).rejects.toThrowError(/Failure to update completed state/);
         });
     });
 });

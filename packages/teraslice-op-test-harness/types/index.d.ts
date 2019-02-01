@@ -46,7 +46,7 @@ export interface SampleData {
     bytes:     number;
 }
 
-export interface SampleDataElasticSearch {
+export interface SampleDataElasticsearch {
     took:      number;
     timed_out: boolean;
     hits:      Hits;
@@ -81,7 +81,7 @@ export interface SimpleData {
 export interface SampleData {
     simple: SimpleData[];
     arrayLike: SampleData[];
-    esLike: SampleDataElasticSearch;
+    esLike: SampleDataElasticsearch;
 }
 
 export interface TestHarness {

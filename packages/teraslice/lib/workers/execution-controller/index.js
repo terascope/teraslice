@@ -3,8 +3,8 @@
 const _ = require('lodash');
 const pWhilst = require('p-whilst');
 const Promise = require('bluebird');
-const parseError = require('@terascope/error-parser');
 const Messaging = require('@terascope/teraslice-messaging');
+const { TSError } = require('@terascope/utils');
 
 const Scheduler = require('./scheduler');
 const ExecutionAnalytics = require('./execution-analytics');
@@ -12,7 +12,6 @@ const makeSliceAnalytics = require('./slice-analytics');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
 const { makeStateStore, makeExStore } = require('../../cluster/storage');
 const { makeLogger, generateWorkerId } = require('../helpers/terafoundation');
-const { prependErrorMsg } = require('../../utils/error_utils');
 
 const ExecutionControllerServer = Messaging.ExecutionController.Server;
 const ClusterMasterClient = Messaging.ClusterMaster.Client;
@@ -319,16 +318,18 @@ class ExecutionController {
 
         this.slicerFailed = true;
 
-        const errMsg = prependErrorMsg(`slicer for ex ${this.exId} had an error, shutting down execution`, err, true);
-        this.logger.error(errMsg);
+        const error = new TSError(err, {
+            reason: `slicer for ex ${this.exId} had an error, shutting down execution`,
+        });
+        this.logger.error(error);
 
         const executionStats = this.executionAnalytics.getAnalytics();
-        const errorMeta = exStore.executionMetaData(executionStats, errMsg);
+        const errorMeta = exStore.executionMetaData(executionStats, error.stack);
 
         try {
             await exStore.setStatus(this.exId, 'failed', errorMeta);
         } catch (_err) {
-            this.logger.error('failure setting status to failed', _err);
+            this.logger.error(_err, 'failure setting status to failed');
         }
 
         this.logger.fatal(`execution ${this.exId} is ended because of slice failure`);
@@ -570,8 +571,10 @@ class ExecutionController {
             await this._updateExecutionStatus();
         } catch (err) {
             /* istanbul ignore next */
-            const errMsg = parseError(err);
-            this.logger.error(`execution ${this.exId} has run to completion but the process has failed while updating the execution status, slicer will soon exit, error: ${errMsg}`);
+            const error = new TSError(err, {
+                reason: `execution ${this.exId} has run to completion but the process has failed while updating the execution status, slicer will soon exit`
+            });
+            this.logger.error(error);
         }
 
         this.isExecutionFinished = true;

@@ -1,6 +1,6 @@
 {
     "name": "@terascope/job-components",
-    "version": "0.14.3",
+    "version": "0.14.4",
     "publishConfig": {
         "access": "public"
     },
@@ -39,26 +39,26 @@
     },
     "dependencies": {
         "@terascope/queue": "^1.1.6",
-        "@terascope/utils": "^0.2.0",
+        "@terascope/utils": "^0.3.0",
         "convict": "^4.4.1",
         "datemath-parser": "^1.0.6",
         "uuid": "^3.3.2"
     },
     "devDependencies": {
         "@types/jest": "^23.3.13",
-        "@types/node": "^10.12.18",
+        "@types/node": "^10.12.20",
         "babel-core": "^6.0.0",
         "babel-jest": "^23.6.0",
         "benchmark": "^2.1.4",
         "fs-extra": "^7.0.1",
         "jest": "^23.6.0",
-        "jest-extended": "^0.11.0",
+        "jest-extended": "^0.11.1",
         "jest-fixtures": "^0.6.0",
         "rimraf": "^2.6.3",
         "ts-jest": "^23.10.5",
         "tslint": "^5.12.1",
         "tslint-config-airbnb": "^5.11.1",
-        "typescript": "^3.2.4"
+        "typescript": "^3.3.1"
     },
     "engines": {
         "node": ">=8.0.0"

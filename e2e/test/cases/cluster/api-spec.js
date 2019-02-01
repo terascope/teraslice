@@ -81,12 +81,10 @@ describe('api endpoint', () => {
         ]);
 
         expect(result).toEqual([
-            // _stop should not error
-            false,
             true,
             true,
-            // _stop should not error
-            false,
+            true,
+            true,
             true,
             true,
         ]);

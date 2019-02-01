@@ -75,7 +75,7 @@ RingBuffer.prototype.sendBulk = async function sendBulk() {
             const results = await client.bulkSend(esData, logger);
             return results;
         } catch (err) {
-            logger.error(`failed to send logs to index: ${index}`, err);
+            logger.error(err, `failed to send logs to index: ${index}`);
             // non retrialbe error, so we return. We do not return an error
             // as that could have other side effects in teraslice
             return true;

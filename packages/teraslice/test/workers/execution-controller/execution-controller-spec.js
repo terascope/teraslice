@@ -50,7 +50,8 @@ describe('ExecutionController', () => {
                 try {
                     await exController.initialize();
                 } catch (err) {
-                    expect(err.message).toStartWith(`Cannot get execution status ${testContext.exId}, caused by invoking elasticsearch-api _runRequest resulted in a runtime error: Not Found`);
+                    expect(err.message).toStartWith(`Cannot get execution status ${testContext.exId}`);
+                    expect(err.message).toInclude('Not Found');
                 }
             });
         });
@@ -236,8 +237,9 @@ describe('ExecutionController', () => {
                 expect(exController.slicerFailed).toBeTrue();
 
                 expect(setStatus).toHaveBeenCalledWith(testContext.exId, 'failed', errMeta);
-                const errMsg = `slicer for ex ${testContext.exId} had an error, shutting down execution, caused by Uh oh`;
-                expect(executionMetaData).toHaveBeenCalledWith(stats, errMsg);
+                const errMsg = `TSError: slicer for ex ${testContext.exId} had an error, shutting down execution, caused by Uh oh`;
+                expect(executionMetaData.mock.calls[0][0]).toEqual(stats);
+                expect(executionMetaData.mock.calls[0][1]).toStartWith(errMsg);
 
                 expect(logErr).toHaveBeenCalledTimes(2);
                 expect(logFatal).toHaveBeenCalledWith(`execution ${testContext.exId} is ended because of slice failure`);

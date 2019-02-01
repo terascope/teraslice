@@ -10,6 +10,7 @@ interface DebugParamObj {
 }
 
 type debugParam = DebugParamObj | string;
+const logTrace = process.env.DEBUG_TRACE === 'true';
 
 export function debugLogger(testName: string, param?: debugParam, otherName?: string): Logger {
     const logger: Logger = new EventEmitter() as Logger;
@@ -58,14 +59,22 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
         'info',
         'warn',
         'error',
-        'fatal'
+        'fatal',
     ];
 
     for (const level of levels) {
         const fLevel = `[${level.toUpperCase()}]`;
         const debug = debugFn(name);
+
         logger[level] = (...args: any[]) => {
+            if (level === 'trace' && !logTrace) return false;
+            if (level === 'fatal') {
+                console.error(name, ...args);
+                return true;
+            }
+
             debug(fLevel, ...args);
+            return true;
         };
     }
 

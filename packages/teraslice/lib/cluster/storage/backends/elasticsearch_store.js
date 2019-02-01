@@ -2,12 +2,13 @@
 
 const fs = require('fs');
 const _ = require('lodash');
-const parseError = require('@terascope/error-parser');
+const { TSError, parseError } = require('@terascope/utils');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
 const { timeseriesIndex } = require('../../../utils/date_utils');
 
-module.exports = function module(context, indexName, recordType, idField, _bulkSize, fullResponse) {
+// eslint-disable-next-line max-len
+module.exports = function module(context, indexName, recordType, idField, _bulkSize, fullResponse, logRecord = true) {
     const logger = context.apis.foundation.makeLogger({ module: 'elasticsearch_backend' });
     const config = context.sysconfig.teraslice;
     let elasticsearch;
@@ -62,7 +63,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
      * ID creation
      */
     function index(record, indexArg) {
-        logger.trace('indexing record', record);
+        logger.trace('indexing record', logRecord ? record : null);
         const query = {
             index: indexArg || indexName,
             type: recordType,
@@ -78,7 +79,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
      * If the document is already there it will be replaced.
      */
     function indexWithId(recordId, record, indexArg) {
-        logger.trace(`indexWithId call with id: ${recordId}, record`, record);
+        logger.trace(`indexWithId call with id: ${recordId}, record`, logRecord ? record : null);
         const query = {
             index: indexArg || indexName,
             type: recordType,
@@ -95,7 +96,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
      * If the record already exists it will not be inserted.
      */
     function create(record, indexArg) {
-        logger.trace('creating record', record);
+        logger.trace('creating record', logRecord ? record : null);
 
         const query = {
             index: indexArg || indexName,
@@ -125,7 +126,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
     }
 
     function update(recordId, updateSpec, indexArg) {
-        logger.trace(`updating record ${recordId}, `, updateSpec);
+        logger.trace(`updating record ${recordId}, `, logRecord ? updateSpec : null);
 
         const query = {
             index: indexArg || indexName,
@@ -186,24 +187,27 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
             return _flush();
         }
 
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             logger.trace(`attempting to shutdown, will destroy in ${config.shutdown_timeout}`);
+            const timeout = setTimeout(_destroy, config.shutdown_timeout).unref();
 
-            const _destroy = () => {
+            function _destroy(err) {
                 logger.trace(`shutdown store, took ${Date.now() - startTime}ms`);
+
                 bulkQueue.length = [];
                 isShutdown = true;
+                clearTimeout(timeout);
 
-                resolve();
-            };
-            const timeout = setTimeout(_destroy, config.shutdown_timeout).unref();
+                if (err) reject(err);
+                else resolve();
+            }
+
             _flush()
                 .then(() => {
-                    clearTimeout(timeout);
                     _destroy();
                 })
                 .catch((err) => {
-                    logger.error(err);
+                    _destroy(err);
                 });
         });
     }
@@ -220,9 +224,10 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
                     logger.debug(`Flushed ${results.items.length} records to index ${indexName}`);
                 })
                 .catch((err) => {
-                    const errMsg = parseError(err);
-                    logger.error(errMsg);
-                    return Promise.reject(new Error(errMsg));
+                    const error = new TSError(err, {
+                        reason: `Failure to flush "${recordType}"`
+                    });
+                    return Promise.reject(error);
                 })
                 .finally(() => {
                     savingBulk = false;
@@ -303,12 +308,14 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
                         .then(results => results)
                         .catch((err) => {
                             // It's not really an error if it's just that the index is already there
-                            if (err.match(/index_already_exists_exception/) === null) {
-                                const errMsg = parseError(err);
-                                logger.error(`Could not create index: ${indexName}, error: ${errMsg}`);
-                                return Promise.reject(new Error(`Could not create job index, error: ${errMsg}`));
+                            if (parseError(err).match(/index_already_exists_exception/)) {
+                                return true;
                             }
-                            return true;
+
+                            const error = new TSError(err, {
+                                reason: `Could not create index: ${indexName}`
+                            });
+                            return Promise.reject(error);
                         });
                 }
 
@@ -328,7 +335,10 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
 
     // Periodically flush the bulkQueue so we don't end up with cached data lingering.
     flushInterval = setInterval(() => {
-        _flush();
+        _flush().catch((err) => {
+            logger.error(err, 'background flush failure');
+            return null;
+        });
     }, 10000);
 
     // javascript is having a fit if you use the shorthand get, so we renamed function to getRecord
@@ -360,20 +370,24 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
     return new Promise(((resolve) => {
         const clientName = JSON.stringify(config.state);
         client = getClient(context, config.state, 'elasticsearch');
-        let options = null;
 
-        if (fullResponse) {
-            options = { full_response: true };
+        let { connection } = config.state;
+        if (config.state.endpoint) {
+            connection += `:${config.state.endpoint}`;
         }
+
+        const options = {
+            full_response: !!fullResponse,
+            connection,
+        };
 
         elasticsearch = elasticsearchApi(client, logger, options);
         return _createIndex(newIndex)
             .then(() => isAvailable(newIndex))
             .then(() => resolve(api))
             .catch((err) => {
-                const errMsg = parseError(err);
-                logger.error(errMsg);
-                logger.error(`Error created job index: ${errMsg}`);
+                const error = new TSError(err, { reason: `Error created job index: ${indexName}` });
+                logger.error(error);
                 logger.info(`Attempting to connect to elasticsearch: ${clientName}`);
                 const checking = setInterval(() => {
                     if (isShutdown) {
@@ -407,9 +421,9 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
                             }
                             return true;
                         })
-                        .catch((checkingError) => {
-                            const checkingErrMsg = parseError(checkingError);
-                            logger.info(`Attempting to connect to elasticsearch: ${clientName}, error: ${checkingErrMsg}`);
+                        .catch((checkingErr) => {
+                            const checkingError = new TSError(checkingErr);
+                            logger.info(checkingError, `Attempting to connect to elasticsearch: ${clientName}`);
                         });
                 }, 3000);
             });

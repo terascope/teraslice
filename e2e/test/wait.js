@@ -184,10 +184,12 @@ async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
 
     try {
         const result = await job.waitForStatus(status, interval, 2 * 60 * 1000);
-        // since most of the time we are chaining this with other actions
-        // make sure we avoid unrealistic test conditions by giving the
-        // it a little bit of time
-        await Promise.delay(endDelay);
+        if (endDelay) {
+            // since most of the time we are chaining this with other actions
+            // make sure we avoid unrealistic test conditions by giving the
+            // it a little bit of time
+            await Promise.delay(endDelay);
+        }
         return result;
     } catch (err) {
         err.message = `Job: ${jobId}: ${err.message}`;

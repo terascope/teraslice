@@ -3,13 +3,12 @@
 const _ = require('lodash');
 const express = require('express');
 const Promise = require('bluebird');
-const parseError = require('@terascope/error-parser');
+const { TSError, parseErrorInfo } = require('@terascope/utils');
 const makeAssetsStore = require('../storage/assets');
 const {
     makeTable,
     handleRequest,
     getSearchOptions,
-    getErrorMsgAndCode,
     sendError,
 } = require('../../utils/api_utils');
 
@@ -50,15 +49,16 @@ module.exports = function module(context) {
                     });
                 })
                 .catch((err) => {
-                    const { code, message } = getErrorMsgAndCode(err);
-                    logger.error(err.message);
-                    sendError(res, code, message);
+                    const { statusCode, message } = parseErrorInfo(err);
+                    logger.error(err);
+                    sendError(res, statusCode, message);
                 });
         });
 
         req.on('error', (err) => {
-            const { code, message } = getErrorMsgAndCode(err);
-            res.status(code).send(message);
+            const { statusCode, message } = parseErrorInfo(err);
+            logger.error(err);
+            res.status(statusCode).send(message);
         });
     });
 
@@ -182,10 +182,11 @@ module.exports = function module(context) {
                     running = true;
                 })
                 .catch((err) => {
-                    const errMsg = parseError(err);
-                    logger.error(`Error while creating assets_service, error: ${errMsg}`);
+                    const error = new TSError(err, {
+                        reason: 'Error while creating assets_service'
+                    });
                     running = false;
-                    return Promise.reject(err);
+                    return Promise.reject(error);
                 });
         },
         run() {

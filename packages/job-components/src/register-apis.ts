@@ -78,7 +78,7 @@ export function getClient(context: Context, config: GetClientConfig, type: strin
         return context.foundation.getConnection(clientConfig).client;
     } catch (err) {
         const error = new Error(`No configuration for endpoint ${clientConfig.endpoint} was found in the terafoundation connectors config`);
-        context.logger.error(error.message, err.stack);
+        context.logger.error(error);
         events.emit('client:initialization:error', { error: error.message });
     }
 }

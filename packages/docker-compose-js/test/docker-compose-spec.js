@@ -12,105 +12,63 @@ describe('compose', () => {
         sut = compose(path.join(__dirname, 'fixtures', 'example.yaml'));
     });
 
-    it('should be able to call compose.pull()', (done) => {
-        sut.pull()
-            .then(() => { done(); })
-            .catch(fail);
-    });
+    it('should be able to call compose.pull()', () => sut.pull(null, { quiet: '' }));
 
-    it('should be able to call compose.build()', (done) => {
-        sut.build()
-            .then(() => { done(); })
-            .catch(fail);
-    });
+    it('should be able to call compose.build()', () => sut.build());
 
-    it('should be able to call compose.version()', (done) => {
-        sut.version()
-            .then((result) => {
-                expect(result).not.toEqual(null);
-                expect(result).toContain('docker-compose version');
-                done();
-            })
-            .catch(fail);
+    it('should be able to call compose.version()', async () => {
+        const result = await sut.version();
+        expect(result).not.toBeNil();
+        expect(result).toContain('docker-compose version');
     });
 
     describe('when the cluster is up', () => {
-        beforeAll((done) => {
-            sut.up({
+        beforeAll(() => sut.up({
+            timeout: 1,
+            'force-recreate': ''
+        }));
+
+        afterAll(() => sut.down({
+            timeout: 1,
+            '--volumes': '',
+            '--remove-orphans': ''
+        }));
+
+        it('should be able to call rm on the service', () => sut.rm('test'));
+
+        it('should be able to call port', () => sut.port('test', '40230'));
+
+        it('should be able to call pause and unpause the service', async () => {
+            await sut.pause('test');
+            await sut.unpause('test');
+        });
+
+        it('should be able to call start, ps and stop the service', async () => {
+            await sut.start('test');
+
+            const result = await sut.ps();
+            expect(result).not.toBeNil();
+            expect(result).toInclude('test');
+
+            await sut.stop('test', {
                 timeout: 1,
-                'force-recreate': ''
-            }).then(() => { done(); }).catch(fail);
+            });
         });
 
-        afterAll((done) => {
-            sut.down({
-                timeout: 1,
-                '--volumes': '',
-                '--remove-orphans': ''
-            }).then(() => { done(); }).catch(fail);
+        it('should be able to call restart and kill the service', async () => {
+            await sut.restart('test', { '--timeout': 1 });
+            await sut.kill('test');
         });
 
-        it('should be able to call start and stop the service', (done) => {
-            sut.start('test')
-                .then(() => sut.stop('test', {
-                    timeout: 1,
-                }))
-                .then(() => { done(); })
-                .catch(fail);
-        });
-
-        it('should be able to call start and kill the service', (done) => {
-            sut.start('test')
-                .then(() => sut.kill('test'))
-                .then(() => { done(); })
-                .catch(fail);
-        });
-
-        it('should be able to call restart the service', (done) => {
-            sut.restart('test', { '--timeout': 1 })
-                .then(() => { done(); })
-                .catch(fail);
-        });
-
-        it('should be able to call rm on the service', (done) => {
-            sut.rm('test')
-                .then(() => { done(); })
-                .catch(fail);
-        });
-
-        it('should be able to call port', (done) => {
-            sut.port('test', '40230')
-                .then(() => { done(); })
-                .catch(fail);
-        });
-
-        it('should be able to call pause and unpause the service', (done) => {
-            sut.pause('test')
-                .then(() => sut.unpause('test'))
-                .then(() => { done(); })
-                .catch(fail);
-        });
-
-
-        it('should be able to be list running services', (done) => {
-            sut.start()
-                .then(() => sut.ps())
-                .then((result) => {
-                    expect(result).not.toEqual(null);
-                    expect(result).toContain('test');
-                    done();
-                }).catch(fail);
-        });
-
-        it('should return a rejection when passing in incorrect options', (done) => {
-            sut.start('something wrong')
-                .then(fail)
-                .catch((err) => {
-                    expect(err.message).toContain('Command exited: 1');
-                    expect(err.message).toContain('No such service: something wrong');
-                    expect(err.stdout).toBeDefined();
-                    done();
-                });
+        it('should return a rejection when passing in incorrect options', async () => {
+            expect.hasAssertions();
+            try {
+                await sut.start('something wrong');
+            } catch (err) {
+                expect(err.message).toContain('Command exited: 1');
+                expect(err.message).toContain('No such service: something wrong');
+                expect(err.stdout).toBeDefined();
+            }
         });
     });
 });
