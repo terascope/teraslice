@@ -6,3 +6,6 @@ ipfield:"192.198.0.0/24"
 ipfield:{"192.198.0.0" TO "192.198.0.255"]
 _created:["2018-10-18T18:13:20.683Z" TO *]
 location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902") OR (some:ke* OR bytes:>=10000)
+
+# some notes
+something:else
