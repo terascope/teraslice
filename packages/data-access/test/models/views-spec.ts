@@ -60,7 +60,7 @@ describe('Views', () => {
             try {
                 await views.getViewForRole(roleId, 'missing');
             } catch (err) {
-                const errMsg = `No View for found role "${roleId}" and space "missing"`;
+                const errMsg = `No View found for role "${roleId}" and space "missing"`;
                 expect(err).toBeInstanceOf(TSError);
                 expect(err).toHaveProperty('statusCode', 404);
                 expect(err).toHaveProperty('message', errMsg);
