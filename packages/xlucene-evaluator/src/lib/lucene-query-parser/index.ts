@@ -5,6 +5,7 @@ import { AST, AstCallback } from '../interfaces';
 
 export default class LuceneQueryParser {
     _ast: AST;
+
     constructor() {
         this._ast = {};
     }
