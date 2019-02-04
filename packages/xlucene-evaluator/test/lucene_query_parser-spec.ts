@@ -1,5 +1,6 @@
 'use strict';
 import { LuceneQueryParser } from '../src';
+import 'jest-extended';
 
 describe('luceneQueryParser', () => {
     let luceneQueryParser: LuceneQueryParser;
@@ -13,13 +14,13 @@ describe('luceneQueryParser', () => {
         it('handles empty string', () => {
             luceneQueryParser.parse('');
 
-            expect(isEmpty(luceneQueryParser._ast)).toBe(true);
+            expect(luceneQueryParser._ast).toBeEmpty();
         });
 
         it('handles leading whitespace with no contents', () => {
             luceneQueryParser.parse(' \r\n');
 
-            expect(isEmpty(luceneQueryParser._ast)).toBe(true);
+            expect(luceneQueryParser._ast).toBeEmpty();
         });
 
         it('handles leading whitespace before an expression string', () => {
@@ -35,10 +36,6 @@ describe('luceneQueryParser', () => {
             expect(luceneQueryParser._ast['left']!['field']).toBe('Test');
             expect(luceneQueryParser._ast['left']!['term']).toBe('Foo');
         });
-
-        function isEmpty(obj: object) {
-            return Object.keys(obj).length === 0;
-        }
     });
 
     describe('luceneQueryParser: term parsing', () => {
