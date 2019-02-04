@@ -6,7 +6,7 @@ import GeoType from './types/geo';
 import StringType from './types/string';
 import BaseType from './types/base';
 
-import { AST } from '../../utils';
+import { AST } from '../../interfaces';
 
 const typeMapping = {
     date: DateType,
@@ -15,8 +15,8 @@ const typeMapping = {
 };
 
 export default class TypeManager {
-    // TODO:change this to types[] , any[]
     typeList: BaseType[];
+
     constructor(typeConfig?: object|undefined) {
         this.typeList = this._buildFieldListConfig(typeConfig);
     }
@@ -45,15 +45,9 @@ export default class TypeManager {
     }
 
     public processAst(ast: AST): AST {
-        return this.typeList.reduce((ast, type) => {
-            return type.processAst(ast);
+        return this.typeList.reduce((astObj, type) => {
+            return type.processAst(astObj);
         }, ast);
-    }
-
-    public formatData(doc: object): object {
-        return this.typeList.reduce((doc, type) => {
-            return type.formatData(doc);
-        }, doc);
     }
 
     public injectTypeFilterFns(): object {

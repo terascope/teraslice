@@ -5,7 +5,8 @@ import isCidr from 'is-cidr';
 import ip6addr from 'ip6addr';
 import { isIPv6, isIP } from'net';
 import BaseType from'./base';
-import { bindThis, AST } from '../../../utils';
+import { bindThis } from '../../../utils';
+import { AST } from '../../../interfaces';
 
 const MIN_IPV4_IP = '0.0.0.0';
 const MAX_IPV4_IP = '255.255.255.255';
@@ -69,34 +70,15 @@ export default class IpType extends BaseType {
                         term_min: minValue,
                         term_max: maxValue
                     } = node;
+                    minValue as string;
+                    maxValue as string;
 
-                    let range: any;
+                    if (minValue === '*' || minValue === -Infinity) isIPv6(maxValue as string) ? minValue = MIN_IPV6_IP : minValue = MIN_IPV4_IP;
+                    if (maxValue === '*' || maxValue === Infinity) isIPv6(minValue as string) ? maxValue = MAX_IPV6_IP : maxValue = MAX_IPV4_IP;
 
-                    if (minValue === '*' && typeof maxValue === 'string') isIPv6(maxValue) ? minValue = MIN_IPV6_IP : minValue = MIN_IPV4_IP;
-                    if (maxValue === '*' && typeof minValue === 'string') isIPv6(minValue) ? maxValue = MAX_IPV6_IP : maxValue = MAX_IPV4_IP;
-
-                    // ie ip:{ 0.0.0.0 TO *] ||  ip:{0.0.0.0 TO 1.1.1.1]
-                    if (!incMin && incMax) {
-                        minValue = ip6addr.parse(minValue).offset(1).toString();
-                        range = ip6addr.createAddrRange(minValue, maxValue);
-                    }
-                    // ie age:<10 || age:(<=10 AND >20)
-                    if (incMin && !incMax) {
-                        maxValue = ip6addr.parse(maxValue).offset(-1).toString();
-                        range = ip6addr.createAddrRange(minValue, maxValue);
-                    }
-
-                    // ie age:<=10, age:>=10, age:(>=10 AND <=20)
-                    if (incMin && incMax) {
-                        range = ip6addr.createAddrRange(minValue, maxValue);
-                    }
-
-                    // ie age:(>10 AND <20)
-                    if (!incMin && !incMax) {
-                        minValue = ip6addr.parse(minValue).offset(1).toString();
-                        maxValue = ip6addr.parse(maxValue).offset(-1).toString();
-                        range = ip6addr.createAddrRange(minValue, maxValue);
-                    }
+                    if (!incMin) minValue = ip6addr.parse(minValue).offset(1).toString();
+                    if (!incMax) maxValue = ip6addr.parse(maxValue).offset(-1).toString();
+                    const range = ip6addr.createAddrRange(minValue, maxValue);
 
                     filterFnBuilder((ip: string) => {
                         if (isCidr(ip) > 0) {

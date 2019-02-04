@@ -1,8 +1,9 @@
 'use strict';
 
 import BaseType from './base';
-import { bindThis, AST } from '../../../utils';
+import { bindThis } from '../../../utils';
 import _ from 'lodash';
+import { AST } from '../../../interfaces';
 
 const fnBaseName = 'strFn';
 
