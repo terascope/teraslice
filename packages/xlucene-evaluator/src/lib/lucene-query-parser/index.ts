@@ -1,14 +1,5 @@
 
-// @ts-ignore TODO: we should probably add types for this
-// FIXME: https://github.com/Microsoft/TypeScript/issues/10866
-// I have to change import so that the compiled output works even though
-// it is wrong here. It should be '../../../peg/peg_engine'
-let parser;
-try {
-    parser = require('../../../peg/peg_engine');
-} catch (err) {
-    parser = require('../../../../peg/peg_engine');
-}
+import parser from '../peg';
 import { AST, AstCallback } from '../interfaces';
 
 export default class LuceneQueryParser {

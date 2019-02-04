@@ -38,3 +38,7 @@ export type GeoObjShort = {lat: string | number, lon: string | number};
 export type GeoObjLong = {latitude: string | number, longitude: string | number};
 export type GeoPoint = GeoPointArr | GeoPointStr | GeoObjShort | GeoObjLong;
 export type DateInput = string | number;
+
+export interface PegEngine {
+    parse(input: string): AST;
+}
