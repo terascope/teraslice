@@ -11,7 +11,6 @@ export default class LuceneQueryParser {
 
     public parse(luceneStr: string): void {
         try {
-            // @ts-ignore
             this._ast = parser.parse(luceneStr);
         } catch (err) {
             throw new Error(`error occured while attempting to parse lucene query: ${luceneStr} , error: ${err.message}`);
