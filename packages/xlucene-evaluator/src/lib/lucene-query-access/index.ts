@@ -24,23 +24,25 @@ export default class LuceneQueryAccess {
     restrict(query: string): string {
         this._parser.parse(query);
         this._parser.walkLuceneAst((node: AST) => {
-            if (!node.field) return;
-
-            const excluded = _.some(this.exclude, (str) => _.startsWith(node.field, str));
-
-            if (excluded) {
+            if (isFieldExcluded(this.exclude, node.field)) {
                 throw new Error(`Field ${node.field} is restricted`);
             }
 
-            if (!this.include.length) return;
-
-            const included = _.some(this.include, (str) => _.startsWith(node.field, str));
-
-            if (!included) {
+            if (isFieldIncluded(this.include, node.field)) {
                 throw new Error(`Field ${node.field} is restricted`);
             }
         });
 
         return query;
     }
+}
+
+function isFieldExcluded(exclude: string[], field?: string): boolean {
+    if (!exclude.length || !field) return false;
+    return _.some(exclude, (str) => _.startsWith(field, str));
+}
+
+function isFieldIncluded(include: string[], field?: string): boolean {
+    if (!include.length || !field) return false;
+    return !_.some(include, (str) => _.startsWith(field, str));
 }

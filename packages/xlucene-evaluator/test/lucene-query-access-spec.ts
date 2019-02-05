@@ -104,6 +104,12 @@ describe('LuceneQueryAccess', () => {
             expect(() => queryAccess.restrict(query)).toThrow();
         });
 
+        it('should throw if field is not in the include list', () => {
+            const query = 'hello:world AND bar:foo';
+
+            expect(() => queryAccess.restrict(query)).toThrow();
+        });
+
         it('should allow field listed in the include list', () => {
             const query = 'bar:foo';
 
