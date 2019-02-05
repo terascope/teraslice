@@ -106,6 +106,7 @@ destroy-all: destroy deauth deelasticsearch delete-namespace ## delete ALL thing
 
 rebuild: destroy setup ## destroys then re-runs things
 	sleep 20
+	make build
 	make register
 
 register: ## creates asset and registers job

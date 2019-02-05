@@ -166,7 +166,8 @@ property should be the name of the Kubernetes `persistentVolumeClaim`.  The
 There is a `Makefile` I use to help bootstrap Teraslice and do repetitive tasks,
 you can type `make` to see all of the possible targets.
 
-The standard minikube based dev workflow is:
+The standard minikube based dev workflow is and requires the `teraslice-cli`
+version `0.5.1` or higher:
 
 ```
 minikube start
