@@ -7,13 +7,13 @@ describe('LuceneQueryAccess', () => {
         it('should set an empty array', () => {
             const queryAccess = new LuceneQueryAccess({});
 
-            expect(queryAccess.exclude).toBeArrayOfSize(0);
+            expect(queryAccess.excludes).toBeArrayOfSize(0);
         });
     });
 
     describe('when constructed with exclusive fields', () => {
         const queryAccess = new LuceneQueryAccess({
-            exclude: [
+            excludes: [
                 'bar',
                 'moo',
                 'baa.maa',
@@ -101,7 +101,7 @@ describe('LuceneQueryAccess', () => {
 
     describe('when constructed with include fields', () => {
         const queryAccess = new LuceneQueryAccess({
-            include: [
+            includes: [
                 'bar',
                 'star'
             ]
@@ -172,7 +172,7 @@ describe('LuceneQueryAccess', () => {
         const constraint = 'hello:world';
         const queryAccess = new LuceneQueryAccess({
             constraint,
-            exclude: [
+            excludes: [
                 'hello'
             ]
         });

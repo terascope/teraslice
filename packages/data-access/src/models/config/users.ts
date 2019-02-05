@@ -57,6 +57,9 @@ export const mapping = {
         salt: {
             type: 'keyword'
         },
+        roles: {
+            type: 'keyword'
+        }
     }
 };
 

@@ -23,6 +23,18 @@ export const mapping = {
         constraint: {
             type: 'keyword'
         },
+        roles: {
+            type: 'keyword'
+        },
+        excludes: {
+            type: 'keyword'
+        },
+        includes: {
+            type: 'keyword'
+        },
+        prevent_prefix_wildcard: {
+            type: 'boolean'
+        },
     }
 };
 
@@ -70,6 +82,10 @@ export const schema = {
         },
         constraint: {
             type: 'string'
+        },
+        prevent_prefix_wildcard: {
+            type: 'boolean',
+            default: true
         }
     },
     required: ['name', 'space']

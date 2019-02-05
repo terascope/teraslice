@@ -62,4 +62,11 @@ export interface ViewModel extends BaseModel {
      * Constraint for queries and filtering
     */
     constraint?: string;
+
+    /**
+     * Restrict prefix wildcards in search values
+     *
+     * @example `foo:*bar`
+    */
+    prevent_prefix_wildcard: boolean;
 }
