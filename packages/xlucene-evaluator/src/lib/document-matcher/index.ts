@@ -4,6 +4,7 @@ import _ from 'lodash';
 import LuceneQueryParser from '../lucene-query-parser';
 import TypeManger from './type-manager';
 import { bindThis } from '../utils';
+import { IMPLICIT } from '../constants';
 import { AST } from '../interfaces';
 
 export default class DocumentMatcher extends LuceneQueryParser {
@@ -36,10 +37,11 @@ export default class DocumentMatcher extends LuceneQueryParser {
         const parsedAst = types.processAst(ast);
         const AND_MAPPING = { AND: true, 'AND NOT': true, NOT: 'true' };
         // default operator in elasticsearch is OR
-        const OR_MAPPING = { OR: true, '<implicit>': true };
+        const OR_MAPPING = { OR: true };
+        OR_MAPPING[IMPLICIT] = true;
 
         function functionBuilder(node: AST, parent: AST, fnStrBody: string, _field: string|null, isNegation:Boolean) {
-            const field = (node.field && node.field !== '<implicit>') ? node.field : _field;
+            const field = (node.field && node.field !== IMPLICIT) ? node.field : _field;
             let addParens = false;
             let negation  = isNegation || false;
             let negateLeftExp = false;

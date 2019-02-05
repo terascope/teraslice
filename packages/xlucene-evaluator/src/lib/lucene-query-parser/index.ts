@@ -1,6 +1,7 @@
 
 import parser from '../peg';
 import { AST, AstCallback } from '../interfaces';
+import { IMPLICIT } from '../constants';
 
 export default class LuceneQueryParser {
     _ast: AST;
@@ -21,7 +22,7 @@ export default class LuceneQueryParser {
         const ast = _argAst || this._ast;
 
         function walk(node: AST, _field: string, depth: number): void {
-            const topField = (node.field && node.field !== '<implicit>') ? node.field : _field;
+            const topField = (node.field && node.field !== IMPLICIT) ? node.field : _field;
 
             if (node.left) {
                 walk(node.left, topField, depth + 1);

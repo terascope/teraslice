@@ -102,11 +102,12 @@ describe('LuceneQueryAccess', () => {
     describe('when constructed with include fields', () => {
         const queryAccess = new LuceneQueryAccess({
             include: [
-                'bar'
+                'bar',
+                'star'
             ]
         });
 
-        it('should throw if field is not in the include list', () => {
+        it('should throw if field is not included', () => {
             expect.hasAssertions();
 
             const query = 'hello:world';
@@ -120,14 +121,27 @@ describe('LuceneQueryAccess', () => {
             }
         });
 
-        it('should throw if field is not in the include list', () => {
+        it('should throw if field is not included', () => {
             const query = 'hello:world AND bar:foo';
 
             expect(() => queryAccess.restrict(query)).toThrow();
         });
 
-        it('should allow field listed in the include list', () => {
+        it('should throw if passed an empty query', () => {
+            const query = '';
+
+            expect(() => queryAccess.restrict(query))
+                .toThrowWithMessage(TSError, 'Query is restricted');
+        });
+
+        it('should allow field listed if included', () => {
             const query = 'bar:foo';
+
+            expect(queryAccess.restrict(query)).toEqual(query);
+        });
+
+        it('should allow field listed if included', () => {
+            const query = 'bar:[0 TO *] OR star:(0 OR 2)';
 
             expect(queryAccess.restrict(query)).toEqual(query);
         });

@@ -1,7 +1,5 @@
-'use strict';
-
-import { DocumentMatcher } from '../src';
 import _ from 'lodash';
+import { DocumentMatcher } from '../src';
 
 describe('document matcher', () => {
     let documentMatcher: DocumentMatcher;

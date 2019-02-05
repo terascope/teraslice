@@ -20,9 +20,9 @@
         "build:prepare": "pegjs -o peg/peg_engine.js peg/lucene.grammar",
         "build": "yarn run build:prepare && tsc --build --pretty",
         "build:watch": "yarn build --watch",
-        "test": "jest",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+        "test": "yarn run build:prepare && jest",
+        "test:watch": "yarn run build:prepare && jest --coverage=false --notify --watch --onlyChanged",
+        "test:debug": "yarn run build:prepare && env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
     },
     "author": "Terascope, LLC <info@terascope.io>",
     "license": "MIT",

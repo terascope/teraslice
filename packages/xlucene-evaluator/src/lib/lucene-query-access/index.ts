@@ -2,6 +2,7 @@
 import _ from 'lodash';
 import { TSError } from '@terascope/utils';
 import LuceneQueryParser from '../lucene-query-parser';
+import { IMPLICIT } from '../constants';
 import { AST } from '../interfaces';
 
 interface Config {
@@ -23,14 +24,26 @@ export default class LuceneQueryAccess {
     }
 
     restrict(query: string): string {
+        if (this.include.length && !query.length) {
+            throw new TSError('Query is restricted', {
+                statusCode: 403
+            });
+        }
+
         this._parser.parse(query);
         this._parser.walkLuceneAst((node: AST) => {
+            if (!node.field || node.field === IMPLICIT) return;
+
             if (isFieldExcluded(this.exclude, node.field)) {
-                throw new TSError(`Field ${node.field} is restricted`, { statusCode: 403 });
+                throw new TSError(`Field ${node.field} is restricted`, {
+                    statusCode: 403
+                });
             }
 
             if (isFieldIncluded(this.include, node.field)) {
-                throw new TSError(`Field ${node.field} is restricted`,  { statusCode: 403 });
+                throw new TSError(`Field ${node.field} is restricted`,  {
+                    statusCode: 403
+                });
             }
         });
 
@@ -38,12 +51,12 @@ export default class LuceneQueryAccess {
     }
 }
 
-function isFieldExcluded(exclude: string[], field?: string): boolean {
-    if (!exclude.length || !field) return false;
+function isFieldExcluded(exclude: string[], field: string): boolean {
+    if (!exclude.length) return false;
     return _.some(exclude, (str) => _.startsWith(field, str));
 }
 
-function isFieldIncluded(include: string[], field?: string): boolean {
-    if (!include.length || !field) return false;
+function isFieldIncluded(include: string[], field: string): boolean {
+    if (!include.length) return false;
     return !_.some(include, (str) => _.startsWith(field, str));
 }
