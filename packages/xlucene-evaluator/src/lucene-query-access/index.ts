@@ -31,7 +31,14 @@ export default class LuceneQueryAccess {
         }
 
         this._parser.parse(query);
-        this._parser.walkLuceneAst((node: AST) => {
+        this._parser.walkLuceneAst((node: AST, field: string) => {
+            // restrict when a term is specified without a field
+            if (node.field && !field) {
+                throw new TSError('Query is restricted', {
+                    statusCode: 403
+                });
+            }
+
             if (!node.field || node.field === IMPLICIT) return;
 
             if (isFieldExcluded(this.exclude, node.field)) {

@@ -121,6 +121,14 @@ describe('LuceneQueryAccess', () => {
             }
         });
 
+        it('should throw if field implicit', () => {
+            expect.hasAssertions();
+
+            const query = 'hello';
+
+            expect(() => queryAccess.restrict(query)).toThrowError('Query is restricted');
+        });
+
         it('should throw if field is not included', () => {
             const query = 'hello:world AND bar:foo';
 
