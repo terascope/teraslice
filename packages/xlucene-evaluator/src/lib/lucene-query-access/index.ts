@@ -4,28 +4,31 @@ import LuceneQueryParser from '../lucene-query-parser';
 import { AST } from '../interfaces';
 
 interface Config {
-    exclude: string[];
+    exclude?: string[];
 }
 
-export default class LuceneQueryAccess extends LuceneQueryParser {
-    public config: Config;
+export default class LuceneQueryAccess {
+    public exclude: string[];
+    private _parser: LuceneQueryParser;
 
     constructor(config: Config) {
-        super();
-        this.config = config;
+        const { exclude = [] } = config;
+        this.exclude = exclude;
+        this._parser = new LuceneQueryParser();
     }
 
-    restrict(query: string) {
-        this.parse(query);
-        this.walkLuceneAst((node: AST) => {
+    restrict(query: string): string {
+        this._parser.parse(query);
+        this._parser.walkLuceneAst((node: AST) => {
             if (!node.field) return;
 
-            const bool = _.some(this.config.exclude, (str) => _.startsWith(node.field, str));
+            const restricted = _.some(this.exclude, (str) => _.startsWith(node.field, str));
 
-            if (bool) {
+            if (restricted) {
                 throw new Error(`Field ${node.field} is restricted`);
             }
         });
+
         return query;
     }
 }

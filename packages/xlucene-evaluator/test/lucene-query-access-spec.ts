@@ -2,8 +2,15 @@ import 'jest-extended';
 import { LuceneQueryAccess } from '../src';
 
 describe('LuceneQueryAccess', () => {
+    describe('when constructed without exclude', () => {
+        it('should set an empty array', () => {
+            const queryAccess = new LuceneQueryAccess({});
+
+            expect(queryAccess.exclude).toBeArrayOfSize(0);
+        });
+    });
+
     describe('when constructed with exclusive fields', () => {
-        // @ts-ignore
         const queryAccess = new LuceneQueryAccess({
             exclude: [
                 'bar',
