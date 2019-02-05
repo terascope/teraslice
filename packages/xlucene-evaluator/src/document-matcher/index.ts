@@ -40,7 +40,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
         const OR_MAPPING = { OR: true };
         OR_MAPPING[IMPLICIT] = true;
 
-        function functionBuilder(node: AST, parent: AST, fnStrBody: string, _field: string|null, isNegation:Boolean) {
+        function functionBuilder(node: AST, parent: Partial<AST>, fnStrBody: string, _field: string|null, isNegation:Boolean) {
             const field = (node.field && node.field !== IMPLICIT) ? node.field : _field;
             let addParens = false;
             let negation  = isNegation || false;

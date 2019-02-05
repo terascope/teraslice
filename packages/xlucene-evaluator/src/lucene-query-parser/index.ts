@@ -4,11 +4,8 @@ import { AST, AstCallback } from '../interfaces';
 import { IMPLICIT } from '../constants';
 
 export default class LuceneQueryParser {
-    _ast: AST;
-
-    constructor() {
-        this._ast = {};
-    }
+    // @ts-ignore because this will populated after set
+    _ast: AST = {};
 
     public parse(luceneStr: string): void {
         try {

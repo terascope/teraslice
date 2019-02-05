@@ -1,18 +1,39 @@
 
 import { Units } from '@turf/helpers';
 
-export interface AST {
-    right?: AST;
-    left?: AST;
-    field?: string;
-    operator?: string;
+export type ImplicitField = '<implicit>';
+export type AST = ASTNode|ASTLeafNode;
+
+export interface ASTLeafNode {
+    field: string|ImplicitField;
     term?: string|number;
     inclusive_min?: string|number;
     inclusive_max?: string|number;
     term_min?: string|number;
     term_max?: string|number;
-    parens?: Boolean;
-    regexpr?: Boolean;
+    regexpr?: boolean;
+
+    // this will never exist on a leaf node
+    left: never;
+    right: never;
+    operator: never;
+    parens: never;
+}
+
+export interface ASTNode {
+    left?: AST;
+    right?: AST;
+    field?: string;
+    operator?: string;
+    term?: string|number;
+    parens?: boolean;
+
+    // this will never exist on a root node
+    inclusive_min: never;
+    inclusive_max: never;
+    term_min: never;
+    term_max: never;
+    regexpr: never;
 }
 
 export interface AstCallback {
