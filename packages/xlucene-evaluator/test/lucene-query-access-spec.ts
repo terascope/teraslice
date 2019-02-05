@@ -126,7 +126,7 @@ describe('LuceneQueryAccess', () => {
 
             const query = 'hello';
 
-            expect(() => queryAccess.restrict(query)).toThrowError('Query is restricted');
+            expect(() => queryAccess.restrict(query)).toThrowError('Implicit queries are restricted');
         });
 
         it('should throw if field is not included', () => {
@@ -139,7 +139,7 @@ describe('LuceneQueryAccess', () => {
             const query = '';
 
             expect(() => queryAccess.restrict(query))
-                .toThrowWithMessage(TSError, 'Query is restricted');
+                .toThrowWithMessage(TSError, 'Empty queries are restricted');
         });
 
         it('should allow field listed if included', () => {

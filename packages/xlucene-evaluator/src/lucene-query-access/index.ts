@@ -25,7 +25,7 @@ export default class LuceneQueryAccess {
 
     restrict(query: string): string {
         if (this.include.length && !query.length) {
-            throw new TSError('Query is restricted', {
+            throw new TSError('Empty queries are restricted', {
                 statusCode: 403
             });
         }
@@ -34,7 +34,7 @@ export default class LuceneQueryAccess {
         this._parser.walkLuceneAst((node: AST, field: string) => {
             // restrict when a term is specified without a field
             if (node.field && !field) {
-                throw new TSError('Query is restricted', {
+                throw new TSError('Implicit queries are restricted', {
                     statusCode: 403
                 });
             }
