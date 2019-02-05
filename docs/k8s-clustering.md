@@ -3,10 +3,16 @@
 ** KUBERNETES SUPPORT IS STILL A WORK IN PROGRESS
 These notes are intended for contributors only **
 
-Teraslice supports the use of Kubernetes as a cluster manager.  The supported
-versions of Kubernetes is:
+Teraslice supports the use of Kubernetes as a cluster manager.  The following
+versions of Kuberenetes have been used:
 
 * `1.10.*`
+* `1.11.*`
+* `1.12.*`
+* `1.13.2`
+
+We are not yet making an effort to ensure compatibility with older Kubernetes
+versions, so the newest version listed above is likely to be the best choice.
 
 # Setup
 
@@ -171,7 +177,7 @@ make build
 make setup-all
 make show
 make register
-make example
+make start
 ```
 
 then when you need to make another change to Teraslice, redeploy and run a new

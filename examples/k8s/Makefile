@@ -5,6 +5,7 @@ SHELL := bash
 # ES_URL="http://192.168.99.1:9200" make rebuild
 ES_URL ?= http://192.168.99.100:30200
 TERASLICE_MASTER_URL ?= 192.168.99.100:30678
+TERASLICE_ALIAS ?= ts-minikube-dev1
 TERASLICE_K8S_IMAGE ?= teraslice-k8sdev
 NAMESPACE ?= default
 LOG_LENGTH ?= 1000
@@ -89,26 +90,33 @@ push: ## push final docker image
 	docker push $(TERASLICE_K8S_IMAGE)
 
 setup-all: namespace elasticsearch auth setup ## setup EVERYTHING
+	earl aliases add ${TERASLICE_ALIAS} ${TERASLICE_MASTER_URL}
 
 setup: configs k8s-master ## setup teraslice
 
-destroy: ## delete k8s deployments and services
+destroy: stop ## delete k8s deployments and services
 	kubectl delete --namespace $(NAMESPACE) deployments,jobs,services,pods -l app=teraslice
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-master || echo "* it is okay..."
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-worker || echo "* it is okay..."
 	curl -fsS -XDELETE "${ES_URL}/ts-dev1*" || echo '* it is okay'
-	tjm reset ./example-job.json || echo '* it is okay'
+	earl tjm reset example-job.json || echo '* it is okay'
 
 destroy-all: destroy deauth deelasticsearch delete-namespace ## delete ALL things including the namespace
+	earl aliases remove ${TERASLICE_ALIAS} || echo '* it is okay'
 
 rebuild: destroy setup ## destroys then re-runs things
 	sleep 20
 	make register
 
 register: ## creates asset and registers job
-	tjm asset --deploy -c $(TERASLICE_MASTER_URL) || echo '* it is okay'
-	tjm register -c $(TERASLICE_MASTER_URL) ./example-job.json
+	earl assets deploy ${TERASLICE_ALIAS} terascope/elasticsearch-assets
+	earl assets deploy ${TERASLICE_ALIAS} --build --replace --src-dir asset/
+	earl tjm register ${TERASLICE_ALIAS} example-job.json
 
-example: ## runs example job
-	yes | tjm asset --replace -c $(TERASLICE_MASTER_URL) || echo '* it is okay'
-	tjm start ./example-job.json
+start: ## runs example job
+	# yes | tjm asset --replace -c $(TERASLICE_MASTER_URL) || echo '* it is okay'
+	earl assets deploy ${TERASLICE_ALIAS} --build --replace --src-dir asset/
+	earl tjm start example-job.json
+
+stop: ## stops example job
+	earl tjm stop example-job.json || echo '* it is okay'
