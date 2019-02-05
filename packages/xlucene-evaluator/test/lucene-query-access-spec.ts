@@ -1,4 +1,5 @@
 import 'jest-extended';
+import { TSError } from '@terascope/utils';
 import { LuceneQueryAccess } from '../src';
 
 describe('LuceneQueryAccess', () => {
@@ -31,10 +32,17 @@ describe('LuceneQueryAccess', () => {
 
         describe('when passed queries with bar in field', () => {
             it('should throw when input query is restricted', () => {
+                expect.hasAssertions();
+
                 const query = 'bar:example';
 
-                expect(() => queryAccess.restrict(query))
-                    .toThrowError('Field bar is restricted');
+                try {
+                    queryAccess.restrict(query);
+                } catch (err) {
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toEqual(403);
+                    expect(err.message).toEqual('Field bar is restricted');
+                }
             });
 
             it('should throw when input query is restricted with nested fields', () => {
@@ -99,9 +107,17 @@ describe('LuceneQueryAccess', () => {
         });
 
         it('should throw if field is not in the include list', () => {
+            expect.hasAssertions();
+
             const query = 'hello:world';
 
-            expect(() => queryAccess.restrict(query)).toThrow();
+            try {
+                queryAccess.restrict(query);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.statusCode).toEqual(403);
+                expect(err.message).toEqual('Field hello is restricted');
+            }
         });
 
         it('should throw if field is not in the include list', () => {

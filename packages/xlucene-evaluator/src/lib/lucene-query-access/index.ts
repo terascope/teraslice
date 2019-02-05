@@ -1,5 +1,6 @@
 
 import _ from 'lodash';
+import { TSError } from '@terascope/utils';
 import LuceneQueryParser from '../lucene-query-parser';
 import { AST } from '../interfaces';
 
@@ -25,11 +26,11 @@ export default class LuceneQueryAccess {
         this._parser.parse(query);
         this._parser.walkLuceneAst((node: AST) => {
             if (isFieldExcluded(this.exclude, node.field)) {
-                throw new Error(`Field ${node.field} is restricted`);
+                throw new TSError(`Field ${node.field} is restricted`, { statusCode: 403 });
             }
 
             if (isFieldIncluded(this.include, node.field)) {
-                throw new Error(`Field ${node.field} is restricted`);
+                throw new TSError(`Field ${node.field} is restricted`,  { statusCode: 403 });
             }
         });
 
