@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { DocumentMatcher } from '../src';
+import { DocumentMatcher, TypeConfig } from '../src';
 
 describe('document matcher', () => {
     let documentMatcher: DocumentMatcher;
@@ -1022,7 +1022,7 @@ describe('document matcher', () => {
             };
             const clone = _.cloneDeep(data1);
 
-            const typeConfig = { ipfield: 'ip', _created: 'date', location: 'geo' };
+            const typeConfig: TypeConfig = { ipfield: 'ip', _created: 'date', location: 'geo' };
             // tslint:disable-next-line
             const query = 'ipfield:[192.198.0.0 TO 192.198.0.255] AND _created:[2018-10-18T18:13:20.683Z TO *] AND key:/ab{2}c{3}/ AND location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")';
 
@@ -1045,9 +1045,9 @@ describe('document matcher', () => {
                 created: null,
                 location: null
             };
-            const types = {
+
+            const types: TypeConfig = {
                 ip: 'ip',
-                key: 'regex',
                 created: 'date',
                 location: 'geo'
             };
@@ -1118,7 +1118,7 @@ describe('document matcher', () => {
             const data3 = { _created: '2018-10-18T18:15:34.123Z', some: 'key', bytes: 122 };
             const data4 = { _created: '2018-04-02T12:15:34.123Z', bytes: 12233 };
             const data5 = { _updated: '2018-10-18T18:15:34.123Z', some: 'key', bytes: 1232322 };
-            const types = { _created: 'date', _updated: 'date' };
+            const types: TypeConfig = { _created: 'date', _updated: 'date' };
 
             documentMatcher.parse('some:key AND (_created:>="2018-10-18T18:13:20.683Z" && bytes:(>=150000 AND <=1232322))', types);
 

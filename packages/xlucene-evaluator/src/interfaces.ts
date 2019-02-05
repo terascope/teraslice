@@ -1,10 +1,9 @@
 
 import { Units } from '@turf/helpers';
+import { DateType, GeoType, IpType } from './document-matcher/type-manager/types';
 
 export type ImplicitField = '<implicit>';
-export type AST = ASTNode|ASTLeafNode;
-
-export interface ASTLeafNode {
+export interface AST {
     field: string|ImplicitField;
     term?: string|number;
     inclusive_min?: string|number;
@@ -13,27 +12,11 @@ export interface ASTLeafNode {
     term_max?: string|number;
     regexpr?: boolean;
 
-    // this will never exist on a leaf node
-    left: never;
-    right: never;
-    operator: never;
-    parens: never;
-}
-
-export interface ASTNode {
+    // Root Node Only
     left?: AST;
     right?: AST;
-    field?: string;
     operator?: string;
-    term?: string|number;
     parens?: boolean;
-
-    // this will never exist on a root node
-    inclusive_min: never;
-    inclusive_max: never;
-    term_min: never;
-    term_max: never;
-    regexpr: never;
 }
 
 export interface AstCallback {
@@ -62,4 +45,14 @@ export type DateInput = string | number;
 
 export interface PegEngine {
     parse(input: string): AST;
+}
+
+export interface TypeMapping {
+    date: new(input: object) => DateType;
+    ip: new(input: object) => IpType;
+    geo: new(input: object) => GeoType;
+}
+
+export interface TypeConfig {
+    [field: string]: keyof TypeMapping;
 }

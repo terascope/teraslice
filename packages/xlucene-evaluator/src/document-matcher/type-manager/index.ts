@@ -6,7 +6,7 @@ import GeoType from './types/geo';
 import StringType from './types/string';
 import BaseType from './types/base';
 
-import { AST } from '../../interfaces';
+import { AST, TypeConfig } from '../../interfaces';
 
 const typeMapping = {
     date: DateType,
@@ -17,11 +17,11 @@ const typeMapping = {
 export default class TypeManager {
     typeList: BaseType[];
 
-    constructor(typeConfig?: object|undefined) {
+    constructor(typeConfig?: TypeConfig) {
         this.typeList = this._buildFieldListConfig(typeConfig);
     }
 
-    private _buildFieldListConfig(typeConfig: object|undefined): BaseType[] {
+    private _buildFieldListConfig(typeConfig?: TypeConfig): BaseType[] {
         const typeList:BaseType[] = [];
         const results = {};
 

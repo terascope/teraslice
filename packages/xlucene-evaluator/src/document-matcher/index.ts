@@ -5,13 +5,13 @@ import LuceneQueryParser from '../lucene-query-parser';
 import TypeManger from './type-manager';
 import { bindThis } from '../utils';
 import { IMPLICIT } from '../constants';
-import { AST } from '../interfaces';
+import { AST, TypeConfig } from '../interfaces';
 
 export default class DocumentMatcher extends LuceneQueryParser {
     private filterFn: Function|undefined;
     private types: TypeManger;
 
-    constructor(luceneStr?: string, typeConfig?:object) {
+    constructor(luceneStr?: string, typeConfig?: TypeConfig) {
         super();
         this.types = new TypeManger(typeConfig);
         bindThis(this, DocumentMatcher);
@@ -22,7 +22,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
         }
     }
 
-    public parse(luceneStr: string, typeConfig?: object):void {
+    public parse(luceneStr: string, typeConfig?: TypeConfig):void {
         if (typeConfig) {
             this.types = new TypeManger(typeConfig);
         }
