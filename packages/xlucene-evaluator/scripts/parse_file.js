@@ -14,7 +14,9 @@ const rl = readline.createInterface({
 
 rl.on('line', (input) => {
     try {
-        const matcher = new DocumentMatcher(input);
+        // eslint-disable-next-line
+        let matcher;
+        if (input.length > 0 && input.trim()[0] !== '#') matcher = new DocumentMatcher(input);
     } catch (err) {
         console.log(`error while parsing input ${input}
         
