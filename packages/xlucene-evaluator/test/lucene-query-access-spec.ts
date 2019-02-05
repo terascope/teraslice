@@ -90,4 +90,24 @@ describe('LuceneQueryAccess', () => {
             });
         });
     });
+
+    describe('when constructed with include fields', () => {
+        const queryAccess = new LuceneQueryAccess({
+            include: [
+                'bar'
+            ]
+        });
+
+        it('should throw if field is not in the include list', () => {
+            const query = 'hello:world';
+
+            expect(() => queryAccess.restrict(query)).toThrow();
+        });
+
+        it('should allow field listed in the include list', () => {
+            const query = 'bar:foo';
+
+            expect(queryAccess.restrict(query)).toEqual(query);
+        });
+    });
 });

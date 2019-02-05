@@ -5,15 +5,19 @@ import { AST } from '../interfaces';
 
 interface Config {
     exclude?: string[];
+    include?: string[];
 }
 
 export default class LuceneQueryAccess {
     public exclude: string[];
+    public include: string[];
     private _parser: LuceneQueryParser;
 
     constructor(config: Config) {
-        const { exclude = [] } = config;
+        const { exclude = [], include = [] } = config;
         this.exclude = exclude;
+        this.include = include;
+
         this._parser = new LuceneQueryParser();
     }
 
@@ -22,9 +26,17 @@ export default class LuceneQueryAccess {
         this._parser.walkLuceneAst((node: AST) => {
             if (!node.field) return;
 
-            const restricted = _.some(this.exclude, (str) => _.startsWith(node.field, str));
+            const excluded = _.some(this.exclude, (str) => _.startsWith(node.field, str));
 
-            if (restricted) {
+            if (excluded) {
+                throw new Error(`Field ${node.field} is restricted`);
+            }
+
+            if (!this.include.length) return;
+
+            const included = _.some(this.include, (str) => _.startsWith(node.field, str));
+
+            if (!included) {
                 throw new Error(`Field ${node.field} is restricted`);
             }
         });
