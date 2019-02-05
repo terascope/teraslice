@@ -1,4 +1,5 @@
 
+import _ from 'lodash';
 import LuceneQueryParser from '../lucene-query-parser';
 import { AST } from '../interfaces';
 
@@ -18,8 +19,10 @@ export default class LuceneQueryAccess extends LuceneQueryParser {
         this.parse(query);
         this.walkLuceneAst((node: AST) => {
             if (!node.field) return;
-            const fields = node.field.split('.');
-            if (this.config.exclude.includes(fields[0]) || this.config.exclude.includes(node.field)) {
+
+            const bool = _.some(this.config.exclude, (str) => _.startsWith(node.field, str));
+
+            if (bool) {
                 throw new Error(`Field ${node.field} is restricted`);
             }
         });

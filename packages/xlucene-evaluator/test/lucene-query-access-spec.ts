@@ -74,18 +74,9 @@ describe('LuceneQueryAccess', () => {
             });
         });
 
-        describe('when passed queries with a.b.e field', () => {
+        describe('when passed queries with a.c.b field', () => {
             it('should return the input query', () => {
-                const query = 'a.b.e:example';
-
-                const result = queryAccess.restrict(query);
-                expect(result).toEqual(query);
-            });
-        });
-
-        describe('when passed queries with a.b.c field', () => {
-            it('should return the input query', () => {
-                const query = 'a.b.c:example';
+                const query = 'a.c.b:example';
 
                 const result = queryAccess.restrict(query);
                 expect(result).toEqual(query);
