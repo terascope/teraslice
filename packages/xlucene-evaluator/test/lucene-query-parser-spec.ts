@@ -8,7 +8,7 @@ describe('luceneQueryParser', () => {
         luceneQueryParser = new LuceneQueryParser();
     });
 
-    describe(' whitespace handling', () => {
+    describe('whitespace handling', () => {
         // term parsing
         it('handles empty string', () => {
             luceneQueryParser.parse('');

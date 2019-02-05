@@ -13,7 +13,7 @@ export class QueryAccess {
      * Given xlucene query it should be able to restrict
      * the query to certian fields and add any constraints.
      *
-     * If the input query using restricted fields, it will throw a function.
+     * If the input query using restricted fields, it will throw.
     */
     restrictQuery(input: string): string {
         return input;

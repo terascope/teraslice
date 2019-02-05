@@ -154,4 +154,34 @@ describe('LuceneQueryAccess', () => {
             expect(queryAccess.restrict(query)).toEqual(query);
         });
     });
+
+    describe('when using a constraint that is not restricted', () => {
+        const constraint = 'foo:bar';
+        const queryAccess = new LuceneQueryAccess({
+            constraint,
+        });
+
+        it('should append the constraint on the returned query', () => {
+            const query = 'hello:world';
+            expect(queryAccess.restrict(query))
+                .toEqual(`${query} AND ${constraint}`);
+        });
+    });
+
+    describe('when using a constraint that is restricted', () => {
+        const constraint = 'hello:world';
+        const queryAccess = new LuceneQueryAccess({
+            constraint,
+            exclude: [
+                'hello'
+            ]
+        });
+
+        it('should return the query', () => {
+            const query = 'foo:bar';
+
+            expect(queryAccess.restrict(query))
+                .toEqual(`${query} AND ${constraint}`);
+        });
+    });
 });
