@@ -1,9 +1,9 @@
-import DocumentMatcher from './lib/document-matcher';
-import LuceneQueryParser from './lib/lucene-query-parser';
-import LuceneQueryAccess from './lib/lucene-query-access';
+import DocumentMatcher from './document-matcher';
+import LuceneQueryParser from './lucene-query-parser';
+import LuceneQueryAccess from './lucene-query-access';
 
-export * from './lib/interfaces';
-export * from './lib/constants';
+export * from './interfaces';
+export * from './constants';
 export {
     DocumentMatcher,
     LuceneQueryParser,
