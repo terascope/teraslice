@@ -9,18 +9,21 @@ interface Config {
     exclude?: string[];
     include?: string[];
     constraint?: string;
+    prevent_prefix_wildcard?: boolean;
 }
 
 export default class LuceneQueryAccess {
     public exclude: string[];
     public include: string[];
     public constraint?: string;
+    public preventPrefixWildcard?: boolean;
 
     constructor(config: Config) {
-        const { exclude = [], include = [], constraint } = config;
+        const { exclude = [], include = [], constraint, prevent_prefix_wildcard } = config;
         this.exclude = exclude;
         this.include = include;
         this.constraint = constraint;
+        if (prevent_prefix_wildcard) this.preventPrefixWildcard = prevent_prefix_wildcard;
     }
 
     restrict(input: string): string {
@@ -54,6 +57,12 @@ export default class LuceneQueryAccess {
                     statusCode: 403
                 });
             }
+
+            if (this.preventPrefixWildcard && startsWithWildcard(node.term)) {
+                throw new TSError('Prefix wildcards are restricted',  {
+                    statusCode: 403
+                });
+            }
         });
 
         if (this.constraint) {
@@ -72,4 +81,15 @@ function isFieldExcluded(exclude: string[], field: string): boolean {
 function isFieldIncluded(include: string[], field: string): boolean {
     if (!include.length) return false;
     return !_.some(include, (str) => _.startsWith(field, str));
+}
+
+function getFirstChar(input: string) {
+    return input.trim().charAt(0);
+}
+
+function startsWithWildcard(input?: string|number) {
+    if (!input) return false;
+    if (!_.isString(input)) return false;
+
+    return ['*', '?'].includes(getFirstChar(input));
 }

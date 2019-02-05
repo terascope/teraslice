@@ -184,4 +184,27 @@ describe('LuceneQueryAccess', () => {
                 .toEqual(`${query} AND ${constraint}`);
         });
     });
+
+    describe('when resticting prefix wildcards', () => {
+        const queryAccess = new LuceneQueryAccess({
+            prevent_prefix_wildcard: true,
+        });
+
+        describe.each([
+            ['hello:*world'],
+            ['hello:?world'],
+            ['hello:" *world"'],
+        ])('when using a query of "%s"', (query) => {
+            it('should throw an error', () => {
+                expect(() => queryAccess.restrict(query))
+                    .toThrowWithMessage(TSError, 'Prefix wildcards are restricted');
+            });
+        });
+
+        it('should work range queries', () => {
+            const query = 'hello:world AND bytes:{2000 TO *]';
+
+            expect(queryAccess.restrict(query)).toEqual(query);
+        });
+    });
 });
