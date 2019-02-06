@@ -1,0 +1,50 @@
+{
+    "name": "@terascope/monorepo-scripts",
+    "description": " A collection of monorepo tools",
+    "version": "0.1.0",
+    "publishConfig": {
+        "access": "public"
+    },
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/monorepo-scripts#readme",
+    "repository": "git@github.com:terascope/teraslice.git",
+    "author": "Terascope, LLC <info@terascope.io>",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "files": [
+        "dist/src/**/*"
+    ],
+    "srcMain": "src/index.ts",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
+    "bin": {
+        "mkdocs": "./bin/mkdocs"
+    },
+    "scripts": {
+        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
+        "lint:fix": "yarn lint --fix",
+        "prepublishOnly": "yarn build",
+        "build": "tsc --build --pretty",
+        "build:watch": "yarn build --watch",
+        "test": "jest",
+        "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
+        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+    },
+    "dependencies": {
+        "@terascope/utils": "^0.4.0",
+        "yargs": "^12.0.5"
+    },
+    "devDependencies": {
+        "@types/jest": "^23.3.13",
+        "@types/node": "^10.12.21",
+        "babel-core": "^6.0.0",
+        "babel-jest": "^23.6.0",
+        "jest": "^23.6.0",
+        "jest-extended": "^0.11.1",
+        "ts-jest": "^23.10.5",
+        "tslint": "^5.12.1",
+        "tslint-config-airbnb": "^5.11.1",
+        "typescript": "^3.3.1"
+    }
+}
