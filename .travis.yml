@@ -1,10 +1,19 @@
 language: node_js
 node_js:
 - '8'
-before_install: ./scripts/travis-before-install.sh
+
+# by default install just yarn
+before_install: ./scripts/travis-install-yarn.sh
 install:
+    # make it colorful
+    - export FORCE_COLOR=1
+    # Install the dependencies
     - yarn
+    # Build setup the build
     - yarn setup
+
+# set up build matrix
+# specify jobs (stages are serial, and scripts are parallel within a stage)
 jobs:
   # stop if given a reason
   fast-finish: true
@@ -21,7 +30,7 @@ jobs:
     services:
         - docker
         - elasticsearch
-    before_install: ./scripts/travis-before-install.sh all
+    before_install: ./scripts/travis-install-all.sh
     script:
         - '[[ -z "$DEBUG" ]] && yarn test:ci || yarn test:debug | yarn bunyan -o short'
     after_success:
@@ -46,7 +55,7 @@ jobs:
     services:
         - docker
         - elasticsearch
-    before_install: ./scripts/travis-before-install.sh all
+    before_install: ./scripts/travis-install-all.sh
     before_script: cd e2e
     script: yarn test:ci
 
@@ -65,7 +74,7 @@ jobs:
         skip_cleanup: true
         script: ./scripts/publish.sh
 
-  # tagged releases
+  # Create tagged releases
   - stage: Release
     name: Release
     if: tag IS present AND type NOT IN (pull_request, cron)
@@ -78,7 +87,7 @@ jobs:
       - provider: script
         script: ./scripts/docker-release.sh
 
-  # nightly releases
+  # Build nightly releases
   - stage: Nightly
     name: Nightly Builds
     if: type = cron
