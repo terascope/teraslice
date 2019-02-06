@@ -175,16 +175,6 @@ cd packages/[package-name]; yarn test # this will run an individual test
 yarn start -c path/to/config.yaml
 ```
 
-### Customizing the Docker Image ###
-
-```Dockerfile
-# Use latest or any tag from https://hub.docker.com/r/terascope/teraslice/tags/
-FROM terascope/teraslice:latest
-
-# Add terafoundation connectors here
-RUN yarn add terascope/terafoundation_kafka_connector
-```
-
 ### Building the docker image ###
 
 ```sh
