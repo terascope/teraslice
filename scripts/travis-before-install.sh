@@ -37,9 +37,15 @@ install_yarn() {
 }
 
 main() {
-    install_es
-    install_yarn
-    install_docker_compose
+    local deps="$1"
+
+    if [ "$deps" == "all" ]; then
+        install_es
+        install_docker_compose
+        install_yarn
+    else
+        install_yarn
+    fi
 
     # make it colorful
     export FORCE_COLOR=1
