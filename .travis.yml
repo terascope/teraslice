@@ -1,11 +1,6 @@
 language: node_js
 node_js:
 - '8'
-addons:
-  apt:
-    packages:
-      - docker-ce
-      - jq
 cache:
   timeout: 60
   yarn: true
@@ -32,6 +27,11 @@ jobs:
   - stage: Tests
     name: Test Packages
     if: branch = master
+    addons:
+      apt:
+        packages:
+          - docker-ce
+          - jq
     script:
         - '[[ -z "$DEBUG" ]] && yarn test:ci || yarn test:debug | yarn bunyan -o short'
     after_success:
@@ -41,8 +41,6 @@ jobs:
   - script:
     name: Benchmarks and Linting
     if: branch = master AND type = pull_request
-    services: []
-    addons: []
     script:
         - yarn lint
         - yarn benchmark
@@ -70,6 +68,7 @@ jobs:
   - stage: Release
     name: Release
     if: tag IS present AND type NOT IN (pull_request, cron)
+    script: true
     deploy:
       - provider: script
         script: ./scripts/docker-release.sh
@@ -78,6 +77,7 @@ jobs:
   - stage: Nightly
     name: Nightly Builds
     if: type = cron
+    script: true
     deploy:
       - provider: script
-        script: ./scripts/docker-release.sh nightly
+        script: ./scripts/docker-release.sh "$TRAVIS_BRANCH"
