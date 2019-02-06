@@ -1,4 +1,3 @@
-sudo: required
 language: node_js
 node_js:
 - '8'
@@ -47,7 +46,6 @@ jobs:
   - script:
     name: Benchmarks and Linting
     if: branch = master AND type = pull_request
-    sudo: false
     services: []
     addons: []
     before_install:
@@ -61,16 +59,15 @@ jobs:
   # test end-to-end tests, only on pull-requests
   - script:
     name: End-to-End Tests
-    if: branch = master AND type = pull_request AND fork = false
+    if: branch = master AND type IN (pull_request, cron) AND fork = false
     services: []
     before_script: cd e2e
     script: yarn test:ci
 
-  # if not tag is preset and is on master release any changed versions to NPM
-  - stage: Release (NPM)
-    name: Release
-    if: tag IS blank AND branch = master AND type != pull_request
-    sudo: false
+  # if not a tagged build and is on master release any changed versions to NPM
+  - stage: NPM Publish
+    name: Publish
+    if: tag IS blank AND branch = master AND type NOT IN (pull_request, cron)
     before_install:
       # install latest yarn
       - curl -o- -L https://yarnpkg.com/install.sh | bash
@@ -80,4 +77,20 @@ jobs:
     deploy:
       - provider: script
         skip_cleanup: true
-        script: yarn publish:changed
+        script: ./scripts/publish.sh
+
+  # tagged releases
+  - stage: Release
+    name: Release
+    if: tag IS present AND type NOT IN (pull_request, cron)
+    deploy:
+      - provider: script
+        script: ./scripts/docker-release.sh
+
+  # nightly releases
+  - stage: Nightly Builds
+    name: Nightly
+    if: type = cron
+    deploy:
+      - provider: script
+        script: ./scripts/docker-release.sh nightly

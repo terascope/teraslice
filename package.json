@@ -20,8 +20,7 @@
         "test:e2e:clean": "yarn --cwd ./e2e clean",
         "test:e2e:logs": "yarn --cwd ./e2e logs",
         "lint": "env FORCE_COLOR=1 lerna run lint",
-        "lint:fix": "env FORCE_COLOR=1 lerna run lint:fix",
-        "publish:changed": "./scripts/publish.sh"
+        "lint:fix": "env FORCE_COLOR=1 lerna run lint:fix"
     },
     "dependencies": {
         "@types/bluebird": "^3.5.25",
