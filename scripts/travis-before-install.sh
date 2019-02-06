@@ -13,7 +13,7 @@ main() {
         "$SCRIPT_DIR/travis-install-yarn.sh" &
 
         # shellcheck disable=SC2046
-        wait $(job -p)
+        wait $(jobs -p)
     else
         install_yarn
     fi
