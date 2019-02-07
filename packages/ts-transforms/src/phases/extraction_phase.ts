@@ -15,8 +15,11 @@ export default class ExtractionPhase extends PhaseBase {
         const Extraction = opsManager.getTransform('extraction');
         const matchRequireTransforms = (config: OperationConfig, _list:OperationConfig[]) => {
             if (config.selector !== undefined && config.selector !== '*') {
+                const sequence = this.phase[config.selector];
+                if (sequence == null) throw new Error(`If you specify a config with "other_match_required", it must be paired with another rule with the same selector: ${config.selector}`);
                 this.phase[config.selector].push(new Extraction(config));
             } else {
+
                 _.forOwn(this.phase, (sequence: Operation[], _key) => {
                     sequence.push(new Extraction(config));
                 });
