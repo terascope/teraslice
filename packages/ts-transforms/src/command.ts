@@ -176,7 +176,7 @@ async function getData(dataPath: string) {
 async function initCommand() {
     try {
         const opConfig: PhaseConfig = {
-            rules: formatList(filePath),
+            rules: formatList(filePath).map(pathing => path.resolve(pathing)),
             types: typesConfig,
             type
         };
@@ -185,7 +185,7 @@ async function initCommand() {
             try {
                 const pluginList = formatList(command.p as string);
                 plugins = pluginList.map((pluginPath) => {
-                    const module = require(path.resolve(__dirname, pluginPath));
+                    const module = require(path.resolve(pluginPath));
                     const results = module.default || module;
                     return results;
                 });
