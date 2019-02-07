@@ -150,7 +150,7 @@ async function getData(dataPath: string) {
     let parsedData;
 
     if (dataPath) {
-        const dataFilePath = path.join(__dirname, '../../', dataPath);
+        const dataFilePath = path.resolve(dataPath);
 
         try {
             parsedData = parseStreamResponse(require(dataFilePath));
