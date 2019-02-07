@@ -35,7 +35,15 @@
             "packages/teraslice/overview",
             "packages/teraslice-cli/overview",
             "packages/teraslice-client-js/overview",
-            "packages/ts-transforms/overview",
+            {
+                "type": "subcategory",
+                "label": "ts-transforms",
+                "ids": [
+                    "packages/ts-transforms/overview",
+                    "packages/ts-transforms/plugins",
+                    "packages/ts-transforms/operations"
+                ]
+            },
             "packages/xlucene-evaluator/overview"
         ],
         "Internal Packages": [

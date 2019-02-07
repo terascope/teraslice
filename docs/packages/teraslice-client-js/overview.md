@@ -3,12 +3,15 @@ title: Teraslice Client JS
 sidebar_label: teraslice-client-js
 ---
 
-Javascript client for Teraslice
+> Javascript client for Teraslice
 
 ## Installation
 
-```sh
-npm install teraslice-client-js
+```bash
+# Using yarn
+yarn add teraslice-client-js
+# Using npm
+npm install --save teraslice-client-js
 ```
 
 ## Job submission example

@@ -1,6 +1,6 @@
 ---
 title: Transforms
-sidebar_label: ts-transforms
+sidebar_label: Overview
 ---
 
 > An ETL framework built upon xlucene-evaluator
@@ -446,7 +446,7 @@ curl 'http://localhost:9200/test_index/_search?q=bytes:>=5642500' | ts-transform
 
 ## Plugins
 This library provides a wide array of manipulations/validations etc but you may need a custom operation. You may do so by making a plugin and injecting it.
-* [Plugin reference](./docs/plugins.md)
+* [Plugin reference](./plugins.md)
 
 
 ## Contributing

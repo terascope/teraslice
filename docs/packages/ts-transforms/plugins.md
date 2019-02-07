@@ -1,5 +1,9 @@
-## Plugins
-General Plugin Structure, generally the transform/validation operation would be in a seperate file
+---
+title: Transform Plugins
+sidebar_label: Plugins
+---
+
+> General Plugin Structure, generally the transform/validation operation would be in a seperate file
 
 PluginFile.ts
 ```ts
@@ -96,7 +100,7 @@ export default class JsonParse extends TransformOpBase {
 ```
 
 #### Validation Operations
-It is important to inherit from the ValidationOpBase class if at all possible as it does some normailization, validation and other important framework behaviour especially in regards to how `output:false` works. 
+It is important to inherit from the ValidationOpBase class if at all possible as it does some normailization, validation and other important framework behaviour especially in regards to how `output:false` works.
 
 The returning class must have a `run` method (which is done through the ValidationOpBase class). If you are using the base class then you need to specify a `validate` method which takes in the value of the source key and must return a boolen if it is valid. You may also specify a `normalize` method which will alter the data before it hits the `validate` method. This will also normalize the output record itself
 
