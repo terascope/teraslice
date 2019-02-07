@@ -1,4 +1,6 @@
-# Custom Legacy Operations
+---
+title: Legacy Operations
+---
 
 It is possible to implement custom operations (slicers, readers, and processors)
 and utilize them in your Teraslice jobs.

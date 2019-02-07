@@ -1,5 +1,6 @@
 ---
-title: Teraslice
+title: Teraslice Configuration
+sidebar_label: Teraslice
 ---
 
 This entails information on how to set your configuration for teraslice itself. You may either set a config.json or config.yaml file at the root of teraslice or pass in the config file at startup time with the -c flag and the path to the file

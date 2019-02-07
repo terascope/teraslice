@@ -23,5 +23,16 @@
             "api",
             "api/rest"
         ]
+    },
+    "packages": {
+        "Overview": [
+            "packages"
+        ]
+    },
+    "examples": {
+        "Examples": [
+            "examples",
+            "examples/legacy-operations"
+        ]
     }
 }
