@@ -23,139 +23,99 @@ describe('Translator', () => {
     describe.each([
         [
             'hello:world',
-            {
-                query: {
-                    bool: {
-                        filter: [
-                            {
-                                term: {
-                                    hello: 'world'
-                                }
-                            }
-                        ]
+            'query.bool.filter',
+            [
+                {
+                    term: {
+                        hello: 'world'
                     }
                 }
-            }
+            ]
         ],
         [
             'hello:w?rld',
-            {
-                query: {
-                    bool: {
-                        filter: [
-                            {
-                                wildcard: {
-                                    hello: 'w?rld'
-                                }
-                            }
-                        ]
+            'query.bool.filter',
+            [
+                {
+                    wildcard: {
+                        hello: 'w?rld'
                     }
                 }
-            }
+            ]
         ],
         [
             '_exists_:hello',
-            {
-                query: {
-                    bool: {
-                        filter: [
-                            {
-                                exists: {
-                                    field: 'hello'
-                                }
-                            }
-                        ]
+            'query.bool.filter',
+            [
+                {
+                    exists: {
+                        field: 'hello'
                     }
                 }
-            }
+            ]
         ],
         [
             'hello:/w.*ld/',
-            {
-                query: {
-                    bool: {
-                        filter: [
-                            {
-                                regexp: {
-                                    hello: 'w.*ld'
-                                }
-                            }
-                        ]
+            'query.bool.filter',
+            [
+                {
+                    regexp: {
+                        hello: 'w.*ld'
                     }
                 }
-            }
+            ]
         ],
         [
             'example_count:>=30',
-            {
-                query: {
-                    bool: {
-                        filter: [
-                            {
-                                range: {
-                                    example_count: {
-                                        gte: 30
-                                    }
-                                }
-                            }
-                        ]
+            'query.bool.filter',
+            [
+                {
+                    range: {
+                        example_count: {
+                            gte: 30
+                        }
                     }
                 }
-            }
+            ]
         ],
         [
             'example_count:>30',
-            {
-                query: {
-                    bool: {
-                        filter: [
-                            {
-                                range: {
-                                    example_count: {
-                                        gt: 30
-                                    }
-                                }
-                            }
-                        ]
+            'query.bool.filter',
+            [
+                {
+                    range: {
+                        example_count: {
+                            gt: 30
+                        }
                     }
                 }
-            }
+            ]
         ],
         [
             'example_count:<50',
-            {
-                query: {
-                    bool: {
-                        filter: [
-                            {
-                                range: {
-                                    example_count: {
-                                        lt: 50
-                                    }
-                                }
-                            }
-                        ]
+            'query.bool.filter',
+            [
+                {
+                    range: {
+                        example_count: {
+                            lt: 50
+                        }
                     }
                 }
-            }
+            ]
         ],
         [
             'example_count:<=50',
-            {
-                query: {
-                    bool: {
-                        filter: [
-                            {
-                                range: {
-                                    example_count: {
-                                        lte: 50
-                                    }
-                                }
-                            }
-                        ]
+            'query.bool.filter',
+            [
+                {
+                    range: {
+                        example_count: {
+                            lte: 50
+                        }
                     }
                 }
-            }
+            ]
         ],
         // [
         //     'location:(_geo_box_top_left_:"34.5234,79.42345" _geo_box_bottom_right_:"54.5234,80.3456")',
@@ -182,10 +142,10 @@ describe('Translator', () => {
         //         }
         //     }
         // ]
-    ])('when given %s', (query, expected, types) => {
-        it('should output a dsl query', () => {
+    ])('when given %s', (query, property, expected, types) => {
+        it(`should to output to have ${property} set correctly`, () => {
             const translator = new Translator(query, types);
-            expect(translator.toElasticsearchDSL()).toEqual(expected);
+            expect(translator.toElasticsearchDSL()).toHaveProperty(property, expected);
         });
     });
 });

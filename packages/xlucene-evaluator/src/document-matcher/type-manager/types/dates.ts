@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import dateFns from 'date-fns';
 import BaseType from './base';
-import { bindThis } from '../../../utils';
+import { bindThis, isInfiniteMax, isInfiniteMin } from '../../../utils';
 import { AST, DateInput } from '../../../interfaces';
 
 // TODO: handle datemath
@@ -36,8 +36,8 @@ export default class DateType extends BaseType {
                 const { inclusive_min: incMin, inclusive_max: incMax } = node;
                 let { term_min: minValue, term_max: maxValue } = node;
                 // javascript min/max date allowable http://www.ecma-international.org/ecma-262/5.1/#sec-15.9.1.1
-                if (minValue === '*' || minValue === -Infinity) minValue = -8640000000000000;
-                if (maxValue === '*' || maxValue === Infinity) maxValue = 8640000000000000;
+                if (isInfiniteMin(minValue)) minValue = -8640000000000000;
+                if (isInfiniteMax(maxValue)) maxValue = 8640000000000000;
 
                 if (node.term !== undefined) {
                     const nodeTermTime = convert(node.term);

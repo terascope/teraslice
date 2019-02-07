@@ -1,5 +1,5 @@
-
 import { TypeConfig } from '../interfaces';
+import { parseNodeRange, isRangeNode } from '../utils';
 import LuceneQueryParser from '../lucene-query-parser';
 
 export default class Translator {
@@ -48,21 +48,11 @@ export default class Translator {
                     filter.push(termQuery);
                 }
             }
-            if (node.term_min) {
-                const rangeQuery: RangeQuery = {
-                    range: {}
-                };
-                rangeQuery.range[node.field] = {};
-                const rangeField = rangeQuery.range[node.field];
-                if (node.term_max === Infinity && node.inclusive_min) {
-                    rangeField['gte'] = node.term_min;
-                } else if (node.term_max === Infinity && !node.inclusive_min) {
-                    rangeField['gt'] = node.term_min;
-                } else if (node.term_min === -Infinity && node.inclusive_max) {
-                    rangeField['lte'] = node.term_max;
-                } else if (node.term_min === -Infinity && !node.inclusive_max) {
-                    rangeField['lt'] = node.term_max;
-                }
+
+            if (isRangeNode(node)) {
+                const range = parseNodeRange(node);
+                const rangeQuery: RangeQuery = { range: {} };
+                rangeQuery.range[node.field] = range;
                 filter.push(rangeQuery);
             }
         });

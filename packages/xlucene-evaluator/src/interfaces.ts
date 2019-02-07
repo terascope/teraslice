@@ -6,8 +6,8 @@ export type ImplicitField = '<implicit>';
 export interface AST {
     field: string|ImplicitField;
     term?: string|number;
-    inclusive_min?: string|number;
-    inclusive_max?: string|number;
+    inclusive_min?: boolean;
+    inclusive_max?: boolean;
     term_min?: string|number;
     term_max?: string|number;
     regexpr?: boolean;

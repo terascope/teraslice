@@ -3,7 +3,7 @@
 import _ from 'lodash';
 import LuceneQueryParser from '../lucene-query-parser';
 import TypeManger from './type-manager';
-import { bindThis } from '../utils';
+import { bindThis, isInfiniteMax, isInfiniteMin } from '../utils';
 import { IMPLICIT } from '../constants';
 import { AST, TypeConfig } from '../interfaces';
 
@@ -150,7 +150,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
 
         // ie age:>10 || age:(>10 AND <=20)
         if (!incMin && incMax) {
-            if (maxValue === Infinity) {
+            if (isInfiniteMax(maxValue)) {
                 resultStr = `get(data, "${field}") > ${minValue}`;
             } else {
                 resultStr = `((${maxValue} >= get(data, "${field}")) && (get(data, "${field}") > ${minValue}))`;
@@ -159,7 +159,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
 
         // ie age:<10 || age:(<=10 AND >20)
         if (incMin && !incMax) {
-            if (minValue === -Infinity) {
+            if (isInfiniteMin(minValue)) {
                 resultStr = `get(data, "${field}") < ${maxValue}`;
             } else {
                 resultStr =  `((${minValue} <= get(data, "${field}")) && (get(data, "${field}") < ${maxValue}))`;
@@ -168,9 +168,9 @@ export default class DocumentMatcher extends LuceneQueryParser {
 
         // ie age:<=10, age:>=10, age:(>=10 AND <=20)
         if (incMin && incMax) {
-            if (maxValue === Infinity) {
+            if (isInfiniteMax(maxValue)) {
                 resultStr = `get(data, "${field}") >= ${minValue}`;
-            } else if (minValue === -Infinity) {
+            } else if (isInfiniteMin(minValue)) {
                 resultStr = `get(data, "${field}") <= ${maxValue}`;
             } else {
                 resultStr = `((${maxValue} >= get(data, "${field}")) && (get(data, "${field}") >= ${minValue}))`;

@@ -5,7 +5,7 @@ import isCidr from 'is-cidr';
 import ip6addr from 'ip6addr';
 import { isIPv6, isIP } from'net';
 import BaseType from'./base';
-import { bindThis } from '../../../utils';
+import { bindThis, isInfiniteMin, isInfiniteMax } from '../../../utils';
 import { AST } from '../../../interfaces';
 
 const MIN_IPV4_IP = '0.0.0.0';
@@ -73,8 +73,8 @@ export default class IpType extends BaseType {
                     minValue as string;
                     maxValue as string;
 
-                    if (minValue === '*' || minValue === -Infinity) isIPv6(maxValue as string) ? minValue = MIN_IPV6_IP : minValue = MIN_IPV4_IP;
-                    if (maxValue === '*' || maxValue === Infinity) isIPv6(minValue as string) ? maxValue = MAX_IPV6_IP : maxValue = MAX_IPV4_IP;
+                    if (isInfiniteMin(minValue)) isIPv6(maxValue as string) ? minValue = MIN_IPV6_IP : minValue = MIN_IPV4_IP;
+                    if (isInfiniteMax(maxValue)) isIPv6(minValue as string) ? maxValue = MAX_IPV6_IP : maxValue = MAX_IPV4_IP;
 
                     if (!incMin) minValue = ip6addr.parse(minValue).offset(1).toString();
                     if (!incMax) maxValue = ip6addr.parse(maxValue).offset(-1).toString();

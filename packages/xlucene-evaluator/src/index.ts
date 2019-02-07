@@ -5,6 +5,7 @@ import Translator from './translator';
 
 export * from './interfaces';
 export * from './constants';
+export * from './utils';
 export {
     DocumentMatcher,
     LuceneQueryParser,
