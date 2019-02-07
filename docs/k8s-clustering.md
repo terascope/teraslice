@@ -170,10 +170,11 @@ The standard minikube based dev workflow is and requires the `teraslice-cli`
 version `0.5.1` or higher:
 
 ```
-minikube start
 cd examples/k8s
 export NAMESPACE=ts-dev1
 export TERASLICE_K8S_IMAGE=teraslice-k8sdev:1
+minikube start --memory 4096
+eval $(minikube docker-env)
 make build
 make setup-all
 make show

@@ -2,9 +2,9 @@
 .PHONY: help build build-and-push start stop show destroy destroy-all logs logs-master logs-slicer logs-worker k8s-master setup setup-all rebuild elasticsearch deelasticsearch namespace delete-namespace role delete-role binding delete-binding auth deauth showauth
 SHELL := bash
 
-# ES_URL="http://192.168.99.1:9200" make rebuild
-ES_URL ?= http://192.168.99.100:30200
-TERASLICE_MASTER_URL ?= 192.168.99.100:30678
+IP ?= $(shell minikube ip)
+ES_URL ?= http://$(IP):30200
+TERASLICE_MASTER_URL ?= http://$(IP):30678
 TERASLICE_ALIAS ?= ts-minikube-dev1
 TERASLICE_K8S_IMAGE ?= teraslice-k8sdev
 NAMESPACE ?= default
@@ -94,19 +94,20 @@ setup-all: namespace elasticsearch auth setup ## setup EVERYTHING
 
 setup: configs k8s-master ## setup teraslice
 
-destroy: stop ## delete k8s deployments and services
-	kubectl delete --namespace $(NAMESPACE) deployments,jobs,services,pods -l app=teraslice
+# We don't bother calling stop here because everything just gets deleted anyway
+destroy: ## delete k8s deployments and services
+	kubectl delete --namespace $(NAMESPACE) deployments,jobs,services,pods -l app=teraslice --grace-period=1
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-master || echo "* it is okay..."
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-worker || echo "* it is okay..."
-	curl -fsS -XDELETE "${ES_URL}/ts-dev1*" || echo '* it is okay'
+	docker rmi $(shell docker image ls $(TERASLICE_K8S_IMAGE) --format "{{.ID}}") || echo "* it is okay..."
+	curl -fsS -XDELETE "$(ES_URL)/ts-dev1*" || echo '* it is okay'
 	earl tjm reset example-job.json || echo '* it is okay'
 
 destroy-all: destroy deauth deelasticsearch delete-namespace ## delete ALL things including the namespace
 	earl aliases remove ${TERASLICE_ALIAS} || echo '* it is okay'
 
-rebuild: destroy setup ## destroys then re-runs things
-	sleep 20
-	make build
+rebuild: destroy build setup ## destroys then re-runs things
+	sleep 10
 	make register
 
 register: ## creates asset and registers job
