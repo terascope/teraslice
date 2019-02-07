@@ -22,6 +22,7 @@ export default class Extraction extends TransformOpBase {
             this.regex = this.formatRegex(config.regex);
         }
         this.mutltiFieldParams = mutltiFieldParams;
+        if (_.get(this.config, 'end') === 'EOP') this.config.end = '&';
     }
 
     formatRegex(str: string): RegExp {
@@ -69,9 +70,7 @@ export default class Extraction extends TransformOpBase {
                 }
 
             } else if (this.config.start && this.config.end) {
-                // tslint:disable-next-line
-                let { start, end } = this.config;
-                if (end === 'EOP') end = '&';
+                const { start, end } = this.config;
 
                 if (typeof data === 'string') {
                     const extractedSlice = this.sliceString(data, start, end);

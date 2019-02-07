@@ -10,7 +10,8 @@ import { PhaseConfig } from './interfaces';
 import validator from 'validator';
 
 const logger = debugLogger('ts-transform-cli');
-const packagePath = path.join(__dirname, '../package.json');
+// change pathing due to /dist/src issues
+const packagePath = path.join(__dirname, '../../package.json');
 const { version } = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 
 // TODO Use yargs api to validate field types and usage
@@ -149,11 +150,13 @@ async function getData(dataPath: string) {
     let parsedData;
 
     if (dataPath) {
+        const dataFilePath = path.resolve(dataPath);
+
         try {
-            parsedData = parseStreamResponse(require(path.resolve(__dirname, dataPath)));
+            parsedData = parseStreamResponse(require(dataFilePath));
         } catch (err) {
             try {
-                const fileData = await dataFileLoader(dataPath);
+                const fileData = await dataFileLoader(dataFilePath);
                 parsedData = parseStreamResponse(fileData);
             } catch (error) {
                 try {
@@ -173,7 +176,7 @@ async function getData(dataPath: string) {
 async function initCommand() {
     try {
         const opConfig: PhaseConfig = {
-            rules: formatList(filePath),
+            rules: formatList(filePath).map(pathing => path.resolve(pathing)),
             types: typesConfig,
             type
         };
@@ -182,7 +185,7 @@ async function initCommand() {
             try {
                 const pluginList = formatList(command.p as string);
                 plugins = pluginList.map((pluginPath) => {
-                    const module = require(path.resolve(__dirname, pluginPath));
+                    const module = require(path.resolve(pluginPath));
                     const results = module.default || module;
                     return results;
                 });

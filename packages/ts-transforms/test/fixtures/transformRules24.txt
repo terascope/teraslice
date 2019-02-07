@@ -1,0 +1,5 @@
+{ "selector": "some:value", "source_field": "input", "target_field": "output" }
+{ "selector": "other:value", "source_field": "other_input", "target_field": "other_output" }
+
+{ "source_field": "date", "target_field": "date", "other_match_required": true }
+{ "selector": "other:value", "source_field": "key", "target_field": "output_key", "other_match_required": true }

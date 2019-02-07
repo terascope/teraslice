@@ -24,7 +24,7 @@ export default class Loader {
         }
         const results =  JSON.parse(config);
         // if its not set and its not a post process then set the selecter to *
-        if (!results.selector && !results.follow && !results.other_match_required) results.selector = '*';
+        if (!results.selector && !results.follow) results.selector = '*';
         // We namespace the target_field value, so we can add them back later at the end
         if (results.multivalue != null) {
             results._multi_target_field = results.target_field;
