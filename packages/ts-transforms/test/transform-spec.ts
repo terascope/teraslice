@@ -799,4 +799,25 @@ describe('can transform matches', () => {
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ hashoutput: { some: 'data' } });
     });
+
+    it('can run multivalue on two different post_process extractions', async () => {
+
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules25.txt')]
+        };
+
+        const data = [
+            new DataEntity({ some: 'value', other: 'some_data' }),
+        ];
+
+        const test = await opTest.init(config);
+        const results =  await test.run(data);
+
+        expect(results[0]).toEqual({
+            field: 'some_data',
+            first_copy: ['some_data'],
+            second_copy: ['data'],
+            third_copy: ['some']
+        });
+    });
 });

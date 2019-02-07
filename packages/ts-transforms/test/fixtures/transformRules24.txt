@@ -3,3 +3,4 @@
 
 { "source_field": "date", "target_field": "date", "other_match_required": true }
 { "selector": "other:value", "source_field": "key", "target_field": "output_key", "other_match_required": true }
+
