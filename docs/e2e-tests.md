@@ -1,3 +1,8 @@
+---
+id: e2e-tests
+title: End-to-End Tests
+---
+
 Teraslice integration test suite
 
 ## Dependencies

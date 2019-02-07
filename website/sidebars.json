@@ -1,0 +1,16 @@
+{
+  "docs": {
+    "Overview": [
+        "overview"
+    ],
+    "Getting Started": [
+        "getting-started"
+    ],
+    "Development": [
+        "development",
+        "tests",
+        "e2e-tests",
+        "releases"
+    ]
+  }
+}

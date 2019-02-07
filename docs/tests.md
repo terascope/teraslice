@@ -1,3 +1,8 @@
+---
+id: tests
+title: Tests
+---
+
 **Note:** elasticseach 6 is required for running the tests
 
 #### Test all of the packages
