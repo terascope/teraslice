@@ -26,9 +26,9 @@ describe('Translator', () => {
             {
                 query: {
                     bool: {
-                        must: [
+                        filter: [
                             {
-                                match: {
+                                term: {
                                     hello: 'world'
                                 }
                             }
@@ -38,30 +38,46 @@ describe('Translator', () => {
             }
         ],
         [
-            'location:(_geo_box_top_left_:"34.5234,79.42345" _geo_box_bottom_right_:"54.5234,80.3456")',
+            'hello:w?rld',
             {
                 query: {
                     bool: {
-                        must: [
+                        filter: [
                             {
-                                geo_bounding_box: {
-                                    location: {
-                                        top_left: {
-                                            lat: '34.5234',
-                                            lon: '79.42345'
-                                        },
-                                        bottom_right: {
-                                            lat: '54.5234',
-                                            lon: '80.3456'
-                                        }
-                                    }
+                                wildcard: {
+                                    hello: 'w?rld'
                                 }
                             }
                         ]
                     }
                 }
             }
-        ]
+        ],
+        // [
+        //     'location:(_geo_box_top_left_:"34.5234,79.42345" _geo_box_bottom_right_:"54.5234,80.3456")',
+        //     {
+        //         query: {
+        //             bool: {
+        //                 must: [
+        //                     {
+        //                         geo_bounding_box: {
+        //                             location: {
+        //                                 top_left: {
+        //                                     lat: '34.5234',
+        //                                     lon: '79.42345'
+        //                                 },
+        //                                 bottom_right: {
+        //                                     lat: '54.5234',
+        //                                     lon: '80.3456'
+        //                                 }
+        //                             }
+        //                         }
+        //                     }
+        //                 ]
+        //             }
+        //         }
+        //     }
+        // ]
     ])('when given %s', (query, expected, types) => {
         it('should output a dsl query', () => {
             const translator = new Translator(query, types);

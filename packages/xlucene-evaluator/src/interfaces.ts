@@ -11,6 +11,7 @@ export interface AST {
     term_min?: string|number;
     term_max?: string|number;
     regexpr?: boolean;
+    wildcard?: boolean;
 
     // Root Node Only
     left?: AST;

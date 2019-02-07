@@ -93,26 +93,26 @@ node
                  operator
             };
         }
-    / rangeExp1:range_operator_exp _* operator:operator_exp _* rangeExp2:range_term _* 
+    / rangeExp1:range_operator_exp _* operator:operator_exp _* rangeExp2:range_term _*
     	{
             const results = {
             	left: rangeExp1,
                 operator,
                 right: rangeExp2
             };
-            
+
             return results;
         }
-    / rangeExp1:range_term _* operator:operator_exp _* rangeExp2:range_operator_exp _* 
+    / rangeExp1:range_term _* operator:operator_exp _* rangeExp2:range_operator_exp _*
     	{
             const results = {
             	left: rangeExp1,
                 operator,
                 right: rangeExp2
             };
-            
+
             return results;
-        }    
+        }
     / type:range_exp_op range_value:rangevalue _* operator_exp _* type2:range_exp_op range_value2:rangevalue _*
         {
             const results = {
@@ -124,12 +124,12 @@ node
             const args = {};
             args[type] = range_value;
             args[type2] = range_value2;
-            
+
             if (args['>=']) {
                 results.inclusive_min = true;
                 results.term_min = args['>='];
             }
-            
+
             if (args['>']) {
                 results.term_min = args['>'];
             }
@@ -138,7 +138,7 @@ node
                 results.inclusive_max = true;
                 results.term_max = args['<='];
             }
-            
+
             if (args['<']) {
                 results.term_max = args['<'];
             }
@@ -148,7 +148,7 @@ node
         {
             return right;
         }
-        
+
     / left:group_exp operator:operator_exp* right:node*
         {
             const node = {
@@ -168,7 +168,7 @@ node
             }
 
             return node;
-        } 
+        }
 
 group_exp
     = field_exp:field_exp _*
@@ -203,13 +203,13 @@ field_exp
                 left: node,
                 right: range_exp
             };
-        } 
+        }
     / fieldname:fieldname? node:paren_exp
         {
             node.field = fieldname;
             return node;
         }
-    / fieldname:fieldname range_exp:range_term 
+    / fieldname:fieldname range_exp:range_term
         {
             range_exp.field = fieldname;
             return range_exp;
@@ -228,28 +228,28 @@ field_exp
 
             return fieldexp;
         }
-    
+
 
 range_exp_op
-	= optype:">=" { return optype; } 
-    / optype:"<=" { return optype; } 
+	= optype:">=" { return optype; }
+    / optype:"<=" { return optype; }
 	/ optype:"<" { return optype; }
-    / optype:">" { return optype; } 
+    / optype:">" { return optype; }
     / faulty_range_term
  		{
             const error = new Error('malformed range syntax, please use (<=, >=) and not(=<, =>)');
             error.name = 'SyntaxError';
             throw error;
         }
-    
+
 range_term
-    = type:range_exp_op _+ value:rangevalue  
+    = type:range_exp_op _+ value:rangevalue
         {
             const error = new Error('cannot have a space between a (<, <=, >, >=) and the value')
             error.name = 'SyntaxError';
             throw error
         }
-    / type:range_exp_op value:rangevalue _* 
+    / type:range_exp_op value:rangevalue _*
         {
             if(type === '>') {
                 return {
@@ -297,7 +297,7 @@ rangevalue
         {
             return termValue
         }
-    
+
 fieldname
     = fieldname:unquoted_restricted_term _* [:] _*
         {
@@ -324,6 +324,8 @@ term
     / op:prefix_operator_exp? term:unquoted_term similarity:fuzzy_modifier? boost:boost_modifier? _*
         {
             const result = { term };
+
+            result.wildcard = /[\?\*]/.test(term);
 
             if('' != similarity) {
                 result.similarity = similarity;
@@ -352,7 +354,7 @@ term
             }
 
             return result;
-        }    
+        }
     / op:prefix_operator_exp? term:regexpr_term boost:boost_modifier? _*
         {
             const result = { term, 'regexpr': true };
@@ -414,16 +416,16 @@ term_escaping_char
         }
 
 field_char
-    = '+' / '-' / term_escaping_char / term_start_char 
+    = '+' / '-' / term_escaping_char / term_start_char
 
 term_char
-    = field_char / other_chars  
+    = field_char / other_chars
 
 other_chars
     = guarded_char / ['\[''\{''\]''\}''\*']
 
 guarded_char
-    = [A-Z_a-z:0-9,'\_''\-''\+''\:''\.'] 
+    = [A-Z_a-z:0-9,'\_''\-''\+''\:''\.']
 
 regexpr_term
     = '/' term:regexpr_char+ '/'
@@ -439,7 +441,7 @@ quoted_term
     = '"' term:[^"]+ '"'
         {
             return term.join('');
-        }   
+        }
 
 proximity_modifier
     = '~' proximity:int_exp
@@ -522,7 +524,7 @@ operator_exp
         {
         	if (operator1 === 'AND' && operator2 === 'NOT') return 'AND NOT';
             throw new Error(`cannot combine operators ${operator1} and ${operator2} together`)
-        }   
+        }
     / _* operator:operator _+
         {
             return operator;
