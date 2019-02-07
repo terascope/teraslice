@@ -15,7 +15,8 @@
             "development/overview",
             "development/releases",
             "development/tests",
-            "development/e2e-tests"
+            "development/e2e-tests",
+            "development/contributing"
         ]
     },
     "api": {

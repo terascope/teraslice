@@ -447,14 +447,3 @@ curl 'http://localhost:9200/test_index/_search?q=bytes:>=5642500' | ts-transform
 ## Plugins
 This library provides a wide array of manipulations/validations etc but you may need a custom operation. You may do so by making a plugin and injecting it.
 * [Plugin reference](./plugins.md)
-
-
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
-
-## License
-
-[MIT](./LICENSE) licensed.

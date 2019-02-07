@@ -94,5 +94,4 @@ newQueue.exists('ex_id', 3);
 
 newQueue.exists('ex_id', 123123);
 => false
-
 ```

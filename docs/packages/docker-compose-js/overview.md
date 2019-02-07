@@ -19,7 +19,6 @@ yarn add @terascope/docker-compose-js
 npm install --save  @terascope/docker-compose-js
 ```
 
-
 ## Usage
 
 The API largely just mirrors the regular docker-compose commands such as up(), down(), start(), stop() and so on. At the present time all commands except 'logs' and 'events' have been implemented.
@@ -72,14 +71,3 @@ compose.up()
         return compose.down();
     })
 ```
-
-
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
-
-## License
-
-[MIT](./LICENSE) licensed.
