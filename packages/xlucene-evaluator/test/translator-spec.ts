@@ -53,6 +53,38 @@ describe('Translator', () => {
                 }
             }
         ],
+        [
+            '_exists_:hello',
+            {
+                query: {
+                    bool: {
+                        filter: [
+                            {
+                                exists: {
+                                    field: 'hello'
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        ],
+        [
+            'hello:/w.*ld/',
+            {
+                query: {
+                    bool: {
+                        filter: [
+                            {
+                                regexp: {
+                                    hello: 'w.*ld'
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        ],
         // [
         //     'location:(_geo_box_top_left_:"34.5234,79.42345" _geo_box_bottom_right_:"54.5234,80.3456")',
         //     {

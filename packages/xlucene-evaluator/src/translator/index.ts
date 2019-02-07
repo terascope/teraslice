@@ -27,7 +27,18 @@ export default class Translator {
 
         this.parser.walkLuceneAst((node) => {
             if (node.field && node.term) {
-                if (node.wildcard) {
+                if (node.field === '_exists_') {
+                    const existsQuery: ExistsQuery = {
+                        exists: {
+                            field: node.term as string
+                        }
+                    };
+                    filter.push(existsQuery);
+                } else if (node.regexpr) {
+                    const regexQuery: RegExprQuery = { regexp: {} };
+                    regexQuery.regexp[node.field] = node.term as string;
+                    filter.push(regexQuery);
+                } else if (node.wildcard) {
                     const wildcardQuery: WildcardQuery = { wildcard: {} };
                     wildcardQuery.wildcard[node.field] = node.term as string;
                     filter.push(wildcardQuery);
@@ -43,7 +54,19 @@ export default class Translator {
     }
 }
 
-type AnyQuery = TermQuery|WildcardQuery;
+type AnyQuery = TermQuery|WildcardQuery|ExistsQuery|RegExprQuery;
+
+interface ExistsQuery {
+    exists: {
+        field: string;
+    };
+}
+
+interface RegExprQuery {
+    regexp: {
+        [field: string]: string;
+    };
+}
 
 interface TermQuery {
     term: {
