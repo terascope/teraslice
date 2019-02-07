@@ -18,17 +18,27 @@ export function isRangeNode(node: AST) {
 export function parseNodeRange(node: AST): ParseNodeRangeResult  {
     const result: ParseNodeRangeResult = {};
 
-    if (isInfiniteMax(node.term_max) && node.inclusive_min) {
-        result.gte = node.term_min;
-    } else if (isInfiniteMax(node.term_max) && !node.inclusive_min) {
-        result.gt = node.term_min;
-    } else if (isInfiniteMin(node.term_min) && node.inclusive_max) {
-        result.lte = node.term_max;
-    } else if (isInfiniteMin(node.term_min) && !node.inclusive_max) {
-        result.lt = node.term_max;
+    if (!isInfiniteValue(node.term_min)) {
+        if (node.inclusive_min) {
+            result.gte = node.term_min;
+        } else {
+            result.gt = node.term_min;
+        }
+    }
+
+    if (!isInfiniteValue(node.term_max)) {
+        if (node.inclusive_max) {
+            result.lte = node.term_max;
+        } else {
+            result.lt = node.term_max;
+        }
     }
 
     return result;
+}
+
+export function isInfiniteValue(input?: number|string) {
+    return input === '*' || input === -Infinity || input === Infinity;
 }
 
 export function isInfiniteMin(min?: number|string) {
