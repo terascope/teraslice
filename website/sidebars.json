@@ -1,16 +1,20 @@
 {
-  "docs": {
-    "Overview": [
-        "overview"
-    ],
-    "Getting Started": [
-        "getting-started"
-    ],
-    "Development": [
-        "development",
-        "tests",
-        "e2e-tests",
-        "releases"
-    ]
-  }
+    "docs": {
+        "Overview": [
+            "overview",
+            "getting-started"
+        ],
+        "Development": [
+            "development/overview",
+            "development/tests",
+            "development/e2e-tests",
+            "development/releases"
+        ]
+    },
+    "api": {
+        "Overview": [
+            "api",
+            "api/rest"
+        ]
+    }
 }

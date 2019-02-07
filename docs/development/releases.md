@@ -1,5 +1,4 @@
 ---
-id: releases
 title: Releases
 ---
 

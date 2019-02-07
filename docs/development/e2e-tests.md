@@ -1,5 +1,4 @@
 ---
-id: e2e-tests
 title: End-to-End Tests
 ---
 

@@ -1,4 +1,3 @@
 ---
-id: packages
 title: Packages
 ---

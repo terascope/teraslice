@@ -1,4 +1,5 @@
 ---
-id: api
-title: API
+title: API Overview
 ---
+
+Currently Teraslice only provides a REST API

@@ -1,6 +1,6 @@
 ---
-id: development
 title: Development
+sidebar_label: Overview
 ---
 
 ### Setup

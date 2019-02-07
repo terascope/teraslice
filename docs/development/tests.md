@@ -1,5 +1,4 @@
 ---
-id: tests
 title: Tests
 ---
 
