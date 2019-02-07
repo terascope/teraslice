@@ -1,5 +1,6 @@
 ---
 title: API Overview
+sidebar_label: Overview
 ---
 
-Currently Teraslice only provides a REST API
+...

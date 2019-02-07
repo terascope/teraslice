@@ -1,0 +1,460 @@
+---
+title: Transforms
+sidebar_label: ts-transforms
+---
+
+> An ETL framework built upon xlucene-evaluator
+
+# Installation
+
+## Dependency Installation
+
+```bash
+# Using yarn
+yarn add ts-transforms
+# Using npm
+npm install --save ts-transforms
+```
+
+# CLI Installation
+
+```bash
+# Using yarn
+yarn global add ts-transforms
+# Using npm
+npm install --global ts-transforms
+```
+
+# Usage
+
+Example file: `rulesFile.txt`
+```
+{"selector": "hello:world OR bytes:>=400"}
+```
+
+Example code:
+```js
+import { Matcher } from 'ts-transforms'
+
+const config = {
+    rules: ['/path/to/rulesFile.txt']
+};
+
+const data = [
+    { hello: 'world' },
+    { something: 'else' }
+    { bytes: 200 },
+    { bytes: 500, other: 'things' }
+];
+
+const matcher = new Matcher(config);
+await matcher.init();
+
+const results = matcher.run(data);
+console.log(results);   //   [{ hello: 'world' }, { bytes: 500, other: 'things'}]
+
+```
+
+## Configuration
+The Matcher/Transform class takes a configuration object and an optional logger (bunyan based) as a second argument
+
+- configuration object
+- optional logger
+
+#### Configuration Object
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| rules | `Array` of `Strings` | A list of file paths leading to rules that will be loaded |
+| plugins | `Array` of `PluginClass` | An array of plugin classes that will be used |
+| types | `Object` | An object with keys specifying if a given field should have type manipulations, please refer to refer to [xlucene-evaluator](https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator) for more details |
+
+```ts
+interface Config {
+    rules: string[];
+    plugins?: PluginsClass[];
+    types?: {
+        [field: string]: string;
+    };
+}
+
+const configObj: Config = {
+    rules: ['path/rules1.txt', 'path/rules2.txt'],
+    plugins: [Plugin1, Plugin2]
+    types: { _created: 'date' },
+}
+```
+
+#### Optional logger
+
+```js
+import { Logger } from '@terascope/utils';
+import { Transform } from 'ts-transforms'
+
+const logger = new Logger({ name: 'ts-transforms' })
+const manager = new Transform(configObj, logger);
+
+```
+
+If you do not specify a logger a debug logger will be used. No logs will be given unless you specifiy it when running the code or exporting it as shown below
+
+```sh
+DEBUG='*ts-transform*' ts-transform ...
+    OR
+export DEBUG='*ts-transform*'
+```
+
+## Rules
+To understand how rules apply you will need to understand all the different processing phases
+
+### Selector Phase
+This is the first phase. This goes through and collects all selectors. Only data that pass the selectors can have further processing. please refer to [xlucene-evaluator](https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator) on all the ways you can write the selector rule. Metadata is attached to the records of which selector is applicable for that record. This is used to funnel it down the processing pipeline for the subsequent phases
+
+```txt
+# will match any document that has a key of "some" and a value of "thing"
+{ "selector": "some:thing" }
+```
+
+```js
+import { Transform } from 'ts-transforms'
+
+const config = {
+    rules: ['/path/to/rulesFile.txt']
+};
+
+const data = [
+    { hello: 'world' },
+    { something: 'else' }
+    { bytes: 200 },
+    { bytes: 500, some: 'thing' }
+];
+
+const transform = new Transform(config);
+await transform.init();
+
+const results = transform.run(data);
+console.log(results);   //   [{ bytes: 500, other: 'things'}]
+
+```
+If you do not specify a selector and it's not a post_process or validation then it will act as a catch all
+
+rulefile.txt
+```
+{ "source_field": "data", "target_field": "final" }
+```
+
+```js
+import { Transform } from 'ts-transforms'
+
+const config = {
+    rules: ['/path/to/rulesFile.txt']
+};
+
+const data = [
+    { hello: 'world' },
+    { something: 'else', data: 'someData' }
+    { bytes: 200,  data: 'otherData' },
+    { bytes: 500, some: 'thing' }
+];
+
+const transform = new Transform(config);
+await transform.init();
+
+const results = transform.run(data);
+console.log(results);   //   [{ final: 'someData' }, { final: 'otherData' }]
+
+```
+### Extraction Phase
+This phase will go through all the configurations and apply all the extractions for a given selector. All the transformations for a given selector are merged together to return a single record back
+
+```ts
+// rules
+
+{"selector": "hello:world", "source_field": "first", "target_field": "first_name"}
+{"selector": "hello:world", "source_field": "last", "target_field": "last_name"}
+
+{"selector": "some:data", "source_field": "first", "target_field": "other_first"}
+{"selector": "some:data", "source_field": "last", "target_field": "other_last"}
+
+// Incoming Data to transform
+[
+    { hello: 'world', first: 'John', last: 'Wayne' },
+    { some: 'data', first: 'Abe', last: 'Lincoln' }
+]
+
+// Results
+/*
+  There are extraction rules for 'first' and 'last' key fields, but they have different actions based off the the selectors
+*/
+
+[
+    { first_name: 'John', last_name: 'Wayne'},
+    { other_first: 'Abe', other_last: 'Lincoln'}
+]
+
+```
+
+### Post Process Phase
+This phase is for any additional processing that needs to occur after extraction. Each post_process configuration is affecting the `target_field` of the chained configuration if you use the `tag` and `follow` tags. You can chain multiple times if needed.
+
+```ts
+// rules
+# we extract first => first_name
+{"selector": "hello:world", "source_field": "first", "target_field": "first_name"}
+
+# we extract last => last_name
+{"selector": "hello:world", "source_field": "last", "target_field": "last_name"}
+
+# we join the two fields => full_name
+{"selector": "hello:world", "post_process": "join", "fields": ["first_name", "last_name"], "delimiter": " ", "target_field": "full_name", "tag": "myId"}
+
+# we filter out and only allow full_name: 'Jane Doe'
+{"follow": "myId", "post_process": "selector", "selector": "full_name:\"Jane Doe\"", "tag": "second_id" }
+
+# we extract full_name => name, extraction returns a new record
+{"follow": "second_id", "post_process": "extraction", "source_field":"full_name", "target_field": "name"}
+
+// Incoming Data to transform
+[
+    { hello: 'world', first: 'John', last: 'Wayne' },
+    { hello: 'world', first: 'Jane', last: 'Doe' }
+]
+
+// Results
+
+[
+    { name: 'Jane Doe' },
+]
+
+```
+
+- **tag** = marks the config and the target_field with an ID so other configurations can chain off of it
+- **follows** = marks the config that it is chaining off the tag id
+
+**Note**
+It is possible to collapse some simple post_process configs together with the original extraction config, however its not advisable if you need to specify additional parameters so that they dont conflict with each other.
+
+```js
+
+{ "selector": "domain:example.com", "source_field": "url", "start": "field3=", "end": "EOP", "target_field": "field3", "post_process": "base64decode" }
+
+// is the same as
+
+{ "selector": "domain:example.com", "source_field": "url", "start": "field3=", "end": "EOP", "target_field": "field3", "tag": "someTag"}
+{ "follow": "someTag", "post_process": "base64decode" }
+
+// however the later is preferable when you need to do more complex chaining or any post_process or validation that requires more parameters
+```
+
+### Validation Phase
+acts pretty similar to the post process phase except this is when you validate a field. If it does not pass then that field is removed from the final record.
+
+```ts
+// rules
+# we extract field => other_field
+{"selector": "hello:world", "source_field": "field", "target_field": "other_field","tag": "myId"}
+
+# we validate the other_field is a alphanumeric string
+{"follow": "myId", "validation": "alphanumeric"}
+
+// Incoming Data to transform
+[
+    { hello: 'world', field: 'some847sting' },
+    { hello: 'world', field: 'othe#78*@77string' }
+]
+
+// Results
+
+[
+    { other_field: 'some847sting' },
+]
+
+```
+
+### Output Phase
+This is the last phase. This performs final removal of fields marked by `output:false` for transform configurations. This also makes sure that `other_match_required` operates and pull together any `multivalue` settings.
+
+
+#### File structure
+The rules file must be in ldjson format. Which is json data separated by a new line. For matcher, it is still advisable to stick to the ldjson format but it is allowed to specify the selector rules by themselves on each new line
+
+- Transform:
+transformrules.txt
+```
+{ "selector": "host:fc2.com", "source_field": "field1", "start": "field1=", "end": "EOP", "target_field": "field1", "post_process": "base64decode" }
+{ "source_field": "date", "target_field": "date", "other_match_required": true }
+```
+
+- Matcher:
+matcherules.txt
+
+```
+{ "selector": "some:data AND bytes:>=1000"}
+{ "selector": "other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z" }
+```
+is equivalent to:
+
+matcherules_other_format.txt
+```
+some:data AND bytes:>=1000
+other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z
+```
+`NOTE` you can put `#` in the rules file to act as a comment, it must be on a new line
+
+Example:
+```sh
+
+{ "selector": "some:data AND bytes:>=1000"}
+# some comment about something
+{ "selector": "other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z" }
+```
+
+## Matcher
+This will return all the records that match the selector rule list without any additional record manipulation/validation
+
+Example file: `rulesFile2.txt`
+```
+{"selector": "person.age:[25 TO 35]"}
+{"selector": "ipfield:"192.198.0.0/24"}
+{"selector": "_created:[2018-10-18T18:13:20.683Z TO *]"}
+{"selector": "key:?abc*]"}
+```
+
+Example code:
+```js
+import { Matcher } from 'ts-transforms'
+
+const config = {
+    rules: ['/path/to/rulesFile2.txt'],
+    type: 'matcher'
+    types: { ipfield: 'ip', _created: 'date' }
+};
+
+const data = [
+    { ipfield: '192.198.0.1' };
+    { person: { age: 33 },
+    { person: { age: 55 },
+    { _created: '2018-10-19T20:14:25.773Z'},
+    { _created: '2018-10-16T02:11:14.333Z'},
+    { key : 'zabcde' },
+    { key : 'abcccde' },
+    { bytes: 500, other: 'things' }
+];
+
+const matcher = new Matcher(config);
+await matcher.init();
+
+const results = matcher.run(data);
+console.log(results);
+/*
+[
+    { ipfield: '192.198.0.1' };
+    { person: { age: 33 },
+    { _created: '2018-10-19T20:14:25.773Z'}
+    { key : 'zabcde' },
+]
+*/
+```
+
+`NOTE`: even if you give transform rules to a matcher, it will only return unaltered matching docs
+
+## Transform
+This will not only select for matching records based on the selector but it can allow additional transformation/validation of the data to produce an new result
+
+Example rules file:
+```txt
+{"selector": "hello:world", "source_field": "first", "target_field": "first_name"}
+{"selector": "hello:world", "source_field": "last", "target_field": "last_name"}
+{"selector": "hello:world", "post_process": "join", "fields": ["first_name", "last_name"], "delimiter": " ", "target_field": "full_name"}
+```
+
+code
+```js
+import { Transform } from 'ts-transforms'
+
+const config = {
+    rules: ['/path/to/rulesFile.txt'],
+};
+
+const data = [ { hello: 'world', first: 'John', last: 'Doe' }]
+
+const transform = new Transform(config);
+await transform.init();
+
+const results = transform.run(data);
+
+console.log(results);   //   [ { full_name: 'John Doe' }]
+
+```
+
+
+## CLI
+To help facilitate the construction of rules and the application of data there is a cli avaiable to help. The final results are piped out to stdout which can be piped to anything
+
+NOTE: if you did not install globally, you can reach still call it by executing `./bin/ts-transform` at project root instead of `ts-transform`
+
+Example
+```sh
+ts-transform -t location:geo -r ./rules/path -d ./data/path
+```
+
+for help you can call `ts-transform -h` for further assitance
+
+Most of the command arguments have a direct correlcation with the configuration:
+
+- `-r`  rules path
+- `-p`  plugins path
+- `-d`  data path or uri
+- `-t`  types
+
+NOTE: in any case that you would specify an object or array, it must be set to a comma deliminated string
+
+```sh
+ts-transform -t location:geo,_created:date -r ./rules/path,./otherRules/path -d ./data/path
+```
+
+#### Fetching data from a uri
+If you specify a uri then it is expected the the returning data from that endpoint to be formatted in a certain way. It may either be a direct elasticsearch database response, an array of data or an object that has a results field that has the array of data (teraserver compatability reasons)
+
+Uri Response Types:
+```js
+{ hits: { hits: [{ _source: { some: 'data'} }] }
+[{ some: 'data'}]
+{ results: [{ some: 'data'}] }
+```
+
+Example
+```sh
+ts-transform -r someRules.txt -d 'http://localhost:9200/test_index/_search?q=bytes:>=5642500'
+```
+
+#### Piping
+You may pipe the data into the cli command and omit `-d`
+
+Equivalent:
+```sh
+ts-transform -r someRules.txt -d 'http://localhost:9200/test_index/_search?q=bytes:>=5642500'
+
+curl 'http://localhost:9200/test_index/_search?q=bytes:>=5642500' | ts-transform -r someRules.txt
+```
+
+you may also pipe the results to a file for further analysis
+
+```sh
+curl 'http://localhost:9200/test_index/_search?q=bytes:>=5642500' | ts-transform -r someRules.txt | tee results.txt
+```
+
+## Plugins
+This library provides a wide array of manipulations/validations etc but you may need a custom operation. You may do so by making a plugin and injecting it.
+* [Plugin reference](./docs/plugins.md)
+
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+
+[MIT](./LICENSE) licensed.
