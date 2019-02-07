@@ -4,11 +4,18 @@
             "overview",
             "getting-started"
         ],
+        "Configuration": [
+            "configuration/teraslice",
+            "configuration/ops"
+        ],
+        "Clustering": [
+            "clustering/k8s"
+        ],
         "Development": [
             "development/overview",
+            "development/releases",
             "development/tests",
-            "development/e2e-tests",
-            "development/releases"
+            "development/e2e-tests"
         ]
     },
     "api": {
