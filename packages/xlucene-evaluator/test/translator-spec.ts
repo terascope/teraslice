@@ -85,6 +85,78 @@ describe('Translator', () => {
                 }
             }
         ],
+        [
+            'example_count:>=30',
+            {
+                query: {
+                    bool: {
+                        filter: [
+                            {
+                                range: {
+                                    example_count: {
+                                        gte: 30
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        ],
+        [
+            'example_count:>30',
+            {
+                query: {
+                    bool: {
+                        filter: [
+                            {
+                                range: {
+                                    example_count: {
+                                        gt: 30
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        ],
+        [
+            'example_count:<50',
+            {
+                query: {
+                    bool: {
+                        filter: [
+                            {
+                                range: {
+                                    example_count: {
+                                        lt: 50
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        ],
+        [
+            'example_count:<=50',
+            {
+                query: {
+                    bool: {
+                        filter: [
+                            {
+                                range: {
+                                    example_count: {
+                                        lte: 50
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        ],
         // [
         //     'location:(_geo_box_top_left_:"34.5234,79.42345" _geo_box_bottom_right_:"54.5234,80.3456")',
         //     {

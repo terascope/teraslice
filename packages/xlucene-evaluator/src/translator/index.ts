@@ -48,13 +48,30 @@ export default class Translator {
                     filter.push(termQuery);
                 }
             }
+            if (node.term_min) {
+                const rangeQuery: RangeQuery = {
+                    range: {}
+                };
+                rangeQuery.range[node.field] = {};
+                const rangeField = rangeQuery.range[node.field];
+                if (node.term_max === Infinity && node.inclusive_min) {
+                    rangeField['gte'] = node.term_min;
+                } else if (node.term_max === Infinity && !node.inclusive_min) {
+                    rangeField['gt'] = node.term_min;
+                } else if (node.term_min === -Infinity && node.inclusive_max) {
+                    rangeField['lte'] = node.term_max;
+                } else if (node.term_min === -Infinity && !node.inclusive_max) {
+                    rangeField['lt'] = node.term_max;
+                }
+                filter.push(rangeQuery);
+            }
         });
 
         return dslQuery;
     }
 }
 
-type AnyQuery = TermQuery|WildcardQuery|ExistsQuery|RegExprQuery;
+type AnyQuery = TermQuery|WildcardQuery|ExistsQuery|RegExprQuery|RangeQuery;
 
 interface ExistsQuery {
     exists: {
@@ -78,4 +95,17 @@ interface WildcardQuery {
     wildcard: {
         [field: string]: string;
     };
+}
+
+interface RangeQuery {
+    range: {
+        [field: string]: RangeExpression
+    };
+}
+
+interface RangeExpression {
+    gte?: string|number;
+    lte?: string|number;
+    gt?: string|number;
+    lt?: string|number;
 }
