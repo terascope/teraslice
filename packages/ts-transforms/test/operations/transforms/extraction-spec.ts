@@ -213,7 +213,7 @@ describe('transform operator', () => {
 
         expect(DataEntity.isDataEntity(results2)).toEqual(true);
         expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(DataEntity.getMetadata(results2 as DataEntity, '_multi_target_fields')).toEqual({ 
+        expect(DataEntity.getMetadata(results2 as DataEntity, '_multi_target_fields')).toEqual({
             otherField: { otherField: true },
             secondField: { secondField: true }
         });
