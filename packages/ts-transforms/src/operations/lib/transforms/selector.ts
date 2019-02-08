@@ -1,15 +1,15 @@
 
-import { DocumentMatcher, TypeConfig } from 'xlucene-evaluator';
+import { DocumentMatcher } from 'xlucene-evaluator';
 import { DataEntity } from '@terascope/utils';
 import TransformOpBase from './base';
-import { OperationConfig } from '../../../interfaces';
+import { OperationConfig, SelectorTypes } from '../../../interfaces';
 
 export default class Selector extends TransformOpBase {
     private documentMatcher: DocumentMatcher;
     public selector: string;
     private isMatchAll: boolean;
 
-    constructor(config: OperationConfig, types?: TypeConfig) {
+    constructor(config: OperationConfig, types?: SelectorTypes) {
         super(config);
         let luceneQuery = config.selector as string;
         if (typeof luceneQuery !== 'string') throw new Error('selector must be a string');

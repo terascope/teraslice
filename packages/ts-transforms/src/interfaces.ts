@@ -1,5 +1,4 @@
 
-import { TypeConfig } from 'xlucene-evaluator';
 import { DataEntity } from '@terascope/utils';
 
 export enum NotifyType { matcher = 'matcher', transform = 'transform' }
@@ -32,6 +31,10 @@ export interface OperationConfig {
     output?: boolean;
 }
 
+export interface SelectorTypes {
+    [field: string]: string;
+}
+
 export type PluginClassConstructor = { new (): PluginClassType };
 
 export interface PluginClassType {
@@ -40,7 +43,7 @@ export interface PluginClassType {
 
 export type PluginList = PluginClassConstructor[];
 
-export type BaseOperationClass = { new (config: OperationConfig, types?: TypeConfig): Operation };
+export type BaseOperationClass = { new (config: OperationConfig, types?: SelectorTypes): Operation };
 
 export interface OperationsDict {
     [op: string]: BaseOperationClass;
@@ -66,7 +69,7 @@ export interface OperationsPipline {
 
 export interface WatcherConfig {
     rules: string[];
-    types?: TypeConfig;
+    types?: SelectorTypes;
 }
 
 export interface PhaseConfig extends WatcherConfig {
