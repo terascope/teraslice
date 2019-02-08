@@ -59,20 +59,23 @@ jobs:
     before_script: cd e2e
     script: yarn test:ci
 
-  # if not a tagged build and is on master release any changed versions to NPM
+  # if not a tagged build and is on master
   - stage: Publish
-    name: NPM Publish
+    name: NPM Publish & Publish Documentation
     if: tag IS blank AND branch = master AND type NOT IN (pull_request, cron)
     addons:
       apt:
         packages:
           - jq
-    script: cp README.md ./packages/teraslice/README.md
-    before_deploy: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+    before_script: ./scripts/travis-setup-credentials.sh
+    script: ./scripts/sync-readmes.sh
     deploy:
       - provider: script
         skip_cleanup: true
-        script: ./scripts/publish.sh
+        script: ./scripts/publish-packages.sh
+      - provider: script
+        skip_cleanup: true
+        script: ./scripts/publish-documentation.sh
 
   # Create tagged releases
   - stage: Release
@@ -82,6 +85,7 @@ jobs:
       apt:
         packages:
           - jq
+    before_script: ./scripts/travis-setup-credentials.sh
     script: true
     deploy:
       - provider: script
@@ -95,6 +99,7 @@ jobs:
       apt:
         packages:
           - jq
+    before_script: ./scripts/travis-setup-credentials.sh
     script: true
     deploy:
       - provider: script

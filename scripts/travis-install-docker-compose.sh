@@ -2,7 +2,15 @@
 
 set -e
 
+only_ci() {
+    if [ "$TRAVIS" != "true" ]; then
+        (>&2 echo "This script can only be ran in Travis CI");
+        exit 1;
+    fi
+}
+
 main() {
+    only_ci
     local file="docker-compose"
     local remote_file;
 
