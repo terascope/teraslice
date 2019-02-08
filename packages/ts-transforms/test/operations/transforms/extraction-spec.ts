@@ -179,24 +179,46 @@ describe('transform operator', () => {
     });
 
     it('can preserve metadata when transforming documents', () => {
-        const opConfig = { source_field: 'someField', target_field: 'otherField', mutate: true };
-        const opConfig2 = { source_field: 'someField', target_field: 'otherField' };
+        const opConfig = {
+            source_field: 'someField',
+            target_field: 'otherField',
+            // this metadata is set in loader
+            _multi_target_field: 'otherField',
+            mutate: true,
+            multivalue: true
+        };
+        const opConfig2 = {
+            source_field: 'firstField',
+            target_field: 'secondField',
+            // this metadata is set in loader
+            _multi_target_field: 'secondField',
+            mutate: true,
+            multivalue: true
+        };
+
+        const opConfig3 = { selector: 'some:data', source_field: 'someField', target_field: 'otherField' };
 
         const test1 =  new Extraction(opConfig);
         const test2 =  new Extraction(opConfig2);
+        const test3 =  new Extraction(opConfig3);
 
         const metaData = { selectors: { 'some:data': true } };
 
-        const data1 = new DataEntity({ someField: 'data' }, metaData);
+        const data1 = new DataEntity({ someField: 'data', firstField: 'otherthings' }, metaData);
         const data2 = new DataEntity({ someField: 'data' }, metaData);
 
         const results1 = test1.run(data1);
-        const results2 = test2.run(data2);
-
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        const results2 = test2.run(results1 as DataEntity);
+        const results3 = test3.run(data2);
 
         expect(DataEntity.isDataEntity(results2)).toEqual(true);
+        expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(DataEntity.getMetadata(results2 as DataEntity, '_multi_target_fields')).toEqual({
+            otherField: { otherField: true },
+            secondField: { secondField: true }
+        });
+
+        expect(DataEntity.isDataEntity(results3)).toEqual(true);
         expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors);
     });
 });

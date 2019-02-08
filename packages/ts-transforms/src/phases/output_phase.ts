@@ -45,7 +45,7 @@ export default class OutputPhase extends PhaseBase {
         return list;
     }
 
-    normalizeFields(data: DataEntity[]) {
+    combineMultiFields(data: DataEntity[]) {
         return data.map((doc) => {
             const multiValueList = doc.getMetadata('_multi_target_fields');
             if (multiValueList != null) {
@@ -116,7 +116,7 @@ export default class OutputPhase extends PhaseBase {
         let results = data;
 
         if (this.hasMultiValue) {
-            results = this.normalizeFields(results);
+            results = this.combineMultiFields(results);
         }
 
         if (this.hasRestrictedOutput) {
