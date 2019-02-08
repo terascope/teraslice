@@ -2,4 +2,14 @@
 title: Releases
 ---
 
-TODO
+A "Teraslice" release is not just the [teraslice package](./pacakges/teraslice/overview.md) but all packages together. This important to note since the packages can change and be released often, but a release undergoes QA.
+
+A release should be attached to [Github Milestone](https://github.com/terascope/teraslice/milestones) and all issues "fixed" since the previous release should be connected to that Milestone.
+
+When a release is created, it should be marked as "prerelease" until the QA has verified all the issues attached to the milestone are "fixed". If a release fails QA, either another release will need to be made with a patch or a hot-fix will need to be applied to that release. A "hot-fix" can be made by creating a branch from the tag, making the fix, and creating a release from that branch. Any regressions caused in a "release" should be filed in an issue and attached to the Milestone.
+
+**NOTE:** Travis-CI handles most of the automation around deploying, publishing and building packages, releases and documentation.
+
+### Nightly Releases ###
+
+Travis-CI will automatically run daily to create a nightly release in docker hub. The tag will be formatted like `[branch]-%m.%d.%y` for example, `terascope/teraslice:master-02.08.18`.
