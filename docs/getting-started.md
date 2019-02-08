@@ -21,10 +21,10 @@ npm install --global teraslice-cli
 # Or with yarn, yarn global add teraslice-cli
 
 # To add additional connectors, use
-# npm install --global terascope/terafoundation_kafka_connector
+# npm install --global terafoundation_kafka_connector
 ```
 
-# Running
+### Running ###
 
 Once you have Teraslice installed you need a job specification and a configuration file to do something useful with it. See above for simple examples of each.
 

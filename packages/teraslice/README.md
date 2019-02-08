@@ -81,7 +81,7 @@ npm install --global teraslice-cli
 # Or with yarn, yarn global add teraslice-cli
 
 # To add additional connectors, use
-# npm install --global terascope/terafoundation_kafka_connector
+# npm install --global terafoundation_kafka_connector
 ```
 
 # Configuration Single Node / Cluster Master
