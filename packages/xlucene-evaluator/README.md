@@ -1,15 +1,17 @@
 # xlucene-evaluator
 
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/xlucene-evaluator/overview.md INSTEAD -->
 #### Installation
-`npm install @/terascope/xlucene-evaluator`
+
+`npm install @terascope/xlucene-evaluator`
 
 ## Document Matcher
 This takes in a lucene based query along with some configuration and allows you to run data against it to see if it matches
 
-```
-const { DocumentMatcher } = require('xlucene-evaluator);
+```js
+const { DocumentMatcher } = require('xlucene-evaluator');
 
-// you can set the configuration at instantiation time as well if you call parse() 
+// you can set the configuration at instantiation time as well if you call parse()
 const matcher = new DocumentMatcher('some:data AND (other:stuff OR other:things)');
 
 const data1 = { some: 'data', other: 'stuff' };
@@ -25,7 +27,7 @@ documentMatcher.match(data1)  => true
 documentMatcher.match(data2)  => true
 
 
-// more complex queries 
+// more complex queries
 
 const documentMatcher = new DocumentMatcher('key:value AND (duration:<=10000 OR ipfield:{"192.198.0.0" TO "192.198.0.255"])', { ipfield: 'ip' });
 
@@ -51,7 +53,7 @@ documentMatcher.match(data7)  => false
 ### Ranges
 You may specify ranges using `< > <= >=` syntax as well as `[]` (inclusive) and `{}` signs. A `*` may be used to signify infinity or -infinity depening where it is used.
 
-```
+```js
 const data1 = { age: 8 };
 const data2 = { age: 10 };
 const data3 = { age: 15 };
@@ -98,7 +100,7 @@ NOTE: Strings that contain dates, ip's and the like will be treated as exact mat
 #### IP
 This has support for ipv4, ipv6 and cidr notation. Any cidr notation value need to be quoted while ipv4 and ipv6 do not
 
-```
+```js
 const data1 = { ipfield: '192.198.0.0/24' };
 const data2 = { ipfield: '192.198.0.10' };
 
@@ -133,7 +135,7 @@ documentMatcher.match(data7)  => true
 #### Dates
 Has support for date comparison
 
-```
+```js
 const data1 = { _created: 'Thu Oct 18 2018 11:13:20 GMT-0700' };
 const data2 = { _created: '2018-10-18T18:13:20.683Z' };
 
@@ -178,18 +180,18 @@ documentMatcher.match(data7)  => false
 Has support for geo based queries. It expects all geopoints to be in the`lat,lon` format. If you specify a `_geo_box_top_left_ and _geo_box_bottom_right_` it creates a bounding box and checks to see if the point. If you specify `_geo_point_ and _geo_distance_` it checks to see if the incoming geopoint is within distance of that point.
 
 distance may be set to:
-- meters 
+- meters
 - yards
 - kilometers
 - nauticalmiles
 - miles
-- inches 
-- millimeters 
-- centimeters 
-- feet 
+- inches
+- millimeters
+- centimeters
+- feet
 
 
-```
+```js
 const data1 = { location: '33.435967,-111.867710' };
 const data2 = { location: '22.435967,-150.867710' };
 
@@ -212,7 +214,7 @@ ie "abcde":
 ab.*     # match
 abcd     # no match
 
-```
+```js
 const data6 = { key : 'abbccc' };
 const data7 = { key : 'abc' };
 const data8 = { key : 'zabcde' };
@@ -258,3 +260,11 @@ documentMatcher.match(data8)  => false
 documentMatcher.match(data9)  => true
 ```
 
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+[MIT](./LICENSE) licensed.

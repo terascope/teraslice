@@ -1,5 +1,16 @@
-# queue
-This is a typical FIFO queue implementation with a few extra helper methods
+# @terascope/queue
+
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/queue/overview.md INSTEAD -->
+> This is a typical FIFO queue implementation with a few extra helper methods
+
+# Installation
+
+```bash
+# Using yarn
+yarn add @terascope/queue
+# Using npm
+npm install --save @terascope/queue
+```
 
 ### API
 
@@ -16,8 +27,8 @@ exists | returns a boolean indicating the existence of a particular value in the
 
 ### Usage
 
-```
-var Queue = require('queue');
+```js
+var Queue = require('@terascope/queue');
 var queue = new Queue;
 
 queue.enqueue({first: 1, id: 'someId'});
@@ -81,5 +92,13 @@ newQueue.exists('ex_id', 3);
 
 newQueue.exists('ex_id', 123123);
 => false
-
 ```
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+[MIT](./LICENSE) licensed.

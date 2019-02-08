@@ -1,5 +1,6 @@
-# terascope-utils
+# @terascope/utils
 
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/utils/overview.md INSTEAD -->
 > A collection of Teraslice Utilities, including DataEntity.
 
 # Installation
@@ -18,5 +19,4 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update tests as appropriate.
 
 ## License
-
 [MIT](./LICENSE) licensed.

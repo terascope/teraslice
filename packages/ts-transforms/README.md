@@ -1,5 +1,6 @@
-# transforms
+# ts-transforms
 
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/ts-transforms/overview.md INSTEAD -->
 > An ETL framework built upon xlucene-evaluator
 
 # Installation
@@ -37,7 +38,7 @@ const config = {
     rules: ['/path/to/rulesFile.txt']
 };
 
-const data = [ 
+const data = [
     { hello: 'world' },
     { something: 'else' }
     { bytes: 200 },
@@ -48,7 +49,7 @@ const matcher = new Matcher(config);
 await matcher.init();
 
 const results = matcher.run(data);
-console.log(results);   //   [{ hello: 'world' }, { bytes: 500, other: 'things'}]   
+console.log(results);   //   [{ hello: 'world' }, { bytes: 500, other: 'things'}]
 
 ```
 
@@ -119,7 +120,7 @@ const config = {
     rules: ['/path/to/rulesFile.txt']
 };
 
-const data = [ 
+const data = [
     { hello: 'world' },
     { something: 'else' }
     { bytes: 200 },
@@ -130,7 +131,7 @@ const transform = new Transform(config);
 await transform.init();
 
 const results = transform.run(data);
-console.log(results);   //   [{ bytes: 500, other: 'things'}]   
+console.log(results);   //   [{ bytes: 500, other: 'things'}]
 
 ```
 If you do not specify a selector and it's not a post_process or validation then it will act as a catch all
@@ -147,7 +148,7 @@ const config = {
     rules: ['/path/to/rulesFile.txt']
 };
 
-const data = [ 
+const data = [
     { hello: 'world' },
     { something: 'else', data: 'someData' }
     { bytes: 200,  data: 'otherData' },
@@ -158,7 +159,7 @@ const transform = new Transform(config);
 await transform.init();
 
 const results = transform.run(data);
-console.log(results);   //   [{ final: 'someData' }, { final: 'otherData' }]   
+console.log(results);   //   [{ final: 'someData' }, { final: 'otherData' }]
 
 ```
 ### Extraction Phase
@@ -180,7 +181,7 @@ This phase will go through all the configurations and apply all the extractions 
 ]
 
 // Results
-/* 
+/*
   There are extraction rules for 'first' and 'last' key fields, but they have different actions based off the the selectors
 */
 
@@ -228,7 +229,7 @@ This phase is for any additional processing that needs to occur after extraction
 - **tag** = marks the config and the target_field with an ID so other configurations can chain off of it
 - **follows** = marks the config that it is chaining off the tag id
 
-**Note** 
+**Note**
 It is possible to collapse some simple post_process configs together with the original extraction config, however its not advisable if you need to specify additional parameters so that they dont conflict with each other.
 
 ```js
@@ -243,8 +244,8 @@ It is possible to collapse some simple post_process configs together with the or
 // however the later is preferable when you need to do more complex chaining or any post_process or validation that requires more parameters
 ```
 
-### Validation Phase 
-acts pretty similar to the post process phase except this is when you validate a field. If it does not pass then that field is removed from the final record. 
+### Validation Phase
+acts pretty similar to the post process phase except this is when you validate a field. If it does not pass then that field is removed from the final record.
 
 ```ts
 // rules
@@ -282,7 +283,7 @@ transformrules.txt
 { "source_field": "date", "target_field": "date", "other_match_required": true }
 ```
 
-- Matcher: 
+- Matcher:
 matcherules.txt
 
 ```
@@ -327,7 +328,7 @@ const config = {
     types: { ipfield: 'ip', _created: 'date' }
 };
 
-const data = [ 
+const data = [
     { ipfield: '192.198.0.1' };
     { person: { age: 33 },
     { person: { age: 55 },
@@ -342,9 +343,9 @@ const matcher = new Matcher(config);
 await matcher.init();
 
 const results = matcher.run(data);
-console.log(results);   
-/* 
-[ 
+console.log(results);
+/*
+[
     { ipfield: '192.198.0.1' };
     { person: { age: 33 },
     { _created: '2018-10-19T20:14:25.773Z'}
@@ -380,7 +381,7 @@ await transform.init();
 
 const results = transform.run(data);
 
-console.log(results);   //   [ { full_name: 'John Doe' }]   
+console.log(results);   //   [ { full_name: 'John Doe' }]
 
 ```
 
@@ -443,8 +444,7 @@ curl 'http://localhost:9200/test_index/_search?q=bytes:>=5642500' | ts-transform
 
 ## Plugins
 This library provides a wide array of manipulations/validations etc but you may need a custom operation. You may do so by making a plugin and injecting it.
-* [Plugin reference](./docs/plugins.md)
-
+* [Plugin reference](./plugins.md)
 
 ## Contributing
 
@@ -453,5 +453,4 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update tests as appropriate.
 
 ## License
-
 [MIT](./LICENSE) licensed.

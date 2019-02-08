@@ -1,33 +1,34 @@
+# @terascope/elasticsearch-api
 
-# Description
-
-elasticsearch client api used across multiple services, handles retries and exponential backoff
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/elasticsearch-api/overview.md INSTEAD -->
+> Elasticsearch client api used across multiple services, handles retries and exponential backoff
 
 #### Installation
 
+```bash
+# Using yarn
+yarn add @terascope/elasticsearch-api
+# Using npm
+npm install --save @terascope/elasticsearch-api
 ```
-npm install @terascope/elasticsearch-api
-```
-
-
 
 # example
 
-```
-    var elasticsearch = require('@terascope/elasticsearch-api');
-    var bunyan = require('bunyan');
+```js
+var elasticsearch = require('@terascope/elasticsearch-api');
+var bunyan = require('bunyan');
 
-    var logger = logger = bunyan.createLogger({name: 'someName'});
-    var client = new elasticsearch.Client({host: ["127.0.0.1:9200"]});
-    var opConfig = {full_response: false};
+var logger = logger = bunyan.createLogger({name: 'someName'});
+var client = new elasticsearch.Client({host: ["127.0.0.1:9200"]});
+var opConfig = {full_response: false};
 
-    var elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
-    var query = elasticsearch.buildQuery(opConfig, msg);
+var elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
+var query = elasticsearch.buildQuery(opConfig, msg);
 
-    elasticsearch.search(query)
-       .then(function(results){
-           console.log(results)
-       })
+elasticsearch.search(query)
+    .then(function(results){
+        console.log(results)
+    })
 ```
 
 
@@ -51,13 +52,14 @@ Query requires:
 - id
 - type
 - index
-```
-    var query = {id: 'someID', type: 'someType', index: 'someIndex'};
 
-    elasticsearch.get(query)
-       .then(function(results){
-           console.log(results)
-       })
+```js
+var query = {id: 'someID', type: 'someType', index: 'someIndex'};
+
+elasticsearch.get(query)
+   .then(function(results){
+       console.log(results)
+   })
 ```
 
 #### index
@@ -68,13 +70,13 @@ Query requires:
 - type
 - body
 
-```
-    var query = {index: 'someIndex', type: 'someType', body: {actual: 'data'};
+```js
+var query = {index: 'someIndex', type: 'someType', body: {actual: 'data'};
 
-    elasticsearch.index(query)
-       .then(function(results){
-           console.log(results)
-       })
+elasticsearch.index(query)
+   .then(function(results){
+       console.log(results)
+   });
 ```
 
 
@@ -88,18 +90,18 @@ Query requires:
 - id
 - body
 
-```
-    var query = {
-        index: 'someIndex',
-        type: 'someType',
-        id: 'someID',
-        body: {actual: 'data'}
-      };
+```js
+var query = {
+  index: 'someIndex',
+  type: 'someType',
+  id: 'someID',
+  body: {actual: 'data'}
+};
 
-    elasticsearch.indexWithId(query)
-       .then(function(results){
-           console.log(results)
-       })
+elasticsearch.indexWithId(query)
+   .then(function(results){
+       console.log(results)
+   })
 ```
 
 
@@ -116,13 +118,22 @@ Query requires:
 - id
 - body
 
-```
-    var query = {index: 'someIndex', type: 'someType', id: 'someId', body: { doc: {partial: 'document'};
+```js
+var query = {
+    index: 'someIndex',
+    type: 'someType',
+    id: 'someId',
+    body: {
+        doc: {
+            partial: 'document'
+        }
+    }
+};
 
-    elasticsearch.update(query)
-       .then(function(results){
-           console.log(results)
-       })
+elasticsearch.update(query)
+   .then(function(results){
+       console.log(results)
+   })
 ```
 
 #### remove
@@ -134,13 +145,13 @@ Query requires:
 - type
 - id
 
-```
-    var query = {index: 'someIndex', type: 'someType', id: 'someId'};
+```js
+var query = {index: 'someIndex', type: 'someType', id: 'someId'};
 
-    elasticsearch.remove(query)
-       .then(function(results){
-           console.log(results)
-       })
+elasticsearch.remove(query)
+   .then(function(results){
+       console.log(results)
+   })
 ```
 
 #### search
@@ -153,28 +164,28 @@ optional:
 - body (Elasticsearch’s Query DSL)
 
 
-```
-    var query = {index: 'someIndex', q: 'some:Data NOT other:Data'};
-    var query2 = {
-                   "index": "mapping_test",
-                   "size": 2000,
-                   "q": "bytes:>80000",
-                   "body": {
-                       "query": {
-                           "range": {
-                               "created": {
-                                   "gte": "2016-11-28T11:18:07.018-07:00",
-                                   "lt": "2016-11-28T11:18:07.031-07:00"
-                               }
-                           }
-                       }
-                   }
-               };
+```js
+var query = {index: 'someIndex', q: 'some:Data NOT other:Data'};
+var query2 = {
+   "index": "mapping_test",
+   "size": 2000,
+   "q": "bytes:>80000",
+   "body": {
+       "query": {
+           "range": {
+               "created": {
+                   "gte": "2016-11-28T11:18:07.018-07:00",
+                   "lt": "2016-11-28T11:18:07.031-07:00"
+               }
+           }
+       }
+   }
+};
 
-    elasticsearch.search(query)
-       .then(function(results){
-           console.log(results)
-       })
+elasticsearch.search(query)
+   .then(function(results){
+       console.log(results)
+   })
 ```
 
 ##### Note
@@ -187,17 +198,17 @@ Verifies if a given index exists and logs what the max_result_window for said in
 Query requires:
 - index (requires passed in opConfig to have set an index key with the value set to a index)
 
-```
-    var opConfig = {index: 'someIndex'}
-    var elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
+```js
+var opConfig = {index: 'someIndex'}
+var elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
 
-    elasticsearch.version()
-       .then(function(){
-            // do stuff
-       })
-       .catch(function(err){
-            //index does not exist or some other error
-       })
+elasticsearch.version()
+   .then(function(){
+        // do stuff
+   })
+   .catch(function(err){
+        //index does not exist or some other error
+   })
 ```
 
 #### putTemplate
@@ -207,12 +218,12 @@ Query requires:
 - template
 - name
 
-```
-    var client = getClient(context, context.sysconfig.teraslice.state, 'elasticsearch');
-    var template = require('./backends/mappings/logs.json');
-    var name = 'logs_template';
+```js
+var client = getClient(context, context.sysconfig.teraslice.state, 'elasticsearch');
+var template = require('./backends/mappings/logs.json');
+var name = 'logs_template';
 
-    elasticsearch.putTemplate(template, name)
+elasticsearch.putTemplate(template, name)
 ```
 
 #### bulkSend
@@ -221,12 +232,12 @@ Uses the client bulk functionality with exponential back-off retries
 Query requires:
 - data  (formatted to work with elasticsearch bulk queries)
 
-```
-     var elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
-     elasticsearch.bulkSend(data)
-        .then(function(){
-            //all done sending data
-         });
+```js
+var elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
+elasticsearch.bulkSend(data)
+  .then(function(){
+      //all done sending data
+   });
 ```
 
 #### nodeInfo
@@ -241,9 +252,9 @@ calls client.indices.exists() with and retries if queue is overloaded
 Query requires:
 - index
 
-```
-    var existQuery = {index: index_name};
-    elasticsearch.index_exists(existQuery)
+```js
+var existQuery = {index: index_name};
+elasticsearch.index_exists(existQuery)
 ```
 
 #### index_create
@@ -253,9 +264,9 @@ Query requires:
 - index
 - body (mapping for index)
 
-```
-    var createQuery = {index: index_name, body: mapping};
-    elasticsearch.index_create(createQuery)
+```js
+var createQuery = {index: index_name, body: mapping};
+elasticsearch.index_create(createQuery)
 ```
 
 #### index_refresh
@@ -264,9 +275,9 @@ calls client.indices.refreash() with and retries if queue is overloaded
 Query requires:
 - index
 
-```
-    var query = {index: index_name};
-    elasticsearch.index_refresh(query)
+```js
+var query = {index: index_name};
+elasticsearch.index_refresh(query)
 ```
 
 #### index_recovery
@@ -275,9 +286,9 @@ calls client.indices.recovery() with and retries if queue is overloaded
 Query requires:
 - index
 
-```
-    var existQuery = {index: index_name};
-    elasticsearch.index_recovery(existQuery)
+```js
+var existQuery = {index: index_name};
+elasticsearch.index_recovery(existQuery)
 ```
 
 #### buildQuery
@@ -289,10 +300,10 @@ Query requires:
 
 
 Basic usage
-```
-    var elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
-    var query = elasticsearch.buildQuery(opConfig, msg);
-    elasticsearch.search(query)
+```js
+var elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
+var query = elasticsearch.buildQuery(opConfig, msg);
+elasticsearch.search(query)
 ```
 
 
@@ -315,52 +326,62 @@ key | if set then this will perform a wildcard query using this value against al
 
 Example of query generated:
     In the following example, this will create a query searching the index: someIndex with a _id that matches a76f*, with bytes greater than 80000 and in-between two dates
-```
-    var opConfig = {
-       date_field_name: 'created',
-       index: 'someIndex',
-       query: 'bytes:>80000'
-    };
 
-    var msg = {
-       count: 2000,
-       start: "2016-11-28T11:18:07.018-07:00",
-       end: "2016-11-28T11:18:07.031-07:00",
-       key: "a76f*"
-    };
+```js
+var opConfig = {
+   date_field_name: 'created',
+   index: 'someIndex',
+   query: 'bytes:>80000'
+};
 
-    var query = elasticsearch.buildQuery(opConfig, msg);
-    console.log(query);
+var msg = {
+   count: 2000,
+   start: "2016-11-28T11:18:07.018-07:00",
+   end: "2016-11-28T11:18:07.031-07:00",
+   key: "a76f*"
+};
 
-    var obj = {
-      "index": "someIndex",
-      "size": 2000,
-      "body": {
-        "query": {
-          bool: {
-            must: [
-              {
-                "range": {
-                  "created": {
-                    "gte": "2016-11-28T11:18:07.018-07:00",
-                    "lt": "2016-11-28T11:18:07.031-07:00"
-                  }
-                }
-              },
-              {
-                query_string: {
-                  query: "bytes:>80000"
-                }
-              },
-              {
-                wildcard: {
-                  _uid: "a76f*"
-                }
+var query = elasticsearch.buildQuery(opConfig, msg);
+console.log(query);
+
+var obj = {
+  "index": "someIndex",
+  "size": 2000,
+  "body": {
+    "query": {
+      bool: {
+        must: [
+          {
+            "range": {
+              "created": {
+                "gte": "2016-11-28T11:18:07.018-07:00",
+                "lt": "2016-11-28T11:18:07.031-07:00"
               }
-
-            ]
+            }
+          },
+          {
+            query_string: {
+              query: "bytes:>80000"
+            }
+          },
+          {
+            wildcard: {
+              _uid: "a76f*"
+            }
           }
-        }
+
+        ]
       }
-    };
+    }
+  }
+};
 ```
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+[MIT](./LICENSE) licensed.

@@ -1,15 +1,7 @@
-# Generator Teraslice
+# generator-teraslice
 
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/generator-teraslice/overview.md INSTEAD -->
 > Generate teraslice related packages and code
-
-- [Installation](#installation)
-  - [Install Yeoman](#install-yeoman)
-  - [Global Setup](#global-setup)
-  - [Development Setup](#development-setup)
-- [Usage](#usage)
-  - [Package](#package)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Installation
 
@@ -71,5 +63,4 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update tests as appropriate.
 
 ## License
-
 [MIT](./LICENSE) licensed.

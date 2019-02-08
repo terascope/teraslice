@@ -1,5 +1,6 @@
 # elasticsearch-store
 
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/elasticsearch-store/overview.md INSTEAD -->
 > An API for managing an elasticsearch index, with versioning and migration support.
 
 # Installation
@@ -18,5 +19,4 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update tests as appropriate.
 
 ## License
-
 [MIT](./LICENSE) licensed.
