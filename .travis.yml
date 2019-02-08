@@ -52,6 +52,7 @@ jobs:
       apt:
         packages:
           - docker-ce
+          - jq
     services:
         - docker
         - elasticsearch
@@ -63,8 +64,9 @@ jobs:
     script: yarn test:ci
     # REMOVE ME
     after_success:
-        - ../scripts/sync-readmes.sh
-        - ../scripts/publish-documentation.sh
+        - cd ..
+        - ./scripts/sync-readmes.sh
+        - ./scripts/publish-documentation.sh
 
   # if not a tagged build and is on master
   - stage: Publish
