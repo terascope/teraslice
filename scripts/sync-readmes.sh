@@ -13,8 +13,8 @@ sync_readme() {
     local package="$1"
     local name overview footer license
 
-    name="$(jq '.name' "$package/package.json")";
-    license="$(jq '.license' "$package/package.json")";
+    name="$(jq -r '.name' "$package/package.json")";
+    license="$(jq -r '.license' "$package/package.json")";
 
     echo "* syncing package $name"
     local doc_readme="docs/$package/overview.md";
@@ -24,12 +24,11 @@ sync_readme() {
         return;
     fi
 
-    overview="$(cat "$doc_readme")"
+    overview="$(sed '1,5d;' "$doc_readme")"
     footer="$(cat ./scripts/assets/readme-footer.md)"
 
     {
-        printf "# %s\n\n" "$name" > "$pkg_readme"
-        printf "<!-- copied from %s -->\n" "$doc_readme"
+        printf "# %s\n\n" "$name"
         printf "<!-- THIS FILE IS AUTO-GENERATED, EDIT %s INSTEAD -->\n" "$doc_readme"
         printf "%s\n\n" "$overview"
         printf "%s\n" "$footer"
