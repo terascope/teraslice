@@ -44,18 +44,7 @@
         "socket.io": "^1.7.4",
         "socket.io-client": "^1.7.4"
     },
-    "devDependencies": {
-        "@types/jest": "^23.3.13",
-        "@types/node": "^10.12.21",
-        "babel-core": "^6.0.0",
-        "babel-jest": "^23.6.0",
-        "jest": "^23.6.0",
-        "jest-extended": "^0.11.1",
-        "ts-jest": "^23.10.5",
-        "tslint": "^5.12.1",
-        "tslint-config-airbnb": "^5.11.1",
-        "typescript": "^3.3.1"
-    },
+    "devDependencies": {},
     "engines": {
         "node": ">=8.0.0"
     }

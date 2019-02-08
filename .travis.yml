@@ -56,9 +56,10 @@ jobs:
         - docker
         - elasticsearch
     before_install: ./scripts/travis-install-all.sh
-    before_script: cd e2e
-    # Test access to credentials
-    after_success: ./scripts/travis-setup-credentials.sh
+    before_script:
+        # Test access to credentials
+        - ./scripts/travis-setup-credentials.sh
+        - cd e2e
     script: yarn test:ci
 
   # if not a tagged build and is on master

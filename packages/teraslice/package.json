@@ -68,12 +68,7 @@
         "bufferstreams": "^2.0.1",
         "chance": "^1.0.18",
         "elasticsearch": "^15.3.1",
-        "eslint": "^5.12.1",
-        "eslint-config-airbnb-base": "^13.1.0",
-        "eslint-plugin-import": "^2.16.0",
         "got": "^9.6.0",
-        "jest": "^23.6.0",
-        "jest-extended": "^0.11.1",
         "jest-fixtures": "^0.6.0",
         "nock": "^10.0.6"
     }
