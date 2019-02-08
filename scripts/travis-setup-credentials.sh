@@ -20,6 +20,11 @@ setup_docker() {
     require_env "DOCKER_PASSWORD"
 
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+    local username;
+    username="$(docker info | grep Username)"
+
+    echo "* logged into docker hub as $username"
 }
 
 setup_github() {
@@ -31,11 +36,17 @@ setup_github() {
     git config --global user.email "${GITHUB_EMAIL}"
 
     echo "machine github.com login ${GITHUB_NAME} password ${GITHUB_TOKEN}" > ~/.netrc
+
+    echo -n "* logged into git as $GITHUB_NAME"
 }
 
 setup_npm() {
     require_env "NPM_TOKEN"
     echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+
+    local username;
+    username="$(npm whoami)"
+    echo "* logged into npm ${username}"
 }
 
 only_ci() {
