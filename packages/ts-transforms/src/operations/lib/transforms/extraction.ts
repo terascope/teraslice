@@ -4,6 +4,13 @@ import { DataEntity } from '@terascope/utils';
 import { OperationConfig } from '../../../interfaces';
 import TransformOpBase from './base';
 
+function isMutation(config: OperationConfig): boolean {
+    let bool = false;
+    if (config.post_process === 'extraction') bool = true;
+    if (config.mutate !== undefined) bool = config.mutate;
+    return bool;
+}
+
 export default class Extraction extends TransformOpBase {
     private isMutation: Boolean;
     private mutltiFieldParams: object;
@@ -11,7 +18,7 @@ export default class Extraction extends TransformOpBase {
 
     constructor(config: OperationConfig) {
         super(config);
-        this.isMutation = config.mutate === true;
+        this.isMutation = isMutation(config);
         const mutltiFieldParams = {};
         if (config.multivalue) {
             const targetSource = {};
