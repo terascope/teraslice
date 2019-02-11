@@ -57,8 +57,8 @@ teraslice -c worker-config.yaml
 ## Documentation
 
 - [Getting Started](https://terascope.github.io/teraslice/docs/getting-started)
-- [API](https://terascope.github.io/teraslice/api)
-- [Packages](https://terascope.github.io/teraslice/packages)
+- [API](https://terascope.github.io/teraslice/docs/api)
+- [Packages](https://terascope.github.io/teraslice/docs/packages)
 - [Development](https://terascope.github.io/teraslice/docs/development/overview)
 
 ## Contributing
