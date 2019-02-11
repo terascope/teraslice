@@ -7,3 +7,13 @@ exports.builder = function builder(yargs) {
         .demandCommand(2);
 };
 exports.handler = () => {};
+
+process.on('unhandledRejection', (error) => {
+    console.error('UnhandledRejection: ', error.stack); // eslint-disable-line no-console
+    process.exit(1);
+});
+
+process.on('uncaughtException', (error) => {
+    console.error('UncaughtException: ', error.stack); // eslint-disable-line no-console
+    process.exit(1);
+});

@@ -1,12 +1,11 @@
 'use strict';
 
-const _ = require('lodash');
 const reply = require('../lib/reply')();
 const display = require('../lib/display')();
 
 const Config = require('../../lib/config');
-const { getTerasliceClient } = require('../../lib/utils');
-const { getTerasliceClusterType } = require('../../lib/utils');
+
+const TerasliceUtil = require('../../lib/teraslice-util');
 
 const YargsOptions = require('../../lib/yargs-options');
 
@@ -25,18 +24,18 @@ exports.builder = (yargs) => {
 exports.handler = async (argv) => {
     let response;
     const cliConfig = new Config(argv);
-
-    const terasliceClient = await getTerasliceClient(cliConfig);
-    const terasliceClusterType = await getTerasliceClusterType(terasliceClient);
+    const teraslice = new TerasliceUtil(cliConfig);
 
     let header = ['assignment', 'job_id', 'ex_id', 'node_id', 'pid'];
-    if (terasliceClusterType === 'kubernetes') {
+    const format = `${cliConfig.args.output}Horizontal`;
+
+    if (await teraslice.type() === 'kubernetes') {
         // total and pid are n/a with kubernetes, so they are removed from the output
-        header = ['assignment', 'job_id', 'ex_id', 'pod_ip', 'worker_id', 'teraslice_version'];
+        header = ['assignment', 'job_id', 'ex_id', 'node_id', 'worker_id', 'teraslice_version'];
     }
 
     try {
-        response = await terasliceClient.cluster.state();
+        response = await teraslice.client.cluster.state();
     } catch (err) {
         reply.fatal(`Error getting cluster state on ${cliConfig.args.clusterAlias}\n${err}`);
     }
@@ -44,81 +43,11 @@ exports.handler = async (argv) => {
     if (Object.keys(response).length === 0) {
         reply.fatal(`> No workers on ${cliConfig.args.clusterAlias}`);
     }
+    const rows = teraslice.parseStateResponse(response, header, cliConfig.args.id);
 
-    let rows;
-    if (cliConfig.args.output === 'pretty') {
-        rows = await parseWorkerResponse(response, cliConfig.args.id, header);
-    } else {
-        rows = await parseWorkerResponseTxt(response, cliConfig.args.id, terasliceClusterType);
-    }
     if (rows.length > 0) {
-        await display.display(header, rows, cliConfig.args.output);
+        await display.display(header, rows, format);
     } else {
         reply.fatal(`> No workers match id ${cliConfig.args.id}`);
     }
 };
-
-async function parseWorkerResponse(response, id) {
-    const rows = [];
-
-    _.each(response, (value, node) => {
-        _.each(response[node].active, (workerValue) => {
-            const row = [];
-            if (id === undefined || workerValue.job_id === id || workerValue.ex_id === id) {
-                row.push(workerValue.assignment);
-                row.push(workerValue.job_id);
-                row.push(workerValue.ex_id);
-                row.push(node);
-                row.push(workerValue.worker_id);
-                row.push(response[node].teraslice_version);
-                rows.push(row);
-            }
-        });
-    });
-
-    return rows;
-}
-
-async function parseWorkerResponseTxt(response, id, clusterType) {
-    const rows = [];
-    _.each(response, (value, node) => {
-        _.each(response[node].active, (workerValue) => {
-            const row = {};
-            row[node] = row;
-            row[node].node_version = response[node].node_version;
-            row[node].teraslice_version = response[node].teraslice_version;
-            if (workerValue.assignment !== undefined) {
-                row[node].assignment = workerValue.assignment;
-            } else {
-                row[node].assignment = workerValue.assignment;
-            }
-            if (id !== undefined) {
-                if (id === undefined || workerValue.job_id === id || workerValue.ex_id === id) {
-                    row[node].job_id = workerValue.job_id;
-                    row[node].ex_id = workerValue.ex_id;
-                    row[node].node_id = node;
-                    if (clusterType === 'kubernetes') {
-                        row[node].worker_id = workerValue.worker_id;
-                        row[node].teraslice_version = response[node].teraslice_version;
-                    } else {
-                        row[node].pid = workerValue.pid;
-                    }
-                    rows.push(row);
-                }
-            } else {
-                row[node].job_id = workerValue.job_id;
-                row[node].ex_id = workerValue.ex_id;
-                row[node].pod_ip = node;
-
-                if (clusterType === 'kubernetes') {
-                    row[node].worker_id = workerValue.worker_id;
-                    row[node].teraslice_version = response[node].teraslice_version;
-                } else {
-                    row[node].pid = workerValue.pid;
-                }
-                rows.push(row);
-            }
-        });
-    });
-    return rows;
-}

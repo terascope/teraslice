@@ -1,39 +1,53 @@
 'use strict';
 'use console';
 
-const _ = require('lodash');
 const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
+const display = require('../lib/display')();
 
-exports.command = 'errors <cluster_sh>';
-exports.desc = 'List errors for all running and failing ex ids on cluster.\n';
+const Config = require('../../lib/config');
+const TerasliceUtil = require('../../lib/teraslice-util');
+
+const YargsOptions = require('../../lib/yargs-options');
+
+const yargsOptions = new YargsOptions();
+
+exports.command = 'errors <cluster-alias> <id>';
+exports.desc = 'Get the status of an execution id.\n';
+
 exports.builder = (yargs) => {
-    cli().args('ex', 'errors', yargs);
-    yargs
-        .option('from', {
-            describe: 'error number to start query',
-            default: 1
-        })
-        .option('size', {
-            describe: 'size of error query',
-            default: 100
-        })
-        .option('job_id', {
-            describe: 'Job id to limit query',
-            default: ''
-        })
-        .option('ex_id', {
-            describe: 'Execution id to limit query',
-            default: ''
-        });
+    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.options('output', yargsOptions.buildOption('output'));
+    yargs.options('from', yargsOptions.buildOption('ex-from'));
+    yargs.options('size', yargsOptions.buildOption('ex-size'));
+    yargs.options('sort', yargsOptions.buildOption('ex-sort'));
+    yargs.strict()
+        .example('$0 ex errors cluster1 99999999-9999-9999-9999-999999999999')
+        .example('$0 ex errors cluster1 99999999-9999-9999-9999-999999999999 --from=500')
+        .example('$0 ex errors cluster1 99999999-9999-9999-9999-999999999999 --size=10')
+        .example('$0 ex errors cluster1 99999999-9999-9999-9999-999999999999 --sort=slicer_order:asc');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    config(cliConfig, 'ex:errors').returnConfigData();
-    const ex = _testFunctions || require('./lib')(cliConfig);
+exports.handler = async (argv) => {
+    let response;
+    const cliConfig = new Config(argv);
+    const teraslice = new TerasliceUtil(cliConfig);
+    const header = ['ex_id', 'slice_id', 'slicer_id', 'slicer_order', 'state', 'ex_id', '_created', '_updated', 'error'];
+    const format = `${cliConfig.args.output}Horizontal`;
 
-    return ex.errors()
-        .catch(err => reply.fatal(err.message));
+    try {
+        const opts = {};
+        opts.from = cliConfig.args.from;
+        opts.sort = cliConfig.args.sort;
+        opts.size = cliConfig.args.size;
+        response = await teraslice.client.ex.errors(cliConfig.args.id, opts);
+    } catch (err) {
+        reply.fatal(`Error getting ex errors list on ${cliConfig.args.clusterAlias}\n${err}`);
+    }
+
+    const rows = teraslice.parseResponse(response, header);
+    if (rows.length > 0) {
+        await display.display(header, rows, format);
+    } else {
+        reply.fatal(`> No errors for ex_id: ${cliConfig.args.id}`);
+    }
 };

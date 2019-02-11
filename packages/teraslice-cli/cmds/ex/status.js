@@ -1,22 +1,33 @@
 'use strict';
 'use console';
 
-const _ = require('lodash');
 const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
 
-exports.command = 'status <cluster_sh> <ex_id>';
-exports.desc = 'List the ex status of running and failing job.\n';
+const Config = require('../../lib/config');
+const TerasliceUtil = require('../../lib/teraslice-util');
+const YargsOptions = require('../../lib/yargs-options');
+
+const yargsOptions = new YargsOptions();
+
+exports.command = 'status <cluster-alias> <id>';
+exports.desc = 'Get the status of an execution id.\n';
+
 exports.builder = (yargs) => {
-    cli().args('ex', 'status', yargs);
+    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.strict()
+        .example('$0 ex status cluster1 99999999-9999-9999-9999-999999999999');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    config(cliConfig, 'ex:status').returnConfigData();
-    const exLib = _testFunctions || require('./lib')(cliConfig);
+exports.handler = async (argv) => {
+    let response;
+    const cliConfig = new Config(argv);
+    const teraslice = new TerasliceUtil(cliConfig);
 
-    return exLib.status()
-        .catch(err => reply.fatal(err.message));
+    try {
+        response = await teraslice.client.ex.status(cliConfig.args.id);
+    } catch (err) {
+        reply.fatal(`Error getting ex_id:${cliConfig.args.id} on ${cliConfig.args.clusterAlias}\n${err}`);
+    }
+
+    console.log(response);
 };
