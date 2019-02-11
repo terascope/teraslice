@@ -1,6 +1,9 @@
 # xlucene-evaluator
 
 <!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/xlucene-evaluator/overview.md INSTEAD -->
+
+**NOTE:** This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo, more documentation can be found [here](https://terascope.github.io/teraslice/docs/).
+
 #### Installation
 
 `npm install @terascope/xlucene-evaluator`
@@ -267,4 +270,5 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update tests as appropriate.
 
 ## License
+
 [MIT](./LICENSE) licensed.

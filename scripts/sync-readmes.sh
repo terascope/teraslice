@@ -27,11 +27,15 @@ sync_readme() {
     overview="$(sed '1,5d;' "$doc_readme")"
     footer="$(cat ./scripts/assets/readme-footer.md)"
 
+    local packageWithin='This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo'
+    local moreDocsHere='more documentation can be found [here](https://terascope.github.io/teraslice/docs/)'
+
     {
         printf "# %s\n\n" "$name"
-        printf "<!-- THIS FILE IS AUTO-GENERATED, EDIT %s INSTEAD -->\n" "$doc_readme"
+        printf "<!-- THIS FILE IS AUTO-GENERATED, EDIT %s INSTEAD -->\n\n" "$doc_readme"
+        printf "**NOTE:** %s, %s.\n\n" "$packageWithin" "$moreDocsHere"
         printf "%s\n\n" "$overview"
-        printf "%s\n" "$footer"
+        printf "%s\n\n" "$footer"
         printf "[%s](./LICENSE) licensed.\n" "$license"
     } > "$pkg_readme"
 }

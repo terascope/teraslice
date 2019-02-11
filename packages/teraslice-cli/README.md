@@ -1,6 +1,9 @@
 # teraslice-cli
 
 <!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/teraslice-cli/overview.md INSTEAD -->
+
+**NOTE:** This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo, more documentation can be found [here](https://terascope.github.io/teraslice/docs/).
+
 > Command line manager for teraslice jobs, assets, and cluster references.
 
 ## Installation
@@ -335,4 +338,5 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update tests as appropriate.
 
 ## License
+
 [MIT](./LICENSE) licensed.

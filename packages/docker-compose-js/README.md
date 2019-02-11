@@ -1,6 +1,9 @@
 # @terascope/docker-compose-js
 
 <!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/docker-compose-js/overview.md INSTEAD -->
+
+**NOTE:** This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo, more documentation can be found [here](https://terascope.github.io/teraslice/docs/).
+
 > Javascript API for docker-compose
 
 This is a simple API wrapper for the docker-compose command line tool. Its primary purpose is to allow integration tests written in node.js to dynamically manipulate the docker-compose environment.
@@ -77,4 +80,5 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update tests as appropriate.
 
 ## License
+
 [MIT](./LICENSE) licensed.

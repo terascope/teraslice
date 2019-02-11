@@ -1,6 +1,9 @@
 # teraslice
 
 <!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/teraslice/overview.md INSTEAD -->
+
+**NOTE:** This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo, more documentation can be found [here](https://terascope.github.io/teraslice/docs/).
+
 > Distributed computing platform for processing JSON data
 
 Teraslice is an open source, distributed computing platform for processing JSON data stored in Elasticsearch. It can be used for many tasks but is particularly adept at migrating and transforming data within and between Elasticsearch clusters and other data stores. It was born and bred in an environment that regularly sees billions of pieces of data per day and is capable of processing millions of records per second.
@@ -79,4 +82,5 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update tests as appropriate.
 
 ## License
+
 [Apache-2.0](./LICENSE) licensed.
