@@ -1,21 +1,41 @@
 'use strict';
-'use console';
 
-const _ = require('lodash');
 const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
+const display = require('../lib/display')();
 
-exports.command = 'list <cluster_sh>';
+const Config = require('../../lib/config');
+
+const YargsOptions = require('../../lib/yargs-options');
+const TerasliceUtil = require('../../lib/teraslice-util');
+
+const yargsOptions = new YargsOptions();
+
+exports.command = 'list <cluster-alias>';
 exports.desc = 'List the nodes of a cluster.\n';
 exports.builder = (yargs) => {
-    cli().args('nodes', 'list', yargs);
+    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.options('output', yargsOptions.buildOption('output'));
+    yargs.strict()
+        .example('$0 nodes list cluster1');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    config(cliConfig, 'nodes:list').returnConfigData();
-    const nodes = _testFunctions || require('./lib')(cliConfig);
-    return nodes.list()
-        .catch(err => reply.fatal(err.message));
+
+exports.handler = async (argv) => {
+    let response;
+    const cliConfig = new Config(argv);
+    const teraslice = new TerasliceUtil(cliConfig);
+
+    const header = ['node_id', 'state', 'hostname', 'active', 'teraslice_version', 'node_version'];
+    const format = `${cliConfig.args.output}Horizontal`;
+
+    try {
+        response = await teraslice.client.cluster.state();
+    } catch (err) {
+        reply.fatal(`Error getting cluster state on ${cliConfig.args.clusterAlias}\n${err}`);
+    }
+    if (Object.keys(response).length === 0) {
+        reply.fatal(`> No nodes on ${cliConfig.args.clusterAlias}`);
+    }
+
+    await display.display(header, teraslice.parseResponse(response, header), format);
 };
