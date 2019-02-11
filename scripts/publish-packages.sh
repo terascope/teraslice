@@ -22,10 +22,18 @@ publish() {
     currentVersion="$(npm info --json 2> /dev/null | jq -r '.version // "0.0.0"')"
 
     if [ "$currentVersion" != "$targetVersion" ]; then
+        if [ "$name" == "teraslice" ]; then
+            if [ -n "$TRAVIS_TAG" ]; then
+                echo "* Publishing Teraslice on release $TRAVIS_TAG"
+            else
+                echo "* Skipping teraslice until release v$targetVersion is created"
+                return;
+            fi
+        fi
+
         echo "$name@$currentVersion -> $targetVersion"
         if [ "$dryRun" == "false" ]; then
             yarn publish \
-                --silent \
                 --tag "$tag" \
                 --non-interactive \
                 --new-version "$targetVersion" \

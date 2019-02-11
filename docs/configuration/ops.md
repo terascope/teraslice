@@ -1,9 +1,11 @@
-# Configuration
+---
+title: Operation Configuration
+sidebar_label: Operations
+---
 
 A job configuration is the main way a Teraslice user describes the processing they want done. This page provides a detailed description of the configurations available for a job.
 
 - [Job Configuration](#job-configuration)
-  - [Job level configuration options](#job-level-configuration-options)
   - [Operation level configuration options](#operation-level-configuration-options)
   - [API level configuration options](#api-level-configuration-options)
 - [Processors](#processors)

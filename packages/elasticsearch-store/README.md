@@ -1,5 +1,9 @@
 # elasticsearch-store
 
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/elasticsearch-store/overview.md INSTEAD -->
+
+**NOTE:** This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo, more documentation can be found [here](https://terascope.github.io/teraslice/docs/).
+
 > An API for managing an elasticsearch index, with versioning and migration support.
 
 # Installation

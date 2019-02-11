@@ -69,13 +69,7 @@ module.exports = (options) => {
                 'test:watch': 'jest --coverage=false --notify --watch --onlyChanged',
                 'test:debug': "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
             },
-            devDependencies: getPkgValues({
-                eslint: '^5.12.1',
-                'eslint-config-airbnb-base': '^13.1.0',
-                'eslint-plugin-import': '^2.15.0',
-                jest: '^23.6.0',
-                'jest-extended': '^0.11.0'
-            })
+            devDependencies: getPkgValues({})
         });
     }
 
@@ -96,17 +90,6 @@ module.exports = (options) => {
             'test:watch': 'jest --coverage=false --notify --watch --onlyChanged',
             'test:debug': "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
         },
-        devDependencies: getPkgValues({
-            '@types/jest': '^23.3.13',
-            '@types/node': '^10.12.18',
-            'babel-core': '^6.0.0',
-            'babel-jest': '^23.6.0',
-            jest: '^23.6.0',
-            'jest-extended': '^0.11.0',
-            'ts-jest': '^23.10.5',
-            tslint: '^5.12.1',
-            'tslint-config-airbnb': '^5.11.1',
-            typescript: '^3.2.4'
-        }),
+        devDependencies: getPkgValues({}),
     });
 };
