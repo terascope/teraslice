@@ -1,5 +1,9 @@
-# Operations
-description of all operations available
+---
+title: Transform Operations
+sidebar_label: Operations
+---
+
+> All transform operations available
 
 ## Transforms
 transform globals: config parameters that may be put on any transform configurations
@@ -42,7 +46,7 @@ Example:
     { domain: 'example.com', some: 'otherField' , date: '2019-01-29T14:29:27.097Z', key: '123456789' },
 ]
 
-// Results: 
+// Results:
 /*
     since there was no url for to extract for the second object, date and key were dropped. Since it then became an empty object it was subsequently removed since there was no succesful extraction. Hence only one result object was returned.
 */
@@ -57,12 +61,12 @@ Example:
 ```
 
 
-### selector 
+### selector
 This is a filtering operator and determines is the documnet matches a certain criteria to let it pass, otherwise the document is removed from the list.
 - selector: `String` = a lucene based query from [xlucene-evaluator](https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator)
 
 **Note**
-- having multiple extraction configs specify the same selector will bundle all the extractions on the same document. 
+- having multiple extraction configs specify the same selector will bundle all the extractions on the same document.
 
 rules.txt
 ```txt
@@ -77,7 +81,7 @@ const config = {
     rules: ['/path/to/rulesFile.txt']
 };
 
-const data = [ 
+const data = [
     { hello: 'world', first: 'George', last: 'Jungle' },
     { hello: 'world', first: 'John', last: 'Wayne' }, // this will not pass through the selectors from the rules
 ];
@@ -90,7 +94,7 @@ console.log(results);
 /*   [
         { first_name: 'George', last_name: 'Jungle' },
         { first_name: 'John', last_name: 'Wayne' },
-    ] 
+    ]
  */
 ```
 
@@ -110,7 +114,7 @@ const config = {
     rules: ['/path/to/rulesFile.txt']
 };
 
-const data = [ 
+const data = [
     { hello: 'world', first: 'George', last: 'Jungle' },
     { other: 'thing', first: 'John', last: 'Wayne' },
 ];
@@ -123,7 +127,7 @@ console.log(results);
 /*   [
         { first_name: 'George', last_name: 'Jungle' },
         { first_name: 'John', last_name: 'Wayne' },
-    ] 
+    ]
  */
 ```
 
@@ -241,7 +245,7 @@ const config = {
     rules: ['/path/to/rulesFile.txt']
 };
 
-const data = [ 
+const data = [
     { hello: 'world', friend1: 'John', friend2: 'Susan' },
     { other: 'thing', first: 'John', last: 'Wayne' },
 ];
@@ -256,31 +260,31 @@ to extract them to another field and put output:false on those extracted fields
  */
 /*   [
     { hello: 'world', friend1: 'John', friend2: 'Susan', all_friends: 'John & Susan' },
-    { other: 'thing', first: 'John', last: 'Wayne', name: 'John Wayne' },   
-    ] 
+    { other: 'thing', first: 'John', last: 'Wayne', name: 'John Wayne' },
+    ]
  */
 ```
 
-### base64decode 
+### base64decode
 This will attempt to base64 decode the indicated field, and will remove the field on failure
 
-### urldecode 
+### urldecode
 This will attempt to url decode the indicated field, and will remove the field on failure
 - no additional parameters
 
-### hexdecode 
+### hexdecode
 This will attempt to hex decode the indicated field, and will remove the field on failure
 - no additional parameters
 
-### jsonparse 
+### jsonparse
 This will attempt to parse JSON for the indicated field, and will remove the field on failure
 - no additional parameters
 
-### lowercase 
+### lowercase
 This will make sure the field is a string and lowercase it, otherwise it will remove the field it
 - no additional parameters
 
-### uppercase 
+### uppercase
 This will make sure the field is a string and uppercase it, otherwise it will remove the field it
 - no additional parameters
 
@@ -300,7 +304,7 @@ $ curl 'localhost:5678/v1'
 this provides a list of validation operations. If the field failed a validation check then that field is removed from the final output
 - output : `Booelan` = **NOTE** this does not remove the field !! if `output` is set to false then it will invert the validation and become a logical operator of `NOT`. For example, if you use the `numeric` validator, it would remove anyting that **was not** a number. If you specify `output:false` then it would remove anything that was a number.
 
-### geolocation 
+### geolocation
 This will check if the field is a valid geolocation. For this validation the data may be a string or an object. If it is an object it must have either the keys `lat` and `lon` or `latitude` and `longitude`. If it is a string it is expected to be written as `latitude,longitude`
 
 - no additional parameters
@@ -327,33 +331,33 @@ Checks to see if this value is a string, if not then it will be removed.
 - min: `Number`(optional) = if set then it checks that the new string value has a minimal length (inclusive) of this parameter, if not it is removed
 - max: `Number`(optional) = if set then it checks that the new string value has a maximal length (inclusive) of this parameter, if not it is removed
 
-### number 
+### number
 Checks to see if this value is a number, if not then it will be removed.
 
 **NOTE**  This attempts to convert anything to a number type automatically. This will not do so in future versions.
 
 - no additional parameters
 
-### boolean 
+### boolean
 Checks to see if this value is a boolean, if not then it will be removed.
 
 **NOTE**  This attempts to convert anything to a boolean type automatically. This will not do so in future versions. (ie 'true', 1, true => true,  'false', 0, false => false )
 
 - no additional parameters
 
-### url 
+### url
 Checks to see if this is a valid url
 - no additional parameters
 
-### email 
+### email
 Checks to see if this is a valid email
 - no additional parameters
 
-### ip 
+### ip
 Checks to see if this is a valid ip
 - no additional parameters
 
-### macaddress 
+### macaddress
 Checks to see if this is a valid mac address.
 
 **NOTE**  This attempts to remove colons and lowercase the string characters.
@@ -362,7 +366,7 @@ Checks to see if this is a valid mac address.
 - case: `String`(optional) = may be set to `lowercase` or `uppercase` which will normalize the characters
 - preserve_colons: `Boolean`(optional) = defaults to false, set to true so that it keeps colons in place
 
-### uuid 
+### uuid
 Checks to see if this is a valid uuid.
 
 **NOTE**  This attempts to lowercase the string characters.
@@ -370,7 +374,7 @@ Checks to see if this is a valid uuid.
 
 - case: `String`(optional) = may be set to `lowercase` or `uppercase` which will normalize the characters
 
-### isdn 
+### isdn
 Checks to see if this is a valid phone number, it must include the country code and the full national number. It uses the [awesome-phonenumber](https://www.npmjs.com/package/awesome-phonenumber) package to validate and format
 
 **NOTE**  This attempts to remove any hypens and parens from the string characters.
@@ -396,7 +400,7 @@ Example:
 
 // Results, removes the 'newField' with the 'null' value
 
-[ 
+[
     { some: 'value', other: 'data' },
     { some: 'value', newField: 'fieldData', other: 'data' }
 ]
@@ -413,7 +417,7 @@ check if the string contains only letters (a-zA-Z)
 - value: `String`(optional) = defines which locale to use, defaults to `en-US`. Available locals: ['ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA']
 
 
-### alphanumeric 
+### alphanumeric
 check if the string contains only letters and numbers.
 
 - value: `String`(optional) = defines which locale to use, defaults to `en-US`. Available locals: ['ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA']
@@ -530,7 +534,7 @@ check if the string is an ISIN (stock/security identifier).
 - no additional parameters
 
 ### iso8601
-check if the string is a valid ISO 8601 date; 
+check if the string is a valid ISO 8601 date;
 - strict: `Boolean`(optional) = for additional checks for valid dates, e.g. invalidates dates like 2009-02-29 set this to `true`, defaults to `false`
 
 ### rfc3339
@@ -585,7 +589,7 @@ check if the string is a MD5 hash.
 check if the string matches to a valid MIME type format
 - no additional parameters
 
-### numeric 
+### numeric
 check if the string contains only numbers.
 
 - no_symbols: `Boolean`(optional) = defaults to false. If no_symbols is true, the validator will reject numeric strings that feature a symbol (e.g. +, -, or .).

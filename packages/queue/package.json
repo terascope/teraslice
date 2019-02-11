@@ -22,11 +22,5 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "dependencies": {},
-    "devDependencies": {
-        "eslint": "^5.12.1",
-        "eslint-config-airbnb-base": "^13.1.0",
-        "eslint-plugin-import": "^2.16.0",
-        "jest": "^23.6.0",
-        "jest-extended": "^0.11.1"
-    }
+    "devDependencies": {}
 }

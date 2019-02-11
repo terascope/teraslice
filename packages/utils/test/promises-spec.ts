@@ -54,9 +54,9 @@ describe('Utils', () => {
         });
 
         it('should be able to resolve on the second try', async () => {
-            const fn = jest.fn()
-                .mockRejectedValueOnce(new Error('Uh oh'))
-                .mockResolvedValue('hi');
+            const fn = jest.fn();
+            fn.mockRejectedValueOnce(new Error('Uh oh'));
+            fn.mockResolvedValue('hi');
 
             expect(await pRetry(fn, config)).toEqual('hi');
 
@@ -64,10 +64,10 @@ describe('Utils', () => {
         });
 
         it('should be able to resolve on the third try', async () => {
-            const fn = jest.fn()
-                .mockRejectedValueOnce(new Error('Uh oh'))
-                .mockRejectedValueOnce(new Error('Uh oh'))
-                .mockResolvedValue('howdy');
+            const fn = jest.fn();
+            fn.mockRejectedValueOnce(new Error('Uh oh'));
+            fn.mockRejectedValueOnce(new Error('Uh oh'));
+            fn.mockResolvedValue('howdy');
 
             expect(await pRetry(fn, config)).toEqual('howdy');
 
@@ -75,11 +75,11 @@ describe('Utils', () => {
         });
 
         it('should be able to reject on the fourth try', async () => {
-            const fn = jest.fn()
-                .mockRejectedValueOnce(new Error('Uh oh'))
-                .mockRejectedValueOnce(new Error('Uh oh'))
-                .mockRejectedValueOnce(new Error('Fail!'))
-                .mockResolvedValue('howdy');
+            const fn = jest.fn();
+            fn.mockRejectedValueOnce(new Error('Uh oh'));
+            fn.mockRejectedValueOnce(new Error('Uh oh'));
+            fn.mockRejectedValueOnce(new Error('Fail!'));
+            fn.mockResolvedValue('howdy');
 
             await expect(pRetry(fn, config)).rejects.toThrowError('Fail!');
 
@@ -91,9 +91,9 @@ describe('Utils', () => {
                 fatalError: true,
             });
 
-            const fn = jest.fn()
-                .mockRejectedValueOnce(error)
-                .mockResolvedValue('howdy');
+            const fn = jest.fn();
+            fn.mockRejectedValueOnce(error);
+            fn.mockResolvedValue('howdy');
 
             await expect(pRetry(fn, config)).rejects.toThrowError(error.message);
 
@@ -105,9 +105,9 @@ describe('Utils', () => {
                 retryable: false
             });
 
-            const fn = jest.fn()
-                .mockRejectedValueOnce(error)
-                .mockResolvedValue('howdy');
+            const fn = jest.fn();
+            fn.mockRejectedValueOnce(error);
+            fn.mockResolvedValue('howdy');
 
             await expect(pRetry(fn, config)).rejects.toThrowError(error.message);
 
