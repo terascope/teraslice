@@ -52,6 +52,7 @@ jobs:
       apt:
         packages:
           - docker-ce
+          - jq
     services:
         - docker
         - elasticsearch
@@ -61,6 +62,9 @@ jobs:
         - ./scripts/travis-setup-credentials.sh
         - cd e2e
     script: yarn test:ci
+    after_success:
+        - cd ..
+        - '[[ "$TEST_DOCS_PUBLISH" == "true" ]] && ./scripts/publish-documentation.sh'
 
   # if not a tagged build and is on master
   - stage: Publish
