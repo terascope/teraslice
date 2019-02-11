@@ -1,54 +1,83 @@
 'use strict';
 
 const Promise = require('bluebird');
+const { debugLogger } = require('@terascope/utils');
 const { getOffsets, getChunk, _averageRecordSize } = require('../index.js');
 
 // Mock logger
-const logger = {
-    error: msg => msg
-};
+const logger = debugLogger('chunked-file-reader');
 
 // Mock reader
 function Reader(reads) {
     return () => Promise.resolve(reads.shift());
 }
 
-const opConfig = {
+const jsonOpConfig = {
     delimiter: '\n',
-    format: 'json'
+    format: 'json',
+    _dead_letter_action: 'none'
+};
+
+const multiCharOpConfig = {
+    delimiter: '\r\n\f',
+    format: 'json',
+    _dead_letter_action: 'none'
+};
+
+const rawOpConfig = {
+    delimiter: '\n',
+    format: 'raw',
+    _dead_letter_action: 'none'
+};
+
+const metadata = {
+    path: '/test/file'
 };
 
 describe('The chunked file reader', () => {
-    it('does not let one bad record spoil the bunch.', (done) => {
+    // Test with a check to see if `getMetadata()` works for a record
+    it('returna a DataEntity for JSON data.', (done) => {
         const slice = { offset: 100, length: 5, total: 30 };
         const reader = Reader([
             '\n{"test4": "data"}\n{"test5": data}\n{"test6": "data"}\n',
         ]);
-        getChunk(reader, slice, opConfig, logger)
+        getChunk(reader, slice, jsonOpConfig, logger, metadata)
             .then((data) => {
-                expect(data).toEqual([{ test4: 'data' }, { test6: 'data' }]);
+                expect(data[0].getMetadata().path).toEqual('/test/file');
+                done();
+            });
+    });
+    // Test with a check to see if `getMetadata()` works for a record
+    it('returna a DataEntity for `raw` data.', (done) => {
+        const slice = { offset: 100, length: 5, total: 30 };
+        const reader = Reader([
+            '\n{"test4": "data"}\n{"test5": data}\n{"test6": "data"}\n',
+        ]);
+        getChunk(reader, slice, rawOpConfig, logger, metadata)
+            .then((data) => {
+                expect(data[0].getMetadata().path).toEqual('/test/file');
+                done();
+            });
+    });
+    it('does not let one bad JSON record spoil the bunch.', (done) => {
+        const slice = { offset: 100, length: 5, total: 30 };
+        const reader = Reader([
+            '\n{"test4": "data"}\n{"test5": data}\n{"test6": "data"}\n',
+        ]);
+        getChunk(reader, slice, jsonOpConfig, logger, metadata)
+            .then((data) => {
+                expect(data).toEqual([{ test4: 'data' }, null, { test6: 'data' }]);
                 done();
             });
     });
     it('supports multi-character delimiters.', (done) => {
         const slice = { offset: 0, length: 5, total: 30 };
         const reader = Reader([
-            '\r\n\f{"test4": "data"}\r\n\f{"test5": "data"}\r\n\f',
+            '{"test4": "data"}\r\n\f{"test5": "data"}\r\n\f',
         ]);
-        getChunk(reader, slice, { ...opConfig, delimiter: '\r\n\f' }, logger)
+        getChunk(reader, slice, multiCharOpConfig, metadata, logger)
             .then((data) => {
                 expect(data).toEqual([{ test4: 'data' }, { test5: 'data' }]);
-                done();
-            });
-    });
-    it('supports optional formatting/parsing.', (done) => {
-        const slice = { offset: 0, length: 5, total: 30 };
-        const reader = Reader([
-            '{"test1": "data"}\n{"test2": "data"}\n{"test3": "data"}\n',
-        ]);
-        getChunk(reader, slice, { ...opConfig, format: 'pass' }, logger)
-            .then((data) => {
-                expect(data).toEqual(['{"test1": "data"}', '{"test2": "data"}', '{"test3": "data"}']);
                 done();
             });
     });
@@ -58,7 +87,7 @@ describe('The chunked file reader', () => {
             '{"test1": "data"}\n{"test2": "data"}\n{"test3": "data"',
             '}\n{"test4": "data"}\n',
         ]);
-        getChunk(reader, slice, opConfig, logger)
+        getChunk(reader, slice, jsonOpConfig, logger, metadata)
             .then((data) => {
                 expect(data).toEqual([{ test1: 'data' }, { test2: 'data' }, { test3: 'data' }]);
                 done();
@@ -72,7 +101,7 @@ describe('The chunked file reader', () => {
             '"y": "ABCDEFGHIJKLMNOPQRSTUZ", ',
             '"z": 123456789}\n',
         ]);
-        getChunk(reader, slice, opConfig, logger)
+        getChunk(reader, slice, jsonOpConfig, logger, metadata)
             .then((data) => {
                 const t3 = {
                     t3: 'd',
@@ -91,9 +120,9 @@ describe('The chunked file reader', () => {
             '"x": "abcdefghijklmnopqrstuz", ',
             '"y": "ABCDEFGHIJKLMNOPQRSTUZ", ',
         ]);
-        getChunk(reader, slice, opConfig, logger)
+        getChunk(reader, slice, jsonOpConfig, logger, metadata)
             .then((data) => {
-                expect(data).toEqual([{ t1: 'd' }, { t2: 'd' }]);
+                expect(data).toEqual([{ t1: 'd' }, { t2: 'd' }, null]);
                 done();
             });
     });
@@ -102,7 +131,7 @@ describe('The chunked file reader', () => {
         const reader = Reader([
             '\n{"test4": "data"}\n{"test5": "data"}\n{"test6": "data"}\n',
         ]);
-        getChunk(reader, slice, opConfig, logger)
+        getChunk(reader, slice, jsonOpConfig, logger, metadata)
             .then((data) => {
                 expect(data).toEqual([{ test4: 'data' }, { test5: 'data' }, { test6: 'data' }]);
                 done();
@@ -113,7 +142,7 @@ describe('The chunked file reader', () => {
         const reader = Reader([
             '{"test6": "data"}\n{"test7": "data"}\n{"test8": "data"}\n',
         ]);
-        getChunk(reader, slice, opConfig, logger)
+        getChunk(reader, slice, jsonOpConfig, logger, metadata)
             .then((data) => {
                 expect(data).toEqual([{ test7: 'data' }, { test8: 'data' }]);
                 done();

@@ -1,27 +1,46 @@
 'use strict';
 
-const Promise = require('bluebird');
+const { DataEntity } = require('@terascope/utils');
 
 // No parsing, leaving to reader or a downstream op.
-function pass(data) {
-    return data;
+function raw(data, logger, opConfig, metadata) {
+    return data.map((record) => {
+        try {
+            return DataEntity.make(
+                { data: record },
+                metadata
+            );
+        } catch (err) {
+            if (opConfig._dead_letter_action === 'log') {
+                logger.error(err, 'Bad record:', record);
+            } else if (opConfig._dead_letter_action === 'throw') {
+                throw err;
+            }
+            return null;
+        }
+    });
 }
 
-// Each item parsed as JSON.
-function json(data, logger) {
-    return Promise.map(data, (record) => {
+function json(data, logger, opConfig, metadata) {
+    return data.map((record) => {
         try {
-            return JSON.parse(record);
+            return DataEntity.fromBuffer(
+                record,
+                opConfig,
+                metadata
+            );
         } catch (err) {
-            logger.error(err, 'failed to parse record');
-            return undefined;
+            if (opConfig._dead_letter_action === 'log') {
+                logger.error(err, 'Bad record:', record);
+            } else if (opConfig._dead_letter_action === 'throw') {
+                throw err;
+            }
+            return null;
         }
-    })
-        .filter(element => element !== undefined)
-        .catch(logger.error);
+    });
 }
 
 module.exports = {
-    pass,
+    raw,
     json
 };
