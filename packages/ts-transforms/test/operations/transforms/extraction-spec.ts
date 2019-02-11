@@ -178,6 +178,35 @@ describe('transform operator', () => {
         });
     });
 
+    it('can mutate existing doc by default for post_processing', () => {
+        const opConfig = { post_process: 'extraction', source_field: 'someField', target_field: 'otherField' };
+        const test = new Extraction(opConfig);
+
+        const dataArray = DataEntity.makeArray([
+            { someField: '56.234,95.234' },
+            {},
+            { someField: 'data' },
+            { someField: { some: 'data' } },
+            { someField: false },
+            { someField: 'other' },
+            { otherField: 'data' }
+        ]);
+
+        const finalArray = dataArray.map((doc) => {
+            if (doc.someField !== undefined) {
+                doc['otherField'] = doc.someField;
+            }
+            if (Object.keys(doc).length === 0) return null;
+            return doc;
+        });
+        const resultsArray = dataArray.map(data => test.run(data));
+
+        resultsArray.forEach((result, ind) => {
+            if (result) expect(DataEntity.isDataEntity(result)).toEqual(true);
+            expect(result).toEqual(finalArray[ind]);
+        });
+    });
+
     it('can preserve metadata when transforming documents', () => {
         const opConfig = {
             source_field: 'someField',
