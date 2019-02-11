@@ -53,15 +53,21 @@ describe('post_process phase', () => {
     it('can join _multi_target_fields', async () => {
         const configList = await getConfigList('transformRules19.txt');
         const outputPhase = new OutputPhase(transformOpconfig, configList, new OperationsManager());
-        const metaData = { _multi_target_fields: {  myfield: { myfield0: true, myfield1: true }  } };
+        const metaData1 = { _multi_target_fields: {  myfield: { myfield0: true, myfield1: true }  } };
+        const metaData2 = { _multi_target_fields: {  field: { field0: true, field1: true }  } };
+
         const data = [
-            new DataEntity({ myfield0: 'something' , myfield1: 'otherthing' }, metaData),
+            new DataEntity({ myfield0: 'something' , myfield1: 'otherthing' }, metaData1),
+            new DataEntity({ field0: 'something' , field1: 'otherthing' }, metaData2),
+
         ];
 
         const results = outputPhase.run(data);
 
-        expect(results.length).toEqual(1);
+        expect(results.length).toEqual(2);
         expect(results[0]).toEqual({ myfield: ['something', 'otherthing'] });
+        expect(results[1]).toEqual({ field: ['something', 'otherthing'] });
+
     });
 
     it('_multi_target_fields will not set if its an empty array', async () => {

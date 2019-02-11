@@ -28,7 +28,7 @@ export default class OutputPhase extends PhaseBase {
         _.each(configList, (config: OperationConfig) => {
             if (config.other_match_required) {
                 const key = config.target_field || config.source_field;
-                requirements[key as string] = true;
+                requirements[key as string] = config.selector;
             }
         });
         return requirements;
@@ -45,7 +45,7 @@ export default class OutputPhase extends PhaseBase {
         return list;
     }
 
-    normalizeFields(data: DataEntity[]) {
+    combineMultiFields(data: DataEntity[]) {
         return data.map((doc) => {
             const multiValueList = doc.getMetadata('_multi_target_fields');
             if (multiValueList != null) {
@@ -76,16 +76,32 @@ export default class OutputPhase extends PhaseBase {
         return restrictedData;
     }
 
+    isKeyMatchRequired(key: string, docSelectorData: object): boolean {
+        let bool = false;
+        const requiredKey = this.requirements[key];
+
+        if (requiredKey !== undefined) {
+            if (requiredKey === '*') bool = true;
+            if (requiredKey !== '*' && docSelectorData[requiredKey]) bool = true;
+        }
+
+        return bool;
+    }
+
     requiredExtractions(data: DataEntity[]) {
         const finalResults: DataEntity[] = [];
 
         _.each(data, (doc: DataEntity) => {
             let otherExtractionsFound = false;
             let requireExtractionsFound = false;
+            const docSelectorData = doc.getMetadata('selectors');
 
             _.forOwn(doc, (_value, key) => {
-                if (_.has(this.requirements, key)) requireExtractionsFound = true;
-                if (!_.has(this.requirements, key)) otherExtractionsFound = true;
+                if (this.isKeyMatchRequired(key, docSelectorData)) {
+                    requireExtractionsFound = true;
+                } else {
+                    otherExtractionsFound = true;
+                }
             });
 
             if (!requireExtractionsFound || (requireExtractionsFound && otherExtractionsFound)) {
@@ -100,7 +116,7 @@ export default class OutputPhase extends PhaseBase {
         let results = data;
 
         if (this.hasMultiValue) {
-            results = this.normalizeFields(results);
+            results = this.combineMultiFields(results);
         }
 
         if (this.hasRestrictedOutput) {

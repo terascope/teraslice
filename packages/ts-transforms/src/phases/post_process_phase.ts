@@ -16,6 +16,7 @@ export default class PostProcessPhase extends PhaseBase {
         function isRefsPostProcess(config: OperationConfig): boolean {
             return _.has(config, 'follow') && _.has(config, 'post_process') ;
         }
+
         const sequence = [
             { type: 'post_process', filterFn: isPrimaryPostProcess },
             { type: 'post_process', filterFn: isRefsPostProcess }
