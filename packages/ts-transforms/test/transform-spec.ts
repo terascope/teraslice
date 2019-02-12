@@ -293,6 +293,25 @@ describe('can transform matches', () => {
         expect(metaData.selectors).toEqual({ 'hello:world': true, 'full_name:"Jane Doe"': true });
     });
 
+    it('can chain selection => validation => post_process', async() => {
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules26.txt')]
+        };
+
+        const data = DataEntity.makeArray([
+            { some: 'value', field: 'some@gmail.com' },
+            { some: 'value', field: '12398074##&*' },
+            { some: 'value', field: 'other@tera.io' },
+        ]);
+
+        const test = await opTest.init(config);
+        const results =  await test.run(data);
+
+        expect(results.length).toEqual(2);
+        expect(results[0]).toEqual({ newField: 'some@gmail.com', final: ['gmail'] });
+        expect(results[1]).toEqual({ newField: 'other@tera.io', final: ['tera'] });
+    });
+
     it('validations work with the different ways to configure them', async() => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules7.txt')]
