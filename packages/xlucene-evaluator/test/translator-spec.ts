@@ -23,7 +23,7 @@ describe('Translator', () => {
     describe.each([
         [
             'hello:world',
-            'query.bool.filter',
+            'query.constant_score.filter.bool.filter',
             [
                 {
                     term: {
@@ -34,7 +34,7 @@ describe('Translator', () => {
         ],
         [
             'hello:w?rld',
-            'query.bool.filter',
+            'query.constant_score.filter.bool.filter',
             [
                 {
                     wildcard: {
@@ -45,7 +45,7 @@ describe('Translator', () => {
         ],
         [
             '_exists_:hello',
-            'query.bool.filter',
+            'query.constant_score.filter.bool.filter',
             [
                 {
                     exists: {
@@ -56,7 +56,7 @@ describe('Translator', () => {
         ],
         [
             'hello:/w.*ld/',
-            'query.bool.filter',
+            'query.constant_score.filter.bool.filter',
             [
                 {
                     regexp: {
@@ -67,7 +67,7 @@ describe('Translator', () => {
         ],
         [
             'example_count:>=30',
-            'query.bool.filter',
+            'query.constant_score.filter.bool.filter',
             [
                 {
                     range: {
@@ -80,7 +80,7 @@ describe('Translator', () => {
         ],
         [
             'example_count:>30',
-            'query.bool.filter',
+            'query.constant_score.filter.bool.filter',
             [
                 {
                     range: {
@@ -93,7 +93,7 @@ describe('Translator', () => {
         ],
         [
             'example_count:<50',
-            'query.bool.filter',
+            'query.constant_score.filter.bool.filter',
             [
                 {
                     range: {
@@ -106,7 +106,7 @@ describe('Translator', () => {
         ],
         [
             'example_count:<=50',
-            'query.bool.filter',
+            'query.constant_score.filter.bool.filter',
             [
                 {
                     range: {
@@ -117,9 +117,48 @@ describe('Translator', () => {
                 }
             ]
         ],
+        // [
+        //     'any_count:(50 OR 40 OR 30)',
+        //     'query.constant_score.filter.bool',
+        //     {
+        //         should: [
+        //             {
+        //                 term: {
+        //                     any_count: 50,
+        //                 }
+        //             },
+        //             {
+        //                 term: {
+        //                     any_count: 40,
+        //                 }
+        //             },
+        //             {
+        //                 term: {
+        //                     any_count: 30,
+        //                 }
+        //             }
+        //         ]
+        //     }
+        // ],
+        [
+            'some:query AND other:thing',
+            'query.constant_score.filter.bool.filter',
+            [
+                {
+                    term: {
+                        some: 'query',
+                    }
+                },
+                {
+                    term: {
+                        other: 'thing',
+                    }
+                }
+            ]
+        ],
         [
             'location:(_geo_box_top_left_:"34.5234,79.42345" _geo_box_bottom_right_:"54.5234,80.3456")',
-            'query.bool.must',
+            'query.constant_score.filter.bool.filter',
             [
                 {
                     geo_bounding_box: {
@@ -133,7 +172,7 @@ describe('Translator', () => {
         ],
         [
             'loc:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000m)',
-            'query.bool.must',
+            'query.constant_score.filter.bool.filter',
             [
                 {
                     geo_distance: {

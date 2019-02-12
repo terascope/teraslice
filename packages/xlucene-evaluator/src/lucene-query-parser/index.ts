@@ -17,7 +17,7 @@ export default class LuceneQueryParser {
         }
     }
 
-    public walkLuceneAst(preCb: AstCallback, postCb?: AstCallback, _argAst?: AST): any {
+    public walkLuceneAst(preCb: AstCallback, postCb?: AstCallback|null, _argAst?: AST): any {
         const ast = _argAst || this._ast;
 
         function walk(node: AST, _field: string, depth: number): void {
