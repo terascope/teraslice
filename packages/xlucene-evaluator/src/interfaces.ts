@@ -1,9 +1,11 @@
 
 import { Units } from '@turf/helpers';
-import { DateType, GeoType, IpType } from './document-matcher/type-manager/types';
+import { DateType, GeoType, IpType, StringType } from './document-matcher/type-manager/types';
 
 export type ImplicitField = '<implicit>';
 export interface AST {
+    type?: keyof TypeMapping;
+
     field: string|ImplicitField;
     term?: string|number;
     inclusive_min?: boolean;
@@ -13,11 +15,17 @@ export interface AST {
     regexpr?: boolean;
     wildcard?: boolean;
 
+    geo_distance?: string;
+    geo_point?: string;
+    geo_box_top_left?: string;
+    geo_box_bottom_right?: string;
+
     // Root Node Only
     left?: AST;
     right?: AST;
     operator?: string;
     parens?: boolean;
+
 }
 
 export interface AstCallback {
@@ -52,6 +60,7 @@ export interface TypeMapping {
     date: new(input: object) => DateType;
     ip: new(input: object) => IpType;
     geo: new(input: object) => GeoType;
+    string: new(input: object) => StringType;
 }
 
 export interface TypeConfig {

@@ -72,6 +72,42 @@
  *
  */
 
+ {
+	const geoParameters = {
+		_geo_point_: 'geo_point',
+		_geo_distance_: 'geo_distance',
+		_geo_box_top_left_: 'geo_box_top_left',
+		_geo_box_bottom_right_: 'geo_box_bottom_right',
+	};
+
+	function isGeoExpression(node) {
+		return geoParameters[node.field] != null;
+	}
+
+	function walkAst(node, fn, accum){
+		fn(node, accum)
+		if (node.left) walkAst(node.left, fn, accum)
+		if (node.right) walkAst(node.right, fn, accum)
+	}
+
+	function getGeoData(node, accum) {
+		if (isGeoExpression(node)) {
+			accum[geoParameters[node.field]] = node.term;
+		}
+	}
+
+	function parseGeoQuery(node) {
+		if (node.left && isGeoExpression(node.left)) {
+			const parsedGeoNode = { field: node.field };
+			walkAst(node, getGeoData, parsedGeoNode);
+            parsedGeoNode.type = 'geo';
+            return parsedGeoNode;
+		}
+
+		return node;
+	}
+}
+
 start
     = _* node:node+
         {
@@ -207,7 +243,7 @@ field_exp
     / fieldname:fieldname? node:paren_exp
         {
             node.field = fieldname;
-            return node;
+            return parseGeoQuery(node);
         }
     / fieldname:fieldname range_exp:range_term
         {
@@ -307,7 +343,7 @@ fieldname
 term
     = op:prefix_operator_exp? term:quoted_term proximity:proximity_modifier? boost:boost_modifier? _*
         {
-            const result = { term };
+            const result = { term, type: 'string' };
 
             if('' != proximity) {
                 result.proximity = proximity;
@@ -323,7 +359,7 @@ term
         }
     / op:prefix_operator_exp? term:unquoted_term similarity:fuzzy_modifier? boost:boost_modifier? _*
         {
-            const result = { term };
+            const result = { term, type: 'string' };
 
             result.wildcard = /[\?\*]/.test(term);
 
@@ -341,7 +377,7 @@ term
         }
     / op:prefix_operator_exp? term:unquoted_restricted_term similarity:fuzzy_modifier? boost:boost_modifier? _*
         {
-            const result = { term };
+            const result = { term, type: 'string' };
 
             if('' != similarity) {
                 result.similarity = similarity;
@@ -357,7 +393,7 @@ term
         }
     / op:prefix_operator_exp? term:regexpr_term boost:boost_modifier? _*
         {
-            const result = { term, 'regexpr': true };
+            const result = { term, type: 'string', 'regexpr': true };
 
             if('' != boost) {
                 result.boost = boost;

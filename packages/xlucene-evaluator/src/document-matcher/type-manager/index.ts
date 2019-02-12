@@ -7,34 +7,39 @@ import StringType from './types/string';
 import BaseType from './types/base';
 
 import { AST, TypeConfig } from '../../interfaces';
+import { LuceneQueryParser } from '../..';
 
 const typeMapping = {
     date: DateType,
     ip: IpType,
-    geo: GeoType
+    geo: GeoType,
+    string: StringType,
 };
 
 export default class TypeManager {
     typeList: BaseType[];
+    protected _parser: LuceneQueryParser;
 
-    constructor(typeConfig?: TypeConfig) {
+    constructor(parser: LuceneQueryParser, typeConfig?: TypeConfig) {
+        this._parser = parser;
         this.typeList = this._buildFieldListConfig(typeConfig);
     }
 
-    private _buildFieldListConfig(typeConfig?: TypeConfig): BaseType[] {
+    private _buildFieldListConfig(typeConfig: TypeConfig = {}): BaseType[] {
         const typeList:BaseType[] = [];
         const results = {};
 
-        // by default we allow wildcard and regex searches on all fields
-        typeList.push(new StringType());
+        this._parser.walkLuceneAst((node) => {
+            if (node.field == null) return;
 
-        for (const field in typeConfig) {
-            const type = typeConfig[field];
-            if (typeMapping[type]) {
-                if (!results[type]) results[type] = {};
-                results[type][field] = true;
-            }
-        }
+            const configType = typeConfig[node.field];
+            const nodeType = node.type;
+            const type = configType || nodeType || 'string';
+
+            node.type = type;
+            if (!results[type]) results[type] = {};
+            results[type][node.field] = true;
+        });
 
         for (const type in results) {
             const TypeClass = typeMapping[type];
@@ -44,10 +49,10 @@ export default class TypeManager {
         return typeList;
     }
 
-    public processAst(ast: AST): AST {
+    public processAst(): AST {
         return this.typeList.reduce((astObj, type) => {
             return type.processAst(astObj);
-        }, ast);
+        }, this._parser._ast);
     }
 
     public injectTypeFilterFns(): object {

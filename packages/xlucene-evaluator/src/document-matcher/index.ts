@@ -2,39 +2,37 @@
 
 import _ from 'lodash';
 import LuceneQueryParser from '../lucene-query-parser';
-import TypeManger from './type-manager';
+import TypeManager from './type-manager';
 import { bindThis, isInfiniteMax, isInfiniteMin } from '../utils';
 import { IMPLICIT } from '../constants';
 import { AST, TypeConfig } from '../interfaces';
 
-export default class DocumentMatcher extends LuceneQueryParser {
+export default class DocumentMatcher {
     private filterFn: Function|undefined;
-    private types: TypeManger;
+    private typeConfig: TypeConfig|undefined;
 
     constructor(luceneStr?: string, typeConfig?: TypeConfig) {
-        super();
-        this.types = new TypeManger(typeConfig);
+        this.typeConfig = typeConfig;
         bindThis(this, DocumentMatcher);
 
         if (luceneStr) {
             this.parse(luceneStr);
-            this._buildFilterFn();
         }
     }
 
     public parse(luceneStr: string, typeConfig?: TypeConfig):void {
-        if (typeConfig) {
-            this.types = new TypeManger(typeConfig);
-        }
-        super.parse(luceneStr);
-        this._buildFilterFn();
+        const parser = new LuceneQueryParser();
+        parser.parse(luceneStr);
+        this._buildFilterFn(parser, typeConfig);
     }
 
-    private _buildFilterFn(): void {
-        // tslint:disable-next-line
-        const { _ast: ast, types, _parseRange: parseRange } = this;
+    private _buildFilterFn(parser: LuceneQueryParser, typeConfig: TypeConfig|undefined = this.typeConfig): void {
+        const types = new TypeManager(parser, typeConfig);
 
-        const parsedAst = types.processAst(ast);
+        // tslint:disable-next-line
+        const { _parseRange: parseRange } = this;
+
+        const parsedAst = types.processAst();
         const AND_MAPPING = { AND: true, 'AND NOT': true, NOT: 'true' };
         // default operator in elasticsearch is OR
         const OR_MAPPING = { OR: true };
@@ -59,6 +57,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
                 fnStr += '(';
                 addParens = true;
             }
+
             if (field && _.has(node, 'term')) {
                 if (field === '_exists_') {
                     if (negation) {

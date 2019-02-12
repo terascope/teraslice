@@ -17,7 +17,7 @@
         "lint:fix": "yarn lint --fix",
         "prepare": "yarn run build:prepare",
         "prepublishOnly": "yarn build",
-        "build:prepare": "pegjs -o peg/peg_engine.js peg/lucene.grammar",
+        "build:prepare": "pegjs -o peg/peg_engine.js peg/lucene.pegjs",
         "build": "yarn run build:prepare && tsc --build --pretty",
         "build:watch": "yarn build --watch",
         "test": "jest",

@@ -8,6 +8,8 @@ export default class LuceneQueryParser {
     _ast: AST = {};
 
     public parse(luceneStr: string): void {
+        // @ts-ignore because this will populated after set
+        this._ast = {};
         try {
             this._ast = parser.parse(luceneStr);
         } catch (err) {

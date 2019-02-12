@@ -60,29 +60,20 @@ const feetUnits = {
 
 const UNIT_DICTONARY = Object.assign({}, MileUnits, NMileUnits, inchUnits, yardUnits, meterUnits, kilometerUnits, millimeterUnits, centimetersUnits, feetUnits);
 
-const geoParameters = {
-    _geo_point_: 'geoPoint',
-    _geo_distance_: 'geoDistance',
-    _geo_box_top_left_: 'geoBoxTopLeft',
-    _geo_box_bottom_right_: 'geoBoxBottomRight',
-};
-
 const fnBaseName = 'geoFn';
 
 // TODO: allow ranges to be input and compare the two regions if they intersect
 
 export default class GeoType extends BaseType {
-    private fields: object;
 
-    constructor(geoFieldDict: object) {
+    constructor() {
         super(fnBaseName);
-        this.fields = geoFieldDict;
         bindThis(this, GeoType);
     }
 
     processAst(ast: AST): AST {
         // tslint:disable-next-line no-this-assignment
-        const { walkAst, filterFnBuilder, createParsedField, fields } = this;
+        const { filterFnBuilder, createParsedField } = this;
 
         function getLonAndLat(input: any, isInit?: boolean): [number, number] {
             const lat = input.lat || input.latitude;
@@ -173,20 +164,20 @@ export default class GeoType extends BaseType {
         }
 
         function parseGeoAst(node: AST, _field:string): AST {
-            const topField = node.field || _field;
-
-            if (topField && fields[topField]) {
-                const geoQueryParameters = { geoField: topField };
-                function gatherGeoQueries(node: AST) {
-                    const field = node.field;
-                    if (field && geoParameters[field]) {
-                        geoQueryParameters[geoParameters[field]] = node.term;
-                    }
-                    return node;
+            if (node.type === 'geo') {
+                const geoQueryParameters = { geoField: node.field };
+                if (node.geo_point && node.geo_distance) {
+                    geoQueryParameters['geoPoint'] = node.geo_point;
+                    geoQueryParameters['geoDistance'] = node.geo_distance;
                 }
-                walkAst(node, gatherGeoQueries);
+
+                if (node.geo_box_top_left && node.geo_box_bottom_right) {
+                    geoQueryParameters['geoBoxTopLeft'] = node.geo_box_top_left;
+                    geoQueryParameters['geoBoxBottomRight'] = node.geo_box_bottom_right;
+                }
+
                 filterFnBuilder(makeGeoQueryFn(geoQueryParameters));
-                return { field: '__parsed', term: createParsedField(topField) };
+                return { field: '__parsed', term: createParsedField(node.field) };
             }
             return node;
         }
