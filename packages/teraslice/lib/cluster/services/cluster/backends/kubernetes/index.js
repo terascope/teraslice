@@ -20,8 +20,6 @@ const exServiceTemplate = makeTemplate('services', 'execution_controller');
  aborted - when a job was running at the point when the cluster shutsdown
  */
 
-// FIXME: See Jared's comment regarding executionService, will leave this
-// as a known issue: https://github.com/terascope/teraslice/issues/750
 module.exports = function kubernetesClusterBackend(context, clusterMasterServer) {
     const logger = context.apis.foundation.makeLogger({ module: 'kubernetes_cluster_service' });
     // const slicerAllocationAttempts = context.sysconfig.teraslice.slicer_allocation_attempts;
@@ -108,8 +106,8 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      * @return {Promise}                 [description]
      */
     function allocateSlicer(execution) {
-        const name = `teraslice-execution-controller-${execution.ex_id}`.substring(0, 63);
         const jobNameLabel = execution.name.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
+        const name = `ts-exc-${jobNameLabel.substring(0, 43)}-${execution.job_id.substring(0, 13)}`;
 
         const serviceConfig = {
             name,
@@ -176,8 +174,8 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      * @return {Promise}           [description]
      */
     function allocateWorkers(execution, numWorkers) {
-        const name = `teraslice-worker-${execution.ex_id}`.substring(0, 63);
         const jobNameLabel = execution.name.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
+        const name = `ts-wkr-${jobNameLabel.substring(0, 43)}-${execution.job_id.substring(0, 13)}`;
 
         const deploymentConfig = {
             name,
