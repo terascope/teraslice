@@ -626,7 +626,7 @@ range_operator_exp
 operator_exp
  	= _* operator1:operator _* operator2:operator _*
         {
-        	if (operator1 === 'AND' && operator2 === 'NOT') return 'AND NOT';
+        	if (operator1 === 'AND' && operator2 === 'NOT') return 'NOT';
             throw new Error(`cannot combine operators ${operator1} and ${operator2} together`)
         }
     / _* operator:operator _+

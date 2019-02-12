@@ -157,6 +157,38 @@ describe('Translator', () => {
             ]
         ],
         [
+            'some:query OR other:thing',
+            'query.constant_score.filter.bool.should',
+            [
+                {
+                    term: {
+                        some: 'query',
+                    }
+                },
+                {
+                    term: {
+                        other: 'thing',
+                    }
+                }
+            ]
+        ],
+        [
+            'some:query NOT other:thing',
+            'query.constant_score.filter.bool.must_not',
+            [
+                {
+                    term: {
+                        some: 'query',
+                    }
+                },
+                {
+                    term: {
+                        other: 'thing',
+                    }
+                }
+            ]
+        ],
+        [
             'location:(_geo_box_top_left_:"34.5234,79.42345" _geo_box_bottom_right_:"54.5234,80.3456")',
             'query.constant_score.filter.bool.filter',
             [

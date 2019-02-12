@@ -33,7 +33,7 @@ export default class DocumentMatcher {
         const { _parseRange: parseRange } = this;
 
         const parsedAst = types.processAst();
-        const AND_MAPPING = { AND: true, 'AND NOT': true, NOT: 'true' };
+        const AND_MAPPING = { AND: true, NOT: true };
         // default operator in elasticsearch is OR
         const OR_MAPPING = { OR: true };
         OR_MAPPING[IMPLICIT] = true;
@@ -45,11 +45,11 @@ export default class DocumentMatcher {
             let negateLeftExp = false;
             let fnStr = '';
 
-            if (node.operator === 'AND NOT' || node.operator === 'NOT') {
+            if (node.operator === 'NOT') {
                 negation = true;
             }
 
-            if (negation && parent.operator === 'AND NOT' || parent.operator === 'NOT') {
+            if (negation && parent.operator === 'NOT') {
                 negateLeftExp = true;
             }
 

@@ -307,19 +307,19 @@ describe('luceneQueryParser', () => {
             luceneQueryParser.parse('fizz AND NOT buzz');
 
             expect(luceneQueryParser._ast['left']!['term']).toBe('fizz');
-            expect(luceneQueryParser._ast['operator']).toBe('AND NOT');
+            expect(luceneQueryParser._ast['operator']).toBe('NOT');
             expect(luceneQueryParser._ast['right']!['term']).toBe('buzz');
 
             luceneQueryParser.parse('fizz && ! buzz');
 
             expect(luceneQueryParser._ast['left']!['term']).toBe('fizz');
-            expect(luceneQueryParser._ast['operator']).toBe('AND NOT');
+            expect(luceneQueryParser._ast['operator']).toBe('NOT');
             expect(luceneQueryParser._ast['right']!['term']).toBe('buzz');
 
             luceneQueryParser.parse('fizz && !buzz');
 
             expect(luceneQueryParser._ast['left']!['term']).toBe('fizz');
-            expect(luceneQueryParser._ast['operator']).toBe('AND NOT');
+            expect(luceneQueryParser._ast['operator']).toBe('NOT');
             expect(luceneQueryParser._ast['right']!['term']).toBe('buzz');
         });
     });

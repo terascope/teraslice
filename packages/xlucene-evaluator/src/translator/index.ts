@@ -38,16 +38,22 @@ export default class Translator {
         };
 
         if (node.type === 'operator') {
-            const { operator = 'AND' } = node;
-            if (operator === 'AND') {
-                if (node.left) {
-                    const query = node.left.type === 'operator' ? this.buildBoolQuery(node.left) : this.buildAnyQuery(node.left);
-                    boolQuery.bool.filter.push(query);
-                }
-                if (node.right) {
-                    const query = node.right.type === 'operator' ? this.buildBoolQuery(node.right) : this.buildAnyQuery(node.right);
-                    boolQuery.bool.filter.push(query);
-                }
+            let joinType;
+            if (node.operator === 'OR') {
+                joinType = 'should';
+            } else if (node.operator === 'NOT') {
+                joinType = 'must_not';
+            } else {
+                joinType = 'filter';
+            }
+
+            if (node.left) {
+                const query = node.left.type === 'operator' ? this.buildBoolQuery(node.left) : this.buildAnyQuery(node.left);
+                boolQuery.bool[joinType].push(query);
+            }
+            if (node.right) {
+                const query = node.right.type === 'operator' ? this.buildBoolQuery(node.right) : this.buildAnyQuery(node.right);
+                boolQuery.bool[joinType].push(query);
             }
         } else {
             boolQuery.bool.filter.push(this.buildAnyQuery(node));

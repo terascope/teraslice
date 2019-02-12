@@ -24,7 +24,7 @@ export interface OperatorAST extends BaseAST {
 
     left?: AST;
     right?: AST;
-    operator: 'AND'|'OR'|'NOT'|'AND NOT';
+    operator: 'AND'|'OR'|'NOT';
     parens?: boolean;
 }
 
