@@ -130,6 +130,18 @@ describe('Translator', () => {
                     }
                 }
             ]
+        ],
+        [
+            'loc:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000m)',
+            'query.bool.must',
+            [
+                {
+                    geo_distance: {
+                        distance:'5000m',
+                        loc: '33.435518,-111.873616'
+                    }
+                }
+            ]
         ]
     ])('when given %s', (query, property, expected, types) => {
         it(`should to output to have ${property} set correctly`, () => {

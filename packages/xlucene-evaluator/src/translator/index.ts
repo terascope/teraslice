@@ -60,14 +60,22 @@ export default class Translator {
 
             if (node.type === 'geo') {
                 const geoQuery: GeoQuery = {};
-                if (node.geo_box_top_left && node.geo_box_bottom_right) {
+                if (node.geo_box_top_left != null && node.geo_box_bottom_right != null) {
                     geoQuery['geo_bounding_box'] = {};
                     geoQuery['geo_bounding_box'][node.field] = {
                         top_left:  node.geo_box_top_left,
                         bottom_right: node.geo_box_bottom_right
                     };
-                    must.push(geoQuery);
                 }
+
+                if (node.geo_distance != null && node.geo_point != null) {
+                    geoQuery['geo_distance'] = {
+                        distance: node.geo_distance,
+                    };
+                    geoQuery['geo_distance'][node.field] = node.geo_point;
+                }
+
+                must.push(geoQuery);
             }
         });
 
@@ -89,6 +97,10 @@ interface GeoQuery {
             top_left: string;
             bottom_right: string;
         }
+    };
+    geo_distance?: {
+        distance: string;
+        [field: string]: string;
     };
 }
 
