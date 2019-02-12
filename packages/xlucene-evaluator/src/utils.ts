@@ -1,4 +1,4 @@
-import { AST } from './interfaces';
+import { AST, RangeAST } from './interfaces';
 
 export function bindThis(instance:object, cls:object): void {
     return Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
@@ -15,7 +15,7 @@ export function isRangeNode(node: AST) {
     return node.term_min != null || node.term_max != null;
 }
 
-export function parseNodeRange(node: AST): ParseNodeRangeResult  {
+export function parseNodeRange(node: RangeAST): ParseNodeRangeResult  {
     const result: ParseNodeRangeResult = {};
 
     if (!isInfiniteValue(node.term_min)) {

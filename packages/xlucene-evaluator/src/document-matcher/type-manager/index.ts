@@ -1,23 +1,11 @@
-'use strict';
+import typeMapping, { BaseType } from './types';
 
-import DateType from './types/dates';
-import IpType from './types/ip';
-import GeoType from './types/geo';
-import StringType from './types/string';
-import BaseType from './types/base';
-
-import { AST, TypeConfig } from '../../interfaces';
+import { AST, TypeConfig, NodeType } from '../../interfaces';
 import { LuceneQueryParser } from '../..';
-
-const typeMapping = {
-    date: DateType,
-    ip: IpType,
-    geo: GeoType,
-    string: StringType,
-};
 
 export default class TypeManager {
     typeList: BaseType[];
+
     protected _parser: LuceneQueryParser;
 
     constructor(parser: LuceneQueryParser, typeConfig?: TypeConfig) {
@@ -33,10 +21,14 @@ export default class TypeManager {
             if (node.field == null) return;
 
             const configType = typeConfig[node.field];
-            const nodeType = node.type;
-            const type = configType || nodeType || 'string';
 
-            node.type = type;
+            let type: NodeType = 'string';
+            if (typeMapping[configType] != null) {
+                type = configType;
+            } else if (typeMapping[node.type] != null) {
+                type = node.type;
+            }
+
             if (!results[type]) results[type] = {};
             results[type][node.field] = true;
         });

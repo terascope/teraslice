@@ -1,14 +1,16 @@
 import 'jest-extended';
-import { AST, parseNodeRange } from '../src';
+import { RangeAST, parseNodeRange } from '../src';
 
 describe('Utils', () => {
     describe('parseNodeRange', () => {
         it('should handle >=30', () => {
-            const input: AST = {
+            const input: RangeAST = {
+                type: 'string',
                 field: 'hello',
                 term_max: Infinity,
                 term_min: 30,
                 inclusive_min: true,
+                inclusive_max: false,
             };
 
             expect(parseNodeRange(input)).toEqual({
@@ -17,11 +19,13 @@ describe('Utils', () => {
         });
 
         it('should handle >50', () => {
-            const input: AST = {
+            const input: RangeAST = {
+                type: 'string',
                 field: 'hello',
                 term_max: Infinity,
                 term_min: 50,
                 inclusive_min: false,
+                inclusive_max: false,
             };
 
             expect(parseNodeRange(input)).toEqual({
@@ -30,11 +34,13 @@ describe('Utils', () => {
         });
 
         it('should handle <=20', () => {
-            const input: AST = {
+            const input: RangeAST = {
+                type: 'string',
                 field: 'hello',
                 term_min: -Infinity,
                 term_max: 20,
                 inclusive_max: true,
+                inclusive_min: false,
             };
 
             expect(parseNodeRange(input)).toEqual({
@@ -43,11 +49,13 @@ describe('Utils', () => {
         });
 
         it('should handle <0', () => {
-            const input: AST = {
+            const input: RangeAST = {
+                type: 'string',
                 field: 'hello',
                 term_min: -Infinity,
                 term_max: 0,
                 inclusive_max: false,
+                inclusive_min: false,
             };
 
             expect(parseNodeRange(input)).toEqual({
@@ -56,7 +64,8 @@ describe('Utils', () => {
         });
 
         it('should handle 10>0', () => {
-            const input: AST = {
+            const input: RangeAST = {
+                type: 'string',
                 field: 'hello',
                 term_max: 10,
                 term_min: 0,
@@ -71,7 +80,8 @@ describe('Utils', () => {
         });
 
         it('should handle 10>=0', () => {
-            const input: AST = {
+            const input: RangeAST = {
+                type: 'string',
                 field: 'hello',
                 term_max: 10,
                 term_min: 0,
@@ -86,7 +96,8 @@ describe('Utils', () => {
         });
 
         it('should handle 9<50', () => {
-            const input: AST = {
+            const input: RangeAST = {
+                type: 'string',
                 field: 'hello',
                 term_max: 50,
                 term_min: 9,
@@ -101,7 +112,8 @@ describe('Utils', () => {
         });
 
         it('should handle 9<=50', () => {
-            const input: AST = {
+            const input: RangeAST = {
+                type: 'string',
                 field: 'hello',
                 term_max: 50,
                 term_min: 9,
@@ -116,7 +128,8 @@ describe('Utils', () => {
         });
 
         it('should handle 9<= hello <=50', () => {
-            const input: AST = {
+            const input: RangeAST = {
+                type: 'string',
                 field: 'hello',
                 term_max: 50,
                 term_min: 9,

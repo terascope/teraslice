@@ -14,7 +14,7 @@ export default class StringType extends BaseType {
         bindThis(this, StringType);
     }
 
-    private isWildCard(term:string):boolean {
+    private isWildCard(term: string):boolean {
         let bool = false;
         if (typeof term === 'string') {
             if (term.match('[\?+\*+]')) bool = true;
@@ -77,14 +77,15 @@ export default class StringType extends BaseType {
             if (node.regexpr) {
                 filterFnBuilder((str: string): boolean => {
                     if (typeof str !== 'string') return false;
-                    return match(str, node.term as string);
+                    return match(str, node.term);
                 });
 
+                // @ts-ignore
                 return { field: '__parsed', term: createParsedField(topField) };
             }
 
-            if (isWildCard(node.field as string)) {
-                const term = parseWildCard(node.term as string);
+            if (isWildCard(node.field)) {
+                const term = parseWildCard(node.term);
 
                 filterFnBuilder((data: AST): boolean => {
                     const resultsArray = recurseDownObject(node.field || '', data);
@@ -101,17 +102,19 @@ export default class StringType extends BaseType {
                     return bool;
                 });
 
+                // @ts-ignore
                 return { field: '__parsed', term: createParsedField() };
             }
 
-            if (isWildCard(node.term as string)) {
-                const wildCardQuery = parseWildCard(node.term as string);
+            if (node.wildcard) {
+                const wildCardQuery = parseWildCard(node.term);
 
                 filterFnBuilder((str: string): boolean => {
                     if (typeof str !== 'string') return false;
                     return match(str, wildCardQuery);
                 });
 
+                // @ts-ignore
                 return { field: '__parsed', term: createParsedField(topField) };
             }
 

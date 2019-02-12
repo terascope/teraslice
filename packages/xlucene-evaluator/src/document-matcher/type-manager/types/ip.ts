@@ -70,11 +70,9 @@ export default class IpType extends BaseType {
                         term_min: minValue,
                         term_max: maxValue
                     } = node;
-                    minValue as string;
-                    maxValue as string;
 
-                    if (isInfiniteMin(minValue)) isIPv6(maxValue as string) ? minValue = MIN_IPV6_IP : minValue = MIN_IPV4_IP;
-                    if (isInfiniteMax(maxValue)) isIPv6(minValue as string) ? maxValue = MAX_IPV6_IP : maxValue = MAX_IPV4_IP;
+                    if (isInfiniteMin(minValue)) isIPv6(maxValue) ? minValue = MIN_IPV6_IP : minValue = MIN_IPV4_IP;
+                    if (isInfiniteMax(maxValue)) isIPv6(minValue) ? maxValue = MAX_IPV6_IP : maxValue = MAX_IPV4_IP;
 
                     if (!incMin) minValue = ip6addr.parse(minValue).offset(1).toString();
                     if (!incMax) maxValue = ip6addr.parse(maxValue).offset(-1).toString();

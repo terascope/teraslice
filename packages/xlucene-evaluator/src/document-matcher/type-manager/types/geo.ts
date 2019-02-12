@@ -177,6 +177,8 @@ export default class GeoType extends BaseType {
                 }
 
                 filterFnBuilder(makeGeoQueryFn(geoQueryParameters));
+
+                // @ts-ignore
                 return { field: '__parsed', term: createParsedField(node.field) };
             }
             return node;

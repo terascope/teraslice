@@ -30,17 +30,17 @@ export default class Translator {
                 if (node.field === '_exists_') {
                     const existsQuery: ExistsQuery = {
                         exists: {
-                            field: node.term as string
+                            field: node.term
                         }
                     };
                     filter.push(existsQuery);
                 } else if (node.regexpr) {
                     const regexQuery: RegExprQuery = { regexp: {} };
-                    regexQuery.regexp[node.field] = node.term as string;
+                    regexQuery.regexp[node.field] = node.term;
                     filter.push(regexQuery);
                 } else if (node.wildcard) {
                     const wildcardQuery: WildcardQuery = { wildcard: {} };
-                    wildcardQuery.wildcard[node.field] = node.term as string;
+                    wildcardQuery.wildcard[node.field] = node.term;
                     filter.push(wildcardQuery);
                 } else {
                     const termQuery: TermQuery = { term: {} };

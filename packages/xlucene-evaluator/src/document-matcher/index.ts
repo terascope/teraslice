@@ -38,7 +38,7 @@ export default class DocumentMatcher {
         const OR_MAPPING = { OR: true };
         OR_MAPPING[IMPLICIT] = true;
 
-        function functionBuilder(node: AST, parent: Partial<AST>, fnStrBody: string, _field: string|null, isNegation:Boolean) {
+        function functionBuilder(node: AST, parent: AST, fnStrBody: string, _field: string|null, isNegation:Boolean) {
             const field = (node.field && node.field !== IMPLICIT) ? node.field : _field;
             let addParens = false;
             let negation  = isNegation || false;
@@ -105,7 +105,7 @@ export default class DocumentMatcher {
             return fnStrBody + fnStr;
         }
 
-        const fnStr = functionBuilder(parsedAst, {}, '', null, false);
+        const fnStr = functionBuilder(parsedAst, {} as AST, '', null, false);
         const argsObj = types.injectTypeFilterFns();
         const argsFns: Function[] = [];
         const strFnArgs:string[] = [];
