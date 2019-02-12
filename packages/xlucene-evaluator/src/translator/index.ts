@@ -18,12 +18,14 @@ export default class Translator {
         const dslQuery = {
             query: {
                 bool: {
-                    filter: [] as AnyQuery[]
+                    filter: [] as AnyQuery[],
+                    must: [] as AnyQuery[]
                 }
             }
         };
 
         const filter = dslQuery.query.bool.filter;
+        const must = dslQuery.query.bool.must;
 
         this.parser.walkLuceneAst((node) => {
             if (node.field && node.term) {
@@ -55,17 +57,38 @@ export default class Translator {
                 rangeQuery.range[node.field] = range;
                 filter.push(rangeQuery);
             }
+
+            if (node.type === 'geo') {
+                const geoQuery: GeoQuery = {};
+                if (node.geo_box_top_left && node.geo_box_bottom_right) {
+                    geoQuery['geo_bounding_box'] = {};
+                    geoQuery['geo_bounding_box'][node.field] = {
+                        top_left:  node.geo_box_top_left,
+                        bottom_right: node.geo_box_bottom_right
+                    };
+                    must.push(geoQuery);
+                }
+            }
         });
 
         return dslQuery;
     }
 }
 
-type AnyQuery = TermQuery|WildcardQuery|ExistsQuery|RegExprQuery|RangeQuery;
+type AnyQuery = GeoQuery|TermQuery|WildcardQuery|ExistsQuery|RegExprQuery|RangeQuery;
 
 interface ExistsQuery {
     exists: {
         field: string;
+    };
+}
+
+interface GeoQuery {
+    geo_bounding_box?: {
+        [field: string]: {
+            top_left: string;
+            bottom_right: string;
+        }
     };
 }
 

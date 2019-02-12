@@ -117,31 +117,20 @@ describe('Translator', () => {
                 }
             ]
         ],
-        // [
-        //     'location:(_geo_box_top_left_:"34.5234,79.42345" _geo_box_bottom_right_:"54.5234,80.3456")',
-        //     {
-        //         query: {
-        //             bool: {
-        //                 must: [
-        //                     {
-        //                         geo_bounding_box: {
-        //                             location: {
-        //                                 top_left: {
-        //                                     lat: '34.5234',
-        //                                     lon: '79.42345'
-        //                                 },
-        //                                 bottom_right: {
-        //                                     lat: '54.5234',
-        //                                     lon: '80.3456'
-        //                                 }
-        //                             }
-        //                         }
-        //                     }
-        //                 ]
-        //             }
-        //         }
-        //     }
-        // ]
+        [
+            'location:(_geo_box_top_left_:"34.5234,79.42345" _geo_box_bottom_right_:"54.5234,80.3456")',
+            'query.bool.must',
+            [
+                {
+                    geo_bounding_box: {
+                        location: {
+                            top_left: '34.5234,79.42345',
+                            bottom_right: '54.5234,80.3456'
+                        }
+                    }
+                }
+            ]
+        ]
     ])('when given %s', (query, property, expected, types) => {
         it(`should to output to have ${property} set correctly`, () => {
             const translator = new Translator(query, types);
