@@ -22,7 +22,7 @@ interface BaseAST {
 export interface OperatorAST extends BaseAST {
     type: 'operator';
 
-    left: AST;
+    left?: AST;
     right?: AST;
     operator: 'AND'|'OR'|'NOT'|'AND NOT';
     parens?: boolean;
@@ -30,6 +30,7 @@ export interface OperatorAST extends BaseAST {
 
 interface BaseFieldAST extends BaseAST {
     field: string|ImplicitField;
+    unrestricted?: boolean;
 }
 
 interface BaseRangeAST extends BaseFieldAST {

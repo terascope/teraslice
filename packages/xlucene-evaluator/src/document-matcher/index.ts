@@ -5,7 +5,7 @@ import LuceneQueryParser from '../lucene-query-parser';
 import TypeManager from './type-manager';
 import { bindThis, isInfiniteMax, isInfiniteMin } from '../utils';
 import { IMPLICIT } from '../constants';
-import { AST, TypeConfig } from '../interfaces';
+import { AST, TypeConfig, RangeAST } from '../interfaces';
 
 export default class DocumentMatcher {
     private filterFn: Function|undefined;
@@ -71,17 +71,22 @@ export default class DocumentMatcher {
                     } else {
                         fnStr += `${node.term}`;
                     }
-                } else {
-                    let term = `"${node.term}"`;
-                    if (node.term === 'true') term = JSON.parse(node.term);
-                    if (node.term === 'false') term = JSON.parse(node.term);
+                } else if (node.type === 'string') {
+                    const term = `"${node.term}"`;
                     if (negation) {
-                        fnStr += `data.${field} != ${term}`;
+                        fnStr += `data.${field} !== ${term}`;
                     } else {
-                        fnStr += `data.${field} == ${term}`;
+                        fnStr += `data.${field} === ${term}`;
+                    }
+                } else if (['boolean', 'number'].includes(node.type)) {
+                    if (negation) {
+                        fnStr += `data.${field} !== ${node.term}`;
+                    } else {
+                        fnStr += `data.${field} === ${node.term}`;
                     }
                 }
             }
+
             if (_.has(node, 'term_min')) {
                 fnStr += parseRange(node, field || '', negation);
             }
@@ -128,7 +133,7 @@ export default class DocumentMatcher {
         }
     }
 
-    private _parseRange(node:AST, topFieldName:string, isNegation:Boolean):string {
+    private _parseRange(node: RangeAST, topFieldName:string, isNegation:Boolean):string {
         const {
             inclusive_min: incMin,
             inclusive_max: incMax,

@@ -106,6 +106,35 @@
 
 		return node;
 	}
+
+    function isNumber(input) {
+        return typeof input === 'number' && !Number.isNaN(input);
+    }
+
+    function toNumber(input) {
+        const num = Number(input);
+        if (isNumber(num)) return num;
+        return false;
+    }
+
+    function getTypeOf(input, defaultType='string') {
+        if (typeof input === 'string') return 'string';
+        if (isNumber(input)) return 'number';
+        if (typeof input === 'boolean') return 'boolean';
+        return defaultType;
+    }
+
+    function coerceValue(input) {
+        if (typeof input !== 'string') return input;
+
+        if (input === 'false') return false;
+        if (input === 'true') return true;
+
+        const num = toNumber(input);
+        if (num !== false) return num;
+
+        return input;
+    }
 }
 
 start
@@ -126,12 +155,14 @@ node
     = operator:operator_exp EOF
         {
             return {
+                 type: 'operator',
                  operator
             };
         }
     / rangeExp1:range_operator_exp _* operator:operator_exp _* rangeExp2:range_term _*
     	{
             const results = {
+                type: 'operator',
             	left: rangeExp1,
                 operator,
                 right: rangeExp2
@@ -142,6 +173,7 @@ node
     / rangeExp1:range_term _* operator:operator_exp _* rangeExp2:range_operator_exp _*
     	{
             const results = {
+                type: 'operator',
             	left: rangeExp1,
                 operator,
                 right: rangeExp2
@@ -152,11 +184,13 @@ node
     / type:range_exp_op range_value:rangevalue _* operator_exp _* type2:range_exp_op range_value2:rangevalue _*
         {
             const results = {
+                type: getTypeOf(range_value),
                 term_min: range_value,
                 term_max: Infinity,
                 inclusive_min: false,
                 inclusive_max: false
             };
+
             const args = {};
             args[type] = range_value;
             args[type2] = range_value2;
@@ -178,6 +212,7 @@ node
             if (args['<']) {
                 results.term_max = args['<'];
             }
+
             return results;
         }
     / operator:operator_exp right:node
@@ -188,6 +223,7 @@ node
     / left:group_exp operator:operator_exp* right:node*
         {
             const node = {
+                type: 'operator',
                 left
             };
 
@@ -325,8 +361,8 @@ rangevalue
     = termValue:range_chars
         {
             const { term } = termValue;
-            const num = Number(term);
-            if (!isNaN(num)) return num;
+            const num = toNumber(term);
+            if (num !== false) return num;
             return term
         }
    / termValue:quoted_term
@@ -343,14 +379,22 @@ fieldname
 term
     = op:prefix_operator_exp? term:quoted_term proximity:proximity_modifier? boost:boost_modifier? _*
         {
-            const result = { term, type: 'string' };
+            const type = getTypeOf(term);
+            const result = {
+                type,
+                term,
+                regexpr: false,
+                wildcard: false,
+            };
 
             if('' != proximity) {
                 result.proximity = proximity;
             }
+
             if('' != boost) {
                 result.boost = boost;
             }
+
             if('' != op) {
                 result.prefix = op;
             }
@@ -359,16 +403,27 @@ term
         }
     / op:prefix_operator_exp? term:unquoted_term similarity:fuzzy_modifier? boost:boost_modifier? _*
         {
-            const result = { term, type: 'string' };
+            const termValue = coerceValue(term);
+            const type = getTypeOf(termValue);
+            const result = {
+                term: termValue,
+                type,
+                unrestricted: false,
+            };
 
-            result.wildcard = /[\?\*]/.test(term);
+            if (type === 'string') {
+                result.wildcard = /[\?\*]/.test(termValue);
+                result.regexpr = false;
+            }
 
             if('' != similarity) {
                 result.similarity = similarity;
             }
+
             if('' != boost) {
                 result.boost = boost;
             }
+
             if('' != op) {
                 result.prefix = op;
             }
@@ -377,14 +432,22 @@ term
         }
     / op:prefix_operator_exp? term:unquoted_restricted_term similarity:fuzzy_modifier? boost:boost_modifier? _*
         {
-            const result = { term, type: 'string' };
+
+            const termValue = coerceValue(term)
+            const result = {
+                term: termValue,
+                type: getTypeOf(termValue),
+                unrestricted: true,
+            };
 
             if('' != similarity) {
                 result.similarity = similarity;
             }
+
             if('' != boost) {
                 result.boost = boost;
             }
+
             if('' != op) {
                 result.prefix = op;
             }
@@ -393,7 +456,12 @@ term
         }
     / op:prefix_operator_exp? term:regexpr_term boost:boost_modifier? _*
         {
-            const result = { term, type: 'string', 'regexpr': true };
+            const result = {
+                term,
+                type: 'string',
+                wildcard: false,
+                'regexpr': true
+            };
 
             if('' != boost) {
                 result.boost = boost;

@@ -518,7 +518,7 @@ describe('luceneQueryParser', () => {
 
             expect(luceneQueryParser._ast['operator']).toBe('AND');
             expect(luceneQueryParser._ast['right']!['field']).toBe('wasFound');
-            expect(luceneQueryParser._ast['right']!['term']).toBe('true');
+            expect(luceneQueryParser._ast['right']!['term']).toBe(true);
         });
     });
 
