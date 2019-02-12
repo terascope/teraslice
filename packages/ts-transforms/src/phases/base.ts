@@ -16,6 +16,14 @@ export default abstract class PhaseBase {
     abstract run(data: DataEntity[]): DataEntity[];
 
     protected installOps({ type, filterFn, injectFn }: { type: string, filterFn: filterFn, injectFn?:injectFn} , configList:OperationConfig[], opsManager: OperationsManager) {
+
+        const loadOp = (opName: string, configData: NormalizedConfig) => {
+            const Op = opsManager.getTransform(opName as string);
+            if (!this.phase[configData.registrationSelector]) this.phase[configData.registrationSelector] = [];
+            this.phase[configData.registrationSelector].push(new Op(configData.configuration));
+
+        };
+
         _.forEach(configList, (config: OperationConfig, _ind, list) => {
             if (filterFn(config)) {
                 if (injectFn) {
@@ -23,15 +31,12 @@ export default abstract class PhaseBase {
                 }
                 if (!injectFn && !config.other_match_required) {
                     const configData = this.normalizeConfig(config, type, configList);
-
-                    let opName;
-                    if (type === 'selector') opName = 'selector';
-                    if (type === 'extraction') opName = 'extraction';
-                    if (type === 'validation' || type === 'post_process') opName = config[type];
-
-                    const Op = opsManager.getTransform(opName as string);
-                    if (!this.phase[configData.registrationSelector]) this.phase[configData.registrationSelector] = [];
-                    this.phase[configData.registrationSelector].push(new Op(configData.configuration));
+                    if (type === 'selector') loadOp('selector', configData);
+                    if (type === 'extraction') loadOp('extraction', configData);
+                    if (type === 'post_process') {
+                        if (config['post_process']) loadOp(config['post_process'], configData);
+                        if (config['validation']) loadOp(config['validation'], configData);
+                    }
                 }
             }
         });

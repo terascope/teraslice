@@ -20,7 +20,7 @@ describe('post_process phase', () => {
     });
 
     it('has the proper properties', async () => {
-        const configList1 = await getConfigList('transformRules1.txt');
+        const configList1 = await getConfigList('transformRules3.txt');
         const postProcessPhase1 = new PostProcessPhase(transformOpconfig, configList1, new OperationsManager());
 
         expect(postProcessPhase1.hasProcessing).toEqual(false);
@@ -60,5 +60,21 @@ describe('post_process phase', () => {
         expect(results[0]).toEqual({ host: 'www.example.com', field1: 'hello' });
         expect(results[1]).toEqual({ host: 'www.example.com' });
         expect(results[2]).toEqual(data[2]);
+    });
+
+    it('can run and validate data', async () => {
+        const configList = await getConfigList('transformRules22.txt');
+        const postProcessPhase = new PostProcessPhase(transformOpconfig, configList, new OperationsManager());
+
+        const data = [
+            new DataEntity({ newField: 'null' }, { selectors: { 'some:value': true } }),
+            new DataEntity({ newField: null }, { selectors: { 'some:value': true } }),
+            new DataEntity({ newField: 'other' }, { selectors: { 'some:value': true } })
+        ];
+
+        const results = postProcessPhase.run(data);
+
+        expect(results.length).toEqual(1);
+        expect(results[0]).toEqual({ newField: 'other' });
     });
 });
