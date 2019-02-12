@@ -107,7 +107,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      */
     function allocateSlicer(execution) {
         const jobNameLabel = execution.name.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
-        const name = `ts-exc-${jobNameLabel.substring(0, 43)}-${execution.job_id.substring(0, 13)}`;
+        const name = `ts-exc-${jobNameLabel.substring(0, 42)}-${execution.job_id.substring(0, 13)}`;
 
         const serviceConfig = {
             name,
@@ -175,7 +175,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      */
     function allocateWorkers(execution, numWorkers) {
         const jobNameLabel = execution.name.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
-        const name = `ts-wkr-${jobNameLabel.substring(0, 43)}-${execution.job_id.substring(0, 13)}`;
+        const name = `ts-wkr-${jobNameLabel.substring(0, 42)}-${execution.job_id.substring(0, 13)}`;
 
         const deploymentConfig = {
             name,
