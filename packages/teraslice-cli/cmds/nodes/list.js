@@ -22,6 +22,8 @@ exports.builder = (yargs) => {
 
 exports.handler = async (argv) => {
     let response;
+    const active = false;
+    const parse = true;
     const cliConfig = new Config(argv);
     const teraslice = new TerasliceUtil(cliConfig);
 
@@ -37,5 +39,5 @@ exports.handler = async (argv) => {
         reply.fatal(`> No nodes on ${cliConfig.args.clusterAlias}`);
     }
 
-    await display.display(header, teraslice.parseResponse(response, header), format);
+    await display.display(header, response, format, active, parse);
 };

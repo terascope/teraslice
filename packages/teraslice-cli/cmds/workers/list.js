@@ -23,6 +23,8 @@ exports.builder = (yargs) => {
 
 exports.handler = async (argv) => {
     let response;
+    const active = true;
+    const parse = false;
     const cliConfig = new Config(argv);
     const teraslice = new TerasliceUtil(cliConfig);
 
@@ -43,10 +45,11 @@ exports.handler = async (argv) => {
     if (Object.keys(response).length === 0) {
         reply.fatal(`> No workers on ${cliConfig.args.clusterAlias}`);
     }
-    const rows = teraslice.parseStateResponse(response, header, cliConfig.args.id);
 
+    // check if id is in response
+    const rows = await display.parseResponse(header, response, active, cliConfig.args.id);
     if (rows.length > 0) {
-        await display.display(header, rows, format);
+        await display.display(header, rows, format, active, parse, cliConfig.args.id);
     } else {
         reply.fatal(`> No workers match id ${cliConfig.args.id}`);
     }

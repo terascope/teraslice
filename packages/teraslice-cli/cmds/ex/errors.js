@@ -29,6 +29,8 @@ exports.builder = (yargs) => {
 
 exports.handler = async (argv) => {
     let response;
+    const state = false;
+    const parse = false;
     const cliConfig = new Config(argv);
     const teraslice = new TerasliceUtil(cliConfig);
     const header = ['ex_id', 'slice_id', 'slicer_id', 'slicer_order', 'state', 'ex_id', '_created', '_updated', 'error'];
@@ -44,9 +46,10 @@ exports.handler = async (argv) => {
         reply.fatal(`Error getting ex errors list on ${cliConfig.args.clusterAlias}\n${err}`);
     }
 
-    const rows = teraslice.parseResponse(response, header);
+
+    const rows = await display.parseResponse(header, response, state);
     if (rows.length > 0) {
-        await display.display(header, rows, format);
+        await display.display(header, rows, format, state, parse);
     } else {
         reply.fatal(`> No errors for ex_id: ${cliConfig.args.id}`);
     }

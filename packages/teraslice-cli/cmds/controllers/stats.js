@@ -21,10 +21,13 @@ exports.builder = (yargs) => {
 
 exports.handler = async (argv) => {
     let response;
+    const parse = false;
+    const active = false;
     const cliConfig = new Config(argv);
     const teraslice = new TerasliceUtil(cliConfig);
 
     const format = `${cliConfig.args.output}Vertical`;
+
     const header = 'job_id';
 
     // older versions of teraslice do not have contollers end point
@@ -38,5 +41,5 @@ exports.handler = async (argv) => {
         reply.fatal(`> No controllers on ${cliConfig.args.clusterAlias}`);
     }
 
-    await display.display(header, response, format);
+    await display.display(header, response, format, parse, active);
 };
