@@ -35,7 +35,7 @@ This library provides a wide array of manipulations/validations etc but you may 
 
 # Usage
 
-There are two different execution: `Matcher` and `Transform`. The former returns the raw matching documents while the later provides additional ETL capabilities
+There are two different executions: `Matcher` and `Transform`. The former returns the raw matching documents while the later provides additional ETL capabilities
 
 Example rules file: `rulesFile.txt`
 ```
@@ -205,10 +205,10 @@ This phase will go through all the configurations and apply all the extractions 
 ```
 
 ### Post Process Phase
-This phase is for any additional processing that needs to occur after extraction. Each `post_process` configuration is affecting the `target_field` of the chained configuration if you use the `tag` and `follow` tags. You can chain multiple times if needed. This phase also include `validation` operations and can be freely chained to each other.
+This phase is for any additional processing that needs to occur after extraction. Each `post_process` configuration affects the `target_field` of the chained configuration if you use the `tag` and `follow` tags. You can chain multiple times if needed. This phase also includes `validation` operations and can be freely chained to each other.
 
 - **tag** = marks the config and the target_field with an ID so other configurations can chain off of it
-- **follows** = marks the config that it is chaining off the tag id
+- **follow** = marks the config that it is chaining off the tag id
 
 ```ts
 // rules

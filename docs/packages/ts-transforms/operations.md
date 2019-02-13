@@ -27,7 +27,7 @@ Example:
 
 ```
 
-- other_match_required : `Booelan`(optional) = If set to true, then it sets a conditional for this field that the final object must have other keys that do not have the `other_match_required` flag to appear in the resulting object in order for this field to be set. This is used to pass along certain fields/metadata if another field passes extraction/validation etc. You can also specify a `selector` on the same configuration with `other_match_required` to make sure that logic is only applied to a particular rule pipline.
+- other_match_required : `Booelan`(optional) = If set to true, then it conditionaly extracts the field. The condition is that there must be other successful extracted keys that make it all the way to the output phase. There has to be at least one key on the resulting object that did not come from a `other_match_required` configuration. This is used to pass along certain fields/metadata if another field passes extraction/validation etc. You can also specify a `selector` on the same configuration with `other_match_required` to make sure that logic is only applied to a particular rule pipline.
 
 Example:
 ```ts
