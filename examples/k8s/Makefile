@@ -95,13 +95,12 @@ setup-all: namespace elasticsearch auth setup ## setup EVERYTHING
 setup: configs k8s-master ## setup teraslice
 
 # We don't bother calling stop here because everything just gets deleted anyway
-destroy: ## delete k8s deployments and services
+destroy: deregister ## delete k8s deployments and services
 	kubectl delete --namespace $(NAMESPACE) deployments,jobs,services,pods -l app=teraslice --grace-period=1
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-master || echo "* it is okay..."
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-worker || echo "* it is okay..."
 	docker rmi $(shell docker image ls $(TERASLICE_K8S_IMAGE) --format "{{.ID}}") || echo "* it is okay..."
 	curl -fsS -XDELETE "$(ES_URL)/ts-dev1*" || echo '* it is okay'
-	earl tjm reset example-job.json || echo '* it is okay'
 
 destroy-all: destroy deauth deelasticsearch delete-namespace ## delete ALL things including the namespace
 	earl aliases remove ${TERASLICE_ALIAS} || echo '* it is okay'
@@ -114,6 +113,15 @@ register: ## creates asset and registers job
 	earl assets deploy ${TERASLICE_ALIAS} terascope/elasticsearch-assets
 	earl assets deploy ${TERASLICE_ALIAS} --build --replace --src-dir asset/
 	earl tjm register ${TERASLICE_ALIAS} example-job.json
+	earl tjm register ${TERASLICE_ALIAS} example-job-labels.json
+	earl tjm register ${TERASLICE_ALIAS} example-job-resource.json
+	earl tjm register ${TERASLICE_ALIAS} example-job-volume.json
+
+deregister: ## resets jobs
+	earl tjm reset example-job.json || echo '* it is okay'
+	earl tjm reset example-job-labels.json || echo '* it is okay'
+	earl tjm reset example-job-resource.json || echo '* it is okay'
+	earl tjm reset example-job-volume.json || echo '* it is okay'
 
 start: ## runs example job
 	# yes | tjm asset --replace -c $(TERASLICE_MASTER_URL) || echo '* it is okay'
