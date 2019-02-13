@@ -96,13 +96,23 @@
 		}
 	}
 
-	function parseGeoQuery(node) {
+	function postProcessAST(node) {
 		if (node.left && isGeoExpression(node.left)) {
 			const parsedGeoNode = { field: node.field };
 			walkAst(node, getGeoData, parsedGeoNode);
             parsedGeoNode.type = 'geo';
             return parsedGeoNode;
 		}
+
+        if (node.parens && node.field) {
+            if (node.left && !node.left.field) {
+                node.left.field = node.field;
+            }
+
+            if (node.right && !node.right.field) {
+                node.right.field = node.field;
+            }
+        }
 
 		return node;
 	}
@@ -279,7 +289,7 @@ field_exp
     / fieldname:fieldname? node:paren_exp
         {
             node.field = fieldname;
-            return parseGeoQuery(node);
+            return postProcessAST(node);
         }
     / fieldname:fieldname range_exp:range_term
         {

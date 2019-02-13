@@ -117,29 +117,39 @@ describe('Translator', () => {
                 }
             ]
         ],
-        // [
-        //     'any_count:(50 OR 40 OR 30)',
-        //     'query.constant_score.filter.bool',
-        //     {
-        //         should: [
-        //             {
-        //                 term: {
-        //                     any_count: 50,
-        //                 }
-        //             },
-        //             {
-        //                 term: {
-        //                     any_count: 40,
-        //                 }
-        //             },
-        //             {
-        //                 term: {
-        //                     any_count: 30,
-        //                 }
-        //             }
-        //         ]
-        //     }
-        // ],
+        [
+            'any_count:(50 OR 40 OR 30)',
+            'query.constant_score.filter.bool',
+            {
+                filter: [
+                    {
+                        bool: {
+                            filter: [],
+                            must_not: [],
+                            should: [
+                                {
+                                    term: {
+                                        any_count: 50,
+                                    }
+                                },
+                                {
+                                    term: {
+                                        any_count: 40,
+                                    }
+                                },
+                                {
+                                    term: {
+                                        any_count: 30,
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                should: [],
+                must_not: [],
+            }
+        ],
         [
             'some:query AND other:thing',
             'query.constant_score.filter.bool.filter',
