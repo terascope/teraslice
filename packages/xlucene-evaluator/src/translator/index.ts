@@ -47,14 +47,11 @@ export default class Translator {
                 joinType = 'filter';
             }
 
-            if (node.left) {
-                const query = node.left.type === 'operator' ? this.buildBoolQuery(node.left) : this.buildAnyQuery(node.left);
-                boolQuery.bool[joinType].push(query);
-            }
-            if (node.right) {
-                const query = node.right.type === 'operator' ? this.buildBoolQuery(node.right) : this.buildAnyQuery(node.right);
-                boolQuery.bool[joinType].push(query);
-            }
+            const leftQuery = node.left && this.buildAnyQuery(node.left);
+            const rightQuery = node.right && this.buildAnyQuery(node.right);
+
+            if (leftQuery) boolQuery.bool[joinType].push(leftQuery);
+            if (rightQuery) boolQuery.bool[joinType].push(rightQuery);
         } else {
             boolQuery.bool.filter.push(this.buildAnyQuery(node));
         }
@@ -63,6 +60,10 @@ export default class Translator {
     }
 
     private buildAnyQuery(node: AST): AnyQuery {
+        if (node.type === 'operator') {
+            return this.buildBoolQuery(node);
+        }
+
         if (node.field != null && node.term != null) {
             if (node.field === '_exists_') {
                 const existsQuery: ExistsQuery = {
@@ -120,13 +121,13 @@ export default class Translator {
 
 type BoolQuery = {
     bool: {
-        filter: (AnyQuery|BoolQuery)[],
-        must_not: (AnyQuery|BoolQuery)[],
-        should: (AnyQuery|BoolQuery)[],
+        filter: AnyQuery[],
+        must_not: AnyQuery[],
+        should: AnyQuery[],
     }
 };
 
-type AnyQuery = GeoQuery|TermQuery|WildcardQuery|ExistsQuery|RegExprQuery|RangeQuery;
+type AnyQuery = BoolQuery|GeoQuery|TermQuery|WildcardQuery|ExistsQuery|RegExprQuery|RangeQuery;
 
 interface ExistsQuery {
     exists: {

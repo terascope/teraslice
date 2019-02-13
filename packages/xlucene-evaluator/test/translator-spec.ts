@@ -157,6 +157,50 @@ describe('Translator', () => {
             ]
         ],
         [
+            '_exists_:howdy AND other:>=50 OR foo:bar NOT bar:foo',
+            'query.constant_score.filter.bool.filter',
+            [
+                {
+                    exists: {
+                        field: 'howdy'
+                    }
+                },
+                {
+                    bool: {
+                        filter: [],
+                        must_not: [],
+                        should: [
+                            {
+                                range: {
+                                    other: {
+                                        gte: 50
+                                    }
+                                }
+                            },
+                            {
+                                bool: {
+                                    filter: [],
+                                    must_not: [
+                                        {
+                                            term: {
+                                                foo: 'bar'
+                                            }
+                                        },
+                                        {
+                                            term: {
+                                                bar: 'foo'
+                                            }
+                                        }
+                                    ],
+                                    should: []
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        ],
+        [
             'some:query OR other:thing',
             'query.constant_score.filter.bool.should',
             [
@@ -217,7 +261,8 @@ describe('Translator', () => {
     ])('when given %s', (query, property, expected, types) => {
         it(`should to output to have ${property} set correctly`, () => {
             const translator = new Translator(query, types);
-            expect(translator.toElasticsearchDSL()).toHaveProperty(property, expected);
+            const result = translator.toElasticsearchDSL();
+            expect(result).toHaveProperty(property, expected);
         });
     });
 });
