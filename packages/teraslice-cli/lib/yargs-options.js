@@ -88,6 +88,22 @@ class Options {
                 nargs: 1,
                 type: 'string'
             }),
+            'ex-status': () => ({
+                describe: 'list of ex status to include',
+                default: '*'
+            }),
+            'ex-size': () => ({
+                describe: 'list of ex error list to return',
+                default: 100
+            }),
+            'ex-from': () => ({
+                describe: 'ex error to start from',
+                default: 0
+            }),
+            'ex-sort': () => ({
+                describe: 'sort method for ex errors',
+                default: '_updated:desc'
+            }),
             quiet: () => ({
                 alias: 'q',
                 describe: 'Silence non-error logging.',

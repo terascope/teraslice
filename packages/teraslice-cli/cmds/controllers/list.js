@@ -1,24 +1,43 @@
 'use strict';
-'use console';
 
-const _ = require('lodash');
 const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
+const display = require('../lib/display')();
 
-exports.command = 'list <cluster_sh>';
+const Config = require('../../lib/config');
+const TerasliceUtil = require('../../lib/teraslice-util');
+
+const YargsOptions = require('../../lib/yargs-options');
+
+const yargsOptions = new YargsOptions();
+
+exports.command = 'list <cluster-alias>';
 exports.desc = 'List controller(s) on a cluster.\n';
 exports.builder = (yargs) => {
-    cli().args('controllers', 'list', yargs);
-    yargs.example('teraslice-cli controllers list cluster1');
-    yargs.example('teraslice-cli controllers list http://cluster1.net:5678');
+    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.options('output', yargsOptions.buildOption('output'));
+    yargs.strict()
+        .example('$0 controllers list cluster1');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    config(cliConfig, 'controllers:list').returnConfigData();
-    const controller = _testFunctions || require('./lib')(cliConfig);
+exports.handler = async (argv) => {
+    let response;
+    const parse = true;
+    const active = false;
+    const cliConfig = new Config(argv);
+    const teraslice = new TerasliceUtil(cliConfig);
 
-    return controller.list()
-        .catch(err => reply.fatal(err.message));
+    const header = ['name', 'job_id', 'workers_available', 'workers_active', 'failed', 'queued', 'processed'];
+    const format = `${cliConfig.args.output}Horizontal`;
+
+    // older versions of teraslice do not have contollers end point
+    try {
+        response = await teraslice.client.cluster.controllers();
+    } catch (e) {
+        response = await teraslice.client.cluster.slicers();
+    }
+    if (Object.keys(response).length === 0) {
+        reply.fatal(`> No controllers on ${cliConfig.args.clusterAlias}`);
+    }
+
+    await display.display(header, response, format, active, parse);
 };
