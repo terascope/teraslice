@@ -22,7 +22,7 @@ describe('email validation', () => {
         expect(() => new Email(badConfig4)).toThrow();
     });
 
-    it('can validate boolean fields', () => {
+    it('can validate email fields', () => {
         const opConfig = { source_field: 'uri' };
         const test =  new Email(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
@@ -37,6 +37,7 @@ describe('email validation', () => {
         const data8 = new DataEntity({ uri: 'http:// google.com ' });
         const data9 = new DataEntity({ uri: 'ha3ke5@pawnage.com' }, metaData);
         const data10 = new DataEntity({ uri: 'asdfasdf' });
+        const data11 = new DataEntity({ uri: 'SOMEWORDS@HELLO.COM' });
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -48,6 +49,7 @@ describe('email validation', () => {
         const results8 = test.run(data8);
         const results9 = test.run(data9);
         const results10 = test.run(data10);
+        const results11 = test.run(data11);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
@@ -64,6 +66,7 @@ describe('email validation', () => {
         expect(results9).toEqual(data9);
         expect(DataEntity.getMetadata(results9 as DataEntity, 'selectors')).toEqual(metaData.selectors);
         expect(results10).toEqual({});
+        expect(results11).toEqual(data11);
     });
 
     it('can validate nested fields', async() => {

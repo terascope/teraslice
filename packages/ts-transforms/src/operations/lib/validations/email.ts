@@ -1,5 +1,3 @@
-
-import _ from 'lodash';
 import { OperationConfig } from '../../../interfaces';
 import ValidationOpBase from './base';
 
@@ -13,7 +11,7 @@ export default class Email extends ValidationOpBase<any> {
     }
 
     validate(data: string) {
-        if (typeof data !== 'string' || !data.match(this.regex)) return false;
+        if (typeof data !== 'string' || !data.toLowerCase().match(this.regex)) return false;
         return true;
     }
 }
