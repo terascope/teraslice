@@ -29,7 +29,7 @@ exports.builder = (yargs) => {
 
 exports.handler = async (argv) => {
     let response;
-    const state = false;
+    const active = false;
     const parse = false;
     const cliConfig = new Config(argv);
     const teraslice = new TerasliceUtil(cliConfig);
@@ -47,9 +47,9 @@ exports.handler = async (argv) => {
     }
 
 
-    const rows = await display.parseResponse(header, response, state);
+    const rows = await display.parseResponse(header, response, active);
     if (rows.length > 0) {
-        await display.display(header, rows, format, state, parse);
+        await display.display(header, rows, format, active, parse);
     } else {
         reply.fatal(`> No errors for ex_id: ${cliConfig.args.id}`);
     }

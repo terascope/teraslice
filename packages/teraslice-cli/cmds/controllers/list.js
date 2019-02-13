@@ -21,8 +21,11 @@ exports.builder = (yargs) => {
 
 exports.handler = async (argv) => {
     let response;
+<<<<<<< HEAD
     const parse = true;
     const active = false;
+=======
+>>>>>>> b82a318bf8a792f9ceac561cfc5ea2879ef3d4f6
     const cliConfig = new Config(argv);
     const teraslice = new TerasliceUtil(cliConfig);
 
@@ -39,5 +42,14 @@ exports.handler = async (argv) => {
         reply.fatal(`> No controllers on ${cliConfig.args.clusterAlias}`);
     }
 
+<<<<<<< HEAD
     await display.display(header, response, format, active, parse);
+=======
+    const rows = teraslice.parseResponse(response, header);
+    if (rows.length > 0) {
+        await display.display(header, rows, format);
+    } else {
+        reply.fatal(`> No controllers match id ${cliConfig.args.id}`);
+    }
+>>>>>>> b82a318bf8a792f9ceac561cfc5ea2879ef3d4f6
 };
