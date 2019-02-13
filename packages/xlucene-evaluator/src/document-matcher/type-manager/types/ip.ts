@@ -66,10 +66,9 @@ export default class IpType extends BaseType {
                          inclusive_min: incMin,
                          inclusive_max: incMax,
                     } = node;
-                    let {
-                        term_min: minValue,
-                        term_max: maxValue
-                    } = node;
+
+                    let minValue = node.term_min as string;
+                    let maxValue = node.term_max as string;
 
                     if (isInfiniteMin(minValue)) isIPv6(maxValue) ? minValue = MIN_IPV6_IP : minValue = MIN_IPV4_IP;
                     if (isInfiniteMax(maxValue)) isIPv6(minValue) ? maxValue = MAX_IPV6_IP : maxValue = MAX_IPV4_IP;

@@ -4,23 +4,24 @@ import { TypeMapping } from './document-matcher/type-manager/types';
 
 export type ImplicitField = '<implicit>';
 
-export type NodeType = 'date'|'ip'|'geo'|'string'|'number'|'boolean'|'operator'|'exists';
+export type NodeType = 'root'|'operator'|'date'|'ip'|'geo'|'string'|'number'|'boolean'|'exists';
 
 export interface TypeConfig {
     [field: string]: keyof TypeMapping;
 }
 
-export type AST = RangeAST & IpAST
-    & OperatorAST & GeoAST & NumberAST
-    & StringAST & WildcardAST & RegexpAST
-    & ExistsAST;
+export type AST = RangeAST
+    & GeoAST & ExistsAST
+    & NumberAST & StringAST
+    & WildcardAST & RegexpAST
+    & OperatorAST;
 
 interface BaseAST {
     type: NodeType;
 }
 
 export interface OperatorAST extends BaseAST {
-    type: 'operator';
+    type: 'operator'|'root';
 
     left?: AST;
     right?: AST;
@@ -33,22 +34,10 @@ interface BaseFieldAST extends BaseAST {
     unrestricted?: boolean;
 }
 
-interface BaseRangeAST extends BaseFieldAST {
+export interface RangeAST extends BaseFieldAST {
+    type: 'ip'|'string'|'number'|'date';
     term_min: string|number;
     term_max: string|number;
-
-    inclusive_min: boolean;
-    inclusive_max: boolean;
-}
-
-export interface RangeAST extends BaseRangeAST {
-    type: 'string'|'number'|'date';
-}
-
-export interface IpAST extends BaseRangeAST {
-    type: 'ip';
-    term_min: string;
-    term_max: string;
 
     inclusive_min: boolean;
     inclusive_max: boolean;

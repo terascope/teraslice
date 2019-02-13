@@ -1,4 +1,4 @@
-import { AST, RangeAST } from './interfaces';
+import { RangeAST, AST } from './interfaces';
 
 export function bindThis(instance:object, cls:object): void {
     return Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
@@ -11,8 +11,32 @@ export function bindThis(instance:object, cls:object): void {
         });
 }
 
-export function isRangeNode(node: AST) {
+export function isOperatorNode(node: AST): boolean {
+    return ['root', 'operator'].includes(node.type);
+}
+
+export function isRangeNode(node: AST): boolean {
     return node.term_min != null || node.term_max != null;
+}
+
+export function isGeoNode(node: AST): boolean {
+    return node.type === 'geo';
+}
+
+export function isTermNode(node: AST): boolean {
+    return node.term != null;
+}
+
+export function isRegexNode(node: AST): boolean {
+    return isTermNode(node) && node.regexpr;
+}
+
+export function isWildcardNode(node: AST): boolean {
+    return isTermNode(node) && node.wildcard;
+}
+
+export function isExistsNode(node: AST): boolean {
+    return node.field === '_exists_';
 }
 
 export function parseNodeRange(node: RangeAST): ParseNodeRangeResult  {

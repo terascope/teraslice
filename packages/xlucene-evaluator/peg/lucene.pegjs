@@ -233,8 +233,9 @@ node
     / left:group_exp operator:operator_exp* right:node*
         {
             const node = {
-                type: 'operator',
-                left
+                type: 'root',
+                left,
+                parens: false
             };
 
             const rightExp =
@@ -245,6 +246,7 @@ node
                         : right[0];
 
             if (rightExp != null) {
+                node.type = 'operator';
                 node.operator = operator=='' || operator==undefined ? '<implicit>' : operator[0];
                 node.right = rightExp;
             }
