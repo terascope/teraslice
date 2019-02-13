@@ -114,6 +114,7 @@ export class DataEntity<T extends object = object> {
     static isDataEntityArray(input: any): input is DataEntity<object>[] {
         if (input == null) return false;
         if (!Array.isArray(input)) return false;
+        if (input.length === 0) return true;
         return DataEntity.isDataEntity(input[0]);
     }
 
