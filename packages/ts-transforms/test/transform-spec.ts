@@ -282,13 +282,37 @@ describe('can transform matches', () => {
         const results =  await test.run(data);
 
         expect(results.length).toEqual(1);
-        expect(results[0]).toEqual({ name: 'Jane Doe' });
+        expect(results[0]).toEqual({
+            first_name: 'Jane',
+            full_name: 'Jane Doe',
+            last_name: 'Doe',
+            transfered_name: 'Jane Doe'
+        });
 
         const metaData = results[0].getMetadata();
         expect(metaData.selectors).toEqual({ 'hello:world': true, 'full_name:"Jane Doe"': true });
     });
 
-    fit('validations work with the different ways to configure them', async() => {
+    it('can chain selection => validation => post_process', async() => {
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules26.txt')]
+        };
+
+        const data = DataEntity.makeArray([
+            { some: 'value', field: 'some@gmail.com' },
+            { some: 'value', field: '12398074##&*' },
+            { some: 'value', field: 'other@tera.io' },
+        ]);
+
+        const test = await opTest.init(config);
+        const results =  await test.run(data);
+
+        expect(results.length).toEqual(2);
+        expect(results[0]).toEqual({ newField: 'some@gmail.com', final: ['gmail'] });
+        expect(results[1]).toEqual({ newField: 'other@tera.io', final: ['tera'] });
+    });
+
+    it('validations work with the different ways to configure them', async() => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules7.txt')]
         };
@@ -367,7 +391,7 @@ describe('can transform matches', () => {
         expect(DataEntity.isDataEntity(results[0])).toEqual(true);
     });
 
-    it('can run', async () => {
+    it('can run the two variations of the same config', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules11.txt')]
         };
@@ -546,7 +570,8 @@ describe('can transform matches', () => {
             { host: 'fc2.com', field1: `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah`, date, key },
             { host: 'fc2.com', key, date },
             { host: 'fc2.com', field1: 'someRandomStr', key, date },
-            { host: 'fc2.com', field1: ['someRandomStr', `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah`], key, date }
+            { host: 'fc2.com', field1: ['someRandomStr', `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah`], key, date },
+            { date, other: 'things' }
         ]);
 
         // should not expect anything back
@@ -721,6 +746,66 @@ describe('can transform matches', () => {
         expect(results[1]).toEqual({ newField: 'otherthing' });
     });
 
+    it('other_match_required can have selectors to narrow their fields', async() => {
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules24.txt')]
+        };
+
+        const date = new Date().toISOString();
+        const key = '123456789';
+
+        const data1 = DataEntity.makeArray([
+            { some: 'value', input: 'stuff' },
+            { some: 'value', date },
+            { some: 'value', input: 'stuff', date },
+            { some: 'value', input: 'stuff', date, key }
+        ]);
+
+        const data2 = DataEntity.makeArray([
+            { other: 'value', other_input: 'stuff' },
+            { other: 'value', date },
+            { other: 'value', other_input: 'stuff', date },
+            { other: 'value', other_input: 'stuff', date, key }
+        ]);
+
+        const data1Results = data1.reduce<object[]>((arr, obj) => {
+            if (obj.input) {
+                const results = {};
+                results['output'] = obj.input;
+                if (obj.date) results['date'] = obj.date;
+                arr.push(results);
+            }
+            return arr;
+        }, []);
+
+        const data2Results = data2.reduce<object[]>((arr, obj) => {
+            if (obj.other_input) {
+                const results = {};
+                results['other_output'] = obj.other_input;
+                if (obj.date) results['date'] = obj.date;
+                if (obj.key) results['output_key'] = obj.key;
+                arr.push(results);
+            }
+            return arr;
+        }, []);
+
+        const test = await opTest.init(config);
+        const results1 =  await test.run(data1);
+
+        expect(results1.length).toEqual(3);
+        results1.forEach((result, ind) => {
+            expect(result).toEqual(data1Results[ind]);
+        });
+
+        const test2 = await opTest.init(config);
+        const results2 =  await test2.run(data2);
+
+        expect(results2.length).toEqual(3);
+        results2.forEach((result, ind) => {
+            expect(result).toEqual(data2Results[ind]);
+        });
+    });
+
     it('can run a regression test1', async () => {
 
         const config: WatcherConfig = {
@@ -737,5 +822,26 @@ describe('can transform matches', () => {
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ hashoutput: { some: 'data' } });
+    });
+
+    it('can run multivalue on two different post_process extractions', async () => {
+
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules25.txt')]
+        };
+
+        const data = [
+            new DataEntity({ some: 'value', other: 'some_data' }),
+        ];
+
+        const test = await opTest.init(config);
+        const results =  await test.run(data);
+
+        expect(results[0]).toEqual({
+            field: 'some_data',
+            first_copy: ['some_data'],
+            second_copy: ['data'],
+            third_copy: ['some']
+        });
     });
 });

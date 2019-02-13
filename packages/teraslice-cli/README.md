@@ -1,5 +1,10 @@
 # teraslice-cli
-Command line manager for teraslice jobs, assets, and cluster references.
+
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/teraslice-cli/overview.md INSTEAD -->
+
+**NOTE:** This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo, more documentation can be found [here](https://terascope.github.io/teraslice/docs/).
+
+> Command line manager for teraslice jobs, assets, and cluster references.
 
 ## Installation
 
@@ -23,9 +28,9 @@ teraslice-cli aliases list
 
 output:
 ```
-cluster      host                                    
------------  --------------------------------------  
-localhost        http://localhost:5678                     
+cluster      host
+-----------  --------------------------------------
+localhost        http://localhost:5678
 ```
 
 **ADD** - adds a cluster alias to the config file
@@ -37,14 +42,14 @@ teraslice-cli aliases add cluster1 http://cluster1.net:80
 
 output:
 ```
-> Added alias cluster1 host: http://cluster1.net:80     
+> Added alias cluster1 host: http://cluster1.net:80
 ```
 After adding a cluster the command teraslice-cli aliases list output:
 ```
-cluster      host                                    
------------  --------------------------------------  
-localhost        http://localhost:5678  
-cluster1     http://cluster1.net:80                   
+cluster      host
+-----------  --------------------------------------
+localhost        http://localhost:5678
+cluster1     http://cluster1.net:80
 ```
 
 **REMOVE** - Removes a cluster alias to the config file
@@ -59,9 +64,9 @@ output:
 ```
 Now aliases cluster list will output:
 ```
-cluster      host                                    
------------  --------------------------------------  
-localhost        http://localhost:5678  
+cluster      host
+-----------  --------------------------------------
+localhost        http://localhost:5678
 ```
 **UPDATE** - update an alias
 command:
@@ -74,9 +79,9 @@ output:
 ```
 New aliases list will output:
 ```
-cluster      host                                    
------------  --------------------------------------  
-localhost        http://localhost:3000  
+cluster      host
+-----------  --------------------------------------
+localhost        http://localhost:3000
 ```
 
 ### ASSETS - commands to manage assets.  Before using the assets command add clusters via the aliases command
@@ -149,7 +154,7 @@ teraslice-cli tjm reg <cluster-alias> jobFile.json --start
 ```
 teraslice-cli tjm convert jobFile.json
 ```
-**ERRORS** - Displays errors for a job.  
+**ERRORS** - Displays errors for a job.
 ```
 teraslice-cli tjm errors jobFile.json
 ```
@@ -194,7 +199,7 @@ teraslice-cli tjm workers remove 5 jobFile.json
 teraslice-cli tjm workers total 50 jobFile.json
 ```
 
-### JOB CONTROL 
+### JOB CONTROL
 
 *** Job control commands start, stop, pause, resume, and restart all function with the same syntax.***
 - `-all` or `-a` performs action on all the jobs on a given cluster.
@@ -325,3 +330,13 @@ teraslice-cli ex list local
 # list failed ex_ids
 teraslice-cli ex list local --status failed
 ```
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+
+[MIT](./LICENSE) licensed.

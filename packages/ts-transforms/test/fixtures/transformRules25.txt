@@ -1,0 +1,4 @@
+{ "selector": "some:value", "source_field": "other", "target_field": "field", "tag":"hello"}
+{ "post_process": "extraction", "target_field": "first_copy", "multivalue": true, "follow": "hello", "mutate": true }
+{ "post_process": "extraction", "target_field": "second_copy", "regex": "da.*a", "multivalue": true, "follow": "hello", "mutate": true }
+{ "post_process": "extraction", "target_field": "third_copy", "regex": "so.*e", "multivalue": true, "follow": "hello", "mutate": true }

@@ -1,15 +1,10 @@
-# Generator Teraslice
+# generator-teraslice
+
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/generator-teraslice/overview.md INSTEAD -->
+
+**NOTE:** This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo, more documentation can be found [here](https://terascope.github.io/teraslice/docs/).
 
 > Generate teraslice related packages and code
-
-- [Installation](#installation)
-  - [Install Yeoman](#install-yeoman)
-  - [Global Setup](#global-setup)
-  - [Development Setup](#development-setup)
-- [Usage](#usage)
-  - [Package](#package)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Installation
 

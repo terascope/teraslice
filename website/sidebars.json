@@ -1,0 +1,69 @@
+{
+    "docs": {
+        "Overview": [
+            "overview",
+            "getting-started"
+        ],
+        "Configuration": [
+            "configuration/teraslice",
+            "configuration/ops"
+        ],
+        "Clustering": [
+            "clustering/k8s"
+        ],
+        "Development": [
+            "development/overview",
+            "development/releases",
+            "development/tests",
+            "development/e2e-tests",
+            "development/contributing"
+        ]
+    },
+    "api": {
+        "Overview": [
+            "api",
+            "api/rest"
+        ]
+    },
+    "packages": {
+        "Overview": [
+            "packages"
+        ],
+        "Packages": [
+            "packages/data-access/overview",
+            "packages/elasticsearch-store/overview",
+            "packages/terafoundation/overview",
+            "packages/teraslice/overview",
+            "packages/teraslice-cli/overview",
+            "packages/teraslice-client-js/overview",
+            {
+                "type": "subcategory",
+                "label": "ts-transforms",
+                "ids": [
+                    "packages/ts-transforms/overview",
+                    "packages/ts-transforms/plugins",
+                    "packages/ts-transforms/operations"
+                ]
+            },
+            "packages/xlucene-evaluator/overview"
+        ],
+        "Internal Packages": [
+            "packages/docker-compose-js/overview",
+            "packages/elasticsearch-api/overview",
+            "packages/error-parser/overview",
+            "packages/generator-teraslice/overview",
+            "packages/job-components/overview",
+            "packages/queue/overview",
+            "packages/teraslice-messaging/overview",
+            "packages/teraslice-op-test-harness/overview",
+            "packages/teraslice-test-harness/overview",
+            "packages/utils/overview"
+        ]
+    },
+    "examples": {
+        "Examples": [
+            "examples",
+            "examples/legacy-operations"
+        ]
+    }
+}

@@ -1,4 +1,10 @@
-# TeraFoundation
+# terafoundation
+
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/terafoundation/overview.md INSTEAD -->
+
+**NOTE:** This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo, more documentation can be found [here](https://terascope.github.io/teraslice/docs/).
+
+> Terafoundation
 
 Node.js framework for building clustered servers
 
@@ -9,7 +15,8 @@ Here are a few tasks it can help you with:
   * Schema validations for app configurations
 
 ### Basic Example
-```
+
+```js
 //service.js
 var worker = require('./worker');
 var foundation = require('terafoundation')({
@@ -47,7 +54,7 @@ shutdownMessaging | If set to true then it provides a ipc shutdown message so al
 emitter | you may pass down a node.js event emitter which will emit certain signals to listen on  | function | optional
 
 ### Complex example
-```
+```js
 var foundation = require('terafoundation')({
     name: 'teraslice',
     shutdownMessaging: true,
@@ -95,7 +102,7 @@ The context is an object with the following keys:
 The api is located at `context.apis.foundation`:
 
  * `getConnection` which is used to get a database client.
-```
+```js
 var client = context.apis.foundation.getConnection({
         type: 'elasticsearch',
         endpoint: default,
@@ -106,7 +113,7 @@ var client = context.apis.foundation.getConnection({
 
 * `makeLogger` which is used to create a logger
 
-```
+```js
 var logger = context.apis.foundation.makeLogger({module: 'worker', slice: '7dj38d'});
 
 ```
@@ -114,23 +121,23 @@ The object attaches metadata to any of the logs done by the new child logger. Th
 
 * `startWorkers` which is used to create specific child workers
 
-```
+```js
 context.apis.foundation.startWorkers(1, {
-            assignment: 'assets_service',
-            port: assets_port,
-            node_id: context.sysconfig._nodeName
-        });
+    assignment: 'assets_service',
+    port: assets_port,
+    node_id: context.sysconfig._nodeName
+});
 ```
 The first argument is the number of specific workers you are going to make. The second parameter is an object. The key `assignment` must match whats listed in the descriptors listed in the complex terafoundation example above. It allows the system to know what type of child process to create. All keys and values in the object will also by stored in the process environment `process.env` . This allows you to pass a port number, identifier or anything else that the process needs to know before hand to boot up
 
 * `getSystemEvents` which returns the system wide event emitter
 
-```
+```js
 var events = context.apis.foundation.getSystemEvents();
 
 events.on('event', function() {
-    // do something for this event.
-    });
+  // do something for this event.
+});
 ```
 This allows listening to and emitting events on the system events bus.
 
@@ -141,19 +148,19 @@ A configuration file may either be a YAML or JSON file. You can pass in the conf
  `node service.js -c config.yaml`
 or by having the appropriate configuration file located at the root of your project
 
-```
+```js
 /root-app
   /node-modules
     terafoundation
   service.js
   worker.js
-  config.yaml   
+  config.yaml
 ```
 or by setting an environmental variable `TERAFOUNDATION_CONFIG` to the configuration file
 
 ### Example Config
 
-```
+```yaml
 top_root_level_application:
   some: configuration
 terafoundation:
@@ -203,3 +210,13 @@ log_buffer_limit | the number of logs stored in the ringbuffer on the logger bef
 log_buffer_interval | interval (number in milliseconds) that the log buffer will send up its logs, this is used if logging is set to use elasticsearch | Number | optional, defaults to 60000 ms
 log_connection | logging connection endpoint if logging is saved to elasticsearch, this is only in use if logs are being saved to a DB | String | optional, uses the 'default' endpoint of elasticsearch connectors
 connectors | An object containing database client information for you service | Object | required
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+
+[Apache-2.0](./LICENSE) licensed.

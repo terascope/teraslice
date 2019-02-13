@@ -18,6 +18,7 @@ describe('list', () => {
             );
             expect(yargsResult.clusterAlias).toEqual('ts-test1');
         });
+
         it('should parse properly with an id specifed', () => {
             const yargsCmd = yargs.command(
                 list.command,

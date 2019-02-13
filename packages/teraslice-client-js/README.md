@@ -1,15 +1,23 @@
 # teraslice-client-js
-Javascript client for Teraslice
+
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/teraslice-client-js/overview.md INSTEAD -->
+
+**NOTE:** This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo, more documentation can be found [here](https://terascope.github.io/teraslice/docs/).
+
+> Javascript client for Teraslice
 
 ## Installation
 
-```
-npm install teraslice-client-js
+```bash
+# Using yarn
+yarn add teraslice-client-js
+# Using npm
+npm install --save teraslice-client-js
 ```
 
 ## Job submission example
 
-```
+```js
 var teraslice = require('teraslice-client-js')({
     host: 'http://localhost:5678'
 });
@@ -42,3 +50,13 @@ teraslice.jobs.submit(job)
     })
 
 ```
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+
+[MIT](./LICENSE) licensed.

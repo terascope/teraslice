@@ -18,29 +18,43 @@ const packages = fs.readdirSync(packagesPath).filter((pkgName) => {
     return fs.existsSync(path.join(pkgDir, 'package.json'));
 });
 
-const desc = `Update a package to specific version and its dependencies.
-This should be run in the root of the workspace.`;
+const desc = 'Update a package to specific version and its dependencies. This should be run in the root of the workspace.';
 
-const { argv } = yargs.usage('$0 [options] <package-name> <release>', desc, (y) => {
-    y.option('rc', {
-        type: 'boolean',
-        description: 'Change this to indicate a RC release'
-    }).option('inc', {
-        type: 'boolean',
-        implies: 'rc',
-        description: 'Increment the RC version as well as version'
-    }).positional('package-name', {
-        choices: packages,
-        description: 'The name of the package to bump'
-    }).positional('release', {
-        choices: [
-            'major',
-            'minor',
-            'patch',
-        ]
-    })
-        .requiresArg(['package-name', 'release']);
-}).scriptName('bump')
+const { argv } = yargs.usage('$0 [options] <package-name> <release>', desc, (_yargs) => {
+    _yargs
+        .example('$0', 'job-components major // 0.15.0 => 1.0.0')
+        .example('$0', 'teraslice-cli minor // 0.5.0 => 0.6.0')
+        .example('$0', 'teraslice patch // 0.20.0 => 0.20.1')
+        .example('$0', 'job-components premajor // 0.15.0 => 1.0.0-rc.0')
+        .example('$0', 'teraslice-cli preminor // 0.5.0 => 0.6.0-rc.0')
+        .example('$0', 'teraslice prepatch // 0.20.0 => 0.20.1-rc.0')
+        .example('$0', 'teraslice prerelease // 0.20.1-rc.0 => 0.20.1-rc.1')
+        .option('prelease-id', {
+            default: 'rc',
+            description: 'Specify the prerelease identifier, defaults to RC'
+        })
+        .positional('package-name', {
+            choices: packages,
+            description: 'The name of the package to bump'
+        })
+        .positional('release', {
+            description: 'Specify the release change for the version, see https://www.npmjs.com/package/semver',
+            choices: [
+                'major',
+                'minor',
+                'patch',
+                'prerelease',
+                'premajor',
+                'preminor',
+                'prepatch',
+            ]
+        })
+        .requiresArg([
+            'package-name',
+            'release'
+        ]);
+})
+    .scriptName('yarn bump')
     .version()
     .alias('v', 'version')
     .help()
@@ -50,49 +64,25 @@ const { argv } = yargs.usage('$0 [options] <package-name> <release>', desc, (y) 
 
 const { release } = argv;
 const pkgName = argv['package-name'];
+const preId = argv['prelease-id'];
 
 const pkgPath = path.join(packagesPath, pkgName, 'package.json');
 
 const pkgJSON = fse.readJsonSync(pkgPath);
 const realPkgName = pkgJSON.name;
 
-let newVersion;
-
-function incPrerelease(_version) {
+function bumpVersion(_version) {
     let version = _version;
 
-    let result = semver.prerelease(newVersion);
-    if (result) {
-        version = version.replace(
-            result.join(''),
-            result.join('.')
-        );
-    }
-
-    const prerelease = argv.inc ? `pre${release}` : 'prerelease';
-    newVersion = semver.inc(version, prerelease, 'rc');
-    if (!newVersion) {
-        throw new Error(`Failure to increment version "${pkgJSON.version}" using "${prerelease}"`);
-    }
-
-    result = semver.prerelease(newVersion);
-
-    if (result) {
-        newVersion = newVersion.replace(
-            result.join('.'),
-            [result[0], ++result[1]].join('')
-        );
-    }
-}
-
-if (argv.rc) {
-    incPrerelease(pkgJSON.version);
-} else {
-    newVersion = semver.inc(pkgJSON.version, release);
-    if (!newVersion) {
+    version = semver.inc(version, release, preId);
+    if (!version) {
         throw new Error(`Failure to increment version "${pkgJSON.version}" using "${release}"`);
     }
+
+    return version;
 }
+
+const newVersion = bumpVersion(pkgJSON.version);
 
 
 console.log(`* Updating ${realPkgName} to version ${pkgJSON.version} to ${newVersion}`);

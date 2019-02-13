@@ -1,6 +1,6 @@
 {
     "name": "ts-transforms",
-    "version": "0.12.0",
+    "version": "0.16.1",
     "description": "An ETL framework built upon xlucene-evaluator",
     "publishConfig": {
         "access": "public"
@@ -52,19 +52,10 @@
         "yargs": "^12.0.5"
     },
     "devDependencies": {
-        "@types/jest": "^23.3.13",
         "@types/lodash": "^4.14.120",
         "@types/valid-url": "^1.0.2",
         "@types/validator": "^10.9.0",
-        "@types/yargs": "^12.0.8",
-        "babel-core": "^6.0.0",
-        "babel-jest": "^23.6.0",
-        "jest": "^23.6.0",
-        "jest-extended": "^0.11.1",
-        "ts-jest": "^23.10.5",
-        "tslint": "^5.12.1",
-        "tslint-config-airbnb": "^5.11.1",
-        "typescript": "^3.3.1"
+        "@types/yargs": "^12.0.8"
     },
     "engines": {
         "node": ">=8.0.0"
