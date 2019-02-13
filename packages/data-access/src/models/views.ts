@@ -68,5 +68,5 @@ export interface ViewModel extends BaseModel {
      *
      * @example `foo:*bar`
     */
-    prevent_prefix_wildcard: boolean;
+    prevent_prefix_wildcard?: boolean;
 }
