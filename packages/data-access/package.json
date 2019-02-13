@@ -32,7 +32,8 @@
     "dependencies": {
         "@terascope/utils": "^0.4.0",
         "elasticsearch-store": "^0.2.0",
-        "nanoid": "^2.0.1"
+        "nanoid": "^2.0.1",
+        "xlucene-evaluator": "^0.4.0"
     },
     "devDependencies": {}
 }
