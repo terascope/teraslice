@@ -171,8 +171,9 @@ describe('can transform matches', () => {
         const test = await opTest.init(config);
         const results =  await test.run(data);
 
-        expect(results).toBeArrayOfSize(1);
+        expect(results).toBeArrayOfSize(2);
         expect(results[0]).toEqual({ location: { lat: '33.435967', lon: '-111.867710' } });
+        expect(results[1]).toEqual({ point: '33.435967,  -111.867710 ' });
     });
 
     it('can use post process operations', async () => {
