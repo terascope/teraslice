@@ -10,6 +10,10 @@ export default class Translator {
     public types?: TypeConfig;
     private parser: LuceneQueryParser;
 
+    static toElasticsearchDSL(query: string, types?: TypeConfig) {
+        return new Translator(query, types).toElasticsearchDSL();
+    }
+
     constructor(query: string, types?: TypeConfig) {
         this.query = query;
         this.types = types;
@@ -28,7 +32,7 @@ export default class Translator {
             }
         };
 
-        logger.debug('final query', JSON.stringify(query, null, 2));
+        logger.debug(`translated ${this.query} query to`, JSON.stringify(query, null, 2));
         return dslQuery;
     }
 }

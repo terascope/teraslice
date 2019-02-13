@@ -111,8 +111,7 @@ export class Base<T extends BaseModel> {
     }
 
     async find(q: string, size: number = 10, fields?: (keyof T)[], sort?: string) {
-        return this.store.search({
-            q,
+        return this.store.search(q, {
             size,
             sort,
             _source: fields,

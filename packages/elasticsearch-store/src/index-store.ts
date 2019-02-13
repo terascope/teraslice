@@ -1,6 +1,7 @@
 import Ajv from 'ajv';
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
+import { Translator } from 'xlucene-evaluator';
 import IndexManager from './index-manager';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -133,8 +134,11 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Count records by a given Lucene Query or Elasticsearch Query DSL */
-    async count(query: string, params?: PartialParam<es.CountParams, 'q'>): Promise<number> {
-        const p = this._getParams(params, { q: query });
+    async count(query: string, params?: PartialParam<es.CountParams, 'q'|'body'>): Promise<number> {
+        const p = this._getParams(params, {
+            q: null,
+            body: Translator.toElasticsearchDSL(query),
+        });
 
         return ts.pRetry(async () => {
             const { count } = await this.client.count(p);
@@ -291,8 +295,11 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Search with a given Lucene Query or Elasticsearch Query DSL */
-    async search(params: PartialParam<es.SearchParams>): Promise<ts.DataEntity<T>[]> {
-        const p = this._getParams(params);
+    async search(query: string, params?: PartialParam<SearchParams<T>>): Promise<ts.DataEntity<T>[]> {
+        const p = this._getParams(params, {
+            q: null,
+            body: Translator.toElasticsearchDSL(query),
+        });
 
         return ts.pRetry(async () => {
             const results = await this.client.search<T>(p);
@@ -400,5 +407,13 @@ type ReservedParams = 'index'|'type';
 type PartialParam<T, E = any> = {
     [K in Exclude<keyof T, E extends keyof T ? ReservedParams & E : ReservedParams>]?: T[K];
 };
+
+type SearchParams<T> = ts.Overwrite<es.SearchParams, {
+    q: never;
+    body: never;
+    _source?: (keyof T)[];
+    _sourceInclude?: (keyof T)[];
+    _sourceExclude?: (keyof T)[];
+}>;
 
 type ValidateFn<T> = (input: T) => void;
