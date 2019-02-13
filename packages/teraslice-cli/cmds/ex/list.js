@@ -23,11 +23,8 @@ exports.builder = (yargs) => {
 
 exports.handler = async (argv) => {
     let response;
-<<<<<<< HEAD
     const active = false;
     const parse = false;
-=======
->>>>>>> b82a318bf8a792f9ceac561cfc5ea2879ef3d4f6
     const cliConfig = new Config(argv);
 
     const teraslice = new TerasliceUtil(cliConfig);
@@ -40,15 +37,9 @@ exports.handler = async (argv) => {
         reply.fatal(`Error getting ex list on ${cliConfig.args.clusterAlias}\n${err}`);
     }
 
-<<<<<<< HEAD
     const rows = await display.parseResponse(header, response, active);
     if (rows.length > 0) {
         await display.display(header, rows, format, active, parse);
-=======
-    const rows = teraslice.parseResponse(response, header);
-    if (rows.length > 0) {
-        await display.display(header, rows, format);
->>>>>>> b82a318bf8a792f9ceac561cfc5ea2879ef3d4f6
     } else {
         reply.fatal(`> No ex_ids match status ${cliConfig.args.status}`);
     }
