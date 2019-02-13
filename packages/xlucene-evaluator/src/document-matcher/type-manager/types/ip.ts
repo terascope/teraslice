@@ -5,7 +5,7 @@ import isCidr from 'is-cidr';
 import ip6addr from 'ip6addr';
 import { isIPv6, isIP } from'net';
 import BaseType from'./base';
-import { bindThis, isInfiniteMin, isInfiniteMax } from '../../../utils';
+import { bindThis, isInfiniteMin, isInfiniteMax, isRangeNode } from '../../../utils';
 import { AST } from '../../../interfaces';
 
 const MIN_IPV4_IP = '0.0.0.0';
@@ -61,7 +61,7 @@ export default class IpType extends BaseType {
                     }
                 }
                // RANGE EXPRESSIONS
-                if (node.term_max !== undefined) {
+                if (isRangeNode(node)) {
                     const {
                          inclusive_min: incMin,
                          inclusive_max: incMax,

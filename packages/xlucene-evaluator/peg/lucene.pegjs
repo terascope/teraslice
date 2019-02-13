@@ -338,7 +338,7 @@ range_term
             if(type === '>') {
                 return {
                     term_min: value,
-                    term_max: Infinity,
+                    term_max: Number.POSITIVE_INFINITY,
                     inclusive_min: false,
                     inclusive_max: true
                 };
@@ -346,14 +346,14 @@ range_term
             if(type === '>=') {
                 return {
                     term_min: value,
-                    term_max: Infinity,
+                    term_max: Number.POSITIVE_INFINITY,
                     inclusive_min: true,
                     inclusive_max: true
                 };
             }
             if(type === '<') {
                 return {
-                    term_min: -Infinity,
+                    term_min: Number.NEGATIVE_INFINITY,
                     term_max: value,
                     inclusive_min: true,
                     inclusive_max: false
@@ -361,7 +361,7 @@ range_term
             }
             if(type === '<=') {
                 return {
-                    term_min: -Infinity,
+                    term_min: Number.NEGATIVE_INFINITY,
                     term_max: value,
                     inclusive_min: true,
                     inclusive_max: true

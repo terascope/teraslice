@@ -28,7 +28,7 @@ export default class StringType extends BaseType {
 
     private match(field: any, wildCardQuery: string): boolean {
         const regex = new RegExp(`^${wildCardQuery}$`);
-        return typeof field === 'string' && field.match(regex) !== null;
+        return typeof field === 'string' && field.match(regex) != null;
     }
 
     // city.*   city.deeper.*   city.*.*

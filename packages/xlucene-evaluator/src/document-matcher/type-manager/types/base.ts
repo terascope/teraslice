@@ -19,7 +19,7 @@ export default class BaseType {
         };
 
         this.createParsedField = (field?: string): string => {
-            const args = field !== undefined ? `data.${field}` : 'data';
+            const args = field != null ? `data.${field}` : 'data';
             return `${this.fnBaseName}${this.fnID}(${args})`;
         };
 

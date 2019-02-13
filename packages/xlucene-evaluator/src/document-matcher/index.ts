@@ -142,8 +142,8 @@ export default class DocumentMatcher {
         let { term_min: minValue, term_max: maxValue } = node;
         let resultStr = '';
 
-        if (minValue === '*') minValue = -Infinity;
-        if (maxValue === '*') maxValue = Infinity;
+        if (minValue === '*') minValue = Number.NEGATIVE_INFINITY;
+        if (maxValue === '*') maxValue = Number.POSITIVE_INFINITY;
 
         // IPs can use range syntax, if no type is set it needs to return
         // a hard coded string interpolated value

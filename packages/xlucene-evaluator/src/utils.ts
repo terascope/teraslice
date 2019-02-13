@@ -62,17 +62,17 @@ export function parseNodeRange(node: RangeAST): ParseNodeRangeResult  {
 }
 
 export function isInfiniteValue(input?: number|string) {
-    return input === '*' || input === -Infinity || input === Infinity;
+    return input === '*' || input === Number.NEGATIVE_INFINITY || input === Number.POSITIVE_INFINITY;
 }
 
 export function isInfiniteMin(min?: number|string) {
     if (min == null) return false;
-    return min === '*' || min === -Infinity;
+    return min === '*' || min === Number.NEGATIVE_INFINITY;
 }
 
 export function isInfiniteMax(max?: number|string) {
     if (max == null) return false;
-    return max === '*' || max === Infinity;
+    return max === '*' || max === Number.POSITIVE_INFINITY;
 }
 
 export interface ParseNodeRangeResult {

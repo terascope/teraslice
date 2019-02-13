@@ -39,7 +39,7 @@ export default class DateType extends BaseType {
                 if (isInfiniteMin(minValue)) minValue = -8640000000000000;
                 if (isInfiniteMax(maxValue)) maxValue = 8640000000000000;
 
-                if (node.term !== undefined) {
+                if (node.term != null) {
                     const nodeTermTime = convert(node.term);
                     if (!nodeTermTime) throw new Error(`was not able to convert ${node.term} to a date value`);
                     filterFnBuilder((date: string) => {

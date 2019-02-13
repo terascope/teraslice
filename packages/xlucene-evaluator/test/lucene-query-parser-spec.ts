@@ -56,7 +56,7 @@ describe('luceneQueryParser', () => {
 
             expect(luceneQueryParser._ast['left']!['field']).toBe('created_at');
             expect(luceneQueryParser._ast['left']!['term_min']).toBe('now-5d');
-            expect(luceneQueryParser._ast['left']!['term_max']).toBe(Infinity);
+            expect(luceneQueryParser._ast['left']!['term_max']).toBe(Number.POSITIVE_INFINITY);
         });
 
         it("accepts terms with '+'", () => {
@@ -64,7 +64,7 @@ describe('luceneQueryParser', () => {
 
             expect(luceneQueryParser._ast['left']!['field']).toBe('published_at');
             expect(luceneQueryParser._ast['left']!['term_min']).toBe('now+5d');
-            expect(luceneQueryParser._ast['left']!['term_max']).toBe(Infinity);
+            expect(luceneQueryParser._ast['left']!['term_max']).toBe(Number.POSITIVE_INFINITY);
         });
 
         it('handles escaping', () => {
@@ -404,7 +404,7 @@ describe('luceneQueryParser', () => {
 
             expect(luceneQueryParser._ast['left']!['field']).toBe('age');
             expect(luceneQueryParser._ast['left']!['term_min']).toBe(10);
-            expect(luceneQueryParser._ast['left']!['term_max']).toBe(Infinity);
+            expect(luceneQueryParser._ast['left']!['term_max']).toBe(Number.POSITIVE_INFINITY);
             expect(luceneQueryParser._ast['left']!['inclusive_min']).toBe(false);
             expect(luceneQueryParser._ast['left']!['inclusive_max']).toBe(true);
         });
@@ -414,7 +414,7 @@ describe('luceneQueryParser', () => {
 
             expect(luceneQueryParser._ast['left']!['field']).toBe('age');
             expect(luceneQueryParser._ast['left']!['term_min']).toBe(10);
-            expect(luceneQueryParser._ast['left']!['term_max']).toBe(Infinity);
+            expect(luceneQueryParser._ast['left']!['term_max']).toBe(Number.POSITIVE_INFINITY);
             expect(luceneQueryParser._ast['left']!['inclusive_min']).toBe(true);
             expect(luceneQueryParser._ast['left']!['inclusive_max']).toBe(true);
         });
@@ -431,7 +431,7 @@ describe('luceneQueryParser', () => {
 
             expect(luceneQueryParser._ast['left']!['field']).toBe('ip');
             expect(luceneQueryParser._ast['left']!['term_max']).toBe('2001:0:ce49:7601:e866:efff:62c3:eeee');
-            expect(luceneQueryParser._ast['left']!['term_min']).toBe(-Infinity);
+            expect(luceneQueryParser._ast['left']!['term_min']).toBe(Number.NEGATIVE_INFINITY);
             expect(luceneQueryParser._ast['left']!['inclusive_min']).toBe(true);
             expect(luceneQueryParser._ast['left']!['inclusive_max']).toBe(true);
         });
@@ -440,7 +440,7 @@ describe('luceneQueryParser', () => {
             luceneQueryParser.parse('age:<10');
 
             expect(luceneQueryParser._ast['left']!['field']).toBe('age');
-            expect(luceneQueryParser._ast['left']!['term_min']).toBe(-Infinity);
+            expect(luceneQueryParser._ast['left']!['term_min']).toBe(Number.NEGATIVE_INFINITY);
             expect(luceneQueryParser._ast['left']!['term_max']).toBe(10);
             expect(luceneQueryParser._ast['left']!['inclusive_min']).toBe(true);
             expect(luceneQueryParser._ast['left']!['inclusive_max']).toBe(false);
@@ -450,7 +450,7 @@ describe('luceneQueryParser', () => {
             luceneQueryParser.parse('age:<=10');
 
             expect(luceneQueryParser._ast['left']!['field']).toBe('age');
-            expect(luceneQueryParser._ast['left']!['term_min']).toBe(-Infinity);
+            expect(luceneQueryParser._ast['left']!['term_min']).toBe(Number.NEGATIVE_INFINITY);
             expect(luceneQueryParser._ast['left']!['term_max']).toBe(10);
             expect(luceneQueryParser._ast['left']!['inclusive_min']).toBe(true);
             expect(luceneQueryParser._ast['left']!['inclusive_max']).toBe(true);
@@ -491,7 +491,7 @@ describe('luceneQueryParser', () => {
             expect(luceneQueryParser._ast['left']!['field']).toBe('bytes');
             expect(luceneQueryParser._ast['left']!['left']!['operator']).toBe('OR');
             expect(luceneQueryParser._ast['left']!['left']!['right']!['term_min']).toBe(5000000);
-            expect(luceneQueryParser._ast['left']!['left']!['right']!['term_max']).toBe(Infinity);
+            expect(luceneQueryParser._ast['left']!['left']!['right']!['term_max']).toBe(Number.POSITIVE_INFINITY);
             expect(luceneQueryParser._ast['left']!['left']!['right']!['inclusive_min']).toBe(false);
             expect(luceneQueryParser._ast['left']!['left']!!['right']!['inclusive_max']).toBe(true);
 
@@ -507,7 +507,7 @@ describe('luceneQueryParser', () => {
             expect(luceneQueryParser._ast['left']!['field']).toBe('bytes');
             expect(luceneQueryParser._ast['left']!['left']!['operator']).toBe('OR');
             expect(luceneQueryParser._ast['left']!['left']!['right']!['term_min']).toBe(5000000);
-            expect(luceneQueryParser._ast['left']!['left']!['right']!['term_max']).toBe(Infinity);
+            expect(luceneQueryParser._ast['left']!['left']!['right']!['term_max']).toBe(Number.POSITIVE_INFINITY);
             expect(luceneQueryParser._ast['left']!['left']!['right']!['inclusive_min']).toBe(false);
             expect(luceneQueryParser._ast['left']!['left']!['right']!['inclusive_max']).toBe(true);
 

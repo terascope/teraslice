@@ -8,7 +8,7 @@ import { lineString } from '@turf/helpers';
 // @ts-ignore TODO: we should add types
 import geoHash from 'latlon-geohash';
 import BaseType from './base';
-import { bindThis } from '../../../utils';
+import { bindThis, isGeoNode } from '../../../utils';
 import { AST, GeoResults, GeoDistance, GeoPoint } from '../../../interfaces';
 
 // feet
@@ -155,7 +155,7 @@ export default class GeoType extends BaseType {
             }
 
             // Nothing matches so return false
-            if (polygon === undefined) return (): boolean => false;
+            if (polygon == null) return (): boolean => false;
             return (fieldData: string): Boolean => {
                 const point = parsePoint(fieldData);
                 if (!point) return false;
@@ -164,7 +164,7 @@ export default class GeoType extends BaseType {
         }
 
         function parseGeoAst(node: AST, _field:string): AST {
-            if (node.type === 'geo') {
+            if (isGeoNode(node)) {
                 const geoQueryParameters = { geoField: node.field };
                 if (node.geo_point && node.geo_distance) {
                     geoQueryParameters['geoPoint'] = node.geo_point;

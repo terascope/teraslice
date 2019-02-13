@@ -7,7 +7,7 @@ describe('Utils', () => {
             const input: RangeAST = {
                 type: 'string',
                 field: 'hello',
-                term_max: Infinity,
+                term_max: Number.POSITIVE_INFINITY,
                 term_min: 30,
                 inclusive_min: true,
                 inclusive_max: false,
@@ -22,7 +22,7 @@ describe('Utils', () => {
             const input: RangeAST = {
                 type: 'string',
                 field: 'hello',
-                term_max: Infinity,
+                term_max: Number.POSITIVE_INFINITY,
                 term_min: 50,
                 inclusive_min: false,
                 inclusive_max: false,
@@ -37,7 +37,7 @@ describe('Utils', () => {
             const input: RangeAST = {
                 type: 'string',
                 field: 'hello',
-                term_min: -Infinity,
+                term_min: Number.NEGATIVE_INFINITY,
                 term_max: 20,
                 inclusive_max: true,
                 inclusive_min: false,
@@ -52,7 +52,7 @@ describe('Utils', () => {
             const input: RangeAST = {
                 type: 'string',
                 field: 'hello',
-                term_min: -Infinity,
+                term_min: Number.NEGATIVE_INFINITY,
                 term_max: 0,
                 inclusive_max: false,
                 inclusive_min: false,

@@ -50,7 +50,7 @@ export default class TypeManager {
     public injectTypeFilterFns(): object {
         return this.typeList.reduce((prev, type) => {
             const filterFns = type.injectTypeFilterFns();
-            if (filterFns !== null) {
+            if (filterFns != null) {
                 Object.assign(prev, filterFns);
             }
             return prev;
