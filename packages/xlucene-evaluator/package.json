@@ -1,6 +1,6 @@
 {
     "name": "xlucene-evaluator",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "srcMain": "src/index.ts",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
@@ -33,7 +33,7 @@
     },
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator#readme",
     "dependencies": {
-        "@terascope/utils": "^0.4.0",
+        "@terascope/utils": "^0.4.1",
         "@turf/turf": "^5.1.6",
         "date-fns": "^1.30.1",
         "ip-num": "^1.1.1",
