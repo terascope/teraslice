@@ -1,17 +1,22 @@
 
+import { debugLogger } from '@terascope/utils';
 import parser from '../peg';
 import { AST, AstCallback } from '../interfaces';
 import { IMPLICIT } from '../constants';
+
+const logger = debugLogger('lucene-query-parser');
 
 export default class LuceneQueryParser {
     // @ts-ignore because this will populated after set
     _ast: AST = {};
 
     public parse(luceneStr: string): void {
-        // @ts-ignore because this will populated after set
+        // @ts-ignore
         this._ast = {};
+
         try {
             this._ast = parser.parse(luceneStr);
+            logger.debug(`parsed ${luceneStr} to `, this._ast);
         } catch (err) {
             throw new Error(`error occured while attempting to parse lucene query: ${luceneStr} , error: ${err.message}`);
         }

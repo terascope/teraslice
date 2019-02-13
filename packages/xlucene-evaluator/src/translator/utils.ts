@@ -3,7 +3,7 @@ import * as utils from '../utils';
 import { AST } from '../interfaces';
 import { IMPLICIT } from '../constants';
 
-const logger = debugLogger('translator-utils');
+const logger = debugLogger('xlucene-translator-utils');
 
 export function buildAnyQuery(node: AST, parentNode?: AST): AnyQuery {
     if (utils.isOperatorNode(node)) {

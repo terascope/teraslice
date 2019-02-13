@@ -3,7 +3,7 @@ import { TypeConfig } from '../interfaces';
 import LuceneQueryParser from '../lucene-query-parser';
 import { buildAnyQuery } from './utils';
 
-const logger = debugLogger('translator');
+const logger = debugLogger('xlucene-translator');
 
 export default class Translator {
     query: string;
@@ -18,7 +18,6 @@ export default class Translator {
     }
 
     toElasticsearchDSL() {
-        logger.debug('parser ast', this.parser._ast);
         const query = buildAnyQuery(this.parser._ast);
 
         const dslQuery = {
