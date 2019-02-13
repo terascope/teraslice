@@ -49,7 +49,7 @@ describe('phase manager', () => {
         await manager.init();
 
         expect(manager.isMatcher).toEqual(false);
-        expect(manager.sequence.length).toEqual(5);
+        expect(manager.sequence.length).toEqual(4);
 
         expect(manager.sequence[0].constructor.name).toEqual('SelectionPhase');
         // @ts-ignore
@@ -61,15 +61,13 @@ describe('phase manager', () => {
         expect(manager.sequence[2].constructor.name).toEqual('PostProcessPhase');
         expect(Object.keys(manager.sequence[2].phase).length).toEqual(1);
 
-        expect(manager.sequence[3].constructor.name).toEqual('ValidationPhase');
-        expect(Object.keys(manager.sequence[3].phase).length).toEqual(0);
-        expect(manager.sequence[4].constructor.name).toEqual('OutputPhase');
+        expect(manager.sequence[3].constructor.name).toEqual('OutputPhase');
         // @ts-ignore
-        expect(manager.sequence[4].hasMultiValue).toEqual(false);
+        expect(manager.sequence[3].hasMultiValue).toEqual(false);
         // @ts-ignore
-        expect(manager.sequence[4].hasRequirements).toEqual(true);
+        expect(manager.sequence[3].hasRequirements).toEqual(true);
          // @ts-ignore
-        expect(manager.sequence[4].hasRestrictedOutput).toEqual(false);
+        expect(manager.sequence[3].hasRestrictedOutput).toEqual(false);
     });
 
     it('can run an array of data', async() => {
