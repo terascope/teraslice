@@ -3,7 +3,7 @@
 import _ from 'lodash';
 import LuceneQueryParser from '../lucene-query-parser';
 import TypeManager from './type-manager';
-import { bindThis, isInfiniteMax, isInfiniteMin } from '../utils';
+import { bindThis, isInfiniteMax, isInfiniteMin, isExistsNode, isTermNode, isRangeNode } from '../utils';
 import { IMPLICIT } from '../constants';
 import { AST, TypeConfig, RangeAST } from '../interfaces';
 
@@ -58,14 +58,16 @@ export default class DocumentMatcher {
                 addParens = true;
             }
 
-            if (field && _.has(node, 'term')) {
-                if (field === '_exists_') {
-                    if (negation) {
-                        fnStr += `data.${node.term} == null`;
-                    } else {
-                        fnStr += `data.${node.term} != null`;
-                    }
-                } else if (field === '__parsed') {
+            if (isExistsNode(node)) {
+                if (negation) {
+                    fnStr += `data.${node.field} == null`;
+                } else {
+                    fnStr += `data.${node.field} != null`;
+                }
+            }
+
+            if (field && isTermNode(node)) {
+                if (field === '__parsed') {
                     if (negation) {
                         fnStr += `!(${node.term})`;
                     } else {
@@ -87,7 +89,7 @@ export default class DocumentMatcher {
                 }
             }
 
-            if (_.has(node, 'term_min')) {
+            if (isRangeNode(node)) {
                 fnStr += parseRange(node, field || '', negation);
             }
 

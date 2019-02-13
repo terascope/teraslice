@@ -114,6 +114,13 @@
             }
         }
 
+        if (node.field === '_exists_' && node.term) {
+            return {
+                type: 'exists',
+                field: node.term,
+            };
+        }
+
 		return node;
 	}
 
@@ -319,7 +326,7 @@ field_exp
             for(var key in term)
                 fieldexp[key] = term[key];
 
-            return fieldexp;
+            return postProcessAST(fieldexp);
         }
 
 

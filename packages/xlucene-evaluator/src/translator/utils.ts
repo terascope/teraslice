@@ -100,7 +100,7 @@ export function buildRegExprQuery(node: AST, field: string): RegExprQuery {
 export function buildExistsQuery(node: AST, field: string): ExistsQuery {
     const existsQuery: ExistsQuery = {
         exists: {
-            field: node.term
+            field
         }
     };
     logger.debug('built exists query', node, existsQuery);

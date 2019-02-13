@@ -36,7 +36,7 @@ export function isWildcardNode(node: AST): boolean {
 }
 
 export function isExistsNode(node: AST): boolean {
-    return node.field === '_exists_';
+    return node.type === 'exists';
 }
 
 export function parseNodeRange(node: RangeAST): ParseNodeRangeResult  {
