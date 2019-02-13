@@ -466,6 +466,41 @@ describe('luceneQueryParser', () => {
             expect(luceneQueryParser._ast['left']!['inclusive_max']).toBe(false);
         });
 
+        it('parses multi-term range query', () => {
+            luceneQueryParser.parse('example:(50 OR 30 OR <10)');
+
+            expect(luceneQueryParser._ast).toMatchObject({
+                left: {
+                    type: 'operator',
+                    left: {
+                        field: IMPLICIT,
+                        term: 50,
+                        type: 'number',
+                    },
+                    parens: true,
+                    operator: 'OR',
+                    right: {
+                        type: 'operator',
+                        left: {
+                            field: IMPLICIT,
+                            term: 30,
+                            type: 'number',
+                        },
+                        operator: 'OR',
+                        right: {
+                            term_max: 10,
+                            term_min: Number.NEGATIVE_INFINITY,
+                            inclusive_min: true,
+                            inclusive_max: false,
+                            field: IMPLICIT
+                        },
+                        field: 'example'
+                    },
+                    field: 'example'
+                }
+            });
+        });
+
         it('[], {] range with ip\'s', () => {
             luceneQueryParser.parse('ip:{"2001:0:ce49:7601:e866:efff:62c3:eeee" TO "2001:0:ce49:7601:e866:efff:62c3:ffff"]');
 

@@ -280,6 +280,15 @@ field_exp
 
             return range;
         }
+    / fieldname:fieldname? range:range_term
+        {
+            range['field'] =
+                fieldname == '' || fieldname == undefined
+                    ? "<implicit>"
+                    : fieldname;
+
+            return range;
+        }
     / fieldname:fieldname? node:paren_exp operator:operator_exp range_exp:range_term _*
         {
         	return {
