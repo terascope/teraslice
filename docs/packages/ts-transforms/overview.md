@@ -25,9 +25,19 @@ yarn global add ts-transforms
 npm install --global ts-transforms
 ```
 
+## Operations
+This library provides a wide array of processing and validations. For an indepth review of each operation please follow the link below.
+* [operations reference](./operations.md)
+
+## Plugins
+This library provides a wide array of manipulations/validations etc but you may need a custom operation. You may do so by making a plugin and injecting it.
+* [Plugin reference](./plugins.md)
+
 # Usage
 
-Example file: `rulesFile.txt`
+There are two different execution: `Matcher` and `Transform`. The former returns the raw matching documents while the later provides additional ETL capabilities
+
+Example rules file: `rulesFile.txt`
 ```
 {"selector": "hello:world OR bytes:>=400"}
 ```
@@ -152,7 +162,7 @@ const config = {
 
 const data = [
     { hello: 'world' },
-    { something: 'else', data: 'someData' }
+    { something: 'else', data: 'someData' },
     { bytes: 200,  data: 'otherData' },
     { bytes: 500, some: 'thing' }
 ];
@@ -195,42 +205,32 @@ This phase will go through all the configurations and apply all the extractions 
 ```
 
 ### Post Process Phase
-This phase is for any additional processing that needs to occur after extraction. Each post_process configuration is affecting the `target_field` of the chained configuration if you use the `tag` and `follow` tags. You can chain multiple times if needed.
+This phase is for any additional processing that needs to occur after extraction. Each `post_process` configuration is affecting the `target_field` of the chained configuration if you use the `tag` and `follow` tags. You can chain multiple times if needed. This phase also include `validation` operations and can be freely chained to each other.
+
+- **tag** = marks the config and the target_field with an ID so other configurations can chain off of it
+- **follows** = marks the config that it is chaining off the tag id
 
 ```ts
 // rules
-# we extract first => first_name
-{"selector": "hello:world", "source_field": "first", "target_field": "first_name"}
-
-# we extract last => last_name
-{"selector": "hello:world", "source_field": "last", "target_field": "last_name"}
-
-# we join the two fields => full_name
-{"selector": "hello:world", "post_process": "join", "fields": ["first_name", "last_name"], "delimiter": " ", "target_field": "full_name", "tag": "myId"}
-
-# we filter out and only allow full_name: 'Jane Doe'
-{"follow": "myId", "post_process": "selector", "selector": "full_name:\"Jane Doe\"", "tag": "second_id" }
-
-# we extract full_name => name, extraction returns a new record
-{"follow": "second_id", "post_process": "extraction", "source_field":"full_name", "target_field": "name"}
+{ "selector": "some:value", "source_field": "field", "target_field": "newField", "tag": "tag_field" }
+{ "follow": "tag_field", "validation": "email", "tag_field": "valid_email" }
+{ "follow": "tag_field", "post_process": "extraction", "start": "@", "end": ".", "multivalue": true, "target_field": "final" }
 
 // Incoming Data to transform
 [
-    { hello: 'world', first: 'John', last: 'Wayne' },
-    { hello: 'world', first: 'Jane', last: 'Doe' }
+    { some: 'value', field: 'some@gmail.com' },
+    { some: 'value', field: '12398074##&*' },
+    { some: 'value', field: 'other@tera.io' },
 ]
 
 // Results
 
 [
-    { name: 'Jane Doe' },
+   { newField: 'some@gmail.com', final: ['gmail'] },
+   { newField: 'other@tera.io', final: ['tera'] }
 ]
 
 ```
-
-- **tag** = marks the config and the target_field with an ID so other configurations can chain off of it
-- **follows** = marks the config that it is chaining off the tag id
-
 **Note**
 It is possible to collapse some simple post_process configs together with the original extraction config, however its not advisable if you need to specify additional parameters so that they dont conflict with each other.
 
@@ -244,31 +244,6 @@ It is possible to collapse some simple post_process configs together with the or
 { "follow": "someTag", "post_process": "base64decode" }
 
 // however the later is preferable when you need to do more complex chaining or any post_process or validation that requires more parameters
-```
-
-### Validation Phase
-acts pretty similar to the post process phase except this is when you validate a field. If it does not pass then that field is removed from the final record.
-
-```ts
-// rules
-# we extract field => other_field
-{"selector": "hello:world", "source_field": "field", "target_field": "other_field","tag": "myId"}
-
-# we validate the other_field is a alphanumeric string
-{"follow": "myId", "validation": "alphanumeric"}
-
-// Incoming Data to transform
-[
-    { hello: 'world', field: 'some847sting' },
-    { hello: 'world', field: 'othe#78*@77string' }
-]
-
-// Results
-
-[
-    { other_field: 'some847sting' },
-]
-
 ```
 
 ### Output Phase
@@ -443,7 +418,3 @@ you may also pipe the results to a file for further analysis
 ```sh
 curl 'http://localhost:9200/test_index/_search?q=bytes:>=5642500' | ts-transform -r someRules.txt | tee results.txt
 ```
-
-## Plugins
-This library provides a wide array of manipulations/validations etc but you may need a custom operation. You may do so by making a plugin and injecting it.
-* [Plugin reference](./plugins.md)

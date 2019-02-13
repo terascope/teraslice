@@ -27,7 +27,7 @@ Example:
 
 ```
 
-- other_match_required : `Booelan`(optional) = If set to true, then it sets a conditional for this field that the final object must have other keys that do not have the `other_match_required` flag to appear in the resulting object in order for this field to be set. This is used to pass along certain fields/metadata if another field passes extraction/validation etc.
+- other_match_required : `Booelan`(optional) = If set to true, then it sets a conditional for this field that the final object must have other keys that do not have the `other_match_required` flag to appear in the resulting object in order for this field to be set. This is used to pass along certain fields/metadata if another field passes extraction/validation etc. You can also specify a `selector` on the same configuration with `other_match_required` to make sure that logic is only applied to a particular rule pipline.
 
 Example:
 ```ts
@@ -39,11 +39,20 @@ Example:
 { "source_field": "date", "target_field": "date", "other_match_required": true }
 { "source_field": "key", "target_field": "key", "other_match_required": true }
 
+{ "selector": "select:me", "source_field": "first", "target_field": "target" }
+
+{ "selector": "select:me", "source_field": "other", "target_field": "field", "other_match_required": true }
+
+
 // Incoming Data to transform
 [
     { domain: 'example.com', url: 'http:// www.example.com/path?value=blah&value2=moreblah&value3=evenmoreblah' , date: '2019-01-29T14:29:27.097Z', key: '123456789' },
-    // Note that this next data object has date and key but no url to extract
+    // Note that this next data object has date and key but no url to extract so it does not pass
     { domain: 'example.com', some: 'otherField' , date: '2019-01-29T14:29:27.097Z', key: '123456789' },
+
+    { select: 'me', first: 'someData', other: 'otherData' , date: '2019-01-29T14:29:27.097Z', key: '123456789' },
+    // Note that this next data object has date, key and other but no first field to extract so it does not pass
+    { select: 'me', first: 'someData', other: 'otherData' , date: '2019-01-29T14:29:27.097Z', key: '123456789' },
 ]
 
 // Results:
@@ -51,12 +60,21 @@ Example:
     since there was no url for to extract for the second object, date and key were dropped. Since it then became an empty object it was subsequently removed since there was no succesful extraction. Hence only one result object was returned.
 */
 
-[{
-    value: 'blah',
-    value2: 'moreblah',
-    key: '123456789',
-    date: '2019-01-29T14:29:27.097Z'
-}]
+[
+    {
+        value: 'blah',
+        value2: 'moreblah',
+        key: '123456789',
+        date: '2019-01-29T14:29:27.097Z'
+    },
+    {
+        target: 'someData',
+        field: 'otherData', // specific extraction
+        key: '123456789',  // this was a general extraction
+        date: '2019-01-29T14:29:27.097Z' // this was a general extraction
+
+    }
+]
 
 ```
 
@@ -132,7 +150,7 @@ console.log(results);
 ```
 
 ### extraction
-This is the core transform class used to extract data from incoming records. If nothing can be extracted then null is returned, however if `mutate` is set to true then it will at minimum return the data it was given.
+This is the core transform class used to extract data from incoming records. If nothing can be extracted then null is returned, however if `mutate` is set to true then it will at minimum return the data it was given. Please take note of the mutate setting listed below on how it could change depending if it is used as a post_process
 
 Simple Extraction:
 ```ts
@@ -202,7 +220,7 @@ Example:
 
 ```
 
-- mutate : `Booelan`(optional) = The default of extraction is to create a brand new object with the extracted fields. If you set this to true then it will return the orignal object with the new extracted fields on it so you can keep everything else. `NOTE`: if no extraction can occur you will recieve back the object unchanged
+- mutate : `Booelan`(optional) = The default of extraction is to create a brand new object with the extracted fields. If you set this to true then it will return the orignal object with the new extracted fields on it so you can keep everything else. `NOTE`: if no extraction can occur you will recieve back the object unchanged, also if extraction is used as a `post_process` this defaults to `true`
 - multivalue : `Booelan`(optional) = if you set this to true then all values that have the same `target_field` will be put inside an array.
 
 Example:
