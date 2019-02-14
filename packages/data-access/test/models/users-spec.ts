@@ -1,4 +1,5 @@
 import 'jest-extended';
+import nanoid from 'nanoid';
 import { TSError } from '@terascope/utils';
 import { Users, UserModel } from '../../src/models/users';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
@@ -83,6 +84,70 @@ describe('Users', () => {
             it('should NOT be able to authenticate the user', async () => {
                 const result = await users.authenticate(username, 'wrong-password');
                 expect(result).toBeFalse();
+            });
+        });
+    });
+
+    describe('when using a legacy user', () => {
+        describe('when a role exists not roles', () => {
+            const username = 'legacy-user';
+            const id = nanoid();
+            const roleId = 'foobar-role-id';
+
+            beforeAll(async () => {
+                await users.store.client.index({
+                    id,
+                    index: users.store.indexQuery,
+                    refresh: true,
+                    type: 'users',
+                    body: {
+                        id,
+                        username,
+                        email: 'legacy.foobar@example.com',
+                        firstname: 'Legacy',
+                        lastname: 'FooBar',
+                        client_id: 235,
+                        role: roleId,
+                        created: new Date(),
+                        updated: new Date(),
+                    }
+                });
+            });
+
+            it('should be able fetch the user', async () => {
+                const fetched = await users.findById(id);
+
+                expect(fetched).not.toHaveProperty('role');
+                expect(fetched.roles).toEqual([
+                    roleId
+                ]);
+            });
+
+            it('should be fixed when updating it', async () => {
+                const prefetched = await users.store.client.get<UserModel>({
+                    id,
+                    index: users.store.indexQuery,
+                    type: 'users'
+                });
+
+                expect(prefetched._source).toHaveProperty('role', roleId);
+                expect(prefetched._source).not.toHaveProperty('roles');
+
+                await users.update({
+                    id,
+                    username,
+                    role: roleId
+                });
+
+                const fetched = await users.store.client.get<UserModel>({
+                    id,
+                    index: users.store.indexQuery,
+                    type: 'users'
+                });
+
+                expect(fetched._source.roles).toEqual([
+                    roleId
+                ]);
             });
         });
     });

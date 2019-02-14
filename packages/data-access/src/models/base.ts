@@ -11,6 +11,7 @@ import { ManagerConfig } from '../interfaces';
 export class Base<T extends BaseModel> {
     readonly store: IndexStore<T>;
     readonly name: string;
+    private _fixDoc: FixDocFn;
     private _uniqueFields: string[];
     private _sanitizeFields: SanitizeFields;
 
@@ -50,6 +51,12 @@ export class Base<T extends BaseModel> {
 
         this._uniqueFields = ts.concat('id', modelConfig.uniqueFields);
         this._sanitizeFields = modelConfig.sanitizeFields || {};
+
+        if (modelConfig.fixDoc) {
+            this._fixDoc = modelConfig.fixDoc;
+        } else {
+            this._fixDoc = (doc) => doc;
+        }
     }
 
     async initialize() {
@@ -89,11 +96,11 @@ export class Base<T extends BaseModel> {
             });
         }
 
-        return record;
+        return this._fixDoc(record);
     }
 
     async findById(id: string) {
-        return this.store.get(id);
+        return this.store.get(id).then(this._fixDoc);
     }
 
     async findByAnyId(anyId: string) {
@@ -103,11 +110,13 @@ export class Base<T extends BaseModel> {
             fields[field] = anyId;
         }
 
-        return this.findBy(fields, 'OR');
+        return this.findBy(fields, 'OR').then(this._fixDoc);
     }
 
     async findAll(ids: string[]) {
-        return this.store.mget({ ids });
+        return this.store.mget({ ids }).then((result) => {
+            return result.map(this._fixDoc);
+        });
     }
 
     async find(q: string, size: number = 10, fields?: (keyof T)[], sort?: string) {
@@ -115,12 +124,14 @@ export class Base<T extends BaseModel> {
             size,
             sort,
             _source: fields,
+        }).then((result) => {
+            return result.map(this._fixDoc);
         });
     }
 
     async update(record: UpdateInput<T>|ts.DataEntity<UpdateInput<T>>) {
         const doc = this._sanitizeRecord({
-            ...record,
+            ...this._fixDoc(record),
             updated: utils.makeISODate(),
         } as T);
 
@@ -145,6 +156,7 @@ export class Base<T extends BaseModel> {
     }
 
     private async _countBy(field: string, val: string): Promise<number> {
+        if (!val) return 0;
         return this.store.count(`${field}:"${val}"`);
     }
 
@@ -196,7 +208,10 @@ export interface ModelConfig {
     storeOptions?: Partial<IndexConfig>;
     uniqueFields?: string[];
     sanitizeFields?: SanitizeFields;
+    fixDoc?: FixDocFn;
 }
+
+export type FixDocFn<T = any> = (doc: T) => T extends ts.DataEntity ? ts.DataEntity<T> : T;
 
 export type FieldMap<T> = {
     [field in keyof T]?: string;
