@@ -72,7 +72,6 @@ describe('ACLManager', () => {
                 expect(config).toMatchObject({
                     user: {},
                     view: {},
-                    space: 'Example Space',
                     role: 'Example Role'
                 });
             });

@@ -184,7 +184,7 @@ describe('Elasticsearch Store Utils', () => {
             });
         });
 
-        describe('when passsed a invalid version config', () => {
+        describe('when passed a invalid version config', () => {
             it('should throw if a string is used for the Index Schema version', () => {
                 expect(() => {
                     validateIndexConfig({
