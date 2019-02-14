@@ -211,6 +211,40 @@ describe('Translator', () => {
             ]
         ],
         [
+            'some:key AND (_created:>="2018-10-18T18:13:20.683Z" && bytes:(>=150000 AND <=1232322))',
+            'query.constant_score.filter.bool.filter',
+            [
+                {
+                    term: {
+                        some: 'key'
+                    }
+                },
+                {
+                    bool: {
+                        should: [],
+                        must_not: [],
+                        filter: [
+                            {
+                                range: {
+                                    _created: {
+                                        gte: '2018-10-18T18:13:20.683Z'
+                                    }
+                                }
+                            },
+                            {
+                                range: {
+                                    bytes: {
+                                        gte: 150000,
+                                        lte: 1232322
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        ],
+        [
             'some:query OR other:thing',
             'query.constant_score.filter.bool.should',
             [

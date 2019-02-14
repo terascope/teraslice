@@ -7,9 +7,7 @@ const logger = debugLogger('xlucene-translator-utils');
 
 export function buildAnyQuery(node: AST, parentNode?: AST): AnyQuery {
     if (utils.isOperatorNode(node)) {
-        const boolQuery = buildBoolQuery(node);
-        logger.debug('built bool query', node, boolQuery);
-        return boolQuery;
+        return buildBoolQuery(node);
     }
 
     const field = getFieldFromNode(node, parentNode);
@@ -56,7 +54,7 @@ export function buildGeoQuery(node: AST, field: string): GeoQuery {
         geoQuery['geo_distance'][field] = node.geo_point;
     }
 
-    logger.debug('built geo query', node, geoQuery);
+    logger.debug('built geo query', { node, geoQuery });
     return geoQuery;
 }
 
@@ -64,7 +62,7 @@ export function buildRangeQuery(node: AST, field: string): RangeQuery {
     const range = utils.parseNodeRange(node);
     const rangeQuery: RangeQuery = { range: {} };
     rangeQuery.range[field] = range;
-    logger.debug('built range query', node, rangeQuery);
+    logger.debug('built range query', { node, rangeQuery });
     return rangeQuery;
 }
 
@@ -86,14 +84,14 @@ export function buildTermQuery(node: AST, field: string): TermQuery|RegExprQuery
 export function buildWildCardQuery(node: AST, field: string): WildcardQuery {
     const wildcardQuery: WildcardQuery = { wildcard: {} };
     wildcardQuery.wildcard[field] = node.term;
-    logger.debug('built wildcard query', node, wildcardQuery);
+    logger.debug('built wildcard query', { node, wildcardQuery });
     return wildcardQuery;
 }
 
 export function buildRegExprQuery(node: AST, field: string): RegExprQuery {
     const regexQuery: RegExprQuery = { regexp: {} };
     regexQuery.regexp[field] = node.term;
-    logger.debug('built regexpr query', node, regexQuery);
+    logger.debug('built regexpr query', { node, regexQuery });
     return regexQuery;
 }
 
@@ -103,7 +101,7 @@ export function buildExistsQuery(node: AST, field: string): ExistsQuery {
             field
         }
     };
-    logger.debug('built exists query', node, existsQuery);
+    logger.debug('built exists query', { node, existsQuery });
     return existsQuery;
 }
 
@@ -134,7 +132,7 @@ export function buildBoolQuery(node: AST): BoolQuery {
 
     if (node.right) {
         const query = buildAnyQuery(node.right, node);
-        if (isBoolQuery(query) && node.right.operator === node.operator) {
+        if (isBoolQuery(query) && canFlattenBoolQuery(node)) {
             queries.push(...query.bool.filter);
             queries.push(...query.bool.must_not);
             queries.push(...query.bool.should);
@@ -145,11 +143,17 @@ export function buildBoolQuery(node: AST): BoolQuery {
 
     boolQuery.bool[joinType].push(...queries);
 
+    logger.debug('built bool query', { node, boolQuery });
     return boolQuery;
 }
 
-export function isBoolQuery(input: any): input is BoolQuery {
-    return input && input.bool != null;
+export function canFlattenBoolQuery(node: AST): boolean {
+    if (!node.right || node.right.parens) return false;
+    return node.right.operator === node.operator;
+}
+
+export function isBoolQuery(query: any): query is BoolQuery {
+    return query && query.bool != null;
 }
 
 export function getFieldFromNode(node: AST, parentNode?: AST): string|undefined {
