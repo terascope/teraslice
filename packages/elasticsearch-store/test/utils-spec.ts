@@ -7,6 +7,7 @@ import {
     validateIndexConfig,
     getFirstValue,
     getFirstKey,
+    getXLuceneTypesFromMapping
 } from '../src/utils';
 
 describe('Elasticsearch Store Utils', () => {
@@ -267,6 +268,72 @@ describe('Elasticsearch Store Utils', () => {
         describe('when given an empty object', () => {
             it('should return nil', () => {
                 expect(getFirstKey({ })).toBeNil();
+            });
+        });
+    });
+
+    describe('#getXLuceneTypesFromMapping', () => {
+        describe('when given a mapping', () => {
+            const mapping = {
+                _all: {
+                    enabled: false
+                },
+                dynamic: false,
+                properties: {
+                    test_keyword: {
+                        type: 'keyword',
+                    },
+                    test_text: {
+                        type: 'text',
+                    },
+                    test_numeric: {
+                        type: 'integer'
+                    },
+                    test_boolean: {
+                        type: 'boolean'
+                    },
+                    test_integer_range: {
+                        type: 'integer_range'
+                    },
+                    test_date: {
+                        type: 'date'
+                    },
+                    test_object: {
+                        properties: {
+                            nested_ip: {
+                                type: 'ip'
+                            },
+                            nested_geo: {
+                                properties: {
+                                    test_location: {
+                                        type: 'geo_point'
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    test_ip: {
+                        type: 'ip'
+                    },
+                    test_geo_point: {
+                        type: 'geo_point'
+                    },
+                    test_geo_shape: {
+                        type: 'geo_shape'
+                    },
+                }
+            };
+
+            it('should return test_keyword:term', () => {
+                const result = getXLuceneTypesFromMapping(mapping);
+                expect(result).toEqual({
+                    test_date: 'date',
+                    'test_object.nested_ip': 'ip',
+                    'test_object.nested_geo.test_location': 'geo',
+                    test_ip: 'ip',
+                    test_geo_point: 'geo',
+                    test_geo_shape: 'geo',
+                });
             });
         });
     });

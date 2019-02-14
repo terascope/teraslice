@@ -1,7 +1,7 @@
 import Ajv from 'ajv';
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { Translator } from 'xlucene-evaluator';
+import { TypeConfig } from 'xlucene-evaluator';
 import IndexManager from './index-manager';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -21,6 +21,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     private readonly _bulkMaxSize: number = 500;
     private readonly _getEventTime: (input: T) => number;
     private readonly _getIngestTime: (input: T) => number;
+    private readonly _xluceneTypes: TypeConfig|undefined;
 
     constructor(client: es.Client, config: i.IndexConfig) {
         if (!utils.isValidClient(client)) {
@@ -52,6 +53,10 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             size: this._bulkMaxSize,
             wait: this._bulkMaxWait,
         });
+
+        if (config.indexSchema != null) {
+            this._xluceneTypes = utils.getXLuceneTypesFromMapping(config.indexSchema.mapping);
+        }
 
         if (config.dataSchema != null) {
             const { allFormatters, schema, strict } = config.dataSchema;
@@ -135,10 +140,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
     /** Count records by a given Lucene Query or Elasticsearch Query DSL */
     async count(query: string, params?: PartialParam<es.CountParams, 'q'|'body'>): Promise<number> {
-        const p = this._getParams(params, {
-            q: null,
-            body: Translator.toElasticsearchDSL(query),
-        });
+        const p = this._getParams(params, utils.translateQuery(query, this._xluceneTypes));
 
         return ts.pRetry(async () => {
             const { count } = await this.client.count(p);
@@ -296,10 +298,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
     /** Search with a given Lucene Query or Elasticsearch Query DSL */
     async search(query: string, params?: PartialParam<SearchParams<T>>): Promise<ts.DataEntity<T>[]> {
-        const p = this._getParams(params, {
-            q: null,
-            body: Translator.toElasticsearchDSL(query),
-        });
+        const p = this._getParams(params, utils.translateQuery(query, this._xluceneTypes));
 
         return ts.pRetry(async () => {
             const results = await this.client.search<T>(p);
