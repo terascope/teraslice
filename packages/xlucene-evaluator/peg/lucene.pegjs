@@ -134,13 +134,6 @@
         return false;
     }
 
-    function getTypeOf(input, defaultType='string') {
-        if (typeof input === 'string') return 'string';
-        if (isNumber(input)) return 'number';
-        if (typeof input === 'boolean') return 'boolean';
-        return defaultType;
-    }
-
     function coerceValue(input) {
         if (typeof input !== 'string') return input;
 
@@ -172,14 +165,14 @@ node
     = operator:operator_exp EOF
         {
             return {
-                 type: 'operator',
+                 type: 'conjunction',
                  operator
             };
         }
     / rangeExp1:range_operator_exp _* operator:operator_exp _* rangeExp2:range_term _*
     	{
             const results = {
-                type: 'operator',
+                type: 'conjunction',
             	left: rangeExp1,
                 operator,
                 right: rangeExp2
@@ -190,7 +183,7 @@ node
     / rangeExp1:range_term _* operator:operator_exp _* rangeExp2:range_operator_exp _*
     	{
             const results = {
-                type: 'operator',
+                type: 'conjunction',
             	left: rangeExp1,
                 operator,
                 right: rangeExp2
@@ -201,7 +194,7 @@ node
     / type:range_exp_op range_value:rangevalue _* operator_exp _* type2:range_exp_op range_value2:rangevalue _*
         {
             const results = {
-                type: getTypeOf(range_value),
+                type: 'range',
                 term_min: range_value,
                 term_max: Infinity,
                 inclusive_min: false,
@@ -240,7 +233,7 @@ node
     / left:group_exp operator:operator_exp* right:node*
         {
             const node = {
-                type: 'root',
+                type: 'conjunction',
                 left,
                 parens: false
             };
@@ -253,7 +246,7 @@ node
                         : right[0];
 
             if (rightExp != null) {
-                node.type = 'operator';
+                node.type = 'conjunction';
                 node.operator = operator=='' || operator==undefined ? '<implicit>' : operator[0];
                 node.right = rightExp;
             }
@@ -353,6 +346,7 @@ range_term
         {
             if(type === '>') {
                 return {
+                    type: 'range',
                     term_min: value,
                     term_max: Number.POSITIVE_INFINITY,
                     inclusive_min: false,
@@ -361,6 +355,7 @@ range_term
             }
             if(type === '>=') {
                 return {
+                    type: 'range',
                     term_min: value,
                     term_max: Number.POSITIVE_INFINITY,
                     inclusive_min: true,
@@ -369,6 +364,7 @@ range_term
             }
             if(type === '<') {
                 return {
+                    type: 'range',
                     term_min: Number.NEGATIVE_INFINITY,
                     term_max: value,
                     inclusive_min: true,
@@ -377,6 +373,7 @@ range_term
             }
             if(type === '<=') {
                 return {
+                    type: 'range',
                     term_min: Number.NEGATIVE_INFINITY,
                     term_max: value,
                     inclusive_min: true,
@@ -407,9 +404,8 @@ fieldname
 term
     = op:prefix_operator_exp? term:quoted_term proximity:proximity_modifier? boost:boost_modifier? _*
         {
-            const type = getTypeOf(term);
             const result = {
-                type,
+                type: 'term',
                 term,
                 regexpr: false,
                 wildcard: false,
@@ -432,14 +428,15 @@ term
     / op:prefix_operator_exp? term:unquoted_term similarity:fuzzy_modifier? boost:boost_modifier? _*
         {
             const termValue = coerceValue(term);
-            const type = getTypeOf(termValue);
             const result = {
+                type: 'term',
                 term: termValue,
-                type,
                 unrestricted: false,
+                wildcard: false,
+                regexpr: false
             };
 
-            if (type === 'string') {
+            if (typeof termValue === 'string') {
                 result.wildcard = /[\?\*]/.test(termValue);
                 result.regexpr = false;
             }
@@ -464,7 +461,7 @@ term
             const termValue = coerceValue(term)
             const result = {
                 term: termValue,
-                type: getTypeOf(termValue),
+                type: 'term',
                 unrestricted: true,
             };
 
@@ -486,9 +483,9 @@ term
         {
             const result = {
                 term,
-                type: 'string',
+                type: 'term',
                 wildcard: false,
-                'regexpr': true
+                regexpr: true
             };
 
             if('' != boost) {
@@ -613,6 +610,7 @@ range_operator_exp
     = '[' term_min:rangevalue _* 'TO' _+ term_max:rangevalue ']'
         {
             return {
+                type: 'range',
                 term_min,
                 term_max,
                 inclusive: true,
@@ -623,6 +621,7 @@ range_operator_exp
     / '{' term_min:rangevalue _* 'TO' _+ term_max:rangevalue '}'
         {
             return {
+                type: 'range',
                 term_min,
                 term_max,
                 inclusive: false,
@@ -633,6 +632,7 @@ range_operator_exp
     / '{' term_min:rangevalue _* 'TO' _+ term_max:rangevalue ']'
         {
             return {
+                type: 'range',
                 term_min,
                 term_max,
                 inclusive: false,
@@ -643,6 +643,7 @@ range_operator_exp
     / '[' term_min:rangevalue _* 'TO' _+ term_max:rangevalue '}'
         {
             return {
+                type: 'range',
                 term_min,
                 term_max,
                 inclusive: false,

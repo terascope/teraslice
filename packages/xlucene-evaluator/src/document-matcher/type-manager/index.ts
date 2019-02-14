@@ -1,6 +1,6 @@
-import typeMapping, { BaseType } from './types';
+import typeMapping, { BaseType, TypeMapping } from './types';
 
-import { AST, TypeConfig, NodeType } from '../../interfaces';
+import { AST, TypeConfig } from '../../interfaces';
 import { LuceneQueryParser } from '../..';
 
 export default class TypeManager {
@@ -22,7 +22,7 @@ export default class TypeManager {
 
             const configType = typeConfig[node.field];
 
-            let type: NodeType = 'string';
+            let type: keyof TypeMapping = 'term';
             if (typeMapping[configType] != null) {
                 type = configType;
             } else if (typeMapping[node.type] != null) {

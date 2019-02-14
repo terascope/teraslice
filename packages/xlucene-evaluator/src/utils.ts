@@ -11,8 +11,8 @@ export function bindThis(instance:object, cls:object): void {
         });
 }
 
-export function isOperatorNode(node: AST): boolean {
-    return ['root', 'operator'].includes(node.type);
+export function isConjunctionNode(node: AST): boolean {
+    return node.type === 'conjunction';
 }
 
 export function isRangeNode(node: AST): boolean {
@@ -24,7 +24,7 @@ export function isGeoNode(node: AST): boolean {
 }
 
 export function isTermNode(node: AST): boolean {
-    return node.term != null;
+    return node.type === 'term' && node.term != null;
 }
 
 export function isRegexNode(node: AST): boolean {

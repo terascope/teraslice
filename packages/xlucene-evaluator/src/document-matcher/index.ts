@@ -1,11 +1,9 @@
-'use strict';
-
 import _ from 'lodash';
+import { isString } from '@terascope/utils';
 import LuceneQueryParser from '../lucene-query-parser';
 import TypeManager from './type-manager';
 import { bindThis, isInfiniteMax, isInfiniteMin, isExistsNode, isTermNode, isRangeNode } from '../utils';
-import { IMPLICIT } from '../constants';
-import { AST, TypeConfig, RangeAST } from '../interfaces';
+import { AST, TypeConfig, RangeAST, IMPLICIT } from '../interfaces';
 
 export default class DocumentMatcher {
     private filterFn: Function|undefined;
@@ -73,18 +71,12 @@ export default class DocumentMatcher {
                     } else {
                         fnStr += `${node.term}`;
                     }
-                } else if (node.type === 'string') {
-                    const term = `"${node.term}"`;
+                } else {
+                    const value = isString(node.term) ? `"${node.term}"` : node.term;
                     if (negation) {
-                        fnStr += `data.${field} !== ${term}`;
+                        fnStr += `data.${field} !== ${value}`;
                     } else {
-                        fnStr += `data.${field} === ${term}`;
-                    }
-                } else if (['boolean', 'number'].includes(node.type)) {
-                    if (negation) {
-                        fnStr += `data.${field} !== ${node.term}`;
-                    } else {
-                        fnStr += `data.${field} === ${node.term}`;
+                        fnStr += `data.${field} === ${value}`;
                     }
                 }
             }

@@ -471,23 +471,24 @@ describe('luceneQueryParser', () => {
 
             expect(luceneQueryParser._ast).toMatchObject({
                 left: {
-                    type: 'operator',
+                    type: 'conjunction',
                     left: {
                         field: IMPLICIT,
                         term: 50,
-                        type: 'number',
+                        type: 'term',
                     },
                     parens: true,
                     operator: 'OR',
                     right: {
-                        type: 'operator',
+                        type: 'conjunction',
                         left: {
                             field: IMPLICIT,
                             term: 30,
-                            type: 'number',
+                            type: 'term',
                         },
                         operator: 'OR',
                         right: {
+                            type: 'range',
                             term_max: 10,
                             term_min: Number.NEGATIVE_INFINITY,
                             inclusive_min: true,

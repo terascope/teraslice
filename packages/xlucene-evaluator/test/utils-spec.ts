@@ -5,7 +5,7 @@ describe('Utils', () => {
     describe('parseNodeRange', () => {
         it('should handle >=30', () => {
             const input: RangeAST = {
-                type: 'string',
+                type: 'range',
                 field: 'hello',
                 term_max: Number.POSITIVE_INFINITY,
                 term_min: 30,
@@ -20,7 +20,7 @@ describe('Utils', () => {
 
         it('should handle >50', () => {
             const input: RangeAST = {
-                type: 'string',
+                type: 'range',
                 field: 'hello',
                 term_max: Number.POSITIVE_INFINITY,
                 term_min: 50,
@@ -35,7 +35,7 @@ describe('Utils', () => {
 
         it('should handle <=20', () => {
             const input: RangeAST = {
-                type: 'string',
+                type: 'range',
                 field: 'hello',
                 term_min: Number.NEGATIVE_INFINITY,
                 term_max: 20,
@@ -50,7 +50,7 @@ describe('Utils', () => {
 
         it('should handle <0', () => {
             const input: RangeAST = {
-                type: 'string',
+                type: 'range',
                 field: 'hello',
                 term_min: Number.NEGATIVE_INFINITY,
                 term_max: 0,
@@ -65,7 +65,7 @@ describe('Utils', () => {
 
         it('should handle 10>0', () => {
             const input: RangeAST = {
-                type: 'string',
+                type: 'range',
                 field: 'hello',
                 term_max: 10,
                 term_min: 0,
@@ -81,7 +81,7 @@ describe('Utils', () => {
 
         it('should handle 10>=0', () => {
             const input: RangeAST = {
-                type: 'string',
+                type: 'range',
                 field: 'hello',
                 term_max: 10,
                 term_min: 0,
@@ -97,7 +97,7 @@ describe('Utils', () => {
 
         it('should handle 9<50', () => {
             const input: RangeAST = {
-                type: 'string',
+                type: 'range',
                 field: 'hello',
                 term_max: 50,
                 term_min: 9,
@@ -113,7 +113,7 @@ describe('Utils', () => {
 
         it('should handle 9<=50', () => {
             const input: RangeAST = {
-                type: 'string',
+                type: 'range',
                 field: 'hello',
                 term_max: 50,
                 term_min: 9,
@@ -129,7 +129,7 @@ describe('Utils', () => {
 
         it('should handle 9<= hello <=50', () => {
             const input: RangeAST = {
-                type: 'string',
+                type: 'range',
                 field: 'hello',
                 term_max: 50,
                 term_min: 9,

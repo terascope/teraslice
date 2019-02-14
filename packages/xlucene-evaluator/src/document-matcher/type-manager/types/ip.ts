@@ -1,4 +1,3 @@
-
 // @ts-ignore TODO we should add types
 import isCidr from 'is-cidr';
 // @ts-ignore TODO we should add types
@@ -91,7 +90,11 @@ export default class IpType extends BaseType {
                     });
                 }
 
-                return { field: '__parsed', term: createParsedField(topField) };
+                return {
+                    type: 'term',
+                    field: '__parsed',
+                    term: createParsedField(topField)
+                };
             }
             return node;
         }

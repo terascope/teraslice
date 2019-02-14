@@ -2,26 +2,28 @@
 import { Units } from '@turf/helpers';
 import { TypeMapping } from './document-matcher/type-manager/types';
 
-export type ImplicitField = '<implicit>';
+export { TypeMapping };
 
-export type NodeType = 'root'|'operator'|'date'|'ip'|'geo'|'string'|'number'|'boolean'|'exists';
+export type ImplicitField = '<implicit>';
+export const IMPLICIT: ImplicitField = '<implicit>';
+
+export type NodeType = 'conjunction'|'range'|'geo'|'term'|'exists';
 
 export interface TypeConfig {
     [field: string]: keyof TypeMapping;
 }
 
-export type AST = RangeAST
+export type AST = RangeAST & TermAST
     & GeoAST & ExistsAST
-    & NumberAST & StringAST
     & WildcardAST & RegexpAST
-    & OperatorAST;
+    & ConjunctionAST;
 
 interface BaseAST {
     type: NodeType;
 }
 
-export interface OperatorAST extends BaseAST {
-    type: 'operator'|'root';
+export interface ConjunctionAST extends BaseAST {
+    type: 'conjunction';
 
     left?: AST;
     right?: AST;
@@ -31,11 +33,10 @@ export interface OperatorAST extends BaseAST {
 
 interface BaseFieldAST extends BaseAST {
     field: string|ImplicitField;
-    unrestricted?: boolean;
 }
 
 export interface RangeAST extends BaseFieldAST {
-    type: 'ip'|'string'|'number'|'date';
+    type: 'range';
     term_min: string|number;
     term_max: string|number;
 
@@ -47,26 +48,21 @@ export interface ExistsAST extends BaseFieldAST {
     type: 'exists';
 }
 
-export interface StringAST extends BaseFieldAST {
-    type: 'string';
+export interface TermAST extends BaseFieldAST {
+    type: 'term';
 
-    term: string;
+    unrestricted?: boolean;
+    term: string|number|boolean;
     regexpr: boolean;
     wildcard: boolean;
 }
 
-export interface NumberAST extends BaseFieldAST {
-    type: 'number';
-
-    term: number;
-}
-
-export interface RegexpAST extends StringAST {
+export interface RegexpAST extends TermAST {
     term: string;
     regexpr: true;
 }
 
-export interface WildcardAST extends StringAST {
+export interface WildcardAST extends TermAST {
     term: string;
     wildcard: true;
 }

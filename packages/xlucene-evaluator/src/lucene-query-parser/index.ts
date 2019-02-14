@@ -1,8 +1,6 @@
-
 import { debugLogger } from '@terascope/utils';
 import parser from '../peg';
-import { AST, AstCallback } from '../interfaces';
-import { IMPLICIT } from '../constants';
+import { AST, AstCallback, IMPLICIT } from '../interfaces';
 
 const logger = debugLogger('lucene-query-parser');
 

@@ -62,7 +62,11 @@ export default class DateType extends BaseType {
                     });
                 }
 
-                return { field: '__parsed', term: createParsedField(topField) };
+                return {
+                    type: 'term',
+                    field: '__parsed',
+                    term: createParsedField(topField)
+                };
 
             }
             return node;

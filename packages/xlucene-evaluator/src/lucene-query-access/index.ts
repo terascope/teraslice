@@ -1,9 +1,7 @@
-
 import _ from 'lodash';
 import { TSError } from '@terascope/utils';
 import LuceneQueryParser from '../lucene-query-parser';
-import { IMPLICIT } from '../constants';
-import { AST } from '../interfaces';
+import { AST, IMPLICIT } from '../interfaces';
 
 interface Config {
     excludes?: string[];

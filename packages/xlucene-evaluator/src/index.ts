@@ -4,7 +4,6 @@ import LuceneQueryAccess from './lucene-query-access';
 import Translator from './translator';
 
 export * from './interfaces';
-export * from './constants';
 export * from './utils';
 export {
     DocumentMatcher,

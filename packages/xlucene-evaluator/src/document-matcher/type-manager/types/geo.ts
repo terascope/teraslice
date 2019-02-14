@@ -1,4 +1,3 @@
-
 import _ from 'lodash';
 import pointInPolygon from '@turf/boolean-point-in-polygon';
 import createCircle from '@turf/circle';
@@ -163,7 +162,7 @@ export default class GeoType extends BaseType {
             };
         }
 
-        function parseGeoAst(node: AST, _field:string): AST {
+        function parseGeoAst(node: AST, _field:string) {
             if (isGeoNode(node)) {
                 const geoQueryParameters = { geoField: node.field };
                 if (node.geo_point && node.geo_distance) {
@@ -178,8 +177,11 @@ export default class GeoType extends BaseType {
 
                 filterFnBuilder(makeGeoQueryFn(geoQueryParameters));
 
-                // @ts-ignore
-                return { field: '__parsed', term: createParsedField(node.field) };
+                return {
+                    type: 'term',
+                    field: '__parsed',
+                    term: createParsedField(node.field)
+                };
             }
             return node;
         }

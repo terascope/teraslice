@@ -1,12 +1,11 @@
 import { debugLogger } from '@terascope/utils';
 import * as utils from '../utils';
-import { AST } from '../interfaces';
-import { IMPLICIT } from '../constants';
+import { AST, IMPLICIT } from '../interfaces';
 
 const logger = debugLogger('xlucene-translator-utils');
 
 export function buildAnyQuery(node: AST, parentNode?: AST): AnyQuery {
-    if (utils.isOperatorNode(node)) {
+    if (utils.isConjunctionNode(node)) {
         return buildBoolQuery(node);
     }
 

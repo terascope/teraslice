@@ -1,5 +1,3 @@
-'use strict';
-
 import BaseType from './base';
 import { bindThis } from '../../../utils';
 import _ from 'lodash';
@@ -7,11 +5,11 @@ import { AST } from '../../../interfaces';
 
 const fnBaseName = 'strFn';
 
-export default class StringType extends BaseType {
+export default class TermType extends BaseType {
 
     constructor() {
         super(fnBaseName);
-        bindThis(this, StringType);
+        bindThis(this, TermType);
     }
 
     private isWildCard(term: string):boolean {
@@ -71,7 +69,7 @@ export default class StringType extends BaseType {
             match
         } = this;
 
-        function parseRegex(node: AST, _field: string): AST {
+        function parseRegex(node: AST, _field: string) {
             const topField = node.field || _field;
 
             if (node.regexpr) {
@@ -80,8 +78,11 @@ export default class StringType extends BaseType {
                     return match(str, node.term);
                 });
 
-                // @ts-ignore
-                return { field: '__parsed', term: createParsedField(topField) };
+                return {
+                    type: 'term',
+                    field: '__parsed',
+                    term: createParsedField(topField)
+                };
             }
 
             if (isWildCard(node.field)) {
@@ -102,8 +103,11 @@ export default class StringType extends BaseType {
                     return bool;
                 });
 
-                // @ts-ignore
-                return { field: '__parsed', term: createParsedField() };
+                return {
+                    type: 'term',
+                    field: '__parsed',
+                    term: createParsedField()
+                };
             }
 
             if (node.wildcard) {
@@ -114,8 +118,11 @@ export default class StringType extends BaseType {
                     return match(str, wildCardQuery);
                 });
 
-                // @ts-ignore
-                return { field: '__parsed', term: createParsedField(topField) };
+                return {
+                    type: 'term',
+                    field: '__parsed',
+                    term: createParsedField(topField)
+                };
             }
 
             return node;
