@@ -18,3 +18,5 @@ teraslice:
     kubernetes_image: "teraslice-k8sdev"
     kubernetes_namespace: "ts-dev1"
     name: "ts-dev1"
+    cpu: 1
+    memory: 536870912
