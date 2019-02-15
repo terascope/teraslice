@@ -16,13 +16,14 @@ export interface TeraserverConfig {
             open_signup: boolean;
         },
         ui: boolean;
-        url_base: string;
+        url_base?: string;
     };
     data_access?: {
-        url_base: string;
+        url_base?: string;
+        namespace?: string;
     };
     teraserver: {
-        shutdown_timeout: 5;
+        shutdown_timeout: number;
         plugins: string[];
         path?: string;
     };

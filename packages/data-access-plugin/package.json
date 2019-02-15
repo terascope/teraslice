@@ -29,11 +29,13 @@
         "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "express": "^4.16.4",
-        "@terascope/utils": "^0.4.1"
+        "@terascope/data-access": "^0.2.0",
+        "@terascope/utils": "^0.4.1",
+        "express": "^4.16.4"
     },
     "devDependencies": {
         "@types/express": "^4.16.1",
-        "elasticsearch": "^15.4.1"
+        "elasticsearch": "^15.4.1",
+        "got": "^9.6.0"
     }
 }
