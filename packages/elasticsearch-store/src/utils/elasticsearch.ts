@@ -1,12 +1,14 @@
 import * as R from 'rambda';
-import { TSError } from '@terascope/utils';
+import { TypeConfig, Translator, TypeMapping } from 'xlucene-evaluator';
+import { TSError, isPlainObject, isEmpty } from '@terascope/utils';
 import * as i from '../interfaces';
 import {
     getErrorType
 } from './errors';
 import {
     getFirstKey,
-    getFirstValue
+    getFirstValue,
+    buildNestPath
 } from './misc';
 
 export function getTimeByField(field: string = ''): (input: any) => number {
@@ -114,3 +116,60 @@ export function getBulkResponseItem(input: any = {}): BulkResponseItemResult  {
         action: getFirstKey(input),
     };
 }
+
+export function getXLuceneTypesFromMapping(mapping: any): TypeConfig|undefined {
+    if (!isPlainObject(mapping) || isEmpty(mapping)) return;
+
+    const result: TypeConfig = {};
+
+    if (mapping.properties != null) {
+        const entries = getTypesFromProperties(mapping.properties);
+        for (const [key, val] of entries) {
+            result[key] = val;
+        }
+    }
+
+    return result;
+}
+
+type TypeMappingPair = [string, (keyof TypeMapping)];
+type MappingProperties = { [key: string]: MappingProperty };
+type MappingProperty = { type? : string, properties: MappingProperties };
+
+export function getTypesFromProperties(properties: MappingProperties, basePath = ''): TypeMappingPair[] {
+    const result: TypeMappingPair[] = [];
+    for (const [key, value] of Object.entries(properties)) {
+        if (isPlainObject(value) && key) {
+            const path = buildNestPath([basePath, key]);
+
+            if (value.properties) {
+                result.push(...getTypesFromProperties(value.properties, path));
+            } else {
+                const type = getXluceneTypeFromESType(value.type);
+                if (type) {
+                    result.push([path, type]);
+                }
+            }
+        }
+    }
+    return result;
+}
+
+export function getXluceneTypeFromESType(type?: string): (keyof TypeMapping)|undefined {
+    if (!type) return;
+
+    if (['geo_point', 'geo_shape'].includes(type)) return 'geo';
+    if (type === 'ip') return 'ip';
+    if (type === 'date') return 'date';
+
+    return;
+}
+
+export function translateQuery(query: string, types?: TypeConfig): { q: null, body: TranslatedDSL } {
+    return {
+        q: null,
+        body: Translator.toElasticsearchDSL(query, types)
+    };
+}
+
+export type TranslatedDSL = ReturnType<Translator['toElasticsearchDSL']>;

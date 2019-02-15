@@ -1,6 +1,5 @@
 'use strict';
 
-const uuidv4 = require('uuid/v4');
 const { Slicer } = require('@terascope/job-components');
 
 class ExampleSlicer extends Slicer {
@@ -16,7 +15,7 @@ class ExampleSlicer extends Slicer {
 
     async slice() {
         return {
-            id: uuidv4(),
+            id: (Math.random() * 10000) + (Math.random() * 10000),
             fetchFrom: 'https://httpstat.us/200'
         };
     }

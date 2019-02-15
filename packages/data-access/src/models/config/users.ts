@@ -57,6 +57,9 @@ export const mapping = {
         salt: {
             type: 'keyword'
         },
+        roles: {
+            type: 'keyword'
+        }
     }
 };
 
@@ -110,3 +113,12 @@ export const sanitizeFields: SanitizeFields = {
     email: 'trimAndLower',
     username: 'trim',
 };
+
+export function fixDoc(doc: any) {
+    if (doc && doc.role) {
+        doc.roles = [doc.role];
+        delete doc.role;
+    }
+
+    return doc;
+}

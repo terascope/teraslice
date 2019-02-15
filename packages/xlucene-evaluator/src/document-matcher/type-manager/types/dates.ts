@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import dateFns from 'date-fns';
 import BaseType from './base';
-import { bindThis } from '../../../utils';
+import { bindThis, isInfiniteMax, isInfiniteMin } from '../../../utils';
 import { AST, DateInput } from '../../../interfaces';
 
 // TODO: handle datemath
@@ -36,10 +36,10 @@ export default class DateType extends BaseType {
                 const { inclusive_min: incMin, inclusive_max: incMax } = node;
                 let { term_min: minValue, term_max: maxValue } = node;
                 // javascript min/max date allowable http://www.ecma-international.org/ecma-262/5.1/#sec-15.9.1.1
-                if (minValue === '*' || minValue === -Infinity) minValue = -8640000000000000;
-                if (maxValue === '*' || maxValue === Infinity) maxValue = 8640000000000000;
+                if (isInfiniteMin(minValue)) minValue = -8640000000000000;
+                if (isInfiniteMax(maxValue)) maxValue = 8640000000000000;
 
-                if (node.term !== undefined) {
+                if (node.term != null) {
                     const nodeTermTime = convert(node.term);
                     if (!nodeTermTime) throw new Error(`was not able to convert ${node.term} to a date value`);
                     filterFnBuilder((date: string) => {
@@ -62,7 +62,11 @@ export default class DateType extends BaseType {
                     });
                 }
 
-                return { field: '__parsed', term: createParsedField(topField) };
+                return {
+                    type: 'term',
+                    field: '__parsed',
+                    term: createParsedField(topField)
+                };
 
             }
             return node;
