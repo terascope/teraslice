@@ -12,7 +12,6 @@
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
     },
-    "dependencies": {},
     "files": [
         "dist/src/**/*"
     ],
@@ -29,5 +28,12 @@
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
         "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
     },
-    "devDependencies": {}
+    "dependencies": {
+        "express": "^4.16.4",
+        "@terascope/utils": "^0.4.1"
+    },
+    "devDependencies": {
+        "@types/express": "^4.16.1",
+        "elasticsearch": "^15.4.1"
+    }
 }
