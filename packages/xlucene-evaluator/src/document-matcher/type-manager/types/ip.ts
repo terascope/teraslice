@@ -1,4 +1,3 @@
-// @ts-ignore TODO we should add types
 import isCidr from 'is-cidr';
 // @ts-ignore TODO we should add types
 import ip6addr from 'ip6addr';

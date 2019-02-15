@@ -1,10 +1,10 @@
 import _ from 'lodash';
 import pointInPolygon from '@turf/boolean-point-in-polygon';
+// @ts-ignore
 import createCircle from '@turf/circle';
 import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';
 import { lineString } from '@turf/helpers';
-// @ts-ignore TODO: we should add types
 import geoHash from 'latlon-geohash';
 import BaseType from './base';
 import { bindThis, isGeoNode } from '../../../utils';
@@ -131,26 +131,32 @@ export default class GeoType extends BaseType {
             const initSetup = true;
 
             if (geoBoxTopLeft != null && geoBoxBottomRight != null) {
-                const line = lineString([
-                    // @ts-ignore TODO this can return null we should handle that case
-                    parsePoint(geoBoxTopLeft, initSetup),
-                    // @ts-ignore TODO this can return null we should handle that case
-                    parsePoint(geoBoxBottomRight, initSetup)
-                ]);
+                const pointTopLeft = parsePoint(geoBoxTopLeft, initSetup);
+                const pointBottomRight = parsePoint(geoBoxBottomRight, initSetup);
 
-                const box = bbox(line);
-                polygon = bboxPolygon(box);
+                if (pointTopLeft != null && pointBottomRight != null) {
+                    const line = lineString([
+                        pointTopLeft,
+                        pointBottomRight,
+                    ]);
+
+                    const box = bbox(line);
+                    polygon = bboxPolygon(box);
+                }
             }
 
             if (geoPoint && geoDistance) {
                 const { distance, unit } = parseDistance(geoDistance);
                 const config = { units: unit };
-                polygon =  createCircle(
-                    // @ts-ignore TODO this can return null we should handle that case
-                    parsePoint(geoPoint, initSetup),
-                    distance,
-                    config
-                );
+
+                const parsedGeoPoint = parsePoint(geoPoint, initSetup);
+                if (parsedGeoPoint != null) {
+                    polygon = createCircle(
+                        parsedGeoPoint,
+                        distance,
+                        config
+                    );
+                }
             }
 
             // Nothing matches so return false

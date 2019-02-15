@@ -32,7 +32,6 @@
         "xlucene-evaluator": "^0.5.0"
     },
     "devDependencies": {
-        "@types/semver": "^5.5.0",
         "elasticsearch": "^15.4.1"
     },
     "publishConfig": {

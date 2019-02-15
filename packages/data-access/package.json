@@ -35,5 +35,7 @@
         "nanoid": "^2.0.1",
         "xlucene-evaluator": "^0.5.0"
     },
-    "devDependencies": {}
+    "devDependencies": {
+        "elasticsearch": "^15.4.1"
+    }
 }
