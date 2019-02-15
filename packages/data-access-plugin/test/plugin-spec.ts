@@ -1,6 +1,6 @@
 import 'jest-extended';
-import got from 'got';
-import express, { Router } from 'express';
+import { request } from 'graphql-request';
+import express from 'express';
 import { debugLogger } from '@terascope/utils';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
 import TeraserverPlugin from '../src/teraserver';
@@ -57,9 +57,7 @@ describe('TeraserverPlugin', () => {
 
             await plugin.initialize();
 
-            const router = Router();
-            plugin.registerRoutes(router);
-            app.use(baseUrl, router);
+            plugin.registerRoutes();
         });
 
         afterAll(async () => {
@@ -77,10 +75,45 @@ describe('TeraserverPlugin', () => {
             return plugin.shutdown();
         });
 
-        it('should register the routes', async () => {
+        let id: string;
+
+        beforeAll(async () => {
+            const user = await plugin.manager.users.create({
+                username: 'foobar-1',
+                firstname: 'Foo',
+                lastname: 'Bar',
+                email: 'foo@example.com',
+                roles: [],
+                client_id: 1,
+            }, 'secrets');
+
+            id = user.id;
+        });
+
+        it('should be able to get a user', async () => {
             const uri = formatUri();
-            const result = await got(uri);
-            expect(result.statusCode).toEqual(200);
+            const query = `{
+                getUser(id: "${id}") {
+                    username,
+                    firstname,
+                    lastname,
+                }
+            }`;
+
+            type GetUserResponse = {
+                getUser: {
+                    username: string,
+                    fistname: string,
+                    lastname: string,
+                }
+            };
+
+            const result: GetUserResponse = await request(uri, query);
+            expect(result.getUser).toEqual({
+                username: 'foobar-1',
+                firstname: 'Foo',
+                lastname: 'Bar'
+            });
         });
     });
 });

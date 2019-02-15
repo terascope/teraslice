@@ -1,4 +1,3 @@
-import { Router } from 'express';
 import TeraserverPlugin from './teraserver';
 import { PluginConfig } from './interfaces';
 
@@ -30,14 +29,7 @@ class TeraserverPluginAdapter {
             throw new Error('Plugin has not been initialized');
         }
 
-        const {
-            url_base: baseUrl
-        } = this._config;
-
-        const router = Router();
-        this._instance.registerRoutes(router);
-
-        this._instance.app.use(baseUrl, router);
+        this._instance.registerRoutes();
     }
 }
 

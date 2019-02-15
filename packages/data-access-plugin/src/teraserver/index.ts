@@ -1,6 +1,9 @@
-import { Express, Router } from 'express';
-import { ACLManager } from '@terascope/data-access';
+import { Express } from 'express';
 import { Logger } from '@terascope/utils';
+import { ACLManager } from '@terascope/data-access';
+import { ApolloServer } from 'apollo-server-express';
+import typeDefs from './typedefs';
+import resolvers from './resolvers';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 
 export default class TeraserverPlugin {
@@ -8,12 +11,15 @@ export default class TeraserverPlugin {
     readonly logger: Logger;
     readonly app: Express;
     readonly manager: ACLManager;
+    readonly server: ApolloServer;
+    readonly baseUrl: string;
 
     constructor(pluginConfig: PluginConfig) {
         const client = pluginConfig.elasticsearch;
         this.config = pluginConfig.server_config;
         this.logger = pluginConfig.logger;
         this.app = pluginConfig.app;
+        this.baseUrl = pluginConfig.url_base;
 
         const namespace = this.config.data_access
             && this.config.data_access.namespace;
@@ -21,6 +27,14 @@ export default class TeraserverPlugin {
         this.manager = new ACLManager(client, {
             namespace,
             logger: pluginConfig.logger,
+        });
+
+        this.server = new ApolloServer({
+            typeDefs,
+            resolvers,
+            context: {
+                manager: this.manager,
+            }
         });
     }
 
@@ -32,11 +46,10 @@ export default class TeraserverPlugin {
         return this.manager.shutdown();
     }
 
-    registerRoutes(router: Router) {
-        router.get('/', (req, res) => {
-            res.send({
-                ok: true
-            });
+    registerRoutes() {
+        this.server.applyMiddleware({
+            app: this.app,
+            path: this.baseUrl,
         });
     }
 }

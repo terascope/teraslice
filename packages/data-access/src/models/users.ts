@@ -118,7 +118,7 @@ export interface UserModel extends BaseModel {
      *
      * Currently Roles will be restricted to an array of one
     */
-    roles: [string];
+    roles: [string]|[];
 
     /**
      * The User's API Token
