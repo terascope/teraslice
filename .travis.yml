@@ -3,7 +3,7 @@ node_js:
 - '8'
 
 # by default install just yarn
-before_install: source ./scripts/travis-install-yarn.sh
+before_install: . ./scripts/travis-install-yarn.sh
 install:
     # make it colorful
     - export FORCE_COLOR=1
@@ -31,9 +31,9 @@ jobs:
         - docker
         - elasticsearch
     before_install:
-        - source ./scripts/travis-install-docker-compose.sh
-        - source ./scripts/travis-install-yarn.sh
-        - source ./scripts/travis-install-es.sh
+        - . ./scripts/travis-install-docker-compose.sh
+        - . ./scripts/travis-install-yarn.sh
+        - . ./scripts/travis-install-es.sh
     script:
         - '[[ -z "$DEBUG" ]] && yarn test:ci || yarn test:debug | yarn bunyan -o short'
     after_success:
@@ -60,17 +60,16 @@ jobs:
         - docker
         - elasticsearch
     before_install:
-        - source ./scripts/travis-install-docker-compose.sh
-        - source ./scripts/travis-install-yarn.sh
-        - source ./scripts/travis-install-es.sh
+        - . ./scripts/travis-install-docker-compose.sh
+        - . ./scripts/travis-install-yarn.sh
+        - . ./scripts/travis-install-es.sh
     before_script:
         # Test access to credentials
-        - source ./scripts/travis-setup-credentials.sh
+        - . ./scripts/travis-setup-credentials.sh
         - cd e2e
     script: yarn test:ci
     after_success:
-        - cd ..
-        - '[[ "$TEST_DOCS_PUBLISH" == "true" ]] && ./scripts/publish-documentation.sh'
+        - '[[ "$TEST_DOCS_PUBLISH" == "true" ]] && { cd .. && ./scripts/publish-documentation.sh }'
 
   # if not a tagged build and is on master
   - stage: Publish
@@ -80,7 +79,7 @@ jobs:
       apt:
         packages:
           - jq
-    before_script: source ./scripts/travis-setup-credentials.sh
+    before_script: . ./scripts/travis-setup-credentials.sh
     script: ./scripts/sync-readmes.sh
     deploy:
       - provider: script
@@ -98,7 +97,7 @@ jobs:
       apt:
         packages:
           - jq
-    before_script: source ./scripts/travis-setup-credentials.sh
+    before_script: . ./scripts/travis-setup-credentials.sh
     script: true
     deploy:
       - provider: script
@@ -112,7 +111,7 @@ jobs:
       apt:
         packages:
           - jq
-    before_script: source ./scripts/travis-setup-credentials.sh
+    before_script: . ./scripts/travis-setup-credentials.sh
     script: true
     deploy:
       - provider: script
