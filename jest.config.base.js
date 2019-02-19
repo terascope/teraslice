@@ -18,7 +18,7 @@ module.exports = (projectDir) => {
         displayName: name,
         verbose: true,
         testEnvironment: 'node',
-        setupTestFrameworkScriptFile: 'jest-extended',
+        setupFilesAfterEnv: ['jest-extended'],
         testMatch: [
             `${projectRoot}/test/**/*-spec.{ts,js}`,
             `${projectRoot}/test/*-spec.{ts,js}`
@@ -54,7 +54,7 @@ module.exports = (projectDir) => {
     }
 
     if (fs.pathExistsSync(path.join(projectDir, 'test/test.setup.js'))) {
-        config.setupTestFrameworkScriptFile = `${projectRoot}/test/test.setup.js`;
+        config.setupFilesAfterEnv.push(`${projectRoot}/test/test.setup.js`);
     }
 
     config.globals = {
