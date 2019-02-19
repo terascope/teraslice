@@ -107,4 +107,42 @@ describe('k8sResource', () => {
               name: teraslice-image-pull-secret`)
         );
     });
+
+    it('has valid resource object with volumes when terasliceConfig has assets_director and assets_volume.', () => {
+        terasliceConfig.assets_directory = '/assets';
+        terasliceConfig.assets_volume = 'asset-volume';
+
+        const kr = new K8sResource(
+            'deployments', 'worker', terasliceConfig, execution
+        );
+
+        expect(kr.resource.spec.replicas).toBe(2);
+        expect(kr.resource.metadata.name).toBe('ts-wkr-example-data-generator-job-7ba9afb0-417a');
+
+        // The following properties should be absent in the default case
+        expect(kr.resource.spec.template.spec).not.toHaveProperty('affinity');
+        expect(kr.resource.spec.template.spec).not.toHaveProperty('imagePullSecrets');
+        // console.log(kr.resource.spec.template.spec.volumes);
+        expect(kr.resource.spec.template.spec.volumes[0]).toEqual(yaml.load(`
+            name: config
+            configMap:
+              name: ts-dev1-worker
+              items:
+                - key: teraslice.yaml
+                  path: teraslice.yaml`));
+        expect(kr.resource.spec.template.spec.containers[0].volumeMounts[0])
+            .toEqual(yaml.load(`
+                mountPath: /app/config
+                name: config`));
+
+        // Now check for the assets volume
+        expect(kr.resource.spec.template.spec.volumes[1]).toEqual(yaml.load(`
+                name: asset-volume
+                persistentVolumeClaim:
+                  claimName: asset-volume`));
+        expect(kr.resource.spec.template.spec.containers[0].volumeMounts[1])
+            .toEqual(yaml.load(`
+                name: asset-volume
+                mountPath: /assets`));
+    });
 });

@@ -42,8 +42,8 @@ class K8sResource {
 
 
         const config = {
-            assetsDirectory: _.get(this.terasliceConfig, 'assets_directory', ''),
-            assetsVolume: _.get(this.terasliceConfig, 'assets_volume', ''),
+            // assetsDirectory: _.get(this.terasliceConfig, 'assets_directory', ''),
+            // assetsVolume: _.get(this.terasliceConfig, 'assets_volume', ''),
             clusterName,
             clusterNameLabel,
             configMapName,
@@ -91,17 +91,11 @@ class K8sResource {
 
         // this._setResources(this.execution, this.maxHeapMemoryFactor);
 
-        // if (_.has(this.execution, 'volumes') && (this.execution.volumes != null)) {
-        //     this._setVolumes(this.execution);
-        // }
+        this._setVolumes(this.execution);
 
-        // if ((this.terasliceConfig.assetsDirectory !== '') && (this.terasliceConfig.assetsVolume !== '')) {
-        //     this._setAssetsVolume(this.terasliceConfig);
-        // }
+        this._setAssetsVolume(this.terasliceConfig);
 
         this._setImagePullSecret();
-
-        return this.resource;
     }
 
     _setImagePullSecret() {
@@ -112,28 +106,32 @@ class K8sResource {
         }
     }
 
-    _setAssetsVolume(k8sObject, config) {
-        k8sObject.spec.template.spec.volumes.push({
-            name: config.assetsVolume,
-            persistentVolumeClaim: { claimName: config.assetsVolume }
-        });
-        k8sObject.spec.template.spec.containers[0].volumeMounts.push({
-            name: config.assetsVolume,
-            mountPath: config.assetsDirectory
-        });
+    _setAssetsVolume() {
+        if ((this.terasliceConfig.assets_directory !== '') && (this.terasliceConfig.assets_volume !== '')) {
+            this.resource.spec.template.spec.volumes.push({
+                name: this.terasliceConfig.assets_volume,
+                persistentVolumeClaim: { claimName: this.terasliceConfig.assets_volume }
+            });
+            this.resource.spec.template.spec.containers[0].volumeMounts.push({
+                name: this.terasliceConfig.assets_volume,
+                mountPath: this.terasliceConfig.assets_directory
+            });
+        }
     }
 
-    _setVolumes(k8sObject, execution) {
-        _.forEach(execution.volumes, (volume) => {
-            k8sObject.spec.template.spec.volumes.push({
-                name: volume.name,
-                persistentVolumeClaim: { claimName: volume.name }
+    _setVolumes() {
+        if (_.has(this.execution, 'volumes') && (this.execution.volumes != null)) {
+            _.forEach(this.execution.volumes, (volume) => {
+                this.resource.spec.template.spec.volumes.push({
+                    name: volume.name,
+                    persistentVolumeClaim: { claimName: volume.name }
+                });
+                this.resource.spec.template.spec.containers[0].volumeMounts.push({
+                    name: volume.name,
+                    mountPath: volume.path
+                });
             });
-            k8sObject.spec.template.spec.containers[0].volumeMounts.push({
-                name: volume.name,
-                mountPath: volume.path
-            });
-        });
+        }
     }
 
     _setResources(k8sObject, execution, maxHeapMemoryFactor) {
