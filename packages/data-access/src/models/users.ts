@@ -11,6 +11,8 @@ import * as utils from '../utils';
  * @todo handle backwards compatiblity with "role"
 */
 export class Users extends Base<UserModel> {
+    static ModelConfig = usersConfig;
+
     constructor(client: es.Client, config: ManagerConfig) {
         super(client, config, usersConfig);
     }

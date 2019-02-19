@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import * as rolesConfig from './config/roles';
+import rolesConfig from './config/roles';
 import { ManagerConfig } from '../interfaces';
 import { Base, BaseModel } from './base';
 
@@ -7,6 +7,8 @@ import { Base, BaseModel } from './base';
  * Manager for Roles
 */
 export class Roles extends Base<RoleModel> {
+    static ModelConfig = rolesConfig;
+
     constructor(client: es.Client, config: ManagerConfig) {
         super(client, config, rolesConfig);
     }

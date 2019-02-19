@@ -1,13 +1,15 @@
 import * as es from 'elasticsearch';
 import { getFirst, TSError } from '@terascope/utils';
 import { Base, BaseModel } from './base';
-import * as viewsConfig from './config/views';
+import viewsConfig from './config/views';
 import { ManagerConfig } from '../interfaces';
 
 /**
  * Manager for Views
 */
 export class Views extends Base<ViewModel> {
+    static ModelConfig = viewsConfig;
+
     constructor(client: es.Client, config: ManagerConfig) {
         super(client, config, viewsConfig);
     }

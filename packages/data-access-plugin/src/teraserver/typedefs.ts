@@ -1,33 +1,14 @@
 import { gql } from 'apollo-server-express';
+import { ACLManager } from '@terascope/data-access';
+
+const modelTypeDefinitions = ACLManager.ModelConfigs.map((config) => {
+   return config.typeDef;
+}).join('\n');
 
 export = gql`
-  type UserType {
-    id: ID
-
-    client_id: Int
-
-    username: String
-
-    firstname: String
-
-    lastname: String
-
-    email: String
-
-    roles: [String]
-
-    api_token: String
-
-    hash: String
-
-    salt: String
-
-    created: String
-
-    updated: String
-  }
+  ${modelTypeDefinitions}
 
   type Query {
-    getUser(id: ID): UserType
+    getUser(id: ID!): UserModel
   }
 `;

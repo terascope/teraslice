@@ -8,6 +8,13 @@ import { ManagerConfig } from './interfaces';
  * high level abstraction of Spaces, Users, Roles, and Views
 */
 export class ACLManager {
+    static ModelConfigs = [
+        models.Roles.ModelConfig,
+        models.Spaces.ModelConfig,
+        models.Users.ModelConfig,
+        models.Views.ModelConfig,
+    ];
+
     readonly roles: models.Roles;
     readonly spaces: models.Spaces;
     readonly users: models.Users;

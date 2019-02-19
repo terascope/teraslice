@@ -201,13 +201,31 @@ export class Base<T extends BaseModel> {
 }
 
 export interface ModelConfig {
-    name: string;
-    mapping: any;
-    schema: any;
+    /** Schema Version */
     version: number;
+
+    /** Name of the Model/Data Type */
+    name: string;
+
+    /** ElasticSearch Mapping */
+    mapping: any;
+
+    /** JSON Schema */
+    schema: any;
+
+    /** GraphQL Type Definition */
+    typeDef: string;
+
+    /** Additional IndexStore configuration */
     storeOptions?: Partial<IndexConfig>;
+
+    /** Unqiue fields across on Index */
     uniqueFields?: string[];
+
+    /** Sanitize / cleanup fields mapping, like trim or trimAndToLower */
     sanitizeFields?: SanitizeFields;
+
+    /** A custom function to fix any legacy data on the a record */
     fixDoc?: FixDocFn;
 }
 

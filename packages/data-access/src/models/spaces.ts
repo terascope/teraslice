@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import * as spacesConfig from './config/spaces';
+import spacesConfig from './config/spaces';
 import { ManagerConfig } from '../interfaces';
 import { Base, BaseModel } from './base';
 
@@ -7,6 +7,8 @@ import { Base, BaseModel } from './base';
  * Manager for Spaces
 */
 export class Spaces extends Base<SpaceModel> {
+    static ModelConfig = spacesConfig;
+
     constructor(client: es.Client, config: ManagerConfig) {
         super(client, config, spacesConfig);
     }

@@ -31,6 +31,7 @@ describe('Base', () => {
                 }
             }
         },
+        typeDef: '',
         uniqueFields: ['name'],
         version: 1,
     };
