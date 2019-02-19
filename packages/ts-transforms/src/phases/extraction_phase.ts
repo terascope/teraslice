@@ -44,14 +44,16 @@ export default class ExtractionPhase extends PhaseBase {
 
     run(dataArray: DataEntity[]): DataEntity[] {
         if (!this.hasProcessing) return dataArray;
-
         const resultsList: DataEntity[] = [];
-        _.each(dataArray, (record) => {
+
+        for (let i = 0; i < dataArray.length; i += 1) {
+            const record = dataArray[i];
             const metaData =  record.getMetadata();
             const { selectors } = metaData;
+            const selectorKeys = Object.keys(selectors);
             const results = {};
 
-            _.forOwn(selectors, (_value, key) => {
+            selectorKeys.forEach((key) => {
                 if (this.phase[key]) {
                     this.phase[key].forEach((fn) => {
                         const newRecord = fn.run(record);
@@ -62,10 +64,10 @@ export default class ExtractionPhase extends PhaseBase {
             });
 
             if (Object.keys(results).length > 0) {
-                const newRecord = new DataEntity(results, metaData);
+                const newRecord = DataEntity.make(results, metaData);
                 resultsList.push(newRecord);
             }
-        });
+        }
 
         return resultsList;
     }

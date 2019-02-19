@@ -16,7 +16,7 @@ export default class SelectionPhase extends PhaseBase {
         const dict = {};
         const Selector = opsManager.getTransform('selector');
 
-        _.forEach(configList, (config: OperationConfig) => {
+        configList.forEach((config: OperationConfig) => {
             if (config.selector && !config.follow && !config.other_match_required) dict[config.selector] = true;
         });
 
@@ -26,14 +26,18 @@ export default class SelectionPhase extends PhaseBase {
 
     public run(data: DataEntity[]): DataEntity[] {
         if (this.selectionPhase.length > 0) {
-            return data.reduce<DataEntity[]>((results, record) => {
-                _.each(this.selectionPhase, selectorOp => selectorOp.run(record));
+            const results = [];
+            for (let i = 0; i < data.length; i += 1) {
+                const record = data[i];
+                for (let j = 0; j < this.selectionPhase.length; j += 1) {
+                    this.selectionPhase[j].run(record);
+                }
                 const recordMeta = record.getMetadata('selectors');
                 if (recordMeta) {
                     results.push(record);
                 }
-                return results;
-            }, []);
+            }
+            return results;
         }
 
         return [];
