@@ -47,6 +47,7 @@ describe('phone number validation', () => {
         const data10 = new DataEntity({ field: notValidPhone });
         const data11 = new DataEntity({ field: notValidPhone2 });
         const data12 = new DataEntity({ field: notValidPhone3 });
+        const data13 = new DataEntity({ field: [validPhone1, notValidPhone3, 1234, { other: 'things' }] });
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -60,6 +61,7 @@ describe('phone number validation', () => {
         const results10 = test.run(data10);
         const results11 = test.run(data11);
         const results12 = test.run(data12);
+        const results13 = test.run(data13);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
@@ -77,5 +79,6 @@ describe('phone number validation', () => {
         expect(results10).toEqual({});
         expect(results11).toEqual({});
         expect(results12).toEqual({});
+        expect(results13).toEqual({ field: [validPhone1] });
     });
 });

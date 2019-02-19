@@ -22,7 +22,7 @@ describe('ip validation', () => {
         expect(() => new Ip(badConfig4)).toThrow();
     });
 
-    it('can validate boolean fields', () => {
+    it('can validate ip fields', () => {
         const opConfig = { source_field: 'ipAddress' };
         const test =  new Ip(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
@@ -39,6 +39,7 @@ describe('ip validation', () => {
         const data10 = new DataEntity({ ipAddress: '::' });
         const data11 = new DataEntity({ ipAddress: '193.0.0.23' }, metaData);
         const data12 = new DataEntity({ ipAddress: '193.0.0.0/24' });
+        const data13 = new DataEntity({ ipAddress: ['193.0.0.23', true, 'other:stuff', 1234] });
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -52,6 +53,7 @@ describe('ip validation', () => {
         const results10 = test.run(data10);
         const results11 = test.run(data11);
         const results12 = test.run(data12);
+        const results13 = test.run(data13);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
@@ -70,6 +72,7 @@ describe('ip validation', () => {
         expect(results11).toEqual(data11);
         expect(DataEntity.getMetadata(results11 as DataEntity, 'selectors')).toEqual(metaData.selectors);
         expect(results12).toEqual({});
+        expect(results13).toEqual({ ipAddress: ['193.0.0.23'] });
     });
 
     it('can validate nested fields', async() => {

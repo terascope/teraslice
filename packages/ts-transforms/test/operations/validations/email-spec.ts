@@ -38,6 +38,7 @@ describe('email validation', () => {
         const data9 = new DataEntity({ uri: 'ha3ke5@pawnage.com' }, metaData);
         const data10 = new DataEntity({ uri: 'asdfasdf' });
         const data11 = new DataEntity({ uri: 'SOMEWORDS@HELLO.COM' });
+        const data12 = new DataEntity({ uri: ['SOMEWORDS@HELLO.COM', 'http:// google.com', 12342, { other:'stuff' }, 'other@somewhere.com'] });
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -50,6 +51,7 @@ describe('email validation', () => {
         const results9 = test.run(data9);
         const results10 = test.run(data10);
         const results11 = test.run(data11);
+        const results12 = test.run(data12);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
@@ -67,6 +69,7 @@ describe('email validation', () => {
         expect(DataEntity.getMetadata(results9 as DataEntity, 'selectors')).toEqual(metaData.selectors);
         expect(results10).toEqual({});
         expect(results11).toEqual(data11);
+        expect(results12).toEqual({ uri: ['SOMEWORDS@HELLO.COM', 'other@somewhere.com'] });
     });
 
     it('can validate nested fields', async() => {

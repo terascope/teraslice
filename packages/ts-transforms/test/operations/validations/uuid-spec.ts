@@ -42,6 +42,7 @@ describe('Uuid validation', () => {
         const data9 = new DataEntity({ field: 'a77da370-15df-11e9-b726-396c5e1cc8ce' });
         const data10 = new DataEntity({ field: '@dks*ef9-15df-11e9-b726-PO8f_4-@o$%f' });
         const data11 = new DataEntity({ field: '1x7cw488-f4ad-4aae-a6h4-76f9td5y8635' });
+        const data12 = new DataEntity({ field: ['1x7cw488-f4ad-4aae-a6h4-76f9td5y8635', 'a77da370-15df-11e9-b726-396c5e1cc8ce'] });
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -54,6 +55,7 @@ describe('Uuid validation', () => {
         const results9 = test.run(data9);
         const results10 = test.run(data10);
         const results11 = test.run(data11);
+        const results12 = test.run(data12);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
@@ -66,11 +68,11 @@ describe('Uuid validation', () => {
         expect(results6).toEqual({});
         expect(DataEntity.getMetadata(results6 as DataEntity, 'selectors')).toEqual(metaData.selectors);
         expect(results7).toEqual({});
-        expect(results8).toEqual(data8);
-        expect(results9).toEqual(data9);
+        expect(results8).toEqual({ field: '1c7ce488-f4ad-4aae-a6f4-76f9cd5c8635' });
+        expect(results9).toEqual({ field: 'a77da370-15df-11e9-b726-396c5e1cc8ce' });
         expect(results10).toEqual({});
         expect(results11).toEqual({});
-
+        expect(results12).toEqual({ field: ['a77da370-15df-11e9-b726-396c5e1cc8ce'] });
     });
 
     it('can normailize the data', () => {

@@ -34,6 +34,7 @@ describe('boolean validation', () => {
         const data5 = new DataEntity({ isTall: { some: 'data' } });
         const data6 = new DataEntity({ isTall: true }, metaData);
         const data7 = new DataEntity({  isTall: 'true' });
+        const data8 = new DataEntity({ isTall: ['true', false, 'hello', { other:'things ' }] });
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -42,6 +43,7 @@ describe('boolean validation', () => {
         const results5 = test.run(data5);
         const results6 = test.run(data6);
         const results7 = test.run(data7);
+        const results8 = test.run(data8);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
@@ -54,6 +56,7 @@ describe('boolean validation', () => {
         expect(results6).toEqual(data6);
         expect(DataEntity.getMetadata(results6 as DataEntity, 'selectors')).toEqual(metaData.selectors);
         expect(results7).toEqual(data6);
+        expect(results8).toEqual({ isTall: [true, false] });
     });
 
     it('can validate special boolean fields', () => {

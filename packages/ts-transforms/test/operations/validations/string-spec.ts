@@ -36,6 +36,7 @@ describe('string validation', () => {
         const data5 = new DataEntity({ field: { some: 'data' } });
         const data6 = new DataEntity({ field: true }, metaData);
         const data7 = new DataEntity({});
+        const data8 = new DataEntity({ field: [1324, 'hello'] });
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -44,6 +45,7 @@ describe('string validation', () => {
         const results5 = test.run(data5);
         const results6 = test.run(data6);
         const results7 = test.run(data7);
+        const results8 = test.run(data8);
 
         function stringify(obj: DataEntity): object {
             if (obj.field) {
@@ -63,6 +65,7 @@ describe('string validation', () => {
         expect(results6).toEqual(stringify(data6));
         expect(DataEntity.getMetadata(results6 as DataEntity, 'selectors')).toEqual(metaData.selectors);
         expect(results7).toEqual({});
+        expect(results8).toEqual({ field: ['hello'] });
     });
 
     it('can ensure strings are of certain lengths', () => {
