@@ -24,7 +24,17 @@ class K8sResource {
         this.templateGenerator = this._makeTemplate(resourceType, resourceName);
         this.templateConfig = this._makeConfig();
         this.resource = this.templateGenerator(this.templateConfig);
-        this.gen();
+
+        // Apply job `targets` setting as k8s nodeAffinity
+        // We assume that multiple targets require both to match ...
+        // NOTE: If you specify multiple `matchExpressions` associated with
+        // `nodeSelectorTerms`, then the pod can be scheduled onto a node
+        // only if *all* `matchExpressions` can be satisfied.
+        this._setAffinity();
+        this._setResources();
+        this._setVolumes();
+        this._setAssetsVolume();
+        this._setImagePullSecret();
     }
 
     _makeConfig() {
@@ -78,26 +88,6 @@ class K8sResource {
         };
     }
 
-
-    gen() {
-        // Apply job `targets` setting as k8s nodeAffinity
-        // We assume that multiple targets require both to match ...
-        // NOTE: If you specify multiple `matchExpressions` associated with
-        // `nodeSelectorTerms`, then the pod can be scheduled onto a node
-        // only if *all* `matchExpressions` can be satisfied.
-        if (_.has(this.execution, 'targets') && (!_.isEmpty(this.execution.targets))) {
-            this._setAffinity();
-        }
-
-        // this._setResources(this.execution, this.maxHeapMemoryFactor);
-
-        this._setVolumes(this.execution);
-
-        this._setAssetsVolume(this.terasliceConfig);
-
-        this._setImagePullSecret();
-    }
-
     _setImagePullSecret() {
         if (this.terasliceConfig.kubernetes_image_pull_secret !== '') {
             this.resource.spec.template.spec.imagePullSecrets = [
@@ -134,23 +124,23 @@ class K8sResource {
         }
     }
 
-    _setResources(k8sObject, execution, maxHeapMemoryFactor) {
-        if (_.has(execution, 'cpu') && execution.cpu !== -1) {
-            _.set(k8sObject.spec.template.spec.containers[0],
-                'resources.requests.cpu', execution.cpu);
-            _.set(k8sObject.spec.template.spec.containers[0],
-                'resources.limits.cpu', execution.cpu);
+    _setResources() {
+        if (_.has(this.execution, 'cpu') && this.execution.cpu !== -1) {
+            _.set(this.resource.spec.template.spec.containers[0],
+                'resources.requests.cpu', this.execution.cpu);
+            _.set(this.resource.spec.template.spec.containers[0],
+                'resources.limits.cpu', this.execution.cpu);
         }
 
-        if (_.has(execution, 'memory') && execution.memory !== -1) {
-            _.set(k8sObject.spec.template.spec.containers[0],
-                'resources.requests.memory', execution.memory);
-            _.set(k8sObject.spec.template.spec.containers[0],
-                'resources.limits.memory', execution.memory);
+        if (_.has(this.execution, 'memory') && this.execution.memory !== -1) {
+            _.set(this.resource.spec.template.spec.containers[0],
+                'resources.requests.memory', this.execution.memory);
+            _.set(this.resource.spec.template.spec.containers[0],
+                'resources.limits.memory', this.execution.memory);
 
             // Set NODE_OPTIONS to override max-old-space-size
-            const maxOldSpace = Math.round(maxHeapMemoryFactor * execution.memory);
-            k8sObject.spec.template.spec.containers[0].env.push(
+            const maxOldSpace = Math.round(this.maxHeapMemoryFactor * this.execution.memory);
+            this.resource.spec.template.spec.containers[0].env.push(
                 {
                     name: 'NODE_OPTIONS',
                     value: `--max-old-space-size=${maxOldSpace}`
@@ -160,25 +150,27 @@ class K8sResource {
     }
 
     _setAffinity() {
-        if (!_.has(this.resource, 'spec.template.spec.affinity')) {
-            this.resource.spec.template.spec.affinity = {
-                nodeAffinity: {
-                    requiredDuringSchedulingIgnoredDuringExecution: {
-                        nodeSelectorTerms: [{ matchExpressions: [] }]
+        if (_.has(this.execution, 'targets') && (!_.isEmpty(this.execution.targets))) {
+            if (!_.has(this.resource, 'spec.template.spec.affinity')) {
+                this.resource.spec.template.spec.affinity = {
+                    nodeAffinity: {
+                        requiredDuringSchedulingIgnoredDuringExecution: {
+                            nodeSelectorTerms: [{ matchExpressions: [] }]
+                        }
                     }
-                }
-            };
-        }
+                };
+            }
 
-        _.forEach(this.execution.targets, (target) => {
-            this.resource.spec.template.spec.affinity.nodeAffinity
-                .requiredDuringSchedulingIgnoredDuringExecution
-                .nodeSelectorTerms[0].matchExpressions.push({
-                    key: target.key,
-                    operator: 'In',
-                    values: [target.value]
-                });
-        });
+            _.forEach(this.execution.targets, (target) => {
+                this.resource.spec.template.spec.affinity.nodeAffinity
+                    .requiredDuringSchedulingIgnoredDuringExecution
+                    .nodeSelectorTerms[0].matchExpressions.push({
+                        key: target.key,
+                        operator: 'In',
+                        values: [target.value]
+                    });
+            });
+        }
     }
 }
 

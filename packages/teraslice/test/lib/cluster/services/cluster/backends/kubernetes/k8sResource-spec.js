@@ -1,10 +1,9 @@
 'use strict';
 
-// const _ = require('lodash');
+const _ = require('lodash');
 const yaml = require('js-yaml');
-// const _execution = require('./files/execution.json');
+
 const K8sResource = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/k8sResource');
-// const { safeEncode } = require('../../../../../../../lib/utils/encoding_utils');
 
 describe('k8sResource', () => {
     let execution;
@@ -41,6 +40,19 @@ describe('k8sResource', () => {
         // The following properties should be absent in the default case
         expect(kr.resource.spec.template.spec).not.toHaveProperty('affinity');
         expect(kr.resource.spec.template.spec).not.toHaveProperty('imagePullSecrets');
+
+        // Configmaps should be mounted on all workers
+        expect(kr.resource.spec.template.spec.volumes[0]).toEqual(yaml.load(`
+            name: config
+            configMap:
+              name: ts-dev1-worker
+              items:
+                  - key: teraslice.yaml
+                    path: teraslice.yaml`));
+        expect(kr.resource.spec.template.spec.containers[0].volumeMounts[0])
+            .toEqual(yaml.load(`
+                mountPath: /app/config
+                name: config`));
     });
 
     it('does not have affinity property when targets equals [].', () => {
@@ -58,7 +70,6 @@ describe('k8sResource', () => {
             'deployments', 'worker', terasliceConfig, execution
         );
 
-        // console.log(JSON.stringify(kr.resource, null, 2));
         expect(kr.resource.spec.template.spec.affinity).toEqual(yaml.load(`
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
@@ -79,7 +90,6 @@ describe('k8sResource', () => {
             'deployments', 'worker', terasliceConfig, execution
         );
 
-        // console.log(JSON.stringify(kr.resource, null, 2));
         expect(kr.resource.spec.template.spec.affinity).toEqual(yaml.load(`
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
@@ -101,7 +111,6 @@ describe('k8sResource', () => {
             'deployments', 'worker', terasliceConfig, execution
         );
 
-        // console.log(JSON.stringify(kr.resource.spec.template.spec, null, 2));
         expect(kr.resource.spec.template.spec.imagePullSecrets[0]).toEqual(
             yaml.load(`
               name: teraslice-image-pull-secret`)
@@ -122,7 +131,6 @@ describe('k8sResource', () => {
         // The following properties should be absent in the default case
         expect(kr.resource.spec.template.spec).not.toHaveProperty('affinity');
         expect(kr.resource.spec.template.spec).not.toHaveProperty('imagePullSecrets');
-        // console.log(kr.resource.spec.template.spec.volumes);
         expect(kr.resource.spec.template.spec.volumes[0]).toEqual(yaml.load(`
             name: config
             configMap:
@@ -144,5 +152,125 @@ describe('k8sResource', () => {
             .toEqual(yaml.load(`
                 name: asset-volume
                 mountPath: /assets`));
+    });
+
+    it('has valid resource object with volumes when execution has a single job volume', () => {
+        execution.volumes = [
+            { name: 'teraslice-data1', path: '/data' }
+        ];
+
+        const kr = new K8sResource(
+            'deployments', 'worker', terasliceConfig, execution
+        );
+
+        // First check the configMap volumes, which should be present on all
+        // deployments
+        expect(kr.resource.spec.template.spec.volumes[0]).toEqual(yaml.load(`
+                name: config
+                configMap:
+                  name: ts-dev1-worker
+                  items:
+                      - key: teraslice.yaml
+                        path: teraslice.yaml`));
+        expect(kr.resource.spec.template.spec.containers[0].volumeMounts[0])
+            .toEqual(yaml.load(`
+                mountPath: /app/config
+                name: config`));
+
+        // Now check for the volume added via config
+        expect(kr.resource.spec.template.spec.volumes[1]).toEqual(yaml.load(`
+                name: teraslice-data1
+                persistentVolumeClaim:
+                  claimName: teraslice-data1`));
+        expect(kr.resource.spec.template.spec.containers[0].volumeMounts[1])
+            .toEqual(yaml.load(`
+                name: teraslice-data1
+                mountPath: /data`));
+    });
+
+    it('has valid resource object with volumes when execution has two job volumes', () => {
+        execution.volumes = [
+            { name: 'teraslice-data1', path: '/data' },
+            { name: 'tmp', path: '/tmp' }
+        ];
+
+        const kr = new K8sResource(
+            'deployments', 'worker', terasliceConfig, execution
+        );
+
+        // Now check for the volumes added via job
+        expect(kr.resource.spec.template.spec.volumes[1]).toEqual(yaml.load(`
+                name: teraslice-data1
+                persistentVolumeClaim:
+                  claimName: teraslice-data1`));
+        expect(kr.resource.spec.template.spec.containers[0].volumeMounts[1])
+            .toEqual(yaml.load(`
+                name: teraslice-data1
+                mountPath: /data`));
+
+        expect(kr.resource.spec.template.spec.volumes[2]).toEqual(yaml.load(`
+                name: tmp
+                persistentVolumeClaim:
+                  claimName: tmp`));
+        expect(kr.resource.spec.template.spec.containers[0].volumeMounts[2])
+            .toEqual(yaml.load(`
+                name: tmp
+                mountPath: /tmp`));
+    });
+
+    it('has memory and cpu limits and requests when set on execution', () => {
+        execution.cpu = 1;
+        execution.memory = 2147483648;
+
+        const kr = new K8sResource(
+            'deployments', 'worker', terasliceConfig, execution
+        );
+
+        expect(kr.resource.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+        expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
+              requests:
+                memory: 2147483648
+                cpu: 1
+              limits:
+                memory: 2147483648
+                cpu: 1`));
+
+        const envArray = kr.resource.spec.template.spec.containers[0].env;
+        expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
+            .toEqual('--max-old-space-size=1932735283');
+    });
+
+    it('has memory limits and requests when set on execution', () => {
+        execution.cpu = -1;
+        execution.memory = 2147483648;
+
+        const kr = new K8sResource(
+            'deployments', 'worker', terasliceConfig, execution
+        );
+
+        expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
+              requests:
+                memory: 2147483648
+              limits:
+                memory: 2147483648`));
+
+        const envArray = kr.resource.spec.template.spec.containers[0].env;
+        expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
+            .toEqual('--max-old-space-size=1932735283');
+    });
+
+    it('has cpu limits and requests when set on execution', () => {
+        execution.cpu = 1;
+        execution.memory = -1;
+
+        const kr = new K8sResource(
+            'deployments', 'worker', terasliceConfig, execution
+        );
+
+        expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
+              requests:
+                cpu: 1
+              limits:
+                cpu: 1`));
     });
 });
