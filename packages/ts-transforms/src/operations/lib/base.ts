@@ -19,7 +19,7 @@ export default class OperationBase {
 
     protected validateConfig(config: OperationConfig) {
         // we don't need to check target or source for selector ops
-        if (this.constructor.name === 'Selector' || this.constructor.name === 'RequiredExtractions') return;
+        if (this.constructor.name === 'Selector') return;
         const { target_field: targetField, source_field: sField } = config;
         const tField = targetField || sField;
         if (!tField || typeof tField !== 'string' || tField.length === 0) {

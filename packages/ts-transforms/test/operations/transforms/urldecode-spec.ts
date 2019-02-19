@@ -50,6 +50,7 @@ describe('urldecode operator', () => {
         const data9 = new DataEntity({ source: '::' });
         const data10 = new DataEntity({ source: '193.0.0.23' }, metaData);
         const data11 = new DataEntity({ source: 'hello world' }, metaData);
+        const data12 = new DataEntity({ source: ['http:// google.com?q=HELLO%20AND%20GOODBYE', 'http:// other.com?q=Some%20AND%20Things'] }, metaData);
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -62,6 +63,7 @@ describe('urldecode operator', () => {
         const results9 = test.run(data9);
         const results10 = test.run(data10);
         const results11 = test.run(data11);
+        const results12 = test.run(data12);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
@@ -78,6 +80,7 @@ describe('urldecode operator', () => {
         expect(results10).toEqual({ source: '193.0.0.23' });
         expect(DataEntity.getMetadata(results11 as DataEntity, 'selectors')).toEqual(metaData.selectors);
         expect(results11).toEqual({ source: 'hello world' });
+        expect(results12).toEqual({ source: ['http:// google.com?q=HELLO AND GOODBYE', 'http:// other.com?q=Some AND Things'] });
     });
 
     it('can urldecode decode nested fields', () => {

@@ -35,6 +35,7 @@ describe('transform operator', () => {
         const data5 = new DataEntity({ someField: false });
         const data6 = new DataEntity({ someField: 'otHer' });
         const data7 = new DataEntity({ sideField: 'data' });
+        const data8 = new DataEntity({ someField: ['otHer', 'DATA'] });
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -43,6 +44,7 @@ describe('transform operator', () => {
         const results5 = test.run(data5);
         const results6 = test.run(data6);
         const results7 = test.run(data7);
+        const results8 = test.run(data8);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(results1).toEqual({ someField: '56.234,95.234' });
@@ -52,5 +54,6 @@ describe('transform operator', () => {
         expect(results5).toEqual({});
         expect(results6).toEqual({ someField: 'other' });
         expect(results7).toEqual({ sideField: 'data' });
+        expect(results8).toEqual({ someField: ['other', 'data'] });
     });
 });

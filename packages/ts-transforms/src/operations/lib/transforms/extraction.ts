@@ -106,7 +106,7 @@ export default class Extraction extends TransformOpBase {
                     return doc;
                 }
 
-                return new DataEntity(_.set({}, this.target, extractedResult), metaData);
+                return DataEntity.make(_.set({}, this.target, extractedResult), metaData);
             }
         }
         if (this.isMutation && (_.keys(doc).length > 0)) return doc;
