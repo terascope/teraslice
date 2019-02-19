@@ -2,8 +2,7 @@ import { Express } from 'express';
 import { Logger } from '@terascope/utils';
 import { ACLManager } from '@terascope/data-access';
 import { ApolloServer } from 'apollo-server-express';
-import typeDefs from './typedefs';
-import resolvers from './resolvers';
+import schema from './schema';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 
 export default class TeraserverPlugin {
@@ -30,8 +29,7 @@ export default class TeraserverPlugin {
         });
 
         this.server = new ApolloServer({
-            typeDefs,
-            resolvers,
+            schema,
             context: {
                 manager: this.manager,
             }

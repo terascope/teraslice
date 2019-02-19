@@ -38,16 +38,6 @@ const config: ModelConfig = {
         },
         required: ['name']
     },
-    typeDef: `
-        type RolesModel {
-            id: ID!
-            name: String!
-            description: String
-            spaces: [String]
-            created: String
-            updated: String
-        }
-    `
 };
 
 export = config;

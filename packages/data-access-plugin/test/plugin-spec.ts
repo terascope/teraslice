@@ -78,7 +78,7 @@ describe('TeraserverPlugin', () => {
         let id: string;
 
         beforeAll(async () => {
-            const user = await plugin.manager.users.create({
+            const user = await plugin.manager.users.createWithPassword({
                 username: 'foobar-1',
                 firstname: 'Foo',
                 lastname: 'Bar',
@@ -92,27 +92,91 @@ describe('TeraserverPlugin', () => {
 
         it('should be able to get a user', async () => {
             const uri = formatUri();
-            const query = `{
-                getUser(id: "${id}") {
+            const query = `query {
+                findUser(id: "${id}") {
                     username,
                     firstname,
                     lastname,
                 }
             }`;
 
-            type GetUserResponse = {
-                getUser: {
-                    username: string,
-                    fistname: string,
-                    lastname: string,
+            expect(await request(uri, query)).toEqual({
+                findUser: {
+                    username: 'foobar-1',
+                    firstname: 'Foo',
+                    lastname: 'Bar'
                 }
-            };
+            });
+        });
 
-            const result: GetUserResponse = await request(uri, query);
-            expect(result.getUser).toEqual({
-                username: 'foobar-1',
-                firstname: 'Foo',
-                lastname: 'Bar'
+        it('should be able to create a user', async () => {
+            const uri = formatUri();
+            const query = `mutation {
+                createUser(user: {
+                    username: "hello",
+                    firstname: "hi",
+                    lastname: "hello",
+                    email: "hi@example.com",
+                    roles: [],
+                    client_id: 1,
+                }, password: "greeting") {
+                    username,
+                    email,
+                }
+            }`;
+
+            expect(await request(uri, query)).toEqual({
+                createUser: {
+                    username: 'hello',
+                    email: 'hi@example.com',
+                }
+            });
+        });
+
+        it('should be able to update a user', async () => {
+            const uri = formatUri();
+            const query = `mutation {
+                updateUser(user: {
+                    id: "${id}"
+                    username: "foobar-1",
+                    email: "foo@example.com",
+                    client_id: 2,
+                    roles: ["hello"]
+                }) {
+                    username,
+                    roles,
+                    client_id,
+                }
+            }`;
+
+            expect(await request(uri, query)).toEqual({
+                updateUser: {
+                    username: 'foobar-1',
+                    roles: ['hello'],
+                    client_id: 2
+                }
+            });
+        });
+
+        it('should be able to update a user\'s password', async () => {
+            const uri = formatUri();
+            const query = `mutation {
+                updatePassword(id: "${id}", password: "bananas")
+            }`;
+
+            expect(await request(uri, query)).toEqual({
+                updatePassword: true
+            });
+        });
+
+        it('should be able to remove a user', async () => {
+            const uri = formatUri();
+            const query = `mutation {
+                removeUser(id: "${id}")
+            }`;
+
+            expect(await request(uri, query)).toEqual({
+                removeUser: true
             });
         });
     });

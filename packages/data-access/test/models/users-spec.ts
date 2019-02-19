@@ -1,7 +1,7 @@
 import 'jest-extended';
 import nanoid from 'nanoid';
 import { TSError } from '@terascope/utils';
-import { Users, UserModel } from '../../src/models/users';
+import { Users, PrivateUserModel } from '../../src/models/users';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
 describe('Users', () => {
@@ -24,10 +24,10 @@ describe('Users', () => {
         const username = 'billyjoe';
         const password = 'secret-password';
 
-        let created: UserModel;
+        let created: PrivateUserModel;
 
         beforeAll(async () => {
-            created = await users.create({
+            created = await users.createWithPassword({
                 username,
                 firstname: 'Billy',
                 lastname: 'Joe',
@@ -124,7 +124,7 @@ describe('Users', () => {
             });
 
             it('should be fixed when updating it', async () => {
-                const prefetched = await users.store.client.get<UserModel>({
+                const prefetched = await users.store.client.get<PrivateUserModel>({
                     id,
                     index: users.store.indexQuery,
                     type: 'users'
@@ -136,10 +136,11 @@ describe('Users', () => {
                 await users.update({
                     id,
                     username,
+                    // @ts-ignore
                     role: roleId
                 });
 
-                const fetched = await users.store.client.get<UserModel>({
+                const fetched = await users.store.client.get<PrivateUserModel>({
                     id,
                     index: users.store.indexQuery,
                     type: 'users'
@@ -158,7 +159,7 @@ describe('Users', () => {
                 expect.hasAssertions();
 
                 try {
-                    await users.create({
+                    await users.createWithPassword({
                         username: 'coolbeans',
                         firstname: 'Cool',
                         lastname: 'Beans',
@@ -183,7 +184,7 @@ describe('Users', () => {
                 expect.hasAssertions();
 
                 try {
-                    await users.create({
+                    await users.createWithPassword({
                         username: 'coolbeans',
                         firstname: 'Cool',
                         lastname: 'Beans',
@@ -203,7 +204,7 @@ describe('Users', () => {
 
         describe('when adding a messy email address', () => {
             it('should trim and to lower the email address', async () => {
-                const result = await users.create({
+                const result = await users.createWithPassword({
                     username: 'coolbeans',
                     firstname: 'Cool',
                     lastname: 'Beans',

@@ -45,10 +45,11 @@ describe('ACLManager', () => {
 
                 await manager.roles.update({
                     id: roleId,
+                    name: 'Example Role',
                     spaces: [spaceId]
                 });
 
-                await manager.users.create({
+                await manager.users.createWithPassword({
                     username,
                     firstname: 'Foo',
                     lastname: 'Bar',

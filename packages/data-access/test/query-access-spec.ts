@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { DataEntity, TSError } from '@terascope/utils';
-import { QueryAccess, ViewModel, PublicUserModel } from '../src';
+import { QueryAccess, ViewModel, UserModel } from '../src';
 
 describe('QueryAccess', () => {
     const view = DataEntity.make<ViewModel>({
@@ -20,7 +20,7 @@ describe('QueryAccess', () => {
         _created: new Date(),
     });
 
-    const user = DataEntity.make<PublicUserModel>({
+    const user = DataEntity.make<UserModel>({
         client_id: 1,
         username: 'foobar',
         firstname: 'Foo',

@@ -8,12 +8,18 @@ import { ManagerConfig } from './interfaces';
  * high level abstraction of Spaces, Users, Roles, and Views
 */
 export class ACLManager {
-    static ModelConfigs = [
-        models.Roles.ModelConfig,
-        models.Spaces.ModelConfig,
-        models.Users.ModelConfig,
-        models.Views.ModelConfig,
-    ];
+    static GraphQLSchema = `
+        type Query {
+            findUser(id: ID!): PublicUser
+        }
+
+        type Mutation {
+            createUser(user: CreateUserInput!, password: String!): User!
+            updateUser(user: UpdateUserInput!): User
+            updatePassword(id: ID!, password: String!): Boolean
+            removeUser(id: ID!): Boolean
+        }
+    `;
 
     readonly roles: models.Roles;
     readonly spaces: models.Spaces;
@@ -43,6 +49,30 @@ export class ACLManager {
             this.users.shutdown(),
             this.views.shutdown(),
         ]);
+    }
+
+    findUser(id: string) {
+        return this.users.findByAnyId(id);
+    }
+
+    createUser(input: models.CreateUserInput, password: string) {
+        return this.users.createWithPassword(input, password);
+    }
+
+    async updateUser(input: models.UpdateUserInput): Promise<models.UserModel> {
+        // @ts-ignore
+        await this.users.update(input);
+        return this.users.findById(input.id);
+    }
+
+    async updatePassword(id: string, password: string): Promise<boolean> {
+        await this.users.updateWithPassword(id, password);
+        return true;
+    }
+
+    async removeUser(id: string): Promise<boolean> {
+        await this.users.deleteById(id);
+        return true;
     }
 
     /**
@@ -101,8 +131,8 @@ export class ACLManager {
     // FIXME add more higher level apis...
 }
 
-type CreateSpaceInput = Omit<models.SpaceModel, 'views'|'id'|'created'|'updated'>;
-type CreateSpaceView = Omit<models.ViewModel, 'space'|'id'|'created'|'updated'>;
+type CreateSpaceInput = Omit<models.CreateSpaceInput, 'views'>;
+type CreateSpaceView = Omit<models.CreateViewInput, 'space'>;
 
 /**
  * The definition of an ACL for limiting access to data.
@@ -114,7 +144,7 @@ export interface DataAccessConfig {
     /**
      * The User Model
     */
-    user: DataEntity<models.PublicUserModel>;
+    user: DataEntity<models.UserModel>;
 
     /**
      * The View Model
@@ -126,3 +156,11 @@ export interface DataAccessConfig {
     */
     role: string;
 }
+
+export const graphqlSchemas = [
+    ACLManager.GraphQLSchema,
+    models.Roles.GraphQLSchema,
+    models.Spaces.GraphQLSchema,
+    models.Users.GraphQLSchema,
+    models.Views.GraphQLSchema,
+];

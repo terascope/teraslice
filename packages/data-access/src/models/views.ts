@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import { getFirst, TSError } from '@terascope/utils';
+import { getFirst, TSError, Omit } from '@terascope/utils';
 import { Base, BaseModel } from './base';
 import viewsConfig from './config/views';
 import { ManagerConfig } from '../interfaces';
@@ -7,8 +7,46 @@ import { ManagerConfig } from '../interfaces';
 /**
  * Manager for Views
 */
-export class Views extends Base<ViewModel> {
+export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
     static ModelConfig = viewsConfig;
+    static GraphQLSchema = `
+        type View {
+            id: ID!
+            name: String
+            description: String
+            space: String!
+            roles: [String]
+            excludes: [String]
+            includes: [String]
+            constraint: String
+            prevent_prefix_wildcard: Boolean
+            created: String
+            updated: String
+        }
+
+        input CreateViewInput {
+            name: String
+            description: String
+            space: String!
+            roles: [String]
+            excludes: [String]
+            includes: [String]
+            constraint: String
+            prevent_prefix_wildcard: Boolean
+        }
+
+        input UpdateViewInput {
+            id: ID!
+            name: String
+            description: String
+            space: String!
+            roles: [String]
+            excludes: [String]
+            includes: [String]
+            constraint: String
+            prevent_prefix_wildcard: Boolean
+        }
+    `;
 
     constructor(client: es.Client, config: ManagerConfig) {
         super(client, config, viewsConfig);
@@ -72,3 +110,6 @@ export interface ViewModel extends BaseModel {
     */
     prevent_prefix_wildcard?: boolean;
 }
+
+export type CreateViewInput = Omit<ViewModel, keyof BaseModel>;
+export type UpdateViewInput = Omit<ViewModel, Exclude<(keyof BaseModel), 'id'>>;

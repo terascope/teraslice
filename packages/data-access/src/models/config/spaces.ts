@@ -39,16 +39,6 @@ const config: ModelConfig = {
         required: ['name']
     },
     uniqueFields: ['name'],
-    typeDef: `
-        type SpaceModel {
-            id: ID!
-            name: String!
-            description: String
-            views: [String]
-            created: String
-            updated: String
-        }
-    `
 };
 
 export = config;

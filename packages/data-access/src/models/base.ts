@@ -8,7 +8,7 @@ import { ManagerConfig } from '../interfaces';
 /**
  * A base class for handling the different ACL models
 */
-export class Base<T extends BaseModel> {
+export class Base<T extends BaseModel, C extends object = T, U extends object = T> {
     readonly store: IndexStore<T>;
     readonly name: string;
     private _fixDoc: FixDocFn;
@@ -67,13 +67,15 @@ export class Base<T extends BaseModel> {
         return this.store.shutdown();
     }
 
-    async create(record: CreateInput<T>|ts.DataEntity<CreateInput<T>>): Promise<T> {
-        const doc = this._sanitizeRecord({
+    async create(record: C|ts.DataEntity<C>): Promise<T> {
+        const docInput: unknown = {
             ...record,
             id: await utils.makeId(),
             created: utils.makeISODate(),
             updated: utils.makeISODate(),
-        } as T);
+        };
+
+        const doc = this._sanitizeRecord(docInput as T);
 
         await this._ensureUnique(doc);
         await this.store.indexWithId(doc, doc.id);
@@ -129,7 +131,7 @@ export class Base<T extends BaseModel> {
         });
     }
 
-    async update(record: UpdateInput<T>|ts.DataEntity<UpdateInput<T>>) {
+    async update(record: U) {
         const doc = this._sanitizeRecord({
             ...this._fixDoc(record),
             updated: utils.makeISODate(),
@@ -213,9 +215,6 @@ export interface ModelConfig {
     /** JSON Schema */
     schema: any;
 
-    /** GraphQL Type Definition */
-    typeDef: string;
-
     /** Additional IndexStore configuration */
     storeOptions?: Partial<IndexConfig>;
 
@@ -240,9 +239,6 @@ export type SanitizeFields = {
 };
 
 export type BaseConfig = ModelConfig & ManagerConfig;
-
-export type CreateInput<T extends BaseModel> = ts.Omit<T, 'id'|'created'|'updated'>;
-export type UpdateInput<T extends BaseModel> = Partial<ts.Omit<T, 'created'|'updated'>>;
 
 export interface BaseModel {
     /**

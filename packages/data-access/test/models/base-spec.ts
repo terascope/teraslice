@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { DataEntity, times, TSError } from '@terascope/utils';
+import { DataEntity, times, TSError, Omit } from '@terascope/utils';
 import { Base, BaseModel, ModelConfig } from '../../src/models/base';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
@@ -31,12 +31,14 @@ describe('Base', () => {
                 }
             }
         },
-        typeDef: '',
         uniqueFields: ['name'],
         version: 1,
     };
 
-    const base = new Base<ExampleModel>(client, {
+    type CreateExampleInput = Omit<ExampleModel, 'id'|'created'|'updated'>;
+    type UpdateExampleInput = Omit<ExampleModel, 'created'|'updated'>;
+
+    const base = new Base<ExampleModel, CreateExampleInput, UpdateExampleInput>(client, {
         namespace: 'test',
         storeOptions: {
             bulkMaxSize: 50,
@@ -139,7 +141,7 @@ describe('Base', () => {
         });
 
         it('should be able to update the record', async () => {
-            const updateInput = { ...fetched, name: 'Hello' };
+            const updateInput = { ...fetched, name: 'Hello' } as UpdateExampleInput;
 
             const updateResult = await base.update(updateInput);
             expect(updateResult).not.toBe(updateInput);

@@ -84,22 +84,7 @@ const config: ModelConfig = {
             }
         },
         required: ['name', 'space']
-    },
-    typeDef: `
-        type ViewModel {
-            id: ID!
-            name: String
-            description: String
-            space: String!
-            roles: [String]
-            excludes: [String]
-            includes: [String]
-            constraint: String
-            prevent_prefix_wildcard: Boolean
-            created: String
-            updated: String
-        }
-    `
+    }
 };
 
 export = config;

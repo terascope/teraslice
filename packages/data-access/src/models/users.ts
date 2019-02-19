@@ -1,7 +1,7 @@
 import * as es from 'elasticsearch';
-import { getFirst, Omit, DataEntity } from '@terascope/utils';
+import { getFirst, Omit, DataEntity, Optional } from '@terascope/utils';
 import * as usersConfig from './config/users';
-import { Base, BaseModel, CreateInput } from './base';
+import { Base, BaseModel } from './base';
 import { ManagerConfig } from '../interfaces';
 import * as utils from '../utils';
 
@@ -10,20 +10,80 @@ import * as utils from '../utils';
  *
  * @todo handle backwards compatiblity with "role"
 */
-export class Users extends Base<UserModel> {
+export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, UpdatePrivateUserInput> {
     static ModelConfig = usersConfig;
+    static GraphQLSchema = `
+        type User {
+            id: ID!
+            client_id: Int
+            username: String!
+            firstname: String
+            lastname: String
+            email: String
+            roles: [String]
+            api_token: String
+            hash: String
+            salt: String
+            created: String
+            updated: String
+        }
+
+        type PublicUser {
+            id: ID!
+            client_id: Int
+            username: String!
+            firstname: String
+            lastname: String
+            email: String
+            roles: [String]
+            created: String
+            updated: String
+        }
+
+        input CreateUserInput {
+            client_id: Int
+            username: String!
+            firstname: String
+            lastname: String
+            email: String
+            roles: [String]
+        }
+
+        input UpdateUserInput {
+            id: ID!
+            client_id: Int
+            username: String!
+            firstname: String
+            lastname: String
+            email: String
+            roles: [String]
+        }
+    `;
 
     constructor(client: es.Client, config: ManagerConfig) {
         super(client, config, usersConfig);
     }
 
-    // @ts-ignore
-    async create(record: CreateInput<PublicUserModel>, password: string): Promise<UserModel> {
+    async createWithPassword(record: CreateUserInput, password: string): Promise<PrivateUserModel> {
         const salt = await utils.generateSalt();
         const hash = await utils.generatePasswordHash(password, salt);
         const apiToken = await utils.generateAPIToken(hash, record.username);
 
         return super.create({
+            ...record,
+            api_token: apiToken,
+            hash,
+            salt,
+        });
+    }
+
+    async updateWithPassword(id: string, password: string) {
+        const record = await this.findByAnyId(id);
+        const salt = await utils.generateSalt();
+        const hash = await utils.generatePasswordHash(password, salt);
+        const apiToken = await utils.generateAPIToken(hash, record.username);
+
+        return super.update({
             ...record,
             api_token: apiToken,
             hash,
@@ -51,7 +111,7 @@ export class Users extends Base<UserModel> {
         const user = await this.findByAnyId(username);
         user.api_token = await utils.generateAPIToken(user.hash, username);
 
-        await this.update(user);
+        await super.update(user);
         return user.api_token;
     }
 
@@ -65,13 +125,13 @@ export class Users extends Base<UserModel> {
     /**
      * Find a User by username
     */
-    async findByUsername(username: string): Promise<DataEntity<UserModel>> {
+    async findByUsername(username: string): Promise<DataEntity<PrivateUserModel>> {
         return this.findBy({ username });
     }
 
-    omitPrivateFields(user: DataEntity<UserModel>): DataEntity<PublicUserModel>;
-    omitPrivateFields(user: UserModel): PublicUserModel;
-    omitPrivateFields(user: DataEntity<UserModel>|UserModel): DataEntity<PublicUserModel>|PublicUserModel {
+    omitPrivateFields(user: DataEntity<PrivateUserModel>): DataEntity<UserModel>;
+    omitPrivateFields(user: PrivateUserModel): UserModel;
+    omitPrivateFields(user: DataEntity<PrivateUserModel>|PrivateUserModel): DataEntity<UserModel>|UserModel {
         const publicUser = {};
         const privateFields = ['api_token', 'hash', 'salt'];
 
@@ -90,7 +150,7 @@ export class Users extends Base<UserModel> {
  * The definition of a User model
 */
 export interface UserModel extends BaseModel {
-    /**
+/**
      * The ID for the client
     */
     client_id: number;
@@ -121,7 +181,9 @@ export interface UserModel extends BaseModel {
      * Currently Roles will be restricted to an array of one
     */
     roles: [string]|[];
+}
 
+export interface PrivateUserModel extends UserModel {
     /**
      * The User's API Token
     */
@@ -145,4 +207,8 @@ export interface UserModel extends BaseModel {
     salt: string;
 }
 
-export type PublicUserModel = Omit<UserModel, 'api_token'|'hash'|'salt'>;
+export type CreateUserInput = Omit<UserModel, (keyof BaseModel)>;
+export type CreatePrivateUserInput = Omit<PrivateUserModel, (keyof BaseModel)>;
+
+export type UpdateUserInput = Optional<UserModel, Exclude<(keyof BaseModel), 'id'>>;
+export type UpdatePrivateUserInput = Optional<PrivateUserModel, Exclude<(keyof BaseModel), 'id'>>;
