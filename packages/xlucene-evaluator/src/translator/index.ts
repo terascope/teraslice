@@ -27,7 +27,7 @@ export default class Translator {
         const dslQuery = {
             query: {
                 constant_score: {
-                    filter: query
+                    filter: query || []
                 }
             }
         };

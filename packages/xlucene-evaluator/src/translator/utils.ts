@@ -4,12 +4,16 @@ import { AST, IMPLICIT } from '../interfaces';
 
 const logger = debugLogger('xlucene-translator-utils');
 
-export function buildAnyQuery(node: AST, parentNode?: AST): AnyQuery {
+export function buildAnyQuery(node: AST, parentNode?: AST): AnyQuery|undefined {
+    const field = getFieldFromNode(node, parentNode);
+    if (!field && node.term === '*') {
+        return;
+    }
+
     if (utils.isConjunctionNode(node)) {
         return buildBoolQuery(node);
     }
 
-    const field = getFieldFromNode(node, parentNode);
     if (!field) {
         const error = new Error('Unable to determine field');
         logger.error(error.message, node, parentNode);
@@ -126,7 +130,9 @@ export function buildBoolQuery(node: AST): BoolQuery {
 
     if (node.left) {
         const query = buildAnyQuery(node.left, node);
-        queries.push(query);
+        if (query) {
+            queries.push(query);
+        }
     }
 
     if (node.right) {
@@ -136,7 +142,9 @@ export function buildBoolQuery(node: AST): BoolQuery {
             queries.push(...query.bool.must_not);
             queries.push(...query.bool.should);
         } else {
-            queries.push(query);
+            if (query) {
+                queries.push(query);
+            }
         }
     }
 

@@ -22,6 +22,11 @@ describe('Translator', () => {
 
     describe.each([
         [
+            '*',
+            'query.constant_score.filter.bool.filter',
+            []
+        ],
+        [
             'hello:world',
             'query.constant_score.filter.bool.filter',
             [
