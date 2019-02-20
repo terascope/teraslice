@@ -112,14 +112,21 @@ describe('TeraserverPlugin', () => {
                 mutation {
                     createSpace(space: {
                         name: "greetings",
-                        roles: ["${roleId}"],
                     }, views: [
                         {
-                            name: "greetings-admin"
+                            name: "greetings-admin",
+                            roles: ["${roleId}"],
                         }
                     ]) {
-                        space,
-                        views
+                        space {
+                            id,
+                            name
+                        }
+                        views {
+                            id,
+                            name,
+                            roles
+                        }
                     }
                 }
             `;
@@ -133,12 +140,12 @@ describe('TeraserverPlugin', () => {
 
             expect(space).toMatchObject({
                 name: 'greetings',
-                roles: [roleId],
             });
 
             expect(views).toBeArrayOfSize(1);
             expect(views[0]).toMatchObject({
-                name: 'greetings-admin'
+                name: 'greetings-admin',
+                roles: [roleId],
             });
 
             spaceId = space.id;
@@ -196,6 +203,31 @@ describe('TeraserverPlugin', () => {
                     firstname: 'hi',
                     lastname: 'hello'
                 }
+            });
+        });
+
+        it('should be able to find all users', async () => {
+            expect(userId).toBeTruthy();
+
+            const uri = formatUri();
+            const query = `
+                query {
+                    findUsers(query: "*") {
+                        username,
+                        firstname,
+                        lastname,
+                    }
+                }
+            `;
+
+            expect(await request(uri, query)).toEqual({
+                findUsers: [
+                    {
+                        username: 'hello',
+                        firstname: 'hi',
+                        lastname: 'hello'
+                    }
+                ]
             });
         });
 

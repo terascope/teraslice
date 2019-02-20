@@ -9,10 +9,6 @@ import { ManagerConfig } from './interfaces';
 */
 export class ACLManager {
     static GraphQLSchema = `
-        type Query {
-            findUser(id: ID!): PublicUser
-        }
-
         input CreateSpaceInput {
             name: String!
             description: String
@@ -33,13 +29,20 @@ export class ACLManager {
             views: [View]!
         }
 
+        type Query {
+            findUser(id: ID!): PublicUser
+            findUsers(query: String): [PublicUser]!
+        }
+
         type Mutation {
             createUser(user: CreateUserInput!, password: String!): User!
             updateUser(user: UpdateUserInput!): User!
             updatePassword(id: ID!, password: String!): Boolean
             removeUser(id: ID!): Boolean
+
             createRole(role: CreateRoleInput!): Role
             updateRole(role: UpdateRoleInput!): Role
+
             createSpace(space: CreateSpaceInput!, views: [CreateViewInput]): CreateSpaceResult
         }
     `;
@@ -56,6 +59,9 @@ export class ACLManager {
         this.views = new models.Views(client, config);
     }
 
+     /**
+     * Initialize all index stores
+     */
     async initialize() {
         await Promise.all([
             this.roles.initialize(),
@@ -65,6 +71,9 @@ export class ACLManager {
         ]);
     }
 
+    /**
+     * Shutdown all index stores
+     */
     async shutdown() {
         await Promise.all([
             this.roles.shutdown(),
@@ -74,62 +83,82 @@ export class ACLManager {
         ]);
     }
 
-    findUser(id: string) {
-        return this.users.findByAnyId(id);
+    /**
+     * Find user by id
+    */
+    findUser(args: { id: string }) {
+        return this.users.findByAnyId(args.id);
     }
 
-    async createUser(input: models.CreateUserInput, password: string) {
-        await this._validateUserInput(input);
+    /**
+     * Find all users by a given query
+    */
+    findUsers(args: { query?: string } = {}) {
+        return this.users.find(args.query || '*');
+    }
 
-        return this.users.createWithPassword(input, password);
+    /**
+     * Create a user
+    */
+    async createUser(args: { user: models.CreateUserInput, password: string }) {
+        await this._validateUserInput(args.user);
+
+        return this.users.createWithPassword(args.user, args.password);
     }
 
     /**
      * Update user without password
     */
-    async updateUser(input: models.UpdateUserInput): Promise<models.UserModel> {
-        await this._validateUserInput(input);
+    async updateUser(args: { user: models.UpdateUserInput }): Promise<models.UserModel> {
+        await this._validateUserInput(args.user);
 
         // @ts-ignore
-        await this.users.update(input);
-        return this.users.findById(input.id);
+        await this.users.update(args.user);
+        return this.users.findById(args.user.id);
     }
 
     /**
      * Update user with password
     */
-    async updatePassword(id: string, password: string): Promise<boolean> {
-        await this.users.updateWithPassword(id, password);
+    async updatePassword(args: { id: string, password: string }): Promise<boolean> {
+        await this.users.updateWithPassword(args.id, args.password);
         return true;
     }
 
     /**
      * Remove user by id
     */
-    async removeUser(id: string): Promise<boolean> {
-        await this.users.deleteById(id);
+    async removeUser(args: { id: string }): Promise<boolean> {
+        await this.users.deleteById(args.id);
         return true;
     }
 
-    async createRole(input: models.CreateRoleInput) {
-        await this._validateRoleInput(input);
+    /**
+     * Create a role
+    */
+    async createRole(args: { role: models.CreateRoleInput }) {
+        await this._validateRoleInput(args.role);
 
-        return this.roles.create(input);
+        return this.roles.create(args.role);
     }
 
-    async updateRole(input: models.UpdateRoleInput) {
-        await this._validateRoleInput(input);
+    /**
+     * Update a role
+    */
+    async updateRole(args: { role: models.UpdateRoleInput }) {
+        await this._validateRoleInput(args.role);
 
-        await this.roles.update(input);
-        return this.roles.findById(input.id);
+        await this.roles.update(args.role);
+        return this.roles.findById(args.role.id);
     }
 
     /**
      * Create space with views
     */
-    async createSpace(space: CreateSpaceInput, views: CreateSpaceViewInput[] = []) {
-        const spaceDoc = await this.spaces.create({ ...space, views: [] });
+    async createSpace(args: { space: CreateSpaceInput, views?: CreateSpaceViewInput[] }) {
+        const spaceDoc = await this.spaces.create({ ...args.space, views: [] });
 
+        const views = args.views || [];
         const viewDocs = await Promise.all(views.map(async (view) => {
             await this._validateViewInput(view);
             return this.views.create({ ...view, space: spaceDoc.id });
@@ -147,29 +176,29 @@ export class ACLManager {
     /**
      * Get the User's data access configuration for a "Space"
      */
-    async getDataAccessConfig(username: string, spaceId: string): Promise<DataAccessConfig> {
-        const user = await this.users.findByAnyId(username);
+    async getDataAccessConfig(args: { username: string, space: string }): Promise<DataAccessConfig> {
+        const user = await this.users.findByAnyId(args.username);
         if (!user) {
-            throw new TSError(`Unable to find user "${username}"`, {
+            throw new TSError(`Unable to find user "${args.username}"`, {
                 statusCode: 404
             });
         }
 
         const roleId = getFirst(user.roles);
         if (!roleId) {
-            const msg = `User "${username}" is not assigned to any roles`;
+            const msg = `User "${args.username}" is not assigned to any roles`;
             throw new TSError(msg, { statusCode: 403 });
         }
 
         const role = await this.roles.findById(roleId);
 
-        const hasAccess = await this.roles.hasAccessToSpace(roleId, spaceId);
+        const hasAccess = await this.roles.hasAccessToSpace(roleId, args.space);
         if (!hasAccess) {
-            const msg = `User "${username}" does not have access to space "${spaceId}"`;
+            const msg = `User "${args.username}" does not have access to space "${args.space}"`;
             throw new TSError(msg, { statusCode: 403 });
         }
 
-        const view = await this.views.getViewForRole(roleId, spaceId);
+        const view = await this.views.getViewForRole(roleId, args.space);
 
         return {
             user: this.users.omitPrivateFields(user),
@@ -178,18 +207,18 @@ export class ACLManager {
         };
     }
 
-    private async _validateUserInput(input: Partial<models.UserModel>) {
-        if (!input) {
+    private async _validateUserInput(user: Partial<models.UserModel>) {
+        if (!user) {
             throw new TSError('Invalid User Input', {
                 statusCode: 422
             });
         }
 
-        if (input && input.roles && input.roles.length) {
+        if (user.roles && user.roles.length) {
             try {
-                await this.roles.findAll(input.roles);
+                await this.roles.findAll(user.roles);
             } catch (err) {
-                const rolesStr = input.roles.join(', ');
+                const rolesStr = user.roles.join(', ');
                 throw new TSError(`Missing roles with user, ${rolesStr}`, {
                     statusCode: 422
                 });
@@ -197,18 +226,18 @@ export class ACLManager {
         }
     }
 
-    private async _validateRoleInput(input: Partial<models.RoleModel>) {
-        if (!input) {
+    private async _validateRoleInput(role: Partial<models.RoleModel>) {
+        if (!role) {
             throw new TSError('Invalid Role Input', {
                 statusCode: 422
             });
         }
 
-        if (input.spaces && input.spaces.length) {
+        if (role.spaces && role.spaces.length) {
             try {
-                await this.spaces.findAll(input.spaces);
+                await this.spaces.findAll(role.spaces);
             } catch (err) {
-                const rolesStr = input.spaces.join(', ');
+                const rolesStr = role.spaces.join(', ');
                 throw new TSError(`Missing spaces with role, ${rolesStr}`, {
                     statusCode: 422
                 });
@@ -216,18 +245,18 @@ export class ACLManager {
         }
     }
 
-    private async _validateViewInput(input: Partial<models.ViewModel>) {
-        if (!input) {
+    private async _validateViewInput(view: Partial<models.ViewModel>) {
+        if (!view) {
             throw new TSError('Invalid View Input', {
                 statusCode: 422
             });
         }
 
-        if (input.roles && input.roles.length) {
+        if (view.roles && view.roles.length) {
             try {
-                await this.roles.findAll(input.roles);
+                await this.roles.findAll(view.roles);
             } catch (err) {
-                const rolesStr = input.roles.join(', ');
+                const rolesStr = view.roles.join(', ');
                 throw new TSError(`Missing roles with view, ${rolesStr}`, {
                     statusCode: 422
                 });

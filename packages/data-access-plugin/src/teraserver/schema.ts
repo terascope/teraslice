@@ -8,30 +8,33 @@ interface CTX {
 const resolvers: Resolvers = {
     Query: {
         findUser(root, args, ctx: CTX) {
-            return ctx.manager.findUser(args.id);
+            return ctx.manager.findUser(args);
+        },
+        findUsers(root, args, ctx: CTX) {
+            return ctx.manager.findUsers(args);
         },
     },
     Mutation: {
         createUser(root, args, ctx: CTX) {
-            return ctx.manager.createUser(args.user, args.password);
+            return ctx.manager.createUser(args);
         },
         updateUser(root, args, ctx: CTX) {
-            return ctx.manager.updateUser(args.user);
+            return ctx.manager.updateUser(args);
         },
         updatePassword(root, args, ctx: CTX) {
-            return ctx.manager.updatePassword(args.id, args.password);
+            return ctx.manager.updatePassword(args);
         },
         removeUser(root, args, ctx: CTX) {
-            return ctx.manager.removeUser(args.id);
+            return ctx.manager.removeUser(args);
         },
         createSpace(root, args, ctx: CTX) {
-            return ctx.manager.createSpace(args.space, args.views);
+            return ctx.manager.createSpace(args);
         },
         createRole(root, args, ctx: CTX) {
-            return ctx.manager.createRole(args.role);
+            return ctx.manager.createRole(args);
         },
         updateRole(root, args, ctx: CTX) {
-            return ctx.manager.updateRole(args.role);
+            return ctx.manager.updateRole(args);
         }
     }
 };
