@@ -6,6 +6,7 @@ const Promise = require('bluebird');
 const K8s = require('./k8s');
 const k8sState = require('./k8sState');
 const k8sObject = require('./k8sObject');
+const K8sResource = require('./k8sResource');
 const { makeTemplate } = require('./utils');
 const { safeEncode } = require('../../../../../utils/encoding_utils');
 
@@ -170,34 +171,14 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      * Creates k8s deployment that executes Teraslice workers for specified
      * Execution.
      * @param  {Object} execution  Object that contains information of Execution
-     * @param  {number} numWorkers number of workers to allocate
      * @return {Promise}           [description]
      */
-    function allocateWorkers(execution, numWorkers) {
-        const jobNameLabel = execution.name.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
-        const name = `ts-wkr-${jobNameLabel.substring(0, 42)}-${execution.job_id.substring(0, 13)}`;
-
-        const deploymentConfig = {
-            name,
-            assetsDirectory,
-            assetsVolume,
-            clusterNameLabel,
-            exId: execution.ex_id,
-            jobId: execution.job_id,
-            jobNameLabel,
-            dockerImage: kubernetesImage,
-            execution: safeEncode(execution),
-            nodeType: 'worker',
-            namespace: kubernetesNamespace,
-            shutdownTimeout: shutdownTimeoutSeconds,
-            replicas: numWorkers,
-            configMapName,
-            imagePullSecret,
-        };
-
-        const workerDeployment = k8sObject.gen(
-            'deployments', 'worker', execution, deploymentConfig
+    function allocateWorkers(execution) {
+        const kr = new K8sResource(
+            'deployments', 'worker', context.sysconfig.teraslice, execution
         );
+
+        const workerDeployment = kr.resource;
 
         logger.debug(`workerDeployment:\n\n${JSON.stringify(workerDeployment, null, 2)}`);
 
