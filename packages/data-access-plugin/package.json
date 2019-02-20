@@ -29,7 +29,7 @@
         "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@terascope/data-access": "^0.2.0",
+        "@terascope/data-access": "^0.3.0",
         "@terascope/utils": "^0.4.1",
         "apollo-server-express": "^2.4.2",
         "graphql": "^14.1.1"
