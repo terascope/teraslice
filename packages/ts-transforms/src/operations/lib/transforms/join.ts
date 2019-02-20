@@ -25,7 +25,7 @@ export default class Join extends TransformOpBase {
     }
 
     run(doc: DataEntity): DataEntity | null {
-        const fieldsData = this.fields.map(field => _.get(doc, field));
+        const fieldsData = _.flattenDeep(this.fields.map(field => _.get(doc, field)));
         const results = fieldsData.join(this.delimiter);
         if (results.length !== this.delimiter.length) _.set(doc, this.target, results);
         return doc;

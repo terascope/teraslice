@@ -63,12 +63,17 @@ export default class Extraction extends TransformOpBase {
                 if (typeof data === 'string') extractedField = data.match(this.regex as RegExp);
 
                 if (!extractedField && Array.isArray(data)) {
+                    const results: string[] = [];
                     data.forEach((subData:any) => {
                         if (typeof subData === 'string') {
                             const subResults = subData.match(this.regex as RegExp);
-                            if (subResults) extractedField = subResults;
+                            if (subResults) {
+                                const regexResult = subResults.length === 1 ? subResults[0] : subResults[1];
+                                results.push(regexResult);
+                            }
                         }
                     });
+                    if (results.length > 0) extractedResult = results;
                 }
 
                 if (extractedField) {
@@ -84,12 +89,14 @@ export default class Extraction extends TransformOpBase {
                     if (extractedSlice) extractedResult = extractedSlice;
                 }
                 if (Array.isArray(data)) {
+                    const results: string[] = [];
                     data.forEach((subData:any) => {
                         if (typeof subData === 'string') {
                             const extractedSlice = this.sliceString(subData, start, end);
-                            if (extractedSlice) extractedResult = extractedSlice;
+                            if (extractedSlice) results.push(extractedSlice);
                         }
                     });
+                    if (results.length > 0) extractedResult = results;
                 }
             } else {
                 extractedResult = data;

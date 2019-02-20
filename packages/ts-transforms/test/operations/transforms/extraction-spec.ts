@@ -66,6 +66,8 @@ describe('transform operator', () => {
         const data6 = new DataEntity({ someField: 'field=data' });
         const data7 = new DataEntity({ someField: ['data', 'field=data'] });
         const data8 = new DataEntity({ otherField: 'data' });
+        const data9 = new DataEntity({ someField: 'field=dataSomeStr,field=otherSomeStr' });
+        const data10 = new DataEntity({ someField: ['field=data', 'field=otherData'] });
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -75,6 +77,8 @@ describe('transform operator', () => {
         const results6 = test.run(data6);
         const results7 = test.run(data7);
         const results8 = test.run(data8);
+        const results9 = test.run(data9);
+        const results10 = test.run(data10);
 
         expect(results1).toEqual(null);
         expect(results2).toEqual(null);
@@ -82,8 +86,10 @@ describe('transform operator', () => {
         expect(results4).toEqual(null);
         expect(results5).toEqual(null);
         expect(results6).toEqual({ otherField: 'data' });
-        expect(results7).toEqual({ otherField: 'data' });
+        expect(results7).toEqual({ otherField: ['data'] });
         expect(results8).toEqual(null);
+        expect(results9).toEqual({ otherField: 'data' });
+        expect(results10).toEqual({ otherField: ['data', 'otherData'] });
     });
 
     it('can transform data end = ', () => {
@@ -100,7 +106,7 @@ describe('transform operator', () => {
 
         expect(results1).toEqual({ otherField: 'data' });
         expect(results2).toEqual({ otherField: 'data' });
-        expect(results3).toEqual({ otherField: 'data' });
+        expect(results3).toEqual({ otherField: ['data'] });
     });
 
     it('can transform data with regex', () => {
@@ -115,6 +121,7 @@ describe('transform operator', () => {
         const data6 = new DataEntity({ someField: 'other' });
         const data7 = new DataEntity({ otherField: 'data' });
         const data8 = new DataEntity({ someField: ['other', 'data'] });
+        const data9 = new DataEntity({ someField: ['otherdatastruff', 'data'] });
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -124,6 +131,7 @@ describe('transform operator', () => {
         const results6 = test.run(data6);
         const results7 = test.run(data7);
         const results8 = test.run(data8);
+        const results9 = test.run(data9);
 
         expect(results1).toEqual(null);
         expect(results2).toEqual(null);
@@ -132,7 +140,8 @@ describe('transform operator', () => {
         expect(results5).toEqual(null);
         expect(results6).toEqual(null);
         expect(results7).toEqual(null);
-        expect(results8).toEqual({ otherField: 'data' });
+        expect(results8).toEqual({ otherField: ['data'] });
+        expect(results9).toEqual({ otherField: ['data', 'data'] });
     });
 
     it('can transform data with regex that are set with //', () => {
@@ -146,7 +155,7 @@ describe('transform operator', () => {
         const results2 = test.run(data2);
 
         expect(results1).toEqual({ otherField: 'data' });
-        expect(results2).toEqual({ otherField: 'data' });
+        expect(results2).toEqual({ otherField: ['data'] });
     });
 
     it('can mutate existing doc instead of returning a new one', () => {

@@ -41,6 +41,28 @@ describe('join operator', () => {
         expect(results).toEqual({ first: 'John', last: 'Doe', full: 'JohnDoe' });
     });
 
+    it('can join array fields of data entities', () => {
+        const opConfig = {
+            operation: 'join',
+            fields: [
+                'firstGroup',
+                'secondGroup'
+            ],
+            target_field: 'allGroup',
+            delimiter: ' & '
+        };
+        const test =  new Join(opConfig);
+        const data = new DataEntity({ firstGroup: ['John', 'Sarah'], secondGroup: ['Connor', 'Billy'] });
+        const results = test.run(data);
+
+        expect(DataEntity.isDataEntity(results)).toEqual(true);
+        expect(results).toEqual({
+            firstGroup: ['John', 'Sarah'],
+            secondGroup: ['Connor', 'Billy'],
+            allGroup: 'John & Sarah & Connor & Billy'
+        });
+    });
+
     it('various delimiter options', () => {
         const opConfig = {
             operation: 'join',
