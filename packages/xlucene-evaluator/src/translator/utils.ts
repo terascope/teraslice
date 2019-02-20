@@ -53,7 +53,7 @@ export function buildGeoQuery(node: AST, field: string): GeoQuery {
         geoQuery['geo_distance'][field] = node.geo_point;
     }
 
-    logger.debug('built geo query', { node, geoQuery });
+    logger.trace('built geo query', { node, geoQuery });
     return geoQuery;
 }
 
@@ -61,7 +61,7 @@ export function buildRangeQuery(node: AST, field: string): RangeQuery {
     const range = utils.parseNodeRange(node);
     const rangeQuery: RangeQuery = { range: {} };
     rangeQuery.range[field] = range;
-    logger.debug('built range query', { node, rangeQuery });
+    logger.trace('built range query', { node, rangeQuery });
     return rangeQuery;
 }
 
@@ -76,21 +76,21 @@ export function buildTermQuery(node: AST, field: string): TermQuery|RegExprQuery
 
     const termQuery: TermQuery = { term: {} };
     termQuery.term[field] = node.term;
-    logger.debug('built term query', node, termQuery);
+    logger.trace('built term query', node, termQuery);
     return termQuery;
 }
 
 export function buildWildCardQuery(node: AST, field: string): WildcardQuery {
     const wildcardQuery: WildcardQuery = { wildcard: {} };
     wildcardQuery.wildcard[field] = node.term;
-    logger.debug('built wildcard query', { node, wildcardQuery });
+    logger.trace('built wildcard query', { node, wildcardQuery });
     return wildcardQuery;
 }
 
 export function buildRegExprQuery(node: AST, field: string): RegExprQuery {
     const regexQuery: RegExprQuery = { regexp: {} };
     regexQuery.regexp[field] = node.term;
-    logger.debug('built regexpr query', { node, regexQuery });
+    logger.trace('built regexpr query', { node, regexQuery });
     return regexQuery;
 }
 
@@ -100,7 +100,7 @@ export function buildExistsQuery(node: AST, field: string): ExistsQuery {
             field
         }
     };
-    logger.debug('built exists query', { node, existsQuery });
+    logger.trace('built exists query', { node, existsQuery });
     return existsQuery;
 }
 
@@ -142,7 +142,7 @@ export function buildBoolQuery(node: AST): BoolQuery {
 
     boolQuery.bool[joinType].push(...queries);
 
-    logger.debug('built bool query', { node, boolQuery });
+    logger.trace('built bool query', { node, boolQuery });
     return boolQuery;
 }
 
