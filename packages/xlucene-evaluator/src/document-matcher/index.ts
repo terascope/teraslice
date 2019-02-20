@@ -1,55 +1,53 @@
-'use strict';
-
 import _ from 'lodash';
+import { isString } from '@terascope/utils';
 import LuceneQueryParser from '../lucene-query-parser';
-import TypeManger from './type-manager';
-import { bindThis } from '../utils';
-import { AST } from '../interfaces';
+import TypeManager from './type-manager';
+import { bindThis, isInfiniteMax, isInfiniteMin, isExistsNode, isTermNode, isRangeNode } from '../utils';
+import { AST, TypeConfig, RangeAST, IMPLICIT } from '../interfaces';
 
-export default class DocumentMatcher extends LuceneQueryParser {
+export default class DocumentMatcher {
     private filterFn: Function|undefined;
-    private types: TypeManger;
+    private typeConfig: TypeConfig|undefined;
 
-    constructor(luceneStr?: string, typeConfig?:object) {
-        super();
-        this.types = new TypeManger(typeConfig);
+    constructor(luceneStr?: string, typeConfig?: TypeConfig) {
+        this.typeConfig = typeConfig;
         bindThis(this, DocumentMatcher);
 
         if (luceneStr) {
             this.parse(luceneStr);
-            this._buildFilterFn();
         }
     }
 
-    public parse(luceneStr: string, typeConfig?: object):void {
-        if (typeConfig) {
-            this.types = new TypeManger(typeConfig);
-        }
-        super.parse(luceneStr);
-        this._buildFilterFn();
+    public parse(luceneStr: string, typeConfig?: TypeConfig):void {
+        const parser = new LuceneQueryParser();
+        parser.parse(luceneStr);
+        this._buildFilterFn(parser, typeConfig);
     }
 
-    private _buildFilterFn(): void {
+    private _buildFilterFn(parser: LuceneQueryParser, typeConfig: TypeConfig|undefined = this.typeConfig): void {
+        const types = new TypeManager(parser, typeConfig);
+
         // tslint:disable-next-line
-        const { _ast: ast, types, _parseRange: parseRange } = this;
+        const { _parseRange: parseRange } = this;
 
-        const parsedAst = types.processAst(ast);
-        const AND_MAPPING = { AND: true, 'AND NOT': true, NOT: 'true' };
+        const parsedAst = types.processAst();
+        const AND_MAPPING = { AND: true, NOT: true };
         // default operator in elasticsearch is OR
-        const OR_MAPPING = { OR: true, '<implicit>': true };
+        const OR_MAPPING = { OR: true };
+        OR_MAPPING[IMPLICIT] = true;
 
         function functionBuilder(node: AST, parent: AST, fnStrBody: string, _field: string|null, isNegation:Boolean) {
-            const field = (node.field && node.field !== '<implicit>') ? node.field : _field;
+            const field = (node.field && node.field !== IMPLICIT) ? node.field : _field;
             let addParens = false;
             let negation  = isNegation || false;
             let negateLeftExp = false;
             let fnStr = '';
 
-            if (node.operator === 'AND NOT' || node.operator === 'NOT') {
+            if (node.operator === 'NOT') {
                 negation = true;
             }
 
-            if (negation && parent.operator === 'AND NOT' || parent.operator === 'NOT') {
+            if (negation && parent.operator === 'NOT') {
                 negateLeftExp = true;
             }
 
@@ -57,31 +55,33 @@ export default class DocumentMatcher extends LuceneQueryParser {
                 fnStr += '(';
                 addParens = true;
             }
-            if (field && _.has(node, 'term')) {
-                if (field === '_exists_') {
-                    if (negation) {
-                        fnStr += `data.${node.term} == null`;
-                    } else {
-                        fnStr += `data.${node.term} != null`;
-                    }
-                } else if (field === '__parsed') {
+
+            if (isExistsNode(node)) {
+                if (negation) {
+                    fnStr += `data.${node.field} == null`;
+                } else {
+                    fnStr += `data.${node.field} != null`;
+                }
+            }
+
+            if (field && isTermNode(node)) {
+                if (field === '__parsed') {
                     if (negation) {
                         fnStr += `!(${node.term})`;
                     } else {
                         fnStr += `${node.term}`;
                     }
                 } else {
-                    let term = `"${node.term}"`;
-                    if (node.term === 'true') term = JSON.parse(node.term);
-                    if (node.term === 'false') term = JSON.parse(node.term);
+                    const value = isString(node.term) ? `"${node.term}"` : node.term;
                     if (negation) {
-                        fnStr += `data.${field} != ${term}`;
+                        fnStr += `data.${field} !== ${value}`;
                     } else {
-                        fnStr += `data.${field} == ${term}`;
+                        fnStr += `data.${field} === ${value}`;
                     }
                 }
             }
-            if (_.has(node, 'term_min')) {
+
+            if (isRangeNode(node)) {
                 fnStr += parseRange(node, field || '', negation);
             }
 
@@ -104,7 +104,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
             return fnStrBody + fnStr;
         }
 
-        const fnStr = functionBuilder(parsedAst, {}, '', null, false);
+        const fnStr = functionBuilder(parsedAst, {} as AST, '', null, false);
         const argsObj = types.injectTypeFilterFns();
         const argsFns: Function[] = [];
         const strFnArgs:string[] = [];
@@ -127,7 +127,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
         }
     }
 
-    private _parseRange(node:AST, topFieldName:string, isNegation:Boolean):string {
+    private _parseRange(node: RangeAST, topFieldName:string, isNegation:Boolean):string {
         const {
             inclusive_min: incMin,
             inclusive_max: incMax,
@@ -136,8 +136,8 @@ export default class DocumentMatcher extends LuceneQueryParser {
         let { term_min: minValue, term_max: maxValue } = node;
         let resultStr = '';
 
-        if (minValue === '*') minValue = -Infinity;
-        if (maxValue === '*') maxValue = Infinity;
+        if (minValue === '*') minValue = Number.NEGATIVE_INFINITY;
+        if (maxValue === '*') maxValue = Number.POSITIVE_INFINITY;
 
         // IPs can use range syntax, if no type is set it needs to return
         // a hard coded string interpolated value
@@ -148,7 +148,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
 
         // ie age:>10 || age:(>10 AND <=20)
         if (!incMin && incMax) {
-            if (maxValue === Infinity) {
+            if (isInfiniteMax(maxValue)) {
                 resultStr = `get(data, "${field}") > ${minValue}`;
             } else {
                 resultStr = `((${maxValue} >= get(data, "${field}")) && (get(data, "${field}") > ${minValue}))`;
@@ -157,7 +157,7 @@ export default class DocumentMatcher extends LuceneQueryParser {
 
         // ie age:<10 || age:(<=10 AND >20)
         if (incMin && !incMax) {
-            if (minValue === -Infinity) {
+            if (isInfiniteMin(minValue)) {
                 resultStr = `get(data, "${field}") < ${maxValue}`;
             } else {
                 resultStr =  `((${minValue} <= get(data, "${field}")) && (get(data, "${field}") < ${maxValue}))`;
@@ -166,9 +166,9 @@ export default class DocumentMatcher extends LuceneQueryParser {
 
         // ie age:<=10, age:>=10, age:(>=10 AND <=20)
         if (incMin && incMax) {
-            if (maxValue === Infinity) {
+            if (isInfiniteMax(maxValue)) {
                 resultStr = `get(data, "${field}") >= ${minValue}`;
-            } else if (minValue === -Infinity) {
+            } else if (isInfiniteMin(minValue)) {
                 resultStr = `get(data, "${field}") <= ${maxValue}`;
             } else {
                 resultStr = `((${maxValue} >= get(data, "${field}")) && (get(data, "${field}") >= ${minValue}))`;

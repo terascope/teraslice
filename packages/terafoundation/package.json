@@ -1,6 +1,6 @@
 {
     "name": "terafoundation",
-    "version": "0.7.2",
+    "version": "0.7.3",
     "publishConfig": {
         "access": "public"
     },
@@ -27,10 +27,9 @@
     },
     "dependencies": {
         "@terascope/elasticsearch-api": "^2.0.0",
-        "agentkeepalive": "^4.0.0",
+        "agentkeepalive": "^4.0.1",
         "bluebird": "^3.5.3",
         "bunyan": "^1.8.12",
-        "bunyan-elasticsearch": "1.0.1",
         "convict": "^4.4.1",
         "elasticsearch": "^15.4.1",
         "js-yaml": "^3.12.1",
@@ -38,11 +37,11 @@
         "moment": "^2.24.0",
         "mongoose": "~4.13.18",
         "node-statsd": "0.1.1",
-        "node-webhdfs": "^1.0.0",
+        "node-webhdfs": "^1.0.2",
         "redis": "^2.8.0",
-        "yargs": "^12.0.5"
+        "yargs": "^13.2.1"
     },
     "devDependencies": {
-        "@terascope/utils": "^0.4.0"
+        "@terascope/utils": "^0.4.1"
     }
 }

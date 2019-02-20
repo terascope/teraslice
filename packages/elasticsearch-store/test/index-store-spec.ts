@@ -296,8 +296,7 @@ describe('IndexStore', () => {
             });
 
             it('should be able to search the records', async () => {
-                const result = await indexStore.search({
-                    q: `test_keyword: ${keyword}`,
+                const result = await indexStore.search(`test_keyword: ${keyword}`, {
                     sort: 'test_id'
                 });
 
@@ -344,14 +343,33 @@ describe('IndexStore', () => {
             });
 
             it('should be able to search the records', async () => {
-                const result = await indexStore.search({
-                    q: `test_keyword: ${keyword}`,
+                const result = await indexStore.search(`test_keyword: ${keyword}`, {
                     sort: 'test_number',
                     size: records.length + 1
                 });
 
-                expect(DataEntity.isDataEntityArray(result)).toBeTrue();
                 expect(result).toBeArrayOfSize(records.length);
+                expect(DataEntity.isDataEntityArray(result)).toBeTrue();
+            });
+
+            it('should be able use exists and range xlucene syntax', async () => {
+                const result = await indexStore.search('_exists_:test_number AND test_number: <100', {
+                    sort: 'test_number',
+                    size: 5
+                });
+
+                expect(result).toBeArrayOfSize(5);
+                expect(DataEntity.isDataEntityArray(result)).toBeTrue();
+            });
+
+            it('should be able use multi-term xlucene syntax', async () => {
+                const query = 'test_id:/bulk-.*/ AND test_number:(20 OR 22 OR 26)';
+                const result = await indexStore.search(query, {
+                    sort: 'test_number',
+                });
+
+                expect(result).toBeArrayOfSize(3);
+                expect(DataEntity.isDataEntityArray(result)).toBeTrue();
             });
 
             it('should be able to bulk update the records', async () => {
@@ -366,8 +384,7 @@ describe('IndexStore', () => {
                 await indexStore.flush(true);
                 await indexStore.refresh();
 
-                const result = await indexStore.search({
-                    q: `test_keyword: ${keyword}`,
+                const result = await indexStore.search(`test_keyword: ${keyword}`, {
                     sort: 'test_id',
                     size: records.length + 1
                 });
@@ -386,8 +403,7 @@ describe('IndexStore', () => {
 
                 await indexStore.refresh();
 
-                const result = await indexStore.search({
-                    q: `test_keyword: ${keyword}`,
+                const result = await indexStore.search(`test_keyword: ${keyword}`, {
                     sort: 'test_id',
                     size: records.length + 1
                 });
@@ -516,8 +532,7 @@ describe('IndexStore', () => {
             });
 
             it('should have created all of the records', async () => {
-                const result = await indexStore.search({
-                    q: `test_keyword: ${keyword}`,
+                const result = await indexStore.search(`test_keyword: ${keyword}`, {
                     sort: 'test_id'
                 });
 

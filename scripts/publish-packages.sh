@@ -9,7 +9,7 @@ check_deps() {
 
 publish() {
     local dryRun="$1"
-    local name tag targetVersion currentVersion isPrivate
+    local name tag targetVersion currentVersion isPrivate prepublishScript
 
     name="$(jq -r '.name' package.json)"
     isPrivate="$(jq -r '.private' package.json)"
@@ -31,13 +31,20 @@ publish() {
             fi
         fi
 
-        echo "$name@$currentVersion -> $targetVersion"
         if [ "$dryRun" == "false" ]; then
+            echo "$name@$currentVersion -> $targetVersion"
             yarn publish \
                 --tag "$tag" \
                 --non-interactive \
                 --new-version "$targetVersion" \
                 --no-git-tag-version
+        else
+            echo "$name@$currentVersion -> $targetVersion [DRAFT]"
+
+            prepublishScript="$(jq -r '.scripts.prepublishOnly' package.json)"
+            if [ -n "$prepublishScript" ] || [ "$prepublishScript" != 'null' ]; then
+                yarn run prepublishOnly;
+            fi
         fi
     fi
 }

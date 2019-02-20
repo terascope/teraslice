@@ -42,9 +42,6 @@
             "path": "packages/job-components"
         },
         {
-            "path": "packages/elasticsearch-store"
-        },
-        {
             "path": "packages/teraslice-messaging"
         },
         {
@@ -52,6 +49,12 @@
         },
         {
             "path": "packages/ts-transforms"
+        },
+        {
+            "path": "packages/elasticsearch-store"
+        },
+        {
+            "path": "packages/data-access"
         },
         {
             "path": "packages/teraslice-test-harness"

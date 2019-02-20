@@ -11,6 +11,7 @@ only_ci() {
 
 main() {
     only_ci
+
     echo "* installing yarn..."
     curl -o- -L https://yarnpkg.com/install.sh | bash
     export PATH="$HOME/.yarn/bin:$PATH"

@@ -1,5 +1,3 @@
-'use strict';
-
 import BaseType from './base';
 import { bindThis } from '../../../utils';
 import _ from 'lodash';
@@ -7,14 +5,14 @@ import { AST } from '../../../interfaces';
 
 const fnBaseName = 'strFn';
 
-export default class StringType extends BaseType {
+export default class TermType extends BaseType {
 
     constructor() {
         super(fnBaseName);
-        bindThis(this, StringType);
+        bindThis(this, TermType);
     }
 
-    private isWildCard(term:string):boolean {
+    private isWildCard(term: string):boolean {
         let bool = false;
         if (typeof term === 'string') {
             if (term.match('[\?+\*+]')) bool = true;
@@ -28,7 +26,7 @@ export default class StringType extends BaseType {
 
     private match(field: any, wildCardQuery: string): boolean {
         const regex = new RegExp(`^${wildCardQuery}$`);
-        return typeof field === 'string' && field.match(regex) !== null;
+        return typeof field === 'string' && field.match(regex) != null;
     }
 
     // city.*   city.deeper.*   city.*.*
@@ -71,20 +69,24 @@ export default class StringType extends BaseType {
             match
         } = this;
 
-        function parseRegex(node: AST, _field: string): AST {
+        function parseRegex(node: AST, _field: string) {
             const topField = node.field || _field;
 
             if (node.regexpr) {
                 filterFnBuilder((str: string): boolean => {
                     if (typeof str !== 'string') return false;
-                    return match(str, node.term as string);
+                    return match(str, node.term);
                 });
 
-                return { field: '__parsed', term: createParsedField(topField) };
+                return {
+                    type: 'term',
+                    field: '__parsed',
+                    term: createParsedField(topField)
+                };
             }
 
-            if (isWildCard(node.field as string)) {
-                const term = parseWildCard(node.term as string);
+            if (isWildCard(node.field)) {
+                const term = parseWildCard(node.term);
 
                 filterFnBuilder((data: AST): boolean => {
                     const resultsArray = recurseDownObject(node.field || '', data);
@@ -101,18 +103,26 @@ export default class StringType extends BaseType {
                     return bool;
                 });
 
-                return { field: '__parsed', term: createParsedField() };
+                return {
+                    type: 'term',
+                    field: '__parsed',
+                    term: createParsedField()
+                };
             }
 
-            if (isWildCard(node.term as string)) {
-                const wildCardQuery = parseWildCard(node.term as string);
+            if (node.wildcard) {
+                const wildCardQuery = parseWildCard(node.term);
 
                 filterFnBuilder((str: string): boolean => {
                     if (typeof str !== 'string') return false;
                     return match(str, wildCardQuery);
                 });
 
-                return { field: '__parsed', term: createParsedField(topField) };
+                return {
+                    type: 'term',
+                    field: '__parsed',
+                    term: createParsedField(topField)
+                };
             }
 
             return node;
