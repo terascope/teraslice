@@ -1,48 +1,43 @@
 import { makeExecutableSchema } from 'apollo-server-express';
-import { graphqlSchemas as typeDefs, ACLManager } from '@terascope/data-access';
+import {
+    graphqlSchemas as typeDefs,
+    graphqlQueryMethods,
+    graphqlMutationMethods,
+    ACLManager,
+} from '@terascope/data-access';
 
 interface CTX {
     manager: ACLManager;
 }
 
-const resolvers: Resolvers = {
-    Query: {
-        findUser(root, args, ctx: CTX) {
-            return ctx.manager.findUser(args);
-        },
-        findUsers(root, args, ctx: CTX) {
-            return ctx.manager.findUsers(args);
-        },
-    },
-    Mutation: {
-        createUser(root, args, ctx: CTX) {
-            return ctx.manager.createUser(args);
-        },
-        updateUser(root, args, ctx: CTX) {
-            return ctx.manager.updateUser(args);
-        },
-        updatePassword(root, args, ctx: CTX) {
-            return ctx.manager.updatePassword(args);
-        },
-        removeUser(root, args, ctx: CTX) {
-            return ctx.manager.removeUser(args);
-        },
-        createSpace(root, args, ctx: CTX) {
-            return ctx.manager.createSpace(args);
-        },
-        createRole(root, args, ctx: CTX) {
-            return ctx.manager.createRole(args);
-        },
-        updateRole(root, args, ctx: CTX) {
-            return ctx.manager.updateRole(args);
-        }
-    }
+const queryResolvers: Resolvers = {};
+graphqlQueryMethods.forEach((method) => {
+    queryResolvers[method] = (root, args, ctx: CTX) => {
+        // @ts-ignore
+        return ctx.manager[method](args);
+    };
+});
+
+const mutationResolvers: Resolvers = {};
+graphqlMutationMethods.forEach((method) => {
+    mutationResolvers[method] = (root, args, ctx: CTX) => {
+        // @ts-ignore
+        return ctx.manager[method](args);
+    };
+});
+
+const resolvers: AllResolvers = {
+    Query: queryResolvers,
+    Mutation: mutationResolvers,
 };
 
 interface Resolvers {
-    [type: string]: {
-        [fn: string]: (root: any, args: any, ctx: CTX) => Promise<any>;
-    };
+    [fn: string]: (root: any, args: any, ctx: CTX) => Promise<any>;
+}
+
+interface AllResolvers {
+    Query: Resolvers;
+    Mutation: Resolvers;
 }
 
 export = makeExecutableSchema({

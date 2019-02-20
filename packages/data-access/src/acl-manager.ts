@@ -32,6 +32,15 @@ export class ACLManager {
         type Query {
             findUser(id: ID!): PublicUser
             findUsers(query: String): [PublicUser]!
+
+            findRole(id: ID!): Role
+            findRoles(query: String): [Role]!
+
+            findSpace(id: ID!): Space
+            findSpaces(query: String): [Space]!
+
+            findView(id: ID!): View
+            findViews(query: String): [View]!
         }
 
         type Mutation {
@@ -134,6 +143,20 @@ export class ACLManager {
     }
 
     /**
+     * Find role by id
+    */
+    async findRole(args: { id: string }) {
+        return this.roles.findByAnyId(args.id);
+    }
+
+    /**
+     * Find roles by a given query
+    */
+    findRoles(args: { query?: string } = {}) {
+        return this.roles.find(args.query || '*');
+    }
+
+    /**
      * Create a role
     */
     async createRole(args: { role: models.CreateRoleInput }) {
@@ -150,6 +173,20 @@ export class ACLManager {
 
         await this.roles.update(args.role);
         return this.roles.findById(args.role.id);
+    }
+
+    /**
+     * Find space by id
+    */
+    async findSpace(args: { id: string }) {
+        return this.spaces.findByAnyId(args.id);
+    }
+
+    /**
+     * Find spaces by a given query
+    */
+    findSpaces(args: { query?: string } = {}) {
+        return this.spaces.find(args.query || '*');
     }
 
     /**
@@ -171,6 +208,20 @@ export class ACLManager {
             space: spaceDoc,
             views: viewDocs,
         };
+    }
+
+    /**
+     * Find view by id
+    */
+    async findView(args: { id: string }) {
+        return this.views.findByAnyId(args.id);
+    }
+
+    /**
+     * Find views by a given query
+    */
+    findViews(args: { query?: string } = {}) {
+        return this.views.find(args.query || '*');
     }
 
     /**
@@ -290,6 +341,27 @@ export interface DataAccessConfig {
     */
     role: string;
 }
+
+export const graphqlQueryMethods: (keyof ACLManager)[] = [
+    'findUser',
+    'findUsers',
+    'findRole',
+    'findRoles',
+    'findSpace',
+    'findSpaces',
+    'findView',
+    'findViews',
+];
+
+export const graphqlMutationMethods: (keyof ACLManager)[] = [
+    'createUser',
+    'updateUser',
+    'updatePassword',
+    'removeUser',
+    'createSpace',
+    'createRole',
+    'updateRole',
+];
 
 export const graphqlSchemas = [
     ACLManager.GraphQLSchema,
