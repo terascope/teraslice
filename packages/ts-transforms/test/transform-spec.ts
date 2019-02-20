@@ -153,7 +153,7 @@ describe('can transform matches', () => {
         const results =  await test.run(data);
 
         expect(results.length).toEqual(1);
-        expect(results[0]).toEqual({ field1: 'blah', field2: 'moreblah', field3: 'evenmoreblah' });
+        expect(results[0]).toEqual({ field1: ['blah'], field2: ['moreblah'], field3: ['evenmoreblah'] });
         expect(DataEntity.isDataEntity(results[0])).toEqual(true);
     });
 
@@ -543,7 +543,7 @@ describe('can transform matches', () => {
         });
 
         expect(results1[1]).toEqual({
-            field1: key,
+            field1: [key],
             date
         });
 
@@ -598,7 +598,7 @@ describe('can transform matches', () => {
         });
 
         expect(results1[1]).toEqual({
-            field1: key,
+            field1: [key],
             date
         });
 
@@ -636,7 +636,7 @@ describe('can transform matches', () => {
             field1: key
         });
         expect(results1[1]).toEqual({
-            field1: key,
+            field1: [key],
         });
     });
 
@@ -703,7 +703,7 @@ describe('can transform matches', () => {
             field1: key
         });
         expect(results1[1]).toEqual({
-            field1: key,
+            field1: [key],
         });
         expect(results1[2]).toEqual({
             height: 4,

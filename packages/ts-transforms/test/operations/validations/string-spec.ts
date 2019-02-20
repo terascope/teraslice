@@ -65,7 +65,7 @@ describe('string validation', () => {
         expect(results6).toEqual(stringify(data6));
         expect(DataEntity.getMetadata(results6 as DataEntity, 'selectors')).toEqual(metaData.selectors);
         expect(results7).toEqual({});
-        expect(results8).toEqual({ field: ['hello'] });
+        expect(results8).toEqual({ field: ['1324', 'hello'] });
     });
 
     it('can ensure strings are of certain lengths', () => {
