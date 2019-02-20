@@ -10,6 +10,9 @@ const { safeEncode } = require('../../../../../../lib/utils/encoding_utils');
 
 class K8sResource {
     /**
+     * K8sResource allows the generation of k8s resources based on templates.
+     * After creating the object, the k8s resource is accessible on the objects
+     * .resource property.
      *
      * @param {String} resourceType - jobs/services/deployments
      * @param {String} resourceName - worker/execution_controller
@@ -21,6 +24,15 @@ class K8sResource {
         this.maxHeapMemoryFactor = 0.9;
         this.nodeType = resourceName;
         this.terasliceConfig = terasliceConfig;
+
+        if (resourceName === 'worker') {
+            this.nameInfix = 'wkr';
+        } else if (resourceName === 'execution_controller') {
+            this.nameInfix = 'exc';
+        } else {
+            throw new Error(`Unsupported resourceName: ${resourceName}`);
+        }
+
         this.templateGenerator = this._makeTemplate(resourceType, resourceName);
         this.templateConfig = this._makeConfig();
         this.resource = this.templateGenerator(this.templateConfig);
@@ -46,7 +58,7 @@ class K8sResource {
             `${this.terasliceConfig.name}-worker`
         );
         const jobNameLabel = this.execution.name.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
-        const name = `ts-wkr-${jobNameLabel.substring(0, 42)}-${this.execution.job_id.substring(0, 13)}`;
+        const name = `ts-${this.nameInfix}-${jobNameLabel.substring(0, 42)}-${this.execution.job_id.substring(0, 13)}`;
         const shutdownTimeoutMs = _.get(this.terasliceConfig, 'shutdown_timeout', 60000);
         const shutdownTimeoutSeconds = Math.round(shutdownTimeoutMs / 1000);
 

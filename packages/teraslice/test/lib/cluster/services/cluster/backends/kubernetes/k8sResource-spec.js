@@ -273,4 +273,31 @@ describe('k8sResource', () => {
               limits:
                 cpu: 1`));
     });
+
+    describe('execution_controller job', () => {
+        it('has valid resource object.', () => {
+            const kr = new K8sResource(
+                'jobs', 'execution_controller', terasliceConfig, execution
+            );
+
+            expect(kr.resource.metadata.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
+
+            // The following properties should be absent in the default case
+            expect(kr.resource.spec.template.spec).not.toHaveProperty('affinity');
+            expect(kr.resource.spec.template.spec).not.toHaveProperty('imagePullSecrets');
+
+            // Configmaps should be mounted on all workers
+            expect(kr.resource.spec.template.spec.volumes[0]).toEqual(yaml.load(`
+                name: config
+                configMap:
+                  name: ts-dev1-worker
+                  items:
+                      - key: teraslice.yaml
+                        path: teraslice.yaml`));
+            expect(kr.resource.spec.template.spec.containers[0].volumeMounts[0])
+                .toEqual(yaml.load(`
+                    mountPath: /app/config
+                    name: config`));
+        });
+    });
 });

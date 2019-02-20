@@ -125,26 +125,10 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         execution.slicer_port = _.get(exService, 'spec.ports[0].targetPort');
         execution.slicer_hostname = _.get(exService, 'metadata.name');
 
-        const jobConfig = {
-            name,
-            assetsDirectory,
-            assetsVolume,
-            clusterNameLabel,
-            exId: execution.ex_id,
-            jobId: execution.job_id,
-            jobNameLabel,
-            dockerImage: kubernetesImage,
-            execution: safeEncode(execution),
-            nodeType: 'execution_controller',
-            namespace: kubernetesNamespace,
-            shutdownTimeout: shutdownTimeoutSeconds,
-            configMapName,
-            imagePullSecret,
-        };
-
-        const exJob = k8sObject.gen(
-            'jobs', 'execution_controller', execution, jobConfig
+        const exJobResource = new K8sResource(
+            'jobs', 'execution_controller', context.sysconfig.teraslice, execution
         );
+        const exJob = exJobResource.resource;
 
         logger.debug(`exJob:\n\n${JSON.stringify(exJob, null, 2)}`);
 
