@@ -19,17 +19,13 @@ export class Spaces extends Base<SpaceModel, CreateSpaceInput, UpdateSpaceInput>
             updated: String
         }
 
-        input CreateSpaceInput {
-            id: ID!
-            name: String!
-            description: String
-            views: [String]
-        }
-
         input UpdateSpaceInput {
-            name: String!
+            id: ID!
+            name: String
             description: String
             views: [String]
+            created: String
+            updated: String
         }
     `;
 

@@ -13,11 +13,33 @@ export class ACLManager {
             findUser(id: ID!): PublicUser
         }
 
+        input CreateSpaceInput {
+            id: ID!
+            name: String!
+            description: String
+        }
+
+        input CreateViewInput {
+            name: String!
+            description: String
+            roles: [String]
+            excludes: [String]
+            includes: [String]
+            constraint: String
+            prevent_prefix_wildcard: Boolean
+        }
+
+        type CreateSpaceResult {
+            space: Space!,
+            views: [View]!
+        }
+
         type Mutation {
             createUser(user: CreateUserInput!, password: String!): User!
-            updateUser(user: UpdateUserInput!): User
+            updateUser(user: UpdateUserInput!): User!
             updatePassword(id: ID!, password: String!): Boolean
             removeUser(id: ID!): Boolean
+            createSpace(space: CreateSpaceInput, views: [CreateViewInput]): CreateSpaceResult
         }
     `;
 
@@ -55,7 +77,17 @@ export class ACLManager {
         return this.users.findByAnyId(id);
     }
 
-    createUser(input: models.CreateUserInput, password: string) {
+    async createUser(input: models.CreateUserInput, password: string) {
+        if (input && input.roles && input.roles.length) {
+            try {
+                await this.roles.findAll(input.roles);
+            } catch (err) {
+                const rolesStr = input.roles.join(', ');
+                throw new TSError(`Unable to create user with roles ${rolesStr}`, {
+                    statusCode: 422
+                });
+            }
+        }
         return this.users.createWithPassword(input, password);
     }
 
@@ -65,11 +97,17 @@ export class ACLManager {
         return this.users.findById(input.id);
     }
 
+    /**
+     * Update pas
+    */
     async updatePassword(id: string, password: string): Promise<boolean> {
         await this.users.updateWithPassword(id, password);
         return true;
     }
 
+    /**
+     * Remove user by id
+    */
     async removeUser(id: string): Promise<boolean> {
         await this.users.deleteById(id);
         return true;
@@ -78,7 +116,7 @@ export class ACLManager {
     /**
      * Create space with views
     */
-    async addSpace(space: CreateSpaceInput, views: CreateSpaceView[] = []) {
+    async createSpace(space: CreateSpaceInput, views: CreateSpaceViewInput[] = []) {
         const spaceDoc = await this.spaces.create({ ...space, views: [] });
 
         const viewDocs = await Promise.all(views.map((view) => {
@@ -132,7 +170,7 @@ export class ACLManager {
 }
 
 type CreateSpaceInput = Omit<models.CreateSpaceInput, 'views'>;
-type CreateSpaceView = Omit<models.CreateViewInput, 'space'>;
+type CreateSpaceViewInput = Omit<models.CreateViewInput, 'space'>;
 
 /**
  * The definition of an ACL for limiting access to data.

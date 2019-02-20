@@ -27,7 +27,7 @@ export class Roles extends Base<RoleModel, CreateRoleInput, UpdateRoleInput> {
 
         input UpdateRoleInput {
             id: ID!
-            name: String!
+            name: String
             description: String
             spaces: [String]
         }

@@ -1,4 +1,5 @@
 import 'jest-extended';
+import { TSError } from '@terascope/utils';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
 import { ACLManager, DataAccessConfig } from '../src';
 
@@ -16,6 +17,25 @@ describe('ACLManager', () => {
         return manager.shutdown();
     });
 
+    describe('when creating a user and the roles do not exist', () => {
+        it('should throw and error', async () => {
+            try {
+                await manager.createUser({
+                    username: 'uh-oh',
+                    firstname: 'Uh',
+                    lastname: 'Oh',
+                    client_id: 100,
+                    email: 'uh-oh@example.com',
+                    roles: ['non-existant-role-id'],
+                }, 'secrets');
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Unable to create user with roles');
+                expect(err.statusCode).toEqual(422);
+            }
+        });
+    });
+
     describe('when getting a view for a user', () => {
         describe('when everything is setup correctly', () => {
             const username = 'example-username';
@@ -30,7 +50,7 @@ describe('ACLManager', () => {
                     spaces: [],
                 });
 
-                const spaceResult = await manager.addSpace({
+                const spaceResult = await manager.createSpace({
                     name: 'Example Space',
                 }, [
                     {
@@ -49,7 +69,7 @@ describe('ACLManager', () => {
                     spaces: [spaceId]
                 });
 
-                await manager.users.createWithPassword({
+                await manager.createUser({
                     username,
                     firstname: 'Foo',
                     lastname: 'Bar',
