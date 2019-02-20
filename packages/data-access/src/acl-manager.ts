@@ -14,7 +14,6 @@ export class ACLManager {
         }
 
         input CreateSpaceInput {
-            id: ID!
             name: String!
             description: String
         }

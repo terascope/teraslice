@@ -1,11 +1,10 @@
 import { Express } from 'express';
 import { STATUS_CODES } from 'http';
-import { Logger, getErrorStatusCode } from '@terascope/utils';
+import { Logger, parseErrorInfo } from '@terascope/utils';
 import { ACLManager } from '@terascope/data-access';
 import * as apollo from 'apollo-server-express';
 import schema from './schema';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
-import { getErrorMessage } from 'elasticsearch-store/dist/src/utils';
 
 export default class TeraserverPlugin {
     readonly config: TeraserverConfig;
@@ -36,30 +35,34 @@ export default class TeraserverPlugin {
                 manager: this.manager,
             },
             formatError(err: any) {
-                if (err && err.locations && err.source) {
-                    return err;
-                }
+                const { statusCode, message } = parseErrorInfo(err);
+                const httpMsg = STATUS_CODES[statusCode] as string;
+                const code = httpMsg.replace(' ', '_').toUpperCase();
 
-                const statusCode = getErrorStatusCode(err);
-                const message = getErrorMessage(err);
-                const code = STATUS_CODES[statusCode];
-
-                if (statusCode === 403) {
-                    const error = new apollo.AuthenticationError(message);
-                    error.originalError = err;
-                    if (err && err.stack) error.stack = err.stack;
-                    return error;
-                }
+                let error: any;
+                let ErrorInstance: { new(message: string): any };
 
                 if (statusCode >= 400 && statusCode < 500) {
-                    const ErrorInstance = statusCode === 422 ? apollo.ValidationError : apollo.UserInputError;
-                    const error = new ErrorInstance(message);
-                    error.originalError = err;
-                    if (err && err.stack) error.stack = err.stack;
-                    return error;
+                    if (statusCode === 422) {
+                        ErrorInstance = apollo.ValidationError;
+                    } else if (statusCode === 401) {
+                        ErrorInstance = apollo.AuthenticationError;
+                    } else if (statusCode === 403) {
+                        ErrorInstance = apollo.ForbiddenError;
+                    } else {
+                        ErrorInstance = apollo.UserInputError;
+                    }
+                    if (err instanceof ErrorInstance) {
+                        return err;
+                    }
+                    error = new ErrorInstance(message);
+                } else {
+                    if (err instanceof apollo.ApolloError) {
+                        return err;
+                    }
+                    error = apollo.toApolloError(err, code);
                 }
 
-                const error = new apollo.ApolloError(message, code);
                 error.originalError = err;
                 if (err && err.stack) error.stack = err.stack;
                 return error;

@@ -27,7 +27,7 @@
         "build:watch": "yarn build --watch",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+        "test:debug": "env DEBUG='${DEBUG:-*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
         "@terascope/utils": "^0.5.0",

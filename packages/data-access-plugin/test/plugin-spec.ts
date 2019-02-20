@@ -118,16 +118,8 @@ describe('TeraserverPlugin', () => {
                             name: "greetings-admin"
                         }
                     ]) {
-                        space: {
-                            id,
-                            name
-                        },
-                        views: [
-                            {
-                                id,
-                                name
-                            }
-                        ]
+                        space,
+                        views
                     }
                 }
             `;
