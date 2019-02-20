@@ -88,7 +88,14 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
 
     async findBy(fields: FieldMap<T>, joinBy = 'AND') {
         const query = Object.entries(fields)
-            .map(([field, val]) => `${field}:"${val}"`)
+            .map(([field, val]) => {
+                if (val == null) {
+                    throw new ts.TSError(`Missing value for field "${field}"`, {
+                        statusCode: 422
+                    });
+                }
+                return `${field}:"${val}"`;
+            })
             .join(` ${joinBy} `);
 
         const record = ts.getFirst(await this.find(query, 1));

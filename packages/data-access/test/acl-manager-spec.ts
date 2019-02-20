@@ -17,8 +17,21 @@ describe('ACLManager', () => {
         return manager.shutdown();
     });
 
+    describe('when creating a user and given null', () => {
+        it('should throw an error', async () => {
+            try {
+                // @ts-ignore
+                await manager.createUser(null);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Invalid User Input');
+                expect(err.statusCode).toEqual(422);
+            }
+        });
+    });
+
     describe('when creating a user and the roles do not exist', () => {
-        it('should throw and error', async () => {
+        it('should throw an error', async () => {
             try {
                 await manager.createUser({
                     username: 'uh-oh',
@@ -30,7 +43,69 @@ describe('ACLManager', () => {
                 }, 'secrets');
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Unable to create user with roles');
+                expect(err.message).toInclude('Missing roles with user, non-existant-role-id');
+                expect(err.statusCode).toEqual(422);
+            }
+        });
+    });
+
+    describe('when creating a role and given null', () => {
+        it('should throw an error', async () => {
+            try {
+                // @ts-ignore
+                await manager.createRole(null);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Invalid Role Input');
+                expect(err.statusCode).toEqual(422);
+            }
+        });
+    });
+
+    describe('when creating a role and the spaces do not exist', () => {
+        it('should throw an error', async () => {
+            try {
+                await manager.createRole({
+                    name: 'uh-oh',
+                    spaces: ['non-existant-space-id'],
+                });
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Missing spaces with role, non-existant-space-id');
+                expect(err.statusCode).toEqual(422);
+            }
+        });
+    });
+
+    describe('when creating a space and the view is null', () => {
+        it('should throw an error', async () => {
+            try {
+                // @ts-ignore
+                await manager.createSpace({ name: 'Uh oh' }, [null]);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Invalid View Input');
+                expect(err.statusCode).toEqual(422);
+            }
+        });
+    });
+
+    describe('when creating a space and the view is missing roles', () => {
+        it('should throw an error', async () => {
+            try {
+                await manager.createSpace({
+                    name: 'Uh Oh',
+                }, [
+                    {
+                        name: 'Uh Oh',
+                        roles: ['non-existant-role-id'],
+                        includes: ['foo'],
+                        excludes: ['bar']
+                    }
+                ]);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Missing roles with view, non-existant-role-id');
                 expect(err.statusCode).toEqual(422);
             }
         });
@@ -45,7 +120,7 @@ describe('ACLManager', () => {
             let config: DataAccessConfig;
 
             beforeAll(async () => {
-                const { id: roleId } = await manager.roles.create({
+                const { id: roleId } = await manager.createRole({
                     name: 'Example Role',
                     spaces: [],
                 });
@@ -63,7 +138,7 @@ describe('ACLManager', () => {
 
                 spaceId = spaceResult.space.id;
 
-                await manager.roles.update({
+                await manager.updateRole({
                     id: roleId,
                     name: 'Example Role',
                     spaces: [spaceId]

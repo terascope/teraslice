@@ -75,26 +75,122 @@ describe('TeraserverPlugin', () => {
             return plugin.shutdown();
         });
 
-        let id: string;
+        let userId: string;
+        let roleId: string;
+        let spaceId: string;
 
-        beforeAll(async () => {
-            const user = await plugin.manager.users.createWithPassword({
-                username: 'foobar-1',
-                firstname: 'Foo',
-                lastname: 'Bar',
-                email: 'foo@example.com',
-                roles: [],
-                client_id: 1,
-            }, 'secrets');
+        it('should be able to create a role', async () => {
+            const uri = formatUri();
+            const query = `
+                mutation {
+                    createRole(role: {
+                        name: "greeter",
+                        spaces: [],
+                    }) {
+                        id,
+                        name,
+                        spaces,
+                    }
+                }
+            `;
 
-            id = user.id;
+            const { createRole } = await request(uri, query);
+            expect(createRole).toMatchObject({
+                name: 'greeter',
+                spaces: [],
+            });
+
+            roleId = createRole.id;
+            expect(roleId).toBeTruthy();
+        });
+
+        it('should be able to create a space and views', async () => {
+            expect(roleId).toBeTruthy();
+
+            const uri = formatUri();
+            const query = `
+                mutation {
+                    createSpace(space: {
+                        name: "greetings",
+                        roles: ["${roleId}"],
+                    }, views: [
+                        {
+                            name: "greetings-admin"
+                        }
+                    ]) {
+                        space: {
+                            id,
+                            name
+                        },
+                        views: [
+                            {
+                                id,
+                                name
+                            }
+                        ]
+                    }
+                }
+            `;
+
+            const {
+                createSpace: {
+                    space,
+                    views
+                }
+            } = await request(uri, query);
+
+            expect(space).toMatchObject({
+                name: 'greetings',
+                roles: [roleId],
+            });
+
+            expect(views).toBeArrayOfSize(1);
+            expect(views[0]).toMatchObject({
+                name: 'greetings-admin'
+            });
+
+            spaceId = space.id;
+            expect(spaceId).toBeTruthy();
+        });
+
+        it('should be able to create a user', async () => {
+            expect(roleId).toBeTruthy();
+
+            const uri = formatUri();
+            const query = `
+                mutation {
+                    createUser(user: {
+                        username: "hello",
+                        firstname: "hi",
+                        lastname: "hello",
+                        email: "hi@example.com",
+                        roles: ["${roleId}"],
+                        client_id: 1,
+                    }, password: "greeting") {
+                        id,
+                        username,
+                        email
+                    }
+                }
+            `;
+
+            const { createUser } = await request(uri, query);
+            expect(createUser).toMatchObject({
+                username: 'hello',
+                email: 'hi@example.com',
+            });
+
+            userId = createUser.id;
+            expect(userId).toBeTruthy();
         });
 
         it('should be able to get a user', async () => {
+            expect(userId).toBeTruthy();
+
             const uri = formatUri();
             const query = `
                 query {
-                    findUser(id: "${id}") {
+                    findUser(id: "${userId}") {
                         username,
                         firstname,
                         lastname,
@@ -104,51 +200,29 @@ describe('TeraserverPlugin', () => {
 
             expect(await request(uri, query)).toEqual({
                 findUser: {
-                    username: 'foobar-1',
-                    firstname: 'Foo',
-                    lastname: 'Bar'
-                }
-            });
-        });
-
-        it('should be able to create a user', async () => {
-            const uri = formatUri();
-            const query = `
-                mutation {
-                    createUser(user: {
-                        username: "hello",
-                        firstname: "hi",
-                        lastname: "hello",
-                        email: "hi@example.com",
-                        roles: [],
-                        client_id: 1,
-                    }, password: "greeting") {
-                        username,
-                        email,
-                    }
-                }
-            `;
-
-            expect(await request(uri, query)).toEqual({
-                createUser: {
                     username: 'hello',
-                    email: 'hi@example.com',
+                    firstname: 'hi',
+                    lastname: 'hello'
                 }
             });
         });
 
         it('should be able to update a user', async () => {
+            expect(userId).toBeTruthy();
+            expect(roleId).toBeTruthy();
+
             const uri = formatUri();
             const query = `
                 mutation {
                     updateUser(user: {
-                        id: "${id}"
-                        username: "foobar-1",
-                        email: "foo@example.com",
+                        id: "${userId}"
+                        username: "hello",
+                        email: "hi@example.com",
                         client_id: 2,
-                        roles: ["hello"]
+                        roles: ["${roleId}"]
                     }) {
                         username,
+                        email,
                         roles,
                         client_id,
                     }
@@ -157,18 +231,21 @@ describe('TeraserverPlugin', () => {
 
             expect(await request(uri, query)).toEqual({
                 updateUser: {
-                    username: 'foobar-1',
-                    roles: ['hello'],
+                    username: 'hello',
+                    email: 'hi@example.com',
+                    roles: [roleId],
                     client_id: 2
                 }
             });
         });
 
         it('should be able to update a user\'s password', async () => {
+            expect(userId).toBeTruthy();
+
             const uri = formatUri();
             const query = `
                 mutation {
-                    updatePassword(id: "${id}", password: "bananas")
+                    updatePassword(id: "${userId}", password: "bananas")
                 }
             `;
 
@@ -178,10 +255,12 @@ describe('TeraserverPlugin', () => {
         });
 
         it('should be able to remove a user', async () => {
+            expect(userId).toBeTruthy();
+
             const uri = formatUri();
             const query = `
                 mutation {
-                    removeUser(id: "${id}")
+                    removeUser(id: "${userId}")
                 }
             `;
 

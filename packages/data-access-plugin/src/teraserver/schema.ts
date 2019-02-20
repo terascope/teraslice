@@ -24,6 +24,15 @@ const resolvers: Resolvers = {
         removeUser(root, args, ctx: CTX) {
             return ctx.manager.removeUser(args.id);
         },
+        createSpace(root, args, ctx: CTX) {
+            return ctx.manager.createSpace(args.space, args.views);
+        },
+        createRole(root, args, ctx: CTX) {
+            return ctx.manager.createRole(args.role);
+        },
+        updateRole(root, args, ctx: CTX) {
+            return ctx.manager.updateRole(args.role);
+        }
     }
 };
 

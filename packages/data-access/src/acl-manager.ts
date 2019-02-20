@@ -39,7 +39,9 @@ export class ACLManager {
             updateUser(user: UpdateUserInput!): User!
             updatePassword(id: ID!, password: String!): Boolean
             removeUser(id: ID!): Boolean
-            createSpace(space: CreateSpaceInput, views: [CreateViewInput]): CreateSpaceResult
+            createRole(role: CreateRoleInput!): Role
+            updateRole(role: UpdateRoleInput!): Role
+            createSpace(space: CreateSpaceInput!, views: [CreateViewInput]): CreateSpaceResult
         }
     `;
 
@@ -78,27 +80,24 @@ export class ACLManager {
     }
 
     async createUser(input: models.CreateUserInput, password: string) {
-        if (input && input.roles && input.roles.length) {
-            try {
-                await this.roles.findAll(input.roles);
-            } catch (err) {
-                const rolesStr = input.roles.join(', ');
-                throw new TSError(`Unable to create user with roles ${rolesStr}`, {
-                    statusCode: 422
-                });
-            }
-        }
+        await this._validateUserInput(input);
+
         return this.users.createWithPassword(input, password);
     }
 
+    /**
+     * Update user without password
+    */
     async updateUser(input: models.UpdateUserInput): Promise<models.UserModel> {
+        await this._validateUserInput(input);
+
         // @ts-ignore
         await this.users.update(input);
         return this.users.findById(input.id);
     }
 
     /**
-     * Update pas
+     * Update user with password
     */
     async updatePassword(id: string, password: string): Promise<boolean> {
         await this.users.updateWithPassword(id, password);
@@ -113,13 +112,27 @@ export class ACLManager {
         return true;
     }
 
+    async createRole(input: models.CreateRoleInput) {
+        await this._validateRoleInput(input);
+
+        return this.roles.create(input);
+    }
+
+    async updateRole(input: models.UpdateRoleInput) {
+        await this._validateRoleInput(input);
+
+        await this.roles.update(input);
+        return this.roles.findById(input.id);
+    }
+
     /**
      * Create space with views
     */
     async createSpace(space: CreateSpaceInput, views: CreateSpaceViewInput[] = []) {
         const spaceDoc = await this.spaces.create({ ...space, views: [] });
 
-        const viewDocs = await Promise.all(views.map((view) => {
+        const viewDocs = await Promise.all(views.map(async (view) => {
+            await this._validateViewInput(view);
             return this.views.create({ ...view, space: spaceDoc.id });
         }));
 
@@ -166,7 +179,62 @@ export class ACLManager {
         };
     }
 
-    // FIXME add more higher level apis...
+    private async _validateUserInput(input: Partial<models.UserModel>) {
+        if (!input) {
+            throw new TSError('Invalid User Input', {
+                statusCode: 422
+            });
+        }
+
+        if (input && input.roles && input.roles.length) {
+            try {
+                await this.roles.findAll(input.roles);
+            } catch (err) {
+                const rolesStr = input.roles.join(', ');
+                throw new TSError(`Missing roles with user, ${rolesStr}`, {
+                    statusCode: 422
+                });
+            }
+        }
+    }
+
+    private async _validateRoleInput(input: Partial<models.RoleModel>) {
+        if (!input) {
+            throw new TSError('Invalid Role Input', {
+                statusCode: 422
+            });
+        }
+
+        if (input.spaces && input.spaces.length) {
+            try {
+                await this.spaces.findAll(input.spaces);
+            } catch (err) {
+                const rolesStr = input.spaces.join(', ');
+                throw new TSError(`Missing spaces with role, ${rolesStr}`, {
+                    statusCode: 422
+                });
+            }
+        }
+    }
+
+    private async _validateViewInput(input: Partial<models.ViewModel>) {
+        if (!input) {
+            throw new TSError('Invalid View Input', {
+                statusCode: 422
+            });
+        }
+
+        if (input.roles && input.roles.length) {
+            try {
+                await this.roles.findAll(input.roles);
+            } catch (err) {
+                const rolesStr = input.roles.join(', ');
+                throw new TSError(`Missing roles with view, ${rolesStr}`, {
+                    statusCode: 422
+                });
+            }
+        }
+    }
 }
 
 type CreateSpaceInput = Omit<models.CreateSpaceInput, 'views'>;

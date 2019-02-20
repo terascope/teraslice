@@ -1,16 +1,18 @@
 import { Express } from 'express';
-import { Logger } from '@terascope/utils';
+import { STATUS_CODES } from 'http';
+import { Logger, getErrorStatusCode } from '@terascope/utils';
 import { ACLManager } from '@terascope/data-access';
-import { ApolloServer } from 'apollo-server-express';
+import * as apollo from 'apollo-server-express';
 import schema from './schema';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
+import { getErrorMessage } from 'elasticsearch-store/dist/src/utils';
 
 export default class TeraserverPlugin {
     readonly config: TeraserverConfig;
     readonly logger: Logger;
     readonly app: Express;
     readonly manager: ACLManager;
-    readonly server: ApolloServer;
+    readonly server: apollo.ApolloServer;
     readonly baseUrl: string;
 
     constructor(pluginConfig: PluginConfig) {
@@ -28,10 +30,39 @@ export default class TeraserverPlugin {
             logger: pluginConfig.logger,
         });
 
-        this.server = new ApolloServer({
+        this.server = new apollo.ApolloServer({
             schema,
             context: {
                 manager: this.manager,
+            },
+            formatError(err: any) {
+                if (err && err.locations && err.source) {
+                    return err;
+                }
+
+                const statusCode = getErrorStatusCode(err);
+                const message = getErrorMessage(err);
+                const code = STATUS_CODES[statusCode];
+
+                if (statusCode === 403) {
+                    const error = new apollo.AuthenticationError(message);
+                    error.originalError = err;
+                    if (err && err.stack) error.stack = err.stack;
+                    return error;
+                }
+
+                if (statusCode >= 400 && statusCode < 500) {
+                    const ErrorInstance = statusCode === 422 ? apollo.ValidationError : apollo.UserInputError;
+                    const error = new ErrorInstance(message);
+                    error.originalError = err;
+                    if (err && err.stack) error.stack = err.stack;
+                    return error;
+                }
+
+                const error = new apollo.ApolloError(message, code);
+                error.originalError = err;
+                if (err && err.stack) error.stack = err.stack;
+                return error;
             }
         });
     }
