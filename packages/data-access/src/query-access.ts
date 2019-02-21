@@ -1,24 +1,27 @@
+import { SearchParams } from 'elasticsearch';
+import { Omit } from '@terascope/utils';
+import { LuceneQueryAccess, Translator, TypeConfig } from 'xlucene-evaluator';
 import { DataAccessConfig } from './acl-manager';
-import { LuceneQueryAccess } from 'xlucene-evaluator';
 
 /**
  * Using a DataAccess ACL, limit queries to
  * specific fields and records
- *
- * @todo should be able to translate to a full elasticsearch query
 */
 export class QueryAccess {
-    acl: DataAccessConfig;
+    config: DataAccessConfig;
     private _queryAccess: LuceneQueryAccess;
+    private _typeConfig: TypeConfig|undefined;
 
-    constructor(acl: DataAccessConfig) {
-        this.acl = acl;
+    constructor(config: DataAccessConfig, types?: TypeConfig) {
+        this.config = config;
+        this._typeConfig = types;
+
         const {
             excludes = [],
             includes = [],
             constraint,
             prevent_prefix_wildcard
-        } = acl.view;
+        } = this.config.view;
 
         this._queryAccess = new LuceneQueryAccess({
             excludes,
@@ -34,7 +37,24 @@ export class QueryAccess {
      *
      * If the input query using restricted fields, it will throw.
     */
-    restrictQuery(query: string): string {
-        return this._queryAccess.restrict(query);
+    restrictQuery(query: string, format?: 'xlucene'): string;
+    restrictQuery(query: string, format: 'dsl', params: SearchParamsDefaults): SearchParams;
+    restrictQuery(query: string, format: 'xlucene'|'dsl' = 'xlucene', extra?: object): string|SearchParams {
+        const restricted = this._queryAccess.restrict(query);
+        if (format === 'xlucene') {
+            return restricted;
+        }
+
+        const body = Translator.toElasticsearchDSL(restricted, this._typeConfig);
+        const _sourceInclude = this.config.view.includes;
+        const _sourceExclude = this.config.view.excludes;
+
+        return Object.assign({}, {
+            body,
+            _sourceInclude,
+            _sourceExclude
+        }, extra);
     }
 }
+
+export type SearchParamsDefaults = Partial<Omit<SearchParams, 'body'|'_sourceExclude'|'_sourceInclude'|'_source'>>;
