@@ -1,12 +1,12 @@
 
 import path from 'path';
-import { Loader, PhaseConfig } from '../src';
+import { Loader, PhaseConfig } from '../../src';
 
 describe('Loader', () => {
-    const matchRules1Path = path.join(__dirname, './fixtures/matchRules1.txt');
-    const transformRules2Path = path.join(__dirname, './fixtures/transformRules2.txt');
+    const matchRules1Path = path.join(__dirname, '../fixtures/matchRules1.txt');
+    const transformRules2Path = path.join(__dirname, '../fixtures/transformRules2.txt');
 
-    it('it can instantiate a matcher from file', async () => {
+    fit('it can instantiate a matcher from file', async () => {
         const config: PhaseConfig = { rules: [matchRules1Path], type: 'matcher' };
         let loader: Loader;
 

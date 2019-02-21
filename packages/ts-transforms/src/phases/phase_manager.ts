@@ -2,7 +2,7 @@
 import { DataEntity, Logger, debugLogger } from '@terascope/utils';
 import _ from 'lodash';
 import { PhaseConfig, PluginList } from '../interfaces';
-import Loader from '../loader';
+import { Loader } from '../loader';
 import SelectionPhase from './selector_phase';
 import ExtractionPhase from './extraction_phase';
 import PostProcessPhase from './post_process_phase';

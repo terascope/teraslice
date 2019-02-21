@@ -3,8 +3,9 @@ import fs from 'fs';
 import readline from 'readline';
 import { WatcherConfig, OperationConfig } from '../interfaces';
 import _ from 'lodash';
+import RulesValidator from './rules-validator';
 
-export default class Loader {
+class Loader {
     private opConfig: WatcherConfig;
     private multiValueCounter: number;
 
@@ -45,8 +46,10 @@ export default class Loader {
         return new Promise<OperationConfig[]>((resolve) => {
             rl.on('line', (str) => {
                 if (str) {
-                    const isComment = str[0] === '#';
-                    if (!isComment) results.push(parseConfig(str));
+                    const configStr = str.trim();
+                    const isComment = configStr[0] === '#';
+                    // const config = parseConfig(configStr)
+                    if (!isComment) results.push(parseConfig(configStr));
                 }
             });
 
@@ -54,3 +57,8 @@ export default class Loader {
         });
     }
 }
+
+export {
+    Loader,
+    RulesValidator
+};
