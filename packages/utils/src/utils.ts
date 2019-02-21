@@ -132,14 +132,17 @@ export function uniq<T>(arr: T[]): T[] {
     return [...new Set(arr)];
 }
 
-/** A native implemation of lodash times */ /** A native implemation of lodash times */
-export function times(n: number, fn: (index: number) => any) {
+/** A native implemation of lodash times */
+export function times(n: number): number[];
+export function times<T>(n: number, fn: (index: number) => T): T[];
+export function times<T>(n: number, fn?: (index: number) => T): T[] {
     let i = -1;
     const result = Array(n);
 
     while (++i < n) {
-        result[i] = fn(i);
+        result[i] = fn != null ? fn(i) : i;
     }
+
     return result;
 }
 
