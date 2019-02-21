@@ -20,6 +20,7 @@ export function cleanupIndex(model: Model) {
 }
 
 export function cleanupIndexes(manager: ACLManager) {
+    // @ts-ignore
     const models = [manager.roles, manager.spaces, manager.users, manager.views];
     return Promise.all(models.map(cleanupIndex));
 }

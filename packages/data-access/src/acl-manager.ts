@@ -58,10 +58,10 @@ export class ACLManager {
         }
     `;
 
-    readonly roles: models.Roles;
-    readonly spaces: models.Spaces;
-    readonly users: models.Users;
-    readonly views: models.Views;
+    private readonly roles: models.Roles;
+    private readonly spaces: models.Spaces;
+    private readonly users: models.Users;
+    private readonly views: models.Views;
 
     constructor(client: es.Client, config: ManagerConfig) {
         this.roles = new models.Roles(client, config);
