@@ -34,6 +34,7 @@ describe('k8sResource', () => {
             'deployments', 'worker', terasliceConfig, execution
         );
 
+        expect(kr.resource.kind).toBe('Deployment');
         expect(kr.resource.spec.replicas).toBe(2);
         expect(kr.resource.metadata.name).toBe('ts-wkr-example-data-generator-job-7ba9afb0-417a');
 
@@ -280,6 +281,7 @@ describe('k8sResource', () => {
                 'jobs', 'execution_controller', terasliceConfig, execution
             );
 
+            expect(kr.resource.kind).toBe('Job');
             expect(kr.resource.metadata.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
 
             // The following properties should be absent in the default case
@@ -298,6 +300,19 @@ describe('k8sResource', () => {
                 .toEqual(yaml.load(`
                     mountPath: /app/config
                     name: config`));
+        });
+    });
+
+    describe('execution_controller service', () => {
+        it('has valid resource object.', () => {
+            const kr = new K8sResource(
+                'services', 'execution_controller', terasliceConfig, execution
+            );
+
+            expect(kr.resource.kind).toBe('Service');
+            expect(kr.resource.metadata.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
+            expect(kr.resource.spec.ports[0].port).toBe(45680);
+            expect(kr.resource.spec.ports[0].targetPort).toBe(45680);
         });
     });
 });

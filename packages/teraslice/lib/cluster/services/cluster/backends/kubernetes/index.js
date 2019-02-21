@@ -5,12 +5,8 @@ const { TSError } = require('@terascope/utils');
 const Promise = require('bluebird');
 const K8s = require('./k8s');
 const k8sState = require('./k8sState');
-const k8sObject = require('./k8sObject');
 const K8sResource = require('./k8sResource');
-const { makeTemplate } = require('./utils');
-const { safeEncode } = require('../../../../../utils/encoding_utils');
 
-const exServiceTemplate = makeTemplate('services', 'execution_controller');
 
 /*
  Execution Life Cycle for _status
@@ -25,21 +21,9 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
     const logger = context.apis.foundation.makeLogger({ module: 'kubernetes_cluster_service' });
     // const slicerAllocationAttempts = context.sysconfig.teraslice.slicer_allocation_attempts;
 
-    const shutdownTimeoutMs = _.get(context, 'sysconfig.teraslice.shutdown_timeout', 60000);
-    const shutdownTimeoutSeconds = Math.round(shutdownTimeoutMs / 1000);
-
-    const assetsDirectory = _.get(context, 'sysconfig.teraslice.assets_directory', '');
-    const assetsVolume = _.get(context, 'sysconfig.teraslice.assets_volume', '');
     const clusterName = _.get(context, 'sysconfig.teraslice.name');
     const clusterNameLabel = clusterName.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
-    const kubernetesImage = _.get(context, 'sysconfig.teraslice.kubernetes_image', 'teraslice:k8sdev');
     const kubernetesNamespace = _.get(context, 'sysconfig.teraslice.kubernetes_namespace', 'default');
-    const configMapName = _.get(
-        context,
-        'sysconfig.teraslice.kubernetes_config_map_name',
-        `${context.sysconfig.teraslice.name}-worker`
-    );
-    const imagePullSecret = _.get(context, 'sysconfig.teraslice.kubernetes_image_pull_secret', '');
 
     const clusterState = {};
     let clusterStateInterval = null;
@@ -107,20 +91,11 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      * @return {Promise}                 [description]
      */
     function allocateSlicer(execution) {
-        const jobNameLabel = execution.name.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
-        const name = `ts-exc-${jobNameLabel.substring(0, 42)}-${execution.job_id.substring(0, 13)}`;
+        const exSvcResource = new K8sResource(
+            'services', 'execution_controller', context.sysconfig.teraslice, execution
+        );
 
-        const serviceConfig = {
-            name,
-            clusterNameLabel,
-            exId: execution.ex_id,
-            jobId: execution.job_id,
-            jobNameLabel,
-            nodeType: 'execution_controller',
-            namespace: kubernetesNamespace
-        };
-
-        const exService = exServiceTemplate(serviceConfig);
+        const exService = exSvcResource.resource;
 
         execution.slicer_port = _.get(exService, 'spec.ports[0].targetPort');
         execution.slicer_hostname = _.get(exService, 'metadata.name');
