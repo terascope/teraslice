@@ -6,6 +6,8 @@ import { ManagerConfig } from './interfaces';
 /**
  * ACL Manager for Data Access Roles, essentially a
  * high level abstraction of Spaces, Users, Roles, and Views
+ *
+ * @todo rename getDataAccessConfig to getViewForSpace and it should take a api_token not a user
 */
 export class ACLManager {
     static GraphQLSchema = `
@@ -195,25 +197,27 @@ export class ACLManager {
      * attached the space to those roles.
     */
     async createSpace(args: { space: CreateSpaceInput, views?: CreateSpaceViewInput[] }) {
-        const spaceDoc = await this.spaces.create({ ...args.space, views: [] });
+        const views = args.views || [];
+        const roles = await this._validateViewsInput(views);
+
+        const spaceDoc = await this.spaces.create({
+            ...args.space,
+            views: []
+        });
+
         const space = spaceDoc.id;
 
-        const views = args.views || [];
-        const roles: string[] = [];
-
         const viewDocs = await Promise.all(views.map(async (view) => {
-            await this._validateViewInput(view);
-            const viewRoles = view.roles || [];
-
-            roles.push(...viewRoles);
-            return this.views.create({ ...view, space });
+            return this.views.create({
+                ...view, space
+            });
         }));
 
         spaceDoc.views = viewDocs.map((viewDoc) => viewDoc.id);
 
         await Promise.all([
-            this.attachViewsToSpace({ space, views: spaceDoc.views }),
-            this.attachSpaceToRoles({ space, roles })
+            this.spaces.linkViews(space, spaceDoc.views),
+            this.roles.linkSpace(space, roles),
         ]);
 
         return {
@@ -222,72 +226,56 @@ export class ACLManager {
         };
     }
 
-    /** Associate space to a roles */
-    async attachSpaceToRoles(args: { space: string, roles: string[] }): Promise<void> {
-        if (!args.roles || !args.roles.length) return;
-
-        const roles = uniq(args.roles);
-
-        if (!args.space) {
-            throw new TSError('Missing space id to attach roles to', {
-                statusCode: 422
-            });
-        }
-
-        await Promise.all(roles.map((id) => {
-            return this.roles.updateWith(id, {
-                script: {
-                    source: 'if (!ctx._source.spaces.contains(params.space)) { ctx._source.spaces.add(params.space) }',
-                    lang: 'painless',
-                    params: {
-                        space: args.space,
-                    }
-                }
-            });
-        }));
-    }
-
-    /** Associate views to space */
-    async attachViewsToSpace(args: { space: string, views: string[] }): Promise<void> {
-        if (!args.views || !args.views.length) return;
-
-        const views = uniq(args.views);
-
-        if (!args.space) {
-            throw new TSError('Missing view id to attach view to', {
-                statusCode: 422
-            });
-        }
-
-        await this.spaces.updateWith(args.space, {
-            script: {
-                source: `
-                    for(int i = 0; i < params.views.length; i++) {
-                        if (!ctx._source.views.contains(params.views[i])) {
-                            ctx._source.views.add(params.views[i])
-                        }
-                    }
-                `,
-                lang: 'painless',
-                params: {
-                    views,
-                }
-            }
-        });
-    }
-
     /**
-     * Create a view
+     * Create a view, this will attach to the space and the role
     */
     async createView(args: { view: models.CreateViewInput }) {
         await this._validateViewInput(args.view);
 
+        const roles = args.view.roles || [];
+        const rolesQuery = roles.join(' OR ');
+
+        const count = await this.views.count(`space:"${args.view.space}" AND roles:(${rolesQuery})`);
+        if (count > 0) {
+            throw new TSError('A Role can only exist in a space once', {
+                statusCode: 422
+            });
+        }
+
         const view = await this.views.create(args.view);
 
         await Promise.all([
-            this.attachViewsToSpace({ space: view.space, views: [view.id] }),
-            this.attachSpaceToRoles({ space: view.space, roles: view.roles })
+            this.spaces.linkViews(view.space, view.id),
+            this.roles.linkSpace(view.space, view.roles)
         ]);
+    }
+
+    /**
+     * Update a view, this will attach to the space and the role
+    */
+    async updateView(args: { view: models.UpdateViewInput }) {
+        const { view } = args;
+        await this._validateViewInput(view);
+
+        const { space: oldSpace } = await this.views.findById(view.id);
+
+        const roles = view.roles || [];
+        const rolesQuery = roles.join(' OR ');
+
+        const count = await this.views.count(`space:"${view.space}" AND roles:(${rolesQuery})`);
+        if (count > 0) {
+            throw new TSError('A Role can only exist in a space once', {
+                statusCode: 422
+            });
+        }
+
+        await this.views.update(args.view);
+
+        if (oldSpace !== args.view.space) {
+            await this.spaces.linkViews(view.space, view.id);
+        }
+
+        await this.roles.linkSpace(view.space, view.roles);
     }
 
     /**
@@ -384,6 +372,8 @@ export class ACLManager {
         }
 
         if (view.roles && view.roles.length) {
+            view.roles = uniq(view.roles);
+
             try {
                 await this.roles.findAll(view.roles);
             } catch (err) {
@@ -393,6 +383,34 @@ export class ACLManager {
                 });
             }
         }
+    }
+
+    /**
+     * Validate views and make sure they only have a role once
+     *
+     * @returns a list of unique role ids
+     */
+    private async _validateViewsInput(views: Partial<models.ViewModel>[]): Promise<string[]> {
+        if (!views || !views.length) return [];
+
+        const roles: string[] = [];
+
+        for (const view of views) {
+            await this._validateViewInput(view);
+            if (!view.roles) continue;
+
+            for (const role of view.roles) {
+                if (roles.includes(role)) {
+                    throw new TSError('A Role can only exist in a space once', {
+                        statusCode: 422
+                    });
+                } else {
+                    roles.push(role);
+                }
+            }
+        }
+
+        return roles;
     }
 }
 

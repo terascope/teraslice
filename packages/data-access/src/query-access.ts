@@ -4,6 +4,8 @@ import { LuceneQueryAccess } from 'xlucene-evaluator';
 /**
  * Using a DataAccess ACL, limit queries to
  * specific fields and records
+ *
+ * @todo should be able to translate to a full elasticsearch query
 */
 export class QueryAccess {
     acl: DataAccessConfig;

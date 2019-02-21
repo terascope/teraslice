@@ -12,7 +12,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
     readonly store: IndexStore<T>;
     readonly name: string;
     private _fixDoc: FixDocFn<T> = (doc: T) => doc;
-    private _uniqueFields: string[];
+    private _uniqueFields: (keyof T)[];
     private _sanitizeFields: SanitizeFields;
 
     constructor(client: es.Client, config: ManagerConfig, modelConfig: ModelConfig<T>) {
@@ -63,6 +63,10 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
 
     async shutdown() {
         return this.store.shutdown();
+    }
+
+    async count(query: string): Promise<number> {
+        return this.store.count(query);
     }
 
     async create(record: C): Promise<T> {
@@ -137,7 +141,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
     }
 
     async update(record: U|T) {
-        const doc = this._fixDoc(this._sanitizeRecord({
+        const doc: T = this._fixDoc(this._sanitizeRecord({
             ...record,
             updated: utils.makeISODate(),
         } as T));
@@ -172,7 +176,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         await this.store.update(body, id);
     }
 
-    private async _countBy(field: string, val: string): Promise<number> {
+    private async _countBy(field: keyof T, val: any): Promise<number> {
         if (!val) return 0;
         return this.store.count(`${field}:"${val}"`);
     }
@@ -234,7 +238,7 @@ export interface ModelConfig<T extends BaseModel> {
     storeOptions?: Partial<IndexConfig>;
 
     /** Unqiue fields across on Index */
-    uniqueFields?: string[];
+    uniqueFields?: (keyof T)[];
 
     /** Sanitize / cleanup fields mapping, like trim or trimAndToLower */
     sanitizeFields?: SanitizeFields;

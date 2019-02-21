@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import { Omit } from '@terascope/utils';
+import { Omit, uniq, TSError } from '@terascope/utils';
 import rolesConfig from './config/roles';
 import { ManagerConfig } from '../interfaces';
 import { Base, BaseModel } from './base';
@@ -41,6 +41,34 @@ export class Roles extends Base<RoleModel, CreateRoleInput, UpdateRoleInput> {
         const role = await this.findById(roleId);
         return role.spaces.includes(space);
     }
+
+    /** Associate space to multiple roles */
+    async linkSpace(space: string, roles: string[]): Promise<void> {
+        if (!roles || !roles.length) return;
+
+        if (!space) {
+            throw new TSError('Missing space id to attach roles to', {
+                statusCode: 422
+            });
+        }
+
+        await Promise.all(uniq(roles).map((id) => {
+            return this.updateWith(id, {
+                script: {
+                    source: `
+                        if (!ctx._source.spaces.contains(params.space)) {
+                            ctx._source.spaces.add(params.space)
+                        }
+                    `,
+                    lang: 'painless',
+                    params: {
+                        space,
+                    }
+                }
+            });
+        }));
+    }
+
 }
 
 /**

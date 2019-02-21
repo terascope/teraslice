@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { TSError } from '@terascope/utils';
+import { TSError, times } from '@terascope/utils';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
 import { ACLManager, DataAccessConfig } from '../src';
 
@@ -121,6 +121,116 @@ describe('ACLManager', () => {
                 expect(err.message).toInclude('Missing roles with view, non-existant-role-id');
                 expect(err.statusCode).toEqual(422);
             }
+        });
+    });
+
+    describe('when creating views', () => {
+        const roles: string[] = [];
+
+        beforeAll(async () => {
+            const promises = times(2, (n) => {
+                return manager.createRole({
+                    role: {
+                        name: `Role ${n}`,
+                        spaces: [],
+                    }
+                });
+            });
+
+            const results = await Promise.all(promises);
+
+            roles.push(...results.map((role) => role.id));
+        });
+
+        describe('when creating a space with views', () => {
+            it('should only allow unique roles for the space', async () => {
+                expect.hasAssertions();
+
+                try {
+                    await manager.createSpace({
+                        space: {
+                            name: 'Some Space',
+                        },
+                        views: [
+                            {
+                                name: 'Some View',
+                                roles: [roles[0]]
+                            },
+                            {
+                                name: 'Double Role View',
+                                roles: [roles[0], roles[1]]
+                            }
+                        ]
+                    });
+                } catch (err) {
+                    expect(err.message).toEqual('A Role can only exist in a space once');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toEqual(422);
+                }
+            });
+        });
+
+        describe('when using an existing space', () => {
+            let spaceId: string;
+            let viewIds: string[];
+
+            beforeAll(async () => {
+                const result = await manager.createSpace({
+                    space: {
+                        name: 'ABC Space',
+                    },
+                    views: [
+                        {
+                            name: 'ABC View',
+                            roles: [roles[0]]
+                        },
+                        {
+                            name: 'DEF View',
+                            roles: [roles[1]]
+                        }
+                    ]
+                });
+
+                spaceId = result.space.id;
+                viewIds = result.views.map((view) => view.id);
+            });
+
+            it('should not allow another view to be created with the same role', async () => {
+                expect.hasAssertions();
+
+                try {
+                    await manager.createView({
+                        view: {
+                            name: 'GHI View',
+                            space: spaceId,
+                            roles: [roles[0]]
+                        }
+                    });
+                } catch (err) {
+                    expect(err.message).toEqual('A Role can only exist in a space once');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toEqual(422);
+                }
+            });
+
+            it('should not allow another view to be updated with the same role', async () => {
+                expect.hasAssertions();
+
+                try {
+                    await manager.updateView({
+                        view: {
+                            id: viewIds[0],
+                            name: 'DFG View',
+                            space: spaceId,
+                            roles: [roles[0], roles[1]]
+                        }
+                    });
+                } catch (err) {
+                    expect(err.message).toEqual('A Role can only exist in a space once');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toEqual(422);
+                }
+            });
         });
     });
 
