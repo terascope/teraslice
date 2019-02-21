@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
-import { QueryAccess, ViewModel, UserModel } from '../src';
+import { QueryAccess, ViewModel } from '../src';
 
 describe('QueryAccess', () => {
     const view: ViewModel = {
@@ -20,22 +20,10 @@ describe('QueryAccess', () => {
         created: new Date().toISOString(),
     };
 
-    const user: UserModel = {
-        id: 'example-user-id',
-        client_id: 1,
-        username: 'foobar',
-        firstname: 'Foo',
-        lastname: 'Bar',
-        email: 'foobar@example.com',
-        roles: ['example-role'],
-        updated: new Date().toISOString(),
-        created: new Date().toISOString(),
-    };
-
     const queryAccess = new QueryAccess({
         view,
-        user,
-        role: 'example-role'
+        user_id: 'example-user',
+        role_id: 'example-role'
     });
 
     it('should be able to restrict the query bar', () => {

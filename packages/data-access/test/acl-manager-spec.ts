@@ -239,16 +239,20 @@ describe('ACLManager', () => {
             const username = 'example-username';
 
             let spaceId: string;
+            let roleId: string;
+            let userId: string;
             let err: any;
             let config: DataAccessConfig;
 
             beforeAll(async () => {
-                const { id: roleId } = await manager.createRole({
+                const role = await manager.createRole({
                     role: {
                         name: 'Example Role',
                         spaces: [],
                     }
                 });
+
+                roleId = role.id;
 
                 const spaceResult = await manager.createSpace({
                     space: {
@@ -274,7 +278,7 @@ describe('ACLManager', () => {
                     }
                 });
 
-                await manager.createUser({
+                const user = await manager.createUser({
                     user: {
                         username,
                         firstname: 'Foo',
@@ -286,8 +290,13 @@ describe('ACLManager', () => {
                     password: 'secrets'
                 });
 
+                userId = user.id;
+
                 try {
-                    config = await manager.getDataAccessConfig({ username, space: spaceId });
+                    config = await manager.getViewForSpace({
+                        api_token: user.api_token,
+                        space: spaceId
+                    });
                 } catch (_err) {
                     err = _err;
                 }
@@ -299,9 +308,14 @@ describe('ACLManager', () => {
 
             it('should return a valid config', () => {
                 expect(config).toMatchObject({
-                    user: {},
-                    view: {},
-                    role: 'Example Role'
+                    user_id: userId,
+                    role_id: roleId,
+                    view: {
+                        name: 'Example View',
+                        roles: [roleId],
+                        includes: ['foo'],
+                        excludes: ['bar']
+                    },
                 });
             });
         });

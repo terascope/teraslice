@@ -6,8 +6,6 @@ import { ManagerConfig } from './interfaces';
 /**
  * ACL Manager for Data Access Roles, essentially a
  * high level abstraction of Spaces, Users, Roles, and Views
- *
- * @todo rename getDataAccessConfig to getViewForSpace and it should take a api_token not a user
 */
 export class ACLManager {
     static GraphQLSchema = `
@@ -295,17 +293,23 @@ export class ACLManager {
     /**
      * Get the User's data access configuration for a "Space"
      */
-    async getDataAccessConfig(args: { username: string, space: string }): Promise<DataAccessConfig> {
-        const user = await this.users.findByAnyId(args.username);
+    async getViewForSpace(args: { api_token: string, space: string }): Promise<DataAccessConfig> {
+        if (!args.api_token) {
+            throw new TSError('Missing authentication for user', {
+                statusCode: 401
+            });
+        }
+
+        const user = await this.users.findByToken(args.api_token);
         if (!user) {
-            throw new TSError(`Unable to find user "${args.username}"`, {
-                statusCode: 404
+            throw new TSError('Unable to authenticate user', {
+                statusCode: 403
             });
         }
 
         const roleId = getFirst(user.roles);
         if (!roleId) {
-            const msg = `User "${args.username}" is not assigned to any roles`;
+            const msg = `User "${user.username}" is not assigned to any roles`;
             throw new TSError(msg, { statusCode: 403 });
         }
 
@@ -313,16 +317,18 @@ export class ACLManager {
 
         const hasAccess = await this.roles.hasAccessToSpace(roleId, args.space);
         if (!hasAccess) {
-            const msg = `User "${args.username}" does not have access to space "${args.space}"`;
+            const msg = `User "${user.username}" does not have access to space "${args.space}"`;
             throw new TSError(msg, { statusCode: 403 });
         }
 
-        const view = await this.views.getViewForRole(roleId, args.space);
+        const [view] = await Promise.all([
+            this.views.getViewForRole(roleId, args.space),
+        ]);
 
         return {
-            user: this.users.omitPrivateFields(user),
-            view,
-            role: role.name,
+            user_id: user.id,
+            role_id: role.id,
+            view
         };
     }
 
@@ -425,19 +431,19 @@ type CreateSpaceViewInput = Omit<models.CreateViewInput, 'space'>;
 */
 export interface DataAccessConfig {
     /**
-     * The User Model
+     * The id of the user authenticated
     */
-    user: models.UserModel;
+    user_id: string;
+
+    /**
+     * The id of the Role used
+    */
+    role_id: string;
 
     /**
      * The View Model
     */
     view: models.ViewModel;
-
-    /**
-     * The name of the Role
-    */
-    role: string;
 }
 
 export const graphqlQueryMethods: (keyof ACLManager)[] = [
