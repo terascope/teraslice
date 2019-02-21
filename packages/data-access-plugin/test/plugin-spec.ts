@@ -299,7 +299,7 @@ describe('TeraserverPlugin', () => {
             const uri = formatUri();
             const query = `
                 query {
-                    findRole(id: "${userId}") {
+                    findRole(id: "${roleId}") {
                         name,
                         spaces
                     }
@@ -308,7 +308,7 @@ describe('TeraserverPlugin', () => {
 
             expect(await request(uri, query)).toEqual({
                 findRole: {
-                    name: 'greeting',
+                    name: 'greeter',
                     spaces: [spaceId]
                 }
             });

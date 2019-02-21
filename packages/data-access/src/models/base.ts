@@ -136,12 +136,17 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         });
     }
 
-    async update(record: U) {
-        // @ts-ignore because fix doc is usually post process
+    async update(record: U|T) {
         const doc = this._fixDoc(this._sanitizeRecord({
             ...record,
             updated: utils.makeISODate(),
-        })) as T;
+        } as T));
+
+        if (!doc.id) {
+            throw new ts.TSError('Updates required id', {
+                statusCode: 422
+            });
+        }
 
         const existing = await this.store.get(doc.id);
 
@@ -160,7 +165,11 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
             }
         }
 
-        return this.store.update(doc, doc.id);
+        await this.store.update({ doc }, doc.id);
+    }
+
+    async updateWith(id: string, body: any): Promise<void> {
+        await this.store.update(body, id);
     }
 
     private async _countBy(field: string, val: string): Promise<number> {

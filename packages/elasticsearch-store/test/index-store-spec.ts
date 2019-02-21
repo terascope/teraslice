@@ -162,13 +162,15 @@ describe('IndexStore', () => {
 
             it('should be able to update the record', async () => {
                 await indexStore.update({
-                    test_number: 4231
+                    doc: {
+                        test_number: 4231
+                    }
                 }, record.test_id);
 
                 const updated = await indexStore.get(record.test_id);
                 expect(updated).toHaveProperty('test_number', 4231);
 
-                await indexStore.update(record, record.test_id);
+                await indexStore.update({ doc: record }, record.test_id);
             });
 
             it('should throw when updating a record that does not exist', async () => {
@@ -176,7 +178,9 @@ describe('IndexStore', () => {
 
                 try {
                     await indexStore.update({
-                        test_number: 1,
+                        doc: {
+                            test_number: 1,
+                        }
                     }, 'wrong-id');
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
@@ -557,7 +561,9 @@ describe('IndexStore', () => {
 
             it('should be able to update a record with a proper field', async () => {
                 const result = await indexStore.update({
-                    test_number: 77777
+                    doc: {
+                        test_number: 77777
+                    }
                 }, expected[2].test_id);
 
                 expect(result).toBeNil();

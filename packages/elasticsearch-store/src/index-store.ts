@@ -328,7 +328,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Update a document with a given id */
-    async update(doc: Partial<T>, id: string, params?: PartialParam<es.UpdateDocumentParams, 'body'|'id'>) {
+    update(body: { script: any }, id: string, params?: PartialParam<es.UpdateDocumentParams, 'body'|'id'>): Promise<void>;
+    update(body: { doc: Partial<T> }, id: string, params?: PartialParam<es.UpdateDocumentParams, 'body'|'id'>): Promise<void>;
+    async update(body: any, id: string, params?: PartialParam<es.UpdateDocumentParams, 'body'|'id'>): Promise<void> {
         const defaults = {
             refresh: true,
             retryOnConflict: 3
@@ -336,7 +338,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
         const p = this._getParams(defaults, params, {
             id,
-            body: { doc }
+            body
         });
 
         await ts.pRetry(() => {

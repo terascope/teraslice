@@ -190,24 +190,90 @@ export class ACLManager {
     }
 
     /**
-     * Create space with views
+     * Create space with optional views
+     * If roles are specified on any of the views, it will try automatically
+     * attached the space to those roles.
     */
     async createSpace(args: { space: CreateSpaceInput, views?: CreateSpaceViewInput[] }) {
         const spaceDoc = await this.spaces.create({ ...args.space, views: [] });
+        const space = spaceDoc.id;
 
         const views = args.views || [];
+        const roles: string[] = [];
+
         const viewDocs = await Promise.all(views.map(async (view) => {
             await this._validateViewInput(view);
-            return this.views.create({ ...view, space: spaceDoc.id });
+            const viewRoles = view.roles || [];
+
+            roles.push(...viewRoles);
+            return this.views.create({ ...view, space });
         }));
 
         spaceDoc.views = viewDocs.map((viewDoc) => viewDoc.id);
-        await this.spaces.update(spaceDoc);
+
+        await Promise.all([
+            this.attachViewsToSpace({ space, views: spaceDoc.views }),
+            this.attachSpaceToRoles({ space, roles })
+        ]);
 
         return {
             space: spaceDoc,
             views: viewDocs,
         };
+    }
+
+    /** Associate space to a roles */
+    async attachSpaceToRoles(args: { space: string, roles: string[] }): Promise<void> {
+        if (!args.roles || !args.roles.length) return;
+
+        const roles = uniq(args.roles);
+
+        if (!args.space) {
+            throw new TSError('Missing space id to attach roles to', {
+                statusCode: 422
+            });
+        }
+
+        await Promise.all(roles.map((id) => {
+            return this.roles.updateWith(id, {
+                script: {
+                    source: 'if (!ctx._source.spaces.contains(params.space)) { ctx._source.spaces.add(params.space) }',
+                    lang: 'painless',
+                    params: {
+                        space: args.space,
+                    }
+                }
+            });
+        }));
+    }
+
+    /** Associate views to space */
+    async attachViewsToSpace(args: { space: string, views: string[] }): Promise<void> {
+        if (!args.views || !args.views.length) return;
+
+        const views = uniq(args.views);
+
+        if (!args.space) {
+            throw new TSError('Missing view id to attach view to', {
+                statusCode: 422
+            });
+        }
+
+        await this.spaces.updateWith(args.space, {
+            script: {
+                source: `
+                    for(int i = 0; i < params.views.length; i++) {
+                        if (!ctx._source.views.contains(params.views[i])) {
+                            ctx._source.views.add(params.views[i])
+                        }
+                    }
+                `,
+                lang: 'painless',
+                params: {
+                    views,
+                }
+            }
+        });
     }
 
     /**
@@ -217,9 +283,11 @@ export class ACLManager {
         await this._validateViewInput(args.view);
 
         const view = await this.views.create(args.view);
-        const space = await this.spaces.findById(view.space);
-        space.views = uniq([...space.views, view.id]);
-        this.spaces.update(space);
+
+        await Promise.all([
+            this.attachViewsToSpace({ space: view.space, views: [view.id] }),
+            this.attachSpaceToRoles({ space: view.space, roles: view.roles })
+        ]);
     }
 
     /**
