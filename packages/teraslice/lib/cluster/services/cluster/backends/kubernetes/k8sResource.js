@@ -89,13 +89,7 @@ class K8sResource {
         const templateKeys = ['{{', '}}'];
 
         return (config) => {
-            let templated;
-            // console.log(`config: ${JSON.stringify(config, null, 2)}`);
-            try {
-                templated = barbe(templateData, templateKeys, config);
-            } catch (error) {
-                console.log(`error completing template with the following config:\n\n ${JSON.stringify(config, null, 2)}`);
-            }
+            const templated = barbe(templateData, templateKeys, config);
             return JSON.parse(templated);
         };
     }
