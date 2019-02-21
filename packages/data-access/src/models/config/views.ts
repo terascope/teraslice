@@ -1,6 +1,7 @@
 import { ModelConfig } from '../base';
+import { ViewModel } from '../views';
 
-const config: ModelConfig = {
+const config: ModelConfig<ViewModel> = {
     version: 1,
     name: 'views',
     mapping: {

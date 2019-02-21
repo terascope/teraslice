@@ -1,6 +1,6 @@
 import * as es from 'elasticsearch';
-import { getFirst, Omit, DataEntity, Optional } from '@terascope/utils';
-import * as usersConfig from './config/users';
+import { getFirst, Omit, Optional } from '@terascope/utils';
+import usersConfig from './config/users';
 import { Base, BaseModel } from './base';
 import { ManagerConfig } from '../interfaces';
 import * as utils from '../utils';
@@ -125,13 +125,11 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
     /**
      * Find a User by username
     */
-    async findByUsername(username: string): Promise<DataEntity<PrivateUserModel>> {
+    async findByUsername(username: string): Promise<PrivateUserModel> {
         return this.findBy({ username });
     }
 
-    omitPrivateFields(user: DataEntity<PrivateUserModel>): DataEntity<UserModel>;
-    omitPrivateFields(user: PrivateUserModel): UserModel;
-    omitPrivateFields(user: DataEntity<PrivateUserModel>|PrivateUserModel): DataEntity<UserModel>|UserModel {
+    omitPrivateFields(user: PrivateUserModel): UserModel {
         const publicUser = {};
         const privateFields = ['api_token', 'hash', 'salt'];
 

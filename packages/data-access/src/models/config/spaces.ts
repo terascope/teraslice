@@ -1,6 +1,7 @@
 import { ModelConfig } from '../base';
+import { SpaceModel } from '../spaces';
 
-const config: ModelConfig = {
+const config: ModelConfig<SpaceModel> = {
     version: 1,
     name: 'spaces',
     mapping: {

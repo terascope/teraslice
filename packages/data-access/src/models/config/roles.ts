@@ -1,6 +1,7 @@
 import { ModelConfig } from '../base';
+import { RoleModel } from '../roles';
 
-const config: ModelConfig = {
+const config: ModelConfig<RoleModel> = {
     version: 1,
     name: 'roles',
     mapping: {

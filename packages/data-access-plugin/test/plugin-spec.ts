@@ -292,5 +292,49 @@ describe('TeraserverPlugin', () => {
                 removeUser: true
             });
         });
+
+        it('should be able to get a role', async () => {
+            expect(userId).toBeTruthy();
+
+            const uri = formatUri();
+            const query = `
+                query {
+                    findRole(id: "${userId}") {
+                        name,
+                        spaces
+                    }
+                }
+            `;
+
+            expect(await request(uri, query)).toEqual({
+                findRole: {
+                    name: 'greeting',
+                    spaces: [spaceId]
+                }
+            });
+        });
+
+        it('should be able to find all roles', async () => {
+            expect(userId).toBeTruthy();
+
+            const uri = formatUri();
+            const query = `
+                query {
+                    findRoles(query: "*") {
+                        name,
+                        spaces
+                    }
+                }
+            `;
+
+            expect(await request(uri, query)).toEqual({
+                findRoles: [
+                    {
+                        name: 'greeter',
+                        spaces: [spaceId]
+                    }
+                ]
+            });
+        });
     });
 });

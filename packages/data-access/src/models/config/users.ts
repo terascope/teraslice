@@ -1,6 +1,7 @@
 import { ModelConfig } from '../base';
+import { PrivateUserModel } from '../users';
 
-const config: ModelConfig = {
+const config: ModelConfig<PrivateUserModel> = {
     version: 1,
     name: 'users',
     mapping: {
@@ -105,10 +106,11 @@ const config: ModelConfig = {
         email: 'trimAndLower',
         username: 'trim',
     },
-    fixDoc: function fixDoc(doc: any) {
-        if (doc && doc.role) {
-            doc.roles = [doc.role];
-            delete doc.role;
+    fixDoc: function fixDoc(doc) {
+        const _doc = doc as any;
+        if (_doc && _doc.role) {
+            _doc.roles = [_doc.role];
+            delete _doc.role;
         }
 
         return doc;

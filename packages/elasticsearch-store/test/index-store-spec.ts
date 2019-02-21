@@ -186,7 +186,8 @@ describe('IndexStore', () => {
             });
 
             it('should be able to get the record by id', async () => {
-                const r = await indexStore.get(record.test_id);
+                // @ts-ignore
+                const r = await indexStore.get(record.test_id) as DataEntity<T>;
 
                 expect(DataEntity.isDataEntity(r)).toBeTrue();
                 expect(r).toEqual(record);

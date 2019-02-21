@@ -11,11 +11,11 @@ import { ManagerConfig } from '../interfaces';
 export class Base<T extends BaseModel, C extends object = T, U extends object = T> {
     readonly store: IndexStore<T>;
     readonly name: string;
-    private _fixDoc: FixDocFn;
+    private _fixDoc: FixDocFn<T> = (doc: T) => doc;
     private _uniqueFields: string[];
     private _sanitizeFields: SanitizeFields;
 
-    constructor(client: es.Client, config: ManagerConfig, modelConfig: ModelConfig) {
+    constructor(client: es.Client, config: ManagerConfig, modelConfig: ModelConfig<T>) {
         const indexConfig: IndexConfig = Object.assign({
             version: 1,
             name: modelConfig.name,
@@ -54,8 +54,6 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
 
         if (modelConfig.fixDoc) {
             this._fixDoc = modelConfig.fixDoc;
-        } else {
-            this._fixDoc = (doc) => doc;
         }
     }
 
@@ -67,7 +65,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         return this.store.shutdown();
     }
 
-    async create(record: C|ts.DataEntity<C>): Promise<T> {
+    async create(record: C): Promise<T> {
         const docInput: unknown = {
             ...record,
             id: await utils.makeId(),
@@ -108,7 +106,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         return this._fixDoc(record);
     }
 
-    async findById(id: string) {
+    async findById(id: string): Promise<T> {
         return this.store.get(id).then(this._fixDoc);
     }
 
@@ -139,10 +137,11 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
     }
 
     async update(record: U) {
-        const doc = this._sanitizeRecord({
-            ...this._fixDoc(record),
+        // @ts-ignore because fix doc is usually post process
+        const doc = this._fixDoc(this._sanitizeRecord({
+            ...record,
             updated: utils.makeISODate(),
-        } as T);
+        })) as T;
 
         const existing = await this.store.get(doc.id);
 
@@ -209,7 +208,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
     }
 }
 
-export interface ModelConfig {
+export interface ModelConfig<T extends BaseModel> {
     /** Schema Version */
     version: number;
 
@@ -232,10 +231,10 @@ export interface ModelConfig {
     sanitizeFields?: SanitizeFields;
 
     /** A custom function to fix any legacy data on the a record */
-    fixDoc?: FixDocFn;
+    fixDoc?: FixDocFn<T>;
 }
 
-export type FixDocFn<T = any> = (doc: T) => T extends ts.DataEntity ? ts.DataEntity<T> : T;
+export type FixDocFn<T extends BaseModel> = (doc: T) => T;
 
 export type FieldMap<T> = {
     [field in keyof T]?: string;
@@ -245,7 +244,7 @@ export type SanitizeFields = {
     [field: string]: 'trimAndLower'|'trim';
 };
 
-export type BaseConfig = ModelConfig & ManagerConfig;
+export type BaseConfig = ModelConfig<BaseModel> & ManagerConfig;
 
 export interface BaseModel {
     /**

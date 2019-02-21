@@ -1,9 +1,9 @@
 import 'jest-extended';
-import { DataEntity, TSError } from '@terascope/utils';
+import { TSError } from '@terascope/utils';
 import { QueryAccess, ViewModel, UserModel } from '../src';
 
 describe('QueryAccess', () => {
-    const view = DataEntity.make<ViewModel>({
+    const view: ViewModel = {
         id: 'example-view',
         name: 'Example View',
         space: 'example-space',
@@ -16,18 +16,21 @@ describe('QueryAccess', () => {
         includes: [
             'foo'
         ],
-        _updated: new Date(),
-        _created: new Date(),
-    });
+        updated: new Date().toISOString(),
+        created: new Date().toISOString(),
+    };
 
-    const user = DataEntity.make<UserModel>({
+    const user: UserModel = {
+        id: 'example-user-id',
         client_id: 1,
         username: 'foobar',
         firstname: 'Foo',
         lastname: 'Bar',
         email: 'foobar@example.com',
         roles: ['example-role'],
-    });
+        updated: new Date().toISOString(),
+        created: new Date().toISOString(),
+    };
 
     const queryAccess = new QueryAccess({
         view,

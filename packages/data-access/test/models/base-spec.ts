@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { DataEntity, times, TSError, Omit } from '@terascope/utils';
+import { times, TSError, Omit } from '@terascope/utils';
 import { Base, BaseModel, ModelConfig } from '../../src/models/base';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
@@ -9,7 +9,7 @@ describe('Base', () => {
     }
 
     const client = makeClient();
-    const baseConfig: ModelConfig = {
+    const baseConfig: ModelConfig<ExampleModel> = {
         name: 'base',
         mapping: {
             properties: {
@@ -58,7 +58,7 @@ describe('Base', () => {
 
     describe('when creating a record', () => {
         let created: ExampleModel;
-        let fetched: DataEntity<ExampleModel>;
+        let fetched: ExampleModel;
 
         beforeAll(async () => {
             created = await base.create({

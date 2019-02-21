@@ -1,4 +1,4 @@
-import { TSError, getFirst, DataEntity, Omit } from '@terascope/utils';
+import { TSError, getFirst, Omit, uniq } from '@terascope/utils';
 import * as es from 'elasticsearch';
 import * as models from './models';
 import { ManagerConfig } from './interfaces';
@@ -14,7 +14,7 @@ export class ACLManager {
             description: String
         }
 
-        input CreateViewInput {
+        input CreateSpaceViewInput {
             name: String!
             description: String
             roles: [String]
@@ -52,7 +52,7 @@ export class ACLManager {
             createRole(role: CreateRoleInput!): Role
             updateRole(role: UpdateRoleInput!): Role
 
-            createSpace(space: CreateSpaceInput!, views: [CreateViewInput]): CreateSpaceResult
+            createSpace(space: CreateSpaceInput!, views: [CreateSpaceViewInput]): CreateSpaceResult
         }
     `;
 
@@ -211,6 +211,18 @@ export class ACLManager {
     }
 
     /**
+     * Create a view
+    */
+    async createView(args: { view: models.CreateViewInput }) {
+        await this._validateViewInput(args.view);
+
+        const view = await this.views.create(args.view);
+        const space = await this.spaces.findById(view.space);
+        space.views = uniq([...space.views, view.id]);
+        this.spaces.update(space);
+    }
+
+    /**
      * Find view by id
     */
     async findView(args: { id: string }) {
@@ -329,12 +341,12 @@ export interface DataAccessConfig {
     /**
      * The User Model
     */
-    user: DataEntity<models.UserModel>;
+    user: models.UserModel;
 
     /**
      * The View Model
     */
-    view: DataEntity<models.ViewModel>;
+    view: models.ViewModel;
 
     /**
      * The name of the Role

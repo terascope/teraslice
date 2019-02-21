@@ -24,6 +24,17 @@ export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
             updated: String
         }
 
+        input CreateViewInput {
+            name: String
+            description: String
+            space: String!
+            roles: [String]
+            excludes: [String]
+            includes: [String]
+            constraint: String
+            prevent_prefix_wildcard: Boolean
+        }
+
         input UpdateViewInput {
             id: ID!
             name: String

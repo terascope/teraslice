@@ -193,7 +193,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Get a single document */
-    async get(id: string, params?: PartialParam<es.GetParams>): Promise<ts.DataEntity<T>> {
+    async get(id: string, params?: PartialParam<es.GetParams>): Promise<T> {
         const p = this._getParams(params, { id });
 
         return ts.pRetry(async () => {
@@ -242,7 +242,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Get multiple documents at the same time */
-    async mget(body: any, params?: PartialParam<es.MGetParams>): Promise<ts.DataEntity<T>[]> {
+    async mget(body: any, params?: PartialParam<es.MGetParams>): Promise<T[]> {
         const p = this._getParams(params, { body });
 
         return ts.pRetry(async () => {
@@ -297,7 +297,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Search with a given Lucene Query or Elasticsearch Query DSL */
-    async search(query: string, params?: PartialParam<SearchParams<T>>): Promise<ts.DataEntity<T>[]> {
+    async search(query: string, params?: PartialParam<SearchParams<T>>): Promise<T[]> {
         const p = this._getParams(params, utils.translateQuery(query, this._xluceneTypes));
 
         return ts.pRetry(async () => {
@@ -364,10 +364,10 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         }, ...params);
     }
 
-    private _toRecord(result: RecordResponse<T>): ts.DataEntity<T> {
+    private _toRecord(result: RecordResponse<T>): T {
         this._validate(result._source);
 
-        return ts.DataEntity.make(result._source, {
+        const entity = ts.DataEntity.make<T>(result._source, {
             _key: result._id,
             _processTime: Date.now(),
             _ingestTime: this._getIngestTime(result._source),
@@ -376,6 +376,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             _type: result._type,
             _version: result._version,
         });
+
+        // @ts-ignore because it easier to assume it isn't a data-entity
+        return entity as T;
     }
 }
 
