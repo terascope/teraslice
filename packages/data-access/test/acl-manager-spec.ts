@@ -308,6 +308,56 @@ describe('ACLManager', () => {
                 }
             });
         });
+
+        describe('when using moving to a different space', () => {
+            let spaceAId: string;
+            let spaceBId: string;
+            let viewId: string;
+
+            beforeAll(async () => {
+                const resultA = await manager.createSpace({
+                    space: {
+                        name: 'A Space',
+                    },
+                    views: [
+                        {
+                            name: 'AB View',
+                            roles: [roles[0]]
+                        }
+                    ]
+                });
+
+                const resultB = await manager.createSpace({
+                    space: {
+                        name: 'B Space',
+                    }
+                });
+
+                spaceAId = resultA.space.id;
+                viewId = resultA.views[0].id;
+
+                spaceBId = resultB.space.id;
+            });
+
+            it('should remove the view from the old space', async () => {
+                await manager.updateView({
+                    view: {
+                        id: viewId,
+                        name: 'AB View',
+                        space: spaceBId,
+                        roles: []
+                    }
+                });
+
+                const [spaceA, spaceB] = await Promise.all([
+                    manager.findSpace({ id: spaceAId }),
+                    manager.findSpace({ id: spaceBId }),
+                ]);
+
+                expect(spaceA.views).not.toContain(viewId);
+                expect(spaceB.views).toContain(viewId);
+            });
+        });
     });
 
     describe('when getting a view for a user', () => {

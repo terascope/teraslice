@@ -59,6 +59,34 @@ export class Spaces extends Base<SpaceModel, CreateSpaceInput, UpdateSpaceInput>
             }
         });
     }
+
+    /** Disassociate views to space */
+    async unlinkViews(space: string, views: string[]|string): Promise<void> {
+        if (!views || !views.length) return;
+
+        if (!space) {
+            throw new TSError('Missing view id to unattach view to', {
+                statusCode: 422
+            });
+        }
+
+        await this.updateWith(space, {
+            script: {
+                source: `
+                    for(int i = 0; i < params.views.length; i++) {
+                        if (ctx._source.views.contains(params.views[i])) {
+                            int viewIndex = ctx._source.views.indexOf(params.views[i]);
+                            ctx._source.views.remove(viewIndex)
+                        }
+                    }
+                `,
+                lang: 'painless',
+                params: {
+                    views: uniq(castArray(views)),
+                }
+            }
+        });
+    }
 }
 
 /**

@@ -241,13 +241,15 @@ export class ACLManager {
         await this._validateViewInput(args.view);
 
         const roles = args.view.roles || [];
-        const rolesQuery = roles.join(' OR ');
 
-        const count = await this.views.count(`space:"${args.view.space}" AND roles:(${rolesQuery})`);
-        if (count > 0) {
-            throw new TSError('A Role can only exist in a space once', {
-                statusCode: 422
-            });
+        if (roles.length) {
+            const rolesQuery = roles.join(' OR ');
+            const count = await this.views.count(`space:"${args.view.space}" AND roles:(${rolesQuery})`);
+            if (count > 0) {
+                throw new TSError('A Role can only exist in a space once', {
+                    statusCode: 422
+                });
+            }
         }
 
         const view = await this.views.create(args.view);
@@ -268,19 +270,25 @@ export class ACLManager {
         const { space: oldSpace } = await this.views.findById(view.id);
 
         const roles = view.roles || [];
-        const rolesQuery = roles.join(' OR ');
 
-        const count = await this.views.count(`space:"${view.space}" AND roles:(${rolesQuery})`);
-        if (count > 0) {
-            throw new TSError('A Role can only exist in a space once', {
-                statusCode: 422
-            });
+        if (roles.length) {
+            const rolesQuery = roles.join(' OR ');
+
+            const count = await this.views.count(`space:"${view.space}" AND roles:(${rolesQuery})`);
+            if (count > 0) {
+                throw new TSError('A Role can only exist in a space once', {
+                    statusCode: 422
+                });
+            }
         }
 
         await this.views.update(args.view);
 
         if (oldSpace !== args.view.space) {
-            await this.spaces.linkViews(view.space, view.id);
+            await Promise.all([
+                this.spaces.unlinkViews(oldSpace, view.id),
+                this.spaces.linkViews(view.space, view.id)
+            ]);
         }
 
         await this.roles.linkSpace(view.space, view.roles);
