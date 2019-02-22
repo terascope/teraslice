@@ -6,6 +6,9 @@ import { DataAccessConfig } from './acl-manager';
 /**
  * Using a DataAccess ACL, limit queries to
  * specific fields and records
+ * 
+ * @todo test dsl format
+ * @todo ensure support for teraserver options
 */
 export class QueryAccess {
     config: DataAccessConfig;

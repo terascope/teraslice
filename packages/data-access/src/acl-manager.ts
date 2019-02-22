@@ -6,6 +6,10 @@ import { ManagerConfig } from './interfaces';
 /**
  * ACL Manager for Data Access Roles, essentially a
  * high level abstraction of Spaces, Users, Roles, and Views
+ *
+ * @todo add remove role
+ * @todo add remove space
+ * @todo add remove view
 */
 export class ACLManager {
     static GraphQLSchema = `
@@ -36,16 +40,16 @@ export class ACLManager {
         }
 
         type Query {
-            findUser(id: ID!): PublicUser
+            findUser(id: ID!): PublicUser!
             findUsers(query: String): [PublicUser]!
 
-            findRole(id: ID!): Role
+            findRole(id: ID!): Role!
             findRoles(query: String): [Role]!
 
-            findSpace(id: ID!): Space
+            findSpace(id: ID!): Space!
             findSpaces(query: String): [Space]!
 
-            findView(id: ID!): View
+            findView(id: ID!): View!
             findViews(query: String): [View]!
 
             getViewForSpace(api_token: String!, space: String!): DataAccessConfig!
@@ -57,10 +61,11 @@ export class ACLManager {
             updatePassword(id: ID!, password: String!): Boolean
             removeUser(id: ID!): Boolean
 
-            createRole(role: CreateRoleInput!): Role
-            updateRole(role: UpdateRoleInput!): Role
+            createRole(role: CreateRoleInput!): Role!
+            updateRole(role: UpdateRoleInput!): Role!
 
-            createSpace(space: CreateSpaceInput!, views: [CreateSpaceViewInput]): CreateSpaceResult
+            createSpace(space: CreateSpaceInput!, views: [CreateSpaceViewInput]): CreateSpaceResult!
+            updateSpace(space: UpdateSpaceInput!): Space!
         }
     `;
 
@@ -235,6 +240,16 @@ export class ACLManager {
     }
 
     /**
+     * Update a space
+    */
+    async updateSpace(args: { space: models.UpdateSpaceInput }) {
+        await this._validateSpaceInput(args.space);
+
+        await this.spaces.update(args.space);
+        return this.roles.findById(args.space.id);
+    }
+
+    /**
      * Create a view, this will attach to the space and the role
     */
     async createView(args: { view: models.CreateViewInput }) {
@@ -376,6 +391,25 @@ export class ACLManager {
         }
     }
 
+    private async _validateSpaceInput(space: Partial<models.SpaceModel>) {
+        if (!space) {
+            throw new TSError('Invalid Space Input', {
+                statusCode: 422
+            });
+        }
+
+        if (space.views && space.views.length) {
+            try {
+                await this.views.findAll(space.views);
+            } catch (err) {
+                const viewsStr = space.views.join(', ');
+                throw new TSError(`Missing views with space, ${viewsStr}`, {
+                    statusCode: 422
+                });
+            }
+        }
+    }
+
     private async _validateRoleInput(role: Partial<models.RoleModel>) {
         if (!role) {
             throw new TSError('Invalid Role Input', {
@@ -480,6 +514,7 @@ export const graphqlQueryMethods: (keyof ACLManager)[] = [
     'findSpaces',
     'findView',
     'findViews',
+    'getViewForSpace'
 ];
 
 export const graphqlMutationMethods: (keyof ACLManager)[] = [
