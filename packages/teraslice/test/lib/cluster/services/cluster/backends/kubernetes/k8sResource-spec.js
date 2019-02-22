@@ -220,6 +220,18 @@ describe('k8sResource', () => {
                     mountPath: /tmp`));
         });
 
+        it('does not have memory/cpu limits/requests when not set in config or execution', () => {
+            const kr = new K8sResource(
+                'deployments', 'worker', terasliceConfig, execution
+            );
+
+            expect(kr.resource.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+            expect(kr.resource.spec.template.spec.containers[0].resources).not.toBeDefined();
+
+            const envArray = kr.resource.spec.template.spec.containers[0].env;
+            expect(envArray).not.toContain('NODE_OPTIONS');
+        });
+
         it('has memory and cpu limits and requests when set on execution', () => {
             execution.cpu = 1;
             execution.memory = 2147483648;
