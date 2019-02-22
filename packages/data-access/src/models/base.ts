@@ -88,6 +88,14 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         await this.store.remove(id);
     }
 
+    async deleteAll(ids: string[]): Promise<void> {
+        if (!ids || !ids.length) return;
+
+        await Promise.all(ids.map((id) => {
+            return this.deleteById(id);
+        }));
+    }
+
     async exists(id: string[]|string): Promise<boolean> {
         const ids = ts.castArray(id);
         if (!ids.length) return true;

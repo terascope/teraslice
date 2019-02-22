@@ -6,8 +6,6 @@ import { ManagerConfig } from './interfaces';
 /**
  * ACL Manager for Data Access Roles, essentially a
  * high level abstraction of Spaces, Users, Roles, and Views
- *
- * @todo add remove space
 */
 export class ACLManager {
     static GraphQLSchema = `
@@ -69,6 +67,7 @@ export class ACLManager {
 
             createSpace(space: CreateSpaceInput!, views: [CreateSpaceViewInput]): CreateSpaceResult!
             updateSpace(space: UpdateSpaceInput!): Space!
+            removeSpace(id: ID!): Boolean!
         }
     `;
 
@@ -200,9 +199,12 @@ export class ACLManager {
         const exists = await this.roles.exists(args.id);
         if (!exists) return false;
 
-        await this.views.removeRoleFromViews(args.id);
-        await this.users.removeRoleFromUsers(args.id);
-        await this.roles.deleteById(args.id);
+        await Promise.all([
+            this.views.removeRoleFromViews(args.id),
+            this.users.removeRoleFromUsers(args.id),
+            this.roles.deleteById(args.id),
+        ]);
+
         return true;
     }
 
@@ -263,6 +265,24 @@ export class ACLManager {
 
         await this.spaces.update(args.space);
         return this.roles.findById(args.space.id);
+    }
+
+    async removeSpace(args: { id: string }) {
+        try {
+            const space = await this.spaces.findById(args.id);
+
+            await Promise.all([
+                this.views.deleteAll(space.views),
+                this.spaces.deleteById(args.id),
+            ]);
+        } catch (err) {
+            if (err && err.statusCode === 404) {
+                return false;
+            }
+            throw err;
+        }
+
+        return true;
     }
 
     /**
@@ -550,9 +570,10 @@ export const graphqlMutationMethods: (keyof ACLManager)[] = [
     'createRole',
     'updateRole',
     'removeRole',
+    'createSpace',
+    'removeSpace',
     'updateView',
     'removeView',
-    'createSpace',
 ];
 
 export const graphqlSchemas = [

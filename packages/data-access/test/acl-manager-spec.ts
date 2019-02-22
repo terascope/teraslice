@@ -367,6 +367,7 @@ describe('ACLManager', () => {
             let spaceId: string;
             let roleId: string;
             let userId: string;
+            let viewId: string;
             let err: any;
             let config: DataAccessConfig;
 
@@ -395,6 +396,7 @@ describe('ACLManager', () => {
                 });
 
                 spaceId = spaceResult.space.id;
+                viewId = spaceResult.views[0].id;
 
                 await manager.updateRole({
                     role: {
@@ -443,6 +445,26 @@ describe('ACLManager', () => {
                         excludes: ['bar']
                     },
                 });
+            });
+
+            it('should be able to remove the user', () => {
+                return expect(manager.removeUser({ id: userId }))
+                    .resolves.toBeTrue();
+            });
+
+            it('should be able to remove the role', () => {
+                return expect(manager.removeRole({ id: roleId }))
+                    .resolves.toBeTrue();
+            });
+
+            it('should be able to remove the view', () => {
+                return expect(manager.removeView({ id: viewId }))
+                    .resolves.toBeTrue();
+            });
+
+            it('should be able to remove the space', () => {
+                return expect(manager.removeSpace({ id: spaceId }))
+                    .resolves.toBeTrue();
             });
         });
     });
