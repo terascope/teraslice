@@ -45,24 +45,38 @@ exports.handler = async (argv) => {
         reply.fatal(e.message);
     }
 
-    if (argv.start) {
+    async function stop() {
         try {
-            const stop = await client.jobs.wrap(job.jobId).stop();
-            if (!stop.status.status === 'stopped') {
+            const stopResult = await client.jobs.wrap(job.jobId).stop();
+            if (!stopResult.status.status === 'stopped') {
                 reply.fatal(`Could not be stop ${job.name} on ${job.clusterUrl}`);
             }
             reply.green(`Stopped job ${job.name} on ${job.clusterUrl}`);
-
-            const start = await client.jobs.wrap(job.jobId).start();
-            if (!start.job_id === job.jobId) {
+        } catch (e) {
+            if (e.message.includes('no execution context was found')) {
+                reply.yellow(`Job ${job.name} is not currently running on ${job.clusterUrl}, will now attempt to start the job`);
+            }
+            if (e.message.includes('Cannot update terminal job status of "stopped" to "stopping"')) {
+                reply.green(`Job ${job.name} on ${job.clusterUrl} is already stopped`);
+                return;
+            }
+            reply.fatal(e.message);
+        }
+    }
+    async function start() {
+        try {
+            const startResult = await client.jobs.wrap(job.jobId).start();
+            if (!startResult.job_id === job.jobId) {
                 reply.fatal(`Could not start ${job.name} on ${job.clusterUrl}`);
             }
             reply.green(`Started ${job.name} on ${job.clusterUrl}`);
         } catch (e) {
-            if (e.message.includes('no execution context was found')) {
-                reply.fatal(`Job ${job.name} is not currently running on ${job.clusterUrl}`);
-            }
             reply.fatal(e.message);
         }
+    }
+
+    if (argv.start) {
+        await stop();
+        await start();
     }
 };

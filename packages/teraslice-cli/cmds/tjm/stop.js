@@ -20,20 +20,20 @@ exports.handler = async (argv) => {
     const job = new JobSrc(argv);
     job.init();
     const client = Client(job);
-
     try {
-        const response = await client.jobs.wrap(job.jobId).stop();
-
+        const response = await client.jobs.wrap(this.job.jobId).stop();
         if (!response.status.status === 'stopped') {
             reply.fatal(`Could not be stop ${job.name} on ${job.clusterUrl}`);
         }
-
         reply.green(`Stopped job ${job.name} on ${job.clusterUrl}`);
     } catch (e) {
         if (e.message.includes('no execution context was found')) {
             reply.fatal(`Job ${job.name} is not currently running on ${job.clusterUrl}`);
         }
-
+        if (e.message.includes('Cannot update terminal job status of "stopped" to "stopping"')) {
+            reply.green(`Job ${job.name} on ${job.clusterUrl} is already stopped`);
+            return;
+        }
         reply.fatal(e);
     }
 };
