@@ -29,6 +29,12 @@ export class ACLManager {
             views: [View]!
         }
 
+        type DataAccessConfig {
+            user_id: String!
+            role_id: String!
+            view: View!
+        }
+
         type Query {
             findUser(id: ID!): PublicUser
             findUsers(query: String): [PublicUser]!
@@ -41,6 +47,8 @@ export class ACLManager {
 
             findView(id: ID!): View
             findViews(query: String): [View]!
+
+            getViewForSpace(api_token: String!, space: String!): DataAccessConfig!
         }
 
         type Mutation {
@@ -96,7 +104,7 @@ export class ACLManager {
      * Find user by id
     */
     findUser(args: { id: string }) {
-        return this.users.findByAnyId(args.id);
+        return this.users.findById(args.id);
     }
 
     /**
@@ -117,6 +125,8 @@ export class ACLManager {
 
     /**
      * Update user without password
+     *
+     * This cannot include private information
     */
     async updateUser(args: { user: models.UpdateUserInput }): Promise<models.UserModel> {
         await this._validateUserInput(args.user);
@@ -146,13 +156,13 @@ export class ACLManager {
      * Find role by id
     */
     async findRole(args: { id: string }) {
-        return this.roles.findByAnyId(args.id);
+        return this.roles.findById(args.id);
     }
 
     /**
      * Find roles by a given query
     */
-    findRoles(args: { query?: string } = {}) {
+    async findRoles(args: { query?: string } = {}) {
         return this.roles.find(args.query || '*');
     }
 
@@ -179,13 +189,13 @@ export class ACLManager {
      * Find space by id
     */
     async findSpace(args: { id: string }) {
-        return this.spaces.findByAnyId(args.id);
+        return this.spaces.findById(args.id);
     }
 
     /**
      * Find spaces by a given query
     */
-    findSpaces(args: { query?: string } = {}) {
+    async findSpaces(args: { query?: string } = {}) {
         return this.spaces.find(args.query || '*');
     }
 
@@ -280,13 +290,13 @@ export class ACLManager {
      * Find view by id
     */
     async findView(args: { id: string }) {
-        return this.views.findByAnyId(args.id);
+        return this.views.findById(args.id);
     }
 
     /**
      * Find views by a given query
     */
-    findViews(args: { query?: string } = {}) {
+    async findViews(args: { query?: string } = {}) {
         return this.views.find(args.query || '*');
     }
 
@@ -336,6 +346,13 @@ export class ACLManager {
         if (!user) {
             throw new TSError('Invalid User Input', {
                 statusCode: 422
+            });
+        }
+
+        if (this.users.isPrivateUser(user)) {
+            const fields = models.Users.PrivateFields.join(', ');
+            throw new TSError(`Cannot update restricted fields, ${fields}`, {
+                statusCode: 422,
             });
         }
 

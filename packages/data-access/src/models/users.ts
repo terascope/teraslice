@@ -11,6 +11,7 @@ import * as utils from '../utils';
  * @todo handle backwards compatiblity with "role"
 */
 export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, UpdatePrivateUserInput> {
+    static PrivateFields: string[] = ['api_token', 'salt', 'hash'];
     static ModelConfig = usersConfig;
     static GraphQLSchema = `
         type User {
@@ -127,6 +128,15 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
     */
     async findByUsername(username: string): Promise<PrivateUserModel> {
         return this.findBy({ username });
+    }
+
+    isPrivateUser(user: Partial<PrivateUserModel>): user is PrivateUserModel  {
+        if (!user) return false;
+
+        const fields = Object.keys(user);
+        return Users.PrivateFields.some((field) => {
+            return fields.includes(field);
+        });
     }
 
     omitPrivateFields(user: PrivateUserModel): UserModel {

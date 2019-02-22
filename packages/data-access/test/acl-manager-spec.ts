@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { TSError, times } from '@terascope/utils';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
-import { ACLManager, DataAccessConfig } from '../src';
+import { ACLManager, DataAccessConfig, UserModel } from '../src';
 
 describe('ACLManager', () => {
     const client = makeClient();
@@ -19,6 +19,8 @@ describe('ACLManager', () => {
 
     describe('when creating a user and given null', () => {
         it('should throw an error', async () => {
+            expect.hasAssertions();
+
             try {
                 // @ts-ignore
                 await manager.createUser({ user: null });
@@ -32,6 +34,8 @@ describe('ACLManager', () => {
 
     describe('when creating a user and the roles do not exist', () => {
         it('should throw an error', async () => {
+            expect.hasAssertions();
+
             try {
                 await manager.createUser({
                     user: {
@@ -52,8 +56,74 @@ describe('ACLManager', () => {
         });
     });
 
+    describe('when creating a user and sending a private field', () => {
+        it('should throw an error', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createUser({
+                    user: {
+                        username: 'uh-oh',
+                        firstname: 'Uh',
+                        lastname: 'Oh',
+                        client_id: 100,
+                        email: 'uh-oh@example.com',
+                        roles: [],
+                        // @ts-ignore
+                        api_token: 'oh no'
+                    },
+                    password: 'secrets',
+                });
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Cannot update restricted fields,');
+                expect(err.statusCode).toEqual(422);
+            }
+        });
+    });
+
+    describe('when updating a user and sending a private field', () => {
+        let user: UserModel;
+
+        beforeAll(async () => {
+            user = await manager.createUser({
+                user: {
+                    username: 'some-user',
+                    firstname: 'Some',
+                    lastname: 'User',
+                    client_id: 121,
+                    email: 'some-user@example.com',
+                    roles: [],
+                },
+                password: 'secrets',
+            });
+        });
+
+        it('should throw an error', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateUser({
+                    user: {
+                        id: user.id,
+                        email: 'some-user@example.com',
+                        // @ts-ignore
+                        api_token: 'oh no'
+                    },
+                    password: 'secrets',
+                });
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Cannot update restricted fields,');
+                expect(err.statusCode).toEqual(422);
+            }
+        });
+    });
+
     describe('when creating a role and given null', () => {
         it('should throw an error', async () => {
+            expect.hasAssertions();
+
             try {
                 // @ts-ignore
                 await manager.createRole({ role: null });
@@ -67,6 +137,8 @@ describe('ACLManager', () => {
 
     describe('when creating a role and the spaces do not exist', () => {
         it('should throw an error', async () => {
+            expect.hasAssertions();
+
             try {
                 await manager.createRole({
                     role: {
@@ -84,6 +156,8 @@ describe('ACLManager', () => {
 
     describe('when creating a space and the view is null', () => {
         it('should throw an error', async () => {
+            expect.hasAssertions();
+
             try {
                 await manager.createSpace({
                     space: {
@@ -102,6 +176,8 @@ describe('ACLManager', () => {
 
     describe('when creating a space and the view is missing roles', () => {
         it('should throw an error', async () => {
+            expect.hasAssertions();
+
             try {
                 await manager.createSpace({
                     space: {
