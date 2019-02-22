@@ -79,6 +79,8 @@ export default class TeraserverPlugin {
     }
 
     registerRoutes() {
+        this.logger.info(`Registering data-access-plugin at ${this.baseUrl}`);
+
         this.server.applyMiddleware({
             app: this.app,
             path: this.baseUrl,

@@ -1,24 +1,25 @@
 import TeraserverPlugin from './teraserver';
 import { PluginConfig } from './interfaces';
 
-class TeraserverPluginAdapter {
-    _instance: TeraserverPlugin|undefined;
-    _config: PluginConfig|undefined;
-    _initialized: boolean = false;
+const adapter: TeraserverPluginAdapter = {
+    _initialized: false,
+    _instance: undefined,
+    _config: undefined,
 
     config(config: PluginConfig) {
         this._instance = new TeraserverPlugin(config);
         this._config = config;
-    }
+    },
 
-    async init() {
+   init() {
         if (this._instance == null) {
             throw new Error('Plugin has not been configured');
         }
 
-        await this._instance.initialize();
-        this._initialized = true;
-    }
+        return this._instance.initialize().then(() => {
+            this._initialized = true;
+        });
+    },
 
     routes() {
         if (this._instance == null || this._config == null) {
@@ -29,8 +30,19 @@ class TeraserverPluginAdapter {
             throw new Error('Plugin has not been initialized');
         }
 
-        this._instance.registerRoutes();
-    }
-}
 
-export = new TeraserverPluginAdapter();
+        this._instance.registerRoutes();
+    },
+};
+
+export = adapter;
+
+interface TeraserverPluginAdapter {
+    _config?: PluginConfig;
+    _instance?: TeraserverPlugin;
+    _initialized: boolean;
+
+    config(config: PluginConfig): void;
+    init(): Promise<void>;
+    routes(): void;
+}
