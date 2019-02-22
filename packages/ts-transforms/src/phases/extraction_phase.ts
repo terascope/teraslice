@@ -40,6 +40,8 @@ export default class ExtractionPhase extends PhaseBase {
         ];
 
         sequence.forEach((loadingConfig) => this.installOps(loadingConfig, configList, opsManager));
+        console.log('what is extractionphase', this.phase)
+
     }
 
     run(dataArray: DataEntity[]): DataEntity[] {

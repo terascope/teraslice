@@ -1,17 +1,16 @@
 
+import _ from 'lodash';
 import graphlib from 'graphlib';
-import { OperationConfig } from '../interfaces';
+import { parseConfig } from './utils';
+import { OperationConfig, ValidationResults } from '../interfaces';
+
 const  { Graph, alg: { topsort, isAcyclic } } = graphlib;
-type RulesType = 'postProcessor';
 
 export default class RulesValidator {
-     // @ts-ignore
     private configList: OperationConfig[];
-    private type: RulesType;
 
-    constructor(type: RulesType, configList: OperationConfig[]) {
-        this.configList = configList;
-        this.type = type;
+    constructor(configList: OperationConfig[]) {
+        this.configList = _.clone(configList);
     }
 
     postProcessValidation() {
@@ -25,9 +24,10 @@ export default class RulesValidator {
         } catch (err) {}
     }
 
-    parse() {
-        if (this.type === 'postProcessor') {
-            return this.postProcessValidation();
-        }
+    validate(): ValidationResults {
+        const results = parseConfig(this.configList);
+        if (results.selectors.length === 0) throw new Error('Invalid configuration file, no selector configurations where found');
+
+        return results;
     }
 }

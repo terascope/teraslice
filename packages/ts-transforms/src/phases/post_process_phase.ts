@@ -22,6 +22,7 @@ export default class PostProcessPhase extends PhaseBase {
             { type: 'post_process', filterFn: isRefsPostProcess }
         ];
         sequence.forEach((loadingConfig) => this.installOps(loadingConfig, configList, opsManager));
+        console.log('this is postprocess', this.phase)
     }
 
     run(dataArray: DataEntity[]): DataEntity[] {

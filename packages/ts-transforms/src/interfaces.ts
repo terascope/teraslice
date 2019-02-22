@@ -49,7 +49,7 @@ export interface OperationsDict {
 export interface Operation {
     run(data: DataEntity): null | DataEntity;
 }
-
+// TODO: this is to close to NormalizedConfig
 export interface ConfigResults {
     registrationSelector?: string;
     targetConfig: OperationConfig | null;
@@ -79,4 +79,13 @@ export type filterFn = (config: OperationConfig) => boolean;
 export interface BoolValidationResult {
     isValid: boolean;
     bool?: boolean;
+}
+
+export interface ValidPostProcessResults {
+    [field: string]: OperationConfig[];
+}
+
+export interface ValidationResults {
+    selectors: string[];
+    postProcessing: ValidPostProcessResults;
 }
