@@ -7,9 +7,7 @@ import { ManagerConfig } from './interfaces';
  * ACL Manager for Data Access Roles, essentially a
  * high level abstraction of Spaces, Users, Roles, and Views
  *
- * @todo add remove role
  * @todo add remove space
- * @todo add remove view
 */
 export class ACLManager {
     static GraphQLSchema = `
@@ -58,11 +56,16 @@ export class ACLManager {
         type Mutation {
             createUser(user: CreateUserInput!, password: String!): User!
             updateUser(user: UpdateUserInput!): User!
-            updatePassword(id: ID!, password: String!): Boolean
-            removeUser(id: ID!): Boolean
+            updatePassword(id: ID!, password: String!): Boolean!
+            removeUser(id: ID!): Boolean!
 
             createRole(role: CreateRoleInput!): Role!
             updateRole(role: UpdateRoleInput!): Role!
+            removeRole(id: ID!): Boolean!
+
+            createView(view: CreateViewInput!): View!
+            updateView(role: UpdateViewInput!): View!
+            removeView(id: ID!): Boolean!
 
             createSpace(space: CreateSpaceInput!, views: [CreateSpaceViewInput]): CreateSpaceResult!
             updateSpace(space: UpdateSpaceInput!): Space!
@@ -153,6 +156,9 @@ export class ACLManager {
      * Remove user by id
     */
     async removeUser(args: { id: string }): Promise<boolean> {
+        const exists = await this.users.exists(args.id);
+        if (!exists) return false;
+
         await this.users.deleteById(args.id);
         return true;
     }
@@ -188,6 +194,16 @@ export class ACLManager {
 
         await this.roles.update(args.role);
         return this.roles.findById(args.role.id);
+    }
+
+    async removeRole(args: { id: string }) {
+        const exists = await this.roles.exists(args.id);
+        if (!exists) return false;
+
+        await this.views.removeRoleFromViews(args.id);
+        await this.users.removeRoleFromUsers(args.id);
+        await this.roles.deleteById(args.id);
+        return true;
     }
 
     /**
@@ -250,6 +266,20 @@ export class ACLManager {
     }
 
     /**
+     * Find view by id
+    */
+    async findView(args: { id: string }) {
+        return this.views.findById(args.id);
+    }
+
+    /**
+     * Find views by a given query
+    */
+    async findViews(args: { query?: string } = {}) {
+        return this.views.find(args.query || '*');
+    }
+
+    /**
      * Create a view, this will attach to the space and the role
     */
     async createView(args: { view: models.CreateViewInput }) {
@@ -309,18 +339,13 @@ export class ACLManager {
         await this.roles.linkSpace(view.space, view.roles);
     }
 
-    /**
-     * Find view by id
-    */
-    async findView(args: { id: string }) {
-        return this.views.findById(args.id);
-    }
+    async removeView(args: { id: string }) {
+        const exists = await this.views.exists(args.id);
+        if (!exists) return false;
 
-    /**
-     * Find views by a given query
-    */
-    async findViews(args: { query?: string } = {}) {
-        return this.views.find(args.query || '*');
+        await this.spaces.removeViewFromSpaces(args.id);
+        await this.views.deleteById(args.id);
+        return true;
     }
 
     /**
@@ -379,10 +404,9 @@ export class ACLManager {
             });
         }
 
-        if (user.roles && user.roles.length) {
-            try {
-                await this.roles.findAll(user.roles);
-            } catch (err) {
+        if (user.roles) {
+            const exists = await this.roles.exists(user.roles);
+            if (!exists) {
                 const rolesStr = user.roles.join(', ');
                 throw new TSError(`Missing roles with user, ${rolesStr}`, {
                     statusCode: 422
@@ -398,10 +422,11 @@ export class ACLManager {
             });
         }
 
-        if (space.views && space.views.length) {
-            try {
-                await this.views.findAll(space.views);
-            } catch (err) {
+        if (space.views) {
+            space.views = uniq(space.views);
+
+            const exists = await this.views.exists(space.views);
+            if (!exists) {
                 const viewsStr = space.views.join(', ');
                 throw new TSError(`Missing views with space, ${viewsStr}`, {
                     statusCode: 422
@@ -417,10 +442,11 @@ export class ACLManager {
             });
         }
 
-        if (role.spaces && role.spaces.length) {
-            try {
-                await this.spaces.findAll(role.spaces);
-            } catch (err) {
+        if (role.spaces) {
+            role.spaces = uniq(role.spaces);
+
+            const exists = await this.spaces.exists(role.spaces);
+            if (!exists) {
                 const rolesStr = role.spaces.join(', ');
                 throw new TSError(`Missing spaces with role, ${rolesStr}`, {
                     statusCode: 422
@@ -436,12 +462,11 @@ export class ACLManager {
             });
         }
 
-        if (view.roles && view.roles.length) {
+        if (view.roles) {
             view.roles = uniq(view.roles);
 
-            try {
-                await this.roles.findAll(view.roles);
-            } catch (err) {
+            const exists = await this.roles.exists(view.roles);
+            if (!exists) {
                 const rolesStr = view.roles.join(', ');
                 throw new TSError(`Missing roles with view, ${rolesStr}`, {
                     statusCode: 422
@@ -514,7 +539,7 @@ export const graphqlQueryMethods: (keyof ACLManager)[] = [
     'findSpaces',
     'findView',
     'findViews',
-    'getViewForSpace'
+    'getViewForSpace',
 ];
 
 export const graphqlMutationMethods: (keyof ACLManager)[] = [
@@ -522,9 +547,12 @@ export const graphqlMutationMethods: (keyof ACLManager)[] = [
     'updateUser',
     'updatePassword',
     'removeUser',
-    'createSpace',
     'createRole',
     'updateRole',
+    'removeRole',
+    'updateView',
+    'removeView',
+    'createSpace',
 ];
 
 export const graphqlSchemas = [

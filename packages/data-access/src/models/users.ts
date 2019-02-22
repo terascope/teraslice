@@ -152,6 +152,14 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
         // @ts-ignore
         return publicUser;
     }
+
+    async removeRoleFromUsers(roleId: string) {
+        const views = await this.find(`roles: ${roleId}`);
+        const promises = views.map(({ id }) => {
+            return this.removeFromArray(id, 'roles', roleId);
+        });
+        await Promise.all(promises);
+    }
 }
 
 /**

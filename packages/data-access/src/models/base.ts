@@ -88,6 +88,16 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         await this.store.remove(id);
     }
 
+    async exists(id: string[]|string): Promise<boolean> {
+        const ids = ts.castArray(id);
+        if (!ids.length) return true;
+
+        const idQuery = ids.join(' OR ');
+        const count = await this.store.count(`id: (${idQuery})`);
+
+        return count === ids.length;
+    }
+
     async findBy(fields: FieldMap<T>, joinBy = 'AND') {
         const query = Object.entries(fields)
             .map(([field, val]) => {
@@ -174,6 +184,47 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
 
     async updateWith(id: string, body: any): Promise<void> {
         await this.store.update(body, id);
+    }
+
+    async appendToArray(id: string, field: keyof T, values: string[]|string): Promise<void> {
+        if (!values || !values.length) return;
+
+        await this.updateWith(id, {
+            script: {
+                source: `
+                    for(int i = 0; i < params.values.length; i++) {
+                        if (!ctx._source["${field}"].contains(params.values[i])) {
+                            ctx._source["${field}"].add(params.values[i])
+                        }
+                    }
+                `,
+                lang: 'painless',
+                params: {
+                    values: ts.uniq(ts.castArray(values)),
+                }
+            }
+        });
+    }
+
+    async removeFromArray(id: string, field: keyof T, values: string[]|string): Promise<void> {
+        if (!values || !values.length) return;
+
+        await this.updateWith(id, {
+            script: {
+                source: `
+                    for(int i = 0; i < params.values.length; i++) {
+                        if (ctx._source["${field}"].contains(params.values[i])) {
+                            int itemIndex = ctx._source["${field}"].indexOf(params.values[i]);
+                            ctx._source["${field}"].remove(itemIndex)
+                        }
+                    }
+                `,
+                lang: 'painless',
+                params: {
+                    values: ts.uniq(ts.castArray(values)),
+                }
+            }
+        });
     }
 
     private async _countBy(field: keyof T, val: any): Promise<number> {
