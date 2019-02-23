@@ -232,6 +232,75 @@ describe('k8sResource', () => {
             expect(envArray).not.toContain('NODE_OPTIONS');
         });
 
+        it('has memory and cpu limits and requests when set on terasliceConfig', () => {
+            terasliceConfig.cpu = 1;
+            terasliceConfig.memory = 2147483648;
+
+            const kr = new K8sResource(
+                'deployments', 'worker', terasliceConfig, execution
+            );
+
+            expect(kr.resource.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+            expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
+                  requests:
+                    memory: 2147483648
+                    cpu: 1
+                  limits:
+                    memory: 2147483648
+                    cpu: 1`));
+
+            const envArray = kr.resource.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
+                .toEqual('--max-old-space-size=1932735283');
+        });
+
+        it('execution resources override terasliceConfig resources', () => {
+            execution.cpu = 2;
+            execution.memory = 1073741824;
+            terasliceConfig.cpu = 1;
+            terasliceConfig.memory = 2147483648;
+
+            const kr = new K8sResource(
+                'deployments', 'worker', terasliceConfig, execution
+            );
+
+            expect(kr.resource.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+            expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
+                  requests:
+                    memory: 1073741824
+                    cpu: 2
+                  limits:
+                    memory: 1073741824
+                    cpu: 2`));
+
+            const envArray = kr.resource.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
+                .toEqual('--max-old-space-size=966367642');
+        });
+
+        it('execution cpu overrides terasliceConfig cpu while terasliceConfig memory gets applied', () => {
+            execution.cpu = 2;
+            terasliceConfig.cpu = 1;
+            terasliceConfig.memory = 2147483648;
+
+            const kr = new K8sResource(
+                'deployments', 'worker', terasliceConfig, execution
+            );
+
+            expect(kr.resource.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+            expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
+                  requests:
+                    memory: 2147483648
+                    cpu: 2
+                  limits:
+                    memory: 2147483648
+                    cpu: 2`));
+
+            const envArray = kr.resource.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
+                .toEqual('--max-old-space-size=1932735283');
+        });
+
         it('has memory and cpu limits and requests when set on execution', () => {
             execution.cpu = 1;
             execution.memory = 2147483648;

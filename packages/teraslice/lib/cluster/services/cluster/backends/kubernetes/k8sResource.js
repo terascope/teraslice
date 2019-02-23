@@ -131,21 +131,25 @@ class K8sResource {
     }
 
     _setResources() {
-        if (_.has(this.execution, 'cpu') && this.execution.cpu !== -1) {
+        // The settings on the executions override the cluster configs
+        const cpu = this.execution.cpu || this.terasliceConfig.cpu || -1;
+        const memory = this.execution.memory || this.terasliceConfig.memory || -1;
+
+        if (cpu !== -1) {
             _.set(this.resource.spec.template.spec.containers[0],
-                'resources.requests.cpu', this.execution.cpu);
+                'resources.requests.cpu', cpu);
             _.set(this.resource.spec.template.spec.containers[0],
-                'resources.limits.cpu', this.execution.cpu);
+                'resources.limits.cpu', cpu);
         }
 
-        if (_.has(this.execution, 'memory') && this.execution.memory !== -1) {
+        if (memory !== -1) {
             _.set(this.resource.spec.template.spec.containers[0],
-                'resources.requests.memory', this.execution.memory);
+                'resources.requests.memory', memory);
             _.set(this.resource.spec.template.spec.containers[0],
-                'resources.limits.memory', this.execution.memory);
+                'resources.limits.memory', memory);
 
             // Set NODE_OPTIONS to override max-old-space-size
-            const maxOldSpace = Math.round(this.maxHeapMemoryFactor * this.execution.memory);
+            const maxOldSpace = Math.round(this.maxHeapMemoryFactor * memory);
             this.resource.spec.template.spec.containers[0].env.push(
                 {
                     name: 'NODE_OPTIONS',

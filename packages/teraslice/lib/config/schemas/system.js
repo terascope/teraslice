@@ -206,6 +206,16 @@ const schema = {
         default: 'native',
         format: ['native', 'kubernetes']
     },
+    cpu: {
+        doc: 'number of cpus to reserve per teraslice worker in kubernetes',
+        default: undefined,
+        format: 'Number'
+    },
+    memory: {
+        doc: 'memory, in bytes, to reserve per teraslice worker in kubernetes',
+        default: undefined,
+        format: 'Number'
+    },
     kubernetes_image: {
         doc: 'Specify a custom image name for kubernetes, this only applies to kubernetes systems',
         default: 'terascope/teraslice',
