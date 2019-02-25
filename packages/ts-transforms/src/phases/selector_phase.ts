@@ -21,7 +21,6 @@ export default class SelectionPhase extends PhaseBase {
         });
 
         _.forOwn(dict, (_value, selector) => selectionPhase.push(new Selector({ selector }, this.opConfig.types)));
-        console.log('what is selectionPhase', selectionPhase)
         this.selectionPhase = selectionPhase;
     }
 

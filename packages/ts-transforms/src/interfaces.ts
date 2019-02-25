@@ -81,11 +81,12 @@ export interface BoolValidationResult {
     bool?: boolean;
 }
 
-export interface ValidPostProcessResults {
+export interface ConfigProcessingDict {
     [field: string]: OperationConfig[];
 }
 
 export interface ValidationResults {
     selectors: string[];
-    postProcessing: ValidPostProcessResults;
+    extractions: ConfigProcessingDict;
+    postProcessing: ConfigProcessingDict;
 }

@@ -4,7 +4,7 @@ import graphlib from 'graphlib';
 // @ts-ignore
 import { OperationConfig, ValidationResults, NormalizedConfig, ConfigResults } from '../interfaces';
 // @ts-ignore
-const  { Graph, alg: { topsort, isAcyclic } } = graphlib;
+const  { Graph, alg: { topsort, isAcyclic, findCycles } } = graphlib;
 
 export function parseConfig(configList: OperationConfig[]) {
     const graph = new Graph();
@@ -55,16 +55,34 @@ export function parseConfig(configList: OperationConfig[]) {
                 }
             }
         } else if (isPostProcessConfig(config)) {
+            if (config.tag) {
+                tagMapping[config.tag] = config.follow;
+            }
             // TODO: need to normalize
             const id = config.follow as string;
             // TODO: throw error if it already exists
             graph.setNode(id, config);
             graph.setEdge(tagMapping[id], id);
+        } else {
+            console.log('i should not be in the final else', config)
         }
     });
-    const sortList = topsort(graph);
-    const finalResults = createResults(sortList);
-    return finalResults;
+
+    try {
+
+        // console.log('findCycles', findCycles(graph))
+
+        const sortList = topsort(graph);
+
+        const finalResults = createResults(sortList);
+
+        return finalResults;
+
+    } catch (err) {
+        console.log('what error', err)
+
+    }
+    return false;
 }
 
 function isSelectorNode(str: string) {
@@ -75,7 +93,7 @@ function isExtractionNode(str: string) {
     return str.includes('extractions:');
 }
 
-function removeAnnotation(str: string){
+function removeAnnotation(str: string) {
     return str.replace('extractions:', '');
 }
 
