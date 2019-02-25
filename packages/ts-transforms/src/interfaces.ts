@@ -30,6 +30,7 @@ export interface OperationConfig {
     _multi_target_field?: string;
     value?: any;
     output?: boolean;
+    __id: string;
 }
 
 export type PluginClassConstructor = { new (): PluginClassType };

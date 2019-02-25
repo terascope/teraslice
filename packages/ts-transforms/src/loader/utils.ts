@@ -9,6 +9,7 @@ const  { Graph, alg: { topsort, isAcyclic, findCycles } } = graphlib;
 export function parseConfig(configList: OperationConfig[]) {
     const graph = new Graph();
     const tagMapping = {};
+    const graphEdges = {};
 
     function createResults(list: string[]): ValidationResults {
         const results = { selectors: [], extractions: {}, postProcessing: {} };
@@ -56,33 +57,48 @@ export function parseConfig(configList: OperationConfig[]) {
             }
         } else if (isPostProcessConfig(config)) {
             if (config.tag) {
-                tagMapping[config.tag] = config.follow;
+                tagMapping[config.tag] = config.__id;
             }
             // TODO: need to normalize
-            const id = config.follow as string;
+            const id = config.__id as string;
             // TODO: throw error if it already exists
+            // config may be out of order so we build edges later
             graph.setNode(id, config);
-            graph.setEdge(tagMapping[id], id);
+            if (!graphEdges[config.follow as string]) {
+                graphEdges[config.follow as string] = [id];
+            } else {
+                graphEdges[config.follow as string].push(id);
+            }
         } else {
             console.log('i should not be in the final else', config)
         }
     });
 
-    try {
+    // config may be out of order so we build edges later
+    _.forOwn(graphEdges, (ids, tag) => {
+        // @ts-ignore
+        ids.forEach(id => graph.setEdge(tagMapping[tag], id));
+    });
 
-        // console.log('findCycles', findCycles(graph))
 
-        const sortList = topsort(graph);
-
-        const finalResults = createResults(sortList);
-
-        return finalResults;
-
-    } catch (err) {
-        console.log('what error', err)
-
+        // console.log('graph', graph)
+    const cycles = findCycles(graph);
+    if (cycles.length > 0) {
+        const errMsg = 'A cyclic tag => follow sequence has been found, cycles: ';
+        const errList: string[] = [];
+        cycles.forEach((cycleList) => {
+            const list = cycleList.map(id => graph.node(id));
+            errList.push(JSON.stringify(list, null, 4));
+        });
+        throw new Error(`${errMsg}${errList.join(' \n cycle: ')}`);
     }
-    return false;
+    console.log('findCycles', findCycles(graph))
+
+    const sortList = topsort(graph);
+
+    const finalResults = createResults(sortList);
+
+    return finalResults;
 }
 
 function isSelectorNode(str: string) {

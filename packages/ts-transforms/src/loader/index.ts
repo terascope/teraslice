@@ -8,7 +8,7 @@ import shortid from 'shortid';
 // @ts-ignore
 import { isSimplePostProcessConfig } from './utils';
 
-function migrate(src:object, dest:object) {
+function migrate(src:object, dest:OperationConfig): OperationConfig {
     const isDenied = {
         ouput: true,
         target_field: true,
@@ -20,7 +20,8 @@ function migrate(src:object, dest:object) {
         mutate: true,
         regex: true,
         start: true,
-        end: true
+        end: true,
+        __id: true
     };
     _.forOwn(src, (value, key) => {
         if (!isDenied[key]) {
@@ -49,9 +50,10 @@ class Loader {
         const resultsArray: OperationConfig[] = [];
         let newConfig: null|OperationConfig = null;
         if (config.charAt(0) !== '{') {
-            return [{ selector: config as string }];
+            return [{ selector: config as string, __id: shortid.generate() }];
         }
         const results: OperationConfig =  JSON.parse(config);
+        results.__id = shortid.generate();
         // if its not set and its not a post process then set the selecter to *
         if (!results.selector && !results.follow) results.selector = '*';
         // We namespace the target_field value, so we can add them back later at the end
@@ -60,10 +62,9 @@ class Loader {
             results.target_field = `${results.target_field}${this.multiValueCounter++}`;
         }
         // we seperate simple configurations out
-        if (
-            (results)) {
+        if (isSimplePostProcessConfig(results)) {
             const newTag = shortid.generate();
-            newConfig = migrate(results, { follow: newTag });
+            newConfig = migrate(results, { follow: newTag, __id: shortid.generate() });
             results.tag = newTag;
             delete results.post_process;
             delete results.post_process;
