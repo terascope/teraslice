@@ -1,5 +1,8 @@
 import * as ts from '@terascope/utils';
 import nanoid from 'nanoid/async';
+import generate from 'nanoid/generate';
+
+const badIdRegex = new RegExp(/^[-_]+/);
 
 /**
  * A helper function for making an ISODate string
@@ -11,8 +14,14 @@ export function makeISODate(): string {
 /**
  * Make unique URL friendly id
 */
-export function makeId(len = 12): Promise<string> {
-    return nanoid(len);
+export async function makeId(len = 12): Promise<string> {
+    const id = await nanoid(len);
+    const result = badIdRegex.exec(id);
+    if (result && result[0].length) {
+        const chars = await generate('1234567890abcdef', result[0].length);
+        return id.replace(badIdRegex, chars);
+    }
+    return id;
 }
 
 /**
