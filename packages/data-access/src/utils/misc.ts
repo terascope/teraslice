@@ -18,7 +18,7 @@ export async function makeId(len = 12): Promise<string> {
     const id = await nanoid(len);
     const result = badIdRegex.exec(id);
     if (result && result[0].length) {
-        const chars = await generate('1234567890abcdef', result[0].length);
+        const chars = generate('1234567890abcdef', result[0].length);
         return id.replace(badIdRegex, chars);
     }
     return id;

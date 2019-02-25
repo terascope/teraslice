@@ -108,17 +108,24 @@ export class ACLManager {
     }
 
     /**
+     * Authenticate user with username and password
+     */
+    authenticateUser(args: { username: string, password: string }) {
+        return this.users.authenticate(args.username, args.password);
+    }
+
+    /**
      * Find user by id
     */
-    findUser(args: { id: string }) {
+    async findUser(args: { id: string }) {
         return this.users.findById(args.id);
     }
 
     /**
      * Find all users by a given query
     */
-    findUsers(args: { query?: string } = {}) {
-        return this.users.find(args.query || '*');
+    async findUsers(args: { query?: string } = {}) {
+        return this.users.find(args.query);
     }
 
     /**
@@ -173,7 +180,7 @@ export class ACLManager {
      * Find roles by a given query
     */
     async findRoles(args: { query?: string } = {}) {
-        return this.roles.find(args.query || '*');
+        return this.roles.find(args.query);
     }
 
     /**
@@ -219,7 +226,7 @@ export class ACLManager {
      * Find spaces by a given query
     */
     async findSpaces(args: { query?: string } = {}) {
-        return this.spaces.find(args.query || '*');
+        return this.spaces.find(args.query);
     }
 
     /**
@@ -296,7 +303,7 @@ export class ACLManager {
      * Find views by a given query
     */
     async findViews(args: { query?: string } = {}) {
-        return this.views.find(args.query || '*');
+        return this.views.find(args.query);
     }
 
     /**
@@ -378,7 +385,7 @@ export class ACLManager {
             });
         }
 
-        const user = await this.users.findByToken(args.api_token);
+        const user = await this.users.findBy({ api_token: args.api_token });
         if (!user) {
             throw new TSError('Unable to authenticate user', {
                 statusCode: 403

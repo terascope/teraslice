@@ -1,7 +1,7 @@
 import * as es from 'elasticsearch';
-import { getFirst, Omit, Optional } from '@terascope/utils';
+import { Omit, Optional } from '@terascope/utils';
 import usersConfig from './config/users';
-import { Base, BaseModel } from './base';
+import { Base, BaseModel, FieldMap } from './base';
 import { ManagerConfig } from '../interfaces';
 import * as utils from '../utils';
 
@@ -65,6 +65,9 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
         super(client, config, usersConfig);
     }
 
+    /**
+     * Create user with password, returns private fields
+     */
     async createWithPassword(record: CreateUserInput, password: string): Promise<PrivateUserModel> {
         const salt = await utils.generateSalt();
         const hash = await utils.generatePasswordHash(password, salt);
@@ -79,7 +82,7 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
     }
 
     async updateWithPassword(id: string, password: string) {
-        const record = await this.findByAnyId(id);
+        const record = await super.findByAnyId(id);
         const salt = await utils.generateSalt();
         const hash = await utils.generatePasswordHash(password, salt);
         const apiToken = await utils.generateAPIToken(hash, record.username);
@@ -98,7 +101,7 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
      * @returns true if authenticated and false if it fails to authenticate the user
     */
     async authenticate(username: string, password: string): Promise<boolean> {
-        const user = getFirst(await this.find(`username:"${username}"`, 1));
+        const user = await super.findBy({ username });
         if (!user) return false;
 
         const hash = await utils.generatePasswordHash(password, user.salt);
@@ -109,7 +112,7 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
      * Update the API Token for a user
     */
     async updateToken(username: string): Promise<string> {
-        const user = await this.findByAnyId(username);
+        const user = await super.findByAnyId(username);
         user.api_token = await utils.generateAPIToken(user.hash, username);
 
         await super.update(user);
@@ -117,17 +120,56 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
     }
 
     /**
-     * Find a user by the API Token
-    */
-    async findByToken(apiToken: string) {
-        return this.findBy({ api_token: apiToken });
+     * Find user by token, returns private fields
+     */
+    // @ts-ignore
+    async findByToken(apiToken: string): Promise<PrivateUserModel> {
+        return super.findBy({ api_token: apiToken });
     }
 
     /**
-     * Find a User by username
-    */
-    async findByUsername(username: string): Promise<PrivateUserModel> {
-        return this.findBy({ username });
+     * Find users, returns public user fields
+     */
+    // @ts-ignore
+    async find(q: string = '*', size: number = 10, fields?: (keyof UserModel)[], sort?: string): Promise<UserModel[]> {
+        const users = await super.find(q, size, fields, sort);
+        return users.map((user) => this.omitPrivateFields(user));
+    }
+
+    /**
+     * Find user by id, returns public user fields
+     */
+    // @ts-ignore
+    async findById(id: string): Promise<UserModel> {
+        const user = await super.findById(id);
+        return this.omitPrivateFields(user);
+    }
+
+    /**
+     * Find user by any id, returns public user fields
+     */
+    // @ts-ignore
+    async findByAnyId(id: string): Promise<UserModel> {
+        const user = await super.findByAnyId(id);
+        return this.omitPrivateFields(user);
+    }
+
+    /**
+     * Find user by any id, returns public user fields
+     */
+    // @ts-ignore
+    async findBy(fields: FieldMap<PrivateUserModel>, joinBy = 'AND'): Promise<UserModel> {
+        const user = await super.findBy(fields, joinBy);
+        return this.omitPrivateFields(user);
+    }
+
+    /**
+     * Find multiple users by id, returns public user fields
+     */
+    // @ts-ignore
+    async findAll(ids: string[]): Promise<UserModel[]> {
+        const users = await super.findAll(ids);
+        return users.map((user) => this.omitPrivateFields(user));
     }
 
     isPrivateUser(user: Partial<PrivateUserModel>): user is PrivateUserModel  {
@@ -139,9 +181,12 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
         });
     }
 
-    omitPrivateFields(user: PrivateUserModel): UserModel {
-        const publicUser = {};
-        const privateFields = ['api_token', 'hash', 'salt'];
+    omitPrivateFields(user: PrivateUserModel|UserModel): UserModel {
+        if (!this.isPrivateUser(user)) return user;
+
+        // @ts-ignore
+        const publicUser: UserModel = {};
+        const privateFields = Users.PrivateFields;
 
         for (const [key, val] of Object.entries(user)) {
             if (!privateFields.includes(key)) {
@@ -149,14 +194,20 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
             }
         }
 
-        // @ts-ignore
         return publicUser;
     }
 
     async removeRoleFromUsers(roleId: string) {
-        const views = await this.find(`roles: ${roleId}`);
-        const promises = views.map(({ id }) => {
-            return this.removeFromArray(id, 'roles', roleId);
+        const users = await this.find(`roles: ${roleId}`);
+        const promises = users.map(async ({ id }) => {
+            try {
+                await this.removeFromArray(id, 'roles', roleId);
+            } catch (err) {
+                if (err && err.statusCode === 404) {
+                    return;
+                }
+                throw err;
+            }
         });
         await Promise.all(promises);
     }

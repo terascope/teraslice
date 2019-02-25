@@ -64,7 +64,7 @@ describe('Users', () => {
 
             const newToken = await users.updateToken(username);
 
-            const fetched = await users.findById(created.id);
+            const fetched = await users.findByToken(newToken);
 
             expect(created.api_token).not.toEqual(newToken);
             expect(fetched.api_token).toEqual(newToken);
