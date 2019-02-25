@@ -7,8 +7,8 @@ terafoundation:
                 host:
                     - "elasticsearch:9200"
 teraslice:
-    worker_disconnect_timeout: 120000
-    node_disconnect_timeout: 120000
+    worker_disconnect_timeout: 60000
+    node_disconnect_timeout: 60000
     slicer_timeout: 60000
     shutdown_timeout: 30000
     assets_directory: '/app/assets/'
@@ -20,3 +20,5 @@ teraslice:
         - "docker-tera1-secret"
     kubernetes_namespace: "ts-dev1"
     name: "ts-dev1"
+    cpu: 1
+    memory: 536870912
