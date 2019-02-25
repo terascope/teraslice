@@ -122,14 +122,14 @@ export class DataEntity<T extends object = object> {
      * Safely get the metadata from a `DataEntity`.
      * If the input is object it will get the property from the object
     */
-    static getMetadata(input: DataInput, key: string): any {
+    static getMetadata(input: DataInput, key?: string): any {
         if (input == null) return null;
 
         if (DataEntity.isDataEntity(input)) {
-            return input.getMetadata(key);
+            return key ? input.getMetadata(key) : input.getMetadata();
         }
 
-        return input[key];
+        return key ? input[key] : undefined;
     }
 
     // Add the ability to specify any additional properties

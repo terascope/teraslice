@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import { Omit, Optional } from '@terascope/utils';
+import { Omit, Optional, DataEntity } from '@terascope/utils';
 import usersConfig from './config/users';
 import { Base, BaseModel, FieldMap } from './base';
 import { ManagerConfig } from '../interfaces';
@@ -98,14 +98,21 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
     /**
      * Authenticate the user
      *
-     * @returns true if authenticated and false if it fails to authenticate the user
+     * @returns an array with first value being a boolean to indicate if authenticated.
+     *          if the first value is true, the second value will be user with all of the private fields
+     *          else the second value is empty
     */
-    async authenticate(username: string, password: string): Promise<boolean> {
+    async authenticate(username: string, password: string): Promise<[boolean, PrivateUserModel?]> {
         const user = await super.findBy({ username });
-        if (!user) return false;
+        if (!user) return [false];
 
         const hash = await utils.generatePasswordHash(password, user.salt);
-        return user.hash === hash;
+        const authenticated = user.hash === hash;
+        if (authenticated) {
+            return [true, user];
+        }
+
+        return [false];
     }
 
     /**
@@ -124,7 +131,8 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
      */
     // @ts-ignore
     async findByToken(apiToken: string): Promise<PrivateUserModel> {
-        return super.findBy({ api_token: apiToken });
+        const result = await super.findBy({ api_token: apiToken });
+        return result;
     }
 
     /**
@@ -184,8 +192,7 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
     omitPrivateFields(user: PrivateUserModel|UserModel): UserModel {
         if (!this.isPrivateUser(user)) return user;
 
-        // @ts-ignore
-        const publicUser: UserModel = {};
+        const publicUser = {};
         const privateFields = Users.PrivateFields;
 
         for (const [key, val] of Object.entries(user)) {
@@ -194,7 +201,8 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
             }
         }
 
-        return publicUser;
+        // @ts-ignore
+        return DataEntity.make(publicUser, DataEntity.getMetadata(user));
     }
 
     async removeRoleFromUsers(roleId: string) {

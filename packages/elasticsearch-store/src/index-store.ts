@@ -153,7 +153,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      *
      * @returns a boolean to indicate whether the document was created
      */
-    async createWithId(doc: I, id: string, params?: PartialParam<es.CreateDocumentParams, 'id'|'body'>): Promise<boolean> {
+    async createWithId(doc: I, id: string, params?: PartialParam<es.CreateDocumentParams, 'id'|'body'>) {
         return this.create(doc, Object.assign({}, params, { id }));
     }
 
@@ -162,15 +162,18 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      *
      * @returns a boolean to indicate whether the document was created
      */
-    async create(doc: I, params?: PartialParam<es.CreateDocumentParams, 'body'>): Promise<boolean> {
+    async create(doc: I, params?: PartialParam<es.CreateDocumentParams, 'body'>): Promise<T> {
         this._validate(doc);
 
         const defaults = { refresh: true };
         const p = this._getParams(defaults, params, { body: doc });
 
         return ts.pRetry(async () => {
-            const { created } = await this.client.create(p);
-            return created;
+            const result = await this.client.create(p);
+            // @ts-ignore
+            result._source = doc;
+            // @ts-ignore
+            return this._toRecord(result);
         }, utils.getRetryConfig());
     }
 
@@ -221,7 +224,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     /**
      * Index a document
      */
-    async index(doc: I, params?: PartialParam<es.IndexDocumentParams<T>, 'body'>) {
+    async index(doc: I, params?: PartialParam<es.IndexDocumentParams<T>, 'body'>): Promise<T> {
         this._validate(doc);
 
         const defaults = { refresh: true };
@@ -230,7 +233,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         });
 
         return ts.pRetry(async () => {
-            return this.client.index(p);
+            const result = await this.client.index(p);
+            result._source = doc;
+            return this._toRecord(result);
         }, utils.getRetryConfig());
     }
 

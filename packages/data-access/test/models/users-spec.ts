@@ -1,6 +1,6 @@
 import 'jest-extended';
 import nanoid from 'nanoid';
-import { TSError } from '@terascope/utils';
+import { TSError, DataEntity } from '@terascope/utils';
 import { Users, PrivateUserModel } from '../../src/models/users';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
@@ -49,9 +49,17 @@ describe('Users', () => {
         });
 
         it('should be able to omit private fields', () => {
+            const createdMetadata = DataEntity.getMetadata(created);
+            expect(createdMetadata).not.toBeNil();
+
             const omitted = users.omitPrivateFields(created);
 
             expect(omitted).not.toBe(created);
+            expect(DataEntity.isDataEntity(omitted)).toBeTrue();
+
+            const ommittedMetadata = DataEntity.getMetadata(omitted);
+            expect(ommittedMetadata).not.toBeNil();
+            expect(ommittedMetadata).toEqual(createdMetadata);
 
             expect(omitted).not.toHaveProperty('api_token');
             expect(omitted).not.toHaveProperty('hash');
@@ -59,8 +67,8 @@ describe('Users', () => {
         });
 
         it('should be able to update the api_token', async () => {
-            await expect(users.findByToken(created.api_token))
-                .resolves.toEqual(created);
+            const result = await users.findByToken(created.api_token);
+            expect(result).toMatchObject(created);
 
             const newToken = await users.updateToken(username);
 
@@ -76,14 +84,18 @@ describe('Users', () => {
         describe('when give the correct password', () => {
             it('should be able to authenticate the user', async () => {
                 const result = await users.authenticate(username, password);
-                expect(result).toBeTrue();
+                expect(result[0]).toBeTrue();
+                expect(result[1]).toMatchObject({
+                    username,
+                });
             });
         });
 
         describe('when give the incorrect password', () => {
             it('should NOT be able to authenticate the user', async () => {
                 const result = await users.authenticate(username, 'wrong-password');
-                expect(result).toBeFalse();
+                expect(result[0]).toBeFalse();
+                expect(result[1]).toBeNil();
             });
         });
     });

@@ -81,7 +81,9 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
 
         await this._ensureUnique(doc);
         await this.store.indexWithId(doc, doc.id);
-        return doc;
+
+        // @ts-ignore
+        return ts.DataEntity.make(doc);
     }
 
     async deleteById(id: string): Promise<void> {
@@ -118,7 +120,8 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
             })
             .join(` ${joinBy} `);
 
-        const record = ts.getFirst(await this.find(query, 1));
+        const results = await this._find(query, 1);
+        const record = ts.getFirst(results);
         if (record == null) {
             throw new ts.TSError(`Unable to find ${this.name} by '${query}'`, {
                 statusCode: 404,
@@ -149,13 +152,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
     }
 
     async find(q: string = '*', size: number = 10, fields?: (keyof T)[], sort?: string) {
-        return this.store.search(q, {
-            size,
-            sort,
-            _source: fields,
-        }).then((result) => {
-            return result.map(this._fixDoc);
-        });
+        return this._find(q, size, fields, sort);
     }
 
     async update(record: U|T) {
@@ -187,7 +184,9 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
             }
         }
 
-        await this.store.update({ doc }, doc.id);
+        await this.store.update({ doc }, doc.id, {
+            refresh: true,
+        });
     }
 
     async updateWith(id: string, body: any): Promise<void> {
@@ -235,12 +234,22 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         });
     }
 
-    private async _countBy(field: keyof T, val: any): Promise<number> {
+    protected async _countBy(field: keyof T, val: any): Promise<number> {
         if (!val) return 0;
         return this.store.count(`${field}:"${val}"`);
     }
 
-    private async _ensureUnique(record: T) {
+    protected async _find(q: string = '*', size: number = 10, fields?: (keyof T)[], sort?: string) {
+        const results = await this.store.search(q, {
+            size,
+            sort,
+            _source: fields,
+        });
+
+        return results.map(this._fixDoc);
+    }
+
+    protected async _ensureUnique(record: T) {
         for (const field of this._uniqueFields) {
             if (field === 'id') continue;
             if (record[field] == null) {
@@ -260,7 +269,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         return;
     }
 
-    private _sanitizeRecord(record: T): T {
+    protected _sanitizeRecord(record: T): T {
         const entries = Object.entries(this._sanitizeFields);
 
         for (const [field, method] of entries) {
