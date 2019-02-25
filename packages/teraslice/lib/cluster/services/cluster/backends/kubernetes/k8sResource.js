@@ -95,7 +95,7 @@ class K8sResource {
     }
 
     _setImagePullSecret() {
-        if (this.terasliceConfig.kubernetes_image_pull_secret !== '') {
+        if (this.terasliceConfig.kubernetes_image_pull_secret) {
             this.resource.spec.template.spec.imagePullSecrets = [
                 { name: this.terasliceConfig.kubernetes_image_pull_secret }
             ];
