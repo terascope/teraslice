@@ -41,8 +41,8 @@ export class QueryAccess {
      * If the input query using restricted fields, it will throw.
     */
     restrictQuery(query: string, format?: 'xlucene'): string;
-    restrictQuery(query: string, format: 'dsl', params: SearchParamsDefaults): SearchParams;
-    restrictQuery(query: string, format: 'xlucene'|'dsl' = 'xlucene', extra?: object): string|SearchParams {
+    restrictQuery(query: string, format: 'dsl', params?: SearchParamsDefaults): SearchParams;
+    restrictQuery(query: string, format: 'xlucene'|'dsl'|undefined = 'xlucene', extra?: object): string|SearchParams {
         const restricted = this._queryAccess.restrict(query);
         if (format === 'xlucene') {
             return restricted;

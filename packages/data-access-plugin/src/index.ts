@@ -1,13 +1,16 @@
 import ManagerPlugin from './manager';
+import SearchPlugin from './search';
 import { PluginConfig } from './interfaces';
 
 const adapter: TeraserverPluginAdapter = {
     _initialized: false,
     _manager: undefined,
+    _search: undefined,
     _config: undefined,
 
     config(config: PluginConfig) {
         this._manager = new ManagerPlugin(config);
+        this._search = new SearchPlugin(config);
         this._config = config;
     },
 
@@ -16,13 +19,16 @@ const adapter: TeraserverPluginAdapter = {
             throw new Error('Plugin has not been configured');
         }
 
-        return this._manager.initialize().then(() => {
-            this._initialized = true;
-        });
+        return this._manager.initialize()
+            .then(() => {
+                this._initialized = true;
+            });
     },
 
     routes() {
-        if (this._manager == null || this._config == null) {
+        if (this._manager == null
+            || this._search == null
+            || this._config == null) {
             throw new Error('Plugin has not been configured');
         }
 
@@ -31,6 +37,7 @@ const adapter: TeraserverPluginAdapter = {
         }
 
         this._manager.registerRoutes();
+        this._search.registerRoutes();
     },
 };
 
@@ -39,6 +46,7 @@ export = adapter;
 interface TeraserverPluginAdapter {
     _config?: PluginConfig;
     _manager?: ManagerPlugin;
+    _search?: SearchPlugin;
     _initialized: boolean;
 
     config(config: PluginConfig): void;

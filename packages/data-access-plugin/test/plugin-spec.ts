@@ -3,7 +3,7 @@ import { request } from 'graphql-request';
 import express from 'express';
 import { debugLogger } from '@terascope/utils';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
-import TeraserverPlugin from '../src/teraserver';
+import TeraserverPlugin from '../src/manager';
 import { Server } from 'http';
 
 describe('TeraserverPlugin', () => {

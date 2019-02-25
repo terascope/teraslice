@@ -1,10 +1,11 @@
-import { Express } from 'express';
+import get from 'lodash.get';
 import { STATUS_CODES } from 'http';
-import { Logger, parseErrorInfo } from '@terascope/utils';
-import { ACLManager } from '@terascope/data-access';
+import { Express } from 'express';
 import * as apollo from 'apollo-server-express';
-import schema from './schema';
+import { ACLManager } from '@terascope/data-access';
+import { Logger, parseErrorInfo } from '@terascope/utils';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
+import schema from './schema';
 
 export default class ManagerPlugin {
     readonly config: TeraserverConfig;
@@ -63,7 +64,6 @@ export default class ManagerPlugin {
                     error = apollo.toApolloError(err, code);
                 }
 
-                error.originalError = err;
                 if (err && err.stack) error.stack = err.stack;
                 return error;
             }
@@ -79,7 +79,30 @@ export default class ManagerPlugin {
     }
 
     registerRoutes() {
-        this.logger.info(`Registering data-access-plugin at ${this.baseUrl}`);
+        this.logger.info(`Registering data-access-plugin manager at ${this.baseUrl}`);
+
+        this.app.use('/api/v2', async (req, res, next) => {
+            // @ts-ignore
+            req.aclManager = this.manager;
+            const username = get(req.body, 'username', get(req.query, 'username'));
+            const password = get(req.body, 'password', get(req.query, 'password'));
+            const apiToken = get(req.body, 'api_token', get(req.query, 'api_token'));
+
+            try {
+                const user = await this.manager.authenticateUser({
+                    username,
+                    password,
+                    api_token: apiToken,
+                });
+
+                // @ts-ignore
+                req.v2User = user;
+                next();
+            } catch (err) {
+                const { message, statusCode } = parseErrorInfo(err);
+                res.status(statusCode).send({ error: message });
+            }
+        });
 
         this.server.applyMiddleware({
             app: this.app,
