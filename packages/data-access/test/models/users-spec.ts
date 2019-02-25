@@ -92,8 +92,14 @@ describe('Users', () => {
 
         describe('when give the incorrect password', () => {
             it('should NOT be able to authenticate the user', async () => {
-                const result = await users.authenticate(username, 'wrong-password');
-                expect(result).toBeNil();
+                expect.hasAssertions();
+                try {
+                    await users.authenticate(username, 'wrong-password');
+                } catch (err) {
+                    expect(err.message).toEqual('Unable to authenticate user with credentials');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toBe(403);
+                }
             });
         });
     });

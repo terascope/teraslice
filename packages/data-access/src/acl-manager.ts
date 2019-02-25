@@ -390,18 +390,7 @@ export class ACLManager {
      * Get the User's data access configuration for a "Space"
      */
     async getViewForSpace(args: { api_token: string, space: string }): Promise<DataAccessConfig> {
-        if (!args.api_token) {
-            throw new TSError('Missing authentication for user', {
-                statusCode: 401
-            });
-        }
-
-        const user = await this.users.findBy({ api_token: args.api_token });
-        if (!user) {
-            throw new TSError('Unable to authenticate user', {
-                statusCode: 403
-            });
-        }
+        const user = await this.authenticateUser(args);
 
         const roleId = getFirst(user.roles);
         if (!roleId) {
