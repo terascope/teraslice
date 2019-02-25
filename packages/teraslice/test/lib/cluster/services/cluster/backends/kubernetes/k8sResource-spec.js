@@ -40,7 +40,7 @@ describe('k8sResource', () => {
             expect(kr.resource.metadata.name).toBe('ts-wkr-example-data-generator-job-7ba9afb0-417a');
 
             // The following properties should be absent in the default case
-            expect(kr.resource.spec.template.spec).not.toHaveProperty('affinity');
+            expect(kr).not.toHaveProperty('resource.spec.template.spec.affinity');
             expect(kr.resource.spec.template.spec).not.toHaveProperty('imagePullSecrets');
 
             // Configmaps should be mounted on all workers
