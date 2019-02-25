@@ -6,7 +6,7 @@ import * as apollo from 'apollo-server-express';
 import schema from './schema';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 
-export default class TeraserverPlugin {
+export default class ManagerPlugin {
     readonly config: TeraserverConfig;
     readonly logger: Logger;
     readonly app: Express;
