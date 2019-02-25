@@ -116,7 +116,7 @@ class K8sResource {
     }
 
     _setVolumes() {
-        if (_.has(this.execution, 'volumes') && (this.execution.volumes != null)) {
+        if (this.execution.volumes != null) {
             _.forEach(this.execution.volumes, (volume) => {
                 this.resource.spec.template.spec.volumes.push({
                     name: volume.name,
