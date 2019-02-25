@@ -84,8 +84,7 @@ describe('Users', () => {
         describe('when give the correct password', () => {
             it('should be able to authenticate the user', async () => {
                 const result = await users.authenticate(username, password);
-                expect(result[0]).toBeTrue();
-                expect(result[1]).toMatchObject({
+                expect(result).toMatchObject({
                     username,
                 });
             });
@@ -94,8 +93,7 @@ describe('Users', () => {
         describe('when give the incorrect password', () => {
             it('should NOT be able to authenticate the user', async () => {
                 const result = await users.authenticate(username, 'wrong-password');
-                expect(result[0]).toBeFalse();
-                expect(result[1]).toBeNil();
+                expect(result).toBeNil();
             });
         });
     });

@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import { Omit, Optional, DataEntity } from '@terascope/utils';
+import { Omit, Optional, DataEntity, TSError } from '@terascope/utils';
 import usersConfig from './config/users';
 import { Base, BaseModel, FieldMap } from './base';
 import { ManagerConfig } from '../interfaces';
@@ -97,22 +97,31 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
 
     /**
      * Authenticate the user
-     *
-     * @returns an array with first value being a boolean to indicate if authenticated.
-     *          if the first value is true, the second value will be user with all of the private fields
-     *          else the second value is empty
     */
-    async authenticate(username: string, password: string): Promise<[boolean, PrivateUserModel?]> {
-        const user = await super.findBy({ username });
-        if (!user) return [false];
+    async authenticate(username: string, password: string): Promise<PrivateUserModel> {
+        let user: PrivateUserModel;
 
-        const hash = await utils.generatePasswordHash(password, user.salt);
-        const authenticated = user.hash === hash;
-        if (authenticated) {
-            return [true, user];
+        try {
+            user = await super.findBy({ username });
+        } catch (err) {
+            if (err && err.statusCode === 404) {
+                throw new TSError('Unable to authenticate user', {
+                    statusCode: 403
+                });
+            }
+
+            throw err;
         }
 
-        return [false];
+        const hash = await utils.generatePasswordHash(password, user.salt);
+
+        if (user.hash !== hash) {
+            throw new TSError('Unable to authenticate user with credentials', {
+                statusCode: 403
+            });
+        }
+
+        return user;
     }
 
     /**
@@ -131,8 +140,17 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
      */
     // @ts-ignore
     async findByToken(apiToken: string): Promise<PrivateUserModel> {
-        const result = await super.findBy({ api_token: apiToken });
-        return result;
+        try {
+            return super.findBy({ api_token: apiToken });
+        } catch (err) {
+            if (err && err.statusCode === 404) {
+                throw new TSError('Unable to authenticate user with api token', {
+                    statusCode: 403
+                });
+            }
+
+            throw err;
+        }
     }
 
     /**

@@ -36,6 +36,7 @@ export class ACLManager {
         }
 
         type Query {
+            authenticateUser(username: String, password: String, api_token: String): User!
             findUser(id: ID!): PublicUser!
             findUsers(query: String): [PublicUser]!
 
@@ -108,10 +109,20 @@ export class ACLManager {
     }
 
     /**
-     * Authenticate user with username and password
+     * Authenticate user with username and password, or an api_token
      */
-    authenticateUser(args: { username: string, password: string }) {
-        return this.users.authenticate(args.username, args.password);
+    async authenticateUser(args: { username?: string, password?: string, api_token?: string }): Promise<models.PrivateUserModel> {
+        if (args.username && args.password) {
+            return this.users.authenticate(args.username, args.password);
+        }
+
+        if (args.api_token) {
+            return this.users.findByToken(args.api_token);
+        }
+
+        throw new TSError('Missing user authentication fields, username, password, or api_token', {
+            statusCode: 401
+        });
     }
 
     /**
@@ -558,6 +569,7 @@ export interface DataAccessConfig {
 }
 
 export const graphqlQueryMethods: (keyof ACLManager)[] = [
+    'authenticateUser',
     'findUser',
     'findUsers',
     'findRole',
