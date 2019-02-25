@@ -103,7 +103,7 @@ class K8sResource {
     }
 
     _setAssetsVolume() {
-        if ((this.terasliceConfig.assets_directory !== '') && (this.terasliceConfig.assets_volume !== '')) {
+        if (this.terasliceConfig.assets_directory && this.terasliceConfig.assets_volume) {
             this.resource.spec.template.spec.volumes.push({
                 name: this.terasliceConfig.assets_volume,
                 persistentVolumeClaim: { claimName: this.terasliceConfig.assets_volume }
