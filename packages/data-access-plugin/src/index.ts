@@ -11,7 +11,7 @@ const adapter: TeraserverPluginAdapter = {
         this._config = config;
     },
 
-   init() {
+    init() {
         if (this._instance == null) {
             throw new Error('Plugin has not been configured');
         }
@@ -29,7 +29,6 @@ const adapter: TeraserverPluginAdapter = {
         if (!this._initialized) {
             throw new Error('Plugin has not been initialized');
         }
-
 
         this._instance.registerRoutes();
     },
