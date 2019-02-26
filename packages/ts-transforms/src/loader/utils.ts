@@ -8,8 +8,8 @@ import {
     NormalizedFields,
     ConfigProcessingDict
 } from '../interfaces';
-// @ts-ignore
-const  { Graph, alg: { topsort, isAcyclic, findCycles } } = graphlib;
+
+const  { Graph, alg: { topsort, findCycles } } = graphlib;
 
 export function parseConfig(configList: OperationConfig[], logger: Logger) {
     const graph = new Graph();
@@ -62,10 +62,10 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
 
         list.forEach((label) => {
             if (isSelectorNode(label)) {
-                const selector: string = graph.node(label);
-                currentSelector = selector;
+                const config = graph.node(label);
+                currentSelector = config.selector;
                 // @ts-ignore
-                results.selectors.push(selector);
+                results.selectors.push(config);
             } else if (isExtractionNode(label)) {
                 results.extractions[removeAnnotation(label)] = graph.node(label);
             } else {
@@ -85,7 +85,7 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
             const selectorNode = `selector:${config.selector}`;
             const extractionNode = `extractions:${config.selector}`;
             if (!graph.hasNode(selectorNode)) {
-                graph.setNode(selectorNode, config.selector);
+                graph.setNode(selectorNode, config);
             }
             if (config.source_field) {
                 if (!graph.hasNode(extractionNode)) {

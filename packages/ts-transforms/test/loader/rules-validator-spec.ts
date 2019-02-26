@@ -3,7 +3,7 @@ import _ from 'lodash';
 import shortid from 'shortid';
 import { RulesValidator, OperationConfig } from '../../src';
 import { debugLogger } from '@terascope/utils';
-
+import { isPrimaryConfig } from '../../src/loader/utils';
 import 'jest-extended';
 
 describe('rules-validator', () => {
@@ -209,19 +209,25 @@ describe('rules-validator', () => {
         it('can return an array of selectors from basicExtractionConfig', () => {
             const validator = constructValidator(basicExtractionConfig);
             const { selectors } = validator.validate();
-            expect(selectors).toEqual(['hello:world']);
+            const results = [basicExtractionConfig[0]];
+
+            expect(selectors).toEqual(results);
         });
 
         it('can return an array of selectors from multiSelectorConfig', () => {
             const validator = constructValidator(multiSelectorConfig);
             const { selectors } = validator.validate();
-            expect(selectors).toEqual(['hello:world', 'other:things', '*']);
+            const results = multiSelectorConfig.filter(isPrimaryConfig);
+
+            expect(selectors).toEqual(results);
         });
 
         it('can return an array of selectors from postSelector', () => {
             const validator = constructValidator(postSelector);
             const { selectors } = validator.validate();
-            expect(selectors).toEqual(['hello:world']);
+            const results = postSelector.filter(isPrimaryConfig);
+
+            expect(selectors).toEqual(results);
         });
     });
 
