@@ -1,6 +1,7 @@
 
-import { RulesValidator, OperationConfig } from '../../src';
+import _ from 'lodash';
 import shortid from 'shortid';
+import { RulesValidator, OperationConfig } from '../../src';
 
 import 'jest-extended';
 
@@ -104,6 +105,8 @@ describe('rules-validator', () => {
             tag: 'parsed'
         },
     ].map(addId);
+
+    // TODO: test this
     // @ts-ignore
     const duplicateTagRules: OperationConfig[] = [
         {
@@ -238,5 +241,27 @@ describe('rules-validator', () => {
             expect(() => validator.validate()).toThrow();
         });
 
+        it('can normalize post_processing fields', () => {
+            const results = _.cloneDeep(chainedRules1);
+            const validator = new RulesValidator(chainedRules1);
+            const { postProcessing } = validator.validate();
+            let prev:OperationConfig|undefined;
+
+            results.forEach((config) => {
+                if (config.post_process) {
+                    if (prev) {
+                        config.source_field = prev.target_field;
+                        config.target_field = config.source_field;
+                    }
+                }
+                prev = config;
+            });
+
+            postProcessing['*'].forEach((config) => {
+                const testConfig = results.find((obj) => obj.__id === config.__id);
+                expect(config).toEqual(testConfig);
+            });
+
+        });
     });
 });
