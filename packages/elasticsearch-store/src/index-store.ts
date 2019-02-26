@@ -163,7 +163,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      * @returns a boolean to indicate whether the document was created
      */
     async create(doc: I, params?: PartialParam<es.CreateDocumentParams, 'body'>): Promise<T> {
-        this.validateRecord(doc);
+        this.validateRecord(doc, true);
 
         const defaults = { refresh: true };
         const p = this._getParams(defaults, params, { body: doc });
@@ -225,7 +225,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      * Index a document
      */
     async index(doc: I, params?: PartialParam<es.IndexDocumentParams<T>, 'body'>): Promise<T> {
-        this.validateRecord(doc);
+        this.validateRecord(doc, true);
 
         const defaults = { refresh: true };
         const p = this._getParams(defaults, params, {
@@ -425,4 +425,4 @@ type SearchParams<T> = ts.Overwrite<es.SearchParams, {
     _sourceExclude?: (keyof T)[];
 }>;
 
-type ValidateFn<T> = (input: T) => void;
+type ValidateFn<T> = (input: T, strictMode?: boolean) => void;
