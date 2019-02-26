@@ -16,8 +16,7 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
     const tagMapping = {};
     const graphEdges = {};
 
-    function normalizeConfig(id: string): OperationConfig {
-        const config: OperationConfig = graph.node(id);
+    function normalizeConfig(config: ParsedConfig): OperationConfig {
         if (isPostProcessConfig(config)) {
             if (config.source_field) {
                 if (!config.target_field) config.target_field = config.source_field;
@@ -30,17 +29,23 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
         return config;
     }
 
-    function findFields(config: OperationConfig): NormalizedFields {
+    interface ExtractionWrapper {
+        __extractions: OperationConfig[];
+    }
+
+    type ParsedConfig = OperationConfig & ExtractionWrapper;
+
+    function findFields(config:ParsedConfig): NormalizedFields {
         let searchingConfig = config;
         let soureField = null;
         let targetField = config.target_field;
 
         while (soureField === null) {
             const nodeId = tagMapping[searchingConfig.follow as string];
-            const resultsConfig: OperationConfig|OperationConfig[] = graph.node(nodeId);
+            const resultsConfig: ParsedConfig = graph.node(nodeId);
             let sourceConfig;
-            if (Array.isArray(resultsConfig)) {
-                sourceConfig = resultsConfig.find((obj) => obj.tag === searchingConfig.follow);
+            if (resultsConfig.__extractions) {
+                sourceConfig = resultsConfig.__extractions.find((obj) => obj.tag === searchingConfig.follow);
             } else {
                 sourceConfig = resultsConfig;
             }
@@ -56,26 +61,67 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
         return { targetField, soureField };
     }
 
-    function createResults(list: string[]): ValidationResults {
-        const results = { selectors: [], extractions: {}, postProcessing: {} };
-        let currentSelector: null|string = null;
+    function hasOutputRestrictions(config: OperationConfig) {
+        return config.output === false && config.validation == null;
+    }
 
-        list.forEach((label) => {
-            if (isSelectorNode(label)) {
-                const config = graph.node(label);
+    function hasMatchRequirements(config: OperationConfig) {
+        return _.has(config, 'other_match_required');
+    }
+
+    function hasMultivalue(config: OperationConfig) {
+        return _.has(config, 'multivalue');
+    }
+
+    function createResults(list: ParsedConfig[]): ValidationResults {
+        const results: ValidationResults = {
+            selectors: [],
+            extractions: {},
+            postProcessing: {},
+            output: {
+                hasMultiValue: false,
+                restrictOutput: {},
+                matchRequirements: {},
+            }
+        };
+        const output = results.output;
+        let currentSelector: undefined|string;
+
+        list.forEach((config) => {
+
+            if (hasMultivalue(config)) {
+                output.hasMultiValue = true;
+            }
+
+            if (hasOutputRestrictions(config)) {
+                const key = config.target_field || config.source_field;
+                output.restrictOutput[key as string] = true;
+            }
+
+            if (hasMatchRequirements(config)) {
+                const key = config.target_field || config.source_field;
+                output.matchRequirements[key as string] = config.selector as string;
+            }
+
+            if (hasExtractions(config)) {
+                // TODO: fix the typing
+                results.extractions[currentSelector as string] = config.__extractions;
+            }
+
+            if (isPrimaryConfig(config)) {
                 currentSelector = config.selector;
-                // @ts-ignore
                 results.selectors.push(config);
-            } else if (isExtractionNode(label)) {
-                results.extractions[removeAnnotation(label)] = graph.node(label);
-            } else {
+            }
+
+            if (isPostProcessConfig(config)) {
                 if (!results.postProcessing[currentSelector as string]) {
-                    results.postProcessing[currentSelector as string] = [graph.node(label)];
+                    results.postProcessing[currentSelector as string] = [config];
                 } else {
-                    results.postProcessing[currentSelector as string].push(graph.node(label));
+                    results.postProcessing[currentSelector as string].push(config);
                 }
             }
         });
+
         return results;
     }
 
@@ -89,11 +135,11 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
             }
             if (config.source_field) {
                 if (!graph.hasNode(extractionNode)) {
-                    graph.setNode(extractionNode, [config]);
+                    graph.setNode(extractionNode, { __extractions: [config] });
                     graph.setEdge(selectorNode, extractionNode);
                 } else {
                     const extractionList = graph.node(extractionNode);
-                    extractionList.push(config);
+                    extractionList.__extractions.push(config);
                     graph.setNode(extractionNode, extractionList);
                 }
                 if (config.tag) {
@@ -138,8 +184,9 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
     }
 
     const sortList = topsort(graph);
-    sortList.forEach(normalizeConfig);
-    const results =  createResults(sortList);
+    const configListOrder: ParsedConfig[] = sortList.map(id => graph.node(id));
+    configListOrder.forEach(normalizeConfig);
+    const results = createResults(configListOrder);
     validateOtherMatchRequired(results.extractions, logger);
     return results;
 }
@@ -156,17 +203,6 @@ function validateOtherMatchRequired(configDict: ConfigProcessingDict, logger: Lo
     });
 }
 
-function isSelectorNode(str: string) {
-    return str.includes('selector:');
-}
-
-function isExtractionNode(str: string) {
-    return str.includes('extractions:');
-}
-
-function removeAnnotation(str: string) {
-    return str.replace('extractions:', '');
-}
 // TODO: review what needs to be exported
 export function isPrimaryConfig(config: OperationConfig) {
     if (_.has(config, 'selector') && !config.follow) return true;
@@ -176,6 +212,10 @@ export function isPrimaryConfig(config: OperationConfig) {
 export function isPostProcessConfig(config: OperationConfig): boolean {
     if (_.has(config, 'post_process') || _.has(config, 'validation')) return true;
     return false;
+}
+
+function hasExtractions(config: OperationConfig) {
+    return _.has(config, '__extractions');
 }
 
 // @ts-ignore
