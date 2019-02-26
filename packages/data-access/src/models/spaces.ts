@@ -6,6 +6,8 @@ import { Base, BaseModel } from './base';
 
 /**
  * Manager for Spaces
+ *
+ * @todo default view
 */
 export class Spaces extends Base<SpaceModel, CreateSpaceInput, UpdateSpaceInput> {
     static ModelConfig = spacesConfig;

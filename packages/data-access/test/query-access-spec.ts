@@ -30,7 +30,18 @@ describe('QueryAccess', () => {
 
     it('should be able to restrict the query for bar', () => {
         expect(() => {
-            queryAccess.restrictQuery('bar:foo');
+            queryAccess.restrictESQuery('bar:foo');
         }).toThrowWithMessage(TSError, 'Field bar is restricted');
+    });
+
+    it('should be able to return a restricted query', () => {
+        expect(queryAccess.restrictESQuery('foo:bar')).toMatchObject({
+            _sourceExclude: [
+                'bar'
+            ],
+            _sourceInclude: [
+                'foo'
+            ],
+        });
     });
 });

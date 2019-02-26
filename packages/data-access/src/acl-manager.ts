@@ -389,6 +389,8 @@ export class ACLManager {
 
     /**
      * Get the User's data access configuration for a "Space"
+     *
+     * @todo should be able to get a space by name
      */
     async getViewForSpace(args: { api_token: string, space: string }): Promise<DataAccessConfig> {
         const user = await this.authenticateUser(args);

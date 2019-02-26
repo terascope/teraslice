@@ -40,13 +40,8 @@ export class QueryAccess {
      *
      * If the input query using restricted fields, it will throw.
     */
-    restrictQuery(query: string, format?: 'xlucene'): string;
-    restrictQuery(query: string, format: 'dsl', params?: SearchParamsDefaults): SearchParams;
-    restrictQuery(query: string, format: 'xlucene'|'dsl'|undefined = 'xlucene', extra?: object): string|SearchParams {
+    restrictESQuery(query: string, params?: SearchParamsDefaults): SearchParams {
         const restricted = this._queryAccess.restrict(query);
-        if (format === 'xlucene') {
-            return restricted;
-        }
 
         const body = Translator.toElasticsearchDSL(restricted, this._typeConfig);
         const _sourceInclude = this.config.view.includes;
@@ -56,7 +51,7 @@ export class QueryAccess {
             body,
             _sourceInclude,
             _sourceExclude
-        }, extra);
+        }, params);
     }
 }
 
