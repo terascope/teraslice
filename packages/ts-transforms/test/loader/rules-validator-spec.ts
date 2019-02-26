@@ -106,8 +106,6 @@ describe('rules-validator', () => {
         },
     ].map(addId);
 
-    // TODO: test this
-    // @ts-ignore
     const duplicateTagRules: OperationConfig[] = [
         {
             selector: '*',
@@ -262,6 +260,11 @@ describe('rules-validator', () => {
                 expect(config).toEqual(testConfig);
             });
 
+        });
+
+        it('will throw errors with duplicate tags', () => {
+            const validator = new RulesValidator(duplicateTagRules);
+            expect(() => validator.validate()).toThrow('must have unique tag, hash_field is a duplicate');
         });
     });
 });

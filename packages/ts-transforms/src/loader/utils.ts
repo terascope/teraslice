@@ -1,8 +1,11 @@
 
 import _ from 'lodash';
 import graphlib from 'graphlib';
-// @ts-ignore
-import { OperationConfig, ValidationResults, NormalizedConfig, ConfigResults } from '../interfaces';
+import {
+    OperationConfig,
+    ValidationResults,
+    NormalizedFields
+} from '../interfaces';
 // @ts-ignore
 const  { Graph, alg: { topsort, isAcyclic, findCycles } } = graphlib;
 
@@ -23,11 +26,6 @@ export function parseConfig(configList: OperationConfig[]) {
             }
         }
         return config;
-    }
-
-    interface NormalizedFields{
-        soureField: string;
-        targetField: string;
     }
 
     function findFields(config: OperationConfig): NormalizedFields {
@@ -81,7 +79,7 @@ export function parseConfig(configList: OperationConfig[]) {
 
     configList.forEach((config) => {
        // TODO: change name
-        if (isSelectorPhaseConfig(config)) {
+        if (isPrimaryConfig(config)) {
             const selectorNode = `selector:${config.selector}`;
             const extractionNode = `extractions:${config.selector}`;
             if (!graph.hasNode(selectorNode)) {
@@ -102,11 +100,14 @@ export function parseConfig(configList: OperationConfig[]) {
             }
         } else if (isPostProcessConfig(config)) {
             if (config.tag) {
-                tagMapping[config.tag] = config.__id;
+                if (tagMapping[config.tag]) {
+                    throw new Error(`must have unique tag, ${config.tag} is a duplicate`);
+                } else {
+                    tagMapping[config.tag] = config.__id;
+                }
             }
-            // TODO: need to normalize
             const id = config.__id as string;
-            // TODO: throw error if it already exists
+
             // config may be out of order so we build edges later
             graph.setNode(id, config);
             if (!graphEdges[config.follow as string]) {
@@ -150,8 +151,8 @@ function isExtractionNode(str: string) {
 function removeAnnotation(str: string) {
     return str.replace('extractions:', '');
 }
-
-export function isSelectorPhaseConfig(config: OperationConfig) {
+// TODO: review what needs to be exported
+export function isPrimaryConfig(config: OperationConfig) {
     if (_.has(config, 'selector') && !config.follow && !config.other_match_required) return true;
     return false;
 }
