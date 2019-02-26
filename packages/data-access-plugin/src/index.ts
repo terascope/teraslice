@@ -15,11 +15,14 @@ const adapter: TeraserverPluginAdapter = {
     },
 
     init() {
-        if (this._manager == null) {
+        if (this._manager == null || this._search == null) {
             throw new Error('Plugin has not been configured');
         }
 
-        return this._manager.initialize()
+        return Promise.all([
+            this._manager.initialize(),
+            this._search.initialize(),
+        ])
             .then(() => {
                 this._initialized = true;
             });
