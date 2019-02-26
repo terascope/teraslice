@@ -246,7 +246,7 @@ export interface UserModel extends BaseModel {
 /**
      * The ID for the client
     */
-    client_id: number;
+    client_id?: number;
 
     /**
      * The User's username

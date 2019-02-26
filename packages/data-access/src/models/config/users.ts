@@ -62,7 +62,8 @@ const config: ModelConfig<PrivateUserModel> = {
     schema: {
         properties: {
             client_id: {
-                type: 'number'
+                type: 'number',
+                default: 0,
             },
             username: {
                 type: 'string'
