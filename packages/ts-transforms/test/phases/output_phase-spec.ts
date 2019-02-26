@@ -1,14 +1,16 @@
 
 import path from 'path';
-import { DataEntity } from '@terascope/utils';
-import { OutputPhase, Loader, OperationsManager, OperationConfig } from '../../src';
+import { DataEntity, debugLogger } from '@terascope/utils';
+import { OutputPhase, Loader, OperationsManager, OutputValidation } from '../../src';
 
-describe('post_process phase', () => {
-
-    async function getConfigList(fileName: string): Promise<OperationConfig[]> {
+describe('output phase', () => {
+    const logger = debugLogger('outputPhaseTest');
+    // FIXME: this is wrong
+    async function getConfigList(fileName: string): Promise<OutputValidation> {
         const filePath = path.join(__dirname, `../fixtures/${fileName}`);
-        const myFileLoader = new Loader({ rules: [filePath] });
-        return myFileLoader.load();
+        const myFileLoader = new Loader({ rules: [filePath] }, logger);
+        const { output } = await myFileLoader.load();
+        return output;
     }
     // rules is only used in loader
     const transformOpconfig = { rules: ['some/path'] };

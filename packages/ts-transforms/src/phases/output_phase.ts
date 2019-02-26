@@ -1,48 +1,25 @@
 
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
-import { OperationConfig, WatcherConfig } from '../interfaces';
+import { WatcherConfig, OutputValidation } from '../interfaces';
 import PhaseBase from './base';
 import { OperationsManager } from '../operations';
 
 export default class OutputPhase extends PhaseBase {
     // @ts-ignore
-    private opConfig: WatcherConfig;
     private hasMultiValue: boolean;
     private restrictOutput: object;
-    private requirements: object;
+    private matchRequirements: object;
     private hasRestrictedOutput: boolean;
     private hasRequirements: boolean;
 
-    constructor(_opConfig: WatcherConfig, configList:OperationConfig[], _opsManager: OperationsManager) {
-        super();
-        this.hasMultiValue = _.some(configList, 'multivalue');
-        this.restrictOutput = this.getOutputRestrictionList(configList);
-        this.requirements = this.extractionRequirements(configList);
-        this.hasRequirements = _.keys(this.requirements).length > 0;
+    constructor(opConfig: WatcherConfig, outputConfig:OutputValidation, _opsManager: OperationsManager) {
+        super(opConfig);
+        this.hasMultiValue = outputConfig.hasMultiValue;
+        this.restrictOutput = outputConfig.restrictOutput;
+        this.matchRequirements = outputConfig.matchRequirements;
+        this.hasRequirements = _.keys(this.matchRequirements).length > 0;
         this.hasRestrictedOutput = _.keys(this.restrictOutput).length > 0;
-    }
-
-    extractionRequirements(configList:OperationConfig[]) {
-        const requirements = {};
-        _.each(configList, (config: OperationConfig) => {
-            if (config.other_match_required) {
-                const key = config.target_field || config.source_field;
-                requirements[key as string] = config.selector;
-            }
-        });
-        return requirements;
-    }
-
-    getOutputRestrictionList(configList:OperationConfig[]): object {
-        const list = {};
-        _.each(configList, (config: OperationConfig) => {
-            if (config.output !== undefined && config.validation == null) {
-                const { configuration } = this.normalizeConfig(config, 'output', configList);
-                list[configuration.target_field as string] = true;
-            }
-        });
-        return list;
     }
 
     combineMultiFields(data: DataEntity[]) {
@@ -78,7 +55,7 @@ export default class OutputPhase extends PhaseBase {
 
     isKeyMatchRequired(key: string, docSelectorData: object): boolean {
         let bool = false;
-        const requiredKey = this.requirements[key];
+        const requiredKey = this.matchRequirements[key];
 
         if (requiredKey !== undefined) {
             if (requiredKey === '*') bool = true;
