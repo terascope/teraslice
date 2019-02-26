@@ -1,7 +1,6 @@
 import get from 'lodash.get';
 import { STATUS_CODES } from 'http';
 import { Express } from 'express';
-import GraphQLJSON from 'graphql-type-json';
 import * as apollo from 'apollo-server-express';
 import { ACLManager } from '@terascope/data-access';
 import { Logger, parseErrorInfo } from '@terascope/utils';
@@ -37,7 +36,6 @@ export default class ManagerPlugin {
                 manager: this.manager,
             },
             resolvers: {
-                JSON: GraphQLJSON,
             },
             formatError(err: any) {
                 const { statusCode, message } = parseErrorInfo(err);

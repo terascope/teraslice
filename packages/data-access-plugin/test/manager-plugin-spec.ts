@@ -6,7 +6,7 @@ import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
 import TeraserverPlugin from '../src/manager';
 import { Server } from 'http';
 
-describe('TeraserverPlugin', () => {
+describe('ManagerPlugin', () => {
     describe('when constructed', () => {
         const client = makeClient();
 
@@ -18,7 +18,7 @@ describe('TeraserverPlugin', () => {
             elasticsearch: client,
             url_base: baseUrl,
             app,
-            logger: debugLogger('teraserver-plugin'),
+            logger: debugLogger('manager-plugin'),
             server_config: {
                 data_access: {
                     namespace: 'test',
@@ -112,6 +112,9 @@ describe('TeraserverPlugin', () => {
                 mutation {
                     createSpace(space: {
                         name: "greetings",
+                        metadata: {
+                            example: true
+                        }
                     }, views: [
                         {
                             name: "greetings-admin",
@@ -120,7 +123,8 @@ describe('TeraserverPlugin', () => {
                     ]) {
                         space {
                             id,
-                            name
+                            name,
+                            metadata
                         }
                         views {
                             id,
@@ -140,6 +144,9 @@ describe('TeraserverPlugin', () => {
 
             expect(space).toMatchObject({
                 name: 'greetings',
+                metadata: {
+                    example: true
+                }
             });
 
             expect(views).toBeArrayOfSize(1);
@@ -295,6 +302,7 @@ describe('TeraserverPlugin', () => {
 
         it('should be able to get a role', async () => {
             expect(userId).toBeTruthy();
+            expect(spaceId).toBeTruthy();
 
             const uri = formatUri();
             const query = `
@@ -316,6 +324,7 @@ describe('TeraserverPlugin', () => {
 
         it('should be able to find all roles', async () => {
             expect(userId).toBeTruthy();
+            expect(spaceId).toBeTruthy();
 
             const uri = formatUri();
             const query = `

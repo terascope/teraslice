@@ -12,6 +12,7 @@ export class ACLManager {
         input CreateSpaceInput {
             name: String!
             description: String
+            metadata: JSON
         }
 
         input CreateSpaceViewInput {

@@ -1,3 +1,4 @@
+import GraphQLJSON from 'graphql-type-json';
 import * as a from 'apollo-server-express';
 import * as d from '@terascope/data-access';
 
@@ -22,6 +23,7 @@ d.graphqlMutationMethods.forEach((method) => {
 const resolvers: a.IResolvers<any, ManagerContext> = {
     Query: queryResolvers,
     Mutation: mutationResolvers,
+    JSON: GraphQLJSON,
 };
 
 export = a.makeExecutableSchema({
