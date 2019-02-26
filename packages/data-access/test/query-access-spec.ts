@@ -22,11 +22,13 @@ describe('QueryAccess', () => {
 
     const queryAccess = new QueryAccess({
         view,
+        space_id: 'example-space',
+        space_metadata: {},
         user_id: 'example-user',
         role_id: 'example-role'
     });
 
-    it('should be able to restrict the query bar', () => {
+    it('should be able to restrict the query for bar', () => {
         expect(() => {
             queryAccess.restrictQuery('bar:foo');
         }).toThrowWithMessage(TSError, 'Field bar is restricted');

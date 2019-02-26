@@ -406,13 +406,16 @@ export class ACLManager {
             throw new TSError(msg, { statusCode: 403 });
         }
 
-        const [view] = await Promise.all([
+        const [view, space] = await Promise.all([
             this.views.getViewForRole(roleId, args.space),
+            this.spaces.findById(args.space)
         ]);
 
         return {
             user_id: user.id,
             role_id: role.id,
+            space_id: space.id,
+            space_metadata: space.metadata || {},
             view
         };
     }
@@ -552,7 +555,17 @@ export interface DataAccessConfig {
     role_id: string;
 
     /**
-     * The View Model
+     * The id of the space
+    */
+    space_id: string;
+
+    /**
+     * The space metadata
+    */
+    space_metadata: object;
+
+    /**
+     * The authenticated user's view of the space
     */
     view: models.ViewModel;
 }

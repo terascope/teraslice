@@ -384,6 +384,9 @@ describe('ACLManager', () => {
                 const spaceResult = await manager.createSpace({
                     space: {
                         name: 'Example Space',
+                        metadata: {
+                            example: true
+                        }
                     },
                     views: [
                         {
@@ -444,6 +447,10 @@ describe('ACLManager', () => {
                         includes: ['foo'],
                         excludes: ['bar']
                     },
+                    space_id: spaceId,
+                    space_metadata: {
+                        example: true
+                    }
                 });
             });
 
