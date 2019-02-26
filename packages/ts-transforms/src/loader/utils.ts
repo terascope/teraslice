@@ -11,6 +11,51 @@ export function parseConfig(configList: OperationConfig[]) {
     const tagMapping = {};
     const graphEdges = {};
 
+    function normalizeConfig(id: string): OperationConfig {
+        const config: OperationConfig = graph.node(id);
+        if (isPostProcessConfig(config)) {
+            if (config.source_field) {
+                if (!config.target_field) config.target_field = config.source_field;
+            } else {
+                const { soureField, targetField } = findFields(config);
+                config.source_field = soureField;
+                config.target_field = targetField;
+            }
+        }
+        return config;
+    }
+
+    interface NormalizedFields{
+        soureField: string;
+        targetField: string;
+    }
+
+    function findFields(config: OperationConfig): NormalizedFields {
+        let searchingConfig = config;
+        let soureField = null;
+        let targetField = config.target_field;
+
+        while (soureField === null) {
+            const nodeId = tagMapping[searchingConfig.follow as string];
+            const resultsConfig: OperationConfig|OperationConfig[] = graph.node(nodeId);
+            let sourceConfig;
+            if (Array.isArray(resultsConfig)) {
+                sourceConfig = resultsConfig.find((obj) => obj.tag === searchingConfig.follow);
+            } else {
+                sourceConfig = resultsConfig;
+            }
+
+            if (sourceConfig && sourceConfig.target_field) {
+                soureField = sourceConfig.target_field;
+            } else {
+                // @ts-ignore
+                searchingConfig = sourceConfig;
+            }
+        }
+        if (!targetField) targetField = soureField;
+        return { targetField, soureField };
+    }
+
     function createResults(list: string[]): ValidationResults {
         const results = { selectors: [], extractions: {}, postProcessing: {} };
         let currentSelector: null|string = null;
@@ -69,8 +114,6 @@ export function parseConfig(configList: OperationConfig[]) {
             } else {
                 graphEdges[config.follow as string].push(id);
             }
-        } else {
-            console.log('i should not be in the final else', config)
         }
     });
 
@@ -80,8 +123,6 @@ export function parseConfig(configList: OperationConfig[]) {
         ids.forEach(id => graph.setEdge(tagMapping[tag], id));
     });
 
-
-        // console.log('graph', graph)
     const cycles = findCycles(graph);
     if (cycles.length > 0) {
         const errMsg = 'A cyclic tag => follow sequence has been found, cycles: ';
@@ -92,13 +133,10 @@ export function parseConfig(configList: OperationConfig[]) {
         });
         throw new Error(`${errMsg}${errList.join(' \n cycle: ')}`);
     }
-    console.log('findCycles', findCycles(graph))
 
     const sortList = topsort(graph);
-
-    const finalResults = createResults(sortList);
-
-    return finalResults;
+    sortList.forEach(normalizeConfig);
+    return createResults(sortList);
 }
 
 function isSelectorNode(str: string) {
@@ -122,40 +160,7 @@ export function isPostProcessConfig(config: OperationConfig): boolean {
     if (_.has(config, 'post_process') || _.has(config, 'validation')) return true;
     return false;
 }
-// @ts-ignore
-// function normalizeConfig(config: OperationConfig, type: string, configList:OperationConfig[]): NormalizedConfig {
-//     const data = { registrationSelector: config.selector, targetConfig: null };
 
-//     function findConfiguration(myConfig: OperationConfig, container: ConfigResults): ConfigResults {
-//         if (myConfig.follow) {
-//             const id = myConfig.follow;
-//             const referenceConfig = configList.find(obj => obj.tag === id);
-//             if (!referenceConfig) throw new Error(`could not find configuration tag identifier for follow ${id}`);
-//             if (!container.targetConfig && referenceConfig.target_field) container.targetConfig = referenceConfig;
-//             // recurse
-//             if (referenceConfig.follow) {
-//                 return findConfiguration(referenceConfig, container);
-//             }
-//             if (referenceConfig.selector) container.registrationSelector = referenceConfig.selector;
-//         } else {
-//             if (!container.targetConfig) container.targetConfig = myConfig;
-//             if (!container.registrationSelector && myConfig.selector) container.registrationSelector = myConfig.selector;
-//         }
-//         return container;
-//     }
-
-//     const { registrationSelector, targetConfig } = findConfiguration(config, data);
-//     if (!config.other_match_required && !registrationSelector || !targetConfig) throw new Error('could not find orignal selector and target configuration');
-//     // a validation/post-op source is the target_field of the previous op
-//     const formattedTargetConfig = {};
-//     // TODO: look at this deeper
-//     if (!(config.follow && config.source_field) && targetConfig.target_field && (type === 'validation' || type === 'post_process')) {
-//         formattedTargetConfig['source_field'] = targetConfig.target_field;
-//     }
-//     const finalConfig = _.assign({}, config, formattedTargetConfig);
-
-//     return { configuration: finalConfig, registrationSelector: registrationSelector as string };
-// }
 // @ts-ignore
 function isPostProcessRootConfig(config: OperationConfig) {
     if (!_.has(config, 'follow') && _.has(config, 'selector')) return true;
