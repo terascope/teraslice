@@ -12,7 +12,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     readonly indexQuery: string;
     readonly manager: IndexManager;
 
-    private _validate: ValidateFn<I|T>;
+    validateRecord: ValidateFn<I|T>;
     private _interval: NodeJS.Timer|undefined;
 
     private readonly _logger: ts.Logger;
@@ -73,17 +73,17 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             });
 
             const validate = ajv.compile(schema);
-            this._validate = (input: T|I) => {
+            this.validateRecord = (input: T|I, strictMode: boolean = strict === true) => {
                 if (validate(input)) return;
 
-                if (strict) {
+                if (strictMode) {
                     utils.throwValidationError(validate.errors);
                 } else {
                     this._logger.warn('Invalid record', input, validate.errors);
                 }
             };
         } else {
-            this._validate = () => {};
+            this.validateRecord = () => {};
         }
 
         this._toRecord = this._toRecord.bind(this);
@@ -113,7 +113,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         let id: string;
 
         if (action !== 'delete') {
-            this._validate(args[0]);
+            this.validateRecord(args[0]);
             if (action === 'update') {
                 /**
                  * TODO: Support more of the update formats
@@ -163,7 +163,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      * @returns a boolean to indicate whether the document was created
      */
     async create(doc: I, params?: PartialParam<es.CreateDocumentParams, 'body'>): Promise<T> {
-        this._validate(doc);
+        this.validateRecord(doc);
 
         const defaults = { refresh: true };
         const p = this._getParams(defaults, params, { body: doc });
@@ -225,7 +225,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      * Index a document
      */
     async index(doc: I, params?: PartialParam<es.IndexDocumentParams<T>, 'body'>): Promise<T> {
-        this._validate(doc);
+        this.validateRecord(doc);
 
         const defaults = { refresh: true };
         const p = this._getParams(defaults, params, {
@@ -372,7 +372,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     private _toRecord(result: RecordResponse<T>): T {
-        this._validate(result._source);
+        this.validateRecord(result._source);
 
         const entity = ts.DataEntity.make<T>(result._source, {
             _key: result._id,
