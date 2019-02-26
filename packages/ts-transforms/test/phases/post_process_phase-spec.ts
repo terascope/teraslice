@@ -1,21 +1,21 @@
 
 import path from 'path';
 import { DataEntity } from '@terascope/utils';
-import { OperationConfig, OperationsManager, PostProcessPhase, Loader } from '../../src';
+import { OperationsManager, PostProcessPhase, Loader, ConfigProcessingDict } from '../../src';
 
 describe('post_process phase', () => {
 
-    async function getConfigList(fileName: string): Promise<OperationConfig[]> {
+    async function getConfigList(fileName: string): Promise<ConfigProcessingDict> {
         const filePath = path.join(__dirname, `../fixtures/${fileName}`);
         const myFileLoader = new Loader({ rules: [filePath] });
-        return myFileLoader.load();
+        const { postProcessing } = await myFileLoader.load();
+        return postProcessing;
     }
     // rules is only used in loader
     const transformOpconfig = { rules: ['some/path'] };
 
     it('can instantiate', async () => {
         const configList = await getConfigList('transformRules1.txt');
-
         expect(() => new PostProcessPhase(transformOpconfig, configList, new OperationsManager())).not.toThrow();
     });
 
