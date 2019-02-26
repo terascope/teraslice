@@ -43,10 +43,14 @@ export default class SearchPlugin {
                 });
 
                 const result = await this.client.search(dsl);
+
                 res.status(200).send(result);
             } catch (err) {
                 const { message, statusCode } = parseErrorInfo(err);
-                res.status(statusCode).send({ error: message });
+
+                res.status(statusCode).send({
+                    error: message
+                });
             }
         });
     }

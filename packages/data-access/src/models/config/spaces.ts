@@ -17,6 +17,9 @@ const config: ModelConfig<SpaceModel> = {
             },
             views: {
                 type: 'keyword'
+            },
+            metadata: {
+                type: 'object'
             }
         }
     },
@@ -35,6 +38,11 @@ const config: ModelConfig<SpaceModel> = {
                 },
                 uniqueItems: true,
                 default: []
+            },
+            metadata: {
+                type: 'object',
+                additionalProperties: true,
+                default: {}
             },
         },
         required: ['name']

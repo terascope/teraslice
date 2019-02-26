@@ -1,6 +1,7 @@
 import get from 'lodash.get';
 import { STATUS_CODES } from 'http';
 import { Express } from 'express';
+import GraphQLJSON from 'graphql-type-json';
 import * as apollo from 'apollo-server-express';
 import { ACLManager } from '@terascope/data-access';
 import { Logger, parseErrorInfo } from '@terascope/utils';
@@ -34,6 +35,9 @@ export default class ManagerPlugin {
             schema,
             context: {
                 manager: this.manager,
+            },
+            resolvers: {
+                JSON: GraphQLJSON,
             },
             formatError(err: any) {
                 const { statusCode, message } = parseErrorInfo(err);
@@ -84,6 +88,7 @@ export default class ManagerPlugin {
         this.app.use('/api/v2', async (req, res, next) => {
             // @ts-ignore
             req.aclManager = this.manager;
+
             const username = get(req.body, 'username', get(req.query, 'username'));
             const password = get(req.body, 'password', get(req.query, 'password'));
             const apiToken = get(req.body, 'api_token', get(req.query, 'api_token'));

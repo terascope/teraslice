@@ -1,46 +1,34 @@
-import { makeExecutableSchema } from 'apollo-server-express';
-import {
-    graphqlSchemas as typeDefs,
-    graphqlQueryMethods,
-    graphqlMutationMethods,
-    ACLManager,
-} from '@terascope/data-access';
+import * as a from 'apollo-server-express';
+import * as d from '@terascope/data-access';
 
-interface CTX {
-    manager: ACLManager;
+interface ManagerContext {
+    manager: d.ACLManager;
 }
 
-const queryResolvers: Resolvers = {};
-graphqlQueryMethods.forEach((method) => {
-    queryResolvers[method] = (root, args, ctx: CTX) => {
-        // @ts-ignore
+const queryResolvers: a.IResolverObject<any, ManagerContext, any> = {};
+d.graphqlQueryMethods.forEach((method) => {
+    queryResolvers[method] = (root, args, ctx: ManagerContext) => {
         return ctx.manager[method](args);
     };
 });
 
-const mutationResolvers: Resolvers = {};
-graphqlMutationMethods.forEach((method) => {
-    mutationResolvers[method] = (root, args, ctx: CTX) => {
-        // @ts-ignore
+const mutationResolvers: a.IResolverObject<any, ManagerContext, any> = {};
+d.graphqlMutationMethods.forEach((method) => {
+    mutationResolvers[method] = (root, args, ctx: ManagerContext) => {
         return ctx.manager[method](args);
     };
 });
 
-const resolvers: AllResolvers = {
+const resolvers: a.IResolvers<any, ManagerContext> = {
     Query: queryResolvers,
     Mutation: mutationResolvers,
 };
 
-interface Resolvers {
-    [fn: string]: (root: any, args: any, ctx: CTX) => Promise<any>;
-}
-
-interface AllResolvers {
-    Query: Resolvers;
-    Mutation: Resolvers;
-}
-
-export = makeExecutableSchema({
-    typeDefs,
+export = a.makeExecutableSchema({
+    typeDefs: [
+        'scalar JSON',
+        ...d.graphqlSchemas
+    ],
     resolvers,
+    inheritResolversFromInterfaces: true,
 });

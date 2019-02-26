@@ -22,7 +22,26 @@ describe('Spaces', () => {
         it('should be able to create a space', async () => {
             const created = await spaces.create({
                 name: 'hello',
-                views: ['hello']
+                views: ['hello'],
+                metadata: {
+                    a: {
+                        b: {
+                            c: 1
+                        }
+                    },
+                    example: true
+                }
+            });
+
+            expect(created).toHaveProperty('name');
+            expect(created).toHaveProperty('views', ['hello']);
+            expect(created).toHaveProperty('metadata', {
+                a: {
+                    b: {
+                        c: 1
+                    }
+                },
+                example: true
             });
 
             const fetched = await spaces.findById(created.id);

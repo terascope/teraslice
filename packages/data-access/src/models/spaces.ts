@@ -15,6 +15,7 @@ export class Spaces extends Base<SpaceModel, CreateSpaceInput, UpdateSpaceInput>
             name: String!
             description: String
             views: [String]
+            metadata: JSON
             created: String
             updated: String
         }
@@ -24,6 +25,7 @@ export class Spaces extends Base<SpaceModel, CreateSpaceInput, UpdateSpaceInput>
             name: String
             description: String
             views: [String]
+            metadata: JSON
             created: String
             updated: String
         }
@@ -82,6 +84,11 @@ export interface SpaceModel extends BaseModel {
      * A list of associated views
     */
     views: string[];
+
+    /**
+     * Metadata for the "Space"
+    */
+    metadata?: object;
 }
 
 export type CreateSpaceInput = Omit<SpaceModel, (keyof BaseModel)>;
