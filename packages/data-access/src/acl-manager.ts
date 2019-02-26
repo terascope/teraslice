@@ -73,14 +73,10 @@ export class ACLManager {
             removeRole(id: ID!): Boolean!
 
             createView(view: CreateViewInput!): View!
-            updateView(role: UpdateViewInput!): View!
+            updateView(view: UpdateViewInput!): View!
             removeView(id: ID!): Boolean!
 
-            createSpace(
-                space: CreateSpaceInput!,
-                views: [CreateSpaceViewInput],
-                defaultView: CreateSpaceViewInput
-            ): CreateSpaceResult!
+            createSpace(space: CreateSpaceInput!, views: [CreateSpaceViewInput], defaultView: CreateSpaceViewInput): CreateSpaceResult!
             updateSpace(space: UpdateSpaceInput!): Space!
             removeSpace(id: ID!): Boolean!
         }
@@ -327,7 +323,7 @@ export class ACLManager {
         await this._validateSpaceInput(args.space);
 
         await this.spaces.update(args.space);
-        return this.roles.findById(args.space.id);
+        return this.spaces.findById(args.space.id);
     }
 
     /**
@@ -403,8 +399,6 @@ export class ACLManager {
         const { view } = args;
         await this._validateViewInput(view);
 
-        const { space: oldSpace } = await this.views.findById(view.id);
-
         const roles = view.roles || [];
 
         if (roles.length) {
@@ -420,14 +414,19 @@ export class ACLManager {
 
         await this.views.update(args.view);
 
-        if (oldSpace !== args.view.space) {
-            await Promise.all([
-                this.spaces.unlinkViews(oldSpace, view.id),
-                this.spaces.linkViews(view.space, view.id)
-            ]);
+        if (args.view.space) {
+            const { space: oldSpace } = await this.views.findById(view.id);
+            if (oldSpace !== args.view.space) {
+                await Promise.all([
+                    this.spaces.unlinkViews(oldSpace, view.id),
+                    this.spaces.linkViews(view.space, view.id)
+                ]);
+            }
+
+            await this.roles.addSpaceToRoles(view.space, view.roles);
         }
 
-        await this.roles.addSpaceToRoles(view.space, view.roles);
+        return this.views.findById(args.view.id);
     }
 
     /**
@@ -649,6 +648,7 @@ export const graphqlMutationMethods: (keyof ACLManager)[] = [
     'updateRole',
     'removeRole',
     'createSpace',
+    'updateSpace',
     'removeSpace',
     'updateView',
     'removeView',

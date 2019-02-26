@@ -42,7 +42,7 @@ export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
             id: ID!
             name: String
             description: String
-            space: String!
+            space: String
             roles: [String]
             excludes: [String]
             includes: [String]

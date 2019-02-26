@@ -28,8 +28,6 @@ export class Spaces extends Base<SpaceModel, CreateSpaceInput, UpdateSpaceInput>
             views: [String]
             default_view: String
             metadata: JSON
-            created: String
-            updated: String
         }
     `;
 

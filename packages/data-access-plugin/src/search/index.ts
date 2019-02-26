@@ -43,10 +43,7 @@ export default class SearchPlugin {
                     space,
                 });
 
-                const metadata: {
-                    client: string,
-                    indexConfig: any
-                } = config.space_metadata;
+                const metadata: SpaceMetadata = config.space_metadata;
 
                 const queryAccess = new QueryAccess(config);
                 const query = queryAccess.restrictESQuery(q, {
@@ -54,11 +51,12 @@ export default class SearchPlugin {
                 });
 
                 if (this.esApis[config.space_id] == null) {
-                    const esAPI = elasticsearchAPI(this.client, metadata.indexConfig);
+                    const esAPI = elasticsearchAPI(this.client, this.logger, metadata.indexConfig);
                     this.esApis[config.space_id] = esAPI;
                 }
 
                 const esAPI = this.esApis[config.space_id];
+                this.logger.debug(query, `searching space ${space}...`);
                 const result = await esAPI.search(query);
                 res.status(200).send(result);
             } catch (err) {
@@ -71,4 +69,8 @@ export default class SearchPlugin {
             }
         });
     }
+}
+
+interface SpaceMetadata {
+    indexConfig: elasticsearchAPI.Config;
 }

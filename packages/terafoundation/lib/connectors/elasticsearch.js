@@ -55,6 +55,9 @@ module.exports = {
                 doc: '',
                 default: false
             },
+            apiVersion: {
+                default: '6.5'
+            },
             requestTimeout: {
                 doc: '',
                 default: 120000

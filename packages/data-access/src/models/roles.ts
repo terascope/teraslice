@@ -57,7 +57,6 @@ export class Roles extends Base<RoleModel, CreateRoleInput, UpdateRoleInput> {
     async removeSpaceFromRoles(spaceId: string) {
         const roles = await this.find(`spaces: ${spaceId}`);
         const promises = roles.map(({ id }) => {
-            console.log('HERE', { id, spaceId });
             return this.removeFromArray(id, 'spaces', spaceId);
         });
         await Promise.all(promises);
