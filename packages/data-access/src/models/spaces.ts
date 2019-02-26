@@ -6,8 +6,6 @@ import { Base, BaseModel } from './base';
 
 /**
  * Manager for Spaces
- *
- * @todo default view
 */
 export class Spaces extends Base<SpaceModel, CreateSpaceInput, UpdateSpaceInput> {
     static ModelConfig = spacesConfig;
@@ -18,6 +16,7 @@ export class Spaces extends Base<SpaceModel, CreateSpaceInput, UpdateSpaceInput>
             description: String
             views: [String]
             metadata: JSON
+            default_view: String
             created: String
             updated: String
         }
@@ -27,6 +26,7 @@ export class Spaces extends Base<SpaceModel, CreateSpaceInput, UpdateSpaceInput>
             name: String
             description: String
             views: [String]
+            default_view: String
             metadata: JSON
             created: String
             updated: String
@@ -86,6 +86,11 @@ export interface SpaceModel extends BaseModel {
      * A list of associated views
     */
     views: string[];
+
+    /**
+     * The view to apply defaults to all associated views with
+    */
+    default_view?: string;
 
     /**
      * Metadata for the "Space"

@@ -23,6 +23,15 @@ export class ACLManager {
             includes: [String]
             constraint: String
             prevent_prefix_wildcard: Boolean
+            metadata: JSON
+        }
+
+        input CreateDefaultViewInput {
+            excludes: [String]
+            includes: [String]
+            constraint: String
+            prevent_prefix_wildcard: Boolean
+            metadata: JSON
         }
 
         type CreateSpaceResult {
@@ -67,7 +76,11 @@ export class ACLManager {
             updateView(role: UpdateViewInput!): View!
             removeView(id: ID!): Boolean!
 
-            createSpace(space: CreateSpaceInput!, views: [CreateSpaceViewInput]): CreateSpaceResult!
+            createSpace(
+                space: CreateSpaceInput!,
+                views: [CreateSpaceViewInput],
+                defaultView: CreateSpaceViewInput
+            ): CreateSpaceResult!
             updateSpace(space: UpdateSpaceInput!): Space!
             removeSpace(id: ID!): Boolean!
         }
@@ -214,6 +227,9 @@ export class ACLManager {
         return this.roles.findById(args.role.id);
     }
 
+    /**
+     * Remove role and remove from any associated views or users
+    */
     async removeRole(args: { id: string }) {
         const exists = await this.roles.exists(args.id);
         if (!exists) return false;
@@ -246,16 +262,39 @@ export class ACLManager {
      * If roles are specified on any of the views, it will try automatically
      * attached the space to those roles.
     */
-    async createSpace(args: { space: CreateSpaceInput, views?: CreateSpaceViewInput[] }) {
+    async createSpace(args: { space: CreateSpaceInput, views?: CreateSpaceViewInput[], defaultView?: CreateDefaultViewInput }) {
         const views = args.views || [];
         const roles = await this._validateViewsInput(views);
 
+        let defaultView: models.ViewModel|undefined = undefined;
+
         const spaceDoc = await this.spaces.create({
             ...args.space,
-            views: []
+            views: [],
         });
 
         const space = spaceDoc.id;
+
+        if (args.defaultView) {
+            const {
+                includes,
+                excludes,
+                constraint,
+                prevent_prefix_wildcard,
+                metadata
+            } = args.defaultView;
+
+            defaultView = await this.views.create({
+                name: `Default View for Space ${space}`,
+                space,
+                roles: [],
+                includes,
+                excludes,
+                constraint,
+                prevent_prefix_wildcard,
+                metadata,
+            });
+        }
 
         const viewDocs = await Promise.all(views.map(async (view) => {
             return this.views.create({
@@ -265,9 +304,14 @@ export class ACLManager {
 
         spaceDoc.views = viewDocs.map((viewDoc) => viewDoc.id);
 
+        if (defaultView) {
+            spaceDoc.default_view = defaultView.id;
+            viewDocs.push(defaultView);
+        }
+
         await Promise.all([
-            this.spaces.linkViews(space, spaceDoc.views),
-            this.roles.linkSpace(space, roles),
+            this.spaces.update(spaceDoc),
+            this.roles.addSpaceToRoles(space, roles),
         ]);
 
         return {
@@ -286,11 +330,19 @@ export class ACLManager {
         return this.roles.findById(args.space.id);
     }
 
+    /**
+     * Remove a space by id, this will clean up any associated views and roles
+     */
     async removeSpace(args: { id: string }) {
         try {
             const space = await this.spaces.findById(args.id);
 
+            if (space.default_view) {
+                space.views.push(space.default_view);
+            }
+
             await Promise.all([
+                this.roles.removeSpaceFromRoles(args.id),
                 this.views.deleteAll(space.views),
                 this.spaces.deleteById(args.id),
             ]);
@@ -340,7 +392,7 @@ export class ACLManager {
 
         await Promise.all([
             this.spaces.linkViews(view.space, view.id),
-            this.roles.linkSpace(view.space, view.roles)
+            this.roles.addSpaceToRoles(view.space, view.roles)
         ]);
     }
 
@@ -375,9 +427,12 @@ export class ACLManager {
             ]);
         }
 
-        await this.roles.linkSpace(view.space, view.roles);
+        await this.roles.addSpaceToRoles(view.space, view.roles);
     }
 
+    /**
+     * Remove views and remove from any associated spaces
+    */
     async removeView(args: { id: string }) {
         const exists = await this.views.exists(args.id);
         if (!exists) return false;
@@ -389,8 +444,6 @@ export class ACLManager {
 
     /**
      * Get the User's data access configuration for a "Space"
-     *
-     * @todo should be able to get a space by name
      */
     async getViewForSpace(args: { api_token: string, space: string }): Promise<DataAccessConfig> {
         const user = await this.authenticateUser(args);
@@ -403,7 +456,7 @@ export class ACLManager {
 
         const [role, space] = await Promise.all([
             this.roles.findById(roleId),
-            this.spaces.findByAnyId(args.space)
+            this.spaces.findByAnyId(args.space),
         ]);
 
         const hasAccess = await this.roles.hasAccessToSpace(role, space.id);
@@ -412,7 +465,7 @@ export class ACLManager {
             throw new TSError(msg, { statusCode: 403 });
         }
 
-        const view = await this.views.getViewForRole(roleId, space.id);
+        const view = await this.views.getViewForRole(roleId, space.id, space.default_view);
 
         return {
             user_id: user.id,
@@ -539,6 +592,7 @@ export class ACLManager {
 
 type CreateSpaceInput = Omit<models.CreateSpaceInput, 'views'>;
 type CreateSpaceViewInput = Omit<models.CreateViewInput, 'space'>;
+type CreateDefaultViewInput = Omit<models.CreateViewInput, 'name'|'description'|'space'|'roles'>;
 
 /**
  * The definition of an ACL for limiting access to data.

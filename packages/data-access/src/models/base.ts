@@ -216,22 +216,29 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
     async removeFromArray(id: string, field: keyof T, values: string[]|string): Promise<void> {
         if (!values || !values.length) return;
 
-        await this.updateWith(id, {
-            script: {
-                source: `
-                    for(int i = 0; i < params.values.length; i++) {
-                        if (ctx._source["${field}"].contains(params.values[i])) {
-                            int itemIndex = ctx._source["${field}"].indexOf(params.values[i]);
-                            ctx._source["${field}"].remove(itemIndex)
+        try {
+            await this.updateWith(id, {
+                script: {
+                    source: `
+                        for(int i = 0; i < params.values.length; i++) {
+                            if (ctx._source["${field}"].contains(params.values[i])) {
+                                int itemIndex = ctx._source["${field}"].indexOf(params.values[i]);
+                                ctx._source["${field}"].remove(itemIndex)
+                            }
                         }
+                    `,
+                    lang: 'painless',
+                    params: {
+                        values: ts.uniq(ts.castArray(values)),
                     }
-                `,
-                lang: 'painless',
-                params: {
-                    values: ts.uniq(ts.castArray(values)),
                 }
+            });
+        } catch (err) {
+            if (err && err.statusCode === 404) {
+                return;
             }
-        });
+            throw err;
+        }
     }
 
     protected async _countBy(field: keyof T, val: any): Promise<number> {

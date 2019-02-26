@@ -392,9 +392,25 @@ describe('ACLManager', () => {
                             name: 'Example View',
                             roles: [roleId],
                             includes: ['foo'],
-                            excludes: ['bar']
+                            excludes: ['bar'],
+                            metadata: {
+                                a: 'b',
+                                example: {
+                                    n: 1
+                                }
+                            }
                         }
-                    ]
+                    ],
+                    defaultView: {
+                        includes: ['example'],
+                        constraint: 'hello:true',
+                        metadata: {
+                            c: 'd',
+                            example: {
+                                n: 2
+                            }
+                        }
+                    }
                 });
 
                 spaceId = spaceResult.space.id;
@@ -434,8 +450,16 @@ describe('ACLManager', () => {
                     view: {
                         name: 'Example View',
                         roles: [roleId],
-                        includes: ['foo'],
-                        excludes: ['bar']
+                        includes: ['example', 'foo'],
+                        excludes: ['bar'],
+                        constraint: 'hello:true',
+                        metadata: {
+                            a: 'b',
+                            c: 'd',
+                            example: {
+                                n: 1
+                            }
+                        }
                     },
                     space_id: spaceId,
                     space_metadata: {
@@ -474,7 +498,6 @@ describe('ACLManager', () => {
                 return expect(manager.removeSpace({ id: spaceId }))
                     .resolves.toBeTrue();
             });
-
         });
     });
 });
