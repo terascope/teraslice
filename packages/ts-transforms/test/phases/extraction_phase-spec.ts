@@ -1,14 +1,16 @@
 
 import path from 'path';
-import { DataEntity } from '@terascope/utils';
-import { ExtractionPhase, Loader, OperationConfig, OperationsManager } from '../../src';
+import { DataEntity, debugLogger } from '@terascope/utils';
+import { ExtractionPhase, Loader, OperationsManager, ConfigProcessingDict } from '../../src';
 
 describe('extraction phase', () => {
+    const logger = debugLogger('extractionPhaseTest');
 
-    async function getConfigList(fileName: string): Promise<OperationConfig[]> {
+    async function getConfigList(fileName: string): Promise<ConfigProcessingDict> {
         const filePath = path.join(__dirname, `../fixtures/${fileName}`);
-        const myFileLoader = new Loader({ rules: [filePath] });
-        const await myFileLoader.load();
+        const myFileLoader = new Loader({ rules: [filePath] }, logger);
+        const { extractions } = await myFileLoader.load();
+        return extractions;
     }
     // rules is only used in loader
     const transformOpconfig = { rules: ['some/path'] };
@@ -42,12 +44,16 @@ describe('extraction phase', () => {
 
         expect(extractionPhase.hasProcessing).toEqual(true);
         expect(extractionPhase.phase).toBeDefined();
-        expect(Object.keys(extractionPhase.phase).length).toEqual(1);
+        expect(Object.keys(extractionPhase.phase)).toBeArrayOfSize(2);
 
         const extractions = extractionPhase.phase['host:fc2.com'];
+        const matchAll = extractionPhase.phase['*'];
 
-        expect(Array.isArray(extractions)).toEqual(true);
-        expect(extractions.length).toEqual(2);
+        expect(extractions).toBeArray();
+        expect(extractions).toBeArrayOfSize(1);
+
+        expect(matchAll).toBeArray();
+        expect(matchAll).toBeArrayOfSize(1);
     });
 
     it('can run and extract data', async () => {
@@ -94,10 +100,13 @@ describe('extraction phase', () => {
         const extractionPhase = new ExtractionPhase(transformOpconfig, configList, new OperationsManager());
         const key = '12345680';
         const date = new Date().toISOString();
+        const metaData = {
+            selectors: { 'domain:example.com': true, '*': true }
+        };
 
         const data = [
-            new DataEntity({ domain: 'www.example.com', url: 'http://hello.com?value=hello&value2=goodbye', date, key }, { selectors: { 'domain:example.com': true } }),
-            new DataEntity({ domain: 'www.example.com', url: 'http://hello.com?value3=hello&value4=goodbye', date, key }, { selectors: { 'domain:example.com': true } })
+            new DataEntity({ domain: 'www.example.com', url: 'http://hello.com?value=hello&value2=goodbye', date, key }, metaData),
+            new DataEntity({ domain: 'www.example.com', url: 'http://hello.com?value3=hello&value4=goodbye', date, key }, metaData)
         ];
 
         const results = extractionPhase.run(data);
