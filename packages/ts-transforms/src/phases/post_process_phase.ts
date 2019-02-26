@@ -6,22 +6,9 @@ import PhaseBase from './base';
 import { OperationsManager } from '../operations';
 
 export default class PostProcessPhase extends PhaseBase {
-    constructor(_opConfig: WatcherConfig, configList: ConfigProcessingDict, opsManager: OperationsManager) {
+    constructor(_opfig: WatcherConfig, configList: ConfigProcessingDict, opsManager: OperationsManager) {
         super();
 
-        // function isPrimaryPostProcess(config: OperationConfig): boolean {
-        //     return !_.has(config, 'follow') && (_.has(config, 'selector') && (_.has(config, 'post_process') || _.has(config, 'validation')));
-        // }
-
-        // function isRefsPostProcess(config: OperationConfig): boolean {
-        //     return _.has(config, 'follow') && (_.has(config, 'post_process') || _.has(config, 'validation'));
-        // }
-
-        // const sequence = [
-        //     { type: 'post_process', filterFn: isPrimaryPostProcess },
-        //     { type: 'post_process', filterFn: isRefsPostProcess }
-        // ];
-        // sequence.forEach((loadingConfig) => this.installOps(loadingConfig, configList, opsManager));
         function loadOp(config: OperationConfig) {
             const opName = config.post_process || config.validation;
             const Op = opsManager.getTransform(opName as string);
