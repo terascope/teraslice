@@ -64,36 +64,36 @@ describe('Roles', () => {
 
         describe('when the using the admin role', () => {
             it(`should have access to "${restrictedSpaceId}"`, () => {
-                return expect(roles.hasAccessToSpace(admin.id, restrictedSpaceId))
+                return expect(roles.hasAccessToSpace(admin, restrictedSpaceId))
                     .resolves.toBeTrue();
             });
 
             it(`should have access to "${devSpaceId}"`, () => {
-                return expect(roles.hasAccessToSpace(admin.id, devSpaceId))
+                return expect(roles.hasAccessToSpace(admin, devSpaceId))
                     .resolves.toBeTrue();
             });
         });
 
         describe('when the using the dev role', () => {
             it(`should not have access to "${restrictedSpaceId}"`, () => {
-                return expect(roles.hasAccessToSpace(dev.id, restrictedSpaceId))
+                return expect(roles.hasAccessToSpace(dev, restrictedSpaceId))
                     .resolves.toBeFalse();
             });
 
             it(`should have access to "${devSpaceId}"`, () => {
-                return expect(roles.hasAccessToSpace(dev.id, devSpaceId))
+                return expect(roles.hasAccessToSpace(dev, devSpaceId))
                     .resolves.toBeTrue();
             });
         });
 
         describe('when the using the bad role', () => {
             it(`should not have access to "${restrictedSpaceId}"`, () => {
-                return expect(roles.hasAccessToSpace(bad.id, restrictedSpaceId))
+                return expect(roles.hasAccessToSpace(bad, restrictedSpaceId))
                     .resolves.toBeFalse();
             });
 
             it(`should have access to "${devSpaceId}"`, () => {
-                return expect(roles.hasAccessToSpace(bad.id, devSpaceId))
+                return expect(roles.hasAccessToSpace(bad, devSpaceId))
                     .resolves.toBeFalse();
             });
         });

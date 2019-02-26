@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { TSError, times } from '@terascope/utils';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
-import { ACLManager, DataAccessConfig, UserModel } from '../src';
+import { ACLManager, UserModel } from '../src';
 
 describe('ACLManager', () => {
     const client = makeClient();
@@ -368,8 +368,7 @@ describe('ACLManager', () => {
             let roleId: string;
             let userId: string;
             let viewId: string;
-            let err: any;
-            let config: DataAccessConfig;
+            let apiToken: string;
 
             beforeAll(async () => {
                 const role = await manager.createRole({
@@ -422,23 +421,14 @@ describe('ACLManager', () => {
                 });
 
                 userId = user.id;
-
-                try {
-                    config = await manager.getViewForSpace({
-                        api_token: user.api_token,
-                        space: spaceId
-                    });
-                } catch (_err) {
-                    err = _err;
-                }
+                apiToken = user.api_token;
             });
 
-            it('should not have error', () => {
-                expect(err).toBeNil();
-            });
-
-            it('should return a valid config', () => {
-                expect(config).toMatchObject({
+            it('should be able to get config by space id', () => {
+                return expect(manager.getViewForSpace({
+                    api_token: apiToken,
+                    space: spaceId
+                })).resolves.toMatchObject({
                     user_id: userId,
                     role_id: roleId,
                     view: {
@@ -451,6 +441,17 @@ describe('ACLManager', () => {
                     space_metadata: {
                         example: true
                     }
+                });
+            });
+
+            it('should be able to get config by space name', () => {
+                return expect(manager.getViewForSpace({
+                    api_token: apiToken,
+                    space: 'Example Space'
+                })).resolves.toMatchObject({
+                    space_id: spaceId,
+                    user_id: userId,
+                    role_id: roleId,
                 });
             });
 
@@ -473,6 +474,7 @@ describe('ACLManager', () => {
                 return expect(manager.removeSpace({ id: spaceId }))
                     .resolves.toBeTrue();
             });
+
         });
     });
 });

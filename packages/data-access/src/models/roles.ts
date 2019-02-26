@@ -37,8 +37,7 @@ export class Roles extends Base<RoleModel, CreateRoleInput, UpdateRoleInput> {
         super(client, config, rolesConfig);
     }
 
-    async hasAccessToSpace(roleId: string, space: string): Promise<boolean> {
-        const role = await this.findById(roleId);
+    async hasAccessToSpace(role: RoleModel, space: string): Promise<boolean> {
         return role.spaces.includes(space);
     }
 

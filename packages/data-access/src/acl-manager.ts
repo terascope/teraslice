@@ -401,18 +401,18 @@ export class ACLManager {
             throw new TSError(msg, { statusCode: 403 });
         }
 
-        const role = await this.roles.findById(roleId);
+        const [role, space] = await Promise.all([
+            this.roles.findById(roleId),
+            this.spaces.findByAnyId(args.space)
+        ]);
 
-        const hasAccess = await this.roles.hasAccessToSpace(roleId, args.space);
+        const hasAccess = await this.roles.hasAccessToSpace(role, space.id);
         if (!hasAccess) {
-            const msg = `User "${user.username}" does not have access to space "${args.space}"`;
+            const msg = `User "${user.username}" does not have access to space "${space.id}"`;
             throw new TSError(msg, { statusCode: 403 });
         }
 
-        const [view, space] = await Promise.all([
-            this.views.getViewForRole(roleId, args.space),
-            this.spaces.findById(args.space)
-        ]);
+        const view = await this.views.getViewForRole(roleId, space.id);
 
         return {
             user_id: user.id,
