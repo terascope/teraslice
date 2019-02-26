@@ -30,7 +30,7 @@ export interface OperationConfig {
     _multi_target_field?: string;
     value?: any;
     output?: boolean;
-    __id: string;
+    __id?: string;
 }
 
 export type PluginClassConstructor = { new (): PluginClassType };
@@ -50,7 +50,7 @@ export interface OperationsDict {
 export interface Operation {
     run(data: DataEntity): null | DataEntity;
 }
-// TODO: this is to close to NormalizedConfig
+// TODO: delete the next two
 export interface ConfigResults {
     registrationSelector?: string;
     targetConfig: OperationConfig | null;
@@ -90,4 +90,9 @@ export interface ValidationResults {
     selectors: string[];
     extractions: ConfigProcessingDict;
     postProcessing: ConfigProcessingDict;
+}
+
+export interface NormalizedFields{
+    soureField: string;
+    targetField: string;
 }

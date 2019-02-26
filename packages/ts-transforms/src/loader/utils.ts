@@ -1,15 +1,17 @@
 
 import _ from 'lodash';
 import graphlib from 'graphlib';
+import { Logger } from '@terascope/utils';
 import {
     OperationConfig,
     ValidationResults,
-    NormalizedFields
+    NormalizedFields,
+    ConfigProcessingDict
 } from '../interfaces';
 // @ts-ignore
 const  { Graph, alg: { topsort, isAcyclic, findCycles } } = graphlib;
 
-export function parseConfig(configList: OperationConfig[]) {
+export function parseConfig(configList: OperationConfig[], logger: Logger) {
     const graph = new Graph();
     const tagMapping = {};
     const graphEdges = {};
@@ -137,7 +139,21 @@ export function parseConfig(configList: OperationConfig[]) {
 
     const sortList = topsort(graph);
     sortList.forEach(normalizeConfig);
-    return createResults(sortList);
+    const results =  createResults(sortList);
+    validateOtherMatchRequired(results.extractions, logger);
+    return results;
+}
+
+function validateOtherMatchRequired(configDict: ConfigProcessingDict, logger: Logger) {
+    _.forOwn(configDict, (opsList, selector) => {
+        const hasMatchRequired = opsList.find(op => op.other_match_required === true) !== undefined;
+        if (hasMatchRequired && opsList.length === 1) {
+            logger.warn(`
+            There is only a single extraction for selector ${selector} and it has other_match_required set to true.
+            This will return empty results unless the data matches another selector that has reqular extractions
+            `.trim());
+        }
+    });
 }
 
 function isSelectorNode(str: string) {
@@ -153,7 +169,7 @@ function removeAnnotation(str: string) {
 }
 // TODO: review what needs to be exported
 export function isPrimaryConfig(config: OperationConfig) {
-    if (_.has(config, 'selector') && !config.follow && !config.other_match_required) return true;
+    if (_.has(config, 'selector') && !config.follow) return true;
     return false;
 }
 
