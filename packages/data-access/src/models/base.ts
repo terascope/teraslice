@@ -26,7 +26,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
             },
             dataSchema: {
                 schema: addDefaultSchema(modelConfig.schema),
-                strict: true,
+                strict: modelConfig.strictMode === false ? false : true,
                 allFormatters: true,
             },
             indexSettings: {
@@ -273,6 +273,8 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         const entries = Object.entries(this._sanitizeFields);
 
         for (const [field, method] of entries) {
+            if (!record[field]) continue;
+
             switch (method) {
                 case 'trim':
                     record[field] = utils.trim(record[field]);
@@ -313,6 +315,9 @@ export interface ModelConfig<T extends BaseModel> {
 
     /** A custom function to fix any legacy data on the a record */
     fixDoc?: FixDocFn<T>;
+
+    /** Specify whether the data should be strictly validated, defaults to true */
+    strictMode?: boolean;
 }
 
 export type FixDocFn<T extends BaseModel> = (doc: T) => T;

@@ -114,7 +114,8 @@ const config: ModelConfig<PrivateUserModel> = {
         }
 
         return doc;
-    }
+    },
+    strictMode: false,
 };
 
 export = config;
