@@ -563,7 +563,7 @@ export interface DataAccessConfig {
     /**
      * The space metadata
     */
-    space_metadata: object;
+    space_metadata: any;
 
     /**
      * The authenticated user's view of the space

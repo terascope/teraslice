@@ -4,8 +4,9 @@
         "access": "public"
     },
     "version": "2.0.0",
-    "description": "",
+    "description": "Elasticsearch client api used across multiple services, handles retries and exponential backoff",
     "main": "index.js",
+    "typings": "types/index.d.ts",
     "scripts": {
         "lint": "eslint *.js test/**/*.js",
         "lint:fix": "yarn lint --fix",
