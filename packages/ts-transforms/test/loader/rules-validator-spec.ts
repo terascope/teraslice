@@ -50,7 +50,7 @@ describe('rules-validator', () => {
             selector: 'hello:world',
             source_field: 'first',
             target_field: 'first_name',
-            tag: 'hello',
+            tags: ['hello'],
             __id: shortid.generate()
         },
         {
@@ -72,7 +72,7 @@ describe('rules-validator', () => {
             selector: 'hello:world',
             source_field: 'last',
             target_field: 'last_name',
-            output: false, tag: 'someTag'
+            output: false, tags: ['someTag']
         },
         {
             follow: 'someTag',
@@ -89,22 +89,22 @@ describe('rules-validator', () => {
             source_field: 'somefield',
             start: 'value=', end: 'EOP',
             target_field: 'hashoutput',
-            tag: 'source'
+            tags: ['source']
         },
         {
             follow: 'source',
             post_process: 'base64decode',
-            tag: 'hash_field'
+            tags: ['hash_field']
         },
         {
             follow: 'hash_field',
             post_process: 'urldecode',
-            tag: 'urldecoded'
+            tags: ['urldecoded']
         },
         {
             follow: 'urldecoded',
             post_process: 'jsonparse',
-            tag: 'parsed'
+            tags: ['parsed']
         }
     ].map(addId);
 
@@ -115,22 +115,22 @@ describe('rules-validator', () => {
             start: 'value=',
             end: 'EOP',
             target_field: 'hashoutput',
-            tag: 'source'
+            tags: ['source']
         },
         {
             follow: 'source',
             post_process: 'base64decode',
-            tag: 'hash_field'
+            tags: ['hash_field']
         },
         {
             follow: 'hash_field',
             post_process: 'urldecode',
-            tag: 'urldecoded'
+            tags: ['urldecoded']
         },
         {
             follow: 'urldecoded',
             post_process: 'jsonparse',
-            tag: 'hash_field'
+            tags: ['hash_field']
         }
     ].map(addId);
 
@@ -141,22 +141,22 @@ describe('rules-validator', () => {
             start: 'value=',
             end: 'EOP',
             target_field: 'hashoutput',
-            tag: 'source'
+            tags: ['source']
         },
         {
             follow: 'parsed',
             post_process: 'base64decode',
-            tag: 'hash_field'
+            tags: ['hash_field']
         },
         {
             follow: 'hash_field',
             post_process: 'urldecode',
-            tag: 'urldecoded'
+            tags: ['urldecoded']
         },
         {
             follow: 'urldecoded',
             post_process: 'jsonparse',
-            tag: 'parsed'
+            tags: ['parsed']
         },
     ].map(addId);
 
@@ -168,7 +168,7 @@ describe('rules-validator', () => {
             end: 'EOP',
             other_match_required: true,
             target_field: 'hashoutput',
-            tag: 'source'
+            tags: ['source']
         },
         {
             selector: 'thing:other',
@@ -176,24 +176,39 @@ describe('rules-validator', () => {
             start: 'value=',
             end: 'EOP',
             target_field: 'hashoutput',
-            tag: 'source'
+            tags: ['source']
         },
         {
             follow: 'source',
             post_process: 'base64decode',
-            tag: 'hash_field'
+            tags: ['hash_field']
         },
         {
             follow: 'hash_field',
             post_process: 'urldecode',
-            tag: 'urldecoded'
+            tags: ['urldecoded']
         },
         {
             follow: 'urldecoded',
             post_process: 'jsonparse',
-            tag: 'parsed'
+            tags: ['parsed']
         }
     ].map(addId);
+    // @ts-ignore TODO: use me
+    const backwordsCompabiablePostProcess = [
+        {
+            selector: 'hello:world',
+            source_field: 'first',
+            target_field: 'first_name',
+            __id: 'nPfBk9E8TEf'
+        },
+        {
+            selector: 'hello:world',
+            validation: 'string',
+            output: false,
+            __id: 'bAUilADVhVl'
+        }
+    ];
 
     function constructValidator(configList: OperationConfig[], logger = testLogger) {
         return new RulesValidator(configList, logger);
@@ -320,6 +335,12 @@ describe('rules-validator', () => {
             const validator = constructValidator(matchRequiredError, logger);
             validator.validate();
             expect(logger.warn).toHaveBeenCalled();
+        });
+    });
+
+    describe('output', () => {
+        it('', () => {
+
         });
     });
 });

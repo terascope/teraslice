@@ -69,7 +69,7 @@ describe('Loader', () => {
         expect(config2.post_process).toEqual('base64decode');
     });
 
-    it('does not seperate post/validations with selectors', async() => {
+    it('does not seperate post/validations with selectors and no extractions', async() => {
         const results = await getConfigList('transformRules27.txt');
         const[config1, config2] = results;
 

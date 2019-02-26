@@ -1,35 +1,60 @@
 
 import path from 'path';
+import { debugLogger } from '@terascope/utils';
 import { Loader, PhaseConfig } from '../../src';
 
 describe('Loader', () => {
+    const logger = debugLogger('loader-test');
     const matchRules1Path = path.join(__dirname, '../fixtures/matchRules1.txt');
     const transformRules2Path = path.join(__dirname, '../fixtures/transformRules2.txt');
 
-    fit('it can instantiate a matcher from file', async () => {
+    it('will not throw with a matcher config', async() => {
         const config: PhaseConfig = { rules: [matchRules1Path], type: 'matcher' };
-        let loader: Loader;
+        expect(() => new Loader(config, logger)).not.toThrow();
+    });
 
-        expect(() => {
-            loader = new Loader(config);
-        }).not.toThrow();
+    it('will not throw with a transform config', async() => {
+        const config: PhaseConfig = { rules: [transformRules2Path], type: 'transform' };
+        expect(() => new Loader(config, logger)).not.toThrow();
+    });
 
-        // @ts-ignore
-        const results = await loader.load();
-        expect(results.length).toEqual(2);
+    it('it can instantiate a matcher from file', async () => {
+        const config: PhaseConfig = { rules: [matchRules1Path], type: 'matcher' };
+        const loader = new Loader(config, logger);
+
+        const phaseConfig = await loader.load();
+        const { selectors, extractions, postProcessing, output } = phaseConfig;
+        const { hasMultiValue, matchRequirements, restrictOutput } = output;
+        const results = selectors.map(obj => ({ selector: obj.selector }));
+
+        expect(selectors).toBeArrayOfSize(2);
         expect(results[0]).toEqual({ selector: 'some:data AND bytes:>=1000' });
         expect(results[1]).toEqual({ selector: 'other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z' });
+
+        expect(extractions).toBeEmpty();
+        expect(postProcessing).toBeEmpty();
+        expect(hasMultiValue).toBeFalse();
+        expect(matchRequirements).toBeEmpty();
+        expect(restrictOutput).toBeEmpty();
     });
 
     it('it can instantiate a transform with operations from file', async () => {
         const config: PhaseConfig = { rules: [transformRules2Path], type: 'transform' };
-        let loader!: Loader;
+        const loader = new Loader(config, logger);
 
-        expect(() => {
-            loader = new Loader(config);
-        }).not.toThrow();
+        const phaseConfig = await loader.load();
+        const { selectors, extractions, postProcessing, output } = phaseConfig;
+        const { hasMultiValue, matchRequirements, restrictOutput } = output;
+        const results = selectors.map(obj => ({ selector: obj.selector }));
 
-        const results = await loader.load();
-        expect(results.length > 0).toEqual(true);
+        expect(selectors).toBeArrayOfSize(2);
+        expect(results[0]).toEqual({ selector: 'hello:world' });
+        expect(results[1]).toEqual({ selector: 'geo:true' });
+
+        expect(extractions).not.toBeEmpty();
+        expect(postProcessing).toBeEmpty();
+        expect(hasMultiValue).toBeFalse();
+        expect(matchRequirements).toBeEmpty();
+        expect(restrictOutput).toBeEmpty();
     });
 });

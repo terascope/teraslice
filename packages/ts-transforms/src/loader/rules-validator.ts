@@ -7,8 +7,9 @@ import { OperationConfig, ValidationResults } from '../interfaces';
 export default class RulesValidator {
     private configList: OperationConfig[];
     private logger: Logger;
+
     constructor(configList: OperationConfig[], logger: Logger) {
-        this.configList = _.clone(configList);
+        this.configList = configList;
         this.logger = logger;
     }
 

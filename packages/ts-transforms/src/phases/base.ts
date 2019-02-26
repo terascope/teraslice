@@ -1,14 +1,16 @@
 
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
-import { OperationConfig, NormalizedConfig, OperationsPipline, ConfigResults, injectFn, filterFn } from '../interfaces';
+import { OperationConfig, NormalizedConfig, OperationsPipline, ConfigResults, injectFn, filterFn, WatcherConfig } from '../interfaces';
 import { OperationsManager } from '../operations';
 
 export default abstract class PhaseBase {
     readonly phase: OperationsPipline;
     public hasProcessing: boolean;
+    protected opConfig: WatcherConfig;
 
-    constructor() {
+    constructor(opConfig: WatcherConfig) {
+        this.opConfig = opConfig;
         this.phase = {};
         this.hasProcessing = false;
     }

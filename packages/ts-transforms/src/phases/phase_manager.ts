@@ -19,7 +19,7 @@ export default class PhaseManager {
 
     constructor(opConfig: PhaseConfig, logger:Logger = debugLogger('ts-transforms')) {
         this.opConfig = opConfig;
-        this.loader = new Loader(opConfig);
+        this.loader = new Loader(opConfig, logger);
         this.logger = logger;
         this.sequence = [];
         this.isMatcher = opConfig.type === 'matcher';
@@ -27,20 +27,20 @@ export default class PhaseManager {
 
     public async init (Plugins?: PluginList) {
         try {
-            const configList = await this.loader.load();
+            const phaseConfiguration = await this.loader.load();
             const opsManager = new OperationsManager(Plugins);
             const sequence: PhaseBase[] = [
-                new SelectionPhase(this.opConfig, _.cloneDeep(configList), opsManager),
+                new SelectionPhase(this.opConfig, phaseConfiguration.selectors, opsManager),
             ];
 
             if (!this.isMatcher) {
                 sequence.push(
-                    new ExtractionPhase(this.opConfig, _.cloneDeep(configList), opsManager),
-                    new PostProcessPhase(this.opConfig, _.cloneDeep(configList), opsManager),
+                    new ExtractionPhase(this.opConfig, phaseConfiguration.extractions, opsManager),
+                    new PostProcessPhase(this.opConfig, phaseConfiguration.postProcessing, opsManager),
                 );
             }
 
-            sequence.push(new OutputPhase(this.opConfig, _.cloneDeep(configList), opsManager));
+            sequence.push(new OutputPhase(this.opConfig, phaseConfiguration.output, opsManager));
 
             this.sequence = sequence;
         } catch (err) {

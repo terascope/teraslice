@@ -6,8 +6,8 @@ import PhaseBase from './base';
 import { OperationsManager } from '../operations';
 
 export default class PostProcessPhase extends PhaseBase {
-    constructor(_opfig: WatcherConfig, configList: ConfigProcessingDict, opsManager: OperationsManager) {
-        super();
+    constructor(opConfig: WatcherConfig, configList: ConfigProcessingDict, opsManager: OperationsManager) {
+        super(opConfig);
 
         function loadOp(config: OperationConfig) {
             const opName = config.post_process || config.validation;

@@ -1,13 +1,14 @@
 
 import path from 'path';
-import { DataEntity } from '@terascope/utils';
-import { SelectionPhase, Loader, OperationsManager } from '../../src';
+import { DataEntity, debugLogger } from '@terascope/utils';
+import { SelectionPhase, Loader, OperationsManager, OperationConfig } from '../../src';
 
 describe('selector phase', () => {
+    const logger = debugLogger('selectorPhaseTest');
 
-    async function getConfigList(fileName: string): Promise<string[]> {
+    async function getConfigList(fileName: string): Promise<OperationConfig[]> {
         const filePath = path.join(__dirname, `../fixtures/${fileName}`);
-        const myFileLoader = new Loader({ rules: [filePath] });
+        const myFileLoader = new Loader({ rules: [filePath] }, logger);
         const { selectors } = await myFileLoader.load();
         return selectors;
     }
@@ -65,15 +66,17 @@ describe('selector phase', () => {
         expect(results.length).toEqual(6);
     });
 
-    it('can loads only the appropriate selectors and disregards certain ones', async () => {
+    it('can loads only the appropriate selectors', async () => {
         const configList = await getConfigList('transformRules16.txt');
         const selectorPhase = new SelectionPhase(transformOpconfig, configList, new OperationsManager());
-
         // this is to check that a match-all has not been added
         // by the other_match_required or refs (ie the second and third config in file)
-        expect(selectorPhase.selectionPhase.length).toEqual(1);
+        expect(selectorPhase.selectionPhase).toBeArrayOfSize(2);
         // FIXME: this ignore
         // @ts-ignore
         expect(selectorPhase.selectionPhase[0].selector).toEqual('host:fc2.com');
+        // @ts-ignore
+        expect(selectorPhase.selectionPhase[1].selector).toEqual('*');
+
     });
 });

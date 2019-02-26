@@ -5,7 +5,7 @@ import { DataEntity } from '@terascope/utils';
 export enum NotifyType { matcher = 'matcher', transform = 'transform' }
 
 export interface OperationConfig {
-    tag?: string;
+    tags?: string[];
     selector?: string;
     source_field?: string;
     start?: string;
@@ -87,12 +87,27 @@ export interface ConfigProcessingDict {
 }
 
 export interface ValidationResults {
-    selectors: string[];
+    selectors: OperationConfig[];
     extractions: ConfigProcessingDict;
     postProcessing: ConfigProcessingDict;
+    output: OutputValidation;
 }
 
 export interface NormalizedFields{
     soureField: string;
     targetField: string;
+}
+
+interface RestrictOutput {
+    [field: string]: boolean;
+}
+
+interface MatchRequirements {
+    [field: string]: string;
+}
+
+export interface OutputValidation {
+    hasMultiValue: boolean;
+    restrictOutput: RestrictOutput;
+    matchRequirements: MatchRequirements;
 }

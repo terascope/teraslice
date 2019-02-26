@@ -5,7 +5,7 @@ import { OutputPhase, Loader, OperationsManager, OutputValidation } from '../../
 
 describe('output phase', () => {
     const logger = debugLogger('outputPhaseTest');
-    // FIXME: this is wrong
+
     async function getConfigList(fileName: string): Promise<OutputValidation> {
         const filePath = path.join(__dirname, `../fixtures/${fileName}`);
         const myFileLoader = new Loader({ rules: [filePath] }, logger);
@@ -60,8 +60,7 @@ describe('output phase', () => {
 
         const data = [
             new DataEntity({ myfield0: 'something' , myfield1: 'otherthing' }, metaData1),
-            new DataEntity({ field0: 'something' , field1: 'otherthing' }, metaData2),
-
+            new DataEntity({ field0: 'something' , field1: 'otherthing' }, metaData2)
         ];
 
         const results = outputPhase.run(data);

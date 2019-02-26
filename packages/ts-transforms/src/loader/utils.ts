@@ -29,12 +29,6 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
         return config;
     }
 
-    interface ExtractionWrapper {
-        __extractions: OperationConfig[];
-    }
-
-    type ParsedConfig = OperationConfig & ExtractionWrapper;
-
     function findFields(config:ParsedConfig): NormalizedFields {
         let searchingConfig = config;
         let soureField = null;
@@ -43,6 +37,7 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
         while (soureField === null) {
             const nodeId = tagMapping[searchingConfig.follow as string];
             const resultsConfig: ParsedConfig = graph.node(nodeId);
+
             let sourceConfig;
             if (resultsConfig.__extractions) {
                 sourceConfig = resultsConfig.__extractions.find((obj) => obj.tag === searchingConfig.follow);
@@ -59,70 +54,6 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
         }
         if (!targetField) targetField = soureField;
         return { targetField, soureField };
-    }
-
-    function hasOutputRestrictions(config: OperationConfig) {
-        return config.output === false && config.validation == null;
-    }
-
-    function hasMatchRequirements(config: OperationConfig) {
-        return _.has(config, 'other_match_required');
-    }
-
-    function hasMultivalue(config: OperationConfig) {
-        return _.has(config, 'multivalue');
-    }
-
-    function createResults(list: ParsedConfig[]): ValidationResults {
-        const results: ValidationResults = {
-            selectors: [],
-            extractions: {},
-            postProcessing: {},
-            output: {
-                hasMultiValue: false,
-                restrictOutput: {},
-                matchRequirements: {},
-            }
-        };
-        const output = results.output;
-        let currentSelector: undefined|string;
-
-        list.forEach((config) => {
-
-            if (hasMultivalue(config)) {
-                output.hasMultiValue = true;
-            }
-
-            if (hasOutputRestrictions(config)) {
-                const key = config.target_field || config.source_field;
-                output.restrictOutput[key as string] = true;
-            }
-
-            if (hasMatchRequirements(config)) {
-                const key = config.target_field || config.source_field;
-                output.matchRequirements[key as string] = config.selector as string;
-            }
-
-            if (hasExtractions(config)) {
-                // TODO: fix the typing
-                results.extractions[currentSelector as string] = config.__extractions;
-            }
-
-            if (isPrimaryConfig(config)) {
-                currentSelector = config.selector;
-                results.selectors.push(config);
-            }
-
-            if (isPostProcessConfig(config)) {
-                if (!results.postProcessing[currentSelector as string]) {
-                    results.postProcessing[currentSelector as string] = [config];
-                } else {
-                    results.postProcessing[currentSelector as string].push(config);
-                }
-            }
-        });
-
-        return results;
     }
 
     configList.forEach((config) => {
@@ -205,26 +136,95 @@ function validateOtherMatchRequired(configDict: ConfigProcessingDict, logger: Lo
 
 // TODO: review what needs to be exported
 export function isPrimaryConfig(config: OperationConfig) {
-    if (_.has(config, 'selector') && !config.follow) return true;
-    return false;
+    return (_.has(config, 'selector') && !config.follow);
 }
 
 export function isPostProcessConfig(config: OperationConfig): boolean {
-    if (_.has(config, 'post_process') || _.has(config, 'validation')) return true;
-    return false;
+    return (_.has(config, 'post_process') || _.has(config, 'validation'));
 }
 
-function hasExtractions(config: OperationConfig) {
+function hasParsedExtractions(config: OperationConfig) {
     return _.has(config, '__extractions');
 }
 
-// @ts-ignore
-function isPostProcessRootConfig(config: OperationConfig) {
-    if (!_.has(config, 'follow') && _.has(config, 'selector')) return true;
-    return false;
+export function isSimpleTagPostProcessConfig(config: OperationConfig): boolean {
+    return (!_.has(config, 'follow') && isPostProcessConfig(config) && _.has(config, 'selector') && hasExtractions(config));
 }
 
 export function isSimplePostProcessConfig(config: OperationConfig) {
-    if (!_.has(config, 'follow') && isPostProcessConfig(config)) return true;
-    return false;
+    return (!_.has(config, 'follow') && isPostProcessConfig(config));
 }
+
+export function hasExtractions(config: OperationConfig) {
+    return _.has(config, 'source_field');
+}
+
+function hasOutputRestrictions(config: OperationConfig) {
+    return config.output === false && config.validation == null;
+}
+
+function hasMatchRequirements(config: OperationConfig) {
+    return _.has(config, 'other_match_required');
+}
+
+function hasMultivalue(config: OperationConfig) {
+    return _.has(config, 'multivalue');
+}
+
+function createResults(list: ParsedConfig[]): ValidationResults {
+    const results: ValidationResults = {
+        selectors: [],
+        extractions: {},
+        postProcessing: {},
+        output: {
+            hasMultiValue: false,
+            restrictOutput: {},
+            matchRequirements: {},
+        }
+    };
+    const output = results.output;
+    let currentSelector: undefined|string;
+
+    list.forEach((config) => {
+
+        if (hasMultivalue(config)) {
+            output.hasMultiValue = true;
+        }
+
+        if (hasOutputRestrictions(config)) {
+            const key = config.target_field || config.source_field;
+            output.restrictOutput[key as string] = true;
+        }
+
+        if (hasMatchRequirements(config)) {
+            const key = config.target_field || config.source_field;
+            output.matchRequirements[key as string] = config.selector as string;
+        }
+
+        if (hasParsedExtractions(config)) {
+            // TODO: fix the typing
+            results.extractions[currentSelector as string] = config.__extractions;
+        }
+
+        if (isPrimaryConfig(config)) {
+            currentSelector = config.selector;
+            results.selectors.push(config);
+        }
+
+        if (isPostProcessConfig(config)) {
+            if (!results.postProcessing[currentSelector as string]) {
+                results.postProcessing[currentSelector as string] = [config];
+            } else {
+                results.postProcessing[currentSelector as string].push(config);
+            }
+        }
+    });
+
+    return results;
+}
+
+interface ExtractionWrapper {
+    __extractions: OperationConfig[];
+}
+
+type ParsedConfig = OperationConfig & ExtractionWrapper;
