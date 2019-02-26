@@ -1,14 +1,15 @@
 
 import path from 'path';
 import { DataEntity } from '@terascope/utils';
-import { SelectionPhase, Loader, OperationsManager, OperationConfig } from '../../src';
+import { SelectionPhase, Loader, OperationsManager } from '../../src';
 
 describe('selector phase', () => {
 
-    async function getConfigList(fileName: string): Promise<OperationConfig[]> {
+    async function getConfigList(fileName: string): Promise<string[]> {
         const filePath = path.join(__dirname, `../fixtures/${fileName}`);
         const myFileLoader = new Loader({ rules: [filePath] });
-        return myFileLoader.load();
+        const { selectors } = await myFileLoader.load();
+        return selectors;
     }
     // file_path is only used in loader
     const transformOpconfig = { rules: ['some/path'] };

@@ -1,7 +1,7 @@
 
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
-import { OperationConfig, WatcherConfig, Operation } from '../interfaces';
+import { WatcherConfig, Operation } from '../interfaces';
 import PhaseBase from './base';
 import { OperationsManager } from '../operations';
 
@@ -9,19 +9,11 @@ export default class SelectionPhase extends PhaseBase {
     private opConfig: WatcherConfig;
     readonly selectionPhase: Operation[];
 
-    constructor(opConfig: WatcherConfig, configList:OperationConfig[], opsManager: OperationsManager) {
+    constructor(opConfig: WatcherConfig, selectorList:string[], opsManager: OperationsManager) {
         super();
         this.opConfig = opConfig;
-        const selectionPhase: Operation[] = [];
-        const dict = {};
         const Selector = opsManager.getTransform('selector');
-
-        configList.forEach((config: OperationConfig) => {
-            if (config.selector && !config.follow && !config.other_match_required) dict[config.selector] = true;
-        });
-
-        _.forOwn(dict, (_value, selector) => selectionPhase.push(new Selector({ selector }, this.opConfig.types)));
-        this.selectionPhase = selectionPhase;
+        this.selectionPhase = selectorList.map(selector => new Selector({ selector }, this.opConfig.types));
     }
 
     public run(data: DataEntity[]): DataEntity[] {
