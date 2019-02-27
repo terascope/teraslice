@@ -32,7 +32,7 @@
         "@terascope/data-access": "^0.3.0",
         "@terascope/elasticsearch-api": "^2.0.0",
         "@terascope/utils": "^0.4.1",
-        "apollo-server-express": "^2.4.7",
+        "apollo-server-express": "^2.4.8",
         "elasticsearch-store": "^0.4.0",
         "graphql": "^14.1.1",
         "graphql-type-json": "^0.2.1",

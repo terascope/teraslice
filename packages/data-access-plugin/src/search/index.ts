@@ -1,8 +1,8 @@
 import { Express } from 'express';
 import { Client } from 'elasticsearch';
 import elasticsearchAPI from '@terascope/elasticsearch-api';
-import { Logger, parseErrorInfo, TSError } from '@terascope/utils';
-import { ACLManager, PrivateUserModel } from '@terascope/data-access';
+import { Logger, TSError } from '@terascope/utils';
+import { ACLManager } from '@terascope/data-access';
 import { search } from './utils';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 
@@ -32,12 +32,12 @@ export default class SearchPlugin {
             // @ts-ignore
             const manager: ACLManager = req.aclManager;
             // @ts-ignore
-            const user: PrivateUserModel = req.v2User;
+            const apiToken: string = req.userApiToken;
             const space: string = req.params.space;
 
             try {
                 const config = await manager.getViewForSpace({
-                    api_token: user.api_token,
+                    api_token: apiToken,
                     space,
                 });
 

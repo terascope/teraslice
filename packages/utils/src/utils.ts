@@ -157,6 +157,26 @@ export function truncate(str: string, len: number): string {
     return str.length >= len ? `${str.slice(0, sliceLen)} ...` : str;
 }
 
+/** Check if an input is a number */
+export function isNumber(input: any): input is number {
+    return typeof input === 'number' && !Number.isNaN(input);
+}
+
+/** Convert any input to a number, return false if unable to convert input  */
+export function toNumber(input: any): number|false {
+    const num = Number(input);
+    if (isNumber(num)) return num;
+    return false;
+}
+
+/** Convert any input to a integer, return false if unable to convert input  */
+export function toInteger(input: any): number|false {
+    if (Number.isInteger(input)) return input;
+    const val = Number.parseInt(input, 10);
+    if (isNumber(val)) return val;
+    return false;
+}
+
 /** A simplified implemation of moment(new Date(val)).isValid() */
 export function isValidDate(val: any): boolean {
     const d = new Date(val);
