@@ -37,16 +37,20 @@ class K8sResource {
         this.templateConfig = this._makeConfig();
         this.resource = this.templateGenerator(this.templateConfig);
 
-        // Apply job `targets` setting as k8s nodeAffinity
-        // We assume that multiple targets require both to match ...
-        // NOTE: If you specify multiple `matchExpressions` associated with
-        // `nodeSelectorTerms`, then the pod can be scheduled onto a node
-        // only if *all* `matchExpressions` can be satisfied.
-        this._setAffinity();
-        this._setResources();
-        this._setVolumes();
-        this._setAssetsVolume();
-        this._setImagePullSecret();
+        // services don't have pod templates that need modification by these
+        // methods
+        if (resourceType !== 'services') {
+            // Apply job `targets` setting as k8s nodeAffinity
+            // We assume that multiple targets require both to match ...
+            // NOTE: If you specify multiple `matchExpressions` associated with
+            // `nodeSelectorTerms`, then the pod can be scheduled onto a node
+            // only if *all* `matchExpressions` can be satisfied.
+            this._setAffinity();
+            this._setResources();
+            this._setVolumes();
+            this._setAssetsVolume();
+            this._setImagePullSecret();
+        }
     }
 
     _makeConfig() {
