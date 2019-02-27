@@ -12,7 +12,6 @@ exports.desc = 'Manage workers in job\n';
 exports.builder = (yargs) => {
     yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
     yargs.options('output', yargsOptions.buildOption('output'));
-    yargs.options('annotate', yargsOptions.buildOption('annotate'));
     yargs.strict()
         .choices('action', ['add', 'remove'])
         .example('$0 jobs workers cluster1 99999999-9999-9999-9999-999999999999 add 5')
