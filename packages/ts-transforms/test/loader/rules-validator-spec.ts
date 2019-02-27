@@ -107,30 +107,46 @@ describe('rules-validator', () => {
             tags: ['parsed']
         }
     ].map(addId);
+    // @ts-ignore
+    const OldJoinRules: OperationConfig[] = [
+        {
+            selector: 'hello:world',
+            source_field: 'first',
+            target_field: 'first_name'
+        },
+        {
+            selector: 'hello:world',
+            source_field: 'last',
+            target_field: 'last_name'
+        },
+        {
+            selector: 'hello:world',
+            post_process: 'join',
+            fields: ['first_name', 'last_name'],
+            delimiter: ' ',
+            target_field: 'full_name'
+        }
+    ].map(addId);
 
-    const duplicateTagRules: OperationConfig[] = [
+    const NewJoinRules: OperationConfig[] = [
         {
-            selector: '*',
-            source_field: 'somefield',
-            start: 'value=',
-            end: 'EOP',
-            target_field: 'hashoutput',
-            tags: ['source']
+            selector: 'hello:world',
+            source_field: 'first',
+            target_field: 'first_name',
+            tags: ['A']
         },
         {
-            follow: 'source',
-            post_process: 'base64decode',
-            tags: ['hash_field']
+            selector: 'hello:world',
+            source_field: 'last',
+            target_field: 'last_name',
+            tags: ['A']
         },
         {
-            follow: 'hash_field',
-            post_process: 'urldecode',
-            tags: ['urldecoded']
-        },
-        {
-            follow: 'urldecoded',
-            post_process: 'jsonparse',
-            tags: ['hash_field']
+            follow: 'A',
+            post_process: 'join',
+            fields: ['first_name', 'last_name'],
+            delimiter: ' ',
+            target_field: 'full_name'
         }
     ].map(addId);
 
@@ -324,9 +340,9 @@ describe('rules-validator', () => {
 
         });
 
-        it('will throw errors with duplicate tags', () => {
-            const validator = constructValidator(duplicateTagRules);
-            expect(() => validator.validate()).toThrow('must have unique tag, hash_field is a duplicate');
+        it('will not throw errors with duplicate tags', () => {
+            const validator = constructValidator(NewJoinRules);
+            expect(() => validator.validate()).not.toThrow();
         });
 
         it('will log warning if other_match_required is not paired with another extraction', () => {

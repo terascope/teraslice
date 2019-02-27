@@ -8,6 +8,7 @@ export interface OperationConfig {
     tags?: string[];
     selector?: string;
     source_field?: string;
+    source_fields?: string[];
     start?: string;
     end?: string;
     target_field?: string;
@@ -30,7 +31,7 @@ export interface OperationConfig {
     _multi_target_field?: string;
     value?: any;
     output?: boolean;
-    __id?: string;
+    __id: string;
 }
 
 export type PluginClassConstructor = { new (): PluginClassType };
@@ -94,8 +95,8 @@ export interface ValidationResults {
 }
 
 export interface NormalizedFields{
-    soureField: string;
-    targetField: string;
+    soureField: string[];
+    targetField: string|undefined;
 }
 
 interface RestrictOutput {

@@ -16,91 +16,99 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
     const tagMapping = {};
     const graphEdges = {};
 
-    function normalizeConfig(config: ParsedConfig): OperationConfig {
-        if (isPostProcessConfig(config)) {
-            if (config.source_field) {
-                if (!config.target_field) config.target_field = config.source_field;
-            } else {
-                const { soureField, targetField } = findFields(config);
-                config.source_field = soureField;
-                config.target_field = targetField;
+    function normalizeConfig(configList: OperationConfig[]) {
+        configList.forEach((config) => {
+            if (hasPostProcess(config)) {
+                if (config.source_field) {
+                    if (!config.target_field) config.target_field = config.source_field;
+                } else {
+                    const { soureField, targetField } = findFields(config, configList);
+                    if (soureField.length === 1)  {
+                        const source = soureField[0];
+                        config.source_field = source;
+                        config.target_field = targetField || source;
+                    } else {
+                        config.source_fields = soureField;
+                        if (!targetField) throw new Error(`a target_field must be specified on a configuration with multiple source inputs. config: ${JSON.stringify(config)}`);
+                        config.target_field = targetField;
+                    }
+                }
             }
-        }
-        return config;
+        });
     }
 
-    function findFields(config:ParsedConfig): NormalizedFields {
-        let searchingConfig = config;
-        let soureField = null;
-        let targetField = config.target_field;
-
-        while (soureField === null) {
-            const nodeId = tagMapping[searchingConfig.follow as string];
-            const resultsConfig: ParsedConfig = graph.node(nodeId);
-
-            let sourceConfig;
-            if (resultsConfig.__extractions) {
-                sourceConfig = resultsConfig.__extractions.find((obj) => obj.tag === searchingConfig.follow);
-            } else {
-                sourceConfig = resultsConfig;
-            }
-
-            if (sourceConfig && sourceConfig.target_field) {
-                soureField = sourceConfig.target_field;
-            } else {
-                // @ts-ignore
-                searchingConfig = sourceConfig;
-            }
-        }
-        if (!targetField) targetField = soureField;
+    function findFields(config:OperationConfig, configList: OperationConfig[]): NormalizedFields {
+        const targetField = config.target_field;
+        const nodeIds: string[] = tagMapping[config.follow as string];
+        const targetFieldList = configList
+            .filter(obj => {
+                return nodeIds.includes(obj.__id)
+            })
+            .map(obj => obj.target_field as string);
+        const soureField = _.uniq(targetFieldList)
+        if (soureField === undefined || soureField.length === 0) throw new Error(`could not find source field for config ${JSON.stringify(config)}`);
         return { targetField, soureField };
     }
 
     configList.forEach((config) => {
        // TODO: change name
+        const configId = config.__id;
+
         if (isPrimaryConfig(config)) {
             const selectorNode = `selector:${config.selector}`;
-            const extractionNode = `extractions:${config.selector}`;
+
             if (!graph.hasNode(selectorNode)) {
                 graph.setNode(selectorNode, config);
             }
-            if (config.source_field) {
-                if (!graph.hasNode(extractionNode)) {
-                    graph.setNode(extractionNode, { __extractions: [config] });
-                    graph.setEdge(selectorNode, extractionNode);
-                } else {
-                    const extractionList = graph.node(extractionNode);
-                    extractionList.__extractions.push(config);
-                    graph.setNode(extractionNode, extractionList);
-                }
-                if (config.tag) {
-                    tagMapping[config.tag] = extractionNode;
-                }
-            }
-        } else if (isPostProcessConfig(config)) {
-            if (config.tag) {
-                if (tagMapping[config.tag]) {
-                    throw new Error(`must have unique tag, ${config.tag} is a duplicate`);
-                } else {
-                    tagMapping[config.tag] = config.__id;
+
+            if (hasPrimaryExtractions(config)) {
+                graph.setNode(configId, config);
+                graph.setEdge(selectorNode, configId);
+
+                if (config.tags) {
+                    config.tags.forEach((tag) => {
+                        if (!tagMapping[tag]) {
+                            tagMapping[tag] = [];
+                        }
+                        tagMapping[tag].push(configId);
+                    });
                 }
             }
-            const id = config.__id as string;
+        } else if (isBackwordCompatiblePostProcessConfig(config)) {
+            const selectorNode = `selector:${config.selector}`;
+            const extractionNode = findNodeChild(graph, selectorNode);
+            if (!extractionNode) throw new Error(`could not find child node for config: ${JSON.stringify(config)}`);
+            graph.setNode(configId, config);
+            graph.setEdge(extractionNode, configId);
+
+        } else if (hasPostProcess(config)) {
+            if (config.tags) {
+                config.tags.forEach((tag) => {
+                    if (!tagMapping[tag]) {
+                        tagMapping[tag] = [];
+                    }
+                    tagMapping[tag].push(configId);
+                });
+            }
 
             // config may be out of order so we build edges later
-            graph.setNode(id, config);
+            graph.setNode(configId, config);
             if (!graphEdges[config.follow as string]) {
-                graphEdges[config.follow as string] = [id];
+                graphEdges[config.follow as string] = [configId];
             } else {
-                graphEdges[config.follow as string].push(id);
+                graphEdges[config.follow as string].push(configId);
             }
         }
     });
 
     // config may be out of order so we build edges later
-    _.forOwn(graphEdges, (ids, tag) => {
+
+    _.forOwn(graphEdges, (ids, key) => {
         // @ts-ignore
-        ids.forEach(id => graph.setEdge(tagMapping[tag], id));
+        ids.forEach((id) => {
+            const matchingTags: string[] = tagMapping[key];
+            matchingTags.forEach(tag => graph.setEdge(tag, id));
+        });
     });
 
     const cycles = findCycles(graph);
@@ -115,8 +123,9 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
     }
 
     const sortList = topsort(graph);
-    const configListOrder: ParsedConfig[] = sortList.map(id => graph.node(id));
-    configListOrder.forEach(normalizeConfig);
+    const configListOrder: OperationConfig[] = sortList.map(id => graph.node(id));
+    // we are mutating the config to make sure it has all the necessary fields
+    normalizeConfig(configListOrder);
     const results = createResults(configListOrder);
     validateOtherMatchRequired(results.extractions, logger);
     return results;
@@ -136,27 +145,52 @@ function validateOtherMatchRequired(configDict: ConfigProcessingDict, logger: Lo
 
 // TODO: review what needs to be exported
 export function isPrimaryConfig(config: OperationConfig) {
-    return (_.has(config, 'selector') && !config.follow);
+    return hasSelector(config) && !hasFollow(config) && !isPostProcessType(config, 'selector');
 }
 
-export function isPostProcessConfig(config: OperationConfig): boolean {
+function findNodeChild(graph: graphlib.Graph, node: string) {
+    const edges = graph.outEdges(node);
+    return _.get(edges, '[0].w');
+}
+
+function isPostProcessType(config:OperationConfig, type: string) {
+    return config.post_process === type;
+}
+
+function isBackwordCompatiblePostProcessConfig(config: OperationConfig) {
+    return hasSelector(config) && !hasExtractions(config) && hasPostProcess(config) && !hasFollow(config);
+}
+
+function hasSelector(config: OperationConfig) {
+    return _.has(config, 'selector');
+}
+
+function hasFollow(config: OperationConfig) {
+    return _.has(config, 'follow');
+}
+// @ts-ignore
+function selectorPostProces(config: OperationConfig) {
+    return hasSelector(config) && _.get(config, 'post_process') === 'selector';
+}
+
+function hasPostProcess(config: OperationConfig): boolean {
     return (_.has(config, 'post_process') || _.has(config, 'validation'));
 }
 
-function hasParsedExtractions(config: OperationConfig) {
-    return _.has(config, '__extractions');
-}
-
 export function isSimpleTagPostProcessConfig(config: OperationConfig): boolean {
-    return (!_.has(config, 'follow') && isPostProcessConfig(config) && _.has(config, 'selector') && hasExtractions(config));
+    return (!hasFollow(config) && hasPostProcess(config) && hasSelector(config) && hasExtractions(config));
 }
 
 export function isSimplePostProcessConfig(config: OperationConfig) {
-    return (!_.has(config, 'follow') && isPostProcessConfig(config));
+    return (!_.has(config, 'follow') && hasPostProcess(config));
 }
 
 export function hasExtractions(config: OperationConfig) {
     return _.has(config, 'source_field');
+}
+
+function hasPrimaryExtractions(config: OperationConfig) {
+    return hasExtractions && !isPostProcessType(config, 'extraction');
 }
 
 function hasOutputRestrictions(config: OperationConfig) {
@@ -171,7 +205,7 @@ function hasMultivalue(config: OperationConfig) {
     return _.has(config, 'multivalue');
 }
 
-function createResults(list: ParsedConfig[]): ValidationResults {
+function createResults(list: OperationConfig[]): ValidationResults {
     const results: ValidationResults = {
         selectors: [],
         extractions: {},
@@ -184,8 +218,14 @@ function createResults(list: ParsedConfig[]): ValidationResults {
     };
     const output = results.output;
     let currentSelector: undefined|string;
+    const duplicateListing = {};
 
     list.forEach((config) => {
+
+        if (duplicateListing[config.__id]) {
+            return;
+        }
+        duplicateListing[config.__id] = true;
 
         if (hasMultivalue(config)) {
             output.hasMultiValue = true;
@@ -201,17 +241,23 @@ function createResults(list: ParsedConfig[]): ValidationResults {
             output.matchRequirements[key as string] = config.selector as string;
         }
 
-        if (hasParsedExtractions(config)) {
-            // TODO: fix the typing
-            results.extractions[currentSelector as string] = config.__extractions;
-        }
-
         if (isPrimaryConfig(config)) {
-            currentSelector = config.selector;
-            results.selectors.push(config);
+            if (!duplicateListing[config.selector as string]) {
+                duplicateListing[config.selector as string] = true;
+                currentSelector = config.selector;
+                results.selectors.push(config);
+            }
         }
 
-        if (isPostProcessConfig(config)) {
+        if (hasPrimaryExtractions(config)) {
+            // TODO: fix the typing
+            if (!results.extractions[currentSelector as string]) {
+                results.extractions[currentSelector as string] = [];
+            }
+            results.extractions[currentSelector as string].push(config);
+        }
+
+        if (hasPostProcess(config)) {
             if (!results.postProcessing[currentSelector as string]) {
                 results.postProcessing[currentSelector as string] = [config];
             } else {
@@ -222,9 +268,3 @@ function createResults(list: ParsedConfig[]): ValidationResults {
 
     return results;
 }
-
-interface ExtractionWrapper {
-    __extractions: OperationConfig[];
-}
-
-type ParsedConfig = OperationConfig & ExtractionWrapper;
