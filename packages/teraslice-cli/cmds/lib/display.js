@@ -7,6 +7,7 @@ const ttyTable = require('tty-table');
 const CliTable = require('cli-table3');
 const easyTable = require('easy-table');
 const _ = require('lodash');
+const prompts = require('prompts');
 
 async function pretty(headerValues, rows) {
     const header = [];
@@ -122,7 +123,7 @@ module.exports = () => {
      @param {Boolean} active - Set to true use values in active list
      @param {Boolean} parse - Set to true to parse response
      @param {String} id - id value used to filter results by job_id or ex_id
-*/
+     */
     async function display(header, items, type, active = false, parse = false, id) {
         let rows;
         if (type === 'txt') {
@@ -212,8 +213,57 @@ module.exports = () => {
         }
     }
 
+    async function showPrompt(action, message = '') {
+        const response = await prompts({
+            type: 'confirm',
+            name: 'continue',
+            initial: false,
+            style: 'default',
+            message: `${_.startCase(action)} ${message}`
+        });
+
+        return response.continue;
+    }
+
+    async function setAction(action, tense) {
+        if (action === 'stop' && tense === 'past') {
+            return 'stopped';
+        }
+        if (action === 'stop' && tense === 'present') {
+            return 'stopping';
+        }
+        if (action === 'start' && tense === 'past') {
+            return 'started';
+        }
+        if (action === 'stop' && tense === 'present') {
+            return 'starting';
+        }
+        if (action === 'pause' && tense === 'past') {
+            return 'paused';
+        }
+        if (action === 'stop' && tense === 'present') {
+            return 'pausing';
+        }
+        if (action === 'restart' && tense === 'past') {
+            return 'restarted';
+        }
+        if (action === 'restart' && tense === 'present') {
+            return 'restarting';
+        }
+        if (action === 'resume' && tense === 'past') {
+            return 'resumed';
+        }
+        if (action === 'resume' && tense === 'present') {
+            return 'resuming';
+        }
+
+        return action;
+    }
+
     return {
         display,
-        parseResponse
+        parseResponse,
+        showPrompt,
+        setAction
     };
 };
