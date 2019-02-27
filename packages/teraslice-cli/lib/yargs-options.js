@@ -125,10 +125,6 @@ class Options {
                 describe: 'Answer \'Yes\' or \'Y\' to all prompts',
                 default: false
             }),
-            annotate: () => ({
-                describe: 'add grafana annotation',
-                default: ''
-            }),
             'jobs-all': () => ({
                 alias: 'a',
                 describe: 'stop all running/failing jobs',

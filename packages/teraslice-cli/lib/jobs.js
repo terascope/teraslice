@@ -46,9 +46,6 @@ class Jobs {
         if (this.allJobsStopped) {
             await this.start();
         }
-        if (this.config.args.annotation) {
-            await this.annotation.add('Restart');
-        }
     }
 
     async recover() {
@@ -174,9 +171,6 @@ class Jobs {
                 await this.status(false, true);
 
                 await reply.info(`> All jobs and workers ${_.toString(await display.setAction(action, 'past'))}`);
-                if (this.config.add_annotation) {
-                    await this.annotation.add(_.startCase(action));
-                }
             }
         } else {
             reply.info('bye!');
@@ -244,10 +238,6 @@ class Jobs {
             }
             if (this.allJobsStopped) {
                 reply.info(`> All jobs ${_.toString(await display.setAction(action, 'past'))}.`);
-                if (this.config.args.add_annotation) {
-                    reply.info('adding annotation');
-                    await this.annotation.add(_.startCase(action));
-                }
             }
         }
     }

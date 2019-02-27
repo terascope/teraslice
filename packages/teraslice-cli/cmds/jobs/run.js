@@ -16,7 +16,6 @@ exports.builder = (yargs) => {
     yargs.options('status', yargsOptions.buildOption('jobs-status'));
     yargs.options('all', yargsOptions.buildOption('jobs-all'));
     yargs.options('yes', yargsOptions.buildOption('yes'));
-    yargs.options('annotate', yargsOptions.buildOption('annotate'));
     yargs.strict()
         .example('$0 jobs run cluster1 99999999-9999-9999-9999-999999999999')
         .example('$0 jobs run cluster1 99999999-9999-9999-9999-999999999999 --yes')
