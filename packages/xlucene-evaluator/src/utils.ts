@@ -1,4 +1,5 @@
-import { RangeAST, AST } from './interfaces';
+import { trimAndToLower } from '@terascope/utils';
+import { RangeAST, AST, GeoDistance } from './interfaces';
 
 export function bindThis(instance:object, cls:object): void {
     return Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
@@ -81,3 +82,75 @@ export interface ParseNodeRangeResult {
     'lte'?: number|string;
     'lt'?: number|string;
 }
+
+export function parseGeoDistance(str: string): GeoDistance {
+    const trimed = trimAndToLower(str);
+    const matches = trimed.match(/(\d+)(.*)$/);
+    if (!matches || !matches.length) {
+        throw new Error(`Incorrect geo distance parameter provided: ${str}`);
+    }
+
+    const distance = Number(matches[1]);
+    const unit = UNIT_DICTONARY[matches[2]];
+    if (!unit) {
+        throw new Error(`Incorrect distance unit provided: ${matches[2]}`);
+    }
+
+    return { distance, unit };
+}
+
+const MileUnits = {
+    mi: 'miles',
+    miles: 'miles',
+    mile: 'miles',
+};
+
+const NMileUnits = {
+    NM:'nauticalmiles',
+    nmi: 'nauticalmiles',
+    nauticalmile: 'nauticalmiles',
+    nauticalmiles: 'nauticalmiles'
+};
+
+const inchUnits = {
+    in: 'inches',
+    inch: 'inches',
+    inches: 'inches'
+};
+
+const yardUnits = {
+    yd: 'yards',
+    yard: 'yards',
+    yards: 'yards'
+};
+
+const meterUnits = {
+    m: 'meters',
+    meter: 'meters',
+    meters: 'meters'
+};
+
+const kilometerUnits = {
+    km: 'kilometers',
+    kilometer: 'kilometers',
+    kilometers: 'kilometers'
+};
+
+const millimeterUnits = {
+    mm: 'millimeters',
+    millimeter: 'millimeters',
+    millimeters: 'millimeters'
+};
+
+const centimetersUnits = {
+    cm: 'centimeters',
+    centimeter: 'centimeters',
+    centimeters: 'centimeters'
+};
+
+const feetUnits = {
+    ft: 'feet',
+    feet: 'feet'
+};
+
+const UNIT_DICTONARY = Object.assign({}, MileUnits, NMileUnits, inchUnits, yardUnits, meterUnits, kilometerUnits, millimeterUnits, centimetersUnits, feetUnits);

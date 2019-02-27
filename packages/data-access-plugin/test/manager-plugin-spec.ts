@@ -21,7 +21,7 @@ describe('ManagerPlugin', () => {
             logger: debugLogger('manager-plugin'),
             server_config: {
                 data_access: {
-                    namespace: 'test',
+                    namespace: 'test_da_plugin',
                 },
                 teraserver: {
                     shutdown_timeout: 1,

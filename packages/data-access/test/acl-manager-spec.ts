@@ -309,7 +309,7 @@ describe('ACLManager', () => {
             });
         });
 
-        describe('when using moving to a different space', () => {
+        describe('when moving to a different space', () => {
             let spaceAId: string;
             let spaceBId: string;
             let viewId: string;

@@ -9,21 +9,28 @@ describe('Search Utils', () => {
             const req = fakeReq({ size: 'ugh' });
             expect(() => {
                 getSearchOptions(req, {});
-            }).toThrowWithMessage(TSError, 'Invalid size parameter, must be a valid number, was given: ugh');
+            }).toThrowWithMessage(TSError, 'Invalid size parameter, must be a valid number, was given: "ugh"');
         });
 
         it('should throw an error if given size too large', () => {
             const req = fakeReq({ size: 1000 });
             expect(() => {
                 getSearchOptions(req, { max_query_size: 500 });
-            }).toThrowWithMessage(TSError, 'Invalid size parameter, must be less than 500, was given: 1000');
+            }).toThrowWithMessage(TSError, 'Invalid size parameter, must be less than 500, was given: "1000"');
         });
 
         it('should throw an error if given an invalid start', () => {
             const req = fakeReq({ start: 'bah' });
             expect(() => {
                 getSearchOptions(req, { });
-            }).toThrowWithMessage(TSError, 'Invalid start parameter, must be a valid number, was given: bah');
+            }).toThrowWithMessage(TSError, 'Invalid start parameter, must be a valid number, was given: "bah"');
+        });
+
+        it('should throw an error if given an invalid query', () => {
+            const req = fakeReq({ q: null });
+            expect(() => {
+                getSearchOptions(req, { require_query: true });
+            }).toThrowWithMessage(TSError, 'Invalid q parameter, must not be empty, was given: ""');
         });
     });
 });

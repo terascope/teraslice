@@ -412,11 +412,16 @@ export class ACLManager {
             }
         }
 
+        let oldSpace: string|undefined;
+        if (args.view.space) {
+            const currentView = await this.views.findById(view.id);
+            oldSpace = currentView.space;
+        }
+
         await this.views.update(args.view);
 
         if (args.view.space) {
-            const { space: oldSpace } = await this.views.findById(view.id);
-            if (oldSpace !== args.view.space) {
+            if (oldSpace && oldSpace !== args.view.space) {
                 await Promise.all([
                     this.spaces.unlinkViews(oldSpace, view.id),
                     this.spaces.linkViews(view.space, view.id)

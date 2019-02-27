@@ -1,6 +1,7 @@
 import get from 'lodash.get';
 import { Request } from 'express';
 import * as ts from '@terascope/utils';
+import { TypeConfig } from 'xlucene-evaluator';
 import { SearchParams, Client, SearchResponse } from 'elasticsearch';
 import { QueryAccess, DataAccessConfig } from '@terascope/data-access';
 import { getFromQuery } from '../utils';
@@ -9,19 +10,24 @@ import { getFromQuery } from '../utils';
  * Search elasticsearch in a teraserver backwards compatible way
  *
  * Important Changes:
- * - Date field will have to live in view.metadata.config
+ * - date_field and geo_field will have to live in view.metadata.searchConfig
+ * - Any geo search query should be added to constraint, not the
+ * - The following configuration has been moved to the view:
+ *      - fields
+ *      - allowed_fields
  *
  * Question:
  * - Should the history options be added here?
- * - Should Date Range should be moved to the view constraints?
- * - I am not sure if type will work?
+ * - Should the date range be moved to the view constraints?
+ * - I am not sure if "type" will work?
  * - Should we add support for post process and pre process?
  *
  * @todo add types to queryAccess
  */
 export async function search(req: Request, client: Client, config: DataAccessConfig, logger: ts.Logger): Promise<[FinalResponse, boolean]> {
-    const { indexConfig } = get(config, 'space_metadata', {}) as SpaceMetadata;
+    const indexConfig: IndexConfig = get(config, 'space_metadata.indexConfig', {});
     const searchConfig: SearchConfig = get(config, 'view.metadata.searchConfig', {});
+    const typesConfig: TypeConfig|undefined = get(config, 'view.metadata.typesConfig');
 
     if (!indexConfig) {
         throw new ts.TSError('Search is not configured correctly');
@@ -31,14 +37,15 @@ export async function search(req: Request, client: Client, config: DataAccessCon
 
     const { q, size, start, pretty } = searchOptions;
 
-    const queryAccess = new QueryAccess(config);
+    const queryAccess = new QueryAccess(config, typesConfig);
 
     const searchParams: SearchParams = {
         index: indexConfig.index,
         size,
+        ignoreUnavailable: true
     };
 
-    if (start) {
+    if (start != null) {
         searchParams.from = start;
     }
 
@@ -54,29 +61,33 @@ export async function search(req: Request, client: Client, config: DataAccessCon
 
 export function getSearchOptions(req: Request, config: SearchConfig) {
     const q: string = getFromQuery(req, 'q');
+    if (!q && config.require_query) {
+        throw new ts.TSError(...validationErr('q', 'must not be empty', req));
+    }
+
     const pretty = ts.toBoolean(getFromQuery(req, 'pretty', false));
 
     const size = ts.toInteger(getFromQuery(req, 'size', 100));
     if (size === false) {
-        throw new ts.TSError(...validateErr('size', 'must be a valid number', req));
+        throw new ts.TSError(...validationErr('size', 'must be a valid number', req));
     }
 
     const maxQuerySize: number = ts.toInteger(config.max_query_size) || 10000;
     if (size > maxQuerySize) {
-        throw new ts.TSError(...validateErr('size', `must be less than ${maxQuerySize}`, req));
+        throw new ts.TSError(...validationErr('size', `must be less than ${maxQuerySize}`, req));
     }
 
     const start = getFromQuery(req, 'start');
     if (start) {
         if (!ts.isNumber(start)) {
-            throw new ts.TSError(...validateErr('start', 'must be a valid number', req));
+            throw new ts.TSError(...validationErr('start', 'must be a valid number', req));
         }
     }
 
     let sort: string = getFromQuery(req, 'sort');
     if (sort && config.sort_enabled) {
         if (!ts.isString(sort)) {
-            throw new ts.TSError(...validateErr('sort', 'must be a valid string', req));
+            throw new ts.TSError(...validationErr('sort', 'must be a valid string', req));
         }
 
         let [field, direction] = sort.split(':');
@@ -84,12 +95,12 @@ export function getSearchOptions(req: Request, config: SearchConfig) {
         direction = direction && direction.trim().toLowerCase();
 
         if (!field || !direction || !['asc', 'desc'].includes(direction)) {
-            throw new ts.TSError(...validateErr('sort', 'must be field_name:asc or field_name:desc', req));
+            throw new ts.TSError(...validationErr('sort', 'must be field_name:asc or field_name:desc', req));
         }
 
         const dateField = config.date_field && config.date_field.trim().toLowerCase();
         if (config.sort_dates_only && field !== dateField) {
-            throw new ts.TSError(...validateErr('sort', `sorting currently available for the '${dateField}' field only`, req));
+            throw new ts.TSError(...validationErr('sort', `sorting currently available for the '${dateField}' field only`, req));
         }
 
         sort = [field, direction].join(':');
@@ -104,7 +115,6 @@ export function getSearchOptions(req: Request, config: SearchConfig) {
     // const dateStart = getFromQuery(req, 'date_start');
     // const dateEnd = getFromQuery(req, 'date_end');
     // const type = getFromQuery(req, 'type');
-    const fields = getFromQuery(req, 'fields');
     const history = getFromQuery(req, 'history');
     const historyStart = getFromQuery(req, 'history_start');
     const historyPrefix = getFromQuery(req, 'history_prefix');
@@ -120,7 +130,6 @@ export function getSearchOptions(req: Request, config: SearchConfig) {
         pretty,
         start,
         size,
-        fields,
         history,
         historyStart,
         historyPrefix,
@@ -136,6 +145,11 @@ export function getSearchOptions(req: Request, config: SearchConfig) {
         // dateEnd,
         // type,
     };
+}
+
+/** @todo */
+export function buildGeoSort(config: SearchConfig, options: SearchOptions) {
+    return;
 }
 
 export function handleSearchResponse(response: SearchResponse<any>, config: SearchConfig, options: SearchOptions) {
@@ -180,9 +194,11 @@ export function handleSearchResponse(response: SearchResponse<any>, config: Sear
     };
 }
 
-function validateErr(param: string, msg: string, req: Request): [string, ts.TSErrorConfig] {
+function validationErr(param: string, msg: string, req: Request): [string, ts.TSErrorConfig] {
+    const given = getFromQuery(req, param);
+
     return [
-        `Invalid ${param} parameter, ${msg}, was given: ${getFromQuery(req, param)}`,
+        `Invalid ${param} parameter, ${msg}, was given: "${given != null ? given : ''}"`,
         {
             statusCode: 422,
             context: req.query
@@ -193,12 +209,7 @@ function validateErr(param: string, msg: string, req: Request): [string, ts.TSEr
 export interface SearchOptions {
     sortDisabled: boolean;
     size: number;
-}
-
-export interface SpaceMetadata {
-    indexConfig?: {
-        index?: string;
-    };
+    q: string;
 }
 
 export interface FinalResponse {
@@ -221,5 +232,14 @@ export interface SearchConfig {
 }
 
 export interface ViewMetadata {
-    config?: SearchConfig;
+    searchConfig?: SearchConfig;
+    typesConfig?: TypeConfig;
+}
+
+export interface IndexConfig {
+    index?: string;
+}
+
+export interface SpaceMetadata {
+    indexConfig?: IndexConfig;
 }

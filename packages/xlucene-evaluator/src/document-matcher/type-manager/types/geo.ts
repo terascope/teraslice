@@ -7,57 +7,8 @@ import bboxPolygon from '@turf/bbox-polygon';
 import { lineString } from '@turf/helpers';
 import geoHash from 'latlon-geohash';
 import BaseType from './base';
-import { bindThis, isGeoNode } from '../../../utils';
-import { AST, GeoResults, GeoDistance, GeoPoint } from '../../../interfaces';
-
-// feet
-const MileUnits = {
-    mi: 'miles',
-    miles: 'miles',
-    mile: 'miles',
-};
-const NMileUnits = {
-    NM:'nauticalmiles',
-    nmi: 'nauticalmiles',
-    nauticalmile: 'nauticalmiles',
-    nauticalmiles: 'nauticalmiles'
-};
-const inchUnits = {
-    in: 'inches',
-    inch: 'inches',
-    inches: 'inches'
-};
-const yardUnits = {
-    yd: 'yards',
-    yard: 'yards',
-    yards: 'yards'
-};
-const meterUnits = {
-    m: 'meters',
-    meter: 'meters',
-    meters: 'meters'
-};
-const kilometerUnits = {
-    km: 'kilometers',
-    kilometer: 'kilometers',
-    kilometers: 'kilometers'
-};
-const millimeterUnits = {
-    mm: 'millimeters',
-    millimeter: 'millimeters',
-    millimeters: 'millimeters'
-};
-const centimetersUnits = {
-    cm: 'centimeters',
-    centimeter: 'centimeters',
-    centimeters: 'centimeters'
-};
-const feetUnits = {
-    ft: 'feet',
-    feet: 'feet'
-};
-
-const UNIT_DICTONARY = Object.assign({}, MileUnits, NMileUnits, inchUnits, yardUnits, meterUnits, kilometerUnits, millimeterUnits, centimetersUnits, feetUnits);
+import { bindThis, isGeoNode, parseGeoDistance } from '../../../utils';
+import { AST, GeoResults, GeoPoint } from '../../../interfaces';
 
 const fnBaseName = 'geoFn';
 
@@ -108,17 +59,6 @@ export default class GeoType extends BaseType {
             return results;
         }
 
-        function parseDistance(str: string): GeoDistance {
-            const trimed = str.trim();
-            const matches = trimed.match(/(\d+)(.*)$/);
-            if (!matches) throw new Error(`Incorrect geo distance parameter provided: ${str}`);
-
-            const distance = Number(matches[1]);
-            const unit = UNIT_DICTONARY[matches[2]];
-            if (!unit) throw new Error(`incorrect distance unit provided: ${matches[2]}`);
-            return { distance, unit };
-        }
-
         function makeGeoQueryFn(geoResults: GeoResults): Function {
             const {
                 geoBoxTopLeft,
@@ -146,7 +86,7 @@ export default class GeoType extends BaseType {
             }
 
             if (geoPoint && geoDistance) {
-                const { distance, unit } = parseDistance(geoDistance);
+                const { distance, unit } = parseGeoDistance(geoDistance);
                 const config = { units: unit };
 
                 const parsedGeoPoint = parsePoint(geoPoint, initSetup);

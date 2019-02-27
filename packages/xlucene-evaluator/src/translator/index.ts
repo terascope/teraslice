@@ -32,7 +32,7 @@ export default class Translator {
             }
         };
 
-        logger.debug(`translated ${this.query} query to`, JSON.stringify(query));
+        logger.trace(`translated ${this.query} query to`, JSON.stringify(query));
         return dslQuery;
     }
 }
