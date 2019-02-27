@@ -15,6 +15,9 @@ export const mapping = {
                     analyzer: 'lowercase_keyword_analyzer'
                 }
             }
+        },
+        spaces: {
+            type: 'keyword'
         }
     }
 };

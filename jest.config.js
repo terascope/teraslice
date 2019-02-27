@@ -7,8 +7,6 @@ module.exports = {
     globals: {
         availableExtensions: ['.js', '.ts']
     },
-    globalSetup: '<rootDir>/packages/teraslice/test/global.setup.js',
-    globalTeardown: '<rootDir>/packages/teraslice/test/global.teardown.js',
     testMatch: [
         '<rootDir>/packages/*/test/**/*-spec.{ts,js}',
         '<rootDir>/packages/*/test/*-spec.{ts,js}'

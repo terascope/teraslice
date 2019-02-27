@@ -3,6 +3,7 @@ import { DataEntity } from '@terascope/utils';
 import path from 'path';
 import _ from 'lodash';
 import TestHarness from './test-harness';
+import { WatcherConfig } from '../src';
 
 describe('matcher', () => {
     const matchRules1Path = path.join(__dirname, './fixtures/matchRules1.txt');
@@ -14,7 +15,7 @@ describe('matcher', () => {
     });
 
     it('can return matching documents', async () => {
-        const config = {
+        const config: WatcherConfig = {
             rules: [matchRules1Path],
             types: { _created: 'date' }
         };
@@ -34,7 +35,7 @@ describe('matcher', () => {
     });
 
     it('it add metadata to returning docs', async () => {
-        const config = {
+        const config: WatcherConfig = {
             rules: [matchRules1Path],
             types: { _created: 'date' }
         };
@@ -55,7 +56,7 @@ describe('matcher', () => {
     });
 
     it('it can match multiple rules', async () => {
-        const config = {
+        const config: WatcherConfig = {
             rules: [matchRules1Path],
             types: { _created: 'date' }
         };

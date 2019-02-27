@@ -42,3 +42,10 @@ export const formatIndexName: (strs: string[]) => string = R.pipe(
     R.map(R.trim),
     R.join('-')
 );
+
+export const buildNestPath: (paths: string[]) => string = R.pipe(
+    R.reject((v: string) => !v),
+    // @ts-ignore
+    R.map(R.trim),
+    R.join('.')
+);

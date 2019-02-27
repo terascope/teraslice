@@ -1,6 +1,5 @@
-'use strict';
-import { LuceneQueryParser } from '../src';
 import 'jest-extended';
+import { LuceneQueryParser, IMPLICIT } from '../src';
 
 describe('luceneQueryParser', () => {
     let luceneQueryParser: LuceneQueryParser;
@@ -9,7 +8,7 @@ describe('luceneQueryParser', () => {
         luceneQueryParser = new LuceneQueryParser();
     });
 
-    describe(' whitespace handling', () => {
+    describe('whitespace handling', () => {
         // term parsing
         it('handles empty string', () => {
             luceneQueryParser.parse('');
@@ -57,7 +56,7 @@ describe('luceneQueryParser', () => {
 
             expect(luceneQueryParser._ast['left']!['field']).toBe('created_at');
             expect(luceneQueryParser._ast['left']!['term_min']).toBe('now-5d');
-            expect(luceneQueryParser._ast['left']!['term_max']).toBe(Infinity);
+            expect(luceneQueryParser._ast['left']!['term_max']).toBe(Number.POSITIVE_INFINITY);
         });
 
         it("accepts terms with '+'", () => {
@@ -65,7 +64,7 @@ describe('luceneQueryParser', () => {
 
             expect(luceneQueryParser._ast['left']!['field']).toBe('published_at');
             expect(luceneQueryParser._ast['left']!['term_min']).toBe('now+5d');
-            expect(luceneQueryParser._ast['left']!['term_max']).toBe(Infinity);
+            expect(luceneQueryParser._ast['left']!['term_max']).toBe(Number.POSITIVE_INFINITY);
         });
 
         it('handles escaping', () => {
@@ -148,14 +147,14 @@ describe('luceneQueryParser', () => {
         it('parses implicit field name for term', () => {
             luceneQueryParser.parse('bar');
 
-            expect(luceneQueryParser._ast['left']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('bar');
         });
 
         it('parses implicit field name for quoted term', () => {
             luceneQueryParser.parse('"fizz buzz"');
 
-            expect(luceneQueryParser._ast['left']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('fizz buzz');
         });
 
@@ -252,7 +251,7 @@ describe('luceneQueryParser', () => {
             luceneQueryParser.parse('fizz buzz');
 
             expect(luceneQueryParser._ast['left']!['term']).toBe('fizz');
-            expect(luceneQueryParser._ast['operator']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['operator']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['right']!['term']).toBe('buzz');
         });
 
@@ -308,19 +307,19 @@ describe('luceneQueryParser', () => {
             luceneQueryParser.parse('fizz AND NOT buzz');
 
             expect(luceneQueryParser._ast['left']!['term']).toBe('fizz');
-            expect(luceneQueryParser._ast['operator']).toBe('AND NOT');
+            expect(luceneQueryParser._ast['operator']).toBe('NOT');
             expect(luceneQueryParser._ast['right']!['term']).toBe('buzz');
 
             luceneQueryParser.parse('fizz && ! buzz');
 
             expect(luceneQueryParser._ast['left']!['term']).toBe('fizz');
-            expect(luceneQueryParser._ast['operator']).toBe('AND NOT');
+            expect(luceneQueryParser._ast['operator']).toBe('NOT');
             expect(luceneQueryParser._ast['right']!['term']).toBe('buzz');
 
             luceneQueryParser.parse('fizz && !buzz');
 
             expect(luceneQueryParser._ast['left']!['term']).toBe('fizz');
-            expect(luceneQueryParser._ast['operator']).toBe('AND NOT');
+            expect(luceneQueryParser._ast['operator']).toBe('NOT');
             expect(luceneQueryParser._ast['right']!['term']).toBe('buzz');
         });
     });
@@ -331,12 +330,12 @@ describe('luceneQueryParser', () => {
             luceneQueryParser.parse('fizz (buzz baz)');
 
             expect(luceneQueryParser._ast['left']!['term']).toBe('fizz');
-            expect(luceneQueryParser._ast['operator']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['operator']).toBe(IMPLICIT);
 
             const rightNode = luceneQueryParser._ast['right']!;
 
             expect(rightNode['left']!['term']).toBe('buzz');
-            expect(rightNode['operator']).toBe('<implicit>');
+            expect(rightNode['operator']).toBe(IMPLICIT);
             expect(rightNode['right']!['term']).toBe('baz');
         });
 
@@ -405,7 +404,7 @@ describe('luceneQueryParser', () => {
 
             expect(luceneQueryParser._ast['left']!['field']).toBe('age');
             expect(luceneQueryParser._ast['left']!['term_min']).toBe(10);
-            expect(luceneQueryParser._ast['left']!['term_max']).toBe(Infinity);
+            expect(luceneQueryParser._ast['left']!['term_max']).toBe(Number.POSITIVE_INFINITY);
             expect(luceneQueryParser._ast['left']!['inclusive_min']).toBe(false);
             expect(luceneQueryParser._ast['left']!['inclusive_max']).toBe(true);
         });
@@ -415,7 +414,7 @@ describe('luceneQueryParser', () => {
 
             expect(luceneQueryParser._ast['left']!['field']).toBe('age');
             expect(luceneQueryParser._ast['left']!['term_min']).toBe(10);
-            expect(luceneQueryParser._ast['left']!['term_max']).toBe(Infinity);
+            expect(luceneQueryParser._ast['left']!['term_max']).toBe(Number.POSITIVE_INFINITY);
             expect(luceneQueryParser._ast['left']!['inclusive_min']).toBe(true);
             expect(luceneQueryParser._ast['left']!['inclusive_max']).toBe(true);
         });
@@ -432,7 +431,7 @@ describe('luceneQueryParser', () => {
 
             expect(luceneQueryParser._ast['left']!['field']).toBe('ip');
             expect(luceneQueryParser._ast['left']!['term_max']).toBe('2001:0:ce49:7601:e866:efff:62c3:eeee');
-            expect(luceneQueryParser._ast['left']!['term_min']).toBe(-Infinity);
+            expect(luceneQueryParser._ast['left']!['term_min']).toBe(Number.NEGATIVE_INFINITY);
             expect(luceneQueryParser._ast['left']!['inclusive_min']).toBe(true);
             expect(luceneQueryParser._ast['left']!['inclusive_max']).toBe(true);
         });
@@ -441,7 +440,7 @@ describe('luceneQueryParser', () => {
             luceneQueryParser.parse('age:<10');
 
             expect(luceneQueryParser._ast['left']!['field']).toBe('age');
-            expect(luceneQueryParser._ast['left']!['term_min']).toBe(-Infinity);
+            expect(luceneQueryParser._ast['left']!['term_min']).toBe(Number.NEGATIVE_INFINITY);
             expect(luceneQueryParser._ast['left']!['term_max']).toBe(10);
             expect(luceneQueryParser._ast['left']!['inclusive_min']).toBe(true);
             expect(luceneQueryParser._ast['left']!['inclusive_max']).toBe(false);
@@ -451,7 +450,7 @@ describe('luceneQueryParser', () => {
             luceneQueryParser.parse('age:<=10');
 
             expect(luceneQueryParser._ast['left']!['field']).toBe('age');
-            expect(luceneQueryParser._ast['left']!['term_min']).toBe(-Infinity);
+            expect(luceneQueryParser._ast['left']!['term_min']).toBe(Number.NEGATIVE_INFINITY);
             expect(luceneQueryParser._ast['left']!['term_max']).toBe(10);
             expect(luceneQueryParser._ast['left']!['inclusive_min']).toBe(true);
             expect(luceneQueryParser._ast['left']!['inclusive_max']).toBe(true);
@@ -465,6 +464,42 @@ describe('luceneQueryParser', () => {
             expect(luceneQueryParser._ast['left']!['term_max']).toBe(20);
             expect(luceneQueryParser._ast['left']!['inclusive_min']).toBe(true);
             expect(luceneQueryParser._ast['left']!['inclusive_max']).toBe(false);
+        });
+
+        it('parses multi-term range query', () => {
+            luceneQueryParser.parse('example:(50 OR 30 OR <10)');
+
+            expect(luceneQueryParser._ast).toMatchObject({
+                left: {
+                    type: 'conjunction',
+                    left: {
+                        field: IMPLICIT,
+                        term: 50,
+                        type: 'term',
+                    },
+                    parens: true,
+                    operator: 'OR',
+                    right: {
+                        type: 'conjunction',
+                        left: {
+                            field: IMPLICIT,
+                            term: 30,
+                            type: 'term',
+                        },
+                        operator: 'OR',
+                        right: {
+                            type: 'range',
+                            term_max: 10,
+                            term_min: Number.NEGATIVE_INFINITY,
+                            inclusive_min: true,
+                            inclusive_max: false,
+                            field: IMPLICIT
+                        },
+                        field: 'example'
+                    },
+                    field: 'example'
+                }
+            });
         });
 
         it('[], {] range with ip\'s', () => {
@@ -492,7 +527,7 @@ describe('luceneQueryParser', () => {
             expect(luceneQueryParser._ast['left']!['field']).toBe('bytes');
             expect(luceneQueryParser._ast['left']!['left']!['operator']).toBe('OR');
             expect(luceneQueryParser._ast['left']!['left']!['right']!['term_min']).toBe(5000000);
-            expect(luceneQueryParser._ast['left']!['left']!['right']!['term_max']).toBe(Infinity);
+            expect(luceneQueryParser._ast['left']!['left']!['right']!['term_max']).toBe(Number.POSITIVE_INFINITY);
             expect(luceneQueryParser._ast['left']!['left']!['right']!['inclusive_min']).toBe(false);
             expect(luceneQueryParser._ast['left']!['left']!!['right']!['inclusive_max']).toBe(true);
 
@@ -508,7 +543,7 @@ describe('luceneQueryParser', () => {
             expect(luceneQueryParser._ast['left']!['field']).toBe('bytes');
             expect(luceneQueryParser._ast['left']!['left']!['operator']).toBe('OR');
             expect(luceneQueryParser._ast['left']!['left']!['right']!['term_min']).toBe(5000000);
-            expect(luceneQueryParser._ast['left']!['left']!['right']!['term_max']).toBe(Infinity);
+            expect(luceneQueryParser._ast['left']!['left']!['right']!['term_max']).toBe(Number.POSITIVE_INFINITY);
             expect(luceneQueryParser._ast['left']!['left']!['right']!['inclusive_min']).toBe(false);
             expect(luceneQueryParser._ast['left']!['left']!['right']!['inclusive_max']).toBe(true);
 
@@ -519,7 +554,7 @@ describe('luceneQueryParser', () => {
 
             expect(luceneQueryParser._ast['operator']).toBe('AND');
             expect(luceneQueryParser._ast['right']!['field']).toBe('wasFound');
-            expect(luceneQueryParser._ast['right']!['term']).toBe('true');
+            expect(luceneQueryParser._ast['right']!['term']).toBe(true);
         });
     });
 
@@ -541,7 +576,7 @@ describe('luceneQueryParser', () => {
             expect(luceneQueryParser._ast['left']!['field']).toBe('title');
             expect(luceneQueryParser._ast['left']!['term']).toBe('Do it right');
             expect(luceneQueryParser._ast['operator']).toBe('AND');
-            expect(luceneQueryParser._ast['right']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['right']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['right']!['term']).toBe('right');
         });
 
@@ -550,43 +585,43 @@ describe('luceneQueryParser', () => {
 
             expect(luceneQueryParser._ast['left']!['field']).toBe('title');
             expect(luceneQueryParser._ast['left']!['term']).toBe('Do');
-            expect(luceneQueryParser._ast['operator']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['operator']).toBe(IMPLICIT);
 
             const rightNode = luceneQueryParser._ast['right']!;
 
-            expect(rightNode['left']!['field']).toBe('<implicit>');
+            expect(rightNode['left']!['field']).toBe(IMPLICIT);
             expect(rightNode['left']!['term']).toBe('it');
-            expect(rightNode['operator']).toBe('<implicit>');
+            expect(rightNode['operator']).toBe(IMPLICIT);
 
-            expect(rightNode['right']!['field']).toBe('<implicit>');
+            expect(rightNode['right']!['field']).toBe(IMPLICIT);
             expect(rightNode['right']!['term']).toBe('right');
         });
 
         it('parses example: te?t', () => {
             luceneQueryParser.parse('te?t');
 
-            expect(luceneQueryParser._ast['left']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('te?t');
         });
 
         it('parses example: test*', () => {
             luceneQueryParser.parse('test*');
 
-            expect(luceneQueryParser._ast['left']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('test*');
         });
 
         it('parses example: te*t', () => {
             luceneQueryParser.parse('te*t');
 
-            expect(luceneQueryParser._ast['left']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('te*t');
         });
 
         it('parses example: roam~', () => {
             luceneQueryParser.parse('roam~');
 
-            expect(luceneQueryParser._ast['left']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('roam');
             expect(luceneQueryParser._ast['left']!['similarity']).toBe(0.5);
         });
@@ -594,7 +629,7 @@ describe('luceneQueryParser', () => {
         it('parses example: roam~0.8', () => {
             luceneQueryParser.parse('roam~0.8');
 
-            expect(luceneQueryParser._ast['left']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('roam');
             expect(luceneQueryParser._ast['left']!['similarity']).toBe(0.8);
         });
@@ -602,7 +637,7 @@ describe('luceneQueryParser', () => {
         it('parses example: "jakarta apache"~10', () => {
             luceneQueryParser.parse('"jakarta apache"~10');
 
-            expect(luceneQueryParser._ast['left']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('jakarta apache');
             expect(luceneQueryParser._ast['left']!['proximity']).toBe(10);
         });
@@ -628,32 +663,32 @@ describe('luceneQueryParser', () => {
         it('parses example: jakarta apache', () => {
             luceneQueryParser.parse('jakarta apache');
 
-            expect(luceneQueryParser._ast['left']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('jakarta');
-            expect(luceneQueryParser._ast['operator']).toBe('<implicit>');
-            expect(luceneQueryParser._ast['right']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['operator']).toBe(IMPLICIT);
+            expect(luceneQueryParser._ast['right']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['right']!['term']).toBe('apache');
         });
 
         it('parses example: jakarta^4 apache', () => {
             luceneQueryParser.parse('jakarta^4 apache');
 
-            expect(luceneQueryParser._ast['left']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('jakarta');
             expect(luceneQueryParser._ast['left']!['boost']).toBe(4);
-            expect(luceneQueryParser._ast['operator']).toBe('<implicit>');
-            expect(luceneQueryParser._ast['right']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['operator']).toBe(IMPLICIT);
+            expect(luceneQueryParser._ast['right']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['right']!['term']).toBe('apache');
         });
 
         it('parses example: "jakarta apache"^4 "Apache Lucene"', () => {
             luceneQueryParser.parse('"jakarta apache"^4 "Apache Lucene"');
 
-            expect(luceneQueryParser._ast['left']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('jakarta apache');
             expect(luceneQueryParser._ast['left']!['boost']).toBe(4);
-            expect(luceneQueryParser._ast['operator']).toBe('<implicit>');
-            expect(luceneQueryParser._ast['right']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['operator']).toBe(IMPLICIT);
+            expect(luceneQueryParser._ast['right']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['right']!['term']).toBe('Apache Lucene');
 
         });
@@ -661,37 +696,37 @@ describe('luceneQueryParser', () => {
         it('parses example: "jakarta apache" jakarta', () => {
             luceneQueryParser.parse('"jakarta apache" jakarta');
 
-            expect(luceneQueryParser._ast['left']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('jakarta apache');
-            expect(luceneQueryParser._ast['operator']).toBe('<implicit>');
-            expect(luceneQueryParser._ast['right']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['operator']).toBe(IMPLICIT);
+            expect(luceneQueryParser._ast['right']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['right']!['term']).toBe('jakarta');
         });
 
         it('parses example: "jakarta apache" OR jakarta', () => {
             luceneQueryParser.parse('"jakarta apache" OR jakarta');
 
-            expect(luceneQueryParser._ast['left']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('jakarta apache');
             expect(luceneQueryParser._ast['operator']).toBe('OR');
-            expect(luceneQueryParser._ast['right']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['right']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['right']!['term']).toBe('jakarta');
         });
 
         it('parses example: "jakarta apache" AND "Apache Lucene"', () => {
             luceneQueryParser.parse('"jakarta apache" AND "Apache Lucene"');
 
-            expect(luceneQueryParser._ast['left']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('jakarta apache');
             expect(luceneQueryParser._ast['operator']).toBe('AND');
-            expect(luceneQueryParser._ast['right']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['right']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['right']!['term']).toBe('Apache Lucene');
         });
 
         it('parses example: +jakarta lucene', () => {
             luceneQueryParser.parse('+jakarta lucene');
 
-            expect(luceneQueryParser._ast['left']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('jakarta');
             expect(luceneQueryParser._ast['left']!['prefix']).toBe('+');
         });
@@ -699,17 +734,17 @@ describe('luceneQueryParser', () => {
         it('parses example: "jakarta apache" NOT "Apache Lucene"', () => {
             luceneQueryParser.parse('"jakarta apache" NOT "Apache Lucene"');
 
-            expect(luceneQueryParser._ast['left']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('jakarta apache');
             expect(luceneQueryParser._ast['operator']).toBe('NOT');
-            expect(luceneQueryParser._ast['right']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['right']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['right']!['term']).toBe('Apache Lucene');
         });
 
         it('parses example: NOT "jakarta apache"', () => {
             luceneQueryParser.parse('NOT "jakarta apache"');
             // not a valid query, so operator is ignored.
-            expect(luceneQueryParser._ast['left']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('jakarta apache');
             expect(luceneQueryParser._ast['operator']).toBe(undefined);
         });
@@ -717,10 +752,10 @@ describe('luceneQueryParser', () => {
         it('parses example: "jakarta apache" -"Apache Lucene"', () => {
             luceneQueryParser.parse('"jakarta apache" -"Apache Lucene"');
 
-            expect(luceneQueryParser._ast['left']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('jakarta apache');
-            expect(luceneQueryParser._ast['operator']).toBe('<implicit>');
-            expect(luceneQueryParser._ast['right']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['operator']).toBe(IMPLICIT);
+            expect(luceneQueryParser._ast['right']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['right']!['term']).toBe('Apache Lucene');
             expect(luceneQueryParser._ast['right']!['prefix']).toBe('-');
         });
@@ -730,14 +765,15 @@ describe('luceneQueryParser', () => {
 
             const leftNode = luceneQueryParser._ast['left']!;
 
-            expect(leftNode['left']!['field']).toBe('<implicit>');
+            expect(IMPLICIT).toEqual('<implicit>');
+            expect(leftNode['left']!['field']).toBe(IMPLICIT);
             expect(leftNode['left']!['term']).toBe('jakarta');
             expect(leftNode['operator']).toBe('OR');
-            expect(leftNode['right']!['field']).toBe('<implicit>');
+            expect(leftNode['right']!['field']).toBe(IMPLICIT);
             expect(leftNode['right']!['term']).toBe('apache');
 
             expect(luceneQueryParser._ast['operator']).toBe('AND');
-            expect(luceneQueryParser._ast['right']!['field']).toBe('<implicit>');
+            expect(luceneQueryParser._ast['right']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['right']!['term']).toBe('website');
         });
 
@@ -746,11 +782,11 @@ describe('luceneQueryParser', () => {
 
             const leftNode = luceneQueryParser._ast['left']!;
 
-            expect(leftNode['left']!['field']).toBe('<implicit>');
+            expect(leftNode['left']!['field']).toBe(IMPLICIT);
             expect(leftNode['left']!['term']).toBe('return');
             expect(leftNode['left']!['prefix']).toBe('+');
-            expect(leftNode['operator']).toBe('<implicit>');
-            expect(leftNode['right']!['field']).toBe('<implicit>');
+            expect(leftNode['operator']).toBe(IMPLICIT);
+            expect(leftNode['right']!['field']).toBe(IMPLICIT);
             expect(leftNode['right']!['term']).toBe('pink panther');
             expect(leftNode['right']!['prefix']).toBe('+');
             expect(leftNode['field']).toBe('title');

@@ -16,7 +16,7 @@ export class Views extends Base<ViewModel> {
         const query = `roles:"${roleId}" AND space:"${spaceId}"`;
         const result = getFirst(await this.find(query, 1));
         if (result == null) {
-            const errMsg = `No View for found role "${roleId}" and space "${spaceId}"`;
+            const errMsg = `No View found for role "${roleId}" and space "${spaceId}"`;
             throw new TSError(errMsg, { statusCode: 404 });
         }
         return result;
@@ -62,4 +62,11 @@ export interface ViewModel extends BaseModel {
      * Constraint for queries and filtering
     */
     constraint?: string;
+
+    /**
+     * Restrict prefix wildcards in search values
+     *
+     * @example `foo:*bar`
+    */
+    prevent_prefix_wildcard?: boolean;
 }

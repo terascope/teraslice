@@ -1,14 +1,13 @@
-
 import _ from 'lodash';
 import pointInPolygon from '@turf/boolean-point-in-polygon';
+// @ts-ignore
 import createCircle from '@turf/circle';
 import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';
 import { lineString } from '@turf/helpers';
-// @ts-ignore TODO: we should add types
 import geoHash from 'latlon-geohash';
 import BaseType from './base';
-import { bindThis } from '../../../utils';
+import { bindThis, isGeoNode } from '../../../utils';
 import { AST, GeoResults, GeoDistance, GeoPoint } from '../../../interfaces';
 
 // feet
@@ -60,29 +59,20 @@ const feetUnits = {
 
 const UNIT_DICTONARY = Object.assign({}, MileUnits, NMileUnits, inchUnits, yardUnits, meterUnits, kilometerUnits, millimeterUnits, centimetersUnits, feetUnits);
 
-const geoParameters = {
-    _geo_point_: 'geoPoint',
-    _geo_distance_: 'geoDistance',
-    _geo_box_top_left_: 'geoBoxTopLeft',
-    _geo_box_bottom_right_: 'geoBoxBottomRight',
-};
-
 const fnBaseName = 'geoFn';
 
 // TODO: allow ranges to be input and compare the two regions if they intersect
 
 export default class GeoType extends BaseType {
-    private fields: object;
 
-    constructor(geoFieldDict: object) {
+    constructor() {
         super(fnBaseName);
-        this.fields = geoFieldDict;
         bindThis(this, GeoType);
     }
 
     processAst(ast: AST): AST {
         // tslint:disable-next-line no-this-assignment
-        const { walkAst, filterFnBuilder, createParsedField, fields } = this;
+        const { filterFnBuilder, createParsedField } = this;
 
         function getLonAndLat(input: any, isInit?: boolean): [number, number] {
             const lat = input.lat || input.latitude;
@@ -141,30 +131,36 @@ export default class GeoType extends BaseType {
             const initSetup = true;
 
             if (geoBoxTopLeft != null && geoBoxBottomRight != null) {
-                const line = lineString([
-                    // @ts-ignore TODO this can return null we should handle that case
-                    parsePoint(geoBoxTopLeft, initSetup),
-                    // @ts-ignore TODO this can return null we should handle that case
-                    parsePoint(geoBoxBottomRight, initSetup)
-                ]);
+                const pointTopLeft = parsePoint(geoBoxTopLeft, initSetup);
+                const pointBottomRight = parsePoint(geoBoxBottomRight, initSetup);
 
-                const box = bbox(line);
-                polygon = bboxPolygon(box);
+                if (pointTopLeft != null && pointBottomRight != null) {
+                    const line = lineString([
+                        pointTopLeft,
+                        pointBottomRight,
+                    ]);
+
+                    const box = bbox(line);
+                    polygon = bboxPolygon(box);
+                }
             }
 
             if (geoPoint && geoDistance) {
                 const { distance, unit } = parseDistance(geoDistance);
                 const config = { units: unit };
-                polygon =  createCircle(
-                    // @ts-ignore TODO this can return null we should handle that case
-                    parsePoint(geoPoint, initSetup),
-                    distance,
-                    config
-                );
+
+                const parsedGeoPoint = parsePoint(geoPoint, initSetup);
+                if (parsedGeoPoint != null) {
+                    polygon = createCircle(
+                        parsedGeoPoint,
+                        distance,
+                        config
+                    );
+                }
             }
 
             // Nothing matches so return false
-            if (polygon === undefined) return (): boolean => false;
+            if (polygon == null) return (): boolean => false;
             return (fieldData: string): Boolean => {
                 const point = parsePoint(fieldData);
                 if (!point) return false;
@@ -172,21 +168,26 @@ export default class GeoType extends BaseType {
             };
         }
 
-        function parseGeoAst(node: AST, _field:string): AST {
-            const topField = node.field || _field;
-
-            if (topField && fields[topField]) {
-                const geoQueryParameters = { geoField: topField };
-                function gatherGeoQueries(node: AST) {
-                    const field = node.field;
-                    if (field && geoParameters[field]) {
-                        geoQueryParameters[geoParameters[field]] = node.term;
-                    }
-                    return node;
+        function parseGeoAst(node: AST, _field:string) {
+            if (isGeoNode(node)) {
+                const geoQueryParameters = { geoField: node.field };
+                if (node.geo_point && node.geo_distance) {
+                    geoQueryParameters['geoPoint'] = node.geo_point;
+                    geoQueryParameters['geoDistance'] = node.geo_distance;
                 }
-                walkAst(node, gatherGeoQueries);
+
+                if (node.geo_box_top_left && node.geo_box_bottom_right) {
+                    geoQueryParameters['geoBoxTopLeft'] = node.geo_box_top_left;
+                    geoQueryParameters['geoBoxBottomRight'] = node.geo_box_bottom_right;
+                }
+
                 filterFnBuilder(makeGeoQueryFn(geoQueryParameters));
-                return { field: '__parsed', term: createParsedField(topField) };
+
+                return {
+                    type: 'term',
+                    field: '__parsed',
+                    term: createParsedField(node.field)
+                };
             }
             return node;
         }

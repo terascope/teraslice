@@ -1,11 +1,9 @@
-
-// @ts-ignore TODO we should add types
 import isCidr from 'is-cidr';
 // @ts-ignore TODO we should add types
 import ip6addr from 'ip6addr';
 import { isIPv6, isIP } from'net';
 import BaseType from'./base';
-import { bindThis } from '../../../utils';
+import { bindThis, isInfiniteMin, isInfiniteMax, isRangeNode } from '../../../utils';
 import { AST } from '../../../interfaces';
 
 const MIN_IPV4_IP = '0.0.0.0';
@@ -61,20 +59,17 @@ export default class IpType extends BaseType {
                     }
                 }
                // RANGE EXPRESSIONS
-                if (node.term_max !== undefined) {
+                if (isRangeNode(node)) {
                     const {
                          inclusive_min: incMin,
                          inclusive_max: incMax,
                     } = node;
-                    let {
-                        term_min: minValue,
-                        term_max: maxValue
-                    } = node;
-                    minValue as string;
-                    maxValue as string;
 
-                    if (minValue === '*' || minValue === -Infinity) isIPv6(maxValue as string) ? minValue = MIN_IPV6_IP : minValue = MIN_IPV4_IP;
-                    if (maxValue === '*' || maxValue === Infinity) isIPv6(minValue as string) ? maxValue = MAX_IPV6_IP : maxValue = MAX_IPV4_IP;
+                    let minValue = node.term_min as string;
+                    let maxValue = node.term_max as string;
+
+                    if (isInfiniteMin(minValue)) isIPv6(maxValue) ? minValue = MIN_IPV6_IP : minValue = MIN_IPV4_IP;
+                    if (isInfiniteMax(maxValue)) isIPv6(minValue) ? maxValue = MAX_IPV6_IP : maxValue = MAX_IPV4_IP;
 
                     if (!incMin) minValue = ip6addr.parse(minValue).offset(1).toString();
                     if (!incMax) maxValue = ip6addr.parse(maxValue).offset(-1).toString();
@@ -94,7 +89,11 @@ export default class IpType extends BaseType {
                     });
                 }
 
-                return { field: '__parsed', term: createParsedField(topField) };
+                return {
+                    type: 'term',
+                    field: '__parsed',
+                    term: createParsedField(topField)
+                };
             }
             return node;
         }

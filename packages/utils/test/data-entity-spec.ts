@@ -309,6 +309,10 @@ describe('DataEntity', () => {
             expect(DataEntity.isDataEntityArray(input)).toBeTrue();
         });
 
+        it('should return true when given an empty array', () => {
+            expect(DataEntity.isDataEntityArray([])).toBeTrue();
+        });
+
         it('should return true when given an array of DataEntity compatible objects', () => {
             const fakeDataEntities = [{
                 getMetadata() {

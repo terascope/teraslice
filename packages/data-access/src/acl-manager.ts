@@ -68,8 +68,6 @@ export class ACLManager {
             });
         }
 
-        const space = await this.spaces.findByAnyId(spaceId);
-
         const roleId = getFirst(user.roles);
         if (!roleId) {
             const msg = `User "${username}" is not assigned to any roles`;
@@ -78,18 +76,17 @@ export class ACLManager {
 
         const role = await this.roles.findById(roleId);
 
-        const hasAccess = await this.roles.hasAccessToSpace(roleId, space.id);
+        const hasAccess = await this.roles.hasAccessToSpace(roleId, spaceId);
         if (!hasAccess) {
-            const msg = `User "${username}" does not have access to space "${space}"`;
+            const msg = `User "${username}" does not have access to space "${spaceId}"`;
             throw new TSError(msg, { statusCode: 403 });
         }
 
-        const view = await this.views.getViewForRole(roleId, space.id);
+        const view = await this.views.getViewForRole(roleId, spaceId);
 
         return {
             user: this.users.omitPrivateFields(user),
             view,
-            space: space.name,
             role: role.name,
         };
     }
@@ -116,11 +113,6 @@ export interface DataAccessConfig {
      * The View Model
     */
     view: DataEntity<models.ViewModel>;
-
-    /**
-     * The name of the space
-    */
-    space: string;
 
     /**
      * The name of the Role
