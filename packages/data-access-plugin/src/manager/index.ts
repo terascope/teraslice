@@ -1,9 +1,9 @@
-import get from 'lodash.get';
 import { STATUS_CODES } from 'http';
 import { Express } from 'express';
 import * as apollo from 'apollo-server-express';
 import { ACLManager } from '@terascope/data-access';
-import { Logger, parseErrorInfo } from '@terascope/utils';
+import { Logger, parseErrorInfo, TSError } from '@terascope/utils';
+import { getFromReq } from '../utils';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import schema from './schema';
 
@@ -87,19 +87,24 @@ export default class ManagerPlugin {
             // @ts-ignore
             req.aclManager = this.manager;
 
-            const username = get(req.body, 'username', get(req.query, 'username'));
-            const password = get(req.body, 'password', get(req.query, 'password'));
-            const apiToken = get(req.body, 'api_token', get(req.query, 'api_token'));
+            const username = getFromReq(req, 'username');
+            const password = getFromReq(req, 'password');
+            const apiToken = getFromReq(req, 'api_token');
 
             try {
-                const user = await this.manager.authenticateUser({
+                // @ts-ignore
+                const user = req.user || await this.manager.authenticateUser({
                     username,
                     password,
                     api_token: apiToken,
                 });
 
+                if (!user.api_token) {
+                    throw new TSError('Unable to get user api_token');
+                }
+
                 // @ts-ignore
-                req.v2User = user;
+                req.userApiToken = user.api_token;
                 next();
             } catch (err) {
                 const { message, statusCode } = parseErrorInfo(err);
