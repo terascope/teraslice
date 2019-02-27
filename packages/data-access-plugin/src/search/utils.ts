@@ -19,7 +19,7 @@ import { getFromQuery } from '../utils';
  * @todo add types to queryAccess
  * @todo add support pre_process and post_process
  */
-export async function search(req: Request, client: Client, config: DataAccessConfig, logger: ts.Logger): Promise<any[]> {
+export async function search(req: Request, client: Client, config: DataAccessConfig, logger: ts.Logger): Promise<[any[], boolean]> {
     const { indexConfig } = get(config, 'space_metadata', {}) as SpaceMetadata;
     const { searchConfig = {} } = get(config, 'view.metadata', {}) as ViewMetadata;
 
@@ -27,7 +27,7 @@ export async function search(req: Request, client: Client, config: DataAccessCon
         throw new ts.TSError('Search is not configured correctly');
     }
 
-    const { q, size, start } = getSearchOptions(req, searchConfig);
+    const { q, size, start, pretty } = getSearchOptions(req, searchConfig);
 
     const queryAccess = new QueryAccess(config);
 
@@ -43,12 +43,12 @@ export async function search(req: Request, client: Client, config: DataAccessCon
     const query = queryAccess.restrictESQuery(q, searchParams);
 
     logger.debug(query, 'searching...');
-    return client.search(query);
+    return [await client.search(query), pretty];
 }
 
 export function getSearchOptions(req: Request, searchConfig: SearchConfig) {
     const q: string = getFromQuery(req, 'q');
-    const pretty: boolean = getFromQuery(req, 'pretty', false);
+    const pretty = ts.toBoolean(getFromQuery(req, 'pretty', false));
 
     const size = ts.toInteger(getFromQuery(req, 'size', 100));
     if (size === false) {
@@ -95,7 +95,7 @@ export function getSearchOptions(req: Request, searchConfig: SearchConfig) {
 
     // const dateStart = getFromQuery(req, 'date_start');
     // const dateEnd = getFromQuery(req, 'date_end');
-    const type = getFromQuery(req, 'type');
+    // const type = getFromQuery(req, 'type');
     const fields = getFromQuery(req, 'fields');
     const history = getFromQuery(req, 'history');
     const historyStart = getFromQuery(req, 'history_start');
@@ -110,12 +110,8 @@ export function getSearchOptions(req: Request, searchConfig: SearchConfig) {
     return {
         q,
         pretty,
-        // dateStart,
-        // dateEnd,
         start,
         size,
-        maxQuerySize,
-        type,
         fields,
         history,
         historyStart,
@@ -126,6 +122,10 @@ export function getSearchOptions(req: Request, searchConfig: SearchConfig) {
         geoSortPoint,
         geoSortOrder,
         geoSortUnit,
+        // I am not sure should be here
+        // dateStart,
+        // dateEnd,
+        // type,
     };
 }
 

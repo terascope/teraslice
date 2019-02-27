@@ -48,8 +48,17 @@ export default class SearchPlugin {
 
                 const esApi = this.esApis[config.space_id];
 
-                const result = await search(req, esApi, config, this.logger);
-                res.status(200).send(result);
+                const [result, pretty] = await search(req, esApi, config, this.logger);
+
+                res
+                    .status(200)
+                    .set('Content-type', 'application/json; charset=utf-8');
+
+                if (pretty) {
+                    res.send(JSON.stringify(result, null, 2));
+                } else {
+                    res.send(result);
+                }
             } catch (_err) {
                 const err = new TSError(_err,  {
                     reason: 'failed to search with query',

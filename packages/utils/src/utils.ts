@@ -177,6 +177,19 @@ export function toInteger(input: any): number|false {
     return false;
 }
 
+/** Convert any input into a boolean, this will work with stringified boolean */
+export function toBoolean(input: any): boolean {
+    const val: any = isString(input) ? trimAndToLower(input) : input;
+    const thruthy = [1, '1', true, 'true'];
+    return thruthy.includes(val);
+}
+
+/** safely trim and to lower a input, useful for string comparison */
+export function trimAndToLower(input: string): string {
+    if (!isString(input)) return toString(input);
+    return input.trim().toLowerCase();
+}
+
 /** A simplified implemation of moment(new Date(val)).isValid() */
 export function isValidDate(val: any): boolean {
     const d = new Date(val);
