@@ -1,6 +1,5 @@
 import { Express } from 'express';
 import { Client } from 'elasticsearch';
-import elasticsearchAPI from '@terascope/elasticsearch-api';
 import { Logger, TSError } from '@terascope/utils';
 import { ACLManager } from '@terascope/data-access';
 import { search } from './utils';
@@ -11,7 +10,6 @@ export default class SearchPlugin {
     readonly logger: Logger;
     readonly app: Express;
     readonly client: Client;
-    private esApis: { [id: string]: elasticsearchAPI.Client } = {};
 
     constructor(pluginConfig: PluginConfig) {
         this.client = pluginConfig.elasticsearch;
@@ -41,14 +39,7 @@ export default class SearchPlugin {
                     space,
                 });
 
-                if (this.esApis[config.space_id] == null) {
-                    const esAPI = elasticsearchAPI(this.client, this.logger, config.space_metadata.indexConfig);
-                    this.esApis[config.space_id] = esAPI;
-                }
-
-                const esApi = this.esApis[config.space_id];
-
-                const [result, pretty] = await search(req, esApi, config, this.logger);
+                const [result, pretty] = await search(req, this.client, config, this.logger);
 
                 res
                     .status(200)

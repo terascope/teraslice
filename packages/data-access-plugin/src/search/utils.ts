@@ -1,8 +1,7 @@
 import get from 'lodash.get';
 import { Request } from 'express';
 import * as ts from '@terascope/utils';
-import { SearchParams } from 'elasticsearch';
-import { Client, Config } from '@terascope/elasticsearch-api';
+import { SearchParams, Client, SearchResponse } from 'elasticsearch';
 import { QueryAccess, DataAccessConfig } from '@terascope/data-access';
 import { getFromQuery } from '../utils';
 
@@ -10,24 +9,27 @@ import { getFromQuery } from '../utils';
  * Search elasticsearch in a teraserver backwards compatible way
  *
  * Important Changes:
- * - Date field will have to live in view.metadata.searchConfig
+ * - Date field will have to live in view.metadata.config
  *
  * Question:
+ * - Should the history options be added here?
  * - Should Date Range should be moved to the view constraints?
  * - I am not sure if type will work?
+ * - Should we add support for post process and pre process?
  *
  * @todo add types to queryAccess
- * @todo add support pre_process and post_process
  */
-export async function search(req: Request, client: Client, config: DataAccessConfig, logger: ts.Logger): Promise<[any[], boolean]> {
+export async function search(req: Request, client: Client, config: DataAccessConfig, logger: ts.Logger): Promise<[FinalResponse, boolean]> {
     const { indexConfig } = get(config, 'space_metadata', {}) as SpaceMetadata;
-    const { searchConfig = {} } = get(config, 'view.metadata', {}) as ViewMetadata;
+    const searchConfig: SearchConfig = get(config, 'view.metadata.searchConfig', {});
 
     if (!indexConfig) {
         throw new ts.TSError('Search is not configured correctly');
     }
 
-    const { q, size, start, pretty } = getSearchOptions(req, searchConfig);
+    const searchOptions = getSearchOptions(req, searchConfig);
+
+    const { q, size, start, pretty } = searchOptions;
 
     const queryAccess = new QueryAccess(config);
 
@@ -43,10 +45,14 @@ export async function search(req: Request, client: Client, config: DataAccessCon
     const query = queryAccess.restrictESQuery(q, searchParams);
 
     logger.debug(query, 'searching...');
-    return [await client.search(query), pretty];
+
+    const response = await client.search(query);
+    const result = handleSearchResponse(response, searchConfig, searchOptions);
+
+    return [result, pretty];
 }
 
-export function getSearchOptions(req: Request, searchConfig: SearchConfig) {
+export function getSearchOptions(req: Request, config: SearchConfig) {
     const q: string = getFromQuery(req, 'q');
     const pretty = ts.toBoolean(getFromQuery(req, 'pretty', false));
 
@@ -55,7 +61,7 @@ export function getSearchOptions(req: Request, searchConfig: SearchConfig) {
         throw new ts.TSError(...validateErr('size', 'must be a valid number', req));
     }
 
-    const maxQuerySize: number = ts.toInteger(searchConfig.max_query_size) || 10000;
+    const maxQuerySize: number = ts.toInteger(config.max_query_size) || 10000;
     if (size > maxQuerySize) {
         throw new ts.TSError(...validateErr('size', `must be less than ${maxQuerySize}`, req));
     }
@@ -68,7 +74,7 @@ export function getSearchOptions(req: Request, searchConfig: SearchConfig) {
     }
 
     let sort: string = getFromQuery(req, 'sort');
-    if (sort && searchConfig.sort_enabled) {
+    if (sort && config.sort_enabled) {
         if (!ts.isString(sort)) {
             throw new ts.TSError(...validateErr('sort', 'must be a valid string', req));
         }
@@ -81,16 +87,18 @@ export function getSearchOptions(req: Request, searchConfig: SearchConfig) {
             throw new ts.TSError(...validateErr('sort', 'must be field_name:asc or field_name:desc', req));
         }
 
-        const dateField = searchConfig.date_field && searchConfig.date_field.trim().toLowerCase();
-        if (searchConfig.sort_dates_only && field !== dateField) {
+        const dateField = config.date_field && config.date_field.trim().toLowerCase();
+        if (config.sort_dates_only && field !== dateField) {
             throw new ts.TSError(...validateErr('sort', `sorting currently available for the '${dateField}' field only`, req));
         }
 
         sort = [field, direction].join(':');
     }
 
-    if (!sort && searchConfig.sort_default) {
-        sort = searchConfig.sort_default;
+    const sortDisabled = !!(sort && !config.sort_enabled);
+
+    if (!sort && config.sort_default) {
+        sort = config.sort_default;
     }
 
     // const dateStart = getFromQuery(req, 'date_start');
@@ -122,10 +130,53 @@ export function getSearchOptions(req: Request, searchConfig: SearchConfig) {
         geoSortPoint,
         geoSortOrder,
         geoSortUnit,
+        sortDisabled,
         // I am not sure should be here
         // dateStart,
         // dateEnd,
         // type,
+    };
+}
+
+export function handleSearchResponse(response: SearchResponse<any>, config: SearchConfig, options: SearchOptions) {
+    const error = get(response, 'error');
+    if (error) {
+        throw new ts.TSError(error);
+    }
+
+    if (!response.hits || !response.hits.total) {
+        throw new ts.TSError('No results returned from query');
+    }
+
+    let results;
+    const total = response.hits.total;
+    let returning = total;
+
+    if (config.preserve_index_name) {
+        results = response.hits.hits.map((data) => {
+            const doc = data._source;
+            doc._index = data._index;
+            return doc;
+        });
+    } else {
+        results = response.hits.hits.map(data => data._source);
+    }
+
+    let info = `${response.hits.total} results found.`;
+    if (response.hits.total > options.size) {
+        returning = options.size;
+        info += ` Returning ${returning}.`;
+    }
+
+    if (options.sortDisabled) {
+        info += ' No sorting available.';
+    }
+
+    return {
+        info,
+        total,
+        returning,
+        results
     };
 }
 
@@ -139,8 +190,22 @@ function validateErr(param: string, msg: string, req: Request): [string, ts.TSEr
     ];
 }
 
+export interface SearchOptions {
+    sortDisabled: boolean;
+    size: number;
+}
+
 export interface SpaceMetadata {
-    indexConfig?: Config;
+    indexConfig?: {
+        index?: string;
+    };
+}
+
+export interface FinalResponse {
+    info: string;
+    total: number;
+    returning: number;
+    results: any[];
 }
 
 export interface SearchConfig {
@@ -156,5 +221,5 @@ export interface SearchConfig {
 }
 
 export interface ViewMetadata {
-    searchConfig?: SearchConfig;
+    config?: SearchConfig;
 }

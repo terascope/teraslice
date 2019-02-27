@@ -35,8 +35,6 @@ export default class ManagerPlugin {
             context: {
                 manager: this.manager,
             },
-            resolvers: {
-            },
             formatError(err: any) {
                 const { statusCode, message } = parseErrorInfo(err);
                 const httpMsg = STATUS_CODES[statusCode] as string;
@@ -92,8 +90,7 @@ export default class ManagerPlugin {
             const apiToken = getFromReq(req, 'api_token');
 
             try {
-                // @ts-ignore
-                const user = req.user || await this.manager.authenticateUser({
+                const user = await this.manager.authenticateUser({
                     username,
                     password,
                     api_token: apiToken,
