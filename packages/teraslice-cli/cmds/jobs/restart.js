@@ -1,36 +1,34 @@
 'use strict';
-'use console';
 
-const _ = require('lodash');
 const reply = require('../lib/reply')();
-const configChecks = require('../lib/config');
-const cli = require('./lib/cli');
+const Config = require('../../lib/config');
+const Jobs = require('../../lib/jobs');
+const YargsOptions = require('../../lib/yargs-options');
 
-exports.command = 'restart <cluster_sh> [job_id]';
-exports.desc = 'Restarts all job on the specified cluster.\n';
+const yargsOptions = new YargsOptions();
+
+exports.command = 'restart <cluster-alias> [id]';
+exports.desc = 'Restart job id on the specified cluster.\n';
 exports.builder = (yargs) => {
-    cli().args('jobs', 'restart', yargs);
-    yargs
-        .option('annotate', {
-            alias: 'n',
-            describe: 'add grafana annotation',
-            default: ''
-        })
-        .option('all', {
-            alias: 'a',
-            describe: 'stop all running/failing jobs',
-            default: false
-        })
-        .example('teraslice-cli jobs restart cluster1 99999999-9999-9999-9999-999999999999')
-        .example('teraslice-cli jobs restart cluster1 99999999-9999-9999-9999-999999999999 --yes')
-        .example('teraslice-cli jobs restart cluster1 --all');
+    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.options('output', yargsOptions.buildOption('output'));
+    yargs.options('status', yargsOptions.buildOption('jobs-status'));
+    yargs.options('all', yargsOptions.buildOption('jobs-all'));
+    yargs.options('yes', yargsOptions.buildOption('yes'));
+    yargs.options('annotate', yargsOptions.buildOption('annotate'));
+    yargs.strict()
+        .example('$0 jobs restart cluster1 99999999-9999-9999-9999-999999999999')
+        .example('$0 jobs restart cluster1 99999999-9999-9999-9999-999999999999 --yes')
+        .example('$0 jobs restart cluster1 --all');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    configChecks(cliConfig, 'jobs:restart').returnConfigData();
-    const job = _testFunctions || require('./lib/')(cliConfig);
+exports.handler = async (argv) => {
+    const cliConfig = new Config(argv);
+    const jobs = new Jobs(cliConfig);
 
-    return job.restart()
-        .catch(err => reply.fatal(err.message));
+    try {
+        await jobs.restart();
+    } catch (e) {
+        reply.fatal(e);
+    }
 };
