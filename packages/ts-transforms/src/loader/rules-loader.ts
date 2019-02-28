@@ -4,7 +4,7 @@ import { WatcherConfig, OperationConfig } from '../interfaces';
 import _ from 'lodash';
 import shortid from 'shortid';
 import { Logger } from '@terascope/utils';
-import { isSimpleTagPostProcessConfig } from './utils';
+import { isOldCompatabilityPostProcessConfig } from './utils';
 
 export default class RulesLoader {
     private opConfig: WatcherConfig;
@@ -45,15 +45,30 @@ export default class RulesLoader {
         }
 
         // we seperate simple configurations out
-        if (isSimpleTagPostProcessConfig(config)) {
+        if (isOldCompatabilityPostProcessConfig(config)) {
             const newTag = shortid.generate();
             newConfig = migrate(config, { follow: newTag, __id: shortid.generate() });
             config.tags = [newTag];
             delete config.post_process;
-            delete config.post_process;
+            delete config.validation;
+            // this area below targets the multi input old configs
+            if (newConfig.selector && newConfig.post_process !== 'selector') {
+                newConfig.__pipeline = newConfig.selector;
+                delete newConfig.selector;
+                // need to migrate this over in this case
+                if (config.target_field) {
+                    newConfig.target_field = config.target_field;
+                    delete config.target_field;
+                }
+            }
+            // we push in both
+            resultsArray.push(config);
+            resultsArray.push(newConfig);
+
+        } else {
+            resultsArray.push(config);
         }
-        resultsArray.push(config);
-        if (newConfig) resultsArray.push(newConfig);
+
         return resultsArray;
     }
 

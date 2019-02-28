@@ -6,15 +6,17 @@ import {
     OperationConfig,
     ValidationResults,
     NormalizedFields,
-    ConfigProcessingDict
+    ConfigProcessingDict,
+    StateDict
 } from '../interfaces';
 
 const  { Graph, alg: { topsort, findCycles } } = graphlib;
 
 export function parseConfig(configList: OperationConfig[], logger: Logger) {
     const graph = new Graph();
-    const tagMapping = {};
-    const graphEdges = {};
+    const tagMapping: StateDict = {};
+    const graphEdges: StateDict = {};
+    const oldCompatability: StateDict = {};
 
     function normalizeConfig(configList: OperationConfig[]) {
         configList.forEach((config) => {
@@ -39,13 +41,14 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
 
     function findFields(config:OperationConfig, configList: OperationConfig[]): NormalizedFields {
         const targetField = config.target_field;
-        const nodeIds: string[] = tagMapping[config.follow as string];
+        const identifier = config.follow || config.__id;
+        const nodeIds: string[] = tagMapping[identifier];
+
         const targetFieldList = configList
-            .filter(obj => {
-                return nodeIds.includes(obj.__id)
-            })
+            .filter(obj => nodeIds.includes(obj.__id) && _.has(obj, 'target_field'))
             .map(obj => obj.target_field as string);
-        const soureField = _.uniq(targetFieldList)
+
+        const soureField = _.uniq(targetFieldList);
         if (soureField === undefined || soureField.length === 0) throw new Error(`could not find source field for config ${JSON.stringify(config)}`);
         return { targetField, soureField };
     }
@@ -74,12 +77,16 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
                     });
                 }
             }
-        } else if (isBackwordCompatiblePostProcessConfig(config)) {
-            const selectorNode = `selector:${config.selector}`;
-            const extractionNode = findNodeChild(graph, selectorNode);
-            if (!extractionNode) throw new Error(`could not find child node for config: ${JSON.stringify(config)}`);
+        }
+
+        if (isBackwordCompatiblePostProcessConfig(config)) {
+            const selectorNode = `selector:${config.__pipeline}`;
+            if (!oldCompatability[selectorNode]) {
+                oldCompatability[selectorNode] = [];
+            }
+            oldCompatability[selectorNode].push(configId);
+            // setting edges and tag mapping is done in a later step
             graph.setNode(configId, config);
-            graph.setEdge(extractionNode, configId);
 
         } else if (hasPostProcess(config)) {
             if (config.tags) {
@@ -101,7 +108,26 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
         }
     });
 
-    // config may be out of order so we build edges later
+    // config may be out of order so we build edges after the fact on post processors
+
+    _.forOwn(oldCompatability, (postProcessConfigIds, selectorNodeName) => {
+        const extractionNodeIds = findNodeChildren(graph, selectorNodeName);
+        if (extractionNodeIds === null) {
+            throw new Error(`there must be extractions set for ${JSON.stringify(graph.node(selectorNodeName))} if using a post_process op without tag/follow syntax`);
+        }
+
+        postProcessConfigIds.forEach((postProcessConfigId) => {
+            // we create edge for all extractions to post_process in old post_process configs
+            extractionNodeIds.forEach((extractionId) => {
+                graph.setEdge(extractionId, postProcessConfigId);
+                // this is a non follow post proces config, we want to keep everything in the same pipline if possible for field validation
+                if (!tagMapping[postProcessConfigId]) {
+                    tagMapping[postProcessConfigId] = [];
+                }
+                tagMapping[postProcessConfigId].push(extractionId);
+            });
+        });
+    });
 
     _.forOwn(graphEdges, (ids, key) => {
         // @ts-ignore
@@ -148,17 +174,22 @@ export function isPrimaryConfig(config: OperationConfig) {
     return hasSelector(config) && !hasFollow(config) && !isPostProcessType(config, 'selector');
 }
 
-function findNodeChild(graph: graphlib.Graph, node: string) {
+function findNodeChildren(graph: graphlib.Graph, node: string):string[]|null {
     const edges = graph.outEdges(node);
-    return _.get(edges, '[0].w');
+    if (edges) return edges.map(obj => obj.w);
+    return null;
 }
 
 function isPostProcessType(config:OperationConfig, type: string) {
     return config.post_process === type;
 }
 
+function hasPipline(config:OperationConfig) {
+    return _.has(config, '__pipeline');
+}
+
 function isBackwordCompatiblePostProcessConfig(config: OperationConfig) {
-    return hasSelector(config) && !hasExtractions(config) && hasPostProcess(config) && !hasFollow(config);
+    return hasPipline(config) && hasPostProcess(config) && !hasFollow(config);
 }
 
 function hasSelector(config: OperationConfig) {
@@ -177,7 +208,7 @@ function hasPostProcess(config: OperationConfig): boolean {
     return (_.has(config, 'post_process') || _.has(config, 'validation'));
 }
 
-export function isSimpleTagPostProcessConfig(config: OperationConfig): boolean {
+export function isOldCompatabilityPostProcessConfig(config: OperationConfig): boolean {
     return (!hasFollow(config) && hasPostProcess(config) && hasSelector(config) && hasExtractions(config));
 }
 

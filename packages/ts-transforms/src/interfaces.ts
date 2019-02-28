@@ -32,6 +32,7 @@ export interface OperationConfig {
     value?: any;
     output?: boolean;
     __id: string;
+    __pipeline?: string;
 }
 
 export type PluginClassConstructor = { new (): PluginClassType };
@@ -97,6 +98,10 @@ export interface ValidationResults {
 export interface NormalizedFields{
     soureField: string[];
     targetField: string|undefined;
+}
+
+export interface StateDict {
+    [field: string]: string[];
 }
 
 interface RestrictOutput {

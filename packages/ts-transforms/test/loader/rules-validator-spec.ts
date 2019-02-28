@@ -127,6 +127,31 @@ describe('rules-validator', () => {
             target_field: 'full_name'
         }
     ].map(addId);
+    // TODO: revert back to OldJoinRules when formatter is used on data;
+    const OldJoinRulesParsed: OperationConfig[] = [
+        {
+            selector: 'hello:world',
+            source_field: 'first',
+            target_field: 'first_name'
+        },
+        {
+            selector: 'hello:world',
+            source_field: 'last',
+            target_field: 'last_name'
+        },
+        {
+            selector: 'hello:world',
+            fields: ['first_name', 'last_name'],
+            delimiter: ' ',
+        },
+        {
+            __pipeline: 'hello:world',
+            post_process: 'join',
+            fields: ['first_name', 'last_name'],
+            delimiter: ' ',
+            target_field: 'full_name'
+        }
+    ].map(addId);
 
     const NewJoinRules: OperationConfig[] = [
         {
@@ -210,21 +235,6 @@ describe('rules-validator', () => {
             tags: ['parsed']
         }
     ].map(addId);
-    // @ts-ignore TODO: use me
-    const backwordsCompabiablePostProcess = [
-        {
-            selector: 'hello:world',
-            source_field: 'first',
-            target_field: 'first_name',
-            __id: 'nPfBk9E8TEf'
-        },
-        {
-            selector: 'hello:world',
-            validation: 'string',
-            output: false,
-            __id: 'bAUilADVhVl'
-        }
-    ];
 
     function constructValidator(configList: OperationConfig[], logger = testLogger) {
         return new RulesValidator(configList, logger);
@@ -343,6 +353,22 @@ describe('rules-validator', () => {
         it('will not throw errors with duplicate tags', () => {
             const validator = constructValidator(NewJoinRules);
             expect(() => validator.validate()).not.toThrow();
+        });
+
+        it('will not throw errors with OldJoinRules', () => {
+            const validator = constructValidator(OldJoinRulesParsed);
+            expect(() => validator.validate()).not.toThrow();
+        });
+
+        it('OldJoinRules config will be correctly formated with source_fields', () => {
+            const validator = constructValidator(OldJoinRulesParsed);
+            const { postProcessing } = validator.validate();
+            const selectors = _.get(postProcessing, 'hello:world');
+            const results = _.get(selectors, '[0]');
+
+            expect(results).toBeDefined();
+            expect(results.post_process).toEqual('join');
+            expect(results.source_fields).toEqual(['first_name', 'last_name']);
         });
 
         it('will log warning if other_match_required is not paired with another extraction', () => {
