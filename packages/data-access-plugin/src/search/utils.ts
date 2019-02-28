@@ -29,7 +29,7 @@ export async function search(req: Request, client: Client, config: DataAccessCon
     const searchConfig: SearchConfig = get(config, 'view.metadata.searchConfig', {});
     const typesConfig: TypeConfig|undefined = get(config, 'view.metadata.typesConfig');
 
-    if (!indexConfig) {
+    if (ts.isEmpty(indexConfig) || !indexConfig.index) {
         throw new ts.TSError('Search is not configured correctly');
     }
 
@@ -51,7 +51,7 @@ export async function search(req: Request, client: Client, config: DataAccessCon
 
     const query = queryAccess.restrictESQuery(q, searchParams);
 
-    logger.debug(query, 'searching...');
+    if (isTest) logger.debug(query, 'searching...');
 
     const response = await client.search(query);
     const result = handleSearchResponse(response, searchConfig, searchOptions);
@@ -152,13 +152,14 @@ export function buildGeoSort(config: SearchConfig, options: SearchOptions) {
     return;
 }
 
-export function handleSearchResponse(response: SearchResponse<any>, config: SearchConfig, options: SearchOptions) {
+export type SearchResponseOpts = Pick<SearchOptions, 'size'|'sortDisabled'>;
+export function handleSearchResponse(response: SearchResponse<any>, config: SearchConfig, options: SearchResponseOpts) {
     const error = get(response, 'error');
     if (error) {
         throw new ts.TSError(error);
     }
 
-    if (!response.hits || !response.hits.total) {
+    if (!response.hits) {
         throw new ts.TSError('No results returned from query');
     }
 
@@ -167,13 +168,13 @@ export function handleSearchResponse(response: SearchResponse<any>, config: Sear
     let returning = total;
 
     if (config.preserve_index_name) {
-        results = response.hits.hits.map((data) => {
+        results = ts.fastMap(response.hits.hits, (data) => {
             const doc = data._source;
             doc._index = data._index;
             return doc;
         });
     } else {
-        results = response.hits.hits.map(data => data._source);
+        results = ts.fastMap(response.hits.hits, (data) => data._source);
     }
 
     let info = `${response.hits.total} results found.`;
@@ -225,7 +226,7 @@ export interface SearchConfig {
     sort_dates_only?: boolean;
     sort_enabled?: boolean;
     geo_field?: string;
-    preserve_index_name?: string;
+    preserve_index_name?: boolean;
     require_query?: boolean;
     date_field?: string;
 }
@@ -242,3 +243,5 @@ export interface IndexConfig {
 export interface SpaceMetadata {
     indexConfig?: IndexConfig;
 }
+
+const isTest = process.env.NODE_ENV !== 'production';
