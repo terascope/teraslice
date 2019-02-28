@@ -19,12 +19,12 @@ describe('Error Utils', () => {
             [
                 'hello',
                 {},
-                { message: 'hello', statusCode: 500, fatalError: false }
+                { message: 'hello', statusCode: 500, fatalError: false, code: 'INTERNAL_SERVER_ERROR' }
             ],
             [
                 'hello',
                 { statusCode: 411 },
-                { statusCode: 411, fatalError: false }
+                { statusCode: 411, fatalError: false, code: 'LENGTH_REQUIRED' }
             ],
             [
                 'hello',
@@ -55,9 +55,13 @@ describe('Error Utils', () => {
                 },
             ],
             [
-                new TSError('Fatal Error', { fatalError: true }),
+                new TSError('Fatal Error', {
+                    fatalError: true,
+                    code: 'EXAMPLE'
+                }),
                 { },
                 {
+                    code: 'EXAMPLE',
                     fatalError: true,
                     message: 'Fatal Error'
                 },
