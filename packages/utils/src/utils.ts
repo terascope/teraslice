@@ -9,6 +9,7 @@ export function isString(val: any): val is string {
 
 /** Safely convert any input to a string */
 export function toString(val: any): string {
+    if (val == null) return '';
     if (isString(val)) return val;
     if (val && typeof val === 'object' && val.message && val.stack) {
         return val.toString();
@@ -185,9 +186,8 @@ export function toBoolean(input: any): boolean {
 }
 
 /** safely trim and to lower a input, useful for string comparison */
-export function trimAndToLower(input: string): string {
-    if (!isString(input)) return toString(input);
-    return input.trim().toLowerCase();
+export function trimAndToLower(input?: string): string {
+    return toString(input).trim().toLowerCase();
 }
 
 /** A simplified implemation of moment(new Date(val)).isValid() */
