@@ -6,6 +6,8 @@ import { ManagerConfig } from './interfaces';
 /**
  * ACL Manager for Data Access Roles, essentially a
  * high level abstraction of Spaces, Users, Roles, and Views
+ *
+ * @todo add a method to find the views for space, with the applied defaults
 */
 export class ACLManager {
     static GraphQLSchema = `

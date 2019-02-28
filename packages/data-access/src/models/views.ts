@@ -7,6 +7,8 @@ import { ManagerConfig } from '../interfaces';
 
 /**
  * Manager for Views
+ *
+ * @todo apply defaults without merging
 */
 export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
     static ModelConfig = viewsConfig;

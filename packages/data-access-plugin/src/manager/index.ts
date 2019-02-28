@@ -1,4 +1,5 @@
 import { Express } from 'express';
+import get from 'lodash.get';
 import * as apollo from 'apollo-server-express';
 import { ACLManager } from '@terascope/data-access';
 import { Logger, parseErrorInfo } from '@terascope/utils';
@@ -13,17 +14,16 @@ export default class ManagerPlugin {
     readonly app: Express;
     readonly manager: ACLManager;
     readonly server: apollo.ApolloServer;
-    readonly baseUrl: string;
+    readonly bootstrapMode: boolean;
 
     constructor(pluginConfig: PluginConfig) {
         const client = pluginConfig.elasticsearch;
         this.config = pluginConfig.server_config;
         this.logger = pluginConfig.logger;
         this.app = pluginConfig.app;
-        this.baseUrl = pluginConfig.url_base;
 
-        const namespace = this.config.data_access
-            && this.config.data_access.namespace;
+        const namespace = get(this.config, 'data_access.namespace');
+        this.bootstrapMode = get(this.config, 'data_access.bootstrap_mode', false);
 
         this.manager = new ACLManager(client, {
             namespace,
@@ -48,7 +48,7 @@ export default class ManagerPlugin {
     }
 
     registerRoutes() {
-        this.logger.info(`Registering data-access-plugin manager at ${this.baseUrl}`);
+        const managerUri = '/api/v2/data-access';
 
         this.app.use('/api/v2', async (req, res, next) => {
             // @ts-ignore
@@ -57,6 +57,13 @@ export default class ManagerPlugin {
             const username = getFromReq(req, 'username');
             const password = getFromReq(req, 'password');
             const apiToken = getFromReq(req, 'api_token');
+
+            // If we are in bootstrap mode, we want to provide
+            // unauthenticated access to the data access management
+            if (this.bootstrapMode && req.path === '/data-access') {
+                next();
+                return;
+            }
 
             try {
                 const user = await this.manager.authenticateUser({
@@ -83,9 +90,10 @@ export default class ManagerPlugin {
             }
         });
 
+        this.logger.info(`Registering data-access-plugin manager at ${managerUri}`);
         this.server.applyMiddleware({
             app: this.app,
-            path: this.baseUrl,
+            path: managerUri,
         });
     }
 }

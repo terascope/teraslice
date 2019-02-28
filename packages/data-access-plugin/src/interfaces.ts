@@ -19,8 +19,8 @@ export interface TeraserverConfig {
         url_base?: string;
     };
     data_access?: {
-        url_base?: string;
         namespace?: string;
+        bootstrap_mode?: boolean;
     };
     teraserver: {
         shutdown_timeout: number;

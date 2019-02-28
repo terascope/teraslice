@@ -9,20 +9,11 @@ import { getFromQuery } from '../utils';
 /**
  * Search elasticsearch in a teraserver backwards compatible way
  *
- * Important Changes:
- * - date_field and geo_field will have to live in view.metadata.searchConfig
- * - Any geo search query should be added to constraint, not the
- * - The following configuration has been moved to the view:
- *      - fields
- *      - allowed_fields
- *
- * Question:
- * - Should the history options be added here?
- * - Should the date range be moved to the view constraints?
- * - I am not sure if "type" will work?
- * - Should we add support for post process and pre process?
- *
- * @todo add types to queryAccess
+ * @todo add types to query access
+ * @todo add history support
+ * @todo date_field and geo_field should be prefixed with default_
+ * @todo sort_date_only should use types as well as default_date_field
+ * @todo figure out how to support post process
  */
 export async function search(req: Request, client: Client, config: DataAccessConfig, logger: ts.Logger): Promise<[FinalResponse, boolean]> {
     const indexConfig: IndexConfig = get(config, 'space_metadata.indexConfig', {});
@@ -54,6 +45,7 @@ export async function search(req: Request, client: Client, config: DataAccessCon
     if (isTest) logger.debug(query, 'searching...');
 
     const response = await client.search(query);
+    if (isTest) logger.debug(response, 'got response...');
     const result = handleSearchResponse(response, searchConfig, searchOptions);
 
     return [result, pretty];
@@ -112,9 +104,6 @@ export function getSearchOptions(req: Request, config: SearchConfig) {
         sort = config.sort_default;
     }
 
-    // const dateStart = getFromQuery(req, 'date_start');
-    // const dateEnd = getFromQuery(req, 'date_end');
-    // const type = getFromQuery(req, 'type');
     const history = getFromQuery(req, 'history');
     const historyStart = getFromQuery(req, 'history_start');
     const historyPrefix = getFromQuery(req, 'history_prefix');
@@ -140,10 +129,6 @@ export function getSearchOptions(req: Request, config: SearchConfig) {
         geoSortOrder,
         geoSortUnit,
         sortDisabled,
-        // I am not sure should be here
-        // dateStart,
-        // dateEnd,
-        // type,
     };
 }
 
@@ -154,13 +139,16 @@ export function buildGeoSort(config: SearchConfig, options: SearchOptions) {
 
 export type SearchResponseOpts = Pick<SearchOptions, 'size'|'sortDisabled'>;
 export function handleSearchResponse(response: SearchResponse<any>, config: SearchConfig, options: SearchResponseOpts) {
+    // I don't think this property actually exists
     const error = get(response, 'error');
     if (error) {
         throw new ts.TSError(error);
     }
 
-    if (!response.hits) {
-        throw new ts.TSError('No results returned from query');
+    if (!response._shards.total) {
+        throw new ts.TSError('No results returned from query', {
+            statusCode: 502
+        });
     }
 
     let results;
@@ -221,7 +209,6 @@ export interface FinalResponse {
 
 export interface SearchConfig {
     max_query_size?: number;
-    date_range?: boolean;
     sort_default?: string;
     sort_dates_only?: boolean;
     sort_enabled?: boolean;

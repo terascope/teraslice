@@ -31,6 +31,7 @@
         ],
         "Packages": [
             "packages/data-access/overview",
+            "packages/data-access-plugin/overview",
             "packages/elasticsearch-store/overview",
             "packages/terafoundation/overview",
             "packages/teraslice/overview",

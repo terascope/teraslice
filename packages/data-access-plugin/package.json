@@ -1,6 +1,6 @@
 {
     "name": "data-access-plugin",
-    "description": "A teraserver plugin for data-access",
+    "description": "A teraserver plugin for managing data access and searching spaces",
     "version": "0.1.0",
     "publishConfig": {
         "access": "public"

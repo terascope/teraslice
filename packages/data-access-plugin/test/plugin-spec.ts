@@ -14,16 +14,16 @@ describe('Data Access Plugin', () => {
 
     const app = express();
     let listener: Server;
-    const baseUrl = '/test';
 
     const pluginConfig: PluginConfig = {
         elasticsearch: client,
-        url_base: baseUrl,
+        url_base: '',
         app,
         logger: debugLogger('manager-plugin'),
         server_config: {
             data_access: {
                 namespace: 'test_da_plugin',
+                bootstrap_mode: true,
             },
             teraserver: {
                 shutdown_timeout: 1,
@@ -41,12 +41,7 @@ describe('Data Access Plugin', () => {
         const port = listener.address().port;
 
         const _uri = uri.replace(/^\//, '');
-        return `http://localhost:${port}/${_uri}`;
-    }
-
-    function formatManagementURL(uri: string = ''): string {
-        const _uri = uri.replace(/^\//, '');
-        return formatBaseUri(`${baseUrl}/${_uri}`);
+        return `http://localhost:${port}/api/v2/${_uri}`;
     }
 
     beforeAll(async () => {
@@ -99,7 +94,7 @@ describe('Data Access Plugin', () => {
     let spaceId: string;
 
     it('should be able to create a role', async () => {
-        const uri = formatManagementURL();
+        const uri = formatBaseUri('/data-access');
         const query = `
             mutation {
                 createRole(role: {
@@ -126,7 +121,7 @@ describe('Data Access Plugin', () => {
     it('should be able to create a space and views', async () => {
         expect(roleId).toBeTruthy();
 
-        const uri = formatManagementURL();
+        const uri = formatBaseUri('/data-access');
         const query = `
             mutation {
                 createSpace(space: {
@@ -201,7 +196,7 @@ describe('Data Access Plugin', () => {
     it('should be able to create a user', async () => {
         expect(roleId).toBeTruthy();
 
-        const uri = formatManagementURL();
+        const uri = formatBaseUri('/data-access');
         const query = `
             mutation {
                 createUser(user: {
@@ -235,7 +230,7 @@ describe('Data Access Plugin', () => {
         expect(userId).toBeTruthy();
         expect(roleId).toBeTruthy();
 
-        const uri = formatManagementURL();
+        const uri = formatBaseUri('/data-access');
         const query = `
             mutation {
                 updateUser(user: {
@@ -267,7 +262,7 @@ describe('Data Access Plugin', () => {
         expect(userId).toBeTruthy();
         expect(spaceId).toBeTruthy();
 
-        const uri = formatManagementURL();
+        const uri = formatBaseUri('/data-access');
         const query = `
             query {
                 findRole(id: "${roleId}") {
@@ -321,8 +316,9 @@ describe('Data Access Plugin', () => {
     });
 
     it('should be not able to get /api/v2 when not logged in', async () => {
-        const uri = formatBaseUri('/api/v2');
+        const uri = formatBaseUri();
         const result = await got(uri, {
+            json: true,
             throwHttpErrors: false
         });
         expect(result.statusCode).toEqual(401);
@@ -331,12 +327,13 @@ describe('Data Access Plugin', () => {
     it('should be able to get /api/v2 when logged in with api_token', async () => {
         expect(apiToken).toBeTruthy();
 
-        const uri = formatBaseUri('/api/v2');
+        const uri = formatBaseUri();
 
         const result = await got(uri, {
             query: {
                 api_token: apiToken
             },
+            json: true,
             throwHttpErrors: false
         });
 
@@ -344,12 +341,13 @@ describe('Data Access Plugin', () => {
     });
 
     it('should be able to get /api/v2 when logged in with username and password', async () => {
-        const uri = formatBaseUri('/api/v2');
+        const uri = formatBaseUri();
         const result = await got(uri, {
             query: {
                 username: 'hello',
                 password: 'greeting'
             },
+            json: true,
             throwHttpErrors: false
         });
         expect(result.statusCode).toEqual(204);
@@ -359,22 +357,30 @@ describe('Data Access Plugin', () => {
         expect(spaceId).toBeTruthy();
         expect(apiToken).toBeTruthy();
 
-        const uri = formatBaseUri(`/api/v2/${spaceId}/search`);
+        const uri = formatBaseUri(spaceId);
         const result = await got(uri, {
             query: {
                 api_token: apiToken,
                 q: 'foo:bar'
             },
+            json: true,
             throwHttpErrors: false
         });
 
-        expect(result.statusCode).toEqual(200);
+        expect(result).toMatchObject({
+            body: {
+                info: 'idk',
+                returned: 0,
+                results: []
+            },
+            statusCode: 200
+        });
     });
 
     it('should be able to update a user\'s password', async () => {
         expect(userId).toBeTruthy();
 
-        const uri = formatManagementURL();
+        const uri = formatBaseUri('/data-access');
         const query = `
             mutation {
                 updatePassword(id: "${userId}", password: "bananas")
@@ -387,11 +393,12 @@ describe('Data Access Plugin', () => {
     });
 
     it('should be not able to get /api/v2 when using an outdated username and password', async () => {
-        const uri = formatBaseUri('/api/v2');
+        const uri = formatBaseUri();
         const result = await got(uri, {
             query: {
                 api_token: apiToken
             },
+            json: true,
             throwHttpErrors: false
         });
 
@@ -399,12 +406,13 @@ describe('Data Access Plugin', () => {
     });
 
     it('should be not able to get /api/v2 when using an outdated api_token', async () => {
-        const uri = formatBaseUri('/api/v2');
+        const uri = formatBaseUri();
         const result = await got(uri, {
             query: {
                 username: 'hello',
                 password: 'greeting'
             },
+            json: true,
             throwHttpErrors: false
         });
 
@@ -416,7 +424,7 @@ describe('Data Access Plugin', () => {
         expect(roleId).toBeTruthy();
         expect(spaceId).toBeTruthy();
 
-        const uri = formatManagementURL();
+        const uri = formatBaseUri('/data-access');
         const query = `
             mutation {
                 removeSpace(id: "${spaceId}")

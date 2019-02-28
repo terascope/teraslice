@@ -24,10 +24,10 @@ export default class SearchPlugin {
     async shutdown() {}
 
     registerRoutes() {
-        const searchUrl = '/api/v2/:space/search';
+        const searchUrl = '/api/v2/:space';
         this.logger.info(`Registering data-access-plugin search at ${searchUrl}`);
 
-        this.app.all(searchUrl, async (req, res) => {
+        this.app.get(searchUrl, async (req, res) => {
             // @ts-ignore
             const manager: ACLManager = req.aclManager;
             // @ts-ignore
@@ -49,17 +49,17 @@ export default class SearchPlugin {
                 if (pretty) {
                     res.send(JSON.stringify(result, null, 2));
                 } else {
-                    res.send(result);
+                    res.json(result);
                 }
             } catch (_err) {
                 const err = new TSError(_err,  {
-                    reason: 'Failed to search with query',
+                    reason: 'Search failure',
                     context: req.query
                 });
 
                 this.logger.error(err);
-                res.status(err.statusCode).send({
-                    error: err.message
+                res.status(err.statusCode).json({
+                    error: err.message.replace(/[A-Z]{2}Error/g, 'Error')
                 });
             }
         });
