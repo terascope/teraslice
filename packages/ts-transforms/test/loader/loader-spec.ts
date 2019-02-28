@@ -23,19 +23,12 @@ describe('Loader', () => {
         const loader = new Loader(config, logger);
 
         const phaseConfig = await loader.load();
-        const { selectors, extractions, postProcessing, output } = phaseConfig;
-        const { hasMultiValue, matchRequirements, restrictOutput } = output;
+        const { selectors } = phaseConfig;
         const results = selectors.map(obj => ({ selector: obj.selector }));
 
         expect(selectors).toBeArrayOfSize(2);
         expect(results[0]).toEqual({ selector: 'some:data AND bytes:>=1000' });
         expect(results[1]).toEqual({ selector: 'other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z' });
-
-        expect(extractions).toBeEmpty();
-        expect(postProcessing).toBeEmpty();
-        expect(hasMultiValue).toBeFalse();
-        expect(matchRequirements).toBeEmpty();
-        expect(restrictOutput).toBeEmpty();
     });
 
     it('it can instantiate a transform with operations from file', async () => {
@@ -52,9 +45,13 @@ describe('Loader', () => {
         expect(results[1]).toEqual({ selector: 'geo:true' });
 
         expect(extractions).not.toBeEmpty();
-        expect(postProcessing).toBeEmpty();
+        expect(postProcessing['geo:true']).toBeArrayOfSize(2);
+        expect(postProcessing['hello:world']).toBeArrayOfSize(1);
+
+        expect(postProcessing).not.toBeEmpty();
+
         expect(hasMultiValue).toBeFalse();
         expect(matchRequirements).toBeEmpty();
-        expect(restrictOutput).toBeEmpty();
+        expect(restrictOutput).toEqual({ first_name: true, last_name: true });
     });
 });
