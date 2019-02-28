@@ -67,7 +67,8 @@ export class ACLManager {
         type Mutation {
             createUser(user: CreateUserInput!, password: String!): User!
             updateUser(user: UpdateUserInput!): User!
-            updatePassword(id: ID!, password: String!): Boolean!
+            updatePassword(id: String!, password: String!): Boolean!
+            updateToken(id: String!): String!
             removeUser(id: ID!): Boolean!
 
             createRole(role: CreateRoleInput!): Role!
@@ -174,11 +175,18 @@ export class ACLManager {
     }
 
     /**
-     * Update user with password
+     * Update user's password
     */
     async updatePassword(args: { id: string, password: string }): Promise<boolean> {
-        await this.users.updateWithPassword(args.id, args.password);
+        await this.users.updatePassword(args.id, args.password);
         return true;
+    }
+
+    /**
+     * Generate a new API Token for a user
+    */
+    async updateToken(args: { id: string }): Promise<string> {
+        return await this.users.updateToken(args.id);
     }
 
     /**
@@ -650,6 +658,7 @@ export const graphqlMutationMethods: (keyof ACLManager)[] = [
     'createUser',
     'updateUser',
     'updatePassword',
+    'updateToken',
     'removeUser',
     'createRole',
     'updateRole',

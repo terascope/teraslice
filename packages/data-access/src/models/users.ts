@@ -79,15 +79,14 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
         });
     }
 
-    async updateWithPassword(id: string, password: string) {
+    async updatePassword(id: string, password: string) {
         const record = await super.findByAnyId(id);
         const salt = await utils.generateSalt();
         const hash = await utils.generatePasswordHash(password, salt);
-        const apiToken = await utils.generateAPIToken(hash, record.username);
 
+        // @ts-ignore
         return super.update({
-            ...record,
-            api_token: apiToken,
+            id: record.id,
             hash,
             salt,
         });
@@ -125,12 +124,17 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
     /**
      * Update the API Token for a user
     */
-    async updateToken(username: string): Promise<string> {
-        const user = await super.findByAnyId(username);
-        user.api_token = await utils.generateAPIToken(user.hash, username);
+    async updateToken(id: string): Promise<string> {
+        const user = await super.findByAnyId(id);
+        const apiToken = await utils.generateAPIToken(user.hash, user.username);
 
-        await super.update(user);
-        return user.api_token;
+        // @ts-ignore
+        await super.update({
+            id: user.id,
+            api_token: apiToken
+        });
+
+        return apiToken;
     }
 
     /**
