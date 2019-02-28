@@ -5,7 +5,8 @@ import {
     isFatalError,
     isRetryableError,
     parseError,
-    times
+    times,
+    isTSError
 } from '../src';
 
 describe('Error Utils', () => {
@@ -235,22 +236,24 @@ describe('Error Utils', () => {
 
             for (const [key, val] of Object.entries(expected)) {
                 if (key === 'stack') {
-                    it(`should have ${key} start with "${val}"`, () => {
+                    it(`should have "${key}" start with "${val}"`, () => {
                         expect(tsError[key]).toStartWith(val as string);
                     });
                 } else if (key === 'context') {
-                    it(`should have ${key} contain these properties ${JSON.stringify(val)}`, () => {
+                    it(`should have "${key}" match ${JSON.stringify(val)}`, () => {
                         expect(tsError[key]).toMatchObject(val);
                     });
                 } else {
-                    it(`should have ${key} set to ${JSON.stringify(val)}`, () => {
+                    it(`should have "${key}" set to ${JSON.stringify(val)}`, () => {
                         expect(tsError[key]).toEqual(val);
                     });
                 }
             }
 
             it('should have the default context proprerties', () => {
-                expect(tsError.context).toHaveProperty('_cause');
+                if (input && !isTSError(input)) {
+                    expect(tsError.context._cause).toEqual(input);
+                }
                 expect(tsError.context).toHaveProperty('_createdAt');
             });
 

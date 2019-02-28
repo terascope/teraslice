@@ -76,7 +76,7 @@ export class ACLManager {
             updateView(view: UpdateViewInput!): View!
             removeView(id: ID!): Boolean!
 
-            createSpace(space: CreateSpaceInput!, views: [CreateSpaceViewInput], defaultView: CreateSpaceViewInput): CreateSpaceResult!
+            createSpace(space: CreateSpaceInput!, views: [CreateSpaceViewInput], defaultView: CreateDefaultViewInput): CreateSpaceResult!
             updateSpace(space: UpdateSpaceInput!): Space!
             removeSpace(id: ID!): Boolean!
         }

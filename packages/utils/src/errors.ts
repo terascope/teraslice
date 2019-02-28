@@ -130,12 +130,6 @@ type ErrorInfo = {
 /** parse error for info */
 export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInfo {
     const { defaultErrorMsg, defaultStatusCode = 500 } = config;
-    const inputContext = (input && input.context) || {};
-
-    const context = Object.assign({}, inputContext, config.context, {
-        _createdAt: new Date().toISOString(),
-        _cause: input,
-    });
 
     const statusCode = getErrorStatusCode(input, config, defaultStatusCode);
 
@@ -144,12 +138,14 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
         if (esErrorInfo) {
             return {
                 message: prefixErrorMsg(esErrorInfo.message, config.reason, defaultErrorMsg),
-                context: Object.assign({}, esErrorInfo.context, context),
+                context: createErrorContext(input, config),
                 statusCode,
                 code: esErrorInfo.code,
             };
         }
     }
+
+    const context = createErrorContext(input, config);
 
     let stack: string|undefined;
     const message = prefixErrorMsg(input, config.reason, defaultErrorMsg);
@@ -175,6 +171,27 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
         statusCode,
         code,
     };
+}
+
+function createErrorContext(input: any, config: TSErrorConfig = {}) {
+    const context = Object.assign(
+        {},
+        (input && input.context),
+        (config && config.context)
+    );
+
+    Object.defineProperties(context, {
+        _createdAt: {
+            value: new Date().toISOString(),
+            enumerable: false,
+        },
+        _cause: {
+            value: input,
+            enumerable: false,
+        }
+    });
+
+    return context;
 }
 
 /** parse input to get error message or stack */

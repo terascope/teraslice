@@ -53,8 +53,8 @@ export default class SearchPlugin {
                 }
             } catch (_err) {
                 const err = new TSError(_err,  {
-                    reason: 'failed to search with query',
-                    context: req.query,
+                    reason: 'Failed to search with query',
+                    context: req.query
                 });
 
                 this.logger.error(err);
