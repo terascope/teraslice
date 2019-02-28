@@ -8,7 +8,6 @@ import { DataAccessConfig } from './acl-manager';
  * specific fields and records
  *
  * @todo test dsl format
- * @todo ensure support for teraserver options
 */
 export class QueryAccess {
     config: DataAccessConfig;
