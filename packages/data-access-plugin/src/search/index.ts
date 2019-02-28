@@ -1,9 +1,10 @@
+import get from 'lodash.get';
 import { Express } from 'express';
 import { Client } from 'elasticsearch';
 import { Logger, TSError } from '@terascope/utils';
-import { ACLManager } from '@terascope/data-access';
-import { search } from './utils';
+import { ACLManager, PrivateUserModel } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
+import { search } from './utils';
 
 export default class SearchPlugin {
     readonly config: TeraserverConfig;
@@ -23,19 +24,19 @@ export default class SearchPlugin {
     async shutdown() {}
 
     registerRoutes() {
-        const searchUrl = '/api/v2/:space';
+        const searchUrl = '/api/v2/:space/search';
         this.logger.info(`Registering data-access-plugin search at ${searchUrl}`);
 
-        this.app.use(searchUrl, async (req, res) => {
+        this.app.all(searchUrl, async (req, res) => {
             // @ts-ignore
             const manager: ACLManager = req.aclManager;
             // @ts-ignore
-            const apiToken: string = req.userApiToken;
+            const user: PrivateUserModel = req.v2User;
             const space: string = req.params.space;
 
             try {
                 const config = await manager.getViewForSpace({
-                    api_token: apiToken,
+                    api_token: get(user, 'api_token'),
                     space,
                 });
 

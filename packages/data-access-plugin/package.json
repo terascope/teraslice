@@ -44,6 +44,7 @@
         "@types/lodash.get": "^4.4.5",
         "elasticsearch": "^15.4.1",
         "express": "^4.16.4",
+        "got": "^9.6.0",
         "graphql-request": "^1.8.2"
     }
 }

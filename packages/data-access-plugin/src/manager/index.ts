@@ -1,9 +1,9 @@
-import { STATUS_CODES } from 'http';
 import { Express } from 'express';
 import * as apollo from 'apollo-server-express';
 import { ACLManager } from '@terascope/data-access';
 import { Logger, parseErrorInfo, TSError } from '@terascope/utils';
 import { getFromReq } from '../utils';
+import { formatError } from './utils';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import schema from './schema';
 
@@ -35,38 +35,7 @@ export default class ManagerPlugin {
             context: {
                 manager: this.manager,
             },
-            formatError(err: any) {
-                const { statusCode, message } = parseErrorInfo(err);
-                const httpMsg = STATUS_CODES[statusCode] as string;
-                const code = httpMsg.replace(' ', '_').toUpperCase();
-
-                let error: any;
-                let ErrorInstance: { new(message: string): any };
-
-                if (statusCode >= 400 && statusCode < 500) {
-                    if (statusCode === 422) {
-                        ErrorInstance = apollo.ValidationError;
-                    } else if (statusCode === 401) {
-                        ErrorInstance = apollo.AuthenticationError;
-                    } else if (statusCode === 403) {
-                        ErrorInstance = apollo.ForbiddenError;
-                    } else {
-                        ErrorInstance = apollo.UserInputError;
-                    }
-                    if (err instanceof ErrorInstance) {
-                        return err;
-                    }
-                    error = new ErrorInstance(message);
-                } else {
-                    if (err instanceof apollo.ApolloError) {
-                        return err;
-                    }
-                    error = apollo.toApolloError(err, code);
-                }
-
-                if (err && err.stack) error.stack = err.stack;
-                return error;
-            }
+            formatError,
         });
     }
 
@@ -96,16 +65,21 @@ export default class ManagerPlugin {
                     api_token: apiToken,
                 });
 
-                if (!user.api_token) {
-                    throw new TSError('Unable to get user api_token');
-                }
-
                 // @ts-ignore
-                req.userApiToken = user.api_token;
+                req.v2User = user;
                 next();
             } catch (err) {
                 const { message, statusCode } = parseErrorInfo(err);
                 res.status(statusCode).send({ error: message });
+            }
+        });
+
+        this.app.all('/api/v2', async (req, res) => {
+            // @ts-ignore
+            if (req.aclManager != null && req.v2User != null) {
+                res.sendStatus(204);
+            } else {
+                res.sendStatus(500);
             }
         });
 
