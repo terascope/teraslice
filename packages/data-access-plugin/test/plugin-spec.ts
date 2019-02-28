@@ -141,7 +141,8 @@ describe('Data Access Plugin', () => {
                     ], defaultView: {
                         metadata: {
                             searchConfig: {
-                                require_query: true
+                                require_query: true,
+                                sort_enabled: true
                             }
                         }
                     }) {
@@ -409,6 +410,88 @@ describe('Data Access Plugin', () => {
     });
 
     describe('when searching a space', () => {
+        const index = 'hello-space';
+
+        beforeAll(async () => {
+            await client.indices.delete({
+                index,
+                ignoreUnavailable: true,
+            });
+
+            await client.indices.create({
+                index,
+                waitForActiveShards: 'all',
+                body: {
+                    settings: {
+                        'index.number_of_shards': 1,
+                        'index.number_of_replicas': 0
+                    },
+                    mappings: {
+                        _doc: {
+                            _all: {
+                                enabled: false
+                            },
+                            dynamic: false,
+                            properties: {
+                                id: {
+                                    type: 'keyword'
+                                },
+                                foo: {
+                                    type: 'keyword'
+                                },
+                                group: {
+                                    type: 'keyword'
+                                },
+                            }
+                        }
+                    },
+                }
+            });
+
+            await client.create({
+                index,
+                type: '_doc',
+                id: '1',
+                refresh: true,
+                body: {
+                    id: 1,
+                    foo: 'bar',
+                    group: 'a'
+                },
+            });
+
+            await client.create({
+                index,
+                type: '_doc',
+                id: '2',
+                refresh: true,
+                body: {
+                    id: 2,
+                    foo: 'bar',
+                    group: 'b'
+                },
+            });
+
+            await client.create({
+                index,
+                type: '_doc',
+                id: '3',
+                refresh: true,
+                body: {
+                    id: 3,
+                    foo: 'baz',
+                    group: 'a'
+                },
+            });
+        });
+
+        afterAll(async () => {
+            await client.indices.delete({
+                index,
+                ignoreUnavailable: true,
+            });
+        });
+
         it('should be able to search a space', async () => {
             expect(spaceId).toBeTruthy();
             expect(apiToken).toBeTruthy();
@@ -417,7 +500,8 @@ describe('Data Access Plugin', () => {
             const result = await got(uri, {
                 query: {
                     api_token: apiToken,
-                    q: 'foo:bar'
+                    q: 'foo:bar',
+                    sort: '_id:asc'
                 },
                 json: true,
                 throwHttpErrors: false
@@ -425,9 +509,20 @@ describe('Data Access Plugin', () => {
 
             expect(result).toMatchObject({
                 body: {
-                    info: 'idk',
-                    returned: 0,
-                    results: []
+                    info: '2 results found.',
+                    returning: 2,
+                    results: [
+                        {
+                            id: 1,
+                            foo: 'bar',
+                            group: 'a'
+                        },
+                        {
+                            id: 2,
+                            foo: 'bar',
+                            group: 'b'
+                        }
+                    ]
                 },
                 statusCode: 200
             });

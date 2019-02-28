@@ -25,7 +25,7 @@ export async function search(req: Request, client: Client, config: DataAccessCon
 
     const searchOptions = getSearchOptions(req, searchConfig);
 
-    const { q, size, start, pretty } = searchOptions;
+    const { q, size, start, pretty, sort } = searchOptions;
 
     const queryAccess = new QueryAccess(config, typesConfig);
 
@@ -37,6 +37,10 @@ export async function search(req: Request, client: Client, config: DataAccessCon
 
     if (start != null) {
         searchParams.from = start;
+    }
+
+    if (sort != null) {
+        searchParams.sort = sort;
     }
 
     const query = queryAccess.restrictESQuery(q, searchParams);
@@ -51,7 +55,7 @@ export async function search(req: Request, client: Client, config: DataAccessCon
 }
 
 export function getSearchOptions(req: Request, config: SearchConfig) {
-    const q: string = getFromQuery(req, 'q');
+    const q: string = getFromQuery(req, 'q', '');
     if (!q && config.require_query) {
         throw new ts.TSError(...validationErr('q', 'must not be empty', req));
     }
@@ -118,6 +122,7 @@ export function getSearchOptions(req: Request, config: SearchConfig) {
         pretty,
         start,
         size,
+        sort,
         history,
         historyStart,
         historyPrefix,
@@ -143,7 +148,8 @@ export function handleSearchResponse(response: SearchResponse<any>, config: Sear
         throw new ts.TSError(error);
     }
 
-    if (!response._shards.total) {
+    const totalShards = get(response, '_shards.total', 0);
+    if (!totalShards) {
         throw new ts.TSError('No results returned from query', {
             statusCode: 502
         });
@@ -154,13 +160,13 @@ export function handleSearchResponse(response: SearchResponse<any>, config: Sear
     let returning = total;
 
     if (config.preserve_index_name) {
-        results = ts.fastMap(response.hits.hits, (data) => {
+        results = response.hits.hits.map((data) => {
             const doc = data._source;
             doc._index = data._index;
             return doc;
         });
     } else {
-        results = ts.fastMap(response.hits.hits, (data) => data._source);
+        results = response.hits.hits.map((data) => data._source);
     }
 
     let info = `${response.hits.total} results found.`;
@@ -195,6 +201,7 @@ function validationErr(param: string, msg: string, req: Request): [string, ts.TS
 export interface SearchOptions {
     sortDisabled: boolean;
     size: number;
+    sort?: string;
     q: string;
 }
 

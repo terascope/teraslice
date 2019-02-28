@@ -78,6 +78,7 @@ describe('Search Utils', () => {
                 historyStart: undefined,
                 pretty: false,
                 q: 'hello',
+                sort: 'example:asc',
                 size: 100,
                 sortDisabled: false,
                 start: undefined
@@ -127,6 +128,9 @@ describe('Search Utils', () => {
         it('should be able to return a valid result', () => {
             const total = 5;
             const input: unknown = {
+                _shards: {
+                    total: 2
+                },
                 hits: {
                     hits: times(total, (n) => ({
                         _index: 'example',
@@ -158,6 +162,9 @@ describe('Search Utils', () => {
         it('should be able to return a valid result with the index name', () => {
             const total = 5;
             const input: unknown = {
+                _shards: {
+                    total: 1
+                },
                 hits: {
                     hits: times(total, (n) => ({
                         _index: 'example',
