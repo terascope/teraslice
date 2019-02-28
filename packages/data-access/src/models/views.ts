@@ -1,14 +1,12 @@
 import * as es from 'elasticsearch';
 import defaultsDeep from 'lodash.defaultsdeep';
-import { TSError, Omit, concat, isPlainObject } from '@terascope/utils';
+import { TSError, Omit } from '@terascope/utils';
 import { Base, BaseModel } from './base';
 import viewsConfig from './config/views';
 import { ManagerConfig } from '../interfaces';
 
 /**
  * Manager for Views
- *
- * @todo apply defaults without merging
 */
 export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
     static ModelConfig = viewsConfig;
@@ -65,12 +63,7 @@ export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
                 this._getDefaultView(defaultViewId)
             ]);
 
-            applyDefaultProperty(view, defaultView, 'prevent_prefix_wildcard');
-            applyDefaultProperty(view, defaultView, 'constraint');
-            applyDefaultProperty(view, defaultView, 'metadata');
-            applyDefaultProperty(view, defaultView, 'excludes');
-            applyDefaultProperty(view, defaultView, 'includes');
-            return view;
+            return defaultsDeep(view, defaultView);
         } catch (err) {
             if (err && err.statusCode === 404) {
                 const errMsg = `No View found for role "${roleId}" and space "${spaceId}"`;
@@ -99,23 +92,6 @@ export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
             prevent_prefix_wildcard: view.prevent_prefix_wildcard,
             metadata: view.metadata,
         };
-    }
-}
-
-function applyDefaultProperty(view: CoreViewObj, defaultView: CoreViewObj, prop: keyof CoreViewObj) {
-    if (view[prop] != null && defaultView[prop] == null) return;
-
-    if (view[prop] == null && defaultView[prop] != null) {
-        view[prop] = defaultView[prop];
-    } else if (view[prop] != null && defaultView[prop] != null)  {
-        const val = view[prop];
-        const defaultVal = defaultView[prop];
-        if (Array.isArray(val) && Array.isArray(defaultVal)) {
-            view[prop] = concat(defaultVal, val);
-        }
-        if (isPlainObject(val)) {
-            view[prop] = defaultsDeep({}, val, defaultVal);
-        }
     }
 }
 

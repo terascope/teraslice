@@ -392,7 +392,6 @@ describe('ACLManager', () => {
                             name: 'Example View',
                             roles: [roleId],
                             includes: ['foo'],
-                            excludes: ['bar'],
                             metadata: {
                                 a: 'b',
                                 example: {
@@ -402,7 +401,7 @@ describe('ACLManager', () => {
                         }
                     ],
                     defaultView: {
-                        includes: ['example'],
+                        excludes: ['example'],
                         constraint: 'hello:true',
                         metadata: {
                             c: 'd',
@@ -450,8 +449,8 @@ describe('ACLManager', () => {
                     view: {
                         name: 'Example View',
                         roles: [roleId],
-                        includes: ['example', 'foo'],
-                        excludes: ['bar'],
+                        includes: ['foo'],
+                        excludes: ['example'],
                         constraint: 'hello:true',
                         metadata: {
                             a: 'b',
