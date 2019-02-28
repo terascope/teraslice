@@ -9,11 +9,10 @@ import { getFromQuery } from '../utils';
 /**
  * Search elasticsearch in a teraserver backwards compatible way
  *
- * @todo add types to query access
- * @todo add history support
- * @todo date_field and geo_field should be prefixed with default_
+ * @todo add timeseries/history support
  * @todo sort_date_only should use types as well as default_date_field
  * @todo figure out how to support post process
+ * @todo add support for geo sort
  */
 export async function search(req: Request, client: Client, config: DataAccessConfig, logger: ts.Logger): Promise<[FinalResponse, boolean]> {
     const indexConfig: IndexConfig = get(config, 'space_metadata.indexConfig', {});
@@ -86,7 +85,7 @@ export function getSearchOptions(req: Request, config: SearchConfig) {
         field = ts.trimAndToLower(field);
         direction = ts.trimAndToLower(direction);
 
-        const dateField = ts.trimAndToLower(config.date_field);
+        const dateField = ts.trimAndToLower(config.default_date_field);
         if (config.sort_dates_only && field !== dateField) {
             throw new ts.TSError(...validationErr('sort', `sorting currently available for the "${dateField}" field only`, req));
         }
@@ -132,7 +131,6 @@ export function getSearchOptions(req: Request, config: SearchConfig) {
     };
 }
 
-/** @todo */
 export function buildGeoSort(config: SearchConfig, options: SearchOptions) {
     return;
 }
@@ -212,10 +210,10 @@ export interface SearchConfig {
     sort_default?: string;
     sort_dates_only?: boolean;
     sort_enabled?: boolean;
-    geo_field?: string;
+    default_geo_field?: string;
     preserve_index_name?: boolean;
     require_query?: boolean;
-    date_field?: string;
+    default_date_field?: string;
 }
 
 export interface ViewMetadata {

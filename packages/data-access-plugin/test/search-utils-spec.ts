@@ -53,7 +53,7 @@ describe('Search Utils', () => {
             expect(() => {
                 utils.getSearchOptions(req, {
                     sort_enabled: true,
-                    date_field: 'somedate',
+                    default_date_field: 'somedate',
                     sort_dates_only: true
                 });
             }).toThrowWithMessage(TSError, 'Invalid sort parameter, sorting currently available for the "somedate" field only, was given: "wrongdate:asc"');
