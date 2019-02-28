@@ -44,7 +44,7 @@ export async function search(req: Request, client: Client, config: DataAccessCon
     if (isTest) logger.debug(query, 'searching...');
 
     const response = await client.search(query);
-    if (isTest) logger.debug(response, 'got response...');
+    if (isTest) logger.trace(response, 'got response...');
     const result = handleSearchResponse(response, searchConfig, searchOptions);
 
     return [result, pretty];
