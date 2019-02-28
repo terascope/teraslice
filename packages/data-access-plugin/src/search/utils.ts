@@ -91,16 +91,16 @@ export function getSearchOptions(req: Request, config: SearchConfig) {
         }
 
         let [field, direction] = sort.split(':');
-        field = field && field.trim().toLowerCase();
-        direction = direction && direction.trim().toLowerCase();
+        field = ts.trimAndToLower(field);
+        direction = ts.trimAndToLower(direction);
+
+        const dateField = ts.trimAndToLower(config.date_field);
+        if (config.sort_dates_only && field !== dateField) {
+            throw new ts.TSError(...validationErr('sort', `sorting currently available for the "${dateField}" field only`, req));
+        }
 
         if (!field || !direction || !['asc', 'desc'].includes(direction)) {
             throw new ts.TSError(...validationErr('sort', 'must be field_name:asc or field_name:desc', req));
-        }
-
-        const dateField = config.date_field && config.date_field.trim().toLowerCase();
-        if (config.sort_dates_only && field !== dateField) {
-            throw new ts.TSError(...validationErr('sort', `sorting currently available for the '${dateField}' field only`, req));
         }
 
         sort = [field, direction].join(':');
@@ -195,10 +195,9 @@ export function handleSearchResponse(response: SearchResponse<any>, config: Sear
 }
 
 function validationErr(param: string, msg: string, req: Request): [string, ts.TSErrorConfig] {
-    const given = getFromQuery(req, param);
-
+    const given = ts.toString(getFromQuery(req, param));
     return [
-        `Invalid ${param} parameter, ${msg}, was given: "${given != null ? given : ''}"`,
+        `Invalid ${param} parameter, ${msg}, was given: "${given}"`,
         {
             statusCode: 422,
             context: req.query

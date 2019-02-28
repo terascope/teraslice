@@ -1,7 +1,7 @@
 import { Express } from 'express';
 import * as apollo from 'apollo-server-express';
 import { ACLManager } from '@terascope/data-access';
-import { Logger, parseErrorInfo, TSError } from '@terascope/utils';
+import { Logger, parseErrorInfo } from '@terascope/utils';
 import { getFromReq } from '../utils';
 import { formatError } from './utils';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
