@@ -7,7 +7,8 @@ import {
     ValidationResults,
     NormalizedFields,
     ConfigProcessingDict,
-    StateDict
+    StateDict,
+    UnParsedConfig
 } from '../interfaces';
 
 const  { Graph, alg: { topsort, findCycles } } = graphlib;
@@ -130,7 +131,6 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
     });
 
     _.forOwn(graphEdges, (ids, key) => {
-        // @ts-ignore
         ids.forEach((id) => {
             const matchingTags: string[] = tagMapping[key];
             matchingTags.forEach(tag => graph.setEdge(tag, id));
@@ -169,9 +169,15 @@ function validateOtherMatchRequired(configDict: ConfigProcessingDict, logger: Lo
     });
 }
 
+type Config = OperationConfig|UnParsedConfig;
+
 // TODO: review what needs to be exported
-export function isPrimaryConfig(config: OperationConfig) {
+export function isPrimaryConfig(config: Config) {
     return hasSelector(config) && !hasFollow(config) && !isPostProcessType(config, 'selector');
+}
+
+export function needsDefaultSelector(config: Config) {
+    return !hasSelector(config) && !hasFollow(config);
 }
 
 function findNodeChildren(graph: graphlib.Graph, node: string):string[]|null {
@@ -180,7 +186,7 @@ function findNodeChildren(graph: graphlib.Graph, node: string):string[]|null {
     return null;
 }
 
-function isPostProcessType(config:OperationConfig, type: string) {
+function isPostProcessType(config:Config, type: string) {
     return config.post_process === type;
 }
 
@@ -192,47 +198,48 @@ function isBackwordCompatiblePostProcessConfig(config: OperationConfig) {
     return hasPipline(config) && hasPostProcess(config) && !hasFollow(config);
 }
 
-function hasSelector(config: OperationConfig) {
+function hasSelector(config: Config) {
     return _.has(config, 'selector');
 }
 
-function hasFollow(config: OperationConfig) {
+function hasFollow(config: Config) {
     return _.has(config, 'follow');
 }
+
 // @ts-ignore
-function selectorPostProces(config: OperationConfig) {
+function selectorPostProces(config: Config) {
     return hasSelector(config) && _.get(config, 'post_process') === 'selector';
 }
 
-function hasPostProcess(config: OperationConfig): boolean {
+function hasPostProcess(config: Config): boolean {
     return (_.has(config, 'post_process') || _.has(config, 'validation'));
 }
 
-export function isOldCompatabilityPostProcessConfig(config: OperationConfig): boolean {
-    return (!hasFollow(config) && hasPostProcess(config) && hasSelector(config) && hasExtractions(config));
+export function isOldCompatabilityPostProcessConfig(config: Config): boolean {
+    return (!hasFollow(config) && hasPostProcess(config) && hasSelector(config));
 }
 
-export function isSimplePostProcessConfig(config: OperationConfig) {
+export function isSimplePostProcessConfig(config: Config) {
     return (!_.has(config, 'follow') && hasPostProcess(config));
 }
 
-export function hasExtractions(config: OperationConfig) {
+export function hasExtractions(config: Config) {
     return _.has(config, 'source_field');
 }
 
-function hasPrimaryExtractions(config: OperationConfig) {
+function hasPrimaryExtractions(config: Config) {
     return hasExtractions && !isPostProcessType(config, 'extraction');
 }
 
-function hasOutputRestrictions(config: OperationConfig) {
+function hasOutputRestrictions(config: Config) {
     return config.output === false && config.validation == null;
 }
 
-function hasMatchRequirements(config: OperationConfig) {
+function hasMatchRequirements(config: Config) {
     return _.has(config, 'other_match_required');
 }
 
-function hasMultivalue(config: OperationConfig) {
+function hasMultivalue(config: Config) {
     return _.has(config, 'multivalue');
 }
 

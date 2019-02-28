@@ -1,10 +1,12 @@
 
 import Loader from './loader';
-import RulesValidator from './rules-validator';
 import RulesLoader from './rules-loader';
+import RulesParser from './rules-parser';
+import RulesValidator from './rules-validator';
 
 export {
     Loader,
-    RulesValidator,
-    RulesLoader
+    RulesLoader,
+    RulesParser,
+    RulesValidator
 };
