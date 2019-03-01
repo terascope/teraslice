@@ -1,15 +1,19 @@
 'use strict';
 
 const uuid = require('uuid');
+const elasticsearchBackend = require('./backends/elasticsearch_store');
 
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
 module.exports = function module(context) {
-    const logger = context.apis.foundation.makeLogger({ module: 'job_storage' });
+    const logger = context.apis.foundation.makeLogger({
+        module: 'job_storage'
+    });
+
     const config = context.sysconfig.teraslice;
     const jobType = 'job';
-    const jobsIndex = `${config.name}__jobs`;
+    const indexName = `${config.name}__jobs`;
 
     let backend;
 
@@ -57,9 +61,18 @@ module.exports = function module(context) {
         shutdown
     };
 
-    return require('./backends/elasticsearch_store')(context, jobsIndex, 'job', 'job_id')
+    const backendConfig = {
+        context,
+        indexName,
+        recordType: 'job',
+        idField: 'job_id',
+        fullResponse: false,
+        logRecord: false
+    };
+
+    return elasticsearchBackend(backendConfig)
         .then((elasticsearch) => {
-            logger.info('Initializing');
+            logger.info('job storage initialized');
             backend = elasticsearch;
             return api;
         });

@@ -8,8 +8,22 @@ const { getClient } = require('@terascope/job-components');
 const { timeseriesIndex } = require('../../../utils/date_utils');
 
 // eslint-disable-next-line max-len
-module.exports = function module(context, indexName, recordType, idField, _bulkSize, fullResponse, logRecord = true) {
-    const logger = context.apis.foundation.makeLogger({ module: 'elasticsearch_backend' });
+module.exports = function module(backendConfig) {
+    const {
+        context,
+        indexName,
+        recordType,
+        idField,
+        bulkSize = 500,
+        fullResponse = false,
+        logRecord = true
+    } = backendConfig;
+
+    const logger = context.apis.foundation.makeLogger({
+        module: 'elasticsearch_backend',
+        storageType: recordType,
+    });
+
     const config = context.sysconfig.teraslice;
     let elasticsearch;
     let client;
@@ -19,9 +33,6 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
     // Buffer to build up bulk requests.
     let bulkQueue = [];
     let savingBulk = false; // serialize save requests.
-
-    let bulkSize = 500;
-    if (_bulkSize) bulkSize = _bulkSize;
 
     function getRecord(recordId, indexArg, fields) {
         logger.trace(`getting record id: ${recordId}`);

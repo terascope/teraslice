@@ -242,10 +242,20 @@ module.exports = function module(context) {
         shutdown
     };
 
+    const backendConfig = {
+        context,
+        indexName,
+        recordType: 'asset',
+        idField: '_id',
+        fullResponse: true,
+        logRecord: false
+    };
+
     return ensureAssetDir()
-        .then(() => elasticsearchBackend(context, indexName, 'asset', '_id', null, true, false))
+        .then(() => elasticsearchBackend(backendConfig))
         .then((elasticsearch) => {
             backend = elasticsearch;
+            logger.info('assets storage initialized');
             return api;
         });
 };

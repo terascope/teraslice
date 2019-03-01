@@ -51,7 +51,7 @@ module.exports = function module(context) {
         }
 
         if (Object.prototype.hasOwnProperty.call(connectors, type)) {
-            logger.info(`Creating connection for ${type}`);
+            logger.info(`creating connection for ${type}`);
 
             let moduleConfig = {};
 

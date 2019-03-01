@@ -584,7 +584,7 @@ module.exports = function module(context, clusterMasterServer, executionService)
     };
 
     function _initialize() {
-        logger.info('Native clustering initializing');
+        logger.info('native clustering initializing');
         const server = clusterMasterServer.httpServer;
         return Promise.resolve()
             .then(() => messaging.listen({ server }))

@@ -134,10 +134,19 @@ module.exports = function module(context) {
         shutdown
     };
 
-    return elasticsearchBackend(context, indexName, 'state', '_id')
+    const backendConfig = {
+        context,
+        indexName,
+        recordType: 'state',
+        idField: '_id',
+        fullResponse: false,
+        logRecord: false
+    };
+
+    return elasticsearchBackend(backendConfig)
         .then((elasticsearch) => {
             backend = elasticsearch;
-            logger.info('initializing');
+            logger.info('state storage initialized');
             return api;
         });
 };

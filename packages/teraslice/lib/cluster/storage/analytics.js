@@ -73,10 +73,19 @@ module.exports = function module(context) {
         shutdown
     };
 
-    return elasticsearchBackend(context, indexName, 'analytics', '_id')
+    const backendConfig = {
+        context,
+        indexName,
+        recordType: 'analytics',
+        idField: '_id',
+        fullResponse: false,
+        logRecord: false
+    };
+
+    return elasticsearchBackend(backendConfig)
         .then((elasticsearch) => {
             backend = elasticsearch;
-            logger.info('AnalyticsStorage: initializing');
+            logger.info('analytics storage initialized');
             return api;
         });
 };
