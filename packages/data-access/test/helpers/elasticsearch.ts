@@ -5,7 +5,8 @@ import { ACLManager } from '../../src';
 export function makeClient(): es.Client {
     return new es.Client({
         host: ELASTICSEARCH_HOST,
-        log: 'error'
+        log: 'error',
+        apiVersion: '6.5'
     });
 }
 

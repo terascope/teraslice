@@ -93,6 +93,8 @@ describe('Data Access Plugin', () => {
     let newApiToken: string;
     let roleId: string;
     let spaceId: string;
+    let viewId: string;
+    let defaultViewId: string;
 
     describe('when using the management api', () => {
         it('should be able to create a role', async () => {
@@ -136,6 +138,7 @@ describe('Data Access Plugin', () => {
                     }, views: [
                         {
                             name: "greetings-admin",
+                            excludes: ["group"],
                             roles: ["${roleId}"]
                         }
                     ], defaultView: {
@@ -186,7 +189,8 @@ describe('Data Access Plugin', () => {
             expect(views[1]).toMatchObject({
                 metadata: {
                     searchConfig: {
-                        require_query: true
+                        require_query: true,
+                        sort_enabled: true
                     }
                 },
                 roles: []
@@ -194,6 +198,12 @@ describe('Data Access Plugin', () => {
 
             spaceId = space.id;
             expect(spaceId).toBeTruthy();
+
+            viewId = views[0].id;
+            expect(viewId).toBeTruthy();
+
+            defaultViewId = views[1].id;
+            expect(defaultViewId).toBeTruthy();
         });
 
         it('should be able to create a user', async () => {
@@ -264,6 +274,8 @@ describe('Data Access Plugin', () => {
         it('should be able to find everything', async () => {
             expect(userId).toBeTruthy();
             expect(spaceId).toBeTruthy();
+            expect(viewId).toBeTruthy();
+            expect(defaultViewId).toBeTruthy();
 
             const uri = formatBaseUri('/data-access');
             const query = `
@@ -272,22 +284,32 @@ describe('Data Access Plugin', () => {
                         name,
                         spaces
                     }
-
                     findRoles(query: "*") {
                         name,
                         spaces
                     }
-
                     findUser(id: "${userId}") {
                         username,
                         firstname,
                         lastname,
                     }
-
                     findUsers(query: "*") {
                         username,
                         firstname,
                         lastname,
+                    }
+                    findSpace(id: "${spaceId}") {
+                        default_view,
+                        views
+                    }
+                    findSpaces(query: "*") {
+                        name
+                    }
+                    findView(id: "${viewId}") {
+                        excludes
+                    }
+                    findViews(query: "*") {
+                        name
                     }
                 }
             `;
@@ -313,6 +335,26 @@ describe('Data Access Plugin', () => {
                         username: 'hello',
                         firstname: 'hi',
                         lastname: 'hello'
+                    }
+                ],
+                findSpace: {
+                    default_view: defaultViewId,
+                    views: [viewId]
+                },
+                findSpaces: [
+                    {
+                        name: 'greetings',
+                    }
+                ],
+                findView: {
+                    excludes: ['group']
+                },
+                findViews: [
+                    {
+                        name: `Default View for Space ${spaceId}`,
+                    },
+                    {
+                        name: 'greetings-admin',
                     }
                 ]
             });
@@ -510,21 +552,81 @@ describe('Data Access Plugin', () => {
             expect(result).toMatchObject({
                 body: {
                     info: '2 results found.',
+                    total: 2,
                     returning: 2,
                     results: [
                         {
                             id: 1,
                             foo: 'bar',
-                            group: 'a'
                         },
                         {
                             id: 2,
                             foo: 'bar',
-                            group: 'b'
                         }
                     ]
                 },
                 statusCode: 200
+            });
+        });
+
+        describe('when perserve index is set to true', () => {
+            it('should be able to update the default view', async () => {
+                expect(defaultViewId).toBeTruthy();
+
+                const uri = formatBaseUri('/data-access');
+                const query = `
+                    mutation {
+                        updateView(view: {
+                            id: "${defaultViewId}",
+                            metadata: {
+                                searchConfig: {
+                                    require_query: true,
+                                    sort_enabled: true,
+                                    preserve_index_name: true
+                                }
+                            }
+                        }) {
+                            id
+                        }
+                    }
+                `;
+
+                expect(await request(uri, query)).toEqual({
+                    updateView: {
+                        id: defaultViewId,
+                    }
+                });
+            });
+
+            it('should be able to search a space with pretty output', async () => {
+                expect(spaceId).toBeTruthy();
+                expect(apiToken).toBeTruthy();
+
+                const uri = formatBaseUri(spaceId);
+                const result = await got(uri, {
+                    query: {
+                        api_token: apiToken,
+                        q: 'foo:baz',
+                        pretty: true
+                    },
+                    throwHttpErrors: false
+                });
+
+                const expected = JSON.stringify({
+                    info: '1 results found.',
+                    total: 1,
+                    returning: 1,
+                    results: [
+                        {
+                            foo: 'baz',
+                            id: 3,
+                            _index: index,
+                        }
+                    ]
+                }, null, 2);
+
+                expect(result.body).toEqual(expected);
+                expect(result.statusCode).toEqual(200);
             });
         });
     });

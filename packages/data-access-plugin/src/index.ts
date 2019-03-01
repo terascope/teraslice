@@ -14,7 +14,7 @@ const adapter: TeraserverPluginAdapter = {
         this._config = config;
     },
 
-    init() {
+    async init() {
         if (this._manager == null || this._search == null) {
             throw new Error('Plugin has not been configured');
         }
