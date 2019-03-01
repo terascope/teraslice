@@ -7,6 +7,7 @@ const { TSError } = require('@terascope/utils');
 const { JobValidator } = require('@terascope/job-components');
 const { terasliceOpPath } = require('../../config');
 const spawnAssetsLoader = require('../../workers/assets/spawn');
+const makeJobStore = require('../storage/jobs');
 
 module.exports = function module(context) {
     const executionService = context.services.execution;
@@ -255,7 +256,7 @@ module.exports = function module(context) {
         return Promise.resolve(api);
     }
 
-    return require('../storage/jobs')(context)
+    return makeJobStore(context)
         .then((job) => {
             jobStore = job;
             return _initialize(); // Load the initial pendingJobs state.
