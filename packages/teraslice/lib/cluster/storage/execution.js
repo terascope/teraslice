@@ -179,7 +179,8 @@ module.exports = function module(context) {
         recordType: 'ex',
         idField: 'ex_id',
         fullResponse: false,
-        logRecord: false
+        logRecord: false,
+        storageName: 'execution'
     };
 
     return elasticsearchBackend(backendConfig)

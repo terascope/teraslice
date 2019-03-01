@@ -1,36 +1,32 @@
 {
-  "settings": {
-    "index.number_of_shards": 5,
-    "index.number_of_replicas": 1
-  },
-  "mappings": {
-    "asset": {
-      "_all": {
-        "enabled": false
-      },
-      "dynamic": false,
-      "properties": {
-        "blob": {
-          "type": "keyword",
-          "index": false,
-          "doc_values": false
-        },
-        "name": {
-          "type": "keyword"
-        },
-        "version": {
-          "type": "keyword"
-        },
-        "id": {
-          "type": "keyword"
-        },
-        "description": {
-          "type": "keyword"
-        },
-        "_created": {
-          "type": "date"
+    "mappings": {
+        "asset": {
+            "_all": {
+                "enabled": false
+            },
+            "dynamic": false,
+            "properties": {
+                "blob": {
+                    "type": "keyword",
+                    "index": false,
+                    "doc_values": false
+                },
+                "name": {
+                    "type": "keyword"
+                },
+                "version": {
+                    "type": "keyword"
+                },
+                "id": {
+                    "type": "keyword"
+                },
+                "description": {
+                    "type": "keyword"
+                },
+                "_created": {
+                    "type": "date"
+                }
+            }
         }
-      }
     }
-  }
 }

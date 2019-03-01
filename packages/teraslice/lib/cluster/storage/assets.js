@@ -248,7 +248,8 @@ module.exports = function module(context) {
         recordType: 'asset',
         idField: '_id',
         fullResponse: true,
-        logRecord: false
+        logRecord: false,
+        storageName: 'assets'
     };
 
     return ensureAssetDir()

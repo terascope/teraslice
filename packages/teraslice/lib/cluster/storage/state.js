@@ -148,7 +148,8 @@ module.exports = function module(context) {
         idField: '_id',
         fullResponse: false,
         logRecord: false,
-        forceRefresh: false
+        forceRefresh: false,
+        storageName: 'state'
     };
 
     return elasticsearchBackend(backendConfig)

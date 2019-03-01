@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const _ = require('lodash');
+const path = require('path');
 const { TSError, parseError } = require('@terascope/utils');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
@@ -14,6 +15,7 @@ module.exports = function module(backendConfig) {
         indexName,
         recordType,
         idField,
+        storageName,
         bulkSize = 500,
         fullResponse = false,
         logRecord = true,
@@ -22,10 +24,16 @@ module.exports = function module(backendConfig) {
 
     const logger = context.apis.foundation.makeLogger({
         module: 'elasticsearch_backend',
-        storageType: recordType,
+        storageName,
     });
 
     const config = context.sysconfig.teraslice;
+
+    const indexSettings = _.get(config, ['index_settings', storageName], {
+        number_of_shards: 5,
+        number_of_replicas: 1
+    });
+
     let elasticsearch;
     let client;
     let flushInterval;
@@ -250,9 +258,14 @@ module.exports = function module(backendConfig) {
     }
 
     function getMapFile() {
-        const mappingFile = `${__dirname}/mappings/${recordType}.json`;
+        const mappingFile = path.join(__dirname, `mappings/${recordType}.json`);
 
-        return JSON.parse(fs.readFileSync(mappingFile));
+        const mapping = JSON.parse(fs.readFileSync(mappingFile));
+        mapping.settings = {
+            'index.number_of_shards': indexSettings.number_of_shards,
+            'index.number_of_replicas': indexSettings.number_of_replicas,
+        };
+        return mapping;
     }
 
     function isAvailable(indexArg) {

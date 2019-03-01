@@ -87,6 +87,7 @@ module.exports = function module(context) {
         fullResponse: false,
         logRecord: false,
         forceRefresh: false,
+        storageName: 'analytics'
     };
 
     return elasticsearchBackend(backendConfig)
