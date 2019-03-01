@@ -235,11 +235,7 @@ function _parseESErrorInfo(input: ElasticsearchError): { message: string, contex
         }
     }
 
-    let message = `Elasticsearch Error: ${_normalizeESError(metadata.msg)}`;
-
-    if (type) message += ` type: ${type}`;
-    if (reason) message += ` reason: ${reason}`;
-    if (index) message += ` on index: ${index}`;
+    const message = `Elasticsearch Error: ${_normalizeESError(metadata.msg)}`;
 
     const code = toErrorCode(reason ? `${name} ${reason}` : name);
 

@@ -145,7 +145,7 @@ describe('Error Utils', () => {
                 }),
                 { },
                 {
-                    message: 'Elasticsearch Error: Some ES Error type: some_es_type reason: some_es_reason on index: some_index',
+                    message: 'Elasticsearch Error: Some ES Error',
                     statusCode: 502
                 },
             ],
@@ -167,7 +167,7 @@ describe('Error Utils', () => {
                 }),
                 { },
                 {
-                    message: 'Elasticsearch Error: Another ES Error type: another_es_type reason: another_es_reason on index: another_index',
+                    message: 'Elasticsearch Error: Another ES Error',
                 }
             ],
             [
@@ -194,7 +194,7 @@ describe('Error Utils', () => {
                 }),
                 { reason: 'Failure' },
                 {
-                    message: 'Failure, caused by Elasticsearch Error: Response ES Error on index: hello',
+                    message: 'Failure, caused by Elasticsearch Error: Response ES Error',
                 }
             ],
             [
