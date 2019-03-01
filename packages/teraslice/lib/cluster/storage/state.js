@@ -57,6 +57,7 @@ module.exports = function module(context) {
             delay: 1000,
             backoff: 5,
             matches: [
+                'Not Found',
                 'Request Timeout',
             ],
             endWithFatal: true,
@@ -124,6 +125,11 @@ module.exports = function module(context) {
         return backend.shutdown(forceShutdown);
     }
 
+    function refresh() {
+        const { index } = timeseriesIndex(timeseriesFormat, _index);
+        return backend.refresh(index);
+    }
+
     const api = {
         search,
         createState,
@@ -131,7 +137,8 @@ module.exports = function module(context) {
         recoverSlices,
         executionStartingSlice,
         count,
-        shutdown
+        shutdown,
+        refresh,
     };
 
     const backendConfig = {
@@ -140,7 +147,8 @@ module.exports = function module(context) {
         recordType: 'state',
         idField: '_id',
         fullResponse: false,
-        logRecord: false
+        logRecord: false,
+        forceRefresh: false
     };
 
     return elasticsearchBackend(backendConfig)

@@ -64,13 +64,19 @@ module.exports = function module(context) {
         return backend.shutdown(forceShutdown);
     }
 
+    function refresh() {
+        const { index } = timeseriesIndex(timeseriesFormat, _index);
+        return backend.refresh(index);
+    }
+
     const api = {
         log,
         get: getRecord,
         search,
         update,
         remove,
-        shutdown
+        shutdown,
+        refresh
     };
 
     const backendConfig = {
@@ -79,7 +85,8 @@ module.exports = function module(context) {
         recordType: 'analytics',
         idField: '_id',
         fullResponse: false,
-        logRecord: false
+        logRecord: false,
+        forceRefresh: false,
     };
 
     return elasticsearchBackend(backendConfig)

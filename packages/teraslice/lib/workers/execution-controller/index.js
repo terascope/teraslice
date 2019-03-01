@@ -567,6 +567,10 @@ class ExecutionController {
 
         this._logFinishedJob();
 
+        // refresh the state store index
+        // to prevent the execution from failing incorrectly
+        await this.stores.stateStore.refresh();
+
         try {
             await this._updateExecutionStatus();
         } catch (err) {

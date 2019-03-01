@@ -16,7 +16,8 @@ module.exports = function module(backendConfig) {
         idField,
         bulkSize = 500,
         fullResponse = false,
-        logRecord = true
+        logRecord = true,
+        forceRefresh = true
     } = backendConfig;
 
     const logger = context.apis.foundation.makeLogger({
@@ -79,7 +80,7 @@ module.exports = function module(backendConfig) {
             index: indexArg || indexName,
             type: recordType,
             body: record,
-            refresh: true
+            refresh: forceRefresh
         };
 
         return elasticsearch.index(query);
@@ -96,7 +97,7 @@ module.exports = function module(backendConfig) {
             type: recordType,
             id: recordId,
             body: record,
-            refresh: true
+            refresh: forceRefresh
         };
 
         return elasticsearch.indexWithId(query);
@@ -114,7 +115,7 @@ module.exports = function module(backendConfig) {
             type: recordType,
             id: record[idField],
             body: record,
-            refresh: true
+            refresh: forceRefresh
         };
 
         return elasticsearch.create(query);
@@ -146,7 +147,7 @@ module.exports = function module(backendConfig) {
             body: {
                 doc: updateSpec
             },
-            refresh: true,
+            refresh: forceRefresh,
             retryOnConflict: 3
         };
 
@@ -159,7 +160,7 @@ module.exports = function module(backendConfig) {
             index: indexArg || indexName,
             type: recordType,
             id: recordId,
-            refresh: true
+            refresh: forceRefresh
         };
 
         return elasticsearch.remove(query);
