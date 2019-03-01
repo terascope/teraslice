@@ -30,8 +30,8 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
                 allFormatters: true,
             },
             indexSettings: {
-                'index.number_of_shards': 5,
-                'index.number_of_replicas': 1,
+                'index.number_of_shards': isProd ? 5 : 1,
+                'index.number_of_replicas': isProd ? 1 : 0,
                 analysis: {
                     analyzer: {
                         lowercase_keyword_analyzer: {
@@ -162,7 +162,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         } as T));
 
         if (!doc.id) {
-            throw new ts.TSError('Updates required id', {
+            throw new ts.TSError('Updates requires id', {
                 statusCode: 422
             });
         }
@@ -351,3 +351,5 @@ export interface BaseModel {
     /** Creation date */
     created: string;
 }
+
+const isProd = process.env.NODE_ENV === 'production';

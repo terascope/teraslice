@@ -22,7 +22,7 @@ describe('Users', () => {
 
     describe('when testing user access', () => {
         const username = 'billyjoe';
-        const password = 'secret-password';
+        let password = 'secret-password';
 
         let created: PrivateUserModel;
 
@@ -39,13 +39,40 @@ describe('Users', () => {
             }, password);
         });
 
-        it('should be able fetch the user', async () => {
-            const fetched = await users.findById(created.id);
-
-            expect(created).toMatchObject(fetched);
+        it('should return private field when creating user', () => {
             expect(created).toHaveProperty('api_token');
             expect(created).toHaveProperty('hash');
             expect(created).toHaveProperty('salt');
+        });
+
+        it('should be able fetch the user by id', async () => {
+            const fetched = await users.findById(created.id);
+
+            expect(created).toMatchObject(fetched);
+            expect(fetched).not.toHaveProperty('api_token');
+            expect(fetched).not.toHaveProperty('hash');
+            expect(fetched).not.toHaveProperty('salt');
+        });
+
+        it('should be able fetch the user by any id', async () => {
+            const fetched = await users.findByAnyId(created.username);
+
+            expect(created).toMatchObject(fetched);
+            expect(fetched).not.toHaveProperty('api_token');
+            expect(fetched).not.toHaveProperty('hash');
+            expect(fetched).not.toHaveProperty('salt');
+        });
+
+        it('should be able find all by ids', async () => {
+            const result = await users.findAll([created.id]);
+
+            expect(result).toBeArrayOfSize(1);
+
+            for (const fetched of result) {
+                expect(fetched).not.toHaveProperty('api_token');
+                expect(fetched).not.toHaveProperty('hash');
+                expect(fetched).not.toHaveProperty('salt');
+            }
         });
 
         it('should be able to omit private fields', () => {
@@ -67,21 +94,31 @@ describe('Users', () => {
         });
 
         it('should be able to update the api_token', async () => {
-            const result = await users.findByToken(created.api_token);
-            expect(result).toMatchObject(created);
-
+            const current = await users.findByToken(created.api_token);
             const newToken = await users.updateToken(username);
+            const updated = await users.findByToken(newToken);
 
-            const fetched = await users.findByToken(newToken);
-
-            expect(created.api_token).not.toEqual(newToken);
-            expect(fetched.api_token).toEqual(newToken);
-
-            await expect(users.findByToken(newToken))
-                .resolves.toEqual(fetched);
+            expect(updated.hash).toEqual(current.hash);
+            expect(updated.salt).toEqual(current.salt);
+            expect(updated.api_token).not.toEqual(current.api_token);
+            expect(updated.api_token).toEqual(newToken);
         });
 
-        describe('when give the correct password', () => {
+        it('should be able to update the password', async () => {
+            const current = await users.authenticate(username, password);
+
+            const newPassword = 'secret-password-2';
+            await users.updatePassword(username, newPassword);
+            password = newPassword;
+
+            const updated = await users.authenticate(username, password);
+
+            expect(updated.hash).not.toEqual(current.hash);
+            expect(updated.salt).not.toEqual(current.salt);
+            expect(updated.api_token).toEqual(current.api_token);
+        });
+
+        describe('when given the correct password', () => {
             it('should be able to authenticate the user', async () => {
                 const result = await users.authenticate(username, password);
                 expect(result).toMatchObject({
@@ -90,13 +127,39 @@ describe('Users', () => {
             });
         });
 
-        describe('when give the incorrect password', () => {
+        describe('when given an incorrect password', () => {
+            it('should NOT be able to authenticate the user', async () => {
+                expect.hasAssertions();
+                try {
+                    await users.authenticate('wrong-username', password);
+                } catch (err) {
+                    expect(err.message).toEqual('Unable to authenticate user');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toBe(403);
+                }
+            });
+        });
+
+        describe('when given an incorrect username', () => {
             it('should NOT be able to authenticate the user', async () => {
                 expect.hasAssertions();
                 try {
                     await users.authenticate(username, 'wrong-password');
                 } catch (err) {
                     expect(err.message).toEqual('Unable to authenticate user with credentials');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toBe(403);
+                }
+            });
+        });
+
+        describe('when given an incorrect api_token', () => {
+            it('should NOT be able to authenticate the user', async () => {
+                expect.hasAssertions();
+                try {
+                    await users.findByToken('wrong-api-token');
+                } catch (err) {
+                    expect(err.message).toEqual('Unable to authenticate user with api token');
                     expect(err).toBeInstanceOf(TSError);
                     expect(err.statusCode).toBe(403);
                 }

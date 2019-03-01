@@ -48,8 +48,8 @@ describe('IndexStore', () => {
         },
         version: 1,
         indexSettings: {
-            'index.number_of_shards': 4,
-            'index.number_of_replicas': 1
+            'index.number_of_shards': 1,
+            'index.number_of_replicas': 0
         },
         logger,
         bulkMaxSize: 50,

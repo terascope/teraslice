@@ -1,4 +1,5 @@
 import 'jest-extended';
+import { TSError } from '@terascope/utils';
 import { Roles, RoleModel } from '../../src/models/roles';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
@@ -96,6 +97,32 @@ describe('Roles', () => {
                 return expect(roles.hasAccessToSpace(bad, devSpaceId))
                     .resolves.toBeFalse();
             });
+        });
+    });
+
+    describe('when testing role updates', () => {
+        it('should throw when adding a sapce to role without a space id', async () => {
+            expect.hasAssertions();
+
+            try {
+                await roles.addSpaceToRoles('', []);
+            } catch (err) {
+                expect(err.message).toEqual('Missing space to attaching to roles');
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.statusCode).toEqual(422);
+            }
+        });
+
+        it('should throw when removing a sapce to role without a space id', async () => {
+            expect.hasAssertions();
+
+            try {
+                await roles.removeSpaceFromRoles('');
+            } catch (err) {
+                expect(err.message).toEqual('Missing space to remove from roles');
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.statusCode).toEqual(422);
+            }
         });
     });
 });

@@ -6,8 +6,6 @@ import { DataAccessConfig } from './acl-manager';
 /**
  * Using a DataAccess ACL, limit queries to
  * specific fields and records
- *
- * @todo test dsl format
 */
 export class QueryAccess {
     config: DataAccessConfig;
@@ -46,11 +44,11 @@ export class QueryAccess {
         const _sourceInclude = this.config.view.includes;
         const _sourceExclude = this.config.view.excludes;
 
-        return Object.assign({}, {
+        return Object.assign({}, params, {
             body,
             _sourceInclude,
             _sourceExclude
-        }, params);
+        });
     }
 }
 

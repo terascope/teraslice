@@ -397,7 +397,7 @@ export class ACLManager {
         const view = await this.views.create(args.view);
 
         await Promise.all([
-            this.spaces.linkViews(view.space, view.id),
+            this.spaces.addViewsToSpace(view.space, view.id),
             this.roles.addSpaceToRoles(view.space, view.roles)
         ]);
     }
@@ -433,8 +433,8 @@ export class ACLManager {
         if (args.view.space) {
             if (oldSpace && oldSpace !== args.view.space) {
                 await Promise.all([
-                    this.spaces.unlinkViews(oldSpace, view.id),
-                    this.spaces.linkViews(view.space, view.id)
+                    this.spaces.removeViewsFromSpace(oldSpace, view.id),
+                    this.spaces.addViewsToSpace(view.space, view.id)
                 ]);
             }
 

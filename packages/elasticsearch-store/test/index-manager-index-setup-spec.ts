@@ -22,7 +22,7 @@ describe('IndexManager->indexSetup()', () => {
             version: 1,
             indexSettings: {
                 'index.number_of_shards': 1,
-                'index.number_of_replicas': 1
+                'index.number_of_replicas': 0
             },
             logger,
         };
@@ -84,7 +84,7 @@ describe('IndexManager->indexSetup()', () => {
             version: 1,
             indexSettings: {
                 'index.number_of_shards': 1,
-                'index.number_of_replicas': 1
+                'index.number_of_replicas': 0
             },
             logger,
         };
@@ -211,7 +211,7 @@ describe('IndexManager->indexSetup()', () => {
             version: 1,
             indexSettings: {
                 'index.number_of_shards': 1,
-                'index.number_of_replicas': 1
+                'index.number_of_replicas': 0
             },
             logger,
         };

@@ -361,6 +361,36 @@ describe('ACLManager', () => {
     });
 
     describe('when getting a view for a user', () => {
+        describe('when no roles exists on the user', () => {
+            let apiToken: string;
+            beforeAll(async () => {
+                const user = await manager.createUser({
+                    user: {
+                        username: 'foooooo',
+                        firstname: 'Foo',
+                        lastname: 'ooooo',
+                        email: 'foobar@example.com',
+                        roles: [],
+                    },
+                    password: 'secrets'
+                });
+
+                apiToken = user.api_token;
+            });
+
+            it('should throw a forbidden error', async () => {
+                expect.hasAssertions();
+
+                try {
+                    await manager.getViewForSpace({ api_token: apiToken, space: '' });
+                } catch (err) {
+                    expect(err.message).toEqual('User "foooooo" is not assigned to any roles');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toEqual(403);
+                }
+            });
+        });
+
         describe('when everything is setup correctly', () => {
             const username = 'example-username';
 
@@ -382,10 +412,7 @@ describe('ACLManager', () => {
 
                 const spaceResult = await manager.createSpace({
                     space: {
-                        name: 'Example Space',
-                        metadata: {
-                            example: true
-                        }
+                        name: 'Example Space'
                     },
                     views: [
                         {
@@ -420,6 +447,17 @@ describe('ACLManager', () => {
                         id: roleId,
                         name: 'Example Role',
                         spaces: [spaceId]
+                    }
+                });
+
+                await manager.updateSpace({
+                    space: {
+                        id: spaceId,
+                        name: 'Example Space',
+                        views: [viewId],
+                        metadata: {
+                            example: true
+                        }
                     }
                 });
 

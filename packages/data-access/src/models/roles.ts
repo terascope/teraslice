@@ -42,19 +42,25 @@ export class Roles extends Base<RoleModel, CreateRoleInput, UpdateRoleInput> {
     }
 
     /** Associate space to multiple roles */
-    async addSpaceToRoles(space: string, roles: string[]): Promise<void> {
-        if (!space) {
-            throw new TSError('Missing space id to attach roles to', {
+    async addSpaceToRoles(spaceId: string, roles: string[]): Promise<void> {
+        if (!spaceId) {
+            throw new TSError('Missing space to attaching to roles', {
                 statusCode: 422
             });
         }
 
         await Promise.all(uniq(roles).map((id) => {
-            return this.appendToArray(id, 'spaces', space);
+            return this.appendToArray(id, 'spaces', spaceId);
         }));
     }
 
     async removeSpaceFromRoles(spaceId: string) {
+        if (!spaceId) {
+            throw new TSError('Missing space to remove from roles', {
+                statusCode: 422
+            });
+        }
+
         const roles = await this.find(`spaces: ${spaceId}`);
         const promises = roles.map(({ id }) => {
             return this.removeFromArray(id, 'spaces', spaceId);

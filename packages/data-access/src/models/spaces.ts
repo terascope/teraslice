@@ -36,25 +36,25 @@ export class Spaces extends Base<SpaceModel, CreateSpaceInput, UpdateSpaceInput>
     }
 
     /** Associate views to space */
-    async linkViews(space: string, views: string[]|string) {
-        if (!space) {
-            throw new TSError('Missing view id to attach view to', {
+    async addViewsToSpace(spaceId: string, views: string[]|string) {
+        if (!spaceId) {
+            throw new TSError('Missing space to attaching views to', {
                 statusCode: 422
             });
         }
 
-        return this.appendToArray(space, 'views', views);
+        return this.appendToArray(spaceId, 'views', views);
     }
 
     /** Disassociate views to space */
-    async unlinkViews(space: string, views: string[]|string) {
-        if (!space) {
-            throw new TSError('Missing view id to unattach view to', {
+    async removeViewsFromSpace(spaceId: string, views: string[]|string) {
+        if (!spaceId) {
+            throw new TSError('Missing space to remove views from', {
                 statusCode: 422
             });
         }
 
-        return this.removeFromArray(space, 'views', views);
+        return this.removeFromArray(spaceId, 'views', views);
     }
 
     async removeViewFromSpaces(viewId: string) {
