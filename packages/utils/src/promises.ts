@@ -74,9 +74,22 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetry
         backoff: 2,
         matches: [],
         logError: logger.warn,
+        _currentDelay: 0,
+        // @ts-ignore
+        _context: undefined as PRetryContext,
     }, options);
 
+    if (!config._currentDelay) {
+        config._currentDelay = config.delay;
+    }
+
+    config._context = config._context || {
+        startTime: Date.now(),
+        attempts: 0,
+    };
+
     try {
+        config._context.attempts++;
         return await fn();
     } catch (_err) {
         let matches = true;
@@ -89,25 +102,42 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetry
             });
         }
 
+        const endTime = Date.now();
+        const context = {
+            ...config._context,
+            endTime,
+            duration: endTime - config._context.startTime
+        };
+
         const err = new TSError(_err, {
             reason: config.reason,
+            context,
         });
+
+        if (context.lastErr) {
+            err.stack += `, caused by ${context.lastErr.stack}`;
+        }
+        config._context.lastErr = err;
 
         if (!isFatalError(err) && err.retryable == null) {
             err.retryable = matches;
         }
 
         if (isRetryableError(err) && config.retries > 1) {
-            await pDelay(config.delay);
+            await pDelay(config._currentDelay);
 
             config.retries--;
-            config.delay *= config.backoff;
+            config._currentDelay = getBackoffDelay(
+                config._currentDelay,
+                config.backoff,
+                config.maxDelay,
+                config.delay
+            );
 
-            if (config.delay > config.maxDelay) {
-                config.delay = config.maxDelay;
-            }
-
-            config.logError('retry error, retrying...', err, config);
+            config.logError(err, 'retry error, retrying...', {
+                ...config,
+                _context: null
+            });
             return pRetry(fn, config);
         }
 
@@ -119,6 +149,33 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetry
         throw err;
     }
 }
+
+/**
+ * Get backoff delay that will safe to retry and is slightly staggered
+*/
+export function getBackoffDelay(current: number, factor: number = 2, max = 60000, min = 500): number {
+    // jitter is a floating point number between -0.2 and 0.8
+    const jitter = Math.random() * 0.8 + -0.2;
+
+    let n = current;
+    // ensure the number does not go below the min val
+    if (n < min) n = min;
+
+    // multiple the current backoff value by input factor and jitter
+    n *= (factor + jitter);
+
+    // ensure the number does not exceed the max val
+    if (n > max) n = max;
+
+    // round it so it remains a whole number
+    return Math.round(n);
+}
+
+type PRetryContext = {
+    lastErr?: Error;
+    attempts: number;
+    startTime: number;
+};
 
 /** promisified setTimeout */
 export const pDelay = promisify(setTimeout);

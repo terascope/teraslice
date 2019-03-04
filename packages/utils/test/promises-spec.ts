@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { waterfall, pRetry, TSError, PRetryConfig } from '../src';
+import { waterfall, pRetry, TSError, PRetryConfig, getBackoffDelay } from '../src';
 
 describe('Utils', () => {
     describe('waterfall', () => {
@@ -112,6 +112,56 @@ describe('Utils', () => {
             await expect(pRetry(fn, config)).rejects.toThrowError(error.message);
 
             expect(fn).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('getBackoffDelay', () => {
+        const factor = 2;
+        const max = 1000;
+        const min = 50;
+
+        it('should be able to work with the min delay', () => {
+            const jitter = 50;
+
+            const input = min;
+            const result = getBackoffDelay(input, factor, max, min);
+
+            expect(result).toBeWithin((input - jitter), (input * factor) + jitter);
+            expect(result).toBeGreaterThanOrEqual(min);
+            expect(result).toBeLessThanOrEqual(max);
+        });
+
+        it('should be able to work with a value below min', () => {
+            const input = min - 100;
+            const result = getBackoffDelay(input, factor, max, min);
+
+            expect(result).toBeGreaterThanOrEqual(min);
+            expect(result).toBeLessThanOrEqual(max);
+        });
+
+        it('should be able to work with a valid delay', () => {
+            const jitter = 100;
+
+            const input = 150;
+            const result = getBackoffDelay(input, factor, max, min);
+
+            expect(result).toBeWithin((input - jitter), (input * factor) + jitter);
+            expect(result).toBeGreaterThanOrEqual(min);
+            expect(result).toBeLessThanOrEqual(max);
+        });
+
+        it('should be able to work with the max delay', () => {
+            const input = max;
+            const result = getBackoffDelay(input, factor, max, min);
+
+            expect(result).toEqual(max);
+        });
+
+        it('should be able to work with a value above max delay', () => {
+            const input = max + 100;
+            const result = getBackoffDelay(input, factor, max, min);
+
+            expect(result).toEqual(max);
         });
     });
 });
