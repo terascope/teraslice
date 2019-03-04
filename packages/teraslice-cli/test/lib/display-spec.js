@@ -3,28 +3,6 @@
 const display = require('../../cmds/lib/display')();
 
 describe('display', () => {
-    // let cliArgs;
-    // let testTerasliceUtil;
-
-    // beforeEach(() => {
-    //     cliArgs = {
-    //         'cluster-manager-type': 'native',
-    //         'output-style': 'txt',
-    //         'config-dir': path.join(__dirname, '../fixtures/config_dir'),
-    //         'cluster-alias': 'localhost'
-    //     };
-    //     testTerasliceUtil = new TerasliceUtil(cliArgs);
-    // });
-
-    // afterEach(() => {
-    //     cliArgs = {};
-    //     testTerasliceUtil = {};
-    // });
-
-    // test('should return a config object', () => {
-    //     expect(testTerasliceUtil).toBeDefined();
-    // });
-
     test('should parse response into an array', async () => {
         const header = ['name', 'job_id', 'ex_id', '_status'];
         const response = [{

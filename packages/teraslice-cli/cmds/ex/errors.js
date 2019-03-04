@@ -33,7 +33,7 @@ exports.handler = async (argv) => {
     const parse = false;
     const cliConfig = new Config(argv);
     const teraslice = new TerasliceUtil(cliConfig);
-    const header = ['ex_id', 'slice_id', 'slicer_id', 'slicer_order', 'state', 'ex_id', '_created', '_updated', 'error'];
+    const header = ['ex_id', 'slice_id', 'slicer_id', 'slicer_order', 'state', '_created', '_updated', 'error'];
     const format = `${cliConfig.args.output}Horizontal`;
 
     try {
