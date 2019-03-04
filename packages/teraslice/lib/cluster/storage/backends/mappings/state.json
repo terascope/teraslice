@@ -1,9 +1,5 @@
 {
     "template": "__state*",
-    "settings" : {
-        "index.number_of_shards" : 5,
-        "index.number_of_replicas": 1
-    },
     "mappings": {
         "state": {
             "_all": {
@@ -20,7 +16,7 @@
                 "slicer_id": {
                     "type": "keyword"
                 },
-                "slicer_order":{
+                "slicer_order": {
                     "type": "integer"
                 },
                 "state": {

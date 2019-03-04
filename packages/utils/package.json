@@ -1,7 +1,7 @@
 {
     "name": "@terascope/utils",
     "description": "A collection of Teraslice Utilities",
-    "version": "0.4.1",
+    "version": "0.5.0",
     "publishConfig": {
         "access": "public"
     },

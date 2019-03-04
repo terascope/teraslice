@@ -130,6 +130,28 @@ const newSysConfig = (options = {}) => {
             name: clusterName,
             master_hostname: 'localhost',
             port: clusterMasterPort,
+            index_settings: {
+                analytics: {
+                    number_of_shards: 1,
+                    number_of_replicas: 0
+                },
+                assets: {
+                    number_of_shards: 1,
+                    number_of_replicas: 0
+                },
+                jobs: {
+                    number_of_shards: 1,
+                    number_of_replicas: 0
+                },
+                execution: {
+                    number_of_shards: 1,
+                    number_of_replicas: 0
+                },
+                state: {
+                    number_of_shards: 1,
+                    number_of_replicas: 0
+                },
+            }
         }
     };
 };

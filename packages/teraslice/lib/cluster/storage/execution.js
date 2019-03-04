@@ -5,6 +5,7 @@ const _ = require('lodash');
 const { TSError } = require('@terascope/utils');
 const uuid = require('uuid');
 const Promise = require('bluebird');
+const elasticsearchBackend = require('./backends/elasticsearch_store');
 
 const INIT_STATUS = ['pending', 'scheduling', 'initializing'];
 const RUNNING_STATUS = ['running', 'failing', 'paused', 'stopping'];
@@ -19,7 +20,7 @@ module.exports = function module(context) {
     const logger = context.apis.foundation.makeLogger({ module: 'ex_storage' });
     const config = context.sysconfig.teraslice;
     const jobType = 'ex';
-    const jobsIndex = `${config.name}__ex`;
+    const indexName = `${config.name}__ex`;
 
     let backend;
 
@@ -172,9 +173,19 @@ module.exports = function module(context) {
         verifyStatusUpdate,
     };
 
-    return require('./backends/elasticsearch_store')(context, jobsIndex, 'ex', 'ex_id')
+    const backendConfig = {
+        context,
+        indexName,
+        recordType: 'ex',
+        idField: 'ex_id',
+        fullResponse: false,
+        logRecord: false,
+        storageName: 'execution'
+    };
+
+    return elasticsearchBackend(backendConfig)
         .then((elasticsearch) => {
-            logger.info('Initializing');
+            logger.info('execution storage initialized');
             backend = elasticsearch;
             return api;
         });

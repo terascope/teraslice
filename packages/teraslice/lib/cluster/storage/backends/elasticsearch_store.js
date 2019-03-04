@@ -2,15 +2,37 @@
 
 const fs = require('fs');
 const _ = require('lodash');
+const path = require('path');
 const { TSError, parseError } = require('@terascope/utils');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
 const { timeseriesIndex } = require('../../../utils/date_utils');
 
-// eslint-disable-next-line max-len
-module.exports = function module(context, indexName, recordType, idField, _bulkSize, fullResponse, logRecord = true) {
-    const logger = context.apis.foundation.makeLogger({ module: 'elasticsearch_backend' });
+module.exports = function module(backendConfig) {
+    const {
+        context,
+        indexName,
+        recordType,
+        idField,
+        storageName,
+        bulkSize = 500,
+        fullResponse = false,
+        logRecord = true,
+        forceRefresh = true
+    } = backendConfig;
+
+    const logger = context.apis.foundation.makeLogger({
+        module: 'elasticsearch_backend',
+        storageName,
+    });
+
     const config = context.sysconfig.teraslice;
+
+    const indexSettings = _.get(config, ['index_settings', storageName], {
+        number_of_shards: 5,
+        number_of_replicas: 1
+    });
+
     let elasticsearch;
     let client;
     let flushInterval;
@@ -19,9 +41,6 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
     // Buffer to build up bulk requests.
     let bulkQueue = [];
     let savingBulk = false; // serialize save requests.
-
-    let bulkSize = 500;
-    if (_bulkSize) bulkSize = _bulkSize;
 
     function getRecord(recordId, indexArg, fields) {
         logger.trace(`getting record id: ${recordId}`);
@@ -68,7 +87,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
             index: indexArg || indexName,
             type: recordType,
             body: record,
-            refresh: true
+            refresh: forceRefresh
         };
 
         return elasticsearch.index(query);
@@ -85,7 +104,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
             type: recordType,
             id: recordId,
             body: record,
-            refresh: true
+            refresh: forceRefresh
         };
 
         return elasticsearch.indexWithId(query);
@@ -103,7 +122,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
             type: recordType,
             id: record[idField],
             body: record,
-            refresh: true
+            refresh: forceRefresh
         };
 
         return elasticsearch.create(query);
@@ -135,7 +154,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
             body: {
                 doc: updateSpec
             },
-            refresh: true,
+            refresh: forceRefresh,
             retryOnConflict: 3
         };
 
@@ -148,7 +167,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
             index: indexArg || indexName,
             type: recordType,
             id: recordId,
-            refresh: true
+            refresh: forceRefresh
         };
 
         return elasticsearch.remove(query);
@@ -238,9 +257,14 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
     }
 
     function getMapFile() {
-        const mappingFile = `${__dirname}/mappings/${recordType}.json`;
+        const mappingFile = path.join(__dirname, `mappings/${recordType}.json`);
 
-        return JSON.parse(fs.readFileSync(mappingFile));
+        const mapping = JSON.parse(fs.readFileSync(mappingFile));
+        mapping.settings = {
+            'index.number_of_shards': indexSettings.number_of_shards,
+            'index.number_of_replicas': indexSettings.number_of_replicas,
+        };
+        return mapping;
     }
 
     function isAvailable(indexArg) {
@@ -339,7 +363,8 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
             logger.error(err, 'background flush failure');
             return null;
         });
-    }, 10000);
+    // stager the interval to avoid collisions
+    }, _.random(9000, 11000));
 
     // javascript is having a fit if you use the shorthand get, so we renamed function to getRecord
     const api = {

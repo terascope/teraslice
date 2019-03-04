@@ -1,9 +1,5 @@
 {
     "template": "__analytics*",
-    "settings" : {
-        "index.number_of_shards" : 5,
-        "index.number_of_replicas": 1
-    },
     "mappings": {
         "analytics": {
             "_all": {
