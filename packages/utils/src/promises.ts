@@ -88,8 +88,9 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetry
         attempts: 0,
     };
 
+    config._context.attempts++;
+
     try {
-        config._context.attempts++;
         return await fn();
     } catch (_err) {
         let matches = true;
@@ -102,11 +103,9 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetry
             });
         }
 
-        const endTime = Date.now();
         const context = {
             ...config._context,
-            endTime,
-            duration: endTime - config._context.startTime
+            duration: Date.now() - config._context.startTime
         };
 
         const err = new TSError(_err, {

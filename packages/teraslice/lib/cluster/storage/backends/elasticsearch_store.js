@@ -8,7 +8,6 @@ const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
 const { timeseriesIndex } = require('../../../utils/date_utils');
 
-// eslint-disable-next-line max-len
 module.exports = function module(backendConfig) {
     const {
         context,
@@ -364,7 +363,8 @@ module.exports = function module(backendConfig) {
             logger.error(err, 'background flush failure');
             return null;
         });
-    }, 10000);
+    // stager the interval to avoid collisions
+    }, _.random(9000, 11000));
 
     // javascript is having a fit if you use the shorthand get, so we renamed function to getRecord
     const api = {

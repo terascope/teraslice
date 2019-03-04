@@ -1,8 +1,13 @@
 'use strict';
 
 const Promise = require('bluebird');
-const { TSError } = require('@terascope/utils');
-const { pRetry, toString, isRetryableError } = require('@terascope/job-components');
+const {
+    TSError,
+    pRetry,
+    toString,
+    isRetryableError,
+    parseErrorInfo
+} = require('@terascope/utils');
 const { timeseriesIndex } = require('../../utils/date_utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
@@ -56,13 +61,12 @@ module.exports = function module(context) {
             try {
                 return await backend.update(slice.slice_id, record, indexData.index);
             } catch (_err) {
-                const errMsg = toString(_err);
+                const { statusCode, message } = parseErrorInfo(_err);
                 let retryable = isRetryableError(_err);
-
-                if (errMsg.includes('Not Found') || errMsg.includes('document missing')) {
+                if (statusCode === 404) {
                     notFoundErrCount++;
-                    retryable = notFoundErrCount > 3;
-                } else if (errMsg.includes('Request Timeout')) {
+                    retryable = notFoundErrCount < 3;
+                } else if (message.includes('Request Timeout')) {
                     retryable = true;
                 }
 
