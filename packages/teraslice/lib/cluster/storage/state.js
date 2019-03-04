@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird');
 const { TSError } = require('@terascope/utils');
-const { pRetry, toString } = require('@terascope/job-components');
+const { pRetry, toString, isRetryableError } = require('@terascope/job-components');
 const { timeseriesIndex } = require('../../utils/date_utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
@@ -50,18 +50,34 @@ module.exports = function module(context) {
             record.error = toString(error);
         }
 
-        const update = () => backend.update(slice.slice_id, record, indexData.index);
+        let notFoundErrCount = 0;
+
+        async function update() {
+            try {
+                return await backend.update(slice.slice_id, record, indexData.index);
+            } catch (_err) {
+                const errMsg = toString(_err);
+                let retryable = isRetryableError(_err);
+
+                if (errMsg.includes('Not Found') || errMsg.includes('document missing')) {
+                    notFoundErrCount++;
+                    retryable = notFoundErrCount > 3;
+                } else if (errMsg.includes('Request Timeout')) {
+                    retryable = true;
+                }
+
+                throw new TSError(_err, {
+                    retryable,
+                    reason: `Failure to update ${state} state`
+                });
+            }
+        }
 
         return pRetry(update, {
             retries: 10000,
             delay: 1000,
             backoff: 5,
-            matches: [
-                'Not Found',
-                'Request Timeout',
-            ],
             endWithFatal: true,
-            reason: `Failure to update ${state} state`
         });
     }
 
