@@ -36,7 +36,7 @@
         "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.14.5",
+        "@terascope/job-components": "^0.14.6",
         "@terascope/teraslice-op-test-harness": "^1.5.3",
         "@types/lodash": "^4.14.122",
         "lodash": "^4.17.11"
