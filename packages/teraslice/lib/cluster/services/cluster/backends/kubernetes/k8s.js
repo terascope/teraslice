@@ -80,13 +80,13 @@ class K8s {
                 response = await this.client.api.v1.namespaces(namespace)
                     .pods().get({ qs: { labelSelector: selector } });
             } else if (objType === 'deployments') {
-                response = await this.client.api.apps.v1.namespaces(namespace)
+                response = await this.client.apis.apps.v1.namespaces(namespace)
                     .deployments().get({ qs: { labelSelector: selector } });
             } else if (objType === 'services') {
                 response = await this.client.api.v1.namespaces(namespace)
                     .services().get({ qs: { labelSelector: selector } });
             } else if (objType === 'jobs') {
-                response = await this.client.api.batch.v1.namespaces(namespace)
+                response = await this.client.apis.batch.v1.namespaces(namespace)
                     .jobs().get({ qs: { labelSelector: selector } });
             } else {
                 const error = new Error(`Wrong objType provided to get: ${objType}`);
@@ -127,7 +127,7 @@ class K8s {
                 response = await this.client.apis.apps.v1.namespaces(this.defaultNamespace)
                     .deployments.post({ body: manifest });
             } else if (manifestType === 'job') {
-                response = await this.client.api.batch.v1.namespaces(this.defaultNamespace)
+                response = await this.client.apis.batch.v1.namespaces(this.defaultNamespace)
                     .jobs.post({ body: manifest });
             } else {
                 const error = new Error(`Invalid manifestType: ${manifestType}`);
@@ -163,7 +163,7 @@ class K8s {
         let response;
 
         try {
-            response = await this.client.api.apps.v1.namespaces(this.defaultNamespace)
+            response = await this.client.apis.apps.v1.namespaces(this.defaultNamespace)
                 .deployments(name).patch({ body: record });
         } catch (e) {
             const err = new Error(`Request k8s.patch with ${name} failed with: ${e}`);
@@ -197,12 +197,12 @@ class K8s {
                 response = await this.client.api.v1.namespaces(this.defaultNamespace)
                     .services(name).delete();
             } else if (objType === 'deployments') {
-                response = await this.client.api.apps.v1.namespaces(this.defaultNamespace)
+                response = await this.client.apis.apps.v1.namespaces(this.defaultNamespace)
                     .deployments(name).delete();
             } else if (objType === 'jobs') {
                 // To get a Job to remove the associated pods you have to
                 // include a body like the one below with the delete request
-                response = await this.client.api.batch.v1.namespaces(this.defaultNamespace)
+                response = await this.client.apis.batch.v1.namespaces(this.defaultNamespace)
                     .jobs(name).delete({
                         body: {
                             apiVersion: 'v1',
