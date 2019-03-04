@@ -10,6 +10,7 @@ const yargsOptions = new YargsOptions();
 
 exports.command = 'run <cluster-alias> [id]';
 exports.desc = 'run job specified by id \n';
+
 exports.builder = (yargs) => {
     yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
     yargs.options('output', yargsOptions.buildOption('output'));
