@@ -9,61 +9,77 @@ describe('Search Utils', () => {
         it('should throw an error if given an invalid size', () => {
             const req = fakeReq({ size: 'ugh' });
             expect(() => {
-                utils.getSearchOptions(req, {});
+                // @ts-ignore
+                utils.getQueryConfig(req, { view: {} });
             }).toThrowWithMessage(TSError, 'Invalid size parameter, must be a valid number, was given: "ugh"');
         });
 
         it('should throw an error if given size too large', () => {
             const req = fakeReq({ size: 1000 });
             expect(() => {
-                utils.getSearchOptions(req, { max_query_size: 500 });
+                // @ts-ignore
+                utils.getQueryConfig(req, {
+                    view: {
+                        max_query_size: 500
+                    }
+                });
             }).toThrowWithMessage(TSError, 'Invalid size parameter, must be less than 500, was given: "1000"');
         });
 
         it('should throw an error if given an invalid start', () => {
             const req = fakeReq({ start: 'bah' });
             expect(() => {
-                utils.getSearchOptions(req, { });
+                // @ts-ignore
+                utils.getQueryConfig(req, { view: {} });
             }).toThrowWithMessage(TSError, 'Invalid start parameter, must be a valid number, was given: "bah"');
         });
 
         it('should throw an error if given an invalid query', () => {
             const req = fakeReq({ q: null });
             expect(() => {
-                utils.getSearchOptions(req, { require_query: true });
+                // @ts-ignore
+                utils.getQueryConfig(req, { view: { require_query: true } });
             }).toThrowWithMessage(TSError, 'Invalid q parameter, must not be empty, was given: ""');
         });
 
         it('should throw an error if given an invalid sort', () => {
             const req = fakeReq({ sort: 'example' });
             expect(() => {
-                utils.getSearchOptions(req, { sort_enabled: true });
+                // @ts-ignore
+                utils.getQueryConfig(req, { view: { sort_enabled: true } });
             }).toThrowWithMessage(TSError, 'Invalid sort parameter, must be field_name:asc or field_name:desc, was given: "example"');
         });
 
         it('should throw an error if given an object as sort', () => {
             const req = fakeReq({ sort: { example: true } });
             expect(() => {
-                utils.getSearchOptions(req, { sort_enabled: true });
+                // @ts-ignore
+                utils.getQueryConfig(req, { view: { sort_enabled: true } });
             }).toThrowWithMessage(TSError, 'Invalid sort parameter, must be a valid string, was given: "{"example":true}"');
         });
 
         it('should throw an error if given an invalid sort on date', () => {
             const req = fakeReq({ sort: 'wrongdate:asc' });
             expect(() => {
-                utils.getSearchOptions(req, {
-                    sort_enabled: true,
-                    default_date_field: 'somedate',
-                    sort_dates_only: true
+                // @ts-ignore
+                utils.getQueryConfig(req, {
+                    view: {
+                        sort_enabled: true,
+                        default_date_field: 'somedate',
+                        sort_dates_only: true
+                    }
                 });
-            }).toThrowWithMessage(TSError, 'Invalid sort parameter, sorting currently available for the "somedate" field only, was given: "wrongdate:asc"');
+            }).toThrowWithMessage(TSError, 'Invalid sort parameter, sorting is currently only available for date fields, was given: "wrongdate:asc"');
         });
 
         it('should be able to return the options', () => {
             const req = fakeReq({ q: 'hello', sort: 'example:asc' });
-            const result = utils.getSearchOptions(req, {
-                sort_default: 'default:asc',
-                sort_enabled: true
+            // @ts-ignore
+            const result = utils.getQueryConfig(req, {
+                view: {
+                    sort_default: 'default:asc',
+                    sort_enabled: true
+                }
             });
 
             expect(result).toEqual({
@@ -142,13 +158,18 @@ describe('Search Utils', () => {
                 }
             };
 
-            const config: utils.SearchConfig = { };
-            const options: utils.SearchResponseOpts = {
-                size: 2,
-                sortDisabled: true,
+            const config: utils.SearchConfig = {
+                space: { index: 'example' },
+                types: {},
+                view: {},
+                // @ts-ignore
+                query: {
+                    size: 2,
+                    sortDisabled: true,
+                }
             };
 
-            const result = utils.handleSearchResponse(input as SearchResponse<any>, config, options);
+            const result = utils.handleSearchResponse(input as SearchResponse<any>, config);
             expect(result).toEqual({
                 total,
                 info: '5 results found. Returning 2. No sorting available.',
@@ -177,15 +198,19 @@ describe('Search Utils', () => {
             };
 
             const config: utils.SearchConfig = {
-                preserve_index_name: true,
+                space: { index: 'example' },
+                types: {},
+                view: {
+                    preserve_index_name: true,
+                },
+                // @ts-ignore
+                query: {
+                    size: 2,
+                    sortDisabled: true,
+                }
             };
 
-            const options: utils.SearchResponseOpts = {
-                size: 2,
-                sortDisabled: true,
-            };
-
-            const result = utils.handleSearchResponse(input as SearchResponse<any>, config, options);
+            const result = utils.handleSearchResponse(input as SearchResponse<any>, config);
             expect(result).toEqual({
                 total,
                 info: '5 results found. Returning 2. No sorting available.',
