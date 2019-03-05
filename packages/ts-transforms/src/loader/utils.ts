@@ -87,7 +87,6 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
 
         if (isBackwordCompatiblePostProcessConfig(config)) {
             const selectorNode = `selector:${config.__pipeline}`;
-            // console.log('im in here', config, selectorNode)
             if (!oldCompatability[selectorNode]) {
                 oldCompatability[selectorNode] = [];
             }
@@ -110,8 +109,6 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
 
     _.forOwn(oldCompatability, (postProcessConfigIds, selectorNodeName) => {
         const extractionNodeIds = findNodeChildren(graph, selectorNodeName);
-        // console.log('extractionNodeIds', extractionNodeIds)
-        // console.log('postProcessConfigIds', postProcessConfigIds)
 
         if (extractionNodeIds === null) {
             throw new Error(`there must be extractions set for ${JSON.stringify(graph.node(selectorNodeName))} if using a post_process op without tag/follow syntax`);
@@ -120,7 +117,6 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
         postProcessConfigIds.forEach((postProcessConfigId) => {
             // we create edge for all extractions to post_process in old post_process configs
             extractionNodeIds.forEach((extractionId) => {
-                // console.log('im setting edge between', extractionId, postProcessConfigId)
                 graph.setEdge(extractionId, postProcessConfigId);
                 // this is a non follow post proces config, we want to keep everything in the same pipline if possible for field validation
                 if (!tagMapping[postProcessConfigId]) {
@@ -301,7 +297,6 @@ function createResults(list: OperationConfig[]): ValidationResults {
         }
 
         if (hasPrimaryExtractions(config)) {
-            // console.log('what is entering here', config)
             // TODO: fix the typing
             if (!results.extractions[currentSelector as string]) {
                 results.extractions[currentSelector as string] = [];
