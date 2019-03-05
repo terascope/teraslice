@@ -1,51 +1,48 @@
 import get from 'lodash.get';
-import { Request } from 'express';
 import * as ts from '@terascope/utils';
 import { TypeConfig } from 'xlucene-evaluator';
 import { SearchParams, Client, SearchResponse } from 'elasticsearch';
 import { QueryAccess, DataAccessConfig } from '@terascope/data-access';
-import { getFromQuery } from '../utils';
 
 /**
  * Search elasticsearch in a teraserver backwards compatible way
  *
  * @todo add support for geo sort
  * @todo add timeseries/history support
- * @todo figure out how to support post process
  */
-export async function search(req: Request, client: Client, accessConfig: DataAccessConfig, logger: ts.Logger): Promise<[FinalResponse, boolean]> {
-    const config = getSearchConfig(req, accessConfig);
-    const { q, size, start, pretty, sort } = config.query;
+export function makeSearchFn(client: Client, accessConfig: DataAccessConfig, logger: ts.Logger): SearchFn {
+    return async (query: InputQuery) => {
+        const config = getSearchConfig(query, accessConfig);
+        const { q, size, start, sort } = config.query;
 
-    const queryAccess = new QueryAccess(accessConfig, config.types);
+        const queryAccess = new QueryAccess(accessConfig, config.types);
 
-    const searchParams: SearchParams = {
-        index: config.space.index,
-        size,
-        ignoreUnavailable: true
+        const searchParams: SearchParams = {
+            index: config.space.index,
+            size,
+            ignoreUnavailable: true
+        };
+
+        if (start != null) {
+            searchParams.from = start;
+        }
+
+        if (sort != null) {
+            searchParams.sort = sort;
+        }
+
+        const esQuery = queryAccess.restrictESQuery(q, searchParams);
+
+        if (isTest) logger.debug(esQuery, 'searching...');
+
+        const response = await client.search(esQuery);
+        if (isTest) logger.trace(response, 'got response...');
+
+        return handleSearchResponse(response, config);
     };
-
-    if (start != null) {
-        searchParams.from = start;
-    }
-
-    if (sort != null) {
-        searchParams.sort = sort;
-    }
-
-    const query = queryAccess.restrictESQuery(q, searchParams);
-
-    if (isTest) logger.debug(query, 'searching...');
-
-    const response = await client.search(query);
-    if (isTest) logger.trace(response, 'got response...');
-
-    const result = handleSearchResponse(response, config);
-
-    return [result, pretty];
 }
 
-export function getSearchConfig(req: Request, accessConfig: DataAccessConfig): SearchConfig {
+export function getSearchConfig(query: InputQuery, accessConfig: DataAccessConfig): SearchConfig {
     const config: SearchConfig = {
         space: get(accessConfig, 'space_metadata.indexConfig', {}),
         view: get(accessConfig, 'view.metadata.searchConfig', {}),
@@ -57,7 +54,7 @@ export function getSearchConfig(req: Request, accessConfig: DataAccessConfig): S
         throw new ts.TSError('Search is not configured correctly');
     }
 
-    config.query = getQueryConfig(req, config);
+    config.query = getQueryConfig(query, config);
 
     return config;
 }
@@ -84,40 +81,38 @@ function ensureTypeConfig(config: SearchConfig) {
     }
 }
 
-export function getQueryConfig(req: Request, config: SearchConfig): SearchQueryConfig {
+export function getQueryConfig(query: InputQuery, config: SearchConfig): SearchQueryConfig {
     ensureTypeConfig(config);
 
-    const q: string = getFromQuery(req, 'q', '');
+    const q: string = getFromQuery(query, 'q', '');
     if (!q && config.view.require_query) {
-        throw new ts.TSError(...validationErr('q', 'must not be empty', req));
+        throw new ts.TSError(...validationErr('q', 'must not be empty', query));
     }
 
-    const pretty = ts.toBoolean(getFromQuery(req, 'pretty', false));
-
-    const size = ts.toInteger(getFromQuery(req, 'size', 100));
+    const size = ts.toInteger(getFromQuery(query, 'size', 100));
     if (size === false) {
-        throw new ts.TSError(...validationErr('size', 'must be a valid number', req));
+        throw new ts.TSError(...validationErr('size', 'must be a valid number', query));
     }
 
     const maxQuerySize: number = ts.toInteger(config.view.max_query_size) || 10000;
     if (size > maxQuerySize) {
-        throw new ts.TSError(...validationErr('size', `must be less than ${maxQuerySize}`, req));
+        throw new ts.TSError(...validationErr('size', `must be less than ${maxQuerySize}`, query));
     }
 
-    const start = getFromQuery(req, 'start');
+    const start = getFromQuery(query, 'start');
     if (start) {
         if (!ts.isNumber(start)) {
-            throw new ts.TSError(...validationErr('start', 'must be a valid number', req));
+            throw new ts.TSError(...validationErr('start', 'must be a valid number', query));
         }
     }
 
-    let sort: string = getFromQuery(req, 'sort');
+    let sort: string = getFromQuery(query, 'sort');
     if (sort && config.view.sort_enabled) {
         if (!ts.isString(sort)) {
-            throw new ts.TSError(...validationErr('sort', 'must be a valid string', req));
+            throw new ts.TSError(...validationErr('sort', 'must be a valid string', query));
         }
 
-        let [field, direction] = sort.split(':');
+        let [field, direction = 'asc'] = sort.split(':');
         field = ts.trimAndToLower(field);
         direction = ts.trimAndToLower(direction);
 
@@ -129,11 +124,11 @@ export function getQueryConfig(req: Request, config: SearchConfig): SearchQueryC
         }
 
         if (config.view.sort_dates_only && !    dateFields.includes(field)) {
-            throw new ts.TSError(...validationErr('sort', 'sorting is currently only available for date fields', req));
+            throw new ts.TSError(...validationErr('sort', 'sorting is currently only available for date fields', query));
         }
 
         if (!field || !direction || !['asc', 'desc'].includes(direction)) {
-            throw new ts.TSError(...validationErr('sort', 'must be field_name:asc or field_name:desc', req));
+            throw new ts.TSError(...validationErr('sort', 'must be field_name:asc or field_name:desc', query));
         }
 
         sort = [field, direction].join(':');
@@ -145,19 +140,18 @@ export function getQueryConfig(req: Request, config: SearchConfig): SearchQueryC
         sort = config.view.sort_default;
     }
 
-    const history = getFromQuery(req, 'history');
-    const historyStart = getFromQuery(req, 'history_start');
-    const historyPrefix = getFromQuery(req, 'history_prefix');
-    const geoBoxTopLeft = getFromQuery(req, 'geo_box_top_left');
-    const geoPoint = getFromQuery(req, 'geo_point');
-    const geoDistance = getFromQuery(req, 'geo_distance');
-    const geoSortPoint = getFromQuery(req, 'geo_sort_point');
-    const geoSortOrder = getFromQuery(req, 'geo_sort_order', 'asc');
-    const geoSortUnit = getFromQuery(req, 'geo_sort_unit', 'm');
+    const history = getFromQuery(query, 'history');
+    const historyStart = getFromQuery(query, 'history_start');
+    const historyPrefix = getFromQuery(query, 'history_prefix');
+    const geoBoxTopLeft = getFromQuery(query, 'geo_box_top_left');
+    const geoPoint = getFromQuery(query, 'geo_point');
+    const geoDistance = getFromQuery(query, 'geo_distance');
+    const geoSortPoint = getFromQuery(query, 'geo_sort_point');
+    const geoSortOrder = getFromQuery(query, 'geo_sort_order', 'asc');
+    const geoSortUnit = getFromQuery(query, 'geo_sort_unit', 'm');
 
     return {
         q,
-        pretty,
         start,
         size,
         sort,
@@ -224,15 +218,19 @@ export function handleSearchResponse(response: SearchResponse<any>, config: Sear
     };
 }
 
-function validationErr(param: string, msg: string, req: Request): [string, ts.TSErrorConfig] {
-    const given = ts.toString(getFromQuery(req, param));
+function validationErr(param: keyof InputQuery, msg: string, query: InputQuery): [string, ts.TSErrorConfig] {
+    const given = ts.toString(getFromQuery(query, param));
     return [
         `Invalid ${param} parameter, ${msg}, was given: "${given}"`,
         {
             statusCode: 422,
-            context: req.query
+            context: query
         }
     ];
+}
+
+export function getFromQuery(query: InputQuery, prop: keyof InputQuery, defaultVal?: any): any {
+    return get(query, prop, defaultVal);
 }
 
 export interface SearchConfig {
@@ -247,7 +245,6 @@ export interface SearchQueryConfig {
     size: number;
     sort?: string;
     q: string;
-    pretty: boolean;
     start?: number;
     history?: boolean;
     historyStart?: string;
@@ -258,6 +255,26 @@ export interface SearchQueryConfig {
     geoSortPoint?: string;
     geoSortOrder?: string;
     geoSortUnit?: string;
+}
+
+export interface InputQuery {
+    size?: number;
+    sort?: string;
+    q?: string;
+    start?: number;
+    history?: boolean;
+    history_start?: string;
+    history_prefix?: string;
+    geo_box_top_left?: string;
+    geo_point?: string;
+    geo_distance?: string;
+    geo_sort_point?: string;
+    geo_sort_order?: string;
+    geo_sort_unit?: string;
+}
+
+export interface SearchFn {
+    (query: any): Promise<FinalResponse>;
 }
 
 export interface FinalResponse {

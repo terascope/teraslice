@@ -1,5 +1,4 @@
 import 'jest-extended';
-import { Request } from 'express';
 import { TSError, times } from '@terascope/utils';
 import { SearchResponse } from 'elasticsearch';
 import * as utils from '../src/search/utils';
@@ -7,18 +6,18 @@ import * as utils from '../src/search/utils';
 describe('Search Utils', () => {
     describe('getSearchOptions', () => {
         it('should throw an error if given an invalid size', () => {
-            const req = fakeReq({ size: 'ugh' });
+            const query = { size: 'ugh' };
             expect(() => {
                 // @ts-ignore
-                utils.getQueryConfig(req, { view: {} });
+                utils.getQueryConfig(query, { view: {} });
             }).toThrowWithMessage(TSError, 'Invalid size parameter, must be a valid number, was given: "ugh"');
         });
 
         it('should throw an error if given size too large', () => {
-            const req = fakeReq({ size: 1000 });
+            const query = { size: 1000 };
             expect(() => {
                 // @ts-ignore
-                utils.getQueryConfig(req, {
+                utils.getQueryConfig(query, {
                     view: {
                         max_query_size: 500
                     }
@@ -27,42 +26,42 @@ describe('Search Utils', () => {
         });
 
         it('should throw an error if given an invalid start', () => {
-            const req = fakeReq({ start: 'bah' });
+            const query = ({ start: 'bah' });
             expect(() => {
                 // @ts-ignore
-                utils.getQueryConfig(req, { view: {} });
+                utils.getQueryConfig(query, { view: {} });
             }).toThrowWithMessage(TSError, 'Invalid start parameter, must be a valid number, was given: "bah"');
         });
 
         it('should throw an error if given an invalid query', () => {
-            const req = fakeReq({ q: null });
+            const query = ({ q: null });
             expect(() => {
                 // @ts-ignore
-                utils.getQueryConfig(req, { view: { require_query: true } });
+                utils.getQueryConfig(query, { view: { require_query: true } });
             }).toThrowWithMessage(TSError, 'Invalid q parameter, must not be empty, was given: ""');
         });
 
         it('should throw an error if given an invalid sort', () => {
-            const req = fakeReq({ sort: 'example' });
+            const query = ({ sort: 'example:ugh' });
             expect(() => {
                 // @ts-ignore
-                utils.getQueryConfig(req, { view: { sort_enabled: true } });
-            }).toThrowWithMessage(TSError, 'Invalid sort parameter, must be field_name:asc or field_name:desc, was given: "example"');
+                utils.getQueryConfig(query, { view: { sort_enabled: true } });
+            }).toThrowWithMessage(TSError, 'Invalid sort parameter, must be field_name:asc or field_name:desc, was given: "example:ugh"');
         });
 
         it('should throw an error if given an object as sort', () => {
-            const req = fakeReq({ sort: { example: true } });
+            const query = ({ sort: { example: true } });
             expect(() => {
                 // @ts-ignore
-                utils.getQueryConfig(req, { view: { sort_enabled: true } });
+                utils.getQueryConfig(query, { view: { sort_enabled: true } });
             }).toThrowWithMessage(TSError, 'Invalid sort parameter, must be a valid string, was given: "{"example":true}"');
         });
 
         it('should throw an error if given an invalid sort on date', () => {
-            const req = fakeReq({ sort: 'wrongdate:asc' });
+            const query = ({ sort: 'wrongdate:asc' });
             expect(() => {
                 // @ts-ignore
-                utils.getQueryConfig(req, {
+                utils.getQueryConfig(query, {
                     view: {
                         sort_enabled: true,
                         default_date_field: 'somedate',
@@ -73,9 +72,9 @@ describe('Search Utils', () => {
         });
 
         it('should be able to return the options', () => {
-            const req = fakeReq({ q: 'hello', sort: 'example:asc' });
+            const query = ({ q: 'hello', sort: 'example:asc' });
             // @ts-ignore
-            const result = utils.getQueryConfig(req, {
+            const result = utils.getQueryConfig(query, {
                 view: {
                     sort_default: 'default:asc',
                     sort_enabled: true
@@ -92,7 +91,6 @@ describe('Search Utils', () => {
                 history: undefined,
                 historyPrefix: undefined,
                 historyStart: undefined,
-                pretty: false,
                 q: 'hello',
                 sort: 'example:asc',
                 size: 100,
@@ -106,9 +104,10 @@ describe('Search Utils', () => {
         it('should throw if no indexConfig is given', async () => {
             expect.hasAssertions();
 
+            // @ts-ignore
+            const search = utils.makeSearchFn({}, {}, {});
             try {
-                // @ts-ignore
-                await utils.search(fakeReq(), {}, {}, {});
+                await search({});
             } catch (err) {
                 expect(err.toString()).toEqual('TSError: Search is not configured correctly');
             }
@@ -117,9 +116,10 @@ describe('Search Utils', () => {
         it('should throw if no index is given', async () => {
             expect.hasAssertions();
 
+            // @ts-ignore
+            const search = utils.makeSearchFn({}, { other: true }, {});
             try {
-                // @ts-ignore
-                await utils.search(fakeReq(), { }, { other: true }, {});
+                await search({});
             } catch (err) {
                 expect(err.toString()).toEqual('TSError: Search is not configured correctly');
             }
@@ -223,12 +223,3 @@ describe('Search Utils', () => {
         });
     });
 });
-
-function fakeReq(query = {}, body = {}): Request {
-    const req: unknown = {
-        query,
-        body,
-    };
-
-    return req as Request;
-}
