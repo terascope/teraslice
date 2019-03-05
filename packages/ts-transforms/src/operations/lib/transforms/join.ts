@@ -11,15 +11,22 @@ export default class Join extends TransformOpBase {
     constructor(config: OperationConfig) {
         super(config);
         this.delimiter = config.delimiter !== undefined ? config.delimiter : '';
-        this.fields = config.fields as string[];
+        const fields = config.fields || config.source_fields;
+        if (!fields || !Array.isArray(fields) || fields.length === 0) {
+            throw new Error(`Join configuration is misconfigured, could not determine fields to join ${JSON.stringify(config)}`)
+        }
+        this.fields = fields;
     }
     // source work differently here so we do not use the inherited validate
     protected validateConfig(config: OperationConfig) {
         const { target_field: tField } = config;
+        const fields = config.fields || config.source_fields;
         if (!tField || typeof tField !== 'string' || tField.length === 0)  {
             throw new Error(`could not find target_field for ${this.constructor.name} validation or it is improperly formatted, config: ${JSON.stringify(config)}`);
         }
-        if (!config.fields || !(Array.isArray(config.fields)) || config.fields.length < 2) throw new Error('fields configuration must be properly set for a join operator');
+        if (!fields || !Array.isArray(fields) || fields.length <= 1) {
+            throw new Error(`Join configuration is misconfigured, could not determine fields to join ${JSON.stringify(config)}`)
+        }
         if (config.delimiter && typeof config.delimiter !== 'string') throw new Error('paramter delimiter must be a string if defined');
         this.target = tField;
     }

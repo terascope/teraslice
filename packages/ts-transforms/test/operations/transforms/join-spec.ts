@@ -43,6 +43,16 @@ describe('join operator', () => {
         expect(results).toEqual({ first: 'John', last: 'Doe', full: 'JohnDoe' });
     });
 
+    it('can join fields of data entities through source_fields', () => {
+        const opConfig = { operation: 'join', source_fields: ['first', 'last'], target_field: 'full', __id: 'someId' };
+        const test =  new Join(opConfig);
+        const data = new DataEntity({ first: 'John', last: 'Doe' });
+        const results = test.run(data);
+
+        expect(DataEntity.isDataEntity(results)).toEqual(true);
+        expect(results).toEqual({ first: 'John', last: 'Doe', full: 'JohnDoe' });
+    });
+
     it('can join array fields of data entities', () => {
         const opConfig = {
             operation: 'join',
