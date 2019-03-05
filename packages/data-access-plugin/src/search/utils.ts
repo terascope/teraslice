@@ -174,11 +174,11 @@ export function getQueryConfig(req: Request, config: SearchConfig): SearchQueryC
     };
 }
 
-export function buildGeoSort(config: SearchViewConfig, options: SearchQueryConfig) {
+export function buildGeoSort(config: SearchConfig) {
     return;
 }
 
-export function handleSearchResponse(response: SearchResponse<any>, searchConfig: SearchConfig) {
+export function handleSearchResponse(response: SearchResponse<any>, config: SearchConfig) {
     // I don't think this property actually exists
     const error = get(response, 'error');
     if (error) {
@@ -196,7 +196,7 @@ export function handleSearchResponse(response: SearchResponse<any>, searchConfig
     const total = response.hits.total;
     let returning = total;
 
-    if (searchConfig.view.preserve_index_name) {
+    if (config.view.preserve_index_name) {
         results = response.hits.hits.map((data) => {
             const doc = data._source;
             doc._index = data._index;
@@ -207,12 +207,12 @@ export function handleSearchResponse(response: SearchResponse<any>, searchConfig
     }
 
     let info = `${response.hits.total} results found.`;
-    if (response.hits.total > searchConfig.query.size) {
-        returning = searchConfig.query.size;
+    if (response.hits.total > config.query.size) {
+        returning = config.query.size;
         info += ` Returning ${returning}.`;
     }
 
-    if (searchConfig.query.sortDisabled) {
+    if (config.query.sortDisabled) {
         info += ' No sorting available.';
     }
 
