@@ -15,6 +15,7 @@ export default class OutputPhase extends PhaseBase {
 
     constructor(opConfig: WatcherConfig, outputConfig:OutputValidation, _opsManager: OperationsManager) {
         super(opConfig);
+        // console.log('the output stuff', outputConfig)
         this.hasMultiValue = outputConfig.hasMultiValue;
         this.restrictOutput = outputConfig.restrictOutput;
         this.matchRequirements = outputConfig.matchRequirements;

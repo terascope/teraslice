@@ -4,14 +4,20 @@ import { DataEntity } from '@terascope/utils';
 
 export enum NotifyType { matcher = 'matcher', transform = 'transform' }
 
-export interface OperationConfig {
+export interface OperationConfig extends UnParsedConfig {
     tags?: string[];
+    __id: string;
+    __pipeline?: string;
+}
+
+export interface UnParsedConfig {
     selector?: string;
     source_field?: string;
     source_fields?: string[];
+    target_field?: string;
+    target_fields?: string[];
     start?: string;
     end?: string;
-    target_field?: string;
     regex?: string;
     validation?: string;
     decoder?: string;
@@ -31,8 +37,7 @@ export interface OperationConfig {
     _multi_target_field?: string;
     value?: any;
     output?: boolean;
-    __id: string;
-    __pipeline?: string;
+    tag?: string;
 }
 
 export type PluginClassConstructor = { new (): PluginClassType };

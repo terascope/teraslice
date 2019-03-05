@@ -4,13 +4,11 @@ import { DataEntity } from '@terascope/utils';
 import { OperationConfig } from '../../../interfaces';
 import TransformOpBase from './base';
 
-export default class Join extends TransformOpBase {
-    private delimiter: string;
+export default class MakeArray extends TransformOpBase {
     private fields: string[];
 
     constructor(config: OperationConfig) {
         super(config);
-        this.delimiter = config.delimiter !== undefined ? config.delimiter : '';
         const fields = config.fields || config.source_fields;
         if (!fields || !Array.isArray(fields) || fields.length === 0) {
             throw new Error(`Join configuration is misconfigured, could not determine fields to join ${JSON.stringify(config)}`);
@@ -27,14 +25,16 @@ export default class Join extends TransformOpBase {
         if (!fields || !Array.isArray(fields) || fields.length <= 1) {
             throw new Error(`Join configuration is misconfigured, could not determine fields to join ${JSON.stringify(config)}`);
         }
-        if (config.delimiter && typeof config.delimiter !== 'string') throw new Error('paramter delimiter must be a string if defined');
         this.target = tField;
     }
 
     run(doc: DataEntity): DataEntity | null {
-        const fieldsData = _.flattenDeep(this.fields.map(field => _.get(doc, field)));
-        const results = fieldsData.join(this.delimiter);
-        if (results.length !== this.delimiter.length) _.set(doc, this.target, results);
+        const results: any[] = [];
+        this.fields.forEach(field => {
+            const data = _.get(doc, field);
+            if (data) results.push(data);
+        });
+        if (results.length > 0) _.set(doc, this.target, results);
         return doc;
     }
 }

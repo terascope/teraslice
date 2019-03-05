@@ -32,10 +32,15 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
                         config.target_field = targetField || source;
                     } else {
                         config.source_fields = soureField;
-                        if (!targetField) throw new Error(`a target_field must be specified on a configuration with multiple source inputs. config: ${JSON.stringify(config)}`);
-                        config.target_field = targetField;
+                        if (targetField && !Array.isArray(targetField)) {
+                            config.target_field = targetField;
+                        } else {
+                            config.target_fields = soureField;
+                        }
                     }
                 }
+                checkForSource(config);
+                checkForTarget(config);
             }
         });
     }
@@ -58,6 +63,15 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
        // TODO: change name
         const configId = config.__id;
 
+        if (config.tags) {
+            config.tags.forEach((tag) => {
+                if (!tagMapping[tag]) {
+                    tagMapping[tag] = [];
+                }
+                tagMapping[tag].push(configId);
+            });
+        }
+
         if (isPrimaryConfig(config)) {
             const selectorNode = `selector:${config.selector}`;
 
@@ -68,20 +82,12 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
             if (hasPrimaryExtractions(config)) {
                 graph.setNode(configId, config);
                 graph.setEdge(selectorNode, configId);
-
-                if (config.tags) {
-                    config.tags.forEach((tag) => {
-                        if (!tagMapping[tag]) {
-                            tagMapping[tag] = [];
-                        }
-                        tagMapping[tag].push(configId);
-                    });
-                }
             }
         }
 
         if (isBackwordCompatiblePostProcessConfig(config)) {
             const selectorNode = `selector:${config.__pipeline}`;
+            // console.log('im in here', config, selectorNode)
             if (!oldCompatability[selectorNode]) {
                 oldCompatability[selectorNode] = [];
             }
@@ -90,15 +96,6 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
             graph.setNode(configId, config);
 
         } else if (hasPostProcess(config)) {
-            if (config.tags) {
-                config.tags.forEach((tag) => {
-                    if (!tagMapping[tag]) {
-                        tagMapping[tag] = [];
-                    }
-                    tagMapping[tag].push(configId);
-                });
-            }
-
             // config may be out of order so we build edges later
             graph.setNode(configId, config);
             if (!graphEdges[config.follow as string]) {
@@ -113,6 +110,9 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
 
     _.forOwn(oldCompatability, (postProcessConfigIds, selectorNodeName) => {
         const extractionNodeIds = findNodeChildren(graph, selectorNodeName);
+        // console.log('extractionNodeIds', extractionNodeIds)
+        // console.log('postProcessConfigIds', postProcessConfigIds)
+
         if (extractionNodeIds === null) {
             throw new Error(`there must be extractions set for ${JSON.stringify(graph.node(selectorNodeName))} if using a post_process op without tag/follow syntax`);
         }
@@ -120,6 +120,7 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
         postProcessConfigIds.forEach((postProcessConfigId) => {
             // we create edge for all extractions to post_process in old post_process configs
             extractionNodeIds.forEach((extractionId) => {
+                // console.log('im setting edge between', extractionId, postProcessConfigId)
                 graph.setEdge(extractionId, postProcessConfigId);
                 // this is a non follow post proces config, we want to keep everything in the same pipline if possible for field validation
                 if (!tagMapping[postProcessConfigId]) {
@@ -167,6 +168,18 @@ function validateOtherMatchRequired(configDict: ConfigProcessingDict, logger: Lo
             `.trim());
         }
     });
+}
+
+function checkForSource(config: OperationConfig) {
+    if (!config.source_field && (config.source_fields == null || config.source_fields.length === 0)) {
+        throw new Error(`could not find source fields for config ${JSON.stringify(config)}`);
+    }
+}
+
+function checkForTarget(config: OperationConfig) {
+    if (!config.target_field && (config.target_fields == null || config.target_fields.length === 0)) {
+        throw new Error(`could not find target fields for config ${JSON.stringify(config)}`);
+    }
 }
 
 type Config = OperationConfig|UnParsedConfig;
@@ -228,7 +241,7 @@ export function hasExtractions(config: Config) {
 }
 
 function hasPrimaryExtractions(config: Config) {
-    return hasExtractions && !isPostProcessType(config, 'extraction');
+    return hasExtractions(config) && !isPostProcessType(config, 'extraction') && !hasFollow(config);
 }
 
 function hasOutputRestrictions(config: Config) {
@@ -288,6 +301,7 @@ function createResults(list: OperationConfig[]): ValidationResults {
         }
 
         if (hasPrimaryExtractions(config)) {
+            // console.log('what is entering here', config)
             // TODO: fix the typing
             if (!results.extractions[currentSelector as string]) {
                 results.extractions[currentSelector as string] = [];

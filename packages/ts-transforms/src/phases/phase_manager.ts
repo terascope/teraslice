@@ -41,10 +41,9 @@ export default class PhaseManager {
             }
 
             sequence.push(new OutputPhase(this.opConfig, phaseConfiguration.output, opsManager));
-
             this.sequence = sequence;
         } catch (err) {
-            const errMsg = `could not instantiate phase manager: ${err.message}`;
+            const errMsg = `could not instantiate phase manager: ${err.stack}`;
             this.logger.error(errMsg);
             throw new Error(errMsg);
         }

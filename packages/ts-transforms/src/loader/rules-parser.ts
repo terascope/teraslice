@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import shortid from 'shortid';
 import { UnParsedConfig, OperationConfig } from '../interfaces';
-import { isOldCompatabilityPostProcessConfig, needsDefaultSelector } from './utils';
+import { isOldCompatabilityPostProcessConfig, needsDefaultSelector, hasExtractions } from './utils';
 import { Logger } from '@terascope/utils';
 
 export default class RulesParser {
@@ -39,24 +39,31 @@ export default class RulesParser {
             // we seperate simple configurations out
             if (isOldCompatabilityPostProcessConfig(config)) {
                 const newTag = shortid.generate();
-                newConfig = migrate(config, { follow: newTag, __id: shortid.generate() });
+                newConfig = migrate(config, { __id: shortid.generate() });
                 // @ts-ignore
-                config.tags = [newTag];
                 delete config.post_process;
                 delete config.validation;
                 // this area below targets the multi input old configs
-                if (newConfig.selector && newConfig.post_process !== 'selector') {
-                    newConfig.__pipeline = newConfig.selector;
+
+                if (!hasExtractions(config)) {
+                    newConfig.__pipeline = config.selector;
                     delete newConfig.selector;
                     // need to migrate this over in this case
                     if (config.target_field) {
                         newConfig.target_field = config.target_field;
                         delete config.target_field;
                     }
+                    // we just push in the new config
+                    resultsArray.push(newConfig);
+                } else {
+                    // we push in both
+                    newConfig.follow = newTag;
+                    // @ts-ignore
+                    config.tags = [newTag];
+
+                    resultsArray.push(config as OperationConfig);
+                    resultsArray.push(newConfig);
                 }
-                // we push in both
-                resultsArray.push(config as OperationConfig);
-                resultsArray.push(newConfig);
 
             } else {
                 resultsArray.push(config as OperationConfig);

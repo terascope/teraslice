@@ -17,7 +17,12 @@ export default abstract class ValidationOpBase<T> extends OperationBase {
     normalize? (data: any, _doc: DataEntity): any;
 
     run(doc: DataEntity): DataEntity | null {
-        let value = _.get(doc, this.source);
+        let value;
+        if (Array.isArray(this.source)) {
+            value = this.source.map(field => _.get(doc, field));
+        } else {
+            value = _.get(doc, this.source);
+        }
         let isValid = false;
 
         if (value === undefined) {
