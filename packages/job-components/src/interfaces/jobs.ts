@@ -76,6 +76,8 @@ export interface ValidatedJobConfig {
     memory?: number;
     /** This will only be available in the context of k8s */
     volumes?: Volume[];
+    /** This will only be available in the context of k8s */
+    kubernetes_image?: string;
 }
 
 export interface Targets {
