@@ -1,25 +1,29 @@
 'use strict';
-'use console';
-
-const _ = require('lodash');
 
 const reply = require('../lib/reply')();
-const configChecks = require('../lib/config');
-const cli = require('./lib/cli');
+const Config = require('../../lib/config');
+const Jobs = require('../../lib/jobs');
+const YargsOptions = require('../../lib/yargs-options');
 
-exports.command = 'save <cluster_sh>';
+const yargsOptions = new YargsOptions();
+
+exports.command = 'save <cluster-alias>';
 exports.desc = 'Saves all running job on the specified cluster to a json file.\n';
 exports.builder = (yargs) => {
-    cli().args('jobs', 'save', yargs);
-
-    yargs
-        .example('teraslice-cli jobs save cluster1');
+    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.options('output', yargsOptions.buildOption('output'));
+    yargs.options('status', yargsOptions.buildOption('jobs-status'));
+    yargs.strict()
+        .example('$0 jobs save cluster1');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    configChecks(cliConfig, 'jobs:save').returnConfigData();
-    const job = _testFunctions || require('./lib')(cliConfig);
-    return job.save()
-        .catch(err => reply.fatal(err.message));
+exports.handler = async (argv) => {
+    const cliConfig = new Config(argv);
+    const jobs = new Jobs(cliConfig);
+
+    try {
+        await jobs.save();
+    } catch (e) {
+        reply.fatal(e);
+    }
 };

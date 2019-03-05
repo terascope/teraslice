@@ -23,6 +23,14 @@ module.exports = () => {
         console.error(chalk.red(formatErr(err)));
     }
 
+    function info(message) {
+        console.log(_.toString(message));
+    }
+
+    function warning(message) {
+        console.log(chalk.yellow(formatErr(message)));
+    }
+
     function green(message) {
         if (!process.env.TJM_TEST_MODE) {
             console.log(chalk.green(message));
@@ -39,6 +47,8 @@ module.exports = () => {
         fatal,
         error,
         green,
-        yellow
+        yellow,
+        info,
+        warning
     };
 };

@@ -64,19 +64,36 @@ module.exports = function module(context) {
         return backend.shutdown(forceShutdown);
     }
 
+    function refresh() {
+        const { index } = timeseriesIndex(timeseriesFormat, _index);
+        return backend.refresh(index);
+    }
+
     const api = {
         log,
         get: getRecord,
         search,
         update,
         remove,
-        shutdown
+        shutdown,
+        refresh
     };
 
-    return elasticsearchBackend(context, indexName, 'analytics', '_id')
+    const backendConfig = {
+        context,
+        indexName,
+        recordType: 'analytics',
+        idField: '_id',
+        fullResponse: false,
+        logRecord: false,
+        forceRefresh: false,
+        storageName: 'analytics'
+    };
+
+    return elasticsearchBackend(backendConfig)
         .then((elasticsearch) => {
             backend = elasticsearch;
-            logger.info('AnalyticsStorage: initializing');
+            logger.info('analytics storage initialized');
             return api;
         });
 };

@@ -4,6 +4,7 @@ const _ = require('lodash');
 const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
 const { TSError, parseError } = require('@terascope/utils');
+const makeExStore = require('../storage/execution');
 
 /*
  Execution Life Cycle for _status
@@ -493,7 +494,7 @@ module.exports = function module(context, { clusterMasterServer }) {
     }
 
 
-    return require('../storage/execution')(context)
+    return makeExStore(context)
         .then((ex) => {
             logger.info('execution service is initializing...');
             exStore = ex;

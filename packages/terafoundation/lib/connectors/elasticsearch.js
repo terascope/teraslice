@@ -25,7 +25,7 @@ function logWrapper(logger) {
 function create(customConfig, logger) {
     const elasticsearch = require('elasticsearch');
 
-    logger.info(`Using elasticsearch hosts: ${customConfig.host}`);
+    logger.info(`using elasticsearch hosts: ${customConfig.host}`);
 
     customConfig.defer = function _defer() {
         return Promise.defer();

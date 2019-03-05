@@ -1,25 +1,41 @@
 'use strict';
-'use console';
 
-const _ = require('lodash');
 const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
+const display = require('../lib/display')();
 
-exports.command = 'list <cluster_sh>';
+const Config = require('../../lib/config');
+
+const YargsOptions = require('../../lib/yargs-options');
+const TerasliceUtil = require('../../lib/teraslice-util');
+
+const yargsOptions = new YargsOptions();
+
+exports.command = 'list <cluster-alias>';
 exports.desc = 'List the jobs on the cluster. Defaults to 10 jobs.';
 exports.builder = (yargs) => {
-    cli().args('jobs', 'list', yargs);
-    yargs
-        .example('teraslice-cli jobs list cluster1')
-        .example('teraslice-cli jobs list http://cluster1.net:80');
+    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.options('output', yargsOptions.buildOption('output'));
+    yargs.strict()
+        .example('$0 jobs list cluster1');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    config(cliConfig, 'jobs:list').returnConfigData();
-    const job = _testFunctions || require('./lib')(cliConfig);
+exports.handler = async (argv) => {
+    let response;
+    const active = false;
+    const parse = true;
+    const cliConfig = new Config(argv);
+    const teraslice = new TerasliceUtil(cliConfig);
+    const header = ['job_id', 'name', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
+    const format = `${cliConfig.args.output}Horizontal`;
 
-    return job.list()
-        .catch(err => reply.fatal(err.message));
+    try {
+        response = await teraslice.client.jobs.list();
+    } catch (err) {
+        reply.fatal(`Error getting jobs list on ${cliConfig.args.clusterAlias}\n${err}`);
+    }
+    if (Object.keys(response).length === 0) {
+        reply.fatal(`> No jobs on ${cliConfig.args.clusterAlias}`);
+    }
+
+    await display.display(header, response, format, active, parse);
 };

@@ -1,36 +1,33 @@
 'use strict';
-'use console';
 
-const _ = require('lodash');
 const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
+const Config = require('../../lib/config');
+const Jobs = require('../../lib/jobs');
+const YargsOptions = require('../../lib/yargs-options');
 
-exports.command = 'pause <cluster_sh> [job_id]';
-exports.desc = 'Pause all running and failing job on cluster.\n';
+const yargsOptions = new YargsOptions();
+
+exports.command = 'pause <cluster-alias> [id]';
+exports.desc = 'Pause job id on the specified cluster.\n';
 exports.builder = (yargs) => {
-    cli().args('jobs', 'pause', yargs);
-    yargs
-        .option('annotate', {
-            alias: 'n',
-            describe: 'add grafana annotation',
-            default: ''
-        })
-        .option('all', {
-            alias: 'a',
-            describe: 'pause all running/failing jobs',
-            default: false
-        })
-        .example('teraslice-cli jobs pause cluster1 99999999-9999-9999-9999-999999999999')
-        .example('teraslice-cli jobs pause cluster1 99999999-9999-9999-9999-999999999999 --yes')
-        .example('teraslice-cli jobs pause cluster1 --all');
+    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.options('output', yargsOptions.buildOption('output'));
+    yargs.options('status', yargsOptions.buildOption('jobs-status'));
+    yargs.options('all', yargsOptions.buildOption('jobs-all'));
+    yargs.options('yes', yargsOptions.buildOption('yes'));
+    yargs.strict()
+        .example('$0 jobs pause cluster1 99999999-9999-9999-9999-999999999999')
+        .example('$0 jobs pause cluster1 99999999-9999-9999-9999-999999999999 --yes')
+        .example('$0 jobs pause cluster1 --all');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    config(cliConfig, 'jobs:pause').returnConfigData();
-    const job = _testFunctions || require('./lib')(cliConfig);
+exports.handler = async (argv) => {
+    const cliConfig = new Config(argv);
+    const jobs = new Jobs(cliConfig);
 
-    return job.pause()
-        .catch(err => reply.fatal(err.message));
+    try {
+        await jobs.pause();
+    } catch (e) {
+        reply.fatal(e);
+    }
 };

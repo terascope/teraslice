@@ -1,38 +1,53 @@
 'use strict';
 'use console';
 
-const _ = require('lodash');
 const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
+const display = require('../lib/display')();
 
-exports.command = 'errors <cluster_sh> [job_id]';
+const Config = require('../../lib/config');
+const TerasliceUtil = require('../../lib/teraslice-util');
+
+const YargsOptions = require('../../lib/yargs-options');
+
+const yargsOptions = new YargsOptions();
+
+exports.command = 'errors <cluster-alias> [id]';
 exports.desc = 'List errors for all running and failing job on cluster.\n';
 exports.builder = (yargs) => {
-    cli().args('jobs', 'errors', yargs);
-    yargs
-        .option('from', {
-            describe: 'error number to start query',
-            default: 1
-        })
-        .option('size', {
-            describe: 'size of error query',
-            default: 100
-        })
-        .option('ex_id', {
-            describe: 'Execution id to limit query',
-            default: ''
-        });
-    yargs.example('teraslice-cli jobs errors cluster1');
-    yargs.example('teraslice-cli jobs errors cluster1 --size 10');
-    yargs.example('teraslice-cli jobs errors cluster1 99999999-9999-9999-9999-999999999999');
+    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.options('output', yargsOptions.buildOption('output'));
+    yargs.options('from', yargsOptions.buildOption('jobs-from'));
+    yargs.options('size', yargsOptions.buildOption('jobs-size'));
+    yargs.options('sort', yargsOptions.buildOption('jobs-sort'));
+    yargs.strict()
+        .example('$0 job errors cluster1 99999999-9999-9999-9999-999999999999')
+        .example('$0 job errors cluster1 99999999-9999-9999-9999-999999999999 --from=500')
+        .example('$0 job errors cluster1 99999999-9999-9999-9999-999999999999 --size=10')
+        .example('$0 job errors cluster1 99999999-9999-9999-9999-999999999999 --sort=slicer_order:asc');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    config(cliConfig, 'jobs:error').returnConfigData();
-    const job = _testFunctions || require('./lib')(cliConfig);
+exports.handler = async (argv) => {
+    let response;
+    const active = false;
+    const parse = false;
+    const cliConfig = new Config(argv);
+    const teraslice = new TerasliceUtil(cliConfig);
+    const header = ['ex_id', 'slice_id', 'slicer_id', 'slicer_order', 'state', 'ex_id', '_created', '_updated', 'error'];
+    const format = `${cliConfig.args.output}Horizontal`;
 
-    return job.errors()
-        .catch(err => reply.fatal(err.message));
+    try {
+        const opts = {};
+        opts.from = cliConfig.args.from;
+        opts.sort = cliConfig.args.sort;
+        opts.size = cliConfig.args.size;
+        response = await teraslice.client.jobs.wrap(cliConfig.args.id).errors(opts);
+    } catch (err) {
+        reply.fatal(`Error getting job errors list on ${cliConfig.args.clusterAlias}\n${err}`);
+    }
+    const rows = await display.parseResponse(header, response, active);
+    if (rows.length > 0) {
+        await display.display(header, rows, format, active, parse);
+    } else {
+        reply.fatal(`> No errors for job_id: ${cliConfig.args.id}`);
+    }
 };

@@ -1,52 +1,48 @@
 {
-  "settings": {
-    "index.number_of_shards": 5,
-    "index.number_of_replicas": 1
-  },
-  "mappings": {
-    "ex": {
-      "_all": {
-        "enabled": false
-      },
-      "dynamic": false,
-      "properties": {
-        "job_id": {
-          "type": "keyword"
-        },
-        "ex_id": {
-          "type": "keyword"
-        },
-        "_context": {
-          "type": "keyword"
-        },
-        "_status": {
-          "type": "keyword"
-        },
-        "_has_errors": {
-          "type": "keyword"
-        },
-        "slicer_hostname": {
-          "type": "keyword"
-        },
-        "slicer_port": {
-          "type": "keyword"
-        },
-        "recovered_execution": {
-          "type": "keyword"
-        },
-        "recovered_slice_type": {
-          "type": "keyword"
-        },
-        "_slicer_stats": {
-          "type": "object"
-        },
-        "_created": {
-          "type": "date"
-        },
-        "_updated": {
-          "type": "date"
+    "mappings": {
+        "ex": {
+            "_all": {
+                "enabled": false
+            },
+            "dynamic": false,
+            "properties": {
+                "job_id": {
+                    "type": "keyword"
+                },
+                "ex_id": {
+                    "type": "keyword"
+                },
+                "_context": {
+                    "type": "keyword"
+                },
+                "_status": {
+                    "type": "keyword"
+                },
+                "_has_errors": {
+                    "type": "keyword"
+                },
+                "slicer_hostname": {
+                    "type": "keyword"
+                },
+                "slicer_port": {
+                    "type": "keyword"
+                },
+                "recovered_execution": {
+                    "type": "keyword"
+                },
+                "recovered_slice_type": {
+                    "type": "keyword"
+                },
+                "_slicer_stats": {
+                    "type": "object"
+                },
+                "_created": {
+                    "type": "date"
+                },
+                "_updated": {
+                    "type": "date"
+                }
+            }
         }
-      }
     }
-  }
 }

@@ -1,17 +1,17 @@
 {
-  "template": "__logs*",
-  "mappings": {
-    "_default_": {
-      "dynamic_templates": [
-        {
-          "strings": {
-            "match_mapping_type": "string",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
+    "template": "__logs*",
+    "mappings": {
+        "_default_": {
+            "dynamic_templates": [
+                {
+                    "strings": {
+                        "match_mapping_type": "string",
+                        "mapping": {
+                            "type": "keyword"
+                        }
+                    }
+                }
+            ]
         }
-      ]
     }
-  }
 }

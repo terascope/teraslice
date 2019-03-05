@@ -92,6 +92,58 @@ const schema = {
             }
         }
     },
+    index_settings: {
+        analytics: {
+            number_of_shards: {
+                doc: 'The number of shards for the analytics index',
+                default: 5,
+            },
+            number_of_replicas: {
+                doc: 'The number of replicas for the analytics index',
+                default: 1,
+            },
+        },
+        assets: {
+            number_of_shards: {
+                doc: 'The number of shards for the assets index',
+                default: 5,
+            },
+            number_of_replicas: {
+                doc: 'The number of replicas for the assets index',
+                default: 1,
+            },
+        },
+        jobs: {
+            number_of_shards: {
+                doc: 'The number of shards for the jobs index',
+                default: 5,
+            },
+            number_of_replicas: {
+                doc: 'The number of replicas for the jobs index',
+                default: 1,
+            },
+        },
+        execution: {
+            number_of_shards: {
+                doc: 'The number of shards for the execution index',
+                default: 5,
+            },
+            number_of_replicas: {
+                doc: 'The number of replicas for the execution index',
+                default: 1,
+            },
+        },
+        state: {
+            number_of_shards: {
+                doc: 'The number of shards for the state index',
+                default: 5,
+            },
+            number_of_replicas: {
+                doc: 'The number of replicas for the state index',
+                default: 1,
+            },
+        },
+    },
     action_timeout: {
         doc: 'time in milliseconds for waiting for a action ( pause/stop job, etc) to complete before throwing an error',
         default: 300000,

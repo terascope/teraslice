@@ -1,7 +1,7 @@
 'use strict';
 
-const Promise = require('bluebird');
 const _ = require('lodash');
+const Promise = require('bluebird');
 const { getClient } = require('@terascope/job-components');
 
 module.exports = function module(context) {
