@@ -5,7 +5,7 @@ import { DataEntity } from '@terascope/utils';
 describe('join operator', () => {
 
     it('can instantiate', () => {
-        const opConfig = { operation: 'join', fields: ['first', 'last'], source_field: 'someField', target_field: 'otherField' };
+        const opConfig = { operation: 'join', fields: ['first', 'last'], source_field: 'someField', target_field: 'otherField', __id: 'someId' };
         expect(() => new Join(opConfig)).not.toThrow();
     });
 
@@ -19,11 +19,13 @@ describe('join operator', () => {
         const badConfig7 = { operation: 'join', fields: ['first', 'last'], target_field: 'someField', delimiter: 1324 };
         // @ts-ignore
         expect(() => new Join(badConfig1)).toThrow();
+        // @ts-ignore
         expect(() => new Join(badConfig2)).toThrow();
          // @ts-ignore
         expect(() => new Join(badConfig3)).toThrow();
          // @ts-ignore
         expect(() => new Join(badConfig4)).toThrow();
+        // @ts-ignore
         expect(() => new Join(badConfig5)).toThrow();
          // @ts-ignore
         expect(() => new Join(badConfig6)).toThrow();
@@ -32,7 +34,7 @@ describe('join operator', () => {
     });
 
     it('can join fields of data entities', () => {
-        const opConfig = { operation: 'join', fields: ['first', 'last'], target_field: 'full' };
+        const opConfig = { operation: 'join', fields: ['first', 'last'], target_field: 'full', __id: 'someId' };
         const test =  new Join(opConfig);
         const data = new DataEntity({ first: 'John', last: 'Doe' });
         const results = test.run(data);
@@ -49,7 +51,8 @@ describe('join operator', () => {
                 'secondGroup'
             ],
             target_field: 'allGroup',
-            delimiter: ' & '
+            delimiter: ' & ',
+            __id: 'someId'
         };
         const test =  new Join(opConfig);
         const data = new DataEntity({ firstGroup: ['John', 'Sarah'], secondGroup: ['Connor', 'Billy'] });
@@ -68,14 +71,16 @@ describe('join operator', () => {
             operation: 'join',
             fields: ['first', 'last'],
             target_field: 'full',
-            delimiter: ' '
+            delimiter: ' ',
+            __id: 'someId'
         };
 
         const opConfig2 = {
             operation: 'join',
             fields: ['first', 'last'],
             target_field: 'full',
-            delimiter: ' & '
+            delimiter: ' & ',
+            __id: 'someId'
         };
         const test1 =  new Join(opConfig);
         const test2 =  new Join(opConfig2);
@@ -94,7 +99,7 @@ describe('join operator', () => {
     });
 
     it('can join nested target_field', () => {
-        const opConfig = { operation: 'join', fields: ['person.first', 'person.last'], target_field: 'author.full_name' };
+        const opConfig = { operation: 'join', fields: ['person.first', 'person.last'], target_field: 'author.full_name', __id: 'someId' };
         const test =  new Join(opConfig);
         const metaData = { selectors: { 'some:data': true } };
         const data = new DataEntity({ person: { first: 'John', last: 'Doe' } }, metaData);

@@ -5,11 +5,11 @@ import { DataEntity } from '@terascope/utils';
 describe('urldecode operator', () => {
 
     it('can instantiate', () => {
-        const opConfig = { target_field: 'source', source_field: 'source' };
+        const opConfig = { target_field: 'source', source_field: 'source', __id: 'someId' };
         expect(() => new UrlDecode(opConfig)).not.toThrow();
     });
 
-    it('can properly throw with bad config values', () => {
+    xit('can properly throw with bad config values', () => {
         const badConfig1 = { target_field: 1324 };
         const badConfig2 = { target_field: '' };
         const badConfig3 = { target_field: {} };
@@ -20,6 +20,7 @@ describe('urldecode operator', () => {
         const badConfig8 = { source_field: '', target_field: '' };
         // @ts-ignore
         expect(() => new UrlDecode(badConfig1)).toThrow();
+        // @ts-ignore
         expect(() => new UrlDecode(badConfig2)).toThrow();
         // @ts-ignore
         expect(() => new UrlDecode(badConfig3)).toThrow();
@@ -31,11 +32,12 @@ describe('urldecode operator', () => {
         expect(() => new UrlDecode(badConfig6)).toThrow();
         // @ts-ignore
         expect(() => new UrlDecode(badConfig7)).toThrow();
+        // @ts-ignore
         expect(() => new UrlDecode(badConfig8)).toThrow();
     });
 
     it('can urldecode decode fields', () => {
-        const opConfig = { source_field: 'source' };
+        const opConfig = { source_field: 'source', target_field: 'source', __id: 'someId' };
         const test =  new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -84,7 +86,7 @@ describe('urldecode operator', () => {
     });
 
     it('can urldecode decode nested fields', () => {
-        const opConfig = { source_field: 'source.field' };
+        const opConfig = { source_field: 'source.field', target_field: 'source.field', __id: 'someId' };
         const test =  new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
         const url = 'http:// localhost:9200/logstash-2018.7/_search?q=bytes:>500 AND ip:*&pretty&size=10000';

@@ -8,6 +8,7 @@ export default class Double extends TransformOpBase {
     }
 
     run(doc: DataEntity) {
+        // @ts-ignore
         doc[this.source] = doc[this.source] * 2;
         return doc;
     }

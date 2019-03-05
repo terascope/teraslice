@@ -5,7 +5,7 @@ import { DataEntity } from '@terascope/utils';
 describe('transform operator', () => {
 
     it('can instantiate', () => {
-        const opConfig = { target_field: 'someField', source_field: 'someField' };
+        const opConfig = { target_field: 'someField', source_field: 'someField', __id: 'someId' };
         expect(() => new Extraction(opConfig)).not.toThrow();
     });
 
@@ -25,7 +25,7 @@ describe('transform operator', () => {
     });
 
     it('can transform data', () => {
-        const opConfig = { source_field: 'someField', target_field: 'otherField' };
+        const opConfig = { source_field: 'someField', target_field: 'otherField', __id: 'someId' };
         const test = new Extraction(opConfig);
 
         const data1 = new DataEntity({ someField: '56.234,95.234' });
@@ -55,7 +55,7 @@ describe('transform operator', () => {
     });
 
     it('can transform data with start/end', () => {
-        const opConfig = { source_field: 'someField', target_field: 'otherField', start: 'field=', end: 'SomeStr' };
+        const opConfig = { source_field: 'someField', target_field: 'otherField', start: 'field=', end: 'SomeStr', __id: 'someId' };
         const test = new Extraction(opConfig);
 
         const data1 = new DataEntity({ someField: '56.234,95.234' });
@@ -93,7 +93,7 @@ describe('transform operator', () => {
     });
 
     it('can transform data end = ', () => {
-        const opConfig = { source_field: 'someField', target_field: 'otherField', start: 'field=', end: 'EOP' };
+        const opConfig = { source_field: 'someField', target_field: 'otherField', start: 'field=', end: 'EOP', __id: 'someId' };
         const test = new Extraction(opConfig);
 
         const data1 = new DataEntity({ someField: 'field=data&SomeStr' });
@@ -110,7 +110,7 @@ describe('transform operator', () => {
     });
 
     it('can transform data with regex', () => {
-        const opConfig = { regex: 'd.*ta', source_field: 'someField', target_field: 'otherField' };
+        const opConfig = { regex: 'd.*ta', source_field: 'someField', target_field: 'otherField', __id: 'someId' };
         const test = new Extraction(opConfig);
 
         const data1 = new DataEntity({ someField: '56.234,95.234' });
@@ -145,7 +145,7 @@ describe('transform operator', () => {
     });
 
     it('can transform data with regex that are set with //', () => {
-        const opConfig = { regex: '/d.*ta/', source_field: 'someField', target_field: 'otherField' };
+        const opConfig = { regex: '/d.*ta/', source_field: 'someField', target_field: 'otherField', __id: 'someId' };
         const test = new Extraction(opConfig);
 
         const data1 = new DataEntity({ someField: 'data' });
@@ -159,7 +159,7 @@ describe('transform operator', () => {
     });
 
     it('can mutate existing doc instead of returning a new one', () => {
-        const opConfig = { source_field: 'someField', target_field: 'otherField', mutate: true };
+        const opConfig = { source_field: 'someField', target_field: 'otherField', mutate: true, __id: 'someId' };
         const test = new Extraction(opConfig);
 
         const dataArray = DataEntity.makeArray([
@@ -188,7 +188,7 @@ describe('transform operator', () => {
     });
 
     it('can mutate existing doc by default for post_processing', () => {
-        const opConfig = { post_process: 'extraction', source_field: 'someField', target_field: 'otherField' };
+        const opConfig = { post_process: 'extraction', source_field: 'someField', target_field: 'otherField', __id: 'someId' };
         const test = new Extraction(opConfig);
 
         const dataArray = DataEntity.makeArray([
@@ -223,7 +223,8 @@ describe('transform operator', () => {
             // this metadata is set in loader
             _multi_target_field: 'otherField',
             mutate: true,
-            multivalue: true
+            multivalue: true,
+            __id: 'someId'
         };
         const opConfig2 = {
             source_field: 'firstField',
@@ -231,10 +232,11 @@ describe('transform operator', () => {
             // this metadata is set in loader
             _multi_target_field: 'secondField',
             mutate: true,
-            multivalue: true
+            multivalue: true,
+            __id: 'someId'
         };
 
-        const opConfig3 = { selector: 'some:data', source_field: 'someField', target_field: 'otherField' };
+        const opConfig3 = { selector: 'some:data', source_field: 'someField', target_field: 'otherField', __id: 'someId' };
 
         const test1 =  new Extraction(opConfig);
         const test2 =  new Extraction(opConfig2);

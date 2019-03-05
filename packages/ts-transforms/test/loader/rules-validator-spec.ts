@@ -1,20 +1,19 @@
 
 import _ from 'lodash';
-import shortid from 'shortid';
-import { RulesValidator, OperationConfig } from '../../src';
-import { debugLogger } from '@terascope/utils';
-import { isPrimaryConfig } from '../../src/loader/utils';
 import 'jest-extended';
+import { debugLogger } from '@terascope/utils';
+import { RulesValidator, RulesParser, OperationConfig, UnParsedConfig } from '../../src';
+import { isPrimaryConfig } from '../../src/loader/utils';
 
 describe('rules-validator', () => {
     const testLogger = debugLogger('rules-validator-test');
 
-    function addId(config: object): OperationConfig {
-        config['__id'] = shortid.generate();
-        return config as OperationConfig;
+    function parseData(configList: UnParsedConfig[]) {
+        const rulesParser = new RulesParser(configList, testLogger);
+        return rulesParser.parse();
     }
 
-    const basicExtractionConfig: OperationConfig[] = [
+    const basicExtractionConfig = parseData([
         {
             selector: 'hello:world',
             source_field: 'first',
@@ -25,9 +24,9 @@ describe('rules-validator', () => {
             source_field: 'last',
             target_field: 'last_name'
         }
-    ].map(addId);
+    ]);
 
-    const multiSelectorConfig: OperationConfig[] = [
+    const multiSelectorConfig = parseData([
         {
             selector: 'hello:world',
             source_field: 'first',
@@ -39,29 +38,26 @@ describe('rules-validator', () => {
             target_field: 'last_name'
         },
         {
-            selector: '*',
             source_field: 'person',
             target_field: 'valid_person'
         }
-    ].map(addId);
+    ]);
 
-    const postSelector: OperationConfig[] = [
+    const postSelector = parseData([
         {
             selector: 'hello:world',
             source_field: 'first',
             target_field: 'first_name',
-            tags: ['hello'],
-            __id: shortid.generate()
+            tag: 'hello',
         },
         {
             follow: 'hello',
             post_process: 'selector',
             selector: 'first:name',
-            __id: shortid.generate()
         }
-    ].map(addId);
+    ]);
 
-    const basicPostProcessing: OperationConfig[] = [
+    const basicPostProcessing = parseData([
         {
             selector: 'hello:world',
             source_field: 'first',
@@ -72,7 +68,8 @@ describe('rules-validator', () => {
             selector: 'hello:world',
             source_field: 'last',
             target_field: 'last_name',
-            output: false, tags: ['someTag']
+            output: false,
+            tag: 'someTag'
         },
         {
             follow: 'someTag',
@@ -81,90 +78,64 @@ describe('rules-validator', () => {
             delimiter: ' ',
             target_field: 'full_name'
         }
-    ].map(addId);
+    ]);
 
-    const chainedRules1: OperationConfig[] = [
+    const chainedRules1 = parseData([
         {
-            selector: '*',
             source_field: 'somefield',
             start: 'value=', end: 'EOP',
             target_field: 'hashoutput',
-            tags: ['source']
+            tag: 'source'
         },
         {
             follow: 'source',
             post_process: 'base64decode',
-            tags: ['hash_field']
+            tag: 'hash_field'
         },
         {
             follow: 'hash_field',
             post_process: 'urldecode',
-            tags: ['urldecoded']
+            tag: 'urldecoded'
         },
         {
             follow: 'urldecoded',
             post_process: 'jsonparse',
-            tags: ['parsed']
+            tag: 'parsed'
         }
-    ].map(addId);
-    // @ts-ignore
-    const OldJoinRules: OperationConfig[] = [
-        {
-            selector: 'hello:world',
-            source_field: 'first',
-            target_field: 'first_name'
-        },
-        {
-            selector: 'hello:world',
-            source_field: 'last',
-            target_field: 'last_name'
-        },
-        {
-            selector: 'hello:world',
-            post_process: 'join',
-            fields: ['first_name', 'last_name'],
-            delimiter: ' ',
-            target_field: 'full_name'
-        }
-    ].map(addId);
-    // TODO: revert back to OldJoinRules when formatter is used on data;
-    const OldJoinRulesParsed: OperationConfig[] = [
-        {
-            selector: 'hello:world',
-            source_field: 'first',
-            target_field: 'first_name'
-        },
-        {
-            selector: 'hello:world',
-            source_field: 'last',
-            target_field: 'last_name'
-        },
-        {
-            selector: 'hello:world',
-            fields: ['first_name', 'last_name'],
-            delimiter: ' ',
-        },
-        {
-            __pipeline: 'hello:world',
-            post_process: 'join',
-            fields: ['first_name', 'last_name'],
-            delimiter: ' ',
-            target_field: 'full_name'
-        }
-    ].map(addId);
+    ]);
 
-    const NewJoinRules: OperationConfig[] = [
+    const OldJoinRules = parseData([
+        {
+            selector: 'hello:world',
+            source_field: 'first',
+            target_field: 'first_name'
+        },
+        {
+            selector: 'hello:world',
+            source_field: 'last',
+            target_field: 'last_name'
+        },
+        {
+            selector: 'hello:world',
+            post_process: 'join',
+            fields: ['first_name', 'last_name'],
+            delimiter: ' ',
+            target_field: 'full_name'
+        }
+    ]);
+
+    const NewJoinRules = parseData([
         {
             selector: 'hello:world',
             source_field: 'first',
             target_field: 'first_name',
-            tags: ['A']
+            tag: 'A'
         },
         {
             selector: 'hello:world',
             source_field: 'last',
             target_field: 'last_name',
-            tags: ['A']
+            tag: 'A'
         },
         {
             follow: 'A',
@@ -173,35 +144,43 @@ describe('rules-validator', () => {
             delimiter: ' ',
             target_field: 'full_name'
         }
-    ].map(addId);
+    ]);
 
-    const cyclicRules: OperationConfig[] = [
+    const oldExtractionValidation = parseData([
         {
-            selector: '*',
+            selector: 'hello:world',
+            source_field:  'txt',
+            target_field: 'hex',
+            validation: 'hexdecode'
+        }
+    ]);
+
+    const cyclicRules = parseData([
+        {
             source_field: 'somefield',
             start: 'value=',
             end: 'EOP',
             target_field: 'hashoutput',
-            tags: ['source']
+            tag: 'source'
         },
         {
             follow: 'parsed',
             post_process: 'base64decode',
-            tags: ['hash_field']
+            tag: 'hash_field'
         },
         {
             follow: 'hash_field',
             post_process: 'urldecode',
-            tags: ['urldecoded']
+            tag: 'urldecoded'
         },
         {
             follow: 'urldecoded',
             post_process: 'jsonparse',
-            tags: ['parsed']
+            tag: 'parsed'
         },
-    ].map(addId);
+    ]);
 
-    const matchRequiredError: OperationConfig[] = [
+    const matchRequiredError = parseData([
         {
             selector: 'some:selector',
             source_field: 'somefield',
@@ -209,7 +188,7 @@ describe('rules-validator', () => {
             end: 'EOP',
             other_match_required: true,
             target_field: 'hashoutput',
-            tags: ['source']
+            tag: 'source'
         },
         {
             selector: 'thing:other',
@@ -217,24 +196,24 @@ describe('rules-validator', () => {
             start: 'value=',
             end: 'EOP',
             target_field: 'hashoutput',
-            tags: ['source']
+            tag: 'source'
         },
         {
             follow: 'source',
             post_process: 'base64decode',
-            tags: ['hash_field']
+            tag: 'hash_field'
         },
         {
             follow: 'hash_field',
             post_process: 'urldecode',
-            tags: ['urldecoded']
+            tag: 'urldecoded'
         },
         {
             follow: 'urldecoded',
             post_process: 'jsonparse',
-            tags: ['parsed']
+            tag: 'parsed'
         }
-    ].map(addId);
+    ]);
 
     function constructValidator(configList: OperationConfig[], logger = testLogger) {
         return new RulesValidator(configList, logger);
@@ -290,6 +269,38 @@ describe('rules-validator', () => {
             results['hello:world'] = [multiSelectorConfig[0]];
             results['other:things'] = [multiSelectorConfig[1]];
             results['*'] = [multiSelectorConfig[2]];
+
+            expect(extractions).toEqual(results);
+        });
+
+        it('can work with OldJoinRules', () => {
+            const validator = constructValidator(OldJoinRules);
+            const { extractions } = validator.validate();
+            const results = {};
+
+            results['hello:world'] = OldJoinRules.slice(0, 2);
+
+            expect(extractions['hello:world'].length).toEqual(2);
+            expect(extractions).toEqual(results);
+        });
+
+        it('can work with NewJoinRules', () => {
+            const validator = constructValidator(NewJoinRules);
+            const { extractions } = validator.validate();
+            const results = {};
+
+            results['hello:world'] = NewJoinRules.slice(0, 2);
+
+            expect(extractions['hello:world'].length).toEqual(2);
+            expect(extractions).toEqual(results);
+        });
+
+        it('can work with other stuff', () => {
+            const validator = constructValidator(oldExtractionValidation);
+            const { extractions } = validator.validate();
+            const results = {
+                'hello:world': [oldExtractionValidation[0]]
+            };
 
             expect(extractions).toEqual(results);
         });
@@ -356,12 +367,12 @@ describe('rules-validator', () => {
         });
 
         it('will not throw errors with OldJoinRules', () => {
-            const validator = constructValidator(OldJoinRulesParsed);
+            const validator = constructValidator(OldJoinRules);
             expect(() => validator.validate()).not.toThrow();
         });
-
+        // TODO: check more of code
         it('OldJoinRules config will be correctly formated with source_fields', () => {
-            const validator = constructValidator(OldJoinRulesParsed);
+            const validator = constructValidator(OldJoinRules);
             const { postProcessing } = validator.validate();
             const selectors = _.get(postProcessing, 'hello:world');
             const results = _.get(selectors, '[0]');

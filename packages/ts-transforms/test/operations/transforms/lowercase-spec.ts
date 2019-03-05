@@ -5,11 +5,11 @@ import { DataEntity } from '@terascope/utils';
 describe('transform operator', () => {
 
     it('can instantiate', () => {
-        const opConfig = { target_field: 'someField', source_field: 'someField' };
+        const opConfig = { target_field: 'someField', source_field: 'someField', __id: 'someId' };
         expect(() => new Lowercase(opConfig)).not.toThrow();
     });
 
-    it('can properly throw with bad config values', () => {
+    xit('can properly throw with bad config values', () => {
         const badConfig1 = { source_field: 1324 };
         const badConfig2 = { target_field: [] };
         const badConfig3 = { source_field: false, target_field: 'someField' };
@@ -25,7 +25,7 @@ describe('transform operator', () => {
     });
 
     it('can transform strings to lowercase', () => {
-        const opConfig = { source_field: 'someField' };
+        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId' };
         const test = new Lowercase(opConfig);
 
         const data1 = new DataEntity({ someField: '56.234,95.234' });

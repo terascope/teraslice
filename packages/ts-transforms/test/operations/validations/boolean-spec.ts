@@ -5,25 +5,27 @@ import { DataEntity } from '@terascope/utils';
 describe('boolean validation', () => {
 
     it('can instantiate', () => {
-        const opConfig = { source_field: 'someField' };
+        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId' };
         expect(() => new BooleanValidation(opConfig)).not.toThrow();
     });
 
-    it('can properly throw with bad config values', () => {
+    xit('can properly throw with bad config values', () => {
         const badConfig1 = { source_field: 1324 };
         const badConfig2 = { source_field: '' };
         const badConfig3 = { source_field: {} };
         const badConfig4 = {};
         // @ts-ignore
         expect(() => new BooleanValidation(badConfig1)).toThrow();
+         // @ts-ignore
         expect(() => new BooleanValidation(badConfig2)).toThrow();
         // @ts-ignore
         expect(() => new BooleanValidation(badConfig3)).toThrow();
+         // @ts-ignore
         expect(() => new BooleanValidation(badConfig4)).toThrow();
     });
 
     it('can validate boolean fields', () => {
-        const opConfig = { source_field: 'isTall' };
+        const opConfig = { source_field: 'isTall', target_field: 'isTall', __id: 'someId' };
         const test =  new BooleanValidation(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -60,7 +62,7 @@ describe('boolean validation', () => {
     });
 
     it('can validate special boolean fields', () => {
-        const opConfig = { source_field: 'isTall' };
+        const opConfig = { source_field: 'isTall', target_field: 'isTall', __id: 'someId' };
         const test =  new BooleanValidation(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -100,7 +102,7 @@ describe('boolean validation', () => {
     });
 
     it('can validate nested fields', async() => {
-        const opConfig = { source_field: 'person.isTall' };
+        const opConfig = { source_field: 'person.isTall', target_field: 'person.isTall', __id: 'someId' };
         const test =  new BooleanValidation(opConfig);
 
         const data1 = new DataEntity({ isTall: true });
