@@ -7,6 +7,7 @@
         "bootstrap:prod": "lerna bootstrap -- --production=true --link-duplicates --ignore-optional",
         "bootstrap": "lerna bootstrap --force-local",
         "clean": "tsc --build --clean",
+        "build:prod": "lerna link --force-local && lerna run build:prepare && lerna run build",
         "build": "lerna run build:prepare && tsc --build --pretty",
         "build:watch": "yarn run build --watch",
         "bump": "./scripts/bump.js",
@@ -22,12 +23,14 @@
         "lint": "env FORCE_COLOR=1 lerna run lint",
         "lint:fix": "env FORCE_COLOR=1 lerna run lint:fix"
     },
-    "dependencies": {
+    "dependencies": {},
+    "devDependencies": {
         "@types/bluebird": "^3.5.25",
         "@types/convict": "^4.2.1",
         "@types/debug": "^4.1.1",
         "@types/elasticsearch": "^5.0.31",
         "@types/fs-extra": "^5.0.5",
+        "@types/jest": "^24.0.6",
         "@types/lodash": "^4.14.121",
         "@types/lodash.clonedeep": "^4.5.5",
         "@types/nanoid": "^1.2.0",
@@ -36,15 +39,11 @@
         "@types/socket.io": "^2.1.2",
         "@types/socket.io-client": "^1.4.32",
         "@types/uuid": "^3.4.4",
-        "lerna": "^3.13.0",
-        "typescript": "^3.3.3"
-    },
-    "devDependencies": {
-        "@types/jest": "^24.0.6",
         "eslint": "^5.14.1",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "^2.16.0",
         "fs-extra": "^7.0.1",
+        "lerna": "^3.13.0",
         "jest": "^24.1.0",
         "jest-extended": "^0.11.1",
         "lerna-alias": "^3.0.2",
@@ -52,7 +51,8 @@
         "semver": "^5.6.0",
         "ts-jest": "^24.0.0",
         "tslint": "^5.12.1",
-        "tslint-config-airbnb": "^5.11.1"
+        "tslint-config-airbnb": "^5.11.1",
+        "typescript": "^3.3.3"
     },
     "workspaces": [
         "packages/*",
