@@ -28,7 +28,7 @@ function gen(k8sPods, clusterState, clusterNameLabel) {
     });
 
     // add a worker for each pod
-    k8sPods.items.forEach((element) => {
+    k8sPods.items.forEach((pod) => {
         // Teraslice workers and execution controllers have the `clusterName`
         // label that matches their cluster name attached to their k8s pods.
         // If these labels don't match the supplied `clusterNameLabel`
@@ -36,12 +36,12 @@ function gen(k8sPods, clusterState, clusterNameLabel) {
         // so it is omitted from clusterState.
         // NOTE: The cluster master will not appear in cluster state if they do
         // not label it with clusterName=clusterNameLabel
-        if (element.metadata.labels.clusterName === clusterNameLabel) {
-            if (!_.has(clusterState, element.status.hostIP)) {
+        if (pod.metadata.labels.clusterName === clusterNameLabel) {
+            if (!_.has(clusterState, pod.status.hostIP)) {
                 // If the node isn't in clusterState, add it
-                clusterState[element.status.hostIP] = {
-                    node_id: element.status.hostIP,
-                    hostname: element.status.hostIP,
+                clusterState[pod.status.hostIP] = {
+                    node_id: pod.status.hostIP,
+                    hostname: pod.status.hostIP,
                     pid: 'N/A',
                     node_version: process.version,
                     teraslice_version: terasliceVersion,
@@ -53,20 +53,20 @@ function gen(k8sPods, clusterState, clusterNameLabel) {
             }
 
             const worker = {
-                worker_id: element.metadata.name,
-                assignment: element.metadata.labels.nodeType,
-                pid: element.metadata.name,
-                ex_id: element.metadata.labels.exId,
-                job_id: element.metadata.labels.jobId,
-                pod_ip: element.status.podIP,
+                worker_id: pod.metadata.name,
+                assignment: pod.metadata.labels.nodeType,
+                pid: pod.metadata.name,
+                ex_id: pod.metadata.labels.exId,
+                job_id: pod.metadata.labels.jobId,
+                pod_ip: pod.status.podIP,
                 assets: []
             };
 
             // k8s pods can have status.phase = `Pending`, `Running`, `Succeeded`,
             // `Failed`, `Unknown`.  We will only add `Running` pods to the
             // Teraslice cluster state.
-            if (element.status.phase === 'Running') {
-                clusterState[element.status.hostIP].active.push(worker);
+            if (pod.status.phase === 'Running') {
+                clusterState[pod.status.hostIP].active.push(worker);
             }
         }
     });
