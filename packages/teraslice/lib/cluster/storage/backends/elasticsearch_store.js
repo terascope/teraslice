@@ -268,7 +268,12 @@ module.exports = function module(backendConfig) {
     }
 
     function isAvailable(indexArg) {
-        const query = { index: indexArg || indexName, q: '*' };
+        const query = {
+            index: indexArg || indexName,
+            q: '*',
+            size: 0,
+            terminate_after: '*'
+        };
 
         return new Promise(((resolve) => {
             elasticsearch.search(query)
@@ -277,19 +282,27 @@ module.exports = function module(backendConfig) {
                     resolve(results);
                 })
                 .catch(() => {
+                    let running = false;
                     const isReady = setInterval(() => {
                         if (isShutdown) {
                             clearInterval(isReady);
                             return;
                         }
 
+                        if (running) return;
+                        running = true;
+
                         elasticsearch.search(query)
                             .then((results) => {
+                                running = false;
+
                                 clearInterval(isReady);
                                 resolve(results);
                             })
                             .catch(() => {
-                                logger.warn('verifying job index is open');
+                                running = false;
+
+                                logger.warn(`verifying ${recordType} index is open`);
                             });
                     }, 200);
                 });
@@ -411,14 +424,18 @@ module.exports = function module(backendConfig) {
             .then(() => isAvailable(newIndex))
             .then(() => resolve(api))
             .catch((err) => {
-                const error = new TSError(err, { reason: `Error created job index: ${indexName}` });
+                const error = new TSError(err, { reason: `Error initializing ${recordType} index: ${indexName}` });
                 logger.error(error);
                 logger.info(`Attempting to connect to elasticsearch: ${clientName}`);
+                let running = false;
+
                 const checking = setInterval(() => {
                     if (isShutdown) {
                         clearInterval(checking);
                         return;
                     }
+                    if (running) return;
+                    running = true;
 
                     _createIndex(newIndex)
                         .then(() => {
@@ -446,7 +463,12 @@ module.exports = function module(backendConfig) {
                             }
                             return true;
                         })
+                        .then(() => {
+                            running = false;
+                        })
                         .catch((checkingErr) => {
+                            running = false;
+
                             const checkingError = new TSError(checkingErr);
                             logger.info(checkingError, `Attempting to connect to elasticsearch: ${clientName}`);
                         });
