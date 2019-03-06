@@ -18,7 +18,7 @@ describe('k8sState', () => {
             .toEqual({
                 worker_id: 'teraslice-execution_controller-123456-784cbt5mz',
                 assignment: 'execution_controller',
-                pid: 'teraslice-execution_controller-123456-784cbt5mz',
+                pod_name: 'teraslice-execution_controller-123456-784cbt5mz',
                 ex_id: '123456',
                 job_id: '654321',
                 pod_ip: '172.17.0.5',
@@ -29,7 +29,7 @@ describe('k8sState', () => {
             .toEqual({
                 worker_id: 'teraslice-worker-123456-8b68v7p8t',
                 assignment: 'worker',
-                pid: 'teraslice-worker-123456-8b68v7p8t',
+                pod_name: 'teraslice-worker-123456-8b68v7p8t',
                 ex_id: '123456',
                 job_id: '654321',
                 pod_ip: '172.17.0.6',
@@ -51,7 +51,7 @@ describe('k8sState', () => {
             .toEqual({
                 worker_id: 'teraslice-execution_controller-123456-784cbt5mz',
                 assignment: 'execution_controller',
-                pid: 'teraslice-execution_controller-123456-784cbt5mz',
+                pod_name: 'teraslice-execution_controller-123456-784cbt5mz',
                 ex_id: '123456',
                 job_id: '654321',
                 pod_ip: '172.17.0.5',
@@ -62,7 +62,7 @@ describe('k8sState', () => {
             .toEqual({
                 worker_id: 'teraslice-worker-123456-8b68v7p8t',
                 assignment: 'worker',
-                pid: 'teraslice-worker-123456-8b68v7p8t',
+                pod_name: 'teraslice-worker-123456-8b68v7p8t',
                 ex_id: '123456',
                 job_id: '654321',
                 pod_ip: '172.17.0.6',

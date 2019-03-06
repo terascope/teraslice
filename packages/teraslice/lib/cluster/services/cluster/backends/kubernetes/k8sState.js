@@ -57,7 +57,7 @@ function gen(k8sPods, clusterState, clusterNameLabel) {
                 // only container, so this assumption is safe for now.
                 image: pod.spec.containers[0].image,
                 job_id: pod.metadata.labels.jobId,
-                pid: pod.metadata.name,
+                pod_name: pod.metadata.name,
                 pod_ip: pod.status.podIP,
                 worker_id: pod.metadata.name,
             };
