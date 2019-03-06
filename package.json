@@ -7,7 +7,7 @@
         "bootstrap:prod": "lerna bootstrap -- --production=true --link-duplicates --ignore-optional",
         "bootstrap": "lerna bootstrap --force-local",
         "clean": "tsc --build --clean",
-        "build:prod": "lerna link --force-local && lerna run build:prepare && lerna run build",
+        "build:prod": "lerna link --force-local && lerna run build",
         "build": "lerna run build:prepare && tsc --build --pretty",
         "build:watch": "yarn run build --watch",
         "bump": "./scripts/bump.js",

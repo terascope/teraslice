@@ -2,7 +2,16 @@
 FROM node:10.15-alpine as base
 
 # dependencies that exist in all layers
-RUN apk --no-cache add bash tini
+RUN apk --no-cache add \
+    bash \
+    tini \
+    g++ \
+    ca-certificates \
+    lz4-dev \
+    musl-dev \
+    openssl-dev \
+    make \
+    python
 
 ENV NPM_CONFIG_LOGLEVEL error
 
@@ -14,33 +23,27 @@ ENTRYPOINT ["/sbin/tini", "--"]
 
 FROM base as connectors
 
-# install the dependencies required for node-rdkafka
-# see https://github.com/Blizzard/node-rdkafka/blob/master/examples/docker-alpine.md
 RUN apk --no-cache add \
-    g++ \
-    ca-certificates \
-    lz4-dev \
-    musl-dev \
-    cyrus-sasl-dev \
-    openssl-dev \
-    make \
-    python
-
-RUN apk add --no-cache --virtual \
-    .build-deps \
+    --virtual .build-deps \
     gcc \
     zlib-dev \
-    libc-dev \
     bsd-compat-headers \
     py-setuptools
+
+ENV WITH_SASL 0
 
 # Install any built-in connectors in /app/
 # use npm because there isn't a package.json
 WORKDIR /app/
-RUN export WITH_SASL=0 \
-    && npm set progress=false \
-    && npm config set depth 0 \
-    && npm install --quiet 'terafoundation_kafka_connector@~0.3.0'
+
+RUN npm init --yes > /dev/null \
+    && npm install \
+    --quiet \
+    --no-package-lock \
+    'terafoundation_kafka_connector@~0.3.0' \
+    # clean up node-rdkafka
+    && rm -rf node_modules/node-rdkafka/docs \
+    node_modules/node-rdkafka/deps/librdkafka
 
 # the dev image should contain all of dev code
 FROM base as dev
@@ -85,10 +88,21 @@ RUN yarn global add \
 
 ENV NODE_ENV production
 
-COPY service.js package.json lerna.json yarn.lock /app/source/
 COPY --from=connectors /app/node_modules /app/node_modules
-COPY --from=dev /app/node_modules /app/source/node_modules
+
+# verify node-rdkafka is installed right
+RUN node -e "require('node-rdkafka')"
+
+COPY service.js package.json lerna.json yarn.lock /app/source/
+COPY scripts /app/source/scripts
+
+# copy the compiled packages
 COPY --from=dev /app/source/packages /app/source/packages
+# copy the production node_modules
+COPY --from=dev /app/node_modules /app/source/node_modules
+
+# verify teraslice is installed right
+RUN node -e "require('teraslice')"
 
 EXPOSE 5678
 
