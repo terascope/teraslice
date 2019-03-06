@@ -17,7 +17,6 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
     const graph = new Graph();
     const tagMapping: StateDict = {};
     const graphEdges: StateDict = {};
-    const oldCompatability: StateDict = {};
 
     function normalizeConfig(configList: OperationConfig[]) {
         configList.forEach((config) => {
@@ -85,16 +84,7 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
             }
         }
 
-        if (isBackwordCompatiblePostProcessConfig(config)) {
-            const selectorNode = `selector:${config.__pipeline}`;
-            if (!oldCompatability[selectorNode]) {
-                oldCompatability[selectorNode] = [];
-            }
-            oldCompatability[selectorNode].push(configId);
-            // setting edges and tag mapping is done in a later step
-            graph.setNode(configId, config);
-
-        } else if (hasPostProcess(config)) {
+        if (hasPostProcess(config)) {
             // config may be out of order so we build edges later
             graph.setNode(configId, config);
             if (!graphEdges[config.follow as string]) {
@@ -106,26 +96,6 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
     });
 
     // config may be out of order so we build edges after the fact on post processors
-
-    _.forOwn(oldCompatability, (postProcessConfigIds, selectorNodeName) => {
-        const extractionNodeIds = findNodeChildren(graph, selectorNodeName);
-
-        if (extractionNodeIds === null) {
-            throw new Error(`there must be extractions set for ${JSON.stringify(graph.node(selectorNodeName))} if using a post_process op without tag/follow syntax`);
-        }
-
-        postProcessConfigIds.forEach((postProcessConfigId) => {
-            // we create edge for all extractions to post_process in old post_process configs
-            extractionNodeIds.forEach((extractionId) => {
-                graph.setEdge(extractionId, postProcessConfigId);
-                // this is a non follow post proces config, we want to keep everything in the same pipline if possible for field validation
-                if (!tagMapping[postProcessConfigId]) {
-                    tagMapping[postProcessConfigId] = [];
-                }
-                tagMapping[postProcessConfigId].push(extractionId);
-            });
-        });
-    });
 
     _.forOwn(graphEdges, (ids, key) => {
         ids.forEach((id) => {
@@ -189,22 +159,8 @@ export function needsDefaultSelector(config: Config) {
     return !hasSelector(config) && !hasFollow(config);
 }
 
-function findNodeChildren(graph: graphlib.Graph, node: string):string[]|null {
-    const edges = graph.outEdges(node);
-    if (edges) return edges.map(obj => obj.w);
-    return null;
-}
-
 function isPostProcessType(config:Config, type: string) {
     return config.post_process === type;
-}
-
-function hasPipline(config:OperationConfig) {
-    return _.has(config, '__pipeline');
-}
-
-function isBackwordCompatiblePostProcessConfig(config: OperationConfig) {
-    return hasPipline(config) && hasPostProcess(config) && !hasFollow(config);
 }
 
 function hasSelector(config: Config) {

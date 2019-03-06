@@ -76,8 +76,8 @@ describe('Loader', () => {
         expect(config2.post_process).toEqual('base64decode');
     });
 
-    it('can parse old style basic post processerors', () => {
-        const parsedRules = parseData([
+    it('will throw with old style basic post processerors', () => {
+        const configList = [
             {
                 selector: 'hello:world',
                 source_field: 'first',
@@ -95,26 +95,8 @@ describe('Loader', () => {
                 delimiter: ' ',
                 target_field: 'full_name'
             }
-        ]);
-
-        const [config1, config2, config3] = parsedRules;
-
-        expect(parsedRules).toBeArray();
-        expect(parsedRules).toBeArrayOfSize(3);
-
-        expect(config1.selector).toEqual('hello:world');
-        expect(config1.source_field).toEqual('first');
-        expect(config1.target_field).toEqual('first_name');
-
-        expect(config2.selector).toEqual('hello:world');
-        expect(config2.source_field).toEqual('last');
-        expect(config2.target_field).toEqual('last_name');
-
-        expect(config3.selector).toBeUndefined();
-        expect(config3.__pipeline).toEqual('hello:world');
-        expect(config3.target_field).toEqual('full_name');
-        expect(config3.follow).toBeUndefined();
-
+        ];
+        expect(() => parseData(configList)).toThrowError();
     });
 
     it('can parse old style basic post processerors', () => {

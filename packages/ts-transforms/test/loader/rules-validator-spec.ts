@@ -63,6 +63,7 @@ describe('rules-validator', () => {
             source_field: 'first',
             target_field: 'first_name',
             output: false,
+            tag: 'someTag'
         },
         {
             selector: 'hello:world',
@@ -73,10 +74,7 @@ describe('rules-validator', () => {
         },
         {
             follow: 'someTag',
-            post_process: 'join',
-            fields: ['first_name', 'last_name'],
-            delimiter: ' ',
-            target_field: 'full_name'
+            post_process: 'hexdecode',
         }
     ]);
 
@@ -104,26 +102,6 @@ describe('rules-validator', () => {
         }
     ]);
 
-    const OldJoinRules = parseData([
-        {
-            selector: 'hello:world',
-            source_field: 'first',
-            target_field: 'first_name'
-        },
-        {
-            selector: 'hello:world',
-            source_field: 'last',
-            target_field: 'last_name'
-        },
-        {
-            selector: 'hello:world',
-            post_process: 'join',
-            fields: ['first_name', 'last_name'],
-            delimiter: ' ',
-            target_field: 'full_name'
-        }
-    ]);
-
     const NewJoinRules = parseData([
         {
             selector: 'hello:world',
@@ -146,7 +124,7 @@ describe('rules-validator', () => {
         }
     ]);
 
-    const oldExtractionValidation = parseData([
+    const CompactExtractionValidationConfig = parseData([
         {
             selector: 'hello:world',
             source_field:  'txt',
@@ -273,17 +251,6 @@ describe('rules-validator', () => {
             expect(extractions).toEqual(results);
         });
 
-        it('can work with OldJoinRules', () => {
-            const validator = constructValidator(OldJoinRules);
-            const { extractions } = validator.validate();
-            const results = {};
-
-            results['hello:world'] = OldJoinRules.slice(0, 2);
-
-            expect(extractions['hello:world'].length).toEqual(2);
-            expect(extractions).toEqual(results);
-        });
-
         it('can work with NewJoinRules', () => {
             const validator = constructValidator(NewJoinRules);
             const { extractions } = validator.validate();
@@ -296,10 +263,10 @@ describe('rules-validator', () => {
         });
 
         it('can work with other stuff', () => {
-            const validator = constructValidator(oldExtractionValidation);
+            const validator = constructValidator(CompactExtractionValidationConfig);
             const { extractions } = validator.validate();
             const results = {
-                'hello:world': [oldExtractionValidation[0]]
+                'hello:world': [CompactExtractionValidationConfig[0]]
             };
 
             expect(extractions).toEqual(results);
@@ -364,22 +331,6 @@ describe('rules-validator', () => {
         it('will not throw errors with duplicate tags', () => {
             const validator = constructValidator(NewJoinRules);
             expect(() => validator.validate()).not.toThrow();
-        });
-
-        it('will not throw errors with OldJoinRules', () => {
-            const validator = constructValidator(OldJoinRules);
-            expect(() => validator.validate()).not.toThrow();
-        });
-        // TODO: check more of code
-        it('OldJoinRules config will be correctly formated with source_fields', () => {
-            const validator = constructValidator(OldJoinRules);
-            const { postProcessing } = validator.validate();
-            const selectors = _.get(postProcessing, 'hello:world');
-            const results = _.get(selectors, '[0]');
-
-            expect(results).toBeDefined();
-            expect(results.post_process).toEqual('join');
-            expect(results.source_fields).toEqual(['first_name', 'last_name']);
         });
 
         it('will log warning if other_match_required is not paired with another extraction', () => {

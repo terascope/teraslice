@@ -43,18 +43,10 @@ export default class RulesParser {
                 // @ts-ignore
                 delete config.post_process;
                 delete config.validation;
-                // this area below targets the multi input old configs
 
+                // if there are no extractions, it cannot be extrpolated out and its not a true condensed config
                 if (!hasExtractions(config)) {
-                    newConfig.__pipeline = config.selector;
-                    delete newConfig.selector;
-                    // need to migrate this over in this case
-                    if (config.target_field) {
-                        newConfig.target_field = config.target_field;
-                        delete config.target_field;
-                    }
-                    // we just push in the new config
-                    resultsArray.push(newConfig);
+                    throw new Error(`This config is not formatted correctly, please use tag/follow semantics for post procesing ${JSON.stringify(config)}`);
                 } else {
                     // we push in both
                     newConfig.follow = newTag;
