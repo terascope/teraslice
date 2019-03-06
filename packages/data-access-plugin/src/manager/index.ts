@@ -8,6 +8,11 @@ import { formatError } from './utils';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import schema from './schema';
 
+/**
+ * A graphql api for managing data access
+ *
+ * @todo we need session support
+*/
 export default class ManagerPlugin {
     readonly config: TeraserverConfig;
     readonly logger: Logger;

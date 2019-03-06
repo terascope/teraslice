@@ -1,13 +1,12 @@
 import get from 'lodash.get';
 import * as ts from '@terascope/utils';
-import { TypeConfig } from 'xlucene-evaluator';
+import { TypeConfig, parseGeoPoint } from 'xlucene-evaluator';
 import { SearchParams, Client, SearchResponse } from 'elasticsearch';
 import { QueryAccess, DataAccessConfig } from '@terascope/data-access';
 
 /**
  * Search elasticsearch in a teraserver backwards compatible way
  *
- * @todo add support for geo sort
  * @todo add timeseries/history support
  */
 export function makeSearchFn(client: Client, accessConfig: DataAccessConfig, logger: ts.Logger): SearchFn {
@@ -31,7 +30,12 @@ export function makeSearchFn(client: Client, accessConfig: DataAccessConfig, log
             searchParams.sort = sort;
         }
 
-        const esQuery = queryAccess.restrictESQuery(q, searchParams);
+        const inputQuery = handleGeoFilter(config, q);
+        const esQuery = queryAccess.restrictESQuery(inputQuery, searchParams);
+        const geoSort = handleGeoSort(config);
+        if (geoSort) {
+            esQuery.body.sort = geoSort;
+        }
 
         if (isTest) logger.debug(esQuery, 'searching...');
 
@@ -144,11 +148,12 @@ export function getQueryConfig(query: InputQuery, config: SearchConfig): SearchQ
     const historyStart = getFromQuery(query, 'history_start');
     const historyPrefix = getFromQuery(query, 'history_prefix');
     const geoBoxTopLeft = getFromQuery(query, 'geo_box_top_left');
+    const geoBoxBottomRight = getFromQuery(query, 'geo_box_bottom_right');
     const geoPoint = getFromQuery(query, 'geo_point');
     const geoDistance = getFromQuery(query, 'geo_distance');
     const geoSortPoint = getFromQuery(query, 'geo_sort_point');
-    const geoSortOrder = getFromQuery(query, 'geo_sort_order', 'asc');
-    const geoSortUnit = getFromQuery(query, 'geo_sort_unit', 'm');
+    const geoSortOrder = getFromQuery(query, 'geo_sort_order');
+    const geoSortUnit = getFromQuery(query, 'geo_sort_unit');
 
     return {
         q,
@@ -159,6 +164,7 @@ export function getQueryConfig(query: InputQuery, config: SearchConfig): SearchQ
         historyStart,
         historyPrefix,
         geoBoxTopLeft,
+        geoBoxBottomRight,
         geoPoint,
         geoDistance,
         geoSortPoint,
@@ -168,8 +174,48 @@ export function getQueryConfig(query: InputQuery, config: SearchConfig): SearchQ
     };
 }
 
-export function buildGeoSort(config: SearchConfig) {
-    return;
+export function handleGeoFilter(config: SearchConfig, query: string): string {
+    const geoField = config.view.default_date_field;
+    if (!geoField) return query;
+
+    const {
+        geoBoxTopLeft,
+        geoBoxBottomRight,
+        geoPoint,
+        geoDistance,
+    } = config.query;
+
+    if (geoBoxTopLeft && geoBoxBottomRight) {
+        const geoQuery = `_geo_box_top_left_:"${geoBoxTopLeft}" _geo_box_bottom_right_:"${geoBoxBottomRight}"`;
+        return `(${query}) AND ${geoField}:(${geoQuery})`;
+    }
+
+    if (geoPoint && geoDistance) {
+        const geoQuery = `_geo_point_:"${geoPoint}" _geo_distance_:${geoDistance}`;
+        return `(${query}) AND ${geoField}:(${geoQuery})`;
+    }
+
+    return query;
+}
+
+export function handleGeoSort(config: SearchConfig): GeoSortQuery|undefined {
+    const geoField = config.view.default_date_field;
+    const {
+        geoSortOrder = 'asc',
+        geoSortUnit = 'm',
+        geoSortPoint = config.query.geoPoint
+    } = config.query;
+
+    if (!geoField || !geoSortOrder || !geoSortUnit || !geoSortPoint) return;
+
+    const [lat, lon] = parseGeoPoint(geoSortPoint);
+
+    const sort = { _geo_distance: {} } as GeoSortQuery;
+    sort._geo_distance[geoField] = { lat, lon };
+
+    sort._geo_distance.order = geoSortOrder;
+    sort._geo_distance.unit = geoSortUnit;
+    return sort;
 }
 
 export function handleSearchResponse(response: SearchResponse<any>, config: SearchConfig) {
@@ -233,6 +279,7 @@ export function getFromQuery(query: InputQuery, prop: keyof InputQuery, defaultV
     return get(query, prop, defaultVal);
 }
 
+export type SortOrder = 'asc'|'desc';
 export interface SearchConfig {
     space: SearchSpaceConfig;
     view: SearchViewConfig;
@@ -250,10 +297,11 @@ export interface SearchQueryConfig {
     historyStart?: string;
     historyPrefix?: string;
     geoBoxTopLeft?: string;
+    geoBoxBottomRight?: string;
     geoPoint?: string;
     geoDistance?: string;
     geoSortPoint?: string;
-    geoSortOrder?: string;
+    geoSortOrder?: SortOrder;
     geoSortUnit?: string;
 }
 
@@ -266,10 +314,11 @@ export interface InputQuery {
     history_start?: string;
     history_prefix?: string;
     geo_box_top_left?: string;
+    geo_box_bottom_right?: string;
     geo_point?: string;
     geo_distance?: string;
     geo_sort_point?: string;
-    geo_sort_order?: string;
+    geo_sort_order?: SortOrder;
     geo_sort_unit?: string;
 }
 
@@ -306,6 +355,20 @@ export interface SearchSpaceConfig {
 
 export interface SpaceMetadata {
     indexConfig?: SearchSpaceConfig;
+}
+
+export interface GeoSortQuery {
+    _geo_distance: {
+        // @ts-ignore
+        order: SortOrder;
+        // @ts-ignore
+        unit: string;
+
+        [field: string]: {
+            lat: number;
+            lon: number;
+        };
+    };
 }
 
 const isTest = process.env.NODE_ENV !== 'production';

@@ -83,11 +83,12 @@ describe('Search Utils', () => {
 
             expect(result).toEqual({
                 geoBoxTopLeft: undefined,
+                geoBoxBottomRight: undefined,
                 geoDistance: undefined,
                 geoPoint: undefined,
-                geoSortOrder: 'asc',
+                geoSortOrder: undefined,
                 geoSortPoint: undefined,
-                geoSortUnit: 'm',
+                geoSortUnit: undefined,
                 history: undefined,
                 historyPrefix: undefined,
                 historyStart: undefined,
