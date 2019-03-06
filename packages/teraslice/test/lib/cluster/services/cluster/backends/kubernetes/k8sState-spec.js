@@ -11,7 +11,6 @@ describe('k8sState', () => {
 
         k8sState.gen(podsJobRunning, clusterState, 'ts-dev1');
         // console.log(`clusterState\n\n${JSON.stringify(clusterState, null, 2)}`);
-        // console.log(`expectedClusterState\n\n` + JSON.stringify(expectedClusterState, null, 2));
 
         expect(clusterState['192.168.99.100'].state).toEqual('connected');
         expect(clusterState['192.168.99.100'].active.length).toEqual(3);
@@ -19,21 +18,23 @@ describe('k8sState', () => {
             .toEqual({
                 worker_id: 'teraslice-execution_controller-123456-784cbt5mz',
                 assignment: 'execution_controller',
-                pid: 'teraslice-execution_controller-123456-784cbt5mz',
+                pod_name: 'teraslice-execution_controller-123456-784cbt5mz',
                 ex_id: '123456',
                 job_id: '654321',
                 pod_ip: '172.17.0.5',
-                assets: []
+                assets: [],
+                image: 'docker.registry.example/teraslice:0.0.0'
             });
         expect(clusterState['192.168.99.100'].active[2])
             .toEqual({
                 worker_id: 'teraslice-worker-123456-8b68v7p8t',
                 assignment: 'worker',
-                pid: 'teraslice-worker-123456-8b68v7p8t',
+                pod_name: 'teraslice-worker-123456-8b68v7p8t',
                 ex_id: '123456',
                 job_id: '654321',
                 pod_ip: '172.17.0.6',
-                assets: []
+                assets: [],
+                image: 'docker.registry.example/teraslice:0.0.0'
             });
     });
 
@@ -50,21 +51,23 @@ describe('k8sState', () => {
             .toEqual({
                 worker_id: 'teraslice-execution_controller-123456-784cbt5mz',
                 assignment: 'execution_controller',
-                pid: 'teraslice-execution_controller-123456-784cbt5mz',
+                pod_name: 'teraslice-execution_controller-123456-784cbt5mz',
                 ex_id: '123456',
                 job_id: '654321',
                 pod_ip: '172.17.0.5',
-                assets: []
+                assets: [],
+                image: 'docker.registry.example/teraslice:0.0.0'
             });
         expect(clusterState['192.168.99.100'].active[2])
             .toEqual({
                 worker_id: 'teraslice-worker-123456-8b68v7p8t',
                 assignment: 'worker',
-                pid: 'teraslice-worker-123456-8b68v7p8t',
+                pod_name: 'teraslice-worker-123456-8b68v7p8t',
                 ex_id: '123456',
                 job_id: '654321',
                 pod_ip: '172.17.0.6',
-                assets: []
+                assets: [],
+                image: 'docker.registry.example/teraslice:0.0.0'
             });
     });
 

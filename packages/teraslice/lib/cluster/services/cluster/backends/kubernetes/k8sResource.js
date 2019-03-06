@@ -61,6 +61,7 @@ class K8sResource {
             'kubernetes_config_map_name',
             `${this.terasliceConfig.name}-worker`
         );
+        const dockerImage = this.execution.kubernetes_image || this.terasliceConfig.kubernetes_image;
         const jobNameLabel = this.execution.name.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
         const name = `ts-${this.nameInfix}-${jobNameLabel.substring(0, 42)}-${this.execution.job_id.substring(0, 13)}`;
         const shutdownTimeoutMs = _.get(this.terasliceConfig, 'shutdown_timeout', 60000);
@@ -73,7 +74,7 @@ class K8sResource {
             clusterName,
             clusterNameLabel,
             configMapName,
-            dockerImage: _.get(this.terasliceConfig, 'kubernetes_image', 'teraslice:k8sdev'),
+            dockerImage,
             execution: safeEncode(this.execution),
             exId: this.execution.ex_id,
             jobId: this.execution.job_id,

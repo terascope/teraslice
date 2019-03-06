@@ -217,6 +217,12 @@ export function jobSchema(context: Context): convict.Schema<any> {
                 });
             }
         };
+
+        schemas.kubernetes_image = {
+            doc: 'Specify a custom image name for kubernetes, this only applies to kubernetes systems',
+            default: undefined,
+            format: 'optional_String'
+        };
     }
 
     return schemas;
