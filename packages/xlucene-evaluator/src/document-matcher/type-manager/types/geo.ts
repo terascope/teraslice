@@ -5,15 +5,18 @@ import createCircle from '@turf/circle';
 import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';
 import { lineString } from '@turf/helpers';
-import geoHash from 'latlon-geohash';
 import BaseType from './base';
-import { bindThis, isGeoNode, parseGeoDistance } from '../../../utils';
-import { AST, GeoResults, GeoPoint } from '../../../interfaces';
+import { AST, GeoResults } from '../../../interfaces';
+import {
+    bindThis,
+    isGeoNode,
+    parseGeoDistance,
+    parseGeoPoint
+} from '../../../utils';
 
 const fnBaseName = 'geoFn';
 
 // TODO: allow ranges to be input and compare the two regions if they intersect
-
 export default class GeoType extends BaseType {
 
     constructor() {
@@ -25,40 +28,6 @@ export default class GeoType extends BaseType {
         // tslint:disable-next-line no-this-assignment
         const { filterFnBuilder, createParsedField } = this;
 
-        function getLonAndLat(input: any, isInit?: boolean): [number, number] {
-            const lat = input.lat || input.latitude;
-            const lon = input.lon || input.longitude;
-            if (isInit && (!lat || !lon)) throw new Error('geopoint must contain keys lat,lon or latitude/longitude');
-
-            return [_.toNumber(lat), _.toNumber(lon)];
-        }
-
-        function parsePoint(point: GeoPoint | number[] | object, isInit?: boolean): number[] | null {
-            let results = null;
-
-            if (typeof point === 'string') {
-                if (point.match(',')) {
-                    results = point.split(',').map(st => st.trim()).map(numStr => Number(numStr));
-                } else {
-                    try {
-                        results = _.values(geoHash.decode(point));
-                    } catch (err) {}
-                }
-            }
-
-            if (Array.isArray(point)) results = point.map(_.toNumber);
-
-            if (_.isPlainObject(point)) {
-                results = getLonAndLat(point, isInit);
-            }
-
-            if (isInit && !results) throw new Error(`incorrect point given to parse, point:${point}`);
-
-            // data incoming is lat,lon and we must return lon,lat
-            if (results) return results.reverse();
-            return results;
-        }
-
         function makeGeoQueryFn(geoResults: GeoResults): Function {
             const {
                 geoBoxTopLeft,
@@ -68,11 +37,10 @@ export default class GeoType extends BaseType {
             } = geoResults;
 
             let polygon: any;
-            const initSetup = true;
 
             if (geoBoxTopLeft != null && geoBoxBottomRight != null) {
-                const pointTopLeft = parsePoint(geoBoxTopLeft, initSetup);
-                const pointBottomRight = parsePoint(geoBoxBottomRight, initSetup);
+                const pointTopLeft = parseGeoPoint(geoBoxTopLeft);
+                const pointBottomRight = parseGeoPoint(geoBoxBottomRight);
 
                 if (pointTopLeft != null && pointBottomRight != null) {
                     const line = lineString([
@@ -89,7 +57,7 @@ export default class GeoType extends BaseType {
                 const { distance, unit } = parseGeoDistance(geoDistance);
                 const config = { units: unit };
 
-                const parsedGeoPoint = parsePoint(geoPoint, initSetup);
+                const parsedGeoPoint = parseGeoPoint(geoPoint);
                 if (parsedGeoPoint != null) {
                     polygon = createCircle(
                         parsedGeoPoint,
@@ -102,7 +70,7 @@ export default class GeoType extends BaseType {
             // Nothing matches so return false
             if (polygon == null) return (): boolean => false;
             return (fieldData: string): Boolean => {
-                const point = parsePoint(fieldData);
+                const point = parseGeoPoint(fieldData, false);
                 if (!point) return false;
                 return pointInPolygon(point, polygon);
             };

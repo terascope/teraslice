@@ -1,5 +1,7 @@
-import { trimAndToLower } from '@terascope/utils';
-import { RangeAST, AST, GeoDistance } from './interfaces';
+import { toNumber } from 'lodash';
+import { trimAndToLower, isPlainObject } from '@terascope/utils';
+import geoHash from 'latlon-geohash';
+import { RangeAST, AST, GeoDistance, GeoPoint } from './interfaces';
 
 export function bindThis(instance:object, cls:object): void {
     return Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
@@ -97,6 +99,45 @@ export function parseGeoDistance(str: string): GeoDistance {
     }
 
     return { distance, unit };
+}
+
+export function getLonAndLat(input: any, throwInvalid = true): [number, number] {
+    const lat = input.lat || input.latitude;
+    const lon = input.lon || input.longitude;
+
+    if (throwInvalid && (!lat || !lon)) {
+        throw new Error('geopoint must contain keys lat,lon or latitude/longitude');
+    }
+
+    return [toNumber(lat), toNumber(lon)];
+}
+
+export function parseGeoPoint(point: GeoPoint | number[] | object, throwInvalid = true): number[] | null {
+    let results = null;
+
+    if (typeof point === 'string') {
+        if (point.match(',')) {
+            results = point.split(',').map(st => st.trim()).map(numStr => Number(numStr));
+        } else {
+            try {
+                results = Object.values(geoHash.decode(point));
+            } catch (err) {}
+        }
+    }
+
+    if (Array.isArray(point)) results = point.map(toNumber);
+
+    if (isPlainObject(point)) {
+        results = getLonAndLat(point, throwInvalid);
+    }
+
+    if (throwInvalid && !results) {
+        throw new Error(`incorrect point given to parse, point:${point}`);
+    }
+
+    // data incoming is lat,lon and we must return lon,lat
+    if (results) return results.reverse();
+    return results;
 }
 
 const MileUnits = {
