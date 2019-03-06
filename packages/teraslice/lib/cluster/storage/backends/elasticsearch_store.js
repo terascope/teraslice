@@ -42,10 +42,10 @@ module.exports = function module(backendConfig) {
     let bulkQueue = [];
     let savingBulk = false; // serialize save requests.
 
-    function getRecord(recordId, indexArg, fields) {
+    function getRecord(recordId, indexArg = indexName, fields) {
         logger.trace(`getting record id: ${recordId}`);
         const query = {
-            index: indexArg || indexName,
+            index: indexArg,
             type: recordType,
             id: recordId
         };
@@ -56,9 +56,9 @@ module.exports = function module(backendConfig) {
         return elasticsearch.get(query);
     }
 
-    function search(query, from, size, sort, fields, indexArg) {
+    function search(query, from, size, sort, fields, indexArg = indexName) {
         const esQuery = {
-            index: indexArg || indexName,
+            index: indexArg,
             from,
             size,
             sort
@@ -81,10 +81,10 @@ module.exports = function module(backendConfig) {
      * index saves a record to elasticsearch allowing automatic
      * ID creation
      */
-    function index(record, indexArg) {
+    function index(record, indexArg = indexName) {
         logger.trace('indexing record', logRecord ? record : null);
         const query = {
-            index: indexArg || indexName,
+            index: indexArg,
             type: recordType,
             body: record,
             refresh: forceRefresh
@@ -97,10 +97,10 @@ module.exports = function module(backendConfig) {
      * index saves a record to elasticsearch with a specified ID.
      * If the document is already there it will be replaced.
      */
-    function indexWithId(recordId, record, indexArg) {
+    function indexWithId(recordId, record, indexArg = indexName) {
         logger.trace(`indexWithId call with id: ${recordId}, record`, logRecord ? record : null);
         const query = {
-            index: indexArg || indexName,
+            index: indexArg,
             type: recordType,
             id: recordId,
             body: record,
@@ -114,11 +114,11 @@ module.exports = function module(backendConfig) {
      * Create saves a record to elasticsearch under the provided id.
      * If the record already exists it will not be inserted.
      */
-    function create(record, indexArg) {
+    function create(record, indexArg = indexName) {
         logger.trace('creating record', logRecord ? record : null);
 
         const query = {
-            index: indexArg || indexName,
+            index: indexArg,
             type: recordType,
             id: record[idField],
             body: record,
@@ -128,9 +128,9 @@ module.exports = function module(backendConfig) {
         return elasticsearch.create(query);
     }
 
-    function count(query, from, sort, indexArg) {
+    function count(query, from, sort, indexArg = indexName) {
         const esQuery = {
-            index: indexArg || indexName,
+            index: indexArg,
             from,
             sort
         };
@@ -144,11 +144,11 @@ module.exports = function module(backendConfig) {
         return elasticsearch.count(esQuery);
     }
 
-    function update(recordId, updateSpec, indexArg) {
+    function update(recordId, updateSpec, indexArg = indexName) {
         logger.trace(`updating record ${recordId}, `, logRecord ? updateSpec : null);
 
         const query = {
-            index: indexArg || indexName,
+            index: indexArg,
             type: recordType,
             id: recordId,
             body: {
@@ -161,10 +161,10 @@ module.exports = function module(backendConfig) {
         return elasticsearch.update(query);
     }
 
-    function remove(recordId, indexArg) {
+    function remove(recordId, indexArg = indexName) {
         logger.trace(`removing record ${recordId}`);
         const query = {
-            index: indexArg || indexName,
+            index: indexArg,
             type: recordType,
             id: recordId,
             refresh: forceRefresh
@@ -173,7 +173,7 @@ module.exports = function module(backendConfig) {
         return elasticsearch.remove(query);
     }
 
-    function bulk(record, _type, indexArg) {
+    function bulk(record, _type, indexArg = indexName) {
         let type = _type;
         if (!type) {
             type = 'index';
@@ -181,7 +181,7 @@ module.exports = function module(backendConfig) {
 
         const indexRequest = {};
         indexRequest[type] = {
-            _index: indexArg || indexName,
+            _index: indexArg,
             _type: recordType
         };
 
@@ -267,12 +267,12 @@ module.exports = function module(backendConfig) {
         return mapping;
     }
 
-    function isAvailable(indexArg) {
+    function isAvailable(indexArg = indexName) {
         const query = {
-            index: indexArg || indexName,
+            index: indexArg,
             q: '*',
             size: 0,
-            terminate_after: '*'
+            terminate_after: '1'
         };
 
         return new Promise(((resolve) => {
@@ -327,8 +327,8 @@ module.exports = function module(backendConfig) {
         return Promise.resolve(true);
     }
 
-    function _createIndex(indexArg) {
-        const existQuery = { index: indexArg || indexName };
+    function _createIndex(indexArg = indexName) {
+        const existQuery = { index: indexArg };
         return elasticsearch.index_exists(existQuery)
             .then((exists) => {
                 if (!exists) {
@@ -336,7 +336,7 @@ module.exports = function module(backendConfig) {
 
                     // Make sure the index exists before we do anything else.
                     const createQuery = {
-                        index: indexArg || indexName,
+                        index: indexArg,
                         body: mapping
                     };
 
@@ -361,8 +361,8 @@ module.exports = function module(backendConfig) {
             });
     }
 
-    function refresh(indexArg) {
-        const query = { index: indexArg || indexName };
+    function refresh(indexArg = indexName) {
+        const query = { index: indexArg };
         return elasticsearch.index_refresh(query);
     }
 
