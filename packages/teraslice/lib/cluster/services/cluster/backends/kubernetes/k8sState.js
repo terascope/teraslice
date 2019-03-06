@@ -2,10 +2,6 @@
 
 const _ = require('lodash');
 
-const terasliceVersion = require('../../../../../../package.json').version;
-
-// given k8s information, generates teraslice cluster state
-
 /**
  * Given the k8s Pods API output generates the appropriate Teraslice cluster
  * state
@@ -43,8 +39,8 @@ function gen(k8sPods, clusterState, clusterNameLabel) {
                     node_id: pod.status.hostIP,
                     hostname: pod.status.hostIP,
                     pid: 'N/A',
-                    node_version: process.version,
-                    teraslice_version: terasliceVersion,
+                    node_version: 'N/A',
+                    teraslice_version: 'N/A',
                     total: 'N/A',
                     state: 'connected',
                     available: 'N/A',
@@ -53,13 +49,17 @@ function gen(k8sPods, clusterState, clusterNameLabel) {
             }
 
             const worker = {
-                worker_id: pod.metadata.name,
+                assets: [],
                 assignment: pod.metadata.labels.nodeType,
-                pid: pod.metadata.name,
                 ex_id: pod.metadata.labels.exId,
+                // WARNING: This makes the assumption that the first container
+                // in the pod is the teraslice container.  Currently it is the
+                // only container, so this assumption is safe for now.
+                image: pod.spec.containers[0].image,
                 job_id: pod.metadata.labels.jobId,
+                pid: pod.metadata.name,
                 pod_ip: pod.status.podIP,
-                assets: []
+                worker_id: pod.metadata.name,
             };
 
             // k8s pods can have status.phase = `Pending`, `Running`, `Succeeded`,

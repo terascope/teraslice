@@ -23,7 +23,8 @@ describe('k8sState with pods from multiple clusters', () => {
                 ex_id: '123456',
                 job_id: '654321',
                 pod_ip: '172.17.0.5',
-                assets: []
+                assets: [],
+                image: 'docker.registry.example/teraslice:0.0.0'
             });
         expect(clusterState['192.168.99.100'].active[2])
             .toEqual({
@@ -33,7 +34,8 @@ describe('k8sState with pods from multiple clusters', () => {
                 ex_id: '123456',
                 job_id: '654321',
                 pod_ip: '172.17.0.6',
-                assets: []
+                assets: [],
+                image: 'docker.registry.example/teraslice:0.0.0'
             });
     });
 
@@ -54,7 +56,8 @@ describe('k8sState with pods from multiple clusters', () => {
                 ex_id: '123456',
                 job_id: '654321',
                 pod_ip: '172.17.0.5',
-                assets: []
+                assets: [],
+                image: 'docker.registry.example/teraslice:0.0.0'
             });
         expect(clusterState['192.168.99.100'].active[2])
             .toEqual({
@@ -64,7 +67,8 @@ describe('k8sState with pods from multiple clusters', () => {
                 ex_id: '123456',
                 job_id: '654321',
                 pod_ip: '172.17.0.6',
-                assets: []
+                assets: [],
+                image: 'docker.registry.example/teraslice:0.0.0'
             });
     });
 });
