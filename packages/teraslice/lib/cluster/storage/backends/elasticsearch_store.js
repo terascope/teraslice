@@ -42,10 +42,10 @@ module.exports = function module(backendConfig) {
     let bulkQueue = [];
     let savingBulk = false; // serialize save requests.
 
-    function getRecord(recordId, indexArg = indexName, fields) {
+    function getRecord(recordId, indexArg, fields) {
         logger.trace(`getting record id: ${recordId}`);
         const query = {
-            index: indexArg,
+            index: indexArg || indexName,
             type: recordType,
             id: recordId
         };

@@ -248,7 +248,7 @@ module.exports = function module(context) {
         context,
         indexName,
         recordType: 'asset',
-        idField: '_id',
+        idField: 'id',
         fullResponse: true,
         logRecord: false,
         storageName: 'assets'

@@ -165,7 +165,7 @@ module.exports = function module(context) {
         context,
         indexName,
         recordType: 'state',
-        idField: '_id',
+        idField: 'slice_id',
         fullResponse: false,
         logRecord: false,
         forceRefresh: false,
