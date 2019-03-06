@@ -112,6 +112,9 @@ export function getLonAndLat(input: any, throwInvalid = true): [number, number] 
     return [toNumber(lat), toNumber(lon)];
 }
 
+export function parseGeoPoint(point: GeoPoint | number[] | object): number[];
+export function parseGeoPoint(point: GeoPoint | number[] | object, throwInvalid: true): number[];
+export function parseGeoPoint(point: GeoPoint | number[] | object, throwInvalid: false): number[] | null;
 export function parseGeoPoint(point: GeoPoint | number[] | object, throwInvalid = true): number[] | null {
     let results = null;
 
