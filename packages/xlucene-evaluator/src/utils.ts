@@ -93,7 +93,7 @@ export function parseGeoDistance(str: string): GeoDistance {
     }
 
     const distance = Number(matches[1]);
-    const unit = UNIT_DICTONARY[matches[2]];
+    const unit = GEO_DISTANCE_UNITS[matches[2]];
     if (!unit) {
         throw new Error(`Incorrect distance unit provided: ${matches[2]}`);
     }
@@ -197,4 +197,4 @@ const feetUnits = {
     feet: 'feet'
 };
 
-const UNIT_DICTONARY = Object.assign({}, MileUnits, NMileUnits, inchUnits, yardUnits, meterUnits, kilometerUnits, millimeterUnits, centimetersUnits, feetUnits);
+export const GEO_DISTANCE_UNITS = Object.assign({}, MileUnits, NMileUnits, inchUnits, yardUnits, meterUnits, kilometerUnits, millimeterUnits, centimetersUnits, feetUnits);

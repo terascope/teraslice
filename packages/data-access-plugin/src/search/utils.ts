@@ -1,6 +1,6 @@
 import get from 'lodash.get';
 import * as ts from '@terascope/utils';
-import { parseGeoPoint, TypeConfig } from 'xlucene-evaluator';
+import { parseGeoPoint, TypeConfig, GEO_DISTANCE_UNITS } from 'xlucene-evaluator';
 import { SearchParams, Client, SearchResponse } from 'elasticsearch';
 import { QueryAccess, DataAccessConfig } from '@terascope/data-access';
 import * as i from './interfaces';
@@ -150,7 +150,13 @@ export function getSearchParams(query: i.InputQuery, config: i.SearchConfig): Se
         const geoSortPoint = getFromQuery(query, 'geo_sort_point', geoPoint);
         const geoSortOrder = getFromQuery(query, 'geo_sort_order', 'asc');
         const geoSortUnit = getFromQuery(query, 'geo_sort_unit', 'm');
+
+        // add geo sort query
         if (geoSortOrder && geoSortUnit && geoSortPoint) {
+            if (!GEO_DISTANCE_UNITS[geoSortUnit]) {
+                throw new ts.TSError(...validationErr('geo_sort_unit', 'must be one of "mi", "yd", "ft", "km" or "m"', query));
+            }
+
             params.body.sort = getGeoSort(geoField, geoSortPoint, geoSortOrder, geoSortUnit);
         }
 

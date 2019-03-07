@@ -16,9 +16,7 @@ describe('Search Utils', () => {
             };
             const config: SearchConfig = {
                 view: {},
-                space: {
-                    index: ''
-                },
+                space: { index: '' },
                 types: {}
             };
 
@@ -33,9 +31,7 @@ describe('Search Utils', () => {
                 view: {
                     max_query_size: 500
                 },
-                space: {
-                    index: ''
-                },
+                space: { index: '' },
                 types: {}
             };
 
@@ -51,9 +47,7 @@ describe('Search Utils', () => {
             };
             const config: SearchConfig = {
                 view: {},
-                space: {
-                    index: ''
-                },
+                space: { index: '' },
                 types: {}
             };
 
@@ -72,9 +66,7 @@ describe('Search Utils', () => {
                 view: {
                     require_query: true
                 },
-                space: {
-                    index: ''
-                },
+                space: { index: '' },
                 types: {}
             };
 
@@ -92,9 +84,7 @@ describe('Search Utils', () => {
                 view: {
                     sort_enabled: true
                 },
-                space: {
-                    index: ''
-                },
+                space: { index: '' },
                 types: {}
             };
 
@@ -113,15 +103,33 @@ describe('Search Utils', () => {
                 view: {
                     sort_enabled: true
                 },
-                space: {
-                    index: ''
-                },
+                space: { index: '' },
                 types: {}
             };
 
             expect(() => {
                 utils.getSearchParams(query, config);
             }).toThrowWithMessage(TSError, 'Invalid sort parameter, must be a valid string, was given: "{"example":true}"');
+        });
+
+        it('should throw an error if given an invalid geo_sort_unit param', () => {
+            const query: InputQuery = {
+                geo_sort_point: '1,-1',
+                geo_sort_order: 'asc',
+                geo_sort_unit: 'uhoh'
+            };
+
+            const config: SearchConfig = {
+                view: {
+                    default_geo_field: 'hello'
+                },
+                space: { index: '' },
+                types: {}
+            };
+
+            expect(() => {
+                utils.getSearchParams(query, config);
+            }).toThrowWithMessage(TSError, 'Invalid geo_sort_unit parameter, must be one of "mi", "yd", "ft", "km" or "m", was given: "uhoh"');
         });
 
         it('should throw an error if given an invalid sort on date', () => {
@@ -135,9 +143,7 @@ describe('Search Utils', () => {
                     default_date_field: 'somedate',
                     sort_dates_only: true
                 },
-                space: {
-                    index: ''
-                },
+                space: { index: '' },
                 types: {}
             };
 
