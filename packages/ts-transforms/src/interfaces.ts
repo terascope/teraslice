@@ -113,7 +113,7 @@ interface RestrictOutput {
     [field: string]: boolean;
 }
 
-interface MatchRequirements {
+export interface MatchRequirements {
     [field: string]: string;
 }
 
