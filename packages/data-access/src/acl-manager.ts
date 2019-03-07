@@ -130,12 +130,19 @@ export class ACLManager {
         }
 
         if (args.api_token) {
-            return this.users.findByToken(args.api_token);
+            return this.users.authenticateWithToken(args.api_token);
         }
 
         throw new TSError('Missing user authentication fields, username, password, or api_token', {
             statusCode: 401
         });
+    }
+
+    /**
+     * Authenticate user with api_token
+     */
+    async authenticateWithToken(args: { api_token?: string }): Promise<models.PrivateUserModel> {
+        return this.users.authenticateWithToken(args.api_token);
     }
 
     /**

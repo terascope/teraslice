@@ -138,9 +138,15 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
     }
 
     /**
-     * Find user by token, returns private fields
+     * Authenticate user by api token, returns private fields
      */
-    async findByToken(apiToken: string): Promise<PrivateUserModel> {
+    async authenticateWithToken(apiToken?: string): Promise<PrivateUserModel> {
+        if (!apiToken) {
+            throw new TSError('Missing api_token for authentication', {
+                statusCode: 401
+            });
+        }
+
         try {
             return await super.findBy({ api_token: apiToken });
         } catch (err) {

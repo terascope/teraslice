@@ -62,6 +62,10 @@ export default class ManagerPlugin {
 
         const rootErrorHandler = makeErrorHandler('Failure to access /api/v2', this.logger);
 
+        if (this.bootstrapMode) {
+            this.logger.warn('Running data-access-plugin in Bootstrap Mode');
+        }
+
         this.app.use('/api/v2', (req, res, next) => {
             // @ts-ignore
             req.aclManager = this.manager;
@@ -76,7 +80,7 @@ export default class ManagerPlugin {
             }
 
             rootErrorHandler(req, res, async () => {
-                const user = await this.manager.authenticateUser({
+                const user = await this.manager.authenticateWithToken({
                     api_token: apiToken,
                 });
 

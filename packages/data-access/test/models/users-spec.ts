@@ -94,9 +94,9 @@ describe('Users', () => {
         });
 
         it('should be able to update the api_token', async () => {
-            const current = await users.findByToken(created.api_token);
+            const current = await users.authenticateWithToken(created.api_token);
             const newToken = await users.updateToken(username);
-            const updated = await users.findByToken(newToken);
+            const updated = await users.authenticateWithToken(newToken);
 
             expect(updated.hash).toEqual(current.hash);
             expect(updated.salt).toEqual(current.salt);
@@ -157,7 +157,7 @@ describe('Users', () => {
             it('should NOT be able to authenticate the user', async () => {
                 expect.hasAssertions();
                 try {
-                    await users.findByToken('wrong-api-token');
+                    await users.authenticateWithToken('wrong-api-token');
                 } catch (err) {
                     expect(err.message).toEqual('Unable to authenticate user with api token');
                     expect(err).toBeInstanceOf(TSError);
