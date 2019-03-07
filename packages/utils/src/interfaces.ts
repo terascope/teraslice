@@ -33,3 +33,10 @@ export type Required<T, K extends keyof T> = {
 export type Optional<T, K extends keyof T> = {
     [P in keyof T]: P extends K ? (NonNullable<T[P]>|undefined) : NonNullable<T[P]>;
 };
+
+/**
+ * Without null or undefined properties
+ */
+export type WithoutNil<T> = {
+    [P in keyof T]: T[P] extends (undefined|null) ? never : T[P];
+};

@@ -1,6 +1,7 @@
 import isPlainObject from 'is-plain-object';
 import cloneDeep from 'lodash.clonedeep';
 import kindOf from 'kind-of';
+import { WithoutNil } from './interfaces';
 
 /** A simplified implemation of lodash isString */
 export function isString(val: any): val is string {
@@ -245,4 +246,18 @@ export function enumerable(enabled = true) {
 /** Change first character in string to upper case */
 export function firstToUpper(str: string): string {
     return `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
+}
+
+/** Build a new object without null or undefined values (shallow) */
+export function withoutNil<T extends object>(input: T): WithoutNil<T> {
+    // @ts-ignore
+    const result: WithoutNil<T> = {};
+
+    for (const [key, val] of Object.entries(input)) {
+        if (val != null) {
+            result[key] = val;
+        }
+    }
+
+    return result;
 }
