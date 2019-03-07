@@ -45,11 +45,12 @@ export default class SearchPlugin {
                     space,
                 });
 
+                const search = makeSearchFn(this.client, accessConfig, this.logger);
+
                 // @ts-ignore
                 req.space = {
                     accessConfig,
-                    logger: this.logger,
-                    search: makeSearchFn(this.client, accessConfig, this.logger)
+                    search
                 };
 
                 next();
@@ -102,6 +103,5 @@ export default class SearchPlugin {
 
 export interface SpaceSearch {
     accessConfig: DataAccessConfig;
-    logger: Logger;
     search: SearchFn;
 }

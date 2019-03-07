@@ -301,7 +301,7 @@ describe('Translator', () => {
             [
                 {
                     geo_distance: {
-                        distance:'5000m',
+                        distance: '5000m',
                         loc: '33.435518,-111.873616'
                     }
                 }

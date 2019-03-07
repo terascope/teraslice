@@ -157,17 +157,17 @@ describe('Search Utils', () => {
             }).toThrowWithMessage(TSError, 'Invalid sort parameter, sorting is currently only available for date fields, was given: "WrongDate:asc"');
         });
 
-        it('should be able to return the options', () => {
+        it('should be able to handle minimal query options', () => {
             const query: InputQuery = ({
                 q: 'hello',
                 sort: 'example:asc',
-                start: 10
+                start: 10,
             });
 
             const config: SearchConfig = {
                 view: {
                     sort_default: 'default:asc',
-                    sort_enabled: true
+                    sort_enabled: true,
                 },
                 space: {
                     index: 'woot'
@@ -185,6 +185,85 @@ describe('Search Utils', () => {
                 sort: 'example:asc',
                 size: 100,
                 from: 10
+            });
+        });
+
+        it('should be able to handle complex query options', () => {
+            const query: InputQuery = ({
+                q: 'example:hello',
+                sort: 'created:desc',
+                start: 0,
+                size: 999,
+            });
+
+            const config: SearchConfig = {
+                view: {
+                    sort_enabled: true,
+                    sort_dates_only: true,
+                    max_query_size: 1000
+                },
+                space: {
+                    index: 'woot'
+                },
+                types: {
+                    created: 'date'
+                }
+            };
+
+            const params = utils.getSearchParams(query, config);
+
+            expect(params).toEqual({
+                body: {},
+                ignoreUnavailable: true,
+                index: 'woot',
+                q: 'example:hello',
+                sort: 'created:desc',
+                size: 999,
+                from: 0
+            });
+        });
+
+        it('should be able to handle a geo point query and sort', () => {
+            const query: InputQuery = ({
+                q: 'example:hello',
+                geo_point: '33.435518,-111.873616',
+                geo_distance: '5000m',
+                geo_sort_point: '33.435518,-111.873616',
+                geo_sort_order: 'desc',
+                geo_sort_unit: 'm'
+            });
+
+            const config: SearchConfig = {
+                view: {
+                    default_geo_field: 'example_location'
+                },
+                space: {
+                    index: 'woot'
+                },
+                types: {
+                    created: 'date'
+                }
+            };
+
+            const params = utils.getSearchParams(query, config);
+
+            expect(params).toEqual({
+                body: {
+                    sort: {
+                        _geo_distance: {
+                            example_location: {
+                                lat: -111.873616,
+                                lon: 33.435518
+                            },
+                            order: 'desc',
+                            unit: 'm'
+                        }
+                    }
+                },
+                ignoreUnavailable: true,
+                index: 'woot',
+                q: '(example:hello) AND (example_location:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000m))',
+                size: 100
             });
         });
     });
