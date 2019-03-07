@@ -63,7 +63,7 @@ export default class ManagerPlugin {
         const rootErrorHandler = makeErrorHandler('Failure to access /api/v2', this.logger);
 
         if (this.bootstrapMode) {
-            this.logger.warn('Running data-access-plugin in Bootstrap Mode');
+            this.logger.warn('Running data-access-plugin in bootstrap mode');
         }
 
         this.app.use('/api/v2', (req, res, next) => {

@@ -360,3 +360,16 @@ export function getErrorStatusCode(err: any, config: TSErrorConfig = {}, default
 
     return defaultCode;
 }
+
+export function stripErrorMessage(message: string, reason: string = 'Internal Server Error'): string {
+    if (!message || !utils.isString(message)) return reason;
+    const messages = utils.parseList(message.split('caused by,'));
+
+    const firstErr = utils.getFirst(messages);
+    if (!firstErr) return reason;
+
+    const msg = firstErr.replace(/[A-Z]{2}Error/g, 'Error');
+
+    if (firstErr.includes(reason)) return msg;
+    return `${reason}: ${msg}`;
+}
