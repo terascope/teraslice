@@ -29,22 +29,37 @@ export default class RulesLoader {
     private async fileLoader(ruleFile: string): Promise<UnParsedConfig[]> {
         const parseConfig = this.parseConfig.bind(this);
         const results: UnParsedConfig[] = [];
+        const errorResults: UnParsedConfig[] = [];
+        let hasError = false;
 
         const rl = readline.createInterface({
             input: fs.createReadStream(ruleFile),
             crlfDelay: Infinity
         });
         // TODO: error handling here
-        return new Promise<UnParsedConfig[]>((resolve) => {
+        return new Promise<UnParsedConfig[]>((resolve, reject) => {
             rl.on('line', (str) => {
                 if (str) {
                     const configStr = str.trim();
                     const isComment = configStr[0] === '#';
-                    if (!isComment) results.push(parseConfig(configStr));
+                    if (!isComment) {
+                        try {
+                            results.push(parseConfig(configStr));
+                        } catch (err) {
+                            hasError = true;
+                            errorResults.push(configStr);
+                        }
+                    }
                 }
             });
 
-            rl.on('close', () => resolve(results));
+            rl.on('close', () => {
+                if (hasError) {
+                    reject(new Error(`could not load and parse the following configs: ${errorResults.join(' ')}`));
+                    return;
+                }
+                resolve(results);
+            });
         });
     }
 }
