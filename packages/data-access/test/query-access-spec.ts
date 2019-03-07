@@ -1,6 +1,7 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
 import { QueryAccess, ViewModel } from '../src';
+import { SearchParams } from 'elasticsearch';
 
 describe('QueryAccess', () => {
     const view: ViewModel = {
@@ -35,7 +36,12 @@ describe('QueryAccess', () => {
     });
 
     it('should be able to return a restricted query', () => {
-        expect(queryAccess.restrictESQuery('foo:bar')).toMatchObject({
+        const params: SearchParams = {
+            q: 'idk'
+        };
+
+        const result = queryAccess.restrictESQuery('foo:bar', params);
+        expect(result).toMatchObject({
             _sourceExclude: [
                 'bar'
             ],
@@ -43,5 +49,8 @@ describe('QueryAccess', () => {
                 'foo'
             ],
         });
+
+        expect(params).toHaveProperty('q', 'idk');
+        expect(result).not.toHaveProperty('q', 'idk');
     });
 });

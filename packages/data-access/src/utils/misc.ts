@@ -27,7 +27,7 @@ export async function makeId(len = 12): Promise<string> {
 /**
  * Deep copy two levels deep (useful for mapping and schema)
 */
-export function addDefaults(source: object, from: object = {}) {
+export function mergeDefaults(source: object, from: object = {}) {
     const output = ts.cloneDeep(source);
     const _mapping = ts.cloneDeep(from);
 

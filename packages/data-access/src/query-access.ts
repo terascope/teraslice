@@ -1,5 +1,6 @@
-import { SearchParams } from 'elasticsearch';
 import { Omit } from '@terascope/utils';
+import { SearchParams } from 'elasticsearch';
+import defaultsDeep from 'lodash.defaultsdeep';
 import { LuceneQueryAccess, Translator, TypeConfig } from 'xlucene-evaluator';
 import { DataAccessConfig } from './acl-manager';
 
@@ -44,11 +45,17 @@ export class QueryAccess {
         const _sourceInclude = this.config.view.includes;
         const _sourceExclude = this.config.view.excludes;
 
-        return Object.assign({}, params, {
+        const searchParams = defaultsDeep({}, params, {
             body,
             _sourceInclude,
             _sourceExclude
         });
+
+        if (searchParams.q) {
+            delete searchParams.q;
+        }
+
+        return searchParams;
     }
 }
 
