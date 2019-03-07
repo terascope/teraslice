@@ -1,5 +1,5 @@
 import { toNumber } from 'lodash';
-import { trimAndToLower, isPlainObject } from '@terascope/utils';
+import { trimAndToLower, isPlainObject, parseNumberList } from '@terascope/utils';
 import geoHash from 'latlon-geohash';
 import { RangeAST, AST, GeoDistance, GeoPoint } from './interfaces';
 
@@ -120,21 +120,19 @@ export function parseGeoPoint(point: GeoPoint | number[] | object, throwInvalid 
 
     if (typeof point === 'string') {
         if (point.match(',')) {
-            results = point.split(',').map(st => st.trim()).map(numStr => Number(numStr));
+            results = parseNumberList(point);
         } else {
             try {
                 results = Object.values(geoHash.decode(point));
             } catch (err) {}
         }
-    }
-
-    if (Array.isArray(point)) results = point.map(toNumber);
-
-    if (isPlainObject(point)) {
+    } else if (Array.isArray(point)) {
+        results = parseNumberList(point);
+    } else if (isPlainObject(point)) {
         results = getLonAndLat(point, throwInvalid);
     }
 
-    if (throwInvalid && !results) {
+    if (throwInvalid && (!results || results.length !== 2)) {
         throw new Error(`incorrect point given to parse, point:${point}`);
     }
 

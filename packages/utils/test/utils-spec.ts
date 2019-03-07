@@ -1,5 +1,15 @@
 import 'jest-extended';
-import { DataEntity, isPlainObject, parseJSON, getTypeOf, isEmpty, withoutNil } from '../src';
+import {
+    DataEntity,
+    isPlainObject,
+    parseJSON,
+    getTypeOf,
+    isEmpty,
+    withoutNil,
+    parseList,
+    parseNumberList,
+    toNumber,
+} from '../src';
 
 describe('Utils', () => {
     describe('isPlainObject', () => {
@@ -159,6 +169,58 @@ describe('Utils', () => {
                 example: true,
                 other: null,
             });
+        });
+    });
+
+    describe('parseList', () => {
+        test.each([
+            ['a', ['a']],
+            ['a,b,c', ['a', 'b', 'c']],
+            ['a , b,c,   ', ['a', 'b', 'c']],
+            [['a ', ' b ', 'c ', false, '', null], ['a', 'b', 'c']],
+            [null, []]
+        ])('should parse %j to be %j', (input, expected) => {
+            expect(parseList(input)).toEqual(expected);
+        });
+    });
+
+    describe('parseNumberList', () => {
+        test.each([
+            ['a', []],
+            ['33.435518 , -111.873616 ,', [33.435518, -111.873616]],
+            [[33.435518, -111.873616], [33.435518, -111.873616]],
+            [['33.435518 ', -111.873616], [33.435518, -111.873616]],
+            [[Infinity, 0, 'c ', '', null, 10], [Infinity, 0, 10]],
+            [[Infinity, 0, 'c ', '', null, 10], [Infinity, 0, 10]],
+            [null, []]
+        ])('should parse %j to be %j', (input, expected) => {
+            expect(parseNumberList(input)).toEqual(expected);
+        });
+    });
+
+    describe('toNumber', () => {
+        test.each([
+            ['33.435518', 33.435518],
+            [' 33.435518     ', 33.435518],
+            [0, 0],
+            [Infinity, Infinity],
+            ['Infinity', Infinity],
+            [null, 0],
+            [2335, 2335],
+            [false, 0],
+            [true, 1],
+            [' ', 0],
+            ['', 0],
+            ['uhoh', Number.NaN],
+            [Buffer.from('idk'), Number.NaN],
+            [Buffer.from('0'), 0],
+            [Buffer.from('1'), 1],
+            [{ a: 1 }, Number.NaN],
+            [{ }, Number.NaN],
+            [[], 0],
+            [[1], 1],
+        ])('should convert %j to be %j', (input, expected) => {
+            expect(toNumber(input)).toEqual(expected);
         });
     });
 });

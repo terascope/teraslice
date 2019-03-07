@@ -5,7 +5,7 @@ const { Router } = require('express');
 const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const request = require('request');
-const { parseErrorInfo } = require('@terascope/utils');
+const { parseErrorInfo, parseList } = require('@terascope/utils');
 const {
     makePrometheus,
     isPrometheusRequest,
@@ -225,7 +225,7 @@ module.exports = async function makeAPI(context, app, options) {
 
         const requestHandler = handleRequest(req, res, 'Could not retrieve list of execution contexts');
         requestHandler(async () => {
-            const statuses = status.split(',').map(s => s.trim()).filter(s => !!s);
+            const statuses = parseList(status);
 
             let query = 'ex_id:*';
 

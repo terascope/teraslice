@@ -164,11 +164,11 @@ export function isNumber(input: any): input is number {
     return typeof input === 'number' && !Number.isNaN(input);
 }
 
-/** Convert any input to a number, return false if unable to convert input  */
-export function toNumber(input: any): number|false {
-    const num = Number(input);
-    if (isNumber(num)) return num;
-    return false;
+/** Convert any input to a number, return Number.NaN if unable to convert input  */
+export function toNumber(input: any): number {
+    if (typeof input === 'number') return input;
+
+    return Number(input);
 }
 
 /** Convert any input to a integer, return false if unable to convert input  */
@@ -260,4 +260,54 @@ export function withoutNil<T extends object>(input: T): WithoutNil<T> {
     }
 
     return result;
+}
+
+/**
+ * Maps an array of strings and and trims the result, or
+ * parses a comma separated list and trims the result
+*/
+export function parseList(input: any): string[] {
+    let strings: string[] = [];
+
+    if (isString(input)) {
+        strings = input.split(',');
+    } else if (Array.isArray(input)) {
+        strings = input.map((input) => {
+            if (!input) return '';
+            return toString(input);
+        });
+    } else {
+        return [];
+    }
+
+    return strings
+        .map((s) => s.trim())
+        .filter((s) => !!s);
+}
+
+/**
+ * Like parseList, except it returns number
+*/
+export function parseNumberList(input: any): number[] {
+    let items: (number|string)[] = [];
+
+    if (isString(input)) {
+        items = input.split(',');
+    } else if (Array.isArray(input)) {
+        items = input;
+    } else if (isNumber(input)) {
+        return [input];
+    } else {
+        return [];
+    }
+
+    return items
+        // filter out any empty string
+        .filter((item) => {
+            if (item == null) return false;
+            if (isString(item) && !item.trim().length) return false;
+            return true;
+        })
+        .map(toNumber)
+        .filter(isNumber) as number[];
 }
