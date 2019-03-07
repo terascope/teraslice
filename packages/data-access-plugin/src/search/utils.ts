@@ -7,8 +7,6 @@ import * as i from './interfaces';
 
 /**
  * Search elasticsearch in a teraserver backwards compatible way
- *
- * @todo add timeseries/history support
  */
 export function makeSearchFn(client: Client, accessConfig: DataAccessConfig, logger: ts.Logger): i.SearchFn {
     const config = getSearchConfig(accessConfig);
@@ -172,7 +170,7 @@ export function getSearchParams(query: i.InputQuery, config: i.SearchConfig): Se
         }
     }
 
-    /** @todo */
+    /** @todo add timeseries/history support */
     // const history = getFromQuery(query, 'history');
     // const historyStart = getFromQuery(query, 'history_start');
 
