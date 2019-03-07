@@ -5,7 +5,7 @@ const misc = require('../../misc');
 const { waitForJobStatus } = require('../../wait');
 const { resetState } = require('../../helpers');
 
-describe('worker allocation', () => {
+describe('job state', () => {
     beforeAll(() => resetState());
 
     const teraslice = misc.teraslice();

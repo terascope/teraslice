@@ -7,7 +7,7 @@ const { resetState } = require('../../helpers');
 
 const { waitForJobStatus } = require('../../wait');
 
-describe('api endpoint', () => {
+describe('cluster api', () => {
     beforeAll(() => resetState());
 
     const teraslice = misc.teraslice();

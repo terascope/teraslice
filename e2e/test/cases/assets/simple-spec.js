@@ -7,7 +7,7 @@ const { resetState } = require('../../helpers');
 
 const { waitForJobStatus } = wait;
 
-describe('Asset Tests', () => {
+describe('assets', () => {
     beforeAll(() => resetState());
 
     const teraslice = misc.teraslice();
