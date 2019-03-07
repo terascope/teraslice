@@ -412,5 +412,22 @@ describe('k8sResource', () => {
             expect(kr.resource.kind).toBe('Service');
             expect(kr.resource.metadata.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
         });
+
+        test.each([
+            ['temp#job', 'ts-exc-temp-job-7ba9afb0-417a'],
+            ['temp_job', 'ts-exc-temp-job-7ba9afb0-417a'],
+            ['temp!job', 'ts-exc-temp-job-7ba9afb0-417a']
+        ])(
+            'should sanitize %s to be valid DNS name',
+            (name, expected) => {
+                execution.name = name;
+                const kr = new K8sResource(
+                    'services', 'execution_controller', terasliceConfig, execution
+                );
+
+                expect(kr.resource.kind).toBe('Service');
+                expect(kr.resource.metadata.name).toBe(expected);
+            }
+        );
     });
 });
