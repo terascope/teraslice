@@ -1,11 +1,9 @@
-import get from 'lodash.get';
 import { Express } from 'express';
 import { Client } from 'elasticsearch';
 import { Logger, TSError } from '@terascope/utils';
-import { ACLManager, PrivateUserModel, DataAccessConfig } from '@terascope/data-access';
+import { DataAccessConfig } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { SearchFn } from './interfaces';
-import { makeSearchFn } from './utils';
 
 /**
  * @todo the search plugin should be able to work the search counter
@@ -29,42 +27,7 @@ export default class SearchPlugin {
 
     registerRoutes() {
         const searchUrl = '/api/v2/:space';
-        this.logger.info(`Registering data-access-plugin search at ${searchUrl}`);
-
-        this.app.use(searchUrl, async (req, res, next) => {
-            // @ts-ignore
-            const manager: ACLManager = req.aclManager;
-            // @ts-ignore
-            const user: PrivateUserModel = req.v2User;
-
-            const space: string = req.params.space;
-
-            try {
-                const accessConfig = await manager.getViewForSpace({
-                    api_token: get(user, 'api_token'),
-                    space,
-                });
-
-                const search = makeSearchFn(this.client, accessConfig, this.logger);
-
-                // @ts-ignore
-                req.space = {
-                    accessConfig,
-                    search
-                };
-
-                next();
-            } catch (_err) {
-                const err = new TSError(_err,  {
-                    reason: `Failure to access space ${space}`
-                });
-
-                this.logger.error(err);
-                res.status(err.statusCode).json({
-                    error: err.message.replace(/[A-Z]{2}Error/g, 'Error')
-                });
-            }
-        });
+        this.logger.info(`Registering data-access-plugin search endpoint at ${searchUrl}`);
 
         this.app.get(searchUrl, async (req, res) => {
             // @ts-ignore

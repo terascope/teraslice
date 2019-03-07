@@ -1,11 +1,13 @@
-import { Express } from 'express';
 import get from 'lodash.get';
+import { Express } from 'express';
+import { Client } from 'elasticsearch';
 import * as apollo from 'apollo-server-express';
 import { ACLManager } from '@terascope/data-access';
-import { Logger, parseErrorInfo } from '@terascope/utils';
+import { Logger, parseErrorInfo, TSError } from '@terascope/utils';
+import { TeraserverConfig, PluginConfig } from '../interfaces';
+import { makeSearchFn } from '../search/utils';
 import { getFromReq } from '../utils';
 import { formatError } from './utils';
-import { TeraserverConfig, PluginConfig } from '../interfaces';
 import schema from './schema';
 
 /**
@@ -20,12 +22,14 @@ export default class ManagerPlugin {
     readonly manager: ACLManager;
     readonly server: apollo.ApolloServer;
     readonly bootstrapMode: boolean;
+    readonly client: Client;
 
     constructor(pluginConfig: PluginConfig) {
         const client = pluginConfig.elasticsearch;
         this.config = pluginConfig.server_config;
         this.logger = pluginConfig.logger;
         this.app = pluginConfig.app;
+        this.client = client;
 
         const namespace = get(this.config, 'data_access.namespace');
         this.bootstrapMode = get(this.config, 'data_access.bootstrap_mode', false);
@@ -100,5 +104,42 @@ export default class ManagerPlugin {
             app: this.app,
             path: managerUri,
         });
+
+        // this must happen at the end
+        this.app.use('/api/v2/:space', async (req, res, next) => {
+            // @ts-ignore
+            const manager: ACLManager = req.aclManager;
+            // @ts-ignore
+            const user: PrivateUserModel = req.v2User;
+
+            const space: string = req.params.space;
+
+            try {
+                const accessConfig = await manager.getViewForSpace({
+                    api_token: get(user, 'api_token'),
+                    space,
+                });
+
+                const search = makeSearchFn(this.client, accessConfig, this.logger);
+
+                // @ts-ignore
+                req.space = {
+                    accessConfig,
+                    search
+                };
+
+                next();
+            } catch (_err) {
+                const err = new TSError(_err,  {
+                    reason: `Failure to access space ${space}`
+                });
+
+                this.logger.error(err);
+                res.status(err.statusCode).json({
+                    error: err.message.replace(/[A-Z]{2}Error/g, 'Error')
+                });
+            }
+        });
+
     }
 }
