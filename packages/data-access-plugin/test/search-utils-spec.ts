@@ -164,11 +164,11 @@ describe('Search Utils', () => {
         });
 
         it('should be able to handle minimal query options', () => {
-            const query: InputQuery = ({
+            const query: InputQuery = {
                 q: 'hello',
                 sort: 'example:asc',
                 start: 10,
-            });
+            };
 
             const config: SearchConfig = {
                 view: {
@@ -195,18 +195,19 @@ describe('Search Utils', () => {
         });
 
         it('should be able to handle complex query options', () => {
-            const query: InputQuery = ({
+            const query: InputQuery = {
                 q: 'example:hello',
                 sort: 'created:desc',
                 start: 0,
                 size: 999,
-            });
+                fields: 'one, tWo,Three ',
+            };
 
             const config: SearchConfig = {
                 view: {
                     sort_enabled: true,
                     sort_dates_only: true,
-                    max_query_size: 1000
+                    max_query_size: 1000,
                 },
                 space: {
                     index: 'woot'
@@ -225,19 +226,20 @@ describe('Search Utils', () => {
                 q: 'example:hello',
                 sort: 'created:desc',
                 size: 999,
-                from: 0
+                from: 0,
+                _sourceInclude: ['one', 'two', 'three'],
             });
         });
 
         it('should be able to handle a geo point query and sort', () => {
-            const query: InputQuery = ({
+            const query: InputQuery = {
                 q: 'example:hello',
                 geo_point: '33.435518,-111.873616',
                 geo_distance: '5000m',
                 geo_sort_point: '33.435518,-111.873616',
                 geo_sort_order: 'desc',
                 geo_sort_unit: 'm'
-            });
+            };
 
             const config: SearchConfig = {
                 view: {

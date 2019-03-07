@@ -12,10 +12,12 @@ describe('QueryAccess', () => {
             'example-role'
         ],
         excludes: [
-            'bar'
+            'bar',
+            'baz'
         ],
         includes: [
-            'foo'
+            'foo',
+            'moo'
         ],
         updated: new Date().toISOString(),
         created: new Date().toISOString(),
@@ -37,20 +39,42 @@ describe('QueryAccess', () => {
 
     it('should be able to return a restricted query', () => {
         const params: SearchParams = {
-            q: 'idk'
+            q: 'idk',
+            _sourceInclude: [
+                'moo'
+            ],
+            _sourceExclude: [
+                'baz'
+            ]
         };
 
         const result = queryAccess.restrictESQuery('foo:bar', params);
         expect(result).toMatchObject({
             _sourceExclude: [
-                'bar'
+                'baz'
             ],
             _sourceInclude: [
-                'foo'
+                'moo'
             ],
         });
 
         expect(params).toHaveProperty('q', 'idk');
+        expect(result).not.toHaveProperty('q', 'idk');
+    });
+
+    it('should be able to return a restricted query without any params', () => {
+        const result = queryAccess.restrictESQuery('foo:bar');
+        expect(result).toMatchObject({
+            _sourceExclude: [
+                'bar',
+                'baz'
+            ],
+            _sourceInclude: [
+                'foo',
+                'moo'
+            ],
+        });
+
         expect(result).not.toHaveProperty('q', 'idk');
     });
 });

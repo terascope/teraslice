@@ -138,6 +138,14 @@ export function getSearchParams(query: i.InputQuery, config: i.SearchConfig): Se
         sort = config.view.sort_default;
     }
 
+    const fields = getFromQuery(query, 'fields');
+    if (fields) {
+        params._sourceInclude = ts.uniq(
+            ts.parseList(fields)
+                .map((s) => s.toLowerCase())
+        );
+    }
+
     const geoField = config.view.default_geo_field;
 
     if (geoField) {
