@@ -83,10 +83,12 @@ module.exports = function module(context) {
         }
 
         const metaData = assetIdentifier.split(':');
+        const sort = '_created:desc';
+        const fields = ['version'];
 
         // if no version specified get latest
         if (metaData.length === 1 || metaData[1] === 'latest') {
-            return search(`name:${metaData[0]}`, null, 1, '_created:desc')
+            return search(`name:${metaData[0]}`, null, 1, sort, fields)
                 .then((assetRecord) => {
                     const record = assetRecord.hits.hits[0];
                     if (!record) {
@@ -98,7 +100,7 @@ module.exports = function module(context) {
         }
 
         // has wildcard in version
-        return search(`name:${metaData[0]} AND version:${metaData[1]}`, null, 10000, '_created:desc', ['version'])
+        return search(`name:${metaData[0]} AND version:${metaData[1]}`, null, 10000, sort, fields)
             .then((assetRecords) => {
                 const records = assetRecords.hits.hits.map(record => ({
                     id: record._id,
@@ -246,7 +248,7 @@ module.exports = function module(context) {
         context,
         indexName,
         recordType: 'asset',
-        idField: '_id',
+        idField: 'id',
         fullResponse: true,
         logRecord: false,
         storageName: 'assets'

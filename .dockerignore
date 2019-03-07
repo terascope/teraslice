@@ -12,9 +12,9 @@
 **/examples
 **/e2e
 **/dist
+.vscode
 assets
 autoload
-docker-base
 packages/*/assets
 packages/*/autoload
 packages/data-access

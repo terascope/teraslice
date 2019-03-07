@@ -63,7 +63,7 @@ services:
         soft: -1
         hard: -1
   kafka:
-    image: terascope/kafka-zookeeper:v1.0.0
+    image: terascope/kafka-zookeeper:v1.1.0
     ports:
       - "42181:42181"
       - "49092:49092"

@@ -56,9 +56,9 @@ module.exports = function module(backendConfig) {
         return elasticsearch.get(query);
     }
 
-    function search(query, from, size, sort, fields, indexArg) {
+    function search(query, from, size, sort, fields, indexArg = indexName) {
         const esQuery = {
-            index: indexArg || indexName,
+            index: indexArg,
             from,
             size,
             sort
@@ -81,10 +81,10 @@ module.exports = function module(backendConfig) {
      * index saves a record to elasticsearch allowing automatic
      * ID creation
      */
-    function index(record, indexArg) {
+    function index(record, indexArg = indexName) {
         logger.trace('indexing record', logRecord ? record : null);
         const query = {
-            index: indexArg || indexName,
+            index: indexArg,
             type: recordType,
             body: record,
             refresh: forceRefresh
@@ -97,10 +97,10 @@ module.exports = function module(backendConfig) {
      * index saves a record to elasticsearch with a specified ID.
      * If the document is already there it will be replaced.
      */
-    function indexWithId(recordId, record, indexArg) {
+    function indexWithId(recordId, record, indexArg = indexName) {
         logger.trace(`indexWithId call with id: ${recordId}, record`, logRecord ? record : null);
         const query = {
-            index: indexArg || indexName,
+            index: indexArg,
             type: recordType,
             id: recordId,
             body: record,
@@ -114,11 +114,11 @@ module.exports = function module(backendConfig) {
      * Create saves a record to elasticsearch under the provided id.
      * If the record already exists it will not be inserted.
      */
-    function create(record, indexArg) {
+    function create(record, indexArg = indexName) {
         logger.trace('creating record', logRecord ? record : null);
 
         const query = {
-            index: indexArg || indexName,
+            index: indexArg,
             type: recordType,
             id: record[idField],
             body: record,
@@ -128,9 +128,9 @@ module.exports = function module(backendConfig) {
         return elasticsearch.create(query);
     }
 
-    function count(query, from, sort, indexArg) {
+    function count(query, from, sort, indexArg = indexName) {
         const esQuery = {
-            index: indexArg || indexName,
+            index: indexArg,
             from,
             sort
         };
@@ -144,11 +144,11 @@ module.exports = function module(backendConfig) {
         return elasticsearch.count(esQuery);
     }
 
-    function update(recordId, updateSpec, indexArg) {
+    function update(recordId, updateSpec, indexArg = indexName) {
         logger.trace(`updating record ${recordId}, `, logRecord ? updateSpec : null);
 
         const query = {
-            index: indexArg || indexName,
+            index: indexArg,
             type: recordType,
             id: recordId,
             body: {
@@ -161,10 +161,10 @@ module.exports = function module(backendConfig) {
         return elasticsearch.update(query);
     }
 
-    function remove(recordId, indexArg) {
+    function remove(recordId, indexArg = indexName) {
         logger.trace(`removing record ${recordId}`);
         const query = {
-            index: indexArg || indexName,
+            index: indexArg,
             type: recordType,
             id: recordId,
             refresh: forceRefresh
@@ -173,7 +173,7 @@ module.exports = function module(backendConfig) {
         return elasticsearch.remove(query);
     }
 
-    function bulk(record, _type, indexArg) {
+    function bulk(record, _type, indexArg = indexName) {
         let type = _type;
         if (!type) {
             type = 'index';
@@ -181,7 +181,7 @@ module.exports = function module(backendConfig) {
 
         const indexRequest = {};
         indexRequest[type] = {
-            _index: indexArg || indexName,
+            _index: indexArg,
             _type: recordType
         };
 
@@ -267,8 +267,13 @@ module.exports = function module(backendConfig) {
         return mapping;
     }
 
-    function isAvailable(indexArg) {
-        const query = { index: indexArg || indexName, q: '*' };
+    function isAvailable(indexArg = indexName) {
+        const query = {
+            index: indexArg,
+            q: '*',
+            size: 0,
+            terminate_after: '1'
+        };
 
         return new Promise(((resolve) => {
             elasticsearch.search(query)
@@ -277,19 +282,27 @@ module.exports = function module(backendConfig) {
                     resolve(results);
                 })
                 .catch(() => {
+                    let running = false;
                     const isReady = setInterval(() => {
                         if (isShutdown) {
                             clearInterval(isReady);
                             return;
                         }
 
+                        if (running) return;
+                        running = true;
+
                         elasticsearch.search(query)
                             .then((results) => {
+                                running = false;
+
                                 clearInterval(isReady);
                                 resolve(results);
                             })
                             .catch(() => {
-                                logger.warn('verifying job index is open');
+                                running = false;
+
+                                logger.warn(`verifying ${recordType} index is open`);
                             });
                     }, 200);
                 });
@@ -314,8 +327,8 @@ module.exports = function module(backendConfig) {
         return Promise.resolve(true);
     }
 
-    function _createIndex(indexArg) {
-        const existQuery = { index: indexArg || indexName };
+    function _createIndex(indexArg = indexName) {
+        const existQuery = { index: indexArg };
         return elasticsearch.index_exists(existQuery)
             .then((exists) => {
                 if (!exists) {
@@ -323,7 +336,7 @@ module.exports = function module(backendConfig) {
 
                     // Make sure the index exists before we do anything else.
                     const createQuery = {
-                        index: indexArg || indexName,
+                        index: indexArg,
                         body: mapping
                     };
 
@@ -348,8 +361,8 @@ module.exports = function module(backendConfig) {
             });
     }
 
-    function refresh(indexArg) {
-        const query = { index: indexArg || indexName };
+    function refresh(indexArg = indexName) {
+        const query = { index: indexArg };
         return elasticsearch.index_refresh(query);
     }
 
@@ -411,14 +424,18 @@ module.exports = function module(backendConfig) {
             .then(() => isAvailable(newIndex))
             .then(() => resolve(api))
             .catch((err) => {
-                const error = new TSError(err, { reason: `Error created job index: ${indexName}` });
+                const error = new TSError(err, { reason: `Error initializing ${recordType} index: ${indexName}` });
                 logger.error(error);
                 logger.info(`Attempting to connect to elasticsearch: ${clientName}`);
+                let running = false;
+
                 const checking = setInterval(() => {
                     if (isShutdown) {
                         clearInterval(checking);
                         return;
                     }
+                    if (running) return;
+                    running = true;
 
                     _createIndex(newIndex)
                         .then(() => {
@@ -446,7 +463,12 @@ module.exports = function module(backendConfig) {
                             }
                             return true;
                         })
+                        .then(() => {
+                            running = false;
+                        })
                         .catch((checkingErr) => {
+                            running = false;
+
                             const checkingError = new TSError(checkingErr);
                             logger.info(checkingError, `Attempting to connect to elasticsearch: ${clientName}`);
                         });
