@@ -27,8 +27,8 @@
     },
     "dependencies": {
         "@terascope/utils": "^0.5.0",
-        "ajv": "^6.9.1",
-        "rambda": "^2.3.1",
+        "ajv": "^6.10.0",
+        "rambda": "^2.4.1",
         "xlucene-evaluator": "^0.5.0"
     },
     "devDependencies": {

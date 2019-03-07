@@ -27,19 +27,19 @@
     },
     "dependencies": {
         "@terascope/elasticsearch-api": "^2.0.0",
-        "agentkeepalive": "^4.0.1",
+        "agentkeepalive": "^4.0.2",
         "bluebird": "^3.5.3",
         "bunyan": "^1.8.12",
         "convict": "^4.4.1",
         "elasticsearch": "^15.4.1",
-        "js-yaml": "^3.12.1",
+        "js-yaml": "^3.12.2",
         "lodash": "^4.17.11",
         "moment": "^2.24.0",
         "mongoose": "~4.13.18",
         "node-statsd": "0.1.1",
         "node-webhdfs": "^1.0.2",
         "redis": "^2.8.0",
-        "yargs": "^13.2.1"
+        "yargs": "^13.2.2"
     },
     "devDependencies": {
         "@terascope/utils": "^0.5.0"
