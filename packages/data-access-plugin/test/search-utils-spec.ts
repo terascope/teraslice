@@ -1,102 +1,190 @@
 import 'jest-extended';
-import { TSError, times } from '@terascope/utils';
-import { SearchResponse } from 'elasticsearch';
+import { TSError, times, debugLogger } from '@terascope/utils';
+import { SearchResponse, SearchParams, Client } from 'elasticsearch';
 import * as utils from '../src/search/utils';
+import { SearchConfig, InputQuery } from '../src/search/interfaces';
+import { DataAccessConfig } from '@terascope/data-access';
+
+const logger = debugLogger('search-utils-spec');
 
 describe('Search Utils', () => {
-    describe('getSearchOptions', () => {
+    describe('getSearchParams', () => {
         it('should throw an error if given an invalid size', () => {
-            const query = { size: 'ugh' };
-            expect(() => {
+            const query: InputQuery = {
                 // @ts-ignore
-                utils.getQueryConfig(query, { view: {} });
+                size: 'ugh' as number
+            };
+            const config: SearchConfig = {
+                view: {},
+                space: {
+                    index: ''
+                },
+                types: {}
+            };
+
+            expect(() => {
+                utils.getSearchParams(query, config);
             }).toThrowWithMessage(TSError, 'Invalid size parameter, must be a valid number, was given: "ugh"');
         });
 
         it('should throw an error if given size too large', () => {
-            const query = { size: 1000 };
+            const query: InputQuery = { size: 1000 };
+            const config: SearchConfig = {
+                view: {
+                    max_query_size: 500
+                },
+                space: {
+                    index: ''
+                },
+                types: {}
+            };
+
             expect(() => {
-                // @ts-ignore
-                utils.getQueryConfig(query, {
-                    view: {
-                        max_query_size: 500
-                    }
-                });
+                utils.getSearchParams(query, config);
             }).toThrowWithMessage(TSError, 'Invalid size parameter, must be less than 500, was given: "1000"');
         });
 
         it('should throw an error if given an invalid start', () => {
-            const query = ({ start: 'bah' });
-            expect(() => {
+            const query: InputQuery = {
                 // @ts-ignore
-                utils.getQueryConfig(query, { view: {} });
+                start: 'bah' as number
+            };
+            const config: SearchConfig = {
+                view: {},
+                space: {
+                    index: ''
+                },
+                types: {}
+            };
+
+            expect(() => {
+                utils.getSearchParams(query, config);
             }).toThrowWithMessage(TSError, 'Invalid start parameter, must be a valid number, was given: "bah"');
         });
 
         it('should throw an error if given an invalid query', () => {
-            const query = ({ q: null });
-            expect(() => {
+            const query: InputQuery = {
                 // @ts-ignore
-                utils.getQueryConfig(query, { view: { require_query: true } });
+                q: null as string
+            };
+
+            const config: SearchConfig = {
+                view: {
+                    require_query: true
+                },
+                space: {
+                    index: ''
+                },
+                types: {}
+            };
+
+            expect(() => {
+                utils.getSearchParams(query, config);
             }).toThrowWithMessage(TSError, 'Invalid q parameter, must not be empty, was given: ""');
         });
 
         it('should throw an error if given an invalid sort', () => {
-            const query = ({ sort: 'example:ugh' });
+            const query: InputQuery = {
+                sort: 'example:ugh'
+            };
+
+            const config: SearchConfig = {
+                view: {
+                    sort_enabled: true
+                },
+                space: {
+                    index: ''
+                },
+                types: {}
+            };
+
             expect(() => {
-                // @ts-ignore
-                utils.getQueryConfig(query, { view: { sort_enabled: true } });
+                utils.getSearchParams(query, config);
             }).toThrowWithMessage(TSError, 'Invalid sort parameter, must be field_name:asc or field_name:desc, was given: "example:ugh"');
         });
 
         it('should throw an error if given an object as sort', () => {
-            const query = ({ sort: { example: true } });
-            expect(() => {
+            const query: InputQuery = {
                 // @ts-ignore
-                utils.getQueryConfig(query, { view: { sort_enabled: true } });
+                sort: { example: true }
+            };
+
+            const config: SearchConfig = {
+                view: {
+                    sort_enabled: true
+                },
+                space: {
+                    index: ''
+                },
+                types: {}
+            };
+
+            expect(() => {
+                utils.getSearchParams(query, config);
             }).toThrowWithMessage(TSError, 'Invalid sort parameter, must be a valid string, was given: "{"example":true}"');
         });
 
         it('should throw an error if given an invalid sort on date', () => {
-            const query = ({ sort: 'wrongdate:asc' });
-            expect(() => {
+            const query: InputQuery = {
+                sort: 'WrongDate:asc'
+            };
+
+            const config: SearchConfig = {
+                view: {
+                    sort_enabled: true,
+                    default_date_field: 'somedate',
+                    sort_dates_only: true
+                },
+                space: {
+                    index: ''
+                },
+                types: {}
+            };
+
+            config.types = utils.getTypesConfig({
                 // @ts-ignore
-                utils.getQueryConfig(query, {
-                    view: {
-                        sort_enabled: true,
-                        default_date_field: 'somedate',
-                        sort_dates_only: true
+                view: {
+                    metadata: {
+                        typesConfig: {
+                            otherdate: 'date'
+                        }
                     }
-                });
-            }).toThrowWithMessage(TSError, 'Invalid sort parameter, sorting is currently only available for date fields, was given: "wrongdate:asc"');
+                }
+            }, config.view);
+
+            expect(() => {
+                utils.getSearchParams(query, config);
+            }).toThrowWithMessage(TSError, 'Invalid sort parameter, sorting is currently only available for date fields, was given: "WrongDate:asc"');
         });
 
         it('should be able to return the options', () => {
-            const query = ({ q: 'hello', sort: 'example:asc' });
-            // @ts-ignore
-            const result = utils.getQueryConfig(query, {
+            const query: InputQuery = ({
+                q: 'hello',
+                sort: 'example:asc',
+                start: 10
+            });
+
+            const config: SearchConfig = {
                 view: {
                     sort_default: 'default:asc',
                     sort_enabled: true
-                }
-            });
+                },
+                space: {
+                    index: 'woot'
+                },
+                types: {}
+            };
 
-            expect(result).toEqual({
-                geoBoxTopLeft: undefined,
-                geoBoxBottomRight: undefined,
-                geoDistance: undefined,
-                geoPoint: undefined,
-                geoSortOrder: undefined,
-                geoSortPoint: undefined,
-                geoSortUnit: undefined,
-                history: undefined,
-                historyPrefix: undefined,
-                historyStart: undefined,
+            const params = utils.getSearchParams(query, config);
+
+            expect(params).toEqual({
+                body: {},
+                ignoreUnavailable: true,
+                index: 'woot',
                 q: 'hello',
                 sort: 'example:asc',
                 size: 100,
-                sortDisabled: false,
-                start: undefined
+                from: 10
             });
         });
     });
@@ -105,10 +193,12 @@ describe('Search Utils', () => {
         it('should throw if no indexConfig is given', async () => {
             expect.hasAssertions();
 
+            const client = fakeClient();
             // @ts-ignore
-            const search = utils.makeSearchFn({}, {}, {});
+            const accessConfig: DataAccessConfig = {};
+
             try {
-                await search({});
+                await utils.makeSearchFn(client, accessConfig, logger);
             } catch (err) {
                 expect(err.toString()).toEqual('TSError: Search is not configured correctly');
             }
@@ -117,28 +207,32 @@ describe('Search Utils', () => {
         it('should throw if no index is given', async () => {
             expect.hasAssertions();
 
-            // @ts-ignore
-            const search = utils.makeSearchFn({}, { other: true }, {});
+            const client = fakeClient();
+            const accessConfig: DataAccessConfig = {
+                // @ts-ignore
+                other: true
+            };
+
             try {
-                await search({});
+                await utils.makeSearchFn(client, accessConfig, logger);
             } catch (err) {
                 expect(err.toString()).toEqual('TSError: Search is not configured correctly');
             }
         });
     });
 
-    describe('handleSearchResponse', () => {
+    describe('getSearchResponse', () => {
         it('should handle the error case', () => {
             expect(() => {
                 // @ts-ignore
-                utils.handleSearchResponse({ error: 'Uh oh' });
+                utils.getSearchResponse({ error: 'Uh oh' });
             }).toThrowWithMessage(TSError, 'Uh oh');
         });
 
         it('should handle no results', () => {
             expect(() => {
                 // @ts-ignore
-                utils. handleSearchResponse({ });
+                utils.getSearchResponse({ });
             }).toThrowWithMessage(TSError, 'No results returned from query');
         });
 
@@ -159,21 +253,26 @@ describe('Search Utils', () => {
                 }
             };
 
-            const config: utils.SearchConfig = {
+            const config: SearchConfig = {
                 space: { index: 'example' },
                 types: {},
-                view: {},
-                // @ts-ignore
-                query: {
-                    size: 2,
-                    sortDisabled: true,
-                }
+                view: {
+                    sort_enabled: true
+                },
             };
 
-            const result = utils.handleSearchResponse(input as SearchResponse<any>, config);
+            const query = {
+                sort: 'example:asc'
+            };
+
+            const params: SearchParams = {
+                size: 2
+            };
+
+            const result = utils.getSearchResponse(input as SearchResponse<any>, config, query, params);
             expect(result).toEqual({
                 total,
-                info: '5 results found. Returning 2. No sorting available.',
+                info: '5 results found. Returning 2.',
                 returning: 2,
                 results: times(total, (n) => ({
                     example: n
@@ -198,20 +297,24 @@ describe('Search Utils', () => {
                 }
             };
 
-            const config: utils.SearchConfig = {
+            const config: SearchConfig = {
                 space: { index: 'example' },
                 types: {},
                 view: {
                     preserve_index_name: true,
+                    sort_enabled: false
                 },
-                // @ts-ignore
-                query: {
-                    size: 2,
-                    sortDisabled: true,
-                }
             };
 
-            const result = utils.handleSearchResponse(input as SearchResponse<any>, config);
+            const query = {
+                sort: 'example:asc'
+            };
+
+            const params: SearchParams = {
+                size: 2
+            };
+
+            const result = utils.getSearchResponse(input as SearchResponse<any>, config, query, params);
             expect(result).toEqual({
                 total,
                 info: '5 results found. Returning 2. No sorting available.',
@@ -224,3 +327,8 @@ describe('Search Utils', () => {
         });
     });
 });
+
+function fakeClient(): Client {
+    const client: unknown = {};
+    return client as Client;
+}

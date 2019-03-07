@@ -4,7 +4,8 @@ import { Client } from 'elasticsearch';
 import { Logger, TSError } from '@terascope/utils';
 import { ACLManager, PrivateUserModel, DataAccessConfig } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
-import { makeSearchFn, SearchFn } from './utils';
+import { SearchFn } from './interfaces';
+import { makeSearchFn } from './utils';
 
 /**
  * @todo the search plugin should be able to work the search counter

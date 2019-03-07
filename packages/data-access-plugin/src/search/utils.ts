@@ -1,94 +1,92 @@
 import get from 'lodash.get';
 import * as ts from '@terascope/utils';
-import { TypeConfig, parseGeoPoint } from 'xlucene-evaluator';
+import { parseGeoPoint, TypeConfig } from 'xlucene-evaluator';
 import { SearchParams, Client, SearchResponse } from 'elasticsearch';
 import { QueryAccess, DataAccessConfig } from '@terascope/data-access';
+import * as i from './interfaces';
 
 /**
  * Search elasticsearch in a teraserver backwards compatible way
  *
  * @todo add timeseries/history support
  */
-export function makeSearchFn(client: Client, accessConfig: DataAccessConfig, logger: ts.Logger): SearchFn {
-    return async (query: InputQuery) => {
-        const config = getSearchConfig(query, accessConfig);
-        const { q, size, start, sort } = config.query;
+export function makeSearchFn(client: Client, accessConfig: DataAccessConfig, logger: ts.Logger): i.SearchFn {
+    const config = getSearchConfig(accessConfig);
+    const queryAccess = new QueryAccess(accessConfig, config.types);
 
-        const queryAccess = new QueryAccess(accessConfig, config.types);
+    return async (query: i.InputQuery) => {
+        const params = getSearchParams(query, config);
+        const { q = '' } = params;
 
-        const searchParams: SearchParams = {
-            index: config.space.index,
-            size,
-            ignoreUnavailable: true
-        };
-
-        if (start != null) {
-            searchParams.from = start;
-        }
-
-        if (sort != null) {
-            searchParams.sort = sort;
-        }
-
-        const inputQuery = handleGeoFilter(config, q);
-        const esQuery = queryAccess.restrictESQuery(inputQuery, searchParams);
-        const geoSort = handleGeoSort(config);
-        if (geoSort) {
-            esQuery.body.sort = geoSort;
-        }
+        const esQuery = queryAccess.restrictESQuery(q, params);
 
         if (isTest) logger.debug(esQuery, 'searching...');
 
         const response = await client.search(esQuery);
         if (isTest) logger.trace(response, 'got response...');
 
-        return handleSearchResponse(response, config);
+        return getSearchResponse(response, config, query, params);
     };
 }
 
-export function getSearchConfig(query: InputQuery, accessConfig: DataAccessConfig): SearchConfig {
-    const config: SearchConfig = {
-        space: get(accessConfig, 'space_metadata.indexConfig', {}),
-        view: get(accessConfig, 'view.metadata.searchConfig', {}),
-        types: get(accessConfig, 'view.metadata.typesConfig', {}),
-        query: {} as SearchQueryConfig
-    };
+export function getSearchConfig(accessConfig: DataAccessConfig): i.SearchConfig {
+    const space = getSpaceConfig(accessConfig);
+    const view = getViewConfig(accessConfig);
+    const types = getTypesConfig(accessConfig, view);
 
-    if (ts.isEmpty(config.space.index) || !config.space.index) {
+    return {
+        space,
+        view,
+        types,
+    };
+}
+
+function getViewConfig(accessConfig: DataAccessConfig): i.SearchViewConfig {
+    const viewConfig: i.SearchViewConfig = get(accessConfig, 'view.metadata.searchConfig', {});
+
+    if (viewConfig.default_date_field) {
+        viewConfig.default_date_field = ts.trimAndToLower(viewConfig.default_date_field);
+    }
+
+    if (viewConfig.default_geo_field) {
+        viewConfig.default_geo_field = ts.trimAndToLower(viewConfig.default_geo_field);
+    }
+
+    return viewConfig;
+}
+
+function getSpaceConfig(accessConfig: DataAccessConfig): i.SearchSpaceConfig {
+    const spaceConfig: i.SearchSpaceConfig = get(accessConfig, 'space_metadata.indexConfig', {});
+
+    if (ts.isEmpty(spaceConfig.index) || !spaceConfig.index) {
         throw new ts.TSError('Search is not configured correctly');
     }
 
-    config.query = getQueryConfig(query, config);
-
-    return config;
+    return spaceConfig;
 }
 
-function ensureTypeConfig(config: SearchConfig) {
-    if (!config.types) config.types = {};
+export function getTypesConfig(accessConfig: DataAccessConfig, viewConfig: i.SearchViewConfig): TypeConfig {
+    const typesConfig = get(accessConfig, 'view.metadata.typesConfig', {});
 
-    if (config.view.default_date_field) {
-        config.view.default_date_field = ts.trimAndToLower(config.view.default_date_field);
+    const dateField = viewConfig.default_date_field;
+    if (dateField && !typesConfig[dateField]) {
+        typesConfig[dateField] = 'date';
     }
 
-    const dateField = config.view.default_date_field;
-    if (dateField && !config.types[dateField]) {
-        config.types[dateField] = 'date';
+    const geoField = viewConfig.default_geo_field;
+    if (geoField && !typesConfig[geoField]) {
+        typesConfig[geoField] = 'geo';
     }
 
-    if (config.view.default_geo_field) {
-        config.view.default_geo_field = ts.trimAndToLower(config.view.default_geo_field);
-    }
-
-    const geoField = config.view.default_geo_field;
-    if (geoField && !config.types[geoField]) {
-        config.types[geoField] = 'geo';
-    }
+    return typesConfig;
 }
 
-export function getQueryConfig(query: InputQuery, config: SearchConfig): SearchQueryConfig {
-    ensureTypeConfig(config);
+export function getSearchParams(query: i.InputQuery, config: i.SearchConfig): SearchParams {
+    const params: SearchParams = {
+        body: {}
+    };
 
-    const q: string = getFromQuery(query, 'q', '');
+    let q: string = getFromQuery(query, 'q', '');
     if (!q && config.view.require_query) {
         throw new ts.TSError(...validationErr('q', 'must not be empty', query));
     }
@@ -127,7 +125,7 @@ export function getQueryConfig(query: InputQuery, config: SearchConfig): SearchQ
             }
         }
 
-        if (config.view.sort_dates_only && !    dateFields.includes(field)) {
+        if (config.view.sort_dates_only && !dateFields.includes(field)) {
             throw new ts.TSError(...validationErr('sort', 'sorting is currently only available for date fields', query));
         }
 
@@ -138,87 +136,71 @@ export function getQueryConfig(query: InputQuery, config: SearchConfig): SearchQ
         sort = [field, direction].join(':');
     }
 
-    const sortDisabled = !!(sort && !config.view.sort_enabled);
-
     if (!sort && config.view.sort_default) {
         sort = config.view.sort_default;
     }
 
-    const history = getFromQuery(query, 'history');
-    const historyStart = getFromQuery(query, 'history_start');
-    const historyPrefix = getFromQuery(query, 'history_prefix');
-    const geoBoxTopLeft = getFromQuery(query, 'geo_box_top_left');
-    const geoBoxBottomRight = getFromQuery(query, 'geo_box_bottom_right');
-    const geoPoint = getFromQuery(query, 'geo_point');
-    const geoDistance = getFromQuery(query, 'geo_distance');
-    const geoSortPoint = getFromQuery(query, 'geo_sort_point');
-    const geoSortOrder = getFromQuery(query, 'geo_sort_order');
-    const geoSortUnit = getFromQuery(query, 'geo_sort_unit');
+    const geoField = config.view.default_geo_field;
 
-    return {
-        q,
-        start,
-        size,
-        sort,
-        history,
-        historyStart,
-        historyPrefix,
-        geoBoxTopLeft,
-        geoBoxBottomRight,
-        geoPoint,
-        geoDistance,
-        geoSortPoint,
-        geoSortOrder,
-        geoSortUnit,
-        sortDisabled,
-    };
-}
+    if (geoField) {
+        const geoPoint = getFromQuery(query, 'geo_point');
+        const geoDistance = getFromQuery(query, 'geo_distance');
+        const geoBoxTopLeft = getFromQuery(query, 'geo_box_top_left');
+        const geoBoxBottomRight = getFromQuery(query, 'geo_box_bottom_right');
+        const geoSortPoint = getFromQuery(query, 'geo_sort_point', geoPoint);
+        const geoSortOrder = getFromQuery(query, 'geo_sort_order', 'asc');
+        const geoSortUnit = getFromQuery(query, 'geo_sort_unit', 'm');
+        if (geoSortOrder && geoSortUnit && geoSortPoint) {
+            params.body.sort = getGeoSort(geoField, geoSortPoint, geoSortOrder, geoSortUnit);
+        }
 
-export function handleGeoFilter(config: SearchConfig, query: string): string {
-    const geoField = config.view.default_date_field;
-    if (!geoField) return query;
+        let geoQuery = '';
+        if (geoPoint && geoDistance) {
+            geoQuery += getGeoPointQuery(geoField, geoPoint, geoDistance);
+        } else if (geoBoxTopLeft && geoBoxBottomRight) {
+            geoQuery += getGeoBoundingBoxQuery(geoField, geoBoxTopLeft, geoBoxBottomRight);
+        }
 
-    const {
-        geoBoxTopLeft,
-        geoBoxBottomRight,
-        geoPoint,
-        geoDistance,
-    } = config.query;
-
-    if (geoBoxTopLeft && geoBoxBottomRight) {
-        const geoQuery = `_geo_box_top_left_:"${geoBoxTopLeft}" _geo_box_bottom_right_:"${geoBoxBottomRight}"`;
-        return `(${query}) AND ${geoField}:(${geoQuery})`;
+        if (geoQuery) {
+            q = `(${q}) AND (${geoQuery})`;
+        }
     }
 
-    if (geoPoint && geoDistance) {
-        const geoQuery = `_geo_point_:"${geoPoint}" _geo_distance_:${geoDistance}`;
-        return `(${query}) AND ${geoField}:(${geoQuery})`;
-    }
+    /** @todo */
+    // const history = getFromQuery(query, 'history');
+    // const historyStart = getFromQuery(query, 'history_start');
 
-    return query;
+    params.q = q;
+    params.size = size;
+    params.from = start;
+    params.sort = sort;
+    params.index = config.space.index;
+    params.ignoreUnavailable = true;
+    return ts.withoutNil(params);
 }
 
-export function handleGeoSort(config: SearchConfig): GeoSortQuery|undefined {
-    const geoField = config.view.default_date_field;
-    const {
-        geoSortOrder = 'asc',
-        geoSortUnit = 'm',
-        geoSortPoint = config.query.geoPoint
-    } = config.query;
+export function getGeoPointQuery(field: string, point: string, distance: string): string {
+    const geoQuery = `_geo_point_:"${point}" _geo_distance_:${distance}`;
+    return `${field}:(${geoQuery})`;
+}
 
-    if (!geoField || !geoSortOrder || !geoSortUnit || !geoSortPoint) return;
+export function getGeoBoundingBoxQuery(field: string, topLeft: string, bottomRight: string): string {
+    const geoQuery = `_geo_box_top_left_:"${topLeft}" _geo_box_bottom_right_:"${bottomRight}"`;
+    return `${field}:(${geoQuery})`;
+}
 
-    const [lat, lon] = parseGeoPoint(geoSortPoint);
+export function getGeoSort(field: string, point: string, order: i.SortOrder, unit: string): i.GeoSortQuery {
+    const [lat, lon] = parseGeoPoint(point);
 
-    const sort = { _geo_distance: {} } as GeoSortQuery;
-    sort._geo_distance[geoField] = { lat, lon };
+    const sort = { _geo_distance: {} } as i.GeoSortQuery;
+    sort._geo_distance[field] = { lat, lon };
 
-    sort._geo_distance.order = geoSortOrder;
-    sort._geo_distance.unit = geoSortUnit;
+    sort._geo_distance.order = order;
+    sort._geo_distance.unit = unit;
     return sort;
 }
 
-export function handleSearchResponse(response: SearchResponse<any>, config: SearchConfig) {
+export function getSearchResponse(response: SearchResponse<any>, config: i.SearchConfig, query: i.InputQuery, params: SearchParams) {
     // I don't think this property actually exists
     const error = get(response, 'error');
     if (error) {
@@ -247,12 +229,12 @@ export function handleSearchResponse(response: SearchResponse<any>, config: Sear
     }
 
     let info = `${response.hits.total} results found.`;
-    if (response.hits.total > config.query.size) {
-        returning = config.query.size;
+    if (params.size && response.hits.total > params.size) {
+        returning = params.size;
         info += ` Returning ${returning}.`;
     }
 
-    if (config.query.sortDisabled) {
+    if (getFromQuery(query, 'sort') && !config.view.sort_enabled) {
         info += ' No sorting available.';
     }
 
@@ -264,7 +246,7 @@ export function handleSearchResponse(response: SearchResponse<any>, config: Sear
     };
 }
 
-function validationErr(param: keyof InputQuery, msg: string, query: InputQuery): [string, ts.TSErrorConfig] {
+function validationErr(param: keyof i.InputQuery, msg: string, query: i.InputQuery): [string, ts.TSErrorConfig] {
     const given = ts.toString(getFromQuery(query, param));
     return [
         `Invalid ${param} parameter, ${msg}, was given: "${given}"`,
@@ -275,100 +257,8 @@ function validationErr(param: keyof InputQuery, msg: string, query: InputQuery):
     ];
 }
 
-export function getFromQuery(query: InputQuery, prop: keyof InputQuery, defaultVal?: any): any {
+export function getFromQuery(query: i.InputQuery, prop: keyof i.InputQuery, defaultVal?: any): any {
     return get(query, prop, defaultVal);
-}
-
-export type SortOrder = 'asc'|'desc';
-export interface SearchConfig {
-    space: SearchSpaceConfig;
-    view: SearchViewConfig;
-    types: TypeConfig;
-    query: SearchQueryConfig;
-}
-
-export interface SearchQueryConfig {
-    sortDisabled: boolean;
-    size: number;
-    sort?: string;
-    q: string;
-    start?: number;
-    history?: boolean;
-    historyStart?: string;
-    historyPrefix?: string;
-    geoBoxTopLeft?: string;
-    geoBoxBottomRight?: string;
-    geoPoint?: string;
-    geoDistance?: string;
-    geoSortPoint?: string;
-    geoSortOrder?: SortOrder;
-    geoSortUnit?: string;
-}
-
-export interface InputQuery {
-    size?: number;
-    sort?: string;
-    q?: string;
-    start?: number;
-    history?: boolean;
-    history_start?: string;
-    history_prefix?: string;
-    geo_box_top_left?: string;
-    geo_box_bottom_right?: string;
-    geo_point?: string;
-    geo_distance?: string;
-    geo_sort_point?: string;
-    geo_sort_order?: SortOrder;
-    geo_sort_unit?: string;
-}
-
-export interface SearchFn {
-    (query: any): Promise<FinalResponse>;
-}
-
-export interface FinalResponse {
-    info: string;
-    total: number;
-    returning: number;
-    results: any[];
-}
-
-export interface SearchViewConfig {
-    max_query_size?: number;
-    sort_default?: string;
-    sort_dates_only?: boolean;
-    sort_enabled?: boolean;
-    default_geo_field?: string;
-    preserve_index_name?: boolean;
-    require_query?: boolean;
-    default_date_field?: string;
-}
-
-export interface ViewMetadata {
-    searchConfig?: SearchViewConfig;
-    typesConfig?: TypeConfig;
-}
-
-export interface SearchSpaceConfig {
-    index: string;
-}
-
-export interface SpaceMetadata {
-    indexConfig?: SearchSpaceConfig;
-}
-
-export interface GeoSortQuery {
-    _geo_distance: {
-        // @ts-ignore
-        order: SortOrder;
-        // @ts-ignore
-        unit: string;
-
-        [field: string]: {
-            lat: number;
-            lon: number;
-        };
-    };
 }
 
 const isTest = process.env.NODE_ENV !== 'production';
