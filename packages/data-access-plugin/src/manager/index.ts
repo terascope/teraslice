@@ -1,18 +1,19 @@
 import get from 'lodash.get';
 import { Express } from 'express';
 import { Client } from 'elasticsearch';
+import { Logger } from '@terascope/utils';
 import * as apollo from 'apollo-server-express';
 import { ACLManager } from '@terascope/data-access';
-import { Logger, parseErrorInfo, TSError } from '@terascope/utils';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { makeSearchFn } from '../search/utils';
-import { getFromReq } from '../utils';
+import { getFromReq, makeErrorHandler } from '../utils';
 import { formatError } from './utils';
 import schema from './schema';
 
 /**
  * A graphql api for managing data access
  *
+ * @todo add authentication verification
  * @todo we need session support
 */
 export default class ManagerPlugin {
@@ -59,7 +60,9 @@ export default class ManagerPlugin {
     registerRoutes() {
         const managerUri = '/api/v2/data-access';
 
-        this.app.use('/api/v2', async (req, res, next) => {
+        const rootErrorHandler = makeErrorHandler('Failure to access /api/v2', this.logger);
+
+        this.app.use('/api/v2', (req, res, next) => {
             // @ts-ignore
             req.aclManager = this.manager;
 
@@ -72,7 +75,7 @@ export default class ManagerPlugin {
                 return;
             }
 
-            try {
+            rootErrorHandler(req, res, async () => {
                 const user = await this.manager.authenticateUser({
                     api_token: apiToken,
                 });
@@ -80,13 +83,10 @@ export default class ManagerPlugin {
                 // @ts-ignore
                 req.v2User = user;
                 next();
-            } catch (err) {
-                const { message, statusCode } = parseErrorInfo(err);
-                res.status(statusCode).send({ error: message });
-            }
+            });
         });
 
-        this.app.all('/api/v2', async (req, res) => {
+        this.app.all('/api/v2', (req, res) => {
             // @ts-ignore
             if (req.aclManager != null && req.v2User != null) {
                 res.sendStatus(204);
@@ -101,8 +101,9 @@ export default class ManagerPlugin {
             path: managerUri,
         });
 
+        const spaceErrorHandler = makeErrorHandler('Failure to access /api/v2/:space', this.logger);
         // this must happen at the end
-        this.app.use('/api/v2/:space', async (req, res, next) => {
+        this.app.use('/api/v2/:space', (req, res, next) => {
             // @ts-ignore
             const manager: ACLManager = req.aclManager;
             // @ts-ignore
@@ -110,7 +111,7 @@ export default class ManagerPlugin {
 
             const space: string = req.params.space;
 
-            try {
+            spaceErrorHandler(req, res, async () => {
                 const accessConfig = await manager.getViewForSpace({
                     api_token: get(user, 'api_token'),
                     space,
@@ -125,16 +126,7 @@ export default class ManagerPlugin {
                 };
 
                 next();
-            } catch (_err) {
-                const err = new TSError(_err,  {
-                    reason: `Failure to access space ${space}`
-                });
-
-                this.logger.error(err);
-                res.status(err.statusCode).json({
-                    error: err.message.replace(/[A-Z]{2}Error/g, 'Error')
-                });
-            }
+            });
         });
 
     }

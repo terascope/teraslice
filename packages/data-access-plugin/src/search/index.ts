@@ -1,9 +1,10 @@
 import { Express } from 'express';
 import { Client } from 'elasticsearch';
-import { Logger, TSError } from '@terascope/utils';
+import { Logger } from '@terascope/utils';
 import { DataAccessConfig } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { SearchFn } from './interfaces';
+import { makeErrorHandler } from '../utils';
 
 /**
  * @todo the search plugin should be able to work the search counter
@@ -29,7 +30,8 @@ export default class SearchPlugin {
         const searchUrl = '/api/v2/:space';
         this.logger.info(`Registering data-access-plugin search endpoint at ${searchUrl}`);
 
-        this.app.get(searchUrl, async (req, res) => {
+        const searchErrorHandler = makeErrorHandler('Search failure', this.logger);
+        this.app.get(searchUrl, (req, res) => {
             // @ts-ignore
             const space: SpaceSearch = req.space;
             if (!space) {
@@ -37,7 +39,7 @@ export default class SearchPlugin {
                 return;
             }
 
-            try {
+            searchErrorHandler(req, res, async () => {
                 const result = await space.search(req.query);
 
                 res
@@ -49,17 +51,7 @@ export default class SearchPlugin {
                 } else {
                     res.json(result);
                 }
-            } catch (_err) {
-                const err = new TSError(_err,  {
-                    reason: 'Search failure',
-                    context: req.query
-                });
-
-                this.logger.error(err);
-                res.status(err.statusCode).json({
-                    error: err.message.replace(/[A-Z]{2}Error/g, 'Error')
-                });
-            }
+            });
         });
     }
 }
