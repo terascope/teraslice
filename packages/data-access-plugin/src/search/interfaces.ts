@@ -8,10 +8,11 @@ export interface SearchConfig {
 }
 
 export interface InputQuery {
-    size?: number;
+    size?: number|string;
     sort?: string;
     q?: string;
-    start?: number;
+    start?: number|string;
+    fields?: string|string[];
     history?: boolean;
     history_start?: string;
     geo_box_top_left?: string;

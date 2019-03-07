@@ -387,19 +387,6 @@ describe('Data Access Plugin', () => {
             expect(result.statusCode).toEqual(204);
         });
 
-        it('should be able to authenticate with a username and password', async () => {
-            const uri = formatBaseUri();
-            const result = await got(uri, {
-                query: {
-                    username: 'hello',
-                    password: 'greeting'
-                },
-                json: true,
-                throwHttpErrors: false
-            });
-            expect(result.statusCode).toEqual(204);
-        });
-
         it('should be able to update a user\'s password', async () => {
             expect(userId).toBeTruthy();
 
@@ -434,20 +421,6 @@ describe('Data Access Plugin', () => {
 
             expect(result.statusCode).toEqual(403);
             apiToken = newApiToken;
-        });
-
-        it('should return a 403 when using the outdated username and password', async () => {
-            const uri = formatBaseUri();
-            const result = await got(uri, {
-                query: {
-                    username: 'hello',
-                    password: 'greeting'
-                },
-                json: true,
-                throwHttpErrors: false
-            });
-
-            expect(result.statusCode).toEqual(403);
         });
     });
 

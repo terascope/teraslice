@@ -63,8 +63,6 @@ export default class ManagerPlugin {
             // @ts-ignore
             req.aclManager = this.manager;
 
-            const username = getFromReq(req, 'username');
-            const password = getFromReq(req, 'password');
             const apiToken = getFromReq(req, 'api_token');
 
             // If we are in bootstrap mode, we want to provide
@@ -76,8 +74,6 @@ export default class ManagerPlugin {
 
             try {
                 const user = await this.manager.authenticateUser({
-                    username,
-                    password,
                     api_token: apiToken,
                 });
 
