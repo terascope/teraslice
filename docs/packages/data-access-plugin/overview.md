@@ -23,8 +23,10 @@ Since this project is designed to replace the teraserver teranaut plugin, and th
  - Pre/Post process function will need to be written to use express middleware, docs comming soon.
  - The following configuration has been added to the space config:
       - `index` under `metadata.indexConfig.index`
+      - `typesConfig` for `xlucene-evaluator` under `metadata.indexConfig.typesConfig`
  - The following configuration has been moved to the view:
       - `allowed_fields` under `includes`
+      - `type`, `date_start`, `date_end`, `geo_box_top_left`, `geo_box_bottom_right`, `geo_point`, `geo_distance` should be added to `constraint`.
  - The following configuration has been moved to the view search config:
       - `date_field` under `metadata.searchConfig.default_date_field`
       - `geo_field` under `metadata.searchConfig.default_geo_field`
@@ -35,7 +37,8 @@ Since this project is designed to replace the teraserver teranaut plugin, and th
       - `history_prefix`: under `metadata.searchConfig.history_prefix`;
       - `require_query`: under `metadata.searchConfig.require_query`;
  - The following configuration has been removed:
-      - `type`
+      - `type` since this can be achieved via a `constraint`
+      - `date_range`, `date_start`, `date_end`, `geo_box_top_left`, `geo_box_bottom_right`, `geo_point`, `geo_distance`, since this should be achieved via the view constraint and the xclucene queries.
 
 ## Contributing
 

@@ -64,7 +64,7 @@ function getSpaceConfig(accessConfig: DataAccessConfig): i.SearchSpaceConfig {
 }
 
 export function getTypesConfig(accessConfig: DataAccessConfig, viewConfig: i.SearchViewConfig): TypeConfig {
-    const typesConfig = get(accessConfig, 'view.metadata.typesConfig', {});
+    const typesConfig = get(accessConfig, 'space.metadata.typesConfig', {});
 
     const dateField = viewConfig.default_date_field;
     if (dateField && !typesConfig[dateField]) {
@@ -84,7 +84,7 @@ export function getSearchParams(query: i.InputQuery, config: i.SearchConfig): Se
         body: {}
     };
 
-    let q: string = getFromQuery(query, 'q', '');
+    const q: string = getFromQuery(query, 'q', '');
     if (!q && config.view.require_query) {
         throw new ts.TSError(...validationErr('q', 'must not be empty', query));
     }
@@ -149,11 +149,7 @@ export function getSearchParams(query: i.InputQuery, config: i.SearchConfig): Se
     const geoField = config.view.default_geo_field;
 
     if (geoField) {
-        const geoPoint = getFromQuery(query, 'geo_point');
-        const geoDistance = getFromQuery(query, 'geo_distance');
-        const geoBoxTopLeft = getFromQuery(query, 'geo_box_top_left');
-        const geoBoxBottomRight = getFromQuery(query, 'geo_box_bottom_right');
-        const geoSortPoint = getFromQuery(query, 'geo_sort_point', geoPoint);
+        const geoSortPoint = getFromQuery(query, 'geo_sort_point');
         const geoSortOrder = getFromQuery(query, 'geo_sort_order', 'asc');
         const geoSortUnit = getFromQuery(query, 'geo_sort_unit', 'm');
 
@@ -164,17 +160,6 @@ export function getSearchParams(query: i.InputQuery, config: i.SearchConfig): Se
             }
 
             params.body.sort = getGeoSort(geoField, geoSortPoint, geoSortOrder, geoSortUnit);
-        }
-
-        let geoQuery = '';
-        if (geoPoint && geoDistance) {
-            geoQuery += getGeoPointQuery(geoField, geoPoint, geoDistance);
-        } else if (geoBoxTopLeft && geoBoxBottomRight) {
-            geoQuery += getGeoBoundingBoxQuery(geoField, geoBoxTopLeft, geoBoxBottomRight);
-        }
-
-        if (geoQuery) {
-            q = `(${q}) AND (${geoQuery})`;
         }
     }
 
@@ -189,16 +174,6 @@ export function getSearchParams(query: i.InputQuery, config: i.SearchConfig): Se
     params.index = config.space.index;
     params.ignoreUnavailable = true;
     return ts.withoutNil(params);
-}
-
-export function getGeoPointQuery(field: string, point: string, distance: string): string {
-    const geoQuery = `_geo_point_:"${point}" _geo_distance_:${distance}`;
-    return `${field}:(${geoQuery})`;
-}
-
-export function getGeoBoundingBoxQuery(field: string, topLeft: string, bottomRight: string): string {
-    const geoQuery = `_geo_box_top_left_:"${topLeft}" _geo_box_bottom_right_:"${bottomRight}"`;
-    return `${field}:(${geoQuery})`;
 }
 
 export function getGeoSort(field: string, point: string, order: i.SortOrder, unit: string): i.GeoSortQuery {

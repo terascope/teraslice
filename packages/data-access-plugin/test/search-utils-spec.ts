@@ -149,7 +149,7 @@ describe('Search Utils', () => {
 
             config.types = utils.getTypesConfig({
                 // @ts-ignore
-                view: {
+                space: {
                     metadata: {
                         typesConfig: {
                             otherdate: 'date'
@@ -234,8 +234,6 @@ describe('Search Utils', () => {
         it('should be able to handle a geo point query and sort', () => {
             const query: InputQuery = {
                 q: 'example:hello',
-                geo_point: '33.435518,-111.873616',
-                geo_distance: '5000m',
                 geo_sort_point: '33.435518,-111.873616',
                 geo_sort_order: 'desc',
                 geo_sort_unit: 'm'
@@ -270,7 +268,7 @@ describe('Search Utils', () => {
                 },
                 ignoreUnavailable: true,
                 index: 'woot',
-                q: '(example:hello) AND (example_location:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000m))',
+                q: 'example:hello',
                 size: 100
             });
         });
