@@ -29,5 +29,6 @@ exports.handler = async (argv) => {
         reply.fatal(`Error getting ex_id:${cliConfig.args.id} on ${cliConfig.args.clusterAlias}\n${err}`);
     }
 
-    console.log(response);
+    // eslint-disable-next-line no-console
+    console.log(JSON.stringify(response, null, 2));
 };
