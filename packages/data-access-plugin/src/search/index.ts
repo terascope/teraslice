@@ -7,7 +7,7 @@ import { SearchFn } from './interfaces';
 import { makeErrorHandler } from '../utils';
 
 /**
- * @todo the search plugin should be able to work the search counter
+ * @todo add support for the search counter
  */
 export default class SearchPlugin {
     readonly config: TeraserverConfig;

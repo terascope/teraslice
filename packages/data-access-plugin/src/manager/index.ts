@@ -14,7 +14,7 @@ import schema from './schema';
  * A graphql api for managing data access
  *
  * @todo add authentication verification
- * @todo we need session support
+ * @todo add session support
 */
 export default class ManagerPlugin {
     readonly config: TeraserverConfig;
