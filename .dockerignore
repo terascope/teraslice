@@ -26,7 +26,6 @@ packages/elasticsearch-store
 packages/generator-teraslice
 packages/teraslice-client-js
 packages/teraslice-cli
-packages/teraslice-op-test-harness
 packages/teraslice-test-harness
 packages/ts-transforms
 packages/xlucene-evaluator
