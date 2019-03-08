@@ -1,7 +1,7 @@
 import 'jest-extended';
 import nanoid from 'nanoid';
-import { TSError } from '@terascope/utils';
-import { Users, UserModel } from '../../src/models/users';
+import { TSError, DataEntity } from '@terascope/utils';
+import { Users, PrivateUserModel } from '../../src/models/users';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
 describe('Users', () => {
@@ -22,12 +22,12 @@ describe('Users', () => {
 
     describe('when testing user access', () => {
         const username = 'billyjoe';
-        const password = 'secret-password';
+        let password = 'secret-password';
 
-        let created: UserModel;
+        let created: PrivateUserModel;
 
         beforeAll(async () => {
-            created = await users.create({
+            created = await users.createWithPassword({
                 username,
                 firstname: 'Billy',
                 lastname: 'Joe',
@@ -39,19 +39,54 @@ describe('Users', () => {
             }, password);
         });
 
-        it('should be able fetch the user', async () => {
-            const fetched = await users.findById(created.id);
-
-            expect(created).toMatchObject(fetched);
+        it('should return private field when creating user', () => {
             expect(created).toHaveProperty('api_token');
             expect(created).toHaveProperty('hash');
             expect(created).toHaveProperty('salt');
         });
 
+        it('should be able fetch the user by id', async () => {
+            const fetched = await users.findById(created.id);
+
+            expect(created).toMatchObject(fetched);
+            expect(fetched).not.toHaveProperty('api_token');
+            expect(fetched).not.toHaveProperty('hash');
+            expect(fetched).not.toHaveProperty('salt');
+        });
+
+        it('should be able fetch the user by any id', async () => {
+            const fetched = await users.findByAnyId(created.username);
+
+            expect(created).toMatchObject(fetched);
+            expect(fetched).not.toHaveProperty('api_token');
+            expect(fetched).not.toHaveProperty('hash');
+            expect(fetched).not.toHaveProperty('salt');
+        });
+
+        it('should be able find all by ids', async () => {
+            const result = await users.findAll([created.id]);
+
+            expect(result).toBeArrayOfSize(1);
+
+            for (const fetched of result) {
+                expect(fetched).not.toHaveProperty('api_token');
+                expect(fetched).not.toHaveProperty('hash');
+                expect(fetched).not.toHaveProperty('salt');
+            }
+        });
+
         it('should be able to omit private fields', () => {
+            const createdMetadata = DataEntity.getMetadata(created);
+            expect(createdMetadata).not.toBeNil();
+
             const omitted = users.omitPrivateFields(created);
 
             expect(omitted).not.toBe(created);
+            expect(DataEntity.isDataEntity(omitted)).toBeTrue();
+
+            const ommittedMetadata = DataEntity.getMetadata(omitted);
+            expect(ommittedMetadata).not.toBeNil();
+            expect(ommittedMetadata).toEqual(createdMetadata);
 
             expect(omitted).not.toHaveProperty('api_token');
             expect(omitted).not.toHaveProperty('hash');
@@ -59,31 +94,75 @@ describe('Users', () => {
         });
 
         it('should be able to update the api_token', async () => {
-            await expect(users.findByToken(created.api_token))
-                .resolves.toEqual(created);
-
+            const current = await users.authenticateWithToken(created.api_token);
             const newToken = await users.updateToken(username);
+            const updated = await users.authenticateWithToken(newToken);
 
-            const fetched = await users.findById(created.id);
-
-            expect(created.api_token).not.toEqual(newToken);
-            expect(fetched.api_token).toEqual(newToken);
-
-            await expect(users.findByToken(newToken))
-                .resolves.toEqual(fetched);
+            expect(updated.hash).toEqual(current.hash);
+            expect(updated.salt).toEqual(current.salt);
+            expect(updated.api_token).not.toEqual(current.api_token);
+            expect(updated.api_token).toEqual(newToken);
         });
 
-        describe('when give the correct password', () => {
+        it('should be able to update the password', async () => {
+            const current = await users.authenticate(username, password);
+
+            const newPassword = 'secret-password-2';
+            await users.updatePassword(username, newPassword);
+            password = newPassword;
+
+            const updated = await users.authenticate(username, password);
+
+            expect(updated.hash).not.toEqual(current.hash);
+            expect(updated.salt).not.toEqual(current.salt);
+            expect(updated.api_token).toEqual(current.api_token);
+        });
+
+        describe('when given the correct password', () => {
             it('should be able to authenticate the user', async () => {
                 const result = await users.authenticate(username, password);
-                expect(result).toBeTrue();
+                expect(result).toMatchObject({
+                    username,
+                });
             });
         });
 
-        describe('when give the incorrect password', () => {
+        describe('when given an incorrect password', () => {
             it('should NOT be able to authenticate the user', async () => {
-                const result = await users.authenticate(username, 'wrong-password');
-                expect(result).toBeFalse();
+                expect.hasAssertions();
+                try {
+                    await users.authenticate('wrong-username', password);
+                } catch (err) {
+                    expect(err.message).toEqual('Unable to authenticate user');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toBe(403);
+                }
+            });
+        });
+
+        describe('when given an incorrect username', () => {
+            it('should NOT be able to authenticate the user', async () => {
+                expect.hasAssertions();
+                try {
+                    await users.authenticate(username, 'wrong-password');
+                } catch (err) {
+                    expect(err.message).toEqual('Unable to authenticate user with credentials');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toBe(403);
+                }
+            });
+        });
+
+        describe('when given an incorrect api_token', () => {
+            it('should NOT be able to authenticate the user', async () => {
+                expect.hasAssertions();
+                try {
+                    await users.authenticateWithToken('wrong-api-token');
+                } catch (err) {
+                    expect(err.message).toEqual('Unable to authenticate user with api token');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toBe(403);
+                }
             });
         });
     });
@@ -124,7 +203,7 @@ describe('Users', () => {
             });
 
             it('should be fixed when updating it', async () => {
-                const prefetched = await users.store.client.get<UserModel>({
+                const prefetched = await users.store.client.get<PrivateUserModel>({
                     id,
                     index: users.store.indexQuery,
                     type: 'users'
@@ -136,10 +215,11 @@ describe('Users', () => {
                 await users.update({
                     id,
                     username,
+                    // @ts-ignore
                     role: roleId
                 });
 
-                const fetched = await users.store.client.get<UserModel>({
+                const fetched = await users.store.client.get<PrivateUserModel>({
                     id,
                     index: users.store.indexQuery,
                     type: 'users'
@@ -158,7 +238,7 @@ describe('Users', () => {
                 expect.hasAssertions();
 
                 try {
-                    await users.create({
+                    await users.createWithPassword({
                         username: 'coolbeans',
                         firstname: 'Cool',
                         lastname: 'Beans',
@@ -183,7 +263,7 @@ describe('Users', () => {
                 expect.hasAssertions();
 
                 try {
-                    await users.create({
+                    await users.createWithPassword({
                         username: 'coolbeans',
                         firstname: 'Cool',
                         lastname: 'Beans',
@@ -203,7 +283,7 @@ describe('Users', () => {
 
         describe('when adding a messy email address', () => {
             it('should trim and to lower the email address', async () => {
-                const result = await users.create({
+                const result = await users.createWithPassword({
                     username: 'coolbeans',
                     firstname: 'Cool',
                     lastname: 'Beans',

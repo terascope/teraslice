@@ -5,7 +5,8 @@ import { ACLManager } from '../../src';
 export function makeClient(): es.Client {
     return new es.Client({
         host: ELASTICSEARCH_HOST,
-        log: 'error'
+        log: 'error',
+        apiVersion: '6.5'
     });
 }
 
@@ -20,6 +21,7 @@ export function cleanupIndex(model: Model) {
 }
 
 export function cleanupIndexes(manager: ACLManager) {
+    // @ts-ignore
     const models = [manager.roles, manager.spaces, manager.users, manager.views];
     return Promise.all(models.map(cleanupIndex));
 }

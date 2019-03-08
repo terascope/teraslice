@@ -12,7 +12,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     readonly indexQuery: string;
     readonly manager: IndexManager;
 
-    private _validate: ValidateFn<I|T>;
+    validateRecord: ValidateFn<I|T>;
     private _interval: NodeJS.Timer|undefined;
 
     private readonly _logger: ts.Logger;
@@ -73,17 +73,17 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             });
 
             const validate = ajv.compile(schema);
-            this._validate = (input: T|I) => {
+            this.validateRecord = (input: T|I, strictMode: boolean = strict === true) => {
                 if (validate(input)) return;
 
-                if (strict) {
+                if (strictMode) {
                     utils.throwValidationError(validate.errors);
                 } else {
                     this._logger.warn('Invalid record', input, validate.errors);
                 }
             };
         } else {
-            this._validate = () => {};
+            this.validateRecord = () => {};
         }
 
         this._toRecord = this._toRecord.bind(this);
@@ -113,7 +113,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         let id: string;
 
         if (action !== 'delete') {
-            this._validate(args[0]);
+            this.validateRecord(args[0]);
             if (action === 'update') {
                 /**
                  * TODO: Support more of the update formats
@@ -153,7 +153,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      *
      * @returns a boolean to indicate whether the document was created
      */
-    async createWithId(doc: I, id: string, params?: PartialParam<es.CreateDocumentParams, 'id'|'body'>): Promise<boolean> {
+    async createWithId(doc: I, id: string, params?: PartialParam<es.CreateDocumentParams, 'id'|'body'>) {
         return this.create(doc, Object.assign({}, params, { id }));
     }
 
@@ -162,15 +162,18 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      *
      * @returns a boolean to indicate whether the document was created
      */
-    async create(doc: I, params?: PartialParam<es.CreateDocumentParams, 'body'>): Promise<boolean> {
-        this._validate(doc);
+    async create(doc: I, params?: PartialParam<es.CreateDocumentParams, 'body'>): Promise<T> {
+        this.validateRecord(doc, true);
 
         const defaults = { refresh: true };
         const p = this._getParams(defaults, params, { body: doc });
 
         return ts.pRetry(async () => {
-            const { created } = await this.client.create(p);
-            return created;
+            const result = await this.client.create(p);
+            // @ts-ignore
+            result._source = doc;
+            // @ts-ignore
+            return this._toRecord(result);
         }, utils.getRetryConfig());
     }
 
@@ -193,7 +196,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Get a single document */
-    async get(id: string, params?: PartialParam<es.GetParams>): Promise<ts.DataEntity<T>> {
+    async get(id: string, params?: PartialParam<es.GetParams>): Promise<T> {
         const p = this._getParams(params, { id });
 
         return ts.pRetry(async () => {
@@ -221,8 +224,8 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     /**
      * Index a document
      */
-    async index(doc: I, params?: PartialParam<es.IndexDocumentParams<T>, 'body'>) {
-        this._validate(doc);
+    async index(doc: I, params?: PartialParam<es.IndexDocumentParams<T>, 'body'>): Promise<T> {
+        this.validateRecord(doc, true);
 
         const defaults = { refresh: true };
         const p = this._getParams(defaults, params, {
@@ -230,7 +233,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         });
 
         return ts.pRetry(async () => {
-            return this.client.index(p);
+            const result = await this.client.index(p);
+            result._source = doc;
+            return this._toRecord(result);
         }, utils.getRetryConfig());
     }
 
@@ -242,7 +247,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Get multiple documents at the same time */
-    async mget(body: any, params?: PartialParam<es.MGetParams>): Promise<ts.DataEntity<T>[]> {
+    async mget(body: any, params?: PartialParam<es.MGetParams>): Promise<T[]> {
         const p = this._getParams(params, { body });
 
         return ts.pRetry(async () => {
@@ -297,7 +302,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Search with a given Lucene Query or Elasticsearch Query DSL */
-    async search(query: string, params?: PartialParam<SearchParams<T>>): Promise<ts.DataEntity<T>[]> {
+    async search(query: string, params?: PartialParam<SearchParams<T>>): Promise<T[]> {
         const p = this._getParams(params, utils.translateQuery(query, this._xluceneTypes));
 
         return ts.pRetry(async () => {
@@ -328,7 +333,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Update a document with a given id */
-    async update(doc: Partial<T>, id: string, params?: PartialParam<es.UpdateDocumentParams, 'body'|'id'>) {
+    update(body: { script: any }, id: string, params?: PartialParam<es.UpdateDocumentParams, 'body'|'id'>): Promise<void>;
+    update(body: { doc: Partial<T> }, id: string, params?: PartialParam<es.UpdateDocumentParams, 'body'|'id'>): Promise<void>;
+    async update(body: any, id: string, params?: PartialParam<es.UpdateDocumentParams, 'body'|'id'>): Promise<void> {
         const defaults = {
             refresh: true,
             retryOnConflict: 3
@@ -336,7 +343,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
         const p = this._getParams(defaults, params, {
             id,
-            body: { doc }
+            body
         });
 
         await ts.pRetry(() => {
@@ -364,10 +371,10 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         }, ...params);
     }
 
-    private _toRecord(result: RecordResponse<T>): ts.DataEntity<T> {
-        this._validate(result._source);
+    private _toRecord(result: RecordResponse<T>): T {
+        this.validateRecord(result._source);
 
-        return ts.DataEntity.make(result._source, {
+        const entity = ts.DataEntity.make<T>(result._source, {
             _key: result._id,
             _processTime: Date.now(),
             _ingestTime: this._getIngestTime(result._source),
@@ -376,6 +383,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             _type: result._type,
             _version: result._version,
         });
+
+        // @ts-ignore because it easier to assume it isn't a data-entity
+        return entity as T;
     }
 }
 
@@ -415,4 +425,4 @@ type SearchParams<T> = ts.Overwrite<es.SearchParams, {
     _sourceExclude?: (keyof T)[];
 }>;
 
-type ValidateFn<T> = (input: T) => void;
+type ValidateFn<T> = (input: T, strictMode?: boolean) => void;

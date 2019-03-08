@@ -1,7 +1,7 @@
 {
     "name": "@terascope/utils",
     "description": "A collection of Teraslice Utilities",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "publishConfig": {
         "access": "public"
     },
@@ -25,7 +25,7 @@
         "build:watch": "yarn build --watch",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
         "debug": "^4.1.1",

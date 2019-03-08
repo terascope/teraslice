@@ -1,6 +1,6 @@
 {
     "name": "@terascope/job-components",
-    "version": "0.14.5",
+    "version": "0.15.0",
     "publishConfig": {
         "access": "public"
     },
@@ -33,12 +33,12 @@
         "build:watch": "yarn build --watch",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
         "benchmark": "yarn build; node bench/index.js"
     },
     "dependencies": {
         "@terascope/queue": "^1.1.6",
-        "@terascope/utils": "^0.5.0",
+        "@terascope/utils": "^0.6.0",
         "convict": "^4.4.1",
         "datemath-parser": "^1.0.6",
         "uuid": "^3.3.2"

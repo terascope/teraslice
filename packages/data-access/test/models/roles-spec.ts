@@ -1,4 +1,5 @@
 import 'jest-extended';
+import { TSError } from '@terascope/utils';
 import { Roles, RoleModel } from '../../src/models/roles';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
@@ -64,38 +65,64 @@ describe('Roles', () => {
 
         describe('when the using the admin role', () => {
             it(`should have access to "${restrictedSpaceId}"`, () => {
-                return expect(roles.hasAccessToSpace(admin.id, restrictedSpaceId))
+                return expect(roles.hasAccessToSpace(admin, restrictedSpaceId))
                     .resolves.toBeTrue();
             });
 
             it(`should have access to "${devSpaceId}"`, () => {
-                return expect(roles.hasAccessToSpace(admin.id, devSpaceId))
+                return expect(roles.hasAccessToSpace(admin, devSpaceId))
                     .resolves.toBeTrue();
             });
         });
 
         describe('when the using the dev role', () => {
             it(`should not have access to "${restrictedSpaceId}"`, () => {
-                return expect(roles.hasAccessToSpace(dev.id, restrictedSpaceId))
+                return expect(roles.hasAccessToSpace(dev, restrictedSpaceId))
                     .resolves.toBeFalse();
             });
 
             it(`should have access to "${devSpaceId}"`, () => {
-                return expect(roles.hasAccessToSpace(dev.id, devSpaceId))
+                return expect(roles.hasAccessToSpace(dev, devSpaceId))
                     .resolves.toBeTrue();
             });
         });
 
         describe('when the using the bad role', () => {
             it(`should not have access to "${restrictedSpaceId}"`, () => {
-                return expect(roles.hasAccessToSpace(bad.id, restrictedSpaceId))
+                return expect(roles.hasAccessToSpace(bad, restrictedSpaceId))
                     .resolves.toBeFalse();
             });
 
             it(`should have access to "${devSpaceId}"`, () => {
-                return expect(roles.hasAccessToSpace(bad.id, devSpaceId))
+                return expect(roles.hasAccessToSpace(bad, devSpaceId))
                     .resolves.toBeFalse();
             });
+        });
+    });
+
+    describe('when testing role updates', () => {
+        it('should throw when adding a sapce to role without a space id', async () => {
+            expect.hasAssertions();
+
+            try {
+                await roles.addSpaceToRoles('', []);
+            } catch (err) {
+                expect(err.message).toEqual('Missing space to attaching to roles');
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.statusCode).toEqual(422);
+            }
+        });
+
+        it('should throw when removing a sapce to role without a space id', async () => {
+            expect.hasAssertions();
+
+            try {
+                await roles.removeSpaceFromRoles('');
+            } catch (err) {
+                expect(err.message).toEqual('Missing space to remove from roles');
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.statusCode).toEqual(422);
+            }
         });
     });
 });

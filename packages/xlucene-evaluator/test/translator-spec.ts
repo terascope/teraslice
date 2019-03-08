@@ -22,6 +22,11 @@ describe('Translator', () => {
 
     describe.each([
         [
+            '*',
+            'query.constant_score.filter.bool.filter',
+            []
+        ],
+        [
             'hello:world',
             'query.constant_score.filter.bool.filter',
             [
@@ -296,7 +301,7 @@ describe('Translator', () => {
             [
                 {
                     geo_distance: {
-                        distance:'5000m',
+                        distance: '5000m',
                         loc: '33.435518,-111.873616'
                     }
                 }

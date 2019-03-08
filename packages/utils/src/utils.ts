@@ -1,6 +1,7 @@
 import isPlainObject from 'is-plain-object';
 import cloneDeep from 'lodash.clonedeep';
 import kindOf from 'kind-of';
+import { WithoutNil } from './interfaces';
 
 /** A simplified implemation of lodash isString */
 export function isString(val: any): val is string {
@@ -9,6 +10,7 @@ export function isString(val: any): val is string {
 
 /** Safely convert any input to a string */
 export function toString(val: any): string {
+    if (val == null) return '';
     if (isString(val)) return val;
     if (val && typeof val === 'object' && val.message && val.stack) {
         return val.toString();
@@ -132,14 +134,17 @@ export function uniq<T>(arr: T[]): T[] {
     return [...new Set(arr)];
 }
 
-/** A native implemation of lodash times */ /** A native implemation of lodash times */
-export function times(n: number, fn: (index: number) => any) {
+/** A native implemation of lodash times */
+export function times(n: number): number[];
+export function times<T>(n: number, fn: (index: number) => T): T[];
+export function times<T>(n: number, fn?: (index: number) => T): T[] {
     let i = -1;
     const result = Array(n);
 
     while (++i < n) {
-        result[i] = fn(i);
+        result[i] = fn != null ? fn(i) : i;
     }
+
     return result;
 }
 
@@ -152,6 +157,38 @@ export function startsWith(str: string, val: string) {
 export function truncate(str: string, len: number): string {
     const sliceLen = (len - 4) > 0 ? len - 4 : len;
     return str.length >= len ? `${str.slice(0, sliceLen)} ...` : str;
+}
+
+/** Check if an input is a number */
+export function isNumber(input: any): input is number {
+    return typeof input === 'number' && !Number.isNaN(input);
+}
+
+/** Convert any input to a number, return Number.NaN if unable to convert input  */
+export function toNumber(input: any): number {
+    if (typeof input === 'number') return input;
+
+    return Number(input);
+}
+
+/** Convert any input to a integer, return false if unable to convert input  */
+export function toInteger(input: any): number|false {
+    if (Number.isInteger(input)) return input;
+    const val = Number.parseInt(input, 10);
+    if (isNumber(val)) return val;
+    return false;
+}
+
+/** Convert any input into a boolean, this will work with stringified boolean */
+export function toBoolean(input: any): boolean {
+    const val: any = isString(input) ? trimAndToLower(input) : input;
+    const thruthy = [1, '1', true, 'true'];
+    return thruthy.includes(val);
+}
+
+/** safely trim and to lower a input, useful for string comparison */
+export function trimAndToLower(input?: string): string {
+    return toString(input).trim().toLowerCase();
 }
 
 /** A simplified implemation of moment(new Date(val)).isValid() */
@@ -209,4 +246,68 @@ export function enumerable(enabled = true) {
 /** Change first character in string to upper case */
 export function firstToUpper(str: string): string {
     return `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
+}
+
+/** Build a new object without null or undefined values (shallow) */
+export function withoutNil<T extends object>(input: T): WithoutNil<T> {
+    // @ts-ignore
+    const result: WithoutNil<T> = {};
+
+    for (const [key, val] of Object.entries(input)) {
+        if (val != null) {
+            result[key] = val;
+        }
+    }
+
+    return result;
+}
+
+/**
+ * Maps an array of strings and and trims the result, or
+ * parses a comma separated list and trims the result
+*/
+export function parseList(input: any): string[] {
+    let strings: string[] = [];
+
+    if (isString(input)) {
+        strings = input.split(',');
+    } else if (Array.isArray(input)) {
+        strings = input.map((input) => {
+            if (!input) return '';
+            return toString(input);
+        });
+    } else {
+        return [];
+    }
+
+    return strings
+        .map((s) => s.trim())
+        .filter((s) => !!s);
+}
+
+/**
+ * Like parseList, except it returns number
+*/
+export function parseNumberList(input: any): number[] {
+    let items: (number|string)[] = [];
+
+    if (isString(input)) {
+        items = input.split(',');
+    } else if (Array.isArray(input)) {
+        items = input;
+    } else if (isNumber(input)) {
+        return [input];
+    } else {
+        return [];
+    }
+
+    return items
+        // filter out any empty string
+        .filter((item) => {
+            if (item == null) return false;
+            if (isString(item) && !item.trim().length) return false;
+            return true;
+        })
+        .map(toNumber)
+        .filter(isNumber) as number[];
 }

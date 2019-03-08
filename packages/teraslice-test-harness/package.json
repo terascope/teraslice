@@ -1,6 +1,6 @@
 {
     "name": "teraslice-test-harness",
-    "version": "0.5.2",
+    "version": "0.5.3",
     "publishConfig": {
         "access": "public"
     },
@@ -33,11 +33,11 @@
         "build:watch": "yarn build --watch",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.14.5",
-        "@terascope/teraslice-op-test-harness": "^1.5.3",
+        "@terascope/job-components": "^0.15.0",
+        "@terascope/teraslice-op-test-harness": "^1.5.4",
         "@types/lodash": "^4.14.122",
         "lodash": "^4.17.11"
     },

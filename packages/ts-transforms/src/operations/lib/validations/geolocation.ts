@@ -1,5 +1,6 @@
 
 import _ from 'lodash';
+import { parseNumberList } from '@terascope/utils';
 import ValidationOpBase from './base';
 import { OperationConfig } from '../../../interfaces';
 
@@ -19,7 +20,7 @@ export default class Geolocation extends ValidationOpBase<any> {
         let isValid = false;
 
         if (typeof geoData === 'string') {
-            const pieces = geoData.split(',').map(str => Number(str));
+            const pieces = parseNumberList(geoData);
             if (pieces.length !== 2) return isValid;
             if ((pieces[0] <= 90 || pieces[0] >= -90) && (pieces[1] <= 180 || pieces[1] >= -180)) isValid = true;
         }

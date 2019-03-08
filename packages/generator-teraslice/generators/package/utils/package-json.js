@@ -67,7 +67,8 @@ module.exports = (options) => {
                 'lint:fix': 'yarn lint --fix',
                 test: 'jest',
                 'test:watch': 'jest --coverage=false --notify --watch --onlyChanged',
-                'test:debug': "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+                // eslint-disable-next-line
+                'test:debug': 'env DEBUG=\\"${DEBUG:*teraslice*}\\" jest --detectOpenHandles --coverage=false --runInBand'
             },
             devDependencies: getPkgValues({})
         });

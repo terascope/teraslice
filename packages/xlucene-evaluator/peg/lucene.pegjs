@@ -129,21 +129,24 @@
     }
 
     function toNumber(input) {
-        const num = Number(input);
-        if (isNumber(num)) return num;
-        return false;
+        if (input == null) return Number.NaN;
+        if (typeof input === 'number') return input;
+        if (typeof input === 'string' && !input.trim().length) return Number.NaN;
+        return Number(input);
     }
 
     function coerceValue(input) {
         if (typeof input !== 'string') return input;
+        let _input = input.trim();
 
-        if (input === 'false') return false;
-        if (input === 'true') return true;
+        if (_input === 'false') return false;
+        if (_input === 'true') return true;
+        if (!_input.length) return '';
 
-        const num = toNumber(input);
-        if (num !== false) return num;
+        const num = Number(_input);
+        if (isNumber(num)) return num;
 
-        return input;
+        return _input;
     }
 }
 
@@ -387,7 +390,7 @@ rangevalue
         {
             const { term } = termValue;
             const num = toNumber(term);
-            if (num !== false) return num;
+            if (isNumber(num)) return num;
             return term
         }
    / termValue:quoted_term

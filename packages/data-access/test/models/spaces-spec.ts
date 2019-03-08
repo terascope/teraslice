@@ -1,4 +1,5 @@
 import 'jest-extended';
+import { TSError } from '@terascope/utils';
 import { Spaces } from '../../src/models/spaces';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
@@ -22,12 +23,57 @@ describe('Spaces', () => {
         it('should be able to create a space', async () => {
             const created = await spaces.create({
                 name: 'hello',
-                views: ['hello']
+                views: ['hello'],
+                metadata: {
+                    a: {
+                        b: {
+                            c: 1
+                        }
+                    },
+                    example: true
+                }
+            });
+
+            expect(created).toHaveProperty('name');
+            expect(created).toHaveProperty('views', ['hello']);
+            expect(created).toHaveProperty('metadata', {
+                a: {
+                    b: {
+                        c: 1
+                    }
+                },
+                example: true
             });
 
             const fetched = await spaces.findById(created.id);
 
             expect(created).toEqual(fetched);
+        });
+    });
+
+    describe('when testing spaces updates', () => {
+        it('should throw when adding a views to space without a space id', async () => {
+            expect.hasAssertions();
+
+            try {
+                await spaces.addViewsToSpace('', []);
+            } catch (err) {
+                expect(err.message).toEqual('Missing space to attaching views to');
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.statusCode).toEqual(422);
+            }
+        });
+
+        it('should throw when removing a sapce to role without a space id', async () => {
+            expect.hasAssertions();
+
+            try {
+                await spaces.removeViewsFromSpace('', []);
+            } catch (err) {
+                expect(err.message).toEqual('Missing space to remove views from');
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.statusCode).toEqual(422);
+            }
         });
     });
 });

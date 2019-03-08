@@ -1,6 +1,6 @@
 {
     "name": "xlucene-evaluator",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "srcMain": "src/index.ts",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
@@ -22,7 +22,7 @@
         "build:watch": "yarn build --watch",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "author": "Terascope, LLC <info@terascope.io>",
     "license": "MIT",
@@ -33,7 +33,7 @@
     },
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator#readme",
     "dependencies": {
-        "@terascope/utils": "^0.5.0",
+        "@terascope/utils": "^0.6.0",
         "@turf/bbox": "^6.0.1",
         "@turf/bbox-polygon": "^6.0.1",
         "@turf/boolean-point-in-polygon": "^6.0.1",

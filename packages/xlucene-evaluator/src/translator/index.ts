@@ -27,12 +27,12 @@ export default class Translator {
         const dslQuery = {
             query: {
                 constant_score: {
-                    filter: query
+                    filter: query || []
                 }
             }
         };
 
-        logger.debug(`translated ${this.query} query to`, JSON.stringify(query, null, 2));
+        logger.trace(`translated ${this.query} query to`, JSON.stringify(query));
         return dslQuery;
     }
 }

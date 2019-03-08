@@ -7,6 +7,12 @@ import { STATUS_CODES } from 'http';
 */
 export class TSError extends Error {
     /**
+     * An descriptive error code that specifies the error type, this follows more
+     * node convention
+    */
+    code: string;
+
+    /**
      * A HTTP status code for easy use
     */
     statusCode: number;
@@ -35,7 +41,8 @@ export class TSError extends Error {
             message,
             statusCode,
             context,
-            stack
+            stack,
+            code,
         } = parseErrorInfo(input, config);
 
         super(message);
@@ -43,6 +50,7 @@ export class TSError extends Error {
         this.fatalError = fatalError;
         this.statusCode = statusCode;
         this.context = context;
+        this.code = code;
 
         if (isTSError(input)) {
             this.fatalError = !!input.fatalError;
@@ -53,7 +61,10 @@ export class TSError extends Error {
             this.retryable = config.retryable;
         }
 
-        this.name = this.constructor.name;
+        Object.defineProperty(this, 'name', {
+            value: this.constructor.name
+        });
+
         Error.captureStackTrace(this, this.constructor);
 
         if (stack) {
@@ -67,6 +78,12 @@ export class TSError extends Error {
 }
 
 export interface TSErrorConfig {
+    /**
+     * An descriptive error code that specifies the error type, this follows more
+     * node convention
+    */
+    code?: string;
+
     /**
      * A HTTP status code for easy use
     */
@@ -102,17 +119,17 @@ export interface TSErrorContext extends Object {
     _cause: any;
 }
 
-type ErrorInfo = { message: string, stack?: string, context: TSErrorContext, statusCode: number };
+type ErrorInfo = {
+    message: string,
+    stack?: string,
+    context: TSErrorContext,
+    statusCode: number,
+    code: string,
+};
 
 /** parse error for info */
 export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInfo {
     const { defaultErrorMsg, defaultStatusCode = 500 } = config;
-    const inputContext = (input && input.context) || {};
-
-    const context = Object.assign({}, inputContext, config.context, {
-        _createdAt: new Date().toISOString(),
-        _cause: input,
-    });
 
     const statusCode = getErrorStatusCode(input, config, defaultStatusCode);
 
@@ -121,11 +138,14 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
         if (esErrorInfo) {
             return {
                 message: prefixErrorMsg(esErrorInfo.message, config.reason, defaultErrorMsg),
-                context: Object.assign({}, esErrorInfo.context, context),
+                context: createErrorContext(input, config),
                 statusCode,
+                code: esErrorInfo.code,
             };
         }
     }
+
+    const context = createErrorContext(input, config);
 
     let stack: string|undefined;
     const message = prefixErrorMsg(input, config.reason, defaultErrorMsg);
@@ -134,12 +154,44 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
         stack = input.stack;
     }
 
+    let code: string;
+    if (config.code && utils.isString(config.code)) {
+        code = toErrorCode(config.code);
+    } else if (input && input.code && utils.isString(input.code)) {
+        code = toErrorCode(input.code);
+    } else {
+        const httpMsg = STATUS_CODES[statusCode] as string;
+        code = toErrorCode(httpMsg);
+    }
+
     return {
         stack,
         message,
         context,
         statusCode,
+        code,
     };
+}
+
+function createErrorContext(input: any, config: TSErrorConfig = {}) {
+    const context = Object.assign(
+        {},
+        (input && input.context),
+        (config && config.context)
+    );
+
+    Object.defineProperties(context, {
+        _createdAt: {
+            value: new Date().toISOString(),
+            enumerable: false,
+        },
+        _cause: {
+            value: input,
+            enumerable: false,
+        }
+    });
+
+    return context;
 }
 
 /** parse input to get error message or stack */
@@ -153,8 +205,9 @@ function _cleanErrorMsg(input: string): string {
     return utils.truncate(input.trim(), 3000);
 }
 
-function _parseESErrorInfo(input: ElasticsearchError): { message: string, context: object }|null {
+function _parseESErrorInfo(input: ElasticsearchError): { message: string, context: object, code: string }|null {
     const bodyError = input && input.body && input.body.error;
+    const name = (input && input.name) || 'ElasticSearchError';
 
     const rootCause = bodyError
         && bodyError.root_cause
@@ -182,11 +235,9 @@ function _parseESErrorInfo(input: ElasticsearchError): { message: string, contex
         }
     }
 
-    let message = `Elasticsearch Error: ${_normalizeESError(metadata.msg)}`;
+    const message = `Elasticsearch Error: ${_normalizeESError(metadata.msg)}`;
 
-    if (type) message += ` type: ${type}`;
-    if (reason) message += ` reason: ${reason}`;
-    if (index) message += ` on index: ${index}`;
+    const code = toErrorCode(reason ? `${name} ${reason}` : name);
 
     return {
         message,
@@ -196,7 +247,16 @@ function _parseESErrorInfo(input: ElasticsearchError): { message: string, contex
             reason,
             index,
         },
+        code
     };
+}
+
+function toErrorCode(input: string): string {
+    if (!utils.isString(input)) return 'UNKNOWN_TSERROR';
+    return input
+        .trim()
+        .toUpperCase()
+        .replace(/\W+/g, '_');
 }
 
 function _normalizeESError(message?: string) {
@@ -299,4 +359,17 @@ export function getErrorStatusCode(err: any, config: TSErrorConfig = {}, default
     }
 
     return defaultCode;
+}
+
+export function stripErrorMessage(message: string, reason: string = 'Internal Server Error'): string {
+    if (!message || !utils.isString(message)) return reason;
+    const messages = utils.parseList(message.split('caused by,'));
+
+    const firstErr = utils.getFirst(messages);
+    if (!firstErr) return reason;
+
+    const msg = firstErr.replace(/[A-Z]{2}Error/g, 'Error');
+
+    if (firstErr.includes(reason)) return msg;
+    return `${reason}: ${msg}`;
 }

@@ -1,46 +1,59 @@
-/** Schema Version */
-export const version = 1;
+import { ModelConfig } from '../base';
+import { SpaceModel } from '../spaces';
 
-/** Name of Data Type */
-export const name = 'spaces';
-
-/** ElasticSearch Mapping */
-export const mapping = {
-    properties: {
-        name: {
-            type: 'keyword',
-            fields: {
-                text: {
-                    type: 'text',
-                    analyzer: 'lowercase_keyword_analyzer'
-                }
+const config: ModelConfig<SpaceModel> = {
+    version: 1,
+    name: 'spaces',
+    mapping: {
+        properties: {
+            name: {
+                type: 'keyword',
+                fields: {
+                    text: {
+                        type: 'text',
+                        analyzer: 'lowercase_keyword_analyzer'
+                    }
+                },
             },
-        },
-        views: {
-            type: 'keyword'
+            views: {
+                type: 'keyword'
+            },
+            default_view: {
+                type: 'keyword'
+            },
+            metadata: {
+                type: 'object'
+            }
         }
-    }
-};
-
-/** JSON Schema */
-export const schema = {
-    properties: {
-        name: {
-            type: 'string'
-        },
-        description: {
-            type: 'string'
-        },
-        views: {
-            type: 'array',
-            items: {
+    },
+    schema: {
+        properties: {
+            name: {
                 type: 'string'
             },
-            uniqueItems: true,
-            default: []
+            description: {
+                type: 'string'
+            },
+            views: {
+                type: 'array',
+                items: {
+                    type: 'string'
+                },
+                uniqueItems: true,
+                default: []
+            },
+            default_view: {
+                type: 'string'
+            },
+            metadata: {
+                type: 'object',
+                additionalProperties: true,
+                default: {}
+            },
         },
+        required: ['name']
     },
-    required: ['name']
+    uniqueFields: ['name'],
 };
 
-export const uniqueFields = ['name'];
+export = config;

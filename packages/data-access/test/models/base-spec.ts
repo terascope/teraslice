@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { DataEntity, times, TSError } from '@terascope/utils';
+import { times, TSError, Omit } from '@terascope/utils';
 import { Base, BaseModel, ModelConfig } from '../../src/models/base';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
@@ -9,7 +9,7 @@ describe('Base', () => {
     }
 
     const client = makeClient();
-    const baseConfig: ModelConfig = {
+    const baseConfig: ModelConfig<ExampleModel> = {
         name: 'base',
         mapping: {
             properties: {
@@ -35,7 +35,10 @@ describe('Base', () => {
         version: 1,
     };
 
-    const base = new Base<ExampleModel>(client, {
+    type CreateExampleInput = Omit<ExampleModel, 'id'|'created'|'updated'>;
+    type UpdateExampleInput = Omit<ExampleModel, 'created'|'updated'>;
+
+    const base = new Base<ExampleModel, CreateExampleInput, UpdateExampleInput>(client, {
         namespace: 'test',
         storeOptions: {
             bulkMaxSize: 50,
@@ -55,7 +58,7 @@ describe('Base', () => {
 
     describe('when creating a record', () => {
         let created: ExampleModel;
-        let fetched: DataEntity<ExampleModel>;
+        let fetched: ExampleModel;
 
         beforeAll(async () => {
             created = await base.create({
@@ -75,9 +78,9 @@ describe('Base', () => {
             try {
                 await base.create(created);
             } catch (err) {
+                expect(err.message).toEqual('Create requires name to be unique');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(409);
-                expect(err.message).toEqual('Create requires name to be unique');
             }
         });
 
@@ -88,9 +91,9 @@ describe('Base', () => {
                 // @ts-ignore
                 await base.create({});
             } catch (err) {
+                expect(err.message).toEqual('Create requires field name');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(422);
-                expect(err.message).toEqual('Create requires field name');
             }
         });
 
@@ -108,9 +111,22 @@ describe('Base', () => {
                     name
                 });
             } catch (err) {
+                expect(err.message).toEqual('Update requires name to be unique');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(409);
-                expect(err.message).toEqual('Update requires name to be unique');
+            }
+        });
+
+        it('should not be able to update without an id', async () => {
+            expect.hasAssertions();
+
+            try {
+                // @ts-ignore
+                await base.update({});
+            } catch (err) {
+                expect(err.message).toEqual('Updates requires id');
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.statusCode).toEqual(422);
             }
         });
 
@@ -131,14 +147,14 @@ describe('Base', () => {
             try {
                 await base.findByAnyId('WrongBilly');
             } catch (err) {
-                expect(err).toBeInstanceOf(TSError);
                 expect(err.message).toEqual('Unable to find Base by \'id:"WrongBilly" OR name:"WrongBilly"\'');
                 expect(err.statusCode).toEqual(404);
+                expect(err).toBeInstanceOf(TSError);
             }
         });
 
         it('should be able to update the record', async () => {
-            const updateInput = { ...fetched, name: 'Hello' };
+            const updateInput = { ...fetched, name: 'Hello' } as UpdateExampleInput;
 
             const updateResult = await base.update(updateInput);
             expect(updateResult).not.toBe(updateInput);
@@ -238,6 +254,18 @@ describe('Base', () => {
             const result = await base.find('name:"Ninja"', 2);
 
             expect(result).toBeArrayOfSize(0);
+        });
+    });
+
+    describe('when appending to an array', () => {
+        it('should return early if given empty values', async () => {
+            await base.appendToArray('example', 'name', []);
+        });
+    });
+
+    describe('when removing from an array', () => {
+        it('should return early if given empty values', async () => {
+            await base.removeFromArray('example', 'name', []);
         });
     });
 });

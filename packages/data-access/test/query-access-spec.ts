@@ -1,9 +1,10 @@
 import 'jest-extended';
-import { DataEntity, TSError } from '@terascope/utils';
-import { QueryAccess, ViewModel, PublicUserModel } from '../src';
+import { TSError } from '@terascope/utils';
+import { QueryAccess, ViewModel } from '../src';
+import { SearchParams } from 'elasticsearch';
 
 describe('QueryAccess', () => {
-    const view = DataEntity.make<ViewModel>({
+    const view: ViewModel = {
         id: 'example-view',
         name: 'Example View',
         space: 'example-space',
@@ -11,33 +12,69 @@ describe('QueryAccess', () => {
             'example-role'
         ],
         excludes: [
-            'bar'
+            'bar',
+            'baz'
         ],
         includes: [
-            'foo'
+            'foo',
+            'moo'
         ],
-        _updated: new Date(),
-        _created: new Date(),
-    });
-
-    const user = DataEntity.make<PublicUserModel>({
-        client_id: 1,
-        username: 'foobar',
-        firstname: 'Foo',
-        lastname: 'Bar',
-        email: 'foobar@example.com',
-        roles: ['example-role'],
-    });
+        updated: new Date().toISOString(),
+        created: new Date().toISOString(),
+    };
 
     const queryAccess = new QueryAccess({
         view,
-        user,
-        role: 'example-role'
+        space_id: 'example-space',
+        space_metadata: {},
+        user_id: 'example-user',
+        role_id: 'example-role'
     });
 
-    it('should be able to restrict the query bar', () => {
+    it('should be able to restrict the query for bar', () => {
         expect(() => {
-            queryAccess.restrictQuery('bar:foo');
+            queryAccess.restrictESQuery('bar:foo');
         }).toThrowWithMessage(TSError, 'Field bar is restricted');
+    });
+
+    it('should be able to return a restricted query', () => {
+        const params: SearchParams = {
+            q: 'idk',
+            _sourceInclude: [
+                'moo'
+            ],
+            _sourceExclude: [
+                'baz'
+            ]
+        };
+
+        const result = queryAccess.restrictESQuery('foo:bar', params);
+        expect(result).toMatchObject({
+            _sourceExclude: [
+                'baz'
+            ],
+            _sourceInclude: [
+                'moo'
+            ],
+        });
+
+        expect(params).toHaveProperty('q', 'idk');
+        expect(result).not.toHaveProperty('q', 'idk');
+    });
+
+    it('should be able to return a restricted query without any params', () => {
+        const result = queryAccess.restrictESQuery('foo:bar');
+        expect(result).toMatchObject({
+            _sourceExclude: [
+                'bar',
+                'baz'
+            ],
+            _sourceInclude: [
+                'foo',
+                'moo'
+            ],
+        });
+
+        expect(result).not.toHaveProperty('q', 'idk');
     });
 });
