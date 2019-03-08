@@ -1,12 +1,14 @@
 
 import _ from 'lodash';
 import { DataEntity } from '@terascope/utils';
-import { OperationConfig } from '../../../interfaces';
+import { OperationConfig, InputOutputCardinality } from '../../../interfaces';
 import TransformOpBase from './base';
 
 export default class Join extends TransformOpBase {
     private delimiter: string;
     private fields: string[];
+
+    static cardinality: InputOutputCardinality = 'many-to-one';
 
     constructor(config: OperationConfig) {
         super(config);

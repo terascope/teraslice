@@ -4,6 +4,7 @@ import RulesParser from './rules-parser';
 import RulesValidator from './rules-validator';
 import { Logger } from '@terascope/utils';
 import { ValidationResults, WatcherConfig } from '../interfaces';
+import { OperationsManager } from '../index';
 
 export default class Loader {
     private opConfig: WatcherConfig;
@@ -14,7 +15,7 @@ export default class Loader {
         this.logger = logger;
     }
 
-    public async load(): Promise<ValidationResults> {
+    public async load(opsManager: OperationsManager): Promise<ValidationResults> {
         const loader = new RulesLoader(this.opConfig, this.logger);
         let loadResults;
         let parsedResults;
@@ -30,7 +31,7 @@ export default class Loader {
         } catch (err) {
             throw new Error(`could not parse rules error: ${err.stack}`);
         }
-        const validator = new RulesValidator(parsedResults, this.logger);
+        const validator = new RulesValidator(parsedResults, opsManager, this.logger);
         try {
             results = validator.validate();
         } catch (err) {

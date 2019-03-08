@@ -2,6 +2,9 @@
 import _ from 'lodash';
 import graphlib from 'graphlib';
 import { Logger } from '@terascope/utils';
+import { OperationsManager } from '../index';
+import shortid from 'shortid';
+
 import {
     OperationConfig,
     ValidationResults,
@@ -13,35 +16,82 @@ import {
 
 const  { Graph, alg: { topsort, findCycles } } = graphlib;
 
-export function parseConfig(configList: OperationConfig[], logger: Logger) {
+export function parseConfig(configList: OperationConfig[], opsManager: OperationsManager, logger: Logger) {
     const graph = new Graph();
     const tagMapping: StateDict = {};
     const graphEdges: StateDict = {};
 
-    function normalizeConfig(configList: OperationConfig[]) {
-        configList.forEach((config) => {
+    function normalizeConfig(configList: OperationConfig[]): OperationConfig[] {
+        const results: OperationConfig[] = [];
+
+        return configList.reduce((list, config) => {
             if (hasPostProcess(config)) {
                 if (config.source_field) {
                     if (!config.target_field) config.target_field = config.source_field;
+                    list.push(config);
                 } else {
-                    const { soureField, targetField } = findFields(config, configList);
-                    if (soureField.length === 1)  {
-                        const source = soureField[0];
-                        config.source_field = source;
-                        config.target_field = targetField || source;
+                    // we search inside the list of altered normalized configs.
+                    // This works becuase topsort orders them
+                    const { soureField, targetField } = findFields(config, list);
+                    if (isOneToOne(opsManager, config)) {
+                        const results = createMatchingConfig(soureField, targetField, config);
+                        list.push(...results);
                     } else {
                         config.source_fields = soureField;
                         if (targetField && !Array.isArray(targetField)) {
                             config.target_field = targetField;
                         } else {
-                            config.target_fields = soureField;
+                            checkForTarget(config);
                         }
+                        list.push(config);
                     }
                 }
-                checkForSource(config);
-                checkForTarget(config);
+            } else {
+                list.push(config);
             }
+            return list;
+        }, results);
+    }
+
+    function createMatchingConfig(fields: string[], targetField: undefined|string|string[], config: OperationConfig): OperationConfig[] {
+        // we clone the original to preserve the __id in reference to tag mappings and the like
+        const original = _.cloneDeep(config);
+        return fields.map((source, index) => {
+            // @ts-ignore
+            let resultsObj: OperationConfig = {};
+            if (index === 0) {
+                resultsObj = original;
+            } else {
+                resultsObj = Object.assign({}, config, { __id: shortid.generate() });
+                if (resultsObj.tags) {
+                    resultsObj.tags.forEach((tag) => {
+                        if (!tagMapping[tag]) {
+                            tagMapping[tag] = [];
+                        }
+                        tagMapping[tag].push(resultsObj.__id);
+                    });
+                }
+            }
+
+            resultsObj['source_field'] = source;
+            if (targetField === undefined) {
+                resultsObj['target_field'] = source;
+            } else if (Array.isArray(targetField)) {
+                resultsObj['target_field'] = targetField[index];
+            } else {
+                resultsObj['target_field'] = targetField;
+            }
+
+            checkForSource(resultsObj);
+            checkForTarget(resultsObj);
+            return resultsObj;
         });
+    }
+
+    function isOneToOne(opsManager: OperationsManager, config: OperationConfig): boolean {
+        const processType = config.validation || config.post_process;
+        const Operation = opsManager.getTransform(processType as string);
+        return Operation.cardinality === 'one-to-one';
     }
 
     function findFields(config:OperationConfig, configList: OperationConfig[]): NormalizedFields {
@@ -118,8 +168,8 @@ export function parseConfig(configList: OperationConfig[], logger: Logger) {
     const sortList = topsort(graph);
     const configListOrder: OperationConfig[] = sortList.map(id => graph.node(id));
     // we are mutating the config to make sure it has all the necessary fields
-    normalizeConfig(configListOrder);
-    const results = createResults(configListOrder);
+    const normalizedConfig = normalizeConfig(configListOrder);
+    const results = createResults(normalizedConfig);
     validateOtherMatchRequired(results.extractions, logger);
     return results;
 }
@@ -143,7 +193,7 @@ function checkForSource(config: OperationConfig) {
 }
 
 function checkForTarget(config: OperationConfig) {
-    if (!config.target_field && (config.target_fields == null || config.target_fields.length === 0)) {
+    if (!config.target_field) {
         throw new Error(`could not find target fields for config ${JSON.stringify(config)}`);
     }
 }
@@ -253,7 +303,6 @@ function createResults(list: OperationConfig[]): ValidationResults {
         }
 
         if (hasPrimaryExtractions(config)) {
-            // TODO: fix the typing
             if (!results.extractions[currentSelector as string]) {
                 results.extractions[currentSelector as string] = [];
             }

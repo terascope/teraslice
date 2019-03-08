@@ -2,7 +2,14 @@
 import _ from 'lodash';
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
-import { RulesValidator, RulesParser, OperationConfig, UnParsedConfig } from '../../src';
+import {
+    RulesValidator,
+    RulesParser,
+    OperationConfig,
+    UnParsedConfig,
+    OperationsManager,
+    PluginList
+} from '../../src';
 import { isPrimaryConfig } from '../../src/loader/utils';
 
 describe('rules-validator', () => {
@@ -61,14 +68,12 @@ describe('rules-validator', () => {
         {
             selector: 'hello:world',
             source_field: 'first',
-            target_field: 'first_name',
-            output: false,
-            tag: 'someTag'
+            target_field: 'first_name'
         },
         {
             selector: 'hello:world',
-            source_field: 'last',
-            target_field: 'last_name',
+            source_field: 'hex',
+            target_field: 'decoded',
             output: false,
             tag: 'someTag'
         },
@@ -102,7 +107,7 @@ describe('rules-validator', () => {
         }
     ]);
 
-    const NewJoinRules = parseData([
+    const newJoinRules = parseData([
         {
             selector: 'hello:world',
             source_field: 'first',
@@ -124,7 +129,26 @@ describe('rules-validator', () => {
         }
     ]);
 
-    const CompactExtractionValidationConfig = parseData([
+    const oneToOne = parseData([
+        {
+            selector: 'hello:world',
+            source_field: 'inc_byte',
+            target_field: 'byte',
+            tag: 'A'
+        },
+        {
+            selector: 'hello:world',
+            source_field: 'person.age',
+            target_field: 'age',
+            tag: 'A'
+        },
+        {
+            follow: 'A',
+            validation: 'number',
+        }
+    ]);
+
+    const compactExtractionValidationConfig = parseData([
         {
             selector: 'hello:world',
             source_field:  'txt',
@@ -193,8 +217,9 @@ describe('rules-validator', () => {
         }
     ]);
 
-    function constructValidator(configList: OperationConfig[], logger = testLogger) {
-        return new RulesValidator(configList, logger);
+    function constructValidator(configList: OperationConfig[], Plugins?: PluginList, logger = testLogger) {
+        const opsManager = new OperationsManager(Plugins);
+        return new RulesValidator(configList , opsManager, logger);
     }
 
     describe('selector phase configs', () => {
@@ -251,22 +276,22 @@ describe('rules-validator', () => {
             expect(extractions).toEqual(results);
         });
 
-        it('can work with NewJoinRules', () => {
-            const validator = constructValidator(NewJoinRules);
+        it('can work with newJoinRules', () => {
+            const validator = constructValidator(newJoinRules);
             const { extractions } = validator.validate();
             const results = {};
 
-            results['hello:world'] = NewJoinRules.slice(0, 2);
+            results['hello:world'] = newJoinRules.slice(0, 2);
 
             expect(extractions['hello:world'].length).toEqual(2);
             expect(extractions).toEqual(results);
         });
 
         it('can work with other stuff', () => {
-            const validator = constructValidator(CompactExtractionValidationConfig);
+            const validator = constructValidator(compactExtractionValidationConfig);
             const { extractions } = validator.validate();
             const results = {
-                'hello:world': [CompactExtractionValidationConfig[0]]
+                'hello:world': [compactExtractionValidationConfig[0]]
             };
 
             expect(extractions).toEqual(results);
@@ -284,10 +309,12 @@ describe('rules-validator', () => {
 
         it('can return a mapping of basic post processing', () => {
             const validator = constructValidator(basicPostProcessing);
-            const { postProcessing } = validator.validate();
-            const results = { 'hello:world': [basicPostProcessing[2]] };
+            const { postProcessing: { 'hello:world': results } } = validator.validate();
 
-            expect(postProcessing).toEqual(results);
+            expect(results).toBeArrayOfSize(1);
+            expect(results[0].post_process).toEqual('hexdecode');
+            expect(results[0].source_field).toEqual('decoded');
+            expect(results[0].target_field).toEqual('decoded');
         });
 
         it('can return a mapping of for chained post processing', () => {
@@ -329,16 +356,37 @@ describe('rules-validator', () => {
         });
 
         it('will not throw errors with duplicate tags', () => {
-            const validator = constructValidator(NewJoinRules);
+            const validator = constructValidator(newJoinRules);
             expect(() => validator.validate()).not.toThrow();
         });
 
         it('will log warning if other_match_required is not paired with another extraction', () => {
             const logger = debugLogger('other_match_required');
             logger.warn = jest.fn();
-            const validator = constructValidator(matchRequiredError, logger);
+            const validator = constructValidator(matchRequiredError, [], logger);
             validator.validate();
             expect(logger.warn).toHaveBeenCalled();
+        });
+
+        it('if op cardinality is one-to-one then multi inputs will make multiiple ops.', () => {
+            const validator = constructValidator(oneToOne);
+            const { postProcessing: { 'hello:world': results } } = validator.validate();
+
+            expect(results).toBeArrayOfSize(2);
+            expect(results[0].source_field).toEqual('byte');
+            expect(results[0].target_field).toEqual('byte');
+
+            expect(results[1].source_field).toEqual('age');
+            expect(results[1].target_field).toEqual('age');
+        });
+
+        it('if op cardinality is many-to-one then multi inputs will results in a single op', () => {
+            const validator = constructValidator(newJoinRules);
+            const { postProcessing: { 'hello:world': results } } = validator.validate();
+
+            expect(results).toBeArrayOfSize(1);
+            expect(results[0].post_process).toEqual('join');
+            expect(results[0].source_fields).toEqual(results[0].fields);
         });
     });
 

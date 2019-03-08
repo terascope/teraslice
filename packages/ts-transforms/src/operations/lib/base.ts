@@ -1,6 +1,6 @@
 
 import _ from 'lodash';
-import { OperationConfig } from '../../interfaces';
+import { OperationConfig, InputOutputCardinality } from '../../interfaces';
 import { DataEntity } from '@terascope/utils';
 
 export default class OperationBase {
@@ -9,6 +9,8 @@ export default class OperationBase {
     protected config: OperationConfig;
     protected destination: string|string[];
     protected hasTarget: boolean;
+
+    static cardinality: InputOutputCardinality = 'one-to-one';
 
     constructor(config: OperationConfig) {
         this.validateConfig(config);

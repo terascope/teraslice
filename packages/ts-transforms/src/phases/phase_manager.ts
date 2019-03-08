@@ -27,8 +27,8 @@ export default class PhaseManager {
 
     public async init (Plugins?: PluginList) {
         try {
-            const phaseConfiguration = await this.loader.load();
             const opsManager = new OperationsManager(Plugins);
+            const phaseConfiguration = await this.loader.load(opsManager);
             const sequence: PhaseBase[] = [
                 new SelectionPhase(this.opConfig, phaseConfiguration.selectors, opsManager),
             ];

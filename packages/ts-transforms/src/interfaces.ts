@@ -15,7 +15,6 @@ export interface UnParsedConfig {
     source_field?: string;
     source_fields?: string[];
     target_field?: string;
-    target_fields?: string[];
     start?: string;
     end?: string;
     regex?: string;
@@ -48,7 +47,7 @@ export interface PluginClassType {
 
 export type PluginList = PluginClassConstructor[];
 
-export type BaseOperationClass = { new (config: OperationConfig, types?: TypeConfig): Operation };
+export type BaseOperationClass = { new (config: OperationConfig, types?: TypeConfig): Operation, cardinality:InputOutputCardinality };
 
 export interface OperationsDict {
     [op: string]: BaseOperationClass;
@@ -122,3 +121,5 @@ export interface OutputValidation {
     restrictOutput: RestrictOutput;
     matchRequirements: MatchRequirements;
 }
+
+export type InputOutputCardinality = 'one-to-one' | 'many-to-one';

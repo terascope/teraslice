@@ -1,10 +1,11 @@
 
 import path from 'path';
 import { debugLogger } from '@terascope/utils';
-import { Loader, PhaseConfig } from '../../src';
+import { Loader, PhaseConfig, OperationsManager } from '../../src';
 
 describe('Loader', () => {
     const logger = debugLogger('loader-test');
+    const opsManager = new OperationsManager();
     const matchRules1Path = path.join(__dirname, '../fixtures/matchRules1.txt');
     const transformRules2Path = path.join(__dirname, '../fixtures/transformRules2.txt');
 
@@ -22,7 +23,7 @@ describe('Loader', () => {
         const config: PhaseConfig = { rules: [matchRules1Path], type: 'matcher' };
         const loader = new Loader(config, logger);
 
-        const phaseConfig = await loader.load();
+        const phaseConfig = await loader.load(opsManager);
         const { selectors } = phaseConfig;
         const results = selectors.map(obj => ({ selector: obj.selector }));
 
@@ -35,7 +36,7 @@ describe('Loader', () => {
         const config: PhaseConfig = { rules: [transformRules2Path], type: 'transform' };
         const loader = new Loader(config, logger);
 
-        const phaseConfig = await loader.load();
+        const phaseConfig = await loader.load(opsManager);
         const { selectors, extractions, postProcessing, output } = phaseConfig;
         const { hasMultiValue, matchRequirements, restrictOutput } = output;
         const results = selectors.map(obj => ({ selector: obj.selector }));
