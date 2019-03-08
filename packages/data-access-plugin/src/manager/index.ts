@@ -13,7 +13,7 @@ import schema from './schema';
 /**
  * A graphql api for managing data access
  *
- * @todo add authentication verification
+ * @todo add permission rules to manage the ACL
  * @todo add session support
 */
 export default class ManagerPlugin {

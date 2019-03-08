@@ -178,7 +178,7 @@ export function getSearchParams(query: i.InputQuery, config: i.SearchConfig): Se
         }
     }
 
-    /** @todo add timeseries/history support */
+    /** @todo add timeseries/history index support */
     // const history = getFromQuery(query, 'history');
     // const historyStart = getFromQuery(query, 'history_start');
 
