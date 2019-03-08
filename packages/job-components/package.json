@@ -1,6 +1,6 @@
 {
     "name": "@terascope/job-components",
-    "version": "0.14.6",
+    "version": "0.15.0",
     "publishConfig": {
         "access": "public"
     },
