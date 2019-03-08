@@ -28,5 +28,6 @@ exports.handler = async (argv) => {
         reply.fatal(`> job_id:${cliConfig.args.id} not found on ${cliConfig.args.clusterAlias}`);
     }
 
+    // eslint-disable-next-line no-console
     console.log(JSON.stringify(response, null, 4));
 };
