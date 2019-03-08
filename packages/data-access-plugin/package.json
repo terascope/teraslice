@@ -36,7 +36,7 @@
         "graphql": "^14.1.1",
         "graphql-type-json": "^0.2.1",
         "lodash.get": "^4.4.2",
-        "xlucene-evaluator": "^0.5.0"
+        "xlucene-evaluator": "^0.5.1"
     },
     "devDependencies": {
         "@types/express": "^4.16.1",
