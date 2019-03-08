@@ -106,6 +106,9 @@ jobs:
       apt:
         packages:
           - jq
+          - docker-ce
+    services:
+        - docker
     before_script: . ./scripts/travis-setup-credentials.sh
     script: true
     deploy:
