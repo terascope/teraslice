@@ -217,6 +217,14 @@ describe('rules-validator', () => {
         }
     ]);
 
+    const multiOutput = parseData([
+        { selector: 'some:value', source_field: 'other', target_field: 'field', tag:'hello', output: false },
+        { post_process: 'extraction', target_field: 'first_copy', multivalue: true, follow: 'hello', mutate: true },
+        { post_process: 'extraction', target_field: 'second_copy', regex: 'da.*a', multivalue: true, follow: 'hello', mutate: true },
+        { post_process: 'extraction', target_field: 'third_copy', regex: 'so.*e', multivalue: true, follow: 'hello', mutate: true },
+        { source_field: 'key', target_field: 'key', other_match_required: true }
+    ]);
+
     function constructValidator(configList: OperationConfig[], Plugins?: PluginList, logger = testLogger) {
         const opsManager = new OperationsManager(Plugins);
         return new RulesValidator(configList , opsManager, logger);
@@ -391,8 +399,23 @@ describe('rules-validator', () => {
     });
 
     describe('output', () => {
-        it('', () => {
 
+        it('can format data for output phase with no results', () => {
+            const validator = constructValidator(newJoinRules);
+            const { output: { hasMultiValue, restrictOutput, matchRequirements } } = validator.validate();
+
+            expect(hasMultiValue).toBeFalse();
+            expect(restrictOutput).toEqual({});
+            expect(matchRequirements).toEqual({});
+        });
+
+        it('can format data for output phase', () => {
+            const validator = constructValidator(multiOutput);
+            const { output: { hasMultiValue, restrictOutput, matchRequirements } } = validator.validate();
+
+            expect(hasMultiValue).toBeTrue();
+            expect(restrictOutput).toEqual({ field: true });
+            expect(matchRequirements).toEqual({ key: '*' });
         });
     });
 });
