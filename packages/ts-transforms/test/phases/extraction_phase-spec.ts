@@ -5,11 +5,12 @@ import { ExtractionPhase, Loader, OperationsManager, ConfigProcessingDict } from
 
 describe('extraction phase', () => {
     const logger = debugLogger('extractionPhaseTest');
+    const opManager = new OperationsManager();
 
     async function getConfigList(fileName: string): Promise<ConfigProcessingDict> {
         const filePath = path.join(__dirname, `../fixtures/${fileName}`);
         const myFileLoader = new Loader({ rules: [filePath] }, logger);
-        const { extractions } = await myFileLoader.load();
+        const { extractions } = await myFileLoader.load(opManager);
         return extractions;
     }
     // rules is only used in loader
@@ -18,12 +19,12 @@ describe('extraction phase', () => {
     it('can instantiate', async () => {
         const configList = await getConfigList('transformRules1.txt');
 
-        expect(() => new ExtractionPhase(transformOpconfig, configList, new OperationsManager())).not.toThrow();
+        expect(() => new ExtractionPhase(transformOpconfig, configList, opManager)).not.toThrow();
     });
 
     it('has the proper properties', async () => {
         const configList = await getConfigList('transformRules1.txt');
-        const extractionPhase = new ExtractionPhase(transformOpconfig, configList, new OperationsManager());
+        const extractionPhase = new ExtractionPhase(transformOpconfig, configList, opManager);
 
         expect(extractionPhase.hasProcessing).toEqual(true);
         expect(extractionPhase.phase).toBeDefined();
@@ -40,7 +41,7 @@ describe('extraction phase', () => {
 
     it('has the proper properties with other_match_required', async () => {
         const configList = await getConfigList('transformRules16.txt');
-        const extractionPhase = new ExtractionPhase(transformOpconfig, configList, new OperationsManager());
+        const extractionPhase = new ExtractionPhase(transformOpconfig, configList, opManager);
 
         expect(extractionPhase.hasProcessing).toEqual(true);
         expect(extractionPhase.phase).toBeDefined();
@@ -58,7 +59,7 @@ describe('extraction phase', () => {
 
     it('can run and extract data', async () => {
         const configList = await getConfigList('transformRules1.txt');
-        const extractionPhase = new ExtractionPhase(transformOpconfig, configList, new OperationsManager());
+        const extractionPhase = new ExtractionPhase(transformOpconfig, configList, opManager);
 
         const data = [
             { some: 'data',  bytes: 367, myfield: 'something' },
@@ -97,7 +98,7 @@ describe('extraction phase', () => {
 
     it('can pick up extractions from other_match_required', async () => {
         const configList = await getConfigList('transformRules14.txt');
-        const extractionPhase = new ExtractionPhase(transformOpconfig, configList, new OperationsManager());
+        const extractionPhase = new ExtractionPhase(transformOpconfig, configList, opManager);
         const key = '12345680';
         const date = new Date().toISOString();
         const metaData = {

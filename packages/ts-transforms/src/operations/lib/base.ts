@@ -24,7 +24,6 @@ export default class OperationBase {
         if (this.constructor.name === 'Selector') return;
         const {
             target_field: targetField,
-            target_fields: targetFields,
             source_field: sField,
             source_fields: sFields
         } = config;

@@ -89,7 +89,8 @@ export function parseConfig(configList: OperationConfig[], opsManager: Operation
     }
 
     function isOneToOne(opsManager: OperationsManager, config: OperationConfig): boolean {
-        const processType = config.validation || config.post_process;
+        if (isOnlySelector(config)) return true;
+        const processType = config.validation || config.post_process || 'extraction';
         const Operation = opsManager.getTransform(processType as string);
         return Operation.cardinality === 'one-to-one';
     }
@@ -109,7 +110,6 @@ export function parseConfig(configList: OperationConfig[], opsManager: Operation
     }
 
     configList.forEach((config) => {
-       // TODO: change name
         const configId = config.__id;
 
         if (config.tags) {
@@ -146,7 +146,6 @@ export function parseConfig(configList: OperationConfig[], opsManager: Operation
     });
 
     // config may be out of order so we build edges after the fact on post processors
-
     _.forOwn(graphEdges, (ids, key) => {
         ids.forEach((id) => {
             const matchingTags: string[] = tagMapping[key];
@@ -200,13 +199,15 @@ function checkForTarget(config: OperationConfig) {
 
 type Config = OperationConfig|UnParsedConfig;
 
-// TODO: review what needs to be exported
 export function isPrimaryConfig(config: Config) {
     return hasSelector(config) && !hasFollow(config) && !isPostProcessType(config, 'selector');
 }
 
 export function needsDefaultSelector(config: Config) {
     return !hasSelector(config) && !hasFollow(config);
+}
+function isOnlySelector(config:Config) {
+    return hasSelector(config) && !hasExtractions(config) && !hasPostProcess(config);
 }
 
 function isPostProcessType(config:Config, type: string) {
@@ -219,11 +220,6 @@ function hasSelector(config: Config) {
 
 function hasFollow(config: Config) {
     return _.has(config, 'follow');
-}
-
-// @ts-ignore
-function selectorPostProces(config: Config) {
-    return hasSelector(config) && _.get(config, 'post_process') === 'selector';
 }
 
 function hasPostProcess(config: Config): boolean {

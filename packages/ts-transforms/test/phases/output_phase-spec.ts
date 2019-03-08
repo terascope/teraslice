@@ -5,11 +5,12 @@ import { OutputPhase, Loader, OperationsManager, OutputValidation } from '../../
 
 describe('output phase', () => {
     const logger = debugLogger('outputPhaseTest');
+    const opManager = new OperationsManager();
 
     async function getConfigList(fileName: string): Promise<OutputValidation> {
         const filePath = path.join(__dirname, `../fixtures/${fileName}`);
         const myFileLoader = new Loader({ rules: [filePath] }, logger);
-        const { output } = await myFileLoader.load();
+        const { output } = await myFileLoader.load(opManager);
         return output;
     }
     // rules is only used in loader
@@ -18,12 +19,12 @@ describe('output phase', () => {
     it('can instantiate', async () => {
         const configList = await getConfigList('transformRules22.txt');
 
-        expect(() => new OutputPhase(transformOpconfig, configList, new OperationsManager())).not.toThrow();
+        expect(() => new OutputPhase(transformOpconfig, configList, opManager)).not.toThrow();
     });
 
     it('can run and validate data for other_match_required', async () => {
         const configList = await getConfigList('transformRules16.txt');
-        const postProcessPhase = new OutputPhase(transformOpconfig, configList, new OperationsManager());
+        const postProcessPhase = new OutputPhase(transformOpconfig, configList, opManager);
         const date = new Date().toISOString();
         const data = [
             new DataEntity({ some: 'data', date }, { selectors: { 'fc2.com': true } }),
@@ -38,7 +39,7 @@ describe('output phase', () => {
 
     it('can run and omit fields', async () => {
         const configList = await getConfigList('transformRules21.txt');
-        const outputPhase = new OutputPhase(transformOpconfig, configList, new OperationsManager());
+        const outputPhase = new OutputPhase(transformOpconfig, configList, opManager);
 
         const data = [
             new DataEntity({ field: 'something' }),
@@ -54,7 +55,7 @@ describe('output phase', () => {
 
     it('can join _multi_target_fields', async () => {
         const configList = await getConfigList('transformRules19.txt');
-        const outputPhase = new OutputPhase(transformOpconfig, configList, new OperationsManager());
+        const outputPhase = new OutputPhase(transformOpconfig, configList, opManager);
         const metaData1 = { _multi_target_fields: {  myfield: { myfield0: true, myfield1: true }  } };
         const metaData2 = { _multi_target_fields: {  field: { field0: true, field1: true }  } };
 
@@ -73,7 +74,7 @@ describe('output phase', () => {
 
     it('_multi_target_fields will not set if its an empty array', async () => {
         const configList = await getConfigList('transformRules19.txt');
-        const outputPhase = new OutputPhase(transformOpconfig, configList, new OperationsManager());
+        const outputPhase = new OutputPhase(transformOpconfig, configList, opManager);
         const metaData = { _multi_target_fields: {  myfield: { myfield0: true, myfield1: true }  } };
         const data = [
             new DataEntity({ some: 'otherData' }, metaData),
