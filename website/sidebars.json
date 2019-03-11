@@ -30,6 +30,7 @@
             "packages"
         ],
         "Packages": [
+            "packages/chunked-file-reader/overview",
             "packages/data-access/overview",
             "packages/data-access-plugin/overview",
             "packages/elasticsearch-store/overview",

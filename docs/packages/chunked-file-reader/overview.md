@@ -1,8 +1,7 @@
-# @terascope/chunked-file-reader
-
-<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/chunked-file-reader/overview.md INSTEAD -->
-
-**NOTE:** This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo, more documentation can be found [here](https://terascope.github.io/teraslice/docs/).
+---
+title: Chunked File Reader
+sidebar_label: chunked-file-reader
+---
 
 > This module is an abstracted reader for use in various Teraslice readers. It uses an externally-defined reader to read data and the packages up the data in a dataEntity for use with other Teraslice processors.
 
@@ -47,13 +46,3 @@ slice, opConfig, metadata, logger
 
 `_dead_letter_action` has three supported options: `throw`, `log`, `none`. Additional documentation
 can be found [here](https://github.com/terascope/teraslice/blob/master/docs/configuration/ops.md#operation-level-configuration-options).
-
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
-
-## License
-
-[MIT](./LICENSE) licensed.
