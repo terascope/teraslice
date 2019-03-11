@@ -217,6 +217,26 @@ describe('rules-validator', () => {
         }
     ]);
 
+    const followTagError = parseData([
+        {
+            selector: 'some:selector',
+            source_field: 'somefield',
+            start: 'value=',
+            end: 'EOP',
+            other_match_required: true,
+            target_field: 'hashoutput',
+        },
+        {
+            follow: 'source',
+            post_process: 'base64decode',
+            tag: 'hash_field'
+        },
+        {
+            follow: 'hash_field',
+            post_process: 'urldecode'
+        },
+    ]);
+
     const multiOutput = parseData([
         { selector: 'some:value', source_field: 'other', target_field: 'field', tag:'hello', output: false },
         { post_process: 'extraction', target_field: 'first_copy', follow: 'hello', mutate: true },
@@ -338,6 +358,11 @@ describe('rules-validator', () => {
         it('can throw error if graph is cyclic', () => {
             const validator = constructValidator(cyclicRules);
             expect(() => validator.validate()).toThrow();
+        });
+
+        it('can throw error if you follow a tag that does not exist', () => {
+            const validator = constructValidator(followTagError);
+            expect(() => validator.validate()).toThrow('cannot use "follow: source" becuase it was never set as a tag on a configuration');
         });
 
         it('can normalize post_processing fields', () => {

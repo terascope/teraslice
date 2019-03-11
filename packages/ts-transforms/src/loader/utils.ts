@@ -149,6 +149,9 @@ export function parseConfig(configList: OperationConfig[], opsManager: Operation
     _.forOwn(graphEdges, (ids, key) => {
         ids.forEach((id) => {
             const matchingTags: string[] = tagMapping[key];
+            if (matchingTags == null) {
+                throw new Error(`cannot use "follow: ${key}" becuase it was never set as a tag on a configuration`);
+            }
             matchingTags.forEach(tag => graph.setEdge(tag, id));
         });
     });
