@@ -205,14 +205,16 @@ This phase will go through all the configurations and apply all the extractions 
 ```
 
 ### Post Process Phase
-This phase is for any additional processing that needs to occur after extraction. Each `post_process` configuration affects the `target_field` of the chained configuration if you use the `tag` and `follow` tags. You can chain multiple times if needed. This phase also includes `validation` operations and can be freely chained to each other.
+This phase is for any additional processing that needs to occur after extraction. Each `post_process` configuration affects the `target_field` of the chained configuration if you use the `tags` and `follow` parameters. You can chain multiple times if needed. This phase also includes `validation` operations and can be freely chained to each other.
 
+- **tags** = an array of tags that marks the config and the target_field with an ID so other configurations can chain off of it
 - **tag** = marks the config and the target_field with an ID so other configurations can chain off of it
 - **follow** = marks the config that it is chaining off the tag id
 
+
 ```ts
 // rules
-{ "selector": "some:value", "source_field": "field", "target_field": "newField", "tag": "tag_field" }
+{ "selector": "some:value", "source_field": "field", "target_field": "newField", "tags": ["tag_field"] }
 { "follow": "tag_field", "validation": "email", "tag_field": "valid_email" "tag": "validated_field" }
 { "follow": "validated_field", "post_process": "extraction", "start": "@", "end": ".", "multivalue": true, "target_field": "final" }
 
