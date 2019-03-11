@@ -8,6 +8,12 @@ When a release is created, it should be marked as a "prerelease" until QA has ve
 
 **NOTE:** Travis-CI handles most of the automation around deploying, publishing and building packages, releases and documentation.
 
-### Nightly Releases ###
+### Daily Releases ###
 
-Pontentially unstable releases will be made daily via Travis-CI to create a nightly release in docker hub. The tag will be formatted like `[branch]-%m.%d.%y` for example, `terascope/teraslice:master-02.08.18`.
+Pontentially unstable releases will be made daily via Travis-CI to create a nightly release in docker hub. The tag will be formatted like `daily-%Y.%m.%d-[commit-hash]` for example, `terascope/teraslice:daily-2018.08.02-3495d5c3`.
+
+The docker image is automated via travis-ci and is built with the following script:
+
+```sh
+./scripts/docker-release.sh "daily"
+```

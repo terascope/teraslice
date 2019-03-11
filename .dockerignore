@@ -19,6 +19,7 @@ packages/*/assets
 packages/*/autoload
 
 # exclude packages that are not needed inside the docker image
+packages/chunked-file-reader
 packages/data-access
 packages/data-access-plugin
 packages/docker-compose-js

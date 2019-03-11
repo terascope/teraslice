@@ -96,7 +96,7 @@ jobs:
     script: true
     deploy:
       - provider: script
-        script: ./scripts/docker-release.sh
+        script: ./scripts/docker-release.sh tag
 
   # Build nightly releases
   - stage: Nightly
@@ -113,4 +113,4 @@ jobs:
     script: true
     deploy:
       - provider: script
-        script: ./scripts/docker-release.sh "$TRAVIS_BRANCH"
+        script: ./scripts/docker-release.sh daily

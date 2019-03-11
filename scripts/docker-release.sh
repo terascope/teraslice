@@ -12,16 +12,20 @@ build_and_push() {
 }
 
 main() {
-    local tag slug version timestamp
-    local branch="$1"
+    local tag slug version timestamp commit_hash
+    local arg="$1"
 
     version="$(jq -r '.version' ./packages/teraslice/package.json)"
-    timestamp="$(date +%m.%d.%y)"
+    timestamp="$(date +%Y.%m.%d)"
+    commit_hash="$(git rev-parse --short HEAD)"
 
-    if [ -n "$branch" ]; then
-        tag="$branch-${timestamp}"
-    else
+    if [ "$arg" == "daily" ]; then
+        tag="daily-${timestamp}-${commit_hash}"
+    elif [ "$arg" == "tag" ]; then
         tag="v$version"
+    else
+        (echo >&2 "./scripts/docker-release.sh [tag|daily]")
+        exit 1
     fi
 
     slug="terascope/teraslice:$tag"
