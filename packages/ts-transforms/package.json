@@ -43,7 +43,7 @@
     "dependencies": {
         "@terascope/utils": "^0.6.0",
         "@types/got": "^9.4.1",
-        "awesome-phonenumber": "^2.5.0",
+        "awesome-phonenumber": "^2.6.0",
         "got": "^9.6.0",
         "lodash": "^4.17.11",
         "valid-url": "^1.0.9",
