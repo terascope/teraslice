@@ -1,14 +1,16 @@
 
 import _ from 'lodash';
-import { OperationConfig } from '../../interfaces';
+import { OperationConfig, InputOutputCardinality } from '../../interfaces';
 import { DataEntity } from '@terascope/utils';
 
 export default class OperationBase {
-    protected source!: string;
-    protected target!: string;
+    protected source!: string|string[];
+    protected target!: string|string[];
     protected config: OperationConfig;
-    protected destination: string;
+    protected destination: string|string[];
     protected hasTarget: boolean;
+
+    static cardinality: InputOutputCardinality = 'one-to-one';
 
     constructor(config: OperationConfig) {
         this.validateConfig(config);
@@ -19,21 +21,18 @@ export default class OperationBase {
 
     protected validateConfig(config: OperationConfig) {
         // we don't need to check target or source for selector ops
-        if (this.constructor.name === 'Selector' || this.constructor.name === 'RequiredExtractions') return;
-        const { target_field: targetField, source_field: sField } = config;
-        const tField = targetField || sField;
-        if (!tField || typeof tField !== 'string' || tField.length === 0) {
-            throw new Error(`could not find target_field for ${this.constructor.name} validation or it is improperly formatted, config: ${JSON.stringify(config)}`);
-        }
-        if (!sField || typeof sField !== 'string' || sField.length === 0) {
-            throw new Error(`could not find source_field for ${this.constructor.name} validation or it is improperly formatted, config: ${JSON.stringify(config)}`);
-        }
-        this.source = sField;
-        this.target = tField;
-    }
-
-    protected parentFieldPath(str: string): string {
-        return str.lastIndexOf('.') === -1 ? str : str.slice(0, str.lastIndexOf('.'));
+        if (this.constructor.name === 'Selector') return;
+        const {
+            target_field: targetField,
+            source_field: sField,
+            source_fields: sFields
+        } = config;
+        // @ts-ignore
+        this.source = sField || sFields;
+         // @ts-ignore
+        this.target = targetField;
+        hasStringValues(this.source);
+        hasStringValues(this.target);
     }
 
     set(doc: DataEntity, data: any) {
@@ -50,5 +49,15 @@ export default class OperationBase {
 
     removeField(doc: DataEntity, field: string) {
         _.unset(doc, field);
+    }
+}
+
+function hasStringValues(value: string|string[]) {
+    if (Array.isArray(value)) {
+        if (value.length === 0) throw new Error('if input is an array it must have string values inside');
+        const bool = _.every(value, _.isString);
+        if (!bool) throw new Error(`input: ${value} must be of type string`);
+    } else {
+        if (typeof value !== 'string') throw new Error(`input: ${value} must be of type string`);
     }
 }

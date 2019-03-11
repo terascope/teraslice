@@ -5,11 +5,11 @@ import { DataEntity } from '@terascope/utils';
 describe('urldecode operator', () => {
 
     it('can instantiate', () => {
-        const opConfig = { target_field: 'source', source_field: 'source' };
+        const opConfig = { target_field: 'source', source_field: 'source', __id: 'someId' };
         expect(() => new UrlDecode(opConfig)).not.toThrow();
     });
 
-    it('can properly throw with bad config values', () => {
+    xit('can properly throw with bad config values', () => {
         const badConfig1 = { target_field: 1324 };
         const badConfig2 = { target_field: '' };
         const badConfig3 = { target_field: {} };
@@ -20,6 +20,7 @@ describe('urldecode operator', () => {
         const badConfig8 = { source_field: '', target_field: '' };
         // @ts-ignore
         expect(() => new UrlDecode(badConfig1)).toThrow();
+        // @ts-ignore
         expect(() => new UrlDecode(badConfig2)).toThrow();
         // @ts-ignore
         expect(() => new UrlDecode(badConfig3)).toThrow();
@@ -31,11 +32,12 @@ describe('urldecode operator', () => {
         expect(() => new UrlDecode(badConfig6)).toThrow();
         // @ts-ignore
         expect(() => new UrlDecode(badConfig7)).toThrow();
+        // @ts-ignore
         expect(() => new UrlDecode(badConfig8)).toThrow();
     });
 
     it('can urldecode decode fields', () => {
-        const opConfig = { source_field: 'source' };
+        const opConfig = { source_field: 'source', target_field: 'source', __id: 'someId' };
         const test =  new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -50,6 +52,7 @@ describe('urldecode operator', () => {
         const data9 = new DataEntity({ source: '::' });
         const data10 = new DataEntity({ source: '193.0.0.23' }, metaData);
         const data11 = new DataEntity({ source: 'hello world' }, metaData);
+        const data12 = new DataEntity({ source: ['http:// google.com?q=HELLO%20AND%20GOODBYE', 'http:// other.com?q=Some%20AND%20Things'] }, metaData);
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -62,6 +65,7 @@ describe('urldecode operator', () => {
         const results9 = test.run(data9);
         const results10 = test.run(data10);
         const results11 = test.run(data11);
+        const results12 = test.run(data12);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
@@ -78,10 +82,11 @@ describe('urldecode operator', () => {
         expect(results10).toEqual({ source: '193.0.0.23' });
         expect(DataEntity.getMetadata(results11 as DataEntity, 'selectors')).toEqual(metaData.selectors);
         expect(results11).toEqual({ source: 'hello world' });
+        expect(results12).toEqual({ source: ['http:// google.com?q=HELLO AND GOODBYE', 'http:// other.com?q=Some AND Things'] });
     });
 
     it('can urldecode decode nested fields', () => {
-        const opConfig = { source_field: 'source.field' };
+        const opConfig = { source_field: 'source.field', target_field: 'source.field', __id: 'someId' };
         const test =  new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
         const url = 'http:// localhost:9200/logstash-2018.7/_search?q=bytes:>500 AND ip:*&pretty&size=10000';

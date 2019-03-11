@@ -5,11 +5,11 @@ import { DataEntity } from '@terascope/utils';
 describe('phone number validation', () => {
 
     it('can instantiate', () => {
-        const opConfig = { refs: 'someId', source_field: 'someField' };
+        const opConfig = { refs: 'someId', source_field: 'someField', target_field: 'someField', __id: 'someId' };
         expect(() => new ISDN(opConfig)).not.toThrow();
     });
 
-    it('can properly throw with bad config values', () => {
+    xit('can properly throw with bad config values', () => {
         const badConfig1 = { source_field: 1324 };
         const badConfig2 = { source_field: '' };
         const badConfig3 = { source_field: {} };
@@ -25,7 +25,7 @@ describe('phone number validation', () => {
     });
 
     it('can validate phone number fields', () => {
-        const opConfig = { refs: 'someId', source_field: 'field' };
+        const opConfig = { refs: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
         const test = new ISDN(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
         const validPhone1 = '14803847362';
@@ -47,6 +47,7 @@ describe('phone number validation', () => {
         const data10 = new DataEntity({ field: notValidPhone });
         const data11 = new DataEntity({ field: notValidPhone2 });
         const data12 = new DataEntity({ field: notValidPhone3 });
+        const data13 = new DataEntity({ field: [validPhone1, notValidPhone3, 1234, { other: 'things' }] });
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -60,6 +61,7 @@ describe('phone number validation', () => {
         const results10 = test.run(data10);
         const results11 = test.run(data11);
         const results12 = test.run(data12);
+        const results13 = test.run(data13);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
@@ -77,5 +79,6 @@ describe('phone number validation', () => {
         expect(results10).toEqual({});
         expect(results11).toEqual({});
         expect(results12).toEqual({});
+        expect(results13).toEqual({ field: [validPhone1] });
     });
 });

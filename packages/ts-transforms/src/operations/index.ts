@@ -14,6 +14,8 @@ import HexDecode from './lib/transforms/hexdecode';
 import JsonParse from './lib/transforms/jsonparse';
 import Lowercase from './lib/transforms/lowercase';
 import Uppercase from './lib/transforms/uppercase';
+import MakeArray from './lib/transforms/array';
+import Dedup from './lib/transforms/dedup';
 
 import Geolocation from './lib/validations/geolocation';
 import StringValidation from './lib/validations/string';
@@ -50,7 +52,9 @@ class CorePlugins implements PluginClassType {
             uuid: Uuid,
             jsonparse: JsonParse,
             lowercase: Lowercase,
-            uppercase: Uppercase
+            uppercase: Uppercase,
+            array: MakeArray,
+            dedup: Dedup
         };
     }
 }
@@ -104,5 +108,7 @@ export {
     CorePlugins,
     JsonParse,
     Lowercase,
-    Uppercase
+    Uppercase,
+    MakeArray,
+    Dedup
 };

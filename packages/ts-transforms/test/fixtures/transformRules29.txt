@@ -1,0 +1,5 @@
+{"selector": "hello:world", "source_field": "field1", "target_field": "value1", "output": false, "tag": "values"}
+{"selector": "hello:world", "source_field": "field2", "target_field": "value2", "output": false, "tag": "values"}
+{"selector": "hello:world", "source_field": "field3", "target_field": "value3", "output": false, "tag": "values"}
+{"follow": "values", "post_process": "array", "target_field": "results", "tag": "array" }
+{"follow": "array", "post_process": "dedup" }

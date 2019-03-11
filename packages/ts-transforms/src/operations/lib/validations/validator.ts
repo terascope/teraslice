@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import validator from 'validator';
 import ValidationOpBase from './base';
-import { OperationConfig, PluginClassType, /*OperationsDict*/ } from '../../../interfaces';
+import { OperationConfig, PluginClassType, InputOutputCardinality } from '../../../interfaces';
 
 export class Validator extends ValidationOpBase<any> {
     private method: string;
@@ -23,6 +23,8 @@ export class Validator extends ValidationOpBase<any> {
 
 function setup(method: string) {
     return class ValidatorInterface {
+        static cardinality: InputOutputCardinality = 'one-to-one';
+
         constructor(config: OperationConfig) {
             return new Validator(config, method);
         }

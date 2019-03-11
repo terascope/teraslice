@@ -205,16 +205,19 @@ This phase will go through all the configurations and apply all the extractions 
 ```
 
 ### Post Process Phase
-This phase is for any additional processing that needs to occur after extraction. Each `post_process` configuration affects the `target_field` of the chained configuration if you use the `tag` and `follow` tags. You can chain multiple times if needed. This phase also includes `validation` operations and can be freely chained to each other.
+This phase is for any additional processing that needs to occur after extraction. Each `post_process` configuration affects the `target_field` of the chained configuration if you use the `tags` and `follow` parameters. You can chain multiple times if needed. This phase also includes `validation` operations and can be freely chained to each other.
 
+- **tags** = an array of tags that marks the config and the target_field with an ID so other configurations can chain off of it
 - **tag** = marks the config and the target_field with an ID so other configurations can chain off of it
 - **follow** = marks the config that it is chaining off the tag id
+
 
 ```ts
 // rules
 { "selector": "some:value", "source_field": "field", "target_field": "newField", "tag": "tag_field" }
-{ "follow": "tag_field", "validation": "email", "tag_field": "valid_email" }
-{ "follow": "tag_field", "post_process": "extraction", "start": "@", "end": ".", "multivalue": true, "target_field": "final" }
+{ "follow": "tag_field", "validation": "email", "tag": "valid_email" }
+{ "follow": "valid_email", "post_process": "extraction", "start": "@", "end": ".", "output": false, "target_field": "secondary", "tag": "finalTag" }
+{ "follow": "finalTag", "post_process": "array", "target_field": "final"}
 
 // Incoming Data to transform
 [
@@ -247,7 +250,7 @@ It is possible to collapse some simple post_process configs together with the or
 ```
 
 ### Output Phase
-This is the last phase. This performs final removal of fields marked by `output:false` for transform configurations. This also makes sure that `other_match_required` operates and pull together any `multivalue` settings.
+This is the last phase. This performs final removal of fields marked by `output:false` for transform configurations. This also makes sure that `other_match_required` checks the presence of additional keys
 
 
 #### File structure
@@ -338,9 +341,9 @@ This will not only select for matching records based on the selector but it can 
 
 Example rules file:
 ```txt
-{"selector": "hello:world", "source_field": "first", "target_field": "first_name"}
-{"selector": "hello:world", "source_field": "last", "target_field": "last_name"}
-{"selector": "hello:world", "post_process": "join", "fields": ["first_name", "last_name"], "delimiter": " ", "target_field": "full_name"}
+{"selector": "hello:world", "source_field": "first", "target_field": "first_name", "tag": "field"}
+{"selector": "hello:world", "source_field": "last", "target_field": "last_name", "tag": "field"}
+{"follow": "field", "post_process": "join", "fields": ["first_name", "last_name"], "delimiter": " ", "target_field": "full_name"}
 ```
 
 code

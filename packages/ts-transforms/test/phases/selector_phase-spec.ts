@@ -1,14 +1,17 @@
 
 import path from 'path';
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, debugLogger } from '@terascope/utils';
 import { SelectionPhase, Loader, OperationsManager, OperationConfig } from '../../src';
 
 describe('selector phase', () => {
+    const logger = debugLogger('selectorPhaseTest');
+    const opManager = new OperationsManager();
 
     async function getConfigList(fileName: string): Promise<OperationConfig[]> {
         const filePath = path.join(__dirname, `../fixtures/${fileName}`);
-        const myFileLoader = new Loader({ rules: [filePath] });
-        return myFileLoader.load();
+        const myFileLoader = new Loader({ rules: [filePath] }, logger);
+        const { selectors } = await myFileLoader.load(opManager);
+        return selectors;
     }
     // file_path is only used in loader
     const transformOpconfig = { rules: ['some/path'] };
@@ -16,12 +19,12 @@ describe('selector phase', () => {
     it('can instantiate', async () => {
         const configList = await getConfigList('transformRules1.txt');
 
-        expect(() => new SelectionPhase(transformOpconfig, configList, new OperationsManager())).not.toThrow();
+        expect(() => new SelectionPhase(transformOpconfig, configList, opManager)).not.toThrow();
     });
 
     it('has the proper properties', async () => {
         const configList = await getConfigList('transformRules1.txt');
-        const selectorPhase = new SelectionPhase(transformOpconfig, configList, new OperationsManager());
+        const selectorPhase = new SelectionPhase(transformOpconfig, configList, opManager);
 
         expect(selectorPhase.selectionPhase).toBeDefined();
         expect(selectorPhase.selectionPhase.length).toEqual(6);
@@ -30,7 +33,7 @@ describe('selector phase', () => {
     it('can run data to match based on selector and types', async () => {
         const configList = await getConfigList('transformRules1.txt');
         const myOpConfig = Object.assign({}, transformOpconfig, { types: { location: 'geo' } });
-        const selectorPhase = new SelectionPhase(myOpConfig, configList, new OperationsManager());
+        const selectorPhase = new SelectionPhase(myOpConfig, configList, opManager);
         const data = DataEntity.makeArray([
             { some: 'data', isTall: true },
             { some: 'thing else', person: {} },
@@ -49,7 +52,7 @@ describe('selector phase', () => {
 
     it('can match all', async () => {
         const configList = await getConfigList('transformRules3.txt');
-        const selectorPhase = new SelectionPhase(transformOpconfig, configList, new OperationsManager());
+        const selectorPhase = new SelectionPhase(transformOpconfig, configList, opManager);
         const data = DataEntity.makeArray([
             { some: 'data', isTall: true },
             { some: 'thing else', person: {} },
@@ -64,15 +67,16 @@ describe('selector phase', () => {
         expect(results.length).toEqual(6);
     });
 
-    it('can loads only the appropriate selectors and disregards certain ones', async () => {
+    it('can loads only the appropriate selectors', async () => {
         const configList = await getConfigList('transformRules16.txt');
-        const selectorPhase = new SelectionPhase(transformOpconfig, configList, new OperationsManager());
-
+        const selectorPhase = new SelectionPhase(transformOpconfig, configList, opManager);
         // this is to check that a match-all has not been added
         // by the other_match_required or refs (ie the second and third config in file)
-        expect(selectorPhase.selectionPhase.length).toEqual(1);
-        // FIXME: this ignore
+        expect(selectorPhase.selectionPhase).toBeArrayOfSize(2);
         // @ts-ignore
         expect(selectorPhase.selectionPhase[0].selector).toEqual('host:fc2.com');
+        // @ts-ignore
+        expect(selectorPhase.selectionPhase[1].selector).toEqual('*');
+
     });
 });

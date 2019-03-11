@@ -214,8 +214,8 @@ This phase is for any additional processing that needs to occur after extraction
 ```ts
 // rules
 { "selector": "some:value", "source_field": "field", "target_field": "newField", "tag": "tag_field" }
-{ "follow": "tag_field", "validation": "email", "tag_field": "valid_email" }
-{ "follow": "tag_field", "post_process": "extraction", "start": "@", "end": ".", "multivalue": true, "target_field": "final" }
+{ "follow": "tag_field", "validation": "email", "tag_field": "valid_email" "tag": "validated_field" }
+{ "follow": "validated_field", "post_process": "extraction", "start": "@", "end": ".", "multivalue": true, "target_field": "final" }
 
 // Incoming Data to transform
 [
@@ -339,9 +339,9 @@ This will not only select for matching records based on the selector but it can 
 
 Example rules file:
 ```txt
-{"selector": "hello:world", "source_field": "first", "target_field": "first_name"}
-{"selector": "hello:world", "source_field": "last", "target_field": "last_name"}
-{"selector": "hello:world", "post_process": "join", "fields": ["first_name", "last_name"], "delimiter": " ", "target_field": "full_name"}
+{"selector": "hello:world", "source_field": "first", "target_field": "first_name", "tag": "field"}
+{"selector": "hello:world", "source_field": "last", "target_field": "last_name", "tag": "field"}
+{"follow": "field", "post_process": "join", "fields": ["first_name", "last_name"], "delimiter": " ", "target_field": "full_name"}
 ```
 
 code

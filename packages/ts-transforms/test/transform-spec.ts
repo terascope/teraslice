@@ -153,7 +153,7 @@ describe('can transform matches', () => {
         const results =  await test.run(data);
 
         expect(results.length).toEqual(1);
-        expect(results[0]).toEqual({ field1: 'blah', field2: 'moreblah', field3: 'evenmoreblah' });
+        expect(results[0]).toEqual({ field1: ['blah'], field2: ['moreblah'], field3: ['evenmoreblah'] });
         expect(DataEntity.isDataEntity(results[0])).toEqual(true);
     });
 
@@ -543,7 +543,7 @@ describe('can transform matches', () => {
         });
 
         expect(results1[1]).toEqual({
-            field1: key,
+            field1: [key],
             date
         });
 
@@ -598,7 +598,7 @@ describe('can transform matches', () => {
         });
 
         expect(results1[1]).toEqual({
-            field1: key,
+            field1: [key],
             date
         });
 
@@ -636,11 +636,11 @@ describe('can transform matches', () => {
             field1: key
         });
         expect(results1[1]).toEqual({
-            field1: key,
+            field1: [key],
         });
     });
 
-    it('build an array with target_field multivalue', async() => {
+    it('build an array with post_process array', async() => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules19.txt')]
         };
@@ -660,7 +660,7 @@ describe('can transform matches', () => {
         });
     });
 
-    it('build an array with target_field multivalue with validations', async() => {
+    it('build an array with post_process array with validations', async() => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules20.txt')]
         };
@@ -703,7 +703,7 @@ describe('can transform matches', () => {
             field1: key
         });
         expect(results1[1]).toEqual({
-            field1: key,
+            field1: [key],
         });
         expect(results1[2]).toEqual({
             height: 4,
@@ -824,6 +824,42 @@ describe('can transform matches', () => {
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ hashoutput: { some: 'data' } });
+    });
+
+    it('can run a array post_process operation', async () => {
+
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules28.txt')]
+        };
+
+        const data = [
+            new DataEntity({ hello: 'world', field1: 'hello', field2: 'world' }),
+            new DataEntity({ field: 'null' }),
+        ];
+
+        const test = await opTest.init(config);
+        const results =  await test.run(data);
+
+        expect(results.length).toEqual(1);
+        expect(results[0]).toEqual({ results: ['hello', 'world'] });
+    });
+
+    it('can run a dedup post_process operation', async () => {
+
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules29.txt')]
+        };
+
+        const data = [
+            new DataEntity({ hello: 'world', field1: 'hello', field2: 'world', field3: 'world' }),
+            new DataEntity({ field: 'null' }),
+        ];
+
+        const test = await opTest.init(config);
+        const results =  await test.run(data);
+
+        expect(results.length).toEqual(1);
+        expect(results[0]).toEqual({ results: ['hello', 'world'] });
     });
 
     it('can run multivalue on two different post_process extractions', async () => {
