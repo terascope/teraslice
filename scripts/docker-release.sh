@@ -12,14 +12,15 @@ build_and_push() {
 }
 
 main() {
-    local tag slug version timestamp
+    local tag slug version timestamp commit_hash
     local branch="$1"
 
     version="$(jq -r '.version' ./packages/teraslice/package.json)"
-    timestamp="$(date +%m.%d.%y)"
+    timestamp="$(date +%Y.%m.%d)"
+    commit_hash="$(git rev-parse --short HEAD)"
 
     if [ -n "$branch" ]; then
-        tag="$branch-${timestamp}"
+        tag="$branch-${timestamp}-${commit_hash}"
     else
         tag="v$version"
     fi
