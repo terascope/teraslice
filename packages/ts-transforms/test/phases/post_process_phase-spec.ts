@@ -1,34 +1,36 @@
 
 import path from 'path';
-import { DataEntity } from '@terascope/utils';
-import { OperationConfig, OperationsManager, PostProcessPhase, Loader } from '../../src';
+import { DataEntity, debugLogger } from '@terascope/utils';
+import { OperationsManager, PostProcessPhase, Loader, ConfigProcessingDict } from '../../src';
 
 describe('post_process phase', () => {
+    const logger = debugLogger('postProcessPhaseTest');
+    const opManager = new OperationsManager();
 
-    async function getConfigList(fileName: string): Promise<OperationConfig[]> {
+    async function getConfigList(fileName: string): Promise<ConfigProcessingDict> {
         const filePath = path.join(__dirname, `../fixtures/${fileName}`);
-        const myFileLoader = new Loader({ rules: [filePath] });
-        return myFileLoader.load();
+        const myFileLoader = new Loader({ rules: [filePath] }, logger);
+        const { postProcessing } = await myFileLoader.load(opManager);
+        return postProcessing;
     }
     // rules is only used in loader
     const transformOpconfig = { rules: ['some/path'] };
 
     it('can instantiate', async () => {
         const configList = await getConfigList('transformRules1.txt');
-
-        expect(() => new PostProcessPhase(transformOpconfig, configList, new OperationsManager())).not.toThrow();
+        expect(() => new PostProcessPhase(transformOpconfig, configList, opManager)).not.toThrow();
     });
 
     it('has the proper properties', async () => {
         const configList1 = await getConfigList('transformRules3.txt');
-        const postProcessPhase1 = new PostProcessPhase(transformOpconfig, configList1, new OperationsManager());
+        const postProcessPhase1 = new PostProcessPhase(transformOpconfig, configList1, opManager);
 
         expect(postProcessPhase1.hasProcessing).toEqual(false);
         expect(postProcessPhase1.phase).toBeDefined();
         expect(Object.keys(postProcessPhase1.phase).length).toEqual(0);
 
         const configList2 = await getConfigList('transformRules17.txt');
-        const postProcessPhase2 = new PostProcessPhase(transformOpconfig, configList2, new OperationsManager());
+        const postProcessPhase2 = new PostProcessPhase(transformOpconfig, configList2, opManager);
 
         expect(postProcessPhase2.hasProcessing).toEqual(true);
         expect(postProcessPhase2.phase).toBeDefined();
@@ -42,7 +44,7 @@ describe('post_process phase', () => {
 
     it('can run and process data', async () => {
         const configList = await getConfigList('transformRules17.txt');
-        const postProcessPhase = new PostProcessPhase(transformOpconfig, configList, new OperationsManager());
+        const postProcessPhase = new PostProcessPhase(transformOpconfig, configList, opManager);
 
         function encode(str: string) {
             return Buffer.from(str).toString('base64');
@@ -64,7 +66,7 @@ describe('post_process phase', () => {
 
     it('can run and validate data', async () => {
         const configList = await getConfigList('transformRules22.txt');
-        const postProcessPhase = new PostProcessPhase(transformOpconfig, configList, new OperationsManager());
+        const postProcessPhase = new PostProcessPhase(transformOpconfig, configList, opManager);
 
         const data = [
             new DataEntity({ newField: 'null' }, { selectors: { 'some:value': true } }),

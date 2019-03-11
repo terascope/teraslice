@@ -13,22 +13,14 @@ function isMutation(config: OperationConfig): boolean {
 
 export default class Extraction extends TransformOpBase {
     private isMutation: Boolean;
-    private mutltiFieldParams: object;
     private regex?: RegExp;
 
     constructor(config: OperationConfig) {
         super(config);
         this.isMutation = isMutation(config);
-        const mutltiFieldParams = {};
-        if (config.multivalue) {
-            const targetSource = {};
-            targetSource[config.target_field as string] = true;
-            mutltiFieldParams[config._multi_target_field as string] = targetSource;
-        }
         if (config.regex) {
             this.regex = this.formatRegex(config.regex);
         }
-        this.mutltiFieldParams = mutltiFieldParams;
         if (_.get(this.config, 'end') === 'EOP') this.config.end = '&';
     }
 
@@ -63,12 +55,17 @@ export default class Extraction extends TransformOpBase {
                 if (typeof data === 'string') extractedField = data.match(this.regex as RegExp);
 
                 if (!extractedField && Array.isArray(data)) {
+                    const results: string[] = [];
                     data.forEach((subData:any) => {
                         if (typeof subData === 'string') {
                             const subResults = subData.match(this.regex as RegExp);
-                            if (subResults) extractedField = subResults;
+                            if (subResults) {
+                                const regexResult = subResults.length === 1 ? subResults[0] : subResults[1];
+                                results.push(regexResult);
+                            }
                         }
                     });
+                    if (results.length > 0) extractedResult = results;
                 }
 
                 if (extractedField) {
@@ -84,12 +81,14 @@ export default class Extraction extends TransformOpBase {
                     if (extractedSlice) extractedResult = extractedSlice;
                 }
                 if (Array.isArray(data)) {
+                    const results: string[] = [];
                     data.forEach((subData:any) => {
                         if (typeof subData === 'string') {
                             const extractedSlice = this.sliceString(subData, start, end);
-                            if (extractedSlice) extractedResult = extractedSlice;
+                            if (extractedSlice) results.push(extractedSlice);
                         }
                     });
+                    if (results.length > 0) extractedResult = results;
                 }
             } else {
                 extractedResult = data;
@@ -97,7 +96,6 @@ export default class Extraction extends TransformOpBase {
 
             if (extractedResult !== undefined)  {
                 const metaData = doc.getMetadata();
-                if (this.config.multivalue) _.merge(metaData, { _multi_target_fields: this.mutltiFieldParams });
 
                 if (this.isMutation) {
                     doc.setMetadata('_multi_target_fields', metaData._multi_target_fields);
@@ -106,7 +104,7 @@ export default class Extraction extends TransformOpBase {
                     return doc;
                 }
 
-                return new DataEntity(_.set({}, this.target, extractedResult), metaData);
+                return DataEntity.make(_.set({}, this.target, extractedResult), metaData);
             }
         }
         if (this.isMutation && (_.keys(doc).length > 0)) return doc;
