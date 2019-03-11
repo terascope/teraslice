@@ -14,8 +14,7 @@ describe('MakeArray operator', () => {
         const badConfig2 = { operation: 'MakeArray', fields: ['first', 'last'], target_field: '' };
         const badConfig3 = { operation: 'MakeArray', fields: ['first', 'last'] };
         const badConfig4 = { operation: 'MakeArray', fields: 1234 , target_field: 'someField' };
-        const badConfig5 = { operation: 'MakeArray', fields: ['first'], target_field: 'someField' };
-        const badConfig6 = { operation: 'MakeArray', fields: { first: 'first', last:'last' }, target_field: 'someField' };
+        const badConfig5 = { operation: 'MakeArray', fields: { first: 'first', last:'last' }, target_field: 'someField' };
         // @ts-ignore
         expect(() => new MakeArray(badConfig1)).toThrow();
         // @ts-ignore
@@ -26,8 +25,6 @@ describe('MakeArray operator', () => {
         expect(() => new MakeArray(badConfig4)).toThrow();
         // @ts-ignore
         expect(() => new MakeArray(badConfig5)).toThrow();
-         // @ts-ignore
-        expect(() => new MakeArray(badConfig6)).toThrow();
     });
 
     it('can make an array of fields of data entities', () => {
@@ -48,6 +45,16 @@ describe('MakeArray operator', () => {
 
         expect(DataEntity.isDataEntity(results)).toEqual(true);
         expect(results).toEqual({ first: 'John', last: 'Doe', full: ['John', 'Doe'] });
+    });
+
+    it('can make an array of fields if only one field is specified', () => {
+        const opConfig = { operation: 'MakeArray', source_fields: ['first'], target_field: 'full', __id: 'someId' };
+        const test =  new MakeArray(opConfig);
+        const data = new DataEntity({ first: 'John', last: 'Doe' });
+        const results = test.run(data);
+
+        expect(DataEntity.isDataEntity(results)).toEqual(true);
+        expect(results).toEqual({ first: 'John', last: 'Doe', full: ['John'] });
     });
 
     it('can make an array from nested target_field', () => {
