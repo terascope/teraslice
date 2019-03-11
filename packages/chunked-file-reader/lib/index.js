@@ -1,6 +1,6 @@
 'use strict';
 
-const chunkFormatter = require('./lib/formatters');
+const chunkFormatter = require('./formatters');
 
 
 function _averageRecordSize(array) {

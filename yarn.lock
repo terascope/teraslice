@@ -1068,16 +1068,6 @@
     multi-progress "^2.0.0"
     superagent "^3.8.3"
 
-"@terascope/utils@^0.4.0":
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.4.1.tgz#7d470c6ac6f74a1998e52ac2a4b9e555803832f3"
-  integrity sha512-wO/ZoBoklc9BdxVgSoEzhX3EHzM8DXtstzQdmyeetheP+3mL25O2Rzxcy169k63cSEjeQvW5jhus4mmYLZDVxA==
-  dependencies:
-    debug "^4.1.1"
-    is-plain-object "^2.0.4"
-    kind-of "^6.0.2"
-    lodash.clonedeep "^4.5.0"
-
 "@turf/bbox-polygon@^6.0.1":
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/@turf/bbox-polygon/-/bbox-polygon-6.0.1.tgz#ae0fbb14558831fb34538aae089a23d3336c6379"
