@@ -826,6 +826,24 @@ describe('can transform matches', () => {
         expect(results[0]).toEqual({ hashoutput: { some: 'data' } });
     });
 
+    it('can run a array post_process operation', async () => {
+
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules28.txt')]
+        };
+
+        const data = [
+            new DataEntity({ hello: 'world', field1: 'hello', field2: 'world' }),
+            new DataEntity({ field: 'null' }),
+        ];
+
+        const test = await opTest.init(config);
+        const results =  await test.run(data);
+
+        expect(results.length).toEqual(1);
+        expect(results[0]).toEqual({ results: ['hello', 'world'] });
+    });
+
     it('can run multivalue on two different post_process extractions', async () => {
 
         const config: WatcherConfig = {

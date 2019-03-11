@@ -138,3 +138,55 @@ export default class MacAddress extends ValidationOpBase<any> {
         return true;
     }
 }
+
+
+#### Operation Cardinality
+Each operation is designed for a specify task. These operations work either work on a single input, several inputs (like the join operator) and return a single output. To differentiate the operators and to determine at validation time if the operator can take in multiple outputs each class must have a static varialble labeling what it is meant to do. The options are either `one-to-one` or `many-to-one`. If by using the tag/follow rules a `one-to-one` has several inputs then it will be cloned as many times as there are inputs so that each operation will have a single input. A `many-to-one` will take multiple outputs and set it at `source_fields` (note that it is the plural form). If you inherit from the base clase then it will default to `one-to-one`.
+
+
+```js
+// the none inherited version of a plugin
+export default class Double {
+    static cardinality: InputOutputCardinality = 'one-to-one';
+
+    constructor(config) {
+        this.config = config;
+    }
+
+    run(doc: DataEntity) {
+        // @ts-ignore
+        doc[this.config.source_field] = doc[this.config.source_field] * 2;
+        return doc;
+    }
+}
+```
+
+``` js
+
+import _ from 'lodash';
+
+export default class MakeArray {
+
+    static cardinality = 'many-to-one';
+
+    constructor(config:) {
+        // this will look for the fields config or look for the multi input located at source_fields
+        const fields = config.fields || config.source_fields;
+        this.fields = fields;
+        this.target = config.target_field;
+    }
+
+
+    run(doc) {
+        const results = [];
+        this.fields.forEach(field => {
+            const data = _.get(doc, field);
+            if (data) results.push(data);
+        });
+        if (results.length > 0) _.set(doc, this.target, results);
+        return doc;
+    }
+}
+
+
+```
