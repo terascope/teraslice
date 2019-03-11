@@ -30,7 +30,7 @@ export default class OperationBase {
         // @ts-ignore
         this.source = sField || sFields;
          // @ts-ignore
-        this.target = targetField || targetFields;
+        this.target = targetField;
         hasStringValues(this.source);
         hasStringValues(this.target);
     }

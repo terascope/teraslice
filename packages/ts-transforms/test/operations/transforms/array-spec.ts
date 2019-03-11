@@ -5,16 +5,16 @@ import { DataEntity } from '@terascope/utils';
 describe('MakeArray operator', () => {
 
     it('can instantiate', () => {
-        const opConfig = { operation: 'MakeArray', fields: ['first', 'last'], source_field: 'someField', target_field: 'otherField', __id: 'someId' };
+        const opConfig = { post_process: 'array', fields: ['first', 'last'], source_field: 'someField', target_field: 'otherField', __id: 'someId' };
         expect(() => new MakeArray(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
-        const badConfig1 = { operation: 'MakeArray', fields: ['first', 'last'], target_field: 1324 };
-        const badConfig2 = { operation: 'MakeArray', fields: ['first', 'last'], target_field: '' };
-        const badConfig3 = { operation: 'MakeArray', fields: ['first', 'last'] };
-        const badConfig4 = { operation: 'MakeArray', fields: 1234 , target_field: 'someField' };
-        const badConfig5 = { operation: 'MakeArray', fields: { first: 'first', last:'last' }, target_field: 'someField' };
+        const badConfig1 = { post_process: 'array', fields: ['first', 'last'], target_field: 1324 };
+        const badConfig2 = { post_process: 'array', fields: ['first', 'last'], target_field: '' };
+        const badConfig3 = { post_process: 'array', fields: ['first', 'last'] };
+        const badConfig4 = { post_process: 'array', fields: 1234 , target_field: 'someField' };
+        const badConfig5 = { post_process: 'array', fields: { first: 'first', last:'last' }, target_field: 'someField' };
         // @ts-ignore
         expect(() => new MakeArray(badConfig1)).toThrow();
         // @ts-ignore
@@ -28,7 +28,7 @@ describe('MakeArray operator', () => {
     });
 
     it('can make an array of fields of data entities', () => {
-        const opConfig = { operation: 'MakeArray', fields: ['first', 'last'], target_field: 'full', __id: 'someId' };
+        const opConfig = { post_process: 'array', fields: ['first', 'last'], target_field: 'full', __id: 'someId' };
         const test =  new MakeArray(opConfig);
         const data = new DataEntity({ first: 'John', last: 'Doe' });
         const results = test.run(data);
@@ -38,7 +38,7 @@ describe('MakeArray operator', () => {
     });
 
     it('can make an array of fields of data entities through source_fields', () => {
-        const opConfig = { operation: 'MakeArray', source_fields: ['first', 'last'], target_field: 'full', __id: 'someId' };
+        const opConfig = { post_process: 'array', source_fields: ['first', 'last'], target_field: 'full', __id: 'someId' };
         const test =  new MakeArray(opConfig);
         const data = new DataEntity({ first: 'John', last: 'Doe' });
         const results = test.run(data);
@@ -48,7 +48,7 @@ describe('MakeArray operator', () => {
     });
 
     it('can make an array of fields if only one field is specified', () => {
-        const opConfig = { operation: 'MakeArray', source_fields: ['first'], target_field: 'full', __id: 'someId' };
+        const opConfig = { post_process: 'array', source_fields: ['first'], target_field: 'full', __id: 'someId' };
         const test =  new MakeArray(opConfig);
         const data = new DataEntity({ first: 'John', last: 'Doe' });
         const results = test.run(data);
@@ -58,7 +58,7 @@ describe('MakeArray operator', () => {
     });
 
     it('can make an array from nested target_field', () => {
-        const opConfig = { operation: 'MakeArray', fields: ['person.first', 'person.last'], target_field: 'author.full_name', __id: 'someId' };
+        const opConfig = { post_process: 'array', fields: ['person.first', 'person.last'], target_field: 'author.full_name', __id: 'someId' };
         const test =  new MakeArray(opConfig);
         const metaData = { selectors: { 'some:data': true } };
         const data = new DataEntity({ person: { first: 'John', last: 'Doe' } }, metaData);

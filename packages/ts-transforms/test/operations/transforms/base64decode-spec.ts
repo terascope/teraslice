@@ -13,7 +13,7 @@ describe('base64 operator', () => {
         expect(() => new Base64Decode(opConfig)).not.toThrow();
     });
 
-    xit('can properly throw with bad config values', () => {
+    it('can properly throw with bad config values', () => {
         const badConfig1 = { target_field: 1324, __id: 'someId' };
         const badConfig2 = { target_field: '', __id: 'someId' };
         const badConfig3 = { target_field: {}, __id: 'someId' };
