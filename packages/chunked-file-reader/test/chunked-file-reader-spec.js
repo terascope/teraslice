@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird');
 const { debugLogger } = require('@terascope/utils');
-const { getOffsets, getChunk, _averageRecordSize } = require('../index.js');
+const { getOffsets, getChunk, _averageRecordSize } = require('../lib');
 
 // Mock logger
 const logger = debugLogger('chunked-file-reader');
