@@ -362,7 +362,7 @@ describe('rules-validator', () => {
 
         it('can throw error if you follow a tag that does not exist', () => {
             const validator = constructValidator(followTagError);
-            expect(() => validator.validate()).toThrow('cannot use "follow: source" becuase it was never set as a tag on a configuration');
+            expect(() => validator.validate()).toThrow(`rule attempts to follow a tag that doesn't exist: ${JSON.stringify(followTagError[1])}`);
         });
 
         it('can normalize post_processing fields', () => {

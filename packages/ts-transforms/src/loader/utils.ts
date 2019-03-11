@@ -150,7 +150,7 @@ export function parseConfig(configList: OperationConfig[], opsManager: Operation
         ids.forEach((id) => {
             const matchingTags: string[] = tagMapping[key];
             if (matchingTags == null) {
-                throw new Error(`cannot use "follow: ${key}" becuase it was never set as a tag on a configuration`);
+                throw new Error(`rule attempts to follow a tag that doesn't exist: ${JSON.stringify(graph.node(id))}`);
             }
             matchingTags.forEach(tag => graph.setEdge(tag, id));
         });

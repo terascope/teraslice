@@ -17,26 +17,10 @@ export default class Loader {
 
     public async load(opsManager: OperationsManager): Promise<ValidationResults> {
         const loader = new RulesLoader(this.opConfig, this.logger);
-        let loadResults;
-        let parsedResults;
-        let results;
-        try {
-            loadResults = await loader.load();
-        } catch (err) {
-            throw new Error(`could not load rules error: ${err.stack}`);
-        }
+        const loadResults = await loader.load();
         const rulesParser = new RulesParser(loadResults, this.logger);
-        try {
-            parsedResults = rulesParser.parse();
-        } catch (err) {
-            throw new Error(`could not parse rules error: ${err.stack}`);
-        }
+        const parsedResults = rulesParser.parse();
         const validator = new RulesValidator(parsedResults, opsManager, this.logger);
-        try {
-            results = validator.validate();
-        } catch (err) {
-            throw new Error(`could not validate rules error: ${err.stack}`);
-        }
-        return results;
+        return validator.validate();
     }
 }

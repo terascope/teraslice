@@ -13,6 +13,7 @@ import PhaseBase from './base';
 export default class PhaseManager {
     private opConfig: PhaseConfig;
     private loader: Loader;
+    // @ts-ignore
     private logger: Logger;
     public sequence: PhaseBase[];
     readonly isMatcher: boolean;
@@ -26,27 +27,21 @@ export default class PhaseManager {
     }
 
     public async init (Plugins?: PluginList) {
-        try {
-            const opsManager = new OperationsManager(Plugins);
-            const phaseConfiguration = await this.loader.load(opsManager);
-            const sequence: PhaseBase[] = [
-                new SelectionPhase(this.opConfig, phaseConfiguration.selectors, opsManager),
-            ];
+        const opsManager = new OperationsManager(Plugins);
+        const phaseConfiguration = await this.loader.load(opsManager);
+        const sequence: PhaseBase[] = [
+            new SelectionPhase(this.opConfig, phaseConfiguration.selectors, opsManager),
+        ];
 
-            if (!this.isMatcher) {
-                sequence.push(
-                    new ExtractionPhase(this.opConfig, phaseConfiguration.extractions, opsManager),
-                    new PostProcessPhase(this.opConfig, phaseConfiguration.postProcessing, opsManager),
-                );
-            }
-
-            sequence.push(new OutputPhase(this.opConfig, phaseConfiguration.output, opsManager));
-            this.sequence = sequence;
-        } catch (err) {
-            const errMsg = `could not instantiate phase manager: ${err.stack}`;
-            this.logger.error(errMsg);
-            throw new Error(errMsg);
+        if (!this.isMatcher) {
+            sequence.push(
+                new ExtractionPhase(this.opConfig, phaseConfiguration.extractions, opsManager),
+                new PostProcessPhase(this.opConfig, phaseConfiguration.postProcessing, opsManager),
+            );
         }
+
+        sequence.push(new OutputPhase(this.opConfig, phaseConfiguration.output, opsManager));
+        this.sequence = sequence;
     }
 
     public run(input: object[]): DataEntity[] {
