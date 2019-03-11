@@ -250,17 +250,12 @@ function hasMatchRequirements(config: Config) {
     return _.has(config, 'other_match_required');
 }
 
-function hasMultivalue(config: Config) {
-    return _.has(config, 'multivalue');
-}
-
 function createResults(list: OperationConfig[]): ValidationResults {
     const results: ValidationResults = {
         selectors: [],
         extractions: {},
         postProcessing: {},
         output: {
-            hasMultiValue: false,
             restrictOutput: {},
             matchRequirements: {},
         }
@@ -275,10 +270,6 @@ function createResults(list: OperationConfig[]): ValidationResults {
             return;
         }
         duplicateListing[config.__id] = true;
-
-        if (hasMultivalue(config)) {
-            output.hasMultiValue = true;
-        }
 
         if (hasOutputRestrictions(config)) {
             const key = config.target_field || config.source_field;

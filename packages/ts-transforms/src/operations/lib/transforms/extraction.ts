@@ -13,22 +13,14 @@ function isMutation(config: OperationConfig): boolean {
 
 export default class Extraction extends TransformOpBase {
     private isMutation: Boolean;
-    private mutltiFieldParams: object;
     private regex?: RegExp;
 
     constructor(config: OperationConfig) {
         super(config);
         this.isMutation = isMutation(config);
-        const mutltiFieldParams = {};
-        if (config.multivalue) {
-            const targetSource = {};
-            targetSource[config.target_field as string] = true;
-            mutltiFieldParams[config._multi_target_field as string] = targetSource;
-        }
         if (config.regex) {
             this.regex = this.formatRegex(config.regex);
         }
-        this.mutltiFieldParams = mutltiFieldParams;
         if (_.get(this.config, 'end') === 'EOP') this.config.end = '&';
     }
 
@@ -104,7 +96,6 @@ export default class Extraction extends TransformOpBase {
 
             if (extractedResult !== undefined)  {
                 const metaData = doc.getMetadata();
-                if (this.config.multivalue) _.merge(metaData, { _multi_target_fields: this.mutltiFieldParams });
 
                 if (this.isMutation) {
                     doc.setMetadata('_multi_target_fields', metaData._multi_target_fields);

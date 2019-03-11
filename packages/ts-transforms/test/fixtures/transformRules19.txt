@@ -1,4 +1,7 @@
-{ "selector": "selectfield:value", "source_field": "url", "start": "field1=", "end": "EOP", "target_field": "myfield", "multivalue": true }
-{ "selector": "selectfield:value", "source_field": "url", "start": "field2=", "end": "EOP", "target_field": "myfield", "multivalue": true }
-{ "selector": "other:value", "source_field": "other", "target_field": "field", "multivalue": true }
-{ "selector": "other:value", "source_field": "other", "target_field": "field", "multivalue": true }
+{ "selector": "selectfield:value", "source_field": "url", "start": "field1=", "end": "EOP", "target_field": "myfield1", "output": false, "tag": "tag1" }
+{ "selector": "selectfield:value", "source_field": "url", "start": "field2=", "end": "EOP", "target_field": "myfield2", "output": false, "tag": "tag1" }
+{"follow": "tag1", "post_process": "array", "target_field": "myfield"}
+
+{ "selector": "other:value", "source_field": "three", "target_field": "field3", "output": false, "tag": "tag2"  }
+{ "selector": "other:value", "source_field": "four", "target_field": "field4", "output": false, "tag": "tag2"  }
+{ "follow": "tag2", "post_process": "array", "target_field": "field"}

@@ -63,8 +63,6 @@ describe('phase manager', () => {
 
         expect(manager.sequence[3].constructor.name).toEqual('OutputPhase');
         // @ts-ignore
-        expect(manager.sequence[3].hasMultiValue).toEqual(false);
-        // @ts-ignore
         expect(manager.sequence[3].hasRequirements).toEqual(true);
          // @ts-ignore
         expect(manager.sequence[3].hasRestrictedOutput).toEqual(false);

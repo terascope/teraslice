@@ -221,14 +221,15 @@ Example:
 ```
 
 - mutate : `Booelan`(optional) = The default of extraction is to create a brand new object with the extracted fields. If you set this to true then it will return the orignal object with the new extracted fields on it so you can keep everything else. `NOTE`: if no extraction can occur you will recieve back the object unchanged, also if extraction is used as a `post_process` this defaults to `true`
-- multivalue : `Booelan`(optional) = if you set this to true then all values that have the same `target_field` will be put inside an array.
+
 
 Example:
 ```ts
 // rules
 
-{ "selector": "selectfield:value", "source_field": "url", "start": "field1=", "end": "EOP", "target_field": "myfield", "multivalue": true }
-{ "selector": "selectfield:value", "source_field": "url", "start": "field2=", "end": "EOP", "target_field": "myfield", "multivalue": true  }
+{ "selector": "selectfield:value", "source_field": "url", "start": "field1=", "end": "EOP", "target_field": "myfield1", "output": false, "tag": "tag1" }
+{ "selector": "selectfield:value", "source_field": "url", "start": "field2=", "end": "EOP", "target_field": "myfield2", "output": false, "tag": "tag1" }
+{"follow": "tag1", "post_process": "array", "target_field": "myfield"}
 
 // Incoming Data to transform
 [
@@ -241,8 +242,6 @@ Example:
 
 ```
 
-{ "selector": "selectfield:value", "source_field": "url", "start": "field1=", "end": "EOP", "target_field": "myfield", "multivalue": true }
-{ "selector": "selectfield:value", "source_field": "url", "start": "field2=", "end": "EOP", "target_field": "myfield", "multivalue": true  }
 
 ### join
 This will attempt to join to string values together (this is a `many-to-one` operation)

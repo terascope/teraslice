@@ -32,8 +32,6 @@ export interface UnParsedConfig {
     max?: number;
     preserve_colons?: boolean;
     case?: 'lowercase' | 'uppercase';
-    multivalue?: boolean;
-    _multi_target_field?: string;
     value?: any;
     output?: boolean;
     tag?: string;
@@ -117,7 +115,6 @@ export interface MatchRequirements {
 }
 
 export interface OutputValidation {
-    hasMultiValue: boolean;
     restrictOutput: RestrictOutput;
     matchRequirements: MatchRequirements;
 }

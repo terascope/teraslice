@@ -640,7 +640,7 @@ describe('can transform matches', () => {
         });
     });
 
-    it('build an array with target_field multivalue', async() => {
+    it('build an array with post_process array', async() => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules19.txt')]
         };
@@ -660,7 +660,7 @@ describe('can transform matches', () => {
         });
     });
 
-    it('build an array with target_field multivalue with validations', async() => {
+    it('build an array with post_process array with validations', async() => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules20.txt')]
         };

@@ -38,7 +38,7 @@ describe('Loader', () => {
 
         const phaseConfig = await loader.load(opsManager);
         const { selectors, extractions, postProcessing, output } = phaseConfig;
-        const { hasMultiValue, matchRequirements, restrictOutput } = output;
+        const { matchRequirements, restrictOutput } = output;
         const results = selectors.map(obj => ({ selector: obj.selector }));
 
         expect(selectors).toBeArrayOfSize(2);
@@ -51,7 +51,6 @@ describe('Loader', () => {
 
         expect(postProcessing).not.toBeEmpty();
 
-        expect(hasMultiValue).toBeFalse();
         expect(matchRequirements).toBeEmpty();
         expect(restrictOutput).toEqual({ first_name: true, last_name: true });
     });

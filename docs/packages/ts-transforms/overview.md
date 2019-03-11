@@ -214,9 +214,10 @@ This phase is for any additional processing that needs to occur after extraction
 
 ```ts
 // rules
-{ "selector": "some:value", "source_field": "field", "target_field": "newField", "tags": ["tag_field"] }
-{ "follow": "tag_field", "validation": "email", "tag_field": "valid_email" "tag": "validated_field" }
-{ "follow": "validated_field", "post_process": "extraction", "start": "@", "end": ".", "multivalue": true, "target_field": "final" }
+{ "selector": "some:value", "source_field": "field", "target_field": "newField", "tag": "tag_field" }
+{ "follow": "tag_field", "validation": "email", "tag": "valid_email" }
+{ "follow": "valid_email", "post_process": "extraction", "start": "@", "end": ".", "output": false, "target_field": "secondary", "tag": "finalTag" }
+{ "follow": "finalTag", "post_process": "array", "target_field": "final"}
 
 // Incoming Data to transform
 [
@@ -249,7 +250,7 @@ It is possible to collapse some simple post_process configs together with the or
 ```
 
 ### Output Phase
-This is the last phase. This performs final removal of fields marked by `output:false` for transform configurations. This also makes sure that `other_match_required` operates and pull together any `multivalue` settings.
+This is the last phase. This performs final removal of fields marked by `output:false` for transform configurations. This also makes sure that `other_match_required` checks the presence of additional keys
 
 
 #### File structure

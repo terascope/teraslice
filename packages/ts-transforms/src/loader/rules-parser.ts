@@ -7,13 +7,11 @@ import { Logger } from '@terascope/utils';
 
 export default class RulesParser {
     private configList: UnParsedConfig[];
-    private multiValueCounter: number;
     // @ts-ignore
     private logger: Logger;
 
     constructor(configList: UnParsedConfig[], logger: Logger) {
         this.configList = configList;
-        this.multiValueCounter = 0;
     }
 
     parse(): OperationConfig[] {
@@ -24,11 +22,6 @@ export default class RulesParser {
 
              // if its not set and its not a post process then set the selecter to *
             if (needsDefaultSelector(config)) config.selector = '*';
-            // We namespace the target_field value, so we can add them back later at the end
-            if (config.multivalue != null) {
-                config._multi_target_field = config.target_field;
-                config.target_field = `${config.target_field}${this.multiValueCounter++}`;
-            }
 
             if (config.tag) {
                 // @ts-ignore
@@ -72,9 +65,7 @@ function migrate(src:object, dest:OperationConfig): OperationConfig {
         target_field: true,
         source_field: true,
         selector: true,
-        multivalue: true,
         other_match_required: true,
-        _multi_target_field: true,
         mutate: true,
         regex: true,
         start: true,

@@ -220,19 +220,13 @@ describe('transform operator', () => {
         const opConfig = {
             source_field: 'someField',
             target_field: 'otherField',
-            // this metadata is set in loader
-            _multi_target_field: 'otherField',
             mutate: true,
-            multivalue: true,
             __id: 'someId'
         };
         const opConfig2 = {
             source_field: 'firstField',
             target_field: 'secondField',
-            // this metadata is set in loader
-            _multi_target_field: 'secondField',
             mutate: true,
-            multivalue: true,
             __id: 'someId'
         };
 
@@ -253,11 +247,6 @@ describe('transform operator', () => {
 
         expect(DataEntity.isDataEntity(results2)).toEqual(true);
         expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(DataEntity.getMetadata(results2 as DataEntity, '_multi_target_fields')).toEqual({
-            otherField: { otherField: true },
-            secondField: { secondField: true }
-        });
-
         expect(DataEntity.isDataEntity(results3)).toEqual(true);
         expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors);
     });
