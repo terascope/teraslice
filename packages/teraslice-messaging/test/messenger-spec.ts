@@ -1,10 +1,9 @@
 import 'jest-extended';
 
-import bluebird from 'bluebird';
 import http from 'http';
 import { Message } from '../src/messenger';
 import { Messenger, formatURL, newMsgId } from '../src';
-import findPort from './helpers/find-port';
+import { findPort, pDelay } from './helpers';
 
 describe('Messenger', () => {
     describe('->Core', () => {
@@ -386,7 +385,7 @@ describe('Messenger', () => {
 
                 // @ts-ignore
                 server.handleResponse(server.server.to(clientId), 'hello', async () => {
-                    await bluebird.delay(1000);
+                    await pDelay(1000);
                 });
 
                 try {

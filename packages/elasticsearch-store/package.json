@@ -1,0 +1,40 @@
+{
+    "name": "elasticsearch-store",
+    "version": "0.4.0",
+    "description": "An API for managing an elasticsearch index, with versioning and migration support.",
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/elasticsearch-store#readme",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "repository": "git@github.com:terascope/teraslice.git",
+    "license": "MIT",
+    "author": "Terascope, LLC <info@terascope.io>",
+    "files": [
+        "dist/src/**/*"
+    ],
+    "main": "dist/src/index.js",
+    "srcMain": "src/index.ts",
+    "typings": "dist/src/index.d.ts",
+    "scripts": {
+        "build": "tsc --build --pretty",
+        "build:watch": "yarn build --watch",
+        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
+        "lint:fix": "yarn lint --fix",
+        "prepublishOnly": "yarn build",
+        "test": "jest",
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
+        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
+    },
+    "dependencies": {
+        "@terascope/utils": "^0.6.0",
+        "ajv": "^6.10.0",
+        "rambda": "^2.4.1",
+        "xlucene-evaluator": "^0.5.1"
+    },
+    "devDependencies": {
+        "elasticsearch": "^15.4.1"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}

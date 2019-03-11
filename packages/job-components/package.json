@@ -1,6 +1,6 @@
 {
     "name": "@terascope/job-components",
-    "version": "0.14.1",
+    "version": "0.15.0",
     "publishConfig": {
         "access": "public"
     },
@@ -16,52 +16,37 @@
     },
     "license": "MIT",
     "directories": {
-        "lib": "dist",
+        "lib": "dist/src",
         "test": "test"
     },
     "files": [
-        "dist/**/*"
+        "dist/src/**/*"
     ],
     "srcMain": "src/index.ts",
-    "main": "dist/index.js",
-    "typings": "dist/index.d.ts",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
     "scripts": {
-        "lint": "tslint -p tsconfig.build.json -t verbose -e '**/*.json'",
+        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
-        "build": "rimraf ./dist; tsc --project tsconfig.build.json --pretty",
-        "build:prod": "tsc --project tsconfig.build.json",
+        "build": "tsc --build --pretty",
         "build:watch": "yarn build --watch",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
         "benchmark": "yarn build; node bench/index.js"
     },
     "dependencies": {
         "@terascope/queue": "^1.1.6",
-        "convict": "^4.4.0",
+        "@terascope/utils": "^0.6.0",
+        "convict": "^4.4.1",
         "datemath-parser": "^1.0.6",
-        "debug": "^4.1.0",
-        "is-plain-object": "^2.0.4",
-        "kind-of": "^6.0.2",
-        "lodash.clonedeep": "^4.5.0",
         "uuid": "^3.3.2"
     },
     "devDependencies": {
-        "@types/jest": "^23.3.10",
-        "@types/node": "^10.12.15",
-        "babel-core": "^6.0.0",
-        "babel-jest": "^23.6.0",
         "benchmark": "^2.1.4",
         "fs-extra": "^7.0.1",
-        "jest": "^23.6.0",
-        "jest-extended": "^0.11.0",
-        "jest-fixtures": "^0.6.0",
-        "rimraf": "^2.6.2",
-        "ts-jest": "^23.10.5",
-        "tslint": "^5.0.0",
-        "tslint-config-airbnb": "^5.11.0",
-        "typescript": "^3.2.2"
+        "jest-fixtures": "^0.6.0"
     },
     "engines": {
         "node": ">=8.0.0"

@@ -1,0 +1,20 @@
+{
+    "name": "testjob",
+    "workers": 5,
+    "operations": [
+        {
+            "_op": "operation1"
+        },
+        {
+            "_op": "operation2"
+        }
+    ],
+    "__metadata": {
+        "cli": {
+            "cluster": "http://teraslice.test",
+            "version": "0.4.1",
+            "job_id": "12345",
+            "updated": "2019-01-23T16:23:52.374Z"
+        }
+    }
+}

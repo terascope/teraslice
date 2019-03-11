@@ -1,24 +1,33 @@
 'use strict';
 'use console';
 
-const _ = require('lodash');
 const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
 
-exports.command = 'view <cluster_sh> <job_id>';
-exports.desc = 'View the job definition\n';
+const Config = require('../../lib/config');
+const YargsOptions = require('../../lib/yargs-options');
+const TerasliceUtil = require('../../lib/teraslice-util');
+
+const yargsOptions = new YargsOptions();
+
+exports.command = 'view <cluster-alias> <id>';
+exports.desc = 'View the job definition';
 exports.builder = (yargs) => {
-    cli().args('jobs', 'views', yargs);
-    yargs
-        .example('teraslice-cli jobs view cluster1 99999999-9999-9999-9999-999999999999');
+    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.strict()
+        .example('$0 jobs view cluster1 99999999-9999-9999-9999-999999999999');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    config(cliConfig, 'jobs:view').returnConfigData();
-    const job = _testFunctions || require('./lib')(cliConfig);
+exports.handler = async (argv) => {
+    let response;
+    const cliConfig = new Config(argv);
+    const teraslice = new TerasliceUtil(cliConfig);
 
-    return job.view()
-        .catch(err => reply.fatal(err.message));
+    try {
+        response = await teraslice.client.jobs.wrap(cliConfig.args.id).config();
+    } catch (err) {
+        reply.fatal(`> job_id:${cliConfig.args.id} not found on ${cliConfig.args.clusterAlias}`);
+    }
+
+    // eslint-disable-next-line no-console
+    console.log(JSON.stringify(response, null, 4));
 };

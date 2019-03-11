@@ -1,6 +1,8 @@
-# Teraslice Operation Test Harness
+# @terascope/teraslice-op-test-harness
 
-[![Build Status](https://travis-ci.org/terascope/teraslice_op_test_harness.svg?branch=master)](https://travis-ci.org/terascope/teraslice_op_test_harness)
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/teraslice-op-test-harness/overview.md INSTEAD -->
+
+**NOTE:** This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo, more documentation can be found [here](https://terascope.github.io/teraslice/docs/).
 
 This project provides a processor execution function called `run()`, test data
 sources and common test functions to help you implement tests of your Teraslice
@@ -402,3 +404,13 @@ var harness = require('@terascope/teraslice-op-test-harness')(processor);
 // Run the tests provided by the harness
 harness.runProcessorSpecs(processor);
 ```
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+
+[Apache-2.0](./LICENSE) licensed.

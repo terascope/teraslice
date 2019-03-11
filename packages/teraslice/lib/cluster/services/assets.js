@@ -1,11 +1,16 @@
 'use strict';
 
-const Promise = require('bluebird');
 const _ = require('lodash');
 const express = require('express');
-const parseError = require('@terascope/error-parser');
+const Promise = require('bluebird');
+const { TSError, parseErrorInfo } = require('@terascope/utils');
 const makeAssetsStore = require('../storage/assets');
-const { makeTable, handleRequest, getSearchOptions } = require('../../utils/api_utils');
+const {
+    makeTable,
+    handleRequest,
+    getSearchOptions,
+    sendError,
+} = require('../../utils/api_utils');
 
 module.exports = function module(context) {
     const logger = context.apis.foundation.makeLogger({ module: 'assets_service' });
@@ -37,18 +42,23 @@ module.exports = function module(context) {
         req.on('end', () => {
             const data = Buffer.concat(results);
             assetsStore.save(data)
-                .then((assetId) => {
-                    res.json({ _id: assetId });
+                .then(({ assetId, created }) => {
+                    const code = created ? 201 : 200;
+                    res.status(code).json({
+                        _id: assetId
+                    });
                 })
                 .catch((err) => {
+                    const { statusCode, message } = parseErrorInfo(err);
                     logger.error(err);
-                    const errMsg = _.isError(err) ? err.message : _.toString(err);
-                    res.status(500).json({ error: errMsg });
+                    sendError(res, statusCode, message);
                 });
         });
 
         req.on('error', (err) => {
-            res.status(500).send(err);
+            const { statusCode, message } = parseErrorInfo(err);
+            logger.error(err);
+            res.status(statusCode).send(message);
         });
     });
 
@@ -57,11 +67,13 @@ module.exports = function module(context) {
         const requestHandler = handleRequest(req, res, `Could not delete asset ${assetId}`);
 
         if (assetId.length !== 40) {
-            res.status(400).json({ error: `asset ${assetId} is not formatted correctly, please provide the full asset_id` });
+            res.status(400).json({
+                error: `asset ${assetId} is not formatted correctly, please provide the full asset_id`
+            });
         } else {
             requestHandler(async () => {
                 await assetsStore.remove(assetId);
-                return { assetId };
+                return { _id: assetId };
             });
         }
     });
@@ -170,10 +182,11 @@ module.exports = function module(context) {
                     running = true;
                 })
                 .catch((err) => {
-                    const errMsg = parseError(err);
-                    logger.error(`Error while creating assets_service, error: ${errMsg}`);
+                    const error = new TSError(err, {
+                        reason: 'Error while creating assets_service'
+                    });
                     running = false;
-                    return Promise.reject(err);
+                    return Promise.reject(error);
                 });
         },
         run() {

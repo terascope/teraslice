@@ -1,19 +1,10 @@
-# `teraslice-test-harness`
+# teraslice-test-harness
+
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/teraslice-test-harness/overview.md INSTEAD -->
+
+**NOTE:** This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo, more documentation can be found [here](https://terascope.github.io/teraslice/docs/).
 
 > A helpful library for testing teraslice jobs, operations, and other components.
-
-- [Installation](#installation)
-- [Available Test Harnesses](#available-test-harnesses)
-    - [OpTestHarness](#optestharness)
-    - [SlicerTestHarness](#slicertestharness)
-    - [WorkerTestHarness](#workertestharness)
-    - [JobTestHarness](#jobtestharness)
-- [Builtin Operations](#builtin-operations)
-    - [Collect](#collect)
-    - [Noop](#noop)
-    - [Delay](#delay)
-    - [Test Reader](#test-reader)
-- [Usage](#usage)
 
 **Note:** Documentation is a WIP, currently on the basic usage and description is provided.
 
@@ -316,3 +307,13 @@ describe('Example Asset', () => {
     });
 });
 ```
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+
+[MIT](./LICENSE) licensed.

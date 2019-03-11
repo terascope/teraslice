@@ -3,7 +3,8 @@
 const _ = require('lodash');
 const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
-const parseError = require('@terascope/error-parser');
+const { TSError, parseError } = require('@terascope/utils');
+const makeExStore = require('../storage/execution');
 
 /*
  Execution Life Cycle for _status
@@ -61,8 +62,7 @@ module.exports = function module(context, { clusterMasterServer }) {
                     .then(() => exStore.verifyStatusUpdate(exId, status))
                     .then(() => setExecutionStatus(exId, status))
                     .catch((err) => {
-                        logger.error(err.message);
-                        logger.trace(err.stack);
+                        logger.error(err);
                     })
                     .finally(() => resolve(true));
             }
@@ -91,8 +91,10 @@ module.exports = function module(context, { clusterMasterServer }) {
             .then(() => clusterService.shutdown())
             .then(() => exStore.shutdown())
             .catch((err) => {
-                const errMsg = parseError(err);
-                logger.error(`Error while shutting down execution stores, error: ${errMsg}`);
+                const error = new TSError(err, {
+                    reason: 'Error while shutting down execution stores'
+                });
+                logger.error(error);
                 // no matter what we need to shutdown
                 return true;
             });
@@ -141,7 +143,13 @@ module.exports = function module(context, { clusterMasterServer }) {
     // safely stop the execution without setting the ex status to stopping or stopped
     function finishExecution(exId, err) {
         if (err) {
-            logger.error(`terminal error for execution: ${exId}, shutting down execution`, err);
+            const error = new TSError(err, {
+                reason: `terminal error for execution: ${exId}, shutting down execution`,
+                context: {
+                    ex_id: exId,
+                }
+            });
+            logger.error(error);
         }
         return getExecutionContext(exId)
             .then((execution) => {
@@ -150,9 +158,16 @@ module.exports = function module(context, { clusterMasterServer }) {
                     logger.debug(`execution ${exId} is already stopping which means there is no need to stop the execution`);
                     return true;
                 }
+
                 logger.debug(`execution ${exId} finished, shutting down execution`);
-                return clusterService.stopExecution(exId).catch((error) => {
-                    logger.error(`error finishing the execution ${error}`);
+                return clusterService.stopExecution(exId).catch((stopErr) => {
+                    const stopError = new TSError(stopErr, {
+                        reason: 'error finishing the execution',
+                        context: {
+                            ex_id: exId,
+                        }
+                    });
+                    logger.error(stopError);
                 });
             });
     }
@@ -160,11 +175,19 @@ module.exports = function module(context, { clusterMasterServer }) {
     function stopExecution(exId, timeout, excludeNode) {
         return getExecutionContext(exId)
             .then((execution) => {
-                const isTerminal = _isTerminalStatus(execution);
+                const isTerminal = _isTerminalStatus(execution._status);
                 if (isTerminal) {
                     logger.info(`execution ${exId} is in terminal status "${execution._status}", it cannot be stopped`);
                     return true;
                 }
+
+                if (execution._status === 'stopping') {
+                    logger.info('execution is already stopping...');
+                    // we are kicking this off in the background, not part of the promise chain
+                    executionHasStopped(exId);
+                    return true;
+                }
+
                 logger.debug(`stopping execution ${exId}...`, _.pickBy({ timeout, excludeNode }));
                 return setExecutionStatus(exId, 'stopping')
                     .then(() => clusterService.stopExecution(exId, timeout, excludeNode))
@@ -248,20 +271,22 @@ module.exports = function module(context, { clusterMasterServer }) {
                     return { job_id: ex.job_id };
                 })
                 .catch((err) => {
-                    const errMsg = parseError(err);
-                    logger.error('could not set to pending', errMsg);
-                    return Promise.reject(new Error('Failure to set job to pending'));
+                    const error = new TSError(err, {
+                        reason: 'Failure to set job to pending'
+                    });
+                    return Promise.reject(error);
                 }))
             .catch((err) => {
-                const errMsg = parseError(err);
-                logger.error('could not create execution context', errMsg);
-                return Promise.reject(new Error('Failure to create execution context'));
+                const error = new TSError(err, {
+                    reason: 'Failure to create execution context'
+                });
+                return Promise.reject(error);
             });
     }
 
     function getExecutionContext(exId) {
         return exStore.get(exId)
-            .catch(err => logger.error(`error getting execution context for ex: ${exId}`, err));
+            .catch(err => logger.error(err, `error getting execution context for ex: ${exId}`));
     }
 
     function getRunningExecutions(exId) {
@@ -399,12 +424,16 @@ module.exports = function module(context, { clusterMasterServer }) {
                         }))
                         .then(() => allocateWorkers(execution, execution.workers)
                             .catch((err) => {
-                                logger.error(`Failured to allocateWorkers ${execution.ex_id}, error: ${parseError(err)}`);
-                                return Promise.reject(err);
+                                const error = new TSError(err, {
+                                    reason: `Failure to allocateWorkers ${execution.ex_id}`
+                                });
+                                return Promise.reject(error);
                             })))
                     .catch((err) => {
-                        logger.error(`Failured to provision execution ${execution.ex_id}, error: ${parseError(err)}`);
-                        const errMetaData = executionMetaData(null, parseError(err));
+                        const error = new TSError(err, {
+                            reason: `Failured to provision execution ${execution.ex_id}`
+                        });
+                        const errMetaData = executionMetaData(null, error.stack);
                         return setExecutionStatus(execution.ex_id, 'failed', errMetaData);
                     })
                     .finally(() => {
@@ -453,17 +482,19 @@ module.exports = function module(context, { clusterMasterServer }) {
                 }))
             .error((err) => {
                 // TODO: verify whats coming here
-                if (_.get(err, 'body.error.reason') !== 'no such index') {
-                    logger.error(`initialization failed loading state from Elasticsearch: ${err}`);
+                if (parseError(err).includes('no such index')) {
+                    logger.error(err, 'initialization failed loading state from Elasticsearch');
                 }
-                const errMsg = parseError(err);
-                logger.error('Error initializing, ', errMsg);
-                return Promise.reject(err);
+
+                const error = new TSError(err, {
+                    reason: 'Error initializing'
+                });
+                return Promise.reject(error);
             });
     }
 
 
-    return require('../storage/execution')(context)
+    return makeExStore(context)
         .then((ex) => {
             logger.info('execution service is initializing...');
             exStore = ex;

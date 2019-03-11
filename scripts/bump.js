@@ -8,53 +8,83 @@ const semver = require('semver');
 const path = require('path');
 const fs = require('fs');
 const fse = require('fs-extra');
-
-const pkgName = process.argv[2];
-const release = process.argv[3];
-
-function usage() {
-    console.error('USAGE: bump <package-name> <[major|minor|patch]>');
-    console.error('');
-    console.error('Description: Update a package to specific version and its dependencies.');
-    console.error('             This should be run in the root of the workspace.');
-    console.error('');
-    console.error('Arguments:');
-    console.error('  -h, --help         print this help text');
-    console.error('');
-}
-
-const isHelp = process.argv.find(arg => arg === '--help' || arg === '-h');
-
-if (isHelp || process.argv.length === 2) {
-    usage();
-    process.exit(0);
-}
-
-if (!pkgName) {
-    usage();
-    console.error('Missing package name as first arg');
-    process.exit(1);
-}
-
-if (!release) {
-    usage();
-    console.error('Missing release as second arg');
-    process.exit(1);
-}
+const yargs = require('yargs');
 
 const packagesPath = path.join(process.cwd(), 'packages');
+const packages = fs.readdirSync(packagesPath).filter((pkgName) => {
+    const pkgDir = path.join(packagesPath, pkgName);
+
+    if (!fs.statSync(pkgDir).isDirectory()) return false;
+    return fs.existsSync(path.join(pkgDir, 'package.json'));
+});
+
+const desc = 'Update a package to specific version and its dependencies. This should be run in the root of the workspace.';
+
+const { argv } = yargs.usage('$0 [options] <package-name> <release>', desc, (_yargs) => {
+    _yargs
+        .example('$0', 'job-components major // 0.15.0 => 1.0.0')
+        .example('$0', 'teraslice-cli minor // 0.5.0 => 0.6.0')
+        .example('$0', 'teraslice patch // 0.20.0 => 0.20.1')
+        .example('$0', 'job-components premajor // 0.15.0 => 1.0.0-rc.0')
+        .example('$0', 'teraslice-cli preminor // 0.5.0 => 0.6.0-rc.0')
+        .example('$0', 'teraslice prepatch // 0.20.0 => 0.20.1-rc.0')
+        .example('$0', 'teraslice prerelease // 0.20.1-rc.0 => 0.20.1-rc.1')
+        .option('prelease-id', {
+            default: 'rc',
+            description: 'Specify the prerelease identifier, defaults to RC'
+        })
+        .positional('package-name', {
+            choices: packages,
+            description: 'The name of the package to bump'
+        })
+        .positional('release', {
+            description: 'Specify the release change for the version, see https://www.npmjs.com/package/semver',
+            choices: [
+                'major',
+                'minor',
+                'patch',
+                'prerelease',
+                'premajor',
+                'preminor',
+                'prepatch',
+            ]
+        })
+        .requiresArg([
+            'package-name',
+            'release'
+        ]);
+})
+    .scriptName('yarn bump')
+    .version()
+    .alias('v', 'version')
+    .help()
+    .alias('h', 'help')
+    .detectLocale(false)
+    .wrap(yargs.terminalWidth());
+
+const { release } = argv;
+const pkgName = argv['package-name'];
+const preId = argv['prelease-id'];
 
 const pkgPath = path.join(packagesPath, pkgName, 'package.json');
-
-if (!fse.pathExistsSync(pkgPath)) {
-    console.error(`Unable to find package.json at path ${pkgPath}`);
-    process.exit(1);
-}
 
 const pkgJSON = fse.readJsonSync(pkgPath);
 const realPkgName = pkgJSON.name;
 
-const newVersion = semver.inc(pkgJSON.version, release);
+function bumpVersion(_version) {
+    let version = _version;
+
+    version = semver.inc(version, release, preId);
+    if (!version) {
+        throw new Error(`Failure to increment version "${pkgJSON.version}" using "${release}"`);
+    }
+
+    return version;
+}
+
+const newVersion = bumpVersion(pkgJSON.version);
+
+
 console.log(`* Updating ${realPkgName} to version ${pkgJSON.version} to ${newVersion}`);
 
 pkgJSON.version = newVersion;

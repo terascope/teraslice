@@ -1,10 +1,10 @@
 import fs from 'fs';
 import path from 'path';
+import { parseJSON } from '@terascope/utils';
 import { TestReaderConfig } from './interfaces';
 import { Fetcher } from '../../operations';
-import { parseJSON } from '../../utils';
 import { dataClone } from './utils';
-import defaultData from './data/fetcher-data.json';
+import defaultData from './data/fetcher-data';
 
 export default class TestFetcher extends Fetcher<TestReaderConfig> {
     cachedData: Buffer|null = null;

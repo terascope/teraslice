@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const _ = require('lodash');
 const Promise = require('bluebird');
-const parseError = require('@terascope/error-parser');
+const { parseError, TSError } = require('@terascope/utils');
 const { saveAsset } = require('../../utils/file_utils');
 const makeTerafoundationContext = require('../context/terafoundation-context');
 const { safeDecode } = require('../../utils/encoding_utils');
@@ -39,11 +39,7 @@ class AssetLoader {
         try {
             idArray = await this.assetStore.parseAssetsArray(assets);
         } catch (err) {
-            if (_.isString(err)) {
-                throw new Error(err);
-            } else {
-                throw err;
-            }
+            throw new TSError(err);
         }
 
         await Promise.map(idArray, async (assetIdentifier) => {
@@ -60,7 +56,7 @@ class AssetLoader {
         try {
             await this.shutdown();
         } catch (err) {
-            logger.error('assets loading shutdown error', err);
+            logger.error(err, 'assets loading shutdown error');
         }
 
         return idArray;
@@ -96,7 +92,7 @@ if (require.main === module) {
     const assets = safeDecode(process.env.ASSETS);
 
     Promise.resolve(loadAssets(context, assets))
-        .then((assetIds) => {
+        .then((assetIds = []) => {
             process.send({
                 assetIds,
                 success: true,
@@ -104,7 +100,7 @@ if (require.main === module) {
         })
         .catch((err) => {
             process.send({
-                error: parseError(err),
+                error: parseError(err, true),
                 success: false,
             });
             process.exitCode = 1;

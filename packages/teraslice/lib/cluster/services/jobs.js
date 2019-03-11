@@ -3,10 +3,11 @@
 const Promise = require('bluebird');
 const _ = require('lodash');
 const util = require('util');
-const parseError = require('@terascope/error-parser');
+const { TSError } = require('@terascope/utils');
 const { JobValidator } = require('@terascope/job-components');
 const { terasliceOpPath } = require('../../config');
 const spawnAssetsLoader = require('../../workers/assets/spawn');
+const makeJobStore = require('../storage/jobs');
 
 module.exports = function module(context) {
     const executionService = context.services.execution;
@@ -20,6 +21,12 @@ module.exports = function module(context) {
     let jobStore;
 
     function submitJob(jobSpec, shouldRun) {
+        if (jobSpec.job_id) {
+            const error = new Error('Job cannot include a job_id');
+            error.code = 422;
+            return Promise.reject(error);
+        }
+
         return _ensureAssets(jobSpec)
             .then(parsedAssetJob => _validateJob(parsedAssetJob))
             .then(validJob => jobStore.create(jobSpec)
@@ -27,12 +34,16 @@ module.exports = function module(context) {
                     if (!shouldRun) {
                         return { job_id: job.job_id };
                     }
-                    const executableJobConfig = Object.assign({}, jobSpec, validJob);
-                    return executionService.createExecutionContext(executableJobConfig);
+
+                    const exConfig = Object.assign({}, jobSpec, validJob, {
+                        job_id: job.job_id,
+                    });
+                    return executionService.createExecutionContext(exConfig);
                 }))
             .catch((err) => {
-                const error = new Error(`Failure to submit job, ${_.toString(err)}`);
-                logger.error(error.message, parseError(err));
+                const error = new TSError(err, {
+                    reason: 'Failure to submit job'
+                });
                 return Promise.reject(error);
             });
     }
@@ -46,8 +57,9 @@ module.exports = function module(context) {
                 return jobStore.update(jobId, updatedJob);
             })
             .catch((err) => {
-                const error = new Error(`Failure to update job, ${_.toString(err)}`);
-                logger.error(error.message, parseError(err));
+                const error = new TSError(err, {
+                    reason: 'Failure to update job'
+                });
                 return Promise.reject(error);
             });
     }
@@ -61,6 +73,7 @@ module.exports = function module(context) {
                     error.code = 409;
                     return Promise.reject(error);
                 }
+
                 return getJob(jobId)
                     .then((jobConfig) => {
                         if (!jobConfig) {
@@ -74,8 +87,9 @@ module.exports = function module(context) {
                     .then(validJob => executionService.createExecutionContext(validJob));
             })
             .catch((err) => {
-                const error = new Error(`Failure to start job, ${_.toString(err)}`);
-                logger.error(error.message, parseError(err));
+                const error = new TSError(err, {
+                    reason: 'Failure to start job'
+                });
                 return Promise.reject(error);
             });
     }
@@ -88,8 +102,7 @@ module.exports = function module(context) {
             .then(() => getLatestExecutionId(jobId))
             .then(exId => executionService.recoverExecution(exId, cleanup))
             .catch((err) => {
-                const error = new Error(`Failure to recover job, ${_.toString(err)}`);
-                logger.error(error.message, parseError(err));
+                const error = new TSError(err, { reason: 'Failure to recover job' });
                 return Promise.reject(error);
             });
     }
@@ -98,8 +111,7 @@ module.exports = function module(context) {
         return getLatestExecutionId(jobId)
             .then(exId => executionService.pauseExecution(exId))
             .catch((err) => {
-                const error = new Error(`Failure to pause job, ${_.toString(err)}`);
-                logger.error(error.message, parseError(err));
+                const error = new TSError(err, { reason: 'Failure to pause job' });
                 return Promise.reject(error);
             });
     }
@@ -108,8 +120,7 @@ module.exports = function module(context) {
         return getLatestExecutionId(jobId)
             .then(exId => executionService.resumeExecution(exId))
             .catch((err) => {
-                const error = new Error(`Failure to resume job, ${_.toString(err)}`);
-                logger.error(error.message, parseError(err));
+                const error = new Error(err, { reason: 'Failure to resume job' });
                 return Promise.reject(error);
             });
     }
@@ -170,8 +181,7 @@ module.exports = function module(context) {
     function shutdown() {
         return jobStore.shutdown()
             .catch((err) => {
-                const errMsg = parseError(err);
-                logger.error(`Error while shutting down job stores, error: ${errMsg}`);
+                logger.error(err, 'Error while shutting down job stores');
                 // no matter what we need to shutdown
                 return true;
             });
@@ -195,7 +205,7 @@ module.exports = function module(context) {
     function _ensureAssets(jobConfig) {
         const jobAssets = jobConfig.assets;
         return new Promise((resolve, reject) => {
-            if (!jobAssets) {
+            if (_.isEmpty(jobAssets)) {
                 resolve(jobConfig);
             } else {
                 // convert asset references to their id's
@@ -246,7 +256,7 @@ module.exports = function module(context) {
         return Promise.resolve(api);
     }
 
-    return require('../storage/jobs')(context)
+    return makeJobStore(context)
         .then((job) => {
             jobStore = job;
             return _initialize(); // Load the initial pendingJobs state.

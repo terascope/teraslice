@@ -18,7 +18,7 @@ module.exports = (projectDir) => {
         displayName: name,
         verbose: true,
         testEnvironment: 'node',
-        setupTestFrameworkScriptFile: 'jest-extended',
+        setupFilesAfterEnv: ['jest-extended'],
         testMatch: [
             `${projectRoot}/test/**/*-spec.{ts,js}`,
             `${projectRoot}/test/*-spec.{ts,js}`
@@ -54,7 +54,7 @@ module.exports = (projectDir) => {
     }
 
     if (fs.pathExistsSync(path.join(projectDir, 'test/test.setup.js'))) {
-        config.setupTestFrameworkScriptFile = `${projectRoot}/test/test.setup.js`;
+        config.setupFilesAfterEnv.push(`${projectRoot}/test/test.setup.js`);
     }
 
     config.globals = {
@@ -71,15 +71,13 @@ module.exports = (projectDir) => {
         } else {
             config.globals['ts-jest'] = {
                 tsConfig: `./${workspaceName}/${name}/tsconfig.json`,
-                diagnostics: {
-                    warnOnly: true
-                },
+                diagnostics: true,
                 pretty: true
             };
         }
     } else {
         config.globals['ts-jest'] = {
-            diagnostics: false,
+            diagnostics: true,
             pretty: true
         };
     }

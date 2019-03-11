@@ -1,4 +1,10 @@
-# docker-compose-js - Javascript API for docker-compose
+# @terascope/docker-compose-js
+
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/docker-compose-js/overview.md INSTEAD -->
+
+**NOTE:** This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo, more documentation can be found [here](https://terascope.github.io/teraslice/docs/).
+
+> Javascript API for docker-compose
 
 This is a simple API wrapper for the docker-compose command line tool. Its primary purpose is to allow integration tests written in node.js to dynamically manipulate the docker-compose environment.
 
@@ -6,8 +12,12 @@ A larger example of the API used in this way is available in the [integration te
 
 ## Installation
 
-```
-npm install @terascope/docker-compose-js
+
+```bash
+# Using yarn
+yarn add @terascope/docker-compose-js
+# Using npm
+npm install --save  @terascope/docker-compose-js
 ```
 
 ## Usage
@@ -20,7 +30,7 @@ The examples below show the common patterns for calls. Since this is a wrapper a
 
 Note: Each function takes an object for keyword parameters as the last argument.
 
-```
+```js
 var compose = require('@terascope/docker-compose-js')('docker-compose.yaml');
 
 compose.up()
@@ -44,7 +54,7 @@ compose.up()
 
 Example of scaling a particular task
 
-```
+```js
 var compose = require('@terascope/docker-compose-js')('docker-compose.yaml');
 
 compose.up()
@@ -62,3 +72,13 @@ compose.up()
         return compose.down();
     })
 ```
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+
+[MIT](./LICENSE) licensed.

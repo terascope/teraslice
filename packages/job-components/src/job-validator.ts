@@ -2,7 +2,7 @@
 
 import { Context, OpConfig, JobConfig, ValidatedJobConfig } from './interfaces';
 import convict from 'convict';
-import { cloneDeep } from './utils';
+import { cloneDeep } from '@terascope/utils';
 import { validateJobConfig } from './config-validators';
 import { jobSchema } from './job-schemas';
 import { OperationLoader } from './operation-loader';

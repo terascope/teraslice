@@ -11,7 +11,7 @@
         "lint:fix": "yarn lint --fix",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG='*docker-compose-js*' jest --detectOpenHandles --coverage=false --runInBand"
+        "test:debug": "env DEBUG=\"${DEBUG:*docker-compose-js*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "keywords": [
         "docker",
@@ -27,13 +27,7 @@
     },
     "dependencies": {
         "bluebird": "^3.5.3",
-        "debug": "^4.1.0"
+        "debug": "^4.1.1"
     },
-    "devDependencies": {
-        "eslint": "^5.10.0",
-        "eslint-config-airbnb-base": "^13.1.0",
-        "eslint-plugin-import": "^2.14.0",
-        "jest": "^23.6.0",
-        "jest-extended": "^0.11.0"
-    }
+    "devDependencies": {}
 }

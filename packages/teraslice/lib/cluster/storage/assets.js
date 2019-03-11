@@ -1,12 +1,12 @@
 'use strict';
 
+const _ = require('lodash');
+const path = require('path');
+const fse = require('fs-extra');
+const crypto = require('crypto');
 const Promise = require('bluebird');
 const fs = Promise.promisifyAll(require('fs'));
-const crypto = require('crypto');
-const path = require('path');
-const _ = require('lodash');
-const parseError = require('@terascope/error-parser');
-const fse = require('fs-extra');
+const { TSError } = require('@terascope/utils');
 const { saveAsset } = require('../../utils/file_utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
@@ -32,9 +32,14 @@ module.exports = function module(context) {
                 logger.debug(`asset ${id} exists, verifying that it exists in backend`);
                 return backend.get(id, null, ['name'])
                     // it exists, just return the id
-                    .then(() => id)
+                    .then(() => ({
+                        assetId: id,
+                        created: false,
+                    }))
                     .catch((err) => {
-                        const error = new Error(`Failure checking asset index, could not get asset with id: ${id}, error: ${parseError(err)}`);
+                        const error = new TSError(err, {
+                            reason: `Failure checking asset index, could not get asset with id: ${id}`
+                        });
                         return Promise.reject(error);
                     });
             })
@@ -43,12 +48,18 @@ module.exports = function module(context) {
                     return saveAsset(logger, assetsPath, id, data, _metaIsUnqiue)
                         .then((_metaData) => {
                             metaData = _metaData;
-                            const file = _.assign({ blob: esData, _created: new Date() }, metaData);
+                            const file = Object.assign({
+                                blob: esData,
+                                _created: new Date()
+                            }, metaData);
                             return backend.indexWithId(id, file);
                         })
                         .then(() => {
                             logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
-                            return id;
+                            return {
+                                assetId: id,
+                                created: true,
+                            };
                         });
                 }
 
@@ -72,10 +83,12 @@ module.exports = function module(context) {
         }
 
         const metaData = assetIdentifier.split(':');
+        const sort = '_created:desc';
+        const fields = ['version'];
 
         // if no version specified get latest
         if (metaData.length === 1 || metaData[1] === 'latest') {
-            return search(`name:${metaData[0]}`, null, 1, '_created:desc')
+            return search(`name:${metaData[0]}`, null, 1, sort, fields)
                 .then((assetRecord) => {
                     const record = assetRecord.hits.hits[0];
                     if (!record) {
@@ -87,7 +100,7 @@ module.exports = function module(context) {
         }
 
         // has wildcard in version
-        return search(`name:${metaData[0]} AND version:${metaData[1]}`, null, 10000, '_created:desc', ['version'])
+        return search(`name:${metaData[0]} AND version:${metaData[1]}`, null, 10000, sort, fields)
             .then((assetRecords) => {
                 const records = assetRecords.hits.hits.map(record => ({
                     id: record._id,
@@ -150,6 +163,7 @@ module.exports = function module(context) {
                     return meta;
                 }
                 const error = new Error(`asset name:${meta.name} and version:${meta.version} already exists, please increment the version and send again`);
+                error.code = 409;
                 error.alreadyExists = true;
                 return Promise.reject(error);
             });
@@ -161,10 +175,18 @@ module.exports = function module(context) {
     }
 
     function remove(assetId) {
-        return Promise.all([
-            backend.remove(assetId),
-            fse.remove(path.join(assetsPath, assetId))
-        ]);
+        return Promise.resolve()
+            .then(() => backend.get(assetId, null, ['name']))
+            .catch((err) => {
+                if (_.toString(err).indexOf('Not Found')) {
+                    const error = new Error(`Unable to find asset ${assetId}`);
+                    error.code = 404;
+                    return Promise.reject(error);
+                }
+                return Promise.reject(err);
+            })
+            .then(() => backend.remove(assetId))
+            .then(() => fse.remove(path.join(assetsPath, assetId)));
     }
 
     function ensureAssetDir() {
@@ -222,10 +244,21 @@ module.exports = function module(context) {
         shutdown
     };
 
+    const backendConfig = {
+        context,
+        indexName,
+        recordType: 'asset',
+        idField: 'id',
+        fullResponse: true,
+        logRecord: false,
+        storageName: 'assets'
+    };
+
     return ensureAssetDir()
-        .then(() => elasticsearchBackend(context, indexName, 'asset', '_id', null, true))
+        .then(() => elasticsearchBackend(backendConfig))
         .then((elasticsearch) => {
             backend = elasticsearch;
+            logger.info('assets storage initialized');
             return api;
         });
 };

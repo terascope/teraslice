@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const signale = require('signale');
 const Promise = require('bluebird');
 const misc = require('./misc');
 const wait = require('./wait');
@@ -78,9 +79,21 @@ async function testJobLifeCycle(jobSpec, delay = 3000) {
     job.resume();
     await p;
 
-    job.stop();
     p = waitForStatus('stopped');
-    await p;
+    job.stop();
+
+    try {
+        await p;
+    } catch (err) {
+        const alreadyCompletedErr = 'Job cannot reach the target status, "stopped", because it is in the terminal state, "completed"';
+        const errStr = _.toString(err);
+        if (errStr.includes(alreadyCompletedErr)) {
+            signale.warn(`${errStr} - however since this can be race condition, we don't want to fail the test`);
+            return job;
+        }
+
+        throw err;
+    }
 
     await job.recover();
     await waitForStatus('completed');

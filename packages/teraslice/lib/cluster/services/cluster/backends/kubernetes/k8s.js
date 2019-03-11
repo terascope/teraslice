@@ -17,7 +17,7 @@ class K8s {
             try {
                 this.client = new Client({ config: config.getInCluster() });
             } catch (e) {
-                logger.error(`Unable to create k8s Client using getInCluster: ${e}`);
+                logger.error(e, 'Unable to create k8s Client using getInCluster');
                 // throw e;
             }
         } else {
@@ -25,7 +25,7 @@ class K8s {
             try {
                 this.client = new Client({ config: config.fromKubeconfig() });
             } catch (e) {
-                logger.error(`Unable to create k8s Client using fromKubeconfig: ${e}`);
+                logger.error(e, 'Unable to create k8s Client using fromKubeconfig');
                 // throw e;
             }
         }
@@ -40,7 +40,7 @@ class K8s {
             await this.client.loadSpec();
         } catch (err) {
             const error = new Error(`Failure calling k8s loadSpec: ${err.stack}`);
-            this.logger.error(error.stack);
+            this.logger.error(error);
             throw error;
         }
     }
@@ -56,7 +56,7 @@ class K8s {
             namespaces = await this.client.api.v1.namespaces.get();
         } catch (err) {
             const error = new Error(`Failure getting in namespaces: ${err.stack}`);
-            this.logger.error(error.stack);
+            this.logger.error(error);
             throw error;
         }
         return namespaces.body;
@@ -80,28 +80,28 @@ class K8s {
                 response = await this.client.api.v1.namespaces(namespace)
                     .pods().get({ qs: { labelSelector: selector } });
             } else if (objType === 'deployments') {
-                response = await this.client.api.apps.v1.namespaces(namespace)
+                response = await this.client.apis.apps.v1.namespaces(namespace)
                     .deployments().get({ qs: { labelSelector: selector } });
             } else if (objType === 'services') {
                 response = await this.client.api.v1.namespaces(namespace)
                     .services().get({ qs: { labelSelector: selector } });
             } else if (objType === 'jobs') {
-                response = await this.client.api.batch.v1.namespaces(namespace)
+                response = await this.client.apis.batch.v1.namespaces(namespace)
                     .jobs().get({ qs: { labelSelector: selector } });
             } else {
                 const error = new Error(`Wrong objType provided to get: ${objType}`);
-                this.logger.error(error.stack);
+                this.logger.error(error);
                 return Promise.reject(error);
             }
         } catch (e) {
             const err = new Error(`Request k8s.list of ${objType} with selector ${selector} failed: ${e}`);
-            this.logger.error(err.stack);
+            this.logger.error(err);
             return Promise.reject(err);
         }
 
         if (response.statusCode >= 400) {
             const err = new Error(`Problem when trying to k8s.list ${objType}`);
-            this.logger.error(err.stack);
+            this.logger.error(err);
             err.code = response.statusCode;
             return Promise.reject(err);
         }
@@ -127,22 +127,22 @@ class K8s {
                 response = await this.client.apis.apps.v1.namespaces(this.defaultNamespace)
                     .deployments.post({ body: manifest });
             } else if (manifestType === 'job') {
-                response = await this.client.api.batch.v1.namespaces(this.defaultNamespace)
+                response = await this.client.apis.batch.v1.namespaces(this.defaultNamespace)
                     .jobs.post({ body: manifest });
             } else {
                 const error = new Error(`Invalid manifestType: ${manifestType}`);
-                this.logger.error(error.stack);
+                this.logger.error(error);
                 return Promise.reject(error);
             }
         } catch (e) {
             const err = new Error(`Request k8s.post of ${manifestType} with body ${JSON.stringify(manifest)} failed: ${e}`);
-            this.logger.error(err.stack);
+            this.logger.error(err);
             return Promise.reject(err);
         }
 
         if (response.statusCode >= 400) {
             const err = new Error(`Problem when trying to k8s.post ${manifestType} with body ${JSON.stringify(manifest)}`);
-            this.logger.error(err.stack);
+            this.logger.error(err);
             err.code = response.statusCode;
             return Promise.reject(err);
         }
@@ -163,17 +163,17 @@ class K8s {
         let response;
 
         try {
-            response = await this.client.api.apps.v1.namespaces(this.defaultNamespace)
+            response = await this.client.apis.apps.v1.namespaces(this.defaultNamespace)
                 .deployments(name).patch({ body: record });
         } catch (e) {
             const err = new Error(`Request k8s.patch with ${name} failed with: ${e}`);
-            this.logger.error(err.stack);
+            this.logger.error(err);
             return Promise.reject(err);
         }
 
         if (response.statusCode >= 400) {
             const err = new Error(`Unexpected response code (${response.statusCode}), when patching ${name} with body ${JSON.stringify(record)}`);
-            this.logger.error(err.stack);
+            this.logger.error(err);
             err.code = response.statusCode;
             return Promise.reject(err);
         }
@@ -197,12 +197,12 @@ class K8s {
                 response = await this.client.api.v1.namespaces(this.defaultNamespace)
                     .services(name).delete();
             } else if (objType === 'deployments') {
-                response = await this.client.api.apps.v1.namespaces(this.defaultNamespace)
+                response = await this.client.apis.apps.v1.namespaces(this.defaultNamespace)
                     .deployments(name).delete();
             } else if (objType === 'jobs') {
                 // To get a Job to remove the associated pods you have to
                 // include a body like the one below with the delete request
-                response = await this.client.api.batch.v1.namespaces(this.defaultNamespace)
+                response = await this.client.apis.batch.v1.namespaces(this.defaultNamespace)
                     .jobs(name).delete({
                         body: {
                             apiVersion: 'v1',
@@ -215,13 +215,13 @@ class K8s {
             }
         } catch (e) {
             const err = new Error(`Request k8s.delete with name: ${name} failed with: ${e}`);
-            this.logger.error(err.stack);
+            this.logger.error(err);
             return Promise.reject(err);
         }
 
         if (response.statusCode >= 400) {
             const err = new Error(`Unexpected response code (${response.statusCode}), when deleting name: ${name}`);
-            this.logger.error(err.stack);
+            this.logger.error(err);
             err.code = response.statusCode;
             return Promise.reject(err);
         }
@@ -265,7 +265,7 @@ class K8s {
             objList = await this.list(`nodeType=${nodeType},exId=${exId}`, objType);
         } catch (e) {
             const err = new Error(`Request list in _deleteObjByExId with nodeType: ${nodeType} and exId: ${exId} failed with: ${e}`);
-            this.logger.error(err.stack);
+            this.logger.error(err);
             return Promise.reject(err);
         }
 
@@ -281,7 +281,7 @@ class K8s {
             deleteResponse = await this.delete(name, objType);
         } catch (e) {
             const err = new Error(`Request k8s.delete in _deleteObjByExId with name: ${name} failed with: ${e}`);
-            this.logger.error(err.stack);
+            this.logger.error(err);
             return Promise.reject(err);
         }
         return deleteResponse;

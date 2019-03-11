@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
-const parseError = require('@terascope/error-parser');
+const { TSError, parseError } = require('@terascope/utils');
 const stateUtils = require('../state-utils');
 const Messaging = require('./messaging');
 
@@ -61,7 +61,7 @@ module.exports = function module(context, clusterMasterServer, executionService)
 
     messaging.register({
         event: 'network:error',
-        callback: err => logger.error(`Error : cluster_master had an error with one of its connections, error: ${parseError(err)}`)
+        callback: err => logger.error(err, 'cluster_master had an error with one of its connections')
     });
 
     messaging.register({
@@ -324,7 +324,7 @@ module.exports = function module(context, clusterMasterServer, executionService)
                     logger.debug(`node ${nodeId} allocated ${createdWorkers}`);
                 }
             }).catch((err) => {
-                logger.error(`An error has occurred in allocating : ${workerCount} workers to node : ${nodeId} , the worker request has been enqueued`, err);
+                logger.error(err, `An error has occurred in allocating : ${workerCount} workers to node : ${nodeId}, the worker request has been enqueued`);
                 pendingWorkerRequests.enqueue(requestedWorkersData);
             });
 
@@ -368,8 +368,8 @@ module.exports = function module(context, clusterMasterServer, executionService)
                     response: true
                 })
                     .catch((err) => {
-                        const errMsg = parseError(err);
-                        logger.error(`failed to allocate execution_controller to ${slicerNodeID}, error: ${errMsg}`);
+                        const errMsg = parseError(err, true);
+                        logger.error(err, `failed to allocate execution_controller to ${slicerNodeID}`);
                         errorNodes[slicerNodeID] = errMsg;
                         return Promise.reject(errMsg);
                     });
@@ -407,7 +407,10 @@ module.exports = function module(context, clusterMasterServer, executionService)
 
             allocateWorkers(job, requestedWorker.workers)
                 .catch((err) => {
-                    logger.error(`Error processing pending requests. ${err.stack}`);
+                    const error = new TSError(err, {
+                        reason: 'Error processing pending requests'
+                    });
+                    logger.error(error);
                 });
         }
     }, 500, { leading: false, trailing: true });
@@ -470,9 +473,11 @@ module.exports = function module(context, clusterMasterServer, executionService)
 
         if (workerNum >= workersData._total) {
             const errMsg = `workers to be removed: ${workerNum} cannot be >= to current workers: ${workersData._total}`;
-            logger.error(errMsg);
-            const errReponse = { code: 400, message: errMsg, error: errMsg };
-            return Promise.reject(errReponse);
+            const error = new TSError(errMsg, {
+                statusCode: 400,
+            });
+            logger.error(error);
+            return Promise.reject(error);
         }
 
         function stateForDispatch(__, key) {
@@ -502,9 +507,11 @@ module.exports = function module(context, clusterMasterServer, executionService)
         return Promise.all(results)
             .then(() => ({ action: 'remove', ex_id: exId, workerNum }))
             .catch((err) => {
-                const errMsg = parseError(err);
-                logger.error(`Error while releasing workers from job ${exId}, error: ${errMsg}`);
-                return Promise.reject(errMsg);
+                const error = new TSError(err, {
+                    reason: `Error while releasing workers from job ${exId}`
+                });
+                logger.error(error);
+                return Promise.reject(error);
             });
     }
 
@@ -577,7 +584,7 @@ module.exports = function module(context, clusterMasterServer, executionService)
     };
 
     function _initialize() {
-        logger.info('Native clustering initializing');
+        logger.info('native clustering initializing');
         const server = clusterMasterServer.httpServer;
         return Promise.resolve()
             .then(() => messaging.listen({ server }))

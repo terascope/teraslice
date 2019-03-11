@@ -10,6 +10,7 @@ const exampleJob = {
     name: 'Data Generator',
     lifecycle: 'once',
     workers: 1,
+    assets: ['elasticsearch'],
     operations: [
         {
             _op: 'elasticsearch_data_generator',

@@ -1,0 +1,9 @@
+{
+  "generator-teraslice": {
+    "promptValues": {
+      "internal": true,
+      "typescript": true,
+      "exampleCode": true
+    }
+  }
+}

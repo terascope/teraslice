@@ -7,7 +7,7 @@
     "max_retries": 0,
     "operations": [
         {
-            "_op": "teraslice_kafka_reader",
+            "_op": "kafka_reader",
             "connection": "default",
             "topic": "example-logs-1000",
             "group": "example-kafka-group",

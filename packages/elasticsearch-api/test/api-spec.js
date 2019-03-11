@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
-const debug = require('debug')('elasticsearch-api');
+const { debugLogger } = require('@terascope/utils');
 const esApi = require('..');
 
 describe('elasticsearch-api', () => {
@@ -11,7 +11,6 @@ describe('elasticsearch-api', () => {
     let failed = 0;
     let failures = [];
     let total = 0;
-    let warnMsg;
     let bulkError = false;
     let searchError = false;
     let elasticDown = false;
@@ -268,27 +267,7 @@ describe('elasticsearch-api', () => {
         }
     };
 
-    const logger = {
-        error(...args) {
-            debug('error:', ...args);
-        },
-        info(...args) {
-            debug('error:', ...args);
-        },
-        warn(...args) {
-            ([warnMsg] = args);
-            debug('warn:', ...args);
-        },
-        trace(...args) {
-            debug('trace:', ...args);
-        },
-        debug(...args) {
-            debug('debug:', ...args);
-        },
-        flush(...args) {
-            debug('flush:', ...args);
-        }
-    };
+    const logger = debugLogger('elasticsearch-api');
 
     it('can instantiate', () => {
         let api;
@@ -563,7 +542,6 @@ describe('elasticsearch-api', () => {
         const api = esApi(client, logger, { index: 'some_index' });
 
         Promise.resolve(api.version())
-            .then(() => expect(warnMsg).toBeTruthy())
             .catch(fail)
             .finally(() => { done(); });
     });
@@ -610,7 +588,7 @@ describe('elasticsearch-api', () => {
                     waitFor(20, () => { bulkError = false; })
                 ]).catch((err) => {
                     queryFailed = true;
-                    expect(err).toEqual('some_thing_else--someReason');
+                    expect(err.message).toInclude('some_thing_else--someReason');
                 });
             })
             .then(() => expect(queryFailed).toEqual(true))

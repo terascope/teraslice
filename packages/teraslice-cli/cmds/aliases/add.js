@@ -9,8 +9,8 @@ const yargsOptions = new YargsOptions();
 exports.command = 'add <new-cluster-alias> <new-cluster-url>';
 exports.desc = 'Add an alias to the clusters defined in the config file.\n';
 exports.builder = (yargs) => {
-    yargs.positional('new-cluster_alias', yargsOptions.buildPositional('new-cluster-alias'));
-    yargs.positional('new-cluster_url', yargsOptions.buildPositional('new-cluster-url'));
+    yargs.positional('new-cluster-alias', yargsOptions.buildPositional('new-cluster-alias'));
+    yargs.positional('new-cluster-url', yargsOptions.buildPositional('new-cluster-url'));
     yargs.coerce('new-cluster-url', yargsOptions.buildCoerce('new-cluster-url'));
     yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
     yargs.options('output', yargsOptions.buildOption('output'));

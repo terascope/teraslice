@@ -1,0 +1,42 @@
+/**
+ * Omit the properties available to type.
+ * Useful for excluding properties from a type
+ *
+ * @example `Omit<{ a: number, b: number, c: number }, 'b'|'c'> // => { a: 1 }`
+*/
+export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
+/**
+ * Overwrite a simple type with different properties.
+ * Useful for change the type of property or making one optional
+ *
+ * @example `Overwrite<{ a: number, b: number }, { b?: number }>`
+*/
+export type Overwrite<T1, T2> = {
+    [P in Exclude<keyof T1, keyof T2>]: T1[P]
+} & T2;
+
+/**
+ * Like Partial but makes certain properties required
+ *
+ * @example `Required<{ a: number, b: number }, 'b'>`
+*/
+export type Required<T, K extends keyof T> = {
+    [P in keyof T]: P extends K ? NonNullable<T[P]> : (NonNullable<T[P]>|undefined);
+};
+
+/**
+ * Like Partial but makes certain properties optional
+ *
+ * @example `Optional<{ a: number, b: number }, 'b'>`
+*/
+export type Optional<T, K extends keyof T> = {
+    [P in keyof T]: P extends K ? (NonNullable<T[P]>|undefined) : NonNullable<T[P]>;
+};
+
+/**
+ * Without null or undefined properties
+ */
+export type WithoutNil<T> = {
+    [P in keyof T]: T[P] extends (undefined|null) ? never : T[P];
+};

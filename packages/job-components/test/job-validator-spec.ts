@@ -60,12 +60,91 @@ describe('JobValidator', () => {
         it('will properly read an operation', () => {
             const jobSpec: JobConfig = {
                 name: 'test',
+                assets: ['fixtures'],
                 operations: [
                     {
-                        _op: 'elasticsearch_reader',
+                        _op: 'example-reader',
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+
+            expect(() => {
+                api.validateConfig(jobSpec);
+            }).not.toThrowError();
+        });
+
+        it('will throw based off op validation errors', () => {
+        // if subslice_by_key, then it needs type specified or it will error
+            const jobSpec: JobConfig = {
+                name: 'test',
+                assets: ['fixtures'],
+                operations: [
+                    {
+                        _op: 'example-reader',
                         // @ts-ignore
-                        date_field_name: 'created',
-                        index: 'some_index',
+                        example: 123
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+
+            expect(() => {
+                api.validateConfig(jobSpec);
+            }).toThrowError();
+        });
+
+        it('will throw based off crossValidation errors', () => {
+            const jobSpec: JobConfig = {
+                name: 'test',
+                lifecycle: 'persistent',
+                assets: ['fixtures'],
+                operations: [
+                    {
+                        _op: 'example-reader'
+                    },
+                    {
+                        _op: 'noop',
+                        failCrossValidation: true
+                    },
+                ]
+            };
+
+            expect(() => {
+                api.validateConfig(jobSpec);
+            }).toThrowError();
+        });
+
+        it('throws an error with faulty operation configuration', () => {
+            const jobSpec: JobConfig = {
+                name: 'test',
+                // @ts-ignore
+                operations: [
+                    {
+                        something: 'else',
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+
+            expect(() => {
+                api.validateConfig(jobSpec);
+            }).toThrowError();
+        });
+
+        it('will properly read an operation', () => {
+            const jobSpec: JobConfig = {
+                name: 'test',
+                assets: ['fixtures'],
+                operations: [
+                    {
+                        _op: 'example-reader',
                     },
                     {
                         _op: 'noop',
@@ -82,13 +161,11 @@ describe('JobValidator', () => {
             // if subslice_by_key, then it needs type specified or it will error
             const jobSpec: JobConfig = {
                 name: 'test',
+                assets: ['fixtures'],
                 operations: [
                     {
-                        _op: 'elasticsearch_reader',
-                        // @ts-ignore
-                        date_field_name: 'created',
-                        index: 'some_index',
-                        subslice_by_key: true,
+                        _op: 'example-reader',
+                        example: 123,
                     },
                     {
                         _op: 'noop',
@@ -102,21 +179,17 @@ describe('JobValidator', () => {
         });
 
         it('will throw based off crossValidation errors', () => {
-            // if persistent, then interval cannot be auto
             const jobSpec: JobConfig = {
                 name: 'test',
                 lifecycle: 'persistent',
+                assets: ['fixtures'],
                 operations: [
                     {
-                        _op: 'elasticsearch_reader',
-                        // @ts-ignore
-                        date_field_name: 'created',
-                        index: 'some_index',
-                        interval: 'auto',
-                        subslice_by_key: true,
+                        _op: 'example-reader',
                     },
                     {
                         _op: 'noop',
+                        failCrossValidation: true
                     },
                 ],
             };

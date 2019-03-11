@@ -1,15 +1,12 @@
 'use strict';
 
 const _ = require('lodash');
-const parseError = require('@terascope/error-parser');
+const { TSError } = require('@terascope/utils');
 const Promise = require('bluebird');
 const K8s = require('./k8s');
 const k8sState = require('./k8sState');
-const k8sObject = require('./k8sObject');
-const { makeTemplate } = require('./utils');
-const { safeEncode } = require('../../../../../utils/encoding_utils');
+const K8sResource = require('./k8sResource');
 
-const exServiceTemplate = makeTemplate('services', 'execution_controller');
 
 /*
  Execution Life Cycle for _status
@@ -20,27 +17,13 @@ const exServiceTemplate = makeTemplate('services', 'execution_controller');
  aborted - when a job was running at the point when the cluster shutsdown
  */
 
-// FIXME: See Jared's comment regarding executionService, will leave this
-// as a known issue: https://github.com/terascope/teraslice/issues/750
 module.exports = function kubernetesClusterBackend(context, clusterMasterServer) {
     const logger = context.apis.foundation.makeLogger({ module: 'kubernetes_cluster_service' });
     // const slicerAllocationAttempts = context.sysconfig.teraslice.slicer_allocation_attempts;
 
-    const shutdownTimeoutMs = _.get(context, 'sysconfig.teraslice.shutdown_timeout', 60000);
-    const shutdownTimeoutSeconds = Math.round(shutdownTimeoutMs / 1000);
-
-    const assetsDirectory = _.get(context, 'sysconfig.teraslice.assets_directory', '');
-    const assetsVolume = _.get(context, 'sysconfig.teraslice.assets_volume', '');
     const clusterName = _.get(context, 'sysconfig.teraslice.name');
     const clusterNameLabel = clusterName.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
-    const kubernetesImage = _.get(context, 'sysconfig.teraslice.kubernetes_image', 'teraslice:k8sdev');
     const kubernetesNamespace = _.get(context, 'sysconfig.teraslice.kubernetes_namespace', 'default');
-    const configMapName = _.get(
-        context,
-        'sysconfig.teraslice.kubernetes_config_map_name',
-        `${context.sysconfig.teraslice.name}-worker`
-    );
-    const imagePullSecret = _.get(context, 'sysconfig.teraslice.kubernetes_image_pull_secret', '');
 
     const clusterState = {};
     let clusterStateInterval = null;
@@ -80,7 +63,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
                 // log though.  This only gets used to show slicer info through
                 // the API.  We wouldn't want to disrupt the cluster master
                 // for rare failures to reach the k8s API.
-                logger.error(`Error listing teraslice pods in k8s: ${err}`);
+                logger.error(err, 'Error listing teraslice pods in k8s');
             });
     }
 
@@ -108,44 +91,19 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      * @return {Promise}                 [description]
      */
     function allocateSlicer(execution) {
-        const name = `teraslice-execution-controller-${execution.ex_id}`.substring(0, 63);
-        const jobNameLabel = execution.name.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
+        const exSvcResource = new K8sResource(
+            'services', 'execution_controller', context.sysconfig.teraslice, execution
+        );
 
-        const serviceConfig = {
-            name,
-            clusterNameLabel,
-            exId: execution.ex_id,
-            jobId: execution.job_id,
-            jobNameLabel,
-            nodeType: 'execution_controller',
-            namespace: kubernetesNamespace
-        };
-
-        const exService = exServiceTemplate(serviceConfig);
+        const exService = exSvcResource.resource;
 
         execution.slicer_port = _.get(exService, 'spec.ports[0].targetPort');
         execution.slicer_hostname = _.get(exService, 'metadata.name');
 
-        const jobConfig = {
-            name,
-            assetsDirectory,
-            assetsVolume,
-            clusterNameLabel,
-            exId: execution.ex_id,
-            jobId: execution.job_id,
-            jobNameLabel,
-            dockerImage: kubernetesImage,
-            execution: safeEncode(execution),
-            nodeType: 'execution_controller',
-            namespace: kubernetesNamespace,
-            shutdownTimeout: shutdownTimeoutSeconds,
-            configMapName,
-            imagePullSecret,
-        };
-
-        const exJob = k8sObject.gen(
-            'jobs', 'execution_controller', execution, jobConfig
+        const exJobResource = new K8sResource(
+            'jobs', 'execution_controller', context.sysconfig.teraslice, execution
         );
+        const exJob = exJobResource.resource;
 
         logger.debug(`exJob:\n\n${JSON.stringify(exJob, null, 2)}`);
 
@@ -153,15 +111,17 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         return k8s.post(exService, 'service')
             .then(result => logger.debug(`k8s slicer service submitted: ${JSON.stringify(result)}`))
             .catch((err) => {
-                const error = parseError(err);
-                logger.error(`Error submitting k8s slicer service: ${error}`);
+                const error = new TSError(err, {
+                    reason: 'Error submitting k8s slicer service'
+                });
                 return Promise.reject(error);
             })
             .then(() => k8s.post(exJob, 'job'))
             .then(result => logger.debug(`k8s slicer job submitted: ${JSON.stringify(result)}`))
             .catch((err) => {
-                const error = parseError(err);
-                logger.error(`Error submitting k8s slicer job: ${error}`);
+                const error = new TSError(err, {
+                    reason: 'Error submitting k8s slicer job'
+                });
                 return Promise.reject(error);
             });
     }
@@ -170,42 +130,23 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      * Creates k8s deployment that executes Teraslice workers for specified
      * Execution.
      * @param  {Object} execution  Object that contains information of Execution
-     * @param  {number} numWorkers number of workers to allocate
      * @return {Promise}           [description]
      */
-    function allocateWorkers(execution, numWorkers) {
-        const name = `teraslice-worker-${execution.ex_id}`.substring(0, 63);
-        const jobNameLabel = execution.name.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
-
-        const deploymentConfig = {
-            name,
-            assetsDirectory,
-            assetsVolume,
-            clusterNameLabel,
-            exId: execution.ex_id,
-            jobId: execution.job_id,
-            jobNameLabel,
-            dockerImage: kubernetesImage,
-            execution: safeEncode(execution),
-            nodeType: 'worker',
-            namespace: kubernetesNamespace,
-            shutdownTimeout: shutdownTimeoutSeconds,
-            replicas: numWorkers,
-            configMapName,
-            imagePullSecret,
-        };
-
-        const workerDeployment = k8sObject.gen(
-            'deployments', 'worker', execution, deploymentConfig
+    function allocateWorkers(execution) {
+        const kr = new K8sResource(
+            'deployments', 'worker', context.sysconfig.teraslice, execution
         );
+
+        const workerDeployment = kr.resource;
 
         logger.debug(`workerDeployment:\n\n${JSON.stringify(workerDeployment, null, 2)}`);
 
         return k8s.post(workerDeployment, 'deployment')
             .then(result => logger.debug(`k8s worker deployment submitted: ${JSON.stringify(result)}`))
             .catch((err) => {
-                const error = parseError(err);
-                logger.error(`Error submitting k8s worker deployment: ${error}`);
+                const error = new TSError(err, {
+                    reason: 'Error submitting k8s worker deployment'
+                });
                 return Promise.reject(error);
             });
     }

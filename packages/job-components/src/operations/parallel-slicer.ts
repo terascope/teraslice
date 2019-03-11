@@ -1,6 +1,6 @@
+import { times, isFunction } from '@terascope/utils';
 import { SlicerFn, SlicerResult, OpConfig } from '../interfaces';
 import SlicerCore from './core/slicer-core';
-import { times, isFunction } from '../utils';
 
 /**
  * A varient of a "Slicer" for running a parallel stream of slicers.

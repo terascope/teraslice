@@ -3,18 +3,11 @@
     "lifecycle": "once",
     "workers": 2,
     "assets": [
-        "example"
+        "example",
+        "elasticsearch"
     ],
-    "resources": {
-        "minimum": {
-            "cpu": 1,
-            "memory": 805306368
-        },
-        "limit": {
-            "cpu": 2,
-            "memory": 4294967296
-        }
-    },
+    "cpu": 1,
+    "memory": 536870912,
     "operations": [
         {
             "_op": "elasticsearch_data_generator",

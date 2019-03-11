@@ -1,22 +1,33 @@
 'use strict';
 'use console';
 
-const _ = require('lodash');
+const Config = require('../../lib/config');
+const display = require('../lib/display')();
+const { getTerasliceClient } = require('../../lib/utils');
 const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
+const YargsOptions = require('../../lib/yargs-options');
 
-exports.command = 'list <cluster_sh>';
+const yargsOptions = new YargsOptions();
+
+exports.command = 'list <cluster-alias>';
 exports.desc = 'List assets on a cluster.\n';
 exports.builder = (yargs) => {
-    cli().args('assets', 'list', yargs);
+    yargs.positional('cluster-alias', yargsOptions.buildPositional('cluster-alias'));
+    yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.option('output', yargsOptions.buildOption('output'));
+    yargs.example('$0 assets list ts-test1');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    config(cliConfig, 'assets:list').returnConfigData();
-    const assets = _testFunctions || require('./lib')(cliConfig);
+exports.handler = async (argv) => {
+    let response;
+    const cliConfig = new Config(argv);
+    const terasliceClient = getTerasliceClient(cliConfig);
+    const header = ['name', 'version', 'id', 'description', '_created'];
 
-    return assets.list()
-        .catch(err => reply.fatal(err.message));
+    try {
+        response = await terasliceClient.assets.list();
+    } catch (err) {
+        reply.fatal(`Error listing assets on ${cliConfig.args.clusterAlias}`);
+    }
+    display.display(header, response, cliConfig.args.output);
 };

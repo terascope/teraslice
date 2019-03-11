@@ -165,12 +165,12 @@ async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
             ]);
 
             signale.debug(`Job Status Failure:
-                job: ${exStatus.job_id};
+                job: "${exStatus.job_id}";
                 job name: "${exStatus.name}";
-                ex: ${exStatus.ex_id};
+                ex: "${exStatus.ex_id}";
                 workers: ${exStatus.workers};
                 slicers: ${exStatus.slicers};
-                status: expected ${exStatus._status || lastStatus} to equal ${status};
+                status: expected "${exStatus._status || lastStatus}" to equal "${status}";
                 slicer stats: ${printObj(slicerStats)};
                 failed after: ${Date.now() - start}ms;
                 failure reasons: ${printObj(reasons)};
@@ -184,10 +184,12 @@ async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
 
     try {
         const result = await job.waitForStatus(status, interval, 2 * 60 * 1000);
-        // since most of the time we are chaining this with other actions
-        // make sure we avoid unrealistic test conditions by giving the
-        // it a little bit of time
-        await Promise.delay(endDelay);
+        if (endDelay) {
+            // since most of the time we are chaining this with other actions
+            // make sure we avoid unrealistic test conditions by giving the
+            // it a little bit of time
+            await Promise.delay(endDelay);
+        }
         return result;
     } catch (err) {
         err.message = `Job: ${jobId}: ${err.message}`;

@@ -1,27 +1,54 @@
 'use strict';
 
 const _ = require('lodash');
+const path = require('path');
+const fs = require('fs');
 
 module.exports = (options) => {
+    const rootPkgJSON = readRootPkgJSON();
+
+    function readRootPkgJSON() {
+        const upDirs = _.times(5, () => '..');
+        const pkgPath = path.join(__dirname, ...upDirs, 'package.json');
+        try {
+            return JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+        } catch (err) {
+            return {};
+        }
+    }
+
+    function getPkgValues(packages) {
+        return _.mapValues(packages, (val, name) => {
+            if (_.has(rootPkgJSON, ['dependencies', name])) {
+                return _.get(rootPkgJSON, ['dependencies', name], val);
+            }
+            if (_.has(rootPkgJSON, ['devDependencies', name])) {
+                return _.get(rootPkgJSON, ['devDependencies', name], val);
+            }
+            return val;
+        });
+    }
+
     const {
-        name,
         pkgName,
+        pkgDirName,
+        pkgVersion,
         typescript,
         description,
+        license
     } = options;
 
     const common = {
         name: pkgName,
         description,
-        version: '0.1.0',
-        main: 'index.js',
+        version: pkgVersion,
         publishConfig: {
             access: 'public'
         },
-        homepage: `https://github.com/terascope/teraslice/tree/master/packages/${name}#readme`,
+        homepage: `https://github.com/terascope/teraslice/tree/master/packages/${pkgDirName}#readme`,
         repository: 'git@github.com:terascope/teraslice.git',
         author: 'Terascope, LLC <info@terascope.io>',
-        license: 'MIT',
+        license,
         bugs: {
             url: 'https://github.com/terascope/teraslice/issues'
         },
@@ -30,6 +57,7 @@ module.exports = (options) => {
 
     if (!typescript) {
         return _.defaultsDeep(common, {
+            main: 'index.js',
             files: [
                 '*.js',
                 'lib/**/*'
@@ -39,48 +67,30 @@ module.exports = (options) => {
                 'lint:fix': 'yarn lint --fix',
                 test: 'jest',
                 'test:watch': 'jest --coverage=false --notify --watch --onlyChanged',
-                'test:debug': "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+                // eslint-disable-next-line
+                'test:debug': 'env DEBUG=\\"${DEBUG:*teraslice*}\\" jest --detectOpenHandles --coverage=false --runInBand'
             },
-            devDependencies: {
-                eslint: '^5.10.0',
-                'eslint-config-airbnb-base': '^13.1.0',
-                'eslint-plugin-import': '^2.14.0',
-                jest: '^23.6.0',
-                'jest-extended': '^0.11.0'
-            }
+            devDependencies: getPkgValues({})
         });
     }
 
     return _.defaultsDeep(common, {
         files: [
-            'dist/**/*'
+            'dist/src/**/*'
         ],
         srcMain: 'src/index.ts',
-        main: 'dist/index.js',
-        typings: 'dist/index.d.ts',
+        main: 'dist/src/index.js',
+        typings: 'dist/src/index.d.ts',
         scripts: {
-            lint: "tslint -p tsconfig.build.json -t verbose -e '**/*.json'",
+            lint: "tslint -p tsconfig.json -t verbose -e '**/*.json'",
             'lint:fix': 'yarn lint --fix',
             prepublishOnly: 'yarn build',
-            build: 'rimraf ./dist; tsc --project tsconfig.build.json --pretty',
-            'build:prod': 'tsc --project tsconfig.build.json',
+            build: 'tsc --build --pretty',
             'build:watch': 'yarn build --watch',
             test: 'jest',
             'test:watch': 'jest --coverage=false --notify --watch --onlyChanged',
             'test:debug': "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
         },
-        devDependencies: {
-            '@types/jest': '^23.3.10',
-            '@types/node': '^10.12.15',
-            'babel-core': '^6.0.0',
-            'babel-jest': '^23.6.0',
-            jest: '^23.6.0',
-            'jest-extended': '^0.11.0',
-            rimraf: '^2.6.2',
-            'ts-jest': '^23.10.5',
-            tslint: '^5.0.0',
-            'tslint-config-airbnb': '^5.11.0',
-            typescript: '^3.2.2'
-        },
+        devDependencies: getPkgValues({}),
     });
 };

@@ -278,7 +278,7 @@ describe('Worker', () => {
         it('should return send a slice completed message with an error', () => {
             expect(sliceSuccess).not.toBeObject();
 
-            const errMsg = 'Error: Slice failed processing, caused by Error: Bad news bears';
+            const errMsg = 'TSError: Slice failed processing, caused by TSError: Bad news bears';
             expect(sliceFailure).toBeObject();
             expect(sliceFailure.error).toStartWith(errMsg);
 

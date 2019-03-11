@@ -2,9 +2,10 @@
 .PHONY: help build build-and-push start stop show destroy destroy-all logs logs-master logs-slicer logs-worker k8s-master setup setup-all rebuild elasticsearch deelasticsearch namespace delete-namespace role delete-role binding delete-binding auth deauth showauth
 SHELL := bash
 
-# ES_URL="http://192.168.99.1:9200" make rebuild
-ES_URL ?= http://192.168.99.100:30200
-TERASLICE_MASTER_URL ?= 192.168.99.100:30678
+IP ?= $(shell minikube ip)
+ES_URL ?= http://$(IP):30200
+TERASLICE_MASTER_URL ?= http://$(IP):30678
+TERASLICE_ALIAS ?= ts-minikube-dev1
 TERASLICE_K8S_IMAGE ?= teraslice-k8sdev
 NAMESPACE ?= default
 LOG_LENGTH ?= 1000
@@ -89,26 +90,43 @@ push: ## push final docker image
 	docker push $(TERASLICE_K8S_IMAGE)
 
 setup-all: namespace elasticsearch auth setup ## setup EVERYTHING
+	earl aliases add ${TERASLICE_ALIAS} ${TERASLICE_MASTER_URL}
 
 setup: configs k8s-master ## setup teraslice
 
-destroy: ## delete k8s deployments and services
-	kubectl delete --namespace $(NAMESPACE) deployments,jobs,services,pods -l app=teraslice
+# We don't bother calling stop here because everything just gets deleted anyway
+destroy: deregister ## delete k8s deployments and services
+	kubectl delete --namespace $(NAMESPACE) deployments,jobs,services,pods -l app=teraslice --grace-period=1
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-master || echo "* it is okay..."
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-worker || echo "* it is okay..."
-	curl -fsS -XDELETE "${ES_URL}/ts-dev1*" || echo '* it is okay'
-	tjm reset ./example-job.json || echo '* it is okay'
+	docker rmi $(shell docker image ls $(TERASLICE_K8S_IMAGE) --format "{{.ID}}") || echo "* it is okay..."
+	curl -fsS -XDELETE "$(ES_URL)/ts-dev1*" || echo '* it is okay'
 
 destroy-all: destroy deauth deelasticsearch delete-namespace ## delete ALL things including the namespace
+	earl aliases remove ${TERASLICE_ALIAS} || echo '* it is okay'
 
-rebuild: destroy setup ## destroys then re-runs things
-	sleep 20
+rebuild: destroy build setup ## destroys then re-runs things
+	sleep 10
 	make register
 
 register: ## creates asset and registers job
-	tjm asset --deploy -c $(TERASLICE_MASTER_URL) || echo '* it is okay'
-	tjm register -c $(TERASLICE_MASTER_URL) ./example-job.json
+	earl assets deploy ${TERASLICE_ALIAS} terascope/elasticsearch-assets
+	earl assets deploy ${TERASLICE_ALIAS} --build --replace --src-dir asset/
+	earl tjm register ${TERASLICE_ALIAS} example-job.json
+	earl tjm register ${TERASLICE_ALIAS} example-job-labels.json
+	earl tjm register ${TERASLICE_ALIAS} example-job-resource.json
+	earl tjm register ${TERASLICE_ALIAS} example-job-volume.json
 
-example: ## runs example job
-	yes | tjm asset --replace -c $(TERASLICE_MASTER_URL) || echo '* it is okay'
-	tjm start ./example-job.json
+deregister: ## resets jobs
+	earl tjm reset example-job.json || echo '* it is okay'
+	earl tjm reset example-job-labels.json || echo '* it is okay'
+	earl tjm reset example-job-resource.json || echo '* it is okay'
+	earl tjm reset example-job-volume.json || echo '* it is okay'
+
+start: ## runs example job
+	# yes | tjm asset --replace -c $(TERASLICE_MASTER_URL) || echo '* it is okay'
+	earl assets deploy ${TERASLICE_ALIAS} --build --replace --src-dir asset/
+	earl tjm start example-job.json
+
+stop: ## stops example job
+	earl tjm stop example-job.json || echo '* it is okay'

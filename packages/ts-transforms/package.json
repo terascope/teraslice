@@ -1,0 +1,63 @@
+{
+    "name": "ts-transforms",
+    "version": "0.16.2",
+    "description": "An ETL framework built upon xlucene-evaluator",
+    "publishConfig": {
+        "access": "public"
+    },
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/ts-transforms#readme",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "author": "Terascope, LLC <info@terascope.io>",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/terascope/teraslice.git"
+    },
+    "license": "MIT",
+    "srcMain": "src/index.ts",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
+    "files": [
+        "bin/**/*",
+        "dist/src/**/*"
+    ],
+    "directories": {
+        "lib": "dist/src",
+        "test": "test"
+    },
+    "bin": {
+        "ts-transform": "./bin/ts-transform.js",
+        "ts-match": "./bin/ts-transform.js"
+    },
+    "scripts": {
+        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
+        "lint:fix": "yarn lint --fix",
+        "prepublishOnly": "yarn build",
+        "build": "tsc --build --pretty",
+        "build:watch": "yarn build --watch",
+        "test": "jest",
+        "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
+    },
+    "dependencies": {
+        "@terascope/utils": "^0.6.0",
+        "@types/got": "^9.4.1",
+        "awesome-phonenumber": "^2.5.0",
+        "got": "^9.6.0",
+        "lodash": "^4.17.11",
+        "valid-url": "^1.0.9",
+        "validator": "^10.10.0",
+        "xlucene-evaluator": "^0.5.1",
+        "yargs": "^13.2.2"
+    },
+    "devDependencies": {
+        "@types/lodash": "^4.14.122",
+        "@types/valid-url": "^1.0.2",
+        "@types/validator": "^10.9.0",
+        "@types/yargs": "^12.0.9"
+    },
+    "engines": {
+        "node": ">=8.0.0"
+    }
+}

@@ -1,3 +1,5 @@
+import { DataEncoding } from '@terascope/utils';
+
 /**
  * OpConfig is the configuration that user specifies
  * for a Operation.
@@ -23,14 +25,6 @@ export interface OpConfig {
     _dead_letter_action?: DeadLetterAction;
     [prop: string]: any;
 }
-
-/**
- * available data encoding types
-*/
-export type DataEncoding = 'json';
-
-/** A list of supported encoding formats */
-export const dataEncodings: DataEncoding[] = ['json'];
 
 /**
  * available dead letter queue actions
@@ -82,6 +76,8 @@ export interface ValidatedJobConfig {
     memory?: number;
     /** This will only be available in the context of k8s */
     volumes?: Volume[];
+    /** This will only be available in the context of k8s */
+    kubernetes_image?: string;
 }
 
 export interface Targets {

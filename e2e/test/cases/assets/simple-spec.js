@@ -7,7 +7,7 @@ const { resetState } = require('../../helpers');
 
 const { waitForJobStatus } = wait;
 
-describe('Asset Tests', () => {
+describe('assets', () => {
     beforeAll(() => resetState());
 
     const teraslice = misc.teraslice();
@@ -31,7 +31,7 @@ describe('Asset Tests', () => {
         const result = await teraslice.assets.post(fileStream);
         // NOTE: In this case, the asset is referenced by the ID
         // assigned by teraslice and not it's name.
-        jobSpec.assets = [JSON.parse(result)._id, 'elasticsearch'];
+        jobSpec.assets = [result._id, 'elasticsearch'];
 
         const job = await teraslice.jobs.submit(jobSpec);
 
@@ -47,12 +47,12 @@ describe('Asset Tests', () => {
         const result = await teraslice.assets.post(testStream);
 
         // save the asset ID that was submitted to terslice
-        const assetId = JSON.parse(result)._id;
+        const assetId = result._id;
         const response = await teraslice.assets.delete(assetId);
 
         // ensure the deleted asset's ID matches that of
         // the saved asset
-        expect(assetId).toEqual(JSON.parse(response).assetId);
+        expect(assetId).toEqual(response._id);
     });
 
 
@@ -64,8 +64,12 @@ describe('Asset Tests', () => {
     it('uploading a bad asset returns an error', async () => {
         const testStream = fs.createReadStream('test/fixtures/assets/example_bad_asset_1.zip');
 
-        const result = await teraslice.assets.post(testStream);
-        expect(JSON.parse(result).error).toMatch('asset.json was not found');
+        try {
+            await teraslice.assets.post(testStream);
+        } catch (err) {
+            expect(err.message).toInclude('asset.json was not found');
+            expect(err.code).toEqual(422);
+        }
     });
 
 
@@ -99,7 +103,7 @@ describe('Asset Tests', () => {
         const { workers } = jobSpec;
 
         const assetResponse = await teraslice.assets.post(fileStream);
-        const assetId = JSON.parse(assetResponse)._id;
+        const assetId = assetResponse._id;
 
         const job = await teraslice.jobs.submit(jobSpec);
         await waitForJobStatus(job, 'running');

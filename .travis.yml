@@ -1,40 +1,41 @@
-sudo: required
 language: node_js
 node_js:
-- '8'
-addons:
-  apt:
-    packages:
-      - docker-ce
-      - jq
-services:
-  - docker
-  - elasticsearch
-before_install:
-  # install latest docker-compose
-  - sudo rm /usr/local/bin/docker-compose
-  - curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-`uname -s`-`uname -m` > docker-compose
-  - chmod +x docker-compose
-  - sudo mv docker-compose /usr/local/bin
-  # install latest yarn
-  - curl -o- -L https://yarnpkg.com/install.sh | bash
-  - export PATH="$HOME/.yarn/bin:$PATH"
-  # make it colorful
-  - export FORCE_COLOR=1
+- '10'
+
+# by default install just yarn
+before_install: . ./scripts/travis-install-yarn.sh
 install:
-  - yarn install --no-progress
-  - yarn setup
-before_deploy:
+    # make it colorful
+    - export FORCE_COLOR=1
+    # Install the dependencies
+    - yarn
+    # Build setup the build
+    - yarn setup
+
+# set up build matrix
+# specify jobs (stages are serial, and scripts are parallel within a stage)
 jobs:
   # stop if given a reason
   fast-finish: true
-  include:
 
+  include:
   # tests only on master and on pull-request
   - stage: Tests
     name: Test Packages
     if: branch = master
-    script: yarn test:ci
+    addons:
+      apt:
+        packages:
+          - docker-ce
+    services:
+        - docker
+        - elasticsearch
+    before_install:
+        - . ./scripts/travis-install-docker-compose.sh
+        - . ./scripts/travis-install-yarn.sh
+        - . ./scripts/travis-install-es.sh
+    script:
+        - '[[ -z "$DEBUG" ]] && yarn test:ci || yarn test:debug | yarn bunyan -o short'
     after_success:
       - bash <(curl -s https://codecov.io/bash)
 
@@ -42,13 +43,6 @@ jobs:
   - script:
     name: Benchmarks and Linting
     if: branch = master AND type = pull_request
-    sudo: false
-    services: []
-    addons: []
-    before_install:
-      # install latest yarn
-      - curl -o- -L https://yarnpkg.com/install.sh | bash
-      - export PATH="$HOME/.yarn/bin:$PATH"
     script:
         - yarn lint
         - yarn benchmark
@@ -56,24 +50,67 @@ jobs:
   # test end-to-end tests, only on pull-requests
   - script:
     name: End-to-End Tests
-    if: branch = master AND type = pull_request
-    services: []
-    before_script: cd e2e
+    if: branch = master AND type IN (pull_request, cron) AND fork = false
+    addons:
+      apt:
+        packages:
+          - docker-ce
+    services:
+        - docker
+        - elasticsearch
+    before_install:
+        - . ./scripts/travis-install-docker-compose.sh
+        - . ./scripts/travis-install-yarn.sh
+        - . ./scripts/travis-install-es.sh
+    before_script:
+        - cd e2e
     script: yarn test:ci
 
-  # if not tag is preset and is on master release any changed versions to NPM
-  - stage: Release (NPM)
-    name: Release
-    if: tag IS blank AND branch = master AND type != pull_request
-    sudo: false
-    addons: []
-    before_install:
-      # install latest yarn
-      - curl -o- -L https://yarnpkg.com/install.sh | bash
-      - export PATH="$HOME/.yarn/bin:$PATH"
-    script: cp README.md ./packages/teraslice/README.md
-    before_deploy: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+  # if not a tagged build and is on master
+  - stage: Publish
+    name: NPM Publish & Publish Documentation
+    if: tag IS blank AND branch = master AND type NOT IN (pull_request, cron)
+    addons:
+      apt:
+        packages:
+          - jq
+    before_script: . ./scripts/travis-setup-credentials.sh
+    script: ./scripts/sync-readmes.sh
     deploy:
       - provider: script
         skip_cleanup: true
-        script: yarn publish:changed
+        script: ./scripts/publish-packages.sh
+      - provider: script
+        skip_cleanup: true
+        script: ./scripts/publish-documentation.sh
+
+  # Create tagged releases
+  - stage: Release
+    name: Release
+    if: tag IS present AND type NOT IN (pull_request, cron)
+    addons:
+      apt:
+        packages:
+          - jq
+    before_script: . ./scripts/travis-setup-credentials.sh
+    script: true
+    deploy:
+      - provider: script
+        script: ./scripts/docker-release.sh
+
+  # Build nightly releases
+  - stage: Nightly
+    name: Nightly Builds
+    if: type = cron
+    addons:
+      apt:
+        packages:
+          - jq
+          - docker-ce
+    services:
+        - docker
+    before_script: . ./scripts/travis-setup-credentials.sh
+    script: true
+    deploy:
+      - provider: script
+        script: ./scripts/docker-release.sh "$TRAVIS_BRANCH"

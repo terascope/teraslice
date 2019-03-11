@@ -1,6 +1,6 @@
 {
     "name": "teraslice-test-harness",
-    "version": "0.5.1",
+    "version": "0.5.3",
     "publishConfig": {
         "access": "public"
     },
@@ -16,45 +16,32 @@
     },
     "license": "MIT",
     "directories": {
-        "lib": "dist",
+        "lib": "dist/src",
         "test": "test"
     },
     "files": [
-        "dist/**/*"
+        "dist/src/**/*"
     ],
     "srcMain": "src/index.ts",
-    "main": "dist/index.js",
-    "typings": "dist/index.d.ts",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
     "scripts": {
-        "lint": "tslint -p tsconfig.build.json -t verbose -e '**/*.json'",
+        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
-        "build": "rimraf ./dist; tsc --project tsconfig.build.json --pretty",
-        "build:prod": "tsc --project tsconfig.build.json",
+        "build": "tsc --build --pretty",
         "build:watch": "yarn build --watch",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.14.1",
-        "@terascope/teraslice-op-test-harness": "^1.5.2",
-        "@types/lodash": "^4.14.119",
+        "@terascope/job-components": "^0.15.0",
+        "@terascope/teraslice-op-test-harness": "^1.5.4",
+        "@types/lodash": "^4.14.122",
         "lodash": "^4.17.11"
     },
-    "devDependencies": {
-        "@types/jest": "^23.3.10",
-        "@types/node": "^10.12.15",
-        "babel-core": "^6.0.0",
-        "babel-jest": "^23.6.0",
-        "jest": "^23.6.0",
-        "jest-extended": "^0.11.0",
-        "rimraf": "^2.6.2",
-        "ts-jest": "^23.10.5",
-        "tslint": "^5.0.0",
-        "tslint-config-airbnb": "^5.11.0",
-        "typescript": "^3.2.2"
-    },
+    "devDependencies": {},
     "engines": {
         "node": ">=8.0.0"
     }

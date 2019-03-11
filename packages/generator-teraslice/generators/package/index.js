@@ -1,41 +1,68 @@
 'use strict';
 
+const fs = require('fs');
 const _ = require('lodash');
 const path = require('path');
-const Generator = require('yeoman-generator');
 const chalk = require('chalk');
 const yosay = require('yosay');
+const Generator = require('yeoman-generator');
 const genPackageJSON = require('./utils/package-json');
 
 module.exports = class extends Generator {
     prompting() {
         this.log(
-            yosay(`Welcome to the Teraslice ${chalk.cyan('generator-teraslice:package')} generator!`)
+            yosay(`Welcome to the Teraslice ${chalk.cyan('Teraslice Package')} generator!`)
         );
 
         this.option('typescript');
-        const name = path.basename(this.destinationRoot());
+
+        const appName = this.determineAppname();
+
+        const pkgJsonPath = this.destinationPath('package.json');
+
+        const {
+            name,
+            description,
+            license,
+            version
+        } = this.fs.readJSON(pkgJsonPath, {
+            name: _.kebabCase(appName),
+            description: 'A Teraslice package',
+            license: 'MIT',
+            version: '0.1.0'
+        });
 
         const config = this.config.getAll();
+
+        let isInternal = config.internal != null ? config.internal : false;
+        if (name.includes('@terascope')) {
+            isInternal = true;
+        }
 
         const prompts = [
             {
                 type: 'input',
                 name: 'name',
                 message: 'What is the package name?',
-                default: config.name || name
+                default: _.trim(config.name || name),
+                transform(input) {
+                    if (name.includes('@terascope')) {
+                        return _.trim(input);
+                    }
+                    return _.kebabCase(_.trim(input));
+                }
             },
             {
                 type: 'input',
                 name: 'description',
                 message: 'Describe what this package does?',
-                default: config.description || 'A Teraslice package'
+                default: _.trim(description || config.description)
             },
             {
                 type: 'confirm',
                 name: 'internal',
                 message: 'Is this package designed for only Terascope projects?',
-                default: config.internal != null ? config.internal : false,
+                default: isInternal,
                 store: true,
             },
             {
@@ -44,24 +71,43 @@ module.exports = class extends Generator {
                 message: 'Will this package be written in Typescript?',
                 default: config.typescript != null ? config.typescript : true,
                 store: true,
+            },
+            {
+                type: 'confirm',
+                name: 'exampleCode',
+                message: 'Do you want example code generated?',
+                default: config.exampleCode != null ? config.exampleCode : false,
+            },
+            {
+                type: 'list',
+                name: 'license',
+                message: 'What is the license for this package?',
+                default: _.trim(license),
+                choices: ['MIT', 'Apache-2.0'],
             }
         ];
 
         return this.prompt(prompts).then((props) => {
-            props.name = _.kebabCase(props.name);
             // To access props later use this.props.someAnswer;
             this.props = props;
-            if (props.name
-                && props.internal
-                && props.name.indexOf('@terascope') !== 0) {
+            if (props.internal && props.name.indexOf('@terascope') !== 0) {
                 this.props.pkgName = `@terascope/${props.name}`;
             } else {
                 this.props.pkgName = props.name;
             }
+            this.props.pkgDirName = path.basename(this.destinationRoot());
+            this.props.pkgVersion = version;
         });
     }
 
     writing() {
+        const pathExists = (...joins) => {
+            const filepath = path.join(...joins);
+            if (this.fs.exists(this.destinationPath(filepath))) return true;
+            if (fs.existsSync(path.join(process.cwd(), filepath))) return true;
+            return false;
+        };
+
         const packageJSON = genPackageJSON(this.props);
 
         this.fs.extendJSON(
@@ -76,8 +122,10 @@ module.exports = class extends Generator {
             this.destinationPath('jest.config.js')
         );
 
+        const licenseExt = this.props.license.toLowerCase();
+
         this.fs.copy(
-            this.templatePath('LICENSE'),
+            this.templatePath(`LICENSE.${licenseExt}`),
             this.destinationPath('LICENSE')
         );
 
@@ -92,41 +140,37 @@ module.exports = class extends Generator {
                 this.templatePath('tsconfig.src.json'),
                 this.destinationPath('tsconfig.json')
             );
+        }
 
-            this.fs.copy(
-                this.templatePath('tsconfig.build.json'),
-                this.destinationPath('tsconfig.build.json')
-            );
+        const folderName = this.props.typescript ? 'src' : 'lib';
+        const ext = this.props.typescript ? '.ts' : '.js';
 
-            this.fs.copy(
-                this.templatePath('src'),
-                this.destinationPath('src')
-            );
+        if (!pathExists(folderName)) {
+            if (this.props.exampleCode) {
+                this.fs.copy(
+                    this.templatePath(folderName),
+                    this.destinationPath(folderName)
+                );
+            } else {
+                this.fs.copy(
+                    this.templatePath(path.join(folderName, `index${ext}`)),
+                    this.destinationPath(path.join(folderName, `index${ext}`))
+                );
+            }
+        }
 
+        if (!pathExists('test')) {
             this.fs.copy(
-                this.templatePath('test/index-spec.ts'),
-                this.destinationPath('test/index-spec.ts')
-            );
-
-            this.fs.copy(
-                this.templatePath('test/example-spec.ts'),
-                this.destinationPath('test/example-spec.ts')
-            );
-        } else {
-            this.fs.copy(
-                this.templatePath('lib'),
-                this.destinationPath('lib')
-            );
-
-            this.fs.copy(
-                this.templatePath('test/index-spec.js'),
-                this.destinationPath('test/index-spec.js')
+                this.templatePath(`test/index-spec${ext}`),
+                this.destinationPath(`test/index-spec${ext}`)
             );
 
-            this.fs.copy(
-                this.templatePath('test/example-spec.js'),
-                this.destinationPath('test/example-spec.js')
-            );
+            if (this.props.exampleCode) {
+                this.fs.copy(
+                    this.templatePath(`test/example-spec${ext}`),
+                    this.destinationPath(`test/example-spec${ext}`)
+                );
+            }
         }
     }
 

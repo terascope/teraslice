@@ -35,6 +35,10 @@ describe('Terafoundation Context', () => {
         expect(context.sysconfig).toHaveProperty('terafoundation');
         expect(context.sysconfig.terafoundation).toMatchObject(config.terafoundation);
         expect(context.cluster.worker).toHaveProperty('id');
+
+        const { hostname } = context.sysconfig.teraslice;
+        const { id } = context.cluster.worker;
+        expect(context.sysconfig._nodeName).toEqual(`${hostname}__${id}`);
     });
 
 

@@ -69,6 +69,7 @@ const newConfig = (options = {}) => {
         slicers = 1,
         recoveredExecution,
         recoveredSliceType,
+        probationWindow = 5000,
     } = options;
 
     return {
@@ -86,7 +87,8 @@ const newConfig = (options = {}) => {
         job_id: newId('job-id', true),
         node_id: newId('node-id', true),
         slicer_port: slicerPort,
-        slicer_hostname: 'localhost'
+        slicer_hostname: 'localhost',
+        probation_window: probationWindow,
     };
 };
 
@@ -128,6 +130,28 @@ const newSysConfig = (options = {}) => {
             name: clusterName,
             master_hostname: 'localhost',
             port: clusterMasterPort,
+            index_settings: {
+                analytics: {
+                    number_of_shards: 1,
+                    number_of_replicas: 0
+                },
+                assets: {
+                    number_of_shards: 1,
+                    number_of_replicas: 0
+                },
+                jobs: {
+                    number_of_shards: 1,
+                    number_of_replicas: 0
+                },
+                execution: {
+                    number_of_shards: 1,
+                    number_of_replicas: 0
+                },
+                state: {
+                    number_of_shards: 1,
+                    number_of_replicas: 0
+                },
+            }
         }
     };
 };

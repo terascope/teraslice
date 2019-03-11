@@ -15,7 +15,7 @@
             "preserve_id": true
         },
         {
-            "_op": "teraslice_kafka_sender",
+            "_op": "kafka_sender",
             "connection": "default",
             "topic": "example-logs-1000",
             "size": 100,

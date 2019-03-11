@@ -5,31 +5,62 @@
         "moduleResolution": "node",
         "target": "es2017",
         "skipLibCheck": true,
+        "pretty": true,
         "experimentalDecorators": true,
-        "declaration": true,
-        "sourceMap": false,
-        "inlineSourceMap": true,
         "strict": true,
         "noUnusedLocals": true,
-        "noUnusedParameters": true,
+        "noUnusedParameters": false,
         "noImplicitReturns": true,
         "preserveConstEnums": true,
         "esModuleInterop": true,
         "resolveJsonModule": true,
+        "forceConsistentCasingInFileNames": true,
         "suppressImplicitAnyIndexErrors": true,
+        // Require project settings
+        "composite": true,
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+        "typeRoots": [
+            "./types",
+            "./node_modules/@types"
+        ],
         "paths": {
-            "@terascope/*": [
-                "../*/src",
-                "../*",
-                "../*/types"
-            ],
             "*": [
-                "types/*",
-                "../*",
-                "../../types/*",
-                "node_modules/*",
-                "../../node_modules/*/types"
+                "*",
+                "./types/*"
             ]
         }
-    }
+    },
+    "include": [],
+    "references": [
+        // Make sure to list this in order of depedencies
+        {
+            "path": "packages/utils"
+        },
+        {
+            "path": "packages/job-components"
+        },
+        {
+            "path": "packages/teraslice-messaging"
+        },
+        {
+            "path": "packages/xlucene-evaluator"
+        },
+        {
+            "path": "packages/ts-transforms"
+        },
+        {
+            "path": "packages/elasticsearch-store"
+        },
+        {
+            "path": "packages/data-access"
+        },
+        {
+            "path": "packages/data-access-plugin"
+        },
+        {
+            "path": "packages/teraslice-test-harness"
+        }
+    ]
 }

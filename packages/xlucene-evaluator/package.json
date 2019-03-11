@@ -1,0 +1,54 @@
+{
+    "name": "xlucene-evaluator",
+    "version": "0.5.1",
+    "srcMain": "src/index.ts",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
+    "files": [
+        "dist/src/**/*",
+        "peg/peg_engine.js"
+    ],
+    "directories": {
+        "lib": "dist/src",
+        "test": "test"
+    },
+    "scripts": {
+        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
+        "lint:fix": "yarn lint --fix",
+        "prepare": "yarn run build:prepare",
+        "prepublishOnly": "yarn build",
+        "build:prepare": "pegjs -o peg/peg_engine.js peg/lucene.pegjs",
+        "build": "yarn run build:prepare && tsc --build --pretty",
+        "build:watch": "yarn build --watch",
+        "test": "jest",
+        "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
+    },
+    "author": "Terascope, LLC <info@terascope.io>",
+    "license": "MIT",
+    "description": "Flexible Lucene-like evalutor and language parser",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/terascope/teraslice.git"
+    },
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator#readme",
+    "dependencies": {
+        "@terascope/utils": "^0.6.0",
+        "@turf/bbox": "^6.0.1",
+        "@turf/bbox-polygon": "^6.0.1",
+        "@turf/boolean-point-in-polygon": "^6.0.1",
+        "@turf/circle": "^6.0.1",
+        "@turf/helpers": "^6.1.4",
+        "date-fns": "^1.30.1",
+        "ip6addr": "^0.2.2",
+        "is-cidr": "^3.0.0",
+        "latlon-geohash": "^1.1.0",
+        "lodash": "^4.17.11"
+    },
+    "devDependencies": {
+        "pegjs": "^0.10.0"
+    },
+    "engines": {
+        "node": ">=8.0.0"
+    }
+}

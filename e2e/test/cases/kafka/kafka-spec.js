@@ -8,7 +8,7 @@ const { resetState } = require('../../helpers');
 
 const { waitForJobStatus, waitForIndexCount } = wait;
 
-describe('Kafka Tests', () => {
+describe('kafka', () => {
     beforeAll(() => resetState());
 
     const teraslice = misc.teraslice();

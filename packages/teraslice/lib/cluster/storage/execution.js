@@ -1,9 +1,11 @@
 'use strict';
 
 
+const _ = require('lodash');
+const { TSError } = require('@terascope/utils');
 const uuid = require('uuid');
 const Promise = require('bluebird');
-const _ = require('lodash');
+const elasticsearchBackend = require('./backends/elasticsearch_store');
 
 const INIT_STATUS = ['pending', 'scheduling', 'initializing'];
 const RUNNING_STATUS = ['running', 'failing', 'paused', 'stopping'];
@@ -18,7 +20,7 @@ module.exports = function module(context) {
     const logger = context.apis.foundation.makeLogger({ module: 'ex_storage' });
     const config = context.sysconfig.teraslice;
     const jobType = 'ex';
-    const jobsIndex = `${config.name}__ex`;
+    const indexName = `${config.name}__ex`;
 
     let backend;
 
@@ -60,7 +62,9 @@ module.exports = function module(context) {
         return getExecution(exId)
             .then(result => result._status)
             .catch((err) => {
-                const error = new Error(`Cannot get execution status ${exId}, caused by ${err.toString()}`);
+                const error = new TSError(err, {
+                    reason: `Cannot get execution status ${exId}`
+                });
                 return Promise.reject(error);
             });
     }
@@ -68,9 +72,10 @@ module.exports = function module(context) {
     // verify the current status to make sure it can be updated to the desired status
     function verifyStatusUpdate(exId, desiredStatus) {
         if (!desiredStatus || !_isValidStatus(desiredStatus)) {
-            return Promise.reject(new Error(`Invalid Job status: "${desiredStatus}"`));
+            const error = new Error(`Invalid Job status: "${desiredStatus}"`);
+            error.statusCode = 422;
+            return Promise.reject(error);
         }
-
 
         return getStatus(exId)
             .then((status) => {
@@ -107,9 +112,11 @@ module.exports = function module(context) {
             })
             .then(() => exId)
             .catch((err) => {
-                const error = _.isString(err) ? new Error(err) : err;
-                logger.error(`Unable to set execution ${exId} status code to ${status}`, error);
-                return error;
+                const error = new TSError(err, {
+                    statusCode: 422,
+                    reason: `Unable to set execution ${exId} status code to ${status}`
+                });
+                return Promise.reject(error);
             });
     }
 
@@ -166,9 +173,19 @@ module.exports = function module(context) {
         verifyStatusUpdate,
     };
 
-    return require('./backends/elasticsearch_store')(context, jobsIndex, 'ex', 'ex_id')
+    const backendConfig = {
+        context,
+        indexName,
+        recordType: 'ex',
+        idField: 'ex_id',
+        fullResponse: false,
+        logRecord: false,
+        storageName: 'execution'
+    };
+
+    return elasticsearchBackend(backendConfig)
         .then((elasticsearch) => {
-            logger.info('Initializing');
+            logger.info('execution storage initialized');
             backend = elasticsearch;
             return api;
         });

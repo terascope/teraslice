@@ -1,26 +1,56 @@
 'use strict';
-'use console';
 
-const _ = require('lodash');
 const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
+const display = require('../lib/display')();
 
-exports.command = 'list <cluster_sh> [id]';
-// TODO job_id, ex_id
+const Config = require('../../lib/config');
+
+const TerasliceUtil = require('../../lib/teraslice-util');
+
+const YargsOptions = require('../../lib/yargs-options');
+
+const yargsOptions = new YargsOptions();
+
+exports.command = 'list <cluster-alias> [id]';
 exports.desc = 'List the workers in a cluster\n';
 exports.builder = (yargs) => {
-    cli().args('worker', 'list', yargs);
-    yargs
-        .example('teraslice-cli workers list cluster1')
-        .example('teraslice-cli workers list http://cluster1.net:80')
-        .example('teraslice-cli workers list cluster1 99999999-9999-9999-9999-999999999999');
+    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.options('output', yargsOptions.buildOption('output'));
+    yargs.strict()
+        .example('$0 workers list cluster1')
+        .example('$0 workers list cluster1 99999999-9999-9999-9999-999999999999');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    config(cliConfig, 'workers:list').returnConfigData();
-    const workers = _testFunctions || require('./lib')(cliConfig);
-    return workers.list()
-        .catch(err => reply.fatal(err.message));
+exports.handler = async (argv) => {
+    let response;
+    const active = true;
+    const parse = false;
+    const cliConfig = new Config(argv);
+    const teraslice = new TerasliceUtil(cliConfig);
+
+    let header = ['assignment', 'job_id', 'ex_id', 'node_id', 'pid'];
+    const format = `${cliConfig.args.output}Horizontal`;
+
+    if (await teraslice.type() === 'kubernetes') {
+        // total and pid are n/a with kubernetes, so they are removed from the output
+        header = ['assignment', 'job_id', 'ex_id', 'node_id', 'worker_id', 'teraslice_version'];
+    }
+
+    try {
+        response = await teraslice.client.cluster.state();
+    } catch (err) {
+        reply.fatal(`Error getting cluster state on ${cliConfig.args.clusterAlias}\n${err}`);
+    }
+
+    if (Object.keys(response).length === 0) {
+        reply.fatal(`> No workers on ${cliConfig.args.clusterAlias}`);
+    }
+
+    // check if id is in response
+    const rows = await display.parseResponse(header, response, active, cliConfig.args.id);
+    if (rows.length > 0) {
+        await display.display(header, rows, format, active, parse, cliConfig.args.id);
+    } else {
+        reply.fatal(`> No workers match id ${cliConfig.args.id}`);
+    }
 };

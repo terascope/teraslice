@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { parseJSON } from '@terascope/utils';
 import {
     ConnectionConfig,
     Context,
@@ -9,7 +10,6 @@ import {
     GetClientConfig,
 } from './interfaces';
 import { ExecutionContextAPI } from './execution-context';
-import { parseJSON } from './utils';
 
 /** Get the first opConfig from an operation name */
 export function getOpConfig(job: ValidatedJobConfig, name: string): OpConfig|undefined {
@@ -78,7 +78,7 @@ export function getClient(context: Context, config: GetClientConfig, type: strin
         return context.foundation.getConnection(clientConfig).client;
     } catch (err) {
         const error = new Error(`No configuration for endpoint ${clientConfig.endpoint} was found in the terafoundation connectors config`);
-        context.logger.error(error.message, err.stack);
+        context.logger.error(error);
         events.emit('client:initialization:error', { error: error.message });
     }
 }

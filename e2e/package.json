@@ -5,7 +5,7 @@
     "description": "Teraslice integration test suite",
     "scripts": {
         "test": "echo '[WARN] Make sure to remember to run yarn clean or yarn test:e2e:clean to remove the docker containers'; jest --runInBand",
-        "test:ci": "env CI_MODE=true jest --runInBand --bail=true || (sleep 2; yarn logs; yarn clean; exit 1) && (yarn clean; exit 0)",
+        "test:ci": "env CI_MODE=true jest --runInBand --bail || (sleep 2; yarn logs; yarn clean; exit 1) && (yarn clean; exit 0)",
         "logs": "docker-compose logs --no-color teraslice-worker teraslice-master | awk -F' [|] ' '{print $2}' | bunyan -o short",
         "logs-follow": "docker-compose logs --follow --no-color teraslice-worker teraslice-master | awk -F' [|] ' '{print $2}' | bunyan -o short",
         "clean": "docker-compose down --volumes --remove-orphans --timeout=5"
@@ -30,13 +30,13 @@
         "@terascope/fetch-github-release": "^0.6.0",
         "bluebird": "^3.5.3",
         "bunyan": "^1.8.12",
-        "elasticsearch": "^15.1.1",
-        "jest": "^23.6.0",
-        "jest-extended": "^0.11.0",
+        "elasticsearch": "^15.4.1",
+        "jest": "^24.3.1",
+        "jest-extended": "^0.11.1",
         "lodash": "^4.17.11",
         "semver": "^5.6.0",
-        "signale": "^1.3.0",
-        "teraslice-client-js": "^0.6.1",
+        "signale": "^1.4.0",
+        "teraslice-client-js": "^0.7.0",
         "uuid": "^3.3.2"
     }
 }

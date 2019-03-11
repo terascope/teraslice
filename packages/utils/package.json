@@ -1,0 +1,37 @@
+{
+    "name": "@terascope/utils",
+    "description": "A collection of Teraslice Utilities",
+    "version": "0.6.0",
+    "publishConfig": {
+        "access": "public"
+    },
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/terascope-utils#readme",
+    "repository": "git@github.com:terascope/teraslice.git",
+    "author": "Terascope, LLC <info@terascope.io>",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "files": [
+        "dist/src/**/*"
+    ],
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
+    "scripts": {
+        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
+        "lint:fix": "yarn lint --fix",
+        "prepublishOnly": "yarn build",
+        "build": "tsc --build --pretty",
+        "build:watch": "yarn build --watch",
+        "test": "jest",
+        "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
+    },
+    "dependencies": {
+        "debug": "^4.1.1",
+        "is-plain-object": "^2.0.4",
+        "kind-of": "^6.0.2",
+        "lodash.clonedeep": "^4.5.0"
+    },
+    "devDependencies": {}
+}

@@ -1,24 +1,29 @@
 'use strict';
 'use console';
 
-const _ = require('lodash');
 const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
+const Config = require('../../lib/config');
+const Jobs = require('../../lib/jobs');
+const YargsOptions = require('../../lib/yargs-options');
 
-exports.command = 'recover <cluster_sh> <job_id>';
-exports.desc = 'Run recovery on cluster.\n';
+const yargsOptions = new YargsOptions();
+
+
+exports.command = 'recover <cluster-alias> <id>';
+exports.desc = 'Run recovery on cluster for specified job id.\n';
 exports.builder = (yargs) => {
-    cli().args('jobs', 'recover', yargs);
-    yargs
-        .example('teraslice-cli jobs recover cluster1 99999999-9999-9999-9999-999999999999');
+    yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.options('output', yargsOptions.buildOption('output'));
+    yargs.strict()
+        .example('$0 jobs recover cluster1 99999999-9999-9999-9999-999999999999');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    config(cliConfig, 'jobs:recover').returnConfigData();
-    const job = _testFunctions || require('./lib')(cliConfig);
-
-    return job.recover()
-        .catch(err => reply.fatal(err.message));
+exports.handler = async (argv) => {
+    const cliConfig = new Config(argv);
+    const jobs = new Jobs(cliConfig);
+    try {
+        await jobs.recover();
+    } catch (e) {
+        reply.fatal(e);
+    }
 };

@@ -1,3 +1,4 @@
+import { DataEntity } from '@terascope/utils';
 import {
     Context,
     ExecutionConfig,
@@ -6,7 +7,7 @@ import {
     SliceAnalyticsData,
     OpAPI,
 } from '../interfaces';
-import { DataEntity, APICore } from '../operations';
+import { APICore } from '../operations';
 
 export interface ExecutionContextConfig {
     context: Context;

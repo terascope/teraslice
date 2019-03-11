@@ -1,10 +1,10 @@
 import fs from 'fs';
 import path from 'path';
+import { parseJSON } from '@terascope/utils';
 import { TestReaderConfig } from './interfaces';
 import { Slicer } from '../../operations';
-import { parseJSON } from '../../utils';
 import { dataClone } from './utils';
-import defaultData from './data/slicer-data.json';
+import defaultData from './data/slicer-data';
 
 export default class TestSlicer extends Slicer<TestReaderConfig> {
     requests: object[] = [];

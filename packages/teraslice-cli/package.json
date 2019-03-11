@@ -1,6 +1,6 @@
 {
     "name": "teraslice-cli",
-    "version": "0.3.4",
+    "version": "0.6.0",
     "description": "Teraslice command line interface",
     "bin": {
         "teraslice-cli": "./index.js",
@@ -14,7 +14,7 @@
         "lint": "eslint *.js cmds/**/*.js",
         "lint:fix": "yarn lint --fix",
         "test": "jest",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-cli#readme",
     "repository": "git@github.com:terascope/teraslice.git",
@@ -30,28 +30,20 @@
         "@terascope/fetch-github-release": "^0.6.0",
         "archiver": "^3.0.0",
         "bluebird": "^3.5.3",
-        "chalk": "^2.3.2",
+        "chalk": "^2.4.2",
+        "cli-table3": "^0.5.1",
         "easy-table": "^1.1.1",
         "fs-extra": "^7.0.1",
-        "json-diff": "^0.5.3",
         "lodash": "^4.17.11",
-        "mkdirp": "^0.5.1",
-        "node-datetime": "^2.1.2",
         "node-yaml": "^3.1.1",
-        "process": "^0.11.10",
         "prompts": "^1.1.1",
         "syncprompt": "^2.0.0",
-        "teraslice-client-js": "^0.6.1",
-        "terminal-kit": "^1.26.8",
-        "tty-table": "^2.6.8",
-        "yargs": "^12.0.2"
+        "teraslice-client-js": "^0.7.0",
+        "tmp": "^0.0.33",
+        "tty-table": "^2.7.0",
+        "yargs": "^13.2.2"
     },
     "devDependencies": {
-        "eslint": "^5.10.0",
-        "eslint-config-airbnb-base": "^13.1.0",
-        "eslint-plugin-import": "^2.14.0",
-        "jest": "^23.6.0",
-        "jest-extended": "^0.11.0",
         "jest-fixtures": "^0.6.0"
     }
 }

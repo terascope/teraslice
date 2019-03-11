@@ -1,7 +1,8 @@
 'use strict';
 
-const Promise = require('bluebird');
 const _ = require('lodash');
+const Promise = require('bluebird');
+const { isFatalError } = require('@terascope/job-components');
 const { ExecutionController, formatURL } = require('@terascope/teraslice-messaging');
 const {
     makeStateStore,
@@ -68,6 +69,7 @@ class Worker {
             this.logger.warn('Execution Controller shutdown, exiting...');
             this.shouldShutdown = true;
         });
+
         await this.client.start();
     }
 
@@ -79,10 +81,11 @@ class Worker {
             try {
                 await this.runOnce();
             } catch (err) {
-                /* istanbul ignore next */
-                this.logger.warn('Slice failed but worker is not done processing');
+                this.logger.fatal(err, 'Worker must shutdown to Fatal Error');
+                this.shutdown(false);
+            } finally {
+                running = false;
             }
-            running = false;
         };
 
         await new Promise((resolve) => {
@@ -114,6 +117,7 @@ class Worker {
         const msg = await this.client.waitForSlice(() => this.isShuttingDown);
 
         if (!msg) {
+            this.logger.debug(`${this.workerId} worker is idle`);
             return;
         }
 
@@ -136,8 +140,10 @@ class Worker {
 
             await this.executionContext.onSliceFinished(sliceId);
         } catch (err) {
-            if (!err.alreadyLogged) {
-                this.logger.error(`slice run error for execution ${exId}`, err);
+            this.logger.error(err, `slice run error for execution ${exId}`);
+
+            if (isFatalError(err)) {
+                throw err;
             }
 
             await this.client.sendSliceComplete({
@@ -154,9 +160,11 @@ class Worker {
     async shutdown(block = true) {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
-        if (this.isShuttingDown && block) {
-            this.logger.debug('worker shutdown was called but it was already shutting down, will block until done');
-            await waitForWorkerShutdown(this.context, 'worker:shutdown:complete');
+        if (this.isShuttingDown) {
+            this.logger.debug(`worker shutdown was called but it was already shutting down ${block ? ', will block until done' : ''}`);
+            if (block) {
+                await waitForWorkerShutdown(this.context, 'worker:shutdown:complete');
+            }
             return;
         }
 
@@ -165,6 +173,9 @@ class Worker {
         this.isShuttingDown = true;
 
         const shutdownErrs = [];
+        const pushError = (err) => {
+            shutdownErrs.push(err);
+        };
 
         this.logger.warn(`worker shutdown was called for execution ${exId}`);
 
@@ -182,29 +193,15 @@ class Worker {
 
         await Promise.all([
             (async () => {
-                try {
-                    await Promise.map(_.values(this.stores), (store) => {
-                        // attempt to shutdown but if it takes longer than shutdown_timeout, cleanup
-                        const forceShutdown = true;
-                        return store.shutdown(forceShutdown);
-                    });
-                } catch (err) {
-                    shutdownErrs.push(err);
-                }
+                const stores = Object.values(this.stores);
+                await Promise.map(stores, store => store.shutdown(true)
+                    .catch(pushError));
             })(),
             (async () => {
-                try {
-                    await this.slice.shutdown();
-                } catch (err) {
-                    shutdownErrs.push(err);
-                }
+                await this.slice.shutdown().catch(pushError);
             })(),
             (async () => {
-                try {
-                    await this.client.shutdown();
-                } catch (err) {
-                    shutdownErrs.push(err);
-                }
+                await this.client.shutdown().catch(pushError);
             })()
         ]);
 

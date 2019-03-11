@@ -8,17 +8,24 @@
 **/test
 **/spec
 **/docs
+**/website
 **/examples
 **/e2e
 **/dist
+.vscode
 assets
 autoload
-docker-base
 packages/*/assets
 packages/*/autoload
+
+# exclude packages that are not needed inside the docker image
+packages/data-access
+packages/data-access-plugin
 packages/docker-compose-js
-packages/teraslice-op-test-harness
+packages/elasticsearch-store
+packages/generator-teraslice
 packages/teraslice-client-js
 packages/teraslice-cli
 packages/teraslice-test-harness
-packages/generator-teraslice
+packages/ts-transforms
+packages/xlucene-evaluator

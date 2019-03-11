@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
+import { Logger } from '@terascope/utils';
 import { OpConfig } from './jobs';
 import { ExecutionContextAPI } from '../execution-context';
-import { Logger } from './logger';
 
 export interface ClusterStateConfig {
     connection: string|'default';
@@ -22,6 +22,8 @@ export interface TerasliceConfig {
     assets_directory?: string;
     assets_volume?: string;
     cluster_manager_type: ClusterManagerType;
+    /** This will only be available in the context of k8s */
+    cpu?: number;
     hostname: string;
     index_rollover_frequency: IndexRolloverFrequency;
     kubernetes_config_map_name?: string|'teraslice-worker';
@@ -30,6 +32,8 @@ export interface TerasliceConfig {
     kubernetes_namespace?: string|'default';
     master_hostname: string|'localhost';
     master: boolean|false;
+    /** This will only be available in the context of k8s */
+    memory?: number;
     name: string|'teracluster';
     network_latency_buffer: number|15000;
     node_disconnect_timeout: number|300000;
@@ -51,6 +55,7 @@ export interface TerafoundationConfig {
 export interface SysConfig {
     terafoundation: TerafoundationConfig;
     teraslice: TerasliceConfig;
+    _nodeName: string;
 }
 
 export interface ConnectionConfig {
@@ -141,6 +146,13 @@ export interface Context {
     name: string;
     platform: string;
     sysconfig: SysConfig;
+    cluster: ContextClusterConfig;
+}
+
+export interface ContextClusterConfig {
+    worker: {
+        id: string;
+    };
 }
 
 export type Assignment = 'assets_service'|'cluster_master'|'node_master'|'execution_controller'|'worker';

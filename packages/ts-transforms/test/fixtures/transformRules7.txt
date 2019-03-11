@@ -1,0 +1,1 @@
+{"selector": "hello:world", "source_field": "txt", "target_field": "hex", "validation": "hexdecode" }

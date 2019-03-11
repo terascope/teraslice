@@ -1,22 +1,25 @@
 'use strict';
-'use console';
 
 const _ = require('lodash');
+const JobSrc = require('../../lib/job-src');
+const YargsOptions = require('../../lib/yargs-options');
 const reply = require('../lib/reply')();
-const config = require('../lib/config');
-const cli = require('./lib/cli');
 
-exports.command = 'reset <job_file>';
-exports.desc = 'Reset a job file, removes teraslice-cli metadata';
+const yargsOptions = new YargsOptions();
+
+exports.command = 'reset <job-file>';
+exports.desc = 'Removes cli metadata so job can be registerd on another cluster';
 exports.builder = (yargs) => {
-    cli().args('tjm', 'reset', yargs);
+    yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
+    yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
+    yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
+    yargs.example('$0 tjm reset jobFile.json');
 };
 
-exports.handler = (argv, _testFunctions) => {
-    const cliConfig = _.clone(argv);
-    config(cliConfig, 'tjm:reset').returnConfigData();
-    const tjm = _testFunctions || require('./lib')(cliConfig);
-
-    return tjm.reset()
-        .catch(err => reply.fatal(err.message));
+exports.handler = async (argv) => {
+    const job = new JobSrc(argv);
+    job.init();
+    _.unset(job.content, '__metadata');
+    job.overwrite();
+    reply.green(`Removed metadata from ${argv.jobFile}`);
 };

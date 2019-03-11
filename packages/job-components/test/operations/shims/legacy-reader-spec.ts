@@ -8,7 +8,8 @@ import {
     TestContext,
     newTestExecutionConfig,
     newTestExecutionContext,
-    OpConfig
+    OpConfig,
+    JobConfig,
 } from '../../../src';
 
 describe('Legacy Reader Shim', () => {
@@ -58,6 +59,12 @@ describe('Legacy Reader Shim', () => {
                 }
             };
         }
+
+        validateJob(job: JobConfig) {
+            if (!job.name) {
+                throw new Error('Missing job name');
+            }
+        }
     }
 
     class InvalidSchema extends ConvictSchema<OpConfig> {
@@ -67,6 +74,12 @@ describe('Legacy Reader Shim', () => {
 
         build() {
             return {};
+        }
+
+        validateJob(job: JobConfig) {
+            if (!job.name) {
+                throw new Error('Missing job name');
+            }
         }
     }
 
@@ -126,6 +139,11 @@ describe('Legacy Reader Shim', () => {
                     format: 'String',
                 }
             });
+            expect(shim.crossValidation).toBeFunction();
+            expect(() => {
+                // @ts-ignore
+                shim.crossValidation(exConfig, context.sysconfig);
+            }).not.toThrow();
         });
     });
 
@@ -172,6 +190,11 @@ describe('Legacy Reader Shim', () => {
                     format: 'String',
                 }
             });
+
+            expect(() => {
+                // @ts-ignore
+                shim.crossValidation(exConfig, context.sysconfig);
+            }).not.toThrow();
         });
     });
 
@@ -181,6 +204,11 @@ describe('Legacy Reader Shim', () => {
         it('should throw error if invalid schema type', () => {
             expect(() => {
                 shim.schema(context);
+            }).toThrowError('Backwards compatibility only works for "convict" schemas');
+
+            expect(() => {
+                // @ts-ignore
+                shim.crossValidation(exConfig, context.sysconfig);
             }).toThrowError('Backwards compatibility only works for "convict" schemas');
         });
     });

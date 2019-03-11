@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const Table = require('easy-table');
-const parseError = require('@terascope/error-parser');
+const { parseErrorInfo, parseList } = require('@terascope/utils');
 
 function makeTable(req, defaults, data, mappingFn) {
     const query = fieldsQuery(req.query, defaults);
@@ -32,7 +32,7 @@ function fieldsQuery(query, defaults) {
         return defaults || [];
     }
 
-    const results = query.fields.split(',').map(word => word.trim());
+    const results = parseList(query.fields);
 
     if (results.length === 0) {
         return defaults;
@@ -52,24 +52,26 @@ function handleRequest(req, res, defaultErrorMsg = 'Failure to process request',
                 res.status(successCode).json(result);
             }
         } catch (err) {
-            if (_.isError(err) || err.code || err.statusCode) {
-                const code = err.statusCode || err.code || errorCode;
-                req.logger.error(err.message);
-                sendError(res, code, err.message);
-                return;
+            const { statusCode, message } = parseErrorInfo(err, {
+                defaultErrorMsg,
+                defaultStatusCode: errorCode,
+            });
+
+            if (statusCode >= 500) {
+                req.logger.error(err);
+            } else {
+                req.logger.error(message);
             }
 
-            const errMsg = `${defaultErrorMsg}, error: ${parseError(err)}`;
-            req.logger.error(errMsg);
-            sendError(res, errorCode, errMsg);
+            sendError(res, statusCode, message);
         }
     };
 }
 
-function sendError(res, code, error) {
+function sendError(res, code, message) {
     res.status(code).json({
         error: code,
-        message: error
+        message
     });
 }
 

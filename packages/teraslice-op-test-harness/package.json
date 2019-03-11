@@ -1,6 +1,6 @@
 {
     "name": "@terascope/teraslice-op-test-harness",
-    "version": "1.5.2",
+    "version": "1.5.4",
     "publishConfig": {
         "access": "public"
     },
@@ -8,12 +8,11 @@
     "main": "index.js",
     "typings": "types/index.d.ts",
     "scripts": {
-        "docs": "jsdoc -P package.json index.js",
         "lint": "eslint *.js lib/**/*.js test/**/*.js",
         "lint:fix": "yarn lint --fix",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-op-test-harness#readme",
     "repository": "git@github.com:terascope/teraslice.git",
@@ -23,16 +22,9 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.14.1",
+        "@terascope/job-components": "^0.15.0",
         "bluebird": "^3.5.3",
         "lodash": "^4.17.11"
     },
-    "devDependencies": {
-        "eslint": "^5.10.0",
-        "eslint-config-airbnb-base": "^13.1.0",
-        "eslint-plugin-import": "^2.14.0",
-        "jest": "^23.6.0",
-        "jest-extended": "^0.11.0",
-        "jsdoc": "^3.4.3"
-    }
+    "devDependencies": {}
 }

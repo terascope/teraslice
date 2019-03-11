@@ -1,0 +1,4 @@
+{ "selector": "selectfield:value", "source_field": "url", "start": "field1=", "end": "EOP", "target_field": "myfield", "multivalue": true }
+{ "selector": "selectfield:value", "source_field": "url", "start": "field2=", "end": "EOP", "target_field": "myfield", "multivalue": true }
+{ "selector": "other:value", "source_field": "other", "target_field": "field", "multivalue": true }
+{ "selector": "other:value", "source_field": "other", "target_field": "field", "multivalue": true }

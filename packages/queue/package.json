@@ -12,7 +12,7 @@
         "lint:fix": "yarn lint --fix",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/queue#readme",
     "repository": "git@github.com:terascope/teraslice.git",
@@ -22,11 +22,5 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "dependencies": {},
-    "devDependencies": {
-        "eslint": "^5.10.0",
-        "eslint-config-airbnb-base": "^13.1.0",
-        "eslint-plugin-import": "^2.14.0",
-        "jest": "^23.6.0",
-        "jest-extended": "^0.11.0"
-    }
+    "devDependencies": {}
 }

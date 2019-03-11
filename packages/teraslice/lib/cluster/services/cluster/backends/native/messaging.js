@@ -86,7 +86,7 @@ module.exports = function messaging(context, logger) {
     let childHookFn = null;
     let io;
 
-    logger.debug('messaging service configuration', config);
+    logger.debug(`messaging service configuration for assignment ${config.assignment}`);
 
     // set a default listener the is used for forwarding/completing responses
     functionMapping['messaging:response'] = _handleResponse;
@@ -236,7 +236,7 @@ module.exports = function messaging(context, logger) {
             } = socket.handshake.query;
 
             if (nodeId) {
-                logger.info(`Node ${nodeId} joining room on connect`);
+                logger.info(`node ${nodeId} joining room on connect`);
                 socket.join(nodeId);
             }
 

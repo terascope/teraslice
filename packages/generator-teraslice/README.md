@@ -1,20 +1,46 @@
-# Generator Teraslice
+# generator-teraslice
+
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/generator-teraslice/overview.md INSTEAD -->
+
+**NOTE:** This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo, more documentation can be found [here](https://terascope.github.io/teraslice/docs/).
 
 > Generate teraslice related packages and code
 
-- [Installation](#installation)
-- [Usage](#usage)
-  - [Package](#package)
-- [Contributing](#contributing)
-- [License](#license)
-
 ## Installation
+
+### Install Yeoman
 
 ```bash
 # Using yarn
-yarn global add yo tersalice-generator
+yarn global add yo
 # Using npm
-npm install --global yo teraslice-generator
+npm install --global yo
+```
+
+### Global Setup
+
+**NOTE:** This will use version lock the generator and you'll have to update it manually to get the latest.
+
+```bash
+# Using yarn
+yarn global add tersalice-generator
+# Using npm
+npm install --global teraslice-generator
+```
+
+### Development Setup
+
+**NOTE:** This will always use the latest code locally.
+
+```bash
+# From the root of the teraslice repo
+cd ./packages/generator-teraslice
+
+# Link the generator so the command is available to you
+# Using yarn
+yarn link
+# Using npm
+npm link
 ```
 
 ## Usage
@@ -30,7 +56,7 @@ cd ./packages/<name-of-package>
 
 # Follow the prompts to generate
 # the correct package
-yo teraslice-generator:package
+yo teraslice:package
 ```
 
 ## Contributing

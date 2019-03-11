@@ -8,7 +8,7 @@ import {
     isValidDate,
     isString,
     isInteger
-} from './utils';
+} from '@terascope/utils';
 
 export const formats : Format[] = [
     {

@@ -103,7 +103,7 @@ function shutdownHandler(context, shutdownFn) {
     });
 
     process.on('uncaughtException', (err) => {
-        logger.fatal(`${assignment} received an uncaughtException, ${exitingIn()}`, err);
+        logger.fatal(err, `${assignment} received an uncaughtException, ${exitingIn()}`);
         if (!api.exiting) {
             process.exitCode = restartOnFailure ? 1 : 0;
         }
@@ -111,12 +111,24 @@ function shutdownHandler(context, shutdownFn) {
     });
 
     process.once('unhandledRejection', (err) => {
-        logger.fatal(`${assignment} received an unhandledRejection, ${exitingIn()}`, err);
+        logger.fatal(err, `${assignment} received an unhandledRejection, ${exitingIn()}`);
         if (!api.exiting) {
             process.exitCode = restartOnFailure ? 1 : 0;
         }
         exit('unhandledRejection', err);
     });
+
+    // See https://github.com/trentm/node-bunyan/issues/246
+    function handleStdError(err) {
+        if (err.code === 'EPIPE' || err.code === 'ERR_STREAM_DESTROYED') {
+        // ignore
+        } else {
+            throw err;
+        }
+    }
+
+    process.stdout.on('error', handleStdError);
+    process.stderr.on('error', handleStdError);
 
     // event is fired from terafoundation when an error occurs during instantiation of a client
     events.once('client:initialization:error', (err) => {
@@ -132,7 +144,7 @@ function shutdownHandler(context, shutdownFn) {
             process.exitCode = 0;
         }
         if (err) {
-            logger.fatal(`${assignment} shutdown error, ${exitingIn()}`, err);
+            logger.fatal(err, `${assignment} shutdown error, ${exitingIn()}`);
         } else {
             logger.info(`${assignment} shutdown, ${exitingIn()}`);
         }

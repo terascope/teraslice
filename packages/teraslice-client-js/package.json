@@ -1,6 +1,6 @@
 {
     "name": "teraslice-client-js",
-    "version": "0.6.1",
+    "version": "0.7.0",
     "publishConfig": {
         "access": "public"
     },
@@ -11,7 +11,7 @@
         "lint:fix": "yarn lint --fix",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*,*nock.scope*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-client-js#readme",
     "repository": "git@github.com:terascope/teraslice.git",
@@ -27,18 +27,13 @@
         "elasticsearch"
     ],
     "dependencies": {
-        "auto-bind": "^1.2.1",
+        "auto-bind": "^2.0.0",
         "bluebird": "^3.5.3",
         "lodash": "^4.17.11",
         "request": "^2.88.0",
-        "request-promise": "^4.2.2"
+        "request-promise": "^4.2.4"
     },
     "devDependencies": {
-        "eslint": "^5.10.0",
-        "eslint-config-airbnb-base": "^13.1.0",
-        "eslint-plugin-import": "^2.14.0",
-        "jest": "^23.6.0",
-        "jest-extended": "^0.11.0",
-        "nock": "^10.0.4"
+        "nock": "^10.0.6"
     }
 }

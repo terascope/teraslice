@@ -113,7 +113,7 @@ describe('OperationCore', () => {
 
             it('should log the record', () => {
                 const result = operation.rejectRecord(record, err);
-                expect(operation.logger.error).toHaveBeenCalledWith('Bad record', record, err);
+                expect(operation.logger.error).toHaveBeenCalledWith(err, 'Bad record', record);
                 expect(result).toBeNull();
             });
         });

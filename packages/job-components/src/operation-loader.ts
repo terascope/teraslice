@@ -1,6 +1,7 @@
 /* tslint:disable:variable-name */
 import fs from 'fs';
 import path from 'path';
+import { isString, uniq, parseError, cloneDeep } from '@terascope/utils';
 import { LegacyOperation } from './interfaces';
 import {
     OperationAPIConstructor,
@@ -14,7 +15,6 @@ import {
     ReaderModule,
 } from './operations';
 import { readerShim, processorShim } from './operations/shims';
-import { isString, uniq, parseError, cloneDeep } from './utils';
 
 export interface LoaderOptions {
     /** Path to teraslice lib directory */
@@ -346,7 +346,7 @@ export class OperationLoader {
         if (this.availableExtensions.includes('.ts')) {
             return path.join(__dirname, 'builtin');
         }
-        return path.join(__dirname, '..', 'dist', 'builtin');
+        return path.join(__dirname, '..', '..', 'dist', 'src', 'builtin');
     }
 }
 

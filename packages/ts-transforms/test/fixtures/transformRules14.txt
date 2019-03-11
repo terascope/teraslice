@@ -1,0 +1,4 @@
+{ "selector": "domain:example.com", "source_field": "url", "start": "value=", "end": "EOP", "target_field": "value" }
+{ "selector": "domain:example.com", "source_field": "url", "start": "value2=", "end": "EOP", "target_field": "value2" }
+{ "source_field": "date", "target_field": "date", "other_match_required": true }
+{ "source_field": "key", "target_field": "key", "other_match_required": true }

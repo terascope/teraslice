@@ -1,7 +1,13 @@
 'use strict';
 
 const Promise = require('bluebird');
-const parseError = require('@terascope/error-parser');
+const {
+    TSError,
+    pRetry,
+    toString,
+    isRetryableError,
+    parseErrorInfo
+} = require('@terascope/utils');
 const { timeseriesIndex } = require('../../utils/date_utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
@@ -32,8 +38,7 @@ module.exports = function module(context) {
         };
 
         if (error) {
-            const errMsg = typeof error === 'string' ? error : JSON.stringify(error);
-            record.error = errMsg;
+            record.error = toString(error);
         }
 
         return backend.indexWithId(slice.slice_id, record, index);
@@ -47,11 +52,37 @@ module.exports = function module(context) {
         };
 
         if (error) {
-            const errMsg = typeof error === 'string' ? error : JSON.stringify(error);
-            record.error = errMsg;
+            record.error = toString(error);
         }
 
-        return backend.update(slice.slice_id, record, indexData.index);
+        let notFoundErrCount = 0;
+
+        async function update() {
+            try {
+                return await backend.update(slice.slice_id, record, indexData.index);
+            } catch (_err) {
+                const { statusCode, message } = parseErrorInfo(_err);
+                let retryable = isRetryableError(_err);
+                if (statusCode === 404) {
+                    notFoundErrCount++;
+                    retryable = notFoundErrCount < 3;
+                } else if (message.includes('Request Timeout')) {
+                    retryable = true;
+                }
+
+                throw new TSError(_err, {
+                    retryable,
+                    reason: `Failure to update ${state} state`
+                });
+            }
+        }
+
+        return pRetry(update, {
+            retries: 10000,
+            delay: 1000,
+            backoff: 5,
+            endWithFatal: true,
+        });
     }
 
     function executionStartingSlice(exId, slicerId) {
@@ -68,9 +99,10 @@ module.exports = function module(context) {
                 return recoveryData;
             })
             .catch((err) => {
-                const errMsg = parseError(err);
-                logger.error(`StateStorage: An error occurred getting the newest record, error: ${errMsg}`);
-                return Promise.reject(errMsg);
+                const error = new TSError(err, {
+                    reason: 'Failure getting the newest record'
+                });
+                return Promise.reject(error);
             });
     }
 
@@ -93,9 +125,10 @@ module.exports = function module(context) {
                 _created: doc._created
             })))
             .catch((err) => {
-                const errMsg = parseError(err);
-                logger.error(`StateStorage: An error has occurred accessing the state log for retry, error: ${errMsg}`);
-                return Promise.reject(errMsg);
+                const error = new TSError(err, {
+                    reason: 'An error has occurred accessing the state log for retry'
+                });
+                return Promise.reject(error);
             });
     }
 
@@ -112,6 +145,11 @@ module.exports = function module(context) {
         return backend.shutdown(forceShutdown);
     }
 
+    function refresh() {
+        const { index } = timeseriesIndex(timeseriesFormat, _index);
+        return backend.refresh(index);
+    }
+
     const api = {
         search,
         createState,
@@ -119,13 +157,25 @@ module.exports = function module(context) {
         recoverSlices,
         executionStartingSlice,
         count,
-        shutdown
+        shutdown,
+        refresh,
     };
 
-    return elasticsearchBackend(context, indexName, 'state', '_id')
+    const backendConfig = {
+        context,
+        indexName,
+        recordType: 'state',
+        idField: 'slice_id',
+        fullResponse: false,
+        logRecord: false,
+        forceRefresh: false,
+        storageName: 'state'
+    };
+
+    return elasticsearchBackend(backendConfig)
         .then((elasticsearch) => {
             backend = elasticsearch;
-            logger.info('initializing');
+            logger.info('state storage initialized');
             return api;
         });
 };

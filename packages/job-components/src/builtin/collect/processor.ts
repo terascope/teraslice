@@ -1,6 +1,6 @@
+import { DataEntity, Collector } from '@terascope/utils';
 import { CollectConfig } from './interfaces';
-import { BatchProcessor, DataEntity } from '../../operations';
-import { Collector } from '../../collector';
+import { BatchProcessor } from '../../operations';
 import { WorkerContext, ExecutionConfig } from '../../interfaces';
 
 export default class Collect extends BatchProcessor<CollectConfig> {
