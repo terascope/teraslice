@@ -43,9 +43,9 @@
     "dependencies": {
         "@terascope/utils": "^0.6.0",
         "@types/got": "^9.4.1",
-        "awesome-phonenumber": "^2.5.0",
         "@types/graphlib": "^2.1.4",
         "@types/shortid": "^0.0.29",
+        "awesome-phonenumber": "^2.6.0",
         "got": "^9.6.0",
         "graphlib": "^2.1.7",
         "lodash": "^4.17.11",
