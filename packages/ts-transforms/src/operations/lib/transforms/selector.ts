@@ -22,12 +22,9 @@ export default class Selector extends TransformOpBase {
     addMetaData(doc: DataEntity, selector: string) {
         const meta = doc.getMetadata('selectors');
         if (meta) {
-            meta[selector] = true;
-            doc.setMetadata('selectors', meta);
+            meta.push(selector);
         } else {
-            const metadata = {};
-            metadata[selector] = true;
-            doc.setMetadata('selectors', metadata);
+            doc.setMetadata('selectors', [selector]);
         }
     }
 

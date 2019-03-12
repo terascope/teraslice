@@ -98,7 +98,6 @@ export default class Extraction extends TransformOpBase {
                 const metaData = doc.getMetadata();
 
                 if (this.isMutation) {
-                    doc.setMetadata('_multi_target_fields', metaData._multi_target_fields);
                     // TODO: this might have problems of multiple extractions on the same field
                     this.set(doc, extractedResult);
                     return doc;

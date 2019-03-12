@@ -30,9 +30,9 @@ export default class PostProcessPhase extends PhaseBase {
             const { selectors } = startingMetaData;
             let record: DataEntity | null = data;
 
-            _.forOwn(selectors, (_value, key) => {
-                if (this.phase[key]) {
-                    record = this.phase[key].reduce<DataEntity | null>((record, fn) => {
+            selectors.forEach((selector: string) => {
+                if (this.phase[selector]) {
+                    record = this.phase[selector].reduce<DataEntity | null>((record, fn) => {
                         if (!record) return record;
                         return fn.run(record);
                     }, record);

@@ -27,10 +27,9 @@ export default class ExtractionPhase extends PhaseBase {
             const record = dataArray[i];
             const metaData =  record.getMetadata();
             const { selectors } = metaData;
-            const selectorKeys = Object.keys(selectors);
             const results = {};
 
-            selectorKeys.forEach((key) => {
+            selectors.forEach((key: string) => {
                 if (this.phase[key]) {
                     this.phase[key].forEach((fn) => {
                         const newRecord = fn.run(record);

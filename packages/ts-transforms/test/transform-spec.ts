@@ -86,7 +86,7 @@ describe('can transform matches', () => {
         _.each(results, (data, index) => {
             expect(DataEntity.isDataEntity(data)).toEqual(true);
             expect(data.other).toEqual(resultSet[index]);
-            expect(data.getMetadata('selectors')['*']).toBeDefined();
+            expect(data.getMetadata('selectors').includes('*')).toBeTrue();
         });
     });
 
@@ -265,7 +265,7 @@ describe('can transform matches', () => {
         expect(results[0]).toEqual({ first_name: 'Jane', last_name: 'Doe', full_name: 'Jane Doe' });
 
         const metaData = results[0].getMetadata();
-        expect(metaData.selectors).toEqual({ 'hello:world': true, 'full_name:"Jane Doe"': true });
+        expect(metaData.selectors).toEqual(['hello:world', 'full_name:"Jane Doe"']);
     });
 
     it('can chain selection => transform => selection => transform', async() => {
@@ -292,7 +292,7 @@ describe('can transform matches', () => {
         });
 
         const metaData = results[0].getMetadata();
-        expect(metaData.selectors).toEqual({ 'hello:world': true, 'full_name:"Jane Doe"': true });
+        expect(metaData.selectors).toEqual(['hello:world', 'full_name:"Jane Doe"']);
     });
 
     it('can chain selection => validation => post_process', async() => {
@@ -344,10 +344,12 @@ describe('can transform matches', () => {
 
         const resultsData1 = data.map(doc => ({ hex: doc.txt }));
 
-        const finalData = DataEntity.makeArray(transformedData);
+        const data1 = DataEntity.makeArray(_.cloneDeep(transformedData));
+        const data2 = DataEntity.makeArray(_.cloneDeep(transformedData));
+        const data3 = DataEntity.makeArray(_.cloneDeep(transformedData));
 
         const test1 = await opTest.init(config);
-        const results1 =  await test1.run(finalData);
+        const results1 =  await test1.run(data1);
 
         expect(results1.length).toEqual(3);
         _.each(results1, (result, ind) => {
@@ -356,7 +358,7 @@ describe('can transform matches', () => {
         });
 
         const test2 = await opTest.init(config2);
-        const results2 =  await test2.run(finalData);
+        const results2 =  await test2.run(data2);
 
         expect(results2.length).toEqual(3);
         _.each(results2, (result, ind) => {
@@ -365,7 +367,7 @@ describe('can transform matches', () => {
         });
 
         const test3 = await opTest.init(config3);
-        const results3 =  await test3.run(finalData);
+        const results3 =  await test3.run(data3);
 
         expect(results3.length).toEqual(3);
         _.each(results3, (result, ind) => {
@@ -411,17 +413,18 @@ describe('can transform matches', () => {
             { domain: 'example.com', url: 'http:// www.example.com/path?field5=blah&field6=moreblah&field7=evenmoreblah' }
         ];
 
-        const finalData = DataEntity.makeArray(data);
+        const data1 = DataEntity.makeArray(_.cloneDeep(data));
+        const data2 = DataEntity.makeArray(_.cloneDeep(data));
 
         const test1 = await opTest.init(config);
-        const results1 =  await test1.run(finalData);
+        const results1 =  await test1.run(data1);
 
         expect(results1.length).toEqual(1);
         expect(results1[0]).toEqual({ field3: 'evenmoreblah' });
         expect(DataEntity.isDataEntity(results1[0])).toEqual(true);
 
         const test2 = await opTest.init(config2);
-        const results2 =  await test2.run(finalData);
+        const results2 =  await test2.run(data2);
 
         expect(results2.length).toEqual(1);
         expect(results2[0]).toEqual({ field3: 'evenmoreblah' });
