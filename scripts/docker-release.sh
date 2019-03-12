@@ -2,13 +2,52 @@
 
 set -e
 
+cmdname=$(basename "$0")
+
+echoerr() { if [[ $QUIET -ne 1 ]]; then echo "$@" 1>&2; fi; }
+
+usage() {
+    cat <<USAGE >&2
+Usage:
+    $cmdname <[tag|daily]>
+
+    Build and push a teraslice docker image
+USAGE
+    exit 1
+}
+
+prompt() {
+    local question="$1"
+
+    if [ "$CI" == "true" ]; then
+        echoerr "* auto-answer yes to $question since this is running in CI"
+        return 0
+    fi
+
+    while true; do
+        read -p "$question " -r yn
+        case $yn in
+        [Yy]*)
+            return 0
+            break
+            ;;
+        [Nn]*)
+            echoerr "Skipping..."
+            return 1
+            ;;
+        *) echoerr "Please answer yes or no." ;;
+        esac
+    done
+}
+
 build_and_push() {
     local slug="$1"
-    echo "* building $slug ..."
+    echoerr "* building $slug ..."
     docker build --pull -t "$slug" .
 
-    echo "* pushing $slug ..."
-    docker push "$slug"
+    prompt "do you want to push $slug?" &&
+        echoerr "* pushing $slug ..." &&
+        docker push "$slug"
 }
 
 main() {
@@ -24,8 +63,7 @@ main() {
     elif [ "$arg" == "tag" ]; then
         tag="v$version"
     else
-        (echo >&2 "./scripts/docker-release.sh [tag|daily]")
-        exit 1
+        usage
     fi
 
     slug="terascope/teraslice:$tag"
