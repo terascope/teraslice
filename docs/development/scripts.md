@@ -1,5 +1,5 @@
 ---
-title: Teraslice Scripts
+title: Development Scripts
 sidebar_label: Scripts
 ---
 
