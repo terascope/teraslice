@@ -11,7 +11,7 @@ usage() {
 Usage:
     $cmdname
 
-    Sync package README's from the docs folder to their respective packages REAMDE
+    Update package README's from the docs folder to their respective packages REAMDE
 USAGE
     exit 1
 }

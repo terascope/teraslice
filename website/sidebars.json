@@ -13,6 +13,8 @@
         ],
         "Development": [
             "development/overview",
+            "development/packages",
+            "development/scripts",
             "development/releases",
             "development/tests",
             "development/e2e-tests",
@@ -30,9 +32,6 @@
             "packages"
         ],
         "Packages": [
-            "packages/chunked-file-reader/overview",
-            "packages/data-access/overview",
-            "packages/data-access-plugin/overview",
             "packages/elasticsearch-store/overview",
             "packages/terafoundation/overview",
             "packages/teraslice/overview",
@@ -50,6 +49,9 @@
             "packages/xlucene-evaluator/overview"
         ],
         "Internal Packages": [
+            "packages/chunked-file-reader/overview",
+            "packages/data-access/overview",
+            "packages/data-access-plugin/overview",
             "packages/docker-compose-js/overview",
             "packages/elasticsearch-api/overview",
             "packages/error-parser/overview",
