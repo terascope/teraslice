@@ -2,7 +2,7 @@
 import path from 'path';
 import _ from 'lodash';
 import { debugLogger } from '@terascope/utils';
-import { RulesLoader, RulesParser, OperationConfig, UnParsedConfig } from '../../src';
+import { RulesLoader, RulesParser, OperationConfig, UnparsedConfig } from '../../src';
 
 describe('Loader', () => {
     const logger = debugLogger('rules-loader-test');
@@ -15,7 +15,7 @@ describe('Loader', () => {
         return rulesParser.parse();
     }
 
-    function parseData(configList: UnParsedConfig[]) {
+    function parseData(configList: UnparsedConfig[]) {
         const rulesParser = new RulesParser(configList, logger);
         return rulesParser.parse();
     }

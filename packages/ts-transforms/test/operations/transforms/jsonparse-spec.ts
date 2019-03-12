@@ -5,7 +5,7 @@ import { DataEntity } from '@terascope/utils';
 describe('transform operator', () => {
 
     it('can instantiate', () => {
-        const opConfig = { target_field: 'someField', source_field: 'someField', __id: 'someId' };
+        const opConfig = { target_field: 'someField', source_field: 'someField', __id: 'someId', follow: 'otherId' };
         expect(() => new JsonParse(opConfig)).not.toThrow();
     });
 
@@ -25,7 +25,7 @@ describe('transform operator', () => {
     });
 
     it('can parse json data', () => {
-        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId' };
+        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
         const test = new JsonParse(opConfig);
 
         const data1 = new DataEntity({ someField: JSON.stringify('56.234,95.234') });

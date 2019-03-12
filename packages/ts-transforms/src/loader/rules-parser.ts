@@ -1,16 +1,16 @@
 
 import _ from 'lodash';
 import shortid from 'shortid';
-import { UnParsedConfig, OperationConfig } from '../interfaces';
+import { UnparsedConfig, OperationConfig } from '../interfaces';
 import { isOldCompatabilityPostProcessConfig, needsDefaultSelector, hasExtractions } from './utils';
 import { Logger } from '@terascope/utils';
 
 export default class RulesParser {
-    private configList: UnParsedConfig[];
+    private configList: UnparsedConfig[];
     // @ts-ignore
     private logger: Logger;
 
-    constructor(configList: UnParsedConfig[], logger: Logger) {
+    constructor(configList: UnparsedConfig[], logger: Logger) {
         this.configList = configList;
     }
 

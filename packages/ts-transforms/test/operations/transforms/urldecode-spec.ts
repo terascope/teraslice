@@ -5,7 +5,7 @@ import { DataEntity } from '@terascope/utils';
 describe('urldecode operator', () => {
 
     it('can instantiate', () => {
-        const opConfig = { target_field: 'source', source_field: 'source', __id: 'someId' };
+        const opConfig = { target_field: 'source', source_field: 'source', __id: 'someId', follow: 'otherId' };
         expect(() => new UrlDecode(opConfig)).not.toThrow();
     });
 
@@ -37,7 +37,7 @@ describe('urldecode operator', () => {
     });
 
     it('can urldecode decode fields', () => {
-        const opConfig = { source_field: 'source', target_field: 'source', __id: 'someId' };
+        const opConfig = { source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId' };
         const test =  new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -86,7 +86,7 @@ describe('urldecode operator', () => {
     });
 
     it('can urldecode decode nested fields', () => {
-        const opConfig = { source_field: 'source.field', target_field: 'source.field', __id: 'someId' };
+        const opConfig = { source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId' };
         const test =  new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
         const url = 'http:// localhost:9200/logstash-2018.7/_search?q=bytes:>500 AND ip:*&pretty&size=10000';

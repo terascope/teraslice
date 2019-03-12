@@ -5,7 +5,7 @@ import { DataEntity } from '@terascope/utils';
 describe('url validation', () => {
 
     it('can instantiate', () => {
-        const opConfig = {  source_field: 'someField',  target_field: 'someField', __id: 'someId' };
+        const opConfig = {  source_field: 'someField',  target_field: 'someField', __id: 'someId', follow: 'otherId' };
         expect(() => new UrlOp(opConfig)).not.toThrow();
     });
 
@@ -25,7 +25,7 @@ describe('url validation', () => {
     });
 
     it('can validate url fields', () => {
-        const opConfig = { source_field: 'uri', target_field: 'uri', __id: 'someId' };
+        const opConfig = { source_field: 'uri', target_field: 'uri', __id: 'someId', follow: 'otherId' };
         const test =  new UrlOp(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -71,7 +71,7 @@ describe('url validation', () => {
     });
 
     it('can validate nested fields', async() => {
-        const opConfig = { refs: 'someId', source_field: 'event.href', target_field: 'event.href', length: 14, __id: 'someId' };
+        const opConfig = { refs: 'someId', source_field: 'event.href', target_field: 'event.href', length: 14, __id: 'someId', follow: 'otherId' };
         const test =  new UrlOp(opConfig);
 
         const data1 = new DataEntity({ event: 'something' });

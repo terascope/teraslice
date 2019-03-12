@@ -1,7 +1,7 @@
 
 import _ from 'lodash';
 import { DataEntity } from '@terascope/utils';
-import { OperationConfig, InputOutputCardinality } from '../../../interfaces';
+import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces';
 import TransformOpBase from './base';
 
 export default class Join extends TransformOpBase {
@@ -10,7 +10,7 @@ export default class Join extends TransformOpBase {
 
     static cardinality: InputOutputCardinality = 'many-to-one';
 
-    constructor(config: OperationConfig) {
+    constructor(config: PostProcessConfig) {
         super(config);
         this.delimiter = config.delimiter !== undefined ? config.delimiter : '';
         const fields = config.fields || config.source_fields;
@@ -20,7 +20,7 @@ export default class Join extends TransformOpBase {
         this.fields = fields;
     }
     // source work differently here so we do not use the inherited validate
-    protected validateConfig(config: OperationConfig) {
+    protected validateConfig(config: PostProcessConfig) {
         const { target_field: tField } = config;
         const fields = config.fields || config.source_fields;
         if (!tField || typeof tField !== 'string' || tField.length === 0)  {

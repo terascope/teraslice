@@ -3,13 +3,13 @@ import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
 import validator from 'validator';
 import ValidationOpBase from './base';
-import { OperationConfig } from '../../../interfaces';
+import { PostProcessConfig } from '../../../interfaces';
 
 export default class MacAddress extends ValidationOpBase<any> {
     private case: 'lowercase' | 'uppercase';
     private preserveColons: boolean;
 
-    constructor(config: OperationConfig) {
+    constructor(config: PostProcessConfig) {
         super(config);
         this.case = config.case || 'lowercase';
         this.preserveColons = config.preserve_colons || false;

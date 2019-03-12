@@ -1,13 +1,13 @@
 
 import path from 'path';
 import { DataEntity, debugLogger } from '@terascope/utils';
-import { ExtractionPhase, Loader, OperationsManager, ConfigProcessingDict } from '../../src';
+import { ExtractionPhase, Loader, OperationsManager, ExtractionProcessingDict } from '../../src';
 
 describe('extraction phase', () => {
     const logger = debugLogger('extractionPhaseTest');
     const opManager = new OperationsManager();
 
-    async function getConfigList(fileName: string): Promise<ConfigProcessingDict> {
+    async function getConfigList(fileName: string): Promise<ExtractionProcessingDict> {
         const filePath = path.join(__dirname, `../fixtures/${fileName}`);
         const myFileLoader = new Loader({ rules: [filePath] }, logger);
         const { extractions } = await myFileLoader.load(opManager);

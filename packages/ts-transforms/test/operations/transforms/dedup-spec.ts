@@ -5,7 +5,7 @@ import { DataEntity } from '@terascope/utils';
 describe('Dedup operator', () => {
 
     it('can instantiate', () => {
-        const opConfig = { post_process: 'dedup', source_field: 'someField', target_field: 'otherField', __id: 'someId' };
+        const opConfig = { post_process: 'dedup', source_field: 'someField', target_field: 'otherField', __id: 'someId', follow: 'otherId' };
         expect(() => new Dedup(opConfig)).not.toThrow();
     });
 
@@ -28,7 +28,7 @@ describe('Dedup operator', () => {
     });
 
     it('can dedup an array of values', () => {
-        const opConfig = { post_process: 'dedup', source_field: 'array', target_field: 'array', __id: 'someId' };
+        const opConfig = { post_process: 'dedup', source_field: 'array', target_field: 'array', __id: 'someId', follow: 'otherId' };
         const test =  new Dedup(opConfig);
         const data = new DataEntity({ array: ['hello', 'hello', 'world', 'world', 'hi'] });
         const results = test.run(data);
@@ -38,7 +38,7 @@ describe('Dedup operator', () => {
     });
 
     it('dedup any other value will just pass it through', () => {
-        const opConfig = { post_process: 'dedup', source_field: 'array', target_field: 'array', __id: 'someId' };
+        const opConfig = { post_process: 'dedup', source_field: 'array', target_field: 'array', __id: 'someId', follow: 'otherId' };
         const test =  new Dedup(opConfig);
 
         const data1 = new DataEntity({ array: 'hello' });

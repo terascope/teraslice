@@ -5,7 +5,7 @@ import { DataEntity } from '@terascope/utils';
 describe('ip validation', () => {
 
     it('can instantiate', () => {
-        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId' };
+        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
         expect(() => new Ip(opConfig)).not.toThrow();
     });
 
@@ -25,7 +25,7 @@ describe('ip validation', () => {
     });
 
     it('can validate ip fields', () => {
-        const opConfig = { source_field: 'ipAddress', target_field: 'ipAddress', __id: 'someId' };
+        const opConfig = { source_field: 'ipAddress', target_field: 'ipAddress', __id: 'someId', follow: 'otherId' };
         const test =  new Ip(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -78,7 +78,7 @@ describe('ip validation', () => {
     });
 
     it('can validate nested fields', async() => {
-        const opConfig = { source_field: 'event.ipAddress', target_field: 'event.ipAddress', __id: 'someId' };
+        const opConfig = { source_field: 'event.ipAddress', target_field: 'event.ipAddress', __id: 'someId', follow: 'otherId' };
         const test =  new Ip(opConfig);
 
         const data1 = new DataEntity({ event: 'something' });

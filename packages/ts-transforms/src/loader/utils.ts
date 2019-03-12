@@ -9,9 +9,12 @@ import {
     OperationConfig,
     ValidationResults,
     NormalizedFields,
-    ConfigProcessingDict,
+    ExtractionProcessingDict,
     StateDict,
-    UnParsedConfig
+    UnparsedConfig,
+    SelectorConfig,
+    ExtractionConfig,
+    PostProcessConfig
 } from '../interfaces';
 
 const  { Graph, alg: { topsort, findCycles } } = graphlib;
@@ -176,9 +179,9 @@ export function parseConfig(configList: OperationConfig[], opsManager: Operation
     return results;
 }
 
-function validateOtherMatchRequired(configDict: ConfigProcessingDict, logger: Logger) {
+function validateOtherMatchRequired(configDict: ExtractionProcessingDict, logger: Logger) {
     _.forOwn(configDict, (opsList, selector) => {
-        const hasMatchRequired = opsList.find(op => op.other_match_required === true) !== undefined;
+        const hasMatchRequired = opsList.find(op => !!op.other_match_required) != null;
         if (hasMatchRequired && opsList.length === 1) {
             logger.warn(`
             There is only a single extraction for selector ${selector} and it has other_match_required set to true.
@@ -200,7 +203,7 @@ function checkForTarget(config: OperationConfig) {
     }
 }
 
-type Config = OperationConfig|UnParsedConfig;
+type Config = OperationConfig|UnparsedConfig;
 
 export function isPrimaryConfig(config: Config) {
     return hasSelector(config) && !hasFollow(config) && !isPostProcessType(config, 'selector');
@@ -288,7 +291,7 @@ function createResults(list: OperationConfig[]): ValidationResults {
             if (!duplicateListing[config.selector as string]) {
                 duplicateListing[config.selector as string] = true;
                 currentSelector = config.selector;
-                results.selectors.push(config);
+                results.selectors.push(config as SelectorConfig);
             }
         }
 
@@ -296,14 +299,14 @@ function createResults(list: OperationConfig[]): ValidationResults {
             if (!results.extractions[currentSelector as string]) {
                 results.extractions[currentSelector as string] = [];
             }
-            results.extractions[currentSelector as string].push(config);
+            results.extractions[currentSelector as string].push(config as ExtractionConfig);
         }
 
         if (hasPostProcess(config)) {
             if (!results.postProcessing[currentSelector as string]) {
-                results.postProcessing[currentSelector as string] = [config];
+                results.postProcessing[currentSelector as string] = [config as PostProcessConfig];
             } else {
-                results.postProcessing[currentSelector as string].push(config);
+                results.postProcessing[currentSelector as string].push(config as PostProcessConfig);
             }
         }
     });

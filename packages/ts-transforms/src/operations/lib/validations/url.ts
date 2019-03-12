@@ -2,11 +2,11 @@
 import _ from 'lodash';
 import { DataEntity } from '@terascope/utils';
 import * as url from 'valid-url';
-import { OperationConfig } from '../../../interfaces';
+import { PostProcessConfig } from '../../../interfaces';
 import ValidationOpBase from './base';
 
 export default class Url extends ValidationOpBase<any> {
-    constructor(config: OperationConfig) {
+    constructor(config: PostProcessConfig) {
         super(config);
     }
 

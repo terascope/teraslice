@@ -5,7 +5,7 @@ import { DataEntity } from '@terascope/utils';
 describe('number validation', () => {
 
     it('can instantiate', () => {
-        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId' };
+        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
         expect(() => new NumberValidation(opConfig)).not.toThrow();
     });
 
@@ -25,7 +25,7 @@ describe('number validation', () => {
     });
 
     it('can validate number fields', () => {
-        const opConfig = { source_field: 'bytes', target_field: 'bytes', __id: 'someId' };
+        const opConfig = { source_field: 'bytes', target_field: 'bytes', __id: 'someId', follow: 'otherId' };
         const test =  new NumberValidation(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -59,7 +59,7 @@ describe('number validation', () => {
     });
 
     it('can validate nested fields', async() => {
-        const opConfig = { source_field: 'file.bytes', target_field: 'file.bytes', __id: 'someId' };
+        const opConfig = { source_field: 'file.bytes', target_field: 'file.bytes', __id: 'someId', follow: 'otherId' };
         const test =  new NumberValidation(opConfig);
 
         const data1 = new DataEntity({ file: 'something' });
@@ -84,7 +84,7 @@ describe('number validation', () => {
     });
 
     it('can can convert the field', async() => {
-        const opConfig = { source_field: 'file.bytes', target_field: 'file.bytes', __id: 'someId' };
+        const opConfig = { source_field: 'file.bytes', target_field: 'file.bytes', __id: 'someId', follow: 'otherId' };
         const test =  new NumberValidation(opConfig);
 
         const data1 = new DataEntity({ file: { bytes: 123423 } });

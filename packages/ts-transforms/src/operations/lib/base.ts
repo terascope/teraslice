@@ -18,8 +18,8 @@ export default class OperationBase {
         this.hasTarget = this.target !== this.source;
         this.destination = this.hasTarget ? this.target : this.source;
     }
-
-    protected validateConfig(config: OperationConfig) {
+    // @ts-ignore
+    protected validateConfig(config) {
         // we don't need to check target or source for selector ops
         if (this.constructor.name === 'Selector') return;
         const {

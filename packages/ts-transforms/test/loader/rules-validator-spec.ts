@@ -6,7 +6,7 @@ import {
     RulesValidator,
     RulesParser,
     OperationConfig,
-    UnParsedConfig,
+    UnparsedConfig,
     OperationsManager,
     PluginList
 } from '../../src';
@@ -15,7 +15,7 @@ import { isPrimaryConfig } from '../../src/loader/utils';
 describe('rules-validator', () => {
     const testLogger = debugLogger('rules-validator-test');
 
-    function parseData(configList: UnParsedConfig[]) {
+    function parseData(configList: UnparsedConfig[]) {
         const rulesParser = new RulesParser(configList, testLogger);
         return rulesParser.parse();
     }
