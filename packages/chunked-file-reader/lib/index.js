@@ -36,7 +36,7 @@ function getOffsets(size, total, delimiter) {
 // This function will grab the chunk of data specified by the slice plus an
 // extra margin if the slice does not end with the delimiter.
 function getChunk(readerClient, slice, opConfig, logger, metadata) {
-    const { delimiter } = opConfig;
+    const delimiter = opConfig.line_delimiter;
 
     async function getMargin(offset, length) {
         let margin = '';
@@ -54,32 +54,6 @@ function getChunk(readerClient, slice, opConfig, logger, metadata) {
             // Don't read too far - next slice will get it.
             resolve(margin.split(delimiter)[0]);
         });
-    }
-
-    // This function takes the raw data and breaks it into records, getting rid
-    // of anything preceding the first complete record if the data does not
-    // start with a complete record.
-    function toRecords(rawData) {
-        // Since slices with a non-zero chunk offset grab the character
-        // immediately preceding the main chunk, if one of those chunks has a
-        // delimiter as the first or second character, it means the chunk starts
-        // with a complete record. In this case as well as when the chunk begins
-        // with a partial record, splitting the chunk into an array by its
-        // delimiter will result in a single garbage record at the beginning of
-        // the array. If the offset is 0, the array will never start with a
-        // garbage record
-
-        let outputData = rawData;
-        if (rawData.endsWith(delimiter)) {
-            // Get rid of last character if it is the delimiter since that will
-            // just result in an empty record.
-            outputData = rawData.slice(0, -delimiter.length);
-        }
-
-        if (slice.offset === 0) {
-            return outputData.split(delimiter);
-        }
-        return outputData.split(delimiter).splice(1);
     }
 
     let needMargin = false;
@@ -103,9 +77,9 @@ function getChunk(readerClient, slice, opConfig, logger, metadata) {
                 const avgSize = _averageRecordSize(data.split(delimiter));
                 data += await getMargin(slice.offset + slice.length, 2 * avgSize); // eslint-disable-line no-param-reassign, max-len
             }
-            return toRecords(data);
+            return data;
         })
-        .then(data => chunkFormatter[opConfig.format](data, logger, opConfig, metadata));
+        .then(data => chunkFormatter[opConfig.format](data, logger, opConfig, metadata, slice));
 }
 
 module.exports = {
