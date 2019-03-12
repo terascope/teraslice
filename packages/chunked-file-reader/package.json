@@ -1,6 +1,6 @@
 {
     "name": "@terascope/chunked-file-reader",
-    "version": "1.0.1",
+    "version": "2.0.0",
     "publishConfig": {
         "access": "public"
     },
@@ -25,8 +25,18 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "dependencies": {
-        "@terascope/utils": "^0.6.0",
-        "bluebird": "^3.5.3"
+        "@terascope/utils": "^0.4.0",
+        "bluebird": "^3.5.1",
+        "csvtojson": "^2.0.8",
+        "lodash": "^4.17.11"
     },
-    "devDependencies": {}
+    "devDependencies": {
+        "@terascope/utils": "^0.6.0",
+        "eslint": "^5.4.0",
+        "eslint-config-airbnb-base": "^13.1.0",
+        "eslint-plugin-import": "^2.14.0",
+        "jest": "^23.5.0",
+        "jest-extended": "^0.8.1",
+        "jest-fixtures": "^0.6.0"
+    }
 }
