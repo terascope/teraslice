@@ -3,7 +3,7 @@
 
 # @terascope/chunked-file-reader
 
-> his module is an abstracted reader for use in various Teraslice readers. It uses an externally-defined reader to read data and the packages up the data in a DataEntity for use with other Teraslice processors.
+> This module is an abstracted reader for use in various Teraslice readers. It uses an externally-defined reader to read data and the packages up the data in a DataEntity for use with other Teraslice processors.
 
 ## Installation
 

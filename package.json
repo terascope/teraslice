@@ -8,7 +8,7 @@
         "build": "lerna run build:prepare && tsc --build --pretty",
         "build:watch": "yarn run build --watch",
         "benchmark": "lerna run benchmark",
-        "docs:update": "./scripts/update-docs.md",
+        "docs:update": "./scripts/update-docs.sh",
         "bump": "./scripts/bump.js",
         "test": "jest --silent --maxWorkers=4 --detectOpenHandles --forceExit",
         "test:debug": "jest --colors --coverage=false --detectOpenHandles --runInBand  --forceExit $JEST_ARGS",

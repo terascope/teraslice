@@ -19,7 +19,7 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "author": "Terascope, LLC <info@terascope.io>",
     "license": "MIT",
-    "description": "his module is an abstracted reader for use in various Teraslice readers. It uses an externally-defined reader to read data and the packages up the data in a DataEntity for use with other Teraslice processors.",
+    "description": "This module is an abstracted reader for use in various Teraslice readers. It uses an externally-defined reader to read data and the packages up the data in a DataEntity for use with other Teraslice processors.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/chunked-file-reader#readme",
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
