@@ -15,6 +15,7 @@ import schema from './schema';
  *
  * @todo add permission rules to manage the ACL
  * @todo add session support
+ * @todo use `req.query.token` NOT `req.query.api_token`
 */
 export default class ManagerPlugin {
     readonly config: TeraserverConfig;

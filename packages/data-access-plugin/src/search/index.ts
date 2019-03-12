@@ -8,6 +8,7 @@ import { makeErrorHandler } from '../utils';
 
 /**
  * @todo add support for the search counter
+ * @todo smarter about pretty (parse the boolean)
  */
 export default class SearchPlugin {
     readonly config: TeraserverConfig;

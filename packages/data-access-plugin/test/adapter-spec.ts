@@ -14,6 +14,7 @@ describe('TeraserverAdapterPlugin', () => {
         expect(index._initialized).toBeFalse();
         expect(index.config).toBeFunction();
         expect(index.init).toBeFunction();
+        expect(index.post).toBeFunction();
         expect(index.routes).toBeFunction();
     });
 
@@ -75,6 +76,12 @@ describe('TeraserverAdapterPlugin', () => {
         }).toThrowError('Plugin has not been initialized');
     });
 
+    it('should not be able to call post if not initialized', () => {
+        expect(() => {
+            index.post();
+        }).toThrowError('Plugin has not been initialized');
+    });
+
     it('should be able to call init', async () => {
         await expect(index.init()).resolves.toBeNil();
         expect(index._initialized).toBeTrue();
@@ -83,6 +90,12 @@ describe('TeraserverAdapterPlugin', () => {
     it('should be able to call routes', () => {
         expect(() => {
             index.routes();
+        }).not.toThrow();
+    });
+
+    it('should be able to call post', () => {
+        expect(() => {
+            index.post();
         }).not.toThrow();
     });
 });
