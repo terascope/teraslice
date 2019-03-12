@@ -100,7 +100,9 @@ jobs:
     deploy:
       - provider: script
         script: ./scripts/docker-release.sh tag
-        tags: true
+        on:
+            all_branches: true
+            tags: true
 
   # Build nightly releases
   - stage: Nightly
