@@ -1,7 +1,7 @@
 {
     "name": "teraslice",
     "version": "0.50.0",
-    "description": "Slice and dice your Elasticsearch data",
+    "description": "Distributed computing platform for processing JSON data",
     "bin": "service.js",
     "main": "index.js",
     "scripts": {

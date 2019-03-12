@@ -3,7 +3,7 @@ title: Teraslice Messaging
 sidebar_label: teraslice-messaging
 ---
 
-> A socket.io teraslice messaging system
+> An internal teraslice messaging library using socket.io
 
 ## Usage
 

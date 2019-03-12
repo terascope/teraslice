@@ -25,33 +25,83 @@ check_deps() {
 
 sync_readme() {
     local package="$1"
-    local name overview footer license
+    local pkg_name pkg_basename name description save_dev global_add installation license
+    pkg_basename="$(basename "$package")"
 
     name="$(jq -r '.name' "$package/package.json")"
     license="$(jq -r '.license' "$package/package.json")"
+    description="$(jq -r '.description' "$package/package.json")"
+    global_add="$(jq -r '.bin' "$package/package.json")"
+    save_dev="$(jq -r '.saveDev' "$package/package.json")"
+
+    pkg_name="$(node -e "const { capitalize, words } = require(\"lodash\"); words(\"$pkg_basename\").map(capitalize).join(' ')")"
 
     echoerr "* syncing package $name"
     local doc_readme="docs/$package/overview.md"
     local pkg_readme="$package/README.md"
 
-    if [ ! -f "$doc_readme" ]; then
-        return
+    if [ -n "$global_add" ] && [ "$global_add" != "null" ]; then
+        installation="# Using yarn
+yarn global add ${name}
+# Using npm
+npm install --global ${name}"
+    elif [ "$save_dev" == "true" ]; then
+        installation="# Using yarn
+yarn add --dev ${name}
+# Using npm
+npm install --save-dev ${name}"
+    else
+        installation="# Using yarn
+yarn add ${name}
+# Using npm
+npm install --save ${name}"
     fi
 
-    overview="$(sed '1,5d;' "$doc_readme")"
-    footer="$(cat ./scripts/assets/readme-footer.md)"
+    local readme_contents="
+<!-- THIS FILE IS AUTO-GENERATED, EDIT $doc_readme -->
 
-    local packageWithin='This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo'
-    local moreDocsHere='more documentation can be found [here](https://terascope.github.io/teraslice/docs/)'
+# $name
 
-    {
-        printf "# %s\n\n" "$name"
-        printf "<!-- THIS FILE IS AUTO-GENERATED, EDIT %s INSTEAD -->\n\n" "$doc_readme"
-        printf "**NOTE:** %s, %s.\n\n" "$packageWithin" "$moreDocsHere"
-        printf "%s\n\n" "$overview"
-        printf "%s\n\n" "$footer"
-        printf "[%s](./LICENSE) licensed.\n" "$license"
-    } >"$pkg_readme"
+> $description
+
+## Installation
+
+\`\`\`bash
+$installation
+\`\`\`
+
+This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo. See our [documentation](https://terascope.github.io/teraslice/docs/packages/$pkg_basename/overview) for more information or the [issues](https://github.com/terascope/teraslice/issues?q=is%3Aopen+is%3Aissue+label%3Apkg%2F$pkg_basename) associated with this package
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+[$license](./LICENSE) licensed.
+"
+    echo "$readme_contents" > "$pkg_readme"
+
+    if [ ! -f "$doc_readme" ]; then
+        mkdir -p "docs/$package"
+        local doc_contents="
+---
+title: $pkg_name
+sidebar_label: $pkg_basename
+---
+
+> $description
+
+## Installation
+
+\`\`\`bash
+$installation
+\`\`\`
+"
+        echo "$doc_contents" > "$doc_readme"
+        return
+    fi
 }
 
 main() {

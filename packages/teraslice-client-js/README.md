@@ -1,10 +1,9 @@
+
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/teraslice-client-js/overview.md -->
+
 # teraslice-client-js
 
-<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/teraslice-client-js/overview.md INSTEAD -->
-
-**NOTE:** This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo, more documentation can be found [here](https://terascope.github.io/teraslice/docs/).
-
-> Javascript client for Teraslice
+> A Node.js client for teraslice jobs, assets, and cluster references.
 
 ## Installation
 
@@ -15,41 +14,7 @@ yarn add teraslice-client-js
 npm install --save teraslice-client-js
 ```
 
-## Job submission example
-
-```js
-var teraslice = require('teraslice-client-js')({
-    host: 'http://localhost:5678'
-});
-
-var job = {
-  "name": "Data Generator",
-  "lifecycle": "once",
-  "workers": 1,
-  "operations": [
-    {
-      "_op": "elasticsearch_data_generator",
-      "size": 1
-    },
-    {
-      "_op": "elasticsearch_index_selector",
-      "index": "client-test-logs",
-      "type": "events"
-    },
-    {
-      "_op": "elasticsearch_bulk",
-      "size": 50
-    }
-  ]
-};
-
-teraslice.jobs.submit(job)
-    .then(function(job) {
-        console.log(job.id());
-        job.status().then(console.log)
-    })
-
-```
+This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo. See our [documentation](https://terascope.github.io/teraslice/docs/packages/teraslice-client-js/overview) for more information or the [issues](https://github.com/terascope/teraslice/issues?q=is%3Aopen+is%3Aissue+label%3Apkg%2Fteraslice-client-js) associated with this package
 
 ## Contributing
 
@@ -58,5 +23,5 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update tests as appropriate.
 
 ## License
-
 [MIT](./LICENSE) licensed.
+
