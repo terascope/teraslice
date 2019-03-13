@@ -8,6 +8,28 @@ const adapter: TeraserverPluginAdapter = {
     _search: undefined,
     _config: undefined,
 
+    config_schema() {
+        return {
+            connection: {
+                doc: 'Elasticsearch cluster where users, roles, spaces and views are stored',
+                default: 'default',
+                format(val: any) {
+                    if (typeof val !== 'string') {
+                        throw new Error('connection parameter must be of type String as the value');
+                    }
+                }
+            },
+            namespace: {
+                doc: 'Elasticsearch index namespace for the data-access models',
+                default: false,
+            },
+            bootstrap_mode: {
+                doc: '[DEVELOPMENT] Remove authentication from setting up the data access models',
+                default: false,
+            }
+        };
+    },
+
     config(config: PluginConfig) {
         this._manager = new ManagerPlugin(config);
         this._search = new SearchPlugin(config);
@@ -62,6 +84,7 @@ interface TeraserverPluginAdapter {
     _search?: SearchPlugin;
     _initialized: boolean;
 
+    config_schema(): any;
     config(config: PluginConfig): void;
     post(): void;
     init(): Promise<void>;

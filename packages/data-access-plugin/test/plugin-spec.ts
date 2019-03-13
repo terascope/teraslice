@@ -3,7 +3,7 @@ import got from 'got';
 import express from 'express';
 import { Server } from 'http';
 import { request } from 'graphql-request';
-import { debugLogger } from '@terascope/utils';
+import { TestContext } from '@terascope/job-components';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
 import { PluginConfig } from '../src/interfaces';
 import ManagerPlugin from '../src/manager';
@@ -15,11 +15,24 @@ describe('Data Access Plugin', () => {
     const app = express();
     let listener: Server;
 
+    const context = new TestContext('plugin-spec', {
+        clients: [
+            {
+                type: 'elasticsearch',
+                endpoint: 'default',
+                create: () => {
+                    return { client };
+                },
+            }
+        ]
+    });
+
     const pluginConfig: PluginConfig = {
         elasticsearch: client,
         url_base: '',
         app,
-        logger: debugLogger('manager-plugin'),
+        context,
+        logger: context.logger,
         server_config: {
             data_access: {
                 namespace: 'test_da_plugin',

@@ -3,10 +3,11 @@ import { Express } from 'express';
 import { Client } from 'elasticsearch';
 import { Logger } from '@terascope/utils';
 import * as apollo from 'apollo-server-express';
+import { Context } from '@terascope/job-components';
 import { ACLManager } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { makeSearchFn } from '../search/utils';
-import { getFromReq, makeErrorHandler } from '../utils';
+import { getFromReq, makeErrorHandler, getESClient } from '../utils';
 import { formatError } from './utils';
 import schema from './schema';
 
@@ -25,18 +26,23 @@ export default class ManagerPlugin {
     readonly server: apollo.ApolloServer;
     readonly bootstrapMode: boolean;
     readonly client: Client;
+    readonly context: Context;
 
     constructor(pluginConfig: PluginConfig) {
-        const client = pluginConfig.elasticsearch;
         this.config = pluginConfig.server_config;
         this.logger = pluginConfig.logger;
         this.app = pluginConfig.app;
-        this.client = client;
+        this.context = pluginConfig.context;
 
-        const namespace = get(this.config, 'data_access.namespace');
-        this.bootstrapMode = get(this.config, 'data_access.bootstrap_mode', false);
+        const connection: string = get(this.config, 'data_access.connect', 'default');
+        const namespace: string = get(this.config, 'data_access.namespace');
+        const bootstrapMode: boolean = get(this.config, 'data_access.bootstrap_mode', false);
 
-        this.manager = new ACLManager(client, {
+        this.client = getESClient(this.context, connection);
+
+        this.bootstrapMode = bootstrapMode;
+
+        this.manager = new ACLManager(this.client, {
             namespace,
             logger: pluginConfig.logger,
         });
@@ -122,10 +128,14 @@ export default class ManagerPlugin {
                     space,
                 });
 
-                const search = makeSearchFn(this.client, accessConfig, this.logger);
+                const connection: string = get(accessConfig.space_metadata, 'default_connection', 'default');
+                const client = getESClient(this.context, connection);
+
+                const search = makeSearchFn(client, accessConfig, this.logger);
 
                 // @ts-ignore
                 req.space = {
+                    searchErrorHandler: makeErrorHandler('Search failure', this.logger),
                     accessConfig,
                     search
                 };

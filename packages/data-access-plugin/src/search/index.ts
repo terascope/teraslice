@@ -4,7 +4,7 @@ import { Logger } from '@terascope/utils';
 import { DataAccessConfig } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { SearchFn } from './interfaces';
-import { makeErrorHandler } from '../utils';
+import { ErrorHandlerFn } from '../utils';
 
 /**
  * @todo add support for the search counter
@@ -31,7 +31,6 @@ export default class SearchPlugin {
         const searchUrl = '/api/v2/:space';
         this.logger.info(`Registering data-access-plugin search endpoint at ${searchUrl}`);
 
-        const searchErrorHandler = makeErrorHandler('Search failure', this.logger);
         this.app.get(searchUrl, (req, res) => {
             // @ts-ignore
             const space: SpaceSearch = req.space;
@@ -40,7 +39,7 @@ export default class SearchPlugin {
                 return;
             }
 
-            searchErrorHandler(req, res, async () => {
+            space.searchErrorHandler(req, res, async () => {
                 const result = await space.search(req.query);
 
                 res
@@ -58,6 +57,7 @@ export default class SearchPlugin {
 }
 
 export interface SpaceSearch {
+    searchErrorHandler: ErrorHandlerFn;
     accessConfig: DataAccessConfig;
     search: SearchFn;
 }

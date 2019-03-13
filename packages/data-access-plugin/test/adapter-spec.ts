@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { debugLogger } from '@terascope/utils';
+import { TestContext } from '@terascope/job-components';
 import { makeClient } from './helpers/elasticsearch';
 import ManagerPlugin from '../src/manager';
 import SearchPlugin from '../src/search';
@@ -8,6 +8,17 @@ import index from '../src';
 
 describe('TeraserverAdapterPlugin', () => {
     const client = makeClient();
+    const context = new TestContext('adapter-plugin', {
+        clients: [
+            {
+                type: 'elasticsearch',
+                create: () => {
+                    return { client };
+                },
+                endpoint: 'default'
+            }
+        ]
+    });
 
     it('should export a valid plugin adapter', () => {
         expect(index._manager).toBeNil();
@@ -16,6 +27,11 @@ describe('TeraserverAdapterPlugin', () => {
         expect(index.init).toBeFunction();
         expect(index.post).toBeFunction();
         expect(index.routes).toBeFunction();
+        expect(index.config_schema).toBeFunction();
+    });
+
+    it('should have a config', () => {
+        expect(index.config_schema()).toBeObject();
     });
 
     it('should not be able to call init if not configured', () => {
@@ -34,7 +50,8 @@ describe('TeraserverAdapterPlugin', () => {
             url_base: '',
             // @ts-ignore
             app: {},
-            logger: debugLogger('manager-plugin'),
+            context,
+            logger: context.logger,
             server_config: {
                 data_access: {
                     namespace: 'test_da_adapter',
