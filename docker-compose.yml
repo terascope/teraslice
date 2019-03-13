@@ -12,7 +12,7 @@ services:
     ports:
       - "5678:5678"
     environment:
-      - TERAFOUNDATION_CONFIG=/app/config/docker-teraslice-master.yaml
+      - TERAFOUNDATION_CONFIG=/app/config/docker-teraslice-master.yml
   teraslice-worker:
     build:
       context: .
@@ -35,7 +35,7 @@ services:
     scale: 1
     stop_grace_period: 60s
     environment:
-      - TERAFOUNDATION_CONFIG=/app/config/docker-teraslice-worker.yaml
+      - TERAFOUNDATION_CONFIG=/app/config/docker-teraslice-worker.yml
     networks:
       - cluster
     volumes:
@@ -84,10 +84,6 @@ services:
     restart: unless-stopped
     networks:
       - cluster
-    environment:
-      - "ADVERTISED_HOST=kafka"
-      - "ADVERTISED_PORT=9092"
-      - "ZOOKEEPER_PORT=2181"
     volumes:
         - kafka-data:/kafka
 volumes:

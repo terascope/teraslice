@@ -68,7 +68,7 @@ function getArgs(scriptName, defaultConfigFile) {
 }
 
 function parseConfigFile(file) {
-    const configFile = path.resolve(file);
+    const configFile = file ? path.resolve(file) : undefined;
     if (!configFile || !fs.existsSync(configFile)) {
         throw new Error(`Could not find a usable config file at the path: ${configFile}`);
     }
