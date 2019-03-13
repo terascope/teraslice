@@ -40,8 +40,35 @@ prompt() {
     done
 }
 
+image_exists() {
+    local name="$1"
+    local tag="$2"
+
+    local url="https://hub.docker.com/v2/repositories/$name/tags?page_size=10000"
+    curl -sfL "$url" | jq -r "[.results | .[] | .name == \"$tag\"] | any"
+}
+
+verify_can_push() {
+    local name="$1"
+    local tag="$2"
+
+    local exists
+    exists="$(image_exists "$name" "$tag")"
+
+    if [ "$exists" == 'true' ]; then
+        echoerr "ERROR: Image $name:$tag already exists"
+        exit 1
+    fi
+
+    return 0
+}
+
 build_and_push() {
-    local slug="$1"
+    local name="$1"
+    local tag="$2"
+
+    local slug="$name:$tag"
+
     echoerr "* building $slug ..."
     docker build --pull -t "$slug" .
 
@@ -51,24 +78,29 @@ build_and_push() {
 }
 
 main() {
-    local tag slug version timestamp commit_hash
+    local tag
     local arg="$1"
-
-    version="$(jq -r '.version' ./packages/teraslice/package.json)"
-    timestamp="$(date +%Y.%m.%d)"
-    commit_hash="$(git rev-parse --short HEAD)"
+    local name='terascope/teraslice'
 
     if [ "$arg" == "daily" ]; then
+        local timestamp commit_hash
+
+        timestamp="$(date +%Y.%m.%d)"
+        commit_hash="$(git rev-parse --short HEAD)"
+
         tag="daily-${timestamp}-${commit_hash}"
     elif [ "$arg" == "tag" ]; then
-        tag="v$version"
+        if [ -n "$TRAVIS_TAG" ]; then
+            tag="$TRAVIS_TAG"
+        else
+            tag="v$(jq -r '.version' ./packages/teraslice/package.json)"
+        fi
     else
         usage
     fi
 
-    slug="terascope/teraslice:$tag"
-
-    build_and_push "$slug"
+    verify_can_push "$name" "$tag" &&
+        build_and_push "$name" "$tag"
 }
 
 main "$@"
