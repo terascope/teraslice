@@ -35,7 +35,7 @@ services:
       context: ..
     command: [
       "./scripts/wait-for-it.sh",
-      "tersalice-master:45678",
+      "teraslice-master:45678",
       "--timeout=60",
       "--strict",
       "--",
