@@ -2,13 +2,11 @@
 
 const _ = require('lodash');
 const shortid = require('shortid');
-const path = require('path');
-const yargs = require('yargs');
 const { EventEmitter } = require('events');
 const { debugLogger } = require('@terascope/job-components');
 const validateConfigs = require('terafoundation/lib/validate_configs');
 const { loggerClient } = require('terafoundation/lib/logger_utils');
-const readSysConfig = require('terafoundation/lib/sysconfig');
+const { getArgs } = require('terafoundation/lib/sysconfig');
 const registerApis = require('terafoundation/lib/api');
 const { getTerasliceConfig } = require('../../config');
 const { generateWorkerId } = require('../helpers/terafoundation');
@@ -60,38 +58,19 @@ function makeContext(cluster, config, sysconfig) {
     return context;
 }
 
-function getSysConfig() {
-    const { argv } = yargs.usage('Usage: $0 [options]')
-        .scriptName('teraslice')
-        .version()
-        .alias('v', 'version')
-        .help()
-        .alias('h', 'help')
-        .detectLocale(false)
-        .option('c', {
-            alias: 'configfile',
-            describe: `Terafoundation configuration file to load.
-                Defaults to env TERAFOUNDATION_CONFIG.`,
-            coerce: (arg) => {
-                if (!arg) return '';
-                return path.resolve(arg);
-            },
-        })
-        .wrap(yargs.terminalWidth());
-
-
-    return readSysConfig({
-        configfile: argv.configfile
-    });
+function getSysConfig(defaultConfigFile) {
+    const { configFile } = getArgs('teraslice', defaultConfigFile);
+    return configFile;
 }
 
 module.exports = function makeTerafoundationContext({ sysconfig: _sysconfig } = {}) {
-    const sysconfig = _sysconfig || getSysConfig();
+    const config = getTerasliceConfig({ name: contextName });
+
+    const sysconfig = _sysconfig || getSysConfig(config.default_config_file);
     if (!_.isPlainObject(sysconfig) || _.isEmpty(sysconfig)) {
         throw new Error('TerafoundationContext requires a valid terafoundation configuration');
     }
 
-    const config = getTerasliceConfig({ name: contextName });
     const cluster = {
         worker: {
             id: shortid.generate(),
