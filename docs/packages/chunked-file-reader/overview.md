@@ -6,7 +6,7 @@ sidebar_label: chunked-file-reader
 > This module is an abstracted reader for use in various Teraslice readers. It uses an externally-defined reader to read data and the packages up the data in a dataEntity for use with other Teraslice processors. Chunk parsing is wrapped up in this module and supports `json`, `ldjson`
 (line-delimited JSON), `tsv`, `csv`, and `raw`.
 
-# Installation
+## Installation
 
 ```bash
 # Using yarn

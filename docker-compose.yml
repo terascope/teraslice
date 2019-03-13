@@ -2,28 +2,27 @@ version: '2.4'
 services:
   teraslice-master:
     build:
-      context: ..
+      context: .
     command: [
       "./scripts/wait-for-it.sh",
-      "elasticsearch:49200",
+      "elasticsearch:9200",
       "--timeout=60",
       "--strict",
       "--",
       "node",
-      "--max-old-space-size=512",
+      "--max-old-space-size=2048",
       "service.js"
     ]
     scale: 1
-    stop_grace_period: 30s
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:45678/"]
+      test: ["CMD", "curl", "-f", "http://localhost:5678/"]
       interval: 15s
       timeout: 10s
       retries: 5
     ports:
-      - "45678:45678"
+      - "5678:5678"
     environment:
-      - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.yaml
+      - TERAFOUNDATION_CONFIG=/app/config/docker-teraslice-master.yml
     networks:
       - cluster
     volumes:
@@ -32,26 +31,27 @@ services:
       - ./config:/app/config:delegated
   teraslice-worker:
     build:
-      context: ..
+      context: .
     command: [
       "./scripts/wait-for-it.sh",
-      "teraslice-master:45678",
+      "teraslice-master:5678",
       "--timeout=60",
       "--strict",
       "--",
       "node",
-      "--max-old-space-size=512",
+      "--max-old-space-size=2048",
       "service.js"
     ]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://teraslice-master:45678/"]
+      test: ["CMD", "curl", "-f", "http://teraslice-master:5678/"]
       interval: 15s
       timeout: 10s
       retries: 5
-    scale: 2
-    stop_grace_period: 30s
+    restart: unless-stopped
+    scale: 1
+    stop_grace_period: 60s
     environment:
-      - TERAFOUNDATION_CONFIG=/app/config/teraslice-worker.yaml
+      - TERAFOUNDATION_CONFIG=/app/config/docker-teraslice-worker.yml
     networks:
       - cluster
     volumes:
@@ -59,21 +59,25 @@ services:
       - ./autoload:/app/autoload:delegated
       - ./config:/app/config:delegated
   elasticsearch:
-    image: blacktop/elasticsearch:6
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.5.4
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:49200"]
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
       interval: 15s
       timeout: 10s
       retries: 3
+    restart: unless-stopped
     ports:
-      - "49200:49200"
-      - "49300:49300"
+      - "9200:9200"
+      - "9300:9300"
     environment:
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
       - "network.host=0.0.0.0"
-      - "http.port=49200"
-      - "transport.tcp.port=49300"
+      - "http.port=9200"
+      - "transport.tcp.port=9300"
       - "discovery.type=single-node"
+      - "xpack.security.enabled=false"
+      - "xpack.ml.enabled=false"
+      - "xpack.watcher.enabled=false"
       - "bootstrap.memory_lock=true"
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
@@ -91,33 +95,21 @@ services:
   kafka:
     image: terascope/kafka-zookeeper:v1.1.0
     ports:
-      - "42181:42181"
-      - "49092:49092"
+      - "2181:2181"
+      - "9092:9092"
+    restart: unless-stopped
     networks:
       - cluster
-    environment:
-      - "ADVERTISED_HOST=kafka"
-      - "ADVERTISED_PORT=49092"
-      - "ZOOKEEPER_PORT=42181"
     volumes:
         - kafka-data:/kafka
-        - zookeeper-data:/zookeeper
 volumes:
   teraslice-assets:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
+    driver: local
   elasticsearch-data:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
+    driver: local
   kafka-data:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
+    driver: local
   zookeeper-data:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
+    driver: local
 networks:
   cluster:

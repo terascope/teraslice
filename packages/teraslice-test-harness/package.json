@@ -25,6 +25,7 @@
     "srcMain": "src/index.ts",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
+    "saveDev": true,
     "scripts": {
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",

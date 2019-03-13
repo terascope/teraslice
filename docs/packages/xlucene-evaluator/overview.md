@@ -3,6 +3,8 @@ title: XLucene Evalutor
 sidebar_label: xlucene-evaluator
 ---
 
+> Flexible Lucene-like evalutor and language parser
+
 #### Installation
 
 `npm install @terascope/xlucene-evaluator`

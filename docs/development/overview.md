@@ -3,7 +3,7 @@ title: Development Overview
 sidebar_label: Overview
 ---
 
-### Setup
+## Getting Started
 
 ```sh
 # Clone the package

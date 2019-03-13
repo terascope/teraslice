@@ -2,35 +2,105 @@
 
 set -e
 
-build_and_push() {
-    local slug="$1"
-    echo "* building $slug ..."
-    docker build --pull -t "$slug" .
+cmdname=$(basename "$0")
 
-    echo "* pushing $slug ..."
-    docker push "$slug"
+echoerr() { if [[ $QUIET -ne 1 ]]; then echo "$@" 1>&2; fi; }
+
+usage() {
+    cat <<USAGE >&2
+Usage:
+    $cmdname <[tag|daily]>
+
+    Build and push a teraslice docker image
+USAGE
+    exit 1
 }
 
-main() {
-    local tag slug version timestamp commit_hash
-    local arg="$1"
+prompt() {
+    local question="$1"
 
-    version="$(jq -r '.version' ./packages/teraslice/package.json)"
-    timestamp="$(date +%Y.%m.%d)"
-    commit_hash="$(git rev-parse --short HEAD)"
+    if [ "$CI" == "true" ]; then
+        echoerr "* auto-answer yes to $question since this is running in CI"
+        return 0
+    fi
 
-    if [ "$arg" == "daily" ]; then
-        tag="daily-${timestamp}-${commit_hash}"
-    elif [ "$arg" == "tag" ]; then
-        tag="v$version"
-    else
-        (echo >&2 "./scripts/docker-release.sh [tag|daily]")
+    while true; do
+        read -p "$question " -r yn
+        case $yn in
+        [Yy]*)
+            return 0
+            break
+            ;;
+        [Nn]*)
+            echoerr "Skipping..."
+            return 1
+            ;;
+        *) echoerr "Please answer yes or no." ;;
+        esac
+    done
+}
+
+image_exists() {
+    local name="$1"
+    local tag="$2"
+
+    local url="https://hub.docker.com/v2/repositories/$name/tags?page_size=10000"
+    curl -sfL "$url" | jq -r "[.results | .[] | .name == \"$tag\"] | any"
+}
+
+verify_can_push() {
+    local name="$1"
+    local tag="$2"
+
+    local exists
+    exists="$(image_exists "$name" "$tag")"
+
+    if [ "$exists" == 'true' ]; then
+        echoerr "ERROR: Image $name:$tag already exists"
         exit 1
     fi
 
-    slug="terascope/teraslice:$tag"
+    return 0
+}
 
-    build_and_push "$slug"
+build_and_push() {
+    local name="$1"
+    local tag="$2"
+
+    local slug="$name:$tag"
+
+    echoerr "* building $slug ..."
+    docker build --pull -t "$slug" .
+
+    prompt "do you want to push $slug?" &&
+        echoerr "* pushing $slug ..." &&
+        docker push "$slug"
+}
+
+main() {
+    local tag
+    local arg="$1"
+    local name='terascope/teraslice'
+
+    if [ "$arg" == "daily" ]; then
+        local timestamp commit_hash
+
+        timestamp="$(date +%Y.%m.%d)"
+        commit_hash="$(git rev-parse --short HEAD)"
+
+        tag="daily-${timestamp}-${commit_hash}"
+    elif [ "$arg" == "tag" ]; then
+        if [ -n "$TRAVIS_TAG" ]; then
+            tag="$TRAVIS_TAG"
+        else
+            tag="v$(jq -r '.version' ./packages/teraslice/package.json)"
+        fi
+    else
+        usage
+    fi
+
+    verify_can_push "$name" "$tag" &&
+        build_and_push "$name" "$tag"
 }
 
 main "$@"

@@ -1,6 +1,6 @@
 {
     "name": "@terascope/chunked-file-reader",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "publishConfig": {
         "access": "public"
     },
@@ -19,24 +19,23 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "author": "Terascope, LLC <info@terascope.io>",
     "license": "MIT",
-    "description": "This module is an abstracted reader for use in various Teraslice readers. It uses an externally-defined reader to read data and the packages up the data in a dataEntity for use with other Teraslice processors.",
+    "description": "This module is an abstracted reader for use in various Teraslice readers. It uses an externally-defined reader to read data and the packages up the data in a DataEntity for use with other Teraslice processors.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/chunked-file-reader#readme",
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "dependencies": {
-        "@terascope/utils": "^0.4.0",
-        "bluebird": "^3.5.1",
+        "@terascope/utils": "^0.6.0",
+        "bluebird": "^3.5.3",
         "csvtojson": "^2.0.8",
         "lodash": "^4.17.11"
     },
     "devDependencies": {
-        "@terascope/utils": "^0.6.0",
         "eslint": "^5.4.0",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "^2.14.0",
-        "jest": "^23.5.0",
-        "jest-extended": "^0.8.1",
+        "jest": "^24.5.0",
+        "jest-extended": "^0.11.1",
         "jest-fixtures": "^0.6.0"
     }
 }

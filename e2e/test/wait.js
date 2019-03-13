@@ -174,7 +174,7 @@ async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
                 slicer stats: ${printObj(slicerStats)};
                 failed after: ${Date.now() - start}ms;
                 failure reasons: ${printObj(reasons)};
-                `);
+            `);
 
             return null;
         } catch (err) {

@@ -1,48 +1,87 @@
 'use strict';
 
+const _ = require('lodash');
 const fs = require('fs');
+const path = require('path');
+const yargs = require('yargs');
 const yaml = require('js-yaml');
 
-module.exports = function sysconfig(context) {
-    let configFile;
+function getDefaultConfigFile() {
+    const cwd = process.cwd();
+
+    if (process.env.TERAFOUNDATION_CONFIG) {
+        return path.resolve(process.env.TERAFOUNDATION_CONFIG);
+    }
 
     if (fs.existsSync('/app/config/config.yaml')) {
-        configFile = '/app/config/config.yaml';
+        return '/app/config/config.yaml';
+    }
+
+    if (fs.existsSync('/app/config/config.yml')) {
+        return '/app/config/config.yml';
     }
 
     if (fs.existsSync('/app/config/config.json')) {
-        configFile = '/app/config/config.json';
+        return '/app/config/config.json';
     }
 
-    // Environment overrides the specific check
-    if (process.env.TERAFOUNDATION_CONFIG) {
-        configFile = process.env.TERAFOUNDATION_CONFIG;
+    if (fs.existsSync(path.join(cwd, './config.yaml'))) {
+        return path.join(cwd, './config.yaml');
     }
 
-    // If a config file was provided on the command line it take precedence
-    if (context.configfile) {
-        configFile = context.configfile;
+    if (fs.existsSync(path.join(cwd, './config.yml'))) {
+        return path.join(cwd, './config.yml');
     }
 
-    if (!configFile) {
-        const path = process.cwd();
-        configFile = fs.existsSync(`${path}/config.json`) ? `${path}/config.json` : `${path}/config.yaml`;
+    if (fs.existsSync(path.join(cwd, './config.json'))) {
+        return path.join(cwd, './config.json');
     }
 
-    if (configFile.indexOf('.') === 0) {
-        configFile = `${process.cwd()}/${configFile}`;
-    }
+    return undefined;
+}
 
-    if (!fs.existsSync(configFile)) {
+function getArgs(scriptName, defaultConfigFile) {
+    const { argv } = yargs.usage('Usage: $0 [options]')
+        .scriptName(scriptName)
+        .version()
+        .alias('v', 'version')
+        .help()
+        .alias('h', 'help')
+        .detectLocale(false)
+        .option('c', {
+            alias: 'configfile',
+            default: getDefaultConfigFile(),
+            describe: `Terafoundation configuration file to load.
+                        Defaults to env TERAFOUNDATION_CONFIG.`,
+            coerce: arg => parseConfigFile(arg || defaultConfigFile),
+        })
+        .option('b', {
+            alias: 'bootstrap',
+            describe: 'Perform initial setup'
+        })
+        .wrap(yargs.terminalWidth());
+
+    return {
+        bootstrap: argv.bootstrap,
+        configFile: argv.configfile,
+    };
+}
+
+function parseConfigFile(file) {
+    const configFile = file ? path.resolve(file) : undefined;
+    if (!configFile || !fs.existsSync(configFile)) {
         throw new Error(`Could not find a usable config file at the path: ${configFile}`);
     }
-    let config;
 
-    if (configFile.match(/.yaml/)) {
-        config = yaml.safeLoad(fs.readFileSync(configFile, 'utf8'));
-    } else {
-        config = require(configFile);
+    if (['.yaml', '.yml'].includes(path.extname(configFile))) {
+        return yaml.safeLoad(fs.readFileSync(configFile, 'utf8'));
     }
 
-    return config;
+    return _.cloneDeep(require(configFile));
+}
+
+module.exports = {
+    getArgs,
+    getDefaultConfigFile,
+    parseConfigFile,
 };

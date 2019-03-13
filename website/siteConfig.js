@@ -66,7 +66,9 @@ const siteConfig = {
     },
 
     // Add custom scripts here that would be placed in <script> tags.
-    scripts: ['https://buttons.github.io/buttons.js'],
+    scripts: [
+        'https://buttons.github.io/buttons.js'
+    ],
 
     // On page navigation for the current documentation page.
     onPageNav: 'separate',
@@ -81,7 +83,12 @@ const siteConfig = {
     // enableUpdateBy: true,
 
     // Show documentation's last update time.
-    // enableUpdateTime: true,
+    enableUpdateTime: true,
+
+    algolia: {
+        apiKey: 'b074b9b57bfd2e4d8b411aee052825d2',
+        indexName: 'terascope_teraslice',
+    },
 
     // You may provide arbitrary config keys to be used as needed by your
     // template. For example, if you need your repo's URL...

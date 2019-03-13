@@ -35,7 +35,7 @@ jobs:
         - . ./scripts/travis-install-yarn.sh
         - . ./scripts/travis-install-es.sh
     script:
-        - '[[ -z "$DEBUG" ]] && yarn test:ci || yarn test:debug | yarn bunyan -o short'
+        - '[[ -z "$DEBUG" ]] && yarn test || yarn test:debug | yarn bunyan -o short'
     after_success:
       - bash <(curl -s https://codecov.io/bash)
 
