@@ -15,7 +15,7 @@ services:
       - TERAFOUNDATION_CONFIG=/app/config/docker-teraslice-master.yaml
   teraslice-worker:
     build:
-      context: ..
+      context: .
     command: [
       "./scripts/wait-for-it.sh",
       "elasticsearch:9200",

@@ -31,7 +31,7 @@
         "@types/lodash": "^4.14.123",
         "@types/lodash.clonedeep": "^4.5.6",
         "@types/nanoid": "^1.2.1",
-        "@types/node": "^11.11.2",
+        "@types/node": "^11.11.3",
         "@types/socket.io": "^2.1.2",
         "@types/socket.io-client": "^1.4.32",
         "@types/uuid": "^3.4.4",
@@ -48,7 +48,7 @@
         "markdown-table": "^1.1.2",
         "semver": "^5.6.0",
         "ts-jest": "^24.0.0",
-        "tslint": "^5.13.1",
+        "tslint": "^5.14.0",
         "tslint-config-airbnb": "^5.11.1",
         "typescript": "^3.3.3333"
     },
