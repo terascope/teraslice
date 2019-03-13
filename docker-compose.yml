@@ -1,8 +1,18 @@
 version: '2.4'
 services:
   teraslice-master:
-    extends:
-      service: teraslice-worker
+    build:
+      context: .
+    command: [
+      "./scripts/wait-for-it.sh",
+      "elasticsearch:9200",
+      "--timeout=60",
+      "--strict",
+      "--",
+      "node",
+      "--max-old-space-size=2048",
+      "service.js"
+    ]
     scale: 1
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5678/"]
@@ -13,17 +23,23 @@ services:
       - "5678:5678"
     environment:
       - TERAFOUNDATION_CONFIG=/app/config/docker-teraslice-master.yml
+    networks:
+      - cluster
+    volumes:
+      - teraslice-assets:/app/assets
+      - ./autoload:/app/autoload:delegated
+      - ./config:/app/config:delegated
   teraslice-worker:
     build:
       context: .
     command: [
       "./scripts/wait-for-it.sh",
-      "elasticsearch:9200",
+      "teraslice-master:5678",
       "--timeout=60",
       "--strict",
       "--",
       "node",
-      "--max-old-space-size=512",
+      "--max-old-space-size=2048",
       "service.js"
     ]
     healthcheck:
@@ -54,7 +70,7 @@ services:
       - "9200:9200"
       - "9300:9300"
     environment:
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
       - "network.host=0.0.0.0"
       - "http.port=9200"
       - "transport.tcp.port=9300"

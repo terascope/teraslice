@@ -1,19 +1,6 @@
 version: '2.4'
 services:
   teraslice-master:
-    extends:
-      service: teraslice-worker
-    scale: 1
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:45678/"]
-      interval: 15s
-      timeout: 10s
-      retries: 5
-    ports:
-      - "45678:45678"
-    environment:
-      - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.yaml
-  teraslice-worker:
     build:
       context: ..
     command: [
@@ -26,12 +13,41 @@ services:
       "--max-old-space-size=512",
       "service.js"
     ]
+    scale: 1
+    stop_grace_period: 30s
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:45678/"]
       interval: 15s
       timeout: 10s
       retries: 5
-    restart: unless-stopped
+    ports:
+      - "45678:45678"
+    environment:
+      - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.yaml
+    networks:
+      - cluster
+    volumes:
+      - teraslice-assets:/app/assets
+      - ./autoload:/app/autoload:delegated
+      - ./config:/app/config:delegated
+  teraslice-worker:
+    build:
+      context: ..
+    command: [
+      "./scripts/wait-for-it.sh",
+      "tersalice-master:45678",
+      "--timeout=60",
+      "--strict",
+      "--",
+      "node",
+      "--max-old-space-size=512",
+      "service.js"
+    ]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://teraslice-master:45678/"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
     scale: 2
     stop_grace_period: 30s
     environment:
@@ -49,7 +65,6 @@ services:
       interval: 15s
       timeout: 10s
       retries: 3
-    restart: unless-stopped
     ports:
       - "49200:49200"
       - "49300:49300"
@@ -59,9 +74,6 @@ services:
       - "http.port=49200"
       - "transport.tcp.port=49300"
       - "discovery.type=single-node"
-      - "xpack.security.enabled=false"
-      - "xpack.ml.enabled=false"
-      - "xpack.watcher.enabled=false"
       - "bootstrap.memory_lock=true"
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
@@ -81,7 +93,6 @@ services:
     ports:
       - "42181:42181"
       - "49092:49092"
-    restart: unless-stopped
     networks:
       - cluster
     environment:
