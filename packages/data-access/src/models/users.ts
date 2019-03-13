@@ -7,8 +7,6 @@ import * as utils from '../utils';
 
 /**
  * Manager for Users
- *
- * @todo GraphQL CreateUserInput should not require the client_id
 */
 export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, UpdatePrivateUserInput> {
     static PrivateFields: string[] = ['api_token', 'salt', 'hash'];
@@ -42,7 +40,7 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
         }
 
         input CreateUserInput {
-            client_id: Int!
+            client_id: Int
             username: String!
             firstname: String
             lastname: String

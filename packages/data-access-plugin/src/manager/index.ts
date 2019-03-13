@@ -16,7 +16,6 @@ import schema from './schema';
  *
  * @todo add permission rules to manage the ACL
  * @todo add session support
- * @todo use `req.query.token` NOT `req.query.api_token`
 */
 export default class ManagerPlugin {
     readonly config: TeraserverConfig;
@@ -77,7 +76,7 @@ export default class ManagerPlugin {
             // @ts-ignore
             req.aclManager = this.manager;
 
-            const apiToken = getFromReq(req, 'api_token');
+            const apiToken = getFromReq(req, 'token');
 
             // If we are in bootstrap mode, we want to provide
             // unauthenticated access to the data access management
@@ -128,7 +127,7 @@ export default class ManagerPlugin {
                     space,
                 });
 
-                const connection: string = get(accessConfig.space_metadata, 'default_connection', 'default');
+                const connection = get(accessConfig, 'space_metadata.teraserver.connection', 'default');
                 const client = getESClient(this.context, connection);
 
                 const search = makeSearchFn(client, accessConfig, this.logger);

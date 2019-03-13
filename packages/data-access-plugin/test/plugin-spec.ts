@@ -23,6 +23,13 @@ describe('Data Access Plugin', () => {
                 create: () => {
                     return { client };
                 },
+            },
+            {
+                type: 'elasticsearch',
+                endpoint: 'other',
+                create: () => {
+                    return { client };
+                },
             }
         ]
     });
@@ -146,6 +153,9 @@ describe('Data Access Plugin', () => {
                         metadata: {
                             indexConfig: {
                                 index: "hello-space"
+                            },
+                            teraserver: {
+                                connection: "other"
                             }
                         }
                     }, views: [
@@ -391,7 +401,7 @@ describe('Data Access Plugin', () => {
 
             const result = await got(uri, {
                 query: {
-                    api_token: apiToken
+                    token: apiToken
                 },
                 json: true,
                 throwHttpErrors: false
@@ -426,7 +436,7 @@ describe('Data Access Plugin', () => {
             const uri = formatBaseUri();
             const result = await got(uri, {
                 query: {
-                    api_token: apiToken
+                    token: apiToken
                 },
                 json: true,
                 throwHttpErrors: false
@@ -527,7 +537,7 @@ describe('Data Access Plugin', () => {
             const uri = formatBaseUri(spaceId);
             const result = await got(uri, {
                 query: {
-                    api_token: apiToken,
+                    token: apiToken,
                     q: 'foo:bar',
                     sort: '_id:asc'
                 },
@@ -591,7 +601,7 @@ describe('Data Access Plugin', () => {
                 const uri = formatBaseUri(spaceId);
                 const result = await got(uri, {
                     query: {
-                        api_token: apiToken,
+                        token: apiToken,
                         q: 'foo:baz',
                         pretty: true
                     },
