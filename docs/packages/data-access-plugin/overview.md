@@ -23,8 +23,8 @@ Since this project is designed to replace the teraserver teranaut plugin, and th
  - Pre/Post process function will need to be written to use express middleware, docs comming soon.
  - The following configuration has been added to the space config:
       - `index` under `metadata.indexConfig.index`
-      - `typesConfig` for `xlucene-evaluator` under `metadata.indexConfig.typesConfig`
-      - `connection` has been added under `metadata.teraserver.connection`
+      - `typesConfig` for `xlucene-evaluator` under `metadata.typesConfig`
+      - `connection` has been added under `metadata.indexConfig.connection`
  - The following configuration has been moved to the view:
       - `allowed_fields` under `includes`
       - `type`, `date_start`, `date_end`, `geo_box_top_left`, `geo_box_bottom_right`, `geo_point`, `geo_distance` should be added to `constraint`.

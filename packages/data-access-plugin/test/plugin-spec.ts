@@ -152,9 +152,7 @@ describe('Data Access Plugin', () => {
                         name: "greetings",
                         metadata: {
                             indexConfig: {
-                                index: "hello-space"
-                            },
-                            teraserver: {
+                                index: "hello-space",
                                 connection: "other"
                             }
                         }

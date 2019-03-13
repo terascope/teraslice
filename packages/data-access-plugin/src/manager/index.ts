@@ -127,7 +127,7 @@ export default class ManagerPlugin {
                     space,
                 });
 
-                const connection = get(accessConfig, 'space_metadata.teraserver.connection', 'default');
+                const connection = get(accessConfig, 'space_metadata.indexConfig.connection', 'default');
                 const client = getESClient(this.context, connection);
 
                 const search = makeSearchFn(client, accessConfig, this.logger);
