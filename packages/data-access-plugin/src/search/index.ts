@@ -8,7 +8,6 @@ import { ErrorHandlerFn } from '../utils';
 
 /**
  * @todo add support for the search counter
- * @todo smarter about pretty (parse the boolean)
  */
 export default class SearchPlugin {
     readonly config: TeraserverConfig;
@@ -46,7 +45,10 @@ export default class SearchPlugin {
                     .status(200)
                     .set('Content-type', 'application/json; charset=utf-8');
 
-                if (req.query.pretty) {
+                const { pretty } = req.query;
+                const boolValues = [1, true, '1', 'true', 'True', 'TRUE', 'yes'];
+
+                if (boolValues.includes(pretty)) {
                     res.send(JSON.stringify(result, null, 2));
                 } else {
                     res.json(result);
