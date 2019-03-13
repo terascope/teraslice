@@ -5,7 +5,7 @@ services:
       service: teraslice-worker
     scale: 1
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5678/cluster/state"]
+      test: ["CMD", "curl", "-f", "http://localhost:5678/"]
       interval: 15s
       timeout: 10s
       retries: 5
@@ -27,7 +27,7 @@ services:
       "service.js"
     ]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://teraslice-master:5678/cluster/state"]
+      test: ["CMD", "curl", "-f", "http://teraslice-master:5678/"]
       interval: 15s
       timeout: 10s
       retries: 5

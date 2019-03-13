@@ -1,11 +1,11 @@
-version: '2.2'
+version: '2.4'
 services:
   teraslice-master:
     extends:
       service: teraslice-worker
     scale: 1
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:45678/cluster/state"]
+      test: ["CMD", "curl", "-f", "http://localhost:45678/"]
       interval: 15s
       timeout: 10s
       retries: 5
@@ -26,6 +26,11 @@ services:
       "--max-old-space-size=512",
       "service.js"
     ]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:45678/"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
     restart: unless-stopped
     scale: 2
     stop_grace_period: 30s
@@ -54,6 +59,10 @@ services:
       - "http.port=49200"
       - "transport.tcp.port=49300"
       - "discovery.type=single-node"
+      - "xpack.security.enabled=false"
+      - "xpack.ml.enabled=false"
+      - "xpack.watcher.enabled=false"
+      - "bootstrap.memory_lock=true"
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     networks:
@@ -62,6 +71,11 @@ services:
       memlock:
         soft: -1
         hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
   kafka:
     image: terascope/kafka-zookeeper:v1.1.0
     ports:
