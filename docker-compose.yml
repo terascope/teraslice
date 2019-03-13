@@ -12,7 +12,7 @@ services:
     ports:
       - "5678:5678"
     environment:
-      - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.yaml
+      - TERAFOUNDATION_CONFIG=/app/config/docker-teraslice-master.yaml
   teraslice-worker:
     build:
       context: ..
@@ -26,11 +26,16 @@ services:
       "--max-old-space-size=512",
       "service.js"
     ]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://teraslice-master:5678/cluster/state"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
     restart: unless-stopped
-    scale: 2
-    stop_grace_period: 30s
+    scale: 1
+    stop_grace_period: 60s
     environment:
-      - TERAFOUNDATION_CONFIG=/app/config/teraslice-worker.yaml
+      - TERAFOUNDATION_CONFIG=/app/config/docker-teraslice-worker.yaml
     networks:
       - cluster
     volumes:
@@ -38,7 +43,7 @@ services:
       - ./autoload:/app/autoload:delegated
       - ./config:/app/config:delegated
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.5.4
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9200"]
       interval: 15s
@@ -54,6 +59,10 @@ services:
       - "http.port=9200"
       - "transport.tcp.port=9300"
       - "discovery.type=single-node"
+      - "xpack.security.enabled=false"
+      - "xpack.ml.enabled=false"
+      - "xpack.watcher.enabled=false"
+      - "bootstrap.memory_lock=true"
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     networks:
@@ -62,6 +71,11 @@ services:
       memlock:
         soft: -1
         hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
   kafka:
     image: terascope/kafka-zookeeper:v1.1.0
     ports:
