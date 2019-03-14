@@ -78,8 +78,7 @@ function extractAndTransferFields(record: DataEntity, dest: DataEntity, config: 
             extractedResult = data;
         }
 
-        if (extractedResult) {
-            console.log('what is extractedResult', extractedResult)
+        if (extractedResult != null) {
             _.set(dest, config.target_field, extractedResult);
             dest.setMetadata('hasExtractions', true);
         }
@@ -100,10 +99,6 @@ export default class Extraction {
         let configs: ExtractionConfig[];
         // if its not an array then its a post_process,
         if (!Array.isArray(configArgs)) {
-            // post_process extractions default to mutate true
-            if (!_.has(configArgs, 'mutate')) {
-                configArgs.mutate = true;
-            }
             // we normalize configs
             configs = [configArgs];
         } else {
@@ -121,21 +116,24 @@ export default class Extraction {
         this.configs = configs;
     }
 
-    run(doc: DataEntity): DataEntity | null {
+    run(doc: DataEntity, destinationObj?: null|DataEntity): DataEntity | null {
         let record;
         if (this.isMutation) {
             record = doc;
         } else {
-            const metaData = doc.getMetadata();
-            delete metaData['hasExtractions'];
-            record = DataEntity.make({}, metaData);
+            if (destinationObj) {
+                record = destinationObj;
+            } else {
+                const metaData = doc.getMetadata();
+                record = DataEntity.make({}, metaData);
+            }
         }
 
         for (let i = 0; i < this.configs.length; i += 1) {
             extractAndTransferFields(doc, record, this.configs[i]);
         }
 
-        if (hasExtracted(record)) return record;
+        if (hasExtracted(record) || this.isMutation) return record;
         return null;
     }
 }

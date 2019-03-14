@@ -70,32 +70,6 @@ describe('rules-validator', () => {
         }
     ]);
 
-    const mutateError1 = parseData([
-        {
-            selector: 'hello:world',
-            source_field: 'first',
-            target_field: 'first_name'
-        },
-        {
-            selector:'hello:world',
-            source_field: 'other',
-            target_field: 'thing',
-            mutate: true
-        }
-    ]);
-
-    const mutateError2 = parseData([
-        {
-            selector: 'hello:world',
-            source_field: 'first',
-            target_field: 'first_name'
-        },
-        {
-            source_field: 'other',
-            target_field: 'thing',
-        }
-    ]);
-
     const multiSelectorConfig = parseData([
         {
             selector: 'hello:world',
@@ -394,19 +368,7 @@ describe('rules-validator', () => {
             const { extractions: { 'hello:world': [config1], 'other:thing': [config2] } } = validator.validate();
 
             expect(config1.mutate).toEqual(false);
-            expect(config2.mutate).toEqual(true);
-        });
-
-        it('can throw if a pipeline has mixed mutate values', () => {
-            const validator = constructValidator(mutateError1);
-            const errMsg = 'extractions for selector: hello:world have mixed mutate settings. If mutate true is set for one rule then it must be set for all rules';
-            expect(() => validator.validate()).toThrowWithMessage(Error, errMsg);
-        });
-
-        it('can throw if selector * does not have mutate true when other selectors are used', () => {
-            const validator = constructValidator(mutateError2);
-            const errMsg = 'a catch-all rule must have mutate set to true if paired with other selector extractions';
-            expect(() => validator.validate()).toThrowWithMessage(Error, errMsg);
+            expect(config2.mutate).toEqual(false);
         });
     });
 

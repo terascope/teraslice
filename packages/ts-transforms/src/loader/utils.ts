@@ -270,7 +270,6 @@ function createResults(list: OperationConfig[]): ValidationResults {
     const output = results.output;
     let currentSelector: undefined|string;
     const duplicateListing = {};
-    const catchAllSelectors: SelectorConfig[] = [];
 
     list.forEach((config) => {
 
@@ -293,11 +292,7 @@ function createResults(list: OperationConfig[]): ValidationResults {
             if (!duplicateListing[config.selector as string]) {
                 duplicateListing[config.selector as string] = true;
                 currentSelector = config.selector;
-                if (config.selector === '*') {
-                    catchAllSelectors.push(config as SelectorConfig);
-                } else {
-                    results.selectors.push(config as SelectorConfig);
-                }
+                results.selectors.push(config as SelectorConfig);
             }
         }
 
@@ -305,7 +300,7 @@ function createResults(list: OperationConfig[]): ValidationResults {
             if (!results.extractions[currentSelector as string]) {
                 results.extractions[currentSelector as string] = [];
             }
-            if (config.mutate == null) config.mutate = false;
+            config.mutate = false;
             results.extractions[currentSelector as string].push(config as ExtractionConfig);
         }
 
@@ -319,40 +314,6 @@ function createResults(list: OperationConfig[]): ValidationResults {
             results.postProcessing[currentSelector as string].push(config as PostProcessConfig);
         }
     });
-    // catch all selectors need to be put at the end. Due to mutation rules that
-    // they need to have mutate set to true if paired with another selector they
-    // have to be at the end to not prematurely add original record keys if not applicable
-    results.selectors.push(...catchAllSelectors);
 
-    checkExtractions(results.extractions);
     return results;
-}
-
-function getMutateValues(array:ExtractionConfig[]) {
-    const values =  array.map(config => config.mutate);
-    return _.uniq(values);
-}
-
-function hasMutateTrue(array:ExtractionConfig[]) {
-    const results = getMutateValues(array);
-    return results.includes(true);
-}
-
-function hasDifferentValues(array:ExtractionConfig[]) {
-    const results = getMutateValues(array);
-    return results.length > 1;
-}
-
-function checkExtractions(extractions: ExtractionProcessingDict) {
-    const selectors = Object.keys(extractions);
-
-    selectors.forEach((selector) => {
-        const configArray = extractions[selector];
-        if (selector === '*' && selectors.length > 1 && !hasMutateTrue(configArray)) {
-            throw new Error('a catch-all rule must have mutate set to true if paired with other selector extractions');
-        }
-        if (hasDifferentValues(configArray)) {
-            throw new Error(`extractions for selector: ${selector} have mixed mutate settings. If mutate true is set for one rule then it must be set for all rules`);
-        }
-    });
 }

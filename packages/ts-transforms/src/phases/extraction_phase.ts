@@ -22,7 +22,7 @@ export default class ExtractionPhase extends PhaseBase {
 
         this.hasProcessing = Object.keys(this.phase).length > 0;
     }
-
+    // TODO: verify if we still need logger
     run(dataArray: DataEntity[], _logger: Logger): DataEntity[] {
         if (!this.hasProcessing) return dataArray;
         const resultsList: DataEntity[] = [];
@@ -31,17 +31,12 @@ export default class ExtractionPhase extends PhaseBase {
             const record = dataArray[i];
             const metaData =  record.getMetadata();
             const { selectors } = metaData;
-            let hadPreviousMutate = false;
-            let results = record;
+            let results = DataEntity.make({}, metaData);
 
-            selectors.forEach((selector: string) => {
+            selectors.forEach((selector: string, index:number, array:string[]) => {
                 this.phase[selector].forEach((extraction) => {
-                    const hasMutateConfig = extraction.config.mutate;
-                    if (hadPreviousMutate && !hasMutateConfig) {
-                        // logger.warn()
-                    }
-                    if (hasMutateConfig) hadPreviousMutate = true;
-                    const resultsData = extraction.run(results);
+                    // @ts-ignore TODO: review me
+                    const resultsData = extraction.run(record, results);
                     if (resultsData) results = resultsData;
                 });
             });

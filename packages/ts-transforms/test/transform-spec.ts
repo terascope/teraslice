@@ -431,24 +431,23 @@ describe('can transform matches', () => {
         expect(DataEntity.isDataEntity(results2[0])).toEqual(true);
     });
 
-    it('it can mutate data in place for transforms', async () => {
+    it('do more basic extractions', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules13.txt')]
         };
 
         const data = DataEntity.makeArray([
            { hello: 'world', data: 'someData' },
-           { hello: 'world', data: 'otherData' },
-           {}
+           { hello: 'world', data: 'otherData' }
         ]);
 
         const resultSet =  [
-            { hello: 'world', data: 'someData', other: 'someData' },
-            { hello: 'world', data: 'otherData', other: 'otherData' }
+            { other: 'someData' },
+            { other: 'otherData' }
         ];
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results.length).toEqual(2);
         _.each(results, (data, index) => {
@@ -697,7 +696,7 @@ describe('can transform matches', () => {
             { host: 'example.com', field1: ['someRandomStr', `http://www.example.com/path?field1=${key}&value2=moreblah&value3=evenmoreblah`] },
             { size: 2 }
         ]);
-
+        // @ts-ignore
         const test1 = await opTest.init(config, [Plugins]);
         const results1 =  await test1.run(data);
 

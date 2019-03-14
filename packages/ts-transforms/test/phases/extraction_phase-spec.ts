@@ -36,7 +36,7 @@ describe('extraction phase', () => {
         expect(Array.isArray(extractions1)).toEqual(true);
         expect(Array.isArray(extractions2)).toEqual(true);
         expect(extractions1.length).toEqual(1);
-        expect(extractions2.length).toEqual(2);
+        expect(extractions2.length).toEqual(1);
     });
 
     it('has the proper properties with other_match_required', async () => {
@@ -70,8 +70,8 @@ describe('extraction phase', () => {
         ];
 
         const metaArray = [
-            { selectors: ['some:data AND bytes:<=1000', 'other:things'] },
-            { selectors: ['other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z', 'someSpecialKey'] },
+            { selectors: ['some:data AND bytes:<=1000'] },
+            { selectors: ['other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z'] },
             { selectors: ['some:data'] },
             { selectors: ['hostname:www.example.com'] },
             { selectors: ['location:(_geo_box_top_left_: \"33.906320,  -112.758421\" _geo_box_bottom_right_:\"32.813646,-111.058902\")'] }
@@ -111,7 +111,7 @@ describe('extraction phase', () => {
         ];
 
         const results = extractionPhase.run(data, logger);
-        // removal of other_match_required happens at validations, at this point a doc is still made
+        // removal of other_match_required happens at output phase, at this point a doc is still made
         expect(results.length).toEqual(2);
         expect(results[0]).toEqual({ value: 'hello', value2: 'goodbye', date, key });
         expect(results[1]).toEqual({ date, key });

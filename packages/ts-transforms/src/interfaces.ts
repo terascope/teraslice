@@ -100,7 +100,7 @@ export interface OperationsDict {
 }
 
 export interface Operation {
-    config:OperationConfig;
+    config?:OperationConfig;
     run(data: DataEntity): null | DataEntity;
 }
 // TODO: delete the next two
