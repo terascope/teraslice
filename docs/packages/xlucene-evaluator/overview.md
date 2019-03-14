@@ -7,7 +7,15 @@ sidebar_label: xlucene-evaluator
 
 #### Installation
 
-`npm install @terascope/xlucene-evaluator`
+
+## Installation
+
+```bash
+# Using yarn
+yarn add xlucene-evaluator
+# Using npm
+npm install --save xlucene-evaluator
+```
 
 ## Document Matcher
 This takes in a lucene based query along with some configuration and allows you to run data against it to see if it matches

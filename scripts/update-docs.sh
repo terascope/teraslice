@@ -34,7 +34,7 @@ sync_readme() {
     global_add="$(jq -r '.bin' "$package/package.json")"
     save_dev="$(jq -r '.saveDev' "$package/package.json")"
 
-    pkg_name="$(node -e "const { capitalize, words } = require(\"lodash\"); words(\"$pkg_basename\").map(capitalize).join(' ')")"
+    pkg_name="$(node -e "const l = require(\"lodash\"); process.stdout.write(l.words(\"$pkg_basename\").map(l.capitalize).join(' '))")"
 
     echoerr "* syncing package $name"
     local doc_readme="docs/$package/overview.md"
@@ -85,8 +85,7 @@ Please make sure to update tests as appropriate.
 
     if [ ! -f "$doc_readme" ]; then
         mkdir -p "docs/$package"
-        local doc_contents="
----
+        local doc_contents="---
 title: $pkg_name
 sidebar_label: $pkg_basename
 ---
