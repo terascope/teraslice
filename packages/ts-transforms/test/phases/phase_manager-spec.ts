@@ -68,7 +68,7 @@ describe('phase manager', () => {
         expect(manager.sequence[3].hasRestrictedOutput).toEqual(false);
     });
 
-    it('can run an array of data', async() => {
+    fit('can run an array of data', async() => {
         const opConfig = { type: 'transform', rules: [transformRules16Path] };
         const manager = new PhaseManager(opConfig, logger);
         const str = 'hello';
@@ -87,6 +87,7 @@ describe('phase manager', () => {
         await manager.init();
 
         const results = manager.run(data);
+        console.log('what are the results', results)
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ field1: 'hello', date });

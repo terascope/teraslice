@@ -42,7 +42,7 @@ describe('selector phase', () => {
             {}
         ]);
 
-        const results = selectorPhase.run(data);
+        const results = selectorPhase.run(data, logger);
 
         expect(results.length).toEqual(3);
         expect(results[0]).toEqual(data[0]);
@@ -62,7 +62,7 @@ describe('selector phase', () => {
             { 'asdpf98| aof': 1212387961234 }
         ]);
 
-        const results = selectorPhase.run(data);
+        const results = selectorPhase.run(data, logger);
 
         expect(results.length).toEqual(6);
     });

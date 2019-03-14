@@ -1,5 +1,5 @@
 
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, Logger } from '@terascope/utils';
 import _ from 'lodash';
 import { PostProcessConfig, WatcherConfig, PostProcessingDict } from '../interfaces';
 import PhaseBase from './base';
@@ -21,7 +21,7 @@ export default class PostProcessPhase extends PhaseBase {
         this.hasProcessing = Object.keys(this.phase).length > 0;
     }
 
-    run(dataArray: DataEntity[]): DataEntity[] {
+    run(dataArray: DataEntity[], _logger: Logger): DataEntity[] {
         if (!this.hasProcessing) return dataArray;
         const resultsList: DataEntity[] = [];
 

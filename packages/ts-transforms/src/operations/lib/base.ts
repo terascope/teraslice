@@ -6,7 +6,7 @@ import { DataEntity } from '@terascope/utils';
 export default class OperationBase {
     protected source!: string|string[];
     protected target!: string|string[];
-    protected config: OperationConfig;
+    readonly config: OperationConfig;
     protected destination: string|string[];
     protected hasTarget: boolean;
 

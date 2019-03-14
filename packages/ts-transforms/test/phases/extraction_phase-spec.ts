@@ -87,7 +87,7 @@ describe('extraction phase', () => {
 
         const dataArray = data.map((obj, ind) => new DataEntity(obj, metaArray[ind]));
 
-        const results = extractionPhase.run(dataArray);
+        const results = extractionPhase.run(dataArray, logger);
 
         expect(results.length).toEqual(5);
         results.forEach((result, ind) => {
@@ -110,7 +110,7 @@ describe('extraction phase', () => {
             new DataEntity({ domain: 'www.example.com', url: 'http://hello.com?value3=hello&value4=goodbye', date, key }, metaData)
         ];
 
-        const results = extractionPhase.run(data);
+        const results = extractionPhase.run(data, logger);
         // removal of other_match_required happens at validations, at this point a doc is still made
         expect(results.length).toEqual(2);
         expect(results[0]).toEqual({ value: 'hello', value2: 'goodbye', date, key });

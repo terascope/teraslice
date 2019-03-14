@@ -78,7 +78,7 @@ export interface ExtractionConfig {
     start?: string;
     end?: string;
     regex?: RegExp;
-    mutate?: boolean;
+    mutate: boolean;
     output?: boolean;
     source_field: string;
     target_field: string;
@@ -100,6 +100,7 @@ export interface OperationsDict {
 }
 
 export interface Operation {
+    config:OperationConfig;
     run(data: DataEntity): null | DataEntity;
 }
 // TODO: delete the next two

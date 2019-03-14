@@ -1,9 +1,13 @@
 
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, Logger } from '@terascope/utils';
 import _ from 'lodash';
 import { WatcherConfig, ExtractionProcessingDict } from '../interfaces';
 import PhaseBase from './base';
 import { OperationsManager } from '../operations';
+
+function hasExtracted(record: DataEntity) {
+    return record.getMetadata('hasExtractions') === true;
+}
 
 export default class ExtractionPhase extends PhaseBase {
 
@@ -19,7 +23,7 @@ export default class ExtractionPhase extends PhaseBase {
         this.hasProcessing = Object.keys(this.phase).length > 0;
     }
 
-    run(dataArray: DataEntity[]): DataEntity[] {
+    run(dataArray: DataEntity[], _logger: Logger): DataEntity[] {
         if (!this.hasProcessing) return dataArray;
         const resultsList: DataEntity[] = [];
 
@@ -27,22 +31,23 @@ export default class ExtractionPhase extends PhaseBase {
             const record = dataArray[i];
             const metaData =  record.getMetadata();
             const { selectors } = metaData;
-            const results = {};
+            let hadPreviousMutate = false;
+            let results = record;
 
-            selectors.forEach((key: string) => {
-                if (this.phase[key]) {
-                    // @ts-ignore FIXME: no forEach its an object
-                    this.phase[key].forEach((fn) => {
-                        const newRecord = fn.run(record);
-                        if (newRecord) _.merge(metaData, newRecord.getMetadata());
-                        return _.merge(results, newRecord);
-                    });
-                }
+            selectors.forEach((selector: string) => {
+                this.phase[selector].forEach((extraction) => {
+                    const hasMutateConfig = extraction.config.mutate;
+                    if (hadPreviousMutate && !hasMutateConfig) {
+                        // logger.warn()
+                    }
+                    if (hasMutateConfig) hadPreviousMutate = true;
+                    const resultsData = extraction.run(results);
+                    if (resultsData) results = resultsData;
+                });
             });
 
-            if (Object.keys(results).length > 0) {
-                const newRecord = DataEntity.make(results, metaData);
-                resultsList.push(newRecord);
+            if (hasExtracted(results)) {
+                resultsList.push(results);
             }
         }
 

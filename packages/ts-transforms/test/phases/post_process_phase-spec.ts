@@ -56,7 +56,7 @@ describe('post_process phase', () => {
             new DataEntity({ host: 'www.example.com', url: 'http://hello.com?field1=hello&value4=goodbye' }, { selectors: ['host:example.com'] })
         ];
 
-        const results = postProcessPhase.run(data);
+        const results = postProcessPhase.run(data, logger);
 
         expect(results.length).toEqual(3);
         expect(results[0]).toEqual({ host: 'www.example.com', field1: 'hello' });
@@ -74,7 +74,7 @@ describe('post_process phase', () => {
             new DataEntity({ newField: 'other' }, { selectors: ['some:value'] })
         ];
 
-        const results = postProcessPhase.run(data);
+        const results = postProcessPhase.run(data, logger);
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ newField: 'other' });

@@ -31,7 +31,7 @@ describe('output phase', () => {
             new DataEntity({ date }, { selectors: { 'fc2.com': true } }),
         ];
 
-        const results = postProcessPhase.run(data);
+        const results = postProcessPhase.run(data, logger);
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ some: 'data', date });
@@ -47,7 +47,7 @@ describe('output phase', () => {
             new DataEntity({ myjson: 'otherthing' })
         ];
 
-        const results = outputPhase.run(data);
+        const results = outputPhase.run(data, logger);
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ field: 'something' });
