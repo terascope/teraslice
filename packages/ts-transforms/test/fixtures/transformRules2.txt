@@ -1,8 +1,8 @@
-{"selector": "hello:world", "source_field": "first", "target_field": "first_name", "output": false, "tag": "someTag"}
-{"selector": "hello:world", "source_field": "last", "target_field": "last_name", "output": false, "tag": "someTag"}
-{"follow": "someTag", "post_process": "join","fields": ["first_name", "last_name"],"delimiter": " ","target_field": "full_name"}
+{ "selector": "hello:world", "source_field": "first", "target_field": "first_name", "output": false, "tag": "someTag" }
+{ "selector": "hello:world", "source_field": "last", "target_field": "last_name", "output": false, "tag": "someTag" }
+{ "follow": "someTag", "post_process": "join","fields": ["first_name", "last_name"],"delimiter": " ","target_field": "full_name" }
 
 # some comment
-{"selector": "geo:true", "source_field": "lat", "target_field": "location.lat", "validation": "geolocation"}
-{"selector": "geo:true", "source_field": "lon", "target_field": "location.lon", "validation": "geolocation"}
-{"selector": "geo:true", "source_field": "other", "target_field": "other"}
+{ "selector": "geo:true", "source_field": "lat", "target_field": "location.lat", "validation": "geolocation" }
+{ "selector": "geo:true", "source_field": "lon", "target_field": "location.lon", "validation": "geolocation" }
+{ "selector": "geo:true", "source_field": "other", "target_field": "other" }

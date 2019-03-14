@@ -1,9 +1,9 @@
-{ "selector": "selectfield:value", "source_field": "url", "start": "field1=", "end": "EOP", "target_field": "one", "output": false,"tag": "makeNumber"}
+{ "selector": "selectfield:value", "source_field": "url", "start": "field1=", "end": "EOP", "target_field": "one", "output": false,"tag": "makeNumber" }
 { "follow": "makeNumber", "validation": "number", "tag": "tag1" }
 
 { "selector": "selectfield:value", "source_field": "url", "start": "field2=", "end": "EOP", "target_field": "two", "output": false, "tag": "tag1" }
 { "selector": "selectfield:value", "source_field": "url", "start": "field3=", "end": "EOP", "target_field": "three", "output": false, "tag": "tag2" }
 { "selector": "selectfield:value", "source_field": "url", "start": "field4=", "end": "EOP", "target_field": "four", "output": false, "tag": "tag2"  }
 
-{"follow": "tag1", "post_process": "array", "target_field": "firstSet"}
-{"follow": "tag2", "post_process": "array", "target_field": "secondSet"}
+{ "follow": "tag1", "post_process": "array", "target_field": "firstSet" }
+{ "follow": "tag2", "post_process": "array", "target_field": "secondSet" }
