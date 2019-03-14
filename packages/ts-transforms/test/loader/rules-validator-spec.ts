@@ -33,6 +33,69 @@ describe('rules-validator', () => {
         }
     ]);
 
+    const mutateExtractionConfig = parseData([
+        {
+            selector: 'hello:world',
+            source_field: 'first',
+            target_field: 'first_name'
+        },
+        {
+            selector:'other:thing',
+            source_field: 'other',
+            target_field: 'thing',
+            mutate: true
+        }
+    ]);
+
+    const mutateExtractionPostProcessConfig = parseData([
+        {
+            selector: 'hello:world',
+            source_field: 'first',
+            target_field: 'first_name',
+            tag: 'someTag'
+        },
+        {
+            follow: 'someTag',
+            post_process: 'extraction',
+            source_field: 'other',
+            target_field: 'thing',
+            tag: 'otherTag',
+        },
+        {
+            follow: 'otherTag',
+            post_process: 'extraction',
+            source_field: 'some',
+            target_field: 'otherthing',
+            mutate: false
+        }
+    ]);
+
+    const mutateError1 = parseData([
+        {
+            selector: 'hello:world',
+            source_field: 'first',
+            target_field: 'first_name'
+        },
+        {
+            selector:'hello:world',
+            source_field: 'other',
+            target_field: 'thing',
+            mutate: true
+        }
+    ]);
+
+    const mutateError2 = parseData([
+        {
+            selector: 'hello:world',
+            source_field: 'first',
+            target_field: 'first_name'
+        },
+        {
+            source_field: 'other',
+            target_field: 'thing',
+        }
+    ]);
+
     const multiSelectorConfig = parseData([
         {
             selector: 'hello:world',
@@ -46,7 +109,8 @@ describe('rules-validator', () => {
         },
         {
             source_field: 'person',
-            target_field: 'valid_person'
+            target_field: 'valid_person',
+            mutate: true
         }
     ]);
 
@@ -242,7 +306,7 @@ describe('rules-validator', () => {
         { post_process: 'extraction', target_field: 'first_copy', follow: 'hello', mutate: true },
         { post_process: 'extraction', target_field: 'second_copy', regex: 'da.*a', follow: 'hello', mutate: true },
         { post_process: 'extraction', target_field: 'third_copy', regex: 'so.*e', follow: 'hello', mutate: true },
-        { source_field: 'key', target_field: 'key', other_match_required: true }
+        { source_field: 'key', target_field: 'key', other_match_required: true, mutate:true }
     ]);
 
     function constructValidator(configList: OperationConfig[], Plugins?: PluginList, logger = testLogger) {
@@ -315,7 +379,7 @@ describe('rules-validator', () => {
             expect(extractions).toEqual(results);
         });
 
-        it('can work with other stuff', () => {
+        it('can work with compactExtractionValidationConfig', () => {
             const validator = constructValidator(compactExtractionValidationConfig);
             const { extractions } = validator.validate();
             const results = {
@@ -323,6 +387,26 @@ describe('rules-validator', () => {
             };
 
             expect(extractions).toEqual(results);
+        });
+
+        it('can add mutate defaults to extraction configs', () => {
+            const validator = constructValidator(mutateExtractionConfig);
+            const { extractions: { 'hello:world': [config1], 'other:thing': [config2] } } = validator.validate();
+
+            expect(config1.mutate).toEqual(false);
+            expect(config2.mutate).toEqual(true);
+        });
+
+        it('can throw if a pipeline has mixed mutate values', () => {
+            const validator = constructValidator(mutateError1);
+            const errMsg = 'extractions for selector: hello:world have mixed mutate settings. If mutate true is set for one rule then it must be set for all rules';
+            expect(() => validator.validate()).toThrowWithMessage(Error, errMsg);
+        });
+
+        it('can throw if selector * does not have mutate true when other selectors are used', () => {
+            const validator = constructValidator(mutateError2);
+            const errMsg = 'a catch-all rule must have mutate set to true if paired with other selector extractions';
+            expect(() => validator.validate()).toThrowWithMessage(Error, errMsg);
         });
     });
 
@@ -353,6 +437,14 @@ describe('rules-validator', () => {
 
             expect(postProcessing['*']).toBeArrayOfSize(3);
             expect(resultsOrder).toEqual(['base64decode', 'urldecode', 'jsonparse']);
+        });
+
+        it('can add mutate defaults to extraction post_process configs', () => {
+            const validator = constructValidator(mutateExtractionPostProcessConfig);
+            const { postProcessing: { 'hello:world': [config1, config2] } } = validator.validate();
+
+            expect(config1.mutate).toEqual(true);
+            expect(config2.mutate).toEqual(false);
         });
 
         it('can throw error if graph is cyclic', () => {
