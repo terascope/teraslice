@@ -1,8 +1,8 @@
 import * as es from 'elasticsearch';
-import { Omit, uniq, TSError } from '@terascope/utils';
+import { uniq, TSError } from '@terascope/utils';
 import rolesConfig from './config/roles';
 import { ManagerConfig } from '../interfaces';
-import { Base, BaseModel } from './base';
+import { Base, BaseModel, CreateModel, UpdateModel } from './base';
 
 /**
  * Manager for Roles
@@ -90,5 +90,5 @@ export interface RoleModel extends BaseModel {
     spaces: string[];
 }
 
-export type CreateRoleInput = Omit<RoleModel, (keyof BaseModel)>;
-export type UpdateRoleInput = Omit<RoleModel, Exclude<(keyof BaseModel), 'id'>>;
+export type CreateRoleInput = CreateModel<RoleModel>;
+export type UpdateRoleInput = UpdateModel<RoleModel>;

@@ -7,6 +7,9 @@ import { DataAccessConfig } from './acl-manager';
 /**
  * Using a DataAccess ACL, limit queries to
  * specific fields and records
+ *
+ * @todo this should be renamed to SearchAccess and it should contain some code
+ * from the search plugin
 */
 export class QueryAccess {
     config: DataAccessConfig;

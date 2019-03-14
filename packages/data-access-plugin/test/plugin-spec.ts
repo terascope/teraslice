@@ -114,7 +114,6 @@ describe('Data Access Plugin', () => {
     let roleId: string;
     let spaceId: string;
     let viewId: string;
-    let defaultViewId: string;
 
     describe('when using the management api', () => {
         it('should be able to create a role', async () => {
@@ -133,13 +132,13 @@ describe('Data Access Plugin', () => {
             `;
 
             const { createRole } = await request(uri, query);
+            roleId = createRole.id;
+            expect(roleId).toBeTruthy();
+
             expect(createRole).toMatchObject({
                 name: 'greeter',
                 spaces: [],
             });
-
-            roleId = createRole.id;
-            expect(roleId).toBeTruthy();
         });
 
         it('should be able to create a space and views', async () => {
@@ -161,15 +160,14 @@ describe('Data Access Plugin', () => {
                             name: "greetings-admin",
                             excludes: ["group"],
                             roles: ["${roleId}"]
-                        }
-                    ], defaultView: {
-                        metadata: {
-                            searchConfig: {
-                                require_query: true,
-                                sort_enabled: true
+                            metadata: {
+                                searchConfig: {
+                                    require_query: true,
+                                    sort_enabled: true
+                                }
                             }
                         }
-                    }) {
+                    ]) {
                         space {
                             id,
                             name,
@@ -192,6 +190,12 @@ describe('Data Access Plugin', () => {
                 }
             } = await request(uri, query);
 
+            spaceId = space.id;
+            expect(spaceId).toBeTruthy();
+
+            viewId = views[0].id;
+            expect(viewId).toBeTruthy();
+
             expect(space).toMatchObject({
                 name: 'greetings',
                 metadata: {
@@ -201,30 +205,17 @@ describe('Data Access Plugin', () => {
                 }
             });
 
-            expect(views).toBeArrayOfSize(2);
+            expect(views).toBeArrayOfSize(1);
             expect(views[0]).toMatchObject({
                 name: 'greetings-admin',
                 roles: [roleId],
-            });
-
-            expect(views[1]).toMatchObject({
                 metadata: {
                     searchConfig: {
                         require_query: true,
                         sort_enabled: true
                     }
                 },
-                roles: []
             });
-
-            spaceId = space.id;
-            expect(spaceId).toBeTruthy();
-
-            viewId = views[0].id;
-            expect(viewId).toBeTruthy();
-
-            defaultViewId = views[1].id;
-            expect(defaultViewId).toBeTruthy();
         });
 
         it('should be able to create a user', async () => {
@@ -238,7 +229,7 @@ describe('Data Access Plugin', () => {
                         firstname: "hi",
                         lastname: "hello",
                         email: "hi@example.com",
-                        roles: ["${roleId}"],
+                        role: "${roleId}",
                         client_id: 1,
                     }, password: "greeting") {
                         id,
@@ -250,14 +241,16 @@ describe('Data Access Plugin', () => {
             `;
 
             const { createUser } = await request(uri, query);
-            expect(createUser).toMatchObject({
-                username: 'hello',
-                email: 'hi@example.com',
-            });
 
             userId = createUser.id;
             apiToken = createUser.api_token;
             expect(userId).toBeTruthy();
+            expect(apiToken).toBeTruthy();
+
+            expect(createUser).toMatchObject({
+                username: 'hello',
+                email: 'hi@example.com',
+            });
         });
 
         it('should be able to update a user', async () => {
@@ -272,11 +265,11 @@ describe('Data Access Plugin', () => {
                         username: "hello",
                         email: "hi@example.com",
                         client_id: 2,
-                        roles: ["${roleId}"]
+                        role: "${roleId}"
                     }) {
                         username,
                         email,
-                        roles,
+                        role,
                         client_id,
                     }
                 }
@@ -286,7 +279,7 @@ describe('Data Access Plugin', () => {
                 updateUser: {
                     username: 'hello',
                     email: 'hi@example.com',
-                    roles: [roleId],
+                    role: roleId,
                     client_id: 2
                 }
             });
@@ -296,7 +289,6 @@ describe('Data Access Plugin', () => {
             expect(userId).toBeTruthy();
             expect(spaceId).toBeTruthy();
             expect(viewId).toBeTruthy();
-            expect(defaultViewId).toBeTruthy();
 
             const uri = formatBaseUri('/data-access');
             const query = `
@@ -320,7 +312,6 @@ describe('Data Access Plugin', () => {
                         lastname,
                     }
                     findSpace(id: "${spaceId}") {
-                        default_view,
                         views
                     }
                     findSpaces(query: "*") {
@@ -359,7 +350,6 @@ describe('Data Access Plugin', () => {
                     }
                 ],
                 findSpace: {
-                    default_view: defaultViewId,
                     views: [viewId]
                 },
                 findSpaces: [
@@ -371,9 +361,6 @@ describe('Data Access Plugin', () => {
                     excludes: ['group']
                 },
                 findViews: [
-                    {
-                        name: `Default View for Space ${spaceId}`,
-                    },
                     {
                         name: 'greetings-admin',
                     }
@@ -565,13 +552,11 @@ describe('Data Access Plugin', () => {
 
         describe('when perserve index is set to true', () => {
             it('should be able to update the default view', async () => {
-                expect(defaultViewId).toBeTruthy();
-
                 const uri = formatBaseUri('/data-access');
                 const query = `
                     mutation {
                         updateView(view: {
-                            id: "${defaultViewId}",
+                            id: "${viewId}",
                             metadata: {
                                 searchConfig: {
                                     require_query: true,
@@ -587,7 +572,7 @@ describe('Data Access Plugin', () => {
 
                 expect(await request(uri, query)).toEqual({
                     updateView: {
-                        id: defaultViewId,
+                        id: viewId,
                     }
                 });
             });

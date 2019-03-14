@@ -54,7 +54,7 @@ const config: ModelConfig<PrivateUserModel> = {
             salt: {
                 type: 'keyword'
             },
-            roles: {
+            role: {
                 type: 'keyword'
             }
         }
@@ -77,14 +77,8 @@ const config: ModelConfig<PrivateUserModel> = {
             email: {
                 format: 'email'
             },
-            roles: {
-                type: 'array',
-                items: {
-                    type: 'string'
-                },
-                uniqueItems: true,
-                maxItems: 1,
-                default: []
+            role: {
+                type: 'string'
             },
             api_token: {
                 type: 'string'
@@ -106,15 +100,6 @@ const config: ModelConfig<PrivateUserModel> = {
     sanitizeFields: {
         email: 'trimAndLower',
         username: 'trim',
-    },
-    fixDoc: function fixDoc(doc) {
-        const _doc = doc as any;
-        if (_doc && _doc.role) {
-            _doc.roles = [_doc.role];
-            delete _doc.role;
-        }
-
-        return doc;
     },
     strictMode: false,
 };

@@ -1,8 +1,8 @@
 import * as es from 'elasticsearch';
-import { Omit, TSError } from '@terascope/utils';
+import { TSError } from '@terascope/utils';
 import spacesConfig from './config/spaces';
 import { ManagerConfig } from '../interfaces';
-import { Base, BaseModel } from './base';
+import { Base, BaseModel, CreateModel, UpdateModel } from './base';
 
 /**
  * Manager for Spaces
@@ -16,7 +16,6 @@ export class Spaces extends Base<SpaceModel, CreateSpaceInput, UpdateSpaceInput>
             description: String
             views: [String]
             metadata: JSON
-            default_view: String
             created: String
             updated: String
         }
@@ -26,7 +25,6 @@ export class Spaces extends Base<SpaceModel, CreateSpaceInput, UpdateSpaceInput>
             name: String
             description: String
             views: [String]
-            default_view: String
             metadata: JSON
         }
     `;
@@ -86,15 +84,10 @@ export interface SpaceModel extends BaseModel {
     views: string[];
 
     /**
-     * The view to apply defaults to all associated views with
-    */
-    default_view?: string;
-
-    /**
      * Metadata for the "Space"
     */
     metadata?: object;
 }
 
-export type CreateSpaceInput = Omit<SpaceModel, (keyof BaseModel)>;
-export type UpdateSpaceInput = Omit<SpaceModel, Exclude<(keyof BaseModel), 'id'>>;
+export type CreateSpaceInput = CreateModel<SpaceModel>;
+export type UpdateSpaceInput = UpdateModel<SpaceModel>;

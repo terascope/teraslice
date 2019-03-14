@@ -44,13 +44,13 @@ describe('ACLManager', () => {
                         lastname: 'Oh',
                         client_id: 100,
                         email: 'uh-oh@example.com',
-                        roles: ['non-existant-role-id'],
+                        role: 'non-existant-role-id',
                     },
                     password: 'secrets',
                 });
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Missing roles with user, non-existant-role-id');
+                expect(err.message).toInclude('Missing role with user, non-existant-role-id');
                 expect(err.statusCode).toEqual(422);
             }
         });
@@ -68,7 +68,6 @@ describe('ACLManager', () => {
                         lastname: 'Oh',
                         client_id: 100,
                         email: 'uh-oh@example.com',
-                        roles: [],
                         // @ts-ignore
                         api_token: 'oh no'
                     },
@@ -93,7 +92,6 @@ describe('ACLManager', () => {
                     lastname: 'User',
                     client_id: 121,
                     email: 'some-user@example.com',
-                    roles: [],
                 },
                 password: 'secrets',
             });
@@ -370,7 +368,6 @@ describe('ACLManager', () => {
                         firstname: 'Foo',
                         lastname: 'ooooo',
                         email: 'foobar@example.com',
-                        roles: [],
                     },
                     password: 'secrets'
                 });
@@ -426,17 +423,7 @@ describe('ACLManager', () => {
                                 }
                             }
                         }
-                    ],
-                    defaultView: {
-                        excludes: ['example'],
-                        constraint: 'hello:true',
-                        metadata: {
-                            c: 'd',
-                            example: {
-                                n: 2
-                            }
-                        }
-                    }
+                    ]
                 });
 
                 spaceId = spaceResult.space.id;
@@ -468,7 +455,7 @@ describe('ACLManager', () => {
                         lastname: 'Bar',
                         client_id: 1888,
                         email: 'foobar@example.com',
-                        roles: [roleId],
+                        role: roleId,
                     },
                     password: 'secrets'
                 });
@@ -488,11 +475,9 @@ describe('ACLManager', () => {
                         name: 'Example View',
                         roles: [roleId],
                         includes: ['foo'],
-                        excludes: ['example'],
-                        constraint: 'hello:true',
+                        excludes: [],
                         metadata: {
                             a: 'b',
-                            c: 'd',
                             example: {
                                 n: 1
                             }

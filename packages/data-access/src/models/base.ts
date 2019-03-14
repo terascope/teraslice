@@ -11,7 +11,6 @@ import { ManagerConfig } from '../interfaces';
 export class Base<T extends BaseModel, C extends object = T, U extends object = T> {
     readonly store: IndexStore<T>;
     readonly name: string;
-    private _fixDoc: FixDocFn<T> = (doc: T) => doc;
     private _uniqueFields: (keyof T)[];
     private _sanitizeFields: SanitizeFields;
 
@@ -51,10 +50,6 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
 
         this._uniqueFields = ts.concat('id', modelConfig.uniqueFields);
         this._sanitizeFields = modelConfig.sanitizeFields || {};
-
-        if (modelConfig.fixDoc) {
-            this._fixDoc = modelConfig.fixDoc;
-        }
     }
 
     async initialize() {
@@ -128,11 +123,11 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
             });
         }
 
-        return this._fixDoc(record);
+        return record;
     }
 
     async findById(id: string): Promise<T> {
-        return this.store.get(id).then(this._fixDoc);
+        return this.store.get(id);
     }
 
     async findByAnyId(anyId: string) {
@@ -142,13 +137,11 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
             fields[field] = anyId;
         }
 
-        return this.findBy(fields, 'OR').then(this._fixDoc);
+        return this.findBy(fields, 'OR');
     }
 
     async findAll(ids: string[]) {
-        return this.store.mget({ ids }).then((result) => {
-            return result.map(this._fixDoc);
-        });
+        return this.store.mget({ ids });
     }
 
     async find(q: string = '*', size: number = 10, fields?: (keyof T)[], sort?: string) {
@@ -156,10 +149,10 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
     }
 
     async update(record: U|T) {
-        const doc: T = this._fixDoc(this._sanitizeRecord({
+        const doc: T = this._sanitizeRecord({
             ...record,
             updated: utils.makeISODate(),
-        } as T));
+        } as T);
 
         if (!doc.id) {
             throw new ts.TSError('Updates requires id', {
@@ -253,7 +246,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
             _source: fields,
         });
 
-        return results.map(this._fixDoc);
+        return results;
     }
 
     protected async _ensureUnique(record: T) {
@@ -320,14 +313,9 @@ export interface ModelConfig<T extends BaseModel> {
     /** Sanitize / cleanup fields mapping, like trim or trimAndToLower */
     sanitizeFields?: SanitizeFields;
 
-    /** A custom function to fix any legacy data on the a record */
-    fixDoc?: FixDocFn<T>;
-
     /** Specify whether the data should be strictly validated, defaults to true */
     strictMode?: boolean;
 }
-
-export type FixDocFn<T extends BaseModel> = (doc: T) => T;
 
 export type FieldMap<T> = {
     [field in keyof T]?: string;
@@ -351,5 +339,10 @@ export interface BaseModel {
     /** Creation date */
     created: string;
 }
+
+export type CreateModel<T extends BaseModel> = ts.Omit<T, (keyof BaseModel)>;
+export type UpdateModel<T extends BaseModel> = Partial<ts.Omit<T, (keyof BaseModel)>> & {
+    id: string;
+};
 
 const isProd = process.env.NODE_ENV === 'production';

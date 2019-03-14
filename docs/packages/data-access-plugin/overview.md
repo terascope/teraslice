@@ -50,7 +50,7 @@ query {
   findUsers(query:"*") {
     id,
     username,
-    roles,
+    role,
   }
   findRoles(query:"*") {
     id,
@@ -61,7 +61,6 @@ query {
     id,
     name,
     views,
-    default_view,
     metadata
   }
   findViews(query:"*") {
@@ -99,7 +98,7 @@ mutation {
     email:"user@example.com",
     firstname:"Billy",
     lastname:"Joe",
-    roles: ["ROLE_ID"]
+    role: "ROLE_ID"
   }, password: "password") {
     id,
     api_token
@@ -124,13 +123,7 @@ mutation {
       roles: ["ROLE_ID"],
       constraint:"moo:cow"
     }
-  ], defaultView: {
-      metadata:{
-        searchConfig:{
-          require_query:true
-        }
-      }
-  }) {
+  ]) {
     space {
       id,
     }

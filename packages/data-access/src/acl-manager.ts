@@ -1,4 +1,4 @@
-import { TSError, getFirst, Omit, uniq } from '@terascope/utils';
+import { TSError, Omit, uniq } from '@terascope/utils';
 import * as es from 'elasticsearch';
 import * as models from './models';
 import { ManagerConfig } from './interfaces';
@@ -7,11 +7,17 @@ import { ManagerConfig } from './interfaces';
  * ACL Manager for Data Access Roles, essentially a
  * high level abstraction of Spaces, Users, Roles, and Views
  *
- * @todo add a method to find the views for space, with the applied defaults
- * @todo auto-create an admin role
+ * @todo add multi-tenant support
+ * @todo add data-type
+ * @todo add superadmin/admin/user user type
+ * @todo only superadmins can write to to everything
+ * @todo an admin should only have access its "client_id"
  * @todo an admin should be able to view api_token without knowing the password
- * @todo only admins can write to the data-access models
+ * @todo an admin can't write to a space, a datatype, or another client
  * @todo authenticated users can query and update their user
+ * @todo add a datatype model
+ * @todo all metadata should live on the space
+ * @todo a view should not have a space reference
 */
 export class ACLManager {
     static GraphQLSchema = `
@@ -32,16 +38,8 @@ export class ACLManager {
             metadata: JSON
         }
 
-        input CreateDefaultViewInput {
-            excludes: [String]
-            includes: [String]
-            constraint: String
-            prevent_prefix_wildcard: Boolean
-            metadata: JSON
-        }
-
         type CreateSpaceResult {
-            space: Space!,
+            space: Space!
             views: [View]!
         }
 
@@ -53,8 +51,8 @@ export class ACLManager {
 
         type Query {
             authenticateUser(username: String, password: String, api_token: String): User!
-            findUser(id: ID!): PublicUser!
-            findUsers(query: String): [PublicUser]!
+            findUser(id: ID!): User!
+            findUsers(query: String): [User]!
 
             findRole(id: ID!): Role!
             findRoles(query: String): [Role]!
@@ -83,7 +81,7 @@ export class ACLManager {
             updateView(view: UpdateViewInput!): View!
             removeView(id: ID!): Boolean!
 
-            createSpace(space: CreateSpaceInput!, views: [CreateSpaceViewInput], defaultView: CreateDefaultViewInput): CreateSpaceResult!
+            createSpace(space: CreateSpaceInput!, views: [CreateSpaceViewInput]): CreateSpaceResult!
             updateSpace(space: UpdateSpaceInput!): Space!
             removeSpace(id: ID!): Boolean!
         }
@@ -180,7 +178,6 @@ export class ACLManager {
     async updateUser(args: { user: models.UpdateUserInput }): Promise<models.UserModel> {
         await this._validateUserInput(args.user);
 
-        // @ts-ignore
         await this.users.update(args.user);
         return this.users.findById(args.user.id);
     }
@@ -279,11 +276,9 @@ export class ACLManager {
      * If roles are specified on any of the views, it will try automatically
      * attached the space to those roles.
     */
-    async createSpace(args: { space: CreateSpaceInput, views?: CreateSpaceViewInput[], defaultView?: CreateDefaultViewInput }) {
+    async createSpace(args: { space: CreateSpaceInput, views?: CreateSpaceViewInput[] }) {
         const views = args.views || [];
         const roles = await this._validateViewsInput(views);
-
-        let defaultView: models.ViewModel|undefined = undefined;
 
         const spaceDoc = await this.spaces.create({
             ...args.space,
@@ -292,27 +287,6 @@ export class ACLManager {
 
         const space = spaceDoc.id;
 
-        if (args.defaultView) {
-            const {
-                includes,
-                excludes,
-                constraint,
-                prevent_prefix_wildcard,
-                metadata
-            } = args.defaultView;
-
-            defaultView = await this.views.create({
-                name: `Default View for Space ${space}`,
-                space,
-                roles: [],
-                includes,
-                excludes,
-                constraint,
-                prevent_prefix_wildcard,
-                metadata,
-            });
-        }
-
         const viewDocs = await Promise.all(views.map(async (view) => {
             return this.views.create({
                 ...view, space
@@ -320,11 +294,6 @@ export class ACLManager {
         }));
 
         spaceDoc.views = viewDocs.map((viewDoc) => viewDoc.id);
-
-        if (defaultView) {
-            spaceDoc.default_view = defaultView.id;
-            viewDocs.push(defaultView);
-        }
 
         await Promise.all([
             this.spaces.update(spaceDoc),
@@ -353,10 +322,6 @@ export class ACLManager {
     async removeSpace(args: { id: string }) {
         try {
             const space = await this.spaces.findById(args.id);
-
-            if (space.default_view) {
-                space.views.push(space.default_view);
-            }
 
             await Promise.all([
                 this.roles.removeSpaceFromRoles(args.id),
@@ -445,11 +410,13 @@ export class ACLManager {
             if (oldSpace && oldSpace !== args.view.space) {
                 await Promise.all([
                     this.spaces.removeViewsFromSpace(oldSpace, view.id),
-                    this.spaces.addViewsToSpace(view.space, view.id)
+                    this.spaces.addViewsToSpace(args.view.space, view.id)
                 ]);
             }
 
-            await this.roles.addSpaceToRoles(view.space, view.roles);
+            if (view.roles) {
+                await this.roles.addSpaceToRoles(args.view.space, view.roles);
+            }
         }
 
         return this.views.findById(args.view.id);
@@ -473,14 +440,13 @@ export class ACLManager {
     async getViewForSpace(args: { api_token: string, space: string }): Promise<DataAccessConfig> {
         const user = await this.authenticateUser(args);
 
-        const roleId = getFirst(user.roles);
-        if (!roleId) {
+        if (!user.role) {
             const msg = `User "${user.username}" is not assigned to any roles`;
             throw new TSError(msg, { statusCode: 403 });
         }
 
         const [role, space] = await Promise.all([
-            this.roles.findById(roleId),
+            this.roles.findById(user.role),
             this.spaces.findByAnyId(args.space),
         ]);
 
@@ -490,7 +456,7 @@ export class ACLManager {
             throw new TSError(msg, { statusCode: 403 });
         }
 
-        const view = await this.views.getViewForRole(roleId, space.id, space.default_view);
+        const view = await this.views.getViewForRole(user.role, space.id);
 
         return {
             user_id: user.id,
@@ -515,11 +481,10 @@ export class ACLManager {
             });
         }
 
-        if (user.roles) {
-            const exists = await this.roles.exists(user.roles);
+        if (user.role) {
+            const exists = await this.roles.exists(user.role);
             if (!exists) {
-                const rolesStr = user.roles.join(', ');
-                throw new TSError(`Missing roles with user, ${rolesStr}`, {
+                throw new TSError(`Missing role with user, ${user.role}`, {
                     statusCode: 422
                 });
             }
@@ -617,7 +582,6 @@ export class ACLManager {
 
 type CreateSpaceInput = Omit<models.CreateSpaceInput, 'views'>;
 type CreateSpaceViewInput = Omit<models.CreateViewInput, 'space'>;
-type CreateDefaultViewInput = Omit<models.CreateViewInput, 'name'|'description'|'space'|'roles'>;
 
 /**
  * The definition of an ACL for limiting access to data.
