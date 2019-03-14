@@ -65,7 +65,7 @@ class K8sResource {
         // name needs to be a valid DNS name since it is used in the svc name,
         // so we can only permit alphanumeric and - characters.  _ is forbidden.
         const jobNameLabel = this.execution.name.replace(/[^a-zA-Z0-9\-.]/g, '-').substring(0, 63);
-        const name = `ts-${this.nameInfix}-${jobNameLabel.substring(0, 42)}-${this.execution.job_id.substring(0, 13)}`;
+        const name = `ts-${this.nameInfix}-${jobNameLabel.substring(0, 35)}-${this.execution.job_id.substring(0, 13)}`;
         const shutdownTimeoutMs = _.get(this.terasliceConfig, 'shutdown_timeout', 60000);
         const shutdownTimeoutSeconds = Math.round(shutdownTimeoutMs / 1000);
 
