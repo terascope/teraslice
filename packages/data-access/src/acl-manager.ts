@@ -1,4 +1,4 @@
-import { TSError, Omit, uniq } from '@terascope/utils';
+import { TSError, uniq } from '@terascope/utils';
 import * as es from 'elasticsearch';
 import * as models from './models';
 import { ManagerConfig } from './interfaces';
@@ -21,28 +21,6 @@ import { ManagerConfig } from './interfaces';
 */
 export class ACLManager {
     static GraphQLSchema = `
-        input CreateSpaceInput {
-            name: String!
-            description: String
-            metadata: JSON
-        }
-
-        input CreateSpaceViewInput {
-            name: String!
-            description: String
-            roles: [String]
-            excludes: [String]
-            includes: [String]
-            constraint: String
-            prevent_prefix_wildcard: Boolean
-            metadata: JSON
-        }
-
-        type CreateSpaceResult {
-            space: Space!
-            views: [View]!
-        }
-
         type DataAccessConfig {
             user_id: String!
             role_id: String!
@@ -81,7 +59,7 @@ export class ACLManager {
             updateView(view: UpdateViewInput!): View!
             removeView(id: ID!): Boolean!
 
-            createSpace(space: CreateSpaceInput!, views: [CreateSpaceViewInput]): CreateSpaceResult!
+            createSpace(space: CreateSpaceInput!): Space!
             updateSpace(space: UpdateSpaceInput!): Space!
             removeSpace(id: ID!): Boolean!
         }
@@ -275,35 +253,12 @@ export class ACLManager {
      * Create space with optional views
      * If roles are specified on any of the views, it will try automatically
      * attached the space to those roles.
+     *
     */
-    async createSpace(args: { space: CreateSpaceInput, views?: CreateSpaceViewInput[] }) {
-        const views = args.views || [];
-        const roles = await this._validateViewsInput(views);
+    async createSpace(args: { space: models.CreateSpaceInput }) {
+        await this._validateSpaceInput(args.space);
 
-        const spaceDoc = await this.spaces.create({
-            ...args.space,
-            views: [],
-        });
-
-        const space = spaceDoc.id;
-
-        const viewDocs = await Promise.all(views.map(async (view) => {
-            return this.views.create({
-                ...view, space
-            });
-        }));
-
-        spaceDoc.views = viewDocs.map((viewDoc) => viewDoc.id);
-
-        await Promise.all([
-            this.spaces.update(spaceDoc),
-            this.roles.addSpaceToRoles(space, roles),
-        ]);
-
-        return {
-            space: spaceDoc,
-            views: viewDocs,
-        };
+        return this.spaces.create(args.space);
     }
 
     /**
@@ -321,13 +276,7 @@ export class ACLManager {
      */
     async removeSpace(args: { id: string }) {
         try {
-            const space = await this.spaces.findById(args.id);
-
-            await Promise.all([
-                this.roles.removeSpaceFromRoles(args.id),
-                this.views.deleteAll(space.views),
-                this.spaces.deleteById(args.id),
-            ]);
+            await this.spaces.deleteById(args.id);
         } catch (err) {
             if (err && err.statusCode === 404) {
                 return false;
@@ -358,24 +307,8 @@ export class ACLManager {
     async createView(args: { view: models.CreateViewInput }) {
         await this._validateViewInput(args.view);
 
-        const roles = args.view.roles || [];
-
-        if (roles.length) {
-            const rolesQuery = roles.join(' OR ');
-            const count = await this.views.count(`space:"${args.view.space}" AND roles:(${rolesQuery})`);
-            if (count > 0) {
-                throw new TSError('A Role can only exist in a space once', {
-                    statusCode: 422
-                });
-            }
-        }
-
-        const view = await this.views.create(args.view);
-
-        await Promise.all([
-            this.spaces.addViewsToSpace(view.space, view.id),
-            this.roles.addSpaceToRoles(view.space, view.roles)
-        ]);
+        const result = await this.views.create(args.view);
+        return result;
     }
 
     /**
@@ -385,40 +318,21 @@ export class ACLManager {
         const { view } = args;
         await this._validateViewInput(view);
 
-        const roles = view.roles || [];
+        let oldDataType: string|undefined;
+        if (args.view.data_type) {
+            const currentView = await this.views.findById(view.id);
+            oldDataType = currentView.data_type;
+        }
 
-        if (roles.length) {
-            const rolesQuery = roles.join(' OR ');
-
-            const count = await this.views.count(`space:"${view.space}" AND roles:(${rolesQuery})`);
-            if (count > 0) {
-                throw new TSError('A Role can only exist in a space once', {
+        if (args.view.data_type) {
+            if (oldDataType && oldDataType !== args.view.data_type) {
+                throw new TSError('Cannot not update the data_type on a view', {
                     statusCode: 422
                 });
             }
         }
 
-        let oldSpace: string|undefined;
-        if (args.view.space) {
-            const currentView = await this.views.findById(view.id);
-            oldSpace = currentView.space;
-        }
-
         await this.views.update(args.view);
-
-        if (args.view.space) {
-            if (oldSpace && oldSpace !== args.view.space) {
-                await Promise.all([
-                    this.spaces.removeViewsFromSpace(oldSpace, view.id),
-                    this.spaces.addViewsToSpace(args.view.space, view.id)
-                ]);
-            }
-
-            if (view.roles) {
-                await this.roles.addSpaceToRoles(args.view.space, view.roles);
-            }
-        }
-
         return this.views.findById(args.view.id);
     }
 
@@ -436,12 +350,14 @@ export class ACLManager {
 
     /**
      * Get the User's data access configuration for a "Space"
+     *
+     * @todo it should have no-restrictions when no views are found but space has the role
      */
     async getViewForSpace(args: { api_token: string, space: string }): Promise<DataAccessConfig> {
         const user = await this.authenticateUser(args);
 
         if (!user.role) {
-            const msg = `User "${user.username}" is not assigned to any roles`;
+            const msg = `User "${user.username}" is not assigned to a role`;
             throw new TSError(msg, { statusCode: 403 });
         }
 
@@ -450,13 +366,13 @@ export class ACLManager {
             this.spaces.findByAnyId(args.space),
         ]);
 
-        const hasAccess = await this.roles.hasAccessToSpace(role, space.id);
+        const hasAccess = space.roles.includes(user.role);
         if (!hasAccess) {
             const msg = `User "${user.username}" does not have access to space "${space.id}"`;
             throw new TSError(msg, { statusCode: 403 });
         }
 
-        const view = await this.views.getViewForRole(user.role, space.id);
+        const view = await this.views.getViewForRole(space.views, user.role);
 
         return {
             user_id: user.id,
@@ -491,6 +407,10 @@ export class ACLManager {
         }
     }
 
+    /**
+     * @todo validate that any view being attached has a role that is set on the space
+     * and that role only exists in one view
+    */
     private async _validateSpaceInput(space: Partial<models.SpaceModel>) {
         if (!space) {
             throw new TSError('Invalid Space Input', {
@@ -509,6 +429,18 @@ export class ACLManager {
                 });
             }
         }
+
+        if (space.roles) {
+            space.roles = uniq(space.roles);
+
+            const exists = await this.roles.exists(space.roles);
+            if (!exists) {
+                const rolesStr = space.roles.join(', ');
+                throw new TSError(`Missing roles with space, ${rolesStr}`, {
+                    statusCode: 422
+                });
+            }
+        }
     }
 
     private async _validateRoleInput(role: Partial<models.RoleModel>) {
@@ -518,17 +450,6 @@ export class ACLManager {
             });
         }
 
-        if (role.spaces) {
-            role.spaces = uniq(role.spaces);
-
-            const exists = await this.spaces.exists(role.spaces);
-            if (!exists) {
-                const rolesStr = role.spaces.join(', ');
-                throw new TSError(`Missing spaces with role, ${rolesStr}`, {
-                    statusCode: 422
-                });
-            }
-        }
     }
 
     private async _validateViewInput(view: Partial<models.ViewModel>) {
@@ -550,38 +471,7 @@ export class ACLManager {
             }
         }
     }
-
-    /**
-     * Validate views and make sure they only have a role once
-     *
-     * @returns a list of unique role ids
-     */
-    private async _validateViewsInput(views: Partial<models.ViewModel>[]): Promise<string[]> {
-        if (!views || !views.length) return [];
-
-        const roles: string[] = [];
-
-        for (const view of views) {
-            await this._validateViewInput(view);
-            if (!view.roles) continue;
-
-            for (const role of view.roles) {
-                if (roles.includes(role)) {
-                    throw new TSError('A Role can only exist in a space once', {
-                        statusCode: 422
-                    });
-                } else {
-                    roles.push(role);
-                }
-            }
-        }
-
-        return roles;
-    }
 }
-
-type CreateSpaceInput = Omit<models.CreateSpaceInput, 'views'>;
-type CreateSpaceViewInput = Omit<models.CreateViewInput, 'space'>;
 
 /**
  * The definition of an ACL for limiting access to data.
@@ -641,6 +531,7 @@ export const graphqlMutationMethods: (keyof ACLManager)[] = [
     'createSpace',
     'updateSpace',
     'removeSpace',
+    'createView',
     'updateView',
     'removeView',
 ];

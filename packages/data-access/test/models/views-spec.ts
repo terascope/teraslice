@@ -23,7 +23,7 @@ describe('Views', () => {
         it('should be able to create a view', async () => {
             const created = await views.create({
                 name: 'hello',
-                space: 'space-id',
+                data_type: 'some-data-type-id',
                 roles: ['role-id'],
                 excludes: ['example'],
                 includes: ['other'],
@@ -37,20 +37,26 @@ describe('Views', () => {
 
     describe('when getting a view for a role', () => {
         let view: ViewModel;
+        let view2: ViewModel;
 
-        const spaceId = 'some-space-id';
         const roleId = 'some-role-id';
 
         beforeAll(async () => {
             view = await views.create({
                 name: 'hello',
-                space: spaceId,
+                data_type: 'another-data-type-id',
                 roles: [roleId],
+            });
+
+            view2 = await views.create({
+                name: 'howdy',
+                data_type: 'another-data-type-id',
+                roles: [],
             });
         });
 
         it('should return the view if using the right space', async () => {
-            const found = await views.getViewForRole(roleId, spaceId);
+            const found = await views.getViewForRole([view.id, view2.id], roleId);
             expect(found).toEqual(view);
         });
 
@@ -58,9 +64,9 @@ describe('Views', () => {
             expect.hasAssertions();
 
             try {
-                await views.getViewForRole(roleId, 'missing');
+                await views.getViewForRole([view.id], 'missing');
             } catch (err) {
-                const errMsg = `No View found for role "${roleId}" and space "missing"`;
+                const errMsg = 'No view found for role "missing"';
                 expect(err).toBeInstanceOf(TSError);
                 expect(err).toHaveProperty('statusCode', 404);
                 expect(err).toHaveProperty('message', errMsg);

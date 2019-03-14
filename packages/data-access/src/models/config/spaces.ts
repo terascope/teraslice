@@ -18,6 +18,12 @@ const config: ModelConfig<SpaceModel> = {
             views: {
                 type: 'keyword'
             },
+            roles: {
+                type: 'keyword'
+            },
+            data_type: {
+                type: 'keyword'
+            },
             metadata: {
                 type: 'object'
             }
@@ -31,7 +37,18 @@ const config: ModelConfig<SpaceModel> = {
             description: {
                 type: 'string'
             },
+            data_type: {
+                type: 'string'
+            },
             views: {
+                type: 'array',
+                items: {
+                    type: 'string'
+                },
+                uniqueItems: true,
+                default: []
+            },
+            roles: {
                 type: 'array',
                 items: {
                     type: 'string'
@@ -45,7 +62,7 @@ const config: ModelConfig<SpaceModel> = {
                 default: {}
             },
         },
-        required: ['name']
+        required: ['name', 'data_type']
     },
     uniqueFields: ['name'],
 };

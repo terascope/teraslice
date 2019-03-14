@@ -6,25 +6,40 @@ import { Base, BaseModel, CreateModel, UpdateModel } from './base';
 
 /**
  * Manager for Spaces
+ *
+ * @todo there should some kind of human id
 */
 export class Spaces extends Base<SpaceModel, CreateSpaceInput, UpdateSpaceInput> {
     static ModelConfig = spacesConfig;
     static GraphQLSchema = `
         type Space {
             id: ID!
-            name: String!
+            name: String
             description: String
+            data_type: String
             views: [String]
+            roles: [String]
             metadata: JSON
             created: String
             updated: String
+        }
+
+        input CreateSpaceInput {
+            name: String!
+            description: String
+            data_type: String!
+            views: [String]
+            roles: [String]
+            metadata: JSON
         }
 
         input UpdateSpaceInput {
             id: ID!
             name: String
             description: String
+            data_type: String
             views: [String]
+            roles: [String]
             metadata: JSON
         }
     `;
@@ -79,9 +94,19 @@ export interface SpaceModel extends BaseModel {
     description?: string;
 
     /**
+     * The associated data type
+    */
+    data_type: string;
+
+    /**
      * A list of associated views
     */
     views: string[];
+
+    /**
+     * A list of associated roles
+    */
+    roles: string[];
 
     /**
      * Metadata for the "Space"

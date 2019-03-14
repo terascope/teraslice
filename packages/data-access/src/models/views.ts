@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import { TSError, Omit } from '@terascope/utils';
+import { TSError } from '@terascope/utils';
 import { Base, BaseModel, UpdateModel, CreateModel } from './base';
 import viewsConfig from './config/views';
 import { ManagerConfig } from '../interfaces';
@@ -14,7 +14,7 @@ export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
             id: ID!
             name: String
             description: String
-            space: String!
+            data_type: String
             roles: [String]
             excludes: [String]
             includes: [String]
@@ -26,9 +26,9 @@ export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
         }
 
         input CreateViewInput {
-            name: String
+            name: String!
             description: String
-            space: String!
+            data_type: String!
             roles: [String]
             excludes: [String]
             includes: [String]
@@ -41,7 +41,7 @@ export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
             id: ID!
             name: String
             description: String
-            space: String
+            data_type: String
             roles: [String]
             excludes: [String]
             includes: [String]
@@ -58,23 +58,20 @@ export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
             prevent_prefix_wildcard: Boolean
             metadata: JSON
         }
-
     `;
 
     constructor(client: es.Client, config: ManagerConfig) {
         super(client, config, viewsConfig);
     }
 
-    async getViewForRole(roleId: string, spaceId: string) {
-        try {
-            return await this.findBy({ roles: roleId, space: spaceId });
-        } catch (err) {
-            if (err && err.statusCode === 404) {
-                const errMsg = `No View found for role "${roleId}" and space "${spaceId}"`;
-                throw new TSError(errMsg, { statusCode: 404 });
-            }
-            throw err;
+    async getViewForRole(viewIds: string[], roleId: string) {
+        const views = await this.findAll(viewIds);
+        const view = views.find((view) => view.roles.includes(roleId));
+        if (!view) {
+            const errMsg = `No view found for role "${roleId}"`;
+            throw new TSError(errMsg, { statusCode: 404 });
         }
+        return view;
     }
 
     async removeRoleFromViews(roleId: string) {
@@ -102,12 +99,12 @@ export interface ViewModel extends BaseModel {
     description?: string;
 
     /**
-     * The associated space
+     * The associated data type
     */
-    space: string;
+    data_type: string;
 
     /**
-     * The associated roles
+     * A list of roles this view applys to
     */
     roles: string[];
 
@@ -141,4 +138,3 @@ export interface ViewModel extends BaseModel {
 
 export type CreateViewInput = CreateModel<ViewModel>;
 export type UpdateViewInput = UpdateModel<ViewModel>;
-export type CreateDefaultViewInput = Omit<CreateViewInput, 'name'|'description'|'space'>;

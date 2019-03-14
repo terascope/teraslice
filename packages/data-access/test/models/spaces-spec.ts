@@ -24,6 +24,8 @@ describe('Spaces', () => {
             const created = await spaces.create({
                 name: 'hello',
                 views: ['hello'],
+                roles: ['howdy'],
+                data_type: 'test-space-creation-data-type',
                 metadata: {
                     a: {
                         b: {
@@ -36,6 +38,7 @@ describe('Spaces', () => {
 
             expect(created).toHaveProperty('name');
             expect(created).toHaveProperty('views', ['hello']);
+            expect(created).toHaveProperty('roles', ['howdy']);
             expect(created).toHaveProperty('metadata', {
                 a: {
                     b: {

@@ -7,7 +7,7 @@ describe('QueryAccess', () => {
     const view: ViewModel = {
         id: 'example-view',
         name: 'Example View',
-        space: 'example-space',
+        data_type: 'example-data-type',
         roles: [
             'example-role'
         ],

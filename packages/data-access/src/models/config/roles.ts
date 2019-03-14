@@ -14,9 +14,6 @@ const config: ModelConfig<RoleModel> = {
                         analyzer: 'lowercase_keyword_analyzer'
                     }
                 },
-            },
-            spaces: {
-                type: 'keyword'
             }
         }
     },
@@ -27,15 +24,7 @@ const config: ModelConfig<RoleModel> = {
             },
             description: {
                 type: 'string'
-            },
-            spaces: {
-                type: 'array',
-                items: {
-                    type: 'string'
-                },
-                uniqueItems: true,
-                default: []
-            },
+            }
         },
         required: ['name']
     },
