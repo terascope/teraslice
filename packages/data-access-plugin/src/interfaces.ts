@@ -1,6 +1,7 @@
 import { Express } from 'express';
 import { Client } from 'elasticsearch';
 import { Logger } from '@terascope/utils';
+import { Context } from '@terascope/job-components';
 
 export interface PluginConfig {
     logger: Logger;
@@ -8,6 +9,7 @@ export interface PluginConfig {
     elasticsearch: Client;
     url_base: string;
     server_config: TeraserverConfig;
+    context: Context;
 }
 
 export interface TeraserverConfig {
@@ -21,6 +23,7 @@ export interface TeraserverConfig {
     data_access?: {
         namespace?: string;
         bootstrap_mode?: boolean;
+        connection?: string;
     };
     teraserver: {
         shutdown_timeout: number;

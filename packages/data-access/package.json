@@ -1,7 +1,7 @@
 {
     "name": "@terascope/data-access",
     "description": "A tool designed to limit access to reading and querying data",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "publishConfig": {
         "access": "public"
     },

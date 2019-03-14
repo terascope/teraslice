@@ -187,6 +187,7 @@ export function getGeoSort(field: string, point: string, order: i.SortOrder, uni
     return sort;
 }
 
+/** @todo we should add index context to the error */
 export function getSearchResponse(response: SearchResponse<any>, config: i.SearchConfig, query: i.InputQuery, params: SearchParams) {
     // I don't think this property actually exists
     const error = get(response, 'error');
