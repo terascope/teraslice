@@ -49,7 +49,7 @@ export interface ViewMetadata {
 
 export interface SearchSpaceConfig {
     index: string;
-    indexConfig: string;
+    connection?: string;
 }
 
 export interface SpaceMetadata {
