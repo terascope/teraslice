@@ -5,7 +5,7 @@ sidebar_label: elasticsearch-api
 
 > Elasticsearch client api used across multiple services, handles retries and exponential backoff
 
-#### Installation
+## Installation
 
 ```bash
 # Using yarn
@@ -14,18 +14,18 @@ yarn add @terascope/elasticsearch-api
 npm install --save @terascope/elasticsearch-api
 ```
 
-# example
+## Usage
 
 ```js
-var elasticsearch = require('@terascope/elasticsearch-api');
-var bunyan = require('bunyan');
+const elasticsearch = require('@terascope/elasticsearch-api');
+const bunyan = require('bunyan');
 
-var logger = logger = bunyan.createLogger({name: 'someName'});
-var client = new elasticsearch.Client({host: ["127.0.0.1:9200"]});
-var opConfig = {full_response: false};
+const logger = logger = bunyan.createLogger({name: 'someName'});
+const client = new elasticsearch.Client({host: ["127.0.0.1:9200"]});
+const opConfig = {full_response: false};
 
-var elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
-var query = elasticsearch.buildQuery(opConfig, msg);
+const elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
+const query = elasticsearch.buildQuery(opConfig, msg);
 
 elasticsearch.search(query)
     .then(function(results){
@@ -37,14 +37,12 @@ elasticsearch.search(query)
 ### Configuration
 The `@terascope/elasticsearch-api` module must be passed in an elasticsearch client and a bunyan based logger. You may also optional pass in an object as the third argument.
 
+| Configuration |                                      Description                                      |  Type   |                               Notes                               |
+| :-----------: | :-----------------------------------------------------------------------------------: | :-----: | :---------------------------------------------------------------: |
+| full_response | If using the search method, set this to true will return all metadata for the request | Boolean | optional, defaults to retuning data without its metadata attached |
+|     index     |                     only used if you are using the version method                     | String  |  required if using the version method, if not then its optional   |
 
-##### Configuration for opConfig
-| Configuration | Description | Type |  Notes
-|:---------: | :--------: | :------: | :------:
-full_response | If using the search method, set this to true will return all metadata for the request | Boolean | optional, defaults to retuning data without its metadata attached
-index | only used if you are using the version method  | String| required if using the version method, if not then its optional
-
-# API Methods
+## API Methods
 The majority of methods exhibit the same behavior of the native elasticsearch client
 
 #### get
@@ -56,7 +54,7 @@ Query requires:
 - index
 
 ```js
-var query = {id: 'someID', type: 'someType', index: 'someIndex'};
+const query = {id: 'someID', type: 'someType', index: 'someIndex'};
 
 elasticsearch.get(query)
    .then(function(results){
@@ -73,7 +71,7 @@ Query requires:
 - body
 
 ```js
-var query = {index: 'someIndex', type: 'someType', body: {actual: 'data'};
+const query = {index: 'someIndex', type: 'someType', body: {actual: 'data'};
 
 elasticsearch.index(query)
    .then(function(results){
@@ -93,7 +91,7 @@ Query requires:
 - body
 
 ```js
-var query = {
+const query = {
   index: 'someIndex',
   type: 'someType',
   id: 'someID',
@@ -121,7 +119,7 @@ Query requires:
 - body
 
 ```js
-var query = {
+const query = {
     index: 'someIndex',
     type: 'someType',
     id: 'someId',
@@ -148,7 +146,7 @@ Query requires:
 - id
 
 ```js
-var query = {index: 'someIndex', type: 'someType', id: 'someId'};
+const query = {index: 'someIndex', type: 'someType', id: 'someId'};
 
 elasticsearch.remove(query)
    .then(function(results){
@@ -167,8 +165,8 @@ optional:
 
 
 ```js
-var query = {index: 'someIndex', q: 'some:Data NOT other:Data'};
-var query2 = {
+const query = {index: 'someIndex', q: 'some:Data NOT other:Data'};
+const query2 = {
    "index": "mapping_test",
    "size": 2000,
    "q": "bytes:>80000",
@@ -201,8 +199,8 @@ Query requires:
 - index (requires passed in opConfig to have set an index key with the value set to a index)
 
 ```js
-var opConfig = {index: 'someIndex'}
-var elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
+const opConfig = {index: 'someIndex'}
+const elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
 
 elasticsearch.version()
    .then(function(){
@@ -221,9 +219,9 @@ Query requires:
 - name
 
 ```js
-var client = getClient(context, context.sysconfig.teraslice.state, 'elasticsearch');
-var template = require('./backends/mappings/logs.json');
-var name = 'logs_template';
+const client = getClient(context, context.sysconfig.teraslice.state, 'elasticsearch');
+const template = require('./backends/mappings/logs.json');
+const name = 'logs_template';
 
 elasticsearch.putTemplate(template, name)
 ```
@@ -235,7 +233,7 @@ Query requires:
 - data  (formatted to work with elasticsearch bulk queries)
 
 ```js
-var elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
+const elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
 elasticsearch.bulkSend(data)
   .then(function(){
       //all done sending data
@@ -255,7 +253,7 @@ Query requires:
 - index
 
 ```js
-var existQuery = {index: index_name};
+const existQuery = {index: index_name};
 elasticsearch.index_exists(existQuery)
 ```
 
@@ -267,7 +265,7 @@ Query requires:
 - body (mapping for index)
 
 ```js
-var createQuery = {index: index_name, body: mapping};
+const createQuery = {index: index_name, body: mapping};
 elasticsearch.index_create(createQuery)
 ```
 
@@ -278,7 +276,7 @@ Query requires:
 - index
 
 ```js
-var query = {index: index_name};
+const query = {index: index_name};
 elasticsearch.index_refresh(query)
 ```
 
@@ -289,7 +287,7 @@ Query requires:
 - index
 
 ```js
-var existQuery = {index: index_name};
+const existQuery = {index: index_name};
 elasticsearch.index_recovery(existQuery)
 ```
 
@@ -303,50 +301,50 @@ Query requires:
 
 Basic usage
 ```js
-var elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
-var query = elasticsearch.buildQuery(opConfig, msg);
+const elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
+const query = elasticsearch.buildQuery(opConfig, msg);
 elasticsearch.search(query)
 ```
 
 
 ##### Configuration for opConfig
-| Configuration | Description | Type |  Notes
-|:---------: | :--------: | :------: | :------:
-index | Index in which you will read from  | String| required
-fields | Determines what fields are sent back in the returning query. Setting it to true or false will determine if the _source field should be returned. Setting it to a list of fields will return results only of those fields and if set to a single string will only return that specific field| String, Array of Strings, Boolean| optional
-date_field_name | the field name of the document on which you will be performing a range query | String | required only if msg parameter has a start and end value,
-query | Must be lucene query syntax. If set then this will add a lucene query to the final query| String | optional
+|  Configuration  |                                                                                                                                         Description                                                                                                                                         |               Type                |                           Notes                           |
+| :-------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------: | :-------------------------------------------------------: |
+|      index      |                                                                                                                              Index in which you will read from                                                                                                                              |              String               |                         required                          |
+|     fields      | Determines what fields are sent back in the returning query. Setting it to true or false will determine if the _source field should be returned. Setting it to a list of fields will return results only of those fields and if set to a single string will only return that specific field | String, Array of Strings, Boolean |                         optional                          |
+| date_field_name |                                                                                                        the field name of the document on which you will be performing a range query                                                                                                         |              String               | required only if msg parameter has a start and end value, |
+|      query      |                                                                                                  Must be lucene query syntax. If set then this will add a lucene query to the final query                                                                                                   |              String               |                         optional                          |
 
 ##### Configuration for msg
-| Configuration | Description | Type |  Notes
-|:---------: | :--------: | :------: | :------:
-count | determines the size parameter of the query | Number| required
-start | used for a range query, searches for greater than or equal to this value | String (date)| optional, must be used in conjunction with end
-end | used for a range query, searches for less than this value, non-inclusive| String (date)| optional, must be used in conjunction with start
-key | if set then this will perform a wildcard query using this value against all document's _id value| String| optional
+| Configuration |                                           Description                                            |     Type      |                      Notes                       |
+| :-----------: | :----------------------------------------------------------------------------------------------: | :-----------: | :----------------------------------------------: |
+|     count     |                            determines the size parameter of the query                            |    Number     |                     required                     |
+|     start     |             used for a range query, searches for greater than or equal to this value             | String (date) |  optional, must be used in conjunction with end  |
+|      end      |             used for a range query, searches for less than this value, non-inclusive             | String (date) | optional, must be used in conjunction with start |
+|      key      | if set then this will perform a wildcard query using this value against all document's _id value |    String     |                     optional                     |
 
 
 Example of query generated:
     In the following example, this will create a query searching the index: someIndex with a _id that matches a76f*, with bytes greater than 80000 and in-between two dates
 
 ```js
-var opConfig = {
+const opConfig = {
    date_field_name: 'created',
    index: 'someIndex',
    query: 'bytes:>80000'
 };
 
-var msg = {
+const msg = {
    count: 2000,
    start: "2016-11-28T11:18:07.018-07:00",
    end: "2016-11-28T11:18:07.031-07:00",
    key: "a76f*"
 };
 
-var query = elasticsearch.buildQuery(opConfig, msg);
+const query = elasticsearch.buildQuery(opConfig, msg);
 console.log(query);
 
-var obj = {
+const obj = {
   "index": "someIndex",
   "size": 2000,
   "body": {

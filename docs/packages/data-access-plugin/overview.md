@@ -5,7 +5,7 @@ sidebar_label: data-access-plugin
 
 > A teraserver plugin for managing data access and searching spaces
 
-# Installation
+## Installation
 
 ```bash
 # Using yarn

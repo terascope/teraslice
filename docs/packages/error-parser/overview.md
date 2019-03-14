@@ -3,9 +3,10 @@ title: Error Parser
 sidebar_label: error-parser
 ---
 
-> generic error parser
+> A generic error parser
 
-This package has been **[DEPRECRATED]** infavor of using `TSError` in the [@terascope/utils](https://terascope.github.io/teraslice/docs/packages/utils/overview) package.
+<br>
+**DEPRECRATED**: Use `TSError` in the [@terascope/utils](../utils/overview) package.
 
 ## Installation
 

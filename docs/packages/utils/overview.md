@@ -5,7 +5,7 @@ sidebar_label: utils
 
 > A collection of Teraslice Utilities, including DataEntity.
 
-# Installation
+## Installation
 
 ```bash
 # Using yarn

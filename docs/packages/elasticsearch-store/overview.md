@@ -5,7 +5,7 @@ sidebar_label: elasticsearch-store
 
 > An API for managing an elasticsearch index, with versioning and migration support.
 
-# Installation
+## Installation
 
 ```bash
 # Using yarn

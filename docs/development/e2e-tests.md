@@ -2,7 +2,7 @@
 title: End-to-End Tests
 ---
 
-Teraslice integration test suite
+> Teraslice End-to-End Test Suite
 
 ## Dependencies
 

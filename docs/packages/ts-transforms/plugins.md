@@ -36,7 +36,7 @@ export default class Plugin {
 
 
 pluginRules.txt
-```
+```json
 { "selector": "size:2", "source_field": "size", "target_field": "height", "tag": "pluginTag" }
 { "follow": "pluginTag", "post_process": "double" }
 ```
