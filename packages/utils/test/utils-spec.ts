@@ -9,6 +9,7 @@ import {
     parseList,
     parseNumberList,
     toNumber,
+    toSafeString,
 } from '../src';
 
 describe('Utils', () => {
@@ -221,6 +222,22 @@ describe('Utils', () => {
             [[1], 1],
         ])('should convert %j to be %j', (input, expected) => {
             expect(toNumber(input)).toEqual(expected);
+        });
+    });
+
+    describe('toSafeString', () => {
+        test.each([
+            ['hello-there', 'hello-there'],
+            ['++_--hello', 'hello'],
+            ['Hello_Hi THERE', 'hello_hi_there'],
+            ['Howdy-Hi?+ you', 'howdy-hi-you'],
+            ['Hi there#*', 'hi-there'],
+            ['<HI> 3', 'hi-3'],
+            ['123', '123'],
+            [123, '123'],
+            [null, ''],
+        ])('should convert %s to be %s', (input, expected) => {
+            expect(toSafeString(input)).toEqual(expected);
         });
     });
 });

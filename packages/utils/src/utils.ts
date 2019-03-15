@@ -182,13 +182,39 @@ export function toInteger(input: any): number|false {
 /** Convert any input into a boolean, this will work with stringified boolean */
 export function toBoolean(input: any): boolean {
     const val: any = isString(input) ? trimAndToLower(input) : input;
-    const thruthy = [1, '1', true, 'true'];
+    const thruthy = [1, '1', true, 'true', 'yes'];
     return thruthy.includes(val);
 }
 
 /** safely trim and to lower a input, useful for string comparison */
 export function trimAndToLower(input?: string): string {
-    return toString(input).trim().toLowerCase();
+    return trim(input).toLowerCase();
+}
+
+/** safely trim an input */
+export function trim(input: any): string {
+    return toString(input).trim();
+}
+
+/**
+ * Make a string url/elasticsearch safe.
+ * safeString converts the string to lower case,
+ * removes any invalid characters,
+ * and replaces whitespace with _ (if it exists in the string) or -
+ * Warning this may reduce the str length
+*/
+export function toSafeString(input: string): string {
+    let s = trimAndToLower(input);
+    const startReg = /^[_\-\+]+/;
+    while (startReg.test(s)) {
+        s = s.replace(startReg, '');
+    }
+
+    const whitespaceChar = s.includes('_') ? '_' : '-';
+    s = s.replace(/\s/g, whitespaceChar);
+    const reg = new RegExp('[\.\+#*?"<>|/\\\\]', 'g');
+    s = s.replace(reg, '');
+    return s;
 }
 
 /** A simplified implemation of moment(new Date(val)).isValid() */
