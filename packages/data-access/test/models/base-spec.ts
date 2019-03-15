@@ -78,7 +78,7 @@ describe('Base', () => {
             try {
                 await base.create(created);
             } catch (err) {
-                expect(err.message).toEqual('Create requires name to be unique');
+                expect(err.message).toEqual('Base create requires name to be unique');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(409);
             }
@@ -91,7 +91,7 @@ describe('Base', () => {
                 // @ts-ignore
                 await base.create({});
             } catch (err) {
-                expect(err.message).toEqual('Create requires field name');
+                expect(err.message).toEqual('Base create requires field name');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(422);
             }
@@ -111,7 +111,7 @@ describe('Base', () => {
                     name
                 });
             } catch (err) {
-                expect(err.message).toEqual('Update requires name to be unique');
+                expect(err.message).toEqual('Base update requires name to be unique');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(409);
             }
@@ -124,7 +124,7 @@ describe('Base', () => {
                 // @ts-ignore
                 await base.update({});
             } catch (err) {
-                expect(err.message).toEqual('Updates requires id');
+                expect(err.message).toEqual('Base update requires id');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(422);
             }

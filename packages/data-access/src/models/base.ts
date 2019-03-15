@@ -109,7 +109,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         const query = Object.entries(fields)
             .map(([field, val]) => {
                 if (val == null) {
-                    throw new ts.TSError(`Missing value for field "${field}"`, {
+                    throw new ts.TSError(`${this.name} missing value for field "${field}"`, {
                         statusCode: 422
                     });
                 }
@@ -157,7 +157,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         } as T);
 
         if (!doc.id) {
-            throw new ts.TSError('Updates requires id', {
+            throw new ts.TSError(`${this.name} update requires id`, {
                 statusCode: 422
             });
         }
@@ -172,7 +172,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
                 const count = await this._countBy(field, doc[field]);
 
                 if (count > 0) {
-                    throw new ts.TSError(`Update requires ${field} to be unique`, {
+                    throw new ts.TSError(`${this.name} update requires ${field} to be unique`, {
                         statusCode: 409
                     });
                 }
@@ -255,14 +255,14 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         for (const field of this._uniqueFields) {
             if (field === 'id') continue;
             if (record[field] == null) {
-                throw new ts.TSError(`Create requires field ${field}`, {
+                throw new ts.TSError(`${this.name} create requires field ${field}`, {
                     statusCode: 422
                 });
             }
 
             const count = await this._countBy(field, record[field]);
             if (count > 0) {
-                throw new ts.TSError(`Create requires ${field} to be unique`, {
+                throw new ts.TSError(`${this.name} create requires ${field} to be unique`, {
                     statusCode: 409
                 });
             }

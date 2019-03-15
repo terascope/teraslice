@@ -47,5 +47,8 @@ export function mergeDefaults(source: object, from: object = {}) {
 }
 
 export function toInstanceName(name: string): string {
-    return ts.firstToUpper(ts.trim(name).replace(/s$/, ''));
+    let s = ts.trim(name);
+    s = s.replace(/[_-\s]+/g, ' ');
+    s = s.replace(/s$/, '');
+    return s.split(' ').map(ts.firstToUpper).join('');
 }
