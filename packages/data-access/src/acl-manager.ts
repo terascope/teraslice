@@ -409,8 +409,6 @@ export class ACLManager {
 
     /**
      * Get the User's data access configuration for a "Space"
-     *
-     * @todo it should have no-restrictions when no views are found but space has the role
      */
     async getViewForSpace(args: { api_token: string, space: string }): Promise<DataAccessConfig> {
         const user = await this.authenticateUser(args);
@@ -432,7 +430,7 @@ export class ACLManager {
         }
 
         const [view, dataType] = await Promise.all([
-            this.views.getViewForRole(space.views, user.role),
+            this.views.getViewOfSpace(space, role.id),
             this.dataTypes.findById(space.data_type)
         ]);
 

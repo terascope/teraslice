@@ -1,8 +1,9 @@
 import * as es from 'elasticsearch';
-import { TSError } from '@terascope/utils';
 import { Base, BaseModel, UpdateModel, CreateModel } from './base';
-import viewsConfig from './config/views';
 import { ManagerConfig } from '../interfaces';
+import viewsConfig from './config/views';
+import { makeISODate } from '../utils';
+import { SpaceModel } from './spaces';
 
 /**
  * Manager for Views
@@ -60,14 +61,20 @@ export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
         super(client, config, viewsConfig);
     }
 
-    async getViewForRole(viewIds: string[], roleId: string) {
-        const views = await this.findAll(viewIds);
+    async getViewOfSpace(space: SpaceModel, roleId: string): Promise<ViewModel> {
+        const views = await this.findAll(space.views);
         const view = views.find((view) => view.roles.includes(roleId));
-        if (!view) {
-            const errMsg = `No view found for role "${roleId}"`;
-            throw new TSError(errMsg, { statusCode: 404 });
-        }
-        return view;
+        if (view) return view;
+
+        // if the view doesn't exist create a non-restrictive default view
+        return {
+            id: `default-view-for-role-${roleId}`,
+            name: `Default View for Role ${roleId}`,
+            data_type: space.data_type,
+            roles: space.roles,
+            created: makeISODate(),
+            updated: makeISODate(),
+        };
     }
 
     async removeRoleFromViews(roleId: string) {

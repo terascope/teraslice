@@ -1,7 +1,7 @@
 import 'jest-extended';
-import { TSError } from '@terascope/utils';
 import { Views, ViewModel } from '../../src/models/views';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
+import { SpaceModel } from 'packages/data-access/src';
 
 describe('Views', () => {
     const client = makeClient();
@@ -36,13 +36,13 @@ describe('Views', () => {
     });
 
     describe('when getting a view for a role', () => {
-        let view: ViewModel;
+        let view1: ViewModel;
         let view2: ViewModel;
 
         const roleId = 'some-role-id';
 
         beforeAll(async () => {
-            view = await views.create({
+            view1 = await views.create({
                 name: 'hello',
                 data_type: 'another-data-type-id',
                 roles: [roleId],
@@ -56,21 +56,31 @@ describe('Views', () => {
         });
 
         it('should return the view if using the right space', async () => {
-            const found = await views.getViewForRole([view.id, view2.id], roleId);
-            expect(found).toEqual(view);
+            // @ts-ignore
+            const space: SpaceModel = {
+                views: [view1.id, view2.id],
+            };
+
+            const found = await views.getViewOfSpace(space, roleId);
+            expect(found).toEqual(view1);
         });
 
-        it('should throw and error if no view is found', async () => {
-            expect.hasAssertions();
+        it('should return a non-restrictive view if not found', async () => {
+            // @ts-ignore
+            const space: SpaceModel = {
+                data_type: 'FakeDataType',
+                roles: [roleId],
+                views: [view2.id],
+            };
 
-            try {
-                await views.getViewForRole([view.id], 'missing');
-            } catch (err) {
-                const errMsg = 'No view found for role "missing"';
-                expect(err).toBeInstanceOf(TSError);
-                expect(err).toHaveProperty('statusCode', 404);
-                expect(err).toHaveProperty('message', errMsg);
-            }
+            const result = await views.getViewOfSpace(space, roleId);
+
+            expect(result).toMatchObject({
+                id: `default-view-for-role-${roleId}`,
+                name: `Default View for Role ${roleId}`,
+                data_type: space.data_type,
+                roles: space.roles,
+            });
         });
     });
 });
