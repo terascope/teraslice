@@ -150,7 +150,7 @@ console.log(results);
 ```
 
 ### extraction
-This is the core transform class used to extract data from incoming records. If nothing can be extracted then null is returned, however if `mutate` is set to true then it will at minimum return the data it was given. Please take note of the mutate setting listed below on how it could change depending if it is used as a post_process
+This is the core transform class used to extract data from incoming records. A new object containing all succesful extractions will be returned. If nothing can be extracted then null is returned. 
 
 Simple Extraction:
 ```ts
@@ -220,9 +220,6 @@ Example:
 
 ```
 
-- mutate : `Booelan`(optional) = The default of extraction is to create a brand new object with the extracted fields. If you set this to true then it will return the orignal object with the new extracted fields on it so you can keep everything else. `NOTE`: if no extraction can occur you will recieve back the object unchanged, also if extraction is used as a `post_process` this defaults to `true`
-
-
 Example:
 ```ts
 // rules
@@ -233,7 +230,7 @@ Example:
 
 // Incoming Data to transform
 [
-{ selectfield: 'value', url: `http://www.example.com/path?field1=someBlah&field2=moreblah&field3=evenmoreblah` }
+    { selectfield: 'value', url: `http://www.example.com/path?field1=someBlah&field2=moreblah&field3=evenmoreblah` }
 ]
 
 // Results
