@@ -281,7 +281,7 @@ export class ACLManager {
     /**
      * Remove a data type, this is really dangerous since the there are views and spaces linked this
      *
-     * @todo we should do addition removals
+     * @todo we should do addition removals?
     */
     async removeDataType(args: { id: string }) {
         const exists = await this.dataTypes.exists(args.id);
