@@ -1,5 +1,5 @@
 
-import { DataEntity, Logger } from '@terascope/utils';
+import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
 import { WatcherConfig, OutputValidation } from '../interfaces';
 import PhaseBase from './base';
@@ -66,7 +66,7 @@ export default class OutputPhase extends PhaseBase {
         return finalResults;
     }
 
-    public run(data: DataEntity[], _logger: Logger): DataEntity[] {
+    public run(data: DataEntity[]): DataEntity[] {
         let results = data;
 
         if (this.hasRestrictedOutput) {

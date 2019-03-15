@@ -1,5 +1,5 @@
 
-import { DataEntity, Logger } from '@terascope/utils';
+import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
 import { WatcherConfig, Operation, SelectorConfig } from '../interfaces';
 import PhaseBase from './base';
@@ -15,7 +15,7 @@ export default class SelectionPhase extends PhaseBase {
         this.selectionPhase = selectorList.map(config => new Selector(config, this.opConfig.types));
     }
 
-    public run(data: DataEntity[], _logger: Logger): DataEntity[] {
+    public run(data: DataEntity[]): DataEntity[] {
         if (this.selectionPhase.length > 0) {
             const results = [];
             for (let i = 0; i < data.length; i += 1) {

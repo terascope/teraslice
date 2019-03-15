@@ -87,7 +87,6 @@ describe('phase manager', () => {
         await manager.init();
 
         const results = manager.run(data);
-        console.log('what are the results', results)
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ field1: 'hello', date });

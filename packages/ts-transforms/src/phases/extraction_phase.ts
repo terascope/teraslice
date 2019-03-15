@@ -1,5 +1,5 @@
 
-import { DataEntity, Logger } from '@terascope/utils';
+import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
 import { WatcherConfig, ExtractionProcessingDict } from '../interfaces';
 import PhaseBase from './base';
@@ -22,8 +22,8 @@ export default class ExtractionPhase extends PhaseBase {
 
         this.hasProcessing = Object.keys(this.phase).length > 0;
     }
-    // TODO: verify if we still need logger
-    run(dataArray: DataEntity[], _logger: Logger): DataEntity[] {
+
+    run(dataArray: DataEntity[]): DataEntity[] {
         if (!this.hasProcessing) return dataArray;
         const resultsList: DataEntity[] = [];
 
