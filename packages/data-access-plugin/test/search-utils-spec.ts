@@ -129,7 +129,7 @@ describe('Search Utils', () => {
             const types = utils.getTypesConfig({
                 // @ts-ignore
                 data_type: {
-                    typesConfig: {
+                    typeConfig: {
                         otherdate: 'date'
                     }
                 },

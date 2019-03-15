@@ -114,6 +114,7 @@ describe('Data Access Plugin', () => {
     let roleId: string;
     let spaceId: string;
     let viewId: string;
+    let dataTypeId: string;
 
     describe('when using the management api', () => {
         it('should be able to create a role', async () => {
@@ -136,16 +137,50 @@ describe('Data Access Plugin', () => {
             });
         });
 
+        it('should be able to create a data type', async () => {
+            const uri = formatBaseUri('/data-access');
+            const query = `
+                mutation {
+                    createDataType(dataType: {
+                        name: "Greeter",
+                        typeConfig: {
+                            created: "date",
+                            updated: "date"
+                        }
+                    }) {
+                        id,
+                        name,
+                        typeConfig
+                    }
+                }
+            `;
+
+            const { createDataType } = await request(uri, query);
+
+            dataTypeId = createDataType.id;
+            expect(dataTypeId).toBeTruthy();
+
+            expect(createDataType).toMatchObject({
+                name: 'Greeter',
+                typeConfig: {
+                    created: 'date',
+                    updated: 'date'
+                },
+            });
+        });
+
         it('should be able to create a view', async () => {
             expect(roleId).toBeTruthy();
+            expect(dataTypeId).toBeTruthy();
 
             const uri = formatBaseUri('/data-access');
             const query = `
                 mutation {
                     createView(view: {
                         name: "greetings-admin",
-                        data_type: "greetings-data-type",
-                        excludes: ["group"],
+                        data_type: "${dataTypeId}",
+                        excludes: ["created", "updated"],
+                        constraint: "group:a",
                         roles: ["${roleId}"]
                     }) {
                         id,
@@ -164,12 +199,13 @@ describe('Data Access Plugin', () => {
             expect(createView).toMatchObject({
                 name: 'greetings-admin',
                 roles: [roleId],
-                data_type: 'greetings-data-type',
+                data_type: dataTypeId,
             });
         });
 
         it('should be able to create a space', async () => {
             expect(roleId).toBeTruthy();
+            expect(dataTypeId).toBeTruthy();
             expect(viewId).toBeTruthy();
 
             const uri = formatBaseUri('/data-access');
@@ -178,7 +214,7 @@ describe('Data Access Plugin', () => {
                     createSpace(space: {
                         name: "Greetings Space",
                         endpoint: "greetings",
-                        data_type: "greetings-data-type",
+                        data_type: "${dataTypeId}",
                         roles: ["${roleId}"],
                         views: ["${viewId}"],
                         search_config: {
@@ -210,7 +246,7 @@ describe('Data Access Plugin', () => {
             expect(createSpace).toMatchObject({
                 name: 'Greetings Space',
                 endpoint: 'greetings',
-                data_type: 'greetings-data-type',
+                data_type: dataTypeId,
                 search_config: {
                     require_query: true,
                     sort_enabled: true,
@@ -286,6 +322,12 @@ describe('Data Access Plugin', () => {
                     findSpaces(query: "*") {
                         name
                     }
+                    findDataType(id: "${dataTypeId}") {
+                        name
+                    }
+                    findDataTypes(query: "*") {
+                        name
+                    }
                     findView(id: "${viewId}") {
                         excludes
                     }
@@ -323,8 +365,16 @@ describe('Data Access Plugin', () => {
                         name: 'Greetings Space'
                     }
                 ],
+                findDataType: {
+                    name: 'Greeter'
+                },
+                findDataTypes: [
+                    {
+                        name: 'Greeter'
+                    }
+                ],
                 findView: {
-                    excludes: ['group'],
+                    excludes: ['created', 'updated'],
                 },
                 findViews: [
                     {
@@ -431,6 +481,12 @@ describe('Data Access Plugin', () => {
                                 group: {
                                     type: 'keyword'
                                 },
+                                created: {
+                                    type: 'date'
+                                },
+                                updated: {
+                                    type: 'date'
+                                }
                             }
                         }
                     },
@@ -445,7 +501,9 @@ describe('Data Access Plugin', () => {
                 body: {
                     id: 1,
                     foo: 'bar',
-                    group: 'a'
+                    group: 'a',
+                    updated: new Date().toISOString(),
+                    created: new Date().toISOString()
                 },
             });
 
@@ -457,7 +515,9 @@ describe('Data Access Plugin', () => {
                 body: {
                     id: 2,
                     foo: 'bar',
-                    group: 'b'
+                    group: 'a',
+                    updated: new Date().toISOString(),
+                    created: new Date().toISOString()
                 },
             });
 
@@ -469,7 +529,23 @@ describe('Data Access Plugin', () => {
                 body: {
                     id: 3,
                     foo: 'baz',
-                    group: 'a'
+                    group: 'a',
+                    updated: new Date().toISOString(),
+                    created: new Date().toISOString()
+                },
+            });
+
+            await client.create({
+                index,
+                type: '_doc',
+                id: '4',
+                refresh: true,
+                body: {
+                    id: 4,
+                    foo: 'hidden-group',
+                    group: 'b',
+                    updated: new Date().toISOString(),
+                    created: new Date().toISOString()
                 },
             });
         });
@@ -505,10 +581,12 @@ describe('Data Access Plugin', () => {
                         {
                             id: 1,
                             foo: 'bar',
+                            group: 'a'
                         },
                         {
                             id: 2,
                             foo: 'bar',
+                            group: 'a'
                         }
                     ]
                 },
@@ -573,6 +651,7 @@ describe('Data Access Plugin', () => {
                         {
                             foo: 'baz',
                             id: 3,
+                            group: 'a',
                             _index: index,
                         }
                     ]

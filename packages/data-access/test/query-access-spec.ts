@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
-import { QueryAccess, ViewModel } from '../src';
+import { QueryAccess, ViewModel, DataTypeModel } from '../src';
 import { SearchParams } from 'elasticsearch';
 
 describe('QueryAccess', () => {
@@ -23,8 +23,17 @@ describe('QueryAccess', () => {
         created: new Date().toISOString(),
     };
 
+    const dataType: DataTypeModel = {
+        id: 'example-data-type',
+        name: 'ExampleType',
+        typeConfig: {},
+        updated: new Date().toISOString(),
+        created: new Date().toISOString(),
+    };
+
     const queryAccess = new QueryAccess({
         view,
+        data_type: dataType,
         space_id: 'example-space',
         user_id: 'example-user',
         role_id: 'example-role'

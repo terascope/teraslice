@@ -47,19 +47,19 @@ export function getSearchConfig(accessConfig: da.DataAccessConfig): da.SpaceSear
 }
 
 export function getTypesConfig(accessConfig: da.DataAccessConfig, searchConfig: da.SpaceSearchConfig): TypeConfig {
-    const typesConfig = get(accessConfig, 'data_type.typesConfig', {});
+    const typeConfig = get(accessConfig, 'data_type.typeConfig', {});
 
     const dateField = searchConfig.default_date_field;
-    if (dateField && !typesConfig[dateField]) {
-        typesConfig[dateField] = 'date';
+    if (dateField && !typeConfig[dateField]) {
+        typeConfig[dateField] = 'date';
     }
 
     const geoField = searchConfig.default_geo_field;
-    if (geoField && !typesConfig[geoField]) {
-        typesConfig[geoField] = 'geo';
+    if (geoField && !typeConfig[geoField]) {
+        typeConfig[geoField] = 'geo';
     }
 
-    return typesConfig;
+    return typeConfig;
 }
 
 export function getSearchParams(query: i.InputQuery, config: da.SpaceSearchConfig, types: TypeConfig = {}): SearchParams {

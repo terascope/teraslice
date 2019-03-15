@@ -23,7 +23,7 @@ Since this project is designed to replace the teraserver teranaut plugin, and th
  - Pre/Post process function will need to be written to use express middleware, docs comming soon.
  - The following configuration has been added to the space config:
       - `index` under `metadata.indexConfig.index`
-      - `typesConfig` for `xlucene-evaluator` under `metadata.typesConfig`
+      - `typeConfig` for `xlucene-evaluator` under `metadata.typeConfig`
       - `connection` has been added under `metadata.indexConfig.connection`
  - The following configuration has been moved to the view:
       - `allowed_fields` under `includes`

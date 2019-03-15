@@ -21,6 +21,9 @@ export class ACLManager {
         type DataAccessConfig {
             user_id: String!
             role_id: String!
+            search_config: SpaceSearchConfig
+            streaming_config: SpaceStreamingConfig
+            data_type: DataType!
             view: View!
         }
 
@@ -31,6 +34,9 @@ export class ACLManager {
 
             findRole(id: ID!): Role!
             findRoles(query: String): [Role]!
+
+            findDataType(id: ID!): DataType!
+            findDataTypes(query: String): [DataType]!
 
             findSpace(id: ID!): Space!
             findSpaces(query: String): [Space]!
@@ -52,6 +58,10 @@ export class ACLManager {
             updateRole(role: UpdateRoleInput!): Role!
             removeRole(id: ID!): Boolean!
 
+            createDataType(dataType: CreateDataTypeInput!): DataType!
+            updateDataType(dataType: UpdateDataTypeInput!): DataType!
+            removeDataType(id: ID!): Boolean!
+
             createView(view: CreateViewInput!): View!
             updateView(view: UpdateViewInput!): View!
             removeView(id: ID!): Boolean!
@@ -66,12 +76,14 @@ export class ACLManager {
     private readonly spaces: models.Spaces;
     private readonly users: models.Users;
     private readonly views: models.Views;
+    private readonly dataTypes: models.DataTypes;
 
     constructor(client: es.Client, config: ManagerConfig) {
         this.roles = new models.Roles(client, config);
         this.spaces = new models.Spaces(client, config);
         this.users = new models.Users(client, config);
         this.views = new models.Views(client, config);
+        this.dataTypes = new models.DataTypes(client, config);
     }
 
      /**
@@ -83,6 +95,7 @@ export class ACLManager {
             this.spaces.initialize(),
             this.users.initialize(),
             this.views.initialize(),
+            this.dataTypes.initialize(),
         ]);
     }
 
@@ -95,6 +108,7 @@ export class ACLManager {
             this.spaces.shutdown(),
             this.users.shutdown(),
             this.views.shutdown(),
+            this.dataTypes.shutdown(),
         ]);
     }
 
@@ -233,10 +247,59 @@ export class ACLManager {
     }
 
     /**
+     * Find data type by id
+    */
+    async findDataType(args: { id: string }) {
+        return this.dataTypes.findByAnyId(args.id);
+    }
+
+    /**
+     * Find data types by a given query
+    */
+    async findDataTypes(args: { query?: string } = {}) {
+        return this.dataTypes.find(args.query);
+    }
+
+    /**
+     * Create a data type
+    */
+    async createDataType(args: { dataType: models.CreateDataTypeInput }) {
+        await this._validateDataTypeInput(args.dataType);
+
+        return this.dataTypes.create(args.dataType);
+    }
+
+    /**
+     * Update a data type
+    */
+    async updateDataType(args: { dataType: models.UpdateDataTypeInput }) {
+        await this._validateDataTypeInput(args.dataType);
+
+        await this.dataTypes.update(args.dataType);
+        return this.dataTypes.findById(args.dataType.id);
+    }
+
+    /**
+     * Remove a data type, this is really dangerous since the there are views and spaces linked this
+     *
+     * @todo we should do addition removals
+    */
+    async removeDataType(args: { id: string }) {
+        const exists = await this.dataTypes.exists(args.id);
+        if (!exists) return false;
+
+        await Promise.all([
+            this.dataTypes.deleteById(args.id),
+        ]);
+
+        return true;
+    }
+
+    /**
      * Find space by id
     */
     async findSpace(args: { id: string }) {
-        return this.spaces.findById(args.id);
+        return this.spaces.findByAnyId(args.id);
     }
 
     /**
@@ -369,7 +432,10 @@ export class ACLManager {
             throw new TSError(msg, { statusCode: 403 });
         }
 
-        const view = await this.views.getViewForRole(space.views, user.role);
+        const [view, dataType] = await Promise.all([
+            this.views.getViewForRole(space.views, user.role),
+            this.dataTypes.findById(space.data_type)
+        ]);
 
         return {
             user_id: user.id,
@@ -377,6 +443,7 @@ export class ACLManager {
             space_id: space.id,
             search_config: space.search_config,
             streaming_config: space.streaming_config,
+            data_type: dataType,
             view
         };
     }
@@ -408,6 +475,7 @@ export class ACLManager {
     /**
      * @todo validate that any view being attached has a role that is set on the space
      * and that role only exists in one view
+     * @todo validate the data type matches the data type on the views
     */
     private async _validateSpaceInput(space: Partial<models.SpaceModel>) {
         if (!space) {
@@ -439,6 +507,15 @@ export class ACLManager {
                 });
             }
         }
+
+        if (space.data_type) {
+            const exists = await this.dataTypes.exists(space.data_type);
+            if (!exists) {
+                throw new TSError(`Missing data_type ${space.data_type}`, {
+                    statusCode: 422
+                });
+            }
+        }
     }
 
     private async _validateRoleInput(role: Partial<models.RoleModel>) {
@@ -447,7 +524,14 @@ export class ACLManager {
                 statusCode: 422
             });
         }
+    }
 
+    private async _validateDataTypeInput(dataType: Partial<models.DataTypeModel>) {
+        if (!dataType) {
+            throw new TSError('Invalid DataType Input', {
+                statusCode: 422
+            });
+        }
     }
 
     private async _validateViewInput(view: Partial<models.ViewModel>) {
@@ -467,6 +551,19 @@ export class ACLManager {
                     statusCode: 422
                 });
             }
+        }
+
+        if (view.data_type) {
+            const exists = await this.dataTypes.exists(view.data_type);
+            if (!exists) {
+                throw new TSError(`Missing data_type ${view.data_type}`, {
+                    statusCode: 422
+                });
+            }
+        } else {
+            throw new TSError('Missing data_type on view input', {
+                statusCode: 422
+            });
         }
     }
 }
@@ -504,6 +601,11 @@ export interface DataAccessConfig {
     streaming_config?: models.SpaceStreamingConfig;
 
     /**
+     * The data type associated with the view
+    */
+    data_type: models.DataTypeModel;
+
+    /**
      * The authenticated user's view of the space
     */
     view: models.ViewModel;
@@ -515,6 +617,8 @@ export const graphqlQueryMethods: (keyof ACLManager)[] = [
     'findUsers',
     'findRole',
     'findRoles',
+    'findDataType',
+    'findDataTypes',
     'findSpace',
     'findSpaces',
     'findView',
@@ -531,6 +635,9 @@ export const graphqlMutationMethods: (keyof ACLManager)[] = [
     'createRole',
     'updateRole',
     'removeRole',
+    'createDataType',
+    'updateDataType',
+    'removeDataType',
     'createSpace',
     'updateSpace',
     'removeSpace',
@@ -541,6 +648,7 @@ export const graphqlMutationMethods: (keyof ACLManager)[] = [
 
 export const graphqlSchemas = [
     ACLManager.GraphQLSchema,
+    models.DataTypes.GraphQLSchema,
     models.Roles.GraphQLSchema,
     models.Spaces.GraphQLSchema,
     models.Users.GraphQLSchema,

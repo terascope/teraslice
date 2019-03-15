@@ -221,12 +221,29 @@ describe('ACLManager', () => {
 
         describe('when moving to a different data_type', () => {
             let viewId: string;
+            let dataType1Id: string;
+            let dataType2Id: string;
 
             beforeAll(async () => {
+                const [dataType1, dataType2] = await Promise.all([
+                    await manager.createDataType({
+                        dataType: {
+                            name: 'DataType One'
+                        }
+                    }),
+                    await manager.createDataType({
+                        dataType: {
+                            name: 'DataType Two'
+                        }
+                    })
+                ]);
+                dataType1Id = dataType1.id;
+                dataType2Id = dataType2.id;
+
                 const view = await manager.createView({
                     view: {
                         name: 'The View',
-                        data_type: 'the-space-view',
+                        data_type: dataType1Id,
                         roles: [],
                     }
                 });
@@ -241,7 +258,7 @@ describe('ACLManager', () => {
                     await manager.updateView({
                         view: {
                             id: viewId,
-                            data_type: 'the-other-space-view',
+                            data_type: dataType2Id,
                             roles: []
                         }
                     });
@@ -291,8 +308,8 @@ describe('ACLManager', () => {
             let roleId: string;
             let userId: string;
             let viewId: string;
+            let dataTypeId: string;
             let apiToken: string;
-            const dataType = 'the-holy-data-type';
 
             beforeAll(async () => {
                 const role = await manager.createRole({
@@ -302,10 +319,21 @@ describe('ACLManager', () => {
                 });
                 roleId = role.id;
 
+                const dataType = await manager.createDataType({
+                    dataType: {
+                        name: 'MyExampleType',
+                        typeConfig: {
+                            created: 'date',
+                            location: 'geo'
+                        },
+                    },
+                });
+                dataTypeId = dataType.id;
+
                 const view = await manager.createView({
                     view: {
                         name: 'Example View',
-                        data_type: dataType,
+                        data_type: dataTypeId,
                         roles: [roleId],
                         includes: ['foo']
                     }
@@ -315,7 +343,7 @@ describe('ACLManager', () => {
                 const space = await manager.createSpace({
                     space: {
                         name: 'Example Space',
-                        data_type: dataType,
+                        data_type: dataTypeId,
                         endpoint: 'example-space',
                         roles: [roleId],
                         views: [viewId],
@@ -358,6 +386,13 @@ describe('ACLManager', () => {
                 })).resolves.toMatchObject({
                     user_id: userId,
                     role_id: roleId,
+                    data_type: {
+                        id: dataTypeId,
+                        typeConfig: {
+                            created: 'date',
+                            location: 'geo',
+                        }
+                    },
                     view: {
                         name: 'Example View',
                         roles: [roleId],
@@ -401,6 +436,11 @@ describe('ACLManager', () => {
 
             it('should be able to remove the space', () => {
                 return expect(manager.removeSpace({ id: spaceId }))
+                    .resolves.toBeTrue();
+            });
+
+            it('should be able to remove the data type', () => {
+                return expect(manager.removeDataType({ id: dataTypeId }))
                     .resolves.toBeTrue();
             });
         });
