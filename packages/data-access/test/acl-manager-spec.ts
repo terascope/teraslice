@@ -306,13 +306,7 @@ describe('ACLManager', () => {
                         name: 'Example View',
                         data_type: dataType,
                         roles: [roleId],
-                        includes: ['foo'],
-                        metadata: {
-                            a: 'b',
-                            example: {
-                                n: 1
-                            }
-                        }
+                        includes: ['foo']
                     }
                 });
                 viewId = view.id;
@@ -323,8 +317,10 @@ describe('ACLManager', () => {
                         data_type: dataType,
                         roles: [roleId],
                         views: [viewId],
-                        metadata: {
-                            example: true
+                        search_config: {
+                            index: 'hello',
+                            require_query: true,
+                            sort_dates_only: true,
                         },
                     }
                 });
@@ -364,18 +360,14 @@ describe('ACLManager', () => {
                         name: 'Example View',
                         roles: [roleId],
                         includes: ['foo'],
-                        excludes: [],
-                        metadata: {
-                            a: 'b',
-                            example: {
-                                n: 1
-                            }
-                        }
+                        excludes: []
                     },
                     space_id: spaceId,
-                    space_metadata: {
-                        example: true
-                    }
+                    search_config: {
+                        index: 'hello',
+                        require_query: true,
+                        sort_dates_only: true,
+                    },
                 });
             });
 

@@ -14,7 +14,6 @@ import schema from './schema';
 /**
  * A graphql api for managing data access
  *
- * @todo add permission rules to manage the ACL
  * @todo add session support
 */
 export default class ManagerPlugin {
@@ -127,7 +126,7 @@ export default class ManagerPlugin {
                     space,
                 });
 
-                const connection = get(accessConfig, 'space_metadata.indexConfig.connection', 'default');
+                const connection = get(accessConfig, 'search_config.connection', 'default');
                 const client = getESClient(this.context, connection);
 
                 const search = makeSearchFn(client, accessConfig, this.logger);

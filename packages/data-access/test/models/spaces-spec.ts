@@ -26,27 +26,25 @@ describe('Spaces', () => {
                 views: ['hello'],
                 roles: ['howdy'],
                 data_type: 'test-space-creation-data-type',
-                metadata: {
-                    a: {
-                        b: {
-                            c: 1
-                        }
-                    },
-                    example: true
-                }
+                search_config: {
+                    index: 'hello',
+                },
+                streaming_config: {}
             });
 
             expect(created).toHaveProperty('name');
             expect(created).toHaveProperty('views', ['hello']);
             expect(created).toHaveProperty('roles', ['howdy']);
-            expect(created).toHaveProperty('metadata', {
-                a: {
-                    b: {
-                        c: 1
-                    }
-                },
-                example: true
+            expect(created).toHaveProperty('search_config', {
+                index: 'hello',
+                connection: 'default',
+                max_query_size: 10000,
+                preserve_index_name: false,
+                require_query: false,
+                sort_dates_only: false,
             });
+
+            expect(created).toHaveProperty('streaming_config', {});
 
             const fetched = await spaces.findById(created.id);
 

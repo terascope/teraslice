@@ -20,7 +20,6 @@ export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
             includes: [String]
             constraint: String
             prevent_prefix_wildcard: Boolean
-            metadata: JSON
             created: String
             updated: String
         }
@@ -34,7 +33,6 @@ export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
             includes: [String]
             constraint: String
             prevent_prefix_wildcard: Boolean
-            metadata: JSON
         }
 
         input UpdateViewInput {
@@ -47,7 +45,6 @@ export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
             includes: [String]
             constraint: String
             prevent_prefix_wildcard: Boolean
-            metadata: JSON
         }
 
         input CreateDefaultViewInput {
@@ -56,7 +53,6 @@ export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
             includes: [String]
             constraint: String
             prevent_prefix_wildcard: Boolean
-            metadata: JSON
         }
     `;
 
@@ -129,11 +125,6 @@ export interface ViewModel extends BaseModel {
      * @example `foo:*bar`
     */
     prevent_prefix_wildcard?: boolean;
-
-    /**
-     * Any metadata for the view
-    */
-    metadata?: object;
 }
 
 export type CreateViewInput = CreateModel<ViewModel>;

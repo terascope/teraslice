@@ -2,8 +2,9 @@ import 'jest-extended';
 import { TSError, times, debugLogger } from '@terascope/utils';
 import { SearchResponse, SearchParams, Client } from 'elasticsearch';
 import * as utils from '../src/search/utils';
-import { SearchConfig, InputQuery } from '../src/search/interfaces';
-import { DataAccessConfig } from '@terascope/data-access';
+import { InputQuery } from '../src/search/interfaces';
+import { DataAccessConfig, SpaceSearchConfig } from '@terascope/data-access';
+import { TypeConfig } from 'xlucene-evaluator';
 
 const logger = debugLogger('search-utils-spec');
 
@@ -14,10 +15,8 @@ describe('Search Utils', () => {
                 // @ts-ignore
                 size: 'ugh' as number
             };
-            const config: SearchConfig = {
-                view: {},
-                space: { index: '' },
-                types: {}
+            const config: SpaceSearchConfig = {
+                index: ''
             };
 
             expect(() => {
@@ -27,12 +26,9 @@ describe('Search Utils', () => {
 
         it('should throw an error if given size too large', () => {
             const query: InputQuery = { size: 1000 };
-            const config: SearchConfig = {
-                view: {
-                    max_query_size: 500
-                },
-                space: { index: '' },
-                types: {}
+            const config: SpaceSearchConfig = {
+                index: '',
+                max_query_size: 500
             };
 
             expect(() => {
@@ -45,10 +41,8 @@ describe('Search Utils', () => {
                 // @ts-ignore
                 start: 'bah' as number
             };
-            const config: SearchConfig = {
-                view: {},
-                space: { index: '' },
-                types: {}
+            const config: SpaceSearchConfig = {
+                index: ''
             };
 
             expect(() => {
@@ -62,12 +56,9 @@ describe('Search Utils', () => {
                 q: null as string
             };
 
-            const config: SearchConfig = {
-                view: {
-                    require_query: true
-                },
-                space: { index: '' },
-                types: {}
+            const config: SpaceSearchConfig = {
+                index: '',
+                require_query: true
             };
 
             expect(() => {
@@ -80,12 +71,9 @@ describe('Search Utils', () => {
                 sort: 'example:ugh'
             };
 
-            const config: SearchConfig = {
-                view: {
-                    sort_enabled: true
-                },
-                space: { index: '' },
-                types: {}
+            const config: SpaceSearchConfig = {
+                index: '',
+                sort_enabled: true
             };
 
             expect(() => {
@@ -99,12 +87,9 @@ describe('Search Utils', () => {
                 sort: { example: true }
             };
 
-            const config: SearchConfig = {
-                view: {
-                    sort_enabled: true
-                },
-                space: { index: '' },
-                types: {}
+            const config: SpaceSearchConfig = {
+                index: '',
+                sort_enabled: true
             };
 
             expect(() => {
@@ -119,12 +104,9 @@ describe('Search Utils', () => {
                 geo_sort_unit: 'uhoh'
             };
 
-            const config: SearchConfig = {
-                view: {
-                    default_geo_field: 'hello'
-                },
-                space: { index: '' },
-                types: {}
+            const config: SpaceSearchConfig = {
+                index: '',
+                default_geo_field: 'hello'
             };
 
             expect(() => {
@@ -137,29 +119,24 @@ describe('Search Utils', () => {
                 sort: 'WrongDate:asc'
             };
 
-            const config: SearchConfig = {
-                view: {
-                    sort_enabled: true,
-                    default_date_field: 'somedate',
-                    sort_dates_only: true
-                },
-                space: { index: '' },
-                types: {}
+            const config: SpaceSearchConfig = {
+                index: '',
+                sort_enabled: true,
+                default_date_field: 'somedate',
+                sort_dates_only: true
             };
 
-            config.types = utils.getTypesConfig({
+            const types = utils.getTypesConfig({
                 // @ts-ignore
-                space: {
-                    metadata: {
-                        typesConfig: {
-                            otherdate: 'date'
-                        }
+                data_type: {
+                    typesConfig: {
+                        otherdate: 'date'
                     }
-                }
-            }, config.view);
+                },
+            }, config);
 
             expect(() => {
-                utils.getSearchParams(query, config);
+                utils.getSearchParams(query, config, types);
             }).toThrowWithMessage(TSError, 'Invalid sort parameter, sorting is currently only available for date fields, was given: "WrongDate:asc"');
         });
 
@@ -170,15 +147,10 @@ describe('Search Utils', () => {
                 start: 10,
             };
 
-            const config: SearchConfig = {
-                view: {
-                    sort_default: 'default:asc',
-                    sort_enabled: true,
-                },
-                space: {
-                    index: 'woot'
-                },
-                types: {}
+            const config: SpaceSearchConfig = {
+                sort_default: 'default:asc',
+                sort_enabled: true,
+                index: 'woot'
             };
 
             const params = utils.getSearchParams(query, config);
@@ -203,21 +175,18 @@ describe('Search Utils', () => {
                 fields: 'one, tWo,Three ',
             };
 
-            const config: SearchConfig = {
-                view: {
-                    sort_enabled: true,
-                    sort_dates_only: true,
-                    max_query_size: 1000,
-                },
-                space: {
-                    index: 'woot'
-                },
-                types: {
-                    created: 'date'
-                }
+            const config: SpaceSearchConfig = {
+                sort_enabled: true,
+                sort_dates_only: true,
+                max_query_size: 1000,
+                index: 'woot'
             };
 
-            const params = utils.getSearchParams(query, config);
+            const types: TypeConfig = {
+                created: 'date'
+            };
+
+            const params = utils.getSearchParams(query, config, types);
 
             expect(params).toEqual({
                 body: {},
@@ -239,19 +208,16 @@ describe('Search Utils', () => {
                 geo_sort_unit: 'm'
             };
 
-            const config: SearchConfig = {
-                view: {
-                    default_geo_field: 'example_location'
-                },
-                space: {
-                    index: 'woot'
-                },
-                types: {
-                    created: 'date'
-                }
+            const config: SpaceSearchConfig = {
+                default_geo_field: 'example_location',
+                index: 'woot',
             };
 
-            const params = utils.getSearchParams(query, config);
+            const types: TypeConfig = {
+                created: 'date'
+            };
+
+            const params = utils.getSearchParams(query, config, types);
 
             expect(params).toEqual({
                 body: {
@@ -285,7 +251,7 @@ describe('Search Utils', () => {
             try {
                 await utils.makeSearchFn(client, accessConfig, logger);
             } catch (err) {
-                expect(err.toString()).toEqual('TSError: Search is not configured correctly');
+                expect(err.toString()).toEqual('TSError: Search is not configured correctly for search');
             }
         });
 
@@ -301,7 +267,7 @@ describe('Search Utils', () => {
             try {
                 await utils.makeSearchFn(client, accessConfig, logger);
             } catch (err) {
-                expect(err.toString()).toEqual('TSError: Search is not configured correctly');
+                expect(err.toString()).toEqual('TSError: Search is not configured correctly for search');
             }
         });
     });
@@ -338,12 +304,9 @@ describe('Search Utils', () => {
                 }
             };
 
-            const config: SearchConfig = {
-                space: { index: 'example' },
-                types: {},
-                view: {
-                    sort_enabled: true
-                },
+            const config: SpaceSearchConfig = {
+                index: 'example',
+                sort_enabled: true
             };
 
             const query = {
@@ -382,13 +345,10 @@ describe('Search Utils', () => {
                 }
             };
 
-            const config: SearchConfig = {
-                space: { index: 'example' },
-                types: {},
-                view: {
-                    preserve_index_name: true,
-                    sort_enabled: false
-                },
+            const config: SpaceSearchConfig = {
+                index: 'example',
+                preserve_index_name: true,
+                sort_enabled: false
             };
 
             const query = {

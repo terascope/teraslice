@@ -146,18 +146,11 @@ describe('Data Access Plugin', () => {
                         name: "greetings-admin",
                         data_type: "greetings-data-type",
                         excludes: ["group"],
-                        roles: ["${roleId}"],
-                        metadata: {
-                            searchConfig: {
-                                require_query: true,
-                                sort_enabled: true
-                            }
-                        }
+                        roles: ["${roleId}"]
                     }) {
                         id,
                         name,
                         roles,
-                        metadata,
                         data_type
                     }
                 }
@@ -172,12 +165,6 @@ describe('Data Access Plugin', () => {
                 name: 'greetings-admin',
                 roles: [roleId],
                 data_type: 'greetings-data-type',
-                metadata: {
-                    searchConfig: {
-                        require_query: true,
-                        sort_enabled: true
-                    }
-                },
             });
         });
 
@@ -193,16 +180,21 @@ describe('Data Access Plugin', () => {
                         data_type: "greetings-data-type",
                         roles: ["${roleId}"],
                         views: ["${viewId}"],
-                        metadata: {
-                            indexConfig: {
-                                index: "hello-space",
-                                connection: "other"
-                            }
+                        search_config: {
+                            index: "hello-space",
+                            connection: "other",
+                            require_query: true,
+                            sort_enabled: true
                         }
                     }) {
                         id,
                         name,
-                        metadata,
+                        search_config {
+                            index,
+                            connection,
+                            require_query,
+                            sort_enabled
+                        }
                         data_type
                     }
                 }
@@ -216,10 +208,11 @@ describe('Data Access Plugin', () => {
             expect(createSpace).toMatchObject({
                 name: 'greetings',
                 data_type: 'greetings-data-type',
-                metadata: {
-                    indexConfig: {
-                        index: 'hello-space'
-                    }
+                search_config: {
+                    require_query: true,
+                    sort_enabled: true,
+                    index: 'hello-space',
+                    connection: 'other'
                 }
             });
         });
@@ -521,28 +514,36 @@ describe('Data Access Plugin', () => {
         });
 
         describe('when perserve index is set to true', () => {
-            it('should be able to update the default view', async () => {
+            it('should be able to update the space', async () => {
+                expect(spaceId).toBeTruthy();
+
                 const uri = formatBaseUri('/data-access');
                 const query = `
                     mutation {
-                        updateView(view: {
-                            id: "${viewId}",
-                            metadata: {
-                                searchConfig: {
-                                    require_query: true,
-                                    sort_enabled: true,
-                                    preserve_index_name: true
-                                }
+                        updateSpace(space: {
+                            id: "${spaceId}",
+                            search_config: {
+                                index: "hello-space",
+                                connection: "default",
+                                require_query: true,
+                                sort_enabled: true
+                                preserve_index_name: true
                             }
                         }) {
-                            id
+                            id,
+                            search_config {
+                               preserve_index_name
+                            }
                         }
                     }
                 `;
 
                 expect(await request(uri, query)).toEqual({
-                    updateView: {
-                        id: viewId,
+                    updateSpace: {
+                        id: spaceId,
+                        search_config: {
+                            preserve_index_name: true
+                        }
                     }
                 });
             });

@@ -26,7 +26,6 @@ describe('QueryAccess', () => {
     const queryAccess = new QueryAccess({
         view,
         space_id: 'example-space',
-        space_metadata: {},
         user_id: 'example-user',
         role_id: 'example-role'
     });

@@ -8,16 +8,13 @@ import { ManagerConfig } from './interfaces';
  * high level abstraction of Spaces, Users, Roles, and Views
  *
  * @todo add multi-tenant support
- * @todo add data-type
+ * @todo add data_type
  * @todo add superadmin/admin/user user type
  * @todo only superadmins can write to to everything
  * @todo an admin should only have access its "client_id"
  * @todo an admin should be able to view api_token without knowing the password
  * @todo an admin can't write to a space, a datatype, or another client
  * @todo authenticated users can query and update their user
- * @todo add a datatype model
- * @todo all metadata should live on the space
- * @todo a view should not have a space reference
 */
 export class ACLManager {
     static GraphQLSchema = `
@@ -378,7 +375,8 @@ export class ACLManager {
             user_id: user.id,
             role_id: role.id,
             space_id: space.id,
-            space_metadata: space.metadata || {},
+            search_config: space.search_config,
+            streaming_config: space.streaming_config,
             view
         };
     }
@@ -496,9 +494,14 @@ export interface DataAccessConfig {
     space_id: string;
 
     /**
-     * The space metadata
+     * The space's search configuration
     */
-    space_metadata: any;
+    search_config?: models.SpaceSearchConfig;
+
+    /**
+     * The space's streaming configuration
+    */
+    streaming_config?: models.SpaceStreamingConfig;
 
     /**
      * The authenticated user's view of the space

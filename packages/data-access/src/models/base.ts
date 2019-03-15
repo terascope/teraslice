@@ -1,12 +1,14 @@
 import * as es from 'elasticsearch';
-import { IndexStore, IndexConfig } from 'elasticsearch-store';
 import * as ts from '@terascope/utils';
-import * as utils from '../utils';
+import { IndexStore, IndexConfig } from 'elasticsearch-store';
 import { addDefaultMapping, addDefaultSchema } from './config/base';
 import { ManagerConfig } from '../interfaces';
+import * as utils from '../utils';
 
 /**
  * A base class for handling the different ACL models
+ *
+ * @todo migrate some this code into IndexStore
 */
 export class Base<T extends BaseModel, C extends object = T, U extends object = T> {
     readonly store: IndexStore<T>;

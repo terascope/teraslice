@@ -2,18 +2,19 @@ import get from 'lodash.get';
 import * as ts from '@terascope/utils';
 import { parseGeoPoint, TypeConfig, GEO_DISTANCE_UNITS } from 'xlucene-evaluator';
 import { SearchParams, Client, SearchResponse } from 'elasticsearch';
-import { QueryAccess, DataAccessConfig } from '@terascope/data-access';
+import * as da from '@terascope/data-access';
 import * as i from './interfaces';
 
 /**
  * Search elasticsearch in a teraserver backwards compatible way
  */
-export function makeSearchFn(client: Client, accessConfig: DataAccessConfig, logger: ts.Logger): i.SearchFn {
+export function makeSearchFn(client: Client, accessConfig: da.DataAccessConfig, logger: ts.Logger): i.SearchFn {
     const config = getSearchConfig(accessConfig);
-    const queryAccess = new QueryAccess(accessConfig, config.types);
+    const types = getTypesConfig(accessConfig, config);
+    const queryAccess = new da.QueryAccess(accessConfig, types);
 
     return async (query: i.InputQuery) => {
-        const params = getSearchParams(query, config);
+        const params = getSearchParams(query, config, types);
         const { q = '' } = params;
 
         const esQuery = queryAccess.restrictESQuery(q, params);
@@ -27,51 +28,33 @@ export function makeSearchFn(client: Client, accessConfig: DataAccessConfig, log
     };
 }
 
-export function getSearchConfig(accessConfig: DataAccessConfig): i.SearchConfig {
-    const space = getSpaceConfig(accessConfig);
-    const view = getViewConfig(accessConfig);
-    const types = getTypesConfig(accessConfig, view);
+export function getSearchConfig(accessConfig: da.DataAccessConfig): da.SpaceSearchConfig {
+    const searchConfig = accessConfig.search_config;
 
-    return {
-        space,
-        view,
-        types,
-    };
-}
-
-function getViewConfig(accessConfig: DataAccessConfig): i.SearchViewConfig {
-    const viewConfig: i.SearchViewConfig = get(accessConfig, 'view.metadata.searchConfig', {});
-
-    if (viewConfig.default_date_field) {
-        viewConfig.default_date_field = ts.trimAndToLower(viewConfig.default_date_field);
+    if (!searchConfig || ts.isEmpty(searchConfig) || !searchConfig.index) {
+        throw new ts.TSError('Search is not configured correctly for search');
     }
 
-    if (viewConfig.default_geo_field) {
-        viewConfig.default_geo_field = ts.trimAndToLower(viewConfig.default_geo_field);
+    if (searchConfig.default_date_field) {
+        searchConfig.default_date_field = ts.trimAndToLower(searchConfig.default_date_field);
     }
 
-    return viewConfig;
-}
-
-function getSpaceConfig(accessConfig: DataAccessConfig): i.SearchSpaceConfig {
-    const spaceConfig: i.SearchSpaceConfig = get(accessConfig, 'space_metadata.indexConfig', {});
-
-    if (ts.isEmpty(spaceConfig.index) || !spaceConfig.index) {
-        throw new ts.TSError('Search is not configured correctly');
+    if (searchConfig.default_geo_field) {
+        searchConfig.default_geo_field = ts.trimAndToLower(searchConfig.default_geo_field);
     }
 
-    return spaceConfig;
+    return searchConfig;
 }
 
-export function getTypesConfig(accessConfig: DataAccessConfig, viewConfig: i.SearchViewConfig): TypeConfig {
-    const typesConfig = get(accessConfig, 'space.metadata.typesConfig', {});
+export function getTypesConfig(accessConfig: da.DataAccessConfig, searchConfig: da.SpaceSearchConfig): TypeConfig {
+    const typesConfig = get(accessConfig, 'data_type.typesConfig', {});
 
-    const dateField = viewConfig.default_date_field;
+    const dateField = searchConfig.default_date_field;
     if (dateField && !typesConfig[dateField]) {
         typesConfig[dateField] = 'date';
     }
 
-    const geoField = viewConfig.default_geo_field;
+    const geoField = searchConfig.default_geo_field;
     if (geoField && !typesConfig[geoField]) {
         typesConfig[geoField] = 'geo';
     }
@@ -79,13 +62,13 @@ export function getTypesConfig(accessConfig: DataAccessConfig, viewConfig: i.Sea
     return typesConfig;
 }
 
-export function getSearchParams(query: i.InputQuery, config: i.SearchConfig): SearchParams {
+export function getSearchParams(query: i.InputQuery, config: da.SpaceSearchConfig, types: TypeConfig = {}): SearchParams {
     const params: SearchParams = {
         body: {}
     };
 
     const q: string = getFromQuery(query, 'q', '');
-    if (!q && config.view.require_query) {
+    if (!q && config.require_query) {
         throw new ts.TSError(...validationErr('q', 'must not be empty', query));
     }
 
@@ -94,7 +77,7 @@ export function getSearchParams(query: i.InputQuery, config: i.SearchConfig): Se
         throw new ts.TSError(...validationErr('size', 'must be a valid number', query));
     }
 
-    const maxQuerySize: number = ts.toInteger(config.view.max_query_size) || 10000;
+    const maxQuerySize: number = ts.toInteger(config.max_query_size) || 10000;
     if (size > maxQuerySize) {
         throw new ts.TSError(...validationErr('size', `must be less than ${maxQuerySize}`, query));
     }
@@ -107,7 +90,7 @@ export function getSearchParams(query: i.InputQuery, config: i.SearchConfig): Se
     }
 
     let sort: string = getFromQuery(query, 'sort');
-    if (sort && config.view.sort_enabled) {
+    if (sort && config.sort_enabled) {
         if (!ts.isString(sort)) {
             throw new ts.TSError(...validationErr('sort', 'must be a valid string', query));
         }
@@ -117,13 +100,13 @@ export function getSearchParams(query: i.InputQuery, config: i.SearchConfig): Se
         direction = ts.trimAndToLower(direction);
 
         const dateFields: string[] = [];
-        for (const [key, val] of Object.entries(config.types)) {
+        for (const [key, val] of Object.entries(types)) {
             if (val === 'date') {
                 dateFields.push(key);
             }
         }
 
-        if (config.view.sort_dates_only && !dateFields.includes(field)) {
+        if (config.sort_dates_only && !dateFields.includes(field)) {
             throw new ts.TSError(...validationErr('sort', 'sorting is currently only available for date fields', query));
         }
 
@@ -134,8 +117,8 @@ export function getSearchParams(query: i.InputQuery, config: i.SearchConfig): Se
         sort = [field, direction].join(':');
     }
 
-    if (!sort && config.view.sort_default) {
-        sort = config.view.sort_default;
+    if (!sort && config.sort_default) {
+        sort = config.sort_default;
     }
 
     const fields = getFromQuery(query, 'fields');
@@ -146,7 +129,7 @@ export function getSearchParams(query: i.InputQuery, config: i.SearchConfig): Se
         );
     }
 
-    const geoField = config.view.default_geo_field;
+    const geoField = config.default_geo_field;
 
     if (geoField) {
         const geoSortPoint = getFromQuery(query, 'geo_sort_point');
@@ -171,7 +154,7 @@ export function getSearchParams(query: i.InputQuery, config: i.SearchConfig): Se
     params.size = size;
     params.from = start;
     params.sort = sort;
-    params.index = config.space.index;
+    params.index = config.index;
     params.ignoreUnavailable = true;
     return ts.withoutNil(params);
 }
@@ -188,7 +171,7 @@ export function getGeoSort(field: string, point: string, order: i.SortOrder, uni
 }
 
 /** @todo we should add index context to the error */
-export function getSearchResponse(response: SearchResponse<any>, config: i.SearchConfig, query: i.InputQuery, params: SearchParams) {
+export function getSearchResponse(response: SearchResponse<any>, config: da.SpaceSearchConfig, query: i.InputQuery, params: SearchParams) {
     // I don't think this property actually exists
     const error = get(response, 'error');
     if (error) {
@@ -206,7 +189,7 @@ export function getSearchResponse(response: SearchResponse<any>, config: i.Searc
     const total = response.hits.total;
     let returning = total;
 
-    if (config.view.preserve_index_name) {
+    if (config.preserve_index_name) {
         results = response.hits.hits.map((data) => {
             const doc = data._source;
             doc._index = data._index;
@@ -222,7 +205,7 @@ export function getSearchResponse(response: SearchResponse<any>, config: i.Searc
         info += ` Returning ${returning}.`;
     }
 
-    if (getFromQuery(query, 'sort') && !config.view.sort_enabled) {
+    if (getFromQuery(query, 'sort') && !config.sort_enabled) {
         info += ' No sorting available.';
     }
 
