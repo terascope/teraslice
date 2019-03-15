@@ -279,10 +279,13 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
 
             switch (method) {
                 case 'trim':
-                    record[field] = utils.trim(record[field]);
+                    record[field] = ts.trim(record[field]);
                     break;
-                case 'trimAndLower':
-                    record[field] = utils.trimAndLower(record[field]);
+                case 'trimAndToLower':
+                    record[field] = ts.trimAndToLower(record[field]);
+                    break;
+                case 'toSafeString':
+                    record[field] = ts.toSafeString(record[field]);
                     break;
                 default:
                     continue;
@@ -324,7 +327,7 @@ export type FieldMap<T> = {
 };
 
 export type SanitizeFields = {
-    [field: string]: 'trimAndLower'|'trim';
+    [field: string]: 'trimAndToLower'|'trim'|'toSafeString';
 };
 
 export type BaseConfig = ModelConfig<BaseModel> & ManagerConfig;

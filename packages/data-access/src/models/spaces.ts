@@ -6,8 +6,6 @@ import { Base, BaseModel, CreateModel, UpdateModel } from './base';
 
 /**
  * Manager for Spaces
- *
- * @todo there should some kind of human id
 */
 export class Spaces extends Base<SpaceModel, CreateSpaceInput, UpdateSpaceInput> {
     static ModelConfig = spacesConfig;
@@ -15,6 +13,7 @@ export class Spaces extends Base<SpaceModel, CreateSpaceInput, UpdateSpaceInput>
         type Space {
             id: ID!
             name: String
+            endpoint: String
             description: String
             data_type: String
             views: [String]
@@ -63,6 +62,7 @@ export class Spaces extends Base<SpaceModel, CreateSpaceInput, UpdateSpaceInput>
 
         input CreateSpaceInput {
             name: String!
+            endpoint: String!
             description: String
             data_type: String!
             views: [String]
@@ -74,6 +74,7 @@ export class Spaces extends Base<SpaceModel, CreateSpaceInput, UpdateSpaceInput>
         input UpdateSpaceInput {
             id: ID!
             name: String
+            endpoint: String
             description: String
             data_type: String
             views: [String]
@@ -123,9 +124,14 @@ export class Spaces extends Base<SpaceModel, CreateSpaceInput, UpdateSpaceInput>
 */
 export interface SpaceModel extends BaseModel {
     /**
-     * Name of the Space, the name must be unique
+     * Name of the Space
     */
     name: string;
+
+    /**
+     * A URL friendly name for endpoint that is associated with the space, this must be unique
+    */
+    endpoint: string;
 
     /**
      * Description of the Role

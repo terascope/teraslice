@@ -1,6 +1,6 @@
 import { Express } from 'express';
 import { Client } from 'elasticsearch';
-import { Logger } from '@terascope/utils';
+import { Logger, toBoolean } from '@terascope/utils';
 import { DataAccessConfig } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { SearchFn } from './interfaces';
@@ -45,10 +45,9 @@ export default class SearchPlugin {
                     .status(200)
                     .set('Content-type', 'application/json; charset=utf-8');
 
-                const { pretty } = req.query;
-                const boolValues = [1, true, '1', 'true', 'True', 'TRUE', 'yes'];
+                const pretty = toBoolean(req.query.pretty);
 
-                if (boolValues.includes(pretty)) {
+                if (pretty) {
                     res.send(JSON.stringify(result, null, 2));
                 } else {
                     res.json(result);

@@ -46,15 +46,6 @@ export function mergeDefaults(source: object, from: object = {}) {
     return output;
 }
 
-export function trimAndLower(input: string): string {
-    return trim(input).toLowerCase();
-}
-
-export function trim(input: string): string {
-    if (!input || !ts.isString(input)) return '';
-    return input.trim();
-}
-
 export function toInstanceName(name: string): string {
-    return ts.firstToUpper(trim(name).replace(/s$/, ''));
+    return ts.firstToUpper(ts.trim(name).replace(/s$/, ''));
 }

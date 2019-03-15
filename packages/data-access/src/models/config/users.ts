@@ -98,7 +98,7 @@ const config: ModelConfig<PrivateUserModel> = {
     },
     uniqueFields: ['username', 'api_token'],
     sanitizeFields: {
-        email: 'trimAndLower',
+        email: 'trimAndToLower',
         username: 'trim',
     },
     strictMode: false,

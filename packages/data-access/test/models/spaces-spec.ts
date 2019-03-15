@@ -23,6 +23,7 @@ describe('Spaces', () => {
         it('should be able to create a space', async () => {
             const created = await spaces.create({
                 name: 'hello',
+                endpoint: '-HOWDY# 123',
                 views: ['hello'],
                 roles: ['howdy'],
                 data_type: 'test-space-creation-data-type',
@@ -33,6 +34,7 @@ describe('Spaces', () => {
             });
 
             expect(created).toHaveProperty('name');
+            expect(created).toHaveProperty('endpoint', 'howdy-123');
             expect(created).toHaveProperty('views', ['hello']);
             expect(created).toHaveProperty('roles', ['howdy']);
             expect(created).toHaveProperty('search_config', {
@@ -44,7 +46,9 @@ describe('Spaces', () => {
                 sort_dates_only: false,
             });
 
-            expect(created).toHaveProperty('streaming_config', {});
+            expect(created).toHaveProperty('streaming_config', {
+                connection: 'default'
+            });
 
             const fetched = await spaces.findById(created.id);
 

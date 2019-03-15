@@ -15,6 +15,15 @@ const config: ModelConfig<SpaceModel> = {
                     }
                 },
             },
+            endpoint: {
+                type: 'keyword',
+                fields: {
+                    text: {
+                        type: 'text',
+                        analyzer: 'lowercase_keyword_analyzer'
+                    }
+                },
+            },
             views: {
                 type: 'keyword'
             },
@@ -35,6 +44,9 @@ const config: ModelConfig<SpaceModel> = {
     schema: {
         properties: {
             name: {
+                type: 'string'
+            },
+            endpoint: {
                 type: 'string'
             },
             description: {
@@ -116,7 +128,10 @@ const config: ModelConfig<SpaceModel> = {
         },
         required: ['name', 'data_type']
     },
-    uniqueFields: ['name'],
+    uniqueFields: ['endpoint'],
+    sanitizeFields: {
+        endpoint: 'toSafeString'
+    }
 };
 
 export = config;

@@ -176,7 +176,8 @@ describe('Data Access Plugin', () => {
             const query = `
                 mutation {
                     createSpace(space: {
-                        name: "greetings",
+                        name: "Greetings Space",
+                        endpoint: "greetings",
                         data_type: "greetings-data-type",
                         roles: ["${roleId}"],
                         views: ["${viewId}"],
@@ -189,6 +190,7 @@ describe('Data Access Plugin', () => {
                     }) {
                         id,
                         name,
+                        endpoint,
                         search_config {
                             index,
                             connection,
@@ -206,7 +208,8 @@ describe('Data Access Plugin', () => {
             expect(spaceId).toBeTruthy();
 
             expect(createSpace).toMatchObject({
-                name: 'greetings',
+                name: 'Greetings Space',
+                endpoint: 'greetings',
                 data_type: 'greetings-data-type',
                 search_config: {
                     require_query: true,
@@ -317,7 +320,7 @@ describe('Data Access Plugin', () => {
                 },
                 findSpaces: [
                     {
-                        name: 'greetings'
+                        name: 'Greetings Space'
                     }
                 ],
                 findView: {

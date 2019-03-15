@@ -141,6 +141,7 @@ describe('ACLManager', () => {
                 await manager.createSpace({
                     space: {
                         name: 'uh-oh',
+                        endpoint: 'uh-oh',
                         data_type: 'hello',
                         views: [],
                         roles: ['non-existant-role-id'],
@@ -315,6 +316,7 @@ describe('ACLManager', () => {
                     space: {
                         name: 'Example Space',
                         data_type: dataType,
+                        endpoint: 'example-space',
                         roles: [roleId],
                         views: [viewId],
                         search_config: {
@@ -371,10 +373,10 @@ describe('ACLManager', () => {
                 });
             });
 
-            it('should be able to get config by space name', () => {
+            it('should be able to get config by space endpoint', () => {
                 return expect(manager.getViewForSpace({
                     api_token: apiToken,
-                    space: 'Example Space'
+                    space: 'example-space'
                 })).resolves.toMatchObject({
                     space_id: spaceId,
                     user_id: userId,
