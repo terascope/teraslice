@@ -25,6 +25,10 @@ data_access:
   connection: 'default'
   # run without authentication for data access management
   bootstrap_mode: true
+teraserver:
+  plugins:
+    names:
+        - '@terascope/data-access-plugin'
 terafoundation:
 # ...
 ```
