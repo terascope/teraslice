@@ -12,6 +12,12 @@ export class Users extends base.Base<PrivateUserModel, CreatePrivateUserInput, U
     static PrivateFields: string[] = ['api_token', 'salt', 'hash'];
     static ModelConfig = usersConfig;
     static GraphQLSchema = `
+        enum UserType {
+            USER
+            ADMIN
+            SUPERADMIN
+        }
+
         type User {
             id: ID!
             client_id: Int
@@ -20,6 +26,7 @@ export class Users extends base.Base<PrivateUserModel, CreatePrivateUserInput, U
             lastname: String
             email: String
             role: String
+            type: UserType
             api_token: String
             hash: String
             salt: String
@@ -33,6 +40,7 @@ export class Users extends base.Base<PrivateUserModel, CreatePrivateUserInput, U
             firstname: String
             lastname: String
             email: String
+            type: UserType
             role: String
         }
 
@@ -43,6 +51,7 @@ export class Users extends base.Base<PrivateUserModel, CreatePrivateUserInput, U
             firstname: String
             lastname: String
             email: String
+            type: UserType
             role: String
         }
     `;
@@ -239,7 +248,7 @@ export class Users extends base.Base<PrivateUserModel, CreatePrivateUserInput, U
  * The definition of a User model
 */
 export interface UserModel extends base.BaseModel {
-/**
+    /**
      * The ID for the client
     */
     client_id?: number;
@@ -271,10 +280,13 @@ export interface UserModel extends base.BaseModel {
 
     /**
      * The user's type
-     * @todo
+     *
+     * @default "User"
     */
-//    type?: 'SUPERADMIN'|'ADMIN'|'USER'
+    type?: UserType;
 }
+
+export type UserType = 'SUPERADMIN'|'ADMIN'|'USER';
 
 export interface PrivateUserModel extends UserModel {
     /**

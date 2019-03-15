@@ -269,12 +269,14 @@ describe('Data Access Plugin', () => {
                         email: "hi@example.com",
                         role: "${roleId}",
                         client_id: 1,
+                        type: SUPERADMIN
                     }, password: "greeting") {
                         id,
                         username,
                         email,
                         api_token,
-                        role
+                        role,
+                        type
                     }
                 }
             `;
@@ -282,14 +284,15 @@ describe('Data Access Plugin', () => {
             const { createUser } = await request(uri, query);
 
             userId = createUser.id;
-            apiToken = createUser.api_token;
             expect(userId).toBeTruthy();
+            apiToken = createUser.api_token;
             expect(apiToken).toBeTruthy();
 
             expect(createUser).toMatchObject({
                 username: 'hello',
                 email: 'hi@example.com',
-                role: roleId
+                role: roleId,
+                type: 'SUPERADMIN'
             });
         });
 

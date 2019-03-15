@@ -40,6 +40,7 @@ describe('Users', () => {
             expect(created).toHaveProperty('api_token');
             expect(created).toHaveProperty('hash');
             expect(created).toHaveProperty('salt');
+            expect(created).toHaveProperty('type', 'USER');
         });
 
         it('should be able fetch the user by id', async () => {

@@ -45,6 +45,9 @@ const config: ModelConfig<PrivateUserModel> = {
                     }
                 }
             },
+            type: {
+                type: 'keyword',
+            },
             api_token: {
                 type: 'keyword'
             },
@@ -79,6 +82,15 @@ const config: ModelConfig<PrivateUserModel> = {
             },
             role: {
                 type: 'string'
+            },
+            type: {
+                type: 'string',
+                default: 'USER',
+                enum: [
+                    'USER',
+                    'ADMIN',
+                    'SUPERADMIN'
+                ]
             },
             api_token: {
                 type: 'string'

@@ -172,53 +172,6 @@ describe('ACLManager', () => {
             roles.push(...results.map((role) => role.id));
         });
 
-        // FIXME OR REMOVEME
-        // it('should only allow unique roles for the space', async () => {
-        //     expect.hasAssertions();
-
-        //     await manager.createView({
-        //         view: {
-        //             name: 'Some View',
-        //             roles: [roles[0]],
-        //             data_type: 'some-data-type'
-        //         }
-        //     });
-
-        //     try {
-        //         await manager.createView({
-        //             view: {
-        //                 name: 'Double Role View',
-        //                 roles: [roles[0], roles[1]],
-        //                 data_type: 'some-data-type'
-        //             }
-        //         });
-        //     } catch (err) {
-        //         expect(err.message).toEqual('A role can only exist in a view once per data type');
-        //         expect(err).toBeInstanceOf(TSError);
-        //         expect(err.statusCode).toEqual(422);
-        //     }
-        // });
-
-        // FIXME or REMOVEME
-        // it('should not allow another view to be updated with the same role', async () => {
-        //     expect.hasAssertions();
-
-        //     try {
-        //         await manager.updateView({
-        //             view: {
-        //                 id: viewIds[0],
-        //                 name: 'DFG View',
-        //                 space: spaceId,
-        //                 roles: [roles[0], roles[1]]
-        //             }
-        //         });
-        //     } catch (err) {
-        //         expect(err.message).toEqual('A role can only exist in a view once per data type');
-        //         expect(err).toBeInstanceOf(TSError);
-        //         expect(err.statusCode).toEqual(422);
-        //     }
-        // });
-
         describe('when moving to a different data_type', () => {
             let viewId: string;
             let dataType1Id: string;

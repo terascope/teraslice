@@ -8,7 +8,6 @@ import { ManagerConfig } from './interfaces';
  * high level abstraction of Spaces, Users, Roles, and Views
  *
  * @todo add multi-tenant support
- * @todo add data_type
  * @todo add superadmin/admin/user user type
  * @todo only superadmins can write to to everything
  * @todo an admin should only have access its "client_id"
