@@ -100,7 +100,7 @@ describe('k8sResource', () => {
                         - west`));
         });
 
-        xit('has valid resource object with affinity when execution has one preferred target', () => {
+        it('has valid resource object with affinity when execution has one preferred target', () => {
             execution.targets = [{ key: 'zone', value: 'west', constraint: 'preferred' }];
             const kr = new K8sResource(
                 'deployments', 'worker', terasliceConfig, execution

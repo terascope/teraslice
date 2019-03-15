@@ -174,19 +174,21 @@ class K8sResource {
                 if (target.constraint === 'required' || !_.has(target, 'constraint')) {
                     this._setTargetRequired(target);
                 }
+
+                if (target.constraint === 'preferred') {
+                    this._setTargetPreferred(target);
+                }
             });
         }
     }
 
     _setTargetRequired(target) {
-        if (!_.has(this.resource, 'spec.template.spec.affinity')) {
-            this.resource.spec.template.spec.affinity = {
-                nodeAffinity: {
-                    requiredDuringSchedulingIgnoredDuringExecution: {
-                        nodeSelectorTerms: [{ matchExpressions: [] }]
-                    }
-                }
+        const affinityKey = 'spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution';
+        if (!_.has(this.resource, affinityKey)) {
+            const nodeSelectorObj = {
+                nodeSelectorTerms: [{ matchExpressions: [] }]
             };
+            _.set(this.resource, affinityKey, nodeSelectorObj);
         }
 
         this.resource.spec.template.spec.affinity.nodeAffinity
@@ -195,6 +197,25 @@ class K8sResource {
                 key: target.key,
                 operator: 'In',
                 values: [target.value]
+            });
+    }
+
+    _setTargetPreferred(target) {
+        const affinityKey = 'spec.template.spec.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution';
+        if (!_.has(this.resource, affinityKey)) {
+            _.set(this.resource, affinityKey, []);
+        }
+
+        this.resource.spec.template.spec.affinity.nodeAffinity
+            .preferredDuringSchedulingIgnoredDuringExecution.push({
+                weight: 1,
+                preference: {
+                    matchExpressions: [{
+                        key: target.key,
+                        operator: 'In',
+                        values: [target.value]
+                    }]
+                }
             });
     }
 }
