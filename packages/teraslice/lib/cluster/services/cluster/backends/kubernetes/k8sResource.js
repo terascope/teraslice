@@ -45,7 +45,7 @@ class K8sResource {
             // NOTE: If you specify multiple `matchExpressions` associated with
             // `nodeSelectorTerms`, then the pod can be scheduled onto a node
             // only if *all* `matchExpressions` can be satisfied.
-            this._setAffinity();
+            this._setTargets();
             this._setResources();
             this._setVolumes();
             this._setAssetsVolume();
@@ -166,28 +166,36 @@ class K8sResource {
         }
     }
 
-    _setAffinity() {
+    _setTargets() {
         if (_.has(this.execution, 'targets') && (!_.isEmpty(this.execution.targets))) {
-            if (!_.has(this.resource, 'spec.template.spec.affinity')) {
-                this.resource.spec.template.spec.affinity = {
-                    nodeAffinity: {
-                        requiredDuringSchedulingIgnoredDuringExecution: {
-                            nodeSelectorTerms: [{ matchExpressions: [] }]
-                        }
-                    }
-                };
-            }
-
             _.forEach(this.execution.targets, (target) => {
-                this.resource.spec.template.spec.affinity.nodeAffinity
-                    .requiredDuringSchedulingIgnoredDuringExecution
-                    .nodeSelectorTerms[0].matchExpressions.push({
-                        key: target.key,
-                        operator: 'In',
-                        values: [target.value]
-                    });
+                // `required` is the default if no `constraint` is provided for
+                // backwards compatibility and as the most likely case
+                if (target.constraint === 'required' || !_.has(target, 'constraint')) {
+                    this._setTargetRequired(target);
+                }
             });
         }
+    }
+
+    _setTargetRequired(target) {
+        if (!_.has(this.resource, 'spec.template.spec.affinity')) {
+            this.resource.spec.template.spec.affinity = {
+                nodeAffinity: {
+                    requiredDuringSchedulingIgnoredDuringExecution: {
+                        nodeSelectorTerms: [{ matchExpressions: [] }]
+                    }
+                }
+            };
+        }
+
+        this.resource.spec.template.spec.affinity.nodeAffinity
+            .requiredDuringSchedulingIgnoredDuringExecution
+            .nodeSelectorTerms[0].matchExpressions.push({
+                key: target.key,
+                operator: 'In',
+                values: [target.value]
+            });
     }
 }
 

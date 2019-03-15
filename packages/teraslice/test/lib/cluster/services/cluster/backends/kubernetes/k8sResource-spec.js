@@ -83,6 +83,41 @@ describe('k8sResource', () => {
                         - west`));
         });
 
+        it('has valid resource object with affinity when execution has one required target', () => {
+            execution.targets = [{ key: 'zone', value: 'west', constraint: 'required' }];
+            const kr = new K8sResource(
+                'deployments', 'worker', terasliceConfig, execution
+            );
+
+            expect(kr.resource.spec.template.spec.affinity).toEqual(yaml.load(`
+                nodeAffinity:
+                  requiredDuringSchedulingIgnoredDuringExecution:
+                    nodeSelectorTerms:
+                    - matchExpressions:
+                      - key: zone
+                        operator: In
+                        values:
+                        - west`));
+        });
+
+        xit('has valid resource object with affinity when execution has one preferred target', () => {
+            execution.targets = [{ key: 'zone', value: 'west', constraint: 'preferred' }];
+            const kr = new K8sResource(
+                'deployments', 'worker', terasliceConfig, execution
+            );
+
+            expect(kr.resource.spec.template.spec.affinity).toEqual(yaml.load(`
+                nodeAffinity:
+                  preferredDuringSchedulingIgnoredDuringExecution:
+                  - weight: 1
+                    preference:
+                      matchExpressions:
+                      - key: zone
+                        operator: In
+                        values:
+                        - west`));
+        });
+
         it('has valid resource object with affinity when execution has two targets', () => {
             execution.targets = [
                 { key: 'zone', value: 'west' },
