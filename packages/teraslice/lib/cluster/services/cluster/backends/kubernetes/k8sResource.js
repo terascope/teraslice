@@ -178,17 +178,21 @@ class K8sResource {
                 if (target.constraint === 'preferred') {
                     this._setTargetPreferred(target);
                 }
+
+                if (target.constraint === 'accepted') {
+                    this._setTargetAccepted(target);
+                }
             });
         }
     }
 
     _setTargetRequired(target) {
-        const affinityKey = 'spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution';
-        if (!_.has(this.resource, affinityKey)) {
+        const targetKey = 'spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution';
+        if (!_.has(this.resource, targetKey)) {
             const nodeSelectorObj = {
                 nodeSelectorTerms: [{ matchExpressions: [] }]
             };
-            _.set(this.resource, affinityKey, nodeSelectorObj);
+            _.set(this.resource, targetKey, nodeSelectorObj);
         }
 
         this.resource.spec.template.spec.affinity.nodeAffinity
@@ -201,9 +205,9 @@ class K8sResource {
     }
 
     _setTargetPreferred(target) {
-        const affinityKey = 'spec.template.spec.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution';
-        if (!_.has(this.resource, affinityKey)) {
-            _.set(this.resource, affinityKey, []);
+        const targetKey = 'spec.template.spec.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution';
+        if (!_.has(this.resource, targetKey)) {
+            _.set(this.resource, targetKey, []);
         }
 
         this.resource.spec.template.spec.affinity.nodeAffinity
@@ -217,6 +221,20 @@ class K8sResource {
                     }]
                 }
             });
+    }
+
+    _setTargetAccepted(target) {
+        const targetKey = 'spec.template.spec.tolerations';
+        if (!_.has(this.resource, targetKey)) {
+            _.set(this.resource, targetKey, []);
+        }
+
+        this.resource.spec.template.spec.tolerations.push({
+            key: target.key,
+            operator: 'Equal',
+            value: target.value,
+            effect: 'NoSchedule'
+        });
     }
 }
 
