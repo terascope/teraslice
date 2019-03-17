@@ -8,6 +8,10 @@ import { ManagerConfig } from './interfaces';
  * high level abstraction of Spaces, Users, Roles, and Views
  *
  * @todo add a method to find the views for space, with the applied defaults
+ * @todo auto-create an admin role
+ * @todo an admin should be able to view api_token without knowing the password
+ * @todo only admins can write to the data-access models
+ * @todo authenticated users can query and update their user
 */
 export class ACLManager {
     static GraphQLSchema = `

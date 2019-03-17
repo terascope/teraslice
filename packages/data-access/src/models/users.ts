@@ -40,7 +40,7 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
         }
 
         input CreateUserInput {
-            client_id: Int!
+            client_id: Int
             username: String!
             firstname: String
             lastname: String

@@ -7,7 +7,7 @@ sidebar_label: Operations
 
 ## Transforms
 transform globals: config parameters that may be put on any transform configurations
-- output : `Booelan`(optional) = if set to true then the `target_field` listed in the configuration will be removed in the final output phase. This is used to clean up any intermediate or source values from the final output
+- output : `Boolean`(optional) = if set to true then the `target_field` listed in the configuration will be removed in the final output phase. This is used to clean up any intermediate or source values from the final output
 
 Example:
 ```ts
@@ -87,7 +87,7 @@ This is a filtering operator and determines is the documnet matches a certain cr
 - having multiple extraction configs specify the same selector will bundle all the extractions on the same document.
 
 rules.txt
-```txt
+```json
 {"selector": "hello:world", "source_field": "first", "target_field": "first_name"}
 {"selector": "hello:world", "source_field": "last", "target_field": "last_name"}
 ```
@@ -120,7 +120,7 @@ console.log(results);
 - having no selector specified will act as a catch all and allow every document to pass through
 
 rules.txt
-```txt
+```json
 {"source_field": "first", "target_field": "first_name"}
 {"source_field": "last", "target_field": "last_name"}
 ```
@@ -249,7 +249,7 @@ This will attempt to join to string values together (this is a `many-to-one` ope
 - fields: `Array of Strings`(optional) = list of fields that will be joined, if not specified then it will rely on all the tags it follows and use that
 
 rules.txt
-```txt
+```json
 {"selector": "hello:world", "source_field": "first", "target_field": "first_name", "output": false, "tag": "joinFields"}
 {"selector": "hello:world", "source_field": "last", "target_field": "last_name", "output": false, "tag": "joinFields"}
 

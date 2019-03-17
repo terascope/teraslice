@@ -5,7 +5,7 @@ sidebar_label: Overview
 
 > An ETL framework built upon xlucene-evaluator
 
-# Installation
+## Installation
 
 ## Dependency Installation
 
@@ -27,7 +27,7 @@ npm install --global ts-transforms
 
 ## Operations
 This library provides a wide array of processing and validations. For an indepth review of each operation please follow the link below.
-* [operations reference](./operations.md)
+* [Operations reference](./operations.md)
 
 ## Plugins
 This library provides a wide array of manipulations/validations etc but you may need a custom operation. You may do so by making a plugin and injecting it.
@@ -38,7 +38,7 @@ This library provides a wide array of manipulations/validations etc but you may 
 There are two different executions: `Matcher` and `Transform`. The former returns the raw matching documents while the later provides additional ETL capabilities
 
 Example rules file: `rulesFile.txt`
-```
+```json
 {"selector": "hello:world OR bytes:>=400"}
 ```
 
@@ -73,11 +73,11 @@ The Matcher/Transform class takes a configuration object and an optional logger 
 
 #### Configuration Object
 
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| rules | `Array` of `Strings` | A list of file paths leading to rules that will be loaded |
-| plugins | `Array` of `PluginClass` | An array of plugin classes that will be used |
-| types | `Object` | An object with keys specifying if a given field should have type manipulations, please refer to refer to [xlucene-evaluator](https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator) for more details |
+| Field   | Type                     | Description                                                                                                                                                                                                                  |
+| ------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| rules   | `Array` of `Strings`     | A list of file paths leading to rules that will be loaded                                                                                                                                                                    |
+| plugins | `Array` of `PluginClass` | An array of plugin classes that will be used                                                                                                                                                                                 |
+| types   | `Object`                 | An object with keys specifying if a given field should have type manipulations, please refer to refer to [xlucene-evaluator](https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator) for more details |
 
 ```ts
 interface Config {
@@ -149,7 +149,7 @@ console.log(results);   //   [{ bytes: 500, other: 'things'}]
 If you do not specify a selector and it's not a post_process or validation then it will act as a catch all
 
 rulefile.txt
-```
+```json
 { "source_field": "data", "target_field": "final" }
 ```
 
@@ -258,7 +258,7 @@ The rules file must be in ldjson format. Which is json data separated by a new l
 
 - Transform:
 transformrules.txt
-```
+```json
 { "selector": "host:fc2.com", "source_field": "field1", "start": "field1=", "end": "EOP", "target_field": "field1", "post_process": "base64decode" }
 { "source_field": "date", "target_field": "date", "other_match_required": true }
 ```
@@ -266,7 +266,7 @@ transformrules.txt
 - Matcher:
 matcherules.txt
 
-```
+```json
 { "selector": "some:data AND bytes:>=1000"}
 { "selector": "other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z" }
 ```
@@ -291,9 +291,9 @@ Example:
 This will return all the records that match the selector rule list without any additional record manipulation/validation
 
 Example file: `rulesFile2.txt`
-```
+```json
 {"selector": "person.age:[25 TO 35]"}
-{"selector": "ipfield:"192.198.0.0/24"}
+{"selector": "ipfield:'192.198.0.0/24'"}
 {"selector": "_created:[2018-10-18T18:13:20.683Z TO *]"}
 {"selector": "key:?abc*]"}
 ```
@@ -340,7 +340,7 @@ console.log(results);
 This will not only select for matching records based on the selector but it can allow additional transformation/validation of the data to produce an new result
 
 Example rules file:
-```txt
+```json
 {"selector": "hello:world", "source_field": "first", "target_field": "first_name", "tag": "field"}
 {"selector": "hello:world", "source_field": "last", "target_field": "last_name", "tag": "field"}
 {"follow": "field", "post_process": "join", "fields": ["first_name", "last_name"], "delimiter": " ", "target_field": "full_name"}

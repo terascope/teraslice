@@ -1,6 +1,5 @@
-
 ---
-title: 
+title: Job Components
 sidebar_label: job-components
 ---
 
@@ -14,4 +13,3 @@ yarn add @terascope/job-components
 # Using npm
 npm install --save @terascope/job-components
 ```
-
