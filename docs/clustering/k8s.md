@@ -120,14 +120,14 @@ will result in the Kubernetes `resources.requests.memory` and
 [Kubernetes Resource docs](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
 for further details on how Kubernetes interprets these values.
 
-## Node Affinity by Targets
+## Node Affinity and Tolerance Using Teraslice Job Targets
 
 If you need the workers (and execution controller) of your job to execute on
-specific set of nodes, you can use the Teraslice `targets` property on your
-job. You can specify one or more targets that will use [Kubernetes Node Affinity](
-https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity)
-to force nodes onto specific nodes.  The targets specified here will be required
-using `requiredDuringSchedulingIgnoredDuringExecution`.
+specific set of nodes or tolerate node taints, you can use the Teraslice
+`targets` property on your job.  The simplest form of using `targets` is to
+specify a single target and by default Teraslice will configure your workers to
+only run on nodes who's labels match the `key` and `value` specified as shown
+below:
 
 ```
 "targets": [
@@ -135,8 +135,75 @@ using `requiredDuringSchedulingIgnoredDuringExecution`.
 ],
 ```
 
-For each entry in `targets` you provide, there will be a corresponding
-Kubernetes constraint, like the one shown below, added to your workers.
+More advanced options are also available to control how your Teraslice workers
+are scheduled in your Kubernetes cluster.  These options can be used by
+specifying an optional `constraint` property on the `targets` specified on your
+Teraslice job.  The available `constraint`s are:
+
+* `required` - Pods will only be scheduled to nodes that match the label.  If
+there are insufficient resources on the target nodes your job may have fewer
+workers than requested.  This is the **default** if is `constraint` is omitted.
+* `preferred` - Pods will be scheduled to nodes with this label, but if there
+are insufficient resources, they may be scheduled on nodes without this label.
+* `accepted` - Pods may be scheduled to nodes with the kubernetes taint
+provided by this label.  This uses a Kubernetes tolerance.
+
+### Examples
+
+If you want to force pods to run on nodes with a given label, you can simply
+specify a target with just a `key` and `value`:
+
+```
+"targets": [
+    {"key": "zone", "value": "west"}
+],
+```
+
+Using the `"constraint": "required"` property, as shown below, achieves the same
+thing:
+
+```
+"targets": [
+    {"key": "zone", "value": "west", "constraint": "required"}
+],
+```
+
+Using `"constraint": "preferred"` establishes a looser constraint on the label:
+
+```
+"targets": [
+    {"key": "zone", "value": "west", "constraint": "preferred"}
+],
+```
+
+If you wanted your Teraslice workers to target a set of nodes with a given label
+but also wanted to guarantee the availability of these nodes for this workload
+by applying a taint, you could use `required` to target the label, then use
+`accepted` to tolerate that taint as follows:
+
+```
+"targets": [
+    {"key": "zone", "value": "west", "constraint": "required"}
+    {"key": "gen4", "value": "NoSchedule", "constraint": "accepted"}
+],
+```
+
+The
+You can specify one or more targets that will
+use [Kubernetes Node Affinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity)
+to force nodes onto specific nodes.  The targets specified here will be required
+using `requiredDuringSchedulingIgnoredDuringExecution`.
+
+[Kubernetes Taints and Tolerations](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
+
+### Pod Spec Details
+
+For each entry in `targets`, if the `constraint` is omitted or set to `require`,
+the pod spec will include a
+
+`nodeAffinity` of
+`requiredDuringSchedulingIgnoredDuringExecution` constraint like the one shown
+below:
 
 ```
         nodeSelectorTerms:
@@ -146,6 +213,10 @@ Kubernetes constraint, like the one shown below, added to your workers.
             values:
             - <VALUE>
 ```
+
+If the `constraint` is set to `preferred`, the pod spec will include a
+Kubernetes `preferredDuringSchedulingIgnoredDuringExecution` `nodeAffinity`
+constraint like the one shown below:
 
 ## Attach existing volumes
 
