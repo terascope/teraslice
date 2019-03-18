@@ -1,7 +1,13 @@
 import Stream from 'stream';
-import { EventEmitter } from 'events';
-import { isString, uniq } from './utils';
 import debugFn from 'debug';
+import { EventEmitter } from 'events';
+import {
+    toString,
+    isString,
+    isPlainObject,
+    uniq,
+    trimAndToLower,
+} from './utils';
 
 interface DebugParamObj {
     module: string;
@@ -10,12 +16,20 @@ interface DebugParamObj {
 }
 
 type debugParam = DebugParamObj | string;
-const logTrace = process.env.DEBUG_TRACE === 'true';
+let logLevel = process.env.DEBUG_LOG_LEVEL || 'debug';
+const levels = {
+    trace: 10,
+    debug: 20,
+    info: 30,
+    warn: 40,
+    error: 50,
+    fatal: 60,
+};
 
 export function debugLogger(testName: string, param?: debugParam, otherName?: string): Logger {
     const logger: Logger = new EventEmitter() as Logger;
 
-    const parts: string[] = [testName];
+    let parts: string[] = [testName];
     if (testName.indexOf('teraslice') < 0) {
         parts.unshift('teraslice');
     }
@@ -34,8 +48,10 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
     if (otherName) {
         parts.push(otherName);
     }
+    parts = parts.map(toString).map(trimAndToLower);
+    parts = uniq(parts.filter((str) => !!str));
 
-    const name = uniq(parts).join(':');
+    const name = parts.join(':');
 
     logger.streams = [];
 
@@ -44,30 +60,41 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
         this.streams.push(stream);
     };
 
-    logger.child = (opts: debugParam) => debugLogger(name, opts);
+    logger.child = (opts: debugParam) => {
+        if (isString(opts)) {
+            return debugLogger(name, undefined, opts);
+        }
+        if (isPlainObject(opts)) {
+            return debugLogger(name, opts, opts.module);
+        }
+        return debugLogger(name, opts);
+    };
     logger.flush = () => Promise.resolve();
     logger.reopenFileStreams = () => {};
-    logger.level = () => 50;
-    // @ts-ignore
-    logger.levels = () => 50;
-
     logger.src = false;
 
-    const levels = [
-        'trace',
-        'debug',
-        'info',
-        'warn',
-        'error',
-        'fatal',
-    ];
+    // @ts-ignore
+    logger.level = (value: Logger.LogLevel) => {
+        if (value) {
+            for (const [level, code] of Object.entries(levels)) {
+                if (value === level || value === code) {
+                    logLevel = level;
+                    return;
+                }
+            }
+            return;
+        }
+        return levels[logLevel] || 20;
+    };
+    // @ts-ignore
+    logger.levels = () => logger.level();
 
-    for (const level of levels) {
+    for (const [level, code] of Object.entries(levels)) {
         const fLevel = `[${level.toUpperCase()}]`;
         const debug = debugFn(name);
 
         logger[level] = (...args: any[]) => {
-            if (level === 'trace' && !logTrace) return false;
+            if (code < logger.level()) return false;
             if (level === 'fatal') {
                 console.error(name, ...args);
                 return true;
