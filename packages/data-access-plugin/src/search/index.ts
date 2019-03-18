@@ -1,6 +1,6 @@
 import { Express } from 'express';
 import { Client } from 'elasticsearch';
-import { Logger, toBoolean } from '@terascope/utils';
+import { Logger } from '@terascope/utils';
 import { DataAccessConfig } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { SearchFn } from './interfaces';
@@ -45,9 +45,7 @@ export default class SearchPlugin {
                     .status(200)
                     .set('Content-type', 'application/json; charset=utf-8');
 
-                const pretty = toBoolean(req.query.pretty);
-
-                if (pretty) {
+                if (req.query.pretty) {
                     res.send(JSON.stringify(result, null, 2));
                 } else {
                     res.json(result);
@@ -61,4 +59,5 @@ export interface SpaceSearch {
     searchErrorHandler: ErrorHandlerFn;
     accessConfig: DataAccessConfig;
     search: SearchFn;
+    logger: Logger;
 }

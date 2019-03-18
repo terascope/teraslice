@@ -569,7 +569,8 @@ describe('Data Access Plugin', () => {
                 query: {
                     token: apiToken,
                     q: 'foo:bar',
-                    sort: '_id:asc'
+                    sort: '_id:asc',
+                    pretty: false
                 },
                 json: true,
                 throwHttpErrors: false
@@ -636,7 +637,7 @@ describe('Data Access Plugin', () => {
                 expect(spaceId).toBeTruthy();
                 expect(apiToken).toBeTruthy();
 
-                const uri = formatBaseUri(spaceId);
+                const uri = formatBaseUri('greetings');
                 const result = await got(uri, {
                     query: {
                         token: apiToken,
