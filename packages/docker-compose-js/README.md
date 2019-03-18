@@ -1,77 +1,20 @@
+
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/docker-compose-js/overview.md -->
+
 # @terascope/docker-compose-js
 
-<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/docker-compose-js/overview.md INSTEAD -->
-
-**NOTE:** This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo, more documentation can be found [here](https://terascope.github.io/teraslice/docs/).
-
-> Javascript API for docker-compose
-
-This is a simple API wrapper for the docker-compose command line tool. Its primary purpose is to allow integration tests written in node.js to dynamically manipulate the docker-compose environment.
-
-A larger example of the API used in this way is available in the [integration tests](https://github.com/terascope/teraslice-integration-tests) for the [Teraslice project](https://github.com/terascope/teraslice)
+> Node.js driver for controlling docker-compose testing environments.
 
 ## Installation
 
-
 ```bash
 # Using yarn
-yarn add @terascope/docker-compose-js
+yarn add --dev @terascope/docker-compose-js
 # Using npm
-npm install --save  @terascope/docker-compose-js
+npm install --save-dev @terascope/docker-compose-js
 ```
 
-## Usage
-
-The API largely just mirrors the regular docker-compose commands such as up(), down(), start(), stop() and so on. At the present time all commands except 'logs' and 'events' have been implemented.
-
-The API is Promise based using the Bluebird promises library.
-
-The examples below show the common patterns for calls. Since this is a wrapper around the standard docker-compose command details on each operation can be found [in the docker-compose documentation](https://docs.docker.com/compose/reference/).
-
-Note: Each function takes an object for keyword parameters as the last argument.
-
-```js
-var compose = require('@terascope/docker-compose-js')('docker-compose.yaml');
-
-compose.up()
-    .then(function() {
-        return compose.stop('test');
-    })
-    .then(function() {
-        return compose.kill('test', { s: 'SIGINT' });
-    })
-    .then(function() {
-        return compose.ps();
-    })
-    .then(console.log)
-    .catch(function(error) {
-        console.log(error);
-    })
-    .finally(function() {
-        compose.down();
-    })
-```
-
-Example of scaling a particular task
-
-```js
-var compose = require('@terascope/docker-compose-js')('docker-compose.yaml');
-
-compose.up()
-    .then(function(result) {
-        return compose.scale('test=2');
-    })
-    .then(function() {
-        return compose.ps();
-    })
-    .then(console.log)
-    .catch(function(error) {
-        console.log(error);
-    })
-    .finally(function() {
-        return compose.down();
-    })
-```
+This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo. See our [documentation](https://terascope.github.io/teraslice/docs/packages/docker-compose-js/overview) for more information or the [issues](https://github.com/terascope/teraslice/issues?q=is%3Aopen+is%3Aissue+label%3Apkg%2Fdocker-compose-js) associated with this package
 
 ## Contributing
 
@@ -80,5 +23,5 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update tests as appropriate.
 
 ## License
-
 [MIT](./LICENSE) licensed.
+

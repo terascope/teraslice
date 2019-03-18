@@ -72,7 +72,7 @@ COPY tsconfig.json /app/source/
 COPY types /app/source/types
 
 # Build the packages
-RUN yarn run build:prod
+RUN yarn lerna link --force-local && yarn lerna run build
 
 # the prod image should small
 FROM base as prod

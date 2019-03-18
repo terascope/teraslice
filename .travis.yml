@@ -35,7 +35,7 @@ jobs:
         - . ./scripts/travis-install-yarn.sh
         - . ./scripts/travis-install-es.sh
     script:
-        - '[[ -z "$DEBUG" ]] && yarn test:ci || yarn test:debug | yarn bunyan -o short'
+        - '[[ -z "$DEBUG" ]] && yarn test || yarn test:debug | yarn bunyan -o short'
     after_success:
       - bash <(curl -s https://codecov.io/bash)
 
@@ -75,7 +75,7 @@ jobs:
         packages:
           - jq
     before_script: . ./scripts/travis-setup-credentials.sh
-    script: ./scripts/sync-readmes.sh
+    script: yarn docs:update
     deploy:
       - provider: script
         skip_cleanup: true
@@ -92,11 +92,17 @@ jobs:
       apt:
         packages:
           - jq
+          - docker-ce
+    services:
+        - docker
     before_script: . ./scripts/travis-setup-credentials.sh
     script: true
     deploy:
       - provider: script
-        script: ./scripts/docker-release.sh
+        script: ./scripts/docker-release.sh tag
+        on:
+            all_branches: true
+            tags: true
 
   # Build nightly releases
   - stage: Nightly
@@ -113,4 +119,4 @@ jobs:
     script: true
     deploy:
       - provider: script
-        script: ./scripts/docker-release.sh "$TRAVIS_BRANCH"
+        script: ./scripts/docker-release.sh daily

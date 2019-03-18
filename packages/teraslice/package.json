@@ -1,7 +1,7 @@
 {
     "name": "teraslice",
-    "version": "0.49.0",
-    "description": "Slice and dice your Elasticsearch data",
+    "version": "0.50.0",
+    "description": "Distributed computing platform for processing JSON data",
     "bin": "service.js",
     "main": "index.js",
     "scripts": {
@@ -57,12 +57,11 @@
         "p-whilst": "^1.0.0",
         "porty": "^3.1.1",
         "request": "^2.88.0",
-        "shortid": "^2.2.13",
+        "shortid": "^2.2.14",
         "socket.io": "^1.7.4",
         "socket.io-client": "^1.7.4",
-        "terafoundation": "^0.7.4",
-        "uuid": "^3.3.2",
-        "yargs": "^13.2.2"
+        "terafoundation": "^0.8.0",
+        "uuid": "^3.3.2"
     },
     "devDependencies": {
         "@terascope/teraslice-op-test-harness": "^1.5.4",

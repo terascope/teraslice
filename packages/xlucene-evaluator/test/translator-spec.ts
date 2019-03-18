@@ -307,7 +307,8 @@ describe('Translator', () => {
                 }
             ]
         ]
-    ])('when given %s', (query, property, expected, types) => {
+    // @ts-ignore because the types for test.each for some reason
+    ])('when given %s', (query: string, property: string, expected: any, types: TypeConfig) => {
         it(`should to output to have ${property} set correctly`, () => {
             const translator = new Translator(query, types);
             const result = translator.toElasticsearchDSL();

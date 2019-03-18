@@ -45,7 +45,7 @@ class K8sResource {
             // NOTE: If you specify multiple `matchExpressions` associated with
             // `nodeSelectorTerms`, then the pod can be scheduled onto a node
             // only if *all* `matchExpressions` can be satisfied.
-            this._setAffinity();
+            this._setTargets();
             this._setResources();
             this._setVolumes();
             this._setAssetsVolume();
@@ -65,7 +65,7 @@ class K8sResource {
         // name needs to be a valid DNS name since it is used in the svc name,
         // so we can only permit alphanumeric and - characters.  _ is forbidden.
         const jobNameLabel = this.execution.name.replace(/[^a-zA-Z0-9\-.]/g, '-').substring(0, 63);
-        const name = `ts-${this.nameInfix}-${jobNameLabel.substring(0, 42)}-${this.execution.job_id.substring(0, 13)}`;
+        const name = `ts-${this.nameInfix}-${jobNameLabel.substring(0, 35)}-${this.execution.job_id.substring(0, 13)}`;
         const shutdownTimeoutMs = _.get(this.terasliceConfig, 'shutdown_timeout', 60000);
         const shutdownTimeoutSeconds = Math.round(shutdownTimeoutMs / 1000);
 
@@ -166,28 +166,75 @@ class K8sResource {
         }
     }
 
-    _setAffinity() {
+    _setTargets() {
         if (_.has(this.execution, 'targets') && (!_.isEmpty(this.execution.targets))) {
-            if (!_.has(this.resource, 'spec.template.spec.affinity')) {
-                this.resource.spec.template.spec.affinity = {
-                    nodeAffinity: {
-                        requiredDuringSchedulingIgnoredDuringExecution: {
-                            nodeSelectorTerms: [{ matchExpressions: [] }]
-                        }
-                    }
-                };
-            }
-
             _.forEach(this.execution.targets, (target) => {
-                this.resource.spec.template.spec.affinity.nodeAffinity
-                    .requiredDuringSchedulingIgnoredDuringExecution
-                    .nodeSelectorTerms[0].matchExpressions.push({
+                // `required` is the default if no `constraint` is provided for
+                // backwards compatibility and as the most likely case
+                if (target.constraint === 'required' || !_.has(target, 'constraint')) {
+                    this._setTargetRequired(target);
+                }
+
+                if (target.constraint === 'preferred') {
+                    this._setTargetPreferred(target);
+                }
+
+                if (target.constraint === 'accepted') {
+                    this._setTargetAccepted(target);
+                }
+            });
+        }
+    }
+
+    _setTargetRequired(target) {
+        const targetKey = 'spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution';
+        if (!_.has(this.resource, targetKey)) {
+            const nodeSelectorObj = {
+                nodeSelectorTerms: [{ matchExpressions: [] }]
+            };
+            _.set(this.resource, targetKey, nodeSelectorObj);
+        }
+
+        this.resource.spec.template.spec.affinity.nodeAffinity
+            .requiredDuringSchedulingIgnoredDuringExecution
+            .nodeSelectorTerms[0].matchExpressions.push({
+                key: target.key,
+                operator: 'In',
+                values: [target.value]
+            });
+    }
+
+    _setTargetPreferred(target) {
+        const targetKey = 'spec.template.spec.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution';
+        if (!_.has(this.resource, targetKey)) {
+            _.set(this.resource, targetKey, []);
+        }
+
+        this.resource.spec.template.spec.affinity.nodeAffinity
+            .preferredDuringSchedulingIgnoredDuringExecution.push({
+                weight: 1,
+                preference: {
+                    matchExpressions: [{
                         key: target.key,
                         operator: 'In',
                         values: [target.value]
-                    });
+                    }]
+                }
             });
+    }
+
+    _setTargetAccepted(target) {
+        const targetKey = 'spec.template.spec.tolerations';
+        if (!_.has(this.resource, targetKey)) {
+            _.set(this.resource, targetKey, []);
         }
+
+        this.resource.spec.template.spec.tolerations.push({
+            key: target.key,
+            operator: 'Equal',
+            value: target.value,
+            effect: 'NoSchedule'
+        });
     }
 }
 

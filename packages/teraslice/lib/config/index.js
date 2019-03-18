@@ -14,6 +14,7 @@ function clusterName(configFile) {
 function getTerasliceConfig(sysconfig) {
     return Object.assign({
         name: 'teraslice',
+        default_config_file: path.join(__dirname, 'default-sysconfig.js'),
         config_schema: configSchema,
         schema_formats: formats,
         cluster_name: clusterName,

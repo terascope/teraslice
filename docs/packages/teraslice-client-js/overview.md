@@ -3,7 +3,7 @@ title: Teraslice Client JS
 sidebar_label: teraslice-client-js
 ---
 
-> Javascript client for Teraslice
+> A Node.js client for teraslice jobs, assets, and cluster references.
 
 ## Installation
 

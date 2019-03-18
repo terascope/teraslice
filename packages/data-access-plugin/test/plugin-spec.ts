@@ -3,7 +3,7 @@ import got from 'got';
 import express from 'express';
 import { Server } from 'http';
 import { request } from 'graphql-request';
-import { debugLogger } from '@terascope/utils';
+import { TestContext } from '@terascope/job-components';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
 import { PluginConfig } from '../src/interfaces';
 import ManagerPlugin from '../src/manager';
@@ -15,11 +15,31 @@ describe('Data Access Plugin', () => {
     const app = express();
     let listener: Server;
 
+    const context = new TestContext('plugin-spec', {
+        clients: [
+            {
+                type: 'elasticsearch',
+                endpoint: 'default',
+                create: () => {
+                    return { client };
+                },
+            },
+            {
+                type: 'elasticsearch',
+                endpoint: 'other',
+                create: () => {
+                    return { client };
+                },
+            }
+        ]
+    });
+
     const pluginConfig: PluginConfig = {
         elasticsearch: client,
         url_base: '',
         app,
-        logger: debugLogger('manager-plugin'),
+        context,
+        logger: context.logger,
         server_config: {
             data_access: {
                 namespace: 'test_da_plugin',
@@ -132,7 +152,8 @@ describe('Data Access Plugin', () => {
                         name: "greetings",
                         metadata: {
                             indexConfig: {
-                                index: "hello-space"
+                                index: "hello-space",
+                                connection: "other"
                             }
                         }
                     }, views: [
@@ -378,7 +399,7 @@ describe('Data Access Plugin', () => {
 
             const result = await got(uri, {
                 query: {
-                    api_token: apiToken
+                    token: apiToken
                 },
                 json: true,
                 throwHttpErrors: false
@@ -413,7 +434,7 @@ describe('Data Access Plugin', () => {
             const uri = formatBaseUri();
             const result = await got(uri, {
                 query: {
-                    api_token: apiToken
+                    token: apiToken
                 },
                 json: true,
                 throwHttpErrors: false
@@ -514,7 +535,7 @@ describe('Data Access Plugin', () => {
             const uri = formatBaseUri(spaceId);
             const result = await got(uri, {
                 query: {
-                    api_token: apiToken,
+                    token: apiToken,
                     q: 'foo:bar',
                     sort: '_id:asc'
                 },
@@ -578,7 +599,7 @@ describe('Data Access Plugin', () => {
                 const uri = formatBaseUri(spaceId);
                 const result = await got(uri, {
                     query: {
-                        api_token: apiToken,
+                        token: apiToken,
                         q: 'foo:baz',
                         pretty: true
                     },

@@ -6,6 +6,7 @@
     },
     "description": "Node.js driver for controlling docker-compose testing environments.",
     "main": "index.js",
+    "saveDev": true,
     "scripts": {
         "lint": "eslint *.js test/**/*.js",
         "lint:fix": "yarn lint --fix",

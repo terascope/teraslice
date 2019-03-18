@@ -1,27 +1,24 @@
 
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
-import { OperationConfig, WatcherConfig } from '../interfaces';
+import { OperationConfig, WatcherConfig, ConfigProcessingDict } from '../interfaces';
 import PhaseBase from './base';
 import { OperationsManager } from '../operations';
 
 export default class PostProcessPhase extends PhaseBase {
-    constructor(_opConfig: WatcherConfig, configList:OperationConfig[], opsManager: OperationsManager) {
-        super();
+    constructor(opConfig: WatcherConfig, configList: ConfigProcessingDict, opsManager: OperationsManager) {
+        super(opConfig);
 
-        function isPrimaryPostProcess(config: OperationConfig): boolean {
-            return !_.has(config, 'follow') && (_.has(config, 'selector') && (_.has(config, 'post_process') || _.has(config, 'validation')));
+        function loadOp(config: OperationConfig) {
+            const opName = config.post_process || config.validation;
+            const Op = opsManager.getTransform(opName as string);
+            return new Op(config);
         }
+        _.forOwn(configList, (operationList, key) => {
+            this.phase[key] = operationList.map(loadOp);
+        });
 
-        function isRefsPostProcess(config: OperationConfig): boolean {
-            return _.has(config, 'follow') && (_.has(config, 'post_process') || _.has(config, 'validation'));
-        }
-
-        const sequence = [
-            { type: 'post_process', filterFn: isPrimaryPostProcess },
-            { type: 'post_process', filterFn: isRefsPostProcess }
-        ];
-        sequence.forEach((loadingConfig) => this.installOps(loadingConfig, configList, opsManager));
+        this.hasProcessing = Object.keys(this.phase).length > 0;
     }
 
     run(dataArray: DataEntity[]): DataEntity[] {

@@ -7,19 +7,19 @@ sidebar_label: Operations
 
 ## Transforms
 transform globals: config parameters that may be put on any transform configurations
-- output : `Booelan`(optional) = if set to true then the `target_field` listed in the configuration will be removed in the final output phase. This is used to clean up any intermediate or source values from the final output
+- output : `Boolean`(optional) = if set to true then the `target_field` listed in the configuration will be removed in the final output phase. This is used to clean up any intermediate or source values from the final output
 
 Example:
 ```ts
 // rules
 /* here we extract the field value and stick it on the first_name and last_name keys and we mark them as output false so they are not in the final results
 */
-{"selector": "hello:world", "source_field": "first", "target_field": "first_name", "output": false}
-{"selector": "hello:world", "source_field": "last", "target_field": "last_name", "output": false}
-{"selector": "hello:world","post_process": "join","fields": ["first_name", "last_name"],"delimiter": " ","target_field": "full_name"}
+{"selector": "hello:world", "source_field": "first", "target_field": "first_name", "output": false, "tag": "joinFields"}
+{"selector": "hello:world", "source_field": "last", "target_field": "last_name", "output": false, "tag": "joinFields"}
+{"follow": "joinFields", "post_process": "join","fields": ["first_name", "last_name"],"delimiter": " ","target_field": "full_name"}
 
 // Incoming Data to transform
-[{ first: 'John', last: 'Wayne' }]
+[{ hello: 'world', first: 'John', last: 'Wayne' }]
 
 // Results
 
@@ -87,7 +87,7 @@ This is a filtering operator and determines is the documnet matches a certain cr
 - having multiple extraction configs specify the same selector will bundle all the extractions on the same document.
 
 rules.txt
-```txt
+```json
 {"selector": "hello:world", "source_field": "first", "target_field": "first_name"}
 {"selector": "hello:world", "source_field": "last", "target_field": "last_name"}
 ```
@@ -120,7 +120,7 @@ console.log(results);
 - having no selector specified will act as a catch all and allow every document to pass through
 
 rules.txt
-```txt
+```json
 {"source_field": "first", "target_field": "first_name"}
 {"source_field": "last", "target_field": "last_name"}
 ```
@@ -221,14 +221,15 @@ Example:
 ```
 
 - mutate : `Booelan`(optional) = The default of extraction is to create a brand new object with the extracted fields. If you set this to true then it will return the orignal object with the new extracted fields on it so you can keep everything else. `NOTE`: if no extraction can occur you will recieve back the object unchanged, also if extraction is used as a `post_process` this defaults to `true`
-- multivalue : `Booelan`(optional) = if you set this to true then all values that have the same `target_field` will be put inside an array.
+
 
 Example:
 ```ts
 // rules
 
-{ "selector": "selectfield:value", "source_field": "url", "start": "field1=", "end": "EOP", "target_field": "myfield", "multivalue": true }
-{ "selector": "selectfield:value", "source_field": "url", "start": "field2=", "end": "EOP", "target_field": "myfield", "multivalue": true  }
+{ "selector": "selectfield:value", "source_field": "url", "start": "field1=", "end": "EOP", "target_field": "myfield1", "output": false, "tag": "tag1" }
+{ "selector": "selectfield:value", "source_field": "url", "start": "field2=", "end": "EOP", "target_field": "myfield2", "output": false, "tag": "tag1" }
+{"follow": "tag1", "post_process": "array", "target_field": "myfield"}
 
 // Incoming Data to transform
 [
@@ -241,19 +242,20 @@ Example:
 
 ```
 
-{ "selector": "selectfield:value", "source_field": "url", "start": "field1=", "end": "EOP", "target_field": "myfield", "multivalue": true }
-{ "selector": "selectfield:value", "source_field": "url", "start": "field2=", "end": "EOP", "target_field": "myfield", "multivalue": true  }
 
 ### join
-This will attempt to join to string values together
+This will attempt to join to string values together (this is a `many-to-one` operation)
 - delimiter: `String`(required) =  string char used to join the two strings together
-- fields: `Array of Strings`(required) = list of fields that will be joined
+- fields: `Array of Strings`(optional) = list of fields that will be joined, if not specified then it will rely on all the tags it follows and use that
 
 rules.txt
-```txt
-{"selector": "hello:world", "post_process": "join", "fields": ["friend1", "friend2"], "delimiter": " & ", "target_field": "all_friends"}
+```json
+{"selector": "hello:world", "source_field": "first", "target_field": "first_name", "output": false, "tag": "joinFields"}
+{"selector": "hello:world", "source_field": "last", "target_field": "last_name", "output": false, "tag": "joinFields"}
 
-{"selector": "other:thing", "post_process": "join", "fields": ["first", "last"], "delimiter": " ", "target_field": "name"}
+# since fields is not set it will look at the target_fields of the tags it follows  => ["first_name", "last_name"]
+{"follow": "joinFields", "post_process": "join","delimiter": " ","target_field": "full_name"}
+
 ```
 
 ```js
@@ -264,8 +266,8 @@ const config = {
 };
 
 const data = [
-    { hello: 'world', friend1: 'John', friend2: 'Susan' },
-    { other: 'thing', first: 'John', last: 'Wayne' },
+    { other: 'thing', friend1: 'John', friend2: 'Susan' },
+    { hello: 'world', first: 'John', last: 'Wayne' },
 ];
 
 const transform = new Transform(config);
@@ -277,11 +279,36 @@ console.log(results);
 to extract them to another field and put output:false on those extracted fields
  */
 /*   [
-    { hello: 'world', friend1: 'John', friend2: 'Susan', all_friends: 'John & Susan' },
-    { other: 'thing', first: 'John', last: 'Wayne', name: 'John Wayne' },
+        {  full_name: 'John Wayne' },
     ]
  */
 ```
+
+### array
+This will take all inputs and create an array
+- fields: `Array of Strings`(optional) = list of fields that will be joined, if not specified then it will rely on all the tags it follows and use that
+
+``` js
+// rules
+
+{"selector": "hello:world", "source_field": "field1", "target_field": "value1", "output": false, "tag": "values"}
+{"selector": "hello:world", "source_field": "field2", "target_field": "value2", "output": false, "tag": "values"}
+{"follow": "values", "post_process": "array", "target_field": "results" }
+
+// Incoming data
+[
+    { hello: 'world', field1: 'hello', field2: 'world' },
+    { field: 'null' },
+]
+
+
+// Results
+
+[
+    { results: ['hello', 'world'] }
+]
+```
+
 
 ### base64decode
 This will attempt to base64 decode the indicated field, and will remove the field on failure

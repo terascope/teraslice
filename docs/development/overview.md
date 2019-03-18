@@ -3,7 +3,7 @@ title: Development Overview
 sidebar_label: Overview
 ---
 
-### Setup
+## Getting Started
 
 ```sh
 # Clone the package
@@ -31,7 +31,3 @@ docker build -t teraslice .
 ```sh
 docker run -it --rm -v ./teraslice-master.yaml:/app/config/teraslice.yml teraslice
 ```
-
-TODO
-- BUILD STEP
-- ADDING A PACKAGE

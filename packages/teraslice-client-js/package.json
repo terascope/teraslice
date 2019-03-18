@@ -4,7 +4,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "description": "Javascript client library for working with Teraslice",
+    "description": "A Node.js client for teraslice jobs, assets, and cluster references.",
     "main": "index.js",
     "scripts": {
         "lint": "eslint *.js lib/**/*.js test/**/*.js",

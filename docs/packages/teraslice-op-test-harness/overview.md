@@ -3,6 +3,11 @@ title: Teraslice Op Test Harness
 sidebar_label: teraslice-op-test-harness
 ---
 
+> A testing harness to simplify testing Teraslice processors and operations.
+
+<br>
+**DEPRECRATED**: Use [teraslice-test-harness](../pacakges/teraslice-test-harness) instead.
+
 This project provides a processor execution function called `run()`, test data
 sources and common test functions to help you implement tests of your Teraslice
 operations.

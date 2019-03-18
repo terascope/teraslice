@@ -53,17 +53,15 @@ describe('phase manager', () => {
 
         expect(manager.sequence[0].constructor.name).toEqual('SelectionPhase');
         // @ts-ignore
-        expect(manager.sequence[0].selectionPhase.length).toEqual(1);
+        expect(manager.sequence[0].selectionPhase).toBeArrayOfSize(2);
 
         expect(manager.sequence[1].constructor.name).toEqual('ExtractionPhase');
-        expect(Object.keys(manager.sequence[1].phase).length).toEqual(1);
+        expect(Object.keys(manager.sequence[1].phase)).toBeArrayOfSize(2);
 
         expect(manager.sequence[2].constructor.name).toEqual('PostProcessPhase');
-        expect(Object.keys(manager.sequence[2].phase).length).toEqual(1);
+        expect(Object.keys(manager.sequence[2].phase)).toBeArrayOfSize(1);
 
         expect(manager.sequence[3].constructor.name).toEqual('OutputPhase');
-        // @ts-ignore
-        expect(manager.sequence[3].hasMultiValue).toEqual(false);
         // @ts-ignore
         expect(manager.sequence[3].hasRequirements).toEqual(true);
          // @ts-ignore
