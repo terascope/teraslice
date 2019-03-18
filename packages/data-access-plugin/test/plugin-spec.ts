@@ -143,14 +143,14 @@ describe('Data Access Plugin', () => {
                 mutation {
                     createDataType(dataType: {
                         name: "Greeter",
-                        typeConfig: {
+                        type_config: {
                             created: "date",
                             updated: "date"
                         }
                     }) {
                         id,
                         name,
-                        typeConfig
+                        type_config
                     }
                 }
             `;
@@ -162,7 +162,7 @@ describe('Data Access Plugin', () => {
 
             expect(createDataType).toMatchObject({
                 name: 'Greeter',
-                typeConfig: {
+                type_config: {
                     created: 'date',
                     updated: 'date'
                 },

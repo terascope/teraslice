@@ -52,7 +52,7 @@ Since this project is designed to replace the teraserver teranaut plugin, and th
       - `history_prefix`: under `search_config.history_prefix`;
       - `require_query`: under `search_config.require_query`;
  - The following configuration has been moved to the data type config:
-      - `typeConfig` for `xlucene-evaluator` under `typeConfig`
+      - `TypeConfig` for `xlucene-evaluator` under `type_config`
  - The following configuration has been moved to the view:
       - `allowed_fields` under `includes`
       - `type`, `date_start`, `date_end`, `geo_box_top_left`, `geo_box_bottom_right`, `geo_point`, `geo_distance` should be added to `constraint`.
@@ -132,7 +132,7 @@ mutation {
 mutation {
   createDataType(dataType:{
     name: "Example Data Type"
-    typeConfig: {
+    type_config: {
         created: "date",
         location: "geo"
     }

@@ -275,7 +275,7 @@ describe('ACLManager', () => {
                 const dataType = await manager.createDataType({
                     dataType: {
                         name: 'MyExampleType',
-                        typeConfig: {
+                        type_config: {
                             created: 'date',
                             location: 'geo'
                         },
@@ -341,7 +341,7 @@ describe('ACLManager', () => {
                     role_id: roleId,
                     data_type: {
                         id: dataTypeId,
-                        typeConfig: {
+                        type_config: {
                             created: 'date',
                             location: 'geo',
                         }

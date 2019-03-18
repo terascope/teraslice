@@ -15,7 +15,7 @@ const config: ModelConfig<DataTypeModel> = {
                     }
                 },
             },
-            typeConfig: {
+            type_config: {
                 type: 'object'
             }
         }
@@ -28,7 +28,7 @@ const config: ModelConfig<DataTypeModel> = {
             description: {
                 type: 'string'
             },
-            typeConfig: {
+            type_config: {
                 type: 'object',
                 additionalProperties: true,
                 default: {},

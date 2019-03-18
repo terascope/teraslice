@@ -14,7 +14,7 @@ export class DataTypes extends Base<DataTypeModel, CreateDataTypeInput, UpdateDa
             id: ID!
             name: String
             description: String
-            typeConfig: JSON
+            type_config: JSON
             created: String
             updated: String
         }
@@ -22,14 +22,14 @@ export class DataTypes extends Base<DataTypeModel, CreateDataTypeInput, UpdateDa
         input CreateDataTypeInput {
             name: String!
             description: String
-            typeConfig: JSON
+            type_config: JSON
         }
 
         input UpdateDataTypeInput {
             id: ID!
             name: String
             description: String
-            typeConfig: JSON
+            type_config: JSON
         }
     `;
 
@@ -55,7 +55,7 @@ export interface DataTypeModel extends BaseModel {
     /**
      * Xlucene Type Config
     */
-    typeConfig?: TypeConfig;
+    type_config?: TypeConfig;
 }
 
 export type CreateDataTypeInput = CreateModel<DataTypeModel>;

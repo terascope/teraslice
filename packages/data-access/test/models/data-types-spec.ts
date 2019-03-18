@@ -22,7 +22,7 @@ describe('DataTypes', () => {
         it('should be able to create a data type', async () => {
             const created = await dataTypes.create({
                 name: 'hello',
-                typeConfig: {}
+                type_config: {}
             });
 
             const fetched = await dataTypes.findById(created.id);

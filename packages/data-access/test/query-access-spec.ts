@@ -26,7 +26,7 @@ describe('QueryAccess', () => {
     const dataType: DataTypeModel = {
         id: 'example-data-type',
         name: 'ExampleType',
-        typeConfig: {},
+        type_config: {},
         updated: new Date().toISOString(),
         created: new Date().toISOString(),
     };

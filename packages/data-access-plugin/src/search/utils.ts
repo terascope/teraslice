@@ -47,7 +47,7 @@ export function getSearchConfig(accessConfig: da.DataAccessConfig): da.SpaceSear
 }
 
 export function getTypesConfig(accessConfig: da.DataAccessConfig, searchConfig: da.SpaceSearchConfig): TypeConfig {
-    const typeConfig = get(accessConfig, 'data_type.typeConfig', {});
+    const typeConfig = get(accessConfig, 'data_type.type_config', {});
 
     const dateField = searchConfig.default_date_field;
     if (dateField && !typeConfig[dateField]) {
