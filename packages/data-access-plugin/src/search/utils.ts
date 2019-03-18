@@ -9,12 +9,10 @@ import * as i from './interfaces';
  * Search elasticsearch in a teraserver backwards compatible way
  */
 export function makeSearchFn(client: Client, accessConfig: da.DataAccessConfig, logger: ts.Logger): i.SearchFn {
-    const config = getSearchConfig(accessConfig);
-    const types = getTypesConfig(accessConfig, config);
-    const searchAccess = new da.SearchAccess(accessConfig, types);
+    const searchAccess = new da.SearchAccess(accessConfig);
 
     return async (query: i.InputQuery) => {
-        const params = getSearchParams(query, config, types);
+        const params = getSearchParams(query, accessConfig.search_config!, accessConfig.data_type.type_config);
         const { q = '' } = params;
 
         const esQuery = searchAccess.restrictQuery(q, params);
@@ -24,42 +22,8 @@ export function makeSearchFn(client: Client, accessConfig: da.DataAccessConfig, 
         const response = await client.search(esQuery);
         if (isTest) logger.trace(response, 'got response...');
 
-        return getSearchResponse(response, config, query, params);
+        return getSearchResponse(response, accessConfig.search_config!, query, params);
     };
-}
-
-export function getSearchConfig(accessConfig: da.DataAccessConfig): da.SpaceSearchConfig {
-    const searchConfig = accessConfig.search_config;
-
-    if (!searchConfig || ts.isEmpty(searchConfig) || !searchConfig.index) {
-        throw new ts.TSError('Search is not configured correctly for search');
-    }
-
-    if (searchConfig.default_date_field) {
-        searchConfig.default_date_field = ts.trimAndToLower(searchConfig.default_date_field);
-    }
-
-    if (searchConfig.default_geo_field) {
-        searchConfig.default_geo_field = ts.trimAndToLower(searchConfig.default_geo_field);
-    }
-
-    return searchConfig;
-}
-
-export function getTypesConfig(accessConfig: da.DataAccessConfig, searchConfig: da.SpaceSearchConfig): TypeConfig {
-    const typeConfig = get(accessConfig, 'data_type.type_config', {});
-
-    const dateField = searchConfig.default_date_field;
-    if (dateField && !typeConfig[dateField]) {
-        typeConfig[dateField] = 'date';
-    }
-
-    const geoField = searchConfig.default_geo_field;
-    if (geoField && !typeConfig[geoField]) {
-        typeConfig[geoField] = 'geo';
-    }
-
-    return typeConfig;
 }
 
 export function getSearchParams(query: i.InputQuery, config: da.SpaceSearchConfig, types: TypeConfig = {}): SearchParams {

@@ -34,9 +34,21 @@ describe('SearchAccess', () => {
     const searchAccess = new SearchAccess({
         view,
         data_type: dataType,
+        search_config: {
+            index: 'example-index'
+        },
         space_id: 'example-space',
         user_id: 'example-user',
         role_id: 'example-role'
+    });
+
+    it('should fail if given an invalid search config', () => {
+        expect(() => {
+            new SearchAccess({
+                // @ts-ignore
+                search_config: {},
+            });
+        }).toThrowWithMessage(TSError, 'Search is not configured correctly for search');
     });
 
     it('should be able to restrict the query for bar', () => {

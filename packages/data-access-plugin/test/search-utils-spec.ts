@@ -126,17 +126,8 @@ describe('Search Utils', () => {
                 sort_dates_only: true
             };
 
-            const types = utils.getTypesConfig({
-                // @ts-ignore
-                data_type: {
-                    type_config: {
-                        otherdate: 'date'
-                    }
-                },
-            }, config);
-
             expect(() => {
-                utils.getSearchParams(query, config, types);
+                utils.getSearchParams(query, config, {});
             }).toThrowWithMessage(TSError, 'Invalid sort parameter, sorting is currently only available for date fields, was given: "WrongDate:asc"');
         });
 

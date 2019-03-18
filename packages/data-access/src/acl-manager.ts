@@ -1,5 +1,6 @@
-import { TSError, uniq } from '@terascope/utils';
 import * as es from 'elasticsearch';
+import * as ts from '@terascope/utils';
+import { TypeConfig } from 'xlucene-evaluator';
 import * as models from './models';
 import { ManagerConfig } from './interfaces';
 
@@ -123,7 +124,7 @@ export class ACLManager {
             return this.users.authenticateWithToken(args.api_token);
         }
 
-        throw new TSError('Missing user authentication fields, username, password, or api_token', {
+        throw new ts.TSError('Missing user authentication fields, username, password, or api_token', {
             statusCode: 401
         });
     }
@@ -380,7 +381,7 @@ export class ACLManager {
 
         if (args.view.data_type) {
             if (oldDataType && oldDataType !== args.view.data_type) {
-                throw new TSError('Cannot not update the data_type on a view', {
+                throw new ts.TSError('Cannot not update the data_type on a view', {
                     statusCode: 422
                 });
             }
@@ -410,7 +411,7 @@ export class ACLManager {
 
         if (!user.role) {
             const msg = `User "${user.username}" is not assigned to a role`;
-            throw new TSError(msg, { statusCode: 403 });
+            throw new ts.TSError(msg, { statusCode: 403 });
         }
 
         const [role, space] = await Promise.all([
@@ -421,7 +422,7 @@ export class ACLManager {
         const hasAccess = space.roles.includes(user.role);
         if (!hasAccess) {
             const msg = `User "${user.username}" does not have access to space "${space.id}"`;
-            throw new TSError(msg, { statusCode: 403 });
+            throw new ts.TSError(msg, { statusCode: 403 });
         }
 
         const [view, dataType] = await Promise.all([
@@ -429,7 +430,7 @@ export class ACLManager {
             this.dataTypes.findById(space.data_type)
         ]);
 
-        return {
+        return this._parseDataAccessConfig({
             user_id: user.id,
             role_id: role.id,
             space_id: space.id,
@@ -437,19 +438,46 @@ export class ACLManager {
             streaming_config: space.streaming_config,
             data_type: dataType,
             view
-        };
+        });
+    }
+
+    private _parseDataAccessConfig(config: DataAccessConfig): DataAccessConfig {
+        const searchConfig = config.search_config!;
+
+        if (searchConfig.default_date_field) {
+            searchConfig.default_date_field = ts.trimAndToLower(searchConfig.default_date_field);
+        }
+
+        if (searchConfig.default_geo_field) {
+            searchConfig.default_geo_field = ts.trimAndToLower(searchConfig.default_geo_field);
+        }
+
+        const typeConfig: TypeConfig = config.data_type.type_config || {};
+
+        const dateField = searchConfig.default_date_field;
+        if (dateField && !typeConfig[dateField]) {
+            typeConfig[dateField] = 'date';
+        }
+
+        const geoField = searchConfig.default_geo_field;
+        if (geoField && !typeConfig[geoField]) {
+            typeConfig[geoField] = 'geo';
+        }
+
+        config.data_type.type_config = typeConfig;
+        return config;
     }
 
     private async _validateUserInput(user: Partial<models.UserModel>) {
         if (!user) {
-            throw new TSError('Invalid User Input', {
+            throw new ts.TSError('Invalid User Input', {
                 statusCode: 422
             });
         }
 
         if (this.users.isPrivateUser(user)) {
             const fields = models.Users.PrivateFields.join(', ');
-            throw new TSError(`Cannot update restricted fields, ${fields}`, {
+            throw new ts.TSError(`Cannot update restricted fields, ${fields}`, {
                 statusCode: 422,
             });
         }
@@ -457,7 +485,7 @@ export class ACLManager {
         if (user.role) {
             const exists = await this.roles.exists(user.role);
             if (!exists) {
-                throw new TSError(`Missing role with user, ${user.role}`, {
+                throw new ts.TSError(`Missing role with user, ${user.role}`, {
                     statusCode: 422
                 });
             }
@@ -466,18 +494,18 @@ export class ACLManager {
 
     private async _validateSpaceInput(space: Partial<models.SpaceModel>) {
         if (!space) {
-            throw new TSError('Invalid Space Input', {
+            throw new ts.TSError('Invalid Space Input', {
                 statusCode: 422
             });
         }
 
         if (space.roles) {
-            space.roles = uniq(space.roles);
+            space.roles = ts.uniq(space.roles);
 
             const exists = await this.roles.exists(space.roles);
             if (!exists) {
                 const rolesStr = space.roles.join(', ');
-                throw new TSError(`Missing roles with space, ${rolesStr}`, {
+                throw new ts.TSError(`Missing roles with space, ${rolesStr}`, {
                     statusCode: 422
                 });
             }
@@ -486,36 +514,36 @@ export class ACLManager {
         if (space.data_type) {
             const exists = await this.dataTypes.exists(space.data_type);
             if (!exists) {
-                throw new TSError(`Missing data_type ${space.data_type}`, {
+                throw new ts.TSError(`Missing data_type ${space.data_type}`, {
                     statusCode: 422
                 });
             }
         }
 
         if (space.views) {
-            space.views = uniq(space.views);
+            space.views = ts.uniq(space.views);
 
             const views = await this.views.findAll(space.views);
             if (views.length !== space.views.length) {
                 const viewsStr = space.views.join(', ');
-                throw new TSError(`Missing views with space, ${viewsStr}`, {
+                throw new ts.TSError(`Missing views with space, ${viewsStr}`, {
                     statusCode: 422
                 });
             }
 
             const dataTypes = views.map(view => view.data_type);
             if (space.data_type && dataTypes.length && !dataTypes.includes(space.data_type)) {
-                throw new TSError('Views must have the same data type', {
+                throw new ts.TSError('Views must have the same data type', {
                     statusCode: 422
                 });
             }
 
             const roles: string[] = [];
             views.forEach((view) => {
-                roles.push(...uniq(view.roles));
+                roles.push(...ts.uniq(view.roles));
             });
-            if (uniq(roles).length !== roles.length) {
-                throw new TSError('Multiple views cannot contain the same role within a space', {
+            if (ts.uniq(roles).length !== roles.length) {
+                throw new ts.TSError('Multiple views cannot contain the same role within a space', {
                     statusCode: 422
                 });
             }
@@ -524,7 +552,7 @@ export class ACLManager {
                 return space.roles.includes(roleId);
             });
             if (!validRoles) {
-                throw new TSError('Views must only contain roles specified on the space', {
+                throw new ts.TSError('Views must only contain roles specified on the space', {
                     statusCode: 422
                 });
             }
@@ -533,7 +561,7 @@ export class ACLManager {
 
     private async _validateRoleInput(role: Partial<models.RoleModel>) {
         if (!role) {
-            throw new TSError('Invalid Role Input', {
+            throw new ts.TSError('Invalid Role Input', {
                 statusCode: 422
             });
         }
@@ -541,7 +569,7 @@ export class ACLManager {
 
     private async _validateDataTypeInput(dataType: Partial<models.DataTypeModel>) {
         if (!dataType) {
-            throw new TSError('Invalid DataType Input', {
+            throw new ts.TSError('Invalid DataType Input', {
                 statusCode: 422
             });
         }
@@ -549,18 +577,18 @@ export class ACLManager {
 
     private async _validateViewInput(view: Partial<models.ViewModel>) {
         if (!view) {
-            throw new TSError('Invalid View Input', {
+            throw new ts.TSError('Invalid View Input', {
                 statusCode: 422
             });
         }
 
         if (view.roles) {
-            view.roles = uniq(view.roles);
+            view.roles = ts.uniq(view.roles);
 
             const exists = await this.roles.exists(view.roles);
             if (!exists) {
                 const rolesStr = view.roles.join(', ');
-                throw new TSError(`Missing roles with view, ${rolesStr}`, {
+                throw new ts.TSError(`Missing roles with view, ${rolesStr}`, {
                     statusCode: 422
                 });
             }
@@ -569,12 +597,12 @@ export class ACLManager {
         if (view.data_type) {
             const exists = await this.dataTypes.exists(view.data_type);
             if (!exists) {
-                throw new TSError(`Missing data_type ${view.data_type}`, {
+                throw new ts.TSError(`Missing data_type ${view.data_type}`, {
                     statusCode: 422
                 });
             }
         } else {
-            throw new TSError('Missing data_type on view input', {
+            throw new ts.TSError('Missing data_type on view input', {
                 statusCode: 422
             });
         }
