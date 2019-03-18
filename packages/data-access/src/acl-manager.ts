@@ -279,9 +279,9 @@ export class ACLManager {
     }
 
     /**
-     * Remove a data type, this is really dangerous since the there are views and spaces linked this
+     * Remove a data type, this is really dangerous since there are views and spaces linked this
      *
-     * @todo we should do addition removals?
+     * @question should we remove the views and spaces associated with the data-type?
     */
     async removeDataType(args: { id: string }) {
         const exists = await this.dataTypes.exists(args.id);
@@ -334,15 +334,10 @@ export class ACLManager {
      * Remove a space by id, this will clean up any associated views and roles
      */
     async removeSpace(args: { id: string }) {
-        try {
-            await this.spaces.deleteById(args.id);
-        } catch (err) {
-            if (err && err.statusCode === 404) {
-                return false;
-            }
-            throw err;
-        }
+        const exists = await this.spaces.exists(args.id);
+        if (!exists) return false;
 
+        await this.spaces.deleteById(args.id);
         return true;
     }
 
