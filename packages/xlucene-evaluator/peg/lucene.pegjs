@@ -84,10 +84,17 @@
 		return geoParameters[node.field] != null;
 	}
 
-	function walkAst(node, fn, accum){
+	function walkAstReduce(node, fn, accum){
 		fn(node, accum)
-		if (node.left) walkAst(node.left, fn, accum)
-		if (node.right) walkAst(node.right, fn, accum)
+		if (node.left) walkAstReduce(node.left, fn, accum)
+		if (node.right) walkAstReduce(node.right, fn, accum)
+	}
+
+    function walkAstUntil(node, fn, done){
+        if (done(node)) return;
+		fn(node)
+		if (node.left) walkAstUntil(node.left, fn, done)
+		if (node.right) walkAstUntil(node.right, fn, done)
 	}
 
 	function getGeoData(node, accum) {
@@ -96,22 +103,35 @@
 		}
 	}
 
+    // propagate fields when dealing with parens
+    // this makes it easier for the other code to
+    // deal with the AST
+    function propagateFields(node) {
+        if (node.left && !node.left.field) {
+            node.left.field = node.field;
+            if (node.left.type === "conjunction") {
+                propagateFields(node.left);
+            }
+        }
+
+        if (node.right && !node.right.field) {
+            node.right.field = node.field;
+            if (node.right.type === "conjunction") {
+                propagateFields(node.right);
+            }
+        }
+    }
+
 	function postProcessAST(node) {
 		if (node.left && isGeoExpression(node.left)) {
 			const parsedGeoNode = { field: node.field };
-			walkAst(node, getGeoData, parsedGeoNode);
+			walkAstReduce(node, getGeoData, parsedGeoNode);
             parsedGeoNode.type = 'geo';
             return parsedGeoNode;
 		}
 
         if (node.parens && node.field) {
-            if (node.left && !node.left.field) {
-                node.left.field = node.field;
-            }
-
-            if (node.right && !node.right.field) {
-                node.right.field = node.field;
-            }
+            propagateFields(node);
         }
 
         if (node.field === '_exists_' && node.term) {
