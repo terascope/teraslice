@@ -188,7 +188,6 @@ by applying a taint, you could use `required` to target the label, then use
 ],
 ```
 
-The
 You can specify one or more targets that will
 use [Kubernetes Node Affinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity)
 to force nodes onto specific nodes.  The targets specified here will be required
