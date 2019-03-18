@@ -585,7 +585,7 @@ export class ACLManager {
  * The definition of an ACL for limiting access to data.
  *
  * This will be passed in in to non-admin data-access tools,
- * like FilterAccess and QueryAccess
+ * like FilterAccess and SearchAccess
 */
 export interface DataAccessConfig {
     /**

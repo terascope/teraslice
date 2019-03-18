@@ -1,15 +1,15 @@
 import 'jest-extended';
-import { FilterAccess } from '../src';
+import { StreamAccess } from '../src';
 
-describe('FilterAccess', () => {
+describe('StreamAccess', () => {
     // @ts-ignore FIXME
-    const filterAccess = new FilterAccess();
+    const streamAccess = new StreamAccess();
 
     it('should be an instance of FilterAccess', () => {
-        expect(filterAccess).toBeInstanceOf(FilterAccess);
+        expect(streamAccess).toBeInstanceOf(StreamAccess);
     });
 
     it('should be able to filter', () => {
-        expect(filterAccess.filter([])).toEqual([]);
+        expect(streamAccess.filter([])).toEqual([]);
     });
 });

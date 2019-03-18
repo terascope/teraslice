@@ -11,13 +11,13 @@ import * as i from './interfaces';
 export function makeSearchFn(client: Client, accessConfig: da.DataAccessConfig, logger: ts.Logger): i.SearchFn {
     const config = getSearchConfig(accessConfig);
     const types = getTypesConfig(accessConfig, config);
-    const queryAccess = new da.QueryAccess(accessConfig, types);
+    const searchAccess = new da.SearchAccess(accessConfig, types);
 
     return async (query: i.InputQuery) => {
         const params = getSearchParams(query, config, types);
         const { q = '' } = params;
 
-        const esQuery = queryAccess.restrictESQuery(q, params);
+        const esQuery = searchAccess.restrictQuery(q, params);
 
         if (isTest) logger.debug(esQuery, 'searching...');
 

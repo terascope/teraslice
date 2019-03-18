@@ -8,10 +8,9 @@ import { DataAccessConfig } from './acl-manager';
  * Using a DataAccess ACL, limit queries to
  * specific fields and records
  *
- * @todo this should be renamed to SearchAccess and it should contain some code
- * from the search plugin
+ * @todo move search code from the data-access-plugin here
 */
-export class QueryAccess {
+export class SearchAccess {
     config: DataAccessConfig;
     private _queryAccess: LuceneQueryAccess;
     private _typeConfig: TypeConfig|undefined;
@@ -41,7 +40,7 @@ export class QueryAccess {
      *
      * If the input query using restricted fields, it will throw.
     */
-    restrictESQuery(query: string, params: SearchParams = {}): SearchParams {
+    restrictQuery(query: string, params: SearchParams = {}): SearchParams {
         if (params._source) {
             throw new TSError('Cannot include _source in params, use _sourceInclude or _sourceExclude');
         }

@@ -1,9 +1,9 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
-import { QueryAccess, ViewModel, DataTypeModel } from '../src';
+import { SearchAccess, ViewModel, DataTypeModel } from '../src';
 import { SearchParams } from 'elasticsearch';
 
-describe('QueryAccess', () => {
+describe('SearchAccess', () => {
     const view: ViewModel = {
         id: 'example-view',
         name: 'Example View',
@@ -31,7 +31,7 @@ describe('QueryAccess', () => {
         created: new Date().toISOString(),
     };
 
-    const queryAccess = new QueryAccess({
+    const searchAccess = new SearchAccess({
         view,
         data_type: dataType,
         space_id: 'example-space',
@@ -41,7 +41,7 @@ describe('QueryAccess', () => {
 
     it('should be able to restrict the query for bar', () => {
         expect(() => {
-            queryAccess.restrictESQuery('bar:foo');
+            searchAccess.restrictQuery('bar:foo');
         }).toThrowWithMessage(TSError, 'Field bar is restricted');
     });
 
@@ -56,7 +56,7 @@ describe('QueryAccess', () => {
             ]
         };
 
-        const result = queryAccess.restrictESQuery('foo:bar', params);
+        const result = searchAccess.restrictQuery('foo:bar', params);
         expect(result).toMatchObject({
             _sourceExclude: [
                 'baz'
@@ -71,7 +71,7 @@ describe('QueryAccess', () => {
     });
 
     it('should be able to return a restricted query without any params', () => {
-        const result = queryAccess.restrictESQuery('foo:bar');
+        const result = searchAccess.restrictQuery('foo:bar');
         expect(result).toMatchObject({
             _sourceExclude: [
                 'bar',
