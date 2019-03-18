@@ -225,22 +225,53 @@ describe('ACLManager', () => {
     });
 
     describe('when getting a view for a user', () => {
-        describe('when no roles exists on the user', () => {
-            let apiToken: string;
-            beforeAll(async () => {
-                const user = await manager.createUser({
-                    user: {
-                        username: 'foooooo',
-                        firstname: 'Foo',
-                        lastname: 'ooooo',
-                        email: 'foobar@example.com',
-                    },
-                    password: 'secrets'
-                });
+        let userId: string;
+        let apiToken: string;
+        let roleId: string;
+        let dataTypeId: string;
 
-                apiToken = user.api_token;
+        beforeAll(async () => {
+            const user = await manager.createUser({
+                user: {
+                    username: 'foooooo',
+                    firstname: 'Foo',
+                    lastname: 'Bar',
+                    client_id: 1888,
+                    email: 'foobar@example.com',
+                },
+                password: 'secrets'
             });
+            userId = user.id;
+            apiToken = user.api_token;
 
+            const role = await manager.createRole({
+                role: {
+                    name: 'Example Role',
+                }
+            });
+            roleId = role.id;
+
+            const dataType = await manager.createDataType({
+                dataType: {
+                    name: 'MyExampleType',
+                    type_config: {
+                        created: 'date',
+                        location: 'geo'
+                    },
+                },
+            });
+            dataTypeId = dataType.id;
+        });
+
+        afterAll(() => {
+            return Promise.all([
+                manager.removeUser({ id: userId }),
+                manager.removeRole({ id: userId }),
+                manager.removeDataType({ id: userId }),
+            ]);
+        });
+
+        describe('when no roles exists on the user', () => {
             it('should throw a forbidden error', async () => {
                 expect.hasAssertions();
 
@@ -255,34 +286,10 @@ describe('ACLManager', () => {
         });
 
         describe('when everything is setup correctly', () => {
-            const username = 'example-username';
-
             let spaceId: string;
-            let roleId: string;
-            let userId: string;
             let viewId: string;
-            let dataTypeId: string;
-            let apiToken: string;
 
             beforeAll(async () => {
-                const role = await manager.createRole({
-                    role: {
-                        name: 'Example Role',
-                    }
-                });
-                roleId = role.id;
-
-                const dataType = await manager.createDataType({
-                    dataType: {
-                        name: 'MyExampleType',
-                        type_config: {
-                            created: 'date',
-                            location: 'geo'
-                        },
-                    },
-                });
-                dataTypeId = dataType.id;
-
                 const view = await manager.createView({
                     view: {
                         name: 'Example View',
@@ -309,30 +316,25 @@ describe('ACLManager', () => {
                 });
                 spaceId = space.id;
 
-                await manager.updateRole({
-                    role: {
-                        id: roleId,
-                        name: 'Example Role',
+                await manager.updateUser({
+                    user: {
+                        id: userId,
+                        role: roleId
                     }
                 });
+            });
 
-                const user = await manager.createUser({
-                    user: {
-                        username,
-                        firstname: 'Foo',
-                        lastname: 'Bar',
-                        client_id: 1888,
-                        email: 'foobar@example.com',
-                        role: roleId,
-                    },
-                    password: 'secrets'
-                });
-
-                userId = user.id;
-                apiToken = user.api_token;
+            afterAll(() => {
+                return Promise.all([
+                    manager.removeView({ id: viewId }),
+                    manager.removeSpace({ id: spaceId }),
+                ]);
             });
 
             it('should be able to get config by space id', () => {
+                expect(apiToken).toBeTruthy();
+                expect(spaceId).toBeTruthy();
+
                 return expect(manager.getViewForSpace({
                     api_token: apiToken,
                     space: spaceId
@@ -362,6 +364,8 @@ describe('ACLManager', () => {
             });
 
             it('should be able to get config by space endpoint', () => {
+                expect(apiToken).toBeTruthy();
+
                 return expect(manager.getViewForSpace({
                     api_token: apiToken,
                     space: 'example-space'
@@ -371,30 +375,70 @@ describe('ACLManager', () => {
                     role_id: roleId,
                 });
             });
+        });
 
-            it('should be able to remove the user', () => {
-                return expect(manager.removeUser({ id: userId }))
-                    .resolves.toBeTrue();
+        describe('when testing default view access', () => {
+            let spaceId: string;
+
+            beforeAll(async () => {
+                const space = await manager.createSpace({
+                    space: {
+                        name: 'Another Space',
+                        data_type: dataTypeId,
+                        endpoint: 'another-space',
+                        roles: [roleId],
+                        views: [],
+                        search_config: {
+                            index: 'howdy',
+                            sort_default: 'created:asc',
+                            preserve_index_name: true,
+                        },
+                    }
+                });
+                spaceId = space.id;
+
+                await manager.updateUser({
+                    user: {
+                        id: userId,
+                        role: roleId
+                    }
+                });
             });
 
-            it('should be able to remove the role', () => {
-                return expect(manager.removeRole({ id: roleId }))
-                    .resolves.toBeTrue();
+            afterAll(() => {
+                return Promise.all([
+                    manager.removeSpace({ id: spaceId }),
+                ]);
             });
 
-            it('should be able to remove the view', () => {
-                return expect(manager.removeView({ id: viewId }))
-                    .resolves.toBeTrue();
-            });
+            it('should be able to get the default view', () => {
+                expect(apiToken).toBeTruthy();
+                expect(spaceId).toBeTruthy();
 
-            it('should be able to remove the space', () => {
-                return expect(manager.removeSpace({ id: spaceId }))
-                    .resolves.toBeTrue();
-            });
-
-            it('should be able to remove the data type', () => {
-                return expect(manager.removeDataType({ id: dataTypeId }))
-                    .resolves.toBeTrue();
+                return expect(manager.getViewForSpace({
+                    api_token: apiToken,
+                    space: spaceId
+                })).resolves.toMatchObject({
+                    user_id: userId,
+                    role_id: roleId,
+                    data_type: {
+                        id: dataTypeId,
+                        type_config: {
+                            created: 'date',
+                            location: 'geo',
+                        }
+                    },
+                    view: {
+                        name: `Default View for Role ${roleId}`,
+                        roles: [roleId]
+                    },
+                    space_id: spaceId,
+                    search_config: {
+                        index: 'howdy',
+                        sort_default: 'created:asc',
+                        preserve_index_name: true,
+                    },
+                });
             });
         });
     });

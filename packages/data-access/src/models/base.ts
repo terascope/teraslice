@@ -143,6 +143,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
     }
 
     async findAll(ids: string[]) {
+        if (!ids || !ids.length) return [];
         return this.store.mget({ ids });
     }
 
