@@ -153,7 +153,7 @@ provided by this label.  This uses a Kubernetes tolerance.
 If you want to force pods to run on nodes with a given label, you can simply
 specify a target with just a `key` and `value`:
 
-```
+```json
 "targets": [
     {"key": "zone", "value": "west"}
 ],
