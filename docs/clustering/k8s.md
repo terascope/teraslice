@@ -108,7 +108,7 @@ workers that translate to Kubernetes resource constraints.  Currently you
 can specify optional integer values on your job as shown below. The `cpu`
 setting is in vcores and the `memory` setting is in bytes.
 
-```
+```json
 "cpu": 1,
 "memory": 2147483648
 ```
@@ -129,7 +129,7 @@ specify a single target and by default Teraslice will configure your workers to
 only run on nodes who's labels match the `key` and `value` specified as shown
 below:
 
-```
+```json
 "targets": [
     {"key": "zone", "value": "west"}
 ],
@@ -184,37 +184,96 @@ by applying a taint, you could use `required` to target the label, then use
 ```json
 "targets": [
     {"key": "zone", "value": "west", "constraint": "required"}
-    {"key": "gen4", "value": "NoSchedule", "constraint": "accepted"}
+    {"key": "region", "value": "texas", "constraint": "accepted"}
 ],
 ```
 
-You can specify one or more targets that will
-use [Kubernetes Node Affinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity)
-to force nodes onto specific nodes.  The targets specified here will be required
-using `requiredDuringSchedulingIgnoredDuringExecution`.
+If you are not familiar with the details of Kubernetes affinity and
+taint/tolerance mechanisms you can find more information in the Kubernetes
+documentation below:
 
-[Kubernetes Taints and Tolerations](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
+* [Kubernetes Node Affinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity)
+* [Kubernetes Taints and Tolerations](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
 
 ### Pod Spec Details
 
-For each entry in `targets`, if the `constraint` is omitted or set to `require`,
-the pod spec will include a
-`nodeAffinity` of
-`requiredDuringSchedulingIgnoredDuringExecution` constraint like the one shown
-below:
+Each of the Teraslice job target `constraint`s are implemented slightly
+differently and it may be important for you to know exactly how these get
+translated into the Kubernetes manifest.  Those details are described below.
+
+#### Details of the `required` constraint
+
+For each entry in `targets` without a `constraint` or if `contraint` is set to
+`required`, the pod spec will include an entry in the `matchExpressions` list
+under the `requiredDuringSchedulingIgnoredDuringExecution` affinity property.
+The example below is what you would get if you provided two `required` targets:
 
 ```yaml
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: <KEY>
-            operator: In
-            values:
-            - <VALUE>
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: zone
+                    operator: In
+                    values:
+                      - west
+                  - key: region
+                    operator: In
+                    values:
+                      - texas
 ```
 
-If the `constraint` is set to `preferred`, the pod spec will include a
-Kubernetes `preferredDuringSchedulingIgnoredDuringExecution` `nodeAffinity`
-constraint like the one shown below:
+
+#### Details of the `preferred` constraint
+
+For each entry in `targets` with a `constraint` set to `preferred`, the pod spec
+will include a separate preference in the list under the
+`preferredDuringSchedulingIgnoredDuringExecution` affinity property.  For now,
+all of these preferences will assume a weight of `1`.  The example
+below is what you would get if you provided two `preferred` targets:
+
+```yaml
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: zone
+                    operator: In
+                    values:
+                      - west
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: region
+                    operator: In
+                    values:
+                      - texas
+```
+
+
+#### Details of the `accepted` constraint
+
+For each entry in `targets` with a `constraint` set to `accepted`, the pod spec
+will include a separate toleration in the list under the `tolerations` property.
+Both the `key` and `value` provided in the target will be used to match the
+taint.  The example below is what you would get if you provided two `accepted`
+targets:
+
+```yaml
+      tolerations:
+        - key: zone
+          operator: Equal
+          value: west
+          effect: NoSchedule
+        - key: region
+          operator: Equal
+          value: texas
+          effect: NoSchedule
+```
+
 
 ## Attach existing volumes
 
@@ -224,7 +283,7 @@ and their volume claims must exist prior to job execution.  Note that the `name`
 property should be the name of the Kubernetes `persistentVolumeClaim`.  The
 `path` is where the volume will be mounted within the containers in your pod.
 
-```
+```json
 "volumes": [
     {"name": "teraslice-data1", "path": "/data"}
 ],
@@ -238,7 +297,7 @@ you can type `make` to see all of the possible targets.
 The standard minikube based dev workflow is and requires the `teraslice-cli`
 version `0.5.1` or higher:
 
-```
+```bash
 cd examples/k8s
 export NAMESPACE=ts-dev1
 export TERASLICE_K8S_IMAGE=teraslice-k8sdev:1
@@ -294,7 +353,7 @@ make rebuild
 
 To tear everything down and start over, all you have to do is run:
 
-```
+```bash
 make destroy-all
 ```
 
