@@ -179,11 +179,55 @@ mutation {
 }
 ```
 
-### Searhcing the space
+### Searching the space
 
 ```sh
 # replace localhost:8000 with your teraserver url
 curl -sS 'localhost:8000/api/v2/example-space?token=<API_TOKEN>&q=foo:bar' | jq '.'
+```
+
+### Using the search middleware
+
+The data-access-plugin sets preconfigured API for a "space" on the Request (`req.space`) so it can be used with minimal setup and configuration by using express middleware. To use the space API on the request, the route be registered under `/api/v2/:space-endpoint`, it can also be nested, for example `/api/v2/:space-endpoint/search`.
+
+The space request API has the following properties:
+
+- `searchErrorHandler`: An async error handler function that will mask any unwanted errors
+- `accessConfig`: The data access configuration for space/user
+- `search`: A search function preconfigured for the space
+- `logger`: A namespaced logger for that space
+
+```js
+// ... teraserver plugin
+    routes() {
+      app.get('/api/v2/example-space', (req, res) => {
+        const { space } = req;
+        if (!space) {
+            // if you get here the data-access-plugin was not registered correctly
+            res.sendStatus(500);
+            return;
+        }
+
+        space.searchErrorHandler(req, res, async () => {
+            // do any pre-processing here...
+
+            const result = await space.search(req.query);
+
+            // do any post-processing here...
+
+            res
+                .status(200)
+                .set('Content-type', 'application/json; charset=utf-8');
+
+            if (req.query.pretty) {
+                res.send(JSON.stringify(result, null, 2));
+            } else {
+                res.json(result);
+            }
+        });
+      });
+    }
+// ...
 ```
 
 ## Contributing
