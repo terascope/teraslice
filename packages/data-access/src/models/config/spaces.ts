@@ -111,8 +111,7 @@ const config: ModelConfig<SpaceModel> = {
                     history_prefix: {
                         type: 'string',
                     }
-                },
-                required: ['index']
+                }
             },
             streaming_config: {
                 type: 'object',

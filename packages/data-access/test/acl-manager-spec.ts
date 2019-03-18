@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { TSError, times } from '@terascope/utils';
+import { TSError } from '@terascope/utils';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
 import { ACLManager, UserModel } from '../src';
 
@@ -155,23 +155,156 @@ describe('ACLManager', () => {
         });
     });
 
-    describe('when creating views', () => {
-        const roles: string[] = [];
+    describe('when creating a space with a invalid data type', () => {
+        let dataType1: string;
+        let dataType2: string;
+        let viewId: string;
 
         beforeAll(async () => {
-            const promises = times(2, (n) => {
-                return manager.createRole({
-                    role: {
-                        name: `Role ${n}`,
+            const [dt1, dt2] = await Promise.all([
+                manager.createDataType({
+                    dataType: {
+                        name: 'ABC DataType'
                     }
-                });
+                }),
+                manager.createDataType({
+                    dataType: {
+                        name: 'BCD DataType'
+                    }
+                }),
+            ]);
+            dataType1 = dt1.id;
+            dataType2 = dt2.id;
+
+            const view = await manager.createView({
+                view: {
+                    name: 'BCD View',
+                    data_type: dataType2,
+                    roles: [],
+                }
             });
-
-            const results = await Promise.all(promises);
-
-            roles.push(...results.map((role) => role.id));
+            viewId = view.id;
         });
 
+        it('should throw an error', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createSpace({
+                    space: {
+                        name: 'uh-oh',
+                        endpoint: 'uh-oh',
+                        data_type: dataType1,
+                        views: [viewId],
+                        roles: [],
+                    }
+                });
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Views must have the same data type');
+                expect(err.statusCode).toEqual(422);
+            }
+        });
+    });
+
+    describe('when creating a space with a invalid roles', () => {
+        let dataTypeId: string;
+        let role1Id: string;
+        let role2Id: string;
+        let role3Id: string;
+        let view1Id: string;
+        let view2Id: string;
+
+        beforeAll(async () => {
+            const [role1, role2, role3, dataType] = await Promise.all([
+                manager.createRole({
+                    role: {
+                        name: 'Some Role 1',
+                    }
+                }),
+                manager.createRole({
+                    role: {
+                        name: 'Some Role 2',
+                    }
+                }),
+                manager.createRole({
+                    role: {
+                        name: 'Some Role 3',
+                    }
+                }),
+                manager.createDataType({
+                    dataType: {
+                        name: 'Some DataType'
+                    }
+                })
+            ]);
+            dataTypeId = dataType.id;
+            role1Id = role1.id;
+            role2Id = role2.id;
+            role3Id = role3.id;
+
+            const [view1, view2] = await Promise.all([
+                manager.createView({
+                    view: {
+                        name: 'Some View 1',
+                        data_type: dataTypeId,
+                        roles: [role1Id, role2Id],
+                    }
+                }),
+                manager.createView({
+                    view: {
+                        name: 'Some View 2',
+                        data_type: dataTypeId,
+                        roles: [role1Id],
+                    }
+                })
+            ]);
+            view1Id = view1.id;
+            view2Id = view2.id;
+        });
+
+        it('should throw an error if the view contains a unknown role to the space', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createSpace({
+                    space: {
+                        name: 'uh-oh',
+                        endpoint: 'uh-oh',
+                        data_type: dataTypeId,
+                        views: [view1Id],
+                        roles: [role3Id],
+                    }
+                });
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Views must only contain roles specified on the space');
+                expect(err.statusCode).toEqual(422);
+            }
+        });
+
+        it('should throw an error if the view contains a extra role', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createSpace({
+                    space: {
+                        name: 'uh-oh',
+                        endpoint: 'uh-oh',
+                        data_type: dataTypeId,
+                        views: [view1Id, view2Id],
+                        roles: [role1Id, role2Id, role3Id],
+                    }
+                });
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Multiple views cannot contain the same role within a space');
+                expect(err.statusCode).toEqual(422);
+            }
+        });
+    });
+
+    describe('when creating views', () => {
         describe('when moving to a different data_type', () => {
             let viewId: string;
             let dataType1Id: string;

@@ -469,28 +469,11 @@ export class ACLManager {
         }
     }
 
-    /**
-     * @todo validate that any view being attached has a role that is set on the space
-     * and that role only exists in one view
-     * @todo validate the data type matches the data type on the views
-    */
     private async _validateSpaceInput(space: Partial<models.SpaceModel>) {
         if (!space) {
             throw new TSError('Invalid Space Input', {
                 statusCode: 422
             });
-        }
-
-        if (space.views) {
-            space.views = uniq(space.views);
-
-            const exists = await this.views.exists(space.views);
-            if (!exists) {
-                const viewsStr = space.views.join(', ');
-                throw new TSError(`Missing views with space, ${viewsStr}`, {
-                    statusCode: 422
-                });
-            }
         }
 
         if (space.roles) {
@@ -509,6 +492,44 @@ export class ACLManager {
             const exists = await this.dataTypes.exists(space.data_type);
             if (!exists) {
                 throw new TSError(`Missing data_type ${space.data_type}`, {
+                    statusCode: 422
+                });
+            }
+        }
+
+        if (space.views) {
+            space.views = uniq(space.views);
+
+            const views = await this.views.findAll(space.views);
+            if (views.length !== space.views.length) {
+                const viewsStr = space.views.join(', ');
+                throw new TSError(`Missing views with space, ${viewsStr}`, {
+                    statusCode: 422
+                });
+            }
+
+            const dataTypes = views.map(view => view.data_type);
+            if (space.data_type && dataTypes.length && !dataTypes.includes(space.data_type)) {
+                throw new TSError('Views must have the same data type', {
+                    statusCode: 422
+                });
+            }
+
+            const roles: string[] = [];
+            views.forEach((view) => {
+                roles.push(...uniq(view.roles));
+            });
+            if (uniq(roles).length !== roles.length) {
+                throw new TSError('Multiple views cannot contain the same role within a space', {
+                    statusCode: 422
+                });
+            }
+            const validRoles = roles.every((roleId) => {
+                if (!space.roles) return true;
+                return space.roles.includes(roleId);
+            });
+            if (!validRoles) {
+                throw new TSError('Views must only contain roles specified on the space', {
                     statusCode: 422
                 });
             }
