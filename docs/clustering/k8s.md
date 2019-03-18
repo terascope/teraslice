@@ -204,7 +204,7 @@ the pod spec will include a
 `requiredDuringSchedulingIgnoredDuringExecution` constraint like the one shown
 below:
 
-```
+```yaml
         nodeSelectorTerms:
         - matchExpressions:
           - key: <KEY>
