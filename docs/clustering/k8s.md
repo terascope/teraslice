@@ -170,7 +170,7 @@ thing:
 
 Using `"constraint": "preferred"` establishes a looser constraint on the label:
 
-```
+```json
 "targets": [
     {"key": "zone", "value": "west", "constraint": "preferred"}
 ],
