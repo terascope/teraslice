@@ -199,7 +199,6 @@ using `requiredDuringSchedulingIgnoredDuringExecution`.
 
 For each entry in `targets`, if the `constraint` is omitted or set to `require`,
 the pod spec will include a
-
 `nodeAffinity` of
 `requiredDuringSchedulingIgnoredDuringExecution` constraint like the one shown
 below:
