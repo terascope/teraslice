@@ -263,26 +263,6 @@ describe('ACLManager', () => {
             view2Id = view2.id;
         });
 
-        it('should throw an error if the view contains a unknown role to the space', async () => {
-            expect.hasAssertions();
-
-            try {
-                await manager.createSpace({
-                    space: {
-                        name: 'uh-oh',
-                        endpoint: 'uh-oh',
-                        data_type: dataTypeId,
-                        views: [view1Id],
-                        roles: [role3Id],
-                    }
-                });
-            } catch (err) {
-                expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Views must only contain roles specified on the space');
-                expect(err.statusCode).toEqual(422);
-            }
-        });
-
         it('should throw an error if the view contains a extra role', async () => {
             expect.hasAssertions();
 

@@ -547,15 +547,6 @@ export class ACLManager {
                     statusCode: 422
                 });
             }
-            const validRoles = roles.every((roleId) => {
-                if (!space.roles) return true;
-                return space.roles.includes(roleId);
-            });
-            if (!validRoles) {
-                throw new ts.TSError('Views must only contain roles specified on the space', {
-                    statusCode: 422
-                });
-            }
         }
     }
 
