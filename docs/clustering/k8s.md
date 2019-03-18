@@ -181,7 +181,7 @@ but also wanted to guarantee the availability of these nodes for this workload
 by applying a taint, you could use `required` to target the label, then use
 `accepted` to tolerate that taint as follows:
 
-```
+```json
 "targets": [
     {"key": "zone", "value": "west", "constraint": "required"}
     {"key": "gen4", "value": "NoSchedule", "constraint": "accepted"}
