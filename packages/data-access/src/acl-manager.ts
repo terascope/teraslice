@@ -601,10 +601,6 @@ export class ACLManager {
                     statusCode: 422
                 });
             }
-        } else {
-            throw new ts.TSError('Missing data_type on view input', {
-                statusCode: 422
-            });
         }
     }
 }
