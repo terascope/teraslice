@@ -156,6 +156,54 @@ describe('Translator', () => {
             }
         ],
         [
+            'id:(hi OR hello OR howdy OR aloha OR hey OR sup)',
+            'query.constant_score.filter.bool',
+            {
+                filter: [
+                    {
+                        bool: {
+                            filter: [],
+                            must_not: [],
+                            should: [
+                                {
+                                    term: {
+                                        id: 'hi',
+                                    }
+                                },
+                                {
+                                    term: {
+                                        id: 'hello',
+                                    }
+                                },
+                                {
+                                    term: {
+                                        id: 'howdy',
+                                    }
+                                },
+                                {
+                                    term: {
+                                        id: 'aloha',
+                                    }
+                                },
+                                {
+                                    term: {
+                                        id: 'hey',
+                                    }
+                                },
+                                {
+                                    term: {
+                                        id: 'sup',
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                should: [],
+                must_not: [],
+            }
+        ],
+        [
             'some:query AND other:thing',
             'query.constant_score.filter.bool.filter',
             [

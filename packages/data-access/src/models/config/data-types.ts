@@ -1,9 +1,9 @@
 import { ModelConfig } from '../base';
-import { RoleModel } from '../roles';
+import { DataTypeModel } from '../data-types';
 
-const config: ModelConfig<RoleModel> = {
+const config: ModelConfig<DataTypeModel> = {
     version: 1,
-    name: 'roles',
+    name: 'data_types',
     mapping: {
         properties: {
             name: {
@@ -14,6 +14,9 @@ const config: ModelConfig<RoleModel> = {
                         analyzer: 'lowercase_keyword_analyzer'
                     }
                 },
+            },
+            type_config: {
+                type: 'object'
             }
         }
     },
@@ -24,10 +27,16 @@ const config: ModelConfig<RoleModel> = {
             },
             description: {
                 type: 'string'
+            },
+            type_config: {
+                type: 'object',
+                additionalProperties: true,
+                default: {},
             }
         },
         required: ['name']
     },
+    uniqueFields: ['name']
 };
 
 export = config;

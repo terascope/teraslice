@@ -3,8 +3,10 @@ import { DataAccessConfig } from './acl-manager';
 /**
  * Using a DataAccess ACL, filter access to specific
  * records and fields
+ *
+ * @todo implement this
 */
-export class FilterAccess<T extends object> {
+export class StreamAccess<T extends object> {
     constructor(acl: DataAccessConfig) {
 
     }

@@ -2,12 +2,12 @@ import 'jest-extended';
 import * as index from '../src';
 
 describe('index', () => {
-    it('should export FilterAccess', () => {
-        expect(index.FilterAccess).not.toBeNil();
+    it('should export StreamAccess', () => {
+        expect(index.StreamAccess).not.toBeNil();
     });
 
-    it('should export QueryAccess', () => {
-        expect(index.QueryAccess).not.toBeNil();
+    it('should export SearchAccess', () => {
+        expect(index.SearchAccess).not.toBeNil();
     });
 
     it('should export ACLManager', () => {

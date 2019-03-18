@@ -212,7 +212,7 @@ export class TestContext implements i.Context {
         this.apis = {
             foundation: {
                 makeLogger(...params: any[]): Logger {
-                    return debugLogger(testName, ...params);
+                    return logger.child(params[0]);
                 },
                 getConnection(options: i.ConnectionConfig): { client: any } {
                     const { cached } = options;

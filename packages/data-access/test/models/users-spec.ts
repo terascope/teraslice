@@ -1,5 +1,4 @@
 import 'jest-extended';
-import nanoid from 'nanoid';
 import { TSError, DataEntity } from '@terascope/utils';
 import { Users, PrivateUserModel } from '../../src/models/users';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
@@ -33,9 +32,7 @@ describe('Users', () => {
                 lastname: 'Joe',
                 email: 'billy.joe@example.com',
                 client_id: 123,
-                roles: [
-                    'example-role-id'
-                ]
+                role: 'example-role-id'
             }, password);
         });
 
@@ -43,6 +40,7 @@ describe('Users', () => {
             expect(created).toHaveProperty('api_token');
             expect(created).toHaveProperty('hash');
             expect(created).toHaveProperty('salt');
+            expect(created).toHaveProperty('type', 'USER');
         });
 
         it('should be able fetch the user by id', async () => {
@@ -167,111 +165,19 @@ describe('Users', () => {
         });
     });
 
-    describe('when using a legacy user', () => {
-        describe('when a role exists not roles', () => {
-            const username = 'legacy-user';
-            const id = nanoid();
-            const roleId = 'foobar-role-id';
-
-            beforeAll(async () => {
-                await users.store.client.index({
-                    id,
-                    index: users.store.indexQuery,
-                    refresh: true,
-                    type: 'users',
-                    body: {
-                        id,
-                        username,
-                        email: 'legacy.foobar@example.com',
-                        firstname: 'Legacy',
-                        lastname: 'FooBar',
-                        client_id: 235,
-                        role: roleId,
-                        created: new Date(),
-                        updated: new Date(),
-                    }
-                });
-            });
-
-            it('should be able fetch the user', async () => {
-                const fetched = await users.findById(id);
-
-                expect(fetched).not.toHaveProperty('role');
-                expect(fetched.roles).toEqual([
-                    roleId
-                ]);
-            });
-
-            it('should be fixed when updating it', async () => {
-                const prefetched = await users.store.client.get<PrivateUserModel>({
-                    id,
-                    index: users.store.indexQuery,
-                    type: 'users'
-                });
-
-                expect(prefetched._source).toHaveProperty('role', roleId);
-                expect(prefetched._source).not.toHaveProperty('roles');
-
-                await users.update({
-                    id,
-                    username,
-                    // @ts-ignore
-                    role: roleId
-                });
-
-                const fetched = await users.store.client.get<PrivateUserModel>({
-                    id,
-                    index: users.store.indexQuery,
-                    type: 'users'
-                });
-
-                expect(fetched._source.roles).toEqual([
-                    roleId
-                ]);
-            });
-        });
-    });
-
     describe('when testing user validation', () => {
-        describe('when adding multiple roles', () => {
-            it('should throw a validation error', async () => {
-                expect.hasAssertions();
-
-                try {
-                    await users.createWithPassword({
-                        username: 'coolbeans',
-                        firstname: 'Cool',
-                        lastname: 'Beans',
-                        email: 'cool.beans@example.com',
-                        client_id: 123,
-                        // @ts-ignore
-                        roles: [
-                            'example-role-id-2',
-                            'example-role-id',
-                        ]
-                    }, 'supersecret');
-                } catch (err) {
-                    expect(err).toBeInstanceOf(TSError);
-                    expect(err.message).toEqual('.roles should NOT have more than 1 items');
-                    expect(err.statusCode).toEqual(422);
-                }
-            });
-        });
-
         describe('when adding an invalid email address', () => {
             it('should throw a validation error', async () => {
                 expect.hasAssertions();
 
                 try {
                     await users.createWithPassword({
-                        username: 'coolbeans',
+                        username: 'coolbeans-1',
                         firstname: 'Cool',
                         lastname: 'Beans',
                         email: 'cool.beans',
                         client_id: 123,
-                        roles: [
-                            'example-role-id',
-                        ]
+                        role: 'example-role-id',
                     }, 'supersecret');
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
@@ -284,14 +190,12 @@ describe('Users', () => {
         describe('when adding a messy email address', () => {
             it('should trim and to lower the email address', async () => {
                 const result = await users.createWithPassword({
-                    username: 'coolbeans',
+                    username: 'coolbeans-2',
                     firstname: 'Cool',
                     lastname: 'Beans',
                     email: ' cool.BEANS@example.com ',
                     client_id: 123,
-                    roles: [
-                        'example-role-id',
-                    ]
+                    role: 'example-role-id',
                 }, 'supersecret');
 
                 expect(result.email).toEqual('cool.beans@example.com');

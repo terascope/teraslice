@@ -1,21 +1,25 @@
-import { Omit, parseList, uniq, TSError } from '@terascope/utils';
-import { SearchParams } from 'elasticsearch';
+import * as ts from '@terascope/utils';
 import defaultsDeep from 'lodash.defaultsdeep';
-import { LuceneQueryAccess, Translator, TypeConfig } from 'xlucene-evaluator';
+import { SearchParams } from 'elasticsearch';
+import { LuceneQueryAccess, Translator } from 'xlucene-evaluator';
 import { DataAccessConfig } from './acl-manager';
 
 /**
  * Using a DataAccess ACL, limit queries to
  * specific fields and records
+ *
+ * @todo move search code from the data-access-plugin here
 */
-export class QueryAccess {
+export class SearchAccess {
     config: DataAccessConfig;
     private _queryAccess: LuceneQueryAccess;
-    private _typeConfig: TypeConfig|undefined;
 
-    constructor(config: DataAccessConfig, types?: TypeConfig) {
+    constructor(config: DataAccessConfig) {
+        if (!config.search_config || ts.isEmpty(config.search_config) || !config.search_config.index) {
+            throw new ts.TSError('Search is not configured correctly for search');
+        }
+
         this.config = config;
-        this._typeConfig = types;
 
         const {
             excludes = [],
@@ -38,14 +42,14 @@ export class QueryAccess {
      *
      * If the input query using restricted fields, it will throw.
     */
-    restrictESQuery(query: string, params: SearchParams = {}): SearchParams {
+    restrictQuery(query: string, params: SearchParams = {}): SearchParams {
         if (params._source) {
-            throw new TSError('Cannot include _source in params, use _sourceInclude or _sourceExclude');
+            throw new ts.TSError('Cannot include _source in params, use _sourceInclude or _sourceExclude');
         }
 
         const restricted = this._queryAccess.restrict(query);
 
-        const body = Translator.toElasticsearchDSL(restricted, this._typeConfig);
+        const body = Translator.toElasticsearchDSL(restricted, this.config.data_type.type_config);
 
         const _sourceInclude = getSourceFields(this.config.view.includes, params._sourceInclude);
         const _sourceExclude = getSourceFields(this.config.view.excludes, params._sourceExclude);
@@ -62,11 +66,12 @@ export class QueryAccess {
 
         return searchParams;
     }
+
 }
 
 export function getSourceFields(restricted?: string[], override?: string[]|boolean|string): string[]|undefined {
     if (restricted && override) {
-        const fields = uniq(parseList(override));
+        const fields = ts.uniq(ts.parseList(override));
 
         for (const field of restricted) {
             const index = fields.indexOf(field);
@@ -82,4 +87,4 @@ export function getSourceFields(restricted?: string[], override?: string[]|boole
     return restricted;
 }
 
-export type SearchParamsDefaults = Partial<Omit<SearchParams, 'body'|'_sourceExclude'|'_sourceInclude'|'_source'>>;
+export type SearchParamsDefaults = Partial<ts.Omit<SearchParams, 'body'|'_sourceExclude'|'_sourceInclude'|'_source'>>;

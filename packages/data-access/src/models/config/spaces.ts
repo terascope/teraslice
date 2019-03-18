@@ -15,13 +15,28 @@ const config: ModelConfig<SpaceModel> = {
                     }
                 },
             },
+            endpoint: {
+                type: 'keyword',
+                fields: {
+                    text: {
+                        type: 'text',
+                        analyzer: 'lowercase_keyword_analyzer'
+                    }
+                },
+            },
             views: {
                 type: 'keyword'
             },
-            default_view: {
+            roles: {
                 type: 'keyword'
             },
-            metadata: {
+            data_type: {
+                type: 'keyword'
+            },
+            search_config: {
+                type: 'object'
+            },
+            streaming_config: {
                 type: 'object'
             }
         }
@@ -31,7 +46,13 @@ const config: ModelConfig<SpaceModel> = {
             name: {
                 type: 'string'
             },
+            endpoint: {
+                type: 'string'
+            },
             description: {
+                type: 'string'
+            },
+            data_type: {
                 type: 'string'
             },
             views: {
@@ -42,18 +63,74 @@ const config: ModelConfig<SpaceModel> = {
                 uniqueItems: true,
                 default: []
             },
-            default_view: {
-                type: 'string'
+            roles: {
+                type: 'array',
+                items: {
+                    type: 'string'
+                },
+                uniqueItems: true,
+                default: []
             },
-            metadata: {
+            search_config: {
                 type: 'object',
                 additionalProperties: true,
-                default: {}
+                default: {},
+                properties: {
+                    index: {
+                        type: 'string',
+                    },
+                    connection: {
+                        type: 'string',
+                        default: 'default'
+                    },
+                    max_query_size: {
+                        type: 'number',
+                        default: 10000
+                    },
+                    sort_default: {
+                        type: 'string',
+                    },
+                    sort_dates_only: {
+                        type: 'boolean',
+                        default: false,
+                    },
+                    default_geo_field: {
+                        type: 'string',
+                    },
+                    preserve_index_name: {
+                        type: 'boolean',
+                        default: false
+                    },
+                    require_query: {
+                        type: 'boolean',
+                        default: false,
+                    },
+                    default_date_field: {
+                        type: 'string',
+                    },
+                    history_prefix: {
+                        type: 'string',
+                    }
+                }
             },
+            streaming_config: {
+                type: 'object',
+                additionalProperties: true,
+                default: {},
+                properties: {
+                    connection: {
+                        type: 'string',
+                        default: 'default'
+                    },
+                }
+            }
         },
-        required: ['name']
+        required: ['name', 'data_type']
     },
-    uniqueFields: ['name'],
+    uniqueFields: ['endpoint'],
+    sanitizeFields: {
+        endpoint: 'toSafeString'
+    }
 };
 
 export = config;

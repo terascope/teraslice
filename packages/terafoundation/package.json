@@ -35,13 +35,13 @@
         "js-yaml": "^3.12.2",
         "lodash": "^4.17.11",
         "moment": "^2.24.0",
-        "mongoose": "~4.13.18",
+        "mongoose": "~5.4.19",
         "node-statsd": "0.1.1",
         "node-webhdfs": "^1.0.2",
         "redis": "^2.8.0",
         "yargs": "^13.2.2"
     },
     "devDependencies": {
-        "@terascope/utils": "^0.6.0"
+        "@terascope/utils": "^0.7.0"
     }
 }

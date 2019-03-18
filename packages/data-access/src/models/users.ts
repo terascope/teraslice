@@ -1,17 +1,23 @@
 import * as es from 'elasticsearch';
-import { Omit, Optional, DataEntity, TSError } from '@terascope/utils';
+import {  DataEntity, TSError } from '@terascope/utils';
 import usersConfig from './config/users';
-import { Base, BaseModel, FieldMap } from './base';
 import { ManagerConfig } from '../interfaces';
+import * as base from './base';
 import * as utils from '../utils';
 
 /**
  * Manager for Users
 */
-export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, UpdatePrivateUserInput> {
+export class Users extends base.Base<PrivateUserModel, CreatePrivateUserInput, UpdatePrivateUserInput> {
     static PrivateFields: string[] = ['api_token', 'salt', 'hash'];
     static ModelConfig = usersConfig;
     static GraphQLSchema = `
+        enum UserType {
+            USER
+            ADMIN
+            SUPERADMIN
+        }
+
         type User {
             id: ID!
             client_id: Int
@@ -19,22 +25,11 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
             firstname: String
             lastname: String
             email: String
-            roles: [String]
+            role: String
+            type: UserType
             api_token: String
             hash: String
             salt: String
-            created: String
-            updated: String
-        }
-
-        type PublicUser {
-            id: ID!
-            client_id: Int
-            username: String!
-            firstname: String
-            lastname: String
-            email: String
-            roles: [String]
             created: String
             updated: String
         }
@@ -45,7 +40,8 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
             firstname: String
             lastname: String
             email: String
-            roles: [String]
+            type: UserType
+            role: String
         }
 
         input UpdateUserInput {
@@ -55,7 +51,8 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
             firstname: String
             lastname: String
             email: String
-            roles: [String]
+            type: UserType
+            role: String
         }
     `;
 
@@ -84,7 +81,6 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
         const salt = await utils.generateSalt();
         const hash = await utils.generatePasswordHash(password, salt);
 
-        // @ts-ignore
         return super.update({
             id: record.id,
             hash,
@@ -128,7 +124,6 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
         const user = await super.findByAnyId(id);
         const apiToken = await utils.generateAPIToken(user.hash, user.username);
 
-        // @ts-ignore
         await super.update({
             id: user.id,
             api_token: apiToken
@@ -191,7 +186,7 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
      * Find user by any id, returns public user fields
      */
     // @ts-ignore
-    async findBy(fields: FieldMap<PrivateUserModel>, joinBy = 'AND'): Promise<UserModel> {
+    async findBy(fields: base.FieldMap<PrivateUserModel>, joinBy = 'AND'): Promise<UserModel> {
         const user = await super.findBy(fields, joinBy);
         return this.omitPrivateFields(user);
     }
@@ -231,10 +226,13 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
     }
 
     async removeRoleFromUsers(roleId: string) {
-        const users = await this.find(`roles: ${roleId}`);
+        const users = await this.find(`role: ${roleId}`);
         const promises = users.map(async ({ id }) => {
             try {
-                await this.removeFromArray(id, 'roles', roleId);
+                await this.update({
+                    id,
+                    role: ''
+                });
             } catch (err) {
                 if (err && err.statusCode === 404) {
                     return;
@@ -249,8 +247,8 @@ export class Users extends Base<PrivateUserModel, CreatePrivateUserInput, Update
 /**
  * The definition of a User model
 */
-export interface UserModel extends BaseModel {
-/**
+export interface UserModel extends base.BaseModel {
+    /**
      * The ID for the client
     */
     client_id?: number;
@@ -276,12 +274,19 @@ export interface UserModel extends BaseModel {
     email: string;
 
     /**
-     * A list of all of its associated Roles
-     *
-     * Currently Roles will be restricted to an array of one
+     * The users attached role
     */
-    roles: [string]|[];
+    role?: string;
+
+    /**
+     * The user's type
+     *
+     * @default "User"
+    */
+    type?: UserType;
 }
+
+export type UserType = 'SUPERADMIN'|'ADMIN'|'USER';
 
 export interface PrivateUserModel extends UserModel {
     /**
@@ -307,8 +312,8 @@ export interface PrivateUserModel extends UserModel {
     salt: string;
 }
 
-export type CreateUserInput = Omit<UserModel, (keyof BaseModel)>;
-export type CreatePrivateUserInput = Omit<PrivateUserModel, (keyof BaseModel)>;
+export type CreateUserInput = base.CreateModel<UserModel>;
+export type CreatePrivateUserInput = base.CreateModel<PrivateUserModel>;
 
-export type UpdateUserInput = Optional<UserModel, Exclude<(keyof BaseModel), 'id'>>;
-export type UpdatePrivateUserInput = Optional<PrivateUserModel, Exclude<(keyof BaseModel), 'id'>>;
+export type UpdateUserInput = base.UpdateModel<UserModel>;
+export type UpdatePrivateUserInput = base.UpdateModel<PrivateUserModel>;

@@ -1,7 +1,7 @@
 import get from 'lodash.get';
 import { Express } from 'express';
 import { Client } from 'elasticsearch';
-import { Logger } from '@terascope/utils';
+import { Logger, toBoolean } from '@terascope/utils';
 import * as apollo from 'apollo-server-express';
 import { Context } from '@terascope/job-components';
 import { ACLManager } from '@terascope/data-access';
@@ -14,7 +14,6 @@ import schema from './schema';
 /**
  * A graphql api for managing data access
  *
- * @todo add permission rules to manage the ACL
  * @todo add session support
 */
 export default class ManagerPlugin {
@@ -111,7 +110,6 @@ export default class ManagerPlugin {
             path: managerUri,
         });
 
-        const spaceErrorHandler = makeErrorHandler('Failure to access /api/v2/:space', this.logger);
         // this must happen at the end
         this.app.use('/api/v2/:space', (req, res, next) => {
             // @ts-ignore
@@ -120,6 +118,12 @@ export default class ManagerPlugin {
             const user: PrivateUserModel = req.v2User;
 
             const space: string = req.params.space;
+            const logger = this.context.apis.foundation.makeLogger({
+                module: `search_plugin:${space}`,
+                user_id: get(user, 'id')
+            });
+
+            const spaceErrorHandler = makeErrorHandler('Failure to access /api/v2/:space', logger);
 
             spaceErrorHandler(req, res, async () => {
                 const accessConfig = await manager.getViewForSpace({
@@ -127,16 +131,19 @@ export default class ManagerPlugin {
                     space,
                 });
 
-                const connection = get(accessConfig, 'space_metadata.indexConfig.connection', 'default');
+                req.query.pretty = toBoolean(req.query.pretty);
+
+                const connection = get(accessConfig, 'search_config.connection', 'default');
                 const client = getESClient(this.context, connection);
 
-                const search = makeSearchFn(client, accessConfig, this.logger);
+                const search = makeSearchFn(client, accessConfig, logger);
 
                 // @ts-ignore
                 req.space = {
-                    searchErrorHandler: makeErrorHandler('Search failure', this.logger),
+                    searchErrorHandler: makeErrorHandler('Search failure', logger),
                     accessConfig,
-                    search
+                    search,
+                    logger,
                 };
 
                 next();

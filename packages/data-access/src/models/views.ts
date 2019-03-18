@@ -1,9 +1,9 @@
 import * as es from 'elasticsearch';
-import defaultsDeep from 'lodash.defaultsdeep';
-import { TSError, Omit } from '@terascope/utils';
-import { Base, BaseModel } from './base';
-import viewsConfig from './config/views';
+import { Base, BaseModel, UpdateModel, CreateModel } from './base';
 import { ManagerConfig } from '../interfaces';
+import viewsConfig from './config/views';
+import { makeISODate } from '../utils';
+import { SpaceModel } from './spaces';
 
 /**
  * Manager for Views
@@ -15,40 +15,45 @@ export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
             id: ID!
             name: String
             description: String
-            space: String!
+            data_type: String
             roles: [String]
             excludes: [String]
             includes: [String]
             constraint: String
             prevent_prefix_wildcard: Boolean
-            metadata: JSON
             created: String
             updated: String
         }
 
         input CreateViewInput {
-            name: String
+            name: String!
             description: String
-            space: String!
+            data_type: String!
             roles: [String]
             excludes: [String]
             includes: [String]
             constraint: String
             prevent_prefix_wildcard: Boolean
-            metadata: JSON
         }
 
         input UpdateViewInput {
             id: ID!
             name: String
             description: String
-            space: String
+            data_type: String
             roles: [String]
             excludes: [String]
             includes: [String]
             constraint: String
             prevent_prefix_wildcard: Boolean
-            metadata: JSON
+        }
+
+        input CreateDefaultViewInput {
+            roles: [String]
+            excludes: [String]
+            includes: [String]
+            constraint: String
+            prevent_prefix_wildcard: Boolean
         }
     `;
 
@@ -56,21 +61,20 @@ export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
         super(client, config, viewsConfig);
     }
 
-    async getViewForRole(roleId: string, spaceId: string, defaultViewId?: string) {
-        try {
-            const [view, defaultView] = await Promise.all([
-                this.findBy({ roles: roleId, space: spaceId }),
-                this._getDefaultView(defaultViewId)
-            ]);
+    async getViewOfSpace(space: SpaceModel, roleId: string): Promise<ViewModel> {
+        const views = await this.findAll(space.views);
+        const view = views.find((view) => view.roles.includes(roleId));
+        if (view) return view;
 
-            return defaultsDeep(view, defaultView);
-        } catch (err) {
-            if (err && err.statusCode === 404) {
-                const errMsg = `No View found for role "${roleId}" and space "${spaceId}"`;
-                throw new TSError(errMsg, { statusCode: 404 });
-            }
-            throw err;
-        }
+        // if the view doesn't exist create a non-restrictive default view
+        return {
+            id: `default-view-for-role-${roleId}`,
+            name: `Default View for Role ${roleId}`,
+            data_type: space.data_type,
+            roles: space.roles,
+            created: makeISODate(),
+            updated: makeISODate(),
+        };
     }
 
     async removeRoleFromViews(roleId: string) {
@@ -79,19 +83,6 @@ export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
             return this.removeFromArray(id, 'roles', roleId);
         });
         await Promise.all(promises);
-    }
-
-    private async _getDefaultView(viewId?: string): Promise<CoreViewObj> {
-        if (!viewId) return {};
-
-        const view = await this.findById(viewId);
-        return {
-            constraint: view.constraint,
-            includes: view.includes,
-            excludes: view.excludes,
-            prevent_prefix_wildcard: view.prevent_prefix_wildcard,
-            metadata: view.metadata,
-        };
     }
 }
 
@@ -111,12 +102,12 @@ export interface ViewModel extends BaseModel {
     description?: string;
 
     /**
-     * The associated space
+     * The associated data type
     */
-    space: string;
+    data_type: string;
 
     /**
-     * The associated roles
+     * A list of roles this view applys to
     */
     roles: string[];
 
@@ -141,15 +132,7 @@ export interface ViewModel extends BaseModel {
      * @example `foo:*bar`
     */
     prevent_prefix_wildcard?: boolean;
-
-    /**
-     * Any metadata for the view
-    */
-    metadata?: object;
 }
 
-type CoreViewProperties = 'metadata'|'prevent_prefix_wildcard'|'constraint'|'includes'|'excludes';
-type CoreViewObj = Pick<ViewModel, CoreViewProperties>;
-
-export type CreateViewInput = Omit<ViewModel, keyof BaseModel>;
-export type UpdateViewInput = Omit<ViewModel, Exclude<(keyof BaseModel), 'id'>>;
+export type CreateViewInput = CreateModel<ViewModel>;
+export type UpdateViewInput = UpdateModel<ViewModel>;

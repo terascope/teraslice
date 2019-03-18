@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { TSError, times } from '@terascope/utils';
+import { TSError } from '@terascope/utils';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
 import { ACLManager, UserModel } from '../src';
 
@@ -44,13 +44,13 @@ describe('ACLManager', () => {
                         lastname: 'Oh',
                         client_id: 100,
                         email: 'uh-oh@example.com',
-                        roles: ['non-existant-role-id'],
+                        role: 'non-existant-role-id',
                     },
                     password: 'secrets',
                 });
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Missing roles with user, non-existant-role-id');
+                expect(err.message).toInclude('Missing role with user, non-existant-role-id');
                 expect(err.statusCode).toEqual(422);
             }
         });
@@ -68,7 +68,6 @@ describe('ACLManager', () => {
                         lastname: 'Oh',
                         client_id: 100,
                         email: 'uh-oh@example.com',
-                        roles: [],
                         // @ts-ignore
                         api_token: 'oh no'
                     },
@@ -93,7 +92,6 @@ describe('ACLManager', () => {
                     lastname: 'User',
                     client_id: 121,
                     email: 'some-user@example.com',
-                    roles: [],
                 },
                 password: 'secrets',
             });
@@ -135,256 +133,265 @@ describe('ACLManager', () => {
         });
     });
 
-    describe('when creating a role and the spaces do not exist', () => {
+    describe('when creating a space and the roles do not exist', () => {
         it('should throw an error', async () => {
             expect.hasAssertions();
 
             try {
-                await manager.createRole({
-                    role: {
+                await manager.createSpace({
+                    space: {
                         name: 'uh-oh',
-                        spaces: ['non-existant-space-id'],
+                        endpoint: 'uh-oh',
+                        data_type: 'hello',
+                        views: [],
+                        roles: ['non-existant-role-id'],
                     }
                 });
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Missing spaces with role, non-existant-space-id');
+                expect(err.message).toInclude('Missing roles with space, non-existant-role-id');
                 expect(err.statusCode).toEqual(422);
             }
         });
     });
 
-    describe('when creating a space and the view is null', () => {
+    describe('when creating a space with a invalid data type', () => {
+        let dataType1: string;
+        let dataType2: string;
+        let viewId: string;
+
+        beforeAll(async () => {
+            const [dt1, dt2] = await Promise.all([
+                manager.createDataType({
+                    dataType: {
+                        name: 'ABC DataType'
+                    }
+                }),
+                manager.createDataType({
+                    dataType: {
+                        name: 'BCD DataType'
+                    }
+                }),
+            ]);
+            dataType1 = dt1.id;
+            dataType2 = dt2.id;
+
+            const view = await manager.createView({
+                view: {
+                    name: 'BCD View',
+                    data_type: dataType2,
+                    roles: [],
+                }
+            });
+            viewId = view.id;
+        });
+
         it('should throw an error', async () => {
             expect.hasAssertions();
 
             try {
                 await manager.createSpace({
                     space: {
-                        name: 'Uh oh'
-                    },
-                    // @ts-ignore
-                    views: [null]
+                        name: 'uh-oh',
+                        endpoint: 'uh-oh',
+                        data_type: dataType1,
+                        views: [viewId],
+                        roles: [],
+                    }
                 });
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Invalid View Input');
+                expect(err.message).toInclude('Views must have the same data type');
                 expect(err.statusCode).toEqual(422);
             }
         });
     });
 
-    describe('when creating a space and the view is missing roles', () => {
-        it('should throw an error', async () => {
+    describe('when creating a space with a invalid roles', () => {
+        let dataTypeId: string;
+        let role1Id: string;
+        let role2Id: string;
+        let role3Id: string;
+        let view1Id: string;
+        let view2Id: string;
+
+        beforeAll(async () => {
+            const [role1, role2, role3, dataType] = await Promise.all([
+                manager.createRole({
+                    role: {
+                        name: 'Some Role 1',
+                    }
+                }),
+                manager.createRole({
+                    role: {
+                        name: 'Some Role 2',
+                    }
+                }),
+                manager.createRole({
+                    role: {
+                        name: 'Some Role 3',
+                    }
+                }),
+                manager.createDataType({
+                    dataType: {
+                        name: 'Some DataType'
+                    }
+                })
+            ]);
+            dataTypeId = dataType.id;
+            role1Id = role1.id;
+            role2Id = role2.id;
+            role3Id = role3.id;
+
+            const [view1, view2] = await Promise.all([
+                manager.createView({
+                    view: {
+                        name: 'Some View 1',
+                        data_type: dataTypeId,
+                        roles: [role1Id, role2Id],
+                    }
+                }),
+                manager.createView({
+                    view: {
+                        name: 'Some View 2',
+                        data_type: dataTypeId,
+                        roles: [role1Id],
+                    }
+                })
+            ]);
+            view1Id = view1.id;
+            view2Id = view2.id;
+        });
+
+        it('should throw an error if the view contains a extra role', async () => {
             expect.hasAssertions();
 
             try {
                 await manager.createSpace({
                     space: {
-                        name: 'Uh Oh',
-                    },
-                    views: [
-                        {
-                            name: 'Uh Oh',
-                            roles: ['non-existant-role-id'],
-                            includes: ['foo'],
-                            excludes: ['bar']
-                        }
-                    ]
+                        name: 'uh-oh',
+                        endpoint: 'uh-oh',
+                        data_type: dataTypeId,
+                        views: [view1Id, view2Id],
+                        roles: [role1Id, role2Id, role3Id],
+                    }
                 });
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Missing roles with view, non-existant-role-id');
+                expect(err.message).toInclude('Multiple views cannot contain the same role within a space');
                 expect(err.statusCode).toEqual(422);
             }
         });
     });
 
     describe('when creating views', () => {
-        const roles: string[] = [];
-
-        beforeAll(async () => {
-            const promises = times(2, (n) => {
-                return manager.createRole({
-                    role: {
-                        name: `Role ${n}`,
-                        spaces: [],
-                    }
-                });
-            });
-
-            const results = await Promise.all(promises);
-
-            roles.push(...results.map((role) => role.id));
-        });
-
-        describe('when creating a space with views', () => {
-            it('should only allow unique roles for the space', async () => {
-                expect.hasAssertions();
-
-                try {
-                    await manager.createSpace({
-                        space: {
-                            name: 'Some Space',
-                        },
-                        views: [
-                            {
-                                name: 'Some View',
-                                roles: [roles[0]]
-                            },
-                            {
-                                name: 'Double Role View',
-                                roles: [roles[0], roles[1]]
-                            }
-                        ]
-                    });
-                } catch (err) {
-                    expect(err.message).toEqual('A Role can only exist in a space once');
-                    expect(err).toBeInstanceOf(TSError);
-                    expect(err.statusCode).toEqual(422);
-                }
-            });
-        });
-
-        describe('when using an existing space', () => {
-            let spaceId: string;
-            let viewIds: string[];
+        describe('when moving to a different data_type', () => {
+            let viewId: string;
+            let dataType1Id: string;
+            let dataType2Id: string;
 
             beforeAll(async () => {
-                const result = await manager.createSpace({
-                    space: {
-                        name: 'ABC Space',
-                    },
-                    views: [
-                        {
-                            name: 'ABC View',
-                            roles: [roles[0]]
-                        },
-                        {
-                            name: 'DEF View',
-                            roles: [roles[1]]
+                const [dataType1, dataType2] = await Promise.all([
+                    await manager.createDataType({
+                        dataType: {
+                            name: 'DataType One'
                         }
-                    ]
+                    }),
+                    await manager.createDataType({
+                        dataType: {
+                            name: 'DataType Two'
+                        }
+                    })
+                ]);
+                dataType1Id = dataType1.id;
+                dataType2Id = dataType2.id;
+
+                const view = await manager.createView({
+                    view: {
+                        name: 'The View',
+                        data_type: dataType1Id,
+                        roles: [],
+                    }
                 });
 
-                spaceId = result.space.id;
-                viewIds = result.views.map((view) => view.id);
+                viewId = view.id;
             });
 
-            it('should not allow another view to be created with the same role', async () => {
-                expect.hasAssertions();
-
-                try {
-                    await manager.createView({
-                        view: {
-                            name: 'GHI View',
-                            space: spaceId,
-                            roles: [roles[0]]
-                        }
-                    });
-                } catch (err) {
-                    expect(err.message).toEqual('A Role can only exist in a space once');
-                    expect(err).toBeInstanceOf(TSError);
-                    expect(err.statusCode).toEqual(422);
-                }
-            });
-
-            it('should not allow another view to be updated with the same role', async () => {
+            it('should remove the view from the old space', async () => {
                 expect.hasAssertions();
 
                 try {
                     await manager.updateView({
                         view: {
-                            id: viewIds[0],
-                            name: 'DFG View',
-                            space: spaceId,
-                            roles: [roles[0], roles[1]]
+                            id: viewId,
+                            data_type: dataType2Id,
+                            roles: []
                         }
                     });
                 } catch (err) {
-                    expect(err.message).toEqual('A Role can only exist in a space once');
+                    expect(err.message).toEqual('Cannot not update the data_type on a view');
                     expect(err).toBeInstanceOf(TSError);
                     expect(err.statusCode).toEqual(422);
                 }
             });
         });
-
-        describe('when moving to a different space', () => {
-            let spaceAId: string;
-            let spaceBId: string;
-            let viewId: string;
-
-            beforeAll(async () => {
-                const resultA = await manager.createSpace({
-                    space: {
-                        name: 'A Space',
-                    },
-                    views: [
-                        {
-                            name: 'AB View',
-                            roles: [roles[0]]
-                        }
-                    ]
-                });
-
-                const resultB = await manager.createSpace({
-                    space: {
-                        name: 'B Space',
-                    }
-                });
-
-                spaceAId = resultA.space.id;
-                viewId = resultA.views[0].id;
-
-                spaceBId = resultB.space.id;
-            });
-
-            it('should remove the view from the old space', async () => {
-                await manager.updateView({
-                    view: {
-                        id: viewId,
-                        name: 'AB View',
-                        space: spaceBId,
-                        roles: []
-                    }
-                });
-
-                const [spaceA, spaceB] = await Promise.all([
-                    manager.findSpace({ id: spaceAId }),
-                    manager.findSpace({ id: spaceBId }),
-                ]);
-
-                expect(spaceA.views).not.toContain(viewId);
-                expect(spaceB.views).toContain(viewId);
-            });
-        });
     });
 
     describe('when getting a view for a user', () => {
-        describe('when no roles exists on the user', () => {
-            let apiToken: string;
-            beforeAll(async () => {
-                const user = await manager.createUser({
-                    user: {
-                        username: 'foooooo',
-                        firstname: 'Foo',
-                        lastname: 'ooooo',
-                        email: 'foobar@example.com',
-                        roles: [],
-                    },
-                    password: 'secrets'
-                });
+        let userId: string;
+        let apiToken: string;
+        let roleId: string;
+        let dataTypeId: string;
 
-                apiToken = user.api_token;
+        beforeAll(async () => {
+            const user = await manager.createUser({
+                user: {
+                    username: 'foooooo',
+                    firstname: 'Foo',
+                    lastname: 'Bar',
+                    client_id: 1888,
+                    email: 'foobar@example.com',
+                },
+                password: 'secrets'
             });
+            userId = user.id;
+            apiToken = user.api_token;
 
+            const role = await manager.createRole({
+                role: {
+                    name: 'Example Role',
+                }
+            });
+            roleId = role.id;
+
+            const dataType = await manager.createDataType({
+                dataType: {
+                    name: 'MyExampleType',
+                    type_config: {
+                        created: 'date',
+                        location: 'geo'
+                    },
+                },
+            });
+            dataTypeId = dataType.id;
+        });
+
+        afterAll(() => {
+            return Promise.all([
+                manager.removeUser({ id: userId }),
+                manager.removeRole({ id: userId }),
+                manager.removeDataType({ id: userId }),
+            ]);
+        });
+
+        describe('when no roles exists on the user', () => {
             it('should throw a forbidden error', async () => {
                 expect.hasAssertions();
 
                 try {
                     await manager.getViewForSpace({ api_token: apiToken, space: '' });
                 } catch (err) {
-                    expect(err.message).toEqual('User "foooooo" is not assigned to any roles');
+                    expect(err.message).toEqual('User "foooooo" is not assigned to a role');
                     expect(err).toBeInstanceOf(TSError);
                     expect(err.statusCode).toEqual(403);
                 }
@@ -392,148 +399,159 @@ describe('ACLManager', () => {
         });
 
         describe('when everything is setup correctly', () => {
-            const username = 'example-username';
-
             let spaceId: string;
-            let roleId: string;
-            let userId: string;
             let viewId: string;
-            let apiToken: string;
 
             beforeAll(async () => {
-                const role = await manager.createRole({
-                    role: {
-                        name: 'Example Role',
-                        spaces: [],
-                    }
-                });
-
-                roleId = role.id;
-
-                const spaceResult = await manager.createSpace({
-                    space: {
-                        name: 'Example Space'
-                    },
-                    views: [
-                        {
-                            name: 'Example View',
-                            roles: [roleId],
-                            includes: ['foo'],
-                            metadata: {
-                                a: 'b',
-                                example: {
-                                    n: 1
-                                }
-                            }
-                        }
-                    ],
-                    defaultView: {
-                        excludes: ['example'],
-                        constraint: 'hello:true',
-                        metadata: {
-                            c: 'd',
-                            example: {
-                                n: 2
-                            }
-                        }
-                    }
-                });
-
-                spaceId = spaceResult.space.id;
-                viewId = spaceResult.views[0].id;
-
-                await manager.updateRole({
-                    role: {
-                        id: roleId,
-                        name: 'Example Role',
-                        spaces: [spaceId]
-                    }
-                });
-
-                await manager.updateSpace({
-                    space: {
-                        id: spaceId,
-                        name: 'Example Space',
-                        views: [viewId],
-                        metadata: {
-                            example: true
-                        }
-                    }
-                });
-
-                const user = await manager.createUser({
-                    user: {
-                        username,
-                        firstname: 'Foo',
-                        lastname: 'Bar',
-                        client_id: 1888,
-                        email: 'foobar@example.com',
+                const view = await manager.createView({
+                    view: {
+                        name: 'Example View',
+                        data_type: dataTypeId,
                         roles: [roleId],
-                    },
-                    password: 'secrets'
+                        includes: ['foo']
+                    }
                 });
+                viewId = view.id;
 
-                userId = user.id;
-                apiToken = user.api_token;
+                const space = await manager.createSpace({
+                    space: {
+                        name: 'Example Space',
+                        data_type: dataTypeId,
+                        endpoint: 'example-space',
+                        roles: [roleId],
+                        views: [viewId],
+                        search_config: {
+                            index: 'hello',
+                            require_query: true,
+                            sort_dates_only: true,
+                        },
+                    }
+                });
+                spaceId = space.id;
+
+                await manager.updateUser({
+                    user: {
+                        id: userId,
+                        role: roleId
+                    }
+                });
+            });
+
+            afterAll(() => {
+                return Promise.all([
+                    manager.removeView({ id: viewId }),
+                    manager.removeSpace({ id: spaceId }),
+                ]);
             });
 
             it('should be able to get config by space id', () => {
+                expect(apiToken).toBeTruthy();
+                expect(spaceId).toBeTruthy();
+
                 return expect(manager.getViewForSpace({
                     api_token: apiToken,
                     space: spaceId
                 })).resolves.toMatchObject({
                     user_id: userId,
                     role_id: roleId,
+                    data_type: {
+                        id: dataTypeId,
+                        type_config: {
+                            created: 'date',
+                            location: 'geo',
+                        }
+                    },
                     view: {
                         name: 'Example View',
                         roles: [roleId],
                         includes: ['foo'],
-                        excludes: ['example'],
-                        constraint: 'hello:true',
-                        metadata: {
-                            a: 'b',
-                            c: 'd',
-                            example: {
-                                n: 1
-                            }
-                        }
+                        excludes: []
                     },
                     space_id: spaceId,
-                    space_metadata: {
-                        example: true
-                    }
+                    search_config: {
+                        index: 'hello',
+                        require_query: true,
+                        sort_dates_only: true,
+                    },
                 });
             });
 
-            it('should be able to get config by space name', () => {
+            it('should be able to get config by space endpoint', () => {
+                expect(apiToken).toBeTruthy();
+
                 return expect(manager.getViewForSpace({
                     api_token: apiToken,
-                    space: 'Example Space'
+                    space: 'example-space'
                 })).resolves.toMatchObject({
                     space_id: spaceId,
                     user_id: userId,
                     role_id: roleId,
                 });
             });
+        });
 
-            it('should be able to remove the user', () => {
-                return expect(manager.removeUser({ id: userId }))
-                    .resolves.toBeTrue();
+        describe('when testing default view access', () => {
+            let spaceId: string;
+
+            beforeAll(async () => {
+                const space = await manager.createSpace({
+                    space: {
+                        name: 'Another Space',
+                        data_type: dataTypeId,
+                        endpoint: 'another-space',
+                        roles: [roleId],
+                        views: [],
+                        search_config: {
+                            index: 'howdy',
+                            sort_default: 'created:asc',
+                            preserve_index_name: true,
+                        },
+                    }
+                });
+                spaceId = space.id;
+
+                await manager.updateUser({
+                    user: {
+                        id: userId,
+                        role: roleId
+                    }
+                });
             });
 
-            it('should be able to remove the role', () => {
-                return expect(manager.removeRole({ id: roleId }))
-                    .resolves.toBeTrue();
+            afterAll(() => {
+                return Promise.all([
+                    manager.removeSpace({ id: spaceId }),
+                ]);
             });
 
-            it('should be able to remove the view', () => {
-                return expect(manager.removeView({ id: viewId }))
-                    .resolves.toBeTrue();
-            });
+            it('should be able to get the default view', () => {
+                expect(apiToken).toBeTruthy();
+                expect(spaceId).toBeTruthy();
 
-            it('should be able to remove the space', () => {
-                return expect(manager.removeSpace({ id: spaceId }))
-                    .resolves.toBeTrue();
+                return expect(manager.getViewForSpace({
+                    api_token: apiToken,
+                    space: spaceId
+                })).resolves.toMatchObject({
+                    user_id: userId,
+                    role_id: roleId,
+                    data_type: {
+                        id: dataTypeId,
+                        type_config: {
+                            created: 'date',
+                            location: 'geo',
+                        }
+                    },
+                    view: {
+                        name: `Default View for Role ${roleId}`,
+                        roles: [roleId]
+                    },
+                    space_id: spaceId,
+                    search_config: {
+                        index: 'howdy',
+                        sort_default: 'created:asc',
+                        preserve_index_name: true,
+                    },
+                });
             });
         });
     });

@@ -45,10 +45,7 @@ export default class SearchPlugin {
                     .status(200)
                     .set('Content-type', 'application/json; charset=utf-8');
 
-                const { pretty } = req.query;
-                const boolValues = [1, true, '1', 'true', 'True', 'TRUE', 'yes'];
-
-                if (boolValues.includes(pretty)) {
+                if (req.query.pretty) {
                     res.send(JSON.stringify(result, null, 2));
                 } else {
                     res.json(result);
@@ -62,4 +59,5 @@ export interface SpaceSearch {
     searchErrorHandler: ErrorHandlerFn;
     accessConfig: DataAccessConfig;
     search: SearchFn;
+    logger: Logger;
 }

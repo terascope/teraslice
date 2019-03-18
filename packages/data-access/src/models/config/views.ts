@@ -15,13 +15,13 @@ const config: ModelConfig<ViewModel> = {
                     }
                 }
             },
-            space: {
-                type: 'keyword'
-            },
             constraint: {
                 type: 'keyword'
             },
             roles: {
+                type: 'keyword'
+            },
+            data_type: {
                 type: 'keyword'
             },
             excludes: {
@@ -49,7 +49,7 @@ const config: ModelConfig<ViewModel> = {
             description: {
                 type: 'string'
             },
-            space: {
+            data_type: {
                 type: 'string'
             },
             roles: {
@@ -84,7 +84,7 @@ const config: ModelConfig<ViewModel> = {
                 default: true
             }
         },
-        required: ['name', 'space']
+        required: ['name', 'data_type']
     }
 };
 

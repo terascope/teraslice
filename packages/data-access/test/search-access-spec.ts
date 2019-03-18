@@ -1,13 +1,13 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
-import { QueryAccess, ViewModel } from '../src';
+import { SearchAccess, ViewModel, DataTypeModel } from '../src';
 import { SearchParams } from 'elasticsearch';
 
-describe('QueryAccess', () => {
+describe('SearchAccess', () => {
     const view: ViewModel = {
         id: 'example-view',
         name: 'Example View',
-        space: 'example-space',
+        data_type: 'example-data-type',
         roles: [
             'example-role'
         ],
@@ -23,17 +23,37 @@ describe('QueryAccess', () => {
         created: new Date().toISOString(),
     };
 
-    const queryAccess = new QueryAccess({
+    const dataType: DataTypeModel = {
+        id: 'example-data-type',
+        name: 'ExampleType',
+        type_config: {},
+        updated: new Date().toISOString(),
+        created: new Date().toISOString(),
+    };
+
+    const searchAccess = new SearchAccess({
         view,
+        data_type: dataType,
+        search_config: {
+            index: 'example-index'
+        },
         space_id: 'example-space',
-        space_metadata: {},
         user_id: 'example-user',
         role_id: 'example-role'
     });
 
+    it('should fail if given an invalid search config', () => {
+        expect(() => {
+            new SearchAccess({
+                // @ts-ignore
+                search_config: {},
+            });
+        }).toThrowWithMessage(TSError, 'Search is not configured correctly for search');
+    });
+
     it('should be able to restrict the query for bar', () => {
         expect(() => {
-            queryAccess.restrictESQuery('bar:foo');
+            searchAccess.restrictQuery('bar:foo');
         }).toThrowWithMessage(TSError, 'Field bar is restricted');
     });
 
@@ -48,7 +68,7 @@ describe('QueryAccess', () => {
             ]
         };
 
-        const result = queryAccess.restrictESQuery('foo:bar', params);
+        const result = searchAccess.restrictQuery('foo:bar', params);
         expect(result).toMatchObject({
             _sourceExclude: [
                 'baz'
@@ -63,7 +83,7 @@ describe('QueryAccess', () => {
     });
 
     it('should be able to return a restricted query without any params', () => {
-        const result = queryAccess.restrictESQuery('foo:bar');
+        const result = searchAccess.restrictQuery('foo:bar');
         expect(result).toMatchObject({
             _sourceExclude: [
                 'bar',

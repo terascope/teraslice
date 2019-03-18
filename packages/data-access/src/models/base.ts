@@ -1,17 +1,18 @@
 import * as es from 'elasticsearch';
-import { IndexStore, IndexConfig } from 'elasticsearch-store';
 import * as ts from '@terascope/utils';
-import * as utils from '../utils';
+import { IndexStore, IndexConfig } from 'elasticsearch-store';
 import { addDefaultMapping, addDefaultSchema } from './config/base';
 import { ManagerConfig } from '../interfaces';
+import * as utils from '../utils';
 
 /**
  * A base class for handling the different ACL models
+ *
+ * @todo migrate some this code into IndexStore
 */
 export class Base<T extends BaseModel, C extends object = T, U extends object = T> {
     readonly store: IndexStore<T>;
     readonly name: string;
-    private _fixDoc: FixDocFn<T> = (doc: T) => doc;
     private _uniqueFields: (keyof T)[];
     private _sanitizeFields: SanitizeFields;
 
@@ -51,10 +52,6 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
 
         this._uniqueFields = ts.concat('id', modelConfig.uniqueFields);
         this._sanitizeFields = modelConfig.sanitizeFields || {};
-
-        if (modelConfig.fixDoc) {
-            this._fixDoc = modelConfig.fixDoc;
-        }
     }
 
     async initialize() {
@@ -112,7 +109,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         const query = Object.entries(fields)
             .map(([field, val]) => {
                 if (val == null) {
-                    throw new ts.TSError(`Missing value for field "${field}"`, {
+                    throw new ts.TSError(`${this.name} missing value for field "${field}"`, {
                         statusCode: 422
                     });
                 }
@@ -128,11 +125,11 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
             });
         }
 
-        return this._fixDoc(record);
+        return record;
     }
 
     async findById(id: string): Promise<T> {
-        return this.store.get(id).then(this._fixDoc);
+        return this.store.get(id);
     }
 
     async findByAnyId(anyId: string) {
@@ -142,13 +139,12 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
             fields[field] = anyId;
         }
 
-        return this.findBy(fields, 'OR').then(this._fixDoc);
+        return this.findBy(fields, 'OR');
     }
 
     async findAll(ids: string[]) {
-        return this.store.mget({ ids }).then((result) => {
-            return result.map(this._fixDoc);
-        });
+        if (!ids || !ids.length) return [];
+        return this.store.mget({ ids });
     }
 
     async find(q: string = '*', size: number = 10, fields?: (keyof T)[], sort?: string) {
@@ -156,13 +152,13 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
     }
 
     async update(record: U|T) {
-        const doc: T = this._fixDoc(this._sanitizeRecord({
+        const doc: T = this._sanitizeRecord({
             ...record,
             updated: utils.makeISODate(),
-        } as T));
+        } as T);
 
         if (!doc.id) {
-            throw new ts.TSError('Updates requires id', {
+            throw new ts.TSError(`${this.name} update requires id`, {
                 statusCode: 422
             });
         }
@@ -177,7 +173,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
                 const count = await this._countBy(field, doc[field]);
 
                 if (count > 0) {
-                    throw new ts.TSError(`Update requires ${field} to be unique`, {
+                    throw new ts.TSError(`${this.name} update requires ${field} to be unique`, {
                         statusCode: 409
                     });
                 }
@@ -253,21 +249,21 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
             _source: fields,
         });
 
-        return results.map(this._fixDoc);
+        return results;
     }
 
     protected async _ensureUnique(record: T) {
         for (const field of this._uniqueFields) {
             if (field === 'id') continue;
             if (record[field] == null) {
-                throw new ts.TSError(`Create requires field ${field}`, {
+                throw new ts.TSError(`${this.name} create requires field ${field}`, {
                     statusCode: 422
                 });
             }
 
             const count = await this._countBy(field, record[field]);
             if (count > 0) {
-                throw new ts.TSError(`Create requires ${field} to be unique`, {
+                throw new ts.TSError(`${this.name} create requires ${field} to be unique`, {
                     statusCode: 409
                 });
             }
@@ -284,10 +280,13 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
 
             switch (method) {
                 case 'trim':
-                    record[field] = utils.trim(record[field]);
+                    record[field] = ts.trim(record[field]);
                     break;
-                case 'trimAndLower':
-                    record[field] = utils.trimAndLower(record[field]);
+                case 'trimAndToLower':
+                    record[field] = ts.trimAndToLower(record[field]);
+                    break;
+                case 'toSafeString':
+                    record[field] = ts.toSafeString(record[field]);
                     break;
                 default:
                     continue;
@@ -320,21 +319,16 @@ export interface ModelConfig<T extends BaseModel> {
     /** Sanitize / cleanup fields mapping, like trim or trimAndToLower */
     sanitizeFields?: SanitizeFields;
 
-    /** A custom function to fix any legacy data on the a record */
-    fixDoc?: FixDocFn<T>;
-
     /** Specify whether the data should be strictly validated, defaults to true */
     strictMode?: boolean;
 }
-
-export type FixDocFn<T extends BaseModel> = (doc: T) => T;
 
 export type FieldMap<T> = {
     [field in keyof T]?: string;
 };
 
 export type SanitizeFields = {
-    [field: string]: 'trimAndLower'|'trim';
+    [field: string]: 'trimAndToLower'|'trim'|'toSafeString';
 };
 
 export type BaseConfig = ModelConfig<BaseModel> & ManagerConfig;
@@ -351,5 +345,10 @@ export interface BaseModel {
     /** Creation date */
     created: string;
 }
+
+export type CreateModel<T extends BaseModel> = ts.Omit<T, (keyof BaseModel)>;
+export type UpdateModel<T extends BaseModel> = Partial<ts.Omit<T, (keyof BaseModel)>> & {
+    id: string;
+};
 
 const isProd = process.env.NODE_ENV === 'production';
