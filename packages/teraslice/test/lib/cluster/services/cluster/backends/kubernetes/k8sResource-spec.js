@@ -508,12 +508,6 @@ describe('k8sResource', () => {
                 'deployments', 'worker', terasliceConfig, execution
             );
 
-            const fs = require('fs');
-            fs.writeFile(
-                '/tmp/teraslice-all-target-example.yml',
-                yaml.dump(kr.resource)
-            );
-
             expect(kr.resource.spec.template.spec.affinity).toEqual(yaml.load(`
               nodeAffinity:
                 requiredDuringSchedulingIgnoredDuringExecution:
