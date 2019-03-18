@@ -162,7 +162,7 @@ specify a target with just a `key` and `value`:
 Using the `"constraint": "required"` property, as shown below, achieves the same
 thing:
 
-```
+```json
 "targets": [
     {"key": "zone", "value": "west", "constraint": "required"}
 ],
