@@ -884,4 +884,49 @@ describe('can transform matches', () => {
             third_copy: ['some']
         });
     });
+
+    xit('can will all catch all selector extractions', async () => {
+
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules31.txt')]
+        };
+
+        const data = [
+            new DataEntity({ some: 'value', other: 'some_data', first: '1234' }),
+            new DataEntity({ some: 'stuff', field: 'some_data', id: '12345' }),
+        ];
+
+        const test = await opTest.init(config, [Plugins]);
+        const results =  await test.run(data);
+
+        expect(results[0]).toEqual({
+            thing: 'value',
+            data: 'data',
+            last: 1234
+        });
+
+        expect(results[1]).toEqual({
+            thing: 'stuff',
+            valid_id: 12345
+        });
+    });
+
+    it('*-match-required, no-match-regular-selector and *-selector rule bug', async () => {
+
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules32.txt')]
+        };
+
+        const data = [
+            new DataEntity({ some: 'stuff', field: 'some_data', id: '12345' }),
+        ];
+
+        const test = await opTest.init(config, [Plugins]);
+        const results =  await test.run(data);
+
+        expect(results[0]).toEqual({
+            thing: 'stuff',
+            valid_id: '12345',
+        });
+    });
 });

@@ -161,6 +161,7 @@ export interface ValidationResults {
 export interface NormalizedFields{
     soureField: string[];
     targetField: string|undefined;
+    selectorFields: string[];
 }
 
 export interface StateDict {

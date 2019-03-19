@@ -1,0 +1,8 @@
+{ "source_field": "some", "target_field": "thing" }
+{ "source_field": "other", "start": "some_", "end": "EOP", "target_field": "data" }
+{ "source_field": "id", "target_field": "valid_id", "tag": "makeNumber" }
+
+{ "selector": "some:value", "source_field": "first", "target_field": "last", "tag": "makeNumber" }
+
+{ "follow": "makeNumber", "post_process": "number", "tag": "someTag" }
+# { "follow": "someTag", "post_process": "array" }
