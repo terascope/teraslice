@@ -145,6 +145,7 @@ export default class LuceneQueryAccess<T extends AnyData = AnyData> {
 
             return [...fields];
         }
+
         if (override) {
             return [];
         }
@@ -169,6 +170,7 @@ export interface AnyData {
 
 function startsWithWildcard(input?: string|number) {
     if (!input) return false;
+    if (!ts.isString(input)) return false;
 
     return ['*', '?'].includes(ts.getFirstChar(input));
 }
