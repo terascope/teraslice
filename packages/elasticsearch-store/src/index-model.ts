@@ -136,24 +136,43 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return record;
     }
 
-    async findById(id: string): Promise<T> {
-        return this.store.get(id);
+    async findById(id: string, queryAccess?: LuceneQueryAccess<T>): Promise<T> {
+        let includes: (keyof T)[]|undefined;
+        let excludes: (keyof T)[]|undefined;
+
+        if (queryAccess) {
+            ({ includes, excludes } = queryAccess.restrictSourceFields());
+        }
+
+        return this.store.get(id, {
+            _sourceExclude: excludes,
+            _sourceInclude: includes
+        });
     }
 
-    async findByAnyId(anyId: string) {
+    async findByAnyId(anyId: string, queryAccess?: LuceneQueryAccess<T>) {
         const fields: i.FieldMap<T> = {};
 
         for (const field of this._uniqueFields) {
             fields[field] = anyId;
         }
 
-        return this.findBy(fields, 'OR');
+        return this.findBy(fields, 'OR', queryAccess);
     }
 
-    /** @todo this should convert it use the _sourceInclude _sourceExcludes */
-    async findAll(ids: string[]) {
+    async findAll(ids: string[], queryAccess?: LuceneQueryAccess<T>) {
         if (!ids || !ids.length) return [];
-        return this.store.mget({ ids });
+        let includes: (keyof T)[]|undefined;
+        let excludes: (keyof T)[]|undefined;
+
+        if (queryAccess) {
+            ({ includes, excludes } = queryAccess.restrictSourceFields());
+        }
+
+        return this.store.mget({ ids }, {
+            _sourceExclude: excludes,
+            _sourceInclude: includes
+        });
     }
 
     async find(q: string = '*', options: FindOptions<T> = {}, queryAccess?: LuceneQueryAccess<T>): Promise<T[]> {
@@ -256,6 +275,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         const params: Partial<es.SearchParams> = {
             size: options.size,
             sort: options.sort,
+            from: options.from,
             _sourceExclude: options.excludes as string[],
             _sourceInclude: options.includes as string[],
         };
@@ -316,6 +336,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
 type FindOptions<T> = {
     includes?: (keyof T)[],
     excludes?: (keyof T)[],
+    from?: number;
     sort?: string;
     size?: number;
 };

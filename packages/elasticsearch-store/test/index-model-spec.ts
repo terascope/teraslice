@@ -80,6 +80,17 @@ describe('IndexModel', () => {
             expect(created).toEqual(fetched);
         });
 
+        it('should be able to find the record with restrictions', async () => {
+            const queryAccess = new LuceneQueryAccess({
+                excludes: ['updated']
+            });
+            const result = await indexModel.findById(fetched.id, queryAccess);
+
+            expect(result).toHaveProperty('name');
+            expect(result).toHaveProperty('created');
+            expect(result).not.toHaveProperty('updated');
+        });
+
         it('should not be able to create the record again due to conflicts', async () => {
             expect.hasAssertions();
 
@@ -224,7 +235,28 @@ describe('IndexModel', () => {
             }
         });
 
-        it('should be able to find all of the Bobs with restrictions', async () => {
+        it('should be able to find by ids with restrictions', async () => {
+            const queryAccess = new LuceneQueryAccess({
+                includes: ['name']
+            });
+
+            const findResult = await indexModel.find('name:Bob*', {
+                size: 3,
+                includes: ['id']
+            });
+
+            const ids = findResult.map((doc) => doc.id);
+
+            const result = await indexModel.findAll(ids, queryAccess);
+
+            expect(result).toBeArrayOfSize(3);
+            for (const record of result) {
+                expect(record).not.toHaveProperty('id');
+                expect(record).toHaveProperty('name');
+            }
+        });
+
+        it('should be able to find all of the Bobs', async () => {
             const queryAccess = new LuceneQueryAccess({
                 constraint: 'name:Bob*',
                 excludes: ['created']
