@@ -172,7 +172,12 @@ export default class IndexManager {
     }
 
     protected async waitForIndexAvailability(index: string) {
-        const query = { index, q: '*', size: 1 };
+        const query = {
+            index,
+            q: '*',
+            size: 0,
+            terminate_after: '1'
+        };
 
         await ts.pRetry(() => this.client.search(query), utils.getRetryConfig());
     }
