@@ -11,7 +11,7 @@ import {
     buildNestPath
 } from './misc';
 
-export function getTimeByField(field: string = ''): (input: any) => number {
+export function getTimeByField(field = ''): (input: any) => number {
     return R.ifElse(
         R.has(field),
         R.pipe(R.path(field), (input: any) => new Date(input).getTime()),

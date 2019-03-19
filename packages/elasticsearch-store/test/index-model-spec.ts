@@ -3,6 +3,7 @@ import { Client } from 'elasticsearch';
 import { times, TSError } from '@terascope/utils';
 import { IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions } from '../src';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
+import { LuceneQueryAccess } from 'xlucene-evaluator';
 
 describe('IndexModel', () => {
     interface ExampleRecord extends IndexModelRecord {
@@ -177,7 +178,7 @@ describe('IndexModel', () => {
         });
     });
 
-    describe('when finding mulitple records', () => {
+    describe('when creating mulitple records', () => {
         beforeAll(async () => {
             await Promise.all(times(5, (n) => {
                 return indexModel.create({
@@ -190,6 +191,19 @@ describe('IndexModel', () => {
                     name: `Bob ${n}`
                 });
             }));
+        });
+
+        it('should be able to count all of the Bobs', async () => {
+            const count = await indexModel.count('name:Bob*');
+            expect(count).toBe(5);
+        });
+
+        it('should be able to count with restrictions', async () => {
+            const queryAccess = new LuceneQueryAccess({
+                excludes: ['created']
+            });
+            const count = await indexModel.count('name:Bob*', queryAccess);
+            expect(count).toBe(5);
         });
 
         it('should be able to find all of the Bobs', async () => {

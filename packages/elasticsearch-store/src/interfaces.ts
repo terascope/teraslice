@@ -1,7 +1,7 @@
 import { Logger, Omit } from '@terascope/utils';
 
 /** A versioned Index Configuration */
-export interface IndexConfig {
+export interface IndexConfig<T = any> {
     /**
      * This is the data type and base name of the index
     */
@@ -53,17 +53,17 @@ export interface IndexConfig {
     /**
      * ID field
     */
-    idField?: string;
+    idField?: keyof T;
 
     /**
      * Ingest Time field on the source record
     */
-    ingestTimeField?: string;
+    ingestTimeField?: keyof T;
 
     /**
      * Event Time field from the source record
     */
-    eventTimeField?: string;
+    eventTimeField?: keyof T;
 }
 
 /** Elasticsearch Index Schema, Mapping and Version */

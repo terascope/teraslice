@@ -1,5 +1,6 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
+import { LuceneQueryAccess } from 'xlucene-evaluator';
 import IndexStore from './index-store';
 import * as utils from './utils';
 import * as i from './interfaces';
@@ -14,7 +15,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     private _sanitizeFields: i.SanitizeFields;
 
     constructor(client: es.Client, options: i.IndexModelOptions, modelConfig: i.IndexModelConfig<T>) {
-        const indexConfig: i.IndexConfig = Object.assign({
+        const baseConfig: i.IndexConfig<T> = {
             version: 1,
             name: modelConfig.name,
             namespace: options.namespace,
@@ -43,12 +44,18 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             ingestTimeField: 'created',
             eventTimeField: 'updated',
             logger: options.logger,
-        }, options.storeOptions, modelConfig.storeOptions);
+        };
+
+        const indexConfig = Object.assign(
+            baseConfig,
+            options.storeOptions,
+            modelConfig.storeOptions
+        );
 
         this.name = utils.toInstanceName(modelConfig.name);
         this.store = new IndexStore(client, indexConfig);
 
-        this._uniqueFields = ts.concat('id', modelConfig.uniqueFields);
+        this._uniqueFields = ts.concat(indexConfig.idField!, modelConfig.uniqueFields);
         this._sanitizeFields = modelConfig.sanitizeFields || {};
     }
 
@@ -60,7 +67,8 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this.store.shutdown();
     }
 
-    async count(query: string): Promise<number> {
+    async count(query: string, queryAccess?: LuceneQueryAccess<T>): Promise<number> {
+        if (queryAccess) return this.store.count(queryAccess.restrict(query));
         return this.store.count(query);
     }
 
@@ -140,6 +148,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this.findBy(fields, 'OR');
     }
 
+    /** @todo this should convert it use the _sourceInclude _sourceExcludes */
     async findAll(ids: string[]) {
         if (!ids || !ids.length) return [];
         return this.store.mget({ ids });
