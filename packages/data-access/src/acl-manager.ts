@@ -1,6 +1,6 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { CreateIndexModel, UpdateIndexModel } from 'elasticsearch-store';
+import { CreateRecordInput, UpdateRecordInput } from 'elasticsearch-store';
 import { TypeConfig } from 'xlucene-evaluator';
 import * as models from './models';
 import { ManagerConfig } from './interfaces';
@@ -116,7 +116,7 @@ export class ACLManager {
     /**
      * Authenticate user with username and password, or an api_token
      */
-    async authenticateUser(args: { username?: string, password?: string, api_token?: string }): Promise<models.UserModel> {
+    async authenticateUser(args: { username?: string, password?: string, api_token?: string }): Promise<models.User> {
         if (args.username && args.password) {
             return this.users.authenticate(args.username, args.password);
         }
@@ -133,7 +133,7 @@ export class ACLManager {
     /**
      * Authenticate user with api_token
      */
-    async authenticateWithToken(args: { api_token?: string }): Promise<models.UserModel> {
+    async authenticateWithToken(args: { api_token?: string }): Promise<models.User> {
         return this.users.authenticateWithToken(args.api_token);
     }
 
@@ -154,7 +154,7 @@ export class ACLManager {
     /**
      * Create a user
     */
-    async createUser(args: { user: models.CreateUserModel, password: string }) {
+    async createUser(args: { user: models.CreateUserInput, password: string }) {
         await this._validateUserInput(args.user);
 
         return this.users.createWithPassword(args.user, args.password);
@@ -165,7 +165,7 @@ export class ACLManager {
      *
      * This cannot include private information
     */
-    async updateUser(args: { user: models.UpdateUserModel }): Promise<models.UserModel> {
+    async updateUser(args: { user: models.UpdateUserInput }): Promise<models.User> {
         await this._validateUserInput(args.user);
 
         await this.users.update(args.user);
@@ -215,7 +215,7 @@ export class ACLManager {
     /**
      * Create a role
     */
-    async createRole(args: { role: CreateIndexModel<models.RoleModel> }) {
+    async createRole(args: { role: CreateRecordInput<models.Role> }) {
         await this._validateRoleInput(args.role);
 
         return this.roles.create(args.role);
@@ -224,7 +224,7 @@ export class ACLManager {
     /**
      * Update a role
     */
-    async updateRole(args: { role: UpdateIndexModel<models.RoleModel> }) {
+    async updateRole(args: { role: UpdateRecordInput<models.Role> }) {
         await this._validateRoleInput(args.role);
 
         await this.roles.update(args.role);
@@ -264,7 +264,7 @@ export class ACLManager {
     /**
      * Create a data type
     */
-    async createDataType(args: { dataType: CreateIndexModel<models.DataTypeModel> }) {
+    async createDataType(args: { dataType: CreateRecordInput<models.DataType> }) {
         await this._validateDataTypeInput(args.dataType);
 
         return this.dataTypes.create(args.dataType);
@@ -273,7 +273,7 @@ export class ACLManager {
     /**
      * Update a data type
     */
-    async updateDataType(args: { dataType: UpdateIndexModel<models.DataTypeModel> }) {
+    async updateDataType(args: { dataType: UpdateRecordInput<models.DataType> }) {
         await this._validateDataTypeInput(args.dataType);
 
         await this.dataTypes.update(args.dataType);
@@ -316,7 +316,7 @@ export class ACLManager {
      * attached the space to those roles.
      *
     */
-    async createSpace(args: { space: CreateIndexModel<models.SpaceModel> }) {
+    async createSpace(args: { space: CreateRecordInput<models.Space> }) {
         await this._validateSpaceInput(args.space);
 
         return this.spaces.create(args.space);
@@ -325,7 +325,7 @@ export class ACLManager {
     /**
      * Update a space
     */
-    async updateSpace(args: { space: UpdateIndexModel<models.SpaceModel> }) {
+    async updateSpace(args: { space: UpdateRecordInput<models.Space> }) {
         await this._validateSpaceInput(args.space);
 
         await this.spaces.update(args.space);
@@ -360,7 +360,7 @@ export class ACLManager {
     /**
      * Create a view, this will attach to the space and the role
     */
-    async createView(args: { view: CreateIndexModel<models.ViewModel> }) {
+    async createView(args: { view: CreateRecordInput<models.View> }) {
         await this._validateViewInput(args.view);
 
         const result = await this.views.create(args.view);
@@ -370,7 +370,7 @@ export class ACLManager {
     /**
      * Update a view, this will attach to the space and the role
     */
-    async updateView(args: { view: UpdateIndexModel<models.ViewModel> }) {
+    async updateView(args: { view: UpdateRecordInput<models.View> }) {
         const { view } = args;
         await this._validateViewInput(view);
 
@@ -469,7 +469,7 @@ export class ACLManager {
         return config;
     }
 
-    private async _validateUserInput(user: Partial<models.UserModel>) {
+    private async _validateUserInput(user: Partial<models.User>) {
         if (!user) {
             throw new ts.TSError('Invalid User Input', {
                 statusCode: 422
@@ -493,7 +493,7 @@ export class ACLManager {
         }
     }
 
-    private async _validateSpaceInput(space: Partial<models.SpaceModel>) {
+    private async _validateSpaceInput(space: Partial<models.Space>) {
         if (!space) {
             throw new ts.TSError('Invalid Space Input', {
                 statusCode: 422
@@ -551,7 +551,7 @@ export class ACLManager {
         }
     }
 
-    private async _validateRoleInput(role: Partial<models.RoleModel>) {
+    private async _validateRoleInput(role: Partial<models.Role>) {
         if (!role) {
             throw new ts.TSError('Invalid Role Input', {
                 statusCode: 422
@@ -559,7 +559,7 @@ export class ACLManager {
         }
     }
 
-    private async _validateDataTypeInput(dataType: Partial<models.DataTypeModel>) {
+    private async _validateDataTypeInput(dataType: Partial<models.DataType>) {
         if (!dataType) {
             throw new ts.TSError('Invalid DataType Input', {
                 statusCode: 422
@@ -567,7 +567,7 @@ export class ACLManager {
         }
     }
 
-    private async _validateViewInput(view: Partial<models.ViewModel>) {
+    private async _validateViewInput(view: Partial<models.View>) {
         if (!view) {
             throw new ts.TSError('Invalid View Input', {
                 statusCode: 422
@@ -632,12 +632,12 @@ export interface DataAccessConfig {
     /**
      * The data type associated with the view
     */
-    data_type: models.DataTypeModel;
+    data_type: models.DataType;
 
     /**
      * The authenticated user's view of the space
     */
-    view: models.ViewModel;
+    view: models.View;
 }
 
 export const graphqlQueryMethods: (keyof ACLManager)[] = [

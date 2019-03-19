@@ -1,7 +1,7 @@
 import 'jest-extended';
+import { SearchParams } from 'elasticsearch';
 import { TSError } from '@terascope/utils';
 import { LuceneQueryAccess } from '../src';
-import { SearchParams } from 'elasticsearch';
 
 describe('LuceneQueryAccess', () => {
     describe('when constructed without exclude', () => {

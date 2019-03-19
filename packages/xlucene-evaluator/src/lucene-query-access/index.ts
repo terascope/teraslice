@@ -169,7 +169,6 @@ export interface AnyData {
 
 function startsWithWildcard(input?: string|number) {
     if (!input) return false;
-    if (!ts.isString(input)) return false;
 
-    return ['*', '?'].includes(input.trim().charAt(0));
+    return ['*', '?'].includes(ts.getFirstChar(input));
 }

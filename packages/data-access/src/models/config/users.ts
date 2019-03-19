@@ -1,6 +1,6 @@
-import { ModelConfig, IndexModelRecord } from 'elasticsearch-store';
+import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
 
-const config: ModelConfig<UserModel> = {
+const config: IndexModelConfig<User> = {
     version: 1,
     name: 'users',
     mapping: {
@@ -163,7 +163,7 @@ export const GraphQLSchema = `
 /**
  * The definition of a User model
 */
-export interface UserModel extends IndexModelRecord {
+export interface User extends IndexModelRecord {
     /**
      * The ID for the client
     */

@@ -31,13 +31,10 @@
     },
     "dependencies": {
         "@terascope/utils": "^0.7.0",
-        "elasticsearch-store": "^0.4.0",
-        "lodash.defaultsdeep": "^4.6.0",
-        "nanoid": "^2.0.1",
+        "elasticsearch-store": "^0.4.0"
         "xlucene-evaluator": "^0.6.0"
     },
     "devDependencies": {
-        "@types/lodash.defaultsdeep": "^4.6.6",
         "elasticsearch": "^15.4.1"
     }
 }

@@ -171,8 +171,6 @@ export interface BulkResponse {
 
 export type Shard = { primary: boolean, stage: string };
 
-export type IndexModelConfig = ModelConfig<IndexModelRecord> & IndexModelOptions;
-
 export interface IndexModelRecord {
     /**
      * ID of the view - nanoid 12 digit
@@ -186,12 +184,12 @@ export interface IndexModelRecord {
     created: string;
 }
 
-export type CreateIndexModel<T extends IndexModelRecord> = Omit<T, (keyof IndexModelRecord)>;
-export type UpdateIndexModel<T extends IndexModelRecord> = Partial<Omit<T, (keyof IndexModelRecord)>> & {
+export type CreateRecordInput<T extends IndexModelRecord> = Omit<T, (keyof IndexModelRecord)>;
+export type UpdateRecordInput<T extends IndexModelRecord> = Partial<Omit<T, (keyof IndexModelRecord)>> & {
     id: string;
 };
 
-export interface ModelConfig<T extends IndexModelRecord> {
+export interface IndexModelConfig<T extends IndexModelRecord> {
     /** Schema Version */
     version: number;
 

@@ -1,10 +1,10 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
-import { SearchAccess, ViewModel, DataTypeModel } from '../src';
+import { SearchAccess, View, DataType } from '../src';
 import { SearchParams } from 'elasticsearch';
 
 describe('SearchAccess', () => {
-    const view: ViewModel = {
+    const view: View = {
         id: 'example-view',
         name: 'Example View',
         data_type: 'example-data-type',
@@ -23,7 +23,7 @@ describe('SearchAccess', () => {
         created: new Date().toISOString(),
     };
 
-    const dataType: DataTypeModel = {
+    const dataType: DataType = {
         id: 'example-data-type',
         name: 'ExampleType',
         type_config: {},

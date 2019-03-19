@@ -57,5 +57,9 @@ export function toSafeString(input: string): string {
 
 /** Change first character in string to upper case */
 export function firstToUpper(str: string): string {
-    return `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
+    return `${getFirstChar(str).toUpperCase()}${str.slice(1)}`;
+}
+
+export function getFirstChar(input: string): string {
+    return trim(input).charAt(0);
 }

@@ -1,7 +1,7 @@
 import 'jest-extended';
-import { Views, ViewModel } from '../../src/models/views';
+import { Views, View } from '../../src/models/views';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
-import { SpaceModel } from 'packages/data-access/src';
+import { Space } from 'packages/data-access/src';
 
 describe('Views', () => {
     const client = makeClient();
@@ -36,8 +36,8 @@ describe('Views', () => {
     });
 
     describe('when getting a view for a role', () => {
-        let view1: ViewModel;
-        let view2: ViewModel;
+        let view1: View;
+        let view2: View;
 
         const roleId = 'some-role-id';
 
@@ -57,7 +57,7 @@ describe('Views', () => {
 
         it('should return the view if using the right space', async () => {
             // @ts-ignore
-            const space: SpaceModel = {
+            const space: Space = {
                 views: [view1.id, view2.id],
             };
 
@@ -67,7 +67,7 @@ describe('Views', () => {
 
         it('should return a non-restrictive view if not found', async () => {
             // @ts-ignore
-            const space: SpaceModel = {
+            const space: Space = {
                 data_type: 'FakeDataType',
                 roles: [roleId],
                 views: [view2.id],

@@ -1,6 +1,6 @@
-import { ModelConfig, IndexModelRecord } from 'elasticsearch-store';
+import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
 
-const config: ModelConfig<SpaceModel> = {
+const config: IndexModelConfig<Space> = {
     version: 1,
     name: 'spaces',
     mapping: {
@@ -210,7 +210,7 @@ export const GraphQLSchema = `
 /**
  * The definition of a Space model
 */
-export interface SpaceModel extends IndexModelRecord {
+export interface Space extends IndexModelRecord {
     /**
      * Name of the Space
     */

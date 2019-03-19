@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
-import { ACLManager, UserModel } from '../src';
+import { ACLManager, User } from '../src';
 
 describe('ACLManager', () => {
     const client = makeClient();
@@ -82,7 +82,7 @@ describe('ACLManager', () => {
     });
 
     describe('when updating a user and sending a private field', () => {
-        let user: UserModel;
+        let user: User;
 
         beforeAll(async () => {
             user = await manager.createUser({

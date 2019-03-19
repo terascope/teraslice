@@ -13,7 +13,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     private _uniqueFields: (keyof T)[];
     private _sanitizeFields: i.SanitizeFields;
 
-    constructor(client: es.Client, options: i.IndexModelOptions, modelConfig: i.ModelConfig<T>) {
+    constructor(client: es.Client, options: i.IndexModelOptions, modelConfig: i.IndexModelConfig<T>) {
         const indexConfig: i.IndexConfig = Object.assign({
             version: 1,
             name: modelConfig.name,
@@ -64,7 +64,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this.store.count(query);
     }
 
-    async create(record: i.CreateIndexModel<T>): Promise<T> {
+    async create(record: i.CreateRecordInput<T>): Promise<T> {
         const docInput: unknown = {
             ...record,
             id: await utils.makeId(),
@@ -149,7 +149,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this._find(q, size, fields, sort);
     }
 
-    async update(record: i.UpdateIndexModel<T>) {
+    async update(record: i.UpdateRecordInput<T>) {
         const doc: T = this._sanitizeRecord({
             ...record,
             updated: ts.makeISODate(),

@@ -3,7 +3,7 @@ import * as store from 'elasticsearch-store';
 import {  DataEntity, TSError, Omit } from '@terascope/utils';
 import usersConfig, {
     GraphQLSchema,
-    UserModel,
+    User,
     UserType
 } from './config/users';
 import * as utils from '../utils';
@@ -11,9 +11,9 @@ import * as utils from '../utils';
 /**
  * Manager for Users
 */
-export class Users extends store.IndexModel<UserModel> {
+export class Users extends store.IndexModel<User> {
     static PrivateFields: string[] = ['api_token', 'salt', 'hash'];
-    static ModelConfig = usersConfig;
+    static IndexModelConfig = usersConfig;
     static GraphQLSchema = GraphQLSchema;
 
     constructor(client: es.Client, options: store.IndexModelOptions) {
@@ -23,7 +23,7 @@ export class Users extends store.IndexModel<UserModel> {
     /**
      * Create user with password, returns private fields
      */
-    async createWithPassword(record: CreateUserModel, password: string): Promise<UserModel> {
+    async createWithPassword(record: CreateUserInput, password: string): Promise<User> {
         const salt = await utils.generateSalt();
         const hash = await utils.generatePasswordHash(password, salt);
         const apiToken = await utils.generateAPIToken(hash, record.username);
@@ -51,8 +51,8 @@ export class Users extends store.IndexModel<UserModel> {
     /**
      * Authenticate the user
     */
-    async authenticate(username: string, password: string): Promise<UserModel> {
-        let user: UserModel;
+    async authenticate(username: string, password: string): Promise<User> {
+        let user: User;
 
         try {
             user = await super.findBy({ username });
@@ -95,7 +95,7 @@ export class Users extends store.IndexModel<UserModel> {
     /**
      * Authenticate user by api token, returns private fields
      */
-    async authenticateWithToken(apiToken?: string): Promise<UserModel> {
+    async authenticateWithToken(apiToken?: string): Promise<User> {
         if (!apiToken) {
             throw new TSError('Missing api_token for authentication', {
                 statusCode: 401
@@ -118,7 +118,7 @@ export class Users extends store.IndexModel<UserModel> {
     /**
      * Find users, returns public user fields
      */
-    async find(q: string = '*', size: number = 10, fields?: (keyof UserModel)[], sort?: string): Promise<UserModel[]> {
+    async find(q: string = '*', size: number = 10, fields?: (keyof User)[], sort?: string): Promise<User[]> {
         const users = await super.find(q, size, fields, sort);
         return users.map((user) => this.omitPrivateFields(user));
     }
@@ -126,7 +126,7 @@ export class Users extends store.IndexModel<UserModel> {
     /**
      * Find user by id, returns public user fields
      */
-    async findById(id: string): Promise<UserModel> {
+    async findById(id: string): Promise<User> {
         const user = await super.findById(id);
         return this.omitPrivateFields(user);
     }
@@ -134,7 +134,7 @@ export class Users extends store.IndexModel<UserModel> {
     /**
      * Find user by any id, returns public user fields
      */
-    async findByAnyId(id: string): Promise<UserModel> {
+    async findByAnyId(id: string): Promise<User> {
         const user = await super.findByAnyId(id);
         return this.omitPrivateFields(user);
     }
@@ -142,7 +142,7 @@ export class Users extends store.IndexModel<UserModel> {
     /**
      * Find user by any id, returns public user fields
      */
-    async findBy(fields: store.FieldMap<UserModel>, joinBy = 'AND'): Promise<UserModel> {
+    async findBy(fields: store.FieldMap<User>, joinBy = 'AND'): Promise<User> {
         const user = await super.findBy(fields, joinBy);
         return this.omitPrivateFields(user);
     }
@@ -151,12 +151,12 @@ export class Users extends store.IndexModel<UserModel> {
      * Find multiple users by id, returns public user fields
      */
     // @ts-ignore
-    async findAll(ids: string[]): Promise<UserModel[]> {
+    async findAll(ids: string[]): Promise<User[]> {
         const users = await super.findAll(ids);
         return users.map((user) => this.omitPrivateFields(user));
     }
 
-    isPrivateUser(user: Partial<UserModel>): boolean {
+    isPrivateUser(user: Partial<User>): boolean {
         if (!user) return false;
 
         const fields = Object.keys(user);
@@ -165,7 +165,7 @@ export class Users extends store.IndexModel<UserModel> {
         });
     }
 
-    omitPrivateFields(user: UserModel): UserModel {
+    omitPrivateFields(user: User): User {
         if (!this.isPrivateUser(user)) return user;
 
         const publicUser = {};
@@ -200,6 +200,6 @@ export class Users extends store.IndexModel<UserModel> {
     }
 }
 
-type CreateUserModel = Omit<store.CreateIndexModel<UserModel>, 'api_token'|'hash'|'salt'>;
-type UpdateUserModel = Omit<store.UpdateIndexModel<UserModel>, 'api_token'|'hash'|'salt'>;
-export { UserModel, UserType, CreateUserModel, UpdateUserModel };
+type CreateUserInput = Omit<store.CreateRecordInput<User>, 'api_token'|'hash'|'salt'>;
+type UpdateUserInput = Omit<store.UpdateRecordInput<User>, 'api_token'|'hash'|'salt'>;
+export { User, UserType, CreateUserInput, UpdateUserInput };

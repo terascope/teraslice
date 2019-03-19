@@ -1,21 +1,21 @@
 import * as es from 'elasticsearch';
 import { makeISODate } from '@terascope/utils';
 import { IndexModel, IndexModelOptions } from 'elasticsearch-store';
-import viewsConfig, { ViewModel, GraphQLSchema } from './config/views';
-import { SpaceModel } from './config/spaces';
+import viewsConfig, { View, GraphQLSchema } from './config/views';
+import { Space } from './config/spaces';
 
 /**
  * Manager for Views
 */
-export class Views extends IndexModel<ViewModel> {
-    static ModelConfig = viewsConfig;
+export class Views extends IndexModel<View> {
+    static IndexModelConfig = viewsConfig;
     static GraphQLSchema = GraphQLSchema;
 
     constructor(client: es.Client, config: IndexModelOptions) {
         super(client, config, viewsConfig);
     }
 
-    async getViewOfSpace(space: SpaceModel, roleId: string): Promise<ViewModel> {
+    async getViewOfSpace(space: Space, roleId: string): Promise<View> {
         const views = await this.findAll(space.views);
         const view = views.find((view) => view.roles.includes(roleId));
         if (view) return view;
@@ -40,4 +40,4 @@ export class Views extends IndexModel<ViewModel> {
     }
 }
 
-export { ViewModel };
+export { View };

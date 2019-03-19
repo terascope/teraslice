@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { Client } from 'elasticsearch';
 import { times, TSError } from '@terascope/utils';
-import { IndexModel, IndexModelRecord, ModelConfig, IndexModelOptions } from '../src';
+import { IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions } from '../src';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
 
 describe('IndexModel', () => {
@@ -10,7 +10,7 @@ describe('IndexModel', () => {
     }
 
     const client = makeClient();
-    const exampleConfig: ModelConfig<ExampleRecord> = {
+    const exampleConfig: IndexModelConfig<ExampleRecord> = {
         name: 'index_model',
         mapping: {
             properties: {

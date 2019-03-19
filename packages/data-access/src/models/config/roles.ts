@@ -1,6 +1,6 @@
-import { ModelConfig, IndexModelRecord } from 'elasticsearch-store';
+import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
 
-const config: ModelConfig<RoleModel> = {
+const config: IndexModelConfig<Role> = {
     version: 1,
     name: 'roles',
     mapping: {
@@ -50,7 +50,7 @@ export const GraphQLSchema = `
     }
 `;
 
-export interface RoleModel extends IndexModelRecord {
+export interface Role extends IndexModelRecord {
     /**
      * Name of the Role
     */

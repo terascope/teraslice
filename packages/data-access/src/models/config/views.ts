@@ -1,6 +1,6 @@
-import { ModelConfig, IndexModelRecord } from 'elasticsearch-store';
+import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
 
-const config: ModelConfig<ViewModel> = {
+const config: IndexModelConfig<View> = {
     version: 1,
     name: 'views',
     mapping: {
@@ -91,7 +91,7 @@ const config: ModelConfig<ViewModel> = {
  * The definition of a View model
  *
 */
-export interface ViewModel extends IndexModelRecord {
+export interface View extends IndexModelRecord {
     /**
      * Name of the view
     */

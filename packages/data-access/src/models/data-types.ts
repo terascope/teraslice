@@ -1,12 +1,12 @@
 import * as es from 'elasticsearch';
 import { IndexModel, IndexModelOptions } from 'elasticsearch-store';
-import dataTypesConfig, { DataTypeModel, GraphQLSchema } from './config/data-types';
+import dataTypesConfig, { DataType, GraphQLSchema } from './config/data-types';
 
 /**
  * Manager for DataTypes
 */
-export class DataTypes extends IndexModel<DataTypeModel> {
-    static ModelConfig = dataTypesConfig;
+export class DataTypes extends IndexModel<DataType> {
+    static IndexModelConfig = dataTypesConfig;
     static GraphQLSchema = GraphQLSchema;
 
     constructor(client: es.Client, options: IndexModelOptions) {
@@ -14,4 +14,4 @@ export class DataTypes extends IndexModel<DataTypeModel> {
     }
 }
 
-export { DataTypeModel };
+export { DataType };

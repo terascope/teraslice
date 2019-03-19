@@ -1,12 +1,12 @@
 import * as es from 'elasticsearch';
 import { IndexModel, IndexModelOptions } from 'elasticsearch-store';
-import rolesConfig, { GraphQLSchema, RoleModel } from './config/roles';
+import rolesConfig, { GraphQLSchema, Role } from './config/roles';
 
 /**
  * Manager for Roles
 */
-export class Roles extends IndexModel<RoleModel> {
-    static ModelConfig = rolesConfig;
+export class Roles extends IndexModel<Role> {
+    static IndexModelConfig = rolesConfig;
     static GraphQLSchema = GraphQLSchema;
 
     constructor(client: es.Client, config: IndexModelOptions) {
@@ -14,4 +14,4 @@ export class Roles extends IndexModel<RoleModel> {
     }
 }
 
-export { RoleModel };
+export { Role };

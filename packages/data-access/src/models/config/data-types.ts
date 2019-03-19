@@ -1,7 +1,7 @@
 import { TypeConfig } from 'xlucene-evaluator';
-import { ModelConfig, IndexModelRecord } from 'elasticsearch-store';
+import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
 
-const config: ModelConfig<DataTypeModel> = {
+const config: IndexModelConfig<DataType> = {
     version: 1,
     name: 'data_types',
     mapping: {
@@ -42,7 +42,7 @@ const config: ModelConfig<DataTypeModel> = {
 /**
  * The definition a DataType model
 */
-export interface DataTypeModel extends IndexModelRecord {
+export interface DataType extends IndexModelRecord {
     /**
      * Name of the DataType
     */
