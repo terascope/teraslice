@@ -1,7 +1,7 @@
 import * as ts from '@terascope/utils';
-import { SearchParams } from 'elasticsearch';
 import { LuceneQueryAccess } from 'xlucene-evaluator';
 import { DataAccessConfig } from './acl-manager';
+import { SearchParams } from 'elasticsearch';
 
 /**
  * Using a DataAccess ACL, limit queries to
@@ -30,13 +30,9 @@ export class SearchAccess {
     }
 
     /**
-     * Given xlucene query it should be able to restrict
-     * the query to certian fields and add any constraints.
-     *
-     * If the input query using restricted fields, it will throw.
+     * Converts a restricted xlucene query to an elasticsearch search query
     */
-    restrictQuery(query: string, params?: SearchParams): SearchParams {
-        const restricted = this._queryAccess.restrict(query);
-        return this._queryAccess.toRestrictedSearchQuery(restricted, params);
+    restrictSearchQuery(query: string, params?: SearchParams): SearchParams {
+        return this._queryAccess.restrictSearchQuery(query, params);
     }
 }

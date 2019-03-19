@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
-import { SearchAccess, View, DataType } from '../src';
 import { SearchParams } from 'elasticsearch';
+import { SearchAccess, View, DataType } from '../src';
 
 describe('SearchAccess', () => {
     const view: View = {
@@ -53,7 +53,7 @@ describe('SearchAccess', () => {
 
     it('should be able to restrict the query for bar', () => {
         expect(() => {
-            searchAccess.restrictQuery('bar:foo');
+            searchAccess.restrictSearchQuery('bar:foo');
         }).toThrowWithMessage(TSError, 'Field bar is restricted');
     });
 
@@ -68,7 +68,7 @@ describe('SearchAccess', () => {
             ]
         };
 
-        const result = searchAccess.restrictQuery('foo:bar', params);
+        const result = searchAccess.restrictSearchQuery('foo:bar', params);
         expect(result).toMatchObject({
             _sourceExclude: [
                 'baz'
@@ -83,7 +83,7 @@ describe('SearchAccess', () => {
     });
 
     it('should be able to return a restricted query without any params', () => {
-        const result = searchAccess.restrictQuery('foo:bar');
+        const result = searchAccess.restrictSearchQuery('foo:bar');
         expect(result).toMatchObject({
             _sourceExclude: [
                 'bar',
