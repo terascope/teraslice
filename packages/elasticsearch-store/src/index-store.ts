@@ -143,7 +143,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
     /** Count records by a given Lucene Query */
     async count(query: string, params?: PartialParam<es.CountParams, 'q'|'body'>): Promise<number> {
-        const p = this.getDefaultParams(params, utils.translateQuery(query, this._xluceneTypes));
+        const p = Object.assign({}, params, utils.translateQuery(query, this._xluceneTypes));
 
         return this._count(p);
     }
@@ -152,7 +152,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     // tslint:disable-next-line
     async _count(params: es.CountParams): Promise<number> {
         return ts.pRetry(async () => {
-            const { count } = await this.client.count(params);
+            const { count } = await this.client.count(this.getDefaultParams(params));
             return count;
         }, utils.getRetryConfig());
     }
@@ -310,18 +310,20 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         this.client.close();
     }
 
-    /** Search with a given Lucene Query or Elasticsearch Query DSL */
+    /** Search with a given Lucene Query */
     async search(query: string, params?: PartialParam<SearchParams<T>>): Promise<T[]> {
-        const p = this.getDefaultParams(params, utils.translateQuery(query, this._xluceneTypes));
+        const p = Object.assign({}, params, utils.translateQuery(query, this._xluceneTypes));
 
         return this._search(p);
     }
 
     /** Search an Elasticsearch Query DSL */
     // tslint:disable-next-line
-    async _search(params: es.SearchParams): Promise<T[]> {
+    async _search(params: PartialParam<SearchParams<T>>): Promise<T[]> {
         return ts.pRetry(async () => {
-            const results = await this.client.search<T>(params);
+            const results = await this.client.search<T>(this.getDefaultParams({
+                sort: this.config.defaultSort,
+            }, params));
 
             // @ts-ignore because failures doesn't exist in definition
             const { failures, failed } = results._shards;

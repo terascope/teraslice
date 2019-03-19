@@ -51,6 +51,11 @@ export interface IndexConfig<T = any> {
     logger?: Logger;
 
     /**
+     * Default sort
+     */
+    defaultSort?: string;
+
+    /**
      * ID field
     */
     idField?: keyof T;

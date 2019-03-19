@@ -33,6 +33,9 @@ describe('IndexModel', () => {
                 }
             }
         },
+        storeOptions: {
+            defaultSort: 'name:asc',
+        },
         uniqueFields: ['name'],
         version: 1,
     };
@@ -200,14 +203,17 @@ describe('IndexModel', () => {
 
         it('should be able to count with restrictions', async () => {
             const queryAccess = new LuceneQueryAccess({
-                excludes: ['created']
+                includes: ['name']
             });
+
             const count = await indexModel.count('name:Bob*', queryAccess);
             expect(count).toBe(5);
         });
 
         it('should be able to find all of the Bobs', async () => {
-            const result = await indexModel.find('name:Bob*', 6);
+            const result = await indexModel.find('name:Bob*', {
+                size: 6
+            });
 
             expect(result).toBeArrayOfSize(5);
             for (const record of result) {
@@ -218,8 +224,25 @@ describe('IndexModel', () => {
             }
         });
 
+        it('should be able to find all of the Bobs with restrictions', async () => {
+            const queryAccess = new LuceneQueryAccess({
+                constraint: 'name:Bob*',
+                excludes: ['created']
+            });
+
+            const result = await indexModel.find('name:Bob*', { size: 6 }, queryAccess);
+
+            expect(result).toBeArrayOfSize(5);
+            for (const record of result) {
+                expect(record).toHaveProperty('id');
+                expect(record).not.toHaveProperty('created');
+                expect(record).toHaveProperty('updated');
+                expect(record.name).toStartWith('Bob');
+            }
+        });
+
         it('should be able to find all of the Joes', async () => {
-            const result = await indexModel.find('name:Joe*', 6);
+            const result = await indexModel.find('name:Joe*', { size: 6 });
 
             expect(result).toBeArrayOfSize(5);
 
@@ -232,7 +255,7 @@ describe('IndexModel', () => {
         });
 
         it('should be able to find 2 of the Joes', async () => {
-            const result = await indexModel.find('name:Joe*', 2);
+            const result = await indexModel.find('name:Joe*', { size: 2 });
 
             expect(result).toBeArrayOfSize(2);
 
@@ -242,11 +265,15 @@ describe('IndexModel', () => {
         });
 
         it('should be able to sort by name', async () => {
-            const result = await indexModel.find('name:(Bob* OR Joe*)', 11, [], 'name:asc');
+            const result = await indexModel.find('name:(Bob* OR Joe*)', {
+                size: 11,
+                sort: 'name:desc',
+                includes: ['name', 'updated']
+            });
 
             expect(result).toBeArrayOfSize(10);
 
-            result.forEach((record, index) => {
+            result.reverse().forEach((record, index) => {
                 if (index < 5) {
                     expect(record.name).toEqual(`Bob ${index}`);
                 } else {
@@ -256,7 +283,10 @@ describe('IndexModel', () => {
         });
 
         it('should be able to limit the fields returned', async () => {
-            const result = await indexModel.find('name:Joe*', 1, ['name']);
+            const result = await indexModel.find('name:Joe*', {
+                size: 1,
+                includes: ['name']
+            });
 
             expect(result).toBeArrayOfSize(1);
 
@@ -269,7 +299,9 @@ describe('IndexModel', () => {
         });
 
         it('should be able to find no Ninjas', async () => {
-            const result = await indexModel.find('name:"Ninja"', 2);
+            const result = await indexModel.find('name:"Ninja"', {
+                size: 2
+            });
 
             expect(result).toBeArrayOfSize(0);
         });

@@ -44,6 +44,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             ingestTimeField: 'created',
             eventTimeField: 'updated',
             logger: options.logger,
+            defaultSort: 'updated:desc'
         };
 
         const indexConfig = Object.assign(
@@ -111,7 +112,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return count === ids.length;
     }
 
-    async findBy(fields: i.FieldMap<T>, joinBy = 'AND') {
+    async findBy(fields: i.FieldMap<T>, joinBy = 'AND', queryAccess?: LuceneQueryAccess<T>) {
         const query = Object.entries(fields)
             .map(([field, val]) => {
                 if (val == null) {
@@ -123,7 +124,8 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             })
             .join(` ${joinBy} `);
 
-        const results = await this._find(query, 1);
+        const results = await this._find(query, { size: 1 }, queryAccess);
+
         const record = ts.getFirst(results);
         if (record == null) {
             throw new ts.TSError(`Unable to find ${this.name} by '${query}'`, {
@@ -154,8 +156,8 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this.store.mget({ ids });
     }
 
-    async find(q: string = '*', size: number = 10, fields?: (keyof T)[], sort?: string): Promise<T[]> {
-        return this._find(q, size, fields, sort);
+    async find(q: string = '*', options: FindOptions<T> = {}, queryAccess?: LuceneQueryAccess<T>): Promise<T[]> {
+        return this._find(q, options, queryAccess);
     }
 
     async update(record: i.UpdateRecordInput<T>) {
@@ -244,19 +246,26 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         }
     }
 
+    /** this is only used for counting uniq fields */
     protected async _countBy(field: keyof T, val: any): Promise<number> {
         if (!val) return 0;
         return this.store.count(`${field}:"${val}"`);
     }
 
-    protected async _find(q: string = '*', size: number = 10, fields?: (keyof T)[], sort?: string) {
-        const results = await this.store.search(q, {
-            size,
-            sort,
-            _source: fields,
-        });
+    protected async _find(q: string = '*', options: FindOptions<T> = {}, queryAccess?: LuceneQueryAccess<T>) {
+        const params: Partial<es.SearchParams> = {
+            size: options.size,
+            sort: options.sort,
+            _sourceExclude: options.excludes as string[],
+            _sourceInclude: options.includes as string[],
+        };
 
-        return results;
+        if (queryAccess) {
+            const query = queryAccess.restrictSearchQuery(q, params);
+            return this.store._search(query);
+        }
+
+        return this.store.search(q, params);
     }
 
     protected async _ensureUnique(record: T) {
@@ -303,3 +312,10 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return record;
     }
 }
+
+type FindOptions<T> = {
+    includes?: (keyof T)[],
+    excludes?: (keyof T)[],
+    sort?: string;
+    size?: number;
+};
