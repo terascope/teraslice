@@ -2,14 +2,54 @@ import * as ts from '@terascope/utils';
 import nanoid from 'nanoid/async';
 import generate from 'nanoid/generate';
 
-const badIdRegex = new RegExp(/^[-_]+/);
+/** ElasticSearch Mapping */
+export const mapping = {
+    _all: {
+        enabled: false
+    },
+    dynamic: false,
+    properties: {
+        id: {
+            type: 'keyword'
+        },
+        created: {
+            type: 'date'
+        },
+        updated: {
+            type: 'date'
+        }
+    }
+};
 
-/**
- * A helper function for making an ISODate string
-*/
-export function makeISODate(): string {
-    return new Date().toISOString();
+/** JSON Schema */
+export const schema = {
+    additionalProperties: false,
+    properties: {
+        id: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        created: {
+            format: 'date-time',
+        },
+        updated: {
+            format: 'date-time',
+        }
+    },
+    required: ['id', 'created', 'updated']
+};
+
+export function addDefaultMapping(input: object) {
+    return mergeDefaults(input, mapping);
 }
+
+export function addDefaultSchema(input: object) {
+    return mergeDefaults(input, schema);
+}
+
+const badIdRegex = new RegExp(/^[-_]+/);
 
 /**
  * Make unique URL friendly id

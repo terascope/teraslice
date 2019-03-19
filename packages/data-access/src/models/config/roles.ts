@@ -1,5 +1,4 @@
-import { ModelConfig } from '../base';
-import { RoleModel } from '../roles';
+import { ModelConfig, IndexModelRecord } from 'elasticsearch-store';
 
 const config: ModelConfig<RoleModel> = {
     version: 1,
@@ -30,4 +29,37 @@ const config: ModelConfig<RoleModel> = {
     },
 };
 
-export = config;
+export const GraphQLSchema = `
+    type Role {
+        id: ID!
+        name: String
+        description: String
+        created: String
+        updated: String
+    }
+
+    input CreateRoleInput {
+        name: String!
+        description: String
+    }
+
+    input UpdateRoleInput {
+        id: ID!
+        name: String
+        description: String
+    }
+`;
+
+export interface RoleModel extends IndexModelRecord {
+    /**
+     * Name of the Role
+    */
+    name: string;
+
+    /**
+     * Description of the Role
+    */
+    description?: string;
+}
+
+export default config;

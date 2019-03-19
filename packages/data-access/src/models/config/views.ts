@@ -1,5 +1,4 @@
-import { ModelConfig } from '../base';
-import { ViewModel } from '../views';
+import { ModelConfig, IndexModelRecord } from 'elasticsearch-store';
 
 const config: ModelConfig<ViewModel> = {
     version: 1,
@@ -88,4 +87,99 @@ const config: ModelConfig<ViewModel> = {
     }
 };
 
-export = config;
+/**
+ * The definition of a View model
+ *
+*/
+export interface ViewModel extends IndexModelRecord {
+    /**
+     * Name of the view
+    */
+    name: string;
+
+    /**
+     * Description of the view usage
+    */
+    description?: string;
+
+    /**
+     * The associated data type
+    */
+    data_type: string;
+
+    /**
+     * A list of roles this view applys to
+    */
+    roles: string[];
+
+    /**
+     * Fields to exclude
+    */
+    excludes?: string[];
+
+    /**
+     * Fields to include
+    */
+    includes?: string[];
+
+    /**
+     * Constraint for queries and filtering
+    */
+    constraint?: string;
+
+    /**
+     * Restrict prefix wildcards in search values
+     *
+     * @example `foo:*bar`
+    */
+    prevent_prefix_wildcard?: boolean;
+}
+
+export const GraphQLSchema = `
+    type View {
+        id: ID!
+        name: String
+        description: String
+        data_type: String
+        roles: [String]
+        excludes: [String]
+        includes: [String]
+        constraint: String
+        prevent_prefix_wildcard: Boolean
+        created: String
+        updated: String
+    }
+
+    input CreateViewInput {
+        name: String!
+        description: String
+        data_type: String!
+        roles: [String]
+        excludes: [String]
+        includes: [String]
+        constraint: String
+        prevent_prefix_wildcard: Boolean
+    }
+
+    input UpdateViewInput {
+        id: ID!
+        name: String
+        description: String
+        data_type: String
+        roles: [String]
+        excludes: [String]
+        includes: [String]
+        constraint: String
+        prevent_prefix_wildcard: Boolean
+    }
+
+    input CreateDefaultViewInput {
+        roles: [String]
+        excludes: [String]
+        includes: [String]
+        constraint: String
+        prevent_prefix_wildcard: Boolean
+    }
+`;
+
+export default config;

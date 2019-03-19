@@ -1,53 +1,17 @@
 import * as es from 'elasticsearch';
-import rolesConfig from './config/roles';
-import { ManagerConfig } from '../interfaces';
-import { Base, BaseModel, CreateModel, UpdateModel } from './base';
+import { IndexModel, IndexModelOptions } from 'elasticsearch-store';
+import rolesConfig, { GraphQLSchema, RoleModel } from './config/roles';
 
 /**
  * Manager for Roles
 */
-export class Roles extends Base<RoleModel, CreateRoleInput, UpdateRoleInput> {
+export class Roles extends IndexModel<RoleModel> {
     static ModelConfig = rolesConfig;
-    static GraphQLSchema =  `
-        type Role {
-            id: ID!
-            name: String
-            description: String
-            created: String
-            updated: String
-        }
+    static GraphQLSchema = GraphQLSchema;
 
-        input CreateRoleInput {
-            name: String!
-            description: String
-        }
-
-        input UpdateRoleInput {
-            id: ID!
-            name: String
-            description: String
-        }
-    `;
-
-    constructor(client: es.Client, config: ManagerConfig) {
+    constructor(client: es.Client, config: IndexModelOptions) {
         super(client, config, rolesConfig);
     }
 }
 
-/**
- * The definition a Role model
-*/
-export interface RoleModel extends BaseModel {
-    /**
-     * Name of the Role
-    */
-    name: string;
-
-    /**
-     * Description of the Role
-    */
-    description?: string;
-}
-
-export type CreateRoleInput = CreateModel<RoleModel>;
-export type UpdateRoleInput = UpdateModel<RoleModel>;
+export { RoleModel };

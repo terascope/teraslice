@@ -1,16 +1,17 @@
 import 'jest-extended';
-import { times, TSError, Omit } from '@terascope/utils';
-import { Base, BaseModel, ModelConfig } from '../../src/models/base';
-import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
+import { Client } from 'elasticsearch';
+import { times, TSError } from '@terascope/utils';
+import { IndexModel, IndexModelRecord, ModelConfig, IndexModelOptions } from '../src';
+import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
 
-describe('Base', () => {
-    interface ExampleModel extends BaseModel {
+describe('IndexModel', () => {
+    interface ExampleRecord extends IndexModelRecord {
         name: string;
     }
 
     const client = makeClient();
-    const baseConfig: ModelConfig<ExampleModel> = {
-        name: 'base',
+    const exampleConfig: ModelConfig<ExampleRecord> = {
+        name: 'index_model',
         mapping: {
             properties: {
                 name: {
@@ -35,37 +36,40 @@ describe('Base', () => {
         version: 1,
     };
 
-    type CreateExampleInput = Omit<ExampleModel, 'id'|'created'|'updated'>;
-    type UpdateExampleInput = Omit<ExampleModel, 'created'|'updated'>;
+    class ExampleIndexModel extends IndexModel<ExampleRecord> {
+        constructor(client: Client, options: IndexModelOptions) {
+            super(client, options, exampleConfig);
+        }
+    }
 
-    const base = new Base<ExampleModel, CreateExampleInput, UpdateExampleInput>(client, {
+    const indexModel = new ExampleIndexModel(client, {
         namespace: 'test',
         storeOptions: {
             bulkMaxSize: 50,
             bulkMaxWait: 300,
         }
-    }, baseConfig);
+    });
 
     beforeAll(async () => {
-        await cleanupIndex(base);
-        return base.initialize();
+        await cleanupIndexStore(indexModel.store);
+        return indexModel.initialize();
     });
 
     afterAll(async () => {
-        await cleanupIndex(base);
-        return base.shutdown();
+        await cleanupIndexStore(indexModel.store);
+        return indexModel.shutdown();
     });
 
     describe('when creating a record', () => {
-        let created: ExampleModel;
-        let fetched: ExampleModel;
+        let created: ExampleRecord;
+        let fetched: ExampleRecord;
 
         beforeAll(async () => {
-            created = await base.create({
+            created = await indexModel.create({
                 name: 'Billy'
             });
 
-            fetched = await base.findById(created.id);
+            fetched = await indexModel.findById(created.id);
         });
 
         it('should have created the record', () => {
@@ -76,9 +80,9 @@ describe('Base', () => {
             expect.hasAssertions();
 
             try {
-                await base.create(created);
+                await indexModel.create(created);
             } catch (err) {
-                expect(err.message).toEqual('Base create requires name to be unique');
+                expect(err.message).toEqual('IndexModel create requires name to be unique');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(409);
             }
@@ -89,9 +93,9 @@ describe('Base', () => {
 
             try {
                 // @ts-ignore
-                await base.create({});
+                await indexModel.create({});
             } catch (err) {
-                expect(err.message).toEqual('Base create requires field name');
+                expect(err.message).toEqual('IndexModel create requires field name');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(422);
             }
@@ -101,17 +105,17 @@ describe('Base', () => {
             expect.hasAssertions();
 
             const name = 'fooooobarrr';
-            await base.create({
+            await indexModel.create({
                 name
             });
 
             try {
-                await base.update({
+                await indexModel.update({
                     ...created,
                     name
                 });
             } catch (err) {
-                expect(err.message).toEqual('Base update requires name to be unique');
+                expect(err.message).toEqual('IndexModel update requires name to be unique');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(409);
             }
@@ -122,9 +126,9 @@ describe('Base', () => {
 
             try {
                 // @ts-ignore
-                await base.update({});
+                await indexModel.update({});
             } catch (err) {
-                expect(err.message).toEqual('Base update requires id');
+                expect(err.message).toEqual('IndexModel update requires id');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(422);
             }
@@ -137,7 +141,7 @@ describe('Base', () => {
         });
 
         it('should be able to find by name since it is treated a name', async () => {
-            const result = await base.findByAnyId('Billy');
+            const result = await indexModel.findByAnyId('Billy');
             expect(result).toEqual(fetched);
         });
 
@@ -145,30 +149,30 @@ describe('Base', () => {
             expect.hasAssertions();
 
             try {
-                await base.findByAnyId('WrongBilly');
+                await indexModel.findByAnyId('WrongBilly');
             } catch (err) {
-                expect(err.message).toEqual('Unable to find Base by \'id:"WrongBilly" OR name:"WrongBilly"\'');
+                expect(err.message).toEqual('Unable to find IndexModel by \'id:"WrongBilly" OR name:"WrongBilly"\'');
                 expect(err.statusCode).toEqual(404);
                 expect(err).toBeInstanceOf(TSError);
             }
         });
 
         it('should be able to update the record', async () => {
-            const updateInput = { ...fetched, name: 'Hello' } as UpdateExampleInput;
+            const updateInput = { ...fetched, name: 'Hello' };
 
-            const updateResult = await base.update(updateInput);
+            const updateResult = await indexModel.update(updateInput);
             expect(updateResult).not.toBe(updateInput);
 
-            const result = await base.findById(fetched.id);
+            const result = await indexModel.findById(fetched.id);
             expect(result).toHaveProperty('name', 'Hello');
 
             expect(new Date(result.updated)).toBeAfter(new Date(fetched.updated));
         });
 
         it('should be able to delete the record', async () => {
-            await base.deleteById(fetched.id);
+            await indexModel.deleteById(fetched.id);
 
-            return expect(base.findById(fetched.id))
+            return expect(indexModel.findById(fetched.id))
                 .rejects.toThrowError(/Not Found/);
         });
     });
@@ -176,20 +180,20 @@ describe('Base', () => {
     describe('when finding mulitple records', () => {
         beforeAll(async () => {
             await Promise.all(times(5, (n) => {
-                return base.create({
+                return indexModel.create({
                     name: `Joe ${n}`
                 });
             }));
 
             await Promise.all(times(5, (n) => {
-                return base.create({
+                return indexModel.create({
                     name: `Bob ${n}`
                 });
             }));
         });
 
         it('should be able to find all of the Bobs', async () => {
-            const result = await base.find('name:Bob*', 6);
+            const result = await indexModel.find('name:Bob*', 6);
 
             expect(result).toBeArrayOfSize(5);
             for (const record of result) {
@@ -201,7 +205,7 @@ describe('Base', () => {
         });
 
         it('should be able to find all of the Joes', async () => {
-            const result = await base.find('name:Joe*', 6);
+            const result = await indexModel.find('name:Joe*', 6);
 
             expect(result).toBeArrayOfSize(5);
 
@@ -214,7 +218,7 @@ describe('Base', () => {
         });
 
         it('should be able to find 2 of the Joes', async () => {
-            const result = await base.find('name:Joe*', 2);
+            const result = await indexModel.find('name:Joe*', 2);
 
             expect(result).toBeArrayOfSize(2);
 
@@ -224,7 +228,7 @@ describe('Base', () => {
         });
 
         it('should be able to sort by name', async () => {
-            const result = await base.find('name:(Bob* OR Joe*)', 11, [], 'name:asc');
+            const result = await indexModel.find('name:(Bob* OR Joe*)', 11, [], 'name:asc');
 
             expect(result).toBeArrayOfSize(10);
 
@@ -238,7 +242,7 @@ describe('Base', () => {
         });
 
         it('should be able to limit the fields returned', async () => {
-            const result = await base.find('name:Joe*', 1, ['name']);
+            const result = await indexModel.find('name:Joe*', 1, ['name']);
 
             expect(result).toBeArrayOfSize(1);
 
@@ -251,7 +255,7 @@ describe('Base', () => {
         });
 
         it('should be able to find no Ninjas', async () => {
-            const result = await base.find('name:"Ninja"', 2);
+            const result = await indexModel.find('name:"Ninja"', 2);
 
             expect(result).toBeArrayOfSize(0);
         });
@@ -259,13 +263,13 @@ describe('Base', () => {
 
     describe('when appending to an array', () => {
         it('should return early if given empty values', async () => {
-            await base.appendToArray('example', 'name', []);
+            await indexModel.appendToArray('example', 'name', []);
         });
     });
 
     describe('when removing from an array', () => {
         it('should return early if given empty values', async () => {
-            await base.removeFromArray('example', 'name', []);
+            await indexModel.removeFromArray('example', 'name', []);
         });
     });
 });

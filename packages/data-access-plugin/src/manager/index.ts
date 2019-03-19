@@ -115,7 +115,7 @@ export default class ManagerPlugin {
             // @ts-ignore
             const manager: ACLManager = req.aclManager;
             // @ts-ignore
-            const user: PrivateUserModel = req.v2User;
+            const user: UserModel = req.v2User;
 
             const space: string = req.params.space;
             const logger = this.context.apis.foundation.makeLogger({

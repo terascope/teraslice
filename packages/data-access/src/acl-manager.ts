@@ -1,5 +1,6 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
+import { CreateIndexModel, UpdateIndexModel } from 'elasticsearch-store';
 import { TypeConfig } from 'xlucene-evaluator';
 import * as models from './models';
 import { ManagerConfig } from './interfaces';
@@ -115,7 +116,7 @@ export class ACLManager {
     /**
      * Authenticate user with username and password, or an api_token
      */
-    async authenticateUser(args: { username?: string, password?: string, api_token?: string }): Promise<models.PrivateUserModel> {
+    async authenticateUser(args: { username?: string, password?: string, api_token?: string }): Promise<models.UserModel> {
         if (args.username && args.password) {
             return this.users.authenticate(args.username, args.password);
         }
@@ -132,7 +133,7 @@ export class ACLManager {
     /**
      * Authenticate user with api_token
      */
-    async authenticateWithToken(args: { api_token?: string }): Promise<models.PrivateUserModel> {
+    async authenticateWithToken(args: { api_token?: string }): Promise<models.UserModel> {
         return this.users.authenticateWithToken(args.api_token);
     }
 
@@ -153,7 +154,7 @@ export class ACLManager {
     /**
      * Create a user
     */
-    async createUser(args: { user: models.CreateUserInput, password: string }) {
+    async createUser(args: { user: models.CreateUserModel, password: string }) {
         await this._validateUserInput(args.user);
 
         return this.users.createWithPassword(args.user, args.password);
@@ -164,7 +165,7 @@ export class ACLManager {
      *
      * This cannot include private information
     */
-    async updateUser(args: { user: models.UpdateUserInput }): Promise<models.UserModel> {
+    async updateUser(args: { user: models.UpdateUserModel }): Promise<models.UserModel> {
         await this._validateUserInput(args.user);
 
         await this.users.update(args.user);
@@ -214,7 +215,7 @@ export class ACLManager {
     /**
      * Create a role
     */
-    async createRole(args: { role: models.CreateRoleInput }) {
+    async createRole(args: { role: CreateIndexModel<models.RoleModel> }) {
         await this._validateRoleInput(args.role);
 
         return this.roles.create(args.role);
@@ -223,7 +224,7 @@ export class ACLManager {
     /**
      * Update a role
     */
-    async updateRole(args: { role: models.UpdateRoleInput }) {
+    async updateRole(args: { role: UpdateIndexModel<models.RoleModel> }) {
         await this._validateRoleInput(args.role);
 
         await this.roles.update(args.role);
@@ -263,7 +264,7 @@ export class ACLManager {
     /**
      * Create a data type
     */
-    async createDataType(args: { dataType: models.CreateDataTypeInput }) {
+    async createDataType(args: { dataType: CreateIndexModel<models.DataTypeModel> }) {
         await this._validateDataTypeInput(args.dataType);
 
         return this.dataTypes.create(args.dataType);
@@ -272,7 +273,7 @@ export class ACLManager {
     /**
      * Update a data type
     */
-    async updateDataType(args: { dataType: models.UpdateDataTypeInput }) {
+    async updateDataType(args: { dataType: UpdateIndexModel<models.DataTypeModel> }) {
         await this._validateDataTypeInput(args.dataType);
 
         await this.dataTypes.update(args.dataType);
@@ -315,7 +316,7 @@ export class ACLManager {
      * attached the space to those roles.
      *
     */
-    async createSpace(args: { space: models.CreateSpaceInput }) {
+    async createSpace(args: { space: CreateIndexModel<models.SpaceModel> }) {
         await this._validateSpaceInput(args.space);
 
         return this.spaces.create(args.space);
@@ -324,7 +325,7 @@ export class ACLManager {
     /**
      * Update a space
     */
-    async updateSpace(args: { space: models.UpdateSpaceInput }) {
+    async updateSpace(args: { space: UpdateIndexModel<models.SpaceModel> }) {
         await this._validateSpaceInput(args.space);
 
         await this.spaces.update(args.space);
@@ -359,7 +360,7 @@ export class ACLManager {
     /**
      * Create a view, this will attach to the space and the role
     */
-    async createView(args: { view: models.CreateViewInput }) {
+    async createView(args: { view: CreateIndexModel<models.ViewModel> }) {
         await this._validateViewInput(args.view);
 
         const result = await this.views.create(args.view);
@@ -369,7 +370,7 @@ export class ACLManager {
     /**
      * Update a view, this will attach to the space and the role
     */
-    async updateView(args: { view: models.UpdateViewInput }) {
+    async updateView(args: { view: UpdateIndexModel<models.ViewModel> }) {
         const { view } = args;
         await this._validateViewInput(view);
 

@@ -1,4 +1,4 @@
-import { Logger } from '@terascope/utils';
+import { Logger, Omit } from '@terascope/utils';
 
 /** A versioned Index Configuration */
 export interface IndexConfig {
@@ -49,6 +49,11 @@ export interface IndexConfig {
      * @defaults to a debug logger
     */
     logger?: Logger;
+
+    /**
+     * ID field
+    */
+    idField?: string;
 
     /**
      * Ingest Time field on the source record
@@ -165,3 +170,63 @@ export interface BulkResponse {
 }
 
 export type Shard = { primary: boolean, stage: string };
+
+export type IndexModelConfig = ModelConfig<IndexModelRecord> & IndexModelOptions;
+
+export interface IndexModelRecord {
+    /**
+     * ID of the view - nanoid 12 digit
+    */
+    readonly id: string;
+
+    /** Updated date */
+    updated: string;
+
+    /** Creation date */
+    created: string;
+}
+
+export type CreateIndexModel<T extends IndexModelRecord> = Omit<T, (keyof IndexModelRecord)>;
+export type UpdateIndexModel<T extends IndexModelRecord> = Partial<Omit<T, (keyof IndexModelRecord)>> & {
+    id: string;
+};
+
+export interface ModelConfig<T extends IndexModelRecord> {
+    /** Schema Version */
+    version: number;
+
+    /** Name of the Model/Data Type */
+    name: string;
+
+    /** ElasticSearch Mapping */
+    mapping: any;
+
+    /** JSON Schema */
+    schema: any;
+
+    /** Additional IndexStore configuration */
+    storeOptions?: Partial<IndexConfig>;
+
+    /** Unqiue fields across on Index */
+    uniqueFields?: (keyof T)[];
+
+    /** Sanitize / cleanup fields mapping, like trim or trimAndToLower */
+    sanitizeFields?: SanitizeFields;
+
+    /** Specify whether the data should be strictly validated, defaults to true */
+    strictMode?: boolean;
+}
+
+export type FieldMap<T> = {
+    [field in keyof T]?: string;
+};
+
+export type SanitizeFields = {
+    [field: string]: 'trimAndToLower'|'trim'|'toSafeString';
+};
+
+export interface IndexModelOptions {
+    namespace?: string;
+    storeOptions?: Partial<IndexConfig>;
+    logger?: Logger;
+}

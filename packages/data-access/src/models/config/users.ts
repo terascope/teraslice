@@ -1,7 +1,6 @@
-import { ModelConfig } from '../base';
-import { PrivateUserModel } from '../users';
+import { ModelConfig, IndexModelRecord } from 'elasticsearch-store';
 
-const config: ModelConfig<PrivateUserModel> = {
+const config: ModelConfig<UserModel> = {
     version: 1,
     name: 'users',
     mapping: {
@@ -116,4 +115,115 @@ const config: ModelConfig<PrivateUserModel> = {
     strictMode: false,
 };
 
-export = config;
+export const GraphQLSchema = `
+    enum UserType {
+        USER
+        ADMIN
+        SUPERADMIN
+    }
+
+    type User {
+        id: ID!
+        client_id: Int
+        username: String!
+        firstname: String
+        lastname: String
+        email: String
+        role: String
+        type: UserType
+        api_token: String
+        hash: String
+        salt: String
+        created: String
+        updated: String
+    }
+
+    input CreateUserInput {
+        client_id: Int
+        username: String!
+        firstname: String
+        lastname: String
+        email: String
+        type: UserType
+        role: String
+    }
+
+    input UpdateUserInput {
+        id: ID!
+        client_id: Int
+        username: String
+        firstname: String
+        lastname: String
+        email: String
+        type: UserType
+        role: String
+    }
+`;
+
+/**
+ * The definition of a User model
+*/
+export interface UserModel extends IndexModelRecord {
+    /**
+     * The ID for the client
+    */
+    client_id?: number;
+
+    /**
+     * The User's username
+    */
+    username: string;
+
+    /**
+     * First Name of the User
+    */
+    firstname: string;
+
+    /**
+     * Last Name of the User
+    */
+    lastname: string;
+
+    /**
+     * The User's email address
+    */
+    email: string;
+
+    /**
+     * The users attached role
+    */
+    role?: string;
+
+    /**
+     * The user's type
+     *
+     * @default "User"
+    */
+    type?: UserType;
+
+    /**
+     * The User's API Token
+    */
+    api_token: string;
+
+    /**
+     * A hash password using:
+     *
+     * ```js
+     * const rawHash = await crypto.pbkdf2Async(user.hash, user.salt, 25000, 512, 'sha1')
+     * return Buffer.from(rawHash, 'binary').toString('hex');
+     * ```
+    */
+    hash: string;
+
+    /**
+     * A unique salt for the password
+     *
+     * `crypto.randomBytesAsync(32).toString('hex')`
+    */
+    salt: string;
+}
+
+export type UserType = 'SUPERADMIN'|'ADMIN'|'USER';
+
+export default config;

@@ -1,5 +1,5 @@
-import { ModelConfig } from '../base';
-import { DataTypeModel } from '../data-types';
+import { TypeConfig } from 'xlucene-evaluator';
+import { ModelConfig, IndexModelRecord } from 'elasticsearch-store';
 
 const config: ModelConfig<DataTypeModel> = {
     version: 1,
@@ -39,4 +39,48 @@ const config: ModelConfig<DataTypeModel> = {
     uniqueFields: ['name']
 };
 
-export = config;
+/**
+ * The definition a DataType model
+*/
+export interface DataTypeModel extends IndexModelRecord {
+    /**
+     * Name of the DataType
+    */
+    name: string;
+
+    /**
+     * Description of the DataType
+    */
+    description?: string;
+
+    /**
+     * Xlucene Type Config
+    */
+    type_config?: TypeConfig;
+}
+
+export const GraphQLSchema = `
+    type DataType {
+        id: ID!
+        name: String
+        description: String
+        type_config: JSON
+        created: String
+        updated: String
+    }
+
+    input CreateDataTypeInput {
+        name: String!
+        description: String
+        type_config: JSON
+    }
+
+    input UpdateDataTypeInput {
+        id: ID!
+        name: String
+        description: String
+        type_config: JSON
+    }
+`;
+
+export default config;

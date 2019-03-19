@@ -1,38 +1,35 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { IndexStore, IndexConfig } from 'elasticsearch-store';
-import { addDefaultMapping, addDefaultSchema } from './config/base';
-import { ManagerConfig } from '../interfaces';
-import * as utils from '../utils';
+import IndexStore from './index-store';
+import * as utils from './utils';
+import * as i from './interfaces';
 
 /**
- * A base class for handling the different ACL models
- *
- * @todo migrate some this code into IndexStore
+ * An abstract class for an elasticsearch resource, with a CRUD-like interface
 */
-export class Base<T extends BaseModel, C extends object = T, U extends object = T> {
+export default abstract class IndexModel<T extends i.IndexModelRecord> {
     readonly store: IndexStore<T>;
     readonly name: string;
     private _uniqueFields: (keyof T)[];
-    private _sanitizeFields: SanitizeFields;
+    private _sanitizeFields: i.SanitizeFields;
 
-    constructor(client: es.Client, config: ManagerConfig, modelConfig: ModelConfig<T>) {
-        const indexConfig: IndexConfig = Object.assign({
+    constructor(client: es.Client, options: i.IndexModelOptions, modelConfig: i.ModelConfig<T>) {
+        const indexConfig: i.IndexConfig = Object.assign({
             version: 1,
             name: modelConfig.name,
-            namespace: config.namespace,
+            namespace: options.namespace,
             indexSchema: {
                 version: modelConfig.version,
-                mapping: addDefaultMapping(modelConfig.mapping),
+                mapping: utils.addDefaultMapping(modelConfig.mapping),
             },
             dataSchema: {
-                schema: addDefaultSchema(modelConfig.schema),
+                schema: utils.addDefaultSchema(modelConfig.schema),
                 strict: modelConfig.strictMode === false ? false : true,
                 allFormatters: true,
             },
             indexSettings: {
-                'index.number_of_shards': isProd ? 5 : 1,
-                'index.number_of_replicas': isProd ? 1 : 0,
+                'index.number_of_shards': ts.isProd ? 5 : 1,
+                'index.number_of_replicas': ts.isProd ? 1 : 0,
                 analysis: {
                     analyzer: {
                         lowercase_keyword_analyzer: {
@@ -42,10 +39,11 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
                     }
                 }
             },
+            idField: 'id',
             ingestTimeField: 'created',
             eventTimeField: 'updated',
-            logger: config.logger,
-        }, config.storeOptions, modelConfig.storeOptions);
+            logger: options.logger,
+        }, options.storeOptions, modelConfig.storeOptions);
 
         this.name = utils.toInstanceName(modelConfig.name);
         this.store = new IndexStore(client, indexConfig);
@@ -66,12 +64,12 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         return this.store.count(query);
     }
 
-    async create(record: C): Promise<T> {
+    async create(record: i.CreateIndexModel<T>): Promise<T> {
         const docInput: unknown = {
             ...record,
             id: await utils.makeId(),
-            created: utils.makeISODate(),
-            updated: utils.makeISODate(),
+            created: ts.makeISODate(),
+            updated: ts.makeISODate(),
         };
 
         const doc = this._sanitizeRecord(docInput as T);
@@ -105,7 +103,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         return count === ids.length;
     }
 
-    async findBy(fields: FieldMap<T>, joinBy = 'AND') {
+    async findBy(fields: i.FieldMap<T>, joinBy = 'AND') {
         const query = Object.entries(fields)
             .map(([field, val]) => {
                 if (val == null) {
@@ -133,7 +131,7 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
     }
 
     async findByAnyId(anyId: string) {
-        const fields: FieldMap<T> = {};
+        const fields: i.FieldMap<T> = {};
 
         for (const field of this._uniqueFields) {
             fields[field] = anyId;
@@ -147,14 +145,14 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         return this.store.mget({ ids });
     }
 
-    async find(q: string = '*', size: number = 10, fields?: (keyof T)[], sort?: string) {
+    async find(q: string = '*', size: number = 10, fields?: (keyof T)[], sort?: string): Promise<T[]> {
         return this._find(q, size, fields, sort);
     }
 
-    async update(record: U|T) {
+    async update(record: i.UpdateIndexModel<T>) {
         const doc: T = this._sanitizeRecord({
             ...record,
-            updated: utils.makeISODate(),
+            updated: ts.makeISODate(),
         } as T);
 
         if (!doc.id) {
@@ -296,59 +294,3 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         return record;
     }
 }
-
-export interface ModelConfig<T extends BaseModel> {
-    /** Schema Version */
-    version: number;
-
-    /** Name of the Model/Data Type */
-    name: string;
-
-    /** ElasticSearch Mapping */
-    mapping: any;
-
-    /** JSON Schema */
-    schema: any;
-
-    /** Additional IndexStore configuration */
-    storeOptions?: Partial<IndexConfig>;
-
-    /** Unqiue fields across on Index */
-    uniqueFields?: (keyof T)[];
-
-    /** Sanitize / cleanup fields mapping, like trim or trimAndToLower */
-    sanitizeFields?: SanitizeFields;
-
-    /** Specify whether the data should be strictly validated, defaults to true */
-    strictMode?: boolean;
-}
-
-export type FieldMap<T> = {
-    [field in keyof T]?: string;
-};
-
-export type SanitizeFields = {
-    [field: string]: 'trimAndToLower'|'trim'|'toSafeString';
-};
-
-export type BaseConfig = ModelConfig<BaseModel> & ManagerConfig;
-
-export interface BaseModel {
-    /**
-     * ID of the view - nanoid 12 digit
-    */
-    readonly id: string;
-
-    /** Updated date */
-    updated: string;
-
-    /** Creation date */
-    created: string;
-}
-
-export type CreateModel<T extends BaseModel> = ts.Omit<T, (keyof BaseModel)>;
-export type UpdateModel<T extends BaseModel> = Partial<ts.Omit<T, (keyof BaseModel)>> & {
-    id: string;
-};
-
-const isProd = process.env.NODE_ENV === 'production';

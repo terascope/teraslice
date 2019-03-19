@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { TSError, DataEntity } from '@terascope/utils';
-import { Users, PrivateUserModel } from '../../src/models/users';
+import { Users, UserModel } from '../../src/models/users';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
 describe('Users', () => {
@@ -23,7 +23,7 @@ describe('Users', () => {
         const username = 'billyjoe';
         let password = 'secret-password';
 
-        let created: PrivateUserModel;
+        let created: UserModel;
 
         beforeAll(async () => {
             created = await users.createWithPassword({

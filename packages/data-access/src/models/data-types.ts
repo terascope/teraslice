@@ -1,62 +1,17 @@
 import * as es from 'elasticsearch';
-import { TypeConfig } from 'xlucene-evaluator';
-import { Base, BaseModel, CreateModel, UpdateModel } from './base';
-import dataTypesConfig from './config/data-types';
-import { ManagerConfig } from '../interfaces';
+import { IndexModel, IndexModelOptions } from 'elasticsearch-store';
+import dataTypesConfig, { DataTypeModel, GraphQLSchema } from './config/data-types';
 
 /**
  * Manager for DataTypes
 */
-export class DataTypes extends Base<DataTypeModel, CreateDataTypeInput, UpdateDataTypeInput> {
+export class DataTypes extends IndexModel<DataTypeModel> {
     static ModelConfig = dataTypesConfig;
-    static GraphQLSchema =  `
-        type DataType {
-            id: ID!
-            name: String
-            description: String
-            type_config: JSON
-            created: String
-            updated: String
-        }
+    static GraphQLSchema = GraphQLSchema;
 
-        input CreateDataTypeInput {
-            name: String!
-            description: String
-            type_config: JSON
-        }
-
-        input UpdateDataTypeInput {
-            id: ID!
-            name: String
-            description: String
-            type_config: JSON
-        }
-    `;
-
-    constructor(client: es.Client, config: ManagerConfig) {
-        super(client, config, dataTypesConfig);
+    constructor(client: es.Client, options: IndexModelOptions) {
+        super(client, options, dataTypesConfig);
     }
 }
 
-/**
- * The definition a DataType model
-*/
-export interface DataTypeModel extends BaseModel {
-    /**
-     * Name of the DataType
-    */
-    name: string;
-
-    /**
-     * Description of the DataType
-    */
-    description?: string;
-
-    /**
-     * Xlucene Type Config
-    */
-    type_config?: TypeConfig;
-}
-
-export type CreateDataTypeInput = CreateModel<DataTypeModel>;
-export type UpdateDataTypeInput = UpdateModel<DataTypeModel>;
+export { DataTypeModel };
