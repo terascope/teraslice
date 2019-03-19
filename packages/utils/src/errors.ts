@@ -1,3 +1,4 @@
+import * as s from './strings';
 import * as utils from './utils';
 import { STATUS_CODES } from 'http';
 
@@ -155,9 +156,9 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
     }
 
     let code: string;
-    if (config.code && utils.isString(config.code)) {
+    if (config.code && s.isString(config.code)) {
         code = toErrorCode(config.code);
-    } else if (input && input.code && utils.isString(input.code)) {
+    } else if (input && input.code && s.isString(input.code)) {
         code = toErrorCode(input.code);
     } else {
         const httpMsg = STATUS_CODES[statusCode] as string;
@@ -202,7 +203,7 @@ export function parseError(input: any, withStack = false): string {
 }
 
 function _cleanErrorMsg(input: string): string {
-    return utils.truncate(input.trim(), 3000);
+    return s.truncate(input.trim(), 3000);
 }
 
 function _parseESErrorInfo(input: ElasticsearchError): { message: string, context: object, code: string }|null {
@@ -252,7 +253,7 @@ function _parseESErrorInfo(input: ElasticsearchError): { message: string, contex
 }
 
 function toErrorCode(input: string): string {
-    if (!utils.isString(input)) return 'UNKNOWN_TSERROR';
+    if (!s.isString(input)) return 'UNKNOWN_TSERROR';
     return input
         .trim()
         .toUpperCase()
@@ -282,9 +283,9 @@ export function prefixErrorMsg(input: any, prefix?: string, defaultMsg = 'Unknow
         if (isError(input)) {
             return _cleanErrorMsg(input.message || defaultMsg);
         }
-        return _cleanErrorMsg(utils.toString(input) || defaultMsg);
+        return _cleanErrorMsg(s.toString(input) || defaultMsg);
     }
-    return _cleanErrorMsg(`${prefix}, caused by ${utils.toString(input || defaultMsg)}`);
+    return _cleanErrorMsg(`${prefix}, caused by ${s.toString(input || defaultMsg)}`);
 }
 
 export function isFatalError(err: any): boolean {
@@ -349,7 +350,7 @@ export function getErrorStatusCode(err: any, config: TSErrorConfig = {}, default
 
     for (const key of ['statusCode', 'status', 'code']) {
         for (const obj of [config, err, metadata]) {
-            if (!obj || utils.isString(obj)) continue;
+            if (!obj || s.isString(obj)) continue;
 
             const statusCode = coerceStatusCode(obj[key]);
             if (statusCode != null) {
@@ -362,7 +363,7 @@ export function getErrorStatusCode(err: any, config: TSErrorConfig = {}, default
 }
 
 export function stripErrorMessage(message: string, reason: string = 'Internal Server Error'): string {
-    if (!message || !utils.isString(message)) return reason;
+    if (!message || !s.isString(message)) return reason;
     const messages = utils.parseList(message.split('caused by,'));
 
     const firstErr = utils.getFirst(messages);

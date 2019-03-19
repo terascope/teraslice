@@ -1,13 +1,9 @@
 import Stream from 'stream';
 import debugFn from 'debug';
 import { EventEmitter } from 'events';
-import {
-    toString,
-    isString,
-    isPlainObject,
-    uniq,
-    trimAndToLower,
-} from './utils';
+import { uniq } from './arrays';
+import { toString, isString, trimAndToLower } from './strings';
+import { isPlainObject } from './utils';
 
 interface DebugParamObj {
     module: string;
