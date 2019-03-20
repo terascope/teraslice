@@ -30,7 +30,7 @@ export default class MakeArray extends TransformOpBase {
         const results: any[] = [];
         this.fields.forEach(field => {
             const data = _.get(doc, field);
-            if (data) results.push(data);
+            if (data !== undefined) results.push(data);
         });
         if (results.length > 0) _.set(doc, this.target, results);
         return doc;

@@ -81,15 +81,34 @@ export function parseConfig(configList: OperationConfig[], opsManager: Operation
         });
         throw new Error(`${errMsg}${errList.join(' \n cycle: ')}`);
     }
-    //console.log('components', components(graph))
+
     const sortList = topsort(graph);
     const configListOrder: OperationConfig[] = sortList.map(id => graph.node(id));
     // we are mutating the config to make sure it has all the necessary fields
     const normalizedConfig = normalizeConfig(configListOrder, opsManager, tagMapping);
-    // console.log('what is normalizedConfig', normalizedConfig)
     const results = createResults(normalizedConfig);
     validateOtherMatchRequired(results.extractions, logger);
     return results;
+}
+
+function findFields(config:OperationConfig, configList: OperationConfig[], tagMapping: StateDict): NormalizedFields {
+    const targetField = config.target_field;
+    const identifier = config.follow || config.__id;
+    const nodeIds: string[] = tagMapping[identifier];
+    let soureField: string[] = [];
+    const pipeline: string[] = [];
+
+    configList
+        .filter(obj => nodeIds.includes(obj.__id) && _.has(obj, 'target_field'))
+        .forEach(obj => {
+            soureField.push(obj.target_field as string);
+            const pipelineName = obj.__pipeline || obj.selector;
+            pipeline.push(pipelineName as string);
+        });
+    soureField = _.uniq(soureField);
+    if (soureField === undefined || soureField.length === 0) throw new Error(`could not find source field for config ${JSON.stringify(config)}`);
+    // @ts-ignore
+    return { targetField, soureField, pipeline };
 }
 
 function normalizeConfig(configList: OperationConfig[], opsManager: OperationsManager, tagMapping: StateDict): OperationConfig[] {
@@ -97,25 +116,21 @@ function normalizeConfig(configList: OperationConfig[], opsManager: OperationsMa
 
     return configList.reduce((list, config) => {
         if (hasPostProcess(config)) {
-            if (config.source_field) {
-                if (!config.target_field) config.target_field = config.source_field;
-                list.push(config);
+            // we search inside the list of altered normalized configs.
+            // This works becuase topsort orders them
+            const { soureField, targetField, pipeline } = findFields(config, list, tagMapping);
+            if (isOneToOne(opsManager, config)) {
+                const results = createMatchingConfig(soureField, targetField, config, pipeline, tagMapping);
+                list.push(...results);
             } else {
-                // we search inside the list of altered normalized configs.
-                // This works becuase topsort orders them
-                const { soureField, targetField, selectorFields } = findFields(config, list, tagMapping);
-                if (isOneToOne(opsManager, config)) {
-                    const results = createMatchingConfig(soureField, targetField, config, selectorFields, tagMapping);
-                    list.push(...results);
+                config.__pipeline = pipeline[0];
+                config.source_fields = soureField;
+                if (targetField && !Array.isArray(targetField)) {
+                    config.target_field = targetField;
                 } else {
-                    config.source_fields = soureField;
-                    if (targetField && !Array.isArray(targetField)) {
-                        config.target_field = targetField;
-                    } else {
-                        checkForTarget(config);
-                    }
-                    list.push(config);
+                    checkForTarget(config);
                 }
+                list.push(config);
             }
         } else {
             list.push(config);
@@ -124,31 +139,33 @@ function normalizeConfig(configList: OperationConfig[], opsManager: OperationsMa
     }, results);
 }
 
-function createMatchingConfig(fields: string[], targetField: undefined|string|string[], config: OperationConfig, selectorFields: string[], tagMapping: StateDict): OperationConfig[] {
+function createMatchingConfig(fields: string[], targetField: undefined|string|string[], config: OperationConfig, pipeline: string[], tagMapping: StateDict): OperationConfig[] {
     // we clone the original to preserve the __id in reference to tag mappings and the like
     const original = _.cloneDeep(config);
+
     return fields.map((source, index) => {
-        // @ts-ignore
-        let resultsObj: OperationConfig = {};
+        let resultsObj: Partial<OperationConfig> = {};
+
+        let pipelineConfig = {};
+        if (pipeline.length > 0) {
+            pipelineConfig = pipeline.length > 0 ? { __pipeline: pipeline.shift() } : { __pipeline: config.selector };
+        }
+
         if (index === 0) {
-            resultsObj = original;
+            resultsObj = Object.assign(original, pipelineConfig);
         } else {
-            let selectorConfig = {};
-            if (config.selector || selectorFields.length > 0) {
-                selectorConfig = selectorFields.length > 0 ? { selector: selectorFields.shift() } : { selector: config.selector };
-            }
-            resultsObj = Object.assign({}, config, { __id: shortid.generate() }, selectorConfig);
+            resultsObj = Object.assign({}, config, { __id: shortid.generate() }, pipelineConfig);
             if (resultsObj.tags) {
                 resultsObj.tags.forEach((tag) => {
                     if (!tagMapping[tag]) {
                         tagMapping[tag] = [];
                     }
-                    tagMapping[tag].push(resultsObj.__id);
+                    tagMapping[tag].push(resultsObj.__id as string);
                 });
             }
         }
 
-        resultsObj['source_field'] = source;
+        if (!resultsObj['source_field']) resultsObj['source_field'] = source;
         if (targetField === undefined) {
             resultsObj['target_field'] = source;
         } else if (Array.isArray(targetField)) {
@@ -157,30 +174,10 @@ function createMatchingConfig(fields: string[], targetField: undefined|string|st
             resultsObj['target_field'] = targetField;
         }
 
-        checkForSource(resultsObj);
-        checkForTarget(resultsObj);
-        return resultsObj;
+        checkForSource(resultsObj as OperationConfig);
+        checkForTarget(resultsObj as OperationConfig);
+        return resultsObj as OperationConfig;
     });
-}
-
-function findFields(config:OperationConfig, configList: OperationConfig[], tagMapping: StateDict): NormalizedFields {
-    const targetField = config.target_field;
-    const identifier = config.follow || config.__id;
-    const nodeIds: string[] = tagMapping[identifier];
-    let soureField: string[] = [];
-    const selectorFields: string[] = [];
-
-    configList
-        .filter(obj => nodeIds.includes(obj.__id) && _.has(obj, 'target_field'))
-        .forEach(obj => {
-            soureField.push(obj.target_field as string);
-            if (obj.selector) selectorFields.push(obj.selector);
-        });
-
-    soureField = _.uniq(soureField);
-    if (soureField === undefined || soureField.length === 0) throw new Error(`could not find source field for config ${JSON.stringify(config)}`);
-    // @ts-ignore
-    return { targetField, soureField, selectorFields };
 }
 
 function validateOtherMatchRequired(configDict: ExtractionProcessingDict, logger: Logger) {
@@ -215,13 +212,17 @@ function checkForTarget(config: OperationConfig) {
 }
 
 type Config = OperationConfig|UnparsedConfig;
-
+// FIXME: look to remove
 export function isPrimaryConfig(config: Config) {
-    return hasSelector(config) && !hasFollow(config) && !isPostProcessType(config, 'selector');
+    return hasSelector(config) && !isPostProcessType(config, 'selector');
 }
 
 export function needsDefaultSelector(config: Config) {
     return !hasSelector(config) && !hasFollow(config);
+}
+
+function isPrimarySelector(config:Config) {
+    return hasSelector(config) && !hasPostProcess(config);
 }
 
 function isOnlySelector(config:Config) {
@@ -299,7 +300,7 @@ function createResults(list: OperationConfig[]): ValidationResults {
             output.matchRequirements[key as string] = config.selector as string;
         }
 
-        if (isPrimaryConfig(config)) {
+        if (isPrimarySelector(config)) {
             currentSelector = config.selector;
             if (!duplicateListing[config.selector as string]) {
                 duplicateListing[config.selector as string] = true;
@@ -316,6 +317,7 @@ function createResults(list: OperationConfig[]): ValidationResults {
         }
 
         if (hasPostProcess(config)) {
+            if (config.__pipeline) currentSelector = config.__pipeline;
             if (!results.postProcessing[currentSelector as string]) {
                 results.postProcessing[currentSelector as string] = [];
             }
@@ -325,6 +327,6 @@ function createResults(list: OperationConfig[]): ValidationResults {
             results.postProcessing[currentSelector as string].push(config as PostProcessConfig);
         }
     });
-    // console.log(JSON.stringify(results, null, 4))
+
     return results;
 }

@@ -436,7 +436,7 @@ describe('rules-validator', () => {
             });
 
             postProcessing['*'].forEach((config) => {
-                const testConfig = results.find((obj) => obj.__id === config.__id);
+                const testConfig = Object.assign({}, results.find((obj) => obj.__id === config.__id), { __pipeline: '*' });
                 expect(config).toEqual(testConfig);
             });
 

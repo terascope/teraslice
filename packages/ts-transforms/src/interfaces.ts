@@ -64,6 +64,8 @@ export interface PostProcessConfig {
     case?: Case;
     value?: any;
     output?: boolean;
+
+    __pipeline: string;
 }
 
 export type Case = 'lowercase' | 'uppercase';
@@ -161,7 +163,7 @@ export interface ValidationResults {
 export interface NormalizedFields{
     soureField: string[];
     targetField: string|undefined;
-    selectorFields: string[];
+    pipeline: string[];
 }
 
 export interface StateDict {

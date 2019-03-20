@@ -885,10 +885,10 @@ describe('can transform matches', () => {
         });
     });
 
-    xit('can will all catch all selector extractions', async () => {
+    it('can catch all selector extractions', async () => {
 
         const config: WatcherConfig = {
-            rules: [getPath('transformRules31.txt')]
+            rules: [getPath('transformRules31.txt')],
         };
 
         const data = [
@@ -900,6 +900,7 @@ describe('can transform matches', () => {
         const results =  await test.run(data);
 
         expect(results[0]).toEqual({
+            double: 2468,
             thing: 'value',
             data: 'data',
             last: 1234
@@ -907,7 +908,8 @@ describe('can transform matches', () => {
 
         expect(results[1]).toEqual({
             thing: 'stuff',
-            valid_id: 12345
+            valid_id: 12345,
+            double: 24690,
         });
     });
 

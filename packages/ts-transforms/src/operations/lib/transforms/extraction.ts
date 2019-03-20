@@ -30,6 +30,7 @@ function sliceString(data: string, start:string, end: string): string | null {
 
 function extractAndTransferFields(record: DataEntity, dest: DataEntity, config: ExtractionConfig) {
     const data = _.get(record, config.source_field);
+
     if (data !== undefined) {
         let extractedResult;
 

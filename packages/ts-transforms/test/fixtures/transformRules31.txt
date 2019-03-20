@@ -5,4 +5,4 @@
 { "selector": "some:value", "source_field": "first", "target_field": "last", "tag": "makeNumber" }
 
 { "follow": "makeNumber", "post_process": "number", "tag": "someTag" }
-# { "follow": "someTag", "post_process": "array" }
+{ "follow": "someTag", "post_process": "double", "target_field": "double" }
