@@ -6,10 +6,48 @@ import { ACLManager, User } from '../src';
 describe('ACLManager', () => {
     const client = makeClient();
     const manager = new ACLManager(client, { namespace: 'test_manager' });
+    let superAdminUser: User;
+    let adminUser: User;
+    let normalUser: User;
 
     beforeAll(async () => {
         await cleanupIndexes(manager);
-        return manager.initialize();
+        await manager.initialize();
+        ([superAdminUser, adminUser, normalUser] = await Promise.all([
+            manager.createUser({
+                user: {
+                    username: 'superadmin',
+                    email: 'superadmin@example.com',
+                    firstname: 'Super',
+                    lastname: 'Admin',
+                    type: 'SUPERADMIN',
+                    client_id: 0,
+                },
+                password: 'password'
+            }),
+            manager.createUser({
+                user: {
+                    username: 'admin',
+                    email: 'admin@example.com',
+                    firstname: 'Admin',
+                    lastname: 'Admin',
+                    type: 'ADMIN',
+                    client_id: 1,
+                },
+                password: 'password'
+            }),
+            manager.createUser({
+                user: {
+                    username: 'user',
+                    email: 'user@example.com',
+                    firstname: 'User',
+                    lastname: 'User',
+                    type: 'USER',
+                    client_id: 1,
+                },
+                password: 'password'
+            })
+        ]));
     });
 
     afterAll(async () => {
@@ -87,14 +125,14 @@ describe('ACLManager', () => {
         beforeAll(async () => {
             user = await manager.createUser({
                 user: {
-                    username: 'some-user',
+                    username: 'some-random-user',
                     firstname: 'Some',
                     lastname: 'User',
                     client_id: 121,
-                    email: 'some-user@example.com',
+                    email: 'some-random-user@example.com',
                 },
                 password: 'secrets',
-            });
+            }, superAdminUser);
         });
 
         it('should throw an error', async () => {
@@ -109,7 +147,7 @@ describe('ACLManager', () => {
                         api_token: 'oh no'
                     },
                     password: 'secrets',
-                });
+                }, user);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.message).toInclude('Cannot update restricted fields,');
@@ -166,12 +204,12 @@ describe('ACLManager', () => {
                     dataType: {
                         name: 'ABC DataType'
                     }
-                }),
+                }, superAdminUser),
                 manager.createDataType({
                     dataType: {
                         name: 'BCD DataType'
                     }
-                }),
+                }, superAdminUser),
             ]);
             dataType1 = dt1.id;
             dataType2 = dt2.id;
@@ -221,22 +259,22 @@ describe('ACLManager', () => {
                     role: {
                         name: 'Some Role 1',
                     }
-                }),
+                }, superAdminUser),
                 manager.createRole({
                     role: {
                         name: 'Some Role 2',
                     }
-                }),
+                }, superAdminUser),
                 manager.createRole({
                     role: {
                         name: 'Some Role 3',
                     }
-                }),
+                }, superAdminUser),
                 manager.createDataType({
                     dataType: {
                         name: 'Some DataType'
                     }
-                })
+                }, superAdminUser)
             ]);
             dataTypeId = dataType.id;
             role1Id = role1.id;
@@ -250,14 +288,14 @@ describe('ACLManager', () => {
                         data_type: dataTypeId,
                         roles: [role1Id, role2Id],
                     }
-                }),
+                }, superAdminUser),
                 manager.createView({
                     view: {
                         name: 'Some View 2',
                         data_type: dataTypeId,
                         roles: [role1Id],
                     }
-                })
+                }, superAdminUser)
             ]);
             view1Id = view1.id;
             view2Id = view2.id;
@@ -275,7 +313,7 @@ describe('ACLManager', () => {
                         views: [view1Id, view2Id],
                         roles: [role1Id, role2Id, role3Id],
                     }
-                });
+                }, superAdminUser);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.message).toInclude('Multiple views cannot contain the same role within a space');
@@ -296,12 +334,12 @@ describe('ACLManager', () => {
                         dataType: {
                             name: 'DataType One'
                         }
-                    }),
+                    }, adminUser),
                     await manager.createDataType({
                         dataType: {
                             name: 'DataType Two'
                         }
-                    })
+                    }, adminUser)
                 ]);
                 dataType1Id = dataType1.id;
                 dataType2Id = dataType2.id;
@@ -312,7 +350,7 @@ describe('ACLManager', () => {
                         data_type: dataType1Id,
                         roles: [],
                     }
-                });
+                }, adminUser);
 
                 viewId = view.id;
             });
@@ -327,7 +365,7 @@ describe('ACLManager', () => {
                             data_type: dataType2Id,
                             roles: []
                         }
-                    });
+                    }, adminUser);
                 } catch (err) {
                     expect(err.message).toEqual('Cannot not update the data_type on a view');
                     expect(err).toBeInstanceOf(TSError);
@@ -349,7 +387,7 @@ describe('ACLManager', () => {
                     username: 'foooooo',
                     firstname: 'Foo',
                     lastname: 'Bar',
-                    client_id: 1888,
+                    client_id: 1,
                     email: 'foobar@example.com',
                 },
                 password: 'secrets'
@@ -361,7 +399,7 @@ describe('ACLManager', () => {
                 role: {
                     name: 'Example Role',
                 }
-            });
+            }, adminUser);
             roleId = role.id;
 
             const dataType = await manager.createDataType({
@@ -372,15 +410,15 @@ describe('ACLManager', () => {
                         location: 'geo'
                     },
                 },
-            });
+            }, superAdminUser);
             dataTypeId = dataType.id;
         });
 
         afterAll(() => {
             return Promise.all([
-                manager.removeUser({ id: userId }),
-                manager.removeRole({ id: userId }),
-                manager.removeDataType({ id: userId }),
+                manager.removeUser({ id: userId }, adminUser),
+                manager.removeRole({ id: userId }, adminUser),
+                manager.removeDataType({ id: userId }, superAdminUser),
             ]);
         });
 
@@ -410,7 +448,7 @@ describe('ACLManager', () => {
                         roles: [roleId],
                         includes: ['foo']
                     }
-                });
+                }, adminUser);
                 viewId = view.id;
 
                 const space = await manager.createSpace({
@@ -426,7 +464,7 @@ describe('ACLManager', () => {
                             sort_dates_only: true,
                         },
                     }
-                });
+                }, superAdminUser);
                 spaceId = space.id;
 
                 await manager.updateUser({
@@ -434,13 +472,13 @@ describe('ACLManager', () => {
                         id: userId,
                         role: roleId
                     }
-                });
+                }, adminUser);
             });
 
             afterAll(() => {
                 return Promise.all([
-                    manager.removeView({ id: viewId }),
-                    manager.removeSpace({ id: spaceId }),
+                    manager.removeView({ id: viewId }, adminUser),
+                    manager.removeSpace({ id: spaceId }, superAdminUser),
                 ]);
             });
 
@@ -515,12 +553,12 @@ describe('ACLManager', () => {
                         id: userId,
                         role: roleId
                     }
-                });
+                }, adminUser);
             });
 
             afterAll(() => {
                 return Promise.all([
-                    manager.removeSpace({ id: spaceId }),
+                    manager.removeSpace({ id: spaceId }, superAdminUser),
                 ]);
             });
 
@@ -531,7 +569,7 @@ describe('ACLManager', () => {
                 return expect(manager.getViewForSpace({
                     api_token: apiToken,
                     space: spaceId
-                })).resolves.toMatchObject({
+                }, normalUser)).resolves.toMatchObject({
                     user_id: userId,
                     role_id: roleId,
                     data_type: {
