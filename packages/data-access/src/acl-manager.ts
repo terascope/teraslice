@@ -151,8 +151,8 @@ export class ACLManager {
      * Find all users by a given query
     */
     async findUsers(args: { query?: string } = {}, authUser?: models.User) {
-        const type = getUserType(authUser);
-        const clientId = getClientId(authUser);
+        const type = await this._getUserType(authUser);
+        const clientId = await this._getClientId(authUser);
         if (type !== 'SUPERADMIN') {
             const queryAccess = new LuceneQueryAccess<models.User>({
                 constraint: clientId ? `client_id:"${clientId}"` : undefined,
@@ -168,7 +168,7 @@ export class ACLManager {
      * Create a user
     */
     async createUser(args: { user: models.CreateUserInput, password: string }, authUser?: models.User) {
-        await this._validateUserInput(args.user);
+        await this._validateUserInput(args.user, authUser);
 
         return this.users.createWithPassword(args.user, args.password);
     }
@@ -455,6 +455,22 @@ export class ACLManager {
         });
     }
 
+    private async _getClientId(user?: Partial<models.User>): Promise<number> {
+        if (!user) return 0;
+        if (user.id && user.client_id == null) {
+            return (await this.users.findById(user.id)).client_id || 0;
+        }
+        return user.client_id || 0;
+    }
+
+    private async _getUserType(user?: Partial<models.User>): Promise<models.UserType> {
+        if (!user) return 'SUPERADMIN';
+        if (user.id && user.type == null) {
+            return (await this.users.findById(user.id)).type || 'USER';
+        }
+        return user.type || 'USER';
+    }
+
     private _parseDataAccessConfig(config: DataAccessConfig): DataAccessConfig {
         const searchConfig = config.search_config!;
 
@@ -482,7 +498,7 @@ export class ACLManager {
         return config;
     }
 
-    private async _validateUserInput(user: Partial<models.User>) {
+    private async _validateUserInput(user: Partial<models.User>, authUser?: models.User) {
         if (!user) {
             throw new ts.TSError('Invalid User Input', {
                 statusCode: 422
@@ -503,6 +519,29 @@ export class ACLManager {
                     statusCode: 422
                 });
             }
+        }
+
+        const authType = await this._getUserType(authUser);
+        const userType = await this._getUserType(user);
+        const authClientId = await this._getClientId(authUser);
+        const userClientId = await this._getClientId(user);
+
+        if (authType === 'ADMIN' && authClientId !== userClientId) {
+            throw new ts.TSError('User doesn\'t have permission to write to users outside of the their client id', {
+                statusCode: 403
+            });
+        }
+
+        if (authType === 'ADMIN' && userType === 'SUPERADMIN') {
+            throw new ts.TSError('User doesn\'t have permission to write to users with SUPERADMIN access', {
+                statusCode: 403
+            });
+        }
+
+        if (authUser && authType === 'USER' && authUser.id !== user.id) {
+            throw new ts.TSError('User doesn\'t have permission to write to other users', {
+                statusCode: 403
+            });
         }
     }
 
@@ -608,17 +647,6 @@ export class ACLManager {
             }
         }
     }
-}
-
-function getUserType(authUser?: models.User): models.UserType {
-    if (!authUser) return 'SUPERADMIN';
-    if (!authUser.type) return 'USER';
-    return authUser.type;
-}
-
-function getClientId(authUser?: models.User): number|undefined {
-    if (!authUser || !authUser.client_id) return;
-    return authUser.client_id;
 }
 
 /**
