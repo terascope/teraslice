@@ -27,7 +27,7 @@ export class Spaces extends IndexModel<Space> {
             });
         }
 
-        return this.appendToArray(spaceId, 'views', views);
+        return this._appendToArray(spaceId, 'views', views);
     }
 
     /** Disassociate views to space */
@@ -38,13 +38,13 @@ export class Spaces extends IndexModel<Space> {
             });
         }
 
-        return this.removeFromArray(spaceId, 'views', views);
+        return this._removeFromArray(spaceId, 'views', views);
     }
 
     async removeViewFromSpaces(viewId: string) {
         const views = await this.find(`views: ${viewId}`);
         const promises = views.map(({ id }) => {
-            return this.removeFromArray(id, 'views', viewId);
+            return this._removeFromArray(id, 'views', viewId);
         });
         await Promise.all(promises);
     }

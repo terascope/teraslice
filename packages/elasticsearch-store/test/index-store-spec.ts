@@ -344,6 +344,14 @@ describe('IndexStore', () => {
                 }
             });
 
+            // it('test query', async () => {
+            //     const result = await indexStore._search({
+            //         q: `NOT test_id:bulk-2 AND test_keyword:${keyword}`,
+            //         size: 100
+            //     });
+            //     expect(result).toBeArrayOfSize(records.length - 1);
+            // });
+
             it('should be able to search the records', async () => {
                 const result = await indexStore.search(`test_keyword: ${keyword}`, {
                     sort: 'test_number',

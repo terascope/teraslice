@@ -30,19 +30,19 @@ export class ACLManager {
 
         type Query {
             authenticateUser(username: String, password: String, api_token: String): User!
-            findUser(id: ID!): User!
+            findUser(id: ID!): User
             findUsers(query: String): [User]!
 
-            findRole(id: ID!): Role!
+            findRole(id: ID!): Role
             findRoles(query: String): [Role]!
 
-            findDataType(id: ID!): DataType!
+            findDataType(id: ID!): DataType
             findDataTypes(query: String): [DataType]!
 
-            findSpace(id: ID!): Space!
+            findSpace(id: ID!): Space
             findSpaces(query: String): [Space]!
 
-            findView(id: ID!): View!
+            findView(id: ID!): View
             findViews(query: String): [View]!
 
             getViewForSpace(api_token: String!, space: String!): DataAccessConfig!
@@ -144,6 +144,20 @@ export class ACLManager {
      * Find user by id
     */
     async findUser(args: { id: string }, authUser?: models.User) {
+        const type = await this._getUserType(authUser);
+
+        const authUserId = authUser && authUser.id;
+        if (type !== 'SUPERADMIN') {
+            const clientId = await this._getClientId(authUser);
+            const canSeeToken = type === 'ADMIN' || authUserId === args.id;
+
+            const queryAccess = new LuceneQueryAccess<models.User>({
+                constraint: clientId ? `client_id:${clientId}` : undefined,
+                excludes:  canSeeToken ? ['hash', 'salt'] : ['api_token', 'hash', 'salt'],
+            });
+
+            return this.users.findById(args.id, queryAccess);
+        }
         return this.users.findById(args.id);
     }
 
@@ -152,12 +166,14 @@ export class ACLManager {
     */
     async findUsers(args: { query?: string } = {}, authUser?: models.User) {
         const type = await this._getUserType(authUser);
-        const clientId = await this._getClientId(authUser);
         if (type !== 'SUPERADMIN') {
+            const clientId = await this._getClientId(authUser);
+            const canSeeToken = type === 'ADMIN';
+
             const queryAccess = new LuceneQueryAccess<models.User>({
-                constraint: clientId ? `client_id:"${clientId}"` : undefined,
-                excludes: type === 'USER' ? ['api_token', 'hash', 'salt'] : ['hash', 'salt'],
-                allow_implicit_queries: type === 'ADMIN'
+                constraint: clientId ? `client_id:${clientId}` : undefined,
+                excludes: canSeeToken ? ['hash', 'salt'] : ['api_token', 'hash', 'salt'],
+                allow_implicit_queries: true
             });
             return this.users.find(args.query, {}, queryAccess);
         }

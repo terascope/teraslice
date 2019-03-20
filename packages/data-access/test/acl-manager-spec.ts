@@ -9,15 +9,18 @@ describe('ACLManager', () => {
     let superAdminUser: User;
     let adminUser: User;
     let normalUser: User;
+    let otherUser: User;
+    let foreignUser: User;
+    let foreignAdminUser: User;
 
     beforeAll(async () => {
         await cleanupIndexes(manager);
         await manager.initialize();
-        ([superAdminUser, adminUser, normalUser] = await Promise.all([
+        const users = await Promise.all([
             manager.createUser({
                 user: {
-                    username: 'superadmin',
-                    email: 'superadmin@example.com',
+                    username: 'super-admin',
+                    email: 'super-admin@example.com',
                     firstname: 'Super',
                     lastname: 'Admin',
                     type: 'SUPERADMIN',
@@ -27,8 +30,8 @@ describe('ACLManager', () => {
             }),
             manager.createUser({
                 user: {
-                    username: 'admin',
-                    email: 'admin@example.com',
+                    username: 'admin-admin',
+                    email: 'admin-admin@example.com',
                     firstname: 'Admin',
                     lastname: 'Admin',
                     type: 'ADMIN',
@@ -38,21 +41,156 @@ describe('ACLManager', () => {
             }),
             manager.createUser({
                 user: {
-                    username: 'user',
-                    email: 'user@example.com',
+                    username: 'user-user',
+                    email: 'user-user@example.com',
                     firstname: 'User',
                     lastname: 'User',
                     type: 'USER',
                     client_id: 1,
                 },
                 password: 'password'
+            }),
+            manager.createUser({
+                user: {
+                    username: 'other-user',
+                    email: 'other-user@example.com',
+                    firstname: 'Other',
+                    lastname: 'User',
+                    type: 'USER',
+                    client_id: 1,
+                },
+                password: 'password'
+            }),
+            manager.createUser({
+                user: {
+                    username: 'foreign-user',
+                    email: 'foreign-user@example.com',
+                    firstname: 'Foreign',
+                    lastname: 'User',
+                    type: 'USER',
+                    client_id: 2,
+                },
+                password: 'password'
+            }),
+            manager.createUser({
+                user: {
+                    username: 'foreign-admin',
+                    email: 'foreign-admin@example.com',
+                    firstname: 'Foreign',
+                    lastname: 'Admin',
+                    type: 'ADMIN',
+                    client_id: 2,
+                },
+                password: 'password'
             })
-        ]));
+        ]);
+        ([
+            superAdminUser,
+            adminUser,
+            normalUser,
+            otherUser,
+            foreignUser,
+            foreignAdminUser,
+        ] = users);
     });
 
     afterAll(async () => {
         await cleanupIndexes(manager);
         return manager.shutdown();
+    });
+
+    describe('when authenticating the user', () => {
+        it('should be able to authenticate with a username and password', async () => {
+            const result = await manager.authenticateUser({ username: normalUser.username, password: 'password' });
+            expect(result.id).toEqual(normalUser.id);
+        });
+
+        it('should be able to authenticate user with an api_token', async () => {
+            const result = await manager.authenticateUser({ api_token: normalUser.api_token });
+            expect(result.id).toEqual(normalUser.id);
+        });
+
+        it('should be able to authenticate with an api_token', async () => {
+            const result = await manager.authenticateWithToken({ api_token: normalUser.api_token });
+            expect(result.id).toEqual(normalUser.id);
+        });
+
+        it('should throw without credentials', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.authenticateUser({ });
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Missing user authentication fields, username, password, or api_token');
+                expect(err.statusCode).toEqual(401);
+            }
+        });
+    });
+
+    describe('when finding a user', () => {
+        it('should be able to find the authenticated user', async () => {
+            const result = await manager.findUser({ id: normalUser.id }, normalUser);
+            expect(result.id).toEqual(normalUser.id);
+            expect(result).toHaveProperty('api_token');
+        });
+
+        it('should be able to find the other user if admin', async () => {
+            const result = await manager.findUser({ id: otherUser.id }, adminUser);
+            expect(result.id).toEqual(otherUser.id);
+            expect(result).toHaveProperty('api_token');
+        });
+
+        it('should NOT be able to see the private properties if other user', async () => {
+            const result = await manager.findUser({ id: normalUser.id }, otherUser);
+            expect(result.id).toEqual(normalUser.id);
+            expect(result).not.toHaveProperty('api_token');
+        });
+
+        it('should throw a 404 if looking for user from another client', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.findUser({ id: foreignUser.id }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Unable to find User');
+                expect(err.statusCode).toEqual(404);
+            }
+        });
+    });
+
+    describe('when finding users', () => {
+        it('should be able to find users without tokens of the same client if normal user', async () => {
+            const result = await manager.findUsers({ query: '*' }, normalUser);
+            expect(result).toBeArray();
+            expect(result.length).toBeGreaterThan(0);
+            expect(result[0]).not.toHaveProperty('api_token');
+        });
+
+        it('should be able to find users with tokens of the same client if admin', async () => {
+            const result = await manager.findUsers({ query: '*' }, adminUser);
+            expect(result).toBeArray();
+            expect(result.length).toBeGreaterThan(0);
+            expect(result[0]).toHaveProperty('api_token');
+        });
+
+        it('should NOT be able to find users from another client if normal user', async () => {
+            const result = await manager.findUsers({ query: 'NOT firstname:Foreign' }, foreignUser);
+            expect(result).toBeArrayOfSize(0);
+        });
+
+        it('should NOT be able to find users from another client if admin', async () => {
+            const result = await manager.findUsers({ query: 'NOT firstname:Foreign' }, foreignAdminUser);
+            expect(result).toBeArrayOfSize(0);
+        });
+
+        it('should be able to find users from another client if superadmin', async () => {
+            const result = await manager.findUsers({ query: '*' }, superAdminUser);
+            expect(result).toBeArray();
+            expect(result.length).toBeGreaterThan(0);
+            expect(result[0]).toHaveProperty('api_token');
+        });
     });
 
     describe('when creating a user and given null', () => {

@@ -34,7 +34,7 @@ export class Views extends IndexModel<View> {
     async removeRoleFromViews(roleId: string) {
         const views = await this.find(`roles: ${roleId}`);
         const promises = views.map(({ id }) => {
-            return this.removeFromArray(id, 'roles', roleId);
+            return this._removeFromArray(id, 'roles', roleId);
         });
         await Promise.all(promises);
     }
