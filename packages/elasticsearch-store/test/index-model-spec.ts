@@ -237,7 +237,7 @@ describe('IndexModel', () => {
 
         it('should be able to find by ids with restrictions', async () => {
             const queryAccess = new LuceneQueryAccess({
-                includes: ['name']
+                includes: ['id', 'name']
             });
 
             const findResult = await indexModel.find('name:Bob*', {
@@ -251,8 +251,9 @@ describe('IndexModel', () => {
 
             expect(result).toBeArrayOfSize(3);
             for (const record of result) {
-                expect(record).not.toHaveProperty('id');
+                expect(record).toHaveProperty('id');
                 expect(record).toHaveProperty('name');
+                expect(record).not.toHaveProperty('created');
             }
         });
 
@@ -341,13 +342,15 @@ describe('IndexModel', () => {
 
     describe('when appending to an array', () => {
         it('should return early if given empty values', async () => {
-            await indexModel.appendToArray('example', 'name', []);
+            // @ts-ignore
+            await indexModel._appendToArray('example', 'name', []);
         });
     });
 
     describe('when removing from an array', () => {
         it('should return early if given empty values', async () => {
-            await indexModel.removeFromArray('example', 'name', []);
+            // @ts-ignore
+            await indexModel._removeFromArray('example', 'name', []);
         });
     });
 });

@@ -220,10 +220,6 @@ export interface IndexModelConfig<T extends IndexModelRecord> {
     strictMode?: boolean;
 }
 
-export type FieldMap<T> = {
-    [field in keyof T]?: string;
-};
-
 export type SanitizeFields = {
     [field: string]: 'trimAndToLower'|'trim'|'toSafeString';
 };

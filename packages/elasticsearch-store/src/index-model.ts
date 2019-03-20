@@ -13,6 +13,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     readonly name: string;
     private _uniqueFields: (keyof T)[];
     private _sanitizeFields: i.SanitizeFields;
+    private _idField: keyof T;
 
     constructor(client: es.Client, options: i.IndexModelOptions, modelConfig: i.IndexModelConfig<T>) {
         const baseConfig: i.IndexConfig<T> = {
@@ -56,7 +57,8 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         this.name = utils.toInstanceName(modelConfig.name);
         this.store = new IndexStore(client, indexConfig);
 
-        this._uniqueFields = ts.concat(indexConfig.idField!, modelConfig.uniqueFields);
+        this._idField = indexConfig.idField!;
+        this._uniqueFields = ts.concat(this._idField, modelConfig.uniqueFields);
         this._sanitizeFields = modelConfig.sanitizeFields || {};
     }
 
@@ -74,32 +76,34 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     }
 
     async create(record: i.CreateRecordInput<T>): Promise<T> {
-        const docInput: unknown = {
+        const docInput = {
             ...record,
-            id: await utils.makeId(),
             created: ts.makeISODate(),
             updated: ts.makeISODate(),
-        };
+        } as T;
+
+        const id = await utils.makeId();
+        docInput[this._idField] = id as any;
 
         const doc = this._sanitizeRecord(docInput as T);
 
         await this._ensureUnique(doc);
-        await this.store.indexWithId(doc, doc.id);
+        await this.store.indexWithId(doc, id);
 
         // @ts-ignore
         return ts.DataEntity.make(doc);
     }
 
     async deleteById(id: string): Promise<void> {
-        await this.store.remove(id);
+        await this.store.remove(id, {
+            refresh: true
+        });
     }
 
     async deleteAll(ids: string[]): Promise<void> {
         if (!ids || !ids.length) return;
 
-        await Promise.all(ids.map((id) => {
-            return this.deleteById(id);
-        }));
+        await Promise.all(ids.map((id) => this.deleteById(id)));
     }
 
     async exists(id: string[]|string): Promise<boolean> {
@@ -107,12 +111,12 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         if (!ids.length) return true;
 
         const idQuery = ids.join(' OR ');
-        const count = await this.store.count(`id: (${idQuery})`);
+        const count = await this.store.count(`${this._idField}: (${idQuery})`);
 
         return count === ids.length;
     }
 
-    async findBy(fields: i.FieldMap<T>, joinBy = 'AND', queryAccess?: LuceneQueryAccess<T>) {
+    async findBy(fields: Partial<T>, joinBy = 'AND', queryAccess?: LuceneQueryAccess<T>) {
         const query = Object.entries(fields)
             .map(([field, val]) => {
                 if (val == null) {
@@ -137,21 +141,16 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     }
 
     async findById(id: string, queryAccess?: LuceneQueryAccess<T>): Promise<T> {
-        let includes: (keyof T)[]|undefined;
-        let excludes: (keyof T)[]|undefined;
-
         if (queryAccess) {
-            ({ includes, excludes } = queryAccess.restrictSourceFields());
+            const fields: Partial<T> = { };
+            fields[this._idField] = id as any;
+            return this.findBy(fields, 'AND', queryAccess);
         }
-
-        return this.store.get(id, {
-            _sourceExclude: excludes,
-            _sourceInclude: includes
-        });
+        return this.store.get(id);
     }
 
-    async findByAnyId(anyId: string, queryAccess?: LuceneQueryAccess<T>) {
-        const fields: i.FieldMap<T> = {};
+    async findByAnyId(anyId: any, queryAccess?: LuceneQueryAccess<T>) {
+        const fields: Partial<T> = {};
 
         for (const field of this._uniqueFields) {
             fields[field] = anyId;
@@ -162,17 +161,19 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
 
     async findAll(ids: string[], queryAccess?: LuceneQueryAccess<T>) {
         if (!ids || !ids.length) return [];
-        let includes: (keyof T)[]|undefined;
-        let excludes: (keyof T)[]|undefined;
 
         if (queryAccess) {
-            ({ includes, excludes } = queryAccess.restrictSourceFields());
+            const query = `${this._idField}: (${ids.join(' OR ')})`;
+            const result = await this._find(query, { size: ids.length }, queryAccess);
+            if (result.length !== ids.length) {
+                throw new ts.TSError(`Unable to find all by ids ${ids.join(', ')}`, {
+                    statusCode: 404
+                });
+            }
+            return result;
         }
 
-        return this.store.mget({ ids }, {
-            _sourceExclude: excludes,
-            _sourceInclude: includes
-        });
+        return this.store.mget({ ids });
     }
 
     async find(q: string = '*', options: FindOptions<T> = {}, queryAccess?: LuceneQueryAccess<T>): Promise<T[]> {
@@ -185,13 +186,14 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             updated: ts.makeISODate(),
         } as T);
 
-        if (!doc.id) {
-            throw new ts.TSError(`${this.name} update requires id`, {
+        const id: unknown = doc[this._idField];
+        if (!id) {
+            throw new ts.TSError(`${this.name} update requires ${this._idField}`, {
                 statusCode: 422
             });
         }
 
-        const existing = await this.store.get(doc.id);
+        const existing = await this.store.get(id as string);
 
         for (const field of this._uniqueFields) {
             if (field === 'id') continue;
@@ -213,14 +215,14 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         });
     }
 
-    async updateWith(id: string, body: any): Promise<void> {
+    protected async _updateWith(id: string, body: any): Promise<void> {
         await this.store.update(body, id);
     }
 
-    async appendToArray(id: string, field: keyof T, values: string[]|string): Promise<void> {
+    protected async _appendToArray(id: string, field: keyof T, values: string[]|string): Promise<void> {
         if (!values || !values.length) return;
 
-        await this.updateWith(id, {
+        await this._updateWith(id, {
             script: {
                 source: `
                     for(int i = 0; i < params.values.length; i++) {
@@ -237,11 +239,11 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         });
     }
 
-    async removeFromArray(id: string, field: keyof T, values: string[]|string): Promise<void> {
+    protected async _removeFromArray(id: string, field: keyof T, values: string[]|string): Promise<void> {
         if (!values || !values.length) return;
 
         try {
-            await this.updateWith(id, {
+            await this._updateWith(id, {
                 script: {
                     source: `
                         for(int i = 0; i < params.values.length; i++) {
@@ -290,7 +292,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
 
     protected async _ensureUnique(record: T) {
         for (const field of this._uniqueFields) {
-            if (field === 'id') continue;
+            if (field === this._idField) continue;
             if (record[field] == null) {
                 throw new ts.TSError(`${this.name} create requires field ${field}`, {
                     statusCode: 422
