@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { TSError, DataEntity } from '@terascope/utils';
+import { TSError } from '@terascope/utils';
 import { Users, User } from '../../src/models/users';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
@@ -71,24 +71,6 @@ describe('Users', () => {
                 expect(fetched).not.toHaveProperty('hash');
                 expect(fetched).not.toHaveProperty('salt');
             }
-        });
-
-        it('should be able to omit private fields', () => {
-            const createdMetadata = DataEntity.getMetadata(created);
-            expect(createdMetadata).not.toBeNil();
-
-            const omitted = users.omitPrivateFields(created);
-
-            expect(omitted).not.toBe(created);
-            expect(DataEntity.isDataEntity(omitted)).toBeTrue();
-
-            const ommittedMetadata = DataEntity.getMetadata(omitted);
-            expect(ommittedMetadata).not.toBeNil();
-            expect(ommittedMetadata).toEqual(createdMetadata);
-
-            expect(omitted).not.toHaveProperty('api_token');
-            expect(omitted).not.toHaveProperty('hash');
-            expect(omitted).not.toHaveProperty('salt');
         });
 
         it('should be able to update the api_token', async () => {

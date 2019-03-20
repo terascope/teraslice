@@ -1,13 +1,13 @@
 import get from 'lodash.get';
-import { Express } from 'express';
+import { Express, Request } from 'express';
 import { Client } from 'elasticsearch';
-import { Logger, toBoolean } from '@terascope/utils';
+import { Logger, toBoolean, trim } from '@terascope/utils';
 import * as apollo from 'apollo-server-express';
 import { Context } from '@terascope/job-components';
 import { ACLManager } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { makeSearchFn } from '../search/utils';
-import { getFromReq, makeErrorHandler, getESClient } from '../utils';
+import { makeErrorHandler, getESClient } from '../utils';
 import { formatError } from './utils';
 import schema from './schema';
 
@@ -47,8 +47,23 @@ export default class ManagerPlugin {
 
         this.server = new apollo.ApolloServer({
             schema,
-            context: {
-                manager: this.manager,
+            context: async ({ req }) => {
+                const token = getTokenFromReq(req);
+
+                if (bootstrapMode && !token) {
+                    return {
+                        manager: this.manager,
+                    };
+                }
+
+                const user = await this.manager.authenticateWithToken({
+                    api_token: token,
+                });
+
+                return {
+                    user,
+                    manager: this.manager,
+                };
             },
             formatError,
         });
@@ -75,7 +90,7 @@ export default class ManagerPlugin {
             // @ts-ignore
             req.aclManager = this.manager;
 
-            const apiToken = getFromReq(req, 'token');
+            const apiToken = getTokenFromReq(req);
 
             // If we are in bootstrap mode, we want to provide
             // unauthenticated access to the data access management
@@ -151,4 +166,18 @@ export default class ManagerPlugin {
         });
 
     }
+}
+
+export function getTokenFromReq(req: Request): string {
+    const queryToken: string = get(req, 'query.token');
+    if (queryToken) return queryToken;
+
+    const authToken: string = get(req, 'headers.authorization');
+    if (!authToken) return '';
+
+    const parts = authToken.split(' ');
+    if (trim(parts[0]) === 'Token') {
+        return trim(parts[1]);
+    }
+    return trim(authToken);
 }

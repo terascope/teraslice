@@ -1,7 +1,7 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import { CreateRecordInput, UpdateRecordInput } from 'elasticsearch-store';
-import { TypeConfig } from 'xlucene-evaluator';
+import { TypeConfig, LuceneQueryAccess } from 'xlucene-evaluator';
 import * as models from './models';
 import { ManagerConfig } from './interfaces';
 
@@ -73,6 +73,8 @@ export class ACLManager {
         }
     `;
 
+    logger: ts.Logger;
+
     private readonly roles: models.Roles;
     private readonly spaces: models.Spaces;
     private readonly users: models.Users;
@@ -80,6 +82,7 @@ export class ACLManager {
     private readonly dataTypes: models.DataTypes;
 
     constructor(client: es.Client, config: ManagerConfig) {
+        this.logger = config.logger || ts.debugLogger('acl-manager');
         this.roles = new models.Roles(client, config);
         this.spaces = new models.Spaces(client, config);
         this.users = new models.Users(client, config);
@@ -116,7 +119,7 @@ export class ACLManager {
     /**
      * Authenticate user with username and password, or an api_token
      */
-    async authenticateUser(args: { username?: string, password?: string, api_token?: string }): Promise<models.User> {
+    async authenticateUser(args: { username?: string, password?: string, api_token?: string }, authUser?: models.User): Promise<models.User> {
         if (args.username && args.password) {
             return this.users.authenticate(args.username, args.password);
         }
@@ -133,28 +136,38 @@ export class ACLManager {
     /**
      * Authenticate user with api_token
      */
-    async authenticateWithToken(args: { api_token?: string }): Promise<models.User> {
+    async authenticateWithToken(args: { api_token?: string }, authUser?: models.User): Promise<models.User> {
         return this.users.authenticateWithToken(args.api_token);
     }
 
     /**
      * Find user by id
     */
-    async findUser(args: { id: string }) {
+    async findUser(args: { id: string }, authUser?: models.User) {
         return this.users.findById(args.id);
     }
 
     /**
      * Find all users by a given query
     */
-    async findUsers(args: { query?: string } = {}) {
+    async findUsers(args: { query?: string } = {}, authUser?: models.User) {
+        const type = getUserType(authUser);
+        const clientId = getClientId(authUser);
+        if (type !== 'SUPERADMIN') {
+            const queryAccess = new LuceneQueryAccess<models.User>({
+                constraint: clientId ? `client_id:"${clientId}"` : undefined,
+                excludes: type === 'USER' ? ['api_token', 'hash', 'salt'] : undefined,
+                allow_implicit_queries: true
+            });
+            return this.users.find(args.query, {}, queryAccess);
+        }
         return this.users.find(args.query);
     }
 
     /**
      * Create a user
     */
-    async createUser(args: { user: models.CreateUserInput, password: string }) {
+    async createUser(args: { user: models.CreateUserInput, password: string }, authUser?: models.User) {
         await this._validateUserInput(args.user);
 
         return this.users.createWithPassword(args.user, args.password);
@@ -165,7 +178,7 @@ export class ACLManager {
      *
      * This cannot include private information
     */
-    async updateUser(args: { user: models.UpdateUserInput }): Promise<models.User> {
+    async updateUser(args: { user: models.UpdateUserInput }, authUser?: models.User): Promise<models.User> {
         await this._validateUserInput(args.user);
 
         await this.users.update(args.user);
@@ -175,7 +188,7 @@ export class ACLManager {
     /**
      * Update user's password
     */
-    async updatePassword(args: { id: string, password: string }): Promise<boolean> {
+    async updatePassword(args: { id: string, password: string }, authUser?: models.User): Promise<boolean> {
         await this.users.updatePassword(args.id, args.password);
         return true;
     }
@@ -183,14 +196,14 @@ export class ACLManager {
     /**
      * Generate a new API Token for a user
     */
-    async updateToken(args: { id: string }): Promise<string> {
+    async updateToken(args: { id: string }, authUser?: models.User): Promise<string> {
         return await this.users.updateToken(args.id);
     }
 
     /**
      * Remove user by id
     */
-    async removeUser(args: { id: string }): Promise<boolean> {
+    async removeUser(args: { id: string }, authUser?: models.User): Promise<boolean> {
         const exists = await this.users.exists(args.id);
         if (!exists) return false;
 
@@ -201,21 +214,21 @@ export class ACLManager {
     /**
      * Find role by id
     */
-    async findRole(args: { id: string }) {
+    async findRole(args: { id: string }, authUser?: models.User) {
         return this.roles.findById(args.id);
     }
 
     /**
      * Find roles by a given query
     */
-    async findRoles(args: { query?: string } = {}) {
+    async findRoles(args: { query?: string } = {}, authUser?: models.User) {
         return this.roles.find(args.query);
     }
 
     /**
      * Create a role
     */
-    async createRole(args: { role: CreateRecordInput<models.Role> }) {
+    async createRole(args: { role: CreateRecordInput<models.Role> }, authUser?: models.User) {
         await this._validateRoleInput(args.role);
 
         return this.roles.create(args.role);
@@ -224,7 +237,7 @@ export class ACLManager {
     /**
      * Update a role
     */
-    async updateRole(args: { role: UpdateRecordInput<models.Role> }) {
+    async updateRole(args: { role: UpdateRecordInput<models.Role> }, authUser?: models.User) {
         await this._validateRoleInput(args.role);
 
         await this.roles.update(args.role);
@@ -234,7 +247,7 @@ export class ACLManager {
     /**
      * Remove role and remove from any associated views or users
     */
-    async removeRole(args: { id: string }) {
+    async removeRole(args: { id: string }, authUser?: models.User) {
         const exists = await this.roles.exists(args.id);
         if (!exists) return false;
 
@@ -250,21 +263,21 @@ export class ACLManager {
     /**
      * Find data type by id
     */
-    async findDataType(args: { id: string }) {
+    async findDataType(args: { id: string }, authUser?: models.User) {
         return this.dataTypes.findByAnyId(args.id);
     }
 
     /**
      * Find data types by a given query
     */
-    async findDataTypes(args: { query?: string } = {}) {
+    async findDataTypes(args: { query?: string } = {}, authUser?: models.User) {
         return this.dataTypes.find(args.query);
     }
 
     /**
      * Create a data type
     */
-    async createDataType(args: { dataType: CreateRecordInput<models.DataType> }) {
+    async createDataType(args: { dataType: CreateRecordInput<models.DataType> }, authUser?: models.User) {
         await this._validateDataTypeInput(args.dataType);
 
         return this.dataTypes.create(args.dataType);
@@ -273,7 +286,7 @@ export class ACLManager {
     /**
      * Update a data type
     */
-    async updateDataType(args: { dataType: UpdateRecordInput<models.DataType> }) {
+    async updateDataType(args: { dataType: UpdateRecordInput<models.DataType> }, authUser?: models.User) {
         await this._validateDataTypeInput(args.dataType);
 
         await this.dataTypes.update(args.dataType);
@@ -285,7 +298,7 @@ export class ACLManager {
      *
      * @question should we remove the views and spaces associated with the data-type?
     */
-    async removeDataType(args: { id: string }) {
+    async removeDataType(args: { id: string }, authUser?: models.User) {
         const exists = await this.dataTypes.exists(args.id);
         if (!exists) return false;
 
@@ -299,14 +312,14 @@ export class ACLManager {
     /**
      * Find space by id
     */
-    async findSpace(args: { id: string }) {
+    async findSpace(args: { id: string }, authUser?: models.User) {
         return this.spaces.findByAnyId(args.id);
     }
 
     /**
      * Find spaces by a given query
     */
-    async findSpaces(args: { query?: string } = {}) {
+    async findSpaces(args: { query?: string } = {}, authUser?: models.User) {
         return this.spaces.find(args.query);
     }
 
@@ -316,7 +329,7 @@ export class ACLManager {
      * attached the space to those roles.
      *
     */
-    async createSpace(args: { space: CreateRecordInput<models.Space> }) {
+    async createSpace(args: { space: CreateRecordInput<models.Space> }, authUser?: models.User) {
         await this._validateSpaceInput(args.space);
 
         return this.spaces.create(args.space);
@@ -325,7 +338,7 @@ export class ACLManager {
     /**
      * Update a space
     */
-    async updateSpace(args: { space: UpdateRecordInput<models.Space> }) {
+    async updateSpace(args: { space: UpdateRecordInput<models.Space> }, authUser?: models.User) {
         await this._validateSpaceInput(args.space);
 
         await this.spaces.update(args.space);
@@ -335,7 +348,7 @@ export class ACLManager {
     /**
      * Remove a space by id, this will clean up any associated views and roles
      */
-    async removeSpace(args: { id: string }) {
+    async removeSpace(args: { id: string }, authUser?: models.User) {
         const exists = await this.spaces.exists(args.id);
         if (!exists) return false;
 
@@ -346,21 +359,21 @@ export class ACLManager {
     /**
      * Find view by id
     */
-    async findView(args: { id: string }) {
+    async findView(args: { id: string }, authUser?: models.User) {
         return this.views.findById(args.id);
     }
 
     /**
      * Find views by a given query
     */
-    async findViews(args: { query?: string } = {}) {
+    async findViews(args: { query?: string } = {}, authUser?: models.User) {
         return this.views.find(args.query);
     }
 
     /**
      * Create a view, this will attach to the space and the role
     */
-    async createView(args: { view: CreateRecordInput<models.View> }) {
+    async createView(args: { view: CreateRecordInput<models.View> }, authUser?: models.User) {
         await this._validateViewInput(args.view);
 
         const result = await this.views.create(args.view);
@@ -370,7 +383,7 @@ export class ACLManager {
     /**
      * Update a view, this will attach to the space and the role
     */
-    async updateView(args: { view: UpdateRecordInput<models.View> }) {
+    async updateView(args: { view: UpdateRecordInput<models.View> }, authUser?: models.User) {
         const { view } = args;
         await this._validateViewInput(view);
 
@@ -395,7 +408,7 @@ export class ACLManager {
     /**
      * Remove views and remove from any associated spaces
     */
-    async removeView(args: { id: string }) {
+    async removeView(args: { id: string }, authUser?: models.User) {
         const exists = await this.views.exists(args.id);
         if (!exists) return false;
 
@@ -407,7 +420,7 @@ export class ACLManager {
     /**
      * Get the User's data access configuration for a "Space"
      */
-    async getViewForSpace(args: { api_token: string, space: string }): Promise<DataAccessConfig> {
+    async getViewForSpace(args: { api_token: string, space: string }, authUser?: models.User): Promise<DataAccessConfig> {
         const user = await this.authenticateUser(args);
 
         if (!user.role) {
@@ -595,6 +608,17 @@ export class ACLManager {
             }
         }
     }
+}
+
+function getUserType(authUser?: models.User): models.UserType {
+    if (!authUser) return 'SUPERADMIN';
+    if (!authUser.type) return 'USER';
+    return authUser.type;
+}
+
+function getClientId(authUser?: models.User): number|undefined {
+    if (!authUser || !authUser.client_id) return;
+    return authUser.client_id;
 }
 
 /**

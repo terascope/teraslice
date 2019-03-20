@@ -4,19 +4,22 @@ import * as d from '@terascope/data-access';
 
 interface ManagerContext {
     manager: d.ACLManager;
+    user?: d.User;
 }
 
 const queryResolvers: a.IResolverObject<any, ManagerContext, any> = {};
 d.graphqlQueryMethods.forEach((method) => {
     queryResolvers[method] = (root, args, ctx: ManagerContext) => {
-        return ctx.manager[method](args);
+        // @ts-ignore
+        return ctx.manager[method](args, ctx.user);
     };
 });
 
 const mutationResolvers: a.IResolverObject<any, ManagerContext, any> = {};
 d.graphqlMutationMethods.forEach((method) => {
     mutationResolvers[method] = (root, args, ctx: ManagerContext) => {
-        return ctx.manager[method](args);
+        // @ts-ignore
+        return ctx.manager[method](args, ctx.user);
     };
 });
 

@@ -1,6 +1,6 @@
 import * as es from 'elasticsearch';
 import * as store from 'elasticsearch-store';
-import {  DataEntity, TSError, Omit } from '@terascope/utils';
+import { TSError, Omit } from '@terascope/utils';
 import usersConfig, {
     GraphQLSchema,
     User,
@@ -115,47 +115,6 @@ export class Users extends store.IndexModel<User> {
         }
     }
 
-    /**
-     * Find users, returns public user fields
-     */
-    async find(q: string = '*', size: number = 10, fields?: (keyof User)[], sort?: string): Promise<User[]> {
-        const users = await super.find(q, size, fields, sort);
-        return users.map((user) => this.omitPrivateFields(user));
-    }
-
-    /**
-     * Find user by id, returns public user fields
-     */
-    async findById(id: string): Promise<User> {
-        const user = await super.findById(id);
-        return this.omitPrivateFields(user);
-    }
-
-    /**
-     * Find user by any id, returns public user fields
-     */
-    async findByAnyId(id: string): Promise<User> {
-        const user = await super.findByAnyId(id);
-        return this.omitPrivateFields(user);
-    }
-
-    /**
-     * Find user by any id, returns public user fields
-     */
-    async findBy(fields: store.FieldMap<User>, joinBy = 'AND'): Promise<User> {
-        const user = await super.findBy(fields, joinBy);
-        return this.omitPrivateFields(user);
-    }
-
-    /**
-     * Find multiple users by id, returns public user fields
-     */
-    // @ts-ignore
-    async findAll(ids: string[]): Promise<User[]> {
-        const users = await super.findAll(ids);
-        return users.map((user) => this.omitPrivateFields(user));
-    }
-
     isPrivateUser(user: Partial<User>): boolean {
         if (!user) return false;
 
@@ -163,22 +122,6 @@ export class Users extends store.IndexModel<User> {
         return Users.PrivateFields.some((field) => {
             return fields.includes(field);
         });
-    }
-
-    omitPrivateFields(user: User): User {
-        if (!this.isPrivateUser(user)) return user;
-
-        const publicUser = {};
-        const privateFields = Users.PrivateFields;
-
-        for (const [key, val] of Object.entries(user)) {
-            if (!privateFields.includes(key)) {
-                publicUser[key] = val;
-            }
-        }
-
-        // @ts-ignore
-        return DataEntity.make(publicUser, DataEntity.getMetadata(user));
     }
 
     async removeRoleFromUsers(roleId: string) {
