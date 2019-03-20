@@ -156,7 +156,7 @@ export class ACLManager {
         if (type !== 'SUPERADMIN') {
             const queryAccess = new LuceneQueryAccess<models.User>({
                 constraint: clientId ? `client_id:"${clientId}"` : undefined,
-                excludes: type === 'USER' ? ['api_token', 'hash', 'salt'] : undefined,
+                excludes: type === 'USER' ? ['api_token', 'hash', 'salt'] : ['hash', 'salt'],
                 allow_implicit_queries: type === 'ADMIN'
             });
             return this.users.find(args.query, {}, queryAccess);
@@ -264,7 +264,7 @@ export class ACLManager {
      * Find data type by id
     */
     async findDataType(args: { id: string }, authUser?: models.User) {
-        return this.dataTypes.findByAnyId(args.id);
+        return this.dataTypes.findById(args.id);
     }
 
     /**
@@ -313,7 +313,7 @@ export class ACLManager {
      * Find space by id
     */
     async findSpace(args: { id: string }, authUser?: models.User) {
-        return this.spaces.findByAnyId(args.id);
+        return this.spaces.findById(args.id);
     }
 
     /**
