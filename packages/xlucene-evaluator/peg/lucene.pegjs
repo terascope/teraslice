@@ -128,9 +128,7 @@
             return parsedGeoNode;
 		}
 
-        if (node.parens && node.field) {
-            propagateFields(node);
-        }
+        if (node.parens) propagateFields(node);
 
         if (node.field === '_exists_' && node.term) {
             return {
