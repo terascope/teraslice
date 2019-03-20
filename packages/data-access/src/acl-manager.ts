@@ -157,7 +157,7 @@ export class ACLManager {
             const queryAccess = new LuceneQueryAccess<models.User>({
                 constraint: clientId ? `client_id:"${clientId}"` : undefined,
                 excludes: type === 'USER' ? ['api_token', 'hash', 'salt'] : undefined,
-                allow_implicit_queries: true
+                allow_implicit_queries: type === 'ADMIN'
             });
             return this.users.find(args.query, {}, queryAccess);
         }
