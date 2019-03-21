@@ -29,6 +29,7 @@ export type UnparsedConfig = {
     value?: any;
     output?: boolean;
     tag?: string;
+    multi_value?: boolean;
 };
 
 export type OperationConfig = { __id: string } & Partial<SelectorConfig> & Partial<PostProcessConfig> & Partial<ExtractionConfig>;
@@ -85,6 +86,7 @@ export interface ExtractionConfig {
     source_field: string;
     target_field: string;
     other_match_required?: boolean;
+    multi_value?: boolean;
 }
 
 export type PluginClassConstructor = { new (): PluginClassType };

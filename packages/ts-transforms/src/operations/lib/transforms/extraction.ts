@@ -27,7 +27,7 @@ function sliceString(data: string, start:string, end: string): string | null {
     }
     return null;
 }
-
+// TODO: what about multi_value: false and basic extractions? What about multi-extractions?
 function extractAndTransferFields(record: DataEntity, dest: DataEntity, config: ExtractionConfig) {
     const data = _.get(record, config.source_field);
 
@@ -49,7 +49,13 @@ function extractAndTransferFields(record: DataEntity, dest: DataEntity, config: 
                         }
                     }
                 });
-                if (results.length > 0) extractedResult = results;
+                if (results.length > 0) {
+                    if (config.multi_value === false) {
+                        extractedResult = results[0];
+                    } else {
+                        extractedResult = results;
+                    }
+                }
             }
 
             if (extractedField) {
@@ -71,7 +77,14 @@ function extractAndTransferFields(record: DataEntity, dest: DataEntity, config: 
                         if (extractedSlice) results.push(extractedSlice);
                     }
                 });
-                if (results.length > 0) extractedResult = results;
+                if (results.length > 0) {
+
+                    if (config.multi_value === false) {
+                        extractedResult = results[0];
+                    } else {
+                        extractedResult = results;
+                    }
+                }
             }
         } else {
             extractedResult = data;

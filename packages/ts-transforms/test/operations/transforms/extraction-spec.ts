@@ -144,6 +144,55 @@ describe('transform operator', () => {
         expect(results9).toEqual({ otherField: ['data', 'data'] });
     });
 
+    it('can maintain extract array values to array extractions and singular values to singular extractions', () => {
+        // direct field transfer ignores multi_value=false
+        const opConfig1 = { source_field: 'someField', target_field: 'otherField', __id: 'someId', mutate: false, multi_value: false };
+        const opConfig2 = { source_field: 'someField', target_field: 'otherField', __id: 'someId', start: 'data=', end: 'EOP', mutate: false };
+        const opConfig3 = { source_field: 'someField', target_field: 'otherField', __id: 'someId',  start: 'data=', end: 'EOP', mutate: false, multi_value: false };
+
+        const test1 = new Extraction(opConfig1);
+        const test2 = new Extraction(opConfig2);
+        const test3 = new Extraction(opConfig3);
+
+        const resultsData1 = { someField: 'data=value' };
+        const resultsData2 = { someField: ['data=value'] };
+
+        const data1 = new DataEntity(resultsData1);
+        const data2 = new DataEntity(resultsData2);
+
+        const results1 = test1.run(data1);
+        const results2 = test1.run(data2);
+        const results3 = test2.run(data1);
+        const results4 = test2.run(data2);
+        const results5 = test3.run(data1);
+        const results6 = test3.run(data2);
+
+        expect(results1).toEqual({ otherField: 'data=value' });
+        expect(results2).toEqual({ otherField: ['data=value'] });
+        expect(results3).toEqual({ otherField: 'value' });
+        expect(results4).toEqual({ otherField: ['value'] });
+        expect(results5).toEqual({ otherField: 'value' });
+        expect(results6).toEqual({ otherField: 'value' });
+    });
+
+    it('multi_value:false matches only return the first match', () => {
+        const opConfig = { source_field: 'someField', target_field: 'otherField', __id: 'someId',  start: 'data=', end: 'EOP', mutate: false, multi_value: false };
+
+        const test = new Extraction(opConfig);
+
+        const resultsData1 = { someField: ['data=value'] };
+        const resultsData2 = { someField: ['data=other', 'data=value'] };
+
+        const data1 = new DataEntity(resultsData1);
+        const data2 = new DataEntity(resultsData2);
+
+        const results1 = test.run(data1);
+        const results2 = test.run(data2);
+
+        expect(results1).toEqual({ otherField: 'value' });
+        expect(results2).toEqual({ otherField: 'other' });
+    });
+
     it('can mutate existing doc instead of returning a new one', () => {
         const opConfig = { source_field: 'someField', target_field: 'otherField', mutate: true, __id: 'someId' };
         const test = new Extraction(opConfig);
