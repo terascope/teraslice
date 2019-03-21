@@ -108,14 +108,18 @@
     // deal with the AST
     function propagateFields(node) {
         if (node.left && !node.left.field) {
-            node.left.field = node.field;
+            if (node.field) {
+                node.left.field = node.field;
+            }
             if (node.left.type === "conjunction") {
                 propagateFields(node.left);
             }
         }
 
         if (node.right && !node.right.field) {
-            node.right.field = node.field;
+            if (node.field) {
+                node.right.field = node.field;
+            }
             if (node.right.type === "conjunction") {
                 propagateFields(node.right);
             }
@@ -130,9 +134,7 @@
             return parsedGeoNode;
 		}
 
-        if (node.parens && node.field) {
-            propagateFields(node);
-        }
+        if (node.parens) propagateFields(node);
 
         if (node.field === '_exists_' && node.term) {
             return {
@@ -250,6 +252,25 @@ node
         }
     / operator:operator_exp right:node
         {
+            if (operator === 'NOT'
+                && right.type === 'conjunction') {
+                const node = {
+                    type: 'conjunction',
+                    left: {
+                        type: 'conjunction',
+                        left: right.left,
+                        operator: 'NOT',
+                        parens: true,
+                    },
+                    operator: 'AND',
+                }
+
+                if (right.right) {
+                    node.right = right.right;
+                }
+
+                return node;
+            }
             return right;
         }
 

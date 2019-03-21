@@ -742,11 +742,15 @@ describe('luceneQueryParser', () => {
         });
 
         it('parses example: NOT "jakarta apache"', () => {
+            // This is a valid query so operator is not ignored @peterdemartini
             luceneQueryParser.parse('NOT "jakarta apache"');
-            // not a valid query, so operator is ignored.
-            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
-            expect(luceneQueryParser._ast['left']!['term']).toBe('jakarta apache');
-            expect(luceneQueryParser._ast['operator']).toBe(undefined);
+
+            expect(luceneQueryParser._ast['type']).toBe('conjunction');
+            expect(luceneQueryParser._ast['operator']).toBe('AND');
+            expect(luceneQueryParser._ast['left']!['operator']).toBe('NOT');
+            expect(luceneQueryParser._ast['left']!['type']).toBe('conjunction');
+            expect(luceneQueryParser._ast['left']!['left']!['term']).toBe('jakarta apache');
+            expect(luceneQueryParser._ast['left']!['left']!['field']).toBe(IMPLICIT);
         });
 
         it('parses example: "jakarta apache" -"Apache Lucene"', () => {

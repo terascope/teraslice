@@ -220,6 +220,34 @@ describe('Translator', () => {
             ]
         ],
         [
+            'NOT value:awesome AND other:thing',
+            'query.constant_score.filter.bool',
+            {
+                filter: [
+                    {
+                        bool: {
+                            filter: [],
+                            must_not: [
+                                {
+                                    term: {
+                                        value: 'awesome'
+                                    }
+                                }
+                            ],
+                            should: []
+                        }
+                    },
+                    {
+                        term: {
+                            other: 'thing'
+                        }
+                    }
+                ],
+                must_not: [],
+                should: []
+            }
+        ],
+        [
             '_exists_:howdy AND other:>=50 OR foo:bar NOT bar:foo',
             'query.constant_score.filter.bool.filter',
             [
@@ -360,6 +388,7 @@ describe('Translator', () => {
         it(`should to output to have ${property} set correctly`, () => {
             const translator = new Translator(query, types);
             const result = translator.toElasticsearchDSL();
+            // console.log(JSON.stringify(result, null, 4));
             expect(result).toHaveProperty(property, expected);
         });
     });

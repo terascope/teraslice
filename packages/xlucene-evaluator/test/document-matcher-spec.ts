@@ -200,6 +200,71 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data6)).toEqual(false);
             expect(documentMatcher.match(data7)).toEqual(true);
         });
+
+        it('can handle parens with 5 OR terms', () => {
+            const data: any[] = [
+                { id: 'hello' },
+                { id: 'hi' },
+                { id: 'howdy' },
+                { id: 'aloha' },
+                { id: 'hey' },
+                { id: 'bye' }
+            ];
+
+            documentMatcher.parse('id:(hi OR hello OR howdy OR aloha OR hey)');
+
+            const result = data.map(documentMatcher.match);
+            expect(result).toEqual([
+                true,
+                true,
+                true,
+                true,
+                true,
+                false
+            ]);
+        });
+
+        it('can handle a query that starts with NOT', () => {
+            const data: any[] = [
+                { value: 'awesome', other: 'thing' },
+                { value: 'wrong', other: 'thing' },
+                { value: 'awesome', other: 'wrong' },
+                { value: 'wrong' },
+            ];
+
+            documentMatcher.parse('NOT value:wrong AND other:thing');
+
+            const result = data.map(documentMatcher.match);
+            expect(result).toEqual([
+                true,
+                false,
+                false,
+                false,
+            ]);
+        });
+
+        it('can handle the query "a:false NOT b:true AND c:false"', () => {
+            const data: any[] = [
+                { a: false, b: false, c: false },
+                { a: true, b: false, c: false },
+                { a: true, b: true, c: false },
+                { a: false, b: true, c: false },
+                { a: false, b: true, c: true },
+                { a: false, b: false, c: true },
+            ];
+
+            documentMatcher.parse('a:false NOT b:true AND c:false');
+
+            const result = data.map(documentMatcher.match);
+            expect(result).toEqual([
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+            ]);
+        });
     });
 
     describe('numerical range queries', () => {

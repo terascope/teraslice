@@ -47,6 +47,11 @@ export default class DocumentMatcher {
                 negation = true;
             }
 
+            // The left is automatically a negated if there is no right
+            if (node.operator === 'NOT' && !node.right) {
+                negateLeftExp = true;
+            }
+
             if (negation && parent.operator === 'NOT') {
                 negateLeftExp = true;
             }
@@ -89,8 +94,8 @@ export default class DocumentMatcher {
                 fnStr += functionBuilder(node.left, node, '', field, negateLeftExp);
             }
 
-            if (node.operator && OR_MAPPING[node.operator]) fnStr += ' || ';
-            if (node.operator && AND_MAPPING[node.operator]) fnStr += ' && ';
+            if (node.left && node.operator && OR_MAPPING[node.operator]) fnStr += ' || ';
+            if (node.right && node.operator && AND_MAPPING[node.operator]) fnStr += ' && ';
 
             if (node.right != null) {
                 fnStr += functionBuilder(node.right, node, '', field, negation);
