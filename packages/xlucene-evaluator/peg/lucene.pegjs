@@ -72,36 +72,29 @@
  *
  */
 
- {
-	const geoParameters = {
-		_geo_point_: 'geo_point',
-		_geo_distance_: 'geo_distance',
-		_geo_box_top_left_: 'geo_box_top_left',
-		_geo_box_bottom_right_: 'geo_box_bottom_right',
-	};
+{
+    const geoParameters = {
+        _geo_point_: 'geo_point',
+        _geo_distance_: 'geo_distance',
+        _geo_box_top_left_: 'geo_box_top_left',
+        _geo_box_bottom_right_: 'geo_box_bottom_right',
+    };
 
-	function isGeoExpression(node) {
-		return geoParameters[node.field] != null;
-	}
+    function isGeoExpression(node) {
+        return geoParameters[node.field] != null;
+    }
 
-	function walkAstReduce(node, fn, accum){
-		fn(node, accum)
-		if (node.left) walkAstReduce(node.left, fn, accum)
-		if (node.right) walkAstReduce(node.right, fn, accum)
-	}
+    function walkAstReduce(node, fn, accum) {
+        fn(node, accum);
+        if (node.left) walkAstReduce(node.left, fn, accum);
+        if (node.right) walkAstReduce(node.right, fn, accum);
+    }
 
-    function walkAstUntil(node, fn, done){
-        if (done(node)) return;
-		fn(node)
-		if (node.left) walkAstUntil(node.left, fn, done)
-		if (node.right) walkAstUntil(node.right, fn, done)
-	}
-
-	function getGeoData(node, accum) {
-		if (isGeoExpression(node)) {
-			accum[geoParameters[node.field]] = node.term;
-		}
-	}
+    function getGeoData(node, accum) {
+        if (isGeoExpression(node)) {
+            accum[geoParameters[node.field]] = node.term;
+        }
+    }
 
     // propagate fields when dealing with parens
     // this makes it easier for the other code to
@@ -126,7 +119,7 @@
         }
     }
 
-	function postProcessAST(node) {
+    function postProcessAST(node) {
 		if (node.left && isGeoExpression(node.left)) {
 			const parsedGeoNode = { field: node.field };
 			walkAstReduce(node, getGeoData, parsedGeoNode);
@@ -134,7 +127,9 @@
             return parsedGeoNode;
 		}
 
-        if (node.parens) propagateFields(node);
+        if (node.parens && node.field) {
+            propagateFields(node);
+        }
 
         if (node.field === '_exists_' && node.term) {
             return {
@@ -186,6 +181,13 @@ start
             return {};
         }
 
+negated_exp
+    = _* not_operator _* node:node _*
+        {
+            node.negated = true
+            return node
+        }
+
 node
     = operator:operator_exp EOF
         {
@@ -195,10 +197,10 @@ node
             };
         }
     / rangeExp1:range_operator_exp _* operator:operator_exp _* rangeExp2:range_term _*
-    	{
+     {
             const results = {
                 type: 'conjunction',
-            	left: rangeExp1,
+                left: rangeExp1,
                 operator,
                 right: rangeExp2
             };
@@ -252,30 +254,13 @@ node
         }
     / operator:operator_exp right:node
         {
-            if (operator === 'NOT'
-                && right.type === 'conjunction') {
-                const node = {
-                    type: 'conjunction',
-                    left: {
-                        type: 'conjunction',
-                        left: right.left,
-                        operator: 'NOT',
-                        parens: true,
-                    },
-                    operator: 'AND',
-                }
-
-                if (right.right) {
-                    node.right = right.right;
-                }
-
-                return node;
-            }
+            right.left.negated = true;
             return right;
         }
 
     / left:group_exp operator:operator_exp* right:node*
         {
+            operator = operator=='' || operator==undefined ? '<implicit>' : operator[0];
             const node = {
                 type: 'conjunction',
                 left,
@@ -290,8 +275,14 @@ node
                         : right[0];
 
             if (rightExp != null) {
-                node.type = 'conjunction';
-                node.operator = operator=='' || operator==undefined ? '<implicit>' : operator[0];
+                node.operator = operator === 'NOT' ? 'AND' : operator;
+                if (operator === 'NOT') {
+                	if(rightExp.type === 'conjunction') {
+                        rightExp.left.negated = true;
+                    } else {
+                        rightExp.negated = true;
+                    }
+                }
                 node.right = rightExp;
             }
 
@@ -336,6 +327,7 @@ field_exp
     / fieldname:fieldname? node:paren_exp operator:operator_exp range_exp:range_term _*
         {
         	return {
+                type: 'conjunction',
                 operator,
                 left: node,
                 right: range_exp
@@ -714,9 +706,14 @@ operator_exp
 operator
     = 'OR'
     / 'AND'
-    / 'NOT'
     / '||' { return 'OR'; }
     / '&&' { return 'AND'; }
+    / not_operator
+
+not_operator
+    = 'NOT'
+    // maybe we need this?
+    // / 'AND NOT' { return 'NOT'}
     / '!' { return 'NOT'}
 
 prefix_operator_exp

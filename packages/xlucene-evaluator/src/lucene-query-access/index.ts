@@ -171,5 +171,5 @@ function startsWithWildcard(input?: string|number) {
     if (!input) return false;
     if (!ts.isString(input)) return false;
 
-    return ['*', '?'].includes(ts.getFirstChar(input));
+    return ['*', '?'].includes(input.trim().charAt(0));
 }

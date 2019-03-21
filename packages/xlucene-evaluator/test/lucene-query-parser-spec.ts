@@ -275,7 +275,8 @@ describe('luceneQueryParser', () => {
             luceneQueryParser.parse('fizz NOT buzz');
 
             expect(luceneQueryParser._ast['left']!['term']).toBe('fizz');
-            expect(luceneQueryParser._ast['operator']).toBe('NOT');
+            expect(luceneQueryParser._ast['operator']).toBe('AND');
+            expect(luceneQueryParser._ast['right']!['negated']).toBe(true);
             expect(luceneQueryParser._ast['right']!['term']).toBe('buzz');
         });
 
@@ -299,7 +300,8 @@ describe('luceneQueryParser', () => {
             luceneQueryParser.parse('fizz ! buzz');
 
             expect(luceneQueryParser._ast['left']!['term']).toBe('fizz');
-            expect(luceneQueryParser._ast['operator']).toBe('NOT');
+            expect(luceneQueryParser._ast['operator']).toBe('AND');
+            expect(luceneQueryParser._ast['right']!['negated']).toBe(true);
             expect(luceneQueryParser._ast['right']!['term']).toBe('buzz');
         });
 
@@ -307,19 +309,22 @@ describe('luceneQueryParser', () => {
             luceneQueryParser.parse('fizz AND NOT buzz');
 
             expect(luceneQueryParser._ast['left']!['term']).toBe('fizz');
-            expect(luceneQueryParser._ast['operator']).toBe('NOT');
+            expect(luceneQueryParser._ast['operator']).toBe('AND');
+            expect(luceneQueryParser._ast['right']!['negated']).toBe(true);
             expect(luceneQueryParser._ast['right']!['term']).toBe('buzz');
 
             luceneQueryParser.parse('fizz && ! buzz');
 
             expect(luceneQueryParser._ast['left']!['term']).toBe('fizz');
-            expect(luceneQueryParser._ast['operator']).toBe('NOT');
+            expect(luceneQueryParser._ast['operator']).toBe('AND');
+            expect(luceneQueryParser._ast['right']!['negated']).toBe(true);
             expect(luceneQueryParser._ast['right']!['term']).toBe('buzz');
 
             luceneQueryParser.parse('fizz && !buzz');
 
             expect(luceneQueryParser._ast['left']!['term']).toBe('fizz');
-            expect(luceneQueryParser._ast['operator']).toBe('NOT');
+            expect(luceneQueryParser._ast['operator']).toBe('AND');
+            expect(luceneQueryParser._ast['right']!['negated']).toBe(true);
             expect(luceneQueryParser._ast['right']!['term']).toBe('buzz');
         });
     });
@@ -736,9 +741,10 @@ describe('luceneQueryParser', () => {
 
             expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['left']!['term']).toBe('jakarta apache');
-            expect(luceneQueryParser._ast['operator']).toBe('NOT');
+            expect(luceneQueryParser._ast['operator']).toBe('AND');
             expect(luceneQueryParser._ast['right']!['field']).toBe(IMPLICIT);
             expect(luceneQueryParser._ast['right']!['term']).toBe('Apache Lucene');
+            expect(luceneQueryParser._ast['right']!['negated']).toBe(true);
         });
 
         it('parses example: NOT "jakarta apache"', () => {
@@ -746,11 +752,10 @@ describe('luceneQueryParser', () => {
             luceneQueryParser.parse('NOT "jakarta apache"');
 
             expect(luceneQueryParser._ast['type']).toBe('conjunction');
-            expect(luceneQueryParser._ast['operator']).toBe('AND');
-            expect(luceneQueryParser._ast['left']!['operator']).toBe('NOT');
-            expect(luceneQueryParser._ast['left']!['type']).toBe('conjunction');
-            expect(luceneQueryParser._ast['left']!['left']!['term']).toBe('jakarta apache');
-            expect(luceneQueryParser._ast['left']!['left']!['field']).toBe(IMPLICIT);
+            expect(luceneQueryParser._ast['operator']).toBe(undefined);
+            expect(luceneQueryParser._ast['left']!['negated']).toBe(true);
+            expect(luceneQueryParser._ast['left']!['term']).toBe('jakarta apache');
+            expect(luceneQueryParser._ast['left']!['field']).toBe(IMPLICIT);
         });
 
         it('parses example: "jakarta apache" -"Apache Lucene"', () => {

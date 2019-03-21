@@ -29,10 +29,12 @@ export interface ConjunctionAST extends BaseAST {
     right?: AST;
     operator: 'AND'|'OR'|'NOT';
     parens?: boolean;
+    negated?: boolean;
 }
 
 interface BaseFieldAST extends BaseAST {
     field: string|ImplicitField;
+    negated?: boolean;
 }
 
 export interface RangeAST extends BaseFieldAST {
