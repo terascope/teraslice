@@ -126,32 +126,24 @@ describe('Translator', () => {
             'any_count:(50 OR 40 OR 30)',
             'query.constant_score.filter.bool',
             {
-                filter: [
+                filter: [],
+                should: [
                     {
-                        bool: {
-                            filter: [],
-                            must_not: [],
-                            should: [
-                                {
-                                    term: {
-                                        any_count: 50,
-                                    }
-                                },
-                                {
-                                    term: {
-                                        any_count: 40,
-                                    }
-                                },
-                                {
-                                    term: {
-                                        any_count: 30,
-                                    }
-                                }
-                            ]
+                        term: {
+                            any_count: 50,
+                        }
+                    },
+                    {
+                        term: {
+                            any_count: 40,
+                        }
+                    },
+                    {
+                        term: {
+                            any_count: 30,
                         }
                     }
                 ],
-                should: [],
                 must_not: [],
             }
         ],
@@ -159,47 +151,39 @@ describe('Translator', () => {
             'id:(hi OR hello OR howdy OR aloha OR hey OR sup)',
             'query.constant_score.filter.bool',
             {
-                filter: [
+                filter: [],
+                should: [
                     {
-                        bool: {
-                            filter: [],
-                            must_not: [],
-                            should: [
-                                {
-                                    term: {
-                                        id: 'hi',
-                                    }
-                                },
-                                {
-                                    term: {
-                                        id: 'hello',
-                                    }
-                                },
-                                {
-                                    term: {
-                                        id: 'howdy',
-                                    }
-                                },
-                                {
-                                    term: {
-                                        id: 'aloha',
-                                    }
-                                },
-                                {
-                                    term: {
-                                        id: 'hey',
-                                    }
-                                },
-                                {
-                                    term: {
-                                        id: 'sup',
-                                    }
-                                }
-                            ]
+                        term: {
+                            id: 'hi',
+                        }
+                    },
+                    {
+                        term: {
+                            id: 'hello',
+                        }
+                    },
+                    {
+                        term: {
+                            id: 'howdy',
+                        }
+                    },
+                    {
+                        term: {
+                            id: 'aloha',
+                        }
+                    },
+                    {
+                        term: {
+                            id: 'hey',
+                        }
+                    },
+                    {
+                        term: {
+                            id: 'sup',
                         }
                     }
                 ],
-                should: [],
                 must_not: [],
             }
         ],
@@ -225,71 +209,68 @@ describe('Translator', () => {
             {
                 filter: [
                     {
-                        bool: {
-                            filter: [],
-                            must_not: [
-                                {
-                                    term: {
-                                        value: 'awesome'
-                                    }
-                                }
-                            ],
-                            should: []
-                        }
-                    },
-                    {
                         term: {
                             other: 'thing'
                         }
                     }
                 ],
-                must_not: [],
+                must_not: [
+                    {
+                        term: {
+                            value: 'awesome'
+                        }
+                    }
+                ],
                 should: []
             }
         ],
         [
             '_exists_:howdy AND other:>=50 OR foo:bar NOT bar:foo',
-            'query.constant_score.filter.bool.filter',
-            [
-                {
-                    exists: {
-                        field: 'howdy'
-                    }
-                },
-                {
-                    bool: {
-                        filter: [],
-                        must_not: [],
-                        should: [
-                            {
-                                range: {
-                                    other: {
-                                        gte: 50
+            'query.constant_score.filter.bool',
+            {
+                filter: [
+                    {
+                        exists: {
+                            field: 'howdy'
+                        }
+                    },
+                    {
+                        bool: {
+                            filter: [],
+                            must_not: [],
+                            should: [
+                                {
+                                    range: {
+                                        other: {
+                                            gte: 50
+                                        }
+                                    }
+                                },
+                                {
+                                    bool: {
+                                        filter: [],
+                                        must_not: [
+                                            {
+                                                term: {
+                                                    foo: 'bar'
+                                                }
+                                            },
+                                            {
+                                                term: {
+                                                    bar: 'foo'
+                                                }
+                                            }
+                                        ],
+                                        should: []
                                     }
                                 }
-                            },
-                            {
-                                bool: {
-                                    filter: [],
-                                    must_not: [
-                                        {
-                                            term: {
-                                                foo: 'bar'
-                                            }
-                                        },
-                                        {
-                                            term: {
-                                                bar: 'foo'
-                                            }
-                                        }
-                                    ],
-                                    should: []
-                                }
-                            }
-                        ]
+                            ]
+                        }
                     }
-                }
-            ]
+                ],
+                must_not: [],
+                should: [],
+            }
         ],
         [
             'some:key AND (_created:>="2018-10-18T18:13:20.683Z" && bytes:(>=150000 AND <=1232322))',
@@ -301,61 +282,62 @@ describe('Translator', () => {
                     }
                 },
                 {
-                    bool: {
-                        should: [],
-                        must_not: [],
-                        filter: [
-                            {
-                                range: {
-                                    _created: {
-                                        gte: '2018-10-18T18:13:20.683Z'
-                                    }
-                                }
-                            },
-                            {
-                                range: {
-                                    bytes: {
-                                        gte: 150000,
-                                        lte: 1232322
-                                    }
-                                }
-                            }
-                        ]
+                    range: {
+                        _created: {
+                            gte: '2018-10-18T18:13:20.683Z'
+                        }
+                    }
+                },
+                {
+                    range: {
+                        bytes: {
+                            gte: 150000,
+                            lte: 1232322
+                        }
                     }
                 }
             ]
         ],
         [
             'some:query OR other:thing',
-            'query.constant_score.filter.bool.should',
-            [
-                {
-                    term: {
-                        some: 'query',
-                    }
-                },
-                {
-                    term: {
-                        other: 'thing',
-                    }
-                }
-            ]
+            'query.constant_score.filter.bool',
+            {
+                filter: [],
+                must_not: [],
+                should: [
+                    {
+                        term: {
+                            some: 'query'
+                        }
+                    },
+                    {
+                        term: {
+                            other: 'thing'
+                        }
+                    },
+                ]
+            }
         ],
         [
             'some:query NOT other:thing',
-            'query.constant_score.filter.bool.must_not',
-            [
-                {
-                    term: {
-                        some: 'query',
+            'query.constant_score.filter.bool',
+            {
+                filter: [
+                    {
+                        term: {
+                            some: 'query'
+                        }
                     }
-                },
-                {
-                    term: {
-                        other: 'thing',
+                ],
+                must_not: [
+                    {
+                        term: {
+                            other: 'thing'
+                        }
                     }
-                }
-            ]
+                ],
+                should: []
+            }
         ],
         [
             'location:(_geo_box_top_left_:"34.5234,79.42345" _geo_box_bottom_right_:"54.5234,80.3456")',

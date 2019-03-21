@@ -117,46 +117,49 @@ export function buildBoolQuery(node: AST): BoolQuery {
         }
     };
 
-    let joinType;
-    if (node.operator === 'OR') {
-        joinType = 'should';
-    } else if (node.operator === 'NOT') {
-        joinType = 'must_not';
-    } else {
-        joinType = 'filter';
-    }
+    addToBoolQuery(boolQuery, node, node.left);
+    addToBoolQuery(boolQuery, node, node.right);
 
-    const queries: AnyQuery[] = [];
-
-    if (node.left) {
-        const query = buildAnyQuery(node.left, node);
-        if (query) {
-            queries.push(query);
-        }
-    }
-
-    if (node.right) {
-        const query = buildAnyQuery(node.right, node);
-        if (isBoolQuery(query) && canFlattenBoolQuery(node)) {
-            queries.push(...query.bool.filter);
-            queries.push(...query.bool.must_not);
-            queries.push(...query.bool.should);
-        } else {
-            if (query) {
-                queries.push(query);
-            }
-        }
-    }
-
-    boolQuery.bool[joinType].push(...queries);
-
-    logger.trace('built bool query', { node, boolQuery });
+    logger.trace('built bool query', boolQuery, node);
     return boolQuery;
 }
 
+function addToBoolQuery(boolQuery: BoolQuery, parent: AST, node?: AST) {
+    if (!node) return;
+
+    const joinType = getJoinType(node, parent);
+    logger.trace('JOIN TYPE', joinType, node);
+
+    const query = buildAnyQuery(node, parent);
+
+    if (isBoolQuery(query) && canFlattenBoolQuery(parent)) {
+        logger.trace('WILL JOIN', query);
+        boolQuery.bool[joinType].push(...query.bool.filter);
+        boolQuery.bool[joinType].push(...query.bool.must_not);
+        boolQuery.bool[joinType].push(...query.bool.should);
+    } else if (query) {
+        boolQuery.bool[joinType].push(query);
+    }
+}
+
+export function getJoinType(node: AST, parent: AST): 'should'|'must_not'|'filter' {
+    if (node.negated) return 'must_not';
+    if (node.operator === 'OR') return 'should';
+    if (parent.operator === 'OR') return 'should';
+    return 'filter';
+}
+
 export function canFlattenBoolQuery(node: AST): boolean {
-    if (!node.right || node.right.parens) return false;
-    return node.right.operator === node.operator;
+    const operator = node.operator;
+    const rightOperator = node.right && node.right.operator;
+    const leftOperator = (node.left && node.left.operator) || operator;
+    logger.trace('CHECK CAN FLATTEN', { operator, rightOperator, leftOperator, node });
+    // if (node.parens && operator === rightOperator) return true;
+    if (leftOperator === rightOperator && leftOperator === operator) {
+        return true;
+    }
+    if (node.type === 'conjunction' && !node.right) return true;
+    return false;
 }
 
 export function isBoolQuery(query: any): query is BoolQuery {

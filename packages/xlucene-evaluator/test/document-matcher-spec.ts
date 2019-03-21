@@ -265,6 +265,25 @@ describe('document matcher', () => {
                 false,
             ]);
         });
+
+        it('can handle the query "a:false OR b:false AND c:true"', () => {
+            const data: any[] = [
+                { a: false, b: true, c: true }, // matches
+                { a: true, b: false, c: true }, // matches
+                { a: false, b: false, c: false }, // matches
+                { a: true, b: true, c: true }, // misses
+            ];
+
+            documentMatcher.parse('a:false OR b:false AND c:true');
+
+            const result = data.map(documentMatcher.match);
+            expect(result).toEqual([
+                true,
+                true,
+                true,
+                false,
+            ]);
+        });
     });
 
     describe('numerical range queries', () => {
