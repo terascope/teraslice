@@ -13,6 +13,7 @@ export default class MakeArray extends TransformOpBase {
         super(config);
     }
     // source work differently here so we do not use the inherited validate
+    // @ts-ignore
     protected validateConfig(config: PostProcessConfig) {
         const { target_field: tField } = config;
         const fields = config.fields || config.source_fields;
