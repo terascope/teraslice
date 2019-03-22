@@ -82,16 +82,6 @@ export interface Operation {
     config?:OperationConfig;
     run(data: DataEntity): null | DataEntity;
 }
-// TODO: delete the next two
-export interface ConfigResults {
-    registrationSelector?: string;
-    targetConfig: OperationConfig | null;
-}
-
-export interface NormalizedConfig {
-    configuration: OperationConfig;
-    registrationSelector: string;
-}
 
 export interface OperationsPipline {
     [key: string]: Operation[];
