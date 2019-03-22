@@ -1,7 +1,7 @@
 
 import _ from 'lodash';
-import { OperationConfig, InputOutputCardinality } from '../../interfaces';
 import { DataEntity } from '@terascope/utils';
+import { OperationConfig, InputOutputCardinality } from '../../interfaces';
 
 export default class OperationBase {
     protected source!: string|string[];
@@ -18,8 +18,8 @@ export default class OperationBase {
         this.hasTarget = this.target !== this.source;
         this.destination = this.hasTarget ? this.target : this.source;
     }
-    // @ts-ignore
-    protected validateConfig(config) {
+
+    protected validateConfig(config: OperationConfig) {
         // we don't need to check target or source for selector ops
         if (this.constructor.name === 'Selector') return;
         const {

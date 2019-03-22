@@ -9,7 +9,6 @@ export type OperationConfigInput = Partial<OperationConfig> & {
 };
 
 export type OperationConfig = { __id: string } & Partial<SelectorConfig> & Partial<PostProcessConfig> & Partial<ExtractionConfig>;
-// export type OperationConfig = SelectorConfig | PostProcessConfig | ExtractionConfig;
 
 export interface PostProcessConfig {
     __id: string;
@@ -117,10 +116,6 @@ export type filterFn = (config: OperationConfig) => boolean;
 export interface BoolValidationResult {
     isValid: boolean;
     bool?: boolean;
-}
-
-export interface ConfigProcessingDict {
-    [field: string]: OperationConfig[];
 }
 
 export interface ExtractionProcessingDict {
