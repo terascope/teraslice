@@ -240,35 +240,27 @@ describe('Translator', () => {
                         }
                     },
                     {
-                        bool: {
-                            filter: [
-                                {
-                                    range: {
-                                        other: {
-                                            gte: 50
-                                        }
-                                    }
-                                },
-                            ],
-                            must_not: [
-                                {
-                                    term: {
-                                        bar: 'foo'
-                                    }
-                                }
-                            ],
-                            should: [
-                                {
-                                    term: {
-                                        foo: 'bar'
-                                    }
-                                },
-                            ]
+                        range: {
+                            other: {
+                                gte: 50
+                            }
+                        }
+                    },
+                ],
+                must_not: [
+                    {
+                        term: {
+                            bar: 'foo'
                         }
                     }
                 ],
-                must_not: [],
-                should: [],
+                should: [
+                    {
+                        term: {
+                            foo: 'bar'
+                        }
+                    },
+                ],
             }
         ],
         [
@@ -441,6 +433,10 @@ describe('Translator', () => {
 
             it('should correctly handle the OR right join type', () => {
                 expect(getJoinType(node.right!, 'right')).toEqual('should');
+            });
+
+            it('should correctly handle the NOT left join type', () => {
+                expect(getJoinType(node.right!.right!, 'left')).toEqual('should');
             });
 
             it('should correctly handle the NOT right join type', () => {

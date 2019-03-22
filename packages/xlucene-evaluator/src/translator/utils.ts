@@ -129,15 +129,15 @@ function addToBoolQuery(boolQuery: BoolQuery, node: AST, side: 'right'|'left') {
     if (!child) return;
 
     const joinType = getJoinType(node, side);
-    logger.trace('JOIN TYPE', joinType, child);
-
     const query = buildAnyQuery(child, node);
 
-    if (isBoolQuery(query) && canFlattenBoolQuery(node)) {
-        logger.trace('WILL JOIN', query);
-        boolQuery.bool[joinType].push(...query.bool.filter);
-        boolQuery.bool[joinType].push(...query.bool.must_not);
-        boolQuery.bool[joinType].push(...query.bool.should);
+    logger.trace('JOIN TYPE', { side, joinType, child, query });
+
+    if (isBoolQuery(query) && canFlattenBoolQuery(node, side)) {
+        logger.trace('WILL JOIN', joinType, query);
+        boolQuery.bool.filter.push(...query.bool.filter);
+        boolQuery.bool.must_not.push(...query.bool.must_not);
+        boolQuery.bool.should.push(...query.bool.should);
     } else if (query) {
         boolQuery.bool[joinType].push(query);
     }
@@ -167,24 +167,24 @@ export function getJoinType(node: AST, side: 'right'|'left'): 'should'|'must_not
     return 'filter';
 }
 
-export function canFlattenBoolQuery(node: AST): boolean {
+export function canFlattenBoolQuery(node: AST, side: 'right'|'left'): boolean {
     const operator = node.operator;
     const rightOperator = node.right && node.right.operator;
     const leftOperator = node.left && node.left.operator;
-    logger.trace('CHECK CAN FLATTEN', { operator, rightOperator, leftOperator, node });
-    // if (node.parens && operator === rightOperator) return true;
+    logger.trace('CHECK CAN FLATTEN', { side, operator, rightOperator, leftOperator, node });
+
     if (leftOperator && rightOperator) {
         if (leftOperator === rightOperator && leftOperator === operator) {
             return true;
         }
     }
 
-    if (rightOperator) {
-        return operator === rightOperator;
+    if (node.type === 'conjunction' && !node.parens) {
+        return true;
     }
 
-    if (node.type === 'conjunction') {
-        return true;
+    if (rightOperator) {
+        return operator === rightOperator;
     }
 
     return false;

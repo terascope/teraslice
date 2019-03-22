@@ -181,13 +181,6 @@ start
             return {};
         }
 
-negated_exp
-    = _* not_operator _* node:node _*
-        {
-            node.negated = true
-            return node
-        }
-
 node
     = operator:operator_exp EOF
         {
@@ -254,7 +247,7 @@ node
         }
     / operator:operator_exp right:node
         {
-            right.left.negated = true;
+            right.left.negated = operator === 'NOT';
             return right;
         }
 
@@ -275,7 +268,7 @@ node
                         : right[0];
 
             if (rightExp != null) {
-                node.operator = operator === 'NOT' ? 'AND' : operator;
+                node.operator = operator === 'NOT' ? '<implicit>' : operator;
                 if (operator === 'NOT') {
                 	if(rightExp.type === 'conjunction') {
                         rightExp.left.negated = true;
@@ -284,6 +277,12 @@ node
                     }
                 }
                 node.right = rightExp;
+            }
+
+            if (node.right && node.right.operator === '<implicit>') {
+                node.operator = operator === '<implicit>' ?
+                        operator === 'NOT' ? 'AND' : operator
+                    : operator;
             }
 
             return node;
