@@ -16,16 +16,52 @@ function formatRegex(str: string): RegExp {
     return new RegExp(str);
 }
 
-function sliceString(data: string, start:string, end: string): string | null {
-    const indexStart = data.indexOf(start);
-    if (indexStart !== -1) {
-        const sliceStart = indexStart + start.length;
-        let endInd = data.indexOf(end, sliceStart);
-        if (endInd === -1) endInd = data.length;
-        const extractedSlice = data.slice(sliceStart, endInd);
-        if (extractedSlice) return data.slice(sliceStart, endInd);
+function getSubslice(start:string, end: string) {
+    return (data: string) => {
+        const indexStart = data.indexOf(start);
+        if (indexStart !== -1) {
+            const sliceStart = indexStart + start.length;
+            let endInd = data.indexOf(end, sliceStart);
+            if (endInd === -1) endInd = data.length;
+            const extractedSlice = data.slice(sliceStart, endInd);
+            if (extractedSlice) return data.slice(sliceStart, endInd);
+        }
+        return null;
+    };
+}
+
+type Cb = (data:any) => string|null;
+
+function extractField(data: any, fn: Cb, isMultiValue = true) {
+    if (typeof data === 'string') {
+        return fn(data);
+    }
+
+    if (Array.isArray(data)) {
+        const results: string[] = [];
+        data.forEach((subData:any) => {
+            if (typeof subData === 'string') {
+                const extractedSlice = fn(subData);
+                if (extractedSlice) results.push(extractedSlice);
+            }
+        });
+
+        if (results.length > 0) {
+            if (isMultiValue === false) return results[0];
+            return results;
+        }
     }
     return null;
+}
+
+function matchRegex(regex: RegExp) {
+    return (data:string) => {
+        const results = data.match(regex);
+        if (results) {
+            return results.length === 1 ? results[0] : results[1];
+        }
+        return results;
+    };
 }
 
 function extractAndTransferFields(record: DataEntity, dest: DataEntity, config: ExtractionConfig) {
@@ -35,62 +71,17 @@ function extractAndTransferFields(record: DataEntity, dest: DataEntity, config: 
         let extractedResult;
 
         if (config.regex) {
-            let extractedField;
-            if (typeof data === 'string') extractedField = data.match(config.regex as RegExp);
-
-            if (!extractedField && Array.isArray(data)) {
-                const results: string[] = [];
-                data.forEach((subData:any) => {
-                    if (typeof subData === 'string') {
-                        const subResults = subData.match(config.regex as RegExp);
-                        if (subResults) {
-                            const regexResult = subResults.length === 1 ? subResults[0] : subResults[1];
-                            results.push(regexResult);
-                        }
-                    }
-                });
-                if (results.length > 0) {
-                    if (config.multi_value === false) {
-                        extractedResult = results[0];
-                    } else {
-                        extractedResult = results;
-                    }
-                }
-            }
-
-            if (extractedField) {
-                const regexResult = extractedField.length === 1 ? extractedField[0] : extractedField[1];
-                if (regexResult) extractedResult = regexResult;
-            }
-
+            const checkRegex = matchRegex(config.regex);
+            extractedResult = extractField(data, checkRegex, config.multi_value);
         } else if (config.start && config.end) {
             const { start, end } = config;
-
-            if (typeof data === 'string') {
-                const extractedSlice = sliceString(data, start, end);
-                if (extractedSlice) extractedResult = extractedSlice;
-            } else if (Array.isArray(data)) {
-                const results: string[] = [];
-                data.forEach((subData:any) => {
-                    if (typeof subData === 'string') {
-                        const extractedSlice = sliceString(subData, start, end);
-                        if (extractedSlice) results.push(extractedSlice);
-                    }
-                });
-                if (results.length > 0) {
-
-                    if (config.multi_value === false) {
-                        extractedResult = results[0];
-                    } else {
-                        extractedResult = results;
-                    }
-                }
-            }
+            const sliceString = getSubslice(start, end);
+            extractedResult =  extractField(data, sliceString, config.multi_value);
         } else {
             extractedResult = data;
         }
 
-        if (extractedResult != null) {
+        if (extractedResult !== null) {
             _.set(dest, config.target_field, extractedResult);
             dest.setMetadata('hasExtractions', true);
         }
