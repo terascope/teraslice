@@ -68,7 +68,7 @@ describe('phase manager', () => {
         expect(manager.sequence[3].hasRestrictedOutput).toEqual(false);
     });
 
-    fit('can run an array of data', async() => {
+    it('can run an array of data', async() => {
         const opConfig = { type: 'transform', rules: [transformRules16Path] };
         const manager = new PhaseManager(opConfig, logger);
         const str = 'hello';

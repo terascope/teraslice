@@ -9,7 +9,7 @@ describe('urldecode operator', () => {
         expect(() => new UrlDecode(opConfig)).not.toThrow();
     });
 
-    xit('can properly throw with bad config values', () => {
+    it('can properly throw with bad config values', () => {
         const badConfig1 = { target_field: 1324 };
         const badConfig2 = { target_field: '' };
         const badConfig3 = { target_field: {} };

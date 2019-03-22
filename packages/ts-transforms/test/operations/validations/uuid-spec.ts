@@ -10,7 +10,7 @@ describe('Uuid validation', () => {
         expect(() => new Uuid(opConfig)).not.toThrow();
     });
 
-    xit('can properly throw with bad config values', () => {
+    it('can properly throw with bad config values', () => {
         const badConfig1 = { source_field: 1324 };
         const badConfig2 = { source_field: '' };
         const badConfig3 = { source_field: {} };
