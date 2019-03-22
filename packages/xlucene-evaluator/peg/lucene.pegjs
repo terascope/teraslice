@@ -132,16 +132,6 @@
             propagateFields(node);
         }
 
-        if (node.operator && node.operator !== '<inherit>') {
-            if (node.left && node.left.operator === '<inherit>') {
-                node.left.operator = node.operator;
-            }
-
-            if (node.right && node.right.operator === '<inherit>') {
-                node.right.operator = 'AND';
-            }
-        }
-
         if (node.field === '_exists_' && node.term) {
             return {
                 type: 'exists',
@@ -280,7 +270,7 @@ node
                         : right[0];
 
             if (rightExp != null) {
-                node.operator = operator === 'NOT' ? '<inherit>' : operator;
+                node.operator = operator;
                 if(rightExp.type === 'conjunction') {
                     rightExp.left.negated = operator === 'NOT';
                     rightExp.left.or = operator === 'OR';

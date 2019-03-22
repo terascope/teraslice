@@ -14,11 +14,6 @@ export default class LuceneQueryParser {
 
         try {
             this._ast = parser.parse(luceneStr);
-            this.walkLuceneAst((node) => {
-                if (node.operator as unknown === '<inherit>') {
-                    node.operator = 'AND';
-                }
-            });
             logger.trace(`parsed ${luceneStr} to `, this._ast);
             // logger.trace(`parsed ${luceneStr} to `, JSON.stringify(this._ast, null, 4));
         } catch (err) {
