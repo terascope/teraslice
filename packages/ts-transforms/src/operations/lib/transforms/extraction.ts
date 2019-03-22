@@ -47,8 +47,8 @@ function extractField(data: any, fn: Cb, isMultiValue = true) {
         });
 
         if (results.length > 0) {
-            if (isMultiValue === false) return results[0];
-            return results;
+            if (isMultiValue) return results;
+            return results[0];
         }
     }
     return null;
