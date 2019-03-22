@@ -42,12 +42,6 @@ export default class DocumentMatcher {
             const field = (node.field && node.field !== IMPLICIT) ? node.field : _field;
             let fnStr = '';
 
-            logger.trace('build fn for node', {
-                field,
-                node,
-                // parent,
-            });
-
             if (node.type === 'conjunction') {
                 if (node.parens) {
                     fnStr += node.negated ? '!(' : '(';

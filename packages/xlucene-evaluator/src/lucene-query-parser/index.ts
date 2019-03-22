@@ -15,7 +15,6 @@ export default class LuceneQueryParser {
         try {
             this._ast = parser.parse(luceneStr);
             logger.trace(`parsed ${luceneStr} to `, this._ast);
-            // logger.trace(`parsed ${luceneStr} to `, JSON.stringify(this._ast, null, 4));
         } catch (err) {
             throw new Error(`error occured while attempting to parse lucene query: ${luceneStr} , error: ${err.message}`);
         }
